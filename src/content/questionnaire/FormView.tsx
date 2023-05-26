@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
-import SuspenseLoader from '../../components/SuspenseLoader';
 import { Status as FormStatus, useFormContext } from '../../components/Contexts/FormContext';
+import SuspenseLoader from '../../components/SuspenseLoader';
+import StatusBar from '../../components/Questionnaire/StatusBar';
+import ProgressBar from '../../components/Questionnaire/ProgressBar';
 import { default as Section, map } from './sections';
 
 type Props = {
@@ -87,16 +89,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   return (
     <div>
-      {/* status bar component */}
-      <div><center>status bar</center></div>
-
-      {/* progress bar component */}
-      <div><center>progress bar</center></div>
-
+      <StatusBar />
+      <ProgressBar />
       <Section section={activeSection} />
 
-      {/* section navigation */}
-      <br />
+      {/* TODO: section navigation */}
       <div>
         <button onClick={goBack} disabled={!sectionKeys[sectionIndex - 1]}>
           <BackwardArrowIcon />
@@ -106,7 +103,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         </button>
       </div>
 
-      {/* form controls */}
+      {/* TODO: form controls */}
       <div className={classes.formControls}>
         <button onClick={() => console.log('save data')}>Save</button>
         <button onClick={() => console.log('submit form')}>Submit</button>
