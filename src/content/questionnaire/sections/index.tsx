@@ -9,6 +9,7 @@ export const map = {
 
 type Props = {
   section: string;
+  refs: any;
 };
 
 /**

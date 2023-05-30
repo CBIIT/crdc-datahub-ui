@@ -36,3 +36,8 @@ type AdditionalContact = {
   email: string;
   phone?: string;
 };
+
+type FormSectionProps = {
+  classes: any;
+  refs: any;
+};

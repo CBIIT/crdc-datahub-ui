@@ -12,6 +12,11 @@ type contextState = {
   error?: string;
 };
 
+type ctxProvider = [
+  contextState,
+  (Application) => void | null,
+]
+
 export enum Status {
   LOADING = "LOADING",
   LOADED = "LOADED",
@@ -26,7 +31,7 @@ const initialState: contextState = { status: Status.LOADING, data: null };
  * @see contextState – Form context state
  * @see useFormContext – Form context hook
  */
-const Context = createContext<contextState>(initialState);
+const Context = createContext<ctxProvider>([initialState, null]);
 
 /**
  * Form Context Hook
@@ -35,7 +40,7 @@ const Context = createContext<contextState>(initialState);
  * @see contextState – Form context state returned by the hook
  * @returns {contextState} - Form context
  */
-export const useFormContext = (): contextState => {
+export const useFormContext = (): ctxProvider => {
   const context = useContext(Context);
 
   if (!context) {
@@ -64,6 +69,21 @@ type providerProps = {
 export const FormProvider: FC<providerProps> = (props) => {
   const { children, id } = props;
   const [state, setState] = useState<contextState>(initialState);
+
+  const setData = (data: Application) => {
+    // Here we update the state and send the data to the API
+    // otherwise we can just update the local state (i.e. within form sections)
+    console.log("--------------------");
+    console.log("prior state", state);
+    setState({
+      ...state,
+      data,
+    });
+    console.log("new state", {
+      ...state,
+      data,
+    });
+  };
 
   useEffect(() => {
     // TODO: fetch form data from API
@@ -101,7 +121,7 @@ export const FormProvider: FC<providerProps> = (props) => {
             },
           ],
           pi: {
-            firstName: "John " + Math.random().toString(36).substring(7),
+            firstName: "John " + Math.random().toString(36).substring(7), // randomize to test form updates
             lastName: "Doe",
             position: "Professor",
             email: "john.doe@nih.gov",
@@ -136,5 +156,5 @@ export const FormProvider: FC<providerProps> = (props) => {
     }, 500);
   }, [id]);
 
-  return <Context.Provider value={state}>{children}</Context.Provider>;
+  return <Context.Provider value={[state, setData]}>{children}</Context.Provider>;
 };

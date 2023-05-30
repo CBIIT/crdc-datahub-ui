@@ -1,4 +1,4 @@
-import React, { FC, useId, useState } from 'react';
+import React, { FC, MutableRefObject, useId, useState } from 'react';
 import { FormControl, FormHelperText, Grid, OutlinedInput } from '@mui/material';
 import { withStyles } from '@mui/styles';
 
@@ -6,6 +6,7 @@ type Props = {
   classes: any;
   value: string;
   label: string;
+  inputRef: MutableRefObject<any>;
   required?: boolean;
   helpText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
@@ -24,6 +25,7 @@ type Props = {
  * @param {object} props.classes The classes passed from Material UI Theme
  * @param {string} props.value The value of the input
  * @param {string} props.label The label of the input
+ * @param {MutableRefObject<any>} props.inputRef The ref of the input
  * @param {boolean} [props.required] Whether the input is required
  * @param {string} [props.helpText] The help text of the input
  * @param {number} [props.gridWidth] The width of the input in the grid view
@@ -32,7 +34,7 @@ type Props = {
  */
 const TextInput: FC<Props> = ({
   classes, value, label, required = false,
-  helpText, gridWidth, maxLength,
+  helpText, gridWidth, maxLength, inputRef
 }) => {
   const helperText = helpText || (required ? 'This field is required' : ' ');
   const id = useId();
@@ -54,6 +56,7 @@ const TextInput: FC<Props> = ({
           size="small"
           defaultValue={value}
           required={required}
+          inputRef={inputRef}
         />
         <FormHelperText>{error ? helperText : ' '}</FormHelperText>
       </FormControl>

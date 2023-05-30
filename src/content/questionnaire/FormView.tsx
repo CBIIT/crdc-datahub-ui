@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, createRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
@@ -27,10 +27,16 @@ const validateSection = (section: string) => {
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
-  const { status, data, error } = useFormContext();
+  const [form] = useFormContext();
+  const { status, data, error } = form;
   const [activeSection, setActiveSection] = useState(validateSection(section) ? section : "A");
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
+
+  const refs = {
+    saveForm: createRef<HTMLButtonElement>(),
+    submitForm: createRef<HTMLButtonElement>(),
+  };
 
   /**
    * Trigger navigation to a specific section
@@ -91,7 +97,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     <div>
       <StatusBar />
       <ProgressBar />
-      <Section section={activeSection} />
+      <Section section={activeSection} refs={refs} />
 
       {/* TODO: section navigation */}
       <div>
@@ -105,8 +111,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
       {/* TODO: form controls */}
       <div className={classes.formControls}>
-        <button onClick={() => console.log('save data')}>Save</button>
-        <button onClick={() => console.log('submit form')}>Submit</button>
+        <button ref={refs.saveForm}>Save</button>
+        <button ref={refs.submitForm}>Submit</button>
       </div>
     </div>
   );

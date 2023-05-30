@@ -14,8 +14,6 @@ type Props = {
  * @returns {JSX.Element}
  */
 const StatusBar: FC<Props> = ({ classes }) => {
-  const { data } = useFormContext();
-
   // Access the data from the form context
   // console.log(data);
 
