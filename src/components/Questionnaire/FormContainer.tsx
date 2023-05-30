@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, FormEventHandler, useId } from 'react';
 import { Typography } from '@mui/material';
 import { withStyles } from '@mui/styles';
 
@@ -19,7 +19,11 @@ type Props = {
  * @param {any} props.children The children of the form section
  * @returns {JSX.Element}
  */
-const FormContainer: FC<Props> = ({ title, description, classes, children }) => {
+const FormContainer: FC<Props> = ({
+  title, description, classes, children
+}) => {
+  const id = useId();
+
   return (
     <div className={classes.formContainer}>
       <div className={classes.titleGroup}>
@@ -30,7 +34,9 @@ const FormContainer: FC<Props> = ({ title, description, classes, children }) => 
           {description}
         </Typography>
       </div>
-      {children}
+      <form id={id} onSubmit={(e) => e.preventDefault()}>
+        {children}
+      </form>
     </div>
   );
 };
