@@ -110,6 +110,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       </div>
 
       {/* TODO: form controls */}
+      {/* Note: use JS reportValidity() to trigger HTML5 validation */}
       <div className={classes.formControls}>
         <button ref={refs.saveForm}>Save</button>
         <button ref={refs.submitForm}>Submit</button>

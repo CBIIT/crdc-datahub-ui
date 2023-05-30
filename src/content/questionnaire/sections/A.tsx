@@ -6,6 +6,7 @@ import PrimaryContact from "../../../components/Questionnaire/PrimaryContact";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
+import { validateEmail } from '../utils';
 
 /**
  * Form Section A View
@@ -98,7 +99,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
         <TextInput label="First Name" inputRef={fields.pi.firstName} value={firstName} maxLength={50} required />
         <TextInput label="Last Name" inputRef={fields.pi.lastName} value={lastName} maxLength={50} required />
         <TextInput label="Position" inputRef={fields.pi.position} value={position} maxLength={100} required />
-        <TextInput label="Email Address" inputRef={fields.pi.email} value={email} required />
+        <TextInput label="Email Address" inputRef={fields.pi.email} validate={validateEmail} value={email} required />
         <TextInput label="Institution" inputRef={fields.pi.institution} value={institution} maxLength={100} required />
         <TextInput label="If you have an eRA Commons account, provide here:" inputRef={fields.pi.eRAAccount} value={eRAAccount} />
         <TextInput

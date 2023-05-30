@@ -1,4 +1,4 @@
-import React, { FC, MutableRefObject, useId, useState } from 'react';
+import React, { FC, MutableRefObject, useEffect, useId, useState } from 'react';
 import { FormControl, FormHelperText, Grid, OutlinedInput } from '@mui/material';
 import { withStyles } from '@mui/styles';
 
@@ -11,6 +11,8 @@ type Props = {
   helpText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
+  validate?: (input: string) => boolean;
+  filter?: (input: string) => string;
 };
 
 /**
@@ -30,19 +32,50 @@ type Props = {
  * @param {string} [props.helpText] The help text of the input
  * @param {number} [props.gridWidth] The width of the input in the grid view
  * @param {number} [props.maxLength] The maximum length of the input
+ * @param {(input: string) => boolean} [props.validate] A custom validation function, return true on valid
+ * @param {(input: string) => string} [props.filter] A custom filter function, return the filtered string
  * @returns {JSX.Element}
  */
 const TextInput: FC<Props> = ({
   classes, value, label, required = false,
-  helpText, gridWidth, maxLength, inputRef
+  helpText, gridWidth, maxLength, inputRef,
+  validate, filter,
 }) => {
-  const helperText = helpText || (required ? 'This field is required' : ' ');
   const id = useId();
+  const [val, setVal] = useState(value);
   const [error, setError] = useState(false);
+  const helperText = helpText || (required ? 'This field is required' : ' ');
 
-  if (maxLength && value.length > maxLength) {
-    setError(true);
-  }
+  const validateInput = (input: string) => {
+    if (validate) {
+      return validate(input);
+    }
+    if (typeof maxLength === "number" && input.length > maxLength) {
+      return false;
+    }
+    if (required && input.trim().length === 0) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const onChange = (e) => {
+    let newVal = e.target.value;
+
+    if (typeof filter === "function") {
+      newVal = filter(newVal);
+      e.target.value = newVal;
+    }
+
+    if (typeof maxLength === "number" && newVal.length > maxLength) {
+      newVal = newVal.slice(0, maxLength);
+      e.target.value = newVal;
+    }
+
+    setVal(newVal);
+    setError(!validateInput(newVal));
+  };
 
   return (
     <Grid xs={gridWidth ? gridWidth : 6} item>
@@ -54,7 +87,8 @@ const TextInput: FC<Props> = ({
         <OutlinedInput
           id={id}
           size="small"
-          defaultValue={value}
+          defaultValue={val}
+          onChange={onChange}
           required={required}
           inputRef={inputRef}
         />
