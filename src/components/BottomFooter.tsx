@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-import { Grid } from '@mui/material';
 import instagram_svg from './images/Instagram.svg';
 import twitter_svg from './images/Twitter.svg';
 import facebook_svg from './images/Facebook.svg';
@@ -14,7 +13,7 @@ class BottomFooter extends React.Component<bottomFooterProps> {
         if (this.props.innerWidth > 906) {
             return (
                 <div id="bottom-footer">
-                    <div className="bottom-footer-container" justify-content="space-between" align-items="flex-start">
+                    <div className="bottom-footer-container">
                         <div className="bottom-footer-item" id="bottom-footer-nci-info">
                             <span id="bottom-footer-nci-text">National Cancer Institute</span>
                             <span id="bottom-footer-nci-subtext">at the National Institutes of Health</span>
@@ -23,16 +22,16 @@ class BottomFooter extends React.Component<bottomFooterProps> {
                                 <a href="https://www.instagram.com/nationalcancerinstitute/">
                                     <img src={instagram_svg} />
                                 </a>
-                                <a style={{ marginLeft: 13.93, }} href="https://twitter.com/thenci">
+                                <a className="bottom-footer-social-media-imgs" href="https://twitter.com/thenci">
                                     <img src={twitter_svg} />
                                 </a>
-                                <a style={{ marginLeft: 13.93, }} href="https://www.facebook.com/cancer.gov">
+                                <a className="bottom-footer-social-media-imgs" href="https://www.facebook.com/cancer.gov">
                                     <img src={facebook_svg} />
                                 </a>
-                                <a style={{ marginLeft: 13.93, }} href="https://www.youtube.com/NCIgov">
+                                <a className="bottom-footer-social-media-imgs" href="https://www.youtube.com/NCIgov">
                                     <img src={youtube_svg} />
                                 </a>
-                                <a style={{ marginLeft: 13.93, }} href="https://www.linkedin.com/company/nationalcancerinstitute/">
+                                <a className="bottom-footer-social-media-imgs" href="https://www.linkedin.com/company/nationalcancerinstitute/">
                                     <img src={linkedin_svg} />
                                 </a>
                             </span>
@@ -93,16 +92,16 @@ class BottomFooter extends React.Component<bottomFooterProps> {
                         <a href="https://www.instagram.com/nationalcancerinstitute/">
                             <img src={instagram_svg} />
                         </a>
-                        <a style={{ marginLeft: 13.93, }} href="https://twitter.com/thenci">
+                        <a className="bottom-footer-social-media-imgs" href="https://twitter.com/thenci">
                             <img src={twitter_svg} />
                         </a>
-                        <a style={{ marginLeft: 13.93, }} href="https://www.facebook.com/cancer.gov">
+                        <a className="bottom-footer-social-media-imgs" href="https://www.facebook.com/cancer.gov">
                             <img src={facebook_svg} />
                         </a>
-                        <a style={{ marginLeft: 13.93, }} href="https://www.youtube.com/NCIgov">
+                        <a className="bottom-footer-social-media-imgs" href="https://www.youtube.com/NCIgov">
                             <img src={youtube_svg} />
                         </a>
-                        <a style={{ marginLeft: 13.93, }} href="https://www.linkedin.com/company/nationalcancerinstitute/">
+                        <a className="bottom-footer-social-media-imgs" href="https://www.linkedin.com/company/nationalcancerinstitute/">
                             <img src={linkedin_svg} />
                         </a>
                     </span>
@@ -147,16 +146,16 @@ class BottomFooter extends React.Component<bottomFooterProps> {
                         <a href="https://www.instagram.com/nationalcancerinstitute/">
                             <img src={instagram_svg} />
                         </a>
-                        <a style={{ marginLeft: 13.93, }} href="https://twitter.com/thenci">
+                        <a className="bottom-footer-social-media-imgs" href="https://twitter.com/thenci">
                             <img src={twitter_svg} />
                         </a>
-                        <a style={{ marginLeft: 13.93, }} href="https://www.facebook.com/cancer.gov">
+                        <a className="bottom-footer-social-media-imgs" href="https://www.facebook.com/cancer.gov">
                             <img src={facebook_svg} />
                         </a>
-                        <a style={{ marginLeft: 13.93, }} href="https://www.youtube.com/NCIgov">
+                        <a className="bottom-footer-social-media-imgs" href="https://www.youtube.com/NCIgov">
                             <img src={youtube_svg} />
                         </a>
-                        <a style={{ marginLeft: 13.93, }} href="https://www.linkedin.com/company/nationalcancerinstitute/">
+                        <a className="bottom-footer-social-media-imgs" href="https://www.linkedin.com/company/nationalcancerinstitute/">
                             <img src={linkedin_svg} />
                         </a>
                     </span>

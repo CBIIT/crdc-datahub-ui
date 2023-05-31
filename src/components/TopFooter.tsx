@@ -1,30 +1,35 @@
 import React, { FC } from 'react';
-import { Grid } from '@mui/material';
-import instagram_svg from './images/Instagram.svg';
-import twitter_svg from './images/Twitter.svg';
-import facebook_svg from './images/Facebook.svg';
-import youtube_svg from './images/Youtube.svg';
-import linkedin_svg from './images/LinkedIn.svg';
 
 class TopFooter extends React.Component {
 
     render() {
         return (
             <div id="top-footer">
-                <Grid  container direction = "row" justifyContent="space-between" alignItems="flex-start"  spacing={0}>
-                    <Grid  item = {true} xs={8}>
-                        1
-                    </Grid>
-                    <Grid  item = {true} xs={4}>
-                        2
-                    </Grid>
-                    <Grid  item = {true} xs={4}>
-                        3
-                    </Grid>
-                    <Grid  item = {true} xs={8}>
-                        4
-                    </Grid>
-                </Grid>
+                <div className="top-footer-container">
+                    <div className="top-footer-item" id="top-footer-about-and-policies-sections">
+                        <div id="top-footer-about-section">
+                            <span className='top-footer-about-and-policies-header'>About</span>
+                            <a href = "" >About CCDI Hub</a>
+                            <a href = "">About CCDI</a>
+                            <a href = "www.google.com">Contact CCDI Hub</a>
+                        </div>
+                        <div id="top-footer-policies-section">
+                            <span className='top-footer-about-and-policies-header'>Policies</span>
+                            <a href = "https://www.cancer.gov/policies/accessibility" >Accessibility</a>
+                            <a href = "https://www.cancer.gov/policies/foia">FOIA</a>
+                            <a href = "https://www.cancer.gov/policies/privacy-security">Privacy & Security</a>
+                            <a href = "https://www.cancer.gov/policies/disclaimer">Disclaimers</a>
+                            <a href = "https://www.hhs.gov/vulnerability-disclosure-policy/index.html">Vulnerability Disclosure</a>
+                        </div>
+                    </div>
+                    <hr></hr>
+                    <div className="top-footer-item" id="top-footer-sign-up-section">
+                        <span id = "top-footer-sign-up-text">Sign up for email updates</span>
+                        <span id = "top-footer-enter-email-address-text">Enter your email address</span>
+                        <input id = "top-footer-email-input" type='email'></input>
+                        <button id = "top-footer-email-button" type='submit'>Sign up</button>
+                    </div>
+                </div>
             </div>
         )
 

@@ -18,7 +18,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
         <title>CCDR DataHub</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
         <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Poppins" />
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap"  />
       </Helmet>
       <Header />
         <Container maxWidth="lg">
