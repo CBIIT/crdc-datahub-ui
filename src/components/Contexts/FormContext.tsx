@@ -6,14 +6,14 @@ import React, {
   useState,
 } from "react";
 
-type contextState = {
+type ContextState = {
   status: Status;
   data: Application;
   error?: string;
 };
 
-type ctxProvider = [
-  contextState,
+type CtxProvider = [
+  ContextState,
   (Application) => void | null,
 ]
 
@@ -23,24 +23,24 @@ export enum Status {
   ERROR = "ERROR",
 }
 
-const initialState: contextState = { status: Status.LOADING, data: null };
+const initialState: ContextState = { status: Status.LOADING, data: null };
 
 /**
  * Form Context
  *
- * @see contextState – Form context state
+ * @see ContextState – Form context state
  * @see useFormContext – Form context hook
  */
-const Context = createContext<ctxProvider>([initialState, null]);
+const Context = createContext<CtxProvider>([initialState, null]);
 
 /**
  * Form Context Hook
  *
  * @see FormProvider – Must be wrapped in a FormProvider component
- * @see contextState – Form context state returned by the hook
- * @returns {contextState} - Form context
+ * @see ContextState – Form context state returned by the hook
+ * @returns {ContextState} - Form context
  */
-export const useFormContext = (): ctxProvider => {
+export const useFormContext = (): CtxProvider => {
   const context = useContext(Context);
 
   if (!context) {
@@ -52,23 +52,21 @@ export const useFormContext = (): ctxProvider => {
   return context;
 };
 
-type providerProps = {
+type ProviderProps = {
   id: string | number;
-  children: any;
+  children: React.ReactNode;
 };
 
 /**
  * Creates a form context for the given form ID
  *
  * @see useFormContext – Form context hook
- * @param {providerProps} props - Form context provider props
- * @param {string|number} props.id - Form ID
- * @param {any} props.children - Child components
+ * @param {ProviderProps} props - Form context provider props
  * @returns {JSX.Element} - Form context provider
  */
-export const FormProvider: FC<providerProps> = (props) => {
+export const FormProvider: FC<ProviderProps> = (props) => {
   const { children, id } = props;
-  const [state, setState] = useState<contextState>(initialState);
+  const [state, setState] = useState<ContextState>(initialState);
 
   const setData = (data: Application) => {
     // Here we update the state and send the data to the API

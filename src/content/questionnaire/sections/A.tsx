@@ -17,8 +17,6 @@ import { validateEmail } from '../utils';
  *   status validation is needed
  *
  * @param {FormSectionProps} props
- * @param {object} props.refs The element refs passed from FormView
- * @param {object} props.classes The classes passed from Material UI Theme
  * @returns {JSX.Element}
  */
 const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps) => {

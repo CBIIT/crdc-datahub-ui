@@ -24,16 +24,6 @@ type Props = {
  *   floating label behavior of TextField.
  *
  * @param {Props} props
- * @param {object} props.classes The classes passed from Material UI Theme
- * @param {string} props.value The value of the input
- * @param {string} props.label The label of the input
- * @param {string} [props.name] The HTML5 name attribute of the input
- * @param {boolean} [props.required] Whether the input is required
- * @param {string} [props.helpText] The help text of the input
- * @param {number} [props.gridWidth] The width of the input in the grid view
- * @param {number} [props.maxLength] The maximum length of the input
- * @param {(input: string) => boolean} [props.validate] A custom validation function, return true on valid
- * @param {(input: string) => string} [props.filter] A custom filter function, return the filtered string
  * @returns {JSX.Element}
  */
 const TextInput: FC<Props> = ({

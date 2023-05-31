@@ -23,7 +23,7 @@ module.exports = {
   root: true,
    "rules": {
     // Note: you must disable the base rule as it can report incorrect errors
-    "no-empty-function": "off",
+    "no-empty-function": "warn",
     "@typescript-eslint/no-empty-function": "error",
     "prettier/prettier": "off",
     "react/jsx-filename-extension": "off",
@@ -35,7 +35,7 @@ module.exports = {
     "jsx-a11y/anchor-is-valid": "off",
     "comma-dangle": "off",
     "max-len": "off",
-    "no-console": "off",
+    "no-console": "warn",
     "no-param-reassign": "off",
     "no-plusplus": "off",
     "no-return-assign": "off",

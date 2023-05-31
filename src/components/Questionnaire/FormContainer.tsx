@@ -6,7 +6,7 @@ type Props = {
   classes: any;
   title: string;
   description: string;
-  children: any;
+  children: React.ReactNode;
   formRef?: MutableRefObject<HTMLFormElement>;
 };
 
@@ -14,11 +14,6 @@ type Props = {
  * Generic Outtermost Form Section Container Element (e.g. Section A, ...)
  *
  * @param {Props} props
- * @param {string} props.title The title of the form section
- * @param {string} props.description The description of the form section
- * @param {object} props.classes The classes passed from Material UI Theme
- * @param {any} props.children The children of the form section
- * @param {MutableRefObject<HTMLFormElement>} [props.formRef] The form ref
  * @returns {JSX.Element}
  */
 const FormContainer: FC<Props> = ({

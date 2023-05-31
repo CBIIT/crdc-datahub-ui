@@ -10,7 +10,6 @@ type Props = {
  * Form Section Progress Bar Component
  *
  * @param {Props} props
- * @param {object} props.classes The classes passed from Material UI Theme
  * @returns {JSX.Element}
  */
 const ProgressBar: FC<Props> = ({ classes }) => {

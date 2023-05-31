@@ -15,8 +15,7 @@ type Props = {
 /**
  * Generate the correct section component based on the section name
  *
- * @param {string} section - Section name
- * @param {*} props - Props to pass to the section component
+ * @param {Props} props
  * @returns {FunctionComponentElement} - Section component
  */
 export default ({ section, ...props }: Props) => {

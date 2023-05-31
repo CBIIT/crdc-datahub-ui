@@ -7,6 +7,7 @@ import { FormProvider } from "../../components/Contexts/FormContext";
 /**
  * Render the correct view based on the URL
  *
+ * @param {void}
  * @returns {FC} - React component
  */
 export default () => {

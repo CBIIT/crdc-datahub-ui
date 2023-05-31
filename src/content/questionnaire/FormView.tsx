@@ -21,8 +21,7 @@ const validateSection = (section: string) => {
 /**
  * Intake Form View Component
  *
- * @param {object} classes - Classes passed from Material UI Theme
- * @param {string} section - Current form section
+ * @param {Props} props
  * @returns {JSX.Element}
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {

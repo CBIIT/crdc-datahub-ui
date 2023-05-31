@@ -11,8 +11,6 @@ type Props = {
  * Primary Contact Form Group
  *
  * @param {Props} props
- * @param {PrimaryContact|null} props.contact The contact entry
- * @param {object} props.classes The classes passed from Material UI Theme
  * @returns {JSX.Element}
  */
 export const PrimaryContact: FC<Props> = ({ contact, classes }: Props) => {

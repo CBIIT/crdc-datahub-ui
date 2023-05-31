@@ -14,9 +14,6 @@ type Props = {
  * Additional Contact Form Group
  *
  * @param {Props} props
- * @param {number} props.index The index of the contact
- * @param {AdditionalContact|null} props.contact The contact entry
- * @param {function} props.onDelete The function to call when the contact is deleted
  * @returns {JSX.Element}
  */
 export const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
