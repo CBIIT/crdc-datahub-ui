@@ -37,6 +37,10 @@ type AdditionalContact = {
   phone?: string;
 };
 
+type KeyedAdditionalContact = {
+  key: string;
+} & AdditionalContact;
+
 type FormSectionProps = {
   classes: any;
   refs: any;

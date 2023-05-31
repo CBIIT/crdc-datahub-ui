@@ -7,22 +7,15 @@ type Props = {
   index: number;
   classes: any;
   contact: AdditionalContact | null;
-  refs: {
-    role: React.RefObject<HTMLInputElement>;
-    firstName: React.RefObject<HTMLInputElement>;
-    lastName: React.RefObject<HTMLInputElement>;
-    email: React.RefObject<HTMLInputElement>;
-    phone: React.RefObject<HTMLInputElement>;
-  };
+  onDelete: () => void;
 };
 
 /**
  * Additional Contact Form Group
  *
- * @param {*} props
+ * @param {Props} props
  * @param {number} props.index The index of the contact
  * @param {AdditionalContact|null} props.contact The contact entry
- * @param {object} props.classes The classes passed from Material UI Theme
  * @param {function} props.onDelete The function to call when the contact is deleted
  * @returns {JSX.Element}
  */
@@ -37,10 +30,9 @@ export const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props
       <TextInput label="Last Name" name={`additionalContacts[${index}][lastName]`} value={lastName} maxLength={50} required />
       <TextInput label="Email" name={`additionalContacts[${index}][email]`} value={email} validate={validateEmail} required />
       <TextInput label="Phone Number" name={`additionalContacts[${index}][phone]`} value={phone} maxLength={25} filter={filterNonNumeric} />
-      <TextInput label="First Name" inputRef={refs.firstName} value={firstName} maxLength={50} required />
-      <TextInput label="Last Name" inputRef={refs.lastName} value={lastName} maxLength={50} required />
-      <TextInput label="Email" inputRef={refs.email} value={email} validate={validateEmail} required />
-      <TextInput label="Phone Number" inputRef={refs.phone} value={phone} maxLength={25} filter={filterNonNumeric} />
+      <Grid item xs={12}>
+        <button type="button" onClick={onDelete}>Remove</button>
+      </Grid>
     </>
   );
 };
