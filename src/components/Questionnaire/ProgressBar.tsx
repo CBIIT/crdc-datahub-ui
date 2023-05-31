@@ -17,7 +17,7 @@ const ProgressBar: FC<Props> = ({ classes }) => {
   // console.log(data);
 
   return (
-    <div style={{textAlign: "center"}}>
+    <div style={{ textAlign: "center" }}>
       <i>Section Progress Bar</i>
     </div>
   );

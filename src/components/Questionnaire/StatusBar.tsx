@@ -17,7 +17,7 @@ const StatusBar: FC<Props> = ({ classes }) => {
   // console.log(data);
 
   return (
-    <div style={{textAlign: "center"}}>
+    <div style={{ textAlign: "center" }}>
       <i>Status Bar</i>
     </div>
   );

@@ -5,7 +5,6 @@ import { filterNonNumeric, validateEmail } from '../../content/questionnaire/uti
 
 type Props = {
   index: number;
-  classes: any;
   contact: AdditionalContact | null;
   onDelete: () => void;
 };

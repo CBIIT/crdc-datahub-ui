@@ -2,8 +2,8 @@ import React, { FC, useEffect, useId, useRef, useState } from "react";
 import { withStyles } from "@mui/styles";
 import { parseForm } from '@jalik/form-parser';
 import { useFormContext } from "../../../components/Contexts/FormContext";
-import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
-import PrimaryContact from "../../../components/Questionnaire/PrimaryContact";
+import { AdditionalContact } from "../../../components/Questionnaire/AdditionalContact";
+import { PrimaryContact } from "../../../components/Questionnaire/PrimaryContact";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
@@ -25,12 +25,11 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
   const [pi] = useState<PI>(data.pi);
   const [primaryContact] = useState<PrimaryContact>(data.primaryContact);
-  const [additionalContacts, setAdditionalContacts] = useState<KeyedAdditionalContact[]>(
-    data.additionalContacts.map((contact: AdditionalContact, index: number) => ({
+  const [additionalContacts, setAdditionalContacts] = useState<KeyedAdditionalContact[]>(data.additionalContacts
+    .map((contact: AdditionalContact, index: number) => ({
       ...contact,
       key: `${index}_${new Date().getTime()}`,
-    })
-  ));
+    })));
 
   const formRef = useRef<HTMLFormElement>();
   const { saveForm, submitForm } = refs;
@@ -48,7 +47,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       setFormData({
         ...data,
         ...parseForm(formRef.current, { nullify: false }),
-      })
+      });
     };
 
     // Hide the submit button from this section
@@ -82,7 +81,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
    * @returns {void}
    */
   const removeContact = (key: string) => {
-    setAdditionalContacts(additionalContacts.filter((c) => c.key !== key))
+    setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
   };
 
   return (
@@ -97,18 +96,18 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           for the study or collection`}
         divider={false}
       >
-        <TextInput label="First Name" name={"pi[firstName]"} value={pi.firstName} maxLength={50} required />
-        <TextInput label="Last Name" name={"pi[lastName]"} value={pi.lastName} maxLength={50} required />
-        <TextInput label="Position" name={"pi[position]"} value={pi.position} maxLength={100} required />
-        <TextInput label="Email Address" name={"pi[email]"} validate={validateEmail} value={pi.email} required />
-        <TextInput label="Institution" name={"pi[institution]"} value={pi.institution} maxLength={100} required />
-        <TextInput label="If you have an eRA Commons account, provide here:" name={"pi[eRAAccount]"} value={pi.eRAAccount} />
+        <TextInput label="First Name" name="pi[firstName]" value={pi.firstName} maxLength={50} required />
+        <TextInput label="Last Name" name="pi[lastName]" value={pi.lastName} maxLength={50} required />
+        <TextInput label="Position" name="pi[position]" value={pi.position} maxLength={100} required />
+        <TextInput label="Email Address" name="pi[email]" validate={validateEmail} value={pi.email} required />
+        <TextInput label="Institution" name="pi[institution]" value={pi.institution} maxLength={100} required />
+        <TextInput label="If you have an eRA Commons account, provide here:" name="pi[eRAAccount]" value={pi.eRAAccount} />
         <TextInput
           label="Institution Address"
           value={pi.address}
           gridWidth={12}
           maxLength={200}
-          name={"pi[address]"}
+          name="pi[address]"
           required
         />
       </SectionGroup>
@@ -118,10 +117,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
         title={`Enter the contact information for the Primary Contact who will be
           assisting with data submission`}
       >
-        <PrimaryContact
-          contact={primaryContact}
-          classes={classes}
-        />
+        <PrimaryContact contact={primaryContact} />
       </SectionGroup>
 
       {/* Additional Contacts */}
@@ -136,7 +132,6 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
             key={contact.key}
             index={idx}
             contact={contact}
-            classes={classes}
             onDelete={() => removeContact(contact.key)}
           />
         ))}

@@ -6,7 +6,7 @@
  * @returns {boolean} True if the email is valid, false otherwise
  */
 export const validateEmail = (email: string): boolean => {
-  const re = new RegExp(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i);
+  const re = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
   return re.test(email);
 };
 
@@ -16,6 +16,4 @@ export const validateEmail = (email: string): boolean => {
  * @param {string} value The value to filter
  * @returns {string} The filtered value
  */
-export const filterNonNumeric = (value: string): string => {
-  return value.replace(/[^0-9]/g, '');
-}
+export const filterNonNumeric = (value: string): string => value.replace(/[^0-9]/g, '');

@@ -17,6 +17,8 @@
     "@types/node": "^16.18.31",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
     "nprogress": "^0.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

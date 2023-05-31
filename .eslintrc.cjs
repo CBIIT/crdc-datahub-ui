@@ -1,8 +1,11 @@
 /* eslint-env node */
 module.exports = {
   extends: [
-    'eslint:recommended', 'plugin:@typescript-eslint/recommended'
-    ],
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'airbnb',
+    'airbnb-typescript',
+  ],
   parser: '@typescript-eslint/parser',
   "parserOptions": {
     "ecmaFeatures": {
@@ -58,10 +61,12 @@ module.exports = {
     "@typescript-eslint/indent": [0],
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["off"],
-    "@typescript-eslint/no-unused-vars": ["off"],
+    "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-shadow": ["off"],
     "@typescript-eslint/dot-notation": ["off"],
+    "@typescript-eslint/quotes": ["off"],
     "react/prop-types": ["off"],
-    "@typescript-eslint/naming-convention": ["off"]
+    "@typescript-eslint/naming-convention": ["off"],
+    "react/function-component-definition": ["off"],
   }
 };

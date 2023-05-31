@@ -15,7 +15,7 @@ type ContextState = {
 type CtxProvider = [
   ContextState,
   (Application) => void | null,
-]
+];
 
 export enum Status {
   LOADING = "LOADING",
@@ -87,6 +87,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
     // TODO: fetch form data from API
     setTimeout(() => {
       // TODO: validate API response
+      // @ts-ignore
       if (isNaN(parseInt(id.toString()))) {
         setState({
           status: Status.ERROR,
@@ -95,7 +96,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
         });
         return;
       }
-      if (id.toString() == "1234") {
+      if (id.toString() === "1234") {
         setState({
           status: Status.ERROR,
           data: null,

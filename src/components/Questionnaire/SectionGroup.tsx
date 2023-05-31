@@ -15,22 +15,20 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const SectionGroup: FC<Props> = ({ title, classes, divider = true, children }) => {
-  return (
-    <Grid className={classes.group} container spacing={2}>
-      {divider && <Divider className={classes.divider} />}
-      <Grid xs={12} item>
-        <Typography
-          className={classes.groupTitle}
-          variant="h6"
-        >
-          {title}
-        </Typography>
-      </Grid>
-      {children}
+const SectionGroup: FC<Props> = ({ title, classes, divider = true, children }) => (
+  <Grid className={classes.group} container spacing={2}>
+    {divider && <Divider className={classes.divider} />}
+    <Grid xs={12} item>
+      <Typography
+        className={classes.groupTitle}
+        variant="h6"
+      >
+        {title}
+      </Typography>
     </Grid>
-  );
-};
+    {children}
+  </Grid>
+);
 
 const styles = (theme: any) => ({
   group: {

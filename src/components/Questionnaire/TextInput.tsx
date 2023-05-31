@@ -68,11 +68,11 @@ const TextInput: FC<Props> = ({
   };
 
   return (
-    <Grid xs={gridWidth ? gridWidth : 6} item>
+    <Grid xs={gridWidth || 6} item>
       <FormControl fullWidth error={error}>
         <label htmlFor={id} className={classes.label}>
           {label}
-          {required ? ( <span className={classes.asterisk}> *</span> ) : ''}
+          {required ? (<span className={classes.asterisk}> *</span>) : ''}
         </label>
         <OutlinedInput
           id={id}

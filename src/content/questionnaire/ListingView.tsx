@@ -20,13 +20,13 @@ const ListingView: FC<Props> = ({ classes } : Props) => {
 
   return (
     <div>
-      {state?.error && ( <Alert severity="error">{state?.error}</Alert> )}
+      {state?.error && (<Alert severity="error">{state?.error}</Alert>)}
       <ul>
         <li><a className={classes.example} href="questionnaire/1">Application #248191 – Approved</a></li>
         <li><a href="questionnaire/ABC">Application #931344 – Invalid ID example</a></li>
         <li><a href="questionnaire/1234">Application #123467 – No access example</a></li>
       </ul>
-      <button>Create new app</button>
+      <button type="button">Create new app</button>
     </div>
   );
 };

@@ -7,16 +7,14 @@ import { Status as FormStatus, useFormContext } from '../../components/Contexts/
 import SuspenseLoader from '../../components/SuspenseLoader';
 import StatusBar from '../../components/Questionnaire/StatusBar';
 import ProgressBar from '../../components/Questionnaire/ProgressBar';
-import { default as Section, map } from './sections';
+import Section, { map } from './sections';
 
 type Props = {
   section?: string;
   classes: any;
 };
 
-const validateSection = (section: string) => {
-  return typeof map[section] !== 'undefined';
-};
+const validateSection = (section: string) => typeof map[section] !== 'undefined';
 
 /**
  * Intake Form View Component
@@ -89,7 +87,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     navigate('/questionnaire', {
       state: { error: error || 'Unknown form loading error' },
     });
-    return;
+    return null;
   }
 
   return (
@@ -100,18 +98,18 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
       {/* TODO: section navigation styles */}
       <div>
-        <button onClick={goBack} disabled={!sectionKeys[sectionIndex - 1]}>
+        <button type="button" onClick={goBack} disabled={!sectionKeys[sectionIndex - 1]}>
           <BackwardArrowIcon />
         </button>
-        <button onClick={goForward} disabled={!sectionKeys[sectionIndex + 1]}>
+        <button type="button" onClick={goForward} disabled={!sectionKeys[sectionIndex + 1]}>
           <ForwardArrowIcon />
         </button>
       </div>
 
       {/* TODO: form control styles */}
       <div className={classes.formControls}>
-        <button ref={refs.saveForm}>Save</button>
-        <button ref={refs.submitForm}>Submit</button>
+        <button type="button" ref={refs.saveForm}>Save</button>
+        <button type="submit" ref={refs.submitForm}>Submit</button>
       </div>
     </div>
   );
