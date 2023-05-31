@@ -18,6 +18,10 @@ type Props = {
 /**
  * Generate the correct section component based on the section name
  *
+ * NOTE:
+ * - This component is not rendered until we have form data
+ *   status validation is NOT needed
+ *
  * @param {Props} props
  * @returns {FunctionComponentElement} - Section component
  */

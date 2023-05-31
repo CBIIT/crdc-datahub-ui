@@ -12,10 +12,6 @@ import { validateEmail } from '../utils';
 /**
  * Form Section A View
  *
- * NOTE:
- * - This component is not rendered until we have form data
- *   status validation is needed
- *
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
@@ -41,7 +37,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
     saveForm.current.onclick = () => {
       if (!formRef.current) { return; }
 
-      // TODO: we need to display validation errors, but save regardless
+      // Show validation errors but save the data anyway
       formRef.current.reportValidity();
 
       setFormData({
