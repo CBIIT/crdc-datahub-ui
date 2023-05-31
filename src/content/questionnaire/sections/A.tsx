@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { withStyles } from "@mui/styles";
 import { parseForm } from '@jalik/form-parser';
 import { useFormContext } from "../../../components/Contexts/FormContext";
@@ -19,7 +19,7 @@ import { validateEmail } from '../utils';
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
-const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps) => {
+const FormSectionA: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
   const [form, setFormData] = useFormContext();
   const { data } = form;
 
@@ -141,6 +141,6 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   );
 };
 
-const styles = (theme: any) => ({});
+const styles = () => ({});
 
 export default withStyles(styles, { withTheme: true })(FormSectionA);

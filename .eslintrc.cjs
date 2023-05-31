@@ -58,6 +58,7 @@ module.exports = {
       }
     ],
     "indent": "off",
+    "react/jsx-indent": ["warn"],
     "@typescript-eslint/indent": [0],
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["off"],
@@ -68,5 +69,8 @@ module.exports = {
     "react/prop-types": ["off"],
     "@typescript-eslint/naming-convention": ["off"],
     "react/function-component-definition": ["off"],
+    "arrow-body-style": ["warn"],
+    "@typescript-eslint/ban-ts-comment": ["off"],
+    "eol-last": ["warn"],
   }
 };

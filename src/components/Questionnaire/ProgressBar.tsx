@@ -1,9 +1,11 @@
+/* eslint-disable */
+/* TODO: Remove above during component development */
 import React, { FC } from 'react';
-import { withStyles } from '@mui/styles';
+import { WithStyles, withStyles } from '@mui/styles';
 import { useFormContext } from '../Contexts/FormContext';
 
 type Props = {
-  classes: any;
+  classes: WithStyles<typeof styles>['classes'];
 };
 
 /**
@@ -23,7 +25,7 @@ const ProgressBar: FC<Props> = ({ classes }) => {
   );
 };
 
-const styles = (theme: any) => ({
+const styles = () => ({
   // TODO: Add styles
 });
 

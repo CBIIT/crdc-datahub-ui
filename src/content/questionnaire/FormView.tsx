@@ -1,6 +1,6 @@
 import React, { FC, createRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { withStyles } from "@mui/styles";
+import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
 import { Status as FormStatus, useFormContext } from '../../components/Contexts/FormContext';
@@ -11,7 +11,7 @@ import Section, { map } from './sections';
 
 type Props = {
   section?: string;
-  classes: any;
+  classes: WithStyles<typeof styles>['classes'];
 };
 
 const validateSection = (section: string) => typeof map[section] !== 'undefined';

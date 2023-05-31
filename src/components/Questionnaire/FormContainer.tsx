@@ -1,9 +1,9 @@
 import React, { FC, MutableRefObject, useId } from 'react';
 import { Typography } from '@mui/material';
-import { withStyles } from '@mui/styles';
+import { WithStyles, withStyles } from '@mui/styles';
 
 type Props = {
-  classes: any;
+  classes: WithStyles<typeof styles>['classes'];
   title: string;
   description: string;
   children: React.ReactNode;
@@ -39,7 +39,7 @@ const FormContainer: FC<Props> = ({
   );
 };
 
-const styles = (theme: any) => ({
+const styles = () => ({
   formContainer: {
     padding: "20px",
     border: "1px solid #3b3b3b",

@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import FormView from "./FormView";
 import ListingView from "./ListingView";

@@ -1,3 +1,5 @@
+/* eslint-disable */
+/* TODO: Remove above during component development */
 import React, { FC } from 'react';
 
 /**

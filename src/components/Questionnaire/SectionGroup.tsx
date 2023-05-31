@@ -1,9 +1,9 @@
 import React, { FC } from 'react';
 import { Divider, Grid, Typography } from '@mui/material';
-import { withStyles } from '@mui/styles';
+import { WithStyles, withStyles } from '@mui/styles';
 
 type Props = {
-  classes: any;
+  classes: WithStyles<typeof styles>['classes'];
   title: string;
   divider?: boolean;
   children: React.ReactNode;
@@ -30,7 +30,7 @@ const SectionGroup: FC<Props> = ({ title, classes, divider = true, children }) =
   </Grid>
 );
 
-const styles = (theme: any) => ({
+const styles = () => ({
   group: {
     marginTop: "25px",
   },

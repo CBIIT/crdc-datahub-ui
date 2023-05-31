@@ -1,3 +1,5 @@
+/* eslint-disable */
+/* TODO: Remove above during component development */
 import React, {
   FC,
   createContext,
@@ -87,7 +89,6 @@ export const FormProvider: FC<ProviderProps> = (props) => {
     // TODO: fetch form data from API
     setTimeout(() => {
       // TODO: validate API response
-      // @ts-ignore
       if (isNaN(parseInt(id.toString()))) {
         setState({
           status: Status.ERROR,

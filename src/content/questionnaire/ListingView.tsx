@@ -1,10 +1,10 @@
 import React, { FC } from 'react';
-import { withStyles } from '@mui/styles';
+import { WithStyles, withStyles } from '@mui/styles';
 import { useLocation } from 'react-router-dom';
 import { Alert } from '@mui/material';
 
 type Props = {
-  classes: any;
+  classes: WithStyles<typeof styles>['classes'];
 };
 
 /*

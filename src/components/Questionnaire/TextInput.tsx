@@ -1,9 +1,9 @@
 import React, { FC, useId, useState } from 'react';
 import { FormControl, FormHelperText, Grid, OutlinedInput } from '@mui/material';
-import { withStyles } from '@mui/styles';
+import { WithStyles, withStyles } from '@mui/styles';
 
 type Props = {
-  classes: any;
+  classes: WithStyles<typeof styles>['classes'];
   value: string;
   label: string;
   name: string;
@@ -88,7 +88,7 @@ const TextInput: FC<Props> = ({
   );
 };
 
-const styles = (theme: any) => ({
+const styles = () => ({
   label: {
     fontWeight: 600,
     color: "blue",

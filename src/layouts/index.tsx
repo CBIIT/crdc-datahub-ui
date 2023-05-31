@@ -10,7 +10,6 @@ interface LayoutProps {
   children?: ReactNode;
 }
 
-
 const Layout: FC<LayoutProps> = ({ children }) => {
   return (
     <>
