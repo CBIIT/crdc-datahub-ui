@@ -14,8 +14,8 @@ class BottomFooter extends React.Component<bottomFooterProps> {
         if (this.props.innerWidth > 906) {
             return (
                 <div id="bottom-footer">
-                    <Grid direction="row" justifyContent="space-between" alignItems="flex-start" container spacing={0}>
-                        <Grid item={true} id="bottom-footer-nci-info">
+                    <div className="bottom-footer-container" justify-content="space-between" align-items="flex-start">
+                        <div className="bottom-footer-item" id="bottom-footer-nci-info">
                             <span id="bottom-footer-nci-text">National Cancer Institute</span>
                             <span id="bottom-footer-nci-subtext">at the National Institutes of Health</span>
                             <span id="bottom-footer-follow-us-text">Follow Us</span>
@@ -36,8 +36,8 @@ class BottomFooter extends React.Component<bottomFooterProps> {
                                     <img src={linkedin_svg} />
                                 </a>
                             </span>
-                        </Grid>
-                        <Grid item={true} id="bottom-footer-contact-us-section">
+                        </div>
+                        <div className="bottom-footer-item" id="bottom-footer-contact-us-section">
                             <span id="bottom-footer-contact-us-text" >Contact Us</span>
                             <br></br>
                             <span id="bottom-footer-contact-us-links">
@@ -60,8 +60,8 @@ class BottomFooter extends React.Component<bottomFooterProps> {
                                 <a href="https://www.cancer.gov/">National Cancer Institute</a>
                                 <a href="https://usa.gov/">USA.gov</a>
                             </span>
-                        </Grid>
-                    </Grid>
+                        </div>
+                    </div>
                 </div>
             )
         }

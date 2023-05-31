@@ -1,5 +1,7 @@
 import React, { FC } from 'react';
+import "./stylesheets/TopFooterStyles.css"
 import "./stylesheets/BottomFooterStyles.css"
+import "./stylesheets/ScrollToTopStyles.css"
 import BottomFooter from './BottomFooter';
 import TopFooter from './TopFooter';
 import ScrollToTop from './ScrollToTop';

@@ -10,7 +10,22 @@ class TopFooter extends React.Component {
 
     render() {
         return (
-            <div>TEST</div>
+            <div id="top-footer">
+                <Grid  container direction = "row" justifyContent="space-between" alignItems="flex-start"  spacing={0}>
+                    <Grid  item = {true} xs={8}>
+                        1
+                    </Grid>
+                    <Grid  item = {true} xs={4}>
+                        2
+                    </Grid>
+                    <Grid  item = {true} xs={4}>
+                        3
+                    </Grid>
+                    <Grid  item = {true} xs={8}>
+                        4
+                    </Grid>
+                </Grid>
+            </div>
         )
 
     }

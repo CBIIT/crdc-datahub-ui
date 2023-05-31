@@ -14,7 +14,7 @@
     padding: 35px 6px 0 16px;
     text-decoration: none;
     line-height: 1.2;
-    transition: all 0.25s ease-out;
+    transition: opacity 0.25s ease-out;
 }
 
 #stt:active {
