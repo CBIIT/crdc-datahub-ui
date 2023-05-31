@@ -1,4 +1,4 @@
-import React, { FC, FormEventHandler, useId } from 'react';
+import React, { FC, MutableRefObject, useId } from 'react';
 import { Typography } from '@mui/material';
 import { withStyles } from '@mui/styles';
 
@@ -7,6 +7,7 @@ type Props = {
   title: string;
   description: string;
   children: any;
+  formRef?: MutableRefObject<HTMLFormElement>;
 };
 
 /**
@@ -17,10 +18,12 @@ type Props = {
  * @param {string} props.description The description of the form section
  * @param {object} props.classes The classes passed from Material UI Theme
  * @param {any} props.children The children of the form section
+ * @param {MutableRefObject<HTMLFormElement>} [props.formRef] The form ref
  * @returns {JSX.Element}
  */
 const FormContainer: FC<Props> = ({
-  title, description, classes, children
+  title, description, classes, children,
+  formRef,
 }) => {
   const id = useId();
 
@@ -34,7 +37,7 @@ const FormContainer: FC<Props> = ({
           {description}
         </Typography>
       </div>
-      <form id={id} onSubmit={(e) => e.preventDefault()}>
+      <form id={id} ref={formRef} onSubmit={(e) => e.preventDefault()}>
         {children}
       </form>
     </div>

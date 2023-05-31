@@ -1,5 +1,6 @@
-import React, { FC, createRef, useEffect, useRef } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { withStyles } from "@mui/styles";
+import { parseForm } from '@jalik/form-parser';
 import { useFormContext } from "../../../components/Contexts/FormContext";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
 import PrimaryContact from "../../../components/Questionnaire/PrimaryContact";
@@ -11,6 +12,10 @@ import { validateEmail } from '../utils';
 /**
  * Form Section A View
  *
+ * NOTE:
+ * - This component is not rendered until we have form data
+ *   status validation is needed
+ *
  * @param {FormSectionProps} props
  * @param {object} props.refs The element refs passed from FormView
  * @param {object} props.classes The classes passed from Material UI Theme
@@ -20,64 +25,31 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   const [form, setFormData] = useFormContext();
   const { data } = form;
 
-  const { pi, primaryContact, additionalContacts }: Application = data;
+  const formRef = useRef<HTMLFormElement>();
+  const [pi] = useState<PI>(data.pi);
+  const [primaryContact] = useState<PrimaryContact>(data.primaryContact);
+  const [additionalContacts, setAdditionalContacts] = useState<AdditionalContact[]>(data.additionalContacts);
+
   const {
     firstName, lastName, position, email,
     institution, eRAAccount, address,
   }: PI = pi;
 
   const { saveForm, submitForm } = refs;
-  const fields = {
-    pi: {
-      firstName: useRef<HTMLInputElement>(),
-      lastName: useRef<HTMLInputElement>(),
-      position: useRef<HTMLInputElement>(),
-      email: useRef<HTMLInputElement>(),
-      institution: useRef<HTMLInputElement>(),
-      eRAAccount: useRef<HTMLInputElement>(),
-      address: useRef<HTMLInputElement>(),
-    },
-    primaryContact: {
-      firstName: useRef<HTMLInputElement>(),
-      lastName: useRef<HTMLInputElement>(),
-      email: useRef<HTMLInputElement>(),
-      phone: useRef<HTMLInputElement>(),
-    },
-    additionalContacts: [],
-  };
 
   useEffect(() => {
     if (!saveForm.current || !submitForm.current) { return; }
 
     // Save the form data on click
     saveForm.current.onclick = () => {
-      const { pi, primaryContact, additionalContacts } = fields;
+      if (!formRef.current) { return; }
+
+      // TODO: we need to display validation errors, but save regardless
+      formRef.current.reportValidity();
 
       setFormData({
         ...data,
-        pi: {
-          ...pi,
-          ...Object.keys(pi).reduce((result, key : string) => {
-            result[key] = pi[key].current?.value || "";
-            return result;
-          }, {})
-        },
-        primaryContact: {
-          ...primaryContact,
-          ...Object.keys(primaryContact).reduce((result, key : string) => {
-            result[key] = primaryContact[key].current?.value || "";
-            return result;
-          }, {})
-        },
-        additionalContacts: additionalContacts.map((contact: AdditionalContact, idx: number) => {
-          return {
-            ...contact,
-            ...Object.keys(additionalContacts[idx]).reduce((result, key : string) => {
-              result[key] = additionalContacts[idx][key].current?.value || "";
-              return result;
-            }, {})
-          };
-        }),
+        ...parseForm(formRef.current),
       })
     };
 
@@ -89,6 +61,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
     <FormContainer
       title="Section A"
       description="Principal Investigator and Contact Information"
+      formRef={formRef}
     >
       {/* Principal Investigator */}
       <SectionGroup
@@ -96,18 +69,18 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           for the study or collection`}
         divider={false}
       >
-        <TextInput label="First Name" inputRef={fields.pi.firstName} value={firstName} maxLength={50} required />
-        <TextInput label="Last Name" inputRef={fields.pi.lastName} value={lastName} maxLength={50} required />
-        <TextInput label="Position" inputRef={fields.pi.position} value={position} maxLength={100} required />
-        <TextInput label="Email Address" inputRef={fields.pi.email} validate={validateEmail} value={email} required />
-        <TextInput label="Institution" inputRef={fields.pi.institution} value={institution} maxLength={100} required />
-        <TextInput label="If you have an eRA Commons account, provide here:" inputRef={fields.pi.eRAAccount} value={eRAAccount} />
+        <TextInput label="First Name" name={"pi[firstName]"} value={firstName} maxLength={50} required />
+        <TextInput label="Last Name" name={"pi[lastName]"} value={lastName} maxLength={50} required />
+        <TextInput label="Position" name={"pi[position]"} value={position} maxLength={100} required />
+        <TextInput label="Email Address" name={"pi[email]"} validate={validateEmail} value={email} required />
+        <TextInput label="Institution" name={"pi[institution]"} value={institution} maxLength={100} required />
+        <TextInput label="If you have an eRA Commons account, provide here:" name={"pi[eRAAccount]"} value={eRAAccount} />
         <TextInput
           label="Institution Address"
           value={address}
           gridWidth={12}
           maxLength={200}
-          inputRef={fields.pi.address}
+          name={"pi[address]"}
           required
         />
       </SectionGroup>
@@ -119,7 +92,6 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       >
         <PrimaryContact
           contact={primaryContact}
-          refs={fields.primaryContact}
           classes={classes}
         />
       </SectionGroup>
@@ -143,12 +115,12 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           fields.additionalContacts.push(refs);
 
           return (
-            <AdditionalContact
-              key={idx}
-              contact={contact}
-              classes={classes}
+          <AdditionalContact
+            key={idx}
+            contact={contact}
+            classes={classes}
               refs={refs}
-            />
+          />
           );
         })}
         <button type="button">Add Contact</button>

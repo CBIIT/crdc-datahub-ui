@@ -99,7 +99,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       <ProgressBar />
       <Section section={activeSection} refs={refs} />
 
-      {/* TODO: section navigation */}
+      {/* TODO: section navigation styles */}
       <div>
         <button onClick={goBack} disabled={!sectionKeys[sectionIndex - 1]}>
           <BackwardArrowIcon />
@@ -109,8 +109,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         </button>
       </div>
 
-      {/* TODO: form controls */}
-      {/* Note: use JS reportValidity() to trigger HTML5 validation */}
+      {/* TODO: form control styles */}
       <div className={classes.formControls}>
         <button ref={refs.saveForm}>Save</button>
         <button ref={refs.submitForm}>Submit</button>
