@@ -3,17 +3,14 @@ import { RouteObject } from 'react-router';
 import Layout from './layouts';
 import SuspenseLoader from './components/SuspenseLoader';
 
-
-const Loader = (Component) => (props) =>
-  ( 
-     <Suspense fallback={<SuspenseLoader />}>
-      <Component {...props} />
-      </Suspense>
-  );
+const Loader = (Component) => (props) => (
+  <Suspense fallback={<SuspenseLoader />}>
+    <Component {...props} />
+  </Suspense>
+);
 
 // Pages
 const Home = Loader(lazy(() => import('./content')));
-
 
 // status
 const Status404 = Loader(

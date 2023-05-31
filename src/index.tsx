@@ -10,10 +10,10 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-   <HelmetProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+  <HelmetProvider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </HelmetProvider>,
 );
 
