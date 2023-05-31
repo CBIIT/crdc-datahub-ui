@@ -151,6 +151,22 @@ export const FormProvider: FC<ProviderProps> = (props) => {
               phone: "",
             },
           ],
+          program: {
+            title: "Example Pg",
+            abbreviation: "EPG",
+            description: "This is an example program",
+          },
+          study: {
+            title: "Example Study",
+            abbreviation: "ES",
+            description: "This is an example study",
+            repositories: [
+              {
+                name: "Example Repository",
+                studyID: "1234",
+              }
+            ]
+          },
         },
       });
     }, 500);

@@ -5,6 +5,8 @@ type Application = {
   pi: PI;
   primaryContact: PrimaryContact;
   additionalContacts: AdditionalContact[];
+  program: Program;
+  study: Study;
 };
 
 type Section = {
@@ -19,7 +21,7 @@ type PI = {
   email: string;
   institution: string;
   eRAAccount: string;
-  address: string; // NOTE: This differs from the GQL schemax
+  address: string;
 };
 
 type PrimaryContact = {
@@ -40,6 +42,24 @@ type AdditionalContact = {
 type KeyedAdditionalContact = {
   key: string;
 } & AdditionalContact;
+
+type Program = {
+  title: string;
+  abbreviation: string;
+  description: string;
+};
+
+type Study = {
+  title: string;
+  abbreviation: string;
+  description: string;
+  repositories: Repository[];
+};
+
+type Repository = {
+  name: string;
+  studyID: string;
+};
 
 type FormSectionProps = {
   classes: any;

@@ -91,7 +91,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   }
 
   return (
-    <div>
+    <div className={classes.formContainer}>
       <StatusBar />
       <ProgressBar />
       <Section section={activeSection} refs={refs} />
@@ -116,6 +116,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 };
 
 const styles = () => ({
+  formContainer: {
+    width: "100%",
+  },
   formControls: {
     display: "flex",
     justifyContent: "center",
