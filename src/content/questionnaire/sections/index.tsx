@@ -2,6 +2,14 @@ import React, { createElement } from "react";
 import A from "./A";
 import B from "./B";
 
+/**
+ * Map of section names to components
+ *
+ * Note: Ideally this is a temporary solution.
+ *       We should be able to dynamically import the sections.
+ * Note: When adding a new section, import it then add it here.
+ *       Everything else is handled automatically.
+ */
 export const map = {
   A,
   B,
