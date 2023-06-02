@@ -80,6 +80,7 @@ const TextInput: FC<Props> = ({
         </label>
         <OutlinedInput
           classes={{ root: classes.input }}
+          type={rest.type || 'text'}
           id={id}
           size="small"
           value={val}
@@ -96,13 +97,21 @@ const TextInput: FC<Props> = ({
 
 const styles = () => ({
   label: {
-    fontWeight: 600,
-    color: "blue",
+    fontWeight: 500,
+    color: "#3478a5",
+    marginBottom: "7px",
   },
   asterisk: {
     color: 'red',
   },
   input: {
+    borderRadius: "0",
+    backgroundColor: "#fff",
+
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#3b3b3b",
+    },
+
     // Target disabled <textarea> inputs
     "&.MuiInputBase-multiline.Mui-readOnly": {
       backgroundColor: '#d8d8d8',

@@ -1,8 +1,10 @@
 import React, { FC, useEffect, useRef, useState } from "react";
+import { Button, Grid, Stack } from '@mui/material';
 import { withStyles } from "@mui/styles";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { parseForm } from '@jalik/form-parser';
 import { useFormContext } from "../../../components/Contexts/FormContext";
-import { AdditionalContact } from "../../../components/Questionnaire/AdditionalContact";
+import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
 import { PrimaryContact } from "../../../components/Questionnaire/PrimaryContact";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
@@ -15,7 +17,7 @@ import { validateEmail } from '../utils';
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
-const FormSectionA: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
+const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps) => {
   const [form, setFormData] = useFormContext();
   const { data } = form;
 
@@ -92,37 +94,34 @@ const FormSectionA: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           for the study or collection`}
         divider={false}
       >
-        <TextInput label="First Name" name="pi[firstName]" value={pi.firstName} maxLength={50} required />
-        <TextInput label="Last Name" name="pi[lastName]" value={pi.lastName} maxLength={50} required />
+        <TextInput label="First name" name="pi[firstName]" value={pi.firstName} maxLength={50} required />
+        <TextInput label="Last name" name="pi[lastName]" value={pi.lastName} maxLength={50} required />
         <TextInput label="Position" name="pi[position]" value={pi.position} maxLength={100} required />
-        <TextInput label="Email Address" name="pi[email]" validate={validateEmail} value={pi.email} required />
+        <TextInput label="Email address" name="pi[email]" validate={validateEmail} value={pi.email} required />
         <TextInput label="Institution" name="pi[institution]" value={pi.institution} maxLength={100} required />
-        <TextInput label="If you have an eRA Commons account, provide here:" name="pi[eRAAccount]" value={pi.eRAAccount} />
+        <TextInput label="If you have an eRA Commons account, provide it here:" name="pi[eRAAccount]" value={pi.eRAAccount} />
         <TextInput
           label="Institution Address"
           value={pi.address}
           gridWidth={12}
           maxLength={200}
           name="pi[address]"
+          rows={4}
+          multiline
           required
         />
       </SectionGroup>
 
       {/* Primary Contact */}
       <SectionGroup
-        title={`Enter the contact information for the Primary Contact who will be
-          assisting with data submission`}
+        title={`Enter Primary Contact information for the primary contact
+          who will be assisting with data submission`}
       >
         <PrimaryContact contact={primaryContact} />
       </SectionGroup>
 
       {/* Additional Contacts */}
-      <SectionGroup
-        title={`If there are additional points of contact (e.g. data coordinator),
-          enter the details for each. Each detail is required for each
-          additional contact, you may add additional rows for the details for
-          each contact.`}
-      >
+      <SectionGroup title="Additional contacts (e.g., data coordinator)">
         {additionalContacts.map((contact: KeyedAdditionalContact, idx: number) => (
           <AdditionalContact
             key={contact.key}
@@ -131,12 +130,37 @@ const FormSectionA: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
             onDelete={() => removeContact(contact.key)}
           />
         ))}
-        <button type="button" onClick={addContact}>Add Contact</button>
+        <Grid item xs={12}>
+          <Stack direction="row" justifyContent="end">
+            <Button
+              variant="outlined"
+              type="button"
+              onClick={addContact}
+              size="large"
+              startIcon={<PersonAddIcon />}
+              className={classes.contactButton}
+            >
+              Add Additional Contact
+            </Button>
+          </Stack>
+        </Grid>
       </SectionGroup>
     </FormContainer>
   );
 };
 
-const styles = () => ({});
+const styles = () => ({
+  contactButton: {
+    margin: "10px",
+    marginRight: "35px",
+    padding: "8px 20px",
+    minWidth: "115px",
+    borderRadius: "24px",
+    color: "inherit",
+    borderColor: "inherit !important",
+    background: "transparent",
+    "text-transform": "none",
+  }
+});
 
 export default withStyles(styles, { withTheme: true })(FormSectionA);

@@ -155,6 +155,7 @@ const styles = () => ({
       color: "inherit",
       borderColor: "inherit !important",
       background: "#fff",
+      textTransform: "none",
     },
     "& button:hover:not([disabled])": {
       color: "#fff",

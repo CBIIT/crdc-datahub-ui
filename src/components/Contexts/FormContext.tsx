@@ -46,9 +46,7 @@ export const useFormContext = (): CtxProvider => {
   const context = useContext(Context);
 
   if (!context) {
-    throw new Error(
-      "Form components cannot be rendered outside the FormProvider component"
-    );
+    throw new Error("FormContext cannot be rendered outside the FormProvider component");
   }
 
   return context;
