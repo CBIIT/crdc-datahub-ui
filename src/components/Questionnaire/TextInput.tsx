@@ -1,5 +1,5 @@
-import React, { FC, useId, useState } from 'react';
-import { FormControl, FormHelperText, Grid, OutlinedInput } from '@mui/material';
+import React, { FC, useEffect, useId, useState } from 'react';
+import { FormControl, FormHelperText, Grid, OutlinedInput, OutlinedInputProps } from '@mui/material';
 import { WithStyles, withStyles } from '@mui/styles';
 
 type Props = {
@@ -7,13 +7,12 @@ type Props = {
   value: string;
   label: string;
   name: string;
-  required?: boolean;
   helpText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
   validate?: (input: string) => boolean;
   filter?: (input: string) => string;
-};
+} & OutlinedInputProps;
 
 /**
  * Generates a generic text input with a label and help text
@@ -30,6 +29,7 @@ const TextInput: FC<Props> = ({
   classes, value, label, required = false,
   helpText, gridWidth, maxLength, name,
   validate, filter,
+  ...rest
 }) => {
   const id = useId();
   const [val, setVal] = useState(value);
@@ -67,6 +67,10 @@ const TextInput: FC<Props> = ({
     setError(!validateInput(newVal));
   };
 
+  useEffect(() => {
+    setVal(value);
+  }, [value]);
+
   return (
     <Grid xs={gridWidth || 6} item>
       <FormControl fullWidth error={error}>
@@ -75,12 +79,14 @@ const TextInput: FC<Props> = ({
           {required ? (<span className={classes.asterisk}> *</span>) : ''}
         </label>
         <OutlinedInput
+          classes={{ root: classes.input }}
           id={id}
           size="small"
           value={val}
+          name={name}
           onChange={onChange}
           required={required}
-          name={name}
+          {...rest}
         />
         <FormHelperText>{error ? helperText : ' '}</FormHelperText>
       </FormControl>
@@ -95,6 +101,19 @@ const styles = () => ({
   },
   asterisk: {
     color: 'red',
+  },
+  input: {
+    // Target disabled <textarea> inputs
+    "&.MuiInputBase-multiline.Mui-readOnly": {
+      backgroundColor: '#d8d8d8',
+      cursor: 'not-allowed',
+    },
+
+    // Target disabled <input> inputs
+    "& .MuiOutlinedInput-input:read-only": {
+      backgroundColor: '#d8d8d8',
+      cursor: 'not-allowed',
+    },
   },
 });
 
