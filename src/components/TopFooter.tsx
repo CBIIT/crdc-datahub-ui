@@ -6,6 +6,22 @@ class TopFooter extends React.Component {
         return (
             <div id="top-footer">
                 <div className="top-footer-container">
+                <div className="top-footer-item" id="top-footer-about-and-policies-sections-mobile">
+                        <div id="top-footer-about-section">
+                            <button className='top-footer-about-and-policies-header'>About</button>
+                            <a href = "" >About CCDI Hub</a>
+                            <a href = "">About CCDI</a>
+                            <a href = "www.google.com">Contact CCDI Hub</a>
+                        </div>
+                        <div id="top-footer-policies-section">
+                            <span className='top-footer-about-and-policies-header'>Policies</span>
+                            <a href = "https://www.cancer.gov/policies/accessibility" >Accessibility</a>
+                            <a href = "https://www.cancer.gov/policies/foia">FOIA</a>
+                            <a href = "https://www.cancer.gov/policies/privacy-security">Privacy & Security</a>
+                            <a href = "https://www.cancer.gov/policies/disclaimer">Disclaimers</a>
+                            <a href = "https://www.hhs.gov/vulnerability-disclosure-policy/index.html">Vulnerability Disclosure</a>
+                        </div>
+                    </div>
                     <div className="top-footer-item" id="top-footer-about-and-policies-sections">
                         <div id="top-footer-about-section">
                             <span className='top-footer-about-and-policies-header'>About</span>

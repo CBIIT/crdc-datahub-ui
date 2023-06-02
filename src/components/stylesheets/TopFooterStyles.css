@@ -1,37 +1,38 @@
 #top-footer {
-    position: relative;
-    max-width: 1420;
-    height: 269px;
-    color: white;
     background:#1B496E;
+    color: white;
 }
 
 .top-footer-container {
     display: flex;
-    flex-direction: row;
+    flex-flow: wrap;
     justify-content: space-between;
     max-width: 1420px;
     margin-left: auto;
     margin-right: auto;
+    height: fit-content;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
 }
-
 .top-footer-item {
     flex: none;
 }
 
 .top-footer-about-and-policies-header{
+    color: white;
     font-weight: 700;
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-size: 16px;
+    line-height: 30px;
 }
 
 #top-footer-about-and-policies-sections{
     display: flex;
-    margin-top: 28.5px;
     margin-left: 36px;
-    /* Footer/Dropdown */
-
     font-family: 'Open Sans';
     font-style: normal;
-    font-weight: 200;
+    font-weight: 400;
     font-size: 16px;
     line-height: 30px;
     align-items: flex-start;
@@ -53,20 +54,24 @@
     color:white;
 }
 
+#top-footer-about-and-policies-sections-mobile  a {
+    display: block;
+    text-decoration: none;
+    color:white;
+}
+
 #top-footer-about-section{
-    position: stat;
+    position: start;
     top: 0;
     left: 0;
 }
 
 #top-footer-policies-section {
-    margin-left: 71px;
+    margin-left: 5rem;
 }
 
 #top-footer-sign-up-section {
     width: 479px;
-    height: 199px;
-    margin-top: 20px;
     margin-right: 36px;
     text-align: start;
     color:white;
@@ -83,7 +88,7 @@
     margin-top: 28px;
     font-family: 'Open Sans';
     font-style: normal;
-    font-weight: 200;
+    font-weight: 400;
     font-size: 16px;
     line-height: 22px;
 }
@@ -119,23 +124,15 @@ hr {
     display: none;
 }
 
+#top-footer-about-and-policies-sections-mobile{
+    display: none;
+}
 /*
 Tablet less than 1023 px width and greater than greater than 768
 */
 @media (max-width: 1023px) and (min-width:820px) {
-
-    #top-footer-policies-section {
-        margin-left: 90px;
-    }
     #top-footer-sign-up-section {
-        width: 301px;
-        height: 34px;
-    }
-    #top-footer-email-input{
-        margin-top: 10px;
-    }
-    #top-footer-email-button{
-        margin-top: 23px;
+        width: auto;
     }
 }
 
@@ -143,15 +140,11 @@ Tablet less than 1023 px width and greater than greater than 768
 Tablet/Phone less than 768 px width and greater than greater than 375
 */
 @media (max-width: 820px) and (min-width:721px) {
-    #top-footer {
-        height: 272px;
-    }
     #top-footer-about-and-policies-sections{
         margin-left: 16px;
-        margin-top: 30px;
     }
     #top-footer-policies-section {
-        margin-left: 80px;
+        margin-left: 4rem;
     }
     #top-footer-sign-up-section {
         margin-right: 16px;
@@ -171,19 +164,10 @@ Tablet/Phone less than 768 px width and greater than greater than 375
 }
 
 @media (max-width: 720px) and (min-width:640px) {
-    #top-footer {
-        position: relative;
-        max-width: 1420;
-        height: auto;
-        color: white;
-        background:#1B496E;
-        padding-bottom: 60px;
-    }
     #top-footer-about-and-policies-sections{
         margin-left: auto;
         margin-right: auto;
-        margin-top: 24px;
-        margin-bottom: 20px;
+        margin-bottom: 1rem;
         align-content: center;
     }
     .top-footer-container{
@@ -191,7 +175,6 @@ Tablet/Phone less than 768 px width and greater than greater than 375
 
     }
     #top-footer-sign-up-section {
-        /* border-top: solid 1px black; */
         padding-top: 20px;
         display: block;
         margin: auto;
@@ -207,9 +190,35 @@ Tablet/Phone less than 768 px width and greater than greater than 375
 /*
 Phone less than 375 px width 
 */
-@media (max-width: 375px) {
-    #top-footer {
-        height: 272px;
+@media (max-width: 720px) {
+    .top-footer-container {
+        padding-top: 0;
     }
+    #top-footer-about-and-policies-sections-mobile{
+        display: block;
+    }
+    #top-footer-about-and-policies-sections{
+        display: none;
+    }
+    #top-footer-about-section button{ 
+        background: none;
+        border: none;
+        cursor: default;
+        display: flex;
+        text-decoration: none;
+        visibility: visible;
+        width: 100%;
+        font-weight: 600;
+        padding: 1rem;
+        text-transform: none;
+    }
+    #top-footer-about-section a{
+        display:none;
+    }
+    
+    #top-footer-about-section button:active ~ #top-footer-about-section a{ 
+        display: block;
+    }
+  
 }
 
