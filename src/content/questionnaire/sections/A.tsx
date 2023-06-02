@@ -47,7 +47,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
     };
 
     // Hide the submit button from this section
-    submitForm.current.style.visibility = "hidden";
+    submitForm.current.style.display = "none";
   }, [refs]);
 
   /**

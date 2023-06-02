@@ -1,5 +1,6 @@
 import React, { FC, createRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
@@ -96,20 +97,43 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       <ProgressBar />
       <Section section={activeSection} refs={refs} />
 
-      {/* TODO: section navigation styles */}
-      <div>
-        <button type="button" onClick={goBack} disabled={!sectionKeys[sectionIndex - 1]}>
-          <BackwardArrowIcon />
-        </button>
-        <button type="button" onClick={goForward} disabled={!sectionKeys[sectionIndex + 1]}>
-          <ForwardArrowIcon />
-        </button>
-      </div>
-
-      {/* TODO: form control styles */}
       <div className={classes.formControls}>
-        <button type="button" ref={refs.saveForm}>Save</button>
-        <button type="submit" ref={refs.submitForm}>Submit</button>
+        <Button
+          variant="outlined"
+          type="button"
+          onClick={goBack}
+          disabled={!sectionKeys[sectionIndex - 1]}
+          size="large"
+          startIcon={<BackwardArrowIcon />}
+        >
+          Back
+        </Button>
+        <Button
+          variant="outlined"
+          type="button"
+          ref={refs.saveForm}
+          size="large"
+        >
+          Save
+        </Button>
+        <Button
+          variant="outlined"
+          type="button"
+          onClick={goForward}
+          disabled={!sectionKeys[sectionIndex + 1]}
+          size="large"
+          endIcon={<ForwardArrowIcon />}
+        >
+          Next
+        </Button>
+        <Button
+          variant="outlined"
+          type="submit"
+          ref={refs.submitForm}
+          size="large"
+        >
+          Submit
+        </Button>
       </div>
     </div>
   );
@@ -120,8 +144,22 @@ const styles = () => ({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "#f5f5f5",
-    padding: "10px",
+    background: "transparent",
+    margin: "25px 0",
+    color: "#3b3b3b",
+    "& button": {
+      margin: "0 8px",
+      padding: "10px 20px",
+      minWidth: "115px",
+      borderRadius: "24px",
+      color: "inherit",
+      borderColor: "inherit !important",
+      background: "#fff",
+    },
+    "& button:hover:not([disabled])": {
+      color: "#fff",
+      background: "#3b3b3b",
+    },
   },
 });
 
