@@ -27,12 +27,15 @@ type PrimaryContact = {
   lastName: string;
   email: string;
   phone: string;
+  institution: string;
+  position: string;
 };
 
 type AdditionalContact = {
-  role: string
+  role: string; // NOTE: this needs to become position, currently matches GQL schema
   firstName: string;
   lastName: string;
+  institution: string;
   email: string;
   phone?: string;
 };
@@ -42,6 +45,6 @@ type KeyedAdditionalContact = {
 } & AdditionalContact;
 
 type FormSectionProps = {
-  classes: any;
+  classes?: any;
   refs: any;
 };

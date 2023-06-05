@@ -7,7 +7,7 @@ export const map = {
   B,
 };
 
-type Props = {
+type Props = FormSectionProps & {
   section: string;
   refs: {
     saveForm: React.RefObject<HTMLButtonElement>;
@@ -25,12 +25,12 @@ type Props = {
  * @param {Props} props
  * @returns {FunctionComponentElement} - Section component
  */
-export default ({ section, ...props }: Props) => {
+export default ({ section, ...rest }: Props) => {
   const sectionName = section.toUpperCase();
 
   // Create the section component
   if (typeof map[sectionName] !== "undefined") {
-    return createElement(map[sectionName], props);
+    return createElement(map[sectionName], rest);
   }
 
   // Render a fallback component if the section is not found

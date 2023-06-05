@@ -39,17 +39,17 @@ const styles = () => ({
   },
   groupTitle: {
     fontWeight: 600,
-    color: "green",
-    fontSize: "17px",
+    color: "#00A37D",
+    fontSize: "18px",
     margin: "0 -25px",
     marginBottom: "10px",
   },
   divider: {
-    borderColor: "#3b3b3b",
+    borderColor: "#ACC7E5",
     borderStyle: "solid",
     width: "100%",
     marginTop: "25px",
-    marginBottom: "35px",
+    marginBottom: "0",
   },
 });
 

@@ -5,7 +5,7 @@ import router from './router';
 const theme = createTheme({
   palette: {
     background: {
-      default: '#f2f5f7',
+      default: '#F4F8FD',
     },
   },
 });

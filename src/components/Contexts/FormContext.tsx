@@ -1,5 +1,4 @@
 /* eslint-disable */
-/* TODO: Remove above during component development */
 import React, {
   FC,
   createContext,
@@ -11,18 +10,15 @@ import React, {
 type ContextState = {
   status: Status;
   data: Application;
+  setData?: (Application) => void;
   error?: string;
 };
 
-type CtxProvider = [
-  ContextState,
-  (Application) => void | null,
-];
-
 export enum Status {
-  LOADING = "LOADING",
-  LOADED = "LOADED",
-  ERROR = "ERROR",
+  LOADING = "LOADING", // Loading initial data
+  LOADED = "LOADED",   // Successfully loaded data
+  ERROR = "ERROR",     // Error loading data
+  SAVING = "SAVING",   // Saving data to the API
 }
 
 const initialState: ContextState = { status: Status.LOADING, data: null };
@@ -33,7 +29,7 @@ const initialState: ContextState = { status: Status.LOADING, data: null };
  * @see ContextState – Form context state
  * @see useFormContext – Form context hook
  */
-const Context = createContext<CtxProvider>([initialState, null]);
+const Context = createContext<ContextState>(initialState);
 
 /**
  * Form Context Hook
@@ -42,11 +38,11 @@ const Context = createContext<CtxProvider>([initialState, null]);
  * @see ContextState – Form context state returned by the hook
  * @returns {ContextState} - Form context
  */
-export const useFormContext = (): CtxProvider => {
-  const context = useContext(Context);
+export const useFormContext = (): ContextState => {
+  const context = useContext<ContextState>(Context);
 
   if (!context) {
-    throw new Error("FormContext cannot be rendered outside the FormProvider component");
+    throw new Error("FormContext cannot be used outside of the FormProvider component");
   }
 
   return context;
@@ -68,19 +64,21 @@ export const FormProvider: FC<ProviderProps> = (props) => {
   const { children, id } = props;
   const [state, setState] = useState<ContextState>(initialState);
 
+  // Here we update the state and send the data to the API
+  // otherwise we can just update the local state (i.e. within form sections)
   const setData = (data: Application) => {
-    // Here we update the state and send the data to the API
-    // otherwise we can just update the local state (i.e. within form sections)
-    console.log("--------------------");
+    console.log("[UPDATING DATA]");
     console.log("prior state", state);
-    setState({
-      ...state,
-      data,
-    });
-    console.log("new state", {
-      ...state,
-      data,
-    });
+
+    const newState = { ...state, data };
+    setState({ ...newState, status: Status.SAVING });
+    console.log("new state", newState);
+
+    // simulate the save event
+    setTimeout(() => {
+      setState({ ...newState, status: Status.LOADED });
+      console.log("saved");
+    }, 1500);
   };
 
   useEffect(() => {
@@ -131,7 +129,9 @@ export const FormProvider: FC<ProviderProps> = (props) => {
             firstName: "Benjamin",
             lastName: "Franklin",
             email: "ben.franklin@nih.gov",
-            phone: "555-555-5555",
+            phone: "1 301 525 6364",
+            position: "ABC",
+            institution: "University of Pennsylvania",
           },
           additionalContacts: [
             {
@@ -140,6 +140,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
               lastName: "Graph",
               email: "fred.graph@nih.gov",
               phone: "301-555-5555",
+              institution: "University of California, San Diego",
             },
             {
               role: "Financial Contact",
@@ -147,6 +148,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
               lastName: "Eyre",
               email: "jane.eyre@nih.gov",
               phone: "",
+              institution: "University of California, San Diego",
             },
           ],
         },
@@ -154,5 +156,9 @@ export const FormProvider: FC<ProviderProps> = (props) => {
     }, 500);
   }, [id]);
 
-  return <Context.Provider value={[state, setData]}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={{ ...state, setData }}>
+      {children}
+    </Context.Provider>
+  );
 };

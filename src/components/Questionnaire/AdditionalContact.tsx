@@ -3,6 +3,7 @@ import { Button, Grid, Stack } from "@mui/material";
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import { WithStyles, withStyles } from '@mui/styles';
 import TextInput from "./TextInput";
+import { Status as FormStatus, useFormContext } from '../Contexts/FormContext';
 import { filterNonNumeric, validateEmail } from '../../content/questionnaire/utils';
 
 type Props = {
@@ -19,10 +20,14 @@ type Props = {
  * @returns {JSX.Element}
  */
 const AdditionalContact: FC<Props> = ({ index, classes, contact, onDelete }: Props) => {
-  const { role, firstName, lastName, email, phone } = contact;
+  const { status } = useFormContext();
+
+  const {
+    firstName, lastName, email, phone, role, institution,
+  } = contact;
 
   return (
-    <Grid container columnSpacing={8} xs={12} className={classes.root}>
+    <Grid container className={classes.root}>
       <Grid item xs={12}>
         <Stack direction="row" justifyContent="end">
           <Button
@@ -32,6 +37,7 @@ const AdditionalContact: FC<Props> = ({ index, classes, contact, onDelete }: Pro
             size="large"
             startIcon={<PersonRemoveIcon />}
             className={classes.contactButton}
+            disabled={status === FormStatus.SAVING}
           >
             Remove Contact
           </Button>
@@ -39,8 +45,8 @@ const AdditionalContact: FC<Props> = ({ index, classes, contact, onDelete }: Pro
       </Grid>
       <TextInput label="First name" name={`additionalContacts[${index}][firstName]`} value={firstName} maxLength={50} required />
       <TextInput label="Last name" name={`additionalContacts[${index}][lastName]`} value={lastName} maxLength={50} required />
-      <TextInput label="Institution" name={`additionalContacts[${index}][todo]`} value="TODO" maxLength={100} required />
-      <TextInput label="Position" name={`additionalContacts[${index}][role]`} value={role} maxLength={100} />
+      <TextInput label="Institution" name={`additionalContacts[${index}][institution]`} value={institution} maxLength={100} required />
+      <TextInput label="Position" name={`additionalContacts[${index}][role]`} value={role} maxLength={100} placeholder="(exs. Co-PI, sequencing center manager)" />
       <TextInput label="Email address" name={`additionalContacts[${index}][email]`} value={email} validate={validateEmail} required />
       <TextInput label="Phone number" name={`additionalContacts[${index}][phone]`} value={phone} maxLength={25} filter={filterNonNumeric} />
     </Grid>
@@ -49,24 +55,30 @@ const AdditionalContact: FC<Props> = ({ index, classes, contact, onDelete }: Pro
 
 const styles = () => ({
   root: {
-    marginLeft: "35px",
-    border: "1px solid #3b3b3b",
+    border: "0.5px solid #346798",
+    borderRadius: "8px",
     padding: "10px",
-    borderRadius: "5px",
     marginTop: "20px",
-    "& .MuiGrid-item": {
-      paddingLeft: "16px !important",
-      paddingRight: "16px !important",
+    marginLeft: "37px",
+    marginRight: "-27px",
+
+    "& .MuiGrid-item:nth-child(2n)": {
+      paddingLeft: "16px",
+      paddingRight: "32px",
+    },
+    "& .MuiGrid-item:nth-child(2n+1)": {
+      paddingRight: "16px",
+      paddingLeft: "32px",
     },
   },
   contactButton: {
+    color: "#346798",
     marginLeft: "auto",
     marginTop: "10px",
-    padding: "8px 20px",
+    padding: "6px 20px",
     minWidth: "115px",
     borderRadius: "24px",
-    color: "inherit",
-    borderColor: "inherit !important",
+    border: "2px solid #AFC2D8 !important",
     background: "transparent",
     "text-transform": "none",
   }

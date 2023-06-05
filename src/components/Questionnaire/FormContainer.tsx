@@ -41,27 +41,27 @@ const FormContainer: FC<Props> = ({
 
 const styles = () => ({
   formContainer: {
-    border: "2px solid #3b3b3b",
+    border: "2px solid #ACC7E5",
     background: "transparent",
-    borderRadius: "4px",
+    borderRadius: "8px",
   },
   titleGroup: {
-    background: "#ddd",
-    color: "#3b3b3b",
-    padding: "25px 40px",
+    background: "#E9F2FA",
+    color: "#2F486C",
+    padding: "30px 44px",
     marginBottom: "10px",
-    borderRadius: "4px 4px 0 0",
+    borderRadius: "8px 8px 0 0",
     display: "flex",
     alignItems: "center",
   },
   sectionTitle: {
-    fontWeight: 500,
+    fontWeight: 600,
     marginRight: "30px",
     fontSize: "30px",
   },
   sectionDesc: {
     fontWeight: 300,
-    fontSize: "23px",
+    fontSize: "25px",
   },
 });
 

@@ -3,13 +3,12 @@ import { Button, Grid, Stack } from '@mui/material';
 import { withStyles } from "@mui/styles";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { parseForm } from '@jalik/form-parser';
-import { useFormContext } from "../../../components/Contexts/FormContext";
+import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
-import { PrimaryContact } from "../../../components/Questionnaire/PrimaryContact";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import { validateEmail } from '../utils';
+import { filterNonNumeric, validateEmail } from '../utils';
 
 /**
  * Form Section A View
@@ -18,8 +17,7 @@ import { validateEmail } from '../utils';
  * @returns {JSX.Element}
  */
 const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps) => {
-  const [form, setFormData] = useFormContext();
-  const { data } = form;
+  const { status, data, setData } = useFormContext();
 
   const [pi] = useState<PI>(data.pi);
   const [primaryContact] = useState<PrimaryContact>(data.primaryContact);
@@ -42,7 +40,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       // Show validation errors but save the data anyway
       formRef.current.reportValidity();
 
-      setFormData({
+      setData({
         ...data,
         ...parseForm(formRef.current, { nullify: false }),
       });
@@ -67,7 +65,8 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
         firstName: "",
         lastName: "",
         email: "",
-        phone: ""
+        phone: "",
+        institution: "",
       },
     ]);
   };
@@ -117,7 +116,12 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
         title={`Enter Primary Contact information for the primary contact
           who will be assisting with data submission`}
       >
-        <PrimaryContact contact={primaryContact} />
+        <TextInput label="First name" name="primaryContact[firstName]" value={primaryContact.firstName} maxLength={50} required />
+        <TextInput label="Last name" name="primaryContact[lastName]" value={primaryContact.lastName} maxLength={50} required />
+        <TextInput label="Institution" name="primaryContact[institution]" value={primaryContact.institution} maxLength={100} required />
+        <TextInput label="Position" name="primaryContact[position]" value={primaryContact.position} maxLength={100} placeholder="(exs. Co-PI, sequencing center manager)" />
+        <TextInput label="Email address" name="primaryContact[email]" value={primaryContact.email} validate={validateEmail} required />
+        <TextInput label="Phone number" name="primaryContact[phone]" value={primaryContact.phone} maxLength={25} filter={filterNonNumeric} />
       </SectionGroup>
 
       {/* Additional Contacts */}
@@ -139,6 +143,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
               size="large"
               startIcon={<PersonAddIcon />}
               className={classes.contactButton}
+              disabled={status === FormStatus.SAVING}
             >
               Add Additional Contact
             </Button>
@@ -151,13 +156,14 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
 const styles = () => ({
   contactButton: {
+    color: "#346798",
     margin: "10px",
     marginRight: "35px",
-    padding: "8px 20px",
+    marginBottom: "35px",
+    padding: "6px 20px",
     minWidth: "115px",
     borderRadius: "24px",
-    color: "inherit",
-    borderColor: "inherit !important",
+    border: "2px solid #AFC2D8 !important",
     background: "transparent",
     "text-transform": "none",
   }

@@ -72,7 +72,7 @@ const TextInput: FC<Props> = ({
   }, [value]);
 
   return (
-    <Grid xs={gridWidth || 6} item>
+    <Grid className={classes.root} xs={gridWidth || 6} item>
       <FormControl fullWidth error={error}>
         <label htmlFor={id} className={classes.label}>
           {label}
@@ -96,31 +96,43 @@ const TextInput: FC<Props> = ({
 };
 
 const styles = () => ({
+  root: {
+    "& .MuiFormHelperText-root.Mui-error": {
+      color: "#D54309 !important",
+    },
+  },
   label: {
     fontWeight: 500,
-    color: "#3478a5",
+    fontSize: "16px",
+    color: "#346798",
     marginBottom: "7px",
   },
   asterisk: {
-    color: 'red',
+    color: '#D54309',
   },
   input: {
     borderRadius: "0",
     backgroundColor: "#fff",
+    color: "#1B1B1B",
 
     "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: "#3b3b3b",
+      borderColor: "#346798",
     },
-
+    "& input::placeholder": {
+      color: "#9D9D9D",
+    },
+    // Override the input error border color
+    "&.Mui-error fieldset": {
+      borderColor: "#D54309 !important",
+    },
     // Target disabled <textarea> inputs
     "&.MuiInputBase-multiline.Mui-readOnly": {
-      backgroundColor: '#d8d8d8',
+      backgroundColor: '#8B9EB3',
       cursor: 'not-allowed',
     },
-
     // Target disabled <input> inputs
     "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: '#d8d8d8',
+      backgroundColor: '#8B9EB3',
       cursor: 'not-allowed',
     },
   },

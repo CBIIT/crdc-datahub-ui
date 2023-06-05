@@ -1,6 +1,7 @@
 import React, { FC, createRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
@@ -25,8 +26,7 @@ const validateSection = (section: string) => typeof map[section] !== 'undefined'
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
-  const [form] = useFormContext();
-  const { status, data, error } = form;
+  const { status, data, error } = useFormContext();
   const [activeSection, setActiveSection] = useState(validateSection(section) ? section : "A");
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
@@ -102,37 +102,38 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
           variant="outlined"
           type="button"
           onClick={goBack}
-          disabled={!sectionKeys[sectionIndex - 1]}
+          disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex - 1]}
           size="large"
           startIcon={<BackwardArrowIcon />}
         >
           Back
         </Button>
-        <Button
+        <LoadingButton
           variant="outlined"
           type="button"
           ref={refs.saveForm}
           size="large"
+          loading={status === FormStatus.SAVING}
         >
           Save
-        </Button>
-        <Button
-          variant="outlined"
-          type="button"
-          onClick={goForward}
-          disabled={!sectionKeys[sectionIndex + 1]}
-          size="large"
-          endIcon={<ForwardArrowIcon />}
-        >
-          Next
-        </Button>
-        <Button
+        </LoadingButton>
+        <LoadingButton
           variant="outlined"
           type="submit"
           ref={refs.submitForm}
           size="large"
         >
           Submit
+        </LoadingButton>
+        <Button
+          variant="outlined"
+          type="button"
+          onClick={goForward}
+          disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex + 1]}
+          size="large"
+          endIcon={<ForwardArrowIcon />}
+        >
+          Next
         </Button>
       </div>
     </div>
@@ -146,20 +147,20 @@ const styles = () => ({
     alignItems: "center",
     background: "transparent",
     margin: "25px 0",
-    color: "#3b3b3b",
+    color: "#000000",
     "& button": {
-      margin: "0 8px",
+      margin: "0 7px",
       padding: "10px 20px",
       minWidth: "115px",
       borderRadius: "24px",
       color: "inherit",
-      borderColor: "inherit !important",
+      borderColor: "#8B9EB3 !important",
       background: "#fff",
       textTransform: "none",
     },
     "& button:hover:not([disabled])": {
       color: "#fff",
-      background: "#3b3b3b",
+      background: "#2A2A2A",
     },
   },
 });
