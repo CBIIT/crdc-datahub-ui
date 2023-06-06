@@ -16,34 +16,41 @@ type Props = {
  * @returns {JSX.Element}
  */
 const SectionGroup: FC<Props> = ({ title, classes, divider = true, children }) => (
-  <Grid className={classes.group} container spacing={2}>
+  <>
     {divider && <Divider className={classes.divider} />}
-    <Grid xs={12} item>
-      <Typography
-        className={classes.groupTitle}
-        variant="h6"
-      >
-        {title}
-      </Typography>
+    <Grid className={classes.group} container rowSpacing={0} columnSpacing={8}>
+      <Grid xs={12} item>
+        <Typography
+          className={classes.groupTitle}
+          variant="h6"
+        >
+          {title}
+        </Typography>
+      </Grid>
+      {children}
     </Grid>
-    {children}
-  </Grid>
+  </>
 );
 
 const styles = () => ({
   group: {
     marginTop: "25px",
+    padding: "0 82px",
   },
   groupTitle: {
-    fontWeight: 600,
-    color: "green",
-    fontSize: "16px",
+    fontWeight: 500,
+    fontFamily: "'Rubik', sans-serif",
+    color: "#00A37D",
+    fontSize: "18px",
+    margin: "0 -25px",
+    marginBottom: "18px",
   },
   divider: {
-    width: "calc(100% - 16px)",
-    marginLeft: "16px",
-    borderColor: "#3b3b3b",
-    borderStyle: "dashed",
+    borderColor: "#ACC7E5",
+    borderStyle: "solid",
+    width: "100%",
+    marginTop: "25px",
+    marginBottom: "0",
   },
 });
 

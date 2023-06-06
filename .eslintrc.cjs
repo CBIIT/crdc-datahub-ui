@@ -7,29 +7,29 @@ module.exports = {
     'airbnb-typescript',
   ],
   parser: '@typescript-eslint/parser',
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true
     },
-    "ecmaVersion": 11,
-    "project": "./tsconfig.json",
-    "sourceType": "module"
+    ecmaVersion: 11,
+    project: "./tsconfig.json",
+    sourceType: "module"
   },
-  "plugins": ["react", "@typescript-eslint"],
-  "settings": {
-    "react": {
-      "pragma": "React",
-      "fragment": "Fragment",
-      "version": "detect"
+  plugins: ["react", "@typescript-eslint"],
+  settings: {
+    react: {
+      pragma: "React",
+      fragment: "Fragment",
+      version: "detect"
     }
   },
   root: true,
-   "rules": {
+   rules: {
     // Note: you must disable the base rule as it can report incorrect errors
+    "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx", ".ts"] }],
     "no-empty-function": "warn",
     "@typescript-eslint/no-empty-function": "error",
     "prettier/prettier": "off",
-    "react/jsx-filename-extension": "off",
     "import/no-unresolved": "off",
     "import/extensions": "off",
     "react/display-name": "off",
@@ -53,11 +53,11 @@ module.exports = {
     "react/jsx-max-props-per-line": [
       1,
       {
-        "maximum": 2,
-        "when": "multiline"
+        maximum: 2,
+        when: "multiline"
       }
     ],
-    "indent": "off",
+    indent: "off",
     "react/jsx-indent": ["warn"],
     "@typescript-eslint/indent": [0],
     "no-use-before-define": "off",

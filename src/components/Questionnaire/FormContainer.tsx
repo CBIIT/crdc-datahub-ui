@@ -25,10 +25,10 @@ const FormContainer: FC<Props> = ({
   return (
     <div className={classes.formContainer}>
       <div className={classes.titleGroup}>
-        <Typography className={classes.sectionTitle} variant="h5">
+        <Typography className={classes.sectionTitle} variant="h1">
           {title}
         </Typography>
-        <Typography className={classes.sectionDesc} variant="h6">
+        <Typography className={classes.sectionDesc} variant="h2">
           {description}
         </Typography>
       </div>
@@ -41,28 +41,31 @@ const FormContainer: FC<Props> = ({
 
 const styles = () => ({
   formContainer: {
-    padding: "20px",
-    border: "1px solid #3b3b3b",
-    background: "#f2f5f7",
-    borderRadius: "4px",
+    border: "2px solid #ACC7E5",
+    background: "transparent",
+    borderRadius: "8px",
   },
   titleGroup: {
-    background: "#f2f2f2",
-    padding: "20px",
-    margin: "-20px",
+    background: "#E9F2FA",
+    color: "#2F486C",
+    padding: "33px 44px",
     marginBottom: "10px",
-    borderRadius: "4px 4px 0 0",
+    borderRadius: "8px 8px 0 0",
     display: "flex",
     alignItems: "center",
   },
   sectionTitle: {
     fontWeight: 600,
-    color: "blue",
-    marginRight: "20px",
+    fontFamily: "'Public Sans', sans-serif",
+    marginRight: "19px",
+    fontSize: "30px",
+    lineHeight: "27px",
   },
   sectionDesc: {
     fontWeight: 300,
-    color: "blue",
+    fontSize: "25px",
+    fontFamily: "'Rubik', sans-serif",
+    lineHeight: "27px",
   },
 });
 
