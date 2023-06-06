@@ -18,7 +18,7 @@ type Props = {
 const SectionGroup: FC<Props> = ({ title, classes, divider = true, children }) => (
   <>
     {divider && <Divider className={classes.divider} />}
-    <Grid className={classes.group} container rowSpacing={1} columnSpacing={8}>
+    <Grid className={classes.group} container rowSpacing={0} columnSpacing={8}>
       <Grid xs={12} item>
         <Typography
           className={classes.groupTitle}
@@ -38,11 +38,12 @@ const styles = () => ({
     padding: "0 82px",
   },
   groupTitle: {
-    fontWeight: 600,
+    fontWeight: 500,
+    fontFamily: "'Rubik', sans-serif",
     color: "#00A37D",
     fontSize: "18px",
     margin: "0 -25px",
-    marginBottom: "10px",
+    marginBottom: "18px",
   },
   divider: {
     borderColor: "#ACC7E5",

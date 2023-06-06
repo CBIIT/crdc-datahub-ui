@@ -72,11 +72,11 @@ const TextInput: FC<Props> = ({
   }, [value]);
 
   return (
-    <Grid className={classes.root} xs={gridWidth || 6} item>
+    <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
       <FormControl fullWidth error={error}>
         <label htmlFor={id} className={classes.label}>
           {label}
-          {required ? (<span className={classes.asterisk}> *</span>) : ''}
+          {required ? (<span className={classes.asterisk}>*</span>) : ''}
         </label>
         <OutlinedInput
           classes={{ root: classes.input }}
@@ -109,11 +109,12 @@ const styles = () => ({
   },
   asterisk: {
     color: '#D54309',
+    marginLeft: '4px',
   },
   input: {
     borderRadius: "0",
     backgroundColor: "#fff",
-    color: "#1B1B1B",
+    color: "#4E4E4E",
 
     "& .MuiOutlinedInput-notchedOutline": {
       borderColor: "#346798",
@@ -125,14 +126,14 @@ const styles = () => ({
     "&.Mui-error fieldset": {
       borderColor: "#D54309 !important",
     },
-    // Target disabled <textarea> inputs
+    // Target readOnly <textarea> inputs
     "&.MuiInputBase-multiline.Mui-readOnly": {
-      backgroundColor: '#8B9EB3',
+      backgroundColor: '#D9DEE4',
       cursor: 'not-allowed',
     },
-    // Target disabled <input> inputs
+    // Target readOnly <input> inputs
     "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: '#8B9EB3',
+      backgroundColor: '#D9DEE4',
       cursor: 'not-allowed',
     },
   },

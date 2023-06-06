@@ -109,11 +109,11 @@ export const FormProvider: FC<ProviderProps> = (props) => {
           sections: [
             {
               name: "A",
-              status: "complete",
+              status: "In Progress",
             },
             {
               name: "B",
-              status: "complete",
+              status: "In Progress",
             },
           ],
           pi: {

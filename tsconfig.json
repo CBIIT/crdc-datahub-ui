@@ -22,6 +22,7 @@
   },
   "include": [
     "src",
-    ".eslintrc.cjs"
+    ".eslintrc.cjs",
+    "types/*.d.ts"
   ]
 }

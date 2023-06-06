@@ -32,8 +32,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const sectionIndex = sectionKeys.indexOf(activeSection);
 
   const refs = {
-    saveForm: createRef<HTMLButtonElement>(),
-    submitForm: createRef<HTMLButtonElement>(),
+    saveFormRef: createRef<HTMLButtonElement>(),
+    submitFormRef: createRef<HTMLButtonElement>(),
   };
 
   /**
@@ -111,7 +111,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         <LoadingButton
           variant="outlined"
           type="button"
-          ref={refs.saveForm}
+          ref={refs.saveFormRef}
           size="large"
           loading={status === FormStatus.SAVING}
         >
@@ -120,7 +120,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         <LoadingButton
           variant="outlined"
           type="submit"
-          ref={refs.submitForm}
+          ref={refs.submitFormRef}
           size="large"
         >
           Submit
@@ -149,7 +149,7 @@ const styles = () => ({
     margin: "25px 0",
     color: "#000000",
     "& button": {
-      margin: "0 7px",
+      margin: "0 6px",
       padding: "10px 20px",
       minWidth: "115px",
       borderRadius: "24px",
@@ -157,6 +157,9 @@ const styles = () => ({
       borderColor: "#8B9EB3 !important",
       background: "#fff",
       textTransform: "none",
+    },
+    "& button:disabled": {
+      background: "#D9DEE4",
     },
     "& button:hover:not([disabled])": {
       color: "#fff",

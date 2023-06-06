@@ -61,27 +61,35 @@ const styles = () => ({
     marginTop: "20px",
     marginLeft: "37px",
     marginRight: "-27px",
-
-    "& .MuiGrid-item:nth-child(2n)": {
-      paddingLeft: "16px",
-      paddingRight: "32px",
+    "& .MuiGrid-item": {
+      padding: "0 16px",
     },
-    "& .MuiGrid-item:nth-child(2n+1)": {
-      paddingRight: "16px",
-      paddingLeft: "32px",
+    "@media (min-width: 900px)": {
+      "& .MuiGrid-item:nth-child(2n)": {
+        paddingLeft: "16px",
+        paddingRight: "32px",
+      },
+      "& .MuiGrid-item:nth-child(2n+1)": {
+        paddingRight: "16px",
+        paddingLeft: "32px",
+      },
     },
   },
   contactButton: {
     color: "#346798",
     marginLeft: "auto",
+    marginRight: "35px",
     marginTop: "10px",
     padding: "6px 20px",
     minWidth: "115px",
-    borderRadius: "24px",
+    borderRadius: "25px",
     border: "2px solid #AFC2D8 !important",
     background: "transparent",
     "text-transform": "none",
-  }
+    "& .MuiButton-startIcon": {
+      marginRight: "14px",
+    },
+  },
 });
 
 export default withStyles(styles)(AdditionalContact);

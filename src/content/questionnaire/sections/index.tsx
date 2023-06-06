@@ -10,8 +10,8 @@ export const map = {
 type Props = FormSectionProps & {
   section: string;
   refs: {
-    saveForm: React.RefObject<HTMLButtonElement>;
-    submitForm: React.RefObject<HTMLButtonElement>;
+    saveFormRef: React.RefObject<HTMLButtonElement>;
+    submitFormRef: React.RefObject<HTMLButtonElement>;
   };
 };
 

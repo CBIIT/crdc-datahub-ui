@@ -8,6 +8,18 @@ const theme = createTheme({
       default: '#F4F8FD',
     },
   },
+  typography: {
+    fontFamily: "'Inter', 'Rubik', sans-serif",
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontFamily: "'Public Sans', sans-serif",
+        },
+      },
+    },
+  },
 });
 
 function App() {

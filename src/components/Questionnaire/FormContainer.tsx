@@ -48,7 +48,7 @@ const styles = () => ({
   titleGroup: {
     background: "#E9F2FA",
     color: "#2F486C",
-    padding: "30px 44px",
+    padding: "33px 44px",
     marginBottom: "10px",
     borderRadius: "8px 8px 0 0",
     display: "flex",
@@ -56,12 +56,16 @@ const styles = () => ({
   },
   sectionTitle: {
     fontWeight: 600,
-    marginRight: "30px",
+    fontFamily: "'Public Sans', sans-serif",
+    marginRight: "19px",
     fontSize: "30px",
+    lineHeight: "27px",
   },
   sectionDesc: {
     fontWeight: 300,
     fontSize: "25px",
+    fontFamily: "'Rubik', sans-serif",
+    lineHeight: "27px",
   },
 });
 

@@ -3,12 +3,19 @@ import { Button, Grid, Stack } from '@mui/material';
 import { withStyles } from "@mui/styles";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { parseForm } from '@jalik/form-parser';
+import { cloneDeep, isEqual } from 'lodash';
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import { filterNonNumeric, validateEmail } from '../utils';
+import { filterNonNumeric, mapObjectWithKey, validateEmail } from '../utils';
+
+type KeyedContact = {
+  key: string;
+} & AdditionalContact;
+
+const sectionName = "A";
 
 /**
  * Form Section A View
@@ -21,34 +28,53 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
   const [pi] = useState<PI>(data.pi);
   const [primaryContact] = useState<PrimaryContact>(data.primaryContact);
-  const [additionalContacts, setAdditionalContacts] = useState<KeyedAdditionalContact[]>(data.additionalContacts
-    .map((contact: AdditionalContact, index: number) => ({
-      ...contact,
-      key: `${index}_${new Date().getTime()}`,
-    })));
+  const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts.map(mapObjectWithKey));
 
   const formRef = useRef<HTMLFormElement>();
-  const { saveForm, submitForm } = refs;
+  const { saveFormRef, submitFormRef } = refs;
 
   useEffect(() => {
-    if (!saveForm.current || !submitForm.current) { return; }
+    if (!saveFormRef.current || !submitFormRef.current) { return; }
 
-    // Save the form data on click
-    saveForm.current.onclick = () => {
-      if (!formRef.current) { return; }
-
-      // Show validation errors but save the data anyway
-      formRef.current.reportValidity();
-
-      setData({
-        ...data,
-        ...parseForm(formRef.current, { nullify: false }),
-      });
-    };
-
-    // Hide the submit button from this section
-    submitForm.current.style.display = "none";
+    saveFormRef.current.onclick = saveForm;
+    saveFormRef.current.style.display = "initial";
+    submitFormRef.current.style.display = "none";
   }, [refs]);
+
+  /**
+   * Saves the current form data to the API
+   *
+   * NOTE:
+   * - Each form section should define its own save function
+   *   and handle saving of its own data as necessary
+   *
+   * @returns {void}
+   */
+  const saveForm = () => {
+    if (!formRef.current) { return; }
+
+    const formObject = parseForm(formRef.current, { nullify: false });
+    const combinedData = { ...cloneDeep(data), ...formObject };
+
+    // Reset additional contacts if none are provided
+    if (!formObject.additionalContacts || formObject.additionalContacts.length === 0) {
+      combinedData.additionalContacts = [];
+    }
+
+    // Update section status
+    const newStatus = formRef.current.reportValidity() ? "Completed" : "In Progress";
+    const currentSection : Section = combinedData.sections.find((s) => s.name === sectionName);
+    if (currentSection) {
+      currentSection.status = newStatus;
+    } else {
+      combinedData.sections.push({ name: sectionName, status: newStatus });
+    }
+
+    // Skip state update if there are no changes
+    if (!isEqual(combinedData, data)) {
+      setData(combinedData);
+    }
+  };
 
   /**
    * Add a empty additional contact to the list
@@ -105,6 +131,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           gridWidth={12}
           maxLength={200}
           name="pi[address]"
+          placeholder="200 characters allowed"
           rows={4}
           multiline
           required
@@ -126,7 +153,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
       {/* Additional Contacts */}
       <SectionGroup title="Additional contacts (e.g., data coordinator)">
-        {additionalContacts.map((contact: KeyedAdditionalContact, idx: number) => (
+        {additionalContacts.map((contact: KeyedContact, idx: number) => (
           <AdditionalContact
             key={contact.key}
             index={idx}
@@ -157,16 +184,17 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 const styles = () => ({
   contactButton: {
     color: "#346798",
-    margin: "10px",
-    marginRight: "35px",
-    marginBottom: "35px",
+    margin: "35px",
     padding: "6px 20px",
     minWidth: "115px",
-    borderRadius: "24px",
+    borderRadius: "25px",
     border: "2px solid #AFC2D8 !important",
     background: "transparent",
     "text-transform": "none",
-  }
+    "& .MuiButton-startIcon": {
+      marginRight: "14px",
+    },
+  },
 });
 
 export default withStyles(styles, { withTheme: true })(FormSectionA);
