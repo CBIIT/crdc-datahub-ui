@@ -31,14 +31,18 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts.map(mapObjectWithKey));
 
   const formRef = useRef<HTMLFormElement>();
-  const { saveFormRef, submitFormRef } = refs;
+  const {
+    saveFormRef, submitFormRef, saveHandlerRef, isDirtyHandlerRef
+  } = refs;
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) { return; }
 
-    saveFormRef.current.onclick = saveForm;
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
+
+    saveHandlerRef.current = saveForm;
+    isDirtyHandlerRef.current = () => !isEqual(getFormObject(), data);
   }, [refs]);
 
   /**
@@ -50,16 +54,8 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
    *
    * @returns {void}
    */
-  const saveForm = () => {
-    if (!formRef.current) { return; }
-
-    const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData = { ...cloneDeep(data), ...formObject };
-
-    // Reset additional contacts if none are provided
-    if (!formObject.additionalContacts || formObject.additionalContacts.length === 0) {
-      combinedData.additionalContacts = [];
-    }
+  const saveForm = async () => {
+    const combinedData = getFormObject();
 
     // Update section status
     const newStatus = formRef.current.reportValidity() ? "Completed" : "In Progress";
@@ -72,8 +68,25 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
     // Skip state update if there are no changes
     if (!isEqual(combinedData, data)) {
-      setData(combinedData);
+      const r = await setData(combinedData);
+      return r;
     }
+
+    return true;
+  };
+
+  const getFormObject = () => {
+    if (!formRef.current) { return false; }
+
+    const formObject = parseForm(formRef.current, { nullify: false });
+    const combinedData = { ...cloneDeep(data), ...formObject };
+
+    // Reset additional contacts if none are provided
+    if (!formObject.additionalContacts || formObject.additionalContacts.length === 0) {
+      combinedData.additionalContacts = [];
+    }
+
+    return combinedData;
   };
 
   /**
