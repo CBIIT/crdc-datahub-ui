@@ -1,4 +1,4 @@
-import React, { FC, createRef, useRef, useState } from 'react';
+import React, { FC, createRef, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -39,6 +39,22 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     isDirtyHandlerRef: useRef<(() => boolean) | null>(null),
   };
 
+  // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
+  useEffect(() => {
+    const unloadHandler = (event: BeforeUnloadEvent) => {
+      if (refs.isDirtyHandlerRef.current?.()) {
+        event.preventDefault();
+        event.returnValue = 'You have unsaved form changes. Are you sure you want to leave?';
+      }
+    };
+
+    window.addEventListener('beforeunload', unloadHandler);
+
+    return () => {
+      window.removeEventListener('beforeunload', unloadHandler);
+    };
+  });
+
   /**
    * Handles the actual navigation to a specific section
    *
@@ -71,6 +87,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       return;
     }
     if (refs.isDirtyHandlerRef.current?.()) {
+      // TODO: React Router removed the ability to intercept navigation events in v6, thus
+      // we cannot block react-router-dom navigation actions. Once useBlocker is added back in, we
+      // can remove the blockedNavigate state and use the navigateToSection function directly
+      // by blocking navigation at the Form Section level.
       setBlockedNavigate(section);
       return;
     }
