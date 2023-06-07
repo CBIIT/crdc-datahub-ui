@@ -3,11 +3,6 @@ import { ThemeProvider, CssBaseline, createTheme } from '@mui/material';
 import router from './router';
 
 const theme = createTheme({
-  palette: {
-    background: {
-      default: '#F4F8FD',
-    },
-  },
   typography: {
     fontFamily: "'Inter', 'Rubik', sans-serif",
   },

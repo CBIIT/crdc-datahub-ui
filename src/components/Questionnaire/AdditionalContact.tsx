@@ -78,7 +78,7 @@ const styles = () => ({
   contactButton: {
     color: "#346798",
     marginLeft: "auto",
-    marginRight: "35px",
+    marginRight: "28px",
     marginTop: "10px",
     padding: "6px 20px",
     minWidth: "115px",
