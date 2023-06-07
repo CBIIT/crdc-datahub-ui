@@ -165,7 +165,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       </SectionGroup>
 
       {/* Additional Contacts */}
-      <SectionGroup title="Additional contacts (e.g., data coordinator)">
+      <SectionGroup>
         {additionalContacts.map((contact: KeyedContact, idx: number) => (
           <AdditionalContact
             key={contact.key}
@@ -197,7 +197,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 const styles = () => ({
   contactButton: {
     color: "#346798",
-    margin: "35px",
+    margin: "25px",
     padding: "6px 20px",
     minWidth: "115px",
     borderRadius: "25px",

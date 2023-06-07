@@ -4,7 +4,7 @@ import { WithStyles, withStyles } from '@mui/styles';
 
 type Props = {
   classes: WithStyles<typeof styles>['classes'];
-  title: string;
+  title?: string;
   divider?: boolean;
   children: React.ReactNode;
 };
@@ -20,12 +20,11 @@ const SectionGroup: FC<Props> = ({ title, classes, divider = true, children }) =
     {divider && <Divider className={classes.divider} />}
     <Grid className={classes.group} container rowSpacing={0} columnSpacing={8}>
       <Grid xs={12} item>
-        <Typography
-          className={classes.groupTitle}
-          variant="h6"
-        >
-          {title}
-        </Typography>
+        {title && (
+          <Typography className={classes.groupTitle} variant="h6">
+            {title}
+          </Typography>
+        )}
       </Grid>
       {children}
     </Grid>
