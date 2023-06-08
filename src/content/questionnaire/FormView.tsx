@@ -1,5 +1,8 @@
 import React, { FC, createRef, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {
+  Link, useNavigate,
+  unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
+} from 'react-router-dom';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
@@ -28,9 +31,12 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
   const { status, data, error } = useFormContext();
   const [activeSection, setActiveSection] = useState(validateSection(section) ? section : "A");
-  const [blockedNavigate, setBlockedNavigate] = useState(null);
+  const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
+
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
+  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex - 1]}` : "#";
+  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex + 1]}` : "#";
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -38,6 +44,16 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     saveHandlerRef: useRef<(() => Promise<boolean>) | null>(null),
     isDirtyHandlerRef: useRef<(() => boolean) | null>(null),
   };
+
+  // Intercept React Router navigation actions with unsaved changes
+  const blocker: Blocker = useBlocker(() => {
+    if (refs.isDirtyHandlerRef.current?.()) {
+      setBlockedNavigate(true);
+      return true;
+    }
+
+    return false;
+  });
 
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
@@ -55,48 +71,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     };
   });
 
-  /**
-   * Handles the actual navigation to a specific section
-   *
-   * @param section string
-   * @returns void
-   */
-  const navigateToSection = (section: string) => {
-    if (!validateSection(section.toUpperCase())) {
-      return;
-    }
-    if (section.toUpperCase() === activeSection) {
-      return;
-    }
-
-    navigate(`/questionnaire/${data?.id}/${section}`);
-    setActiveSection(section);
-  };
-
-  /**
-   * Wrapper for navigating to the next section
-   * will catch an unsaved form and open the prompt
-   *
-   * @param {number} direction
-   * @returns {void}
-   */
-  const goToSection = (direction: -1 | 1) => {
-    const section = sectionKeys[sectionIndex + direction];
-
-    if (!section) {
-      return;
-    }
-    if (refs.isDirtyHandlerRef.current?.()) {
-      // TODO: React Router removed the ability to intercept navigation events in v6, thus
-      // we cannot block react-router-dom navigation actions. Once useBlocker is added back in, we
-      // can remove the blockedNavigate state and use the navigateToSection function directly
-      // by blocking navigation at the Form Section level.
-      setBlockedNavigate(section);
-      return;
-    }
-
-    navigateToSection(section);
-  };
+  useEffect(() => {
+    setActiveSection(validateSection(section) ? section : "A");
+  }, [section]);
 
   /**
    * Provides a save handler for the Unsaved Changes
@@ -108,8 +85,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
     await refs.saveHandlerRef.current?.();
-    setBlockedNavigate(null);
-    navigateToSection(blockedNavigate);
+    setBlockedNavigate(false);
+    blocker.proceed();
   };
 
   /**
@@ -120,8 +97,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    * @returns {void}
    */
   const discardAndNavigate = () => {
-    setBlockedNavigate(null);
-    navigateToSection(blockedNavigate);
+    setBlockedNavigate(false);
+    blocker.proceed();
   };
 
   if (status === FormStatus.LOADING) {
@@ -142,16 +119,17 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       <Section section={activeSection} refs={refs} />
 
       <div className={classes.formControls}>
-        <Button
-          variant="outlined"
-          type="button"
-          onClick={() => goToSection(-1)}
-          disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex - 1]}
-          size="large"
-          startIcon={<BackwardArrowIcon />}
-        >
-          Back
-        </Button>
+        <Link to={prevSection} style={{ pointerEvents: sectionKeys[sectionIndex - 1] ? "initial" : "none" }}>
+          <Button
+            variant="outlined"
+            type="button"
+            disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex - 1]}
+            size="large"
+            startIcon={<BackwardArrowIcon />}
+          >
+            Back
+          </Button>
+        </Link>
         <LoadingButton
           variant="outlined"
           type="button"
@@ -170,19 +148,20 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         >
           Submit
         </LoadingButton>
-        <Button
-          variant="outlined"
-          type="button"
-          onClick={() => goToSection(1)}
-          disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex + 1]}
-          size="large"
-          endIcon={<ForwardArrowIcon />}
-        >
-          Next
-        </Button>
+        <Link to={nextSection} style={{ pointerEvents: sectionKeys[sectionIndex + 1] ? "initial" : "none" }}>
+          <Button
+            variant="outlined"
+            type="button"
+            disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex + 1]}
+            size="large"
+            endIcon={<ForwardArrowIcon />}
+          >
+            Next
+          </Button>
+        </Link>
       </div>
 
-      <Dialog open={blockedNavigate !== null}>
+      <Dialog open={blockedNavigate}>
         <DialogTitle>
           Unsaved Changes
         </DialogTitle>
@@ -193,8 +172,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setBlockedNavigate(null)} disabled={status === FormStatus.SAVING}>Cancel</Button>
-          <Button onClick={saveAndNavigate} disabled={status === FormStatus.SAVING} autoFocus>Save</Button>
+          <Button onClick={() => setBlockedNavigate(false)} disabled={status === FormStatus.SAVING}>Cancel</Button>
+          <LoadingButton onClick={saveAndNavigate} loading={status === FormStatus.SAVING} autoFocus>Save</LoadingButton>
           <Button onClick={discardAndNavigate} disabled={status === FormStatus.SAVING} color="error">Discard</Button>
         </DialogActions>
       </Dialog>
@@ -227,6 +206,10 @@ const styles = () => ({
       color: "#fff",
       background: "#2A2A2A",
     },
+    "& a": {
+      color: "inherit",
+      textDecoration: "none",
+    }
   },
 });
 

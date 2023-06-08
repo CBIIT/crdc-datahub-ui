@@ -1,6 +1,6 @@
-import { useRoutes } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, createTheme } from '@mui/material';
-import router from './router';
+import routeConfig from './router';
 
 const theme = createTheme({
   typography: {
@@ -17,12 +17,15 @@ const theme = createTheme({
   },
 });
 
+const router = createBrowserRouter(
+  routeConfig,
+);
+
 function App() {
-  const content = useRoutes(router);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {content}
+      <RouterProvider router={router} />
     </ThemeProvider>
   );
 }
