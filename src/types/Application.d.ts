@@ -51,7 +51,7 @@ type Study = {
   title: string;
   abbreviation: string;
   description: string;
-  repositories: Repository[];
+  repositories?: Repository[];
 };
 
 type Repository = {

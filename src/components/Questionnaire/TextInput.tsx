@@ -4,9 +4,7 @@ import { WithStyles, withStyles } from '@mui/styles';
 
 type Props = {
   classes: WithStyles<typeof styles>['classes'];
-  value: string;
   label: string;
-  name: string;
   helpText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
@@ -27,7 +25,7 @@ type Props = {
  */
 const TextInput: FC<Props> = ({
   classes, value, label, required = false,
-  helpText, gridWidth, maxLength, name,
+  helpText, gridWidth, maxLength,
   validate, filter,
   ...rest
 }) => {
@@ -50,17 +48,12 @@ const TextInput: FC<Props> = ({
     return true;
   };
 
-  const onChange = (e) => {
-    let newVal = e.target.value;
-
+  const onChange = (newVal) => {
     if (typeof filter === "function") {
       newVal = filter(newVal);
-      e.target.value = newVal;
     }
-
     if (typeof maxLength === "number" && newVal.length > maxLength) {
       newVal = newVal.slice(0, maxLength);
-      e.target.value = newVal;
     }
 
     setVal(newVal);
@@ -68,7 +61,7 @@ const TextInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    setVal(value);
+    onChange(value.toString().trim());
   }, [value]);
 
   return (
@@ -84,8 +77,7 @@ const TextInput: FC<Props> = ({
           id={id}
           size="small"
           value={val}
-          name={name}
-          onChange={onChange}
+          onChange={(e) => onChange(e.target.value)}
           required={required}
           {...rest}
         />

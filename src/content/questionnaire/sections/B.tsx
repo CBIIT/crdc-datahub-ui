@@ -1,27 +1,16 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import { Grid } from '@mui/material';
-import { withStyles } from "@mui/styles";
+import { AutocompleteChangeReason } from '@mui/material';
 import { parseForm } from '@jalik/form-parser';
+import { cloneDeep, isEqual } from 'lodash';
+import programOptions from '../../../config/ProgramConfig';
 import { useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import SelectInput from '../../../components/Questionnaire/SelectInput';
+import Autocomplete from '../../../components/Questionnaire/AutocompleteInput';
+import { findProgram, findStudy } from '../utils';
 
-type ProgramOption = {
-  name: string;
-  abbreviation: string;
-};
-
-// TODO: Either load dynamically or fill in manually
-const programOptions: ProgramOption[] = [
-  { name: "ABC Long Name ABC", abbreviation: "ABC" },
-  { name: "DEF Long Name DEF", abbreviation: "DEF" },
-  { name: "GHI Long Name GHI", abbreviation: "GHI" },
-  { name: "JKL Long Name JKL", abbreviation: "JKL" },
-  { name: "Example Pg", abbreviation: "EPG" },
-  { name: "Other", abbreviation: "Other" },
-];
+const sectionName = "B";
 
 /**
  * Form Section B View
@@ -30,56 +19,114 @@ const programOptions: ProgramOption[] = [
  * @returns {JSX.Element}
  */
 const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
-  const [form, setFormData] = useFormContext();
-  const { data } = form;
+  const { data, setData } = useFormContext();
 
   const [program, setProgram] = useState<Program>(data.program);
-  const [study] = useState<Study>(data.study);
-
-  // Compare API program title to the list of options to determine if it's a custom program
-  const [isCustomProgram, setIsCustomProgram] = useState<boolean>(
-    program.title.toLowerCase() === "other"
-    || programOptions.find((option: ProgramOption) => option.name === program.title) === undefined
-  );
+  const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(program.title));
+  const [study, setStudy] = useState<Study>(data.study);
+  const [studyOption, setStudyOption] = useState<StudyOption>(findStudy(study.title, programOption));
 
   const formRef = useRef<HTMLFormElement>();
-  const { saveForm, submitForm } = refs;
+  const {
+    saveFormRef, submitFormRef, saveHandlerRef, isDirtyHandlerRef
+  } = refs;
 
   useEffect(() => {
-    if (!saveForm.current || !submitForm.current) { return; }
+    if (!saveFormRef.current || !submitFormRef.current) { return; }
 
-    // Save the form data on click
-    saveForm.current.onclick = () => {
-      if (!formRef.current) { return; }
+    saveFormRef.current.style.display = "initial";
+    submitFormRef.current.style.display = "none";
 
-      // Show validation errors but save the data anyway
-      formRef.current.reportValidity();
-
-      setFormData({
-        ...data,
-        ...parseForm(formRef.current, { nullify: false }),
-      });
-    };
-
-    // Hide the submit button from this section
-    submitForm.current.style.visibility = "hidden";
+    saveHandlerRef.current = saveForm;
+    isDirtyHandlerRef.current = () => !isEqual(getFormObject(), data);
   }, [refs]);
 
-  const handleProgramChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
-    const isCustom = value.toLowerCase() === "other";
-    let title = value;
+  /**
+   * Saves the current form data to the API
+   *
+   * @returns {void}
+   */
+  const saveForm = async () => {
+    const combinedData = getFormObject();
 
-    if (isCustom !== isCustomProgram) {
-      setIsCustomProgram(isCustom);
-      title = isCustom ? "" : value;
+    // Update section status
+    const newStatus = formRef.current.reportValidity() ? "Completed" : "In Progress";
+    const currentSection : Section = combinedData.sections.find((s) => s.name === sectionName);
+    if (currentSection) {
+      currentSection.status = newStatus;
+    } else {
+      combinedData.sections.push({ name: sectionName, status: newStatus });
     }
 
-    setProgram({
-      ...program,
-      title,
-      abbreviation: isCustom ? "" : programOptions.find((option: ProgramOption) => option.name === value)?.abbreviation || "",
-    });
+    // Skip state update if there are no changes
+    if (!isEqual(combinedData, data)) {
+      const r = await setData(combinedData);
+      return r;
+    }
+
+    return true;
+  };
+
+  const getFormObject = () => {
+    if (!formRef.current) { return false; }
+
+    const formObject = parseForm(formRef.current, { nullify: false });
+    return { ...cloneDeep(data), ...formObject };
+  };
+
+  /**
+   * Handles the program change event and updates program/study states
+   *
+   * @param e event
+   * @param value new program title
+   * @param r Reason for the event dispatch
+   * @returns {void}
+   */
+  const handleProgramChange = (e: React.SyntheticEvent, value: string, r: AutocompleteChangeReason) => {
+    if (r !== "selectOption") { return; }
+
+    const newProgram = findProgram(value);
+    if (newProgram?.isCustom) {
+      setProgram({ title: "", abbreviation: "", description: "" });
+    } else {
+      setProgram({ title: newProgram.title, abbreviation: newProgram.abbreviation, description: "" });
+    }
+
+    // Only reset study if the study is not currently custom
+    // The user may have entered a "Other" study and then changed the program
+    if (!studyOption?.isCustom) {
+      const newStudy = newProgram.studies[0];
+      if (newStudy?.isCustom) {
+        setStudy({ ...study, title: "", abbreviation: "", description: "" });
+      } else {
+        setStudy({ ...study, ...newProgram.studies[0] });
+      }
+
+      setStudyOption(newProgram.studies[0]);
+    }
+
+    setProgramOption(newProgram);
+  };
+
+  /**
+   * Handles the study change event and updates the state
+   *
+   * @param e event
+   * @param value new study title
+   * @param r Reason for the event dispatch
+   * @returns {void}
+   */
+  const handleStudyChange = (e: React.SyntheticEvent, value: string, r: AutocompleteChangeReason) => {
+    if (r !== "selectOption") { return; }
+
+    const newStudy = findStudy(value, programOption);
+    if (newStudy?.isCustom) {
+      setStudy({ ...study, title: "", abbreviation: "", description: "" });
+    } else {
+      setStudy({ ...study, title: newStudy.title, abbreviation: newStudy.abbreviation, description: "" });
+    }
+
+    setStudyOption(newStudy);
   };
 
   return (
@@ -88,54 +135,117 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
       description="Program and Study Registration"
       formRef={formRef}
     >
-      <SectionGroup
-        title="Program Registration"
-        divider={false}
-      >
-        <SelectInput
-          label="Program Title"
-          name="program[title]"
-          value={isCustomProgram ? "Other" : program.title}
-          onChange={handleProgramChange}
-          options={programOptions.map((option: ProgramOption) => ({ label: option.name, value: option.name }))}
-          required
-        />
-        <TextInput
-          label="Program Abbreviation"
-          name="program[abbreviation]"
-          value={program.abbreviation}
-          maxLength={20}
-          readOnly={!isCustomProgram}
-          required
-        />
-        {isCustomProgram && (
-          <>
-            <TextInput
-              label="Custom Program Title"
-              name="program[title]"
-              value={program.title}
-              gridWidth={6}
-              maxLength={50}
-              required
-            />
-            <Grid item xs={6} />
-          </>
-        )}
-        <TextInput
-          label="Program Description"
-          name="program[description]"
-          value={program.description}
+      {/* Program Registration Section */}
+      <SectionGroup title="Provide information about the program" divider={false}>
+        <Autocomplete
           gridWidth={12}
-          maxLength={50}
-          minRows={4}
+          label="Program"
+          value={programOption?.isCustom ? programOption.title : program.title}
+          onChange={handleProgramChange}
+          options={programOptions.map((option: ProgramOption) => option.title)}
+          placeholder="– Search and Select Program –"
           required
+          disableClearable
+        />
+        <TextInput
+          label="Program name"
+          name="program[title]"
+          value={programOption?.isCustom ? program.title : programOption.title}
+          maxLength={50}
+          readOnly={!programOption?.isCustom}
+          required
+        />
+        <TextInput
+          label="Program abbreviation or acronym"
+          name="program[abbreviation]"
+          value={programOption?.isCustom ? program.abbreviation : programOption.abbreviation}
+          maxLength={20}
+          readOnly={!programOption?.isCustom}
+          required
+        />
+        <TextInput
+          label="Program description"
+          name="program[description]"
+          value={programOption?.isCustom ? program.description : " "}
+          gridWidth={12}
+          maxLength={1000}
+          placeholder="1000 characters allowed"
+          minRows={4}
+          readOnly={!programOption?.isCustom}
+          required={programOption?.isCustom}
           multiline
         />
+      </SectionGroup>
+
+      {/* Study Registration Section */}
+      <SectionGroup title="Provide information about the study" divider>
+        <Autocomplete
+          gridWidth={12}
+          label="Study"
+          value={studyOption?.isCustom ? studyOption.title : study.title}
+          onChange={handleStudyChange}
+          options={programOption.studies.map((option: StudyOption) => option.title)}
+          placeholder="– Search and Select Study –"
+          required
+          disableClearable
+        />
+        <TextInput
+          label="Study name"
+          name="study[title]"
+          value={studyOption?.isCustom ? study.title : studyOption.title}
+          maxLength={50}
+          readOnly={!studyOption?.isCustom}
+          required
+        />
+        <TextInput
+          label="Study abbreviation or acronym"
+          name="study[abbreviation]"
+          value={studyOption?.isCustom ? study.abbreviation : studyOption.abbreviation}
+          maxLength={20}
+          readOnly={!studyOption?.isCustom}
+          required
+        />
+        <TextInput
+          label="Study description"
+          name="study[description]"
+          value={studyOption?.isCustom ? study.description : " "}
+          gridWidth={12}
+          maxLength={1000}
+          placeholder="1000 characters allowed"
+          minRows={4}
+          readOnly={!studyOption?.isCustom}
+          required={studyOption?.isCustom}
+          multiline
+        />
+      </SectionGroup>
+
+      {/* Associated Pubications */}
+      <SectionGroup
+        title={`List publications associated with this study, if any.
+          <br/>Include PubMed ID (PMID). Indicate one pulication per row.`}
+        divider
+      >
+        TODO
+      </SectionGroup>
+
+      {/* Study Repositories */}
+      <SectionGroup
+        title={`Enter name of the repository where the study is currently registered (e.g. dbGaP, ORCID)
+          <br/>and associated repository study identifier.`}
+        divider
+      >
+        TODO
+      </SectionGroup>
+
+      {/* Funding Agency */}
+      <SectionGroup
+        title="List the agency(s) and/or organization(s) that funded this study."
+        divider
+      >
+        TODO
       </SectionGroup>
     </FormContainer>
   );
 };
 
-const styles = () => ({});
-
-export default withStyles(styles, { withTheme: true })(FormSectionB);
+export default FormSectionB;

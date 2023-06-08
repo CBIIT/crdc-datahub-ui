@@ -48,10 +48,6 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   /**
    * Saves the current form data to the API
    *
-   * NOTE:
-   * - Each form section should define its own save function
-   *   and handle saving of its own data as necessary
-   *
    * @returns {void}
    */
   const saveForm = async () => {

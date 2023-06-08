@@ -1,41 +1,43 @@
 import React, { FC, useEffect, useId, useState } from "react";
 import {
+  Autocomplete,
   FormControl,
   FormHelperText,
   Grid,
-  MenuItem,
-  Select,
+  TextField,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
   value: string;
-  options: { label: string; value: string | number }[];
-  name: string;
   label: string;
+  options: string[];
+  name?: string;
   required?: boolean;
   helpText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
-  onChange?: (value: string) => void;
+  placeholder?: string;
+  disableClearable?: boolean;
+  onChange?: (e: React.SyntheticEvent, v: any, r: string) => void;
 };
 
 /**
- * Generates a generic select box with a label and help text
+ * Generates a generic autocomplete select box with a label and help text
  *
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const SelectInput: FC<Props> = ({
+const AutocompleteInput: FC<Props> = ({
   classes,
   value,
   name,
   label,
-  options,
   required = false,
   helpText,
   gridWidth,
   onChange,
+  ...rest
 }) => {
   const id = useId();
 
@@ -43,16 +45,16 @@ const SelectInput: FC<Props> = ({
   const [error] = useState(false);
   const helperText = helpText || (required ? "This field is required" : " ");
 
-  const onChangeWrapper = (newVal) => {
+  const onChangeWrapper = (e, v, r) => {
     if (typeof onChange === "function") {
-      onChange(newVal);
+      onChange(e, v, r);
     }
 
-    setVal(newVal);
+    setVal(v);
   };
 
   useEffect(() => {
-    onChangeWrapper(value);
+    onChangeWrapper(null, value, null);
   }, [value]);
 
   return (
@@ -62,21 +64,22 @@ const SelectInput: FC<Props> = ({
           {label}
           {required ? <span className={classes.asterisk}>*</span> : ""}
         </label>
-        <Select
-          classes={{ select: classes.input }}
+        <Autocomplete
           id={id}
           size="small"
           value={val}
-          onChange={(e) => onChangeWrapper(e.target.value)}
-          required={required}
-          name={name}
-        >
-          {options.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
+          classes={{ root: classes.input }}
+          onChange={onChangeWrapper}
+          renderInput={(p) => (
+            <TextField
+              {...p}
+              name={name}
+              required={required}
+              placeholder={rest.placeholder || ""}
+            />
+          )}
+          {...rest}
+        />
         <FormHelperText>{error ? helperText : " "}</FormHelperText>
       </FormControl>
     </Grid>
@@ -112,4 +115,4 @@ const styles = () => ({
   },
 });
 
-export default withStyles(styles, { withTheme: true })(SelectInput);
+export default withStyles(styles, { withTheme: true })(AutocompleteInput);
