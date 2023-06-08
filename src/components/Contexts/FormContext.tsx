@@ -10,7 +10,7 @@ import React, {
 type ContextState = {
   status: Status;
   data: Application;
-  setData?: (Application) => void;
+  setData?: (Application) => Promise<boolean>;
   error?: string;
 };
 
@@ -66,19 +66,22 @@ export const FormProvider: FC<ProviderProps> = (props) => {
 
   // Here we update the state and send the data to the API
   // otherwise we can just update the local state (i.e. within form sections)
-  const setData = (data: Application) => {
-    console.log("[UPDATING DATA]");
-    console.log("prior state", state);
+  const setData = async (data: Application) => {
+    return new Promise<boolean>((resolve, reject) => {
+      console.log("[UPDATING DATA]");
+      console.log("prior state", state);
 
-    const newState = { ...state, data };
-    setState({ ...newState, status: Status.SAVING });
-    console.log("new state", newState);
+      const newState = { ...state, data };
+      setState({ ...newState, status: Status.SAVING });
+      console.log("new state", newState);
 
-    // simulate the save event
-    setTimeout(() => {
-      setState({ ...newState, status: Status.LOADED });
-      console.log("saved");
-    }, 1500);
+      // simulate the save event
+      setTimeout(() => {
+        setState({ ...newState, status: Status.LOADED });
+        console.log("saved");
+        resolve(true);
+      }, 1500);
+    });
   };
 
   useEffect(() => {

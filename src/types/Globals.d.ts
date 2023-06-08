@@ -1,6 +1,9 @@
 type FormSectionProps = {
   classes?: any;
   refs: {
-    [key: string]: React.RefObject<HTMLInputElement | HTMLButtonElement>;
+    saveFormRef: React.RefObject<HTMLButtonElement>;
+    submitFormRef: React.RefObject<HTMLButtonElement>;
+    saveHandlerRef: React.MutableRefObject<(() => Promise<boolean>) | null>;
+    isDirtyHandlerRef: React.MutableRefObject<(() => boolean) | null>;
   };
 };
