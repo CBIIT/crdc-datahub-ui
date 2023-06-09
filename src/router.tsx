@@ -11,6 +11,7 @@ const Loader = (Component) => (props) => (
 
 // Pages
 const Home = Loader(lazy(() => import('./content')));
+const Login = Loader(lazy(() => import('./content/login/LoginView')));
 
 // status
 const Status404 = Loader(
