@@ -3,7 +3,11 @@ type FormSectionProps = {
   refs: {
     saveFormRef: React.RefObject<HTMLButtonElement>;
     submitFormRef: React.RefObject<HTMLButtonElement>;
-    saveHandlerRef: React.MutableRefObject<(() => Promise<boolean>) | null>;
-    isDirtyHandlerRef: React.MutableRefObject<(() => boolean) | null>;
+    getFormObjectRef: React.MutableRefObject<(() => FormObject | null) | null>;
   };
+};
+
+type FormObject = {
+  ref: React.RefObject<HTMLFormElement>;
+  data: Application;
 };

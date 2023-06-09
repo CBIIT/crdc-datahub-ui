@@ -15,8 +15,6 @@ type KeyedContact = {
   key: string;
 } & AdditionalContact;
 
-const sectionName = "A";
-
 /**
  * Form Section A View
  *
@@ -24,7 +22,7 @@ const sectionName = "A";
  * @returns {JSX.Element}
  */
 const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps) => {
-  const { status, data, setData } = useFormContext();
+  const { status, data } = useFormContext();
 
   const [pi] = useState<PI>(data.pi);
   const [primaryContact] = useState<PrimaryContact>(data.primaryContact);
@@ -32,7 +30,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
   const formRef = useRef<HTMLFormElement>();
   const {
-    saveFormRef, submitFormRef, saveHandlerRef, isDirtyHandlerRef
+    saveFormRef, submitFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
@@ -41,38 +39,11 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
 
-    saveHandlerRef.current = saveForm;
-    isDirtyHandlerRef.current = () => !isEqual(getFormObject(), data);
+    getFormObjectRef.current = getFormObject;
   }, [refs]);
 
-  /**
-   * Saves the current form data to the API
-   *
-   * @returns {void}
-   */
-  const saveForm = async () => {
-    const combinedData = getFormObject();
-
-    // Update section status
-    const newStatus = formRef.current.reportValidity() ? "Completed" : "In Progress";
-    const currentSection : Section = combinedData.sections.find((s) => s.name === sectionName);
-    if (currentSection) {
-      currentSection.status = newStatus;
-    } else {
-      combinedData.sections.push({ name: sectionName, status: newStatus });
-    }
-
-    // Skip state update if there are no changes
-    if (!isEqual(combinedData, data)) {
-      const r = await setData(combinedData);
-      return r;
-    }
-
-    return true;
-  };
-
-  const getFormObject = () => {
-    if (!formRef.current) { return false; }
+  const getFormObject = () : FormObject | null => {
+    if (!formRef.current) { return null; }
 
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
@@ -82,7 +53,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       combinedData.additionalContacts = [];
     }
 
-    return combinedData;
+    return { ref: formRef, data: combinedData };
   };
 
   /**

@@ -3,6 +3,7 @@ import {
   Link, useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
+import { isEqual } from 'lodash';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
@@ -29,8 +30,8 @@ const validateSection = (section: string) => typeof map[section] !== 'undefined'
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
-  const { status, data, error } = useFormContext();
-  const [activeSection, setActiveSection] = useState(validateSection(section) ? section : "A");
+  const { status, data, setData, error } = useFormContext();
+  const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
 
   const sectionKeys = Object.keys(map);
@@ -41,13 +42,12 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
     submitFormRef: createRef<HTMLButtonElement>(),
-    saveHandlerRef: useRef<(() => Promise<boolean>) | null>(null),
-    isDirtyHandlerRef: useRef<(() => boolean) | null>(null),
+    getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
 
   // Intercept React Router navigation actions with unsaved changes
   const blocker: Blocker = useBlocker(() => {
-    if (refs.isDirtyHandlerRef.current?.()) {
+    if (isDirty()) {
       setBlockedNavigate(true);
       return true;
     }
@@ -58,7 +58,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
     const unloadHandler = (event: BeforeUnloadEvent) => {
-      if (refs.isDirtyHandlerRef.current?.()) {
+      if (isDirty()) {
         event.preventDefault();
         event.returnValue = 'You have unsaved form changes. Are you sure you want to leave?';
       }
@@ -77,6 +77,51 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   }, [section]);
 
   /**
+   * Determines if the form has unsaved changes.
+   *
+   * @returns {boolean} true if the form has unsaved changes, false otherwise
+   */
+  const isDirty = () : boolean => {
+    const { data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    return !data || !isEqual(data, newData);
+  };
+
+  /**
+   * Saves the form data to the database.
+   *
+   * NOTE:
+   * - This function relies on HTML5 reportValidity() to
+   *   validate the form section status.
+   *
+   * @returns {Promise<boolean>} true if the save was successful, false otherwise
+   */
+  const saveForm = async () => {
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref.current || !newData) {
+      return false;
+    }
+
+    // Update section status
+    const newStatus = ref.current.reportValidity() ? "Completed" : "In Progress";
+    const currentSection : Section = newData.sections.find((s) => s.name === activeSection);
+    if (currentSection) {
+      currentSection.status = newStatus;
+    } else {
+      newData.sections.push({ name: activeSection, status: newStatus });
+    }
+
+    // Skip state update if there are no changes
+    if (!isEqual(data, newData)) {
+      const r = await setData(newData);
+      return r;
+    }
+
+    return true;
+  };
+
+  /**
    * Provides a save handler for the Unsaved Changes
    * dialog. Will save the form and then navigate to the
    * blocked section.
@@ -85,7 +130,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
-    await refs.saveHandlerRef.current?.();
+    await saveForm();
     setBlockedNavigate(false);
     blocker.proceed();
   };
@@ -137,7 +182,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
           ref={refs.saveFormRef}
           size="large"
           loading={status === FormStatus.SAVING}
-          onClick={() => refs.saveHandlerRef.current?.()}
+          onClick={saveForm}
         >
           Save
         </LoadingButton>

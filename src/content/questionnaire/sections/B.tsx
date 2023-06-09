@@ -10,8 +10,6 @@ import TextInput from "../../../components/Questionnaire/TextInput";
 import Autocomplete from '../../../components/Questionnaire/AutocompleteInput';
 import { findProgram, findStudy } from '../utils';
 
-const sectionName = "B";
-
 /**
  * Form Section B View
  *
@@ -19,7 +17,7 @@ const sectionName = "B";
  * @returns {JSX.Element}
  */
 const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
-  const { data, setData } = useFormContext();
+  const { data } = useFormContext();
 
   const [program, setProgram] = useState<Program>(data.program);
   const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(program.title));
@@ -28,7 +26,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
   const formRef = useRef<HTMLFormElement>();
   const {
-    saveFormRef, submitFormRef, saveHandlerRef, isDirtyHandlerRef
+    saveFormRef, submitFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
@@ -37,41 +35,16 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
 
-    saveHandlerRef.current = saveForm;
-    isDirtyHandlerRef.current = () => !isEqual(getFormObject(), data);
+    getFormObjectRef.current = getFormObject;
   }, [refs]);
 
-  /**
-   * Saves the current form data to the API
-   *
-   * @returns {void}
-   */
-  const saveForm = async () => {
-    const combinedData = getFormObject();
-
-    // Update section status
-    const newStatus = formRef.current.reportValidity() ? "Completed" : "In Progress";
-    const currentSection : Section = combinedData.sections.find((s) => s.name === sectionName);
-    if (currentSection) {
-      currentSection.status = newStatus;
-    } else {
-      combinedData.sections.push({ name: sectionName, status: newStatus });
-    }
-
-    // Skip state update if there are no changes
-    if (!isEqual(combinedData, data)) {
-      const r = await setData(combinedData);
-      return r;
-    }
-
-    return true;
-  };
-
-  const getFormObject = () => {
-    if (!formRef.current) { return false; }
+  const getFormObject = () : FormObject | null => {
+    if (!formRef.current) { return null; }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    return { ...cloneDeep(data), ...formObject };
+    const combinedData = { ...cloneDeep(data), ...formObject };
+
+    return { ref: formRef, data: combinedData };
   };
 
   /**
