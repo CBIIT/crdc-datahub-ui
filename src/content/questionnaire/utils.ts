@@ -65,6 +65,6 @@ export const findProgram = (title: string): ProgramOption => {
  * @param {ProgramOption} activeProgram the active program with the study options
  * @returns {StudyOption} the study option that matches the title
  */
-export const findStudy = (title: string, activeProgram: ProgramOption): StudyOption => {
-  return activeProgram?.studies?.find((option) => option.title === title) || OptionalStudy;
-};
+export const findStudy = (title: string, activeProgram: ProgramOption): StudyOption => (
+  activeProgram?.studies?.find((option) => option.title === title) || OptionalStudy
+);

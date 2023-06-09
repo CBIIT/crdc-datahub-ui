@@ -3,7 +3,7 @@ import { Button, Grid, Stack } from '@mui/material';
 import { withStyles } from "@mui/styles";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { parseForm } from '@jalik/form-parser';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
@@ -26,7 +26,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
   const [pi] = useState<PI>(data.pi);
   const [primaryContact] = useState<PrimaryContact>(data.primaryContact);
-  const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts.map(mapObjectWithKey));
+  const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
 
   const formRef = useRef<HTMLFormElement>();
   const {

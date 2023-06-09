@@ -161,7 +161,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
           },
           study: {
             title: "Example Study 1",
-            abbreviation: "ES",
+            abbreviation: "ES1",
             description: "", // non-custom studies do not have descriptions
             repositories: [
               {
@@ -170,6 +170,25 @@ export const FormProvider: FC<ProviderProps> = (props) => {
               }
             ]
           },
+          publications: [
+            {
+              title: "ABC Pub 123",
+              pubmedID: "123456",
+              DOI: "10.123/abc123",
+            },
+          ],
+          funding: {
+            agencies: [
+              {
+                name: "National Cancer Institute",
+                grantNumbers: [
+                  "R01CA123456",
+                ],
+              }
+            ],
+            nciProgramOfficer: 'Fred Franklin',
+            nciGPA: 'Person ABC',
+          }
         },
       });
     }, 500);
