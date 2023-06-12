@@ -19,7 +19,7 @@ type Props = {
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   placeholder?: string;
   disableClearable?: boolean;
-  onChange?: (e: React.SyntheticEvent, v: any, r: string) => void;
+  onChange?: (e: React.SyntheticEvent, v: string, r: string) => void;
 };
 
 /**

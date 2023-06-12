@@ -1,9 +1,9 @@
-/* eslint-disable */
 import React, {
   FC,
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -14,12 +14,14 @@ type ContextState = {
   error?: string;
 };
 
+/* eslint-disable */
 export enum Status {
   LOADING = "LOADING", // Loading initial data
   LOADED = "LOADED",   // Successfully loaded data
   ERROR = "ERROR",     // Error loading data
   SAVING = "SAVING",   // Saving data to the API
 }
+/* eslint-enable */
 
 const initialState: ContextState = { status: Status.LOADING, data: null };
 
@@ -66,25 +68,26 @@ export const FormProvider: FC<ProviderProps> = (props) => {
 
   // Here we update the state and send the data to the API
   // otherwise we can just update the local state (i.e. within form sections)
-  const setData = async (data: Application) => {
-    return new Promise<boolean>((resolve, reject) => {
-      console.log("[UPDATING DATA]");
-      console.log("prior state", state);
+  /* eslint-disable */
+  const setData = async (data: Application) => new Promise<boolean>((resolve) => {
+    console.log("[UPDATING DATA]");
+    console.log("prior state", state);
 
-      const newState = { ...state, data };
-      setState({ ...newState, status: Status.SAVING });
-      console.log("new state", newState);
+    const newState = { ...state, data };
+    setState({ ...newState, status: Status.SAVING });
+    console.log("new state", newState);
 
-      // simulate the save event
-      setTimeout(() => {
-        setState({ ...newState, status: Status.LOADED });
-        console.log("saved");
-        resolve(true);
-      }, 1500);
-    });
-  };
+    // simulate the save event
+    setTimeout(() => {
+      setState({ ...newState, status: Status.LOADED });
+      console.log("saved");
+      resolve(true);
+    }, 1500);
+  });
+  /* eslint-enable */
 
   useEffect(() => {
+    /* eslint-disable */
     // TODO: fetch form data from API
     setTimeout(() => {
       // TODO: validate API response
@@ -192,10 +195,13 @@ export const FormProvider: FC<ProviderProps> = (props) => {
         },
       });
     }, 500);
+    /* eslint-enable */
   }, [id]);
 
+  const value = useMemo(() => ({ ...state, setData }), [state]);
+
   return (
-    <Context.Provider value={{ ...state, setData }}>
+    <Context.Provider value={value}>
       {children}
     </Context.Provider>
   );
