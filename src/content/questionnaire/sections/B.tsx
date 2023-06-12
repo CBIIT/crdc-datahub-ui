@@ -189,6 +189,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           name="program[title]"
           value={programOption?.isCustom ? program.title : programOption.title}
           maxLength={50}
+          placeholder="50 characters allowed"
           readOnly={!programOption?.isCustom}
           required
         />
@@ -197,6 +198,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           name="program[abbreviation]"
           value={programOption?.isCustom ? program.abbreviation : programOption.abbreviation}
           maxLength={20}
+          placeholder="20 characters allowed"
           readOnly={!programOption?.isCustom}
           required
         />
@@ -231,6 +233,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           name="study[title]"
           value={studyOption?.isCustom ? study.title : studyOption.title}
           maxLength={50}
+          placeholder="50 characters allowed"
           readOnly={!studyOption?.isCustom}
           required
         />
@@ -239,6 +242,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           name="study[abbreviation]"
           value={studyOption?.isCustom ? study.abbreviation : studyOption.abbreviation}
           maxLength={20}
+          placeholder="20 characters allowed"
           readOnly={!studyOption?.isCustom}
           required
         />
@@ -266,7 +270,15 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           </>
         )}
       >
-        <Grid item xs={12} className={classes.titleOffset}>
+        {publications.map((pub: KeyedPublication, idx: number) => (
+          <Publication
+            key={pub.key}
+            index={idx}
+            publication={pub}
+            onDelete={() => removePublication(pub.key)}
+          />
+        ))}
+        <Grid item xs={12} className={!publications?.length ? classes.noContentButton : null}>
           <Stack direction="row" justifyContent="end">
             <Button
               variant="outlined"
@@ -281,14 +293,6 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
             </Button>
           </Stack>
         </Grid>
-        {publications.map((pub: KeyedPublication, idx: number) => (
-          <Publication
-            key={pub.key}
-            index={idx}
-            publication={pub}
-            onDelete={() => removePublication(pub.key)}
-          />
-        ))}
       </SectionGroup>
 
       {/* Study Repositories */}
@@ -301,7 +305,15 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           </>
         )}
       >
-        <Grid item xs={12} className={classes.titleOffset}>
+        {repositories.map((repo: KeyedRepository, idx: number) => (
+          <Repository
+            key={repo.key}
+            index={idx}
+            repository={repo}
+            onDelete={() => removeRepository(repo.key)}
+          />
+        ))}
+        <Grid item xs={12} className={!repositories?.length ? classes.noContentButton : null}>
           <Stack direction="row" justifyContent="end">
             <Button
               variant="outlined"
@@ -315,22 +327,21 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
             </Button>
           </Stack>
         </Grid>
-        {repositories.map((repo: KeyedRepository, idx: number) => (
-          <Repository
-            key={repo.key}
-            index={idx}
-            repository={repo}
-            onDelete={() => removeRepository(repo.key)}
-          />
-        ))}
       </SectionGroup>
 
       {/* Funding Agency */}
       <SectionGroup title="List the agency(s) and/or organization(s) that funded this study.">
         <TextInput label="Funding agency" name="funding[agencies][0][name]" value={funding?.agencies[0]?.name} maxLength={100} required />
-        <TextInput label="Grant or Contract Number(s)" name="funding[agencies][0][grantNumbers][0]" value={funding?.agencies[0]?.grantNumbers[0]} maxLength={50} required />
+        <TextInput
+          label="Grant or Contract Number(s)"
+          name="funding[agencies][0][grantNumbers][0]"
+          value={funding?.agencies[0]?.grantNumbers[0]}
+          infoText="For US federally funded studies, include Grant or Contract number(s): e.g. R01CAXXXX"
+          maxLength={50}
+          required
+        />
         <TextInput label="NCI Program Officer name, if applicable" name="funding[nciProgramOfficer]" value={funding?.nciProgramOfficer} maxLength={50} />
-        <TextInput classes={{ label: classes.noWrap }} label="NCI Genomic Program Administrator (GPA) name, if applicable" name="funding[nciGPA]" value={funding?.nciGPA} />
+        <TextInput label="NCI Genomic Program Administrator (GPA) name, if applicable" name="funding[nciGPA]" value={funding?.nciGPA} />
       </SectionGroup>
     </FormContainer>
   );
@@ -338,6 +349,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
 const styles = () => ({
   button: {
+    marginTop: "25px",
     color: "#346798",
     padding: "6px 20px",
     minWidth: "115px",
@@ -349,11 +361,8 @@ const styles = () => ({
       marginRight: "14px",
     },
   },
-  titleOffset: {
-    marginTop: "-70px",
-  },
-  noWrap: {
-    "white-space": "nowrap",
+  noContentButton: {
+    marginTop: "-93px",
   },
 });
 

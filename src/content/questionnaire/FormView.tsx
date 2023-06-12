@@ -36,8 +36,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
-  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex - 1]}` : "#";
-  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex + 1]}` : "#";
+  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex - 1]}` : null;
+  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex + 1]}` : null;
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -165,11 +165,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       <Section section={activeSection} refs={refs} />
 
       <div className={classes.formControls}>
-        <Link to={prevSection} style={{ pointerEvents: sectionKeys[sectionIndex - 1] ? "initial" : "none" }}>
+        <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
           <Button
             variant="outlined"
             type="button"
-            disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex - 1]}
+            disabled={status === FormStatus.SAVING || !prevSection}
             size="large"
             startIcon={<BackwardArrowIcon />}
           >
@@ -194,11 +194,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         >
           Submit
         </LoadingButton>
-        <Link to={nextSection} style={{ pointerEvents: sectionKeys[sectionIndex + 1] ? "initial" : "none" }}>
+        <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
           <Button
             variant="outlined"
             type="button"
-            disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex + 1]}
+            disabled={status === FormStatus.SAVING || !nextSection}
             size="large"
             endIcon={<ForwardArrowIcon />}
           >

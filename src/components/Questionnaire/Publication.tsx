@@ -27,7 +27,7 @@ const Publication: FC<Props> = ({
 
   return (
     <Grid container className={classes.root}>
-      <Grid container item xs={8}>
+      <Grid container item md={8} xs={12}>
         <TextInput
           label="Publication title"
           name={`publications[${index}][title]`}
@@ -50,7 +50,7 @@ const Publication: FC<Props> = ({
           classes={{ root: classes.lastInput }}
         />
       </Grid>
-      <Grid item xs={4}>
+      <Grid item md={4} xs={12}>
         <Stack direction="row" justifyContent="end">
           <Button
             variant="outlined"

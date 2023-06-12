@@ -141,7 +141,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
             onDelete={() => removeContact(contact.key)}
           />
         ))}
-        <Grid item xs={12}>
+        <Grid item xs={12} className={!additionalContacts?.length ? classes.noContentButton : null}>
           <Stack direction="row" justifyContent="end">
             <Button
               variant="outlined"
@@ -165,6 +165,7 @@ const styles = () => ({
   contactButton: {
     color: "#346798",
     margin: "25px",
+    marginBottom: "0px",
     padding: "6px 20px",
     minWidth: "115px",
     borderRadius: "25px",
@@ -174,6 +175,9 @@ const styles = () => ({
     "& .MuiButton-startIcon": {
       marginRight: "14px",
     },
+  },
+  noContentButton: {
+    marginTop: "-25px",
   },
 });
 

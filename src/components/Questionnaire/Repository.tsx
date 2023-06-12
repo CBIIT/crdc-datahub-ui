@@ -27,7 +27,7 @@ const Repository: FC<Props> = ({
 
   return (
     <Grid container className={classes.root}>
-      <Grid container item xs={6}>
+      <Grid container item md={6} xs={12}>
         <TextInput
           label="Repository name"
           name={`study[repositories][${index}][name]`}
@@ -45,7 +45,7 @@ const Repository: FC<Props> = ({
           required
         />
       </Grid>
-      <Grid item xs={6}>
+      <Grid item md={6} xs={12}>
         <Stack direction="row" justifyContent="end">
           <Button
             variant="outlined"
