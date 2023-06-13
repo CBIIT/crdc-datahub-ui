@@ -34,7 +34,7 @@ export const OptionalStudy : StudyOption = {
  */
 const options: ProgramOption[] = [
   {
-    title: "TCGA",
+    title: "The Cancer Genome Atlas",
     abbreviation: "TCGA",
     studies: [
       { title: "TCGA-BRCA", abbreviation: "TCGA-BRCA" },
@@ -58,7 +58,7 @@ const options: ProgramOption[] = [
     ],
   },
   {
-    title: "CCDI",
+    title: "Childhood Cancer Data Initiative",
     abbreviation: "CCDI",
     studies: [
       { title: "PIVOT", abbreviation: "PIVOT" },
@@ -68,7 +68,7 @@ const options: ProgramOption[] = [
     ],
   },
   {
-    title: "HTAN",
+    title: "Human Tumor Atlas Network",
     abbreviation: "HTAN",
     studies: [
       { title: "The Lung Pre-Cancer Atlas", abbreviation: "The Lung Pre-Cancer Atlas" },
@@ -85,7 +85,7 @@ const options: ProgramOption[] = [
     ],
   },
   {
-    title: "CPTAC",
+    title: "Clinical Proteomic Tumor Analysis Consortium",
     abbreviation: "CPTAC",
     studies: [
       { title: "CPTAC-2", abbreviation: "CPTAC-2" },

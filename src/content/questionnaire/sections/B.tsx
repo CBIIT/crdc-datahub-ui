@@ -188,7 +188,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           label="Program name"
           name="program[title]"
           value={programOption?.isCustom ? program.title : programOption.title}
-          maxLength={50}
+          maxLength={programOption?.isCustom ? 50 : undefined}
           placeholder="50 characters allowed"
           readOnly={!programOption?.isCustom}
           required
@@ -197,7 +197,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           label="Program abbreviation or acronym"
           name="program[abbreviation]"
           value={programOption?.isCustom ? program.abbreviation : programOption.abbreviation}
-          maxLength={20}
+          maxLength={programOption?.isCustom ? 20 : undefined}
           placeholder="20 characters allowed"
           readOnly={!programOption?.isCustom}
           required
@@ -232,7 +232,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           label="Study name"
           name="study[title]"
           value={studyOption?.isCustom ? study.title : studyOption.title}
-          maxLength={50}
+          maxLength={studyOption?.isCustom ? 50 : undefined}
           placeholder="50 characters allowed"
           readOnly={!studyOption?.isCustom}
           required
@@ -241,7 +241,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           label="Study abbreviation or acronym"
           name="study[abbreviation]"
           value={studyOption?.isCustom ? study.abbreviation : studyOption.abbreviation}
-          maxLength={20}
+          maxLength={studyOption?.isCustom ? 20 : undefined}
           placeholder="20 characters allowed"
           readOnly={!studyOption?.isCustom}
           required
