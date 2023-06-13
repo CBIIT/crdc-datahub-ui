@@ -82,9 +82,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    * @returns {boolean} true if the form has unsaved changes, false otherwise
    */
   const isDirty = () : boolean => {
-    const { data: newData } = refs.getFormObjectRef.current?.() || {};
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
-    return !data || !isEqual(data, newData);
+    return ref && (!data || !isEqual(data, newData));
   };
 
   /**
