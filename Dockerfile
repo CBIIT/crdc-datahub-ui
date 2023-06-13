@@ -10,7 +10,7 @@ RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 FROM nginx:1.23.3-alpine
 
-COPY --from=build /usr/src/app/packages/crdc-datahub-ui/build /usr/share/nginx/html
+COPY --from=build /usr/src/app/build /usr/share/nginx/html
 COPY --from=build /usr/src/app/conf/inject.template.js /usr/share/nginx/html/inject.template.js
 COPY --from=build /usr/src/app/conf/nginx.conf /etc/nginx/conf.d/configfile.template
 COPY --from=build /usr/src/app/conf/entrypoint.sh /
