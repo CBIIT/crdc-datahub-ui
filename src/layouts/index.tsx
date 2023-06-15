@@ -21,9 +21,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
       </Helmet>
       <Header />
         <Container maxWidth="lg">
-          <Box display="flex">
-            {children || <Outlet />}
-          </Box>
+          {children || <Outlet />}
         </Container>
       <Footer />
     </>

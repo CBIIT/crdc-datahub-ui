@@ -158,7 +158,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   }
 
   return (
-    <div className={classes.root}>
+    <>
       <div className={classes.header}>
         <i>Questionnaire Header</i>
       </div>
@@ -246,12 +246,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
           <Button onClick={discardAndNavigate} disabled={status === FormStatus.SAVING} color="error">Discard</Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 };
 
 const styles = () => ({
-  root: {},
   header: {
     width: "100%",
     height: "300px",
