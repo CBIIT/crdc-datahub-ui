@@ -1,6 +1,9 @@
-import React, { FC, createRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
+import React, { FC, createRef, useEffect, useRef, useState } from 'react';
+import {
+  Link, useNavigate,
+  unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
+} from 'react-router-dom';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
@@ -28,56 +31,74 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
   const { status, data, error } = useFormContext();
   const [activeSection, setActiveSection] = useState(validateSection(section) ? section : "A");
+  const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
+
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
+  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex - 1]}` : "#";
+  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex + 1]}` : "#";
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
     submitFormRef: createRef<HTMLButtonElement>(),
+    saveHandlerRef: useRef<(() => Promise<boolean>) | null>(null),
+    isDirtyHandlerRef: useRef<(() => boolean) | null>(null),
+  };
+
+  // Intercept React Router navigation actions with unsaved changes
+  const blocker: Blocker = useBlocker(() => {
+    if (refs.isDirtyHandlerRef.current?.()) {
+      setBlockedNavigate(true);
+      return true;
+    }
+
+    return false;
+  });
+
+  // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
+  useEffect(() => {
+    const unloadHandler = (event: BeforeUnloadEvent) => {
+      if (refs.isDirtyHandlerRef.current?.()) {
+        event.preventDefault();
+        event.returnValue = 'You have unsaved form changes. Are you sure you want to leave?';
+      }
+    };
+
+    window.addEventListener('beforeunload', unloadHandler);
+
+    return () => {
+      window.removeEventListener('beforeunload', unloadHandler);
+    };
+  });
+
+  useEffect(() => {
+    setActiveSection(validateSection(section) ? section : "A");
+  }, [section]);
+
+  /**
+   * Provides a save handler for the Unsaved Changes
+   * dialog. Will save the form and then navigate to the
+   * blocked section.
+   *
+   * @returns {void}
+   */
+  const saveAndNavigate = async () => {
+    // Wait for the save handler to complete
+    await refs.saveHandlerRef.current?.();
+    setBlockedNavigate(false);
+    blocker.proceed();
   };
 
   /**
-   * Trigger navigation to a specific section
+   * Provides a discard handler for the Unsaved Changes
+   * dialog. Will discard the form changes and then navigate to the
+   * blocked section.
    *
-   * @param section string
-   * @returns void
+   * @returns {void}
    */
-  const navigateToSection = (section: string) => {
-    if (!validateSection(section.toUpperCase())) {
-      return;
-    }
-    if (section.toUpperCase() === activeSection) {
-      return;
-    }
-
-    navigate(`/questionnaire/${data?.id}/${section}`);
-    setActiveSection(section);
-  };
-
-  /**
-   * Traverse to the previous section
-   *
-   * @returns void
-   */
-  const goBack = () => {
-    const previousSection = sectionKeys[sectionIndex - 1];
-
-    if (previousSection) {
-      navigateToSection(previousSection);
-    }
-  };
-
-  /**
-   * Traverse to the next section
-   *
-   * @returns void
-   */
-  const goForward = () => {
-    const nextSection = sectionKeys[sectionIndex + 1];
-
-    if (nextSection) {
-      navigateToSection(nextSection);
-    }
+  const discardAndNavigate = () => {
+    setBlockedNavigate(false);
+    blocker.proceed();
   };
 
   if (status === FormStatus.LOADING) {
@@ -98,22 +119,24 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       <Section section={activeSection} refs={refs} />
 
       <div className={classes.formControls}>
-        <Button
-          variant="outlined"
-          type="button"
-          onClick={goBack}
-          disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex - 1]}
-          size="large"
-          startIcon={<BackwardArrowIcon />}
-        >
-          Back
-        </Button>
+        <Link to={prevSection} style={{ pointerEvents: sectionKeys[sectionIndex - 1] ? "initial" : "none" }}>
+          <Button
+            variant="outlined"
+            type="button"
+            disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex - 1]}
+            size="large"
+            startIcon={<BackwardArrowIcon />}
+          >
+            Back
+          </Button>
+        </Link>
         <LoadingButton
           variant="outlined"
           type="button"
           ref={refs.saveFormRef}
           size="large"
           loading={status === FormStatus.SAVING}
+          onClick={() => refs.saveHandlerRef.current?.()}
         >
           Save
         </LoadingButton>
@@ -125,17 +148,35 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         >
           Submit
         </LoadingButton>
-        <Button
-          variant="outlined"
-          type="button"
-          onClick={goForward}
-          disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex + 1]}
-          size="large"
-          endIcon={<ForwardArrowIcon />}
-        >
-          Next
-        </Button>
+        <Link to={nextSection} style={{ pointerEvents: sectionKeys[sectionIndex + 1] ? "initial" : "none" }}>
+          <Button
+            variant="outlined"
+            type="button"
+            disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex + 1]}
+            size="large"
+            endIcon={<ForwardArrowIcon />}
+          >
+            Next
+          </Button>
+        </Link>
       </div>
+
+      <Dialog open={blockedNavigate}>
+        <DialogTitle>
+          Unsaved Changes
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            You have unsaved changes. Your changes will be lost if you leave this section without saving.
+            Do you want to save your data?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setBlockedNavigate(false)} disabled={status === FormStatus.SAVING}>Cancel</Button>
+          <LoadingButton onClick={saveAndNavigate} loading={status === FormStatus.SAVING} autoFocus>Save</LoadingButton>
+          <Button onClick={discardAndNavigate} disabled={status === FormStatus.SAVING} color="error">Discard</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
@@ -165,6 +206,10 @@ const styles = () => ({
       color: "#fff",
       background: "#2A2A2A",
     },
+    "& a": {
+      color: "inherit",
+      textDecoration: "none",
+    }
   },
 });
 
