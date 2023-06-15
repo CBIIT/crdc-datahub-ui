@@ -44,6 +44,7 @@ const styles = () => ({
     border: "2px solid #ACC7E5",
     background: "transparent",
     borderRadius: "8px",
+    paddingBottom: "25px",
   },
   titleGroup: {
     background: "#E9F2FA",

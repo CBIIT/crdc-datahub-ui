@@ -4,6 +4,10 @@ type Application = {
   pi: PI;
   primaryContact: PrimaryContact;
   additionalContacts: AdditionalContact[];
+  program: Program;
+  study: Study;
+  funding: Funding;
+  publications: Publication[];
 };
 
 type Section = {
@@ -18,7 +22,7 @@ type PI = {
   email: string;
   institution: string;
   eRAAccount: string;
-  address: string; // NOTE: This differs from the GQL schemax
+  address: string;
 };
 
 type PrimaryContact = {
@@ -37,4 +41,39 @@ type AdditionalContact = {
   institution: string;
   email: string;
   phone?: string;
+};
+
+type Program = {
+  title: string;
+  abbreviation: string;
+  description: string;
+};
+
+type Study = {
+  title: string;
+  abbreviation: string;
+  description: string;
+  repositories?: Repository[];
+};
+
+type Repository = {
+  name: string;
+  studyID: string;
+};
+
+type Publication = {
+  title: string;
+  pubmedID: string;
+  DOI: string;
+};
+
+type Funding = {
+  agencies: Agency[]; // NOTE: this likely needs to be restructured. Currently matches GQL schema
+  nciProgramOfficer: string;
+  nciGPA: string;
+};
+
+type Agency = {
+  name: string;
+  grantNumbers: string[];
 };

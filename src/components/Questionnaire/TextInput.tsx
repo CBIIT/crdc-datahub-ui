@@ -4,10 +4,9 @@ import { WithStyles, withStyles } from '@mui/styles';
 
 type Props = {
   classes: WithStyles<typeof styles>['classes'];
-  value: string;
   label: string;
-  name: string;
-  helpText?: string;
+  infoText?: string;
+  errorText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
   validate?: (input: string) => boolean;
@@ -27,14 +26,14 @@ type Props = {
  */
 const TextInput: FC<Props> = ({
   classes, value, label, required = false,
-  helpText, gridWidth, maxLength, name,
+  gridWidth, maxLength, infoText, errorText,
   validate, filter,
   ...rest
 }) => {
   const id = useId();
   const [val, setVal] = useState(value);
   const [error, setError] = useState(false);
-  const helperText = helpText || (required ? 'This field is required' : ' ');
+  const errorMsg = errorText || (required ? 'This field is required' : null);
 
   const validateInput = (input: string) => {
     if (validate) {
@@ -50,17 +49,12 @@ const TextInput: FC<Props> = ({
     return true;
   };
 
-  const onChange = (e) => {
-    let newVal = e.target.value;
-
+  const onChange = (newVal) => {
     if (typeof filter === "function") {
       newVal = filter(newVal);
-      e.target.value = newVal;
     }
-
     if (typeof maxLength === "number" && newVal.length > maxLength) {
       newVal = newVal.slice(0, maxLength);
-      e.target.value = newVal;
     }
 
     setVal(newVal);
@@ -68,7 +62,7 @@ const TextInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    setVal(value);
+    onChange(value.toString().trim());
   }, [value]);
 
   return (
@@ -84,19 +78,25 @@ const TextInput: FC<Props> = ({
           id={id}
           size="small"
           value={val}
-          name={name}
-          onChange={onChange}
+          onChange={(e) => onChange(e.target.value)}
           required={required}
           {...rest}
         />
-        <FormHelperText>{error ? helperText : ' '}</FormHelperText>
+        <FormHelperText>{(error ? errorMsg : infoText) || " "}</FormHelperText>
       </FormControl>
     </Grid>
   );
 };
 
-const styles = () => ({
+const styles = (theme) => ({
   root: {
+    "& .MuiFormHelperText-root": {
+      color: "#346798",
+      marginLeft: "0",
+      [theme.breakpoints.up("lg")]: {
+        whiteSpace: "nowrap",
+      },
+    },
     "& .MuiFormHelperText-root.Mui-error": {
       color: "#D54309 !important",
     },
@@ -106,6 +106,9 @@ const styles = () => ({
     fontSize: "16px",
     color: "#346798",
     marginBottom: "7px",
+    [theme.breakpoints.up("lg")]: {
+      whiteSpace: "nowrap",
+    },
   },
   asterisk: {
     color: '#D54309',
@@ -119,8 +122,9 @@ const styles = () => ({
     "& .MuiOutlinedInput-notchedOutline": {
       borderColor: "#346798",
     },
-    "& input::placeholder": {
-      color: "#9D9D9D",
+    "& ::placeholder": {
+      color: "#969696",
+      fontWeight: 400,
     },
     // Override the input error border color
     "&.Mui-error fieldset": {

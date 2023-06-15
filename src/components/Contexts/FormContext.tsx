@@ -1,9 +1,9 @@
-/* eslint-disable */
 import React, {
   FC,
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -14,12 +14,14 @@ type ContextState = {
   error?: string;
 };
 
+/* eslint-disable */
 export enum Status {
   LOADING = "LOADING", // Loading initial data
   LOADED = "LOADED",   // Successfully loaded data
   ERROR = "ERROR",     // Error loading data
   SAVING = "SAVING",   // Saving data to the API
 }
+/* eslint-enable */
 
 const initialState: ContextState = { status: Status.LOADING, data: null };
 
@@ -30,6 +32,7 @@ const initialState: ContextState = { status: Status.LOADING, data: null };
  * @see useFormContext – Form context hook
  */
 const Context = createContext<ContextState>(initialState);
+Context.displayName = "FormContext";
 
 /**
  * Form Context Hook
@@ -66,25 +69,26 @@ export const FormProvider: FC<ProviderProps> = (props) => {
 
   // Here we update the state and send the data to the API
   // otherwise we can just update the local state (i.e. within form sections)
-  const setData = async (data: Application) => {
-    return new Promise<boolean>((resolve, reject) => {
-      console.log("[UPDATING DATA]");
-      console.log("prior state", state);
+  /* eslint-disable */
+  const setData = async (data: Application) => new Promise<boolean>((resolve) => {
+    console.log("[UPDATING DATA]");
+    console.log("prior state", state);
 
-      const newState = { ...state, data };
-      setState({ ...newState, status: Status.SAVING });
-      console.log("new state", newState);
+    const newState = { ...state, data };
+    setState({ ...newState, status: Status.SAVING });
+    console.log("new state", newState);
 
-      // simulate the save event
-      setTimeout(() => {
-        setState({ ...newState, status: Status.LOADED });
-        console.log("saved");
-        resolve(true);
-      }, 1500);
-    });
-  };
+    // simulate the save event
+    setTimeout(() => {
+      setState({ ...newState, status: Status.LOADED });
+      console.log("saved");
+      resolve(true);
+    }, 1500);
+  });
+  /* eslint-enable */
 
   useEffect(() => {
+    /* eslint-disable */
     // TODO: fetch form data from API
     setTimeout(() => {
       // TODO: validate API response
@@ -112,7 +116,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
           sections: [
             {
               name: "A",
-              status: "In Progress",
+              status: "Completed",
             },
             {
               name: "B",
@@ -132,7 +136,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
             firstName: "Benjamin",
             lastName: "Franklin",
             email: "ben.franklin@nih.gov",
-            phone: "1 301 525 6364",
+            phone: "13015256364",
             position: "ABC",
             institution: "University of Pennsylvania",
           },
@@ -142,7 +146,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
               firstName: "Fred",
               lastName: "Graph",
               email: "fred.graph@nih.gov",
-              phone: "301-555-5555",
+              phone: "3015555555",
               institution: "University of California, San Diego",
             },
             {
@@ -154,13 +158,51 @@ export const FormProvider: FC<ProviderProps> = (props) => {
               institution: "University of California, San Diego",
             },
           ],
+          program: {
+            title: "Example Pg",
+            abbreviation: "EPG",
+            description: "", // non-custom programs do not have descriptions
+          },
+          study: {
+            title: "Example Study 1",
+            abbreviation: "ES1",
+            description: "", // non-custom studies do not have descriptions
+            repositories: [
+              {
+                name: "Example Repository",
+                studyID: "1234",
+              }
+            ]
+          },
+          publications: [
+            {
+              title: "ABC Pub 123",
+              pubmedID: "123456",
+              DOI: "10.123/abc123",
+            },
+          ],
+          funding: {
+            agencies: [
+              {
+                name: "National Cancer Institute",
+                grantNumbers: [
+                  "R01CA123456",
+                ],
+              }
+            ],
+            nciProgramOfficer: 'Fred Franklin',
+            nciGPA: 'Person ABC',
+          }
         },
       });
     }, 500);
+    /* eslint-enable */
   }, [id]);
 
+  const value = useMemo(() => ({ ...state, setData }), [state]);
+
   return (
-    <Context.Provider value={{ ...state, setData }}>
+    <Context.Provider value={value}>
       {children}
     </Context.Provider>
   );

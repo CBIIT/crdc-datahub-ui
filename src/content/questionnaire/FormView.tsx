@@ -3,6 +3,7 @@ import {
   Link, useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
+import { isEqual } from 'lodash';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
@@ -29,25 +30,24 @@ const validateSection = (section: string) => typeof map[section] !== 'undefined'
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
-  const { status, data, error } = useFormContext();
-  const [activeSection, setActiveSection] = useState(validateSection(section) ? section : "A");
+  const { status, data, setData, error } = useFormContext();
+  const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
-  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex - 1]}` : "#";
-  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex + 1]}` : "#";
+  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex - 1]}` : null;
+  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex + 1]}` : null;
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
     submitFormRef: createRef<HTMLButtonElement>(),
-    saveHandlerRef: useRef<(() => Promise<boolean>) | null>(null),
-    isDirtyHandlerRef: useRef<(() => boolean) | null>(null),
+    getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
 
   // Intercept React Router navigation actions with unsaved changes
   const blocker: Blocker = useBlocker(() => {
-    if (refs.isDirtyHandlerRef.current?.()) {
+    if (isDirty()) {
       setBlockedNavigate(true);
       return true;
     }
@@ -58,7 +58,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
     const unloadHandler = (event: BeforeUnloadEvent) => {
-      if (refs.isDirtyHandlerRef.current?.()) {
+      if (isDirty()) {
         event.preventDefault();
         event.returnValue = 'You have unsaved form changes. Are you sure you want to leave?';
       }
@@ -73,7 +73,53 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   useEffect(() => {
     setActiveSection(validateSection(section) ? section : "A");
+    window.scrollTo(0, 0);
   }, [section]);
+
+  /**
+   * Determines if the form has unsaved changes.
+   *
+   * @returns {boolean} true if the form has unsaved changes, false otherwise
+   */
+  const isDirty = () : boolean => {
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    return ref && (!data || !isEqual(data, newData));
+  };
+
+  /**
+   * Saves the form data to the database.
+   *
+   * NOTE:
+   * - This function relies on HTML5 reportValidity() to
+   *   validate the form section status.
+   *
+   * @returns {Promise<boolean>} true if the save was successful, false otherwise
+   */
+  const saveForm = async () => {
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref.current || !newData) {
+      return false;
+    }
+
+    // Update section status
+    const newStatus = ref.current.reportValidity() ? "Completed" : "In Progress";
+    const currentSection : Section = newData.sections.find((s) => s.name === activeSection);
+    if (currentSection) {
+      currentSection.status = newStatus;
+    } else {
+      newData.sections.push({ name: activeSection, status: newStatus });
+    }
+
+    // Skip state update if there are no changes
+    if (!isEqual(data, newData)) {
+      const r = await setData(newData);
+      return r;
+    }
+
+    return true;
+  };
 
   /**
    * Provides a save handler for the Unsaved Changes
@@ -84,7 +130,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
-    await refs.saveHandlerRef.current?.();
+    await saveForm();
     setBlockedNavigate(false);
     blocker.proceed();
   };
@@ -113,17 +159,17 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   }
 
   return (
-    <div>
+    <div className={classes.formContainer}>
       <StatusBar />
       <ProgressBar />
       <Section section={activeSection} refs={refs} />
 
       <div className={classes.formControls}>
-        <Link to={prevSection} style={{ pointerEvents: sectionKeys[sectionIndex - 1] ? "initial" : "none" }}>
+        <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
           <Button
             variant="outlined"
             type="button"
-            disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex - 1]}
+            disabled={status === FormStatus.SAVING || !prevSection}
             size="large"
             startIcon={<BackwardArrowIcon />}
           >
@@ -136,7 +182,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
           ref={refs.saveFormRef}
           size="large"
           loading={status === FormStatus.SAVING}
-          onClick={() => refs.saveHandlerRef.current?.()}
+          onClick={saveForm}
         >
           Save
         </LoadingButton>
@@ -148,11 +194,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         >
           Submit
         </LoadingButton>
-        <Link to={nextSection} style={{ pointerEvents: sectionKeys[sectionIndex + 1] ? "initial" : "none" }}>
+        <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
           <Button
             variant="outlined"
             type="button"
-            disabled={status === FormStatus.SAVING || !sectionKeys[sectionIndex + 1]}
+            disabled={status === FormStatus.SAVING || !nextSection}
             size="large"
             endIcon={<ForwardArrowIcon />}
           >
@@ -182,6 +228,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 };
 
 const styles = () => ({
+  formContainer: {
+    width: "100%",
+  },
   formControls: {
     display: "flex",
     justifyContent: "center",

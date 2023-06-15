@@ -53,7 +53,7 @@ const AdditionalContact: FC<Props> = ({ index, classes, contact, onDelete }: Pro
   );
 };
 
-const styles = () => ({
+const styles = (theme) => ({
   root: {
     border: "0.5px solid #346798",
     borderRadius: "8px",
@@ -64,7 +64,7 @@ const styles = () => ({
     "& .MuiGrid-item": {
       padding: "0 16px",
     },
-    "@media (min-width: 900px)": {
+    [theme.breakpoints.up("md")]: {
       "& .MuiGrid-item:nth-child(2n)": {
         paddingLeft: "16px",
         paddingRight: "32px",
@@ -92,4 +92,4 @@ const styles = () => ({
   },
 });
 
-export default withStyles(styles)(AdditionalContact);
+export default withStyles(styles, { withTheme: true })(AdditionalContact);

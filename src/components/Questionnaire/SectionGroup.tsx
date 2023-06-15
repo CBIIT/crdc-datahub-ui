@@ -4,7 +4,7 @@ import { WithStyles, withStyles } from '@mui/styles';
 
 type Props = {
   classes: WithStyles<typeof styles>['classes'];
-  title?: string;
+  title?: string | JSX.Element;
   divider?: boolean;
   children: React.ReactNode;
 };
@@ -15,7 +15,10 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const SectionGroup: FC<Props> = ({ title, classes, divider = true, children }) => (
+const SectionGroup: FC<Props> = ({
+  title, classes, children,
+  divider = true,
+}) => (
   <>
     {divider && <Divider className={classes.divider} />}
     <Grid className={classes.group} container rowSpacing={0} columnSpacing={8}>

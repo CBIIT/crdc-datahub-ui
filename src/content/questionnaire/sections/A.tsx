@@ -3,7 +3,7 @@ import { Button, Grid, Stack } from '@mui/material';
 import { withStyles } from "@mui/styles";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { parseForm } from '@jalik/form-parser';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
@@ -15,8 +15,6 @@ type KeyedContact = {
   key: string;
 } & AdditionalContact;
 
-const sectionName = "A";
-
 /**
  * Form Section A View
  *
@@ -24,15 +22,15 @@ const sectionName = "A";
  * @returns {JSX.Element}
  */
 const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps) => {
-  const { status, data, setData } = useFormContext();
+  const { status, data } = useFormContext();
 
   const [pi] = useState<PI>(data.pi);
   const [primaryContact] = useState<PrimaryContact>(data.primaryContact);
-  const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts.map(mapObjectWithKey));
+  const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
 
   const formRef = useRef<HTMLFormElement>();
   const {
-    saveFormRef, submitFormRef, saveHandlerRef, isDirtyHandlerRef
+    saveFormRef, submitFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
@@ -41,42 +39,11 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
 
-    saveHandlerRef.current = saveForm;
-    isDirtyHandlerRef.current = () => !isEqual(getFormObject(), data);
+    getFormObjectRef.current = getFormObject;
   }, [refs]);
 
-  /**
-   * Saves the current form data to the API
-   *
-   * NOTE:
-   * - Each form section should define its own save function
-   *   and handle saving of its own data as necessary
-   *
-   * @returns {void}
-   */
-  const saveForm = async () => {
-    const combinedData = getFormObject();
-
-    // Update section status
-    const newStatus = formRef.current.reportValidity() ? "Completed" : "In Progress";
-    const currentSection : Section = combinedData.sections.find((s) => s.name === sectionName);
-    if (currentSection) {
-      currentSection.status = newStatus;
-    } else {
-      combinedData.sections.push({ name: sectionName, status: newStatus });
-    }
-
-    // Skip state update if there are no changes
-    if (!isEqual(combinedData, data)) {
-      const r = await setData(combinedData);
-      return r;
-    }
-
-    return true;
-  };
-
-  const getFormObject = () => {
-    if (!formRef.current) { return false; }
+  const getFormObject = () : FormObject | null => {
+    if (!formRef.current) { return null; }
 
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
@@ -86,7 +53,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       combinedData.additionalContacts = [];
     }
 
-    return combinedData;
+    return { ref: formRef, data: combinedData };
   };
 
   /**
@@ -174,7 +141,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
             onDelete={() => removeContact(contact.key)}
           />
         ))}
-        <Grid item xs={12}>
+        <Grid item xs={12} className={!additionalContacts?.length ? classes.noContentButton : null}>
           <Stack direction="row" justifyContent="end">
             <Button
               variant="outlined"
@@ -198,6 +165,7 @@ const styles = () => ({
   contactButton: {
     color: "#346798",
     margin: "25px",
+    marginBottom: "0px",
     padding: "6px 20px",
     minWidth: "115px",
     borderRadius: "25px",
@@ -207,6 +175,9 @@ const styles = () => ({
     "& .MuiButton-startIcon": {
       marginRight: "14px",
     },
+  },
+  noContentButton: {
+    marginTop: "-25px",
   },
 });
 
