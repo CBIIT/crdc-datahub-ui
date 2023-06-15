@@ -1,6 +1,7 @@
 import React, { createElement } from "react";
 import A from "./A";
 import B from "./B";
+import D from "./D";
 
 /**
  * Map of section names to components
@@ -13,6 +14,7 @@ import B from "./B";
 export const map = {
   A,
   B,
+  D,
 };
 
 type Props = FormSectionProps & {

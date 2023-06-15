@@ -77,3 +77,27 @@ type Agency = {
   name: string;
   grantNumbers: string[];
 };
+
+type DataTypes = {
+  clinicalTrial: boolean;
+  genomics: boolean;
+  imaging: boolean;
+  immunlogy: boolean;
+  proteomics: boolean;
+  otherDataTypes: string;
+  demographic: boolean;
+  diagnosis: boolean;
+  treatment: boolean;
+  relapseRecurrence: boolean;
+  outcome: boolean;
+  biospecimen: boolean;
+  otherTypesOfData: string;
+  additionDataInFuture: boolean;
+  fileTypes: FileTypeData[];
+}
+
+type FileTypeData = {
+  fileType: string;
+  numberOfFiles: number;
+  amountOfData: string;
+}
