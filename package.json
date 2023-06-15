@@ -5,6 +5,8 @@
   "dependencies": {
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
+    "@jalik/form-parser": "^2.0.12",
+    "@mui/icons-material": "^5.11.16",
     "@mui/lab": "^5.0.0-alpha.130",
     "@mui/material": "^5.13.1",
     "@mui/styles": "^5.13.1",
@@ -15,6 +17,7 @@
     "@types/node": "^16.18.31",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
+    "lodash": "^4.17.21",
     "nprogress": "^0.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
