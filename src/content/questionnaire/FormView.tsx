@@ -4,7 +4,7 @@ import {
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
 import { isEqual } from 'lodash';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Stack } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
@@ -73,7 +73,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   useEffect(() => {
     setActiveSection(validateSection(section) ? section : "A");
-    window.scrollTo(0, 0);
   }, [section]);
 
   /**
@@ -159,53 +158,77 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   }
 
   return (
-    <div className={classes.formContainer}>
-      <StatusBar />
-      <ProgressBar />
-      <Section section={activeSection} refs={refs} />
-
-      <div className={classes.formControls}>
-        <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
-          <Button
-            variant="outlined"
-            type="button"
-            disabled={status === FormStatus.SAVING || !prevSection}
-            size="large"
-            startIcon={<BackwardArrowIcon />}
-          >
-            Back
-          </Button>
-        </Link>
-        <LoadingButton
-          variant="outlined"
-          type="button"
-          ref={refs.saveFormRef}
-          size="large"
-          loading={status === FormStatus.SAVING}
-          onClick={saveForm}
-        >
-          Save
-        </LoadingButton>
-        <LoadingButton
-          variant="outlined"
-          type="submit"
-          ref={refs.submitFormRef}
-          size="large"
-        >
-          Submit
-        </LoadingButton>
-        <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
-          <Button
-            variant="outlined"
-            type="button"
-            disabled={status === FormStatus.SAVING || !nextSection}
-            size="large"
-            endIcon={<ForwardArrowIcon />}
-          >
-            Next
-          </Button>
-        </Link>
+    <>
+      <div className={classes.header}>
+        <i>Questionnaire Header</i>
       </div>
+
+      <Stack direction="row" justifyContent="center">
+        <Stack
+          className={classes.sidebar}
+          direction="row"
+          justifyContent="center"
+          alignSelf="flex-start"
+        >
+          <ProgressBar />
+          <Divider className={classes.divider} orientation="vertical" />
+        </Stack>
+
+        <Stack className={classes.content} direction="column" spacing={2}>
+          <StatusBar />
+
+          <Section section={activeSection} refs={refs} />
+
+          <Stack
+            className={classes.controls}
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            spacing={2}
+          >
+            <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
+              <Button
+                variant="outlined"
+                type="button"
+                disabled={status === FormStatus.SAVING || !prevSection}
+                size="large"
+                startIcon={<BackwardArrowIcon />}
+              >
+                Back
+              </Button>
+            </Link>
+            <LoadingButton
+              variant="outlined"
+              type="button"
+              ref={refs.saveFormRef}
+              size="large"
+              loading={status === FormStatus.SAVING}
+              onClick={saveForm}
+            >
+              Save
+            </LoadingButton>
+            <LoadingButton
+              variant="outlined"
+              type="submit"
+              ref={refs.submitFormRef}
+              size="large"
+            >
+              Submit
+            </LoadingButton>
+            <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
+              <Button
+                variant="outlined"
+                type="button"
+                disabled={status === FormStatus.SAVING || !nextSection}
+                size="large"
+                endIcon={<ForwardArrowIcon />}
+              >
+                Next
+              </Button>
+            </Link>
+          </Stack>
+        </Stack>
+      </Stack>
 
       <Dialog open={blockedNavigate}>
         <DialogTitle>
@@ -223,20 +246,30 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
           <Button onClick={discardAndNavigate} disabled={status === FormStatus.SAVING} color="error">Discard</Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 };
 
 const styles = () => ({
-  formContainer: {
+  header: {
     width: "100%",
+    height: "300px",
+    background: "#F2F4F8",
   },
-  formControls: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "transparent",
-    margin: "25px 0",
+  sidebar: {
+    position: "sticky" as const, // Ignore TS error
+    top: "25px",
+  },
+  divider: {
+    height: "250px",
+    width: "1px",
+    borderRightWidth: "2px",
+    margin: "0 15px",
+  },
+  content: {
+    maxWidth: "900px", // TODO: Update per design spec
+  },
+  controls: {
     color: "#000000",
     "& button": {
       margin: "0 6px",
