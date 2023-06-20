@@ -6,6 +6,8 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { GET_APP, SAVE_APP, SUBMIT_APP } from './graphql';
 
 type ContextState = {
   status: Status;
@@ -14,14 +16,12 @@ type ContextState = {
   error?: string;
 };
 
-/* eslint-disable */
 export enum Status {
   LOADING = "LOADING", // Loading initial data
-  LOADED = "LOADED",   // Successfully loaded data
-  ERROR = "ERROR",     // Error loading data
-  SAVING = "SAVING",   // Saving data to the API
+  LOADED = "LOADED", // Successfully loaded data
+  ERROR = "ERROR", // Error loading data
+  SAVING = "SAVING", // Saving data to the API
 }
-/* eslint-enable */
 
 const initialState: ContextState = { status: Status.LOADING, data: null };
 
@@ -67,9 +67,25 @@ export const FormProvider: FC<ProviderProps> = (props) => {
   const { children, id } = props;
   const [state, setState] = useState<ContextState>(initialState);
 
+  const [getAPP, { data, error }] = useLazyQuery(GET_APP, {
+    variables: { id },
+    context: { clientName: 'mockService' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [saveApp] = useMutation(SAVE_APP, {
+      context: { clientName: 'mockService' },
+      fetchPolicy: 'no-cache'
+    });
+
+  const [submitApp] = useMutation(SUBMIT_APP, {
+      variables: { id },
+      context: { clientName: 'mockService' },
+      fetchPolicy: 'no-cache'
+    });
+
   // Here we update the state and send the data to the API
   // otherwise we can just update the local state (i.e. within form sections)
-  /* eslint-disable */
   const setData = async (data: Application) => new Promise<boolean>((resolve) => {
     console.log("[UPDATING DATA]");
     console.log("prior state", state);
@@ -85,14 +101,9 @@ export const FormProvider: FC<ProviderProps> = (props) => {
       resolve(true);
     }, 1500);
   });
-  /* eslint-enable */
 
   useEffect(() => {
-    /* eslint-disable */
-    // TODO: fetch form data from API
-    setTimeout(() => {
-      // TODO: validate API response
-      if (isNaN(parseInt(id.toString()))) {
+     if (Number.isNaN(parseInt(id.toString(), 10))) {
         setState({
           status: Status.ERROR,
           data: null,
@@ -100,104 +111,27 @@ export const FormProvider: FC<ProviderProps> = (props) => {
         });
         return;
       }
-      if (id.toString() === "1234") {
-        setState({
-          status: Status.ERROR,
-          data: null,
-          error: "You do not have permission to view this form",
-        });
-        return;
-      }
+      // Call the lazy query when the component mounts or when dependencies change
+      getAPP();
+  }, [getAPP, id]);
 
+  useEffect(() => {
+    // Update the state when the lazy query response changes
+    if (data) {
       setState({
         status: Status.LOADED,
-        data: {
-          id: parseInt(id.toString()),
-          sections: [
-            {
-              name: "A",
-              status: "Completed",
-            },
-            {
-              name: "B",
-              status: "In Progress",
-            },
-          ],
-          pi: {
-            firstName: "John " + Math.random().toString(36).substring(7), // randomize to test form updates
-            lastName: "Doe",
-            position: "Professor",
-            email: "john.doe@nih.gov",
-            institution: "University of California, San Diego",
-            eRAAccount: "#9-338480777",
-            address: "9500 Gilman Dr, La Jolla, CA 92093",
-          },
-          primaryContact: {
-            firstName: "Benjamin",
-            lastName: "Franklin",
-            email: "ben.franklin@nih.gov",
-            phone: "13015256364",
-            position: "ABC",
-            institution: "University of Pennsylvania",
-          },
-          additionalContacts: [
-            {
-              role: "Administrative Contact",
-              firstName: "Fred",
-              lastName: "Graph",
-              email: "fred.graph@nih.gov",
-              phone: "3015555555",
-              institution: "University of California, San Diego",
-            },
-            {
-              role: "Financial Contact",
-              firstName: "Jane",
-              lastName: "Eyre",
-              email: "jane.eyre@nih.gov",
-              phone: "",
-              institution: "University of California, San Diego",
-            },
-          ],
-          program: {
-            title: "Example Pg",
-            abbreviation: "EPG",
-            description: "", // non-custom programs do not have descriptions
-          },
-          study: {
-            title: "Example Study 1",
-            abbreviation: "ES1",
-            description: "", // non-custom studies do not have descriptions
-            repositories: [
-              {
-                name: "Example Repository",
-                studyID: "1234",
-              }
-            ]
-          },
-          publications: [
-            {
-              title: "ABC Pub 123",
-              pubmedID: "123456",
-              DOI: "10.123/abc123",
-            },
-          ],
-          funding: {
-            agencies: [
-              {
-                name: "National Cancer Institute",
-                grantNumbers: [
-                  "R01CA123456",
-                ],
-              }
-            ],
-            nciProgramOfficer: 'Fred Franklin',
-            nciGPA: 'Person ABC',
-          }
-        },
+         data: data?.getApplication
       });
-    }, 500);
-    /* eslint-enable */
-  }, [id]);
+    }
+
+    if (error) {
+      setState({
+          status: Status.ERROR,
+          data: null,
+          error: "GraphQL Errors",
+        });
+    }
+  }, [data, error]);
 
   const value = useMemo(() => ({ ...state, setData }), [state]);
 
