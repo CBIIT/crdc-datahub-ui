@@ -1,9 +1,10 @@
 import React, { FC } from "react";
-import { Button, Grid, Stack } from "@mui/material";
-import LabelOffIcon from '@mui/icons-material/LabelOff';
+import { Grid } from "@mui/material";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { WithStyles, withStyles } from "@mui/styles";
 import TextInput from "./TextInput";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
+import AddRemoveButton from "./AddRemoveButton";
 
 type Props = {
   index: number;
@@ -19,7 +20,10 @@ type Props = {
  * @returns {JSX.Element}
  */
 const Repository: FC<Props> = ({
-  index, classes, repository, onDelete,
+  index,
+  classes,
+  repository,
+  onDelete,
 }: Props) => {
   const { status } = useFormContext();
 
@@ -27,38 +31,45 @@ const Repository: FC<Props> = ({
 
   return (
     <Grid container className={classes.root}>
-      <Grid container item md={6} xs={12}>
+      <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
           label="Repository name"
           name={`study[repositories][${index}][name]`}
           value={name}
+          placeholder="Enter Repository Name"
           maxLength={50}
           gridWidth={12}
           required
         />
         <TextInput
-          label="Repository study ID"
+          label="Repository Study ID"
           name={`study[repositories][${index}][studyID]`}
           value={studyID}
+          placeholder="Enter ID"
           maxLength={50}
-          gridWidth={12}
+          gridWidth={6}
+          required
+        />
+        <TextInput
+          label="Date submitted"
+          name={`study[repositories][${index}][dateSubmitted]`}
+          value={studyID}
+          placeholder="Enter date"
+          maxLength={50}
+          gridWidth={6}
           required
         />
       </Grid>
-      <Grid item md={6} xs={12}>
-        <Stack direction="row" justifyContent="end">
-          <Button
-            variant="outlined"
-            type="button"
-            onClick={onDelete}
-            size="large"
-            startIcon={<LabelOffIcon />}
-            className={classes.button}
-            disabled={status === FormStatus.SAVING}
-          >
-            Remove Repository
-          </Button>
-        </Stack>
+      <Grid item xs={12}>
+        <AddRemoveButton
+          label="Remove Repository"
+          variant="outlined"
+          type="button"
+          onClick={onDelete}
+          className={classes.button}
+          startIcon={<RemoveCircleIcon />}
+          disabled={status === FormStatus.SAVING}
+        />
       </Grid>
     </Grid>
   );
@@ -66,26 +77,14 @@ const Repository: FC<Props> = ({
 
 const styles = () => ({
   root: {
-    border: "0.5px solid #346798",
-    borderRadius: "8px",
-    padding: "20px 30px",
-    marginTop: "20px",
-    marginLeft: "37px",
-    marginRight: "-27px",
+    border: "0.5px solid #DCDCDC",
+    borderRadius: "10px",
+    padding: "18px 15px",
+    marginLeft: "12px",
   },
   button: {
-    color: "#346798",
-    marginLeft: "auto",
-    marginTop: "28px",
-    marginRight: "-4px",
-    padding: "6px 20px",
-    minWidth: "115px",
-    borderRadius: "25px",
-    border: "2px solid #AFC2D8 !important",
-    background: "transparent",
-    "text-transform": "none",
     "& .MuiButton-startIcon": {
-      marginRight: "14px",
+      color: "#F18E8E",
     },
   },
 });
