@@ -89,26 +89,31 @@ const styles = () => ({
       color: "#D54309 !important",
     },
     "& .MuiOutlinedInput-notchedOutline": {
-      borderRadius: "0",
-      borderColor: "#346798",
+      borderRadius: "8px",
+      borderColor: "#6B7294",
     },
     "&.Mui-error fieldset": {
       borderColor: "#D54309 !important",
     },
   },
   label: {
-    fontWeight: 500,
+    fontWeight: 700,
     fontSize: "16px",
-    color: "#346798",
-    marginBottom: "7px",
+    color: "#083A50",
+    marginBottom: "4px",
   },
   asterisk: {
     color: "#D54309",
-    marginLeft: "4px",
+    marginLeft: "6px",
   },
   input: {
     backgroundColor: "#fff",
-    color: "#4E4E4E !important",
+    color: "#083A50 !important",
+    "& .MuiInputBase-input": {
+      fontWeight: 400,
+      fontSize: '16px',
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+    },
   },
 });
 
