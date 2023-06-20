@@ -9,11 +9,13 @@ import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
+import styled from '@emotion/styled';
 import { Status as FormStatus, useFormContext } from '../../components/Contexts/FormContext';
 import SuspenseLoader from '../../components/SuspenseLoader';
 import StatusBar from '../../components/Questionnaire/StatusBar';
-import ProgressBar from '../../components/Questionnaire/ProgressBar';
-import Section, { map } from './sections';
+import ProgressBar from '../../components/ProgressBar/ProgressBar';
+import Section from './sections';
+import map from '../../config/SectionConfig';
 
 type Props = {
   section?: string;
@@ -21,6 +23,20 @@ type Props = {
 };
 
 const validateSection = (section: string) => typeof map[section] !== 'undefined';
+
+const StyledSidebar = styled(Stack)({
+  position: "sticky",
+  top: "25px",
+  paddingTop: "10px",
+});
+
+const StyledDivider = styled(Divider)({
+  height: "520px",
+  width: "1px",
+  borderRightWidth: "2px",
+  borderRightColor: "#E8EAEE9",
+  margin: "0 23px",
+});
 
 /**
  * Intake Form View Component
@@ -164,15 +180,14 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       </div>
 
       <Stack direction="row" justifyContent="center">
-        <Stack
-          className={classes.sidebar}
+        <StyledSidebar
           direction="row"
           justifyContent="center"
           alignSelf="flex-start"
         >
-          <ProgressBar />
-          <Divider className={classes.divider} orientation="vertical" />
-        </Stack>
+          <ProgressBar section={activeSection} />
+          <StyledDivider orientation="vertical" />
+        </StyledSidebar>
 
         <Stack className={classes.content} direction="column" spacing={2}>
           <StatusBar />
@@ -256,18 +271,8 @@ const styles = () => ({
     height: "300px",
     background: "#F2F4F8",
   },
-  sidebar: {
-    position: "sticky" as const, // Ignore TS error
-    top: "25px",
-  },
-  divider: {
-    height: "250px",
-    width: "1px",
-    borderRightWidth: "2px",
-    margin: "0 15px",
-  },
   content: {
-    maxWidth: "900px", // TODO: Update per design spec
+    // maxWidth: "900px", // TODO: Update per design spec
   },
   controls: {
     color: "#000000",
