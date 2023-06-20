@@ -5,7 +5,7 @@ import FooterTablet from './FooterTablet';
 import FooterMobile from './FooterMobile';
 
 const FooterContainer = styled.div`
- @media (min-width: 1023px) {
+ @media (min-width: 1024px) {
     .desktop {
       display: block;
     }
@@ -17,7 +17,7 @@ const FooterContainer = styled.div`
     }
   }
 
-  @media (min-width:768px) and (max-width: 1023px) {
+  @media (min-width:768px) and (max-width: 1024px) {
     .desktop {
       display: none;
     }
