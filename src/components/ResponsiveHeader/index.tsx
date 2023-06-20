@@ -6,7 +6,7 @@ import HeaderMobile from './HeaderMobile';
 import USABanner from './USABanner';
 
 const HeaderContainer = styled.div`
- @media (min-width: 1024px) {
+ @media (min-width: 1023px) {
     .desktop {
       display: block;
     }
@@ -18,7 +18,7 @@ const HeaderContainer = styled.div`
     }
   }
 
-  @media (min-width:768px) and (max-width: 1024px) {
+  @media (min-width:768px) and (max-width: 1023px) {
     .desktop {
       display: none;
     }

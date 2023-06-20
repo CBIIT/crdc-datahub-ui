@@ -29,7 +29,7 @@ const BannerContainer = styled.div`
         width: fit-content;
         height: 16px;
     }
-    @media (max-width:1024px) {
+    @media (max-width: 1023px) {
         padding-left: 1rem;
     }
 `

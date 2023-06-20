@@ -12,8 +12,8 @@ const FooterStyled = styled.footer`
 `;
 
 const FooterContainer = styled.div`
-  padding: 2rem 3rem 2rem 3rem;
-  max-width: 1420px;
+  padding: 2rem 2rem 2rem 2rem;
+  max-width: 1400px;
   margin-left: auto;
   margin-right: auto;  
   display: flex;
@@ -94,7 +94,7 @@ const FooterLinksContainer = styled.div`
   grid-template-columns: 33% 33% 33%;
 
   .footItem {
-    padding: 0 16px 32px 16px;
+    /* padding: 0 16px 32px 16px; */
     margin-bottom: 24px;
   }
 
@@ -137,14 +137,14 @@ const BottomFooter = styled.div`
     display: flex;
     flex-flow: wrap;
     justify-content: space-between;
-    max-width: 1420px;
+    max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
     height: fit-content;
     padding-top: 1.25rem;
     padding-bottom: 1.25rem;
-    padding-left: 3rem;
-    padding-right: 3rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 
   .break {

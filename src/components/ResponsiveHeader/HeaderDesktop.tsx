@@ -12,7 +12,7 @@ const HeaderBanner = styled.div`
 const HeaderContainer = styled.div`
     margin: 0 auto;
     padding-left: 32px;
-    max-width: 1420px;
+    max-width: 1400px;
     display: flex;
 
     .searchBarArea {
