@@ -5,14 +5,12 @@ import { withStyles } from '@mui/styles';
 import { cloneDeep } from 'lodash';
 import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import LabelIcon from '@mui/icons-material/Label';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import programOptions from '../../../config/ProgramConfig';
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
-import TextInput from "../../../components/Questionnaire/TextInput";
-import Autocomplete from '../../../components/Questionnaire/AutocompleteInput';
-import Publication from '../../../components/Questionnaire/Publication';
-import Repository from '../../../components/Questionnaire/Repository';
 import { findProgram, findStudy, mapObjectWithKey } from '../utils';
 
 type KeyedPublication = {
@@ -36,9 +34,8 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(program.title));
   const [study, setStudy] = useState<Study>(data.study);
   const [studyOption, setStudyOption] = useState<StudyOption>(findStudy(study.title, programOption));
-  const [publications, setPublications] = useState<KeyedPublication[]>(data.publications?.map(mapObjectWithKey) || []);
+  const [dataTypes, setDataTypes] = useState<DataTypes>(data.dataTypes);
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
-  const [funding] = useState<Funding>(data.funding);
 
   const formRef = useRef<HTMLFormElement>();
   const {
@@ -54,7 +51,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
-  const getFormObject = () : FormObject | null => {
+  const getFormObject = (): FormObject | null => {
     if (!formRef.current) { return null; }
 
     const formObject = parseForm(formRef.current, { nullify: false });
@@ -124,48 +121,6 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
     setStudyOption(newStudy);
   };
 
-  /**
-   * Add a empty publication to the publications state
-   *
-   * @returns {void}
-   */
-  const addPublication = () => {
-    setPublications([
-      ...publications,
-      { key: `${publications.length}_${new Date().getTime()}`, title: "", pubmedID: "", DOI: "" },
-    ]);
-  };
-
-  /**
-   * Remove a publication from the publications state
-   *
-   * @param key generated key for the publication
-   */
-  const removePublication = (key: string) => {
-    setPublications(publications.filter((c) => c.key !== key));
-  };
-
-  /**
-   * Add a empty repository to the repositories state
-   *
-   * @returns {void}
-   */
-  const addRepository = () => {
-    setRepositories([
-      ...repositories,
-      { key: `${repositories.length}_${new Date().getTime()}`, name: "", studyID: "" },
-    ]);
-  };
-
-  /**
-   * Remove a repository from the repositories state
-   *
-   * @param key generated key for the repository
-   */
-  const removeRepository = (key: string) => {
-    setRepositories(repositories.filter((c) => c.key !== key));
-  };
-
   return (
     <FormContainer
       title="Section D"
@@ -174,7 +129,18 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
     >
       {/* Data Types Section */}
       <SectionGroup title="Data Types. Indicate the major types of data included in this submission. For each type listed, select Yes or No. Describe any additional major types of data in Other (specify) " divider={false}>
-        Test
+        <Grid container xs={12}>
+          <Grid item xs={6}>
+            <div>
+              Test
+              <Switch checked={dataTypes.clinicalTrial} onChange={(e, c) => { setDataTypes({ ...dataTypes, clinicalTrial: c }); console.log('event:', c); }} />
+            </div>
+          </Grid>
+          <Grid item xs={6}>
+            col2
+          </Grid>
+        </Grid>
+
       </SectionGroup>
     </FormContainer>
   );

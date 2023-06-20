@@ -8,6 +8,7 @@ type Application = {
   study: Study;
   funding: Funding;
   publications: Publication[];
+  dataTypes: DataTypes;
 };
 
 type Section = {
@@ -94,10 +95,10 @@ type DataTypes = {
   otherTypesOfData: string;
   additionDataInFuture: boolean;
   fileTypes: FileTypeData[];
-}
+};
 
 type FileTypeData = {
   fileType: string;
   numberOfFiles: number;
   amountOfData: string;
-}
+};

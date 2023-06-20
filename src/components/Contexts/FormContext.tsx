@@ -192,6 +192,23 @@ export const FormProvider: FC<ProviderProps> = (props) => {
             ],
             nciProgramOfficer: 'Fred Franklin',
             nciGPA: 'Person ABC',
+          },
+          dataTypes: {
+            clinicalTrial: false,
+            genomics: false,
+            imaging: false,
+            immunlogy: false,
+            proteomics: false,
+            otherDataTypes: "",
+            demographic: false,
+            diagnosis: false,
+            treatment: false,
+            relapseRecurrence: false,
+            outcome: false,
+            biospecimen: false,
+            otherTypesOfData: "",
+            additionDataInFuture: false,
+            fileTypes: [],
           }
         },
       });
