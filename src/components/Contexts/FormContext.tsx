@@ -181,6 +181,12 @@ export const FormProvider: FC<ProviderProps> = (props) => {
               DOI: "10.123/abc123",
             },
           ],
+          plannedPublications: [
+            {
+              title: "ABC Pub 123",
+              publicationDate: "2023-06-01T05:00:00.000Z"
+            },
+          ],
           funding: {
             agencies: [
               {

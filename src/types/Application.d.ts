@@ -8,6 +8,7 @@ type Application = {
   study: Study;
   funding: Funding;
   publications: Publication[];
+  plannedPublications: PlannedPublication[];
 };
 
 type Section = {
@@ -65,6 +66,11 @@ type Publication = {
   title: string;
   pubmedID: string;
   DOI: string;
+};
+
+type PlannedPublication = {
+  title: string;
+  publicationDate: string;
 };
 
 type Funding = {
