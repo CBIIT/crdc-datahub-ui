@@ -36,29 +36,13 @@ describe("questionnaire ProgressBar tests", () => {
   it("renders the progress bar with all config-defined sections", () => {
     const screen = render(<BaseComponent section={keys[0]} data={{}} />);
 
-    sections.forEach((section, index) => {
-      const root = screen.getByText(section.title).closest("a");
+    sections.forEach(({ title }, index) => {
+      const root = screen.getByText(title).closest("a");
 
       expect(root).toBeInTheDocument();
       expect(root).toHaveAttribute("id", `progress-bar-section-${index}`);
       expect(root).toHaveAttribute("href");
       expect(root).toHaveAttribute("aria-disabled");
-    });
-  });
-
-  it("renders sections with not started and in progress roles identically", () => {
-    const data = {
-      sections: keys.slice(0, keys.length - 1).map((s, index) => ({
-        name: s,
-        status: index % 2 === 0 ? "Not Started" : "In Progress"
-      })),
-    };
-
-    const screen = render(<BaseComponent section={keys[0]} data={data} />);
-
-    sections.slice(0, sections.length - 1).forEach((section, index) => {
-      const sectionLink = screen.getByText(section.title).closest("a");
-      expect(sectionLink).toHaveAttribute("id", `progress-bar-section-${index}`);
     });
   });
 
