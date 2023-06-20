@@ -1,23 +1,28 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import { AutocompleteChangeReason, Button, Grid, Stack } from '@mui/material';
-import { parseForm } from '@jalik/form-parser';
-import { withStyles } from '@mui/styles';
-import { cloneDeep } from 'lodash';
-import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
-import LabelIcon from '@mui/icons-material/Label';
-import programOptions from '../../../config/ProgramConfig';
+import { AutocompleteChangeReason } from "@mui/material";
+import { parseForm } from "@jalik/form-parser";
+import { withStyles } from "@mui/styles";
+import { cloneDeep } from "lodash";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import programOptions from "../../../config/ProgramConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import Autocomplete from '../../../components/Questionnaire/AutocompleteInput';
-import Publication from '../../../components/Questionnaire/Publication';
-import Repository from '../../../components/Questionnaire/Repository';
-import { findProgram, findStudy, mapObjectWithKey } from '../utils';
+import Autocomplete from "../../../components/Questionnaire/AutocompleteInput";
+import Publication from "../../../components/Questionnaire/Publication";
+import Repository from "../../../components/Questionnaire/Repository";
+import { findProgram, findStudy, mapObjectWithKey } from "../utils";
+import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
+import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 
 type KeyedPublication = {
   key: string;
 } & Publication;
+
+type KeyedPlannedPublication = {
+  key: string;
+} & PlannedPublication;
 
 type KeyedRepository = {
   key: string;
@@ -37,6 +42,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   const [study, setStudy] = useState<Study>(data.study);
   const [studyOption, setStudyOption] = useState<StudyOption>(findStudy(study.title, programOption));
   const [publications, setPublications] = useState<KeyedPublication[]>(data.publications?.map(mapObjectWithKey) || []);
+  const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(data.plannedPublications?.map(mapObjectWithKey) || []);
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
   const [funding] = useState<Funding>(data.funding);
 
@@ -146,6 +152,27 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   };
 
   /**
+   * Add a empty planned publication to the planned publications state
+   *
+   * @returns {void}
+   */
+  const addPlannedPublication = () => {
+    setPlannedPublications([
+      ...plannedPublications,
+      { key: `${plannedPublications.length}_${new Date().getTime()}`, title: "", publicationDate: "" },
+    ]);
+  };
+
+  /**
+   * Remove a planned publication from the planned publications state
+   *
+   * @param key generated key for the planned publication
+   */
+  const removePlannedPublication = (key: string) => {
+    setPlannedPublications(plannedPublications.filter((c) => c.key !== key));
+  };
+
+  /**
    * Add a empty repository to the repositories state
    *
    * @returns {void}
@@ -173,7 +200,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       formRef={formRef}
     >
       {/* Program Registration Section */}
-      <SectionGroup title="Provide information about the program" divider={false}>
+      <SectionGroup title="Provide information">
         <Autocomplete
           gridWidth={12}
           label="Program"
@@ -209,7 +236,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           gridWidth={12}
           maxLength={500}
           placeholder="500 characters allowed"
-          minRows={4}
+          minRows={2}
           readOnly={!programOption?.isCustom}
           required={programOption?.isCustom}
           multiline
@@ -217,7 +244,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       </SectionGroup>
 
       {/* Study Registration Section */}
-      <SectionGroup title="Provide information about the study">
+      <SectionGroup title="Study information">
         <Autocomplete
           gridWidth={12}
           label="Study"
@@ -253,7 +280,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           gridWidth={12}
           maxLength={500}
           placeholder="500 characters allowed"
-          minRows={4}
+          minRows={2}
           readOnly={!studyOption?.isCustom}
           required={studyOption?.isCustom}
           multiline
@@ -262,12 +289,24 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
       {/* Associated Publications */}
       <SectionGroup
-        title={(
+        title="Publications associated with this study, if any."
+        description={(
           <>
-            List publications associated with this study, if any.
+            Include the PubMed ID (PMOID, DOI)
             <br />
-            Include the PubMed ID (PMID), DOI. Indicate one publication per row.
+            Indicate one publication per row.
           </>
+        )}
+        endButton={(
+          <AddRemoveButton
+            label="Add Publication"
+            placement="end"
+            variant="outlined"
+            type="button"
+            startIcon={<AddCircleIcon />}
+            onClick={addPublication}
+            disabled={status === FormStatus.SAVING}
+          />
         )}
       >
         {publications.map((pub: KeyedPublication, idx: number) => (
@@ -278,31 +317,51 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
             onDelete={() => removePublication(pub.key)}
           />
         ))}
-        <Grid item xs={12} className={!publications?.length ? classes.noContentButton : null}>
-          <Stack direction="row" justifyContent="end">
-            <Button
-              variant="outlined"
-              type="button"
-              size="large"
-              className={classes.button}
-              startIcon={<BookmarkAddIcon />}
-              onClick={addPublication}
-              disabled={status === FormStatus.SAVING}
-            >
-              Add Publication
-            </Button>
-          </Stack>
-        </Grid>
+      </SectionGroup>
+
+      {/* Planned Publications */}
+      <SectionGroup
+        title="Planned Publications and estimated publication date"
+        endButton={(
+          <AddRemoveButton
+            label="Add Planned Publication"
+            placement="end"
+            variant="outlined"
+            type="button"
+            startIcon={<AddCircleIcon />}
+            onClick={addPlannedPublication}
+            disabled={status === FormStatus.SAVING}
+          />
+        )}
+      >
+        {plannedPublications.map((pub: KeyedPlannedPublication, idx: number) => (
+          <PlannedPublication
+            key={pub.key}
+            index={idx}
+            plannedPublication={pub}
+            onDelete={() => removePlannedPublication(pub.key)}
+          />
+        ))}
       </SectionGroup>
 
       {/* Study Repositories */}
       <SectionGroup
         title={(
           <>
-            Enter name of the repository where the study is currently registered (e.g. dbGaP, ORCID)
+            Repository where study currently registered (e.g. dbGaP, ORCID)
             <br />
-            and associated repository study identifier.
+            and associated repository study identifier
           </>
+        )}
+        endButton={(
+          <AddRemoveButton
+            label="Add Repository"
+            placement="end"
+            variant="outlined"
+            type="button"
+            startIcon={<AddCircleIcon />}
+            onClick={addRepository}
+          />
         )}
       >
         {repositories.map((repo: KeyedRepository, idx: number) => (
@@ -313,57 +372,40 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
             onDelete={() => removeRepository(repo.key)}
           />
         ))}
-        <Grid item xs={12} className={!repositories?.length ? classes.noContentButton : null}>
-          <Stack direction="row" justifyContent="end">
-            <Button
-              variant="outlined"
-              type="button"
-              size="large"
-              className={classes.button}
-              startIcon={<LabelIcon />}
-              onClick={addRepository}
-            >
-              Add Repository
-            </Button>
-          </Stack>
-        </Grid>
       </SectionGroup>
 
       {/* Funding Agency */}
-      <SectionGroup title="List the agency(s) and/or organization(s) that funded this study.">
-        <TextInput label="Funding agency" name="funding[agencies][0][name]" value={funding?.agencies[0]?.name} maxLength={100} required />
+      <SectionGroup title="Agency(s) and/or organization(s) that funded this study">
+        <TextInput
+          label="Funding Agency"
+          name="funding[agencies][0][name]"
+          value={funding?.agencies[0]?.name}
+          maxLength={100}
+          required
+        />
         <TextInput
           label="Grant or Contract Number(s)"
           name="funding[agencies][0][grantNumbers][0]"
           value={funding?.agencies[0]?.grantNumbers[0]}
-          infoText="For US federally funded studies, include Grant or Contract number(s): e.g. R01CAXXXX"
           maxLength={50}
           required
         />
-        <TextInput label="NCI Program Officer name, if applicable" name="funding[nciProgramOfficer]" value={funding?.nciProgramOfficer} maxLength={50} />
-        <TextInput label="NCI Genomic Program Administrator (GPA) name, if applicable" name="funding[nciGPA]" value={funding?.nciGPA} />
+        <TextInput
+          label="NCI Program Officer name, if applicable"
+          name="funding[nciProgramOfficer]"
+          value={funding?.nciProgramOfficer}
+          maxLength={50}
+        />
+        <TextInput
+          label="NCI Genomic Program Administrator (GPA) name, if applicable"
+          name="funding[nciGPA]"
+          value={funding?.nciGPA}
+        />
       </SectionGroup>
     </FormContainer>
   );
 };
 
-const styles = () => ({
-  button: {
-    marginTop: "25px",
-    color: "#346798",
-    padding: "6px 20px",
-    minWidth: "115px",
-    borderRadius: "25px",
-    border: "2px solid #AFC2D8 !important",
-    background: "transparent",
-    "text-transform": "none",
-    "& .MuiButton-startIcon": {
-      marginRight: "14px",
-    },
-  },
-  noContentButton: {
-    marginTop: "-93px",
-  },
-});
+const styles = () => ({});
 
 export default withStyles(styles, { withTheme: true })(FormSectionB);
