@@ -272,7 +272,7 @@ const styles = () => ({
     background: "#F2F4F8",
   },
   content: {
-    // maxWidth: "900px", // TODO: Update per design spec
+    maxWidth: "900px", // TODO: Update per design spec
   },
   controls: {
     color: "#000000",

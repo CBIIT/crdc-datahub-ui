@@ -108,7 +108,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
           key={title}
           to={url}
           style={{ pointerEvents: !disabled ? "initial" : "none" }}
-          id={`progress-bar-section-${idx}`}
+          data-testId={`progress-bar-section-${idx}`}
           aria-disabled={disabled || false}
           aria-selected={selected}
         >
