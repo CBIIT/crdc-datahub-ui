@@ -5,6 +5,7 @@ import { withStyles } from "@mui/styles";
 import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import programOptions from "../../../config/ProgramConfig";
+import fundingOptions from "../../../config/FundingConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
@@ -15,6 +16,7 @@ import Repository from "../../../components/Questionnaire/Repository";
 import { findProgram, findStudy, mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
+import SelectInput from "../../../components/Questionnaire/SelectInput";
 
 type KeyedPublication = {
   key: string;
@@ -159,7 +161,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   const addPlannedPublication = () => {
     setPlannedPublications([
       ...plannedPublications,
-      { key: `${plannedPublications.length}_${new Date().getTime()}`, title: "", publicationDate: "" },
+      { key: `${plannedPublications.length}_${new Date().getTime()}`, title: "", expectedDate: "" },
     ]);
   };
 
@@ -376,11 +378,13 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
       {/* Funding Agency */}
       <SectionGroup title="Agency(s) and/or organization(s) that funded this study">
-        <TextInput
+        <SelectInput
           label="Funding Agency"
           name="funding[agencies][0][name]"
           value={funding?.agencies[0]?.name}
-          maxLength={100}
+          onChange={() => {}}
+          options={fundingOptions.map((option: string) => ({ label: option, value: option }))}
+          placeholder="– Search and Select Program –"
           required
         />
         <TextInput
