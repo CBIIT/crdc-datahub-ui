@@ -36,7 +36,7 @@ type KeyedRepository = {
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
-const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps) => {
+const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
 
   const [program, setProgram] = useState<Program>(data.program);
@@ -71,6 +71,14 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
     // Reset publications if the user has not entered any publications
     if (!formObject.publications || formObject.publications.length === 0) {
       combinedData.publications = [];
+    }
+    // Reset planned publications if the user has not entered any planned publications
+    if (!formObject.plannedPublications || formObject.plannedPublications.length === 0) {
+      combinedData.plannedPublications = [];
+    }
+    // Reset repositories if the user has not entered any repositories
+    if (!formObject.repositories || formObject.repositories.length === 0) {
+      combinedData.repositories = [];
     }
 
     return { ref: formRef, data: combinedData };
@@ -302,9 +310,6 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
         endButton={(
           <AddRemoveButton
             label="Add Publication"
-            placement="end"
-            variant="outlined"
-            type="button"
             startIcon={<AddCircleIcon />}
             onClick={addPublication}
             disabled={status === FormStatus.SAVING}
@@ -327,9 +332,6 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
         endButton={(
           <AddRemoveButton
             label="Add Planned Publication"
-            placement="end"
-            variant="outlined"
-            type="button"
             startIcon={<AddCircleIcon />}
             onClick={addPlannedPublication}
             disabled={status === FormStatus.SAVING}
@@ -358,11 +360,9 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
         endButton={(
           <AddRemoveButton
             label="Add Repository"
-            placement="end"
-            variant="outlined"
-            type="button"
             startIcon={<AddCircleIcon />}
             onClick={addRepository}
+            disabled={status === FormStatus.SAVING}
           />
         )}
       >
@@ -410,6 +410,4 @@ const FormSectionB: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   );
 };
 
-const styles = () => ({});
-
-export default withStyles(styles, { withTheme: true })(FormSectionB);
+export default FormSectionB;

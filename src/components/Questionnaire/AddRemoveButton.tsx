@@ -1,53 +1,51 @@
-import { Button, ButtonProps, Stack, StackProps } from "@mui/material";
-import { WithStyles, withStyles } from "@mui/styles";
+import { Button, ButtonProps, Stack, StackProps, styled } from "@mui/material";
 import { FC } from "react";
 
+const ActionButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== "textColor" && prop !== "iconColor"
+})<Props>`
+  font-weight: 700;
+  font-size: 15px;
+  font-family: 'Nunito', 'Rubik', sans-serif;
+  line-height: 16px;
+  color: ${(props) => props.textColor ?? "#000000"};
+  padding: 0;
+  justify-content: end;
+  min-width: 143px;
+  border: none !important;
+  background: transparent;
+  text-transform: none;
+  & .MuiButton-startIcon {
+    color: ${(props) => props.iconColor ?? "#6EC882"};
+    margin-right: 4px;
+    & svg {
+      font-size: 23px;
+    }
+  }
+`;
+
 type Props = ButtonProps & {
-  label: string;
+  label?: string;
   placement?: StackProps["justifyContent"];
-  classes: WithStyles<typeof styles>["classes"];
+  iconColor?: string;
+  textColor?: string;
 };
 
 const AddRemoveButton: FC<Props> = ({
   label,
-  placement = "start",
-  classes,
+  placement = "end",
   ...rest
 }) => (
   <Stack direction="row" justifyContent={placement} alignItems="center">
-    <Button
+    <ActionButton
       variant="outlined"
       type="button"
       size="small"
       {...rest}
-      className={`${classes.button} ${rest.className}`}
     >
       {label}
-    </Button>
+    </ActionButton>
   </Stack>
 );
 
-const styles = () => ({
-  button: {
-    fontWeight: 700,
-    fontSize: "15px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    lineHeight: "16px",
-    color: "#000000",
-    padding: 0,
-    justifyContent: "end",
-    minWidth: "143px",
-    border: "none !important",
-    background: "transparent",
-    "text-transform": "none",
-    "& .MuiButton-startIcon": {
-      color: "#6EC882",
-      marginRight: "4px",
-      "& svg": {
-        fontSize: "23px",
-      },
-    },
-  },
-});
-
-export default withStyles(styles)(AddRemoveButton);
+export default AddRemoveButton;
