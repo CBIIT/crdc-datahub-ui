@@ -4,24 +4,94 @@ import {
   FormHelperText,
   Grid,
   TextFieldProps,
+  styled,
 } from "@mui/material";
-import { WithStyles, withStyles } from "@mui/styles";
-import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
+import { DatePicker, DatePickerProps, DateValidationError } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
-import styled from "@emotion/styled";
 import Tooltip from "./Tooltip";
 import calendarIcon from "../../assets/icons/calendar.svg";
 
-const CalendarIcon = styled.div`
-  background-image: url(${calendarIcon});
-  background-size: contain;
-  background-repeat: no-repeat;
-  width: 22.77px;
-  height: 22.06px;
-`;
+const CalendarIcon = styled("div")(() => ({
+  backgroundImage: `url(${calendarIcon})`,
+  backgroundSize: "contain",
+  backgroundRepeat: "no-repeat",
+  width: "22.77px",
+  height: "22.06px",
+}));
+
+const GridItem = styled(Grid)(({ theme }) => ({
+  "& .MuiFormHelperText-root": {
+    color: "#083A50",
+    marginLeft: "0",
+    [theme.breakpoints.up("lg")]: {
+      whiteSpace: "nowrap",
+    },
+  },
+  "& .MuiFormHelperText-root.Mui-error": {
+    color: "#D54309 !important",
+  },
+}));
+
+const StyledFormControl = styled(FormControl)(() => ({
+  height: "100%",
+  justifyContent: "end",
+}));
+
+const StyledAsterisk = styled("span")(() => ({
+  color: "#D54309",
+  marginLeft: "6px",
+}));
+
+const StyledFormLabel = styled("label")(({ theme }) => ({
+  fontWeight: 700,
+  fontSize: "16px",
+  lineHeight: "19.6px",
+  minHeight: "20px",
+  color: "#083A50",
+  marginBottom: "4px",
+  [theme.breakpoints.up("lg")]: {
+    whiteSpace: "nowrap",
+  },
+}));
+
+const StyledFormHelperText = styled(FormHelperText)(() => ({
+  marginTop: "4px",
+  minHeight: "20px",
+}));
+
+const StyledDatePicker = styled(DatePicker)(() => ({
+  "& .MuiInputBase-root": {
+    borderRadius: "8px",
+    backgroundColor: "#FFFFFF",
+    color: "#083A50",
+  },
+  "& .MuiInputBase-input": {
+    fontWeight: 400,
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    lineHeight: "19.6px",
+    padding: "12px",
+    height: "20px",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#6B7294",
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#929296",
+    fontWeight: 400,
+  },
+  // Override the input error border color
+  "&.Mui-error fieldset": {
+    borderColor: "#D54309 !important",
+  },
+  // Target readOnly <input> inputs
+  "& .MuiOutlinedInput-input:read-only": {
+    backgroundColor: "#D9DEE4",
+    cursor: "not-allowed",
+  },
+}));
 
 type Props = {
-  classes: WithStyles<typeof styles>["classes"];
   initialValue?: string | Date;
   label: string;
   infoText?: string;
@@ -43,7 +113,6 @@ type Props = {
  * @returns {JSX.Element}
  */
 const DatePickerInput: FC<Props> = ({
-  classes,
   initialValue,
   label,
   name,
@@ -64,9 +133,21 @@ const DatePickerInput: FC<Props> = ({
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
 
+  const handleOnError = (error: DateValidationError) => {
+    if (!error && val) {
+      setError(false);
+      return;
+    }
+    setError(true);
+  };
+
   const onChangeWrapper = (newVal) => {
     if (typeof onChange === "function") {
       onChange(newVal, null);
+    }
+
+    if (!newVal) {
+      setError(true);
     }
 
     setVal(newVal);
@@ -77,22 +158,24 @@ const DatePickerInput: FC<Props> = ({
   }, [initialValue]);
 
   return (
-    <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
-      <FormControl className={classes.formControl} fullWidth error={error}>
-        <label htmlFor={id} className={classes.label}>
+    <GridItem md={gridWidth || 6} xs={12} item>
+      <StyledFormControl fullWidth error={error}>
+        <StyledFormLabel htmlFor={id}>
           {label}
-          {required ? (<span className={classes.asterisk}>*</span>) : ""}
+          {required ? (<StyledAsterisk>*</StyledAsterisk>) : ""}
           {tooltipText && <Tooltip title={tooltipText} />}
-        </label>
-        <DatePicker
+        </StyledFormLabel>
+        <StyledDatePicker
           value={val || ""}
           onChange={(value) => onChangeWrapper(value)}
+          onError={handleOnError}
           slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{
             textField: {
               name,
+              required,
+              error,
               size: "small",
-              classes: { root: classes.input },
               ...inputProps,
             },
             popper: {
@@ -112,81 +195,12 @@ const DatePickerInput: FC<Props> = ({
           }}
           {...rest}
         />
-        <FormHelperText className={classes.helperText}>
+        <StyledFormHelperText>
           {(error ? errorMsg : infoText) || " "}
-        </FormHelperText>
-      </FormControl>
-    </Grid>
+        </StyledFormHelperText>
+      </StyledFormControl>
+    </GridItem>
   );
 };
 
-const styles = (theme) => ({
-  root: {
-    "& .MuiFormHelperText-root": {
-      color: "#083A50",
-      marginLeft: "0",
-      [theme.breakpoints.up("lg")]: {
-        whiteSpace: "nowrap",
-      },
-    },
-    "& .MuiFormHelperText-root.Mui-error": {
-      color: "#D54309 !important",
-    },
-  },
-  formControl: {
-    height: "100%",
-    justifyContent: "end",
-  },
-  label: {
-    fontWeight: 700,
-    fontSize: "16px",
-    lineHeight: "19.6px",
-    minHeight: "20px",
-    color: "#083A50",
-    marginBottom: "4px",
-    [theme.breakpoints.up("lg")]: {
-      whiteSpace: "nowrap",
-    },
-  },
-  asterisk: {
-    color: "#D54309",
-    marginLeft: "6px",
-  },
-  input: {
-    "& .MuiInputBase-root": {
-      borderRadius: "8px",
-      backgroundColor: "#fff",
-      color: "#083A50",
-    },
-    "& .MuiInputBase-input": {
-      fontWeight: 400,
-      fontSize: "16px",
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      lineHeight: "19.6px",
-      padding: "12px",
-      height: "20px",
-    },
-    "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: "#6B7294",
-    },
-    "& .MuiInputBase-input::placeholder": {
-      color: "#929296",
-      fontWeight: 400,
-    },
-    // Override the input error border color
-    "&.Mui-error fieldset": {
-      borderColor: "#D54309 !important",
-    },
-    // Target readOnly <input> inputs
-    "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: "#D9DEE4",
-      cursor: "not-allowed",
-    },
-  },
-  helperText: {
-    marginTop: "4px",
-    minHeight: "20px",
-  },
-});
-
-export default withStyles(styles, { withTheme: true })(DatePickerInput);
+export default DatePickerInput;
