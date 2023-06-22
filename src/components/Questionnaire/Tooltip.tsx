@@ -31,7 +31,6 @@ const styles = () => ({
   icon: {
     fontSize: "12px",
     verticalAlign: "top",
-    marginTop: "3px",
     marginLeft: "6px",
   },
 });

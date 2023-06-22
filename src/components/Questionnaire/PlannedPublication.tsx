@@ -28,11 +28,11 @@ const PlannedPublication: FC<Props> = ({
 }: Props) => {
   const { status } = useFormContext();
 
-  const { title, publicationDate } = plannedPublication;
+  const { title, expectedDate } = plannedPublication;
 
   return (
     <Grid container className={classes.root}>
-      <Grid container item xs={12}>
+      <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
           label="Planned Publication Title"
           name={`plannedPublications[${index}][title]`}
@@ -42,13 +42,10 @@ const PlannedPublication: FC<Props> = ({
           gridWidth={12}
           required
         />
-      </Grid>
-      <Grid item xs={12}>
         <DatePickerInput
           label="Expected Publication Date"
-          name={`plannedPublications[${index}][title]`}
-          value={publicationDate}
-          placeholder="MM/DD/YYYY"
+          name={`plannedPublications[${index}][expectedDate]`}
+          initialValue={expectedDate}
           gridWidth={6}
           required
           tooltipText="Data made available for secondary research only

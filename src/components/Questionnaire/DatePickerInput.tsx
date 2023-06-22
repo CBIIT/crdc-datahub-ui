@@ -3,23 +3,38 @@ import {
   FormControl,
   FormHelperText,
   Grid,
-  OutlinedInputProps,
+  TextFieldProps,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
-import { DatePicker } from "@mui/x-date-pickers";
+import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
+import dayjs, { Dayjs } from "dayjs";
+import styled from "@emotion/styled";
 import Tooltip from "./Tooltip";
+import calendarIcon from "../../assets/icons/calendar.svg";
+
+const CalendarIcon = styled.div`
+  background-image: url(${calendarIcon});
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 22.77px;
+  height: 22.06px;
+`;
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
+  initialValue?: string | Date;
   label: string;
   infoText?: string;
   errorText?: string;
   tooltipText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
+  name?: string;
+  required?: boolean;
+  inputProps?: TextFieldProps;
   validate?: (input: string) => boolean;
   filter?: (input: string) => string;
-} & OutlinedInputProps;
+} & DatePickerProps<Dayjs>;
 
 /**
  * Generates a generic date picker input with a label, help text, and tooltip text
@@ -29,9 +44,11 @@ type Props = {
  */
 const DatePickerInput: FC<Props> = ({
   classes,
-  value,
+  initialValue,
   label,
+  name,
   required = false,
+  inputProps,
   gridWidth,
   maxLength,
   infoText,
@@ -43,43 +60,61 @@ const DatePickerInput: FC<Props> = ({
   ...rest
 }) => {
   const id = useId();
-  const [val, setVal] = useState<Date | null>(value as Date);
+  const [val, setVal] = useState<Dayjs>(typeof initialValue === "string" ? dayjs(new Date(initialValue)) : dayjs(initialValue));
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
 
   const onChangeWrapper = (newVal) => {
     if (typeof onChange === "function") {
-      onChange(newVal);
+      onChange(newVal, null);
     }
 
     setVal(newVal);
   };
 
   useEffect(() => {
-    onChangeWrapper(value.toString().trim());
-  }, [value]);
+    onChangeWrapper(initialValue.toString().trim());
+  }, [initialValue]);
 
   return (
     <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
       <FormControl className={classes.formControl} fullWidth error={error}>
         <label htmlFor={id} className={classes.label}>
           {label}
-          {required ? <span className={classes.asterisk}>*</span> : ""}
+          {required ? (<span className={classes.asterisk}>*</span>) : ""}
           {tooltipText && <Tooltip title={tooltipText} />}
         </label>
-        {/* <TextInput
-          label={label}
-          name="datepicker[label]"
-          value={val}
-          onChange={(e) => onChangeWrapper(e.target.value)}
-          placeholder="MM/DD/YYYY"
-          validate={isValidDate}
-          errorText="Please enter a valid date in the format MM/DD/YYYY"
-          maxLength={10}
-          required
-        /> */}
-        <DatePicker />
-        <FormHelperText>{(error ? errorMsg : infoText) || " "}</FormHelperText>
+        <DatePicker
+          value={val || ""}
+          onChange={(value) => onChangeWrapper(value)}
+          slots={{ openPickerIcon: CalendarIcon }}
+          slotProps={{
+            textField: {
+              name,
+              size: "small",
+              classes: { root: classes.input },
+              ...inputProps,
+            },
+            popper: {
+              placement: "bottom-end",
+              disablePortal: true,
+              modifiers: [
+                {
+                  // disables popper from flipping above the input when out of screen room
+                  name: "flip",
+                  enabled: false,
+                  options: {
+                    fallbackPlacements: [],
+                  },
+                },
+              ],
+            },
+          }}
+          {...rest}
+        />
+        <FormHelperText className={classes.helperText}>
+          {(error ? errorMsg : infoText) || " "}
+        </FormHelperText>
       </FormControl>
     </Grid>
   );
@@ -105,9 +140,10 @@ const styles = (theme) => ({
   label: {
     fontWeight: 700,
     fontSize: "16px",
+    lineHeight: "19.6px",
+    minHeight: "20px",
     color: "#083A50",
     marginBottom: "4px",
-
     [theme.breakpoints.up("lg")]: {
       whiteSpace: "nowrap",
     },
@@ -116,40 +152,40 @@ const styles = (theme) => ({
     color: "#D54309",
     marginLeft: "6px",
   },
-  tooltip: {
-    fontSize: "12px",
-    marginLeft: "6px",
-  },
   input: {
-    borderRadius: "8px",
-    backgroundColor: "#fff",
-    color: "#083A50",
+    "& .MuiInputBase-root": {
+      borderRadius: "8px",
+      backgroundColor: "#fff",
+      color: "#083A50",
+    },
     "& .MuiInputBase-input": {
       fontWeight: 400,
       fontSize: "16px",
       fontFamily: "'Nunito', 'Rubik', sans-serif",
+      lineHeight: "19.6px",
+      padding: "12px",
+      height: "20px",
     },
     "& .MuiOutlinedInput-notchedOutline": {
       borderColor: "#6B7294",
     },
-    "& ::placeholder": {
-      color: "#969696",
+    "& .MuiInputBase-input::placeholder": {
+      color: "#929296",
       fontWeight: 400,
     },
     // Override the input error border color
     "&.Mui-error fieldset": {
       borderColor: "#D54309 !important",
     },
-    // Target readOnly <textarea> inputs
-    "&.MuiInputBase-multiline.Mui-readOnly": {
-      backgroundColor: "#D9DEE4",
-      cursor: "not-allowed",
-    },
     // Target readOnly <input> inputs
     "& .MuiOutlinedInput-input:read-only": {
       backgroundColor: "#D9DEE4",
       cursor: "not-allowed",
     },
+  },
+  helperText: {
+    marginTop: "4px",
+    minHeight: "20px",
   },
 });
 
