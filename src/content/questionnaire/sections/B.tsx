@@ -304,7 +304,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           <>
             Include the PubMed ID (PMOID, DOI)
             <br />
-            Indicate one publication per row.
+            Indicate one Publication per row.
           </>
         )}
         endButton={(
