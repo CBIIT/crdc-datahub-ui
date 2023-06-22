@@ -5,18 +5,18 @@ import {
   FormHelperText,
   Grid,
   TextField,
+  styled,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
-import styled from "@emotion/styled";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 
-const DropdownArrowsIcon = styled.div`
-  background-image: url(${dropdownArrowsIcon});
-  background-size: contain;
-  background-repeat: no-repeat;
-  width: 9.17px;
-  height: 18px;
-`;
+const DropdownArrowsIcon = styled("div")(() => ({
+  backgroundImage: `url(${dropdownArrowsIcon})`,
+  backgroundSize: "contain",
+  backgroundRepeat: "no-repeat",
+  width: "9.17px",
+  height: "18px",
+}));
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];

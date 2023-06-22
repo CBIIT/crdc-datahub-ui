@@ -1,15 +1,20 @@
 import React, { FC } from "react";
-import { Grid } from "@mui/material";
+import { Grid, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
-import { WithStyles, withStyles } from "@mui/styles";
 import TextInput from "./TextInput";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import AddRemoveButton from "./AddRemoveButton";
 import DatePickerInput from "./DatePickerInput";
 
+const GridContainer = styled(Grid)(() => ({
+  border: "0.5px solid #DCDCDC !important",
+  borderRadius: "10px",
+  padding: "18px 15px",
+  marginLeft: "12px",
+}));
+
 type Props = {
   index: number;
-  classes: WithStyles<typeof styles>["classes"];
   plannedPublication: PlannedPublication | null;
   onDelete: () => void;
 };
@@ -22,7 +27,6 @@ type Props = {
  */
 const PlannedPublication: FC<Props> = ({
   index,
-  classes,
   plannedPublication,
   onDelete,
 }: Props) => {
@@ -31,7 +35,7 @@ const PlannedPublication: FC<Props> = ({
   const { title, expectedDate } = plannedPublication;
 
   return (
-    <Grid container className={classes.root}>
+    <GridContainer container>
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
           label="Planned Publication Title"
@@ -57,34 +61,15 @@ const PlannedPublication: FC<Props> = ({
       <Grid item xs={12}>
         <AddRemoveButton
           label="Remove Planned Publication"
-          variant="outlined"
-          type="button"
+          placement="start"
           onClick={onDelete}
-          className={classes.button}
           startIcon={<RemoveCircleIcon />}
+          iconColor="#F18E8E"
           disabled={status === FormStatus.SAVING}
         />
       </Grid>
-    </Grid>
+    </GridContainer>
   );
 };
 
-const styles = () => ({
-  root: {
-    border: "0.5px solid #DCDCDC",
-    borderRadius: "10px",
-    padding: "18px 15px",
-    marginLeft: "12px",
-  },
-  button: {
-    "& .MuiButton-startIcon": {
-      color: "#F18E8E",
-    },
-  },
-  lastInput: {
-    maxWidth: "250px",
-    marginLeft: "auto",
-  },
-});
-
-export default withStyles(styles)(PlannedPublication);
+export default PlannedPublication;
