@@ -124,8 +124,17 @@ const styles = () => ({
       borderRadius: "8px",
       borderColor: "#6B7294",
     },
+    "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+      border: "1px solid #209D7D",
+      boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    },
     "&.Mui-error fieldset": {
       borderColor: "#D54309 !important",
+    },
+    "& .MuiInputBase-input::placeholder": {
+      color: "#929296",
+      fontWeight: 400,
+      opacity: 1
     },
     "& .MuiAutocomplete-input": {
       color: "#083A50",

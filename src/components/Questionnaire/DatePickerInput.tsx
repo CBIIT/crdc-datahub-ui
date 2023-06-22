@@ -73,12 +73,17 @@ const StyledDatePicker = styled(DatePicker)(() => ({
     padding: "12px",
     height: "20px",
   },
+  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+    border: "1px solid #209D7D !important",
+    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+  },
   "& .MuiOutlinedInput-notchedOutline": {
     borderColor: "#6B7294",
   },
   "& .MuiInputBase-input::placeholder": {
     color: "#929296",
     fontWeight: 400,
+    opacity: 1
   },
   // Override the input error border color
   "&.Mui-error fieldset": {
