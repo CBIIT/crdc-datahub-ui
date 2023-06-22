@@ -1,6 +1,14 @@
 import { IconButton, Tooltip as MuiToolTip, TooltipProps, styled } from "@mui/material";
-import InfoIcon from "@mui/icons-material/Info";
 import { useState } from "react";
+import infoCircleIcon from "../../assets/icons/info_circle.svg";
+
+const InfoIcon = styled("div")(() => ({
+  backgroundImage: `url(${infoCircleIcon})`,
+  backgroundSize: "cover",
+  backgroundRepeat: "no-repeat",
+  width: "12px",
+  height: "12px",
+}));
 
 const StyledTooltip = styled((props: TooltipProps) => (
   <MuiToolTip classes={{ popper: props.className }} {...props} />
