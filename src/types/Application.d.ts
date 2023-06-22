@@ -70,7 +70,7 @@ type Publication = {
 
 type PlannedPublication = {
   title: string;
-  publicationDate: string;
+  expectedDate: string;
 };
 
 type Funding = {

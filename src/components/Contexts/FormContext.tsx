@@ -184,7 +184,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
           plannedPublications: [
             {
               title: "ABC Pub 123",
-              publicationDate: "2023-06-01T05:00:00.000Z"
+              expectedDate: "06/01/2023"
             },
           ],
           funding: {
