@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import { Outlet } from 'react-router-dom';
-import { Box, Container } from '@mui/material';
+import { Container } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 import Footer from '../components/Footer';
 import Header from '../components/Header';

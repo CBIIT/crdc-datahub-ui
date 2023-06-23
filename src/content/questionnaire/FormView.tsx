@@ -52,8 +52,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
-  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex - 1]}` : null;
-  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex + 1]}` : null;
+  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
+  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
