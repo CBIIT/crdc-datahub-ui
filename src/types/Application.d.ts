@@ -9,6 +9,7 @@ type Application = {
   funding: Funding;
   publications: Publication[];
   dataTypes: DataTypes;
+  plannedPublications: PlannedPublication[];
 };
 
 type Section = {
@@ -68,6 +69,11 @@ type Publication = {
   DOI: string;
 };
 
+type PlannedPublication = {
+  title: string;
+  expectedDate: string;
+};
+
 type Funding = {
   agencies: Agency[]; // NOTE: this likely needs to be restructured. Currently matches GQL schema
   nciProgramOfficer: string;
@@ -83,7 +89,7 @@ type DataTypes = {
   clinicalTrial: boolean;
   genomics: boolean;
   imaging: boolean;
-  immunlogy: boolean;
+  immunology: boolean;
   proteomics: boolean;
   otherDataTypes: string;
   demographic: boolean;
@@ -95,6 +101,7 @@ type DataTypes = {
   otherTypesOfData: string;
   additionDataInFuture: boolean;
   fileTypes: FileTypeData[];
+  additionalComments:string;
 };
 
 type FileTypeData = {

@@ -181,6 +181,12 @@ export const FormProvider: FC<ProviderProps> = (props) => {
               DOI: "10.123/abc123",
             },
           ],
+          plannedPublications: [
+            {
+              title: "ABC Pub 123",
+              expectedDate: "06/01/2023"
+            },
+          ],
           funding: {
             agencies: [
               {
@@ -197,7 +203,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
             clinicalTrial: false,
             genomics: false,
             imaging: false,
-            immunlogy: false,
+            immunology: false,
             proteomics: false,
             otherDataTypes: "",
             demographic: false,
@@ -209,6 +215,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
             otherTypesOfData: "",
             additionDataInFuture: false,
             fileTypes: [],
+            additionalComments:"",
           }
         },
       });

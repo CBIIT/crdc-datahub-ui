@@ -1,9 +1,15 @@
-import React, { FC, useEffect, useId, useState } from 'react';
-import { FormControl, FormHelperText, Grid, OutlinedInput, OutlinedInputProps } from '@mui/material';
-import { WithStyles, withStyles } from '@mui/styles';
+import React, { FC, useEffect, useId, useState } from "react";
+import {
+  FormControl,
+  FormHelperText,
+  Grid,
+  OutlinedInput,
+  OutlinedInputProps,
+} from "@mui/material";
+import { WithStyles, withStyles } from "@mui/styles";
 
 type Props = {
-  classes: WithStyles<typeof styles>['classes'];
+  classes: WithStyles<typeof styles>["classes"];
   label: string;
   infoText?: string;
   errorText?: string;
@@ -25,15 +31,22 @@ type Props = {
  * @returns {JSX.Element}
  */
 const TextInput: FC<Props> = ({
-  classes, value, label, required = false,
-  gridWidth, maxLength, infoText, errorText,
-  validate, filter,
+  classes,
+  value,
+  label,
+  required = false,
+  gridWidth,
+  maxLength,
+  infoText,
+  errorText,
+  validate,
+  filter,
   ...rest
 }) => {
   const id = useId();
   const [val, setVal] = useState(value);
   const [error, setError] = useState(false);
-  const errorMsg = errorText || (required ? 'This field is required' : null);
+  const errorMsg = errorText || (required ? "This field is required" : null);
 
   const validateInput = (input: string) => {
     if (validate) {
@@ -67,14 +80,14 @@ const TextInput: FC<Props> = ({
 
   return (
     <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
-      <FormControl fullWidth error={error}>
+      <FormControl className={classes.formControl} fullWidth error={error}>
         <label htmlFor={id} className={classes.label}>
           {label}
-          {required ? (<span className={classes.asterisk}>*</span>) : ''}
+          {required ? <span className={classes.asterisk}>*</span> : ""}
         </label>
         <OutlinedInput
           classes={{ root: classes.input }}
-          type={rest.type || 'text'}
+          type={rest.type || "text"}
           id={id}
           size="small"
           value={val}
@@ -82,7 +95,9 @@ const TextInput: FC<Props> = ({
           required={required}
           {...rest}
         />
-        <FormHelperText>{(error ? errorMsg : infoText) || " "}</FormHelperText>
+        <FormHelperText className={classes.helperText}>
+          {(error ? errorMsg : infoText) || " "}
+        </FormHelperText>
       </FormControl>
     </Grid>
   );
@@ -91,7 +106,7 @@ const TextInput: FC<Props> = ({
 const styles = (theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
-      color: "#346798",
+      color: "#083A50",
       marginLeft: "0",
       [theme.breakpoints.up("lg")]: {
         whiteSpace: "nowrap",
@@ -101,30 +116,55 @@ const styles = (theme) => ({
       color: "#D54309 !important",
     },
   },
+  formControl: {
+    height: "100%",
+    justifyContent: "end",
+  },
   label: {
-    fontWeight: 500,
+    fontWeight: 700,
     fontSize: "16px",
-    color: "#346798",
-    marginBottom: "7px",
+    lineHeight: "19.6px",
+    minHeight: "20px",
+    color: "#083A50",
+    marginBottom: "4px",
     [theme.breakpoints.up("lg")]: {
       whiteSpace: "nowrap",
     },
   },
   asterisk: {
-    color: '#D54309',
-    marginLeft: '4px',
+    color: "#D54309",
+    marginLeft: "6px",
   },
   input: {
-    borderRadius: "0",
+    borderRadius: "8px",
     backgroundColor: "#fff",
-    color: "#4E4E4E",
-
+    color: "#083A50",
+    "& .MuiInputBase-input": {
+      fontWeight: 400,
+      fontSize: "16px",
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+      lineHeight: "19.6px",
+      padding: "12px",
+      height: "20px",
+    },
+    "&.MuiInputBase-multiline": {
+      padding: "12px",
+    },
+    "&.MuiInputBase-multiline .MuiInputBase-input": {
+      lineHeight: "25px",
+      padding: 0,
+    },
     "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: "#346798",
+      borderColor: "#6B7294",
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      border: "1px solid #209D7D",
+      boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
     },
     "& ::placeholder": {
-      color: "#969696",
+      color: "#929296",
       fontWeight: 400,
+      opacity: 1
     },
     // Override the input error border color
     "&.Mui-error fieldset": {
@@ -132,14 +172,18 @@ const styles = (theme) => ({
     },
     // Target readOnly <textarea> inputs
     "&.MuiInputBase-multiline.Mui-readOnly": {
-      backgroundColor: '#D9DEE4',
-      cursor: 'not-allowed',
+      backgroundColor: "#D9DEE4",
+      cursor: "not-allowed",
     },
     // Target readOnly <input> inputs
     "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: '#D9DEE4',
-      cursor: 'not-allowed',
+      backgroundColor: "#D9DEE4",
+      cursor: "not-allowed",
     },
+  },
+  helperText: {
+    marginTop: "4px",
+    minHeight: "20px",
   },
 });
 
