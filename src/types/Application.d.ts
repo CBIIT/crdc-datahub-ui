@@ -12,8 +12,10 @@ type Application = {
 
 type Section = {
   name: string;
-  status: "In Progress" | "Submitted" | "Completed" | "Approved" | "Rejected";
+  status: SectionStatus;
 };
+
+type SectionStatus = "In Progress" | "Completed" | "Not Started";
 
 type PI = {
   firstName: string;

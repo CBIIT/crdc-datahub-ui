@@ -9,7 +9,7 @@ import React, {
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { GET_APP, SAVE_APP, SUBMIT_APP } from './graphql';
 
-type ContextState = {
+export type ContextState = {
   status: Status;
   data: Application;
   setData?: (Application) => Promise<boolean>;
@@ -28,10 +28,13 @@ const initialState: ContextState = { status: Status.LOADING, data: null };
 /**
  * Form Context
  *
+ * NOTE: Do NOT use this context directly. Use the useFormContext hook instead.
+ *       this is exported for testing purposes only.
+ *
  * @see ContextState – Form context state
  * @see useFormContext – Form context hook
  */
-const Context = createContext<ContextState>(initialState);
+export const Context = createContext<ContextState>(initialState);
 Context.displayName = "FormContext";
 
 /**
