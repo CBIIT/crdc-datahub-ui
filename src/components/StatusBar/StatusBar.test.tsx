@@ -10,6 +10,11 @@ import {
 } from '../Contexts/FormContext';
 import StatusBar from './StatusBar';
 import Comments from './icons/Comments.svg';
+import New from './icons/New.svg';
+import Approved from './icons/Approved.svg';
+import Rejected from './icons/Rejected.svg';
+import Submitted from './icons/Submitted.svg';
+import UnderReview from './icons/UnderReview.svg';
 
 type Props = {
   data: object;
@@ -49,7 +54,7 @@ describe("StatusBar > General Tests", () => {
 
   // NOTE: We aren't using the root level reviewComment attribute, only the history level ones
   // So we're testing against it's usage here
-  it("should not render the comments button for the Application.reviewComment attribute", () => {
+  it("does not render the comments button for the Application.reviewComment attribute", () => {
     const data = {
       reviewComment: "This is a review comment",
     };
@@ -59,7 +64,7 @@ describe("StatusBar > General Tests", () => {
     expect(() => getByText("Review Comments")).toThrow();
   });
 
-  it("renders the comments button only if there are comments (2/2)", () => {
+  it("renders the comments button only if there are review comments", () => {
     const data = {
       history: [{
         reviewComment: "This is a review comment",
@@ -85,7 +90,7 @@ describe("StatusBar > General Tests", () => {
   });
 
   const invalidDates = ["", " ", "0-0-0", "YYYY-06-20T09:13:58", "-06-12T09:13:58.000Z", "12023-06-20T09:13:58"];
-  it.each(invalidDates)("defaults the last updated date to N/A for invalid date (%p)", (date) => {
+  it.each(invalidDates)("defaults the last updated date to N/A for invalid date %p", (date) => {
     const data = {
       status: "In Progress",
       updatedAt: date,
@@ -97,7 +102,7 @@ describe("StatusBar > General Tests", () => {
   });
 
   const validDates = [["2019-11-23T14:26:01", "11/23/2019"], ["2027-04-24T19:01:09", "4/24/2027"], ["2031-01-07T19:01:09", "1/7/2031"]];
-  it.each(validDates)("formats the last updated date (%p) as (%p)", (input, output) => {
+  it.each(validDates)("formats the last updated date %p as %p", (input, output) => {
     const data = {
       status: "In Progress",
       updatedAt: input,
@@ -109,7 +114,7 @@ describe("StatusBar > General Tests", () => {
   });
 
   const statusWithIcon = ["Rejected", "Approved"];
-  it.each(statusWithIcon)("renders the correct SVG icon for status (%p)", (status) => {
+  it.each(statusWithIcon)("renders the correct SVG icon for status %p", (status) => {
     const { getByTestId } = render(<BaseComponent data={{ status }} />);
     const icon = getByTestId("status-bar-icon");
 
@@ -119,7 +124,7 @@ describe("StatusBar > General Tests", () => {
   });
 
   const statusWithoutIcon = ["In Progress", "Submitted", "In Review", "New"];
-  it.each(statusWithoutIcon)("does not render an icon for status (%p)", (status) => {
+  it.each(statusWithoutIcon)("does not render an icon for status %p", (status) => {
     const { getByTestId } = render(<BaseComponent data={{ status }} />);
 
     expect(() => getByTestId("status-bar-icon")).toThrow();
@@ -334,6 +339,25 @@ describe("StatusBar > History Modal Tests", () => {
     });
 
     expect(() => getByTestId("status-bar-history-item-0-icon")).toThrow();
+  });
+
+  const statusesWithIcons = [["New", New], ["Submitted", Submitted], ["Approved", Approved], ["Rejected", Rejected], ["In Review", UnderReview]];
+  it.each(statusesWithIcons)("renders the correct icon for the status %s", (status, svg) => {
+    const data = {
+      history: [{ dateTime: "2023-11-24T01:25:45", status }],
+    };
+
+    const { getByTestId, getByText } = render(<BaseComponent data={data} />);
+
+    act(() => {
+      fireEvent.click(getByText("Full History"));
+    });
+
+    const icon = getByTestId("status-bar-history-item-0-icon");
+
+    expect(icon).toBeVisible();
+    expect(icon).toHaveAttribute("alt", `${status} icon`);
+    expect(icon).toHaveAttribute("src", svg);
   });
 
   it("provides the unformatted event date as a title attribute", () => {
