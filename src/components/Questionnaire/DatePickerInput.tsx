@@ -134,7 +134,7 @@ const DatePickerInput: FC<Props> = ({
   ...rest
 }) => {
   const id = useId();
-  const [val, setVal] = useState<Dayjs>(typeof initialValue === "string" ? dayjs(new Date(initialValue)) : dayjs(initialValue));
+  const [val, setVal] = useState<Dayjs>(dayjs(initialValue));
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
 
@@ -159,7 +159,9 @@ const DatePickerInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    onChangeWrapper(initialValue.toString().trim());
+    if (initialValue) {
+      onChangeWrapper(initialValue.toString().trim());
+   }
   }, [initialValue]);
 
   return (
@@ -171,7 +173,7 @@ const DatePickerInput: FC<Props> = ({
           {tooltipText && <Tooltip title={tooltipText} />}
         </StyledFormLabel>
         <StyledDatePicker
-          value={val ?? ""}
+          value={val}
           onChange={(value) => onChangeWrapper(value)}
           onError={handleOnError}
           slots={{ openPickerIcon: CalendarIcon }}

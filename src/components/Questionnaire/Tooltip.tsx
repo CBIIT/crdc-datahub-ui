@@ -4,7 +4,7 @@ import infoCircleIcon from "../../assets/icons/info_circle.svg";
 
 const InfoIcon = styled("div")(() => ({
   backgroundImage: `url(${infoCircleIcon})`,
-  backgroundSize: "auto",
+  backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
   width: "12px",
   height: "12px",
