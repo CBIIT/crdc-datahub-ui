@@ -179,6 +179,7 @@ const DatePickerInput: FC<Props> = ({
           slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{
             textField: {
+              id,
               name,
               required,
               error,

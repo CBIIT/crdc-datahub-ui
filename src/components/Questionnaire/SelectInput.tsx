@@ -76,7 +76,6 @@ const SelectInput: FC<Props> = ({
         </label>
         <Select
           classes={{ select: classes.input }}
-          id={id}
           size="small"
           value={val}
           onChange={(e) => onChangeWrapper(e.target.value)}
@@ -84,6 +83,7 @@ const SelectInput: FC<Props> = ({
           name={name}
           IconComponent={DropdownArrowsIcon}
           MenuProps={{ PaperProps: { className: classes.paper } }}
+          slotProps={{ input: { id } }}
           {...rest}
         >
           {options.map((option) => (
