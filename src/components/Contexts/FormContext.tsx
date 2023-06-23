@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 
-type ContextState = {
+export type ContextState = {
   status: Status;
   data: Application;
   setData?: (Application) => Promise<boolean>;
@@ -28,10 +28,13 @@ const initialState: ContextState = { status: Status.LOADING, data: null };
 /**
  * Form Context
  *
+ * NOTE: Do NOT use this context directly. Use the useFormContext hook instead.
+ *       this is exported for testing purposes only.
+ *
  * @see ContextState – Form context state
  * @see useFormContext – Form context hook
  */
-const Context = createContext<ContextState>(initialState);
+export const Context = createContext<ContextState>(initialState);
 Context.displayName = "FormContext";
 
 /**
