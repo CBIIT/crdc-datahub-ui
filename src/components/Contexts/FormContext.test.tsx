@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
-import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
 import { render, waitFor } from '@testing-library/react';
+import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
 import '@testing-library/jest-dom';
 
 type Props = {
@@ -22,13 +22,11 @@ const TestChild: FC = () => {
   );
 };
 
-const TestParent: FC<Props> = ({ appId } : Props) => {
-  return (
-    <FormProvider id={appId}>
-      <TestChild />
-    </FormProvider>
+const TestParent: FC<Props> = ({ appId } : Props) => (
+  <FormProvider id={appId}>
+    <TestChild />
+  </FormProvider>
   );
-}
 
 describe("FormContext tests", () => {
   it("should return an error for empty IDs", async () => {

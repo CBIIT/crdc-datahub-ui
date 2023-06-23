@@ -75,7 +75,9 @@ const TextInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    onChange(value.toString().trim());
+    if (value) {
+       onChange(value.toString().trim());
+    }
   }, [value]);
 
   return (

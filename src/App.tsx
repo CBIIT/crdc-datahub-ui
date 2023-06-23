@@ -6,16 +6,7 @@ import routeConfig from "./router";
 
 const theme = createTheme({
   typography: {
-    fontFamily: "'Inter', 'Rubik', sans-serif",
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          fontFamily: "'Public Sans', sans-serif",
-        },
-      },
-    },
+    fontFamily: "'Nunito', sans-serif",
   },
 });
 
