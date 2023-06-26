@@ -17,6 +17,7 @@ const StyledH1 = styled(Typography)({
   fontWeight: "700",
   fontSize: "19px",
   color: "#282828",
+  marginRight: "-6px",
 });
 
 /**

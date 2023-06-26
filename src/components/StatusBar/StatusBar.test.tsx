@@ -9,7 +9,8 @@ import {
   Status as FormStatus,
 } from '../Contexts/FormContext';
 import StatusBar from './StatusBar';
-import Comments from './icons/Comments.svg';
+import StatusApproved from './icons/StatusApproved.svg';
+import StatusRejected from './icons/StatusRejected.svg';
 import New from './icons/New.svg';
 import Approved from './icons/Approved.svg';
 import Rejected from './icons/Rejected.svg';
@@ -113,14 +114,14 @@ describe("StatusBar > General Tests", () => {
     expect(getByTestId("status-bar-last-updated")).toHaveTextContent(output);
   });
 
-  const statusWithIcon = ["Rejected", "Approved"];
-  it.each(statusWithIcon)("renders the correct SVG icon for status %p", (status) => {
+  const statusWithIcon = [["Rejected", StatusRejected], ["Approved", StatusApproved]];
+  it.each(statusWithIcon)("renders the correct status bar SVG icon for status %p", (status, svg) => {
     const { getByTestId } = render(<BaseComponent data={{ status }} />);
     const icon = getByTestId("status-bar-icon");
 
     expect(icon).toBeVisible();
     expect(icon).toHaveAttribute("alt", `${status} icon`);
-    expect(icon).toHaveAttribute("src", Comments);
+    expect(icon).toHaveAttribute("src", svg);
   });
 
   const statusWithoutIcon = ["In Progress", "Submitted", "In Review", "New"];

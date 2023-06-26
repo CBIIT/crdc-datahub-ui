@@ -18,13 +18,13 @@ const StyledAvatar = styled(Avatar)({
   marginLeft: "8px !important",
 });
 
-const StyledStatus = styled("span")<{ status: ApplicationStatus }>(
-  ({ theme, status }) => ({
+const StyledStatus = styled("span")<{ status: ApplicationStatus, leftGap: boolean }>(
+  ({ theme, status, leftGap }) => ({
     fontWeight: "600",
     fontSize: "16px",
     fontFamily: "Public Sans",
     textTransform: "uppercase",
-    marginLeft: "6px !important",
+    marginLeft: !leftGap ? "6px !important" : null,
     letterSpacing: "0.32px",
     color: theme.palette?.[status]?.main || "#2E5481",
   })
@@ -142,7 +142,7 @@ const StatusSection: FC = () => {
           />
         </StyledAvatar>
       )}
-      <StyledStatus data-testid="status-bar-status" status={status}>
+      <StyledStatus data-testid="status-bar-status" status={status} leftGap={!StatusIconMap[status]}>
         {status}
       </StyledStatus>
 

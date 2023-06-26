@@ -189,7 +189,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
           <StyledDivider orientation="vertical" />
         </StyledSidebar>
 
-        <Stack className={classes.content} direction="column" spacing={2}>
+        <Stack className={classes.content} direction="column" spacing={5}>
           <StatusBar />
 
           <Section section={activeSection} refs={refs} />
@@ -291,6 +291,7 @@ const styles = () => ({
   },
   controls: {
     color: "#FFFFFF",
+    marginTop: "15px !important",
     "& button": {
       margin: "0 6px",
       padding: "14px 11px",
