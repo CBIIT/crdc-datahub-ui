@@ -26,6 +26,7 @@ const Layout: FC<LayoutProps> = ({ children }) => (
   </>
 );
 
+
 Layout.propTypes = {
   children: PropTypes.node
 };

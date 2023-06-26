@@ -4,6 +4,7 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import TextInput from "./TextInput";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import AddRemoveButton from "./AddRemoveButton";
+import DatePickerInput from "./DatePickerInput";
 
 const GridContainer = styled(Grid)(() => ({
   border: "0.5px solid #DCDCDC !important",
@@ -14,7 +15,7 @@ const GridContainer = styled(Grid)(() => ({
 
 type Props = {
   index: number;
-  publication: Publication | null;
+  plannedPublication: PlannedPublication | null;
   onDelete: () => void;
 };
 
@@ -24,47 +25,42 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const Publication: FC<Props> = ({
+const PlannedPublication: FC<Props> = ({
   index,
-  publication,
+  plannedPublication,
   onDelete,
 }: Props) => {
   const { status } = useFormContext();
 
-  const { title, pubmedID, DOI } = publication;
+  const { title, expectedDate } = plannedPublication;
 
   return (
     <GridContainer container>
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
-          label="Publication Title"
-          name={`publications[${index}][title]`}
+          label="Planned Publication Title"
+          name={`plannedPublications[${index}][title]`}
           value={title}
-          placeholder="Enter Publication Title"
+          placeholder="Enter title"
           maxLength={100}
           gridWidth={12}
           required
         />
-        <TextInput
-          label="PubMedID"
-          name={`publications[${index}][pubmedID]`}
-          value={pubmedID}
-          placeholder="Enter ID"
-          maxLength={20}
+        <DatePickerInput
+          label="Expected Publication Date"
+          name={`plannedPublications[${index}][expectedDate]`}
+          initialValue={expectedDate}
           gridWidth={6}
-        />
-        <TextInput
-          label="DOI"
-          name={`publications[${index}][DOI]`}
-          value={DOI}
-          placeholder="Enter DOI"
-          maxLength={20}
-          gridWidth={6}
+          required
+          tooltipText="Data made available for secondary research only
+                      after investigators have obtained approval from
+                      NIH to use the requested data for a particular
+                      project"
         />
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
-          label="Remove Publication"
+          label="Remove Planned Publication"
           placement="start"
           onClick={onDelete}
           startIcon={<RemoveCircleIcon />}
@@ -76,4 +72,4 @@ const Publication: FC<Props> = ({
   );
 };
 
-export default Publication;
+export default PlannedPublication;
