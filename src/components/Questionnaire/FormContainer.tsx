@@ -25,14 +25,11 @@ const FormContainer: FC<Props> = ({
   return (
     <div className={classes.formContainer}>
       <div className={classes.titleGroup}>
-        <Typography className={classes.sectionTitle} variant="h1">
-          {title}
-        </Typography>
-        <Typography className={classes.sectionDesc} variant="h2">
+        <Typography className={classes.sectionTitle} variant="h2">
           {description}
         </Typography>
       </div>
-      <form id={id} ref={formRef} onSubmit={(e) => e.preventDefault()}>
+      <form id={id} ref={formRef} className={classes.form} onSubmit={(e) => e.preventDefault()}>
         {children}
       </form>
     </div>
@@ -41,32 +38,28 @@ const FormContainer: FC<Props> = ({
 
 const styles = () => ({
   formContainer: {
-    border: "2px solid #ACC7E5",
     background: "transparent",
     borderRadius: "8px",
     paddingBottom: "25px",
   },
+  form: {
+    fontWeight: 400,
+    fontSize: '16px',
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+  },
   titleGroup: {
-    background: "#E9F2FA",
-    color: "#2F486C",
-    padding: "33px 44px",
-    marginBottom: "10px",
+    background: "transparent",
+    color: "#327E8F",
+    paddingBottom: "40px",
     borderRadius: "8px 8px 0 0",
     display: "flex",
     alignItems: "center",
   },
   sectionTitle: {
-    fontWeight: 600,
-    fontFamily: "'Public Sans', sans-serif",
-    marginRight: "19px",
-    fontSize: "30px",
-    lineHeight: "27px",
-  },
-  sectionDesc: {
-    fontWeight: 300,
-    fontSize: "25px",
-    fontFamily: "'Rubik', sans-serif",
-    lineHeight: "27px",
+    fontWeight: 700,
+    fontSize: "24px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    lineHeight: "32.74px",
   },
 });
 

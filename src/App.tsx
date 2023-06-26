@@ -1,6 +1,8 @@
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, createTheme } from '@mui/material';
-import routeConfig from './router';
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import routeConfig from "./router";
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
@@ -26,15 +28,15 @@ const theme = createTheme({
   },
 });
 
-const router = createBrowserRouter(
-  routeConfig,
-);
+const router = createBrowserRouter(routeConfig);
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <RouterProvider router={router} />
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <CssBaseline />
+        <RouterProvider router={router} />
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }

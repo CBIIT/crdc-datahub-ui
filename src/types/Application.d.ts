@@ -1,5 +1,5 @@
 type Application = {
-  id: number;
+  _id: number;
   sections: Section[];
   pi: PI;
   primaryContact: PrimaryContact;
@@ -12,6 +12,7 @@ type Application = {
   reviewComment: string;
   updatedAt: string;
   history: HistoryEvent[];
+  plannedPublications: PlannedPublication[];
 };
 
 type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected";
@@ -73,6 +74,11 @@ type Publication = {
   title: string;
   pubmedID: string;
   DOI: string;
+};
+
+type PlannedPublication = {
+  title: string;
+  expectedDate: string;
 };
 
 type Funding = {
