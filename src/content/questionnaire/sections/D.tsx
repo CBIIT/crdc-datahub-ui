@@ -3,21 +3,28 @@ import { parseForm } from "@jalik/form-parser";
 import { withStyles } from "@mui/styles";
 import { cloneDeep } from "lodash";
 import styled from 'styled-components';
-import { Grid } from '@mui/material';
-import {
-  useFormContext,
-} from "../../../components/Contexts/FormContext";
+import { Grid, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import FileTypeTable from "../../../components/Questionnaire/FileTypeTable";
+import { mapObjectWithKey } from "../utils";
+import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
+import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
+import fileTypeOptions from "../../../config/FileTypeConfig";
 /**
  * Form Section D View
  *
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
+
+type KeyedFileTypeData = {
+  key: string;
+} & FileTypeData;
 
 const AdditionalDataInFutureSection = styled.div`
     display: flex;
@@ -34,11 +41,13 @@ const AdditionalDataInFutureSection = styled.div`
       margin-bottom: 16px;
     }
 `;
+
 const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps) => {
-  const { data } = useFormContext();
+  const { status, data } = useFormContext();
   const [dataTypes] = useState<DataTypes>(data.dataTypes);
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
+  const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.dataTypes?.fileTypes?.map(mapObjectWithKey) || []);
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -70,6 +79,15 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
     return { ref: formRef, data: combinedData };
   };
 
+  const addFileDataType = () => {
+    setFileTypeData([
+      ...fileTypeData,
+      { key: `${fileTypeData.length}_${new Date().getTime()}`, fileType: `${fileTypeData.length}_${new Date().getTime()}`, numberOfFiles: "", amountOfData: "" },
+    ]);
+  };
+  const removeFileDataType = (key: string) => {
+    setFileTypeData(fileTypeData.filter((c) => c.key !== key));
+  };
   return (
     <FormContainer
       title="Section D"
@@ -184,9 +202,77 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       </SectionGroup>
       <SectionGroup
         title="File Type."
-        description="List the number, size, and formats of files in the submission in the table below. Indicate one file type per row. At least one file type is required."
+        description={(
+          <>
+            List the number, size, and formats of files in the submission in the table below.
+            <br />
+            Indicate one file type per row. At least one file type is required.
+          </>
+        )}
+        endButton={(
+          <AddRemoveButton
+            label="Add File Type"
+            startIcon={<AddCircleIcon />}
+            onClick={addFileDataType}
+            disabled={status === FormStatus.SAVING}
+          />
+        )}
       >
-        <FileTypeTable />
+        <div className={classes.tableContainer}>
+          <Table className={classes.noBorder}>
+            <TableHead className={classes.noBorder}>
+              <TableRow className={classes.noBorder}>
+                <TableCell width="42%" className={classes.fileTypeTableCell}>
+                  File Type
+                  <span className={classes.asterisk}>*</span>
+                </TableCell>
+                <TableCell width="17%" style={{ textAlign: 'center' }} className={classes.tableTopRowMiddle}>
+                  Number of Files
+                  <span className={classes.asterisk}>*</span>
+                </TableCell>
+                <TableCell width="42%" style={{ textAlign: 'center' }} className={classes.tableTopRowMiddle}>
+                  Estimated amount of data (KB, MB, GB, TB)
+                  <span className={classes.asterisk}>*</span>
+                </TableCell>
+                <TableCell width="5%" style={{ textAlign: 'center' }} className={classes.topRowLast}>Remove</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {fileTypeData.map((data: KeyedFileTypeData, idx: number) => (
+                <TableRow
+                  key={data.key}
+                >
+                  <TableCell className={classes.autoComplete}>
+                    <AutocompleteInput
+                      label=""
+                      gridWidth={12}
+                      value={data.fileType}
+                      options={fileTypeOptions.map((fileType) => fileType)}
+                      placeholder="Select Type"
+                      hideHelperText
+                      inTable
+                    />
+                    {/* {data.fileType} */}
+                  </TableCell>
+                  <TableCell className={classes.bottomRowMiddle}>{data.numberOfFiles}</TableCell>
+                  <TableCell className={classes.bottomRowMiddle}>{data.amountOfData}</TableCell>
+                  <TableCell className={classes.bottomRowLast}>
+                    <div className={classes.removeButtonContainer}>
+                      <AddRemoveButton
+                        className={classes.addRemoveButtonInTable}
+                        placement="start"
+                        onClick={() => removeFileDataType(data.key)}
+                        startIcon={<RemoveCircleIcon />}
+                        iconColor="#F18E8E"
+                        disabled={status === FormStatus.SAVING}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </div>
       </SectionGroup>
       <SectionGroup
         title="Additional comments or information about the submission"
@@ -208,21 +294,105 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 };
 
 const styles = () => ({
-  button: {
-    marginTop: "25px",
-    color: "#346798",
-    padding: "6px 20px",
-    minWidth: "115px",
-    borderRadius: "25px",
-    border: "2px solid #AFC2D8 !important",
-    background: "transparent",
-    "text-transform": "none",
-    "& .MuiButton-startIcon": {
-      marginRight: "14px",
-    },
-  },
   fileTypeSectionGroup: {
     marginTop: "-16px"
+  },
+  tableContainer: {
+    marginLeft: "12px",
+    display: "flex",
+    width: "100%",
+    "&.MuiTableContainer-root": {
+      width: "100%",
+      marginLeft: "12px",
+      overflowY: 'visible',
+      height: "200px",
+    },
+    "& th": {
+      color: "#083A50",
+      fontSize: "16px",
+      fontFamily: "Nunito",
+      fontWeight: "700",
+      lineHeight: "19.6px",
+    },
+    "& table": {
+      overflowY: 'visible',
+    },
+
+    border: '1px solid #6B7294',
+    borderRadius: '10px',
+  },
+  noBorder: {
+    border: "none"
+  },
+  topRowLast: {
+    border: "none",
+    padding: "10px 8px 10px 8px",
+  },
+  fileTypeTableCell: {
+    borderTop: 'none',
+    borderRight: '1px solid #6B7294',
+    borderBottom: 'none',
+    borderLeft: 'none',
+    padding: "10px 12px 10px 15px",
+  },
+  tableTopRowMiddle: {
+    borderTop: 'none',
+    borderRight: '1px solid #6B7294',
+    borderBottom: 'none',
+    borderLeft: 'none',
+    padding: "10px 10px 10px 10px",
+  },
+  bottomRowMiddle: {
+    borderTop: '1px solid #6B7294',
+    borderRight: '1px solid #6B7294',
+    borderBottom: 'none',
+    borderLeft: 'none',
+    padding: "10px 10px 10px 10px",
+  },
+  bottomRowLast: {
+    borderTop: '1px solid #6B7294',
+    borderRight: 'none',
+    borderBottom: 'none',
+    borderLeft: 'none',
+    textAlign: "center" as const,
+    padding: "10px",
+    width: "20px",
+    minWidth: "0",
+  },
+  autoComplete: {
+    borderTop: '1px solid #6B7294',
+    borderRight: '1px solid #6B7294',
+    borderBottom: 'none',
+    borderLeft: 'none',
+    padding: "10px 12px 10px 15px",
+    "&.MuiStack-root": {
+      width: "auto",
+    },
+    "&&&&&&&.MuiAutocomplete-endAdornment": {
+      top: "50% !important"
+    }
+  },
+  addRemoveButtonInTable: {
+    "&.MuiButtonBase-root": {
+      minWidth: "0px !important",
+    },
+    "&.MuiTouchRipple-root": {
+      display: "none",
+    },
+    "&.MuiStack-root": {
+      display: "none",
+    },
+  },
+  removeButtonContainer: {
+    margin: "auto",
+    width: "23px",
+    "&.MuiStack-root": {
+      width: "auto"
+    }
+  },
+    asterisk: {
+    color: "#D54309",
+    marginLeft: "6px",
   },
 });
 

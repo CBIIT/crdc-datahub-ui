@@ -173,7 +173,7 @@ const DatePickerInput: FC<Props> = ({
           {tooltipText && <Tooltip title={tooltipText} />}
         </StyledFormLabel>
         <StyledDatePicker
-          value={val}
+          value=""
           onChange={(value) => onChangeWrapper(value)}
           onError={handleOnError}
           slots={{ openPickerIcon: CalendarIcon }}

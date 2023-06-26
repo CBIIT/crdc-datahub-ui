@@ -50,7 +50,11 @@ const useStyles = makeStyles({
     borderLeft: 'none'
   }
 });
-
+type Props = {
+  index: number;
+  data: FileTypeData | null;
+  onDelete: () => void;
+};
 const FileTypeTable: FC = () => {
     const classes = useStyles();
 

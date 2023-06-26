@@ -21,7 +21,7 @@ const DropdownArrowsIcon = styled("div")(() => ({
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
   value: string;
-  label: string;
+  label?: string;
   options: string[];
   name?: string;
   required?: boolean;
@@ -29,6 +29,9 @@ type Props = {
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   placeholder?: string;
   disableClearable?: boolean;
+  inTable?: boolean;
+  hideHelperText?: boolean;
+  freeSolo? : boolean;
   onChange?: (e: React.SyntheticEvent, v: string, r: string) => void;
 };
 
@@ -42,10 +45,13 @@ const AutocompleteInput: FC<Props> = ({
   classes,
   value,
   name,
-  label,
+  label = "",
   required = false,
   helpText,
   gridWidth,
+  hideHelperText = false,
+  inTable = false,
+  freeSolo = false,
   onChange,
   ...rest
 }) => {
@@ -68,19 +74,27 @@ const AutocompleteInput: FC<Props> = ({
   }, [value]);
 
   return (
-    <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
+    <Grid className={inTable ? classes.rootNoBorder : classes.rootBorder} md={gridWidth || 6} xs={12} item>
       <FormControl fullWidth error={error}>
-        <label htmlFor={id} className={classes.label}>
-          {label}
-          {required ? <span className={classes.asterisk}>*</span> : ""}
-        </label>
+        {label && (
+          <label htmlFor={id} className={classes.label}>
+            {label}
+            {required ? <span className={classes.asterisk}>*</span> : ""}
+          </label>
+        )}
         <Autocomplete
+          sx={{
+                '& .MuiAutocomplete-endAdornment': {
+                  top: "auto"
+                }
+              }}
           id={id}
           size="small"
           value={val}
-          classes={{ root: classes.input }}
+          classes={inTable ? { root: classes.inputInTable } : { root: classes.input }}
           onChange={onChangeWrapper}
           popupIcon={<DropdownArrowsIcon />}
+          freeSolo={freeSolo}
           slotProps={{
             paper: {
               className: classes.paper
@@ -105,18 +119,20 @@ const AutocompleteInput: FC<Props> = ({
               name={name}
               required={required}
               placeholder={rest.placeholder || ""}
+              variant={inTable ? "standard" : undefined}
+              InputProps={inTable ? { ...p.InputProps, disableUnderline: true } : { ...p.InputProps }}
             />
           )}
           {...rest}
         />
-        <FormHelperText>{error ? helperText : " "}</FormHelperText>
+        {!hideHelperText && <FormHelperText>{error ? helperText : " "}</FormHelperText>}
       </FormControl>
     </Grid>
   );
 };
 
 const styles = () => ({
-  root: {
+  rootBorder: {
     "& .MuiFormHelperText-root.Mui-error": {
       color: "#D54309 !important",
     },
@@ -145,6 +161,9 @@ const styles = () => ({
     "& .MuiAutocomplete-popupIndicatorOpen": {
       transform: "none"
     }
+  },
+  rootNoBorder: {
+    border: "none",
   },
   label: {
     fontWeight: 700,
@@ -192,6 +211,19 @@ const styles = () => ({
       fontSize: "16px",
       fontFamily: "'Nunito', 'Rubik', sans-serif",
       padding: "12px !important",
+      height: "20px",
+    },
+  },
+  inputInTable: {
+    backgroundColor: "#fff",
+    "& .MuiAutocomplete-inputRoot.MuiInputBase-root": {
+      padding: 0,
+    },
+    "& .MuiInputBase-input": {
+      fontWeight: 400,
+      fontSize: "16px",
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+      padding: "0 !important",
       height: "20px",
     },
   },

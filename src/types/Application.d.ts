@@ -106,6 +106,6 @@ type DataTypes = {
 
 type FileTypeData = {
   fileType: string;
-  numberOfFiles: number;
+  numberOfFiles: string;
   amountOfData: string;
 };
