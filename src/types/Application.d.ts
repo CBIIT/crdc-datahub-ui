@@ -89,6 +89,7 @@ type DataTypes = {
   clinicalTrial: boolean;
   genomics: boolean;
   imaging: boolean;
+  deIdentified?: boolean;
   immunology: boolean;
   proteomics: boolean;
   otherDataTypes: string;

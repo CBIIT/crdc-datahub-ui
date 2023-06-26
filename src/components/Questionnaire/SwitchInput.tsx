@@ -1,4 +1,4 @@
-import React, { FC, useId, useState } from 'react';
+import React, { FC, ReactElement, useId, useState } from 'react';
 import { WithStyles, withStyles } from '@mui/styles';
 import { SwitchProps, Grid } from '@mui/material';
 import Switch from '@material-ui/core/Switch';
@@ -12,6 +12,7 @@ type Props = {
   required?: boolean;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   value: boolean;
+  toggleContent?: ReactElement;
 } & Omit<SwitchProps, "color">;
 
 // Define your custom styles
@@ -105,7 +106,7 @@ const styles = () => ({
   labelContainer: {
     display: "flex",
     alignItems: "center",
-    height: "40px"
+    height: "40px",
   },
   switchYesNoContainer: {
     display: "flex",
@@ -117,40 +118,42 @@ const styles = () => ({
   }
 });
 
-const CustomSwitch: FC<Props> = ({ classes, label, required, value, name, tooltipText, gridWidth, ...rest }) => {
-    const id = useId();
-    const [val, setVal] = useState(value);
-    return (
-      <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
-        <div className={classes.container}>
-          <div className={classes.labelContainer}>
-            {label}
-            {required ? <span className={classes.asterisk}>*</span> : ""}
-            {tooltipText && <Tooltip className={classes.tooltip} title={tooltipText} />}
-          </div>
-          <div className={classes.switchYesNoContainer}>
-            <div className={val ? classes.text : classes.textChecked}>No</div>
-            <Switch
-              inputProps={{ datatype: "boolean" }}
-              focusVisibleClassName={classes.focusVisible}
-              id={id}
-              checked={val}
-              onChange={(_, c) => { setVal(c); }}
-              classes={{
-            root: classes.switchRoot,
-            switchBase: classes.switchBase,
-            thumb: classes.thumb,
-            track: classes.track,
-            checked: classes.checked,
-          }}
-              {...rest}
-            />
-            {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
-            <input onChange={() => {}} className={classes.input} name={name} type="radio" data-type="boolean" value={val.toString()} checked />
-            <div className={val ? classes.textChecked : classes.text}>Yes</div>
-          </div>
+const CustomSwitch: FC<Props> = ({ classes, label, required, value, name, tooltipText, gridWidth, toggleContent, ...rest }) => {
+  const id = useId();
+  const filterValue = value ?? false;
+  const [val, setVal] = useState(filterValue);
+  return (
+    <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
+      <div className={classes.container} style={{ flexWrap: "wrap" }}>
+        <div className={classes.labelContainer}>
+          {label}
+          {required ? <span className={classes.asterisk}>*</span> : ""}
+          {tooltipText && <Tooltip className={classes.tooltip} title={tooltipText} />}
         </div>
-      </Grid>
+        <div className={classes.switchYesNoContainer}>
+          <div className={val ? classes.text : classes.textChecked}>No</div>
+          <Switch
+            inputProps={{ datatype: "boolean" }}
+            focusVisibleClassName={classes.focusVisible}
+            id={id}
+            checked={val}
+            onChange={(_, c) => { setVal(c); }}
+            classes={{
+          root: classes.switchRoot,
+          switchBase: classes.switchBase,
+          thumb: classes.thumb,
+          track: classes.track,
+          checked: classes.checked,
+        }}
+            {...rest}
+          />
+          {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
+          <input onChange={() => {}} className={classes.input} name={name} type="radio" data-type="boolean" value={val.toString()} checked />
+          <div className={val ? classes.textChecked : classes.text}>Yes</div>
+        </div>
+      </div>
+      {val ? toggleContent : <div />}
+    </Grid>
   );
 };
 

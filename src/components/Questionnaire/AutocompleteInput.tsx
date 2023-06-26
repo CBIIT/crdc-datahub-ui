@@ -83,6 +83,7 @@ const AutocompleteInput: FC<Props> = ({
           </label>
         )}
         <Autocomplete
+          isOptionEqualToValue={(option, value) => option.value === value.value}
           sx={{
                 '& .MuiAutocomplete-endAdornment': {
                   top: "auto"
@@ -220,6 +221,7 @@ const styles = () => ({
       padding: 0,
     },
     "& .MuiInputBase-input": {
+      color: "#083A50",
       fontWeight: 400,
       fontSize: "16px",
       fontFamily: "'Nunito', 'Rubik', sans-serif",

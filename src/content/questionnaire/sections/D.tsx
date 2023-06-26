@@ -15,6 +15,7 @@ import { mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
 import fileTypeOptions from "../../../config/FileTypeConfig";
+import TextInputTable from "../../../components/Questionnaire/TableTextInput";
 /**
  * Form Section D View
  *
@@ -82,7 +83,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   const addFileDataType = () => {
     setFileTypeData([
       ...fileTypeData,
-      { key: `${fileTypeData.length}_${new Date().getTime()}`, fileType: `${fileTypeData.length}_${new Date().getTime()}`, numberOfFiles: "", amountOfData: "" },
+      { key: `${fileTypeData.length}_${new Date().getTime()}`, fileType: ``, numberOfFiles: "", amountOfData: "" },
     ]);
   };
   const removeFileDataType = (key: string) => {
@@ -111,6 +112,15 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           name="dataTypes[imaging]"
           required
           value={dataTypes.imaging}
+          toggleContent={(
+            <SwitchInput
+              label="Confirm the data you plan to submit are de-identified"
+              name="dataTypes[deIdentified]"
+              required
+              value={dataTypes.deIdentified}
+              gridWidth={12}
+            />
+          )}
         />
         <SwitchInput
           label="Genomics"
@@ -238,15 +248,16 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
               </TableRow>
             </TableHead>
             <TableBody>
-              {fileTypeData.map((data: KeyedFileTypeData, idx: number) => (
+              {fileTypeData.map((fileData: KeyedFileTypeData, idx: number) => (
                 <TableRow
-                  key={data.key}
+                  key={fileData.key}
                 >
                   <TableCell className={classes.autoComplete}>
                     <AutocompleteInput
                       label=""
                       gridWidth={12}
-                      value={data.fileType}
+                      value={fileData.fileType}
+                      name={`fileTypes[${idx}][fileType]`}
                       options={fileTypeOptions.map((fileType) => fileType)}
                       placeholder="Select Type"
                       hideHelperText
@@ -254,14 +265,27 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                     />
                     {/* {data.fileType} */}
                   </TableCell>
-                  <TableCell className={classes.bottomRowMiddle}>{data.numberOfFiles}</TableCell>
-                  <TableCell className={classes.bottomRowMiddle}>{data.amountOfData}</TableCell>
+                  <TableCell className={classes.bottomRowMiddle}>
+                    <TextInputTable
+                      name={`fileTypes[${idx}][numberOfFiles]`}
+                      value={fileData.numberOfFiles}
+                      type="number"
+                      placeholder="0000"
+                    />
+                  </TableCell>
+                  <TableCell className={classes.bottomRowMiddle}>
+                    <TextInputTable
+                      name={`fileTypes[${idx}][amountOfData]`}
+                      value={fileData.amountOfData}
+                      placeholder="200GB"
+                    />
+                  </TableCell>
                   <TableCell className={classes.bottomRowLast}>
                     <div className={classes.removeButtonContainer}>
                       <AddRemoveButton
                         className={classes.addRemoveButtonInTable}
                         placement="start"
-                        onClick={() => removeFileDataType(data.key)}
+                        onClick={() => removeFileDataType(fileData.key)}
                         startIcon={<RemoveCircleIcon />}
                         iconColor="#F18E8E"
                         disabled={status === FormStatus.SAVING}
