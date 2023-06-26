@@ -69,7 +69,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
   const sectionKeys = Object.keys(config);
 
   const { data } = useFormContext();
-  const { id, sections: sectionStatuses } = data;
+  const { _id, sections: sectionStatuses } = data;
 
   const [sections, setSections] = useState<ProgressSection[]>([]);
 
@@ -85,7 +85,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
 
       newSections.push({
         title,
-        url: `/questionnaire/${id}/${s}`,
+        url: `/questionnaire/${_id}/${s}`,
         icon: status,
         selected: s === section,
       });
