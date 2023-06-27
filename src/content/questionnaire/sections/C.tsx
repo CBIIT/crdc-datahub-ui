@@ -83,15 +83,6 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           gridWidth={6}
           disablePast
         />
-        <DatePickerInput
-          label={dataAccess.content.targetedSubmissionDate.label}
-          name={dataAccess.content.targetedSubmissionDate.name}
-          required={dataAccess.content.targetedSubmissionDate.required}
-          tooltipText={dataAccess.content.targetedSubmissionDate.tooltipText}
-          initialValue={data.targetedSubmissionDate}
-          gridWidth={6}
-          disablePast
-        />
       </SectionGroup>
 
       <SectionGroup title={cancerTypes.sectionTitle}>
@@ -110,13 +101,6 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           placeholder={cancerTypes.content.otherCancerTypes.placeholder}
           required={cancerTypes.content.otherCancerTypes.required}
           value={data.otherCancerTypes}
-          maxLength={1000}
-        />
-        <TextInput
-          label={cancerTypes.content.test.label}
-          name={cancerTypes.content.test.name}
-          placeholder={cancerTypes.content.test.placeholder}
-          required={cancerTypes.content.test.required}
           maxLength={1000}
         />
 
