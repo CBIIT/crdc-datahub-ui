@@ -28,6 +28,10 @@ const routes: RouteObject[] = [
         element: <Home />
       },
       {
+        path: '/login',
+        element: <Login />
+      },
+      {
         path: '*',
         element: <Status404 />
       }
