@@ -1,12 +1,12 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import Logo from '../ResponsiveHeader/components/LogoMobile';
-import SearchBar from '../ResponsiveHeader/components/SearchBarMobile';
+import Logo from "./components/LogoMobile";
+import SearchBar from "./components/SearchBarMobile";
 import menuClearIcon from '../../assets/header/Menu_Cancel_Icon.svg';
 import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
 import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
-import { navMobileList, navbarSublists } from '../../bento/globalHeaderData'
+import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
 
 const HeaderBanner = styled.div`
   width: 100%;
@@ -162,45 +162,97 @@ const Header = () => {
   const path = useLocation().pathname;
   const [navMobileDisplay, setNavMobileDisplay] = useState('none');
   const [navbarMobileList, setNavbarMobileList] = useState(navMobileList);
-  
+
   const clickNavItem = (e) => {
     const clickTitle = e.target.innerText;
     setNavbarMobileList(navbarSublists[clickTitle]);
-  }
+  };
 
   return (
     <>
       <HeaderBanner role="banner">
         <HeaderContainer>
           <Logo />
-          <div className='headerLowerContainer'>
-            <div className='menuButton' onClick={() => setNavMobileDisplay('block')}>Menu</div>
-            { path !== "/sitesearch" && <div className='searchBarArea'><SearchBar /></div> }
+          <div className="headerLowerContainer">
+            <div
+              role="button"
+              tabIndex={0}
+              className="menuButton"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                      setNavMobileDisplay('block');
+                    }
+                }}
+              onClick={() => setNavMobileDisplay('block')}
+            >
+              Menu
+            </div>
+            { path !== "/sitesearch" && <div className="searchBarArea"><SearchBar /></div> }
           </div>
         </HeaderContainer>
       </HeaderBanner>
-      <NavMobileContainer style={{display: navMobileDisplay}}>
+      <NavMobileContainer style={{ display: navMobileDisplay }}>
         <MenuArea>
-            <div className='menuContainer'>
-                <div className='closeIcon' onClick={() => setNavMobileDisplay('none')}><img className='closeIconImg' src={menuClearIcon} alt="menuClearButton" /></div>
-                { navbarMobileList !== navMobileList && <div className='backButton' onClick={() => setNavbarMobileList(navMobileList)}>Main Menu</div>}
-                <div className='navMobileContainer'>
-                    {
+          <div className="menuContainer">
+            <div
+              role="button"
+              tabIndex={0}
+              className="closeIcon"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                      setNavMobileDisplay('none');
+                    }
+                }}
+              onClick={() => setNavMobileDisplay('none')}
+            >
+              <img className="closeIconImg" src={menuClearIcon} alt="menuClearButton" />
+
+            </div>
+            { navbarMobileList !== navMobileList && (
+            <div
+              role="button"
+              tabIndex={0}
+              className="backButton"
+              onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                      setNavbarMobileList(navMobileList);
+                    }
+                  }}
+              onClick={() => setNavbarMobileList(navMobileList)}
+            >
+              Main Menu
+            </div>
+)}
+            <div className="navMobileContainer">
+              {
                         navbarMobileList.map((navMobileItem, idx) => {
                             const mobilekey = `mobile_${idx}`;
                             return (
-                                <>
-                                    {navMobileItem.className === 'navMobileItem' && <NavLink to={navMobileItem.link} key={mobilekey} onClick={() => setNavMobileDisplay('none')}><div className='navMobileItem'>{navMobileItem.name}</div></NavLink>}
-                                    {navMobileItem.className === 'navMobileItem clickable' && <div key={mobilekey} className='navMobileItem clickable' onClick={clickNavItem}>{navMobileItem.name}</div>}
-                                    {navMobileItem.className === 'navMobileSubItem' && <a href={navMobileItem.link} key={mobilekey}><div className='navMobileItem SubItem' onClick={() => setNavMobileDisplay('none')}>{navMobileItem.name}</div></a>}
-                                    {navMobileItem.className === 'navMobileSubTitle' && <div key={mobilekey} className='navMobileItem'>{navMobileItem.name}</div>}
-                                </>
-                            )
+                              <>
+                                {navMobileItem.className === 'navMobileItem' && <NavLink to={navMobileItem.link} key={mobilekey} onClick={() => setNavMobileDisplay('none')}><div className="navMobileItem">{navMobileItem.name}</div></NavLink>}
+                                {navMobileItem.className === 'navMobileItem clickable' && <div role="button" tabIndex={0} key={mobilekey} className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }} onClick={clickNavItem}>{navMobileItem.name}</div>}
+                                {navMobileItem.className === 'navMobileSubItem' && <a href={navMobileItem.link} key={mobilekey}><div role="button" tabIndex={0} className="navMobileItem SubItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>{navMobileItem.name}</div></a>}
+                                {navMobileItem.className === 'navMobileSubTitle' && <div key={mobilekey} className="navMobileItem">{navMobileItem.name}</div>}
+                              </>
+                            );
                         })
                     }
-                </div>
             </div>
-            <div className='greyContainer' onClick={() => setNavMobileDisplay('none')}/>
+          </div>
+          <div
+            role="button"
+            tabIndex={0}
+            className="greyContainer"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                    setNavMobileDisplay('none');
+                  }
+              }}
+            onClick={() => setNavMobileDisplay('none')}
+            aria-label="greyContainer"
+          />
+          {' '}
+
         </MenuArea>
       </NavMobileContainer>
     </>

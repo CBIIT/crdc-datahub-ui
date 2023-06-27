@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { headerData } from '../../../bento/globalHeaderData';
+import { headerData } from '../../../config/globalHeaderData';
 
 const LogoArea = styled.div`
     display: flex;
@@ -10,15 +10,12 @@ const LogoArea = styled.div`
     }
 `;
 
-
-const Logo = () => {
-  return (
-    <LogoArea>
-        <a className='logoContainer' href={headerData.globalHeaderLogoLink}>
-        <img src={headerData.globalHeaderLogoSmall} alt={headerData.globalHeaderLogoAltText} />
-        </a>
-    </LogoArea>
+const Logo = () => (
+  <LogoArea>
+    <a className="logoContainer" href={headerData.globalHeaderLogoLink}>
+      <img src={headerData.globalHeaderLogoSmall} alt={headerData.globalHeaderLogoAltText} />
+    </a>
+  </LogoArea>
   );
-};
 
 export default Logo;

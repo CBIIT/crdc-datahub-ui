@@ -42,21 +42,18 @@ const FooterContainer = styled.div`
   }
 `;
 
-const Footer = () => {
-
-  return (
-    <FooterContainer>
-      <div className="desktop">
-        <FooterDesktop />
-      </div>
-      <div className="tablet">
-        <FooterTablet />
-      </div>
-      <div className="mobile">
-        <FooterMobile />
-      </div>
-    </FooterContainer>
-  )
-};
+const Footer = () => (
+  <FooterContainer>
+    <div className="desktop">
+      <FooterDesktop />
+    </div>
+    <div className="tablet">
+      <FooterTablet />
+    </div>
+    <div className="mobile">
+      <FooterMobile />
+    </div>
+  </FooterContainer>
+  );
 
 export default Footer;

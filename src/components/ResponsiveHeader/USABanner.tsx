@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { headerData } from '../../bento/globalHeaderData';
+import { headerData } from '../../config/globalHeaderData';
 
 const BannerArea = styled.div`
     flex-direction:row;
@@ -32,19 +32,17 @@ const BannerContainer = styled.div`
     @media (max-width: 1023px) {
         padding-left: 1rem;
     }
-`
+`;
 
-const USABanner = () => {
-  return (
-    <BannerArea>
-        <BannerContainer>
-            <img src={headerData.usaFlagSmall} alt={headerData.usaFlagSmallAltText} />
-            <div className='text'>                
-                An official website of the United States government
-            </div>
-        </BannerContainer>
-    </BannerArea>
+const USABanner = () => (
+  <BannerArea>
+    <BannerContainer>
+      <img src={headerData.usaFlagSmall} alt={headerData.usaFlagSmallAltText} />
+      <div className="text">
+        An official website of the United States government
+      </div>
+    </BannerContainer>
+  </BannerArea>
   );
-};
 
 export default USABanner;

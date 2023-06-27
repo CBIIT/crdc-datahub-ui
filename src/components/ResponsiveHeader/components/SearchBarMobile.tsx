@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import clearIcon from '../../../assets/header/Clear_Icon.svg';
-import searchIcon from '../../../assets/header/Search_Small_Icon.svg'
+import searchIcon from '../../../assets/header/Search_Small_Icon.svg';
 
 const SearchBarContainer = styled.div`
     display: flex;
@@ -110,15 +110,16 @@ const SearchBar = () => {
   };
 
   return (
-        <SearchBarContainer>
-            <div className='searchBar'>
-                <label>
-                    <div style={{display:"none"}}>search</div>
-                    <SearchInput type="search" value={localText} placeholder="" onChange={handleTextInputChange} onKeyPress={handleKeyPress} />
-                  </label>
-                </div>
-            <div className='searchButton' onClick={handleSearch}><img src={searchIcon} alt="searchIcon" /></div>
-        </SearchBarContainer>
+    <SearchBarContainer>
+      <div className="searchBar">
+        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+        <label>
+          <div style={{ display: "none" }}>search</div>
+          <SearchInput type="search" value={localText} placeholder="" onChange={handleTextInputChange} onKeyPress={handleKeyPress} />
+        </label>
+      </div>
+      <div role="button" tabIndex={0} className="searchButton" onKeyDown={handleKeyPress} onClick={handleSearch}><img src={searchIcon} alt="searchIcon" /></div>
+    </SearchBarContainer>
   );
 };
 

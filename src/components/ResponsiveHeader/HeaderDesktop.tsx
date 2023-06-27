@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
-import Logo from '../ResponsiveHeader/components/LogoDesktop'
-import SearchBar from './components/SearchBarDesktop'
+import Logo from './components/LogoDesktop';
+import SearchBar from './components/SearchBarDesktop';
 import NavBar from './components/NavbarDesktop';
 
 const HeaderBanner = styled.div`
@@ -33,17 +33,15 @@ const Header = () => {
   const path = useLocation().pathname;
 
   return (
-    <>
-      <HeaderBanner role="banner">
-        <HeaderContainer>
-          <Logo />
-          <div className='headerLowerContainer'>
-            { path !== "/sitesearch" && <div className='searchBarArea'><SearchBar /></div> }
-          </div>
-        </HeaderContainer>
-        <div className='navbarContainer'><NavBar /></div>
-      </HeaderBanner>
-    </>
+    <HeaderBanner role="banner">
+      <HeaderContainer>
+        <Logo />
+        <div className="headerLowerContainer">
+          { path !== "/sitesearch" && <div className="searchBarArea"><SearchBar /></div> }
+        </div>
+      </HeaderContainer>
+      <div className="navbarContainer"><NavBar /></div>
+    </HeaderBanner>
   );
 };
 

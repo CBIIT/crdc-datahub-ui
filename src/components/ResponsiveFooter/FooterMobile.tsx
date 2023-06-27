@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
-import FooterData from '../../bento/globalFooterData';
+import FooterData from '../../config/globalFooterData';
+
 const FooterStyled = styled.footer`
   background-color: #1B496E;
   bottom: 0;
@@ -8,7 +9,6 @@ const FooterStyled = styled.footer`
   z-index: 10;
   position: relative;
 `;
-
 
 const FooterContainer = styled.div`
   max-width: 1420px;
@@ -309,7 +309,6 @@ const FooterMobile = () => {
   }
 
   const handleSubmit = (e) => {
-    console.log("Handle click")
     if (!validateEmail(emailContent)) {
       setErrorClass("errorEmail");
       e.preventDefault();
@@ -317,16 +316,15 @@ const FooterMobile = () => {
       setErrorClass("");
       emailForm.current.submit();
     }
-  }
-
+  };
 
   const handleChange = (e) => {
     setEmailContent(e.target.value);
-  }
+  };
   const handleDropdown = (param) => {
     document.getElementById(`${param}Dropdown`).classList.toggle("show");
     document.getElementById(`${param}Arrow`).classList.toggle("rotate");
-  }
+  };
 
   return (
     <>
@@ -337,57 +335,59 @@ const FooterMobile = () => {
               FooterData.link_sections.map((linkItem, linkidx) => {
                 const linkkey = `link_${linkidx}`;
                 return (
-                  <div className='dropdown' key={linkkey}>
-                    <button onClick={() => handleDropdown(linkkey)} className="dropbtn">
-                      <svg id = {linkkey + "Arrow"} className = "arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                  <div className="dropdown" key={linkkey}>
+                    <button type="button" onClick={() => handleDropdown(linkkey)} className="dropbtn">
+                      <svg id={`${linkkey}Arrow`} className="arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <path fill="currentColor" d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
                       </svg>
                       {linkItem.title}
                     </button>
-                    <div id={linkkey + "Dropdown"} className="dropdown-content">
+                    <div id={`${linkkey}Dropdown`} className="dropdown-content">
                       {
                         linkItem.items.map((item, itemidx) => {
                           const itemkey = `item_${itemidx}`;
                           return (
-                            item.link.includes('http') ?
-                              <a className='footItemLink' key={itemkey} href={item.link} target="_blank" rel="noopener noreferrer">{item.text}</a>
-                              :
-                              <a className='footItemLink' key={itemkey} href={item.link}>{item.text}</a>
-                          )
+                            item.link.includes('http')
+                              ? <a className="footItemLink" key={itemkey} href={item.link} target="_blank" rel="noopener noreferrer">{item.text}</a>
+                              : <a className="footItemLink" key={itemkey} href={item.link}>{item.text}</a>
+                          );
                         })
                       }
                     </div>
                   </div>
-                )
+                );
               })
             }
           </FooterLinksContainer>
-          <FooterEmailSignupContainer  onSubmit={handleSubmit} ref={emailForm} action="https://public.govdelivery.com/accounts/USNIHNCI/subscribers/qualify" method="post" target="_blank" id="signup" noValidate>
-              <input type="hidden" name="topic_id" id="topic_id" value="USNIHNCI_223" />
-              <div className='signUpTitle'>
-                Sign up for email updates
+          <FooterEmailSignupContainer onSubmit={handleSubmit} ref={emailForm} action="https://public.govdelivery.com/accounts/USNIHNCI/subscribers/qualify" method="post" target="_blank" id="signup" noValidate>
+            <input type="hidden" name="topic_id" id="topic_id" value="USNIHNCI_223" />
+            <div className="signUpTitle">
+              Sign up for email updates
+            </div>
+            <div className={errorClass !== "" ? 'ErrorBorder' : null}>
+              <div className="enterTitle">
+                <label htmlFor="email">
+                  Enter your email address
+                  <div className={errorClass}>
+                    {errorClass !== "" ? <div className="enterTitle">Enter a valid email address</div> : null}
+                    <input id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
+                  </div>
+                </label>
               </div>
-              <div className={errorClass !== "" ? 'ErrorBorder' : null}>
-                <div className='enterTitle'>
-                  <label htmlFor="email"> Enter your email address</label>
-                </div>
-                <div className={errorClass}>
-                  {errorClass !== "" ? <div className='enterTitle'>Enter a valid email address</div> : null}
-                  <input id="email" type="email" name="email" className='signUpInputBox' value={emailContent} onChange={e => handleChange(e)} />
-                </div>
-              </div>
-              <button type="submit" className='signUpButton'>
-                Sign up
-              </button>
-            </FooterEmailSignupContainer>
+
+            </div>
+            <button type="submit" className="signUpButton">
+              Sign up
+            </button>
+          </FooterEmailSignupContainer>
         </FooterContainer>
       </FooterStyled>
       <BottomFooter>
         <div className="bottom-footer-container">
           <div id="bottom-footer-header">
-            <a className='logoText' href="https://www.cancer.gov" target="_blank" rel="noopener noreferrer">
-              <div className='logoUpperText'>National Cancer Institute</div>
-              <div className='logoLowerText'>at the National Institutes of Health</div>
+            <a className="logoText" href="https://www.cancer.gov" target="_blank" rel="noopener noreferrer">
+              <div className="logoUpperText">National Cancer Institute</div>
+              <div className="logoLowerText">at the National Institutes of Health</div>
             </a>
           </div>
           <div id="bottom-footer-contact-us">
@@ -397,16 +397,15 @@ const FooterMobile = () => {
                 FooterData.contact_links.map((contactItem, contactidx) => {
                   const contactkey = `contact_${contactidx}`;
                   return (
-                    contactItem.link.includes('http') ?
-                      <a key={contactkey} href={contactItem.link} target="_blank" rel="noopener noreferrer">{contactItem.text}</a>
-                      :
-                      <a key={contactkey} href={contactItem.link}>{contactItem.text}</a>
-                  )
+                    contactItem.link.includes('http')
+                      ? <a key={contactkey} href={contactItem.link} target="_blank" rel="noopener noreferrer">{contactItem.text}</a>
+                      : <a key={contactkey} href={contactItem.link}>{contactItem.text}</a>
+                  );
                 })
               }
             </div>
           </div>
-          <div className="break"></div>
+          <div className="break" />
           <div id="bottom-footer-follow-us">
             Follow Us
             <div id="bottom-footer-follow-us-links">
@@ -415,7 +414,7 @@ const FooterMobile = () => {
                   const followkey = `follow_${followidx}`;
                   return (
                     <a key={followkey} className={followidx !== 0 ? "bottom-footer-social-media-imgs" : ""} href={followItem.link} target="_blank" rel="noopener noreferrer"><img src={followItem.img} alt={followItem.description} /></a>
-                  )
+                  );
                 })
               }
             </div>
@@ -426,14 +425,14 @@ const FooterMobile = () => {
                 const linkitemkey = `linkitem_${idx}`;
                 return (
                   <a key={linkitemkey} href={linkItem.link} target="_blank" rel="noopener noreferrer">{linkItem.text}</a>
-                )
+                );
               })
             }
           </div>
         </div>
       </BottomFooter>
     </>
-  )
+  );
 };
 
 export default FooterMobile;

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
-import FooterData from '../../bento/globalFooterData';
+import FooterData from '../../config/globalFooterData';
 
 const FooterStyled = styled.footer`
   background-color: #1B496E;
@@ -238,17 +238,16 @@ const BottomFooter = styled.div`
 `;
 
 const FooterDesktop = () => {
-  const [errorClass,setErrorClass] = useState("");
+  const [errorClass, setErrorClass] = useState("");
   const [emailContent, setEmailContent] = useState("");
   const emailForm = useRef(null);
 
-  function validateEmail (email) {
+  function validateEmail(email) {
     const reg = /^[A-Za-z0-9]+([_.-][A-Za-z0-9]+)*@([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}$/;
     return reg.test(email);
   }
 
   const handleSubmit = (e) => {
-    console.log("Handle click")
     if (!validateEmail(emailContent)) {
       setErrorClass("errorEmail");
       e.preventDefault();
@@ -256,68 +255,71 @@ const FooterDesktop = () => {
       setErrorClass("");
       emailForm.current.submit();
     }
-  }
+  };
 
   const handleChange = (e) => {
     setEmailContent(e.target.value);
-  }
+  };
   return (
     <>
       <FooterStyled role="contentinfo">
-          <FooterContainer>
-            <FooterLinksContainer>
-                {
+        <FooterContainer>
+          <FooterLinksContainer>
+            {
                     FooterData.link_sections.map((linkItem, linkidx) => {
-                        const linkkey =  `link_${linkidx}`;
+                        const linkkey = `link_${linkidx}`;
                         return (
-                            <div className='footItem' key={linkkey}>
-                                <div className='footItemTitle'>{linkItem.title}</div>
-                                {
+                          <div className="footItem" key={linkkey}>
+                            <div className="footItemTitle">{linkItem.title}</div>
+                            {
                                     linkItem.items.map((item, itemidx) => {
-                                        const itemkey =  `item_${itemidx}`;
+                                        const itemkey = `item_${itemidx}`;
                                         return (
-                                            <div className='footItemSubtitle' key={itemkey}>
-                                                {
-                                                    item.link.includes('http') ? 
-                                                    <a className='footItemLink' href={item.link} target="_blank" rel="noopener noreferrer">{item.text}</a>
-                                                    :
-                                                    <a className='footItemLink' href={item.link}>{item.text}</a>
+                                          <div className="footItemSubtitle" key={itemkey}>
+                                            {
+                                                    item.link.includes('http')
+                                                    ? <a className="footItemLink" href={item.link} target="_blank" rel="noopener noreferrer">{item.text}</a>
+                                                    : <a className="footItemLink" href={item.link}>{item.text}</a>
                                                 }
-                                            </div>
-                                        )
+                                          </div>
+                                        );
                                     })
                                 }
-                            </div>
-                        )
+                          </div>
+                        );
                     })
                 }
-            </FooterLinksContainer>
-            <FooterEmailSignupContainer  onSubmit={handleSubmit} ref={emailForm} action="https://public.govdelivery.com/accounts/USNIHNCI/subscribers/qualify" method="post" target="_blank" id="signup" noValidate>
-              <input type="hidden" name="topic_id" id="topic_id" value="USNIHNCI_223" />
-              <div className='signUpTitle'>
-                Sign up for email updates
+          </FooterLinksContainer>
+          <FooterEmailSignupContainer onSubmit={handleSubmit} ref={emailForm} action="https://public.govdelivery.com/accounts/USNIHNCI/subscribers/qualify" method="post" target="_blank" id="signup" noValidate>
+            <input type="hidden" name="topic_id" id="topic_id" value="USNIHNCI_223" />
+            <div className="signUpTitle">
+              Sign up for email updates
+            </div>
+            <div className={errorClass !== "" ? 'ErrorBorder' : null}>
+              <div className="enterTitle">
+                <label htmlFor="email">
+                  Enter your email address
+                  <div className={errorClass}>
+                    {errorClass !== "" ? <div className="enterTitle">Enter a valid email address</div> : null}
+                    <input id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
+                  </div>
+                </label>
+
               </div>
-              <div className={errorClass !== "" ? 'ErrorBorder' : null}>
-                <div className='enterTitle'>
-                  <label htmlFor="email"> Enter your email address</label>
-                </div>
-                <div className={errorClass}>
-                  {errorClass !== "" ? <div className='enterTitle'>Enter a valid email address</div> : null}
-                  <input id="email" type="email" name="email" className='signUpInputBox' value={emailContent} onChange={e => handleChange(e)} />
-                </div>
-              </div>
-              <button type="submit" className='signUpButton'>
-                Sign up
-              </button>
-            </FooterEmailSignupContainer>
-          </FooterContainer>
+
+            </div>
+            <button type="submit" className="signUpButton">
+              Sign up
+            </button>
+          </FooterEmailSignupContainer>
+        </FooterContainer>
       </FooterStyled>
       <BottomFooter>
         <div className="bottom-footer-container">
           <div id="bottom-footer-header">
-            <a className='logoText' href="https://www.cancer.gov" target="_blank" rel="noopener noreferrer">
-              <div className='logoUpperText'>National Cancer Institute</div>
-              <div className='logoLowerText'>at the National Institutes of Health</div>
+            <a className="logoText" href="https://www.cancer.gov" target="_blank" rel="noopener noreferrer">
+              <div className="logoUpperText">National Cancer Institute</div>
+              <div className="logoLowerText">at the National Institutes of Health</div>
             </a>
           </div>
           <div id="bottom-footer-contact-us">
@@ -327,16 +329,15 @@ const FooterDesktop = () => {
                 FooterData.contact_links.map((contactItem, contactidx) => {
                   const contactkey = `contact_${contactidx}`;
                   return (
-                    contactItem.link.includes('http') ?
-                      <a key={contactkey} href={contactItem.link} target="_blank" rel="noopener noreferrer">{contactItem.text}</a>
-                      :
-                      <a key={contactkey} href={contactItem.link}>{contactItem.text}</a>
-                  )
+                    contactItem.link.includes('http')
+                      ? <a key={contactkey} href={contactItem.link} target="_blank" rel="noopener noreferrer">{contactItem.text}</a>
+                      : <a key={contactkey} href={contactItem.link}>{contactItem.text}</a>
+                  );
                 })
               }
             </div>
           </div>
-          <div className="break"></div>
+          <div className="break" />
           <div id="bottom-footer-follow-us">
             Follow Us
             <div id="bottom-footer-follow-us-links">
@@ -345,7 +346,7 @@ const FooterDesktop = () => {
                   const followkey = `follow_${followidx}`;
                   return (
                     <a key={followkey} className={followidx !== 0 ? "bottom-footer-social-media-imgs" : ""} href={followItem.link} target="_blank" rel="noopener noreferrer"><img src={followItem.img} alt={followItem.description} /></a>
-                  )
+                  );
                 })
               }
             </div>
@@ -356,14 +357,14 @@ const FooterDesktop = () => {
                 const linkitemkey = `linkitem_${idx}`;
                 return (
                   <a key={linkitemkey} href={linkItem.link} target="_blank" rel="noopener noreferrer">{linkItem.text}</a>
-                )
+                );
               })
             }
           </div>
         </div>
       </BottomFooter>
     </>
-  )
+  );
 };
 
 export default FooterDesktop;

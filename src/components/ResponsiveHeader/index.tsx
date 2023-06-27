@@ -43,21 +43,19 @@ const HeaderContainer = styled.div`
   }
 `;
 
-const Header = () => {
-  return (
-    <HeaderContainer>
-      <USABanner />
-      <div className="desktop">
-        <HeaderDesktop />
-      </div>
-      <div className="tablet">
-        <HeaderTablet />
-      </div>
-      <div className="mobile">
-        <HeaderMobile />
-      </div>
-    </HeaderContainer>
-  )
-};
+const Header = () => (
+  <HeaderContainer>
+    <USABanner />
+    <div className="desktop">
+      <HeaderDesktop />
+    </div>
+    <div className="tablet">
+      <HeaderTablet />
+    </div>
+    <div className="mobile">
+      <HeaderMobile />
+    </div>
+  </HeaderContainer>
+  );
 
 export default Header;

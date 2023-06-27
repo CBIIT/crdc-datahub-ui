@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, NavLink } from 'react-router-dom';
 import styled from 'styled-components';
-import { navMobileList, navbarSublists } from '../../../bento/globalHeaderData';
+import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
 
 const Nav = styled.div`
     top: 0;
@@ -213,7 +213,6 @@ const DropdownContainer = styled.div`
   }
 `;
 
-
 const activeStyle = {
   color: '#298085',
   borderBottom: '4px solid #298085',
@@ -238,13 +237,12 @@ const useOutsideAlerter = (ref) => {
   }, [ref]);
 };
 
-
 const NavBar = () => {
   const path = useLocation().pathname;
   const [clickedTitle, setClickedTitle] = useState("");
   const dropdownSelection = useRef(null);
-  const clickableObject = navMobileList.filter(item => item.className === 'navMobileItem clickable');
-  const clickableTitle = clickableObject.map(item => item.name);
+  const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
+  const clickableTitle = clickableObject.map((item) => item.name);
   useOutsideAlerter(dropdownSelection);
 
   const handleMenuClick = (e) => {
@@ -255,47 +253,82 @@ const NavBar = () => {
     }
   };
 
+  const onKeyPressHandler = (e) => {
+    if (e.key === "Enter") {
+     handleMenuClick(e);
+    }
+  };
+
   useEffect(() => {
     setClickedTitle("");
   }, []);
 
   return (
-    <>
-      <Nav>
-        <NavContainer>
-          <UlContainer>
-            {
+    <Nav>
+      <NavContainer>
+        <UlContainer>
+          {
               navMobileList.map((navMobileItem, idx) => {
                 const navkey = `nav_${idx}`;
                 return (
                   navMobileItem.className === 'navMobileItem'
-                    ? <LiSection key={navkey}><div className='navTitle directLink'><NavLink to={navMobileItem.link}><div className='navText directLink' onClick={handleMenuClick} style={path === navMobileItem.link || (path === '/' && navMobileItem.link === '/home') ? activeStyle : null}>{navMobileItem.name}</div></NavLink></div></LiSection>
-                    : <LiSection key={navkey}><div className={clickedTitle === navMobileItem.name ? 'navTitleClicked' : 'navTitle'}><div className={clickedTitle === navMobileItem.name ? 'navText clicked' : 'navText'} onClick={handleMenuClick}>{navMobileItem.name}</div></div></LiSection>
-                )
+                    ? (
+                      <LiSection key={navkey}>
+                        <div className="navTitle directLink">
+                          <NavLink to={navMobileItem.link}>
+                            <div
+                              onKeyDown={onKeyPressHandler}
+                              role="button"
+                              tabIndex={0}
+                              className="navText directLink"
+                              onClick={handleMenuClick} style={path === navMobileItem.link || (path === '/' && navMobileItem.link === '/home') ? activeStyle : null}
+                            >
+                              {navMobileItem.name}
+                            </div>
+                          </NavLink>
+                        </div>
+                      </LiSection>
+)
+                    : (
+                      <LiSection key={navkey}>
+                        <div className={clickedTitle === navMobileItem.name ? 'navTitleClicked' : 'navTitle'}>
+                          <div
+                            onKeyDown={onKeyPressHandler}
+                            role="button"
+                            tabIndex={0} className={clickedTitle === navMobileItem.name ? 'navText clicked' : 'navText'}
+                            onClick={handleMenuClick}
+                          >
+                            {navMobileItem.name}
+                          </div>
+                        </div>
+                      </LiSection>
+)
+                );
               })
             }
-          </UlContainer>
-        </NavContainer>
-        <Dropdown ref={dropdownSelection} style={clickedTitle === '' ? { visibility: 'hidden', } : null}>
-          <DropdownContainer>
-            <div className="dropdownList">
-              {
+        </UlContainer>
+      </NavContainer>
+      <Dropdown ref={dropdownSelection} style={clickedTitle === '' ? { visibility: 'hidden', } : null}>
+        <DropdownContainer>
+          <div className="dropdownList">
+            {
                 clickedTitle !== "" ? navbarSublists[clickedTitle].map((dropItem, idx) => {
                   const dropkey = `drop_${idx}`;
                   return (
-                    dropItem.link && <a href={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
+                    dropItem.link && (
+                    <a href={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
                       {dropItem.name}
                       <div className="dropdownItemText">{dropItem.text}</div>
                     </a>
-                  )
+)
+                  );
                 })
                   : null
               }
-            </div>
-          </DropdownContainer>
-        </Dropdown>
-      </Nav>
-    </>
+          </div>
+        </DropdownContainer>
+      </Dropdown>
+    </Nav>
   );
 };
 
