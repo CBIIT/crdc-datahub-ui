@@ -148,6 +148,11 @@ const styles = () => ({
       padding: "0 !important",
       height: "20px",
     },
+    "& ::placeholder": {
+      color: "#929296",
+      fontWeight: 400,
+      opacity: 1
+    },
   },
 });
 

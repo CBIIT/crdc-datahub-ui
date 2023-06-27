@@ -255,7 +255,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                   <TableCell className={classes.autoComplete}>
                     <TableAutocompleteInput
                       value={fileData.fileType}
-                      name={`fileTypes[${idx}][fileType]`}
+                      name={`dataTypes[fileTypes][${idx}][fileType]`}
                       options={fileTypeOptions.map((fileType) => fileType)}
                       placeholder="Select Type"
                     />
@@ -263,7 +263,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                   </TableCell>
                   <TableCell className={classes.bottomRowMiddle}>
                     <TableTextInput
-                      name={`fileTypes[${idx}][numberOfFiles]`}
+                      name={`dataTypes[fileTypes][${idx}][numberOfFiles]`}
                       value={fileData.numberOfFiles}
                       type="number"
                       placeholder="0000"
@@ -271,7 +271,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                   </TableCell>
                   <TableCell className={classes.bottomRowMiddle}>
                     <TableTextInput
-                      name={`fileTypes[${idx}][amountOfData]`}
+                      name={`dataTypes[fileTypes][${idx}][amountOfData]`}
                       value={fileData.amountOfData}
                       placeholder="200GB"
                     />
