@@ -8,8 +8,14 @@ type Application = {
   study: Study;
   funding: Funding;
   publications: Publication[];
+  status: ApplicationStatus;
+  reviewComment: string;
+  updatedAt: string;
+  history: HistoryEvent[];
   plannedPublications: PlannedPublication[];
 };
+
+type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected";
 
 type Section = {
   name: string;
@@ -84,4 +90,11 @@ type Funding = {
 type Agency = {
   name: string;
   grantNumbers: string[];
+};
+
+type HistoryEvent = {
+  status: ApplicationStatus;
+  reviewComment?: string;
+  dateTime: string;
+  userID: number;
 };
