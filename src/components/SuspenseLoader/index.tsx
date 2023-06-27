@@ -14,6 +14,7 @@ function SuspenseLoader() {
     <Box
       sx={{
         position: 'fixed',
+        background: '#fff',
         left: 0,
         top: 0,
         width: '100%',
