@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import { AutocompleteChangeReason } from "@mui/material";
 import { parseForm } from "@jalik/form-parser";
-import { withStyles } from "@mui/styles";
 import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import programOptions from "../../../config/ProgramConfig";
@@ -301,11 +300,13 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
       <SectionGroup
         title="Publications associated with this study, if any."
         description={(
-          <>
-            Include the PubMed ID (PMOID, DOI)
-            <br />
-            Indicate one Publication per row.
-          </>
+          {
+            type: "br",
+            text: [
+              "Include the PubMed ID (PMOID, DOI)",
+              "Indicate one Publication per row."
+            ]
+          }
         )}
         endButton={(
           <AddRemoveButton
@@ -350,13 +351,15 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
       {/* Study Repositories */}
       <SectionGroup
-        title={(
-          <>
-            Repository where study currently registered (e.g. dbGaP, ORCID)
-            <br />
-            and associated repository study identifier
-          </>
-        )}
+        title={
+          {
+            type: "br",
+            text: [
+              "Repository where study currently registered (e.g. dbGaP, ORCID)",
+              "and associated repository study identifier"
+            ]
+          }
+        }
         endButton={(
           <AddRemoveButton
             label="Add Repository"
@@ -382,9 +385,8 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           label="Funding Agency"
           name="funding[agencies][0][name]"
           value={funding?.agencies[0]?.name}
-          onChange={() => {}}
           options={fundingOptions.map((option: string) => ({ label: option, value: option }))}
-          placeholder="– Search and Select Program –"
+          placeholder="Select Agency"
           required
         />
         <TextInput

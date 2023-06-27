@@ -61,6 +61,7 @@ const Tooltip = ({ classes, icon, children, title, ...rest }: Props) => {
       open={tooltipIsOpen}
       onBlur={closeTooltip}
       title={title || ""}
+      placement="right"
       disableHoverListener
       {...rest}
     >

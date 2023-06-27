@@ -3,7 +3,7 @@ import {
   Link, useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
-import { isEqual } from 'lodash';
+import { difference, isEqual, isPlainObject, reduce } from 'lodash';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Stack } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
@@ -52,8 +52,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
-  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex - 1]}` : null;
-  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex + 1]}` : null;
+  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.["_id"]}/${sectionKeys[sectionIndex - 1]}` : null;
+  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}` : null;
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -286,8 +286,9 @@ const styles = () => ({
     margin: "0 0 0 15px",
   },
   content: {
+    width: "980px",
     maxWidth: "980px",
-    marginLeft: '64px',
+    marginLeft: '42px',
   },
   controls: {
     color: "#FFFFFF",

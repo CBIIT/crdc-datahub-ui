@@ -6,6 +6,18 @@ type Application = {
   additionalContacts: AdditionalContact[];
   program: Program;
   study: Study;
+  accessTypes: string[];
+  targetedSubmissionDate: string; // YYYY-MM-DD format
+  targetedReleaseDate: string; // YYYY-MM-DD format
+  timeConstraints: TimeConstraint[];
+  cancerTypes: string[]; // FE control allowed values
+  otherCancerTypes: string;
+  preCancerTypes: string[]; // FE control allowed values
+  otherPreCancerTypes: string;
+  numberOfParticipants: number;
+  species: string[] // FE control allowed values
+  cellLines: boolean;
+  modelSystems: boolean;
   funding: Funding;
   publications: Publication[];
   plannedPublications: PlannedPublication[];
@@ -84,4 +96,9 @@ type Funding = {
 type Agency = {
   name: string;
   grantNumbers: string[];
+};
+
+type TimeConstraint = {
+  description: string;
+  effectiveDate: string;
 };

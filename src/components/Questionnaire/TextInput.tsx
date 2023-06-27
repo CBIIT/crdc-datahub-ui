@@ -92,7 +92,7 @@ const TextInput: FC<Props> = ({
           type={rest.type || "text"}
           id={id}
           size="small"
-          value={val}
+          value={val || ""}
           onChange={(e) => onChange(e.target.value)}
           required={required}
           {...rest}

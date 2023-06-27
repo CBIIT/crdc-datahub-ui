@@ -8,20 +8,119 @@ import {
   SelectProps,
   styled,
 } from "@mui/material";
-import { WithStyles, withStyles } from "@mui/styles";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 
 const DropdownArrowsIcon = styled("div")(() => ({
   backgroundImage: `url(${dropdownArrowsIcon})`,
   backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
-  width: "9.17px",
+  width: "10px",
   height: "18px",
 }));
 
+const GridItem = styled(Grid)(() => ({
+  "& .MuiFormHelperText-root.Mui-error": {
+    color: "#D54309 !important",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderRadius: "8px",
+    borderColor: "#6B7294",
+    padding: "0 12px"
+  },
+  "&.Mui-error fieldset": {
+    borderColor: "#D54309 !important",
+  },
+  "& .MuiSelect-icon": {
+    right: "12px"
+  },
+  "& .MuiSelect-iconOpen": {
+    transform: "none"
+  },
+  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+    border: "1px solid #209D7D !important",
+    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+  },
+}));
+
+const StyledAsterisk = styled("span")(() => ({
+  color: "#D54309",
+  marginLeft: "6px",
+}));
+
+const StyledFormLabel = styled("label")(({ theme }) => ({
+  fontWeight: 700,
+  fontSize: "16px",
+  lineHeight: "19.6px",
+  minHeight: "20px",
+  color: "#083A50",
+  marginBottom: "4px",
+  [theme.breakpoints.up("lg")]: {
+    whiteSpace: "nowrap",
+  },
+}));
+
+const ProxySelect = styled("select")(() => ({
+  display: "none"
+}));
+
+const StyledSelect = styled(Select, {
+  shouldForwardProp: (prop) => prop !== "placeholderText"
+})<SelectProps & { placeholderText: string; }>((props) => ({
+  "& .MuiSelect-select .notranslate::after": {
+    // content: `'${(props) => props.placeholderText || "none"}'`,
+    content: `'${props.placeholderText ?? "Select"}'`,
+    color: "#929296",
+    fontWeight: 400,
+    opacity: 1
+  },
+  "& .MuiPaper-root": {
+    borderRadius: "8px",
+    border: "1px solid #6B7294",
+    marginTop: "2px",
+    "& .MuiList-root": {
+      padding: 0,
+      overflow: "auto",
+      maxHeight: "40vh"
+    },
+    "& .MuiMenuItem-root": {
+      padding: "0 10px",
+      height: "35px",
+      color: "#083A50",
+      background: "#FFFFFF"
+    },
+    "& .MuiMenuItem-root.Mui-selected": {
+      backgroundColor: "#5E6787",
+      color: "#FFFFFF",
+    },
+    "& .MuiMenuItem-root:hover": {
+      background: "#5E6787",
+      color: "#FFFFFF"
+    },
+    "& .MuiMenuItem-root.Mui-focused": {
+      backgroundColor: "#5E6787 !important",
+      color: "#FFFFFF"
+    },
+  },
+  "& .MuiInputBase-input": {
+    backgroundColor: "#fff",
+    color: "#083A50 !important",
+    fontWeight: 400,
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    lineHeight: "19.6px",
+    padding: "12px",
+    height: "20px !important",
+    minHeight: "20px !important",
+    "&::placeholder": {
+      color: "#929296",
+      fontWeight: 400,
+      opacity: 1
+    },
+  }
+}));
+
 type Props = {
-  classes: WithStyles<typeof styles>["classes"];
-  value: string;
+  value: string | string[];
   options: { label: string; value: string | number }[];
   name: string;
   label: string;
@@ -38,7 +137,6 @@ type Props = {
  * @returns {JSX.Element}
  */
 const SelectInput: FC<Props> = ({
-  classes,
   value,
   name,
   label,
@@ -47,13 +145,35 @@ const SelectInput: FC<Props> = ({
   helpText,
   gridWidth,
   onChange,
+  multiple,
+  placeholder,
   ...rest
 }) => {
   const id = useId();
 
-  const [val, setVal] = useState(value);
+  const [val, setVal] = useState(multiple ? [] : "");
   const [error] = useState(false);
   const helperText = helpText || (required ? "This field is required" : " ");
+
+  const validateInput = (input: string | string[]) => {
+    const inputIsArray = Array.isArray(input);
+    if (multiple && !inputIsArray) {
+      return false;
+    }
+
+    if (inputIsArray) {
+      const containsOnlyValidOptions = input.every((value: string) => !!options.find((option) => option.value === value));
+      return containsOnlyValidOptions;
+    }
+    const isValidOption = !!options.find((option) => option.value === input);
+    return isValidOption;
+  };
+
+  const getValidInitialValue = (input: string | string[]) => {
+    const validInitialValue = multiple ? [] : "";
+
+    return validateInput(input) ? input : validInitialValue;
+  };
 
   const onChangeWrapper = (newVal) => {
     if (typeof onChange === "function") {
@@ -64,26 +184,26 @@ const SelectInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    onChangeWrapper(value);
+    onChangeWrapper(getValidInitialValue(value));
   }, [value]);
 
   return (
-    <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
+    <GridItem md={gridWidth || 6} xs={12} item>
       <FormControl fullWidth error={error}>
-        <label htmlFor={id} className={classes.label}>
+        <StyledFormLabel htmlFor={id}>
           {label}
-          {required ? <span className={classes.asterisk}>*</span> : ""}
-        </label>
-        <Select
-          classes={{ select: classes.input }}
+          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+        </StyledFormLabel>
+        <StyledSelect
           size="small"
           value={val}
           onChange={(e) => onChangeWrapper(e.target.value)}
           required={required}
-          name={name}
           IconComponent={DropdownArrowsIcon}
-          MenuProps={{ PaperProps: { className: classes.paper } }}
+          MenuProps={{ disablePortal: true }}
           slotProps={{ input: { id } }}
+          multiple={multiple}
+          placeholderText={placeholder}
           {...rest}
         >
           {options.map((option) => (
@@ -91,93 +211,24 @@ const SelectInput: FC<Props> = ({
               {option.label}
             </MenuItem>
           ))}
-        </Select>
+        </StyledSelect>
+
+        {/* Proxy select for the form parser to correctly parse data if multiple attribute is on */}
+        <ProxySelect
+          name={name}
+          value={val}
+          onChange={() => {}}
+          multiple={multiple}
+          hidden
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value} aria-label={`${option.value}`} />
+          ))}
+        </ProxySelect>
         <FormHelperText>{error ? helperText : " "}</FormHelperText>
       </FormControl>
-    </Grid>
+    </GridItem>
   );
 };
 
-const styles = () => ({
-  root: {
-    "& .MuiFormHelperText-root.Mui-error": {
-      color: "#D54309 !important",
-    },
-    "& .MuiOutlinedInput-notchedOutline": {
-      borderRadius: "8px",
-      borderColor: "#6B7294",
-      padding: "0 12px"
-    },
-    "&.Mui-error fieldset": {
-      borderColor: "#D54309 !important",
-    },
-    "& .MuiSelect-icon": {
-      right: "12px"
-    },
-    "& .MuiSelect-iconOpen": {
-      transform: "none"
-    },
-    "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-      border: "1px solid #209D7D",
-      boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-    },
-  },
-  label: {
-    fontWeight: 700,
-    fontSize: "16px",
-    color: "#083A50",
-    marginBottom: "4px",
-  },
-  asterisk: {
-    color: "#D54309",
-    marginLeft: "6px",
-  },
-  paper: {
-    borderRadius: "8px",
-    border: "1px solid #6B7294",
-    marginTop: "2px",
-    "& .MuiList-root": {
-      padding: 0,
-      overflow: "auto",
-      maxHeight: "40vh"
-    },
-    "& .MuiMenuItem-root": {
-      padding: "0 10px",
-      height: "35px",
-      color: "#083A50",
-      background: "#FFFFFF"
-    },
-    "& .MuiMenuItem-root.Mui-selected": {
-      backgroundColor: "#FFFFFF",
-      color: "#083A50",
-    },
-    "& .MuiMenuItem-root:hover": {
-      background: "#5E6787",
-      color: "#FFFFFF"
-    },
-    "& .MuiMenuItem-root.Mui-focused": {
-      backgroundColor: "#5E6787 !important",
-      color: "#FFFFFF"
-    },
-  },
-  input: {
-    backgroundColor: "#fff",
-    color: "#083A50 !important",
-    "&.MuiInputBase-input": {
-      fontWeight: 400,
-      fontSize: "16px",
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      lineHeight: "19.6px",
-      padding: "12px",
-      height: "20px",
-      minHeight: "20px"
-    },
-    "&.MuiInputBase-input::placeholder": {
-      color: "#929296",
-      fontWeight: 400,
-      opacity: 1
-    },
-  },
-});
-
-export default withStyles(styles, { withTheme: true })(SelectInput);
+export default SelectInput;

@@ -13,6 +13,23 @@ export const validateEmail = (email: string): boolean => {
 };
 
 /**
+ * Reduce Content Options
+ *
+ * NOTE:
+ * - This util is for modifying the shape of the options
+ *   into a form that FormGroupCheckbox accepts as a value.
+ * - This is for when you want to contain checkboxes inside
+ *   a single form group, but want separate properties/names
+ *   for each checkbox. This will check the property value and
+ *   name coming from data and add the name to the array if it's
+ *   true, otherwise it will not include it.
+ *
+ * @param {SectionItemContentOption[]} options The options, usually coming from config
+ * @returns {string[]} The re-shaped options. Ex. ["name1", "name2"]
+ */
+export const reshapeContentOptions = (options: SectionItemContentOption[], data: Application): string[] => options.reduce((acc, option) => (data[option.name] ? [...acc, option.value] : acc), []);
+
+/**
  * Generic Non-Numeric Character Filter
  *
  * @param {string} value The value to filter
