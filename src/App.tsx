@@ -1,14 +1,25 @@
-import { useRoutes } from 'react-router-dom';
-import router from './router';
-import { CssBaseline } from '@mui/material';
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import routeConfig from "./router";
+
+const theme = createTheme({
+  typography: {
+    fontFamily: "'Nunito', sans-serif",
+  },
+});
+
+const router = createBrowserRouter(routeConfig);
 
 function App() {
-  const content = useRoutes(router);
   return (
-       <>
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
         <CssBaseline />
-        {content}
-       </>
+        <RouterProvider router={router} />
+      </LocalizationProvider>
+    </ThemeProvider>
   );
 }
 export default App;
