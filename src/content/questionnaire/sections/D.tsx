@@ -13,9 +13,9 @@ import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import { mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
-import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
+import TableAutocompleteInput from "../../../components/Questionnaire/TableAutocompleteInput";
 import fileTypeOptions from "../../../config/FileTypeConfig";
-import TextInputTable from "../../../components/Questionnaire/TableTextInput";
+import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 /**
  * Form Section D View
  *
@@ -253,20 +253,16 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                   key={fileData.key}
                 >
                   <TableCell className={classes.autoComplete}>
-                    <AutocompleteInput
-                      label=""
-                      gridWidth={12}
+                    <TableAutocompleteInput
                       value={fileData.fileType}
                       name={`fileTypes[${idx}][fileType]`}
                       options={fileTypeOptions.map((fileType) => fileType)}
                       placeholder="Select Type"
-                      hideHelperText
-                      inTable
                     />
                     {/* {data.fileType} */}
                   </TableCell>
                   <TableCell className={classes.bottomRowMiddle}>
-                    <TextInputTable
+                    <TableTextInput
                       name={`fileTypes[${idx}][numberOfFiles]`}
                       value={fileData.numberOfFiles}
                       type="number"
@@ -274,7 +270,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                     />
                   </TableCell>
                   <TableCell className={classes.bottomRowMiddle}>
-                    <TextInputTable
+                    <TableTextInput
                       name={`fileTypes[${idx}][amountOfData]`}
                       value={fileData.amountOfData}
                       placeholder="200GB"
@@ -392,9 +388,6 @@ const styles = () => ({
     "&.MuiStack-root": {
       width: "auto",
     },
-    "&&&&&&&.MuiAutocomplete-endAdornment": {
-      top: "50% !important"
-    }
   },
   addRemoveButtonInTable: {
     "&.MuiButtonBase-root": {

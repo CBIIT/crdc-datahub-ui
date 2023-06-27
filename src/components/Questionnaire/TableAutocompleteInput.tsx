@@ -1,9 +1,6 @@
 import React, { FC, useEffect, useId, useState } from "react";
 import {
   Autocomplete,
-  FormControl,
-  FormHelperText,
-  Grid,
   TextField,
   styled,
 } from "@mui/material";
@@ -21,14 +18,13 @@ const DropdownArrowsIcon = styled("div")(() => ({
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
   value: string;
-  label: string;
   options: string[];
   name?: string;
   required?: boolean;
   helpText?: string;
-  gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   placeholder?: string;
   disableClearable?: boolean;
+  freeSolo? : boolean;
   onChange?: (e: React.SyntheticEvent, v: string, r: string) => void;
 };
 
@@ -38,22 +34,19 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const AutocompleteInput: FC<Props> = ({
+const TableAutocompleteInput: FC<Props> = ({
   classes,
   value,
   name,
-  label,
   required = false,
   helpText,
-  gridWidth,
+  freeSolo = false,
   onChange,
   ...rest
 }) => {
   const id = useId();
 
   const [val, setVal] = useState(value);
-  const [error] = useState(false);
-  const helperText = helpText || (required ? "This field is required" : " ");
 
   const onChangeWrapper = (e, v, r) => {
     if (typeof onChange === "function") {
@@ -68,25 +61,21 @@ const AutocompleteInput: FC<Props> = ({
   }, [value]);
 
   return (
-    <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
-      <FormControl fullWidth error={error}>
-        <label htmlFor={id} className={classes.label}>
-          {label}
-          {required ? <span className={classes.asterisk}>*</span> : ""}
-        </label>
-        <Autocomplete
-          sx={{
+    <Autocomplete
+      isOptionEqualToValue={(option, value) => option.value === value.value}
+      sx={{
                 '& .MuiAutocomplete-endAdornment': {
                   top: "auto"
                 }
               }}
-          id={id}
-          size="small"
-          value={val}
-          classes={{ root: classes.input }}
-          onChange={onChangeWrapper}
-          popupIcon={<DropdownArrowsIcon />}
-          slotProps={{
+      id={id}
+      size="small"
+      value={val}
+      classes={{ root: classes.inputInTable }}
+      onChange={onChangeWrapper}
+      popupIcon={<DropdownArrowsIcon />}
+      freeSolo={freeSolo}
+      slotProps={{
             paper: {
               className: classes.paper
             },
@@ -104,63 +93,22 @@ const AutocompleteInput: FC<Props> = ({
               ],
             },
           }}
-          renderInput={(p) => (
-            <TextField
-              {...p}
-              name={name}
-              required={required}
-              placeholder={rest.placeholder || ""}
-            />
-          )}
-          {...rest}
+      renderInput={(p) => (
+        <TextField
+          {...p}
+          name={name}
+          required={required}
+          placeholder={rest.placeholder || ""}
+          variant="standard"
+          InputProps={{ ...p.InputProps, disableUnderline: true }}
         />
-        <FormHelperText>{error ? helperText : " "}</FormHelperText>
-      </FormControl>
-    </Grid>
+          )}
+      {...rest}
+    />
   );
 };
 
 const styles = () => ({
-  root: {
-    "& .MuiFormHelperText-root.Mui-error": {
-      color: "#D54309 !important",
-    },
-    "& .MuiOutlinedInput-notchedOutline": {
-      borderRadius: "8px",
-      borderColor: "#6B7294",
-    },
-    "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-      border: "1px solid #209D7D",
-      boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-    },
-    "&.Mui-error fieldset": {
-      borderColor: "#D54309 !important",
-    },
-    "& .MuiInputBase-input::placeholder": {
-      color: "#929296",
-      fontWeight: 400,
-      opacity: 1
-    },
-    "& .MuiAutocomplete-input": {
-      color: "#083A50",
-    },
-    "& .MuiAutocomplete-popupIndicator": {
-      right: "12px"
-    },
-    "& .MuiAutocomplete-popupIndicatorOpen": {
-      transform: "none"
-    }
-  },
-  label: {
-    fontWeight: 700,
-    fontSize: "16px",
-    color: "#083A50",
-    marginBottom: "4px",
-  },
-  asterisk: {
-    color: "#D54309",
-    marginLeft: "6px",
-  },
   paper: {
     borderRadius: "8px",
     border: "1px solid #6B7294",
@@ -187,19 +135,20 @@ const styles = () => ({
       color: "#FFFFFF"
     },
   },
-  input: {
+  inputInTable: {
     backgroundColor: "#fff",
-    "&  .MuiAutocomplete-inputRoot.MuiInputBase-root": {
+    "& .MuiAutocomplete-inputRoot.MuiInputBase-root": {
       padding: 0,
     },
     "& .MuiInputBase-input": {
+      color: "#083A50",
       fontWeight: 400,
       fontSize: "16px",
       fontFamily: "'Nunito', 'Rubik', sans-serif",
-      padding: "12px !important",
+      padding: "0 !important",
       height: "20px",
     },
   },
 });
 
-export default withStyles(styles, { withTheme: true })(AutocompleteInput);
+export default withStyles(styles, { withTheme: true })(TableAutocompleteInput);

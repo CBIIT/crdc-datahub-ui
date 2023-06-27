@@ -120,15 +120,14 @@ const styles = () => ({
 
 const CustomSwitch: FC<Props> = ({ classes, label, required, value, name, tooltipText, gridWidth, toggleContent, ...rest }) => {
   const id = useId();
-  const filterValue = value ?? false;
-  const [val, setVal] = useState(filterValue);
+  const [val, setVal] = useState(value || false);
   return (
     <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
       <div className={classes.container} style={{ flexWrap: "wrap" }}>
         <div className={classes.labelContainer}>
           {label}
           {required ? <span className={classes.asterisk}>*</span> : ""}
-          {tooltipText && <Tooltip className={classes.tooltip} title={tooltipText} />}
+          {tooltipText && <Tooltip placement="right" className={classes.tooltip} title={tooltipText} />}
         </div>
         <div className={classes.switchYesNoContainer}>
           <div className={val ? classes.text : classes.textChecked}>No</div>

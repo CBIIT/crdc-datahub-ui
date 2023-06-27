@@ -20,7 +20,7 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const TextInput: FC<Props> = ({
+const TableTextInput: FC<Props> = ({
   classes,
   value,
   ...rest
@@ -69,4 +69,4 @@ const styles = () => ({
   },
 });
 
-export default withStyles(styles, { withTheme: true })(TextInput);
+export default withStyles(styles, { withTheme: true })(TableTextInput);
