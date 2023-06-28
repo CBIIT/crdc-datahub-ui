@@ -1,5 +1,5 @@
 type Application = {
-  id: number;
+  _id: number;
   sections: Section[];
   pi: PI;
   primaryContact: PrimaryContact;
@@ -8,12 +8,21 @@ type Application = {
   study: Study;
   funding: Funding;
   publications: Publication[];
+  status: ApplicationStatus;
+  reviewComment: string;
+  updatedAt: string;
+  history: HistoryEvent[];
+  plannedPublications: PlannedPublication[];
 };
+
+type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected";
 
 type Section = {
   name: string;
-  status: "In Progress" | "Submitted" | "Completed" | "Approved" | "Rejected";
+  status: SectionStatus;
 };
+
+type SectionStatus = "In Progress" | "Completed" | "Not Started";
 
 type PI = {
   firstName: string;
@@ -67,6 +76,11 @@ type Publication = {
   DOI: string;
 };
 
+type PlannedPublication = {
+  title: string;
+  expectedDate: string;
+};
+
 type Funding = {
   agencies: Agency[]; // NOTE: this likely needs to be restructured. Currently matches GQL schema
   nciProgramOfficer: string;
@@ -76,4 +90,11 @@ type Funding = {
 type Agency = {
   name: string;
   grantNumbers: string[];
+};
+
+type HistoryEvent = {
+  status: ApplicationStatus;
+  reviewComment?: string;
+  dateTime: string;
+  userID: number;
 };

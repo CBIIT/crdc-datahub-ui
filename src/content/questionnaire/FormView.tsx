@@ -9,11 +9,13 @@ import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
+import styled from '@emotion/styled';
 import { Status as FormStatus, useFormContext } from '../../components/Contexts/FormContext';
 import SuspenseLoader from '../../components/SuspenseLoader';
-import StatusBar from '../../components/Questionnaire/StatusBar';
-import ProgressBar from '../../components/Questionnaire/ProgressBar';
-import Section, { map } from './sections';
+import StatusBar from '../../components/StatusBar/StatusBar';
+import ProgressBar from '../../components/ProgressBar/ProgressBar';
+import Section from './sections';
+import map from '../../config/SectionConfig';
 
 type Props = {
   section?: string;
@@ -21,6 +23,20 @@ type Props = {
 };
 
 const validateSection = (section: string) => typeof map[section] !== 'undefined';
+
+const StyledSidebar = styled(Stack)({
+  position: "sticky",
+  top: "25px",
+  paddingTop: "10px",
+});
+
+const StyledDivider = styled(Divider)({
+  height: "520px",
+  width: "1px",
+  borderRightWidth: "2px",
+  borderRightColor: "#E8EAEE9",
+  margin: "0 23px",
+});
 
 /**
  * Intake Form View Component
@@ -36,8 +52,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
-  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex - 1]}` : null;
-  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.id}/${sectionKeys[sectionIndex + 1]}` : null;
+  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
+  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -164,17 +180,16 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       </div>
 
       <Stack direction="row" justifyContent="center">
-        <Stack
-          className={classes.sidebar}
+        <StyledSidebar
           direction="row"
           justifyContent="center"
           alignSelf="flex-start"
         >
-          <ProgressBar />
-          <Divider className={classes.divider} orientation="vertical" />
-        </Stack>
+          <ProgressBar section={activeSection} />
+          <StyledDivider orientation="vertical" />
+        </StyledSidebar>
 
-        <Stack className={classes.content} direction="column" spacing={2}>
+        <Stack className={classes.content} direction="column" spacing={5}>
           <StatusBar />
 
           <Section section={activeSection} refs={refs} />
@@ -188,6 +203,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
           >
             <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
               <Button
+                className={classes.backButton}
                 variant="outlined"
                 type="button"
                 disabled={status === FormStatus.SAVING || !prevSection}
@@ -198,6 +214,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
               </Button>
             </Link>
             <LoadingButton
+              className={classes.saveButton}
               variant="outlined"
               type="button"
               ref={refs.saveFormRef}
@@ -208,6 +225,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
               Save
             </LoadingButton>
             <LoadingButton
+              className={classes.submitButton}
               variant="outlined"
               type="submit"
               ref={refs.submitFormRef}
@@ -217,6 +235,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
             </LoadingButton>
             <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
               <Button
+                className={classes.nextButton}
                 variant="outlined"
                 type="button"
                 disabled={status === FormStatus.SAVING || !nextSection}
@@ -264,21 +283,28 @@ const styles = () => ({
     height: "250px",
     width: "1px",
     borderRightWidth: "2px",
-    margin: "0 15px",
+    margin: "0 0 0 15px",
   },
   content: {
-    maxWidth: "900px", // TODO: Update per design spec
+    maxWidth: "980px",
+    marginLeft: '64px',
   },
   controls: {
-    color: "#000000",
+    color: "#FFFFFF",
+    marginTop: "15px !important",
     "& button": {
       margin: "0 6px",
-      padding: "10px 20px",
-      minWidth: "115px",
-      borderRadius: "24px",
+      padding: "14px 11px",
+      minWidth: "128px",
+      fontWeight: 700,
+      fontSize: '16px',
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+      letterSpacing: "2%",
+      lineHeight: "20.14px",
+      borderRadius: "8px",
+      borderColor: "#828282",
+      background: "#949494",
       color: "inherit",
-      borderColor: "#8B9EB3 !important",
-      background: "#fff",
       textTransform: "none",
     },
     "& button:disabled": {
@@ -291,6 +317,39 @@ const styles = () => ({
     "& a": {
       color: "inherit",
       textDecoration: "none",
+    },
+    "& .MuiButton-startIcon": {
+      marginRight: "20px",
+    },
+    "& .MuiButton-endIcon": {
+      marginLeft: "20px"
+    },
+    "& .MuiSvgIcon-root": {
+      fontSize: "20px"
+    }
+  },
+  backButton: {
+    "&.MuiButton-root": {
+      display: "flex",
+      justifyContent: "flex-start"
+    }
+  },
+  nextButton: {
+    "&.MuiButton-root": {
+      display: "flex",
+      justifyContent: "flex-end"
+    }
+  },
+  saveButton: {
+    "&.MuiButton-root": {
+      borderColor: "#26B893",
+      background: "#22A584"
+    }
+  },
+  submitButton: {
+    "&.MuiButton-root": {
+      borderColor: "#26B893",
+      background: "#22A584"
     }
   },
 });

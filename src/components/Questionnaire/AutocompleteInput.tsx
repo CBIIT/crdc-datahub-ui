@@ -5,8 +5,18 @@ import {
   FormHelperText,
   Grid,
   TextField,
+  styled,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
+import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+
+const DropdownArrowsIcon = styled("div")(() => ({
+  backgroundImage: `url(${dropdownArrowsIcon})`,
+  backgroundSize: "contain",
+  backgroundRepeat: "no-repeat",
+  width: "9.17px",
+  height: "18px",
+}));
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
@@ -70,6 +80,25 @@ const AutocompleteInput: FC<Props> = ({
           value={val}
           classes={{ root: classes.input }}
           onChange={onChangeWrapper}
+          popupIcon={<DropdownArrowsIcon />}
+          slotProps={{
+            paper: {
+              className: classes.paper
+            },
+            popper: {
+              disablePortal: true,
+              modifiers: [
+                {
+                  // disables popper from flipping above the input when out of screen room
+                  name: "flip",
+                  enabled: false,
+                  options: {
+                    fallbackPlacements: [],
+                  },
+                },
+              ],
+            },
+          }}
           renderInput={(p) => (
             <TextField
               {...p}
@@ -92,26 +121,79 @@ const styles = () => ({
       color: "#D54309 !important",
     },
     "& .MuiOutlinedInput-notchedOutline": {
-      borderRadius: "0",
-      borderColor: "#346798",
+      borderRadius: "8px",
+      borderColor: "#6B7294",
+    },
+    "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+      border: "1px solid #209D7D",
+      boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
     },
     "&.Mui-error fieldset": {
       borderColor: "#D54309 !important",
     },
+    "& .MuiInputBase-input::placeholder": {
+      color: "#929296",
+      fontWeight: 400,
+      opacity: 1
+    },
+    "& .MuiAutocomplete-input": {
+      color: "#083A50",
+    },
+    "& .MuiAutocomplete-popupIndicator": {
+      right: "12px"
+    },
+    "& .MuiAutocomplete-popupIndicatorOpen": {
+      transform: "none"
+    }
   },
   label: {
-    fontWeight: 500,
+    fontWeight: 700,
     fontSize: "16px",
-    color: "#346798",
-    marginBottom: "7px",
+    color: "#083A50",
+    marginBottom: "4px",
   },
   asterisk: {
     color: "#D54309",
-    marginLeft: "4px",
+    marginLeft: "6px",
+  },
+  paper: {
+    borderRadius: "8px",
+    border: "1px solid #6B7294",
+    marginTop: "2px",
+    "& .MuiAutocomplete-listbox": {
+      padding: 0
+    },
+    "& .MuiAutocomplete-option[aria-selected='true']": {
+      color: "#083A50",
+      background: "#FFFFFF"
+    },
+    "& .MuiAutocomplete-option": {
+      padding: "0 10px",
+      height: "35px",
+      color: "#083A50",
+      background: "#FFFFFF"
+    },
+    "& .MuiAutocomplete-option:hover": {
+      backgroundColor: "#5E6787",
+      color: "#FFFFFF"
+    },
+    "& .MuiAutocomplete-option.Mui-focused": {
+      backgroundColor: "#5E6787 !important",
+      color: "#FFFFFF"
+    },
   },
   input: {
     backgroundColor: "#fff",
-    color: "#4E4E4E !important",
+    "&  .MuiAutocomplete-inputRoot.MuiInputBase-root": {
+      padding: 0,
+    },
+    "& .MuiInputBase-input": {
+      fontWeight: 400,
+      fontSize: "16px",
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+      padding: "12px !important",
+      height: "20px",
+    },
   },
 });
 
