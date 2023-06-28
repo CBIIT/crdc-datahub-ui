@@ -1,6 +1,5 @@
 // NOTE: this will have to be changed if schema changes
-const initialValues: Application = {
-  id: null,
+const initialValues: Omit<Application, "id"> = {
   sections: [],
   pi: {
     firstName: "",

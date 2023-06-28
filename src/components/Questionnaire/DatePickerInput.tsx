@@ -145,7 +145,7 @@ const DatePickerInput: FC<Props> = ({
 
   const validateInput = (input: Dayjs) => {
     inputRef.current.checkValidity();
-    const value = input.format("MM/DD/YYYY");
+    const value = input?.format("MM/DD/YYYY");
     const invalidDateMessage = "The date is invalid. Please enter a date in the format MM/DD/YYYY";
 
     if (validate) {
@@ -154,7 +154,8 @@ const DatePickerInput: FC<Props> = ({
       return isValidCustom;
     }
 
-    const isValid = input.isValid();
+    const missingValueWhenRequired = required && !value;
+    const isValid = input?.isValid() && !missingValueWhenRequired;
     updateInputValidity(!isValid ? invalidDateMessage : "");
 
     return isValid;

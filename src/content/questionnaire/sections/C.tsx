@@ -1,15 +1,31 @@
-import { FC, useEffect, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
-import { useFormContext } from "../../../components/Contexts/FormContext";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { styled } from "@mui/material";
+import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
 import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
-import formSectionC from "../../../config/C";
-import { reshapeContentOptions } from "../utils";
+import { mapObjectWithKey, reshapeCheckboxGroupOptions } from "../utils";
+import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
+import accessTypesOptions from "../../../config/AccessTypesConfig";
+import cancerTypeOptions from "../../../config/CancerTypesConfig";
+import preCancerTypeOptions from "../../../config/PreCancerTypesConfig";
+import speciesOptions from "../../../config/SpeciesConfig";
+import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
+import TimeConstraint from "../../../components/Questionnaire/TimeConstraint";
+
+const AccessTypesDescription = styled("span")(() => ({
+  fontWeight: 400
+}));
+
+type KeyedTimeConstraint = {
+  key: string;
+} & TimeConstraint;
 
 /**
  * Form Section C View
@@ -21,8 +37,8 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
-  const { dataAccess } = formSectionC.static;
-  const { cancerTypes } = formSectionC.static;
+
+  const [timeConstraints, setTimeConstraints] = useState<KeyedTimeConstraint[]>([]?.map(mapObjectWithKey) || []);
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -42,9 +58,29 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
-    console.log({ formObject });
 
     return { ref: formRef, data: combinedData };
+  };
+
+   /**
+   * Add a empty time constraint to the timeConstraints state
+   *
+   * @returns {void}
+   */
+   const addPublication = () => {
+    setTimeConstraints([
+      ...timeConstraints,
+      { key: `${timeConstraints.length}_${new Date().getTime()}`, description: "", effectiveDate: "" },
+    ]);
+  };
+
+   /**
+   * Remove a time constraint from the timeConstraints state
+   *
+   * @param key generated key for the time constraint
+   */
+   const removeTimeConstraint = (key: string) => {
+    setTimeConstraints(timeConstraints.filter((c) => c.key !== key));
   };
 
   return (
@@ -56,99 +92,136 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
       {/* Program Registration Section */}
       <SectionGroup
         title="Data Access."
-        description={dataAccess.sectionDescription}
+        description={(
+          <>
+            Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH. Learn about this at https://sharing.nih.gov/
+            <wbr />
+            genomic-data-sharing-policy/institutional-certifications
+          </>
+        )}
       >
         <FormGroupCheckbox
-          label={dataAccess.content.accessTypes.label}
-          name={dataAccess.content.accessTypes.name}
-          options={dataAccess.content.accessTypes.options}
+          label={(
+            <>
+              Access Types
+              {' '}
+              <AccessTypesDescription>(Select all that apply):</AccessTypesDescription>
+            </>
+          )}
+          name="accessTypes[]"
+          options={accessTypesOptions.map((option) => ({ label: option, value: option }))}
           value={data.accessTypes}
           gridWidth={12}
+          required
         />
-        <DatePickerInput
-          label={dataAccess.content.targetedSubmissionDate.label}
-          name={dataAccess.content.targetedSubmissionDate.name}
-          required={dataAccess.content.targetedSubmissionDate.required}
-          tooltipText={dataAccess.content.targetedSubmissionDate.tooltipText}
+        {/* <DatePickerInput
+          label="Targeted Data Submission Delivery Date"
+          name="targetedSubmissionDate"
+          tooltipText="Expected date that date submission can begin"
           initialValue={data.targetedSubmissionDate}
           gridWidth={6}
           disablePast
+          required
         />
         <DatePickerInput
-          label={dataAccess.content.targetedReleaseDate.label}
-          name={dataAccess.content.targetedReleaseDate.name}
-          required={dataAccess.content.targetedReleaseDate.required}
-          tooltipText={dataAccess.content.targetedReleaseDate.tooltipText}
+          label="Expected Publication Date"
+          name="targetedReleaseDate"
+          tooltipText="Expected date that the submission is released to the community"
           initialValue={data.targetedReleaseDate}
           gridWidth={6}
           disablePast
-        />
+          required
+        /> */}
       </SectionGroup>
 
-      <SectionGroup title={cancerTypes.sectionTitle}>
+      <SectionGroup
+        title="Time Constraints related to your submission"
+        endButton={(
+          <AddRemoveButton
+            label="Add Time Constraints"
+            startIcon={<AddCircleIcon />}
+            onClick={addPublication}
+            disabled={status === FormStatus.SAVING}
+          />
+        )}
+      >
+        {timeConstraints.map((constraint: KeyedTimeConstraint, idx: number) => (
+          <TimeConstraint
+            key={constraint.key}
+            index={idx}
+            timeConstraint={constraint}
+            onDelete={() => removeTimeConstraint(constraint.key)}
+          />
+        ))}
+      </SectionGroup>
+
+      <SectionGroup title={(
+        <>
+          Type of Cancer(s) and, if applicable, pre-cancer(s) being studied.
+          <br />
+          Multiple cancer types may be selected. Use additional rows to specify each cancer type.
+        </>
+      )}
+      >
         <SelectInput
-          label={cancerTypes.content.cancerTypes.label}
-          name={cancerTypes.content.cancerTypes.name}
-          options={cancerTypes.content.cancerTypes.options.map((option) => ({ label: option, value: option }))}
-          placeholder={cancerTypes.content.cancerTypes.placeholder}
-          required={cancerTypes.content.cancerTypes.required}
+          label="Cancer types (choose all that apply)"
+          name="cancerTypes[]"
+          options={cancerTypeOptions.map((option) => ({ label: option, value: option }))}
+          placeholder="Select types"
           value={data.cancerTypes}
           multiple
+          required
         />
         <TextInput
-          label={cancerTypes.content.otherCancerTypes.label}
-          name={cancerTypes.content.otherCancerTypes.name}
-          placeholder={cancerTypes.content.otherCancerTypes.placeholder}
-          required={cancerTypes.content.otherCancerTypes.required}
+          label="Other cancer type not included (specify)"
+          name="otherCancerTypes"
+          placeholder="Enter types"
           value={data.otherCancerTypes}
           maxLength={1000}
         />
 
         <SelectInput
-          label={cancerTypes.content.preCancerTypes.label}
-          name={cancerTypes.content.preCancerTypes.name}
-          options={cancerTypes.content.preCancerTypes.options.map((option) => ({ label: option, value: option }))}
-          placeholder={cancerTypes.content.preCancerTypes.placeholder}
-          required={cancerTypes.content.preCancerTypes.required}
+          label="Pre-cancer types, of applicable (choose all that apply)"
+          name="preCancerTypes[]"
+          options={preCancerTypeOptions.map((option) => ({ label: option, value: option }))}
+          placeholder="Select types"
           value={data.preCancerTypes}
           multiple
         />
         <TextInput
-          label={cancerTypes.content.otherPreCancerTypes.label}
-          name={cancerTypes.content.otherPreCancerTypes.name}
-          placeholder={cancerTypes.content.otherPreCancerTypes.placeholder}
-          required={cancerTypes.content.otherPreCancerTypes.required}
+          label="Other pre-cancer type not included (specify)"
+          name="otherPreCancerTypes"
+          placeholder="Enter types"
           value={data.otherPreCancerTypes}
           maxLength={1000}
         />
 
         <TextInput
-          label={cancerTypes.content.numberOfParticipants.label}
-          name={cancerTypes.content.numberOfParticipants.name}
-          placeholder={cancerTypes.content.numberOfParticipants.placeholder}
-          required={cancerTypes.content.numberOfParticipants.required}
+          label="Number of participants included in the submission"
+          name="numberOfParticipants"
+          placeholder="##"
           value={data.numberOfParticipants}
           maxLength={1000}
           validate={(input: string) => parseInt(input, 10) > 0}
           type="number"
+          required
         />
         <SelectInput
-          label={cancerTypes.content.species.label}
-          name={cancerTypes.content.species.name}
-          options={cancerTypes.content.species.options.map((option) => ({ label: option, value: option }))}
-          placeholder={cancerTypes.content.species.placeholder}
-          required={cancerTypes.content.species.required}
+          label="Species of participants (choose all that apply)"
+          name="species"
+          options={speciesOptions.map((option) => ({ label: option, value: option }))}
+          placeholder="Select species"
           value={data.species}
           multiple
+          required
         />
         <FormGroupCheckbox
-          label={cancerTypes.content.cellLinesModelSystems.label}
-          name={cancerTypes.content.cellLinesModelSystems.name}
-          options={cancerTypes.content.cellLinesModelSystems.options}
-          required={cancerTypes.content.cellLinesModelSystems.required}
-          value={reshapeContentOptions(cancerTypes.content.cellLinesModelSystems.options, data)}
+          label="Cell lines, model systems, or both"
+          options={cellLineModelSystemOptions}
+          value={reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)}
           orientation="horizontal"
           gridWidth={12}
+          required
         />
       </SectionGroup>
     </FormContainer>

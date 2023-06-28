@@ -1,3 +1,4 @@
+import { FormGroupCheckboxOption } from '../../components/Questionnaire/FormGroupCheckbox';
 import programOptions, { OptionalProgram, OptionalStudy } from '../../config/ProgramConfig';
 
 /**
@@ -27,7 +28,7 @@ export const validateEmail = (email: string): boolean => {
  * @param {SectionItemContentOption[]} options The options, usually coming from config
  * @returns {string[]} The re-shaped options. Ex. ["name1", "name2"]
  */
-export const reshapeContentOptions = (options: SectionItemContentOption[], data: Application): string[] => options.reduce((acc, option) => (data[option.name] ? [...acc, option.value] : acc), []);
+export const reshapeCheckboxGroupOptions = (options: FormGroupCheckboxOption[], data: Application): string[] => options.reduce((acc, option) => (data[option.name] ? [...acc, option.value] : acc), []);
 
 /**
  * Generic Non-Numeric Character Filter

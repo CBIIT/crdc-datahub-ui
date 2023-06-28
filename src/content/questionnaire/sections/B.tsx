@@ -67,6 +67,8 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
+    console.log({ formObject });
+
     // Reset publications if the user has not entered any publications
     if (!formObject.publications || formObject.publications.length === 0) {
       combinedData.publications = [];
@@ -300,13 +302,11 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
       <SectionGroup
         title="Publications associated with this study, if any."
         description={(
-          {
-            type: "br",
-            text: [
-              "Include the PubMed ID (PMOID, DOI)",
-              "Indicate one Publication per row."
-            ]
-          }
+          <>
+            Include the PubMed ID (PMOID, DOI)
+            <br />
+            Indicate one Publication per row.
+          </>
         )}
         endButton={(
           <AddRemoveButton
@@ -351,15 +351,13 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
       {/* Study Repositories */}
       <SectionGroup
-        title={
-          {
-            type: "br",
-            text: [
-              "Repository where study currently registered (e.g. dbGaP, ORCID)",
-              "and associated repository study identifier"
-            ]
-          }
-        }
+        title={(
+          <>
+            "Repository where study currently registered (e.g. dbGaP, ORCID)",
+            <br />
+            "and associated repository study identifier"
+          </>
+        )}
         endButton={(
           <AddRemoveButton
             label="Add Repository"

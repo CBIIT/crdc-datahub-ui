@@ -4,8 +4,8 @@ import { WithStyles, withStyles } from "@mui/styles";
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
-  title?: string | TextWithLineBreak;
-  description?: string | TextWithLineBreak;
+  title?: string | JSX.Element;
+  description?: string | JSX.Element;
   endButton?: JSX.Element;
   divider?: boolean;
   children: React.ReactNode;
@@ -37,27 +37,11 @@ const SectionGroup: FC<Props> = ({
         <Stack direction="row" alignItems="center">
           {title && (
             <Typography className={classes.groupTitle} variant="h6">
-              {typeof title === "string" ? title : title.text.map((line: string, index: number) => {
-                const isLastLine = index === title.text.length - 1;
-                return (
-                  <React.Fragment key={`partial-title-${line}`}>
-                    {line}
-                    {!isLastLine && (title.type === "br" ? <br /> : <wbr />) }
-                  </React.Fragment>
-                );
-              })}
+              {title}
               {description && (
                 <span className={classes.groupDescription}>
                   {' '}
-                  {typeof description === "string" ? description : description.text.map((line: string, index: number) => {
-                    const isLastLine = index === description.text.length - 1;
-                    return (
-                      <React.Fragment key={`partial-description-${line}`}>
-                        {line}
-                        {!isLastLine && (description.type === "br" ? <br /> : <wbr />) }
-                      </React.Fragment>
-                    );
-                  })}
+                  {description}
                 </span>
               )}
             </Typography>
