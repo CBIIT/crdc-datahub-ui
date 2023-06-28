@@ -69,6 +69,7 @@ type Contact = {
   lastName: string;
   email: string;
   phone: string;
+  institution?: string;
 };
 
 type Program = {

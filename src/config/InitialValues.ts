@@ -17,6 +17,7 @@ const initialValues: Omit<Application, "_id" | "applicantID"> = {
     email: "",
     phone: "",
     role: "",
+    institution: ""
   },
   additionalContacts: [],
   program: {
