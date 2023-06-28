@@ -64,7 +64,7 @@ type PI = {
 };
 
 type Contact = {
-  role: string;
+  position: string;
   firstName: string;
   lastName: string;
   email: string;

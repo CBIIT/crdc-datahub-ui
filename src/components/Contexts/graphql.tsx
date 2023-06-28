@@ -27,7 +27,7 @@ query  getApplication($id: ID!){
     }
     piAsPrimaryContact
     primaryContact {
-      role
+      
       firstName
       lastName
       email
@@ -36,7 +36,6 @@ query  getApplication($id: ID!){
       institution
     }
     additionalContacts {
-      role
       firstName
       lastName
       email

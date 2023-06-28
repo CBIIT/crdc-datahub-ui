@@ -67,7 +67,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       ...additionalContacts,
       {
         key: `${additionalContacts.length}_${new Date().getTime()}`,
-        role: "",
+        position: "",
         firstName: "",
         lastName: "",
         email: "",
@@ -126,7 +126,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
         <TextInput label="First name" name="primaryContact[firstName]" value={primaryContact.firstName} maxLength={50} required />
         <TextInput label="Last name" name="primaryContact[lastName]" value={primaryContact.lastName} maxLength={50} required />
         <TextInput label="Institution" name="primaryContact[institution]" value={primaryContact.institution} maxLength={100} required />
-        <TextInput label="Position" name="primaryContact[role]" value={primaryContact.role} maxLength={100} placeholder="(exs. Co-PI, sequencing center manager)" />
+        <TextInput label="Position" name="primaryContact[position]" value={primaryContact.position} maxLength={100} placeholder="(exs. Co-PI, sequencing center manager)" />
         <TextInput label="Email address" name="primaryContact[email]" value={primaryContact.email} validate={validateEmail} required />
         <TextInput label="Phone number" name="primaryContact[phone]" value={primaryContact.phone} maxLength={25} filter={filterNonNumeric} />
       </SectionGroup>
