@@ -16,6 +16,7 @@ import { findProgram, findStudy, mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
+import initialValues from "../../../config/InitialValues";
 
 type KeyedPublication = {
   key: string;
@@ -66,6 +67,11 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
+
+    // Reset study if the data failed to load
+    if (!formObject.study) {
+      combinedData.study = initialValues.study;
+    }
 
     // Reset publications if the user has not entered any publications
     if (!formObject.study.publications || formObject.study.publications.length === 0) {
