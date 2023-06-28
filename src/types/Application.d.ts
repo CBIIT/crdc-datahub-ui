@@ -2,6 +2,7 @@ type Application = {
   _id: number;
   sections: Section[];
   pi: PI;
+  piAsPrimaryContact: boolean;
   primaryContact: PrimaryContact;
   additionalContacts: AdditionalContact[];
   program: Program;
@@ -40,11 +41,11 @@ type PrimaryContact = {
   email: string;
   phone: string;
   institution: string;
-  position: string;
+  role: string;
 };
 
 type AdditionalContact = {
-  role: string; // NOTE: this needs to become position, currently matches GQL schema
+  role: string;
   firstName: string;
   lastName: string;
   institution: string;

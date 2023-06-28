@@ -29,6 +29,7 @@ type Props = {
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   placeholder?: string;
   disableClearable?: boolean;
+  readOnly?: boolean;
   onChange?: (e: React.SyntheticEvent, v: string, r: string) => void;
 };
 
@@ -193,6 +194,11 @@ const styles = () => ({
       fontFamily: "'Nunito', 'Rubik', sans-serif",
       padding: "12px !important",
       height: "20px",
+    },
+    "& .MuiOutlinedInput-input:read-only": {
+      backgroundColor: "#D9DEE4",
+      cursor: "not-allowed",
+      borderRadius: "8px",
     },
   },
 });

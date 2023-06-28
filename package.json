@@ -6,7 +6,7 @@
     "@apollo/client": "^3.7.15",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
-    "@jalik/form-parser": "^2.0.12",
+    "@jalik/form-parser": "^3.1.0",
     "@mui/icons-material": "^5.11.16",
     "@mui/lab": "^5.0.0-alpha.130",
     "@mui/material": "^5.13.1",

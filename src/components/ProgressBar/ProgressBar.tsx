@@ -22,7 +22,7 @@ type ProgressSection = {
 };
 
 const StyledList = styled(List)({
-  marginTop: "30px",
+  marginTop: "22px",
   width: '250px',
   "& a": {
     color: "inherit",

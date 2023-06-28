@@ -205,7 +205,6 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
   return (
     <FormContainer
-      title="Section B"
       description="Program and Study Registration"
       formRef={formRef}
     >
