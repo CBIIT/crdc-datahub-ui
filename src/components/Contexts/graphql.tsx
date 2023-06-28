@@ -32,6 +32,8 @@ query  getApplication($id: ID!){
       lastName
       email
       phone
+      position
+      institution
     }
     additionalContacts {
       role
@@ -39,6 +41,8 @@ query  getApplication($id: ID!){
       lastName
       email
       phone
+      position
+      institution
     }
     program {
       name
