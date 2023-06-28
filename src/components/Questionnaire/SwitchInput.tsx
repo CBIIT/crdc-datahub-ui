@@ -147,7 +147,7 @@ const CustomSwitch: FC<Props> = ({ classes, label, required, value, name, toolti
             {...rest}
           />
           {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
-          <input onChange={() => {}} className={classes.input} name={name} type="radio" data-type="boolean" value={val.toString()} checked />
+          <input onChange={() => {}} className={classes.input} name={name} type="radio" data-type="boolean" value={val.toString()} />
           <div className={val ? classes.textChecked : classes.text}>Yes</div>
         </div>
       </div>

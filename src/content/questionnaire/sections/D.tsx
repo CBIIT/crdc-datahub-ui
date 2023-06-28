@@ -49,7 +49,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.dataTypes?.fileTypes?.map(mapObjectWithKey) || []);
-
+  const fileTypeDataRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
       return;
@@ -85,8 +85,14 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       ...fileTypeData,
       { key: `${fileTypeData.length}_${new Date().getTime()}`, fileType: ``, numberOfFiles: "", amountOfData: "" },
     ]);
+    fileTypeDataRef.current.setCustomValidity("");
   };
   const removeFileDataType = (key: string) => {
+    if (fileTypeData.length === 1) {
+      fileTypeDataRef.current.setCustomValidity("At least one file type is required");
+    } else {
+      fileTypeDataRef.current.setCustomValidity("");
+    }
     setFileTypeData(fileTypeData.filter((c) => c.key !== key));
   };
   return (
@@ -235,6 +241,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                 <TableCell width="42%" className={classes.fileTypeTableCell}>
                   File Type
                   <span className={classes.asterisk}>*</span>
+                  <input tabIndex={-1} style={{ height: "0", border: "none", width: "0" }} ref={fileTypeDataRef} />
                 </TableCell>
                 <TableCell width="17%" style={{ textAlign: 'center' }} className={classes.tableTopRowMiddle}>
                   Number of Files
@@ -258,6 +265,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                       name={`dataTypes[fileTypes][${idx}][fileType]`}
                       options={fileTypeOptions.map((fileType) => fileType)}
                       placeholder="Select Type"
+                      freeSolo
                     />
                     {/* {data.fileType} */}
                   </TableCell>
@@ -265,15 +273,17 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                     <TableTextInput
                       name={`dataTypes[fileTypes][${idx}][numberOfFiles]`}
                       value={fileData.numberOfFiles}
-                      type="number"
-                      placeholder="0000"
+                      placeholder="12345"
+                      pattern="^[1-9]\d*$"
+                      patternValidityMessage="Please enter a whole number greater than 0"
                     />
                   </TableCell>
                   <TableCell className={classes.bottomRowMiddle}>
                     <TableTextInput
                       name={`dataTypes[fileTypes][${idx}][amountOfData]`}
                       value={fileData.amountOfData}
-                      placeholder="200GB"
+                      placeholder="E.g. 200GB (50 Char Limit)"
+                      maxLength={50}
                     />
                   </TableCell>
                   <TableCell className={classes.bottomRowLast}>

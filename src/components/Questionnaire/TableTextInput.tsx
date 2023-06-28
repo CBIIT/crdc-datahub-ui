@@ -1,11 +1,17 @@
-import React, { FC, useEffect, useId, useState } from "react";
+import React, { FC, useEffect, useId, useState, useRef } from "react";
 import {
   Input,
   InputProps,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
 
+/*
+*Pass in a regex pattern if you want this field to have custom validation checking
+*/
 type Props = {
+  pattern?: string;
+  patternValidityMessage?: string;
+  maxLength?: number;
   classes: WithStyles<typeof styles>["classes"];
 } & InputProps;
 
@@ -23,12 +29,24 @@ type Props = {
 const TableTextInput: FC<Props> = ({
   classes,
   value,
+  patternValidityMessage,
+  maxLength,
+  pattern,
   ...rest
 }) => {
   const id = useId();
   const [val, setVal] = useState(value);
-
+  const regex = new RegExp(pattern);
+  const inputElement = useRef<HTMLInputElement>(null);
   const onChange = (newVal) => {
+    if (typeof maxLength === "number" && newVal.length > maxLength) {
+      newVal = newVal.slice(0, maxLength);
+    }
+    if (!newVal.match(regex)) {
+      inputElement.current.setCustomValidity(patternValidityMessage || "Please enter input in the correct format");
+    } else {
+      inputElement.current.setCustomValidity("");
+    }
     setVal(newVal);
   };
 
@@ -38,8 +56,9 @@ const TableTextInput: FC<Props> = ({
 
   return (
     <Input
+      inputRef={inputElement}
+      sx={{ width: "100%" }}
       classes={{ root: classes.input }}
-      type={rest.type || "text"}
       id={id}
       size="small"
       value={val}
@@ -60,6 +79,7 @@ const styles = () => ({
       fontFamily: "'Nunito', 'Rubik', sans-serif",
       lineHeight: "19.6px",
       height: "20px",
+      width: "100%"
     },
     "& ::placeholder": {
       color: "#929296",

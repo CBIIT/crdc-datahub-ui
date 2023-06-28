@@ -214,9 +214,9 @@ export const FormProvider: FC<ProviderProps> = (props) => {
             biospecimen: false,
             otherTypesOfData: "",
             additionDataInFuture: false,
-            fileTypes: [ { fileType: 'test1',
+            fileTypes: [ { fileType: '',
                             numberOfFiles: "",
-                            amountOfData: "1tb" },],
+                            amountOfData: "" },],
             additionalComments:"",
           }
         },
