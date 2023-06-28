@@ -3,7 +3,7 @@ type Application = {
   sections: Section[];
   pi: PI;
   piAsPrimaryContact: boolean;
-  primaryContact: PrimaryContact;
+  primaryContact: PrimaryContact | null;
   additionalContacts: AdditionalContact[];
   program: Program;
   study: Study;

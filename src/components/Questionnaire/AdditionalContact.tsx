@@ -2,7 +2,6 @@ import React, { FC } from "react";
 import { Grid, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
-import { filterNonNumeric, validateEmail } from "../../content/questionnaire/utils";
 import institutionConfig from "../../config/InstitutionConfig";
 import TextInput from "./TextInput";
 import AddRemoveButton from "./AddRemoveButton";
@@ -64,9 +63,9 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
         <TextInput
           label="Email"
           name={`additionalContacts[${index}][email]`}
+          type="email"
           value={email}
           placeholder="Enter email"
-          validate={validateEmail}
           required
         />
         <AutocompleteInput
@@ -85,10 +84,10 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
         <TextInput
           label="Phone number"
           name={`additionalContacts[${index}][phone]`}
+          type="phone"
           value={phone}
           placeholder="Enter phone number"
           maxLength={25}
-          filter={filterNonNumeric}
         />
       </Grid>
       <Grid item xs={12}>

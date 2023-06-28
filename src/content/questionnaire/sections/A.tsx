@@ -11,7 +11,7 @@ import TextInput from "../../../components/Questionnaire/TextInput";
 import AutocompleteInput from '../../../components/Questionnaire/AutocompleteInput';
 import institutionConfig from "../../../config/InstitutionConfig";
 import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
-import { filterNonNumeric, mapObjectWithKey, validateEmail } from '../utils';
+import { mapObjectWithKey } from '../utils';
 
 type KeyedContact = {
   key: string;
@@ -50,9 +50,11 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
-    // Reset additional contacts if none are provided
     if (!formObject.additionalContacts || formObject.additionalContacts.length === 0) {
       combinedData.additionalContacts = [];
+    }
+    if (formObject.piAsPrimaryContact) {
+      combinedData.primaryContact = null;
     }
 
     return { ref: formRef, data: combinedData };
@@ -99,7 +101,13 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput label="First name" name="pi[firstName]" value={pi.firstName} maxLength={50} required />
         <TextInput label="Last name" name="pi[lastName]" value={pi.lastName} maxLength={50} required />
         <TextInput label="Position" name="pi[position]" value={pi.position} maxLength={100} required />
-        <TextInput label="Email address" name="pi[email]" validate={validateEmail} value={pi.email} required />
+        <TextInput
+          type="email"
+          label="Email address"
+          name="pi[email]"
+          value={pi.email}
+          required
+        />
         <AutocompleteInput
           label="Institution"
           name="pi[institution]"
@@ -148,7 +156,14 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput label="First name" name="primaryContact[firstName]" value={primaryContact.firstName} maxLength={50} readOnly={piAsPrimaryContact} required />
         <TextInput label="Last name" name="primaryContact[lastName]" value={primaryContact.lastName} maxLength={50} readOnly={piAsPrimaryContact} required />
         <TextInput label="Position" name="primaryContact[role]" value={primaryContact.role} maxLength={100} readOnly={piAsPrimaryContact} required />
-        <TextInput label="Email" name="primaryContact[email]" value={primaryContact.email} validate={validateEmail} readOnly={piAsPrimaryContact} required />
+        <TextInput
+          type="email"
+          label="Email"
+          name="primaryContact[email]"
+          value={primaryContact.email}
+          readOnly={piAsPrimaryContact}
+          required
+        />
         <AutocompleteInput
           label="Institution"
           name="primaryContact[institution]"
@@ -159,7 +174,14 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           disableClearable
           required
         />
-        <TextInput label="Phone number" name="primaryContact[phone]" value={primaryContact.phone} maxLength={25} readOnly={piAsPrimaryContact} filter={filterNonNumeric} />
+        <TextInput
+          type="phone"
+          label="Phone number"
+          name="primaryContact[phone]"
+          value={primaryContact.phone}
+          maxLength={25}
+          readOnly={piAsPrimaryContact}
+        />
       </SectionGroup>
 
       {/* Additional Contacts */}
