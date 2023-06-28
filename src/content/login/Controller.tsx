@@ -12,11 +12,7 @@ function loginController() {
   const redirectUrl = `${process.env.REACT_APP_NIH_AUTH_URL}?${params}`;
   window.location.href = redirectUrl;
 
-  return (
-    <div>
-      Foo
-    </div>
-  );
+  return null;
 }
 
 export default loginController;
