@@ -67,8 +67,8 @@ query  getApplication($id: ID!){
         submittedDate
       }
       funding {
-        agencies
-        grantNumbers
+        agency
+        grantNumber
         nciProgramOfficer
         nciGPA
       }
