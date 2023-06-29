@@ -4,7 +4,7 @@ import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import programOptions from "../../../config/ProgramConfig";
-import fundingOptions from "../../../config/FundingConfig";
+import fundingAgencyOptions from "../../../config/FundingConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
@@ -148,8 +148,8 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
         plannedPublications: [],
         repositories: [],
         funding: {
-          agencies: [],
-          grantNumbers: [],
+          agency: "",
+          grantNumber: "",
           nciProgramOfficer: "",
           nciGPA: "",
         },
@@ -164,8 +164,8 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
         plannedPublications: [],
         repositories: [],
         funding: {
-          agencies: [],
-          grantNumbers: [],
+          agency: "",
+          grantNumber: "",
           nciProgramOfficer: "",
           nciGPA: "",
         },
@@ -413,19 +413,20 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
       {/* Funding Agency */}
       <SectionGroup title="Agency(s) and/or organization(s) that funded this study">
-        <SelectInput
+        <Autocomplete
           label="Funding Agency"
-          name="study[funding][agencies][0]"
-          value={funding?.agencies[0]}
-          onChange={() => {}}
-          options={fundingOptions.map((option: string) => ({ label: option, value: option }))}
-          placeholder="– Search and Select Program –"
+          value={funding.agency}
+          name="study[funding][agency]"
+          options={fundingAgencyOptions}
+          placeholder="– Search and Select Agency –"
+          freeSolo
+          disableClearable
           required
         />
         <TextInput
           label="Grant or Contract Number(s)"
-          name="study[funding][grantNumbers][0]"
-          value={funding?.grantNumbers[0]}
+          name="study[funding][grantNumber]"
+          value={funding?.grantNumber}
           maxLength={50}
           required
         />

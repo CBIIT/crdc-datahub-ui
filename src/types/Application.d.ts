@@ -112,15 +112,10 @@ type FileInfo = {
 };
 
 type Funding = {
-  agencies: string[];
-  grantNumbers: string[];
+  agency: string;
+  grantNumber: string;
   nciProgramOfficer: string;
   nciGPA: string;
-};
-
-type Agency = {
-  name: string;
-  grantNumbers: string[];
 };
 
 // Renamed to HistoryEvent to avoid confusion with a DOM Event
