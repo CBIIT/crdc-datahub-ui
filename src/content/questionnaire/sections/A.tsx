@@ -111,11 +111,12 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <AutocompleteInput
           label="Institution"
           name="pi[institution]"
-          value={pi?.institution && institutionConfig.includes(pi.institution) ? pi.institution : "Other"}
+          value={pi?.institution || ""}
           options={institutionConfig}
           placeholder="Select Institution"
           required
           disableClearable
+          freeSolo
         />
         <TextInput label="If you have an eRA Commons account, provide it here:" name="pi[eRAAccount]" value={pi.eRAAccount} />
         <TextInput
@@ -167,12 +168,13 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <AutocompleteInput
           label="Institution"
           name="primaryContact[institution]"
-          value={primaryContact?.institution}
+          value={primaryContact?.institution || ""}
           options={institutionConfig}
           placeholder="Select Institution"
           readOnly={piAsPrimaryContact}
           disableClearable
           required
+          freeSolo
         />
         <TextInput
           type="phone"

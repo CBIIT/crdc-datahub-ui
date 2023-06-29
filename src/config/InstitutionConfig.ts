@@ -1542,7 +1542,6 @@ const options: string[] = [
   "ZETEO TECH, INC.",
   "ZVITAMBO INSTITUTE FOR MATERNAL AND CHILD HEALTH RESEARCH",
   "ZYLO THERAPEUTICS, INC.",
-  "Other",
 ];
 
 export default options;

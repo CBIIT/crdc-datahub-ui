@@ -71,15 +71,12 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
         <AutocompleteInput
           label="Institution"
           name={`additionalContacts[${index}][institution]`}
-          value={
-            institution && institutionConfig.includes(institution)
-              ? institution
-              : "Other"
-          }
+          value={institution || ""}
           options={institutionConfig}
           placeholder="Select Institution"
           required
           disableClearable
+          freeSolo
         />
         <TextInput
           label="Phone number"
