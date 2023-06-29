@@ -39,7 +39,7 @@ const PlannedPublication: FC<Props> = ({
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
           label="Planned Publication Title"
-          name={`plannedPublications[${index}][title]`}
+          name={`study[plannedPublications][${index}][title]`}
           value={title}
           placeholder="Enter title"
           maxLength={100}
@@ -48,7 +48,7 @@ const PlannedPublication: FC<Props> = ({
         />
         <DatePickerInput
           label="Expected Publication Date"
-          name={`plannedPublications[${index}][expectedDate]`}
+          name={`study[plannedPublications][${index}][expectedDate]`}
           initialValue={expectedDate}
           gridWidth={6}
           required

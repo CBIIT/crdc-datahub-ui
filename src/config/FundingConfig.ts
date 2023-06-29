@@ -22,8 +22,7 @@
     "National Institute of Mental Health",
     "National Institute on Minority Health and Health Disparities",
     "National Institute of Neurological Disorders and Stoke",
-    "National Science Foundation",
-    "Other",
+    "National Science Foundation"
   ];
 
   export default options;

@@ -9,7 +9,7 @@ import { filterNonNumeric, validateEmail } from '../../content/questionnaire/uti
 type Props = {
   index: number;
   classes: WithStyles<typeof styles>['classes'];
-  contact: AdditionalContact | null;
+  contact: Contact | null;
   onDelete: () => void;
 };
 
@@ -23,7 +23,7 @@ const AdditionalContact: FC<Props> = ({ index, classes, contact, onDelete }: Pro
   const { status } = useFormContext();
 
   const {
-    firstName, lastName, email, phone, role, institution,
+    firstName, lastName, email, phone, position, institution,
   } = contact;
 
   return (
@@ -46,7 +46,7 @@ const AdditionalContact: FC<Props> = ({ index, classes, contact, onDelete }: Pro
       <TextInput label="First name" name={`additionalContacts[${index}][firstName]`} value={firstName} maxLength={50} required />
       <TextInput label="Last name" name={`additionalContacts[${index}][lastName]`} value={lastName} maxLength={50} required />
       <TextInput label="Institution" name={`additionalContacts[${index}][institution]`} value={institution} maxLength={100} required />
-      <TextInput label="Position" name={`additionalContacts[${index}][role]`} value={role} maxLength={100} placeholder="(exs. Co-PI, sequencing center manager)" />
+      <TextInput label="Position" name={`additionalContacts[${index}][position]`} value={position} maxLength={100} placeholder="(exs. Co-PI, sequencing center manager)" />
       <TextInput label="Email address" name={`additionalContacts[${index}][email]`} value={email} validate={validateEmail} required />
       <TextInput label="Phone number" name={`additionalContacts[${index}][phone]`} value={phone} maxLength={25} filter={filterNonNumeric} />
     </Grid>
