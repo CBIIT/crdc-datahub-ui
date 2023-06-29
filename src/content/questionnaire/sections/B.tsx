@@ -1,11 +1,10 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import { AutocompleteChangeReason } from "@mui/material";
 import { parseForm } from "@jalik/form-parser";
-import { withStyles } from "@mui/styles";
 import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import programOptions from "../../../config/ProgramConfig";
-import fundingOptions from "../../../config/FundingConfig";
+import fundingAgencyOptions from "../../../config/FundingConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
@@ -17,6 +16,7 @@ import { findProgram, findStudy, mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
+import initialValues from "../../../config/InitialValues";
 
 type KeyedPublication = {
   key: string;
@@ -40,13 +40,13 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
 
   const [program, setProgram] = useState<Program>(data.program);
-  const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(program.title));
+  const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(program.name));
   const [study, setStudy] = useState<Study>(data.study);
-  const [studyOption, setStudyOption] = useState<StudyOption>(findStudy(study.title, programOption));
-  const [publications, setPublications] = useState<KeyedPublication[]>(data.publications?.map(mapObjectWithKey) || []);
-  const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(data.plannedPublications?.map(mapObjectWithKey) || []);
+  const [studyOption, setStudyOption] = useState<StudyOption>(findStudy(study?.name, programOption));
+  const [publications, setPublications] = useState<KeyedPublication[]>(data.study?.publications?.map(mapObjectWithKey) || []);
+  const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
-  const [funding] = useState<Funding>(data.funding);
+  const [funding] = useState<Funding>(data.study?.funding);
 
   const formRef = useRef<HTMLFormElement>();
   const {
@@ -68,17 +68,22 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
+    // Reset study if the data failed to load
+    if (!formObject.study) {
+      combinedData.study = initialValues.study;
+    }
+
     // Reset publications if the user has not entered any publications
-    if (!formObject.publications || formObject.publications.length === 0) {
-      combinedData.publications = [];
+    if (!formObject.study.publications || formObject.study.publications.length === 0) {
+      combinedData.study.publications = [];
     }
     // Reset planned publications if the user has not entered any planned publications
-    if (!formObject.plannedPublications || formObject.plannedPublications.length === 0) {
-      combinedData.plannedPublications = [];
+    if (!formObject.study.plannedPublications || formObject.study.plannedPublications.length === 0) {
+      combinedData.study.plannedPublications = [];
     }
     // Reset repositories if the user has not entered any repositories
-    if (!formObject.repositories || formObject.repositories.length === 0) {
-      combinedData.repositories = [];
+    if (!formObject.study.repositories || formObject.study.repositories.length === 0) {
+      combinedData.study.repositories = [];
     }
 
     return { ref: formRef, data: combinedData };
@@ -97,9 +102,9 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
     const newProgram = findProgram(value);
     if (newProgram?.isCustom) {
-      setProgram({ title: "", abbreviation: "", description: "" });
+      setProgram({ name: "", abbreviation: "", description: "" });
     } else {
-      setProgram({ title: newProgram.title, abbreviation: newProgram.abbreviation, description: "" });
+      setProgram({ name: newProgram.name, abbreviation: newProgram.abbreviation, description: "" });
     }
 
     // Only reset study if the study is not currently custom
@@ -108,7 +113,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
     if (!studyOption?.isCustom) {
       const newStudy = newProgram.studies[0];
       if (newStudy?.isCustom) {
-        setStudy({ ...study, title: "", abbreviation: "", description: "" });
+        setStudy({ ...study, name: "", abbreviation: "", description: "" });
       } else {
         setStudy({ ...study, ...newProgram.studies[0] });
       }
@@ -128,13 +133,43 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
    * @returns {void}
    */
   const handleStudyChange = (e: React.SyntheticEvent, value: string, r: AutocompleteChangeReason) => {
-    if (r !== "selectOption") { return; }
+    if (r !== "selectOption") {
+      return;
+    }
 
     const newStudy = findStudy(value, programOption);
     if (newStudy?.isCustom) {
-      setStudy({ ...study, title: "", abbreviation: "", description: "" });
+      setStudy({
+        ...study,
+        name: "",
+        abbreviation: "",
+        description: "",
+        publications: [],
+        plannedPublications: [],
+        repositories: [],
+        funding: {
+          agency: "",
+          grantNumber: "",
+          nciProgramOfficer: "",
+          nciGPA: "",
+        },
+      });
     } else {
-      setStudy({ ...study, title: newStudy.title, abbreviation: newStudy.abbreviation, description: "" });
+      setStudy({
+        ...study,
+        name: newStudy.name,
+        abbreviation: newStudy.abbreviation,
+        description: "",
+        publications: [],
+        plannedPublications: [],
+        repositories: [],
+        funding: {
+          agency: "",
+          grantNumber: "",
+          nciProgramOfficer: "",
+          nciGPA: "",
+        },
+      });
     }
 
     setStudyOption(newStudy);
@@ -190,7 +225,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
   const addRepository = () => {
     setRepositories([
       ...repositories,
-      { key: `${repositories.length}_${new Date().getTime()}`, name: "", studyID: "" },
+      { key: `${repositories.length}_${new Date().getTime()}`, name: "", studyID: "", submittedDate: "" },
     ]);
   };
 
@@ -213,17 +248,17 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
         <Autocomplete
           gridWidth={12}
           label="Program"
-          value={programOption?.isCustom ? programOption.title : program.title}
+          value={programOption?.isCustom ? programOption.name : program.name}
           onChange={handleProgramChange}
-          options={programOptions.map((option: ProgramOption) => option.title)}
+          options={programOptions.map((option: ProgramOption) => option.name)}
           placeholder="– Search and Select Program –"
           required
           disableClearable
         />
         <TextInput
           label="Program name"
-          name="program[title]"
-          value={programOption?.isCustom ? program.title : programOption.title}
+          name="program[name]"
+          value={programOption?.isCustom ? program.name : programOption.name}
           maxLength={programOption?.isCustom ? 50 : undefined}
           placeholder="50 characters allowed"
           readOnly={!programOption?.isCustom}
@@ -257,17 +292,17 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
         <Autocomplete
           gridWidth={12}
           label="Study"
-          value={studyOption?.isCustom ? studyOption.title : study.title}
+          value={studyOption?.isCustom ? studyOption.name : study.name}
           onChange={handleStudyChange}
-          options={programOption.studies.map((option: StudyOption) => option.title)}
+          options={programOption.studies.map((option: StudyOption) => option.name)}
           placeholder="– Search and Select Study –"
           required
           disableClearable
         />
         <TextInput
           label="Study name"
-          name="study[title]"
-          value={studyOption?.isCustom ? study.title : studyOption.title}
+          name="study[name]"
+          value={studyOption?.isCustom ? study.name : studyOption.name}
           maxLength={studyOption?.isCustom ? 50 : undefined}
           placeholder="50 characters allowed"
           readOnly={!studyOption?.isCustom}
@@ -377,31 +412,32 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
       {/* Funding Agency */}
       <SectionGroup title="Agency(s) and/or organization(s) that funded this study">
-        <SelectInput
+        <Autocomplete
           label="Funding Agency"
-          name="funding[agencies][0][name]"
-          value={funding?.agencies[0]?.name}
-          onChange={() => {}}
-          options={fundingOptions.map((option: string) => ({ label: option, value: option }))}
-          placeholder="– Search and Select Program –"
+          value={funding.agency}
+          name="study[funding][agency]"
+          options={fundingAgencyOptions}
+          placeholder="– Search and Select Agency –"
+          freeSolo
+          disableClearable
           required
         />
         <TextInput
           label="Grant or Contract Number(s)"
-          name="funding[agencies][0][grantNumbers][0]"
-          value={funding?.agencies[0]?.grantNumbers[0]}
+          name="study[funding][grantNumber]"
+          value={funding?.grantNumber}
           maxLength={50}
           required
         />
         <TextInput
           label="NCI Program Officer name, if applicable"
-          name="funding[nciProgramOfficer]"
+          name="study[funding][nciProgramOfficer]"
           value={funding?.nciProgramOfficer}
           maxLength={50}
         />
         <TextInput
           label="NCI Genomic Program Administrator (GPA) name, if applicable"
-          name="funding[nciGPA]"
+          name="study[funding][nciGPA]"
           value={funding?.nciGPA}
         />
       </SectionGroup>

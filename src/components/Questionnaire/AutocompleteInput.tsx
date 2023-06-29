@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useId, useState } from "react";
 import {
   Autocomplete,
+  AutocompleteProps,
   FormControl,
   FormHelperText,
   Grid,
@@ -14,8 +15,9 @@ const DropdownArrowsIcon = styled("div")(() => ({
   backgroundImage: `url(${dropdownArrowsIcon})`,
   backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
-  width: "9.17px",
+  width: "10px",
   height: "18px",
+  marginBottom: "-3px"
 }));
 
 type Props = {
@@ -29,9 +31,9 @@ type Props = {
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   placeholder?: string;
   disableClearable?: boolean;
-  readOnly?: boolean;
+  freeSolo?: boolean;
   onChange?: (e: React.SyntheticEvent, v: string, r: string) => void;
-};
+} & Omit<AutocompleteProps<unknown, false, true, true, "div">, "renderInput">;
 
 /**
  * Generates a generic autocomplete select box with a label and help text
@@ -82,6 +84,7 @@ const AutocompleteInput: FC<Props> = ({
           classes={{ root: classes.input }}
           onChange={onChangeWrapper}
           popupIcon={<DropdownArrowsIcon />}
+          forcePopupIcon
           slotProps={{
             paper: {
               className: classes.paper
@@ -140,8 +143,8 @@ const styles = () => ({
     "& .MuiAutocomplete-input": {
       color: "#083A50",
     },
-    "& .MuiAutocomplete-popupIndicator": {
-      right: "12px"
+    "& .MuiAutocomplete-root .MuiAutocomplete-endAdornment": {
+      right: "12px",
     },
     "& .MuiAutocomplete-popupIndicatorOpen": {
       transform: "none"
@@ -162,15 +165,17 @@ const styles = () => ({
     border: "1px solid #6B7294",
     marginTop: "2px",
     "& .MuiAutocomplete-listbox": {
-      padding: 0
+      padding: 0,
+      overflow: "auto",
+      maxHeight: "300px"
     },
     "& .MuiAutocomplete-option[aria-selected='true']": {
       color: "#083A50",
       background: "#FFFFFF"
     },
     "& .MuiAutocomplete-option": {
-      padding: "0 10px",
-      height: "35px",
+      padding: "7.5px 10px",
+      minHeight: "35px",
       color: "#083A50",
       background: "#FFFFFF"
     },
@@ -192,7 +197,7 @@ const styles = () => ({
       fontWeight: 400,
       fontSize: "16px",
       fontFamily: "'Nunito', 'Rubik', sans-serif",
-      padding: "12px !important",
+      padding: "12px 30px 12px 12px !important",
       height: "20px",
     },
     "& .MuiOutlinedInput-input:read-only": {

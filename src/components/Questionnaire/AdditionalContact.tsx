@@ -16,7 +16,7 @@ const GridContainer = styled(Grid)({
 
 type Props = {
   index: number;
-  contact: AdditionalContact | null;
+  contact: Contact | null;
   onDelete: () => void;
 };
 
@@ -30,7 +30,7 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
   const { status } = useFormContext();
   const {
     firstName, lastName, email,
-    phone, role, institution,
+    phone, position, institution,
   } = contact;
 
   return (
@@ -54,8 +54,8 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
         />
         <TextInput
           label="Position"
-          name={`additionalContacts[${index}][role]`}
-          value={role}
+          name={`additionalContacts[${index}][position]`}
+          value={position}
           placeholder="Enter position"
           maxLength={100}
           required

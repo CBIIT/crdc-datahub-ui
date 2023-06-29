@@ -15,7 +15,7 @@ import { mapObjectWithKey } from '../utils';
 
 type KeyedContact = {
   key: string;
-} & AdditionalContact;
+} & Contact;
 
 /**
  * Form Section A View
@@ -71,7 +71,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       ...additionalContacts,
       {
         key: `${additionalContacts.length}_${new Date().getTime()}`,
-        role: "",
+        position: "",
         firstName: "",
         lastName: "",
         email: "",
@@ -155,7 +155,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         </Grid>
         <TextInput label="First name" name="primaryContact[firstName]" value={primaryContact.firstName} maxLength={50} readOnly={piAsPrimaryContact} required />
         <TextInput label="Last name" name="primaryContact[lastName]" value={primaryContact.lastName} maxLength={50} readOnly={piAsPrimaryContact} required />
-        <TextInput label="Position" name="primaryContact[role]" value={primaryContact.role} maxLength={100} readOnly={piAsPrimaryContact} required />
+        <TextInput label="Position" name="primaryContact[position]" value={primaryContact.position} maxLength={100} readOnly={piAsPrimaryContact} required />
         <TextInput
           type="email"
           label="Email"
