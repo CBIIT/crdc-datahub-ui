@@ -27,7 +27,6 @@ query  getApplication($id: ID!){
     }
     piAsPrimaryContact
     primaryContact {
-      
       firstName
       lastName
       email
