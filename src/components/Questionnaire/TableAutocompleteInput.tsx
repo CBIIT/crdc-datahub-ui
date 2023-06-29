@@ -24,7 +24,7 @@ type Props = {
   helpText?: string;
   placeholder?: string;
   disableClearable?: boolean;
-  freeSolo? : boolean;
+  freeSolo?: boolean;
   onChange?: (e: React.SyntheticEvent, v: string, r: string) => void;
 };
 
@@ -64,10 +64,10 @@ const TableAutocompleteInput: FC<Props> = ({
     <Autocomplete
       isOptionEqualToValue={(option, value) => option.value === value.value}
       sx={{
-                '& .MuiAutocomplete-endAdornment': {
-                  top: "auto"
-                }
-              }}
+        '& .MuiAutocomplete-endAdornment': {
+          top: "auto"
+        }
+      }}
       id={id}
       size="small"
       value={val}
@@ -76,23 +76,24 @@ const TableAutocompleteInput: FC<Props> = ({
       popupIcon={<DropdownArrowsIcon />}
       freeSolo={freeSolo}
       slotProps={{
-            paper: {
-              className: classes.paper
+        paper: {
+          className: classes.paper
+        },
+        popper: {
+          disablePortal: true,
+          sx: { marginTop: "8px !important" },
+          modifiers: [
+            {
+              // disables popper from flipping above the input when out of screen room
+              name: "flip",
+              enabled: false,
+              options: {
+                fallbackPlacements: [],
+              },
             },
-            popper: {
-              disablePortal: true,
-              modifiers: [
-                {
-                  // disables popper from flipping above the input when out of screen room
-                  name: "flip",
-                  enabled: false,
-                  options: {
-                    fallbackPlacements: [],
-                  },
-                },
-              ],
-            },
-          }}
+          ],
+        },
+      }}
       renderInput={(p) => (
         <TextField
           {...p}
@@ -102,7 +103,7 @@ const TableAutocompleteInput: FC<Props> = ({
           variant="standard"
           InputProps={{ ...p.InputProps, disableUnderline: true }}
         />
-          )}
+      )}
       {...rest}
     />
   );
