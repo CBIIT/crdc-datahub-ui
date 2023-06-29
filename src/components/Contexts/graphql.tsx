@@ -10,7 +10,7 @@ export const CREATE_APP = gql`
 
 export const GET_APP = gql`
 query  getApplication($id: ID!){
-    getApplication(_id:$id ) { 
+    getApplication(_id:$id ) {
       _id
     sections {
       name
@@ -68,8 +68,8 @@ query  getApplication($id: ID!){
         submittedDate
       }
       funding {
-        agencies
-        grantNumbers
+        agency
+        grantNumber
         nciProgramOfficer
         nciGPA
       }
