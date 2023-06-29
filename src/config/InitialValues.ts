@@ -33,8 +33,8 @@ const initialValues: Omit<Application, "_id" | "applicantID"> = {
     plannedPublications: [],
     repositories: [],
     funding: {
-      agencies: [],
-      grantNumbers: [],
+      agency: "",
+      grantNumber: "",
       nciProgramOfficer: "",
       nciGPA: "",
     },
