@@ -84,6 +84,10 @@ const StyledDivider = styled(Divider)({
   margin: "0 23px",
 });
 
+const StyledContentWrapper = styled(Stack)({
+  paddingBottom: "75px"
+});
+
 /**
  * Intake Form View Component
  *
@@ -232,7 +236,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         </StyledBannerText>
       </StyledBanner>
 
-      <Stack direction="row" justifyContent="center">
+      <StyledContentWrapper direction="row" justifyContent="center">
         <StyledSidebar
           direction="row"
           justifyContent="center"
@@ -300,7 +304,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
             </Link>
           </Stack>
         </Stack>
-      </Stack>
+      </StyledContentWrapper>
 
       <Dialog open={blockedNavigate}>
         <DialogTitle>
@@ -340,7 +344,7 @@ const styles = () => ({
   },
   content: {
     maxWidth: "980px",
-    marginLeft: '64px',
+    marginLeft: '41px',
   },
   controls: {
     color: "#FFFFFF",

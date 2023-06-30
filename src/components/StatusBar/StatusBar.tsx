@@ -9,8 +9,8 @@ const StyledStack = styled(Stack)({
   background: "#fff",
   boxShadow: "2px 4px 10px rgba(0, 0, 0, 0.35)",
   borderRadius: "8px",
-  transform: "translateY(-50%)",
-  marginBottom: "-45px",
+  transform: "translateY(-54%)",
+  marginBottom: "-49px",
 });
 
 const StyledH1 = styled(Typography)({
