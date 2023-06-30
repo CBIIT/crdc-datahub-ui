@@ -15,8 +15,7 @@ import Repository from "../../../components/Questionnaire/Repository";
 import { findProgram, findStudy, mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
-import SelectInput from "../../../components/Questionnaire/SelectInput";
-import initialValues from "../../../config/InitialValues";
+  import initialValues from "../../../config/InitialValues";
 
 type KeyedPublication = {
   key: string;
