@@ -15,6 +15,15 @@ const theme = createTheme({
   typography: {
     fontFamily: "'Nunito', sans-serif",
   },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1440,
+    }
+  },
   palette: {
     Rejected: {
       main: "#E25C22",

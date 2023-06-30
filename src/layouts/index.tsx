@@ -1,11 +1,17 @@
 import { FC, ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import { Outlet } from 'react-router-dom';
-import { Container } from '@mui/material';
+import { Container, styled } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 import Footer from '../components/ResponsiveFooter';
 import Header from '../components/ResponsiveHeader';
 import ScrollButton from '../components/ScrollButton/ScrollButtonView';
+
+const StyledContainer = styled(Container)(() => ({
+  "&.MuiContainer-root": {
+    padding: 0,
+  }
+}));
 
 interface LayoutProps {
   children?: ReactNode;
@@ -20,9 +26,9 @@ const Layout: FC<LayoutProps> = ({ children }) => (
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Public+Sans:wght@300;400;500;600;700&family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     </Helmet>
     <Header />
-    <Container maxWidth="lg">
+    <StyledContainer maxWidth="xl">
       {children || <Outlet />}
-    </Container>
+    </StyledContainer>
     <Footer />
     <ScrollButton />
   </>
