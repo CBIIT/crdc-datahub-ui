@@ -60,12 +60,6 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     return { ref: formRef, data: combinedData };
   };
 
-  /**
-   * Add a empty additional contact to the list
-   *
-   * @param {void}
-   * @returns {void}
-   */
   const addContact = () => {
     setAdditionalContacts([
       ...additionalContacts,
@@ -81,12 +75,6 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     ]);
   };
 
-  /**
-   * Remove an additional contact from the list
-   *
-   * @param {string} key The generated key for the contact
-   * @returns {void}
-   */
   const removeContact = (key: string) => {
     setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
   };
@@ -98,14 +86,36 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     >
       {/* Principal Investigator */}
       <SectionGroup title="Principal Investigator for study" divider={false}>
-        <TextInput label="First name" name="pi[firstName]" value={pi.firstName} maxLength={50} required />
-        <TextInput label="Last name" name="pi[lastName]" value={pi.lastName} maxLength={50} required />
-        <TextInput label="Position" name="pi[position]" value={pi.position} maxLength={100} required />
+        <TextInput
+          label="First name"
+          name="pi[firstName]"
+          value={pi.firstName}
+          placeholder="Enter first name"
+          maxLength={50}
+          required
+        />
+        <TextInput
+          label="Last name"
+          name="pi[lastName]"
+          value={pi.lastName}
+          placeholder="Enter last name"
+          maxLength={50}
+          required
+        />
+        <TextInput
+          label="Position"
+          name="pi[position]"
+          value={pi.position}
+          placeholder="Enter position"
+          maxLength={100}
+          required
+        />
         <TextInput
           type="email"
           label="Email address"
           name="pi[email]"
           value={pi.email}
+          placeholder="Enter email address"
           required
         />
         <AutocompleteInput
@@ -118,7 +128,11 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           disableClearable
           freeSolo
         />
-        <TextInput label="If you have an eRA Commons account, provide it here:" name="pi[eRAAccount]" value={pi.eRAAccount} />
+        <TextInput
+          label="If you have an eRA Commons account, provide it here:"
+          name="pi[eRAAccount]"
+          value={pi.eRAAccount}
+        />
         <TextInput
           label="Institution Address"
           value={pi.address}
@@ -154,14 +168,39 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             readOnly
           />
         </Grid>
-        <TextInput label="First name" name="primaryContact[firstName]" value={primaryContact.firstName} maxLength={50} readOnly={piAsPrimaryContact} required />
-        <TextInput label="Last name" name="primaryContact[lastName]" value={primaryContact.lastName} maxLength={50} readOnly={piAsPrimaryContact} required />
-        <TextInput label="Position" name="primaryContact[position]" value={primaryContact.position} maxLength={100} readOnly={piAsPrimaryContact} required />
+        <TextInput
+          label="First name"
+          name="primaryContact[firstName]"
+          value={primaryContact?.firstName || ""}
+          placeholder="Enter first name"
+          maxLength={50}
+          readOnly={piAsPrimaryContact}
+          required
+        />
+        <TextInput
+          label="Last name"
+          name="primaryContact[lastName]"
+          value={primaryContact?.lastName || ""}
+          placeholder="Enter last name"
+          maxLength={50}
+          readOnly={piAsPrimaryContact}
+          required
+        />
+        <TextInput
+          label="Position"
+          name="primaryContact[position]"
+          value={primaryContact?.position || ""}
+          placeholder="Enter position"
+          maxLength={100}
+          readOnly={piAsPrimaryContact}
+          required
+        />
         <TextInput
           type="email"
           label="Email"
           name="primaryContact[email]"
-          value={primaryContact.email}
+          value={primaryContact?.email || ""}
+          placeholder="Enter email address"
           readOnly={piAsPrimaryContact}
           required
         />
@@ -180,7 +219,8 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           type="phone"
           label="Phone number"
           name="primaryContact[phone]"
-          value={primaryContact.phone}
+          value={primaryContact?.phone || ""}
+          placeholder="Enter phone number"
           maxLength={25}
           readOnly={piAsPrimaryContact}
         />
