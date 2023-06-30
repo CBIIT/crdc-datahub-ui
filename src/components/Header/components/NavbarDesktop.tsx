@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, NavLink, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { Button } from '@mui/material';
 
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
 
@@ -26,9 +25,12 @@ const Nav = styled.div`
 
 const NavContainer = styled.div`
     margin: 0 auto;
-    width: 1400px;
+    max-width: 1400px;
     text-align: left;
     position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
 `;
 
 const UlContainer = styled.ul`
@@ -215,6 +217,22 @@ const DropdownContainer = styled.div`
   }
 `;
 
+const StyledLoginLink = styled(Link)`
+  color: #007BBD;
+  text-align: right;
+  font-size: 14px;
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: 0.42px;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 10px 0 10px 0;
+  margin-bottom: 4.5px;
+  margin-right: 32px;
+`;
+
 const activeStyle = {
   color: '#298085',
   borderBottom: '4px solid #298085',
@@ -309,6 +327,9 @@ const NavBar = () => {
               })
             }
         </UlContainer>
+        <StyledLoginLink to="/login">
+          Login
+        </StyledLoginLink>
       </NavContainer>
       <Dropdown ref={dropdownSelection} style={clickedTitle === '' ? { visibility: 'hidden', } : null}>
         <DropdownContainer>
@@ -330,16 +351,6 @@ const NavBar = () => {
           </div>
         </DropdownContainer>
       </Dropdown>
-
-      <Link to="/login">
-        <Button
-          variant="text"
-          type="button"
-          size="large"
-        >
-          Login
-        </Button>
-      </Link>
     </Nav>
   );
 };

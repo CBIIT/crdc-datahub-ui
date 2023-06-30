@@ -225,18 +225,18 @@ const Header = () => {
               )}
             <div className="navMobileContainer">
               {
-                        navbarMobileList.map((navMobileItem, idx) => {
-                            const mobilekey = `mobile_${idx}`;
-                            return (
-                              <>
-                                {navMobileItem.className === 'navMobileItem' && <NavLink to={navMobileItem.link} key={mobilekey} onClick={() => setNavMobileDisplay('none')}><div className="navMobileItem">{navMobileItem.name}</div></NavLink>}
-                                {navMobileItem.className === 'navMobileItem clickable' && <div role="button" tabIndex={0} key={mobilekey} className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }} onClick={clickNavItem}>{navMobileItem.name}</div>}
-                                {navMobileItem.className === 'navMobileSubItem' && <a href={navMobileItem.link} key={mobilekey}><div role="button" tabIndex={0} className="navMobileItem SubItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>{navMobileItem.name}</div></a>}
-                                {navMobileItem.className === 'navMobileSubTitle' && <div key={mobilekey} className="navMobileItem">{navMobileItem.name}</div>}
-                              </>
-                            );
-                        })
-                    }
+                navbarMobileList.map((navMobileItem, idx) => {
+                  const mobilekey = `mobile_${idx}`;
+                  return (
+                    <React.Fragment key={mobilekey}>
+                      {navMobileItem.className === 'navMobileItem' && <NavLink to={navMobileItem.link} onClick={() => setNavMobileDisplay('none')}><div className="navMobileItem">{navMobileItem.name}</div></NavLink>}
+                      {navMobileItem.className === 'navMobileItem clickable' && <div role="button" tabIndex={0} className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }} onClick={clickNavItem}>{navMobileItem.name}</div>}
+                      {navMobileItem.className === 'navMobileSubItem' && <a href={navMobileItem.link}><div role="button" tabIndex={0} className="navMobileItem SubItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>{navMobileItem.name}</div></a>}
+                      {navMobileItem.className === 'navMobileSubTitle' && <div className="navMobileItem">{navMobileItem.name}</div>}
+                    </React.Fragment>
+                  );
+                })
+              }
             </div>
           </div>
           <div
