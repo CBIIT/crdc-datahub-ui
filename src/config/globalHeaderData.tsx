@@ -47,7 +47,7 @@ export const navbarSublists = {
   "Join CRDC Data Hub": [
     {
       name: 'Become a CRDC Submitter',
-      link: 'test',
+      link: '/questionnaire/1234',
       className: 'navMobileSubItem',
     },
     {

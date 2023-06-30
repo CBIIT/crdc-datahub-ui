@@ -15,8 +15,7 @@ function loginController() {
 
   const params = new URLSearchParams(urlParam).toString();
   const redirectUrl = `${NIH_AUTH_URL}?${params}`;
-  // window.location.href = redirectUrl;
-  console.log(redirectUrl);
+  window.location.href = redirectUrl;
   return null;
 }
 
