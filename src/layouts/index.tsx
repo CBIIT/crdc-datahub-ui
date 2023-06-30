@@ -10,6 +10,7 @@ import ScrollButton from '../components/ScrollButton/ScrollButtonView';
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
     padding: 0,
+    minHeight: "300px",
   }
 }));
 
