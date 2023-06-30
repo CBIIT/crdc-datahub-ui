@@ -1,4 +1,4 @@
-import env from '../utils/env';
+import env from '../env';
 import instagramIcon from '../assets/footer/Instgram_Logo.svg';
 import twitterIcon from '../assets/footer/Twitter_Logo.svg';
 import facebookIcon from '../assets/footer/Facebook_Logo.svg';

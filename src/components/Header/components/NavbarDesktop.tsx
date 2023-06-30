@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useLocation, NavLink } from 'react-router-dom';
+import { useLocation, NavLink, Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { Button } from '@mui/material';
+
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
 
 const Nav = styled.div`
@@ -328,6 +330,16 @@ const NavBar = () => {
           </div>
         </DropdownContainer>
       </Dropdown>
+
+      <Link to="/login">
+        <Button
+          variant="text"
+          type="button"
+          size="large"
+        >
+          Login
+        </Button>
+      </Link>
     </Nav>
   );
 };
