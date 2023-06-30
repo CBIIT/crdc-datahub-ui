@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import { Checkbox, FormControlLabel, Grid } from '@mui/material';
+import { Checkbox, FormControlLabel, Grid, styled } from '@mui/material';
 import { parseForm } from '@jalik/form-parser';
 import { cloneDeep } from 'lodash';
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -16,6 +16,14 @@ import { mapObjectWithKey } from '../utils';
 type KeyedContact = {
   key: string;
 } & Contact;
+
+const StyledFormControlLabel = styled(FormControlLabel)({
+  transform: "translateY(-15px)",
+  "& .MuiFormControlLabel-label": {
+    color: "#083A50",
+    fontWeight: "700",
+  },
+});
 
 /**
  * Form Section A View
@@ -149,7 +157,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       {/* Primary Contact */}
       <SectionGroup title="Primary Contact assisting with data collection">
         <Grid item md={12}>
-          <FormControlLabel
+          <StyledFormControlLabel
             label="Same as Principal Investigator"
             control={(
               <Checkbox
