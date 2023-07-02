@@ -3,19 +3,65 @@ import {
   Link, useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
-import { difference, isEqual, isPlainObject, reduce } from 'lodash';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Stack } from '@mui/material';
+import { isEqual } from 'lodash';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
-import styled from '@emotion/styled';
 import { Status as FormStatus, useFormContext } from '../../components/Contexts/FormContext';
 import SuspenseLoader from '../../components/SuspenseLoader';
-import StatusBar from '../../components/Questionnaire/StatusBar';
+import StatusBar from '../../components/StatusBar/StatusBar';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import Section from './sections';
 import map from '../../config/SectionConfig';
+import bannerBackgroundImage from "../../assets/banner/banner_background.png";
+
+const StyledBanner = styled('div')(() => ({
+  position: "relative",
+  background: `url(${bannerBackgroundImage})`,
+  backgroundBlendMode: "LUMINOSITY, NORMAL",
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  width: '100%',
+  height: "296px",
+}));
+
+const StyledBannerText = styled('div')(() => ({
+  position: "absolute",
+  top: "57px",
+  left: "65px"
+}));
+
+const StyledBannerTitle = styled('h2')(() => ({
+  maxWidth: "611px",
+  height: "79px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  flexShrink: 0,
+  color: "#3E577C",
+  fontSize: "45px",
+  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+  fontWeight: 800,
+  lineHeight: "40px",
+  letterSpacing: "-1.5px",
+  margin: 0,
+}));
+
+const StyledBannerSubtitle = styled('h6')(() => ({
+  display: "flex",
+  maxWidth: "565px",
+  height: "59px",
+  flexDirection: "column",
+  flexShrink: 0,
+  color: "#453E3E",
+  fontSize: "16px",
+  fontFamily: "'Inter', 'Rubik', sans-serif",
+  fontWeight: 400,
+  lineHeight: "22px",
+  margin: "0 0 0 5px"
+}));
 
 type Props = {
   section?: string;
@@ -38,6 +84,10 @@ const StyledDivider = styled(Divider)({
   margin: "0 23px",
 });
 
+const StyledContentWrapper = styled(Stack)({
+  paddingBottom: "75px"
+});
+
 /**
  * Intake Form View Component
  *
@@ -52,8 +102,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
-  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.["_id"]}/${sectionKeys[sectionIndex - 1]}` : null;
-  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}` : null;
+  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
+  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -175,11 +225,18 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   return (
     <>
-      <div className={classes.header}>
-        <i>Questionnaire Header</i>
-      </div>
+      <StyledBanner>
+        <StyledBannerText>
+          <StyledBannerTitle>CRDC Intake Questionnaire</StyledBannerTitle>
+          <StyledBannerSubtitle>
+            The following set of high-level questions are intended to provide insight to
+            the CRDC Data Hub, related to data storage, access, secondary sharing
+            needs and other requirements of data submitters.
+          </StyledBannerSubtitle>
+        </StyledBannerText>
+      </StyledBanner>
 
-      <Stack direction="row" justifyContent="center">
+      <StyledContentWrapper direction="row" justifyContent="center">
         <StyledSidebar
           direction="row"
           justifyContent="center"
@@ -189,7 +246,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
           <StyledDivider orientation="vertical" />
         </StyledSidebar>
 
-        <Stack className={classes.content} direction="column" spacing={2}>
+        <Stack className={classes.content} direction="column" spacing={5}>
           <StatusBar />
 
           <Section section={activeSection} refs={refs} />
@@ -247,7 +304,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
             </Link>
           </Stack>
         </Stack>
-      </Stack>
+      </StyledContentWrapper>
 
       <Dialog open={blockedNavigate}>
         <DialogTitle>
@@ -288,10 +345,11 @@ const styles = () => ({
   content: {
     width: "980px",
     maxWidth: "980px",
-    marginLeft: '42px',
+    marginLeft: '41px',
   },
   controls: {
     color: "#FFFFFF",
+    marginTop: "15px !important",
     "& button": {
       margin: "0 6px",
       padding: "14px 11px",

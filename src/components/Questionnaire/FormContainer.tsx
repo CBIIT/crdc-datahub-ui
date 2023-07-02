@@ -41,6 +41,7 @@ const styles = () => ({
     background: "transparent",
     borderRadius: "8px",
     paddingBottom: "25px",
+    marginTop: "50px !important"
   },
   form: {
     fontWeight: 400,

@@ -129,9 +129,6 @@ const styles = (theme) => ({
     minHeight: "20px",
     color: "#083A50",
     marginBottom: "4px",
-    [theme.breakpoints.up("lg")]: {
-      whiteSpace: "nowrap",
-    },
   },
   asterisk: {
     color: "#D54309",

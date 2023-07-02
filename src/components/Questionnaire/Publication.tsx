@@ -38,7 +38,7 @@ const Publication: FC<Props> = ({
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
           label="Publication Title"
-          name={`publications[${index}][title]`}
+          name={`study[publications][${index}][title]`}
           value={title}
           placeholder="Enter Publication Title"
           maxLength={100}
@@ -47,7 +47,7 @@ const Publication: FC<Props> = ({
         />
         <TextInput
           label="PubMedID"
-          name={`publications[${index}][pubmedID]`}
+          name={`study[publications][${index}][pubmedID]`}
           value={pubmedID}
           placeholder="Enter ID"
           maxLength={20}
@@ -55,7 +55,7 @@ const Publication: FC<Props> = ({
         />
         <TextInput
           label="DOI"
-          name={`publications[${index}][DOI]`}
+          name={`study[publications][${index}][DOI]`}
           value={DOI}
           placeholder="Enter DOI"
           maxLength={20}

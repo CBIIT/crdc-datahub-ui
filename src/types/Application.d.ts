@@ -1,27 +1,39 @@
 type Application = {
-  id: number;
+  _id: number;
   sections: Section[];
   pi: PI;
-  primaryContact: PrimaryContact;
-  additionalContacts: AdditionalContact[];
+  piAsPrimaryContact: boolean;
+  primaryContact: Contact; // null if piAsPrimaryContact is true
+  additionalContacts: Contact[];
   program: Program;
   study: Study;
   accessTypes: string[];
   targetedSubmissionDate: string; // YYYY-MM-DD format
   targetedReleaseDate: string; // YYYY-MM-DD format
   timeConstraints: TimeConstraint[];
-  cancerTypes: string[]; // FE control allowed values
+  cancerTypes: string[];
   otherCancerTypes: string;
-  preCancerTypes: string[]; // FE control allowed values
+  preCancerTypes: string[];
   otherPreCancerTypes: string;
   numberOfParticipants: number;
-  species: string[] // FE control allowed values
+  species: string[];
   cellLines: boolean;
   modelSystems: boolean;
-  funding: Funding;
-  publications: Publication[];
-  plannedPublications: PlannedPublication[];
+  dataTypes: string[];
+  otherDataTypes: string;
+  clinicalData: ClinicalData;
+  files: FileInfo[];
+  submitterComment: string;
+  status: ApplicationStatus;
+  programLevelApproval: boolean;
+  reviewComment: string;
+  createdAt: string; // YYYY-MM-DDTHH:MM:SS format
+  updatedAt: string; // YYYY-MM-DDTHH:MM:SS format
+  history: HistoryEvent[];
+  applicantID: string;
 };
+
+type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected";
 
 type Section = {
   name: string;
@@ -29,6 +41,17 @@ type Section = {
 };
 
 type SectionStatus = "In Progress" | "Completed" | "Not Started";
+
+type TimeConstraint = {
+  description: string;
+  effectiveDate: string;
+};
+
+type ClinicalData = {
+  dataTypes: string[]; // FE control allowed values
+  otherDataTypes: string;
+  futureDataTypes: boolean;
+};
 
 type PI = {
   firstName: string;
@@ -40,40 +63,35 @@ type PI = {
   address: string;
 };
 
-type PrimaryContact = {
+type Contact = {
+  position: string;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  institution: string;
-  position: string;
-};
-
-type AdditionalContact = {
-  role: string; // NOTE: this needs to become position, currently matches GQL schema
-  firstName: string;
-  lastName: string;
-  institution: string;
-  email: string;
-  phone?: string;
+  institution?: string;
 };
 
 type Program = {
-  title: string;
+  name: string;
   abbreviation: string;
   description: string;
 };
 
 type Study = {
-  title: string;
+  name: string;
   abbreviation: string;
   description: string;
-  repositories?: Repository[];
+  publications: Publication[];
+  plannedPublications: PlannedPublication[];
+  repositories: Repository[];
+  funding: Funding;
 };
 
 type Repository = {
   name: string;
   studyID: string;
+  submittedDate: string;
 };
 
 type Publication = {
@@ -87,15 +105,25 @@ type PlannedPublication = {
   expectedDate: string;
 };
 
+type FileInfo = {
+  type: string; // FE control allowed values
+  count: number;
+  amount: string; // xxxMB, GB etc
+};
+
 type Funding = {
-  agencies: Agency[]; // NOTE: this likely needs to be restructured. Currently matches GQL schema
+  agency: string;
+  grantNumber: string;
   nciProgramOfficer: string;
   nciGPA: string;
 };
 
-type Agency = {
-  name: string;
-  grantNumbers: string[];
+// Renamed to HistoryEvent to avoid confusion with a DOM Event
+type HistoryEvent = {
+  status: ApplicationStatus;
+  reviewComment?: string;
+  dateTime: string; // YYYY-MM-DDTHH:MM:SS format
+  userID: number;
 };
 
 type TimeConstraint = {

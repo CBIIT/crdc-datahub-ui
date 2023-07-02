@@ -124,7 +124,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
     if (data) {
       setState({
         status: Status.LOADED,
-         data: { ...initialValues, ...data?.getApplication }
+        data: { ...initialValues, ...data?.getApplication }
       });
     }
 

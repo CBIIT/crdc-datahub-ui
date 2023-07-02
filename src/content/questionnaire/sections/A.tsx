@@ -13,7 +13,7 @@ import { filterNonNumeric, mapObjectWithKey, validateEmail } from '../utils';
 
 type KeyedContact = {
   key: string;
-} & AdditionalContact;
+} & Contact;
 
 /**
  * Form Section A View
@@ -25,7 +25,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   const { status, data } = useFormContext();
 
   const [pi] = useState<PI>(data.pi);
-  const [primaryContact] = useState<PrimaryContact>(data.primaryContact);
+  const [primaryContact] = useState<Contact>(data.primaryContact);
   const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
 
   const formRef = useRef<HTMLFormElement>();
@@ -67,7 +67,7 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       ...additionalContacts,
       {
         key: `${additionalContacts.length}_${new Date().getTime()}`,
-        role: "",
+        position: "",
         firstName: "",
         lastName: "",
         email: "",

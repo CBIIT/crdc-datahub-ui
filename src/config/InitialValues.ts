@@ -1,5 +1,5 @@
 // NOTE: this will have to be changed if schema changes
-const initialValues: Omit<Application, "id"> = {
+const initialValues: Omit<Application, "_id" | "applicantID"> = {
   sections: [],
   pi: {
     firstName: "",
@@ -10,25 +10,34 @@ const initialValues: Omit<Application, "id"> = {
     eRAAccount: "",
     address: "",
   },
+  piAsPrimaryContact: false,
   primaryContact: {
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
-    institution: "",
     position: "",
+    institution: ""
   },
   additionalContacts: [],
   program: {
-    title: "",
+    name: "",
     abbreviation: "",
     description: "",
   },
   study: {
-    title: "",
+    name: "",
     abbreviation: "",
     description: "",
+    publications: [],
+    plannedPublications: [],
     repositories: [],
+    funding: {
+      agency: "",
+      grantNumber: "",
+      nciProgramOfficer: "",
+      nciGPA: "",
+    },
   },
   accessTypes: [],
   targetedSubmissionDate: "",
@@ -42,13 +51,21 @@ const initialValues: Omit<Application, "id"> = {
   species: [],
   cellLines: false,
   modelSystems: false,
-  funding: {
-    agencies: [],
-    nciProgramOfficer: "",
-    nciGPA: "",
+  dataTypes: [],
+  otherDataTypes: "",
+  clinicalData: {
+    dataTypes: [],
+    otherDataTypes: "",
+    futureDataTypes: false,
   },
-  publications: [],
-  plannedPublications: [],
+  files: [],
+  submitterComment: "",
+  status: "New",
+  programLevelApproval: false,
+  reviewComment: "",
+  createdAt: "",
+  updatedAt: "",
+  history: [],
 };
 
 export default initialValues;

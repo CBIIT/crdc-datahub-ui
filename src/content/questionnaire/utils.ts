@@ -55,7 +55,7 @@ export const mapObjectWithKey = (obj, index: number) => ({
 });
 
 /**
- * Finds the program option by name (title)
+ * Finds the program option by name (name)
  *
  * NOTE:
  * - This util helps differentiate between a
@@ -64,12 +64,12 @@ export const mapObjectWithKey = (obj, index: number) => ({
  * - This util also adds the OptionalStudy to
  *   the study options.
  *
- * @param {string} title the name of the program
+ * @param {string} name the name of the program
  * @returns {ProgramOption} the program option
  */
-export const findProgram = (title: string): ProgramOption => {
+export const findProgram = (name: string): ProgramOption => {
   const program : ProgramOption = {
-    ...programOptions.find((option) => option.title === title) || OptionalProgram
+    ...programOptions.find((option) => option.name === name) || OptionalProgram
   };
 
   program.studies = [...program.studies, OptionalStudy];
@@ -77,12 +77,12 @@ export const findProgram = (title: string): ProgramOption => {
 };
 
 /**
- * Finds the study option by name (title)
+ * Finds the study option by name (name)
  *
- * @param {string} title the name of the study
+ * @param {string} name the name of the study
  * @param {ProgramOption} activeProgram the active program with the study options
- * @returns {StudyOption} the study option that matches the title
+ * @returns {StudyOption} the study option that matches the name
  */
-export const findStudy = (title: string, activeProgram: ProgramOption): StudyOption => (
-  activeProgram?.studies?.find((option) => option.title === title) || OptionalStudy
+export const findStudy = (name: string, activeProgram: ProgramOption): StudyOption => (
+  activeProgram?.studies?.find((option) => option.name === name) || OptionalStudy
 );
