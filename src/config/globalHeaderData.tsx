@@ -52,24 +52,24 @@ export const navbarSublists = {
     },
     {
       name: 'CRDC Intake Applications',
-      link: '/#cgc',
+      link: '/crdcia',
       className: 'navMobileSubItem',
     },
 ],
   About: [
     {
       name: 'Other Resources',
-      link: '',
+      link: '/or',
       className: 'navMobileSubTitle',
     },
     {
       name: 'Cancer Genomics Cloud',
-      link: '/#cgc',
+      link: '/cgc',
       className: 'navMobileSubItem',
     },
     {
       name: 'Database of Genotypes and Phenotypes',
-      link: '/#dbgap',
+      link: '/dbgap',
       className: 'navMobileSubItem',
     }],
 };
