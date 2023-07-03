@@ -200,6 +200,11 @@ const styles = () => ({
       padding: "12px 30px 12px 12px !important",
       height: "20px",
     },
+    "& .MuiOutlinedInput-input:read-only": {
+      backgroundColor: "#D9DEE4",
+      cursor: "not-allowed",
+      borderRadius: "8px",
+    },
   },
 });
 

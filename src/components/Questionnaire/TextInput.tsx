@@ -76,7 +76,7 @@ const TextInput: FC<Props> = ({
 
   useEffect(() => {
     if (value) {
-       onChange(value.toString().trim());
+      onChange(value.toString().trim());
     }
   }, [value]);
 
@@ -173,11 +173,13 @@ const styles = (theme) => ({
     "&.MuiInputBase-multiline.Mui-readOnly": {
       backgroundColor: "#D9DEE4",
       cursor: "not-allowed",
+      borderRadius: "8px",
     },
     // Target readOnly <input> inputs
     "& .MuiOutlinedInput-input:read-only": {
       backgroundColor: "#D9DEE4",
       cursor: "not-allowed",
+      borderRadius: "8px",
     },
   },
   helperText: {
