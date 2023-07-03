@@ -100,8 +100,14 @@ const FormGroupCheckbox: FC<Props> = ({
     const atLeastOneSelectedAndRequired = required && !val?.length;
     const multipleChecked = val?.length > 1;
 
-    if (atLeastOneSelectedAndRequired || (!allowMultipleChecked && multipleChecked)) {
+    if (atLeastOneSelectedAndRequired) {
       firstCheckboxInputRef.current.setCustomValidity("Please select at least one option");
+      setError(true);
+      return;
+    }
+
+    if (!allowMultipleChecked && multipleChecked) {
+      firstCheckboxInputRef.current.setCustomValidity("Please select only one option");
       setError(true);
       return;
     }
