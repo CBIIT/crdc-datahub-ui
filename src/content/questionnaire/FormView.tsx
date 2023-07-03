@@ -35,7 +35,7 @@ const validateSection = (section: string) => typeof map[section] !== 'undefined'
 const StyledSidebar = styled(Stack)({
   position: "sticky",
   top: "25px",
-  paddingTop: "10px",
+  paddingTop: "45px",
 });
 
 const StyledDivider = styled(Divider)({
@@ -277,16 +277,6 @@ const styles = () => ({
     width: "100%",
     height: "300px",
     background: "#F2F4F8",
-  },
-  sidebar: {
-    position: "sticky" as const, // Ignore TS error
-    top: "25px",
-  },
-  divider: {
-    height: "250px",
-    width: "1px",
-    borderRightWidth: "2px",
-    margin: "0 0 0 15px",
   },
   content: {
     maxWidth: "980px",

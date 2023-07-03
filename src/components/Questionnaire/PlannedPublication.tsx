@@ -51,6 +51,7 @@ const PlannedPublication: FC<Props> = ({
           name={`study[plannedPublications][${index}][expectedDate]`}
           initialValue={expectedDate}
           gridWidth={6}
+          format="MM/DD/YYYY"
           required
           tooltipText="Data made available for secondary research only
                       after investigators have obtained approval from
