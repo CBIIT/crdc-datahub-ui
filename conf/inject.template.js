@@ -1,3 +1,4 @@
+/* eslint-disable */ 
 window.injectedEnv = {
     REACT_APP_BACKEND_GETUSERINFO_API: '${REACT_APP_BACKEND_GETUSERINFO_API}',
     REACT_APP_LOGIN_URL: '${REACT_APP_LOGIN_URL}',
