@@ -1,5 +1,9 @@
-import { Collapse, Grid } from "@mui/material";
+import { Collapse, Grid, styled } from "@mui/material";
 import { TransitionGroup } from "react-transition-group";
+
+const StyledGridWrapper = styled(Grid)(() => ({
+  marginBottom: "24px"
+}));
 
 type WithKey = { key: string };
 
@@ -23,7 +27,7 @@ const TransitionGroupWrapper = <T extends WithKey>({
   items,
   renderItem,
 }: Props<T>) => (
-  <Grid item xs={12}>
+  <StyledGridWrapper item xs={12}>
     <Grid container rowSpacing={1.5} columnSpacing={0}>
       <TransitionGroup component={null} style={{ width: "100%" }}>
         {items?.map((item: T, idx: number) => (
@@ -33,7 +37,7 @@ const TransitionGroupWrapper = <T extends WithKey>({
         ))}
       </TransitionGroup>
     </Grid>
-  </Grid>
+  </StyledGridWrapper>
 );
 
 export default TransitionGroupWrapper;

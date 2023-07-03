@@ -12,6 +12,7 @@ import AutocompleteInput from '../../../components/Questionnaire/AutocompleteInp
 import institutionConfig from "../../../config/InstitutionConfig";
 import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
 import { mapObjectWithKey } from '../utils';
+import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 
 type KeyedContact = {
   key: string;
@@ -246,14 +247,16 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           />
         )}
       >
-        {additionalContacts.map((contact: KeyedContact, idx: number) => (
-          <AdditionalContact
-            key={contact.key}
-            index={idx}
-            contact={contact}
-            onDelete={() => removeContact(contact.key)}
-          />
-        ))}
+        <TransitionGroupWrapper
+          items={additionalContacts}
+          renderItem={(contact: KeyedContact, idx: number) => (
+            <AdditionalContact
+              index={idx}
+              contact={contact}
+              onDelete={() => removeContact(contact.key)}
+            />
+          )}
+        />
       </SectionGroup>
     </FormContainer>
   );
