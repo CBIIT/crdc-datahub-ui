@@ -17,6 +17,7 @@ import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import initialValues from "../../../config/InitialValues";
 
+
 type KeyedPublication = {
   key: string;
 } & Publication;
