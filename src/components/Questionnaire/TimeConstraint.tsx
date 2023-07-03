@@ -10,7 +10,6 @@ const GridContainer = styled(Grid)(() => ({
   border: "0.5px solid #DCDCDC !important",
   borderRadius: "10px",
   padding: "18px 15px",
-  marginLeft: "12px",
 }));
 
 const StyledTextInput = styled(TextInput)(() => ({
@@ -51,7 +50,6 @@ const TimeConstraint: FC<Props> = ({
           label="Time Constraint Effective Date"
           name={`timeConstraints[${index}][effectiveDate]`}
           initialValue={effectiveDate}
-          gridWidth={6}
           required
           disablePast
           tooltipText="Data made available for secondary research only

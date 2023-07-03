@@ -125,8 +125,3 @@ type HistoryEvent = {
   dateTime: string; // YYYY-MM-DDTHH:MM:SS format
   userID: number;
 };
-
-type TimeConstraint = {
-  description: string;
-  effectiveDate: string;
-};

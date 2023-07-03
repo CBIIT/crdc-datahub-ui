@@ -15,8 +15,8 @@ import Repository from "../../../components/Questionnaire/Repository";
 import { findProgram, findStudy, mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
-import SelectInput from "../../../components/Questionnaire/SelectInput";
 import initialValues from "../../../config/InitialValues";
+import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 
 type KeyedPublication = {
   key: string;
@@ -351,14 +351,16 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           />
         )}
       >
-        {publications.map((pub: KeyedPublication, idx: number) => (
-          <Publication
-            key={pub.key}
-            index={idx}
-            publication={pub}
-            onDelete={() => removePublication(pub.key)}
-          />
-        ))}
+        <TransitionGroupWrapper
+          items={publications}
+          renderItem={(pub: KeyedPublication, idx: number) => (
+            <Publication
+              index={idx}
+              publication={pub}
+              onDelete={() => removePublication(pub.key)}
+            />
+          )}
+        />
       </SectionGroup>
 
       {/* Planned Publications */}
@@ -373,14 +375,17 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           />
         )}
       >
-        {plannedPublications.map((pub: KeyedPlannedPublication, idx: number) => (
-          <PlannedPublication
-            key={pub.key}
-            index={idx}
-            plannedPublication={pub}
-            onDelete={() => removePlannedPublication(pub.key)}
-          />
-        ))}
+        <TransitionGroupWrapper
+          items={plannedPublications}
+          renderItem={(pub: KeyedPlannedPublication, idx: number) => (
+            <PlannedPublication
+              index={idx}
+              plannedPublication={pub}
+              onDelete={() => removePlannedPublication(pub.key)}
+            />
+          )}
+        />
+
       </SectionGroup>
 
       {/* Study Repositories */}
@@ -401,14 +406,17 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           />
         )}
       >
-        {repositories.map((repo: KeyedRepository, idx: number) => (
-          <Repository
-            key={repo.key}
-            index={idx}
-            repository={repo}
-            onDelete={() => removeRepository(repo.key)}
-          />
-        ))}
+
+        <TransitionGroupWrapper
+          items={repositories}
+          renderItem={(repo: KeyedRepository, idx: number) => (
+            <Repository
+              index={idx}
+              repository={repo}
+              onDelete={() => removeRepository(repo.key)}
+            />
+          )}
+        />
       </SectionGroup>
 
       {/* Funding Agency */}

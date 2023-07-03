@@ -10,7 +10,6 @@ const GridContainer = styled(Grid)(() => ({
   border: "0.5px solid #DCDCDC !important",
   borderRadius: "10px",
   padding: "18px 15px",
-  marginLeft: "12px",
 }));
 
 type Props = {
@@ -51,6 +50,7 @@ const PlannedPublication: FC<Props> = ({
           name={`study[plannedPublications][${index}][expectedDate]`}
           initialValue={expectedDate}
           gridWidth={6}
+          disablePast
           required
           tooltipText="Data made available for secondary research only
                       after investigators have obtained approval from

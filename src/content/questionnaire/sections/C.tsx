@@ -18,6 +18,8 @@ import preCancerTypeOptions from "../../../config/PreCancerTypesConfig";
 import speciesOptions from "../../../config/SpeciesConfig";
 import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
 import TimeConstraint from "../../../components/Questionnaire/TimeConstraint";
+import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
+import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
@@ -38,7 +40,7 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
 
-  const [timeConstraints, setTimeConstraints] = useState<KeyedTimeConstraint[]>([]?.map(mapObjectWithKey) || []);
+  const [timeConstraints, setTimeConstraints] = useState<KeyedTimeConstraint[]>(data.timeConstraints?.map(mapObjectWithKey));
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -67,10 +69,11 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
    *
    * @returns {void}
    */
-   const addPublication = () => {
+   const addTimeConstraint = () => {
+    const constraints = !timeConstraints ? [] : timeConstraints;
     setTimeConstraints([
-      ...timeConstraints,
-      { key: `${timeConstraints.length}_${new Date().getTime()}`, description: "", effectiveDate: "" },
+      ...constraints,
+      { key: `${constraints.length}_${new Date().getTime()}`, description: "", effectiveDate: "" },
     ]);
   };
 
@@ -114,7 +117,7 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           gridWidth={12}
           required
         />
-        {/* <DatePickerInput
+        <DatePickerInput
           label="Targeted Data Submission Delivery Date"
           name="targetedSubmissionDate"
           tooltipText="Expected date that date submission can begin"
@@ -131,7 +134,7 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           gridWidth={6}
           disablePast
           required
-        /> */}
+        />
       </SectionGroup>
 
       <SectionGroup
@@ -140,19 +143,21 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           <AddRemoveButton
             label="Add Time Constraints"
             startIcon={<AddCircleIcon />}
-            onClick={addPublication}
+            onClick={addTimeConstraint}
             disabled={status === FormStatus.SAVING}
           />
         )}
       >
-        {timeConstraints.map((constraint: KeyedTimeConstraint, idx: number) => (
-          <TimeConstraint
-            key={constraint.key}
-            index={idx}
-            timeConstraint={constraint}
-            onDelete={() => removeTimeConstraint(constraint.key)}
-          />
-        ))}
+        <TransitionGroupWrapper
+          items={timeConstraints}
+          renderItem={(constraint: KeyedTimeConstraint, idx: number) => (
+            <TimeConstraint
+              index={idx}
+              timeConstraint={constraint}
+              onDelete={() => removeTimeConstraint(constraint.key)}
+            />
+          )}
+        />
       </SectionGroup>
 
       <SectionGroup title={(
@@ -221,7 +226,6 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           value={reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)}
           orientation="horizontal"
           gridWidth={12}
-          required
         />
       </SectionGroup>
     </FormContainer>

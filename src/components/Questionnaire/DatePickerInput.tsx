@@ -170,6 +170,10 @@ const DatePickerInput: FC<Props> = ({
   };
 
   const onChangeWrapper = (newVal: Dayjs) => {
+    if (val === newVal) {
+      return;
+    }
+
     if (typeof onChange === "function") {
       onChange(newVal, null);
     }
@@ -183,9 +187,7 @@ const DatePickerInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    if (initialValue) {
-      onChangeWrapper(dayjs(initialValue.toString().trim()));
-   }
+    onChangeWrapper(dayjs(initialValue?.toString().trim()));
   }, [initialValue]);
 
   return (
