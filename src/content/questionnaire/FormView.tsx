@@ -279,7 +279,7 @@ const styles = () => ({
     background: "#F2F4F8",
   },
   content: {
-    width: "980px",
+    width: "100%",
     maxWidth: "980px",
     marginLeft: '41px',
   },
