@@ -30,7 +30,7 @@ const Repository: FC<Props> = ({
 }: Props) => {
   const { status } = useFormContext();
 
-  const { name, studyID } = repository;
+  const { name, studyID, submittedDate } = repository;
 
   return (
     <GridContainer container>
@@ -55,8 +55,8 @@ const Repository: FC<Props> = ({
         />
         <TextInput
           label="Date submitted"
-          name={`study[repositories][${index}][dateSubmitted]`}
-          value={studyID}
+          name={`study[repositories][${index}][submittedDate]`}
+          value={submittedDate}
           placeholder="Enter date"
           maxLength={50}
           gridWidth={6}

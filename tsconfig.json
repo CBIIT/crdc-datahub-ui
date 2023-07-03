@@ -23,6 +23,7 @@
   "include": [
     "src",
     ".eslintrc.cjs",
-    "types/*.d.ts"
+    "types/*.d.ts",
+    "conf"
   ]
 }

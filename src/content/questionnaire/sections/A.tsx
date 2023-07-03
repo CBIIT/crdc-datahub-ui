@@ -1,19 +1,29 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import { Button, Grid, Stack } from '@mui/material';
-import { withStyles } from "@mui/styles";
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { Checkbox, FormControlLabel, Grid, styled } from '@mui/material';
 import { parseForm } from '@jalik/form-parser';
 import { cloneDeep } from 'lodash';
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import { filterNonNumeric, mapObjectWithKey, validateEmail } from '../utils';
+import AutocompleteInput from '../../../components/Questionnaire/AutocompleteInput';
+import institutionConfig from "../../../config/InstitutionConfig";
+import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
+import { mapObjectWithKey } from '../utils';
 
 type KeyedContact = {
   key: string;
 } & Contact;
+
+const StyledFormControlLabel = styled(FormControlLabel)({
+  transform: "translateY(-15px)",
+  "& .MuiFormControlLabel-label": {
+    color: "#083A50",
+    fontWeight: "700",
+  },
+});
 
 /**
  * Form Section A View
@@ -21,11 +31,11 @@ type KeyedContact = {
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
-const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps) => {
+const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
+  const { pi, primaryContact } = data;
 
-  const [pi] = useState<PI>(data.pi);
-  const [primaryContact] = useState<Contact>(data.primaryContact);
+  const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(data?.piAsPrimaryContact || false);
   const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
 
   const formRef = useRef<HTMLFormElement>();
@@ -48,20 +58,16 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
-    // Reset additional contacts if none are provided
     if (!formObject.additionalContacts || formObject.additionalContacts.length === 0) {
       combinedData.additionalContacts = [];
+    }
+    if (formObject.piAsPrimaryContact) {
+      combinedData.primaryContact = null;
     }
 
     return { ref: formRef, data: combinedData };
   };
 
-  /**
-   * Add a empty additional contact to the list
-   *
-   * @param {void}
-   * @returns {void}
-   */
   const addContact = () => {
     setAdditionalContacts([
       ...additionalContacts,
@@ -77,34 +83,64 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
     ]);
   };
 
-  /**
-   * Remove an additional contact from the list
-   *
-   * @param {string} key The generated key for the contact
-   * @returns {void}
-   */
   const removeContact = (key: string) => {
     setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
   };
 
   return (
     <FormContainer
-      title="Section A"
-      description="Principal Investigator and Contact Information"
+      description={SectionOption.title}
       formRef={formRef}
     >
       {/* Principal Investigator */}
-      <SectionGroup
-        title={`Provide the principal investigator contact information
-          for the study or collection`}
-        divider={false}
-      >
-        <TextInput label="First name" name="pi[firstName]" value={pi.firstName} maxLength={50} required />
-        <TextInput label="Last name" name="pi[lastName]" value={pi.lastName} maxLength={50} required />
-        <TextInput label="Position" name="pi[position]" value={pi.position} maxLength={100} required />
-        <TextInput label="Email address" name="pi[email]" validate={validateEmail} value={pi.email} required />
-        <TextInput label="Institution" name="pi[institution]" value={pi.institution} maxLength={100} required />
-        <TextInput label="If you have an eRA Commons account, provide it here:" name="pi[eRAAccount]" value={pi.eRAAccount} />
+      <SectionGroup title="Principal Investigator for study" divider={false}>
+        <TextInput
+          label="First name"
+          name="pi[firstName]"
+          value={pi.firstName}
+          placeholder="Enter first name"
+          maxLength={50}
+          required
+        />
+        <TextInput
+          label="Last name"
+          name="pi[lastName]"
+          value={pi.lastName}
+          placeholder="Enter last name"
+          maxLength={50}
+          required
+        />
+        <TextInput
+          label="Position"
+          name="pi[position]"
+          value={pi.position}
+          placeholder="Enter position"
+          maxLength={100}
+          required
+        />
+        <TextInput
+          type="email"
+          label="Email address"
+          name="pi[email]"
+          value={pi.email}
+          placeholder="Enter email address"
+          required
+        />
+        <AutocompleteInput
+          label="Institution"
+          name="pi[institution]"
+          value={pi?.institution || ""}
+          options={institutionConfig}
+          placeholder="Select Institution"
+          required
+          disableClearable
+          freeSolo
+        />
+        <TextInput
+          label="If you have an eRA Commons account, provide it here:"
+          name="pi[eRAAccount]"
+          value={pi.eRAAccount}
+        />
         <TextInput
           label="Institution Address"
           value={pi.address}
@@ -119,20 +155,97 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       </SectionGroup>
 
       {/* Primary Contact */}
-      <SectionGroup
-        title={`Enter Primary Contact information for the primary contact
-          who will be assisting with data submission`}
-      >
-        <TextInput label="First name" name="primaryContact[firstName]" value={primaryContact.firstName} maxLength={50} required />
-        <TextInput label="Last name" name="primaryContact[lastName]" value={primaryContact.lastName} maxLength={50} required />
-        <TextInput label="Institution" name="primaryContact[institution]" value={primaryContact.institution} maxLength={100} required />
-        <TextInput label="Position" name="primaryContact[position]" value={primaryContact.position} maxLength={100} placeholder="(exs. Co-PI, sequencing center manager)" />
-        <TextInput label="Email address" name="primaryContact[email]" value={primaryContact.email} validate={validateEmail} required />
-        <TextInput label="Phone number" name="primaryContact[phone]" value={primaryContact.phone} maxLength={25} filter={filterNonNumeric} />
+      <SectionGroup title="Primary Contact assisting with data collection">
+        <Grid item md={12}>
+          <StyledFormControlLabel
+            label="Same as Principal Investigator"
+            control={(
+              <Checkbox
+                checked={piAsPrimaryContact}
+                onChange={() => setPiAsPrimaryContact(!piAsPrimaryContact)}
+              />
+            )}
+          />
+          <input
+            style={{ display: "none" }}
+            type="checkbox"
+            name="piAsPrimaryContact"
+            data-type="boolean"
+            value="true"
+            checked={piAsPrimaryContact}
+            readOnly
+          />
+        </Grid>
+        <TextInput
+          label="First name"
+          name="primaryContact[firstName]"
+          value={primaryContact?.firstName || ""}
+          placeholder="Enter first name"
+          maxLength={50}
+          readOnly={piAsPrimaryContact}
+          required
+        />
+        <TextInput
+          label="Last name"
+          name="primaryContact[lastName]"
+          value={primaryContact?.lastName || ""}
+          placeholder="Enter last name"
+          maxLength={50}
+          readOnly={piAsPrimaryContact}
+          required
+        />
+        <TextInput
+          label="Position"
+          name="primaryContact[position]"
+          value={primaryContact?.position || ""}
+          placeholder="Enter position"
+          maxLength={100}
+          readOnly={piAsPrimaryContact}
+          required
+        />
+        <TextInput
+          type="email"
+          label="Email"
+          name="primaryContact[email]"
+          value={primaryContact?.email || ""}
+          placeholder="Enter email address"
+          readOnly={piAsPrimaryContact}
+          required
+        />
+        <AutocompleteInput
+          label="Institution"
+          name="primaryContact[institution]"
+          value={primaryContact?.institution || ""}
+          options={institutionConfig}
+          placeholder="Select Institution"
+          readOnly={piAsPrimaryContact}
+          disableClearable
+          required
+          freeSolo
+        />
+        <TextInput
+          type="phone"
+          label="Phone number"
+          name="primaryContact[phone]"
+          value={primaryContact?.phone || ""}
+          placeholder="Enter phone number"
+          maxLength={25}
+          readOnly={piAsPrimaryContact}
+        />
       </SectionGroup>
 
       {/* Additional Contacts */}
-      <SectionGroup>
+      <SectionGroup
+        title="Additional Contacts"
+        endButton={(
+          <AddRemoveButton
+            label="Add Contact"
+            startIcon={<AddCircleIcon />}
+            onClick={addContact}
+            disabled={status === FormStatus.SAVING}
+          />
+        )}
+      >
         {additionalContacts.map((contact: KeyedContact, idx: number) => (
           <AdditionalContact
             key={contact.key}
@@ -141,44 +254,9 @@ const FormSectionA: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
             onDelete={() => removeContact(contact.key)}
           />
         ))}
-        <Grid item xs={12} className={!additionalContacts?.length ? classes.noContentButton : null}>
-          <Stack direction="row" justifyContent="end">
-            <Button
-              variant="outlined"
-              type="button"
-              onClick={addContact}
-              size="large"
-              startIcon={<PersonAddIcon />}
-              className={classes.contactButton}
-              disabled={status === FormStatus.SAVING}
-            >
-              Add Additional Contact
-            </Button>
-          </Stack>
-        </Grid>
       </SectionGroup>
     </FormContainer>
   );
 };
 
-const styles = () => ({
-  contactButton: {
-    color: "#346798",
-    margin: "25px",
-    marginBottom: "0px",
-    padding: "6px 20px",
-    minWidth: "115px",
-    borderRadius: "25px",
-    border: "2px solid #AFC2D8 !important",
-    background: "transparent",
-    "text-transform": "none",
-    "& .MuiButton-startIcon": {
-      marginRight: "14px",
-    },
-  },
-  noContentButton: {
-    marginTop: "-25px",
-  },
-});
-
-export default withStyles(styles, { withTheme: true })(FormSectionA);
+export default FormSectionA;

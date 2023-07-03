@@ -4,7 +4,7 @@ import {
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
 import { isEqual } from 'lodash';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Stack, styled } from '@mui/material';
+import { Button, Container, Divider, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
@@ -15,52 +15,14 @@ import StatusBar from '../../components/StatusBar/StatusBar';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import Section from './sections';
 import map from '../../config/SectionConfig';
-import bannerBackgroundImage from "../../assets/banner/banner_background.png";
+import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
+import QuestionnaireBanner from '../../components/Questionnaire/QuestionnaireBanner';
 
-const StyledBanner = styled('div')(() => ({
-  position: "relative",
-  background: `url(${bannerBackgroundImage})`,
-  backgroundBlendMode: "LUMINOSITY, NORMAL",
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  width: '100%',
-  height: "296px",
-}));
-
-const StyledBannerText = styled('div')(() => ({
-  position: "absolute",
-  top: "57px",
-  left: "65px"
-}));
-
-const StyledBannerTitle = styled('h2')(() => ({
-  maxWidth: "611px",
-  height: "79px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  flexShrink: 0,
-  color: "#3E577C",
-  fontSize: "45px",
-  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
-  fontWeight: 800,
-  lineHeight: "40px",
-  letterSpacing: "-1.5px",
-  margin: 0,
-}));
-
-const StyledBannerSubtitle = styled('h6')(() => ({
-  display: "flex",
-  maxWidth: "565px",
-  height: "59px",
-  flexDirection: "column",
-  flexShrink: 0,
-  color: "#453E3E",
-  fontSize: "16px",
-  fontFamily: "'Inter', 'Rubik', sans-serif",
-  fontWeight: 400,
-  lineHeight: "22px",
-  margin: "0 0 0 5px"
+const StyledContainer = styled(Container)(() => ({
+  "&.MuiContainer-root": {
+    padding: 0,
+    minHeight: "300px",
+  }
 }));
 
 type Props = {
@@ -73,7 +35,7 @@ const validateSection = (section: string) => typeof map[section] !== 'undefined'
 const StyledSidebar = styled(Stack)({
   position: "sticky",
   top: "25px",
-  paddingTop: "10px",
+  paddingTop: "45px",
 });
 
 const StyledDivider = styled(Divider)({
@@ -85,7 +47,7 @@ const StyledDivider = styled(Divider)({
 });
 
 const StyledContentWrapper = styled(Stack)({
-  paddingBottom: "75px"
+  paddingBottom: "75px",
 });
 
 /**
@@ -225,103 +187,87 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   return (
     <>
-      <StyledBanner>
-        <StyledBannerText>
-          <StyledBannerTitle>CRDC Intake Questionnaire</StyledBannerTitle>
-          <StyledBannerSubtitle>
-            The following set of high-level questions are intended to provide insight to
-            the CRDC Data Hub, related to data storage, access, secondary sharing
-            needs and other requirements of data submitters.
-          </StyledBannerSubtitle>
-        </StyledBannerText>
-      </StyledBanner>
+      <QuestionnaireBanner />
 
-      <StyledContentWrapper direction="row" justifyContent="center">
-        <StyledSidebar
-          direction="row"
-          justifyContent="center"
-          alignSelf="flex-start"
-        >
-          <ProgressBar section={activeSection} />
-          <StyledDivider orientation="vertical" />
-        </StyledSidebar>
-
-        <Stack className={classes.content} direction="column" spacing={5}>
-          <StatusBar />
-
-          <Section section={activeSection} refs={refs} />
-
-          <Stack
-            className={classes.controls}
+      <StyledContainer maxWidth="xl">
+        <StyledContentWrapper direction="row" justifyContent="center">
+          <StyledSidebar
             direction="row"
             justifyContent="center"
-            alignItems="center"
-            spacing={2}
+            alignSelf="flex-start"
           >
-            <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
-              <Button
-                className={classes.backButton}
-                variant="outlined"
-                type="button"
-                disabled={status === FormStatus.SAVING || !prevSection}
-                size="large"
-                startIcon={<BackwardArrowIcon />}
-              >
-                Back
-              </Button>
-            </Link>
-            <LoadingButton
-              className={classes.saveButton}
-              variant="outlined"
-              type="button"
-              ref={refs.saveFormRef}
-              size="large"
-              loading={status === FormStatus.SAVING}
-              onClick={saveForm}
-            >
-              Save
-            </LoadingButton>
-            <LoadingButton
-              className={classes.submitButton}
-              variant="outlined"
-              type="submit"
-              ref={refs.submitFormRef}
-              size="large"
-            >
-              Submit
-            </LoadingButton>
-            <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
-              <Button
-                className={classes.nextButton}
-                variant="outlined"
-                type="button"
-                disabled={status === FormStatus.SAVING || !nextSection}
-                size="large"
-                endIcon={<ForwardArrowIcon />}
-              >
-                Next
-              </Button>
-            </Link>
-          </Stack>
-        </Stack>
-      </StyledContentWrapper>
+            <ProgressBar section={activeSection} />
+            <StyledDivider orientation="vertical" />
+          </StyledSidebar>
 
-      <Dialog open={blockedNavigate}>
-        <DialogTitle>
-          Unsaved Changes
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            You have unsaved changes. Your changes will be lost if you leave this section without saving.
-            Do you want to save your data?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setBlockedNavigate(false)} disabled={status === FormStatus.SAVING}>Cancel</Button>
-          <LoadingButton onClick={saveAndNavigate} loading={status === FormStatus.SAVING} autoFocus>Save</LoadingButton>
-          <Button onClick={discardAndNavigate} disabled={status === FormStatus.SAVING} color="error">Discard</Button>
-        </DialogActions>
-      </Dialog>
+          <Stack className={classes.content} direction="column" spacing={5}>
+            <StatusBar />
+
+            <Section section={activeSection} refs={refs} />
+
+            <Stack
+              className={classes.controls}
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              spacing={2}
+            >
+              <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
+                <Button
+                  className={classes.backButton}
+                  variant="outlined"
+                  type="button"
+                  disabled={status === FormStatus.SAVING || !prevSection}
+                  size="large"
+                  startIcon={<BackwardArrowIcon />}
+                >
+                  Back
+                </Button>
+              </Link>
+              <LoadingButton
+                className={classes.saveButton}
+                variant="outlined"
+                type="button"
+                ref={refs.saveFormRef}
+                size="large"
+                loading={status === FormStatus.SAVING}
+                onClick={saveForm}
+              >
+                Save
+              </LoadingButton>
+              <LoadingButton
+                className={classes.submitButton}
+                variant="outlined"
+                type="submit"
+                ref={refs.submitFormRef}
+                size="large"
+              >
+                Submit
+              </LoadingButton>
+              <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
+                <Button
+                  className={classes.nextButton}
+                  variant="outlined"
+                  type="button"
+                  disabled={status === FormStatus.SAVING || !nextSection}
+                  size="large"
+                  endIcon={<ForwardArrowIcon />}
+                >
+                  Next
+                </Button>
+              </Link>
+            </Stack>
+          </Stack>
+        </StyledContentWrapper>
+      </StyledContainer>
+
+      <UnsavedChangesDialog
+        open={blockedNavigate}
+        onCancel={() => setBlockedNavigate(false)}
+        onSave={saveAndNavigate}
+        onDiscard={discardAndNavigate}
+        disableActions={status === FormStatus.SAVING}
+      />
     </>
   );
 };
@@ -331,16 +277,6 @@ const styles = () => ({
     width: "100%",
     height: "300px",
     background: "#F2F4F8",
-  },
-  sidebar: {
-    position: "sticky" as const, // Ignore TS error
-    top: "25px",
-  },
-  divider: {
-    height: "250px",
-    width: "1px",
-    borderRightWidth: "2px",
-    margin: "0 0 0 15px",
   },
   content: {
     width: "980px",
