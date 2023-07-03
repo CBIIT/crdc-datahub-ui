@@ -88,19 +88,3 @@ export const findProgram = (name: string): ProgramOption => {
 export const findStudy = (name: string, activeProgram: ProgramOption): StudyOption => (
   activeProgram?.studies?.find((option) => option.name === name) || OptionalStudy
 );
-
-export const compareWithFormObject = (obj: unknown, formObj: unknown) => {
-  const strinfigiedFormObject = JSON.stringify(formObj);
-  const newObj = {};
-
-  Object.keys(formObj).forEach((property) => {
-    newObj[property] = obj[property];
-  });
-  const stringifiedObj = JSON.stringify(newObj);
-
-  console.log({ formObj });
-  console.log({ newObj });
-
-  console.log(strinfigiedFormObject);
-  console.log(stringifiedObj);
-};
