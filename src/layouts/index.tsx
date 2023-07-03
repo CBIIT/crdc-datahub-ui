@@ -8,7 +8,7 @@ import Header from '../components/Header';
 import ScrollButton from '../components/ScrollButton/ScrollButtonView';
 
 const StyledWrapper = styled("div")(() => ({
-  minHeight: "300px",
+  minHeight: "400px",
 }));
 
 interface LayoutProps {
