@@ -4,7 +4,6 @@ import { WithStyles, withStyles } from '@mui/styles';
 
 type Props = {
   classes: WithStyles<typeof styles>['classes'];
-  title: string;
   description: string;
   children: React.ReactNode;
   formRef?: MutableRefObject<HTMLFormElement>;
@@ -17,8 +16,7 @@ type Props = {
  * @returns {JSX.Element}
  */
 const FormContainer: FC<Props> = ({
-  title, description, classes, children,
-  formRef,
+  description, classes, children, formRef,
 }) => {
   const id = useId();
 
@@ -41,6 +39,7 @@ const styles = () => ({
     background: "transparent",
     borderRadius: "8px",
     paddingBottom: "25px",
+    marginTop: "50px !important"
   },
   form: {
     fontWeight: 400,

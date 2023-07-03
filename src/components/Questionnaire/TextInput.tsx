@@ -75,7 +75,9 @@ const TextInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    onChange(value.toString().trim());
+    if (value) {
+      onChange(value.toString().trim());
+    }
   }, [value]);
 
   return (
@@ -127,9 +129,6 @@ const styles = (theme) => ({
     minHeight: "20px",
     color: "#083A50",
     marginBottom: "4px",
-    [theme.breakpoints.up("lg")]: {
-      whiteSpace: "nowrap",
-    },
   },
   asterisk: {
     color: "#D54309",
@@ -174,11 +173,13 @@ const styles = (theme) => ({
     "&.MuiInputBase-multiline.Mui-readOnly": {
       backgroundColor: "#D9DEE4",
       cursor: "not-allowed",
+      borderRadius: "8px",
     },
     // Target readOnly <input> inputs
     "& .MuiOutlinedInput-input:read-only": {
       backgroundColor: "#D9DEE4",
       cursor: "not-allowed",
+      borderRadius: "8px",
     },
   },
   helperText: {

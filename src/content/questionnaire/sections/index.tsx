@@ -1,23 +1,7 @@
 import React, { createElement } from "react";
-import A from "./A";
-import B from "./B";
-import D from "./D";
+import config from "../../../config/SectionConfig";
 
-/**
- * Map of section names to components
- *
- * Note: Ideally this is a temporary solution.
- *       We should be able to dynamically import the sections.
- * Note: When adding a new section, import it then add it here.
- *       Everything else is handled automatically.
- */
-export const map = {
-  A,
-  B,
-  D,
-};
-
-type Props = FormSectionProps & {
+type Props = Omit<FormSectionProps, "SectionOption"> & {
   section: string;
 };
 
@@ -33,10 +17,14 @@ type Props = FormSectionProps & {
  */
 export default ({ section, ...rest }: Props) => {
   const sectionName = section.toUpperCase();
+  const sectionConfig = config[sectionName];
 
   // Create the section component
-  if (typeof map[sectionName] !== "undefined") {
-    return createElement(map[sectionName], rest);
+  if (typeof sectionConfig !== "undefined" && sectionConfig.component) {
+    return createElement(sectionConfig.component, {
+      SectionOption: sectionConfig,
+      ...rest
+    });
   }
 
   // Render a fallback component if the section is not found
