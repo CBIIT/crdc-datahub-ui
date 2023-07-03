@@ -52,10 +52,7 @@ const TimeConstraint: FC<Props> = ({
           initialValue={effectiveDate}
           required
           disablePast
-          tooltipText="Data made available for secondary research only
-                      after investigators have obtained approval from
-                      NIH to use the requested data for a particular
-                      project"
+          tooltipText="Date relating to this constraint"
         />
       </Grid>
       <Grid item xs={12}>

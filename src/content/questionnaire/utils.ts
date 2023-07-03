@@ -28,7 +28,9 @@ export const validateEmail = (email: string): boolean => {
  * @param {SectionItemContentOption[]} options The options, usually coming from config
  * @returns {string[]} The re-shaped options. Ex. ["name1", "name2"]
  */
-export const reshapeCheckboxGroupOptions = (options: FormGroupCheckboxOption[], data: Application): string[] => options.reduce((acc, option) => (data[option.name] ? [...acc, option.value] : acc), []);
+export const reshapeCheckboxGroupOptions = (options: FormGroupCheckboxOption[], data: Application): string[] => (
+  options.reduce((acc, option) => (data[option.name] ? [...acc, option.value] : acc), [])
+);
 
 /**
  * Generic Non-Numeric Character Filter
@@ -86,3 +88,19 @@ export const findProgram = (name: string): ProgramOption => {
 export const findStudy = (name: string, activeProgram: ProgramOption): StudyOption => (
   activeProgram?.studies?.find((option) => option.name === name) || OptionalStudy
 );
+
+export const compareWithFormObject = (obj: unknown, formObj: unknown) => {
+  const strinfigiedFormObject = JSON.stringify(formObj);
+  const newObj = {};
+
+  Object.keys(formObj).forEach((property) => {
+    newObj[property] = obj[property];
+  });
+  const stringifiedObj = JSON.stringify(newObj);
+
+  console.log({ formObj });
+  console.log({ newObj });
+
+  console.log(strinfigiedFormObject);
+  console.log(stringifiedObj);
+};

@@ -6,7 +6,6 @@ import { styled } from "@mui/material";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
-import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
 import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
@@ -73,7 +72,7 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
     const constraints = !timeConstraints ? [] : timeConstraints;
     setTimeConstraints([
       ...constraints,
-      { key: `${constraints.length}_${new Date().getTime()}`, description: "", effectiveDate: "" },
+      { key: `${constraints.length}_${new Date().getTime()}`, description: "", effectiveDate: new Date().toISOString() },
     ]);
   };
 
@@ -88,7 +87,6 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
   return (
     <FormContainer
-      title="Section C"
       description="Program and Study Registration"
       formRef={formRef}
     >
@@ -206,7 +204,6 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           name="numberOfParticipants"
           placeholder="##"
           value={data.numberOfParticipants}
-          maxLength={1000}
           validate={(input: string) => parseInt(input, 10) > 0}
           type="number"
           required
@@ -221,11 +218,12 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           required
         />
         <FormGroupCheckbox
-          label="Cell lines, model systems, or both"
+          label="Cell lines, model systems, or neither"
           options={cellLineModelSystemOptions}
           value={reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)}
           orientation="horizontal"
           gridWidth={12}
+          allowMultipleChecked={false}
         />
       </SectionGroup>
     </FormContainer>
