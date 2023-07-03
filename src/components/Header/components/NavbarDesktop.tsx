@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useLocation, NavLink, Link } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
@@ -65,6 +65,9 @@ const LiSection = styled.li`
     margin: 0 45px 0 5px;
     padding: 0 15px;
     user-select:none;
+    border-top: 4px solid transparent;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
   }
 
   .navTitle:hover {
@@ -233,11 +236,6 @@ const StyledLoginLink = styled(Link)`
   margin-right: 32px;
 `;
 
-const activeStyle = {
-  color: '#298085',
-  borderBottom: '4px solid #298085',
-};
-
 const useOutsideAlerter = (ref) => {
   useEffect(() => {
     function handleClickOutside(event) {
@@ -258,7 +256,6 @@ const useOutsideAlerter = (ref) => {
 };
 
 const NavBar = () => {
-  const path = useLocation().pathname;
   const [clickedTitle, setClickedTitle] = useState("");
   const dropdownSelection = useRef(null);
   const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
@@ -278,6 +275,19 @@ const NavBar = () => {
      handleMenuClick(e);
     }
   };
+  type NavSubLinkData = {
+      name: string;
+      link: string;
+      className: string;
+  };
+  function shouldBeUnderlined(linkName) {
+    const correctPath = window.location.href.slice(window.location.href.lastIndexOf(window.location.host) + window.location.host.length);
+    if (linkName === "Home") {
+      return correctPath === "/";
+    }
+    const linkNames = Object.values(navbarSublists[linkName]).map((e: NavSubLinkData) => e.link);
+    return linkNames.includes(correctPath);
+  }
 
   useEffect(() => {
     setClickedTitle("");
@@ -301,7 +311,8 @@ const NavBar = () => {
                               role="button"
                               tabIndex={0}
                               className="navText directLink"
-                              onClick={handleMenuClick} style={path === navMobileItem.link || (path === '/' && navMobileItem.link === '/home') ? activeStyle : null}
+                              onClick={handleMenuClick}
+                              style={shouldBeUnderlined(navMobileItem.name) ? { borderBottom: "4px solid #3A75BD" } : null}
                             >
                               {navMobileItem.name}
                             </div>
@@ -317,6 +328,7 @@ const NavBar = () => {
                             role="button"
                             tabIndex={0} className={clickedTitle === navMobileItem.name ? 'navText clicked' : 'navText'}
                             onClick={handleMenuClick}
+                            style={shouldBeUnderlined(navMobileItem.name) ? { borderBottom: "4px solid #3A75BD" } : null}
                           >
                             {navMobileItem.name}
                           </div>

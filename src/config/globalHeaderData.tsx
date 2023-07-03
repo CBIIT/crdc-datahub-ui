@@ -52,14 +52,14 @@ export const navbarSublists = {
     },
     {
       name: 'CRDC Intake Applications',
-      link: '/#cgc',
+      link: '/#crdcia',
       className: 'navMobileSubItem',
     },
 ],
   About: [
     {
       name: 'Other Resources',
-      link: '',
+      link: 'oa',
       className: 'navMobileSubTitle',
     },
     {
