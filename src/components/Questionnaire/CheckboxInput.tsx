@@ -5,14 +5,11 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  Grid,
-  GridProps,
   styled,
 } from "@mui/material";
 import Tooltip from "./Tooltip";
 import checkboxUncheckedIcon from "../../assets/icons/checkbox_unchecked.svg";
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
-import { useConditionalWrapper } from "./hooks/useConditionalWrapper";
 
 const UncheckedIcon = styled("div")(() => ({
   backgroundImage: `url(${checkboxUncheckedIcon})`,
@@ -32,7 +29,7 @@ const CheckedIcon = styled("div")(() => ({
 
 const StyledFormControl = styled(FormControl)(() => ({
   width: "auto",
-  display: "inline-block"
+  display: "inline-block",
 }));
 
 const StyledAsterisk = styled("span")(() => ({
@@ -81,10 +78,6 @@ const StyledCheckbox = styled(Checkbox)(() => ({
   },
 }));
 
-const GridWrapper = ({ gridWidth, ...rest }: GridProps & { gridWidth?: GridWidth }) => (
-  <Grid md={gridWidth || 6} xs={12} item {...rest} />
-);
-
 type GridWidth = 2 | 4 | 6 | 8 | 10 | 12;
 
 type Props = {
@@ -97,7 +90,6 @@ type Props = {
   inputLabelTooltipText?: string;
   required?: boolean;
   helpText?: string;
-  withGridItemWrapper?: boolean; // wrap component with a grid item
   gridWidth?: GridWidth;
   onChange?: (value: string, checked: boolean) => void;
 } & Omit<CheckboxProps, "onChange">;
@@ -113,7 +105,6 @@ const CheckboxInput: FC<Props> = ({
   inputLabelTooltipText,
   errorText,
   onChange,
-  withGridItemWrapper = true,
   gridWidth,
   ...rest
 }) => {
@@ -122,7 +113,6 @@ const CheckboxInput: FC<Props> = ({
   const [val, setVal] = useState(value);
   const [error] = useState(false);
   const helperText = helpText || (required ? "This field is required" : " ");
-  const ConditionalGridWrapper = useConditionalWrapper(() => withGridItemWrapper, GridWrapper);
 
   const onChangeWrapper = (newVal: string, checked: boolean) => {
     if (typeof onChange === "function") {
@@ -133,40 +123,36 @@ const CheckboxInput: FC<Props> = ({
   };
 
   return (
-    <ConditionalGridWrapper md={gridWidth || 6} xs={12} item>
-      <StyledFormControl fullWidth error={error}>
-        {(label || required || tooltipText) && (
+    <StyledFormControl fullWidth error={error}>
+      {(label || required || tooltipText) && (
         <StyledFormLabel htmlFor={id}>
           {label}
           {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
           {tooltipText && <Tooltip title={tooltipText} />}
         </StyledFormLabel>
+      )}
+      <StyledFormControlLabel
+        value={val}
+        control={(
+          <StyledCheckbox
+            name={name}
+            icon={<UncheckedIcon />}
+            checkedIcon={<CheckedIcon />}
+            onChange={(e, checked) => onChangeWrapper(e.target.value, checked)}
+            disableRipple
+            {...rest}
+          />
         )}
-        <StyledFormControlLabel
-          value={val}
-          control={(
-            <StyledCheckbox
-              name={name}
-              icon={<UncheckedIcon />}
-              checkedIcon={<CheckedIcon />}
-              onChange={(e, checked) => onChangeWrapper(e.target.value, checked)}
-              disableRipple
-              {...rest}
-            />
-          )}
-          label={(
-            <>
-              {inputLabel}
-              {inputLabelTooltipText && (
-              <Tooltip title={inputLabelTooltipText} />
-              )}
-            </>
-          )}
-          labelPlacement="end"
-        />
-        {error && <FormHelperText>{error ? helperText : " "}</FormHelperText>}
-      </StyledFormControl>
-    </ConditionalGridWrapper>
+        label={(
+          <>
+            {inputLabel}
+            {inputLabelTooltipText && <Tooltip title={inputLabelTooltipText} />}
+          </>
+        )}
+        labelPlacement="end"
+      />
+      {error && <FormHelperText>{error ? helperText : " "}</FormHelperText>}
+    </StyledFormControl>
   );
 };
 

@@ -27,7 +27,7 @@ const StyledAsterisk = styled("span")(() => ({
 }));
 
 const StyledFormHelperText = styled(FormHelperText)(() => ({
-  marginLeft: 0
+  marginLeft: 0,
 }));
 
 export type FormGroupCheckboxOption = {
@@ -64,13 +64,17 @@ const FormGroupCheckbox: FC<Props> = ({
   helpText,
   tooltipText,
   gridWidth,
-  onChange
+  onChange,
 }) => {
   const id = useId();
 
   const [val, setVal] = useState(value ?? []);
   const [error, setError] = useState(false);
-  const helperText = helpText || (required ? "This field is required" : " ");
+  const helperText = helpText
+    || (required && !val?.length && "This field is required")
+    || (!allowMultipleChecked && val?.length > 1
+      ? "Please select only one option"
+      : " ");
   const firstCheckboxInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (selectedValue: string, checked: boolean) => {
@@ -97,22 +101,26 @@ const FormGroupCheckbox: FC<Props> = ({
   }, [value]);
 
   useEffect(() => {
-    const atLeastOneSelectedAndRequired = required && !val?.length;
+    const notSelectedAndRequired = required && !val?.length;
     const multipleChecked = val?.length > 1;
 
-    if (atLeastOneSelectedAndRequired) {
-      firstCheckboxInputRef.current.setCustomValidity("Please select at least one option");
+    if (notSelectedAndRequired) {
+      firstCheckboxInputRef?.current.setCustomValidity(
+        "Please select at least one option"
+      );
       setError(true);
       return;
     }
 
     if (!allowMultipleChecked && multipleChecked) {
-      firstCheckboxInputRef.current.setCustomValidity("Please select only one option");
+      firstCheckboxInputRef?.current.setCustomValidity(
+        "Please select only one option"
+      );
       setError(true);
       return;
     }
 
-    firstCheckboxInputRef.current.setCustomValidity("");
+    firstCheckboxInputRef?.current.setCustomValidity("");
     setError(false);
   }, [val]);
 
@@ -137,7 +145,6 @@ const FormGroupCheckbox: FC<Props> = ({
                 inputLabelTooltipText={option.tooltipText}
                 errorText={option.errorText}
                 onChange={handleChange}
-                withGridItemWrapper={false}
                 inputRef={(ref) => {
                   if (index === 0) {
                     firstCheckboxInputRef.current = ref;
@@ -146,27 +153,26 @@ const FormGroupCheckbox: FC<Props> = ({
               />
             );
           })}
-
         </FormGroup>
 
         {/* NOTE: This is a proxy element for form parsing purposes.
           Also, if parent has shared name then it will use string[] as value,
           otherwise value will be of type boolean for the form parser */}
         {!name && options.map((option) => {
-          const isChecked = val?.includes(option.value);
-          return (
-            <input
-              key={option.value}
-              name={option.name ?? name} // prioritizes option name over parent name
-              type="checkbox"
-              data-type="boolean"
-              value={isChecked ? "true" : "false"}
-              onChange={() => {}}
-              checked
-              hidden
-            />
-          );
-        })}
+            const isChecked = val?.includes(option.value);
+            return (
+              <input
+                key={option.value}
+                name={option.name ?? name} // prioritizes option name over parent name
+                type="checkbox"
+                data-type="boolean"
+                value={isChecked ? "true" : "false"}
+                onChange={() => {}}
+                checked
+                hidden
+              />
+            );
+          })}
         <StyledFormHelperText>{error ? helperText : " "}</StyledFormHelperText>
       </FormControl>
     </Grid>
