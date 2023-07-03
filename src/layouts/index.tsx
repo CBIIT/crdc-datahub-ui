@@ -20,8 +20,19 @@ const Layout: FC<LayoutProps> = ({ children }) => (
     <Helmet>
       <title>CCDR DataHub</title>
       <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-      <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito+Sans:wght@400;500;600;700;900&family=Nunito:wght@400;500;600;700&family=Public+Sans:wght@300;400;500;600;700&family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      {/* List of fonts here:
+        <link href="https://fonts.googleapis.com/css2?
+              family=Open+Sans&
+              family=Poppins:wght@400;700&
+              family=Lato:wght@300;400;500;600;700&
+              family=Inter:wght@300;400;500;600;700&
+              family=Nunito+Sans:wght@400;500;600;700;900&
+              family=Nunito:wght@400;500;600;700&
+              family=Public+Sans:wght@300;400;500;600;700&
+              family=Rubik:wght@300;400;500;600;700&
+        display=swap" rel="stylesheet" />
+      */}
+      <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Poppins:wght@400;700&family=Lato:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Nunito+Sans:wght@400;500;600;700;900&family=Nunito:wght@400;500;600;700&family=Public+Sans:wght@300;400;500;600;700&family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     </Helmet>
     <Header />
     <StyledWrapper>

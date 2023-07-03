@@ -1,5 +1,6 @@
 import A from "../content/questionnaire/sections/A";
 import B from '../content/questionnaire/sections/B';
+import D from '../content/questionnaire/sections/D';
 
 /**
  * Configuration and mapping for Questionnaire Sections
@@ -24,7 +25,7 @@ const sections: SectionConfig = {
   },
   D: {
     title: "Submission Data Types",
-    component: null,
+    component: D,
   },
   REVIEW: {
     title: "Review & Submit",

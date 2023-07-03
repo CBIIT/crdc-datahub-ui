@@ -55,7 +55,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const getFormObject = () : FormObject | null => {
     if (!formRef.current) { return null; }
 
-    const formObject = parseForm(formRef.current, { nullify: false, ignoreEmpty: true, });
+    const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
     if (!formObject.additionalContacts || formObject.additionalContacts.length === 0) {

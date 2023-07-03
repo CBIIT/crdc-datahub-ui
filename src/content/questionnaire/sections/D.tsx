@@ -1,6 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import { parseForm } from "@jalik/form-parser";
-import { withStyles } from "@mui/styles";
 import { cloneDeep } from "lodash";
 import styled from 'styled-components';
 import { Grid, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
@@ -25,7 +24,7 @@ import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 
 type KeyedFileTypeData = {
   key: string;
-} & FileTypeData;
+} & FileInfo;
 
 const AdditionalDataInFutureSection = styled.div`
     display: flex;
@@ -42,13 +41,96 @@ const AdditionalDataInFutureSection = styled.div`
       margin-bottom: 16px;
     }
 `;
+const TableContainer = styled.div`
+    margin-left: 12px;
+    display: flex;
+    width: 100%;
+    border: 1px solid #6B7294;
+    border-radius: 10px;
+    .MuiTableContainer-root {
+      width: 100%;
+      margin-left: 12px;
+      overflow-y: visible;
+      height: 200px;
+    }
+    th {
+      color: #083A50;
+      font-size: 16px;
+      font-family: Nunito;
+      font-weight: 700;
+      line-height: 19.6px;
+    }
+    table {
+      overflow-y: visible;
+    }
 
-const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps) => {
+    .noBorder {
+      border: none;
+    }
+    .topRowLast {
+      border: none;
+      padding: 10px 8px 10px 8px;
+    }
+    .fileTypeTableCell{
+      border-top: none;
+      border-right: 1px solid #6B7294;
+      border-bottom: none;
+      border-left: none;
+      padding: 10px 12px 10px 15px;
+    }
+    .tableTopRowMiddle {
+      border-top: none;
+      border-right: 1px solid #6B7294;
+      border-bottom: none;
+      border-left: none;
+      padding: 10px 10px 10px 10px;
+    }
+    .bottomRowMiddle {
+      border-top: 1px solid #6B7294;
+      border-right: 1px solid #6B7294;
+      border-bottom: none;
+      border-left: none;
+      padding: 10px 10px 10px 10px;
+    }
+    .bottomRowLast {
+      border-top: 1px solid #6B7294;
+      border-right: none;
+      border-bottom: none;
+      border-left: none;
+      text-align: center;
+      padding: 10px;
+      width: 20px;
+      min-width: 0;
+    }
+    .autoComplete {
+      border-top: 1px solid #6B7294 !important;
+      border-right: 1px solid #6B7294 !important;
+      border-bottom: none !important;
+      border-left: none !important;
+      padding: 10px 12px 10px 15px;
+      .MuiStack-root {
+        width: auto;
+      }
+    }
+    .removeButtonContainer {
+      margin: auto;
+      width: 23px;
+      .MuiStack-root {
+        width: auto;
+      }
+    }
+    .asterisk {
+      color: #D54309;
+      margin-left: 6px;
+    }
+`;
+
+const FormSectionD: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
-  const [dataTypes] = useState<DataTypes>(data.dataTypes);
+  const [dataTypes] = useState<string[]>(data.dataTypes);
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
-  const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.dataTypes?.fileTypes?.map(mapObjectWithKey) || []);
+  const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
   const fileTypeDataRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -68,14 +150,9 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
 
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
-
-    // Reset additional contacts if none are provided
-    if (
-      !formObject.additionalContacts
-      || formObject.additionalContacts.length === 0
-    ) {
-      combinedData.additionalContacts = [];
-    }
+    // Remove empty strings from dataType arrays
+    combinedData.dataTypes = combinedData.dataTypes.filter((str) => str !== "");
+    combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter((str) => str !== "");
 
     return { ref: formRef, data: combinedData };
   };
@@ -83,7 +160,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   const addFileDataType = () => {
     setFileTypeData([
       ...fileTypeData,
-      { key: `${fileTypeData.length}_${new Date().getTime()}`, fileType: ``, numberOfFiles: "", amountOfData: "" },
+      { key: `${fileTypeData.length}_${new Date().getTime()}`, type: ``, count: 0, amount: "" },
     ]);
     fileTypeDataRef.current.setCustomValidity("");
   };
@@ -97,7 +174,6 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
   };
   return (
     <FormContainer
-      title="Section D"
       description="Submission Data Types"
       formRef={formRef}
     >
@@ -109,48 +185,48 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       >
         <SwitchInput
           label="Clinical Trial"
-          name="dataTypes[clinicalTrial]"
+          name="dataTypes[]"
           required
-          value={dataTypes.clinicalTrial}
+          value={dataTypes.includes("Clinical Trial")}
         />
         <SwitchInput
           label="Imaging"
-          name="dataTypes[imaging]"
+          name="dataTypes[]"
           required
-          value={dataTypes.imaging}
+          value={dataTypes.includes("Imaging")}
           toggleContent={(
             <SwitchInput
               label="Confirm the data you plan to submit are de-identified"
-              name="dataTypes[deIdentified]"
+              name="dataTypes[]"
               required
-              value={dataTypes.deIdentified}
+              value={dataTypes.includes("Confirm the data you plan to submit are de-identified")}
               gridWidth={12}
             />
           )}
         />
         <SwitchInput
           label="Genomics"
-          name="dataTypes[genomics]"
+          name="dataTypes[]"
           required
-          value={dataTypes.genomics}
+          value={dataTypes.includes("Genomics")}
         />
         <SwitchInput
           label="Immunology"
-          name="dataTypes[immunology]"
+          name="dataTypes[]"
           required
-          value={dataTypes.immunology}
+          value={dataTypes.includes("Immunology")}
         />
         <Grid item md={6} />
         <SwitchInput
           label="Proteomics"
-          name="dataTypes[proteomics]"
+          name="dataTypes[]"
           required
-          value={dataTypes.proteomics}
+          value={dataTypes.includes("Proteomics")}
         />
         <TextInput
           label="Other data types (specify)"
-          name="dataTypes[otherDataTypes]"
-          value={dataTypes.otherDataTypes}
+          name="otherDataTypes"
+          value={data.otherDataTypes}
           placeholder="Enter Types"
           gridWidth={12}
         />
@@ -163,44 +239,44 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
       >
         <SwitchInput
           label="Demographic Data"
-          name="dataTypes[demographic]"
-          value={dataTypes.demographic}
+          name="clinicalData[dataTypes][]"
+          value={data.clinicalData.dataTypes.includes("Demographic Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           label="Relapse/Recurrence Data"
-          name="dataTypes[relapseRecurrence]"
-          value={dataTypes.relapseRecurrence}
+          name="clinicalData[dataTypes][]"
+          value={data.clinicalData.dataTypes.includes("Relapse/Recurrence Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           label="Diagnosis Data"
-          name="dataTypes[diagnosis]"
-          value={dataTypes.diagnosis}
+          name="clinicalData[dataTypes][]"
+          value={data.clinicalData.dataTypes.includes("Diagnosis Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           label="Outcome Data"
-          name="dataTypes[outcome]"
-          value={dataTypes.outcome}
+          name="clinicalData[dataTypes][]"
+          value={data.clinicalData.dataTypes.includes("Outcome Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           label="Treatment Data"
-          name="dataTypes[treatment]"
-          value={dataTypes.treatment}
+          name="clinicalData[dataTypes][]"
+          value={data.clinicalData.dataTypes.includes("Treatment Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           label="Biospecimen Data"
-          name="dataTypes[biospecimen]"
-          value={dataTypes.biospecimen}
+          name="clinicalData[dataTypes][]"
+          value={data.clinicalData.dataTypes.includes("Biospecimen Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <TextInput
           label="Other data types (specify)"
-          name="dataTypes[otherDataTypes]"
-          value={dataTypes.otherDataTypes}
+          name="clinicalData[otherDataTypes]"
+          value={data.clinicalData.otherDataTypes}
           placeholder="Enter Types"
           gridWidth={12}
         />
@@ -210,9 +286,10 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           </div>
           <SwitchInput
             label="Additional Data in future"
-            name="dataTypes[additionDataInFuture]"
-            value={dataTypes.additionDataInFuture}
+            name="clinicalData[futureDataTypes]"
+            value={data.clinicalData.futureDataTypes}
             gridWidth={10}
+            isBoolean
           />
         </AdditionalDataInFutureSection>
       </SectionGroup>
@@ -234,24 +311,24 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
           />
         )}
       >
-        <div className={classes.tableContainer}>
-          <Table className={classes.noBorder}>
-            <TableHead className={classes.noBorder}>
-              <TableRow className={classes.noBorder}>
-                <TableCell width="42%" className={classes.fileTypeTableCell}>
+        <TableContainer>
+          <Table className="noBorder">
+            <TableHead className="noBorder">
+              <TableRow className="noBorder">
+                <TableCell width="42%" className="fileTypeTableCell">
                   File Type
-                  <span className={classes.asterisk}>*</span>
+                  <span className="asterisk">*</span>
                   <input tabIndex={-1} style={{ height: "0", border: "none", width: "0" }} ref={fileTypeDataRef} />
                 </TableCell>
-                <TableCell width="17%" style={{ textAlign: 'center' }} className={classes.tableTopRowMiddle}>
+                <TableCell width="17%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
                   Number of Files
-                  <span className={classes.asterisk}>*</span>
+                  <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="42%" style={{ textAlign: 'center' }} className={classes.tableTopRowMiddle}>
+                <TableCell width="42%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
                   Estimated amount of data (KB, MB, GB, TB)
-                  <span className={classes.asterisk}>*</span>
+                  <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="5%" style={{ textAlign: 'center' }} className={classes.topRowLast}>Remove</TableCell>
+                <TableCell width="5%" style={{ textAlign: 'center' }} className="topRowLast">Remove</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -259,42 +336,42 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                 <TableRow
                   key={fileData.key}
                 >
-                  <TableCell className={classes.autoComplete}>
+                  <TableCell className="autoComplete">
                     <TableAutocompleteInput
-                      value={fileData.fileType}
-                      name={`dataTypes[fileTypes][${idx}][fileType]`}
+                      value={fileData.type}
+                      name={`files[${idx}][type]`}
                       options={fileTypeOptions.map((fileType) => fileType)}
                       placeholder="Select Type"
                       freeSolo
                     />
                     {/* {data.fileType} */}
                   </TableCell>
-                  <TableCell className={classes.bottomRowMiddle}>
+                  <TableCell className="bottomRowMiddle">
                     <TableTextInput
-                      name={`dataTypes[fileTypes][${idx}][numberOfFiles]`}
-                      value={fileData.numberOfFiles}
+                      name={`files[${idx}][count]`}
+                      value={fileData.count}
                       placeholder="12345"
                       pattern="^[1-9]\d*$"
                       patternValidityMessage="Please enter a whole number greater than 0"
                     />
                   </TableCell>
-                  <TableCell className={classes.bottomRowMiddle}>
+                  <TableCell className="bottomRowMiddle">
                     <TableTextInput
-                      name={`dataTypes[fileTypes][${idx}][amountOfData]`}
-                      value={fileData.amountOfData}
+                      name={`files[${idx}][amount]`}
+                      value={fileData.amount}
                       placeholder="E.g. 200GB (50 Char Limit)"
                       maxLength={50}
                     />
                   </TableCell>
-                  <TableCell className={classes.bottomRowLast}>
-                    <div className={classes.removeButtonContainer}>
+                  <TableCell className="bottomRowLast">
+                    <div className="removeButtonContainer">
                       <AddRemoveButton
-                        className={classes.addRemoveButtonInTable}
                         placement="start"
                         onClick={() => removeFileDataType(fileData.key)}
                         startIcon={<RemoveCircleIcon />}
                         iconColor="#F18E8E"
                         disabled={status === FormStatus.SAVING}
+                        sx={{ minWidth: "0px !important" }}
                       />
                     </div>
                   </TableCell>
@@ -302,125 +379,25 @@ const FormSectionD: FC<FormSectionProps> = ({ refs, classes }: FormSectionProps)
                 ))}
             </TableBody>
           </Table>
-        </div>
+        </TableContainer>
       </SectionGroup>
       <SectionGroup
         title="Additional comments or information about the submission"
       >
         <TextInput
-          className={classes.additionalCommentsNoLabel}
           label=""
-          name="dataTypes[additionalComments]"
-          value={dataTypes.additionalComments}
+          name="submitterComment"
+          value={data.submitterComment}
           gridWidth={12}
           maxLength={500}
           placeholder="500 characters allowed"
           minRows={5}
           multiline
+          sx={{ marginTop: "-20px" }}
         />
       </SectionGroup>
     </FormContainer>
   );
 };
 
-const styles = () => ({
-  fileTypeSectionGroup: {
-    marginTop: "-16px"
-  },
-  tableContainer: {
-    marginLeft: "12px",
-    display: "flex",
-    width: "100%",
-    "&.MuiTableContainer-root": {
-      width: "100%",
-      marginLeft: "12px",
-      overflowY: 'visible',
-      height: "200px",
-    },
-    "& th": {
-      color: "#083A50",
-      fontSize: "16px",
-      fontFamily: "Nunito",
-      fontWeight: "700",
-      lineHeight: "19.6px",
-    },
-    "& table": {
-      overflowY: 'visible',
-    },
-
-    border: '1px solid #6B7294',
-    borderRadius: '10px',
-  },
-  noBorder: {
-    border: "none"
-  },
-  topRowLast: {
-    border: "none",
-    padding: "10px 8px 10px 8px",
-  },
-  fileTypeTableCell: {
-    borderTop: 'none',
-    borderRight: '1px solid #6B7294',
-    borderBottom: 'none',
-    borderLeft: 'none',
-    padding: "10px 12px 10px 15px",
-  },
-  tableTopRowMiddle: {
-    borderTop: 'none',
-    borderRight: '1px solid #6B7294',
-    borderBottom: 'none',
-    borderLeft: 'none',
-    padding: "10px 10px 10px 10px",
-  },
-  bottomRowMiddle: {
-    borderTop: '1px solid #6B7294',
-    borderRight: '1px solid #6B7294',
-    borderBottom: 'none',
-    borderLeft: 'none',
-    padding: "10px 10px 10px 10px",
-  },
-  bottomRowLast: {
-    borderTop: '1px solid #6B7294',
-    borderRight: 'none',
-    borderBottom: 'none',
-    borderLeft: 'none',
-    textAlign: "center" as const,
-    padding: "10px",
-    width: "20px",
-    minWidth: "0",
-  },
-  autoComplete: {
-    borderTop: '1px solid #6B7294',
-    borderRight: '1px solid #6B7294',
-    borderBottom: 'none',
-    borderLeft: 'none',
-    padding: "10px 12px 10px 15px",
-    "&.MuiStack-root": {
-      width: "auto",
-    },
-  },
-  addRemoveButtonInTable: {
-    "&.MuiButtonBase-root": {
-      minWidth: "0px !important",
-    },
-    "&.MuiTouchRipple-root": {
-      display: "none",
-    },
-    "&.MuiStack-root": {
-      display: "none",
-    },
-  },
-  removeButtonContainer: {
-    margin: "auto",
-    width: "23px",
-    "&.MuiStack-root": {
-      width: "auto"
-    }
-  },
-    asterisk: {
-    color: "#D54309",
-    marginLeft: "6px",
-  },
-});
-
-export default withStyles(styles, { withTheme: true })(FormSectionD);
+export default FormSectionD;
