@@ -137,6 +137,7 @@ const FormGroupCheckbox: FC<Props> = ({
                 inputLabelTooltipText={option.tooltipText}
                 errorText={option.errorText}
                 onChange={handleChange}
+                withGridItemWrapper={false}
                 inputRef={(ref) => {
                   if (index === 0) {
                     firstCheckboxInputRef.current = ref;
