@@ -133,7 +133,7 @@ const CheckboxInput: FC<Props> = ({
   };
 
   return (
-    <ConditionalGridWrapper>
+    <ConditionalGridWrapper md={gridWidth || 6} xs={12} item>
       <StyledFormControl fullWidth error={error}>
         {(label || required || tooltipText) && (
         <StyledFormLabel htmlFor={id}>
