@@ -13,7 +13,7 @@ type FormObject = {
 };
 
 type SectionConfig = {
-  [key: string]: SectionOption
+  [key: string]: SectionOption;
 };
 
 type SectionOption = {
