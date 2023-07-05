@@ -18,10 +18,10 @@ const LogoArea = styled.div`
 
 const Logo = () => (
   <LogoArea>
-    <a className="logoContainer" href={headerData.globalHeaderLogoLink}>
+    <a id="header-logo-home-link" className="logoContainer" href={headerData.globalHeaderLogoLink}>
       <img src={headerData.globalHeaderLogo} alt={headerData.globalHeaderLogoAltText} />
     </a>
   </LogoArea>
-  );
+);
 
 export default Logo;

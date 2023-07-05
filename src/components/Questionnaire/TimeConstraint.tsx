@@ -19,12 +19,14 @@ const StyledTextInput = styled(TextInput)(() => ({
 }));
 
 type Props = {
+  idPrefix?: string;
   index: number;
   timeConstraint: TimeConstraint | null;
   onDelete: () => void;
 };
 
 const TimeConstraint: FC<Props> = ({
+  idPrefix = "",
   index,
   timeConstraint,
   onDelete
@@ -36,6 +38,7 @@ const TimeConstraint: FC<Props> = ({
     <GridContainer container>
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <StyledTextInput
+          id={idPrefix.concat(`time-constraint-${index}-description`)}
           label="Time Constraint Description"
           name={`timeConstraints[${index}][description]`}
           value={description}
@@ -47,6 +50,7 @@ const TimeConstraint: FC<Props> = ({
           required
         />
         <DatePickerInput
+          inputID={idPrefix.concat(`time-constraint-${index}-effective-date`)}
           label="Time Constraint Effective Date"
           name={`timeConstraints[${index}][effectiveDate]`}
           initialValue={effectiveDate}
@@ -57,6 +61,7 @@ const TimeConstraint: FC<Props> = ({
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
+          id={idPrefix.concat(`time-constraint-${index}-remove-time-constraint-button`)}
           label="Remove Time Constraint"
           placement="start"
           onClick={onDelete}

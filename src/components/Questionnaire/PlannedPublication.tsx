@@ -13,6 +13,7 @@ const GridContainer = styled(Grid)(() => ({
 }));
 
 type Props = {
+  idPrefix?: string;
   index: number;
   plannedPublication: PlannedPublication | null;
   onDelete: () => void;
@@ -25,6 +26,7 @@ type Props = {
  * @returns {JSX.Element}
  */
 const PlannedPublication: FC<Props> = ({
+  idPrefix = "",
   index,
   plannedPublication,
   onDelete,
@@ -37,6 +39,7 @@ const PlannedPublication: FC<Props> = ({
     <GridContainer container>
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
+          id={idPrefix.concat(`planned-publication-${index}-title`)}
           label="Planned Publication Title"
           name={`study[plannedPublications][${index}][title]`}
           value={title}
@@ -46,6 +49,7 @@ const PlannedPublication: FC<Props> = ({
           required
         />
         <DatePickerInput
+          inputID={idPrefix.concat(`planned-publication-${index}-expected-publication-date`)}
           label="Expected Publication Date"
           name={`study[plannedPublications][${index}][expectedDate]`}
           initialValue={expectedDate}
@@ -61,6 +65,7 @@ const PlannedPublication: FC<Props> = ({
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
+          id={idPrefix.concat(`planned-publication-${index}-remove-planned-publication-button`)}
           label="Remove Planned Publication"
           placement="start"
           onClick={onDelete}

@@ -149,6 +149,7 @@ const StatusSection: FC = () => {
       {lastReview?.reviewComment && (
         <>
           <StyledButton
+            id="status-bar-review-comments-button"
             variant="contained"
             onClick={() => setOpen(true)}
             aria-label="Review Comments"
@@ -178,6 +179,7 @@ const StatusSection: FC = () => {
             </StyledDialogContent>
             <DialogActions>
               <StyledCloseButton
+                id="status-bar-close-review-comments-button"
                 onClick={() => setOpen(false)}
                 variant="outlined"
                 size="large"
