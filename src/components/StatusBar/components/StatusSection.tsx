@@ -165,7 +165,7 @@ const StatusSection: FC = () => {
             data-testid="status-bar-review-dialog"
           >
             <StyledDialogTitle>
-              <StyledPreTitle>Data Intake Questionnaire</StyledPreTitle>
+              <StyledPreTitle>Submission Request</StyledPreTitle>
               <StyledTitle status={status}>Submission Comments</StyledTitle>
               <StyledSubTitle title={lastReview?.dateTime}>
                 {`Based on submission from ${FormatDate(

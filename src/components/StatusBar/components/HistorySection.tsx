@@ -233,7 +233,7 @@ const HistorySection: FC = () => {
             data-testid="status-bar-history-dialog"
           >
             <StyledDialogTitle>
-              <StyledPreTitle>Data Intake Questionnaire</StyledPreTitle>
+              <StyledPreTitle>Submission Request</StyledPreTitle>
               <StyledTitle>Submission History</StyledTitle>
             </StyledDialogTitle>
             <StyledDialogContent>

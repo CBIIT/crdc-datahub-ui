@@ -47,12 +47,12 @@ export const navbarSublists = {
   "Join CRDC Data Hub": [
     {
       name: 'Become a CRDC Submitter',
-      link: '/questionnaire/1234',
+      link: '/todo', // TODO: update link to help docs
       className: 'navMobileSubItem',
     },
     {
-      name: 'CRDC Intake Applications',
-      link: '/crdcia',
+      name: 'CRDC Submission Requests',
+      link: '/submissions',
       className: 'navMobileSubItem',
     },
 ],
