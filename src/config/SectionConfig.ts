@@ -14,22 +14,27 @@ import D from '../content/questionnaire/sections/D';
 const sections: SectionConfig = {
   A: {
     title: "Principal Investigator & Contact Information",
+    id: "A",
     component: A,
   },
   B: {
     title: "Program & Study Registration",
+    id: "A",
     component: B,
   },
   C: {
     title: "Data Access & Disease Information",
+    id: "A",
     component: C,
   },
   D: {
     title: "Submission Data Types",
+    id: "A",
     component: D,
   },
   REVIEW: {
     title: "Review & Submit",
+    id: "review",
     component: null,
   },
 };

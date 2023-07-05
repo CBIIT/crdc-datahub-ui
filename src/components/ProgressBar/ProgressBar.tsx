@@ -15,6 +15,7 @@ type Props = {
 
 type ProgressSection = {
   title: string;
+  id: string;
   url: string;
   icon: SectionStatus | "Review" | "ReviewDisabled";
   disabled?: boolean;
@@ -79,12 +80,13 @@ const ProgressBar: FC<Props> = ({ section }) => {
 
     // Dynamically build the progress bar with section statuses
     sectionKeys.forEach((s) => {
-      const { title } = config[s];
+      const { title, id } = config[s];
       const status = sectionStatuses?.find((sec) => sec.name === s)?.status || "Not Started";
       completedSections += status === "Completed" ? 1 : 0;
 
       newSections.push({
         title,
+        id,
         url: `/submission/${_id}/${s}`,
         icon: status,
         selected: s === section,
@@ -103,8 +105,9 @@ const ProgressBar: FC<Props> = ({ section }) => {
 
   return (
     <StyledList>
-      {sections.map(({ url, icon, title, disabled, selected }, idx) => (
+      {sections.map(({ url, id, icon, title, disabled, selected }, idx) => (
         <Link
+          id={`progress-bar-section-${id}`}
           key={title}
           to={url}
           style={{ pointerEvents: !disabled ? "initial" : "none" }}

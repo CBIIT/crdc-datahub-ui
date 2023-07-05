@@ -218,6 +218,7 @@ const HistorySection: FC = () => {
       {history && history.length > 0 && (
         <>
           <StyledButton
+            id="status-bar-full-history-button"
             variant="contained"
             onClick={() => setOpen(true)}
             aria-label="Full History"
@@ -272,6 +273,7 @@ const HistorySection: FC = () => {
             </StyledDialogContent>
             <DialogActions>
               <StyledCloseButton
+                id="status-bar-close-full-history-button"
                 onClick={() => setOpen(false)}
                 variant="outlined"
                 size="large"

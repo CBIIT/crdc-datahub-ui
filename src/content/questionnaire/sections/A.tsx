@@ -53,7 +53,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
-  const getFormObject = () : FormObject | null => {
+  const getFormObject = (): FormObject | null => {
     if (!formRef.current) { return null; }
 
     const formObject = parseForm(formRef.current, { nullify: false });
@@ -96,6 +96,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       {/* Principal Investigator */}
       <SectionGroup title="Principal Investigator for study" divider={false}>
         <TextInput
+          id="section-a-pi-first-name"
           label="First name"
           name="pi[firstName]"
           value={pi.firstName}
@@ -104,6 +105,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-a-pi-last-name"
           label="Last name"
           name="pi[lastName]"
           value={pi.lastName}
@@ -112,6 +114,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-a-pi-position"
           label="Position"
           name="pi[position]"
           value={pi.position}
@@ -120,6 +123,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-a-pi-email"
           type="email"
           label="Email address"
           name="pi[email]"
@@ -128,6 +132,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <AutocompleteInput
+          id="section-a-pi-institution"
           label="Institution"
           name="pi[institution]"
           value={pi?.institution || ""}
@@ -138,11 +143,13 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           freeSolo
         />
         <TextInput
+          id="section-a-pi-era-commons-account"
           label="If you have an eRA Commons account, provide it here:"
           name="pi[eRAAccount]"
           value={pi.eRAAccount}
         />
         <TextInput
+          id="section-a-pi-institution-address"
           label="Institution Address"
           value={pi.address}
           gridWidth={12}
@@ -168,6 +175,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             )}
           />
           <input
+            id="section-a-primary-contact-same-as-pi-checkbox"
             style={{ display: "none" }}
             type="checkbox"
             name="piAsPrimaryContact"
@@ -178,6 +186,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           />
         </Grid>
         <TextInput
+          id="section-a-primary-contact-first-name"
           label="First name"
           name="primaryContact[firstName]"
           value={primaryContact?.firstName || ""}
@@ -187,6 +196,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-a-primary-contact-last-name"
           label="Last name"
           name="primaryContact[lastName]"
           value={primaryContact?.lastName || ""}
@@ -196,6 +206,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-a-primary-contact-position"
           label="Position"
           name="primaryContact[position]"
           value={primaryContact?.position || ""}
@@ -205,6 +216,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-a-primary-contact-email"
           type="email"
           label="Email"
           name="primaryContact[email]"
@@ -214,6 +226,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <AutocompleteInput
+          id="section-a-primary-contact-institution"
           label="Institution"
           name="primaryContact[institution]"
           value={primaryContact?.institution || ""}
@@ -225,6 +238,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           freeSolo
         />
         <TextInput
+          id="section-a-primary-contact-phone-number"
           type="phone"
           label="Phone number"
           name="primaryContact[phone]"
@@ -240,6 +254,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         title="Additional Contacts"
         endButton={(
           <AddRemoveButton
+            id="section-a-add-additional-contact-button"
             label="Add Contact"
             startIcon={<AddCircleIcon />}
             onClick={addContact}
@@ -251,6 +266,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           items={additionalContacts}
           renderItem={(contact: KeyedContact, idx: number) => (
             <AdditionalContact
+              idPrefix="section-a"
               index={idx}
               contact={contact}
               onDelete={() => removeContact(contact.key)}

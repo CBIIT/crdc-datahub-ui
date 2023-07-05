@@ -103,8 +103,7 @@ const SearchBar = () => {
       <div className="searchBar">
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label>
-          <div style={{ display: "none" }}>search</div>
-          <SearchInput type="search" value={localText} placeholder="" onChange={handleTextInputChange} onKeyPress={handleKeyPress} />
+          <SearchInput id="header-search-bar" type="search" value={localText} placeholder="" onChange={handleTextInputChange} onKeyPress={handleKeyPress} />
         </label>
       </div>
       <div role="button" tabIndex={0} className="searchButton" onKeyDown={handleKeyPress} onClick={handleSearch}><img src={searchIcon} alt="searchIcon" /></div>

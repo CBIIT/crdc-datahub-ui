@@ -40,6 +40,7 @@ export type FormGroupCheckboxOption = {
 };
 
 type Props = {
+  idPrefix?: string;
   label: string | JSX.Element;
   value: string[];
   name?: string;
@@ -54,6 +55,7 @@ type Props = {
 };
 
 const FormGroupCheckbox: FC<Props> = ({
+  idPrefix = "",
   label,
   value,
   name,
@@ -137,6 +139,7 @@ const FormGroupCheckbox: FC<Props> = ({
             const isChecked = val?.includes(option.value);
             return (
               <CheckboxInput
+                id={idPrefix.concat(`-${option.label.toLowerCase().replace(" ", "-")}-checkbox`)}
                 key={option.value}
                 name={option.name ?? name}
                 checked={isChecked}
@@ -159,20 +162,20 @@ const FormGroupCheckbox: FC<Props> = ({
           Also, if parent has shared name then it will use string[] as value,
           otherwise value will be of type boolean for the form parser */}
         {!name && options.map((option) => {
-            const isChecked = val?.includes(option.value);
-            return (
-              <input
-                key={option.value}
-                name={option.name ?? name} // prioritizes option name over parent name
-                type="checkbox"
-                data-type="boolean"
-                value={isChecked ? "true" : "false"}
-                onChange={() => {}}
-                checked
-                hidden
-              />
-            );
-          })}
+          const isChecked = val?.includes(option.value);
+          return (
+            <input
+              key={option.value}
+              name={option.name ?? name} // prioritizes option name over parent name
+              type="checkbox"
+              data-type="boolean"
+              value={isChecked ? "true" : "false"}
+              onChange={() => { }}
+              checked
+              hidden
+            />
+          );
+        })}
         <StyledFormHelperText>{error ? helperText : " "}</StyledFormHelperText>
       </FormControl>
     </Grid>
