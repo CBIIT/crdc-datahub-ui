@@ -1,6 +1,5 @@
 import React, { FC, ReactElement, useId, useState } from 'react';
-import { SwitchProps, Grid } from '@mui/material';
-import Switch from '@material-ui/core/Switch';
+import { SwitchProps, Grid, Switch } from '@mui/material';
 import styled from "styled-components";
 import Tooltip from "./Tooltip";
 
