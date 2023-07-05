@@ -351,10 +351,10 @@ const NavBar = () => {
                   const dropkey = `drop_${idx}`;
                   return (
                     dropItem.link && (
-                    <a href={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
+                    <Link to={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
                       {dropItem.name}
                       <div className="dropdownItemText">{dropItem.text}</div>
-                    </a>
+                    </Link>
 )
                   );
                 })
