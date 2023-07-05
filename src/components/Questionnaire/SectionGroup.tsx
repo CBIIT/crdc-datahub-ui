@@ -58,7 +58,7 @@ const SectionGroup: FC<Props> = ({
 
 const styles = () => ({
   group: {
-    marginTop: "70px",
+    marginTop: "46px",
     "&:first-of-type": {
       marginTop: 0,
     },

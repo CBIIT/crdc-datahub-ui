@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useState } from "react";
+import React, { FC, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -134,9 +134,32 @@ const DatePickerInput: FC<Props> = ({
   ...rest
 }) => {
   const id = useId();
-  const [val, setVal] = useState<Dayjs>(dayjs(initialValue));
+  const [val, setVal] = useState<Dayjs>(dayjs(initialValue ?? ""));
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const updateInputValidity = (message: string) => {
+    inputRef.current.setCustomValidity(message);
+  };
+
+  const validateInput = (input: Dayjs) => {
+    inputRef.current.checkValidity();
+    const value = input?.format("MM/DD/YYYY");
+    const invalidDateMessage = "The date is invalid. Please enter a date in the format MM/DD/YYYY";
+
+    if (validate) {
+      const isValidCustom = validate(value);
+      updateInputValidity(!isValidCustom ? invalidDateMessage : "");
+      return isValidCustom;
+    }
+
+    const missingValueWhenRequired = required && !value;
+    const isValid = input?.isValid() && !missingValueWhenRequired;
+    updateInputValidity(!isValid ? invalidDateMessage : "");
+
+    return isValid;
+  };
 
   const handleOnError = (error: DateValidationError) => {
     if (!error && val) {
@@ -146,7 +169,11 @@ const DatePickerInput: FC<Props> = ({
     setError(true);
   };
 
-  const onChangeWrapper = (newVal) => {
+  const onChangeWrapper = (newVal: Dayjs) => {
+    if (val === newVal) {
+      return;
+    }
+
     if (typeof onChange === "function") {
       onChange(newVal, null);
     }
@@ -156,12 +183,11 @@ const DatePickerInput: FC<Props> = ({
     }
 
     setVal(newVal);
+    setError(!validateInput(newVal));
   };
 
   useEffect(() => {
-    if (initialValue) {
-      onChangeWrapper(initialValue.toString().trim());
-   }
+    onChangeWrapper(dayjs(initialValue?.toString().trim()));
   }, [initialValue]);
 
   return (
@@ -174,7 +200,8 @@ const DatePickerInput: FC<Props> = ({
         </StyledFormLabel>
         <StyledDatePicker
           value={val}
-          onChange={(value) => onChangeWrapper(value)}
+          onChange={(value: Dayjs) => onChangeWrapper(value)}
+          inputRef={inputRef}
           onError={handleOnError}
           slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{

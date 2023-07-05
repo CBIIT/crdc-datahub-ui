@@ -1,5 +1,6 @@
 import A from "../content/questionnaire/sections/A";
 import B from '../content/questionnaire/sections/B';
+import C from "../content/questionnaire/sections/C";
 
 /**
  * Configuration and mapping for Questionnaire Sections
@@ -20,7 +21,7 @@ const sections: SectionConfig = {
   },
   C: {
     title: "Data Access and Disease Information",
-    component: null,
+    component: C,
   },
   D: {
     title: "Submission Data Types",

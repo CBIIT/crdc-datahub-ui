@@ -1,9 +1,9 @@
 import React, { FC } from "react";
 import { Grid, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
-import TextInput from "./TextInput";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import AddRemoveButton from "./AddRemoveButton";
+import TextInput from "./TextInput";
 import DatePickerInput from "./DatePickerInput";
 
 const GridContainer = styled(Grid)(() => ({
@@ -12,56 +12,52 @@ const GridContainer = styled(Grid)(() => ({
   padding: "18px 15px",
 }));
 
+const StyledTextInput = styled(TextInput)(() => ({
+  "&.MuiInputBase-multiline .MuiInputBase-input": {
+    lineHeight: "17px !important",
+  },
+}));
+
 type Props = {
   index: number;
-  plannedPublication: PlannedPublication | null;
+  timeConstraint: TimeConstraint | null;
   onDelete: () => void;
 };
 
-/**
- * Additional Contact Form Group
- *
- * @param {Props} props
- * @returns {JSX.Element}
- */
-const PlannedPublication: FC<Props> = ({
+const TimeConstraint: FC<Props> = ({
   index,
-  plannedPublication,
-  onDelete,
-}: Props) => {
+  timeConstraint,
+  onDelete
+}) => {
   const { status } = useFormContext();
-
-  const { title, expectedDate } = plannedPublication;
+  const { description, effectiveDate } = timeConstraint;
 
   return (
     <GridContainer container>
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
-        <TextInput
-          label="Planned Publication Title"
-          name={`study[plannedPublications][${index}][title]`}
-          value={title}
-          placeholder="Enter title"
-          maxLength={100}
+        <StyledTextInput
+          label="Time Constraint Description"
+          name={`timeConstraints[${index}][description]`}
+          value={description}
           gridWidth={12}
+          maxLength={100}
+          placeholder="100 characters allowed"
+          minRows={2}
+          multiline
           required
         />
         <DatePickerInput
-          label="Expected Publication Date"
-          name={`study[plannedPublications][${index}][expectedDate]`}
-          initialValue={expectedDate}
-          gridWidth={6}
-          disablePast
-          format="MM/DD/YYYY"
+          label="Time Constraint Effective Date"
+          name={`timeConstraints[${index}][effectiveDate]`}
+          initialValue={effectiveDate}
           required
-          tooltipText="Data made available for secondary research only
-                      after investigators have obtained approval from
-                      NIH to use the requested data for a particular
-                      project"
+          disablePast
+          tooltipText="Date relating to this constraint"
         />
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
-          label="Remove Planned Publication"
+          label="Remove Time Constraint"
           placement="start"
           onClick={onDelete}
           startIcon={<RemoveCircleIcon />}
@@ -73,4 +69,4 @@ const PlannedPublication: FC<Props> = ({
   );
 };
 
-export default PlannedPublication;
+export default TimeConstraint;

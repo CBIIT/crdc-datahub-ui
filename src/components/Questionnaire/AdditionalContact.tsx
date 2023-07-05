@@ -11,7 +11,6 @@ const GridContainer = styled(Grid)({
   border: "0.5px solid #DCDCDC !important",
   borderRadius: "10px",
   padding: "18px 15px",
-  marginLeft: "12px",
 });
 
 type Props = {
