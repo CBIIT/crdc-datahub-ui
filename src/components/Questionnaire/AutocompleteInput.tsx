@@ -78,6 +78,11 @@ const AutocompleteInput: FC<Props> = ({
           {required ? <span className={classes.asterisk}>*</span> : ""}
         </label>
         <Autocomplete
+          sx={{
+                '& .MuiAutocomplete-endAdornment': {
+                  top: "auto"
+                }
+              }}
           id={id}
           size="small"
           value={val}
