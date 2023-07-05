@@ -36,7 +36,7 @@ type KeyedRepository = {
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
-const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
+const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
 
   const [program, setProgram] = useState<Program>(data.program);
@@ -240,7 +240,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
   return (
     <FormContainer
-      description="Program and Study Registration"
+      description={SectionOption.title}
       formRef={formRef}
     >
       {/* Program Registration Section */}

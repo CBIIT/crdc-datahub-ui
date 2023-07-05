@@ -3,6 +3,7 @@ import {
   Link, useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { isEqual } from 'lodash';
 import { Button, Container, Divider, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -64,8 +65,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
-  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
-  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
+  const prevSection = sectionKeys[sectionIndex - 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
+  const nextSection = sectionKeys[sectionIndex + 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -179,7 +180,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   }
 
   if (status === FormStatus.ERROR || !data) {
-    navigate('/questionnaire', {
+    navigate('/submissions', {
       state: { error: error || 'Unknown form loading error' },
     });
     return null;
@@ -187,6 +188,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   return (
     <>
+      <Helmet>
+        <title>CRDC Submission Request</title>
+      </Helmet>
+
       <QuestionnaireBanner />
 
       <StyledContainer maxWidth="xl">

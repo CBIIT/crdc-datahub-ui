@@ -39,7 +39,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint .",
+    "lint": "eslint . --ignore-path .gitignore",
     "lint:fix": "lint -- --fix"
   },
   "eslintConfig": {

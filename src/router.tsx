@@ -14,10 +14,8 @@ const Home = Loader(lazy(() => import('./content')));
 const Login = Loader(lazy(() => import('./content/login/Controller')));
 const Questionnaire = Loader(lazy(() => import('./content/questionnaire/Controller')));
 
-// status
-const Status404 = Loader(
-  lazy(() => import('./content/status/Page404'))
-);
+// Status Pages
+const Status404 = Loader(lazy(() => import('./content/status/Page404')));
 
 const routes: RouteObject[] = [
   {
@@ -33,7 +31,11 @@ const routes: RouteObject[] = [
         element: <Login />
       },
       {
-        path: '/questionnaire/:appId?/:section?',
+        path: '/submissions',
+        element: <Questionnaire />
+      },
+      {
+        path: '/submission/:appId?/:section?',
         element: <Questionnaire />
       },
       {

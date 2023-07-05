@@ -125,7 +125,7 @@ const TableContainer = styled.div`
     }
 `;
 
-const FormSectionD: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
+const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
   const [dataTypes] = useState<string[]>(data.dataTypes);
   const formRef = useRef<HTMLFormElement>();
@@ -174,7 +174,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
   };
   return (
     <FormContainer
-      description="Submission Data Types"
+      description={SectionOption.title}
       formRef={formRef}
     >
       {/* Data Types Section */}
@@ -349,6 +349,7 @@ const FormSectionD: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
                   <TableCell className="bottomRowMiddle">
                     <TableTextInput
                       name={`files[${idx}][count]`}
+                      type="number"
                       value={fileData.count}
                       placeholder="12345"
                       pattern="^[1-9]\d*$"
