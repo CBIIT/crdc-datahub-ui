@@ -135,6 +135,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       newData.status = "Submitted";
       const r = await submitData(newData);
       setOpenSubmitDialog(false);
+      navigate('/submissions');
       return r;
     } catch (err) {
       setOpenSubmitDialog(false);
