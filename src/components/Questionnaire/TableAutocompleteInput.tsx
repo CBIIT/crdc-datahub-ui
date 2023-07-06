@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   Autocomplete,
   TextField,
@@ -16,6 +16,7 @@ const DropdownArrowsIcon = styled("div")(() => ({
 }));
 
 type Props = {
+  inputID: string;
   classes: WithStyles<typeof styles>["classes"];
   value: string;
   options: string[];
@@ -35,6 +36,7 @@ type Props = {
  * @returns {JSX.Element}
  */
 const TableAutocompleteInput: FC<Props> = ({
+  inputID,
   classes,
   value,
   name,
@@ -44,8 +46,6 @@ const TableAutocompleteInput: FC<Props> = ({
   onChange,
   ...rest
 }) => {
-  const id = useId();
-
   const [val, setVal] = useState(value);
 
   const onChangeWrapper = (e, v, r) => {
@@ -68,7 +68,7 @@ const TableAutocompleteInput: FC<Props> = ({
           top: "auto"
         }
       }}
-      id={id}
+      id={inputID}
       size="small"
       value={val}
       classes={{ root: classes.inputInTable }}

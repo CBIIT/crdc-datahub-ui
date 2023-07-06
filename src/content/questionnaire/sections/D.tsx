@@ -184,18 +184,21 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         divider={false}
       >
         <SwitchInput
+          id="section-d-clinical-trial"
           label="Clinical Trial"
           name="dataTypes[]"
           required
           value={dataTypes.includes("Clinical Trial")}
         />
         <SwitchInput
+          id="section-d-imaging"
           label="Imaging"
           name="dataTypes[]"
           required
           value={dataTypes.includes("Imaging")}
           toggleContent={(
             <SwitchInput
+              id="section-d-de-identified"
               label="Confirm the data you plan to submit are de-identified"
               name="dataTypes[]"
               required
@@ -205,12 +208,14 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           )}
         />
         <SwitchInput
+          id="section-d-genomics"
           label="Genomics"
           name="dataTypes[]"
           required
           value={dataTypes.includes("Genomics")}
         />
         <SwitchInput
+          id="section-d-immunology"
           label="Immunology"
           name="dataTypes[]"
           required
@@ -218,12 +223,14 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <Grid item md={6} />
         <SwitchInput
+          id="section-d-proteomics"
           label="Proteomics"
           name="dataTypes[]"
           required
           value={dataTypes.includes("Proteomics")}
         />
         <TextInput
+          id="section-d-other-data-types"
           label="Other data types (specify)"
           name="otherDataTypes"
           value={data.otherDataTypes}
@@ -238,42 +245,49 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         description="If 'Clinical' data will be submitted, please provide more details about what types of clinical data will be included. Indicate Yes or No for each type listed below. Describe any additional data types in Other(specify)."
       >
         <SwitchInput
+          id="section-d-demographic-data"
           label="Demographic Data"
           name="clinicalData[dataTypes][]"
           value={data.clinicalData.dataTypes.includes("Demographic Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
+          id="section-d-relapse-recurrence-data"
           label="Relapse/Recurrence Data"
           name="clinicalData[dataTypes][]"
           value={data.clinicalData.dataTypes.includes("Relapse/Recurrence Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
+          id="section-d-diagnosis-data"
           label="Diagnosis Data"
           name="clinicalData[dataTypes][]"
           value={data.clinicalData.dataTypes.includes("Diagnosis Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
+          id="section-d-outcome-data"
           label="Outcome Data"
           name="clinicalData[dataTypes][]"
           value={data.clinicalData.dataTypes.includes("Outcome Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
+          id="section-d-treatment-data"
           label="Treatment Data"
           name="clinicalData[dataTypes][]"
           value={data.clinicalData.dataTypes.includes("Treatment Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
+          id="section-d-biospecimen-data"
           label="Biospecimen Data"
           name="clinicalData[dataTypes][]"
           value={data.clinicalData.dataTypes.includes("Biospecimen Data")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <TextInput
+          id="section-d-clinical-data-other-data-types"
           label="Other data types (specify)"
           name="clinicalData[otherDataTypes]"
           value={data.clinicalData.otherDataTypes}
@@ -285,6 +299,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             Inidcate if there will be additional types of data included with a future submission
           </div>
           <SwitchInput
+            id="section-d-additional-data-in-future"
             label="Additional Data in future"
             name="clinicalData[futureDataTypes]"
             value={data.clinicalData.futureDataTypes}
@@ -304,6 +319,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         )}
         endButton={(
           <AddRemoveButton
+            id="section-d-add-file-type-button"
             label="Add File Type"
             startIcon={<AddCircleIcon />}
             onClick={addFileDataType}
@@ -338,6 +354,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                 >
                   <TableCell className="autoComplete">
                     <TableAutocompleteInput
+                      inputID={`section-d-file-type-${idx}-file-type`}
                       value={fileData.type}
                       name={`files[${idx}][type]`}
                       options={fileTypeOptions.map((fileType) => fileType)}
@@ -348,6 +365,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                   </TableCell>
                   <TableCell className="bottomRowMiddle">
                     <TableTextInput
+                      id={`section-d-file-type-${idx}-number-of-files`}
                       name={`files[${idx}][count]`}
                       type="number"
                       value={fileData.count}
@@ -358,6 +376,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                   </TableCell>
                   <TableCell className="bottomRowMiddle">
                     <TableTextInput
+                      id={`section-d-file-type-${idx}-amount-of-data`}
                       name={`files[${idx}][amount]`}
                       value={fileData.amount}
                       placeholder="E.g. 200GB (50 Char Limit)"
@@ -367,6 +386,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                   <TableCell className="bottomRowLast">
                     <div className="removeButtonContainer">
                       <AddRemoveButton
+                        id={`section-d-file-type-${idx}-remove-file-type-button`}
                         placement="start"
                         onClick={() => removeFileDataType(fileData.key)}
                         startIcon={<RemoveCircleIcon />}
@@ -377,7 +397,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                     </div>
                   </TableCell>
                 </TableRow>
-                ))}
+              ))}
             </TableBody>
           </Table>
         </TableContainer>

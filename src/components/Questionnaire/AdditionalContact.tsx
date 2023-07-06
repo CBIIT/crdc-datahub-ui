@@ -14,6 +14,7 @@ const GridContainer = styled(Grid)({
 });
 
 type Props = {
+  idPrefix?: string;
   index: number;
   contact: Contact | null;
   onDelete: () => void;
@@ -25,7 +26,7 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
+const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, onDelete }: Props) => {
   const { status } = useFormContext();
   const {
     firstName, lastName, email,
@@ -36,6 +37,7 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
     <GridContainer container>
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
+          id={idPrefix.concat(`additionalContacts-${index}-first-name`)}
           label="First name"
           name={`additionalContacts[${index}][firstName]`}
           value={firstName}
@@ -44,6 +46,7 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
           required
         />
         <TextInput
+          id={idPrefix.concat(`additionalContacts-${index}-last-name`)}
           label="Last name"
           name={`additionalContacts[${index}][lastName]`}
           value={lastName}
@@ -52,6 +55,7 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
           required
         />
         <TextInput
+          id={idPrefix.concat(`additionalContacts-${index}-position`)}
           label="Position"
           name={`additionalContacts[${index}][position]`}
           value={position}
@@ -60,6 +64,7 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
           required
         />
         <TextInput
+          id={idPrefix.concat(`additionalContacts-${index}-email`)}
           label="Email"
           name={`additionalContacts[${index}][email]`}
           type="email"
@@ -68,6 +73,7 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
           required
         />
         <AutocompleteInput
+          id={idPrefix.concat(`additionalContacts-${index}-institution`)}
           label="Institution"
           name={`additionalContacts[${index}][institution]`}
           value={institution || ""}
@@ -78,6 +84,7 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
           freeSolo
         />
         <TextInput
+          id={idPrefix.concat(`additionalContacts-${index}-phone-number`)}
           label="Phone number"
           name={`additionalContacts[${index}][phone]`}
           type="phone"
@@ -88,6 +95,7 @@ const AdditionalContact: FC<Props> = ({ index, contact, onDelete }: Props) => {
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
+          id={idPrefix.concat(`additionalContacts-${index}-remove-contact-button`)}
           label="Remove Contact"
           placement="start"
           onClick={onDelete}

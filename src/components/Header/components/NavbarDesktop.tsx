@@ -272,13 +272,13 @@ const NavBar = () => {
 
   const onKeyPressHandler = (e) => {
     if (e.key === "Enter") {
-     handleMenuClick(e);
+      handleMenuClick(e);
     }
   };
   type NavSubLinkData = {
-      name: string;
-      link: string;
-      className: string;
+    name: string;
+    link: string;
+    className: string;
   };
   function shouldBeUnderlined(linkName) {
     const correctPath = window.location.href.slice(window.location.href.lastIndexOf(window.location.host) + window.location.host.length);
@@ -298,48 +298,50 @@ const NavBar = () => {
       <NavContainer>
         <UlContainer>
           {
-              navMobileList.map((navMobileItem, idx) => {
-                const navkey = `nav_${idx}`;
-                return (
-                  navMobileItem.className === 'navMobileItem'
-                    ? (
-                      <LiSection key={navkey}>
-                        <div className="navTitle directLink">
-                          <NavLink to={navMobileItem.link}>
-                            <div
-                              onKeyDown={onKeyPressHandler}
-                              role="button"
-                              tabIndex={0}
-                              className="navText directLink"
-                              onClick={handleMenuClick}
-                              style={shouldBeUnderlined(navMobileItem.name) ? { borderBottom: "4px solid #3A75BD" } : null}
-                            >
-                              {navMobileItem.name}
-                            </div>
-                          </NavLink>
-                        </div>
-                      </LiSection>
-)
-                    : (
-                      <LiSection key={navkey}>
-                        <div className={clickedTitle === navMobileItem.name ? 'navTitleClicked' : 'navTitle'}>
+            navMobileList.map((navMobileItem, idx) => {
+              const navkey = `nav_${idx}`;
+              return (
+                navMobileItem.className === 'navMobileItem'
+                  ? (
+                    <LiSection key={navkey}>
+                      <div className="navTitle directLink">
+                        <NavLink to={navMobileItem.link}>
                           <div
+                            id={navMobileItem.id}
                             onKeyDown={onKeyPressHandler}
                             role="button"
-                            tabIndex={0} className={clickedTitle === navMobileItem.name ? 'navText clicked' : 'navText'}
+                            tabIndex={0}
+                            className="navText directLink"
                             onClick={handleMenuClick}
                             style={shouldBeUnderlined(navMobileItem.name) ? { borderBottom: "4px solid #3A75BD" } : null}
                           >
                             {navMobileItem.name}
                           </div>
+                        </NavLink>
+                      </div>
+                    </LiSection>
+                  )
+                  : (
+                    <LiSection key={navkey}>
+                      <div className={clickedTitle === navMobileItem.name ? 'navTitleClicked' : 'navTitle'}>
+                        <div
+                          id={navMobileItem.id}
+                          onKeyDown={onKeyPressHandler}
+                          role="button"
+                          tabIndex={0} className={clickedTitle === navMobileItem.name ? 'navText clicked' : 'navText'}
+                          onClick={handleMenuClick}
+                          style={shouldBeUnderlined(navMobileItem.name) ? { borderBottom: "4px solid #3A75BD" } : null}
+                        >
+                          {navMobileItem.name}
                         </div>
-                      </LiSection>
-)
-                );
-              })
-            }
+                      </div>
+                    </LiSection>
+                  )
+              );
+            })
+          }
         </UlContainer>
-        <StyledLoginLink to="/login">
+        <StyledLoginLink id="header-navbar-login-button" to="/login">
           Login
         </StyledLoginLink>
       </NavContainer>
@@ -347,19 +349,19 @@ const NavBar = () => {
         <DropdownContainer>
           <div className="dropdownList">
             {
-                clickedTitle !== "" ? navbarSublists[clickedTitle].map((dropItem, idx) => {
-                  const dropkey = `drop_${idx}`;
-                  return (
-                    dropItem.link && (
-                    <Link to={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
+              clickedTitle !== "" ? navbarSublists[clickedTitle].map((dropItem, idx) => {
+                const dropkey = `drop_${idx}`;
+                return (
+                  dropItem.link && (
+                    <Link id={dropItem.id} to={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
                       {dropItem.name}
                       <div className="dropdownItemText">{dropItem.text}</div>
                     </Link>
-)
-                  );
-                })
-                  : null
-              }
+                  )
+                );
+              })
+                : null
+            }
           </div>
         </DropdownContainer>
       </Dropdown>

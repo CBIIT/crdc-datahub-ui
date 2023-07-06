@@ -63,12 +63,12 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     return { ref: formRef, data: combinedData };
   };
 
-   /**
-   * Add a empty time constraint to the timeConstraints state
-   *
-   * @returns {void}
-   */
-   const addTimeConstraint = () => {
+  /**
+  * Add a empty time constraint to the timeConstraints state
+  *
+  * @returns {void}
+  */
+  const addTimeConstraint = () => {
     const constraints = !timeConstraints ? [] : timeConstraints;
     setTimeConstraints([
       ...constraints,
@@ -76,12 +76,12 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     ]);
   };
 
-   /**
-   * Remove a time constraint from the timeConstraints state
-   *
-   * @param key generated key for the time constraint
-   */
-   const removeTimeConstraint = (key: string) => {
+  /**
+  * Remove a time constraint from the timeConstraints state
+  *
+  * @param key generated key for the time constraint
+  */
+  const removeTimeConstraint = (key: string) => {
     setTimeConstraints(timeConstraints.filter((c) => c.key !== key));
   };
 
@@ -102,6 +102,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         )}
       >
         <FormGroupCheckbox
+          idPrefix="section-c-access-types"
           label={(
             <>
               Access Types
@@ -116,6 +117,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <DatePickerInput
+          inputID="section-c-targeted-data-submission-delivery-date"
           label="Targeted Data Submission Delivery Date"
           name="targetedSubmissionDate"
           tooltipText="Expected date that date submission can begin"
@@ -125,6 +127,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <DatePickerInput
+          inputID="section-c-expected-publication-date"
           label="Expected Publication Date"
           name="targetedReleaseDate"
           tooltipText="Expected date that the submission is released to the community"
@@ -139,6 +142,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         title="Time Constraints related to your submission"
         endButton={(
           <AddRemoveButton
+            id="section-c-add-time-constraints-button"
             label="Add Time Constraints"
             startIcon={<AddCircleIcon />}
             onClick={addTimeConstraint}
@@ -150,6 +154,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           items={timeConstraints}
           renderItem={(constraint: KeyedTimeConstraint, idx: number) => (
             <TimeConstraint
+              idPrefix="section-c-"
               index={idx}
               timeConstraint={constraint}
               onDelete={() => removeTimeConstraint(constraint.key)}
@@ -167,6 +172,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       )}
       >
         <SelectInput
+          id="section-c-cancer-types"
           label="Cancer types (choose all that apply)"
           name="cancerTypes[]"
           options={cancerTypeOptions.map((option) => ({ label: option, value: option }))}
@@ -176,6 +182,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-c-other-cancer-types"
           label="Other cancer type not included (specify)"
           name="otherCancerTypes"
           placeholder="Enter types"
@@ -184,6 +191,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
 
         <SelectInput
+          id="section-c-pre-cancer-types"
           label="Pre-cancer types, of applicable (choose all that apply)"
           name="preCancerTypes[]"
           options={preCancerTypeOptions.map((option) => ({ label: option, value: option }))}
@@ -192,6 +200,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           multiple
         />
         <TextInput
+          id="section-c-other-pre-cancer-types"
           label="Other pre-cancer type not included (specify)"
           name="otherPreCancerTypes"
           placeholder="Enter types"
@@ -200,6 +209,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
 
         <TextInput
+          id="section-c-number-of-participants-included-in-the-submission"
           label="Number of participants included in the submission"
           name="numberOfParticipants"
           placeholder="##"
@@ -209,6 +219,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <SelectInput
+          id="section-c-species-of-participants"
           label="Species of participants (choose all that apply)"
           name="species"
           options={speciesOptions.map((option) => ({ label: option, value: option }))}
@@ -218,6 +229,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <FormGroupCheckbox
+          idPrefix="section-c-"
           label="Cell lines, model systems, or neither"
           options={cellLineModelSystemOptions}
           value={reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)}
