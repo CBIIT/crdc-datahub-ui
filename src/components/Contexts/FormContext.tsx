@@ -9,6 +9,7 @@ import React, {
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { GET_APP, SAVE_APP, SUBMIT_APP } from './graphql';
 import initialValues from "../../config/InitialValues";
+import { FormatDate } from "../StatusBar/utils";
 
 export type ContextState = {
   status: Status;
@@ -122,9 +123,16 @@ export const FormProvider: FC<ProviderProps> = (props) => {
   useEffect(() => {
     // Update the state when the lazy query response changes
     if (data) {
+      const applicationData = data?.getApplication;
       setState({
         status: Status.LOADED,
-        data: { ...initialValues, ...data?.getApplication }
+        data: {
+          ...initialValues,
+          ...applicationData,
+          // To avoid false positive form changes
+          targetedReleaseDate: FormatDate(applicationData?.targetedReleaseDate, "MM/DD/YYYY"),
+          targetedSubmissionDate: FormatDate(applicationData?.targetedSubmissionDate, "MM/DD/YYYY"),
+        }
       });
     }
 
