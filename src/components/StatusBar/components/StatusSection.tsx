@@ -166,8 +166,8 @@ const StatusSection: FC = () => {
             data-testid="status-bar-review-dialog"
           >
             <StyledDialogTitle>
-              <StyledPreTitle>Submission Request</StyledPreTitle>
-              <StyledTitle status={status}>Submission Comments</StyledTitle>
+              <StyledPreTitle>CRDC Submission Request</StyledPreTitle>
+              <StyledTitle status={status}>Review Comments</StyledTitle>
               <StyledSubTitle title={lastReview?.dateTime}>
                 {`Based on submission from ${FormatDate(
                   lastReview?.dateTime

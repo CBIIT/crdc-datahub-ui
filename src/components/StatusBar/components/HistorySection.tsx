@@ -234,7 +234,7 @@ const HistorySection: FC = () => {
             data-testid="status-bar-history-dialog"
           >
             <StyledDialogTitle>
-              <StyledPreTitle>Submission Request</StyledPreTitle>
+              <StyledPreTitle>CRDC Submission Request</StyledPreTitle>
               <StyledTitle>Submission History</StyledTitle>
             </StyledDialogTitle>
             <StyledDialogContent>
