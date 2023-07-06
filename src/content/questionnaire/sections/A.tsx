@@ -14,7 +14,7 @@ import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
 import { mapObjectWithKey } from '../utils';
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 
-type KeyedContact = {
+export type KeyedContact = {
   key: string;
 } & Contact;
 
@@ -41,12 +41,13 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
   const formRef = useRef<HTMLFormElement>();
   const {
-    saveFormRef, submitFormRef, getFormObjectRef,
+    nextButtonRef, saveFormRef, submitFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) { return; }
 
+    nextButtonRef.current.style.display = "flex";
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
 

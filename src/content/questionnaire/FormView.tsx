@@ -17,6 +17,7 @@ import Section from './sections';
 import map from '../../config/SectionConfig';
 import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
 import QuestionnaireBanner from '../../components/Questionnaire/QuestionnaireBanner';
+import SubmitFormDialog from '../../components/Questionnaire/SubmitFormDialog';
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -30,7 +31,7 @@ type Props = {
   classes: WithStyles<typeof styles>['classes'];
 };
 
-const validateSection = (section: string) => typeof map[section] !== 'undefined';
+const validateSection = (section: string) => Object.keys(map).some((s) => map[s].urlPath === section);
 
 const StyledSidebar = styled(Stack)({
   position: "sticky",
@@ -58,18 +59,20 @@ const StyledContentWrapper = styled(Stack)({
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
-  const { status, data, setData, error } = useFormContext();
+  const { status, data, setData, submitData, error } = useFormContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
+  const [openSubmitDialog, setOpenSubmitDialog] = useState<boolean>(false);
 
-  const sectionKeys = Object.keys(map);
-  const sectionIndex = sectionKeys.indexOf(activeSection);
-  const prevSection = sectionKeys[sectionIndex - 1] ? `/questionnaire/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
-  const nextSection = sectionKeys[sectionIndex + 1] ? `/questionnaire/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
+  const sectionUrls = Object.keys(map).map((mapKey) => map[mapKey].urlPath);
+  const sectionIndex = sectionUrls.indexOf(activeSection);
+  const prevSection = sectionUrls[sectionIndex - 1] ? `/questionnaire/${data?.['_id']}/${sectionUrls[sectionIndex - 1]}` : null;
+  const nextSection = sectionUrls[sectionIndex + 1] ? `/questionnaire/${data?.['_id']}/${sectionUrls[sectionIndex + 1]}` : null;
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
     submitFormRef: createRef<HTMLButtonElement>(),
+    nextButtonRef: createRef<HTMLButtonElement>(),
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
 
@@ -112,6 +115,30 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
     return ref && (!data || !isEqual(data, newData));
+  };
+
+  /**
+   * submit the form data to the database.
+   *
+   *
+   * @returns {Promise<boolean>} true if the submit was successful, false otherwise
+   */
+  const submitForm = async (): Promise<boolean> => {
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref.current || !newData) {
+      return false;
+    }
+
+    try {
+      newData.status = "Submitted";
+      const r = await submitData(newData);
+      setOpenSubmitDialog(false);
+      return r;
+    } catch (err) {
+      setOpenSubmitDialog(false);
+      return false;
+    }
   };
 
   /**
@@ -172,6 +199,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const discardAndNavigate = () => {
     setBlockedNavigate(false);
     blocker.proceed();
+  };
+
+  const handleSubmitForm = () => {
+    setOpenSubmitDialog(true);
   };
 
   if (status === FormStatus.LOADING) {
@@ -241,6 +272,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 type="submit"
                 ref={refs.submitFormRef}
                 size="large"
+                onClick={handleSubmitForm}
               >
                 Submit
               </LoadingButton>
@@ -249,6 +281,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                   className={classes.nextButton}
                   variant="outlined"
                   type="button"
+                  ref={refs.nextButtonRef}
                   disabled={status === FormStatus.SAVING || !nextSection}
                   size="large"
                   endIcon={<ForwardArrowIcon />}
@@ -267,6 +300,12 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         onSave={saveAndNavigate}
         onDiscard={discardAndNavigate}
         disableActions={status === FormStatus.SAVING}
+      />
+      <SubmitFormDialog
+        open={openSubmitDialog}
+        onCancel={() => setOpenSubmitDialog(false)}
+        onSubmit={submitForm}
+        disableActions={status === FormStatus.SUBMITTING}
       />
     </>
   );
@@ -293,7 +332,7 @@ const styles = () => ({
       fontWeight: 700,
       fontSize: '16px',
       fontFamily: "'Nunito', 'Rubik', sans-serif",
-      letterSpacing: "2%",
+      letterSpacing: "0.32px",
       lineHeight: "20.14px",
       borderRadius: "8px",
       borderColor: "#828282",
@@ -342,8 +381,16 @@ const styles = () => ({
   },
   submitButton: {
     "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#22A584"
+      display: "flex",
+      width: "128px",
+      height: "50.593px",
+      padding: "11px",
+      justifyContent: "flex-end",
+      alignItems: "center",
+      flexShrink: 0,
+      borderRadius: "8px",
+      border: "1px solid #828282",
+      background: "#0B7F99",
     }
   },
 });

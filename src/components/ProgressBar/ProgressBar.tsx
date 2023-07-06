@@ -79,15 +79,15 @@ const ProgressBar: FC<Props> = ({ section }) => {
 
     // Dynamically build the progress bar with section statuses
     sectionKeys.forEach((s) => {
-      const { title } = config[s];
+      const { title, urlPath } = config[s];
       const status = sectionStatuses?.find((sec) => sec.name === s)?.status || "Not Started";
       completedSections += status === "Completed" ? 1 : 0;
 
       newSections.push({
         title,
-        url: `/questionnaire/${_id}/${s}`,
+        url: `/questionnaire/${_id}/${urlPath}`,
         icon: status,
-        selected: s === section,
+        selected: urlPath === section,
       });
     });
 

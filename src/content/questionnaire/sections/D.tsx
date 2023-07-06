@@ -22,7 +22,7 @@ import TableTextInput from "../../../components/Questionnaire/TableTextInput";
  * @returns {JSX.Element}
  */
 
-type KeyedFileTypeData = {
+export type KeyedFileTypeData = {
   key: string;
 } & FileInfo;
 
@@ -129,14 +129,16 @@ const FormSectionD: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
   const [dataTypes] = useState<string[]>(data.dataTypes);
   const formRef = useRef<HTMLFormElement>();
-  const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
+  const { nextButtonRef, saveFormRef, submitFormRef, getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
   const fileTypeDataRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
       return;
     }
 
+    nextButtonRef.current.style.display = "flex";
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
 

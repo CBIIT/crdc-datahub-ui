@@ -2,6 +2,7 @@ type FormSectionProps = {
   refs: {
     saveFormRef: React.RefObject<HTMLButtonElement>;
     submitFormRef: React.RefObject<HTMLButtonElement>;
+    nextButtonRef: React.RefObject<HTMLButtonElement>;
     getFormObjectRef: React.MutableRefObject<(() => FormObject | null) | null>;
   };
   SectionOption: SectionOption;
@@ -19,4 +20,5 @@ type SectionConfig = {
 type SectionOption = {
   title: string;
   component: React.ComponentType<FormSectionProps>;
+  urlPath: string;
 };

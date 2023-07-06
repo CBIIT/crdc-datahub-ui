@@ -18,15 +18,15 @@ import PlannedPublication from "../../../components/Questionnaire/PlannedPublica
 import initialValues from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 
-type KeyedPublication = {
+export type KeyedPublication = {
   key: string;
 } & Publication;
 
-type KeyedPlannedPublication = {
+export type KeyedPlannedPublication = {
   key: string;
 } & PlannedPublication;
 
-type KeyedRepository = {
+export type KeyedRepository = {
   key: string;
 } & Repository;
 
@@ -50,12 +50,13 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
   const formRef = useRef<HTMLFormElement>();
   const {
-    saveFormRef, submitFormRef, getFormObjectRef,
+    nextButtonRef, saveFormRef, submitFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) { return; }
 
+    nextButtonRef.current.style.display = "flex";
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
 

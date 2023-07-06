@@ -37,7 +37,7 @@ type KeyedTimeConstraint = {
 const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
   const formRef = useRef<HTMLFormElement>();
-  const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
+  const { nextButtonRef, saveFormRef, submitFormRef, getFormObjectRef } = refs;
 
   const [timeConstraints, setTimeConstraints] = useState<KeyedTimeConstraint[]>(data.timeConstraints?.map(mapObjectWithKey));
 
@@ -46,6 +46,7 @@ const FormSectionC: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
       return;
     }
 
+    nextButtonRef.current.style.display = "flex";
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
 

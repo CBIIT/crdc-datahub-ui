@@ -14,6 +14,7 @@ export type ContextState = {
   status: Status;
   data: Application;
   setData?: (Application) => Promise<boolean>;
+  submitData?: (Application) => Promise<boolean>;
   error?: string;
 };
 
@@ -22,6 +23,7 @@ export enum Status {
   LOADED = "LOADED", // Successfully loaded data
   ERROR = "ERROR", // Error loading data
   SAVING = "SAVING", // Saving data to the API
+  SUBMITTING = "SUBMITTING", // Submitting data to the API
 }
 
 const initialState: ContextState = { status: Status.LOADING, data: null };
@@ -106,6 +108,24 @@ export const FormProvider: FC<ProviderProps> = (props) => {
     }, 1500);
   });
 
+  // Here we update the state and send the data to the API
+  // otherwise we can just update the local state (i.e. within form sections)
+  const submitData = async (data: Application) => new Promise<boolean>((resolve) => {
+    console.log("[SUBMITTING DATA]");
+    console.log("prior state", state);
+
+    const newState = { ...state, data };
+    setState({ ...newState, status: Status.SUBMITTING });
+    console.log("new state", newState);
+
+    // simulate the submit event
+    setTimeout(() => {
+      setState({ ...newState, status: Status.LOADED });
+      console.log("submitted");
+      resolve(true);
+    }, 1500);
+  });
+
   useEffect(() => {
      if (Number.isNaN(parseInt(id.toString(), 10))) {
         setState({
@@ -137,7 +157,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
     }
   }, [data, error]);
 
-  const value = useMemo(() => ({ ...state, setData }), [state]);
+  const value = useMemo(() => ({ ...state, setData, submitData }), [state]);
 
   return (
     <Context.Provider value={value}>

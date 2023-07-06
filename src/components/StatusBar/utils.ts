@@ -50,19 +50,3 @@ export const SortHistory = (history: HistoryEvent[]) : HistoryEvent[] => {
     new Date(b.dateTime).valueOf() - new Date(a.dateTime).valueOf()
   ));
 };
-
-export const compareWithFormObject = (obj: unknown, formObj: unknown) => {
-  const strinfigiedFormObject = JSON.stringify(formObj);
-  const newObj = {};
-
-  Object.keys(formObj).forEach((property) => {
-    newObj[property] = obj[property];
-  });
-  const stringifiedObj = JSON.stringify(newObj);
-
-  console.log({ formObj });
-  console.log({ newObj });
-
-  console.log(strinfigiedFormObject);
-  console.log(stringifiedObj);
-};
