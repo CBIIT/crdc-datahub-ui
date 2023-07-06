@@ -1,8 +1,8 @@
 import env from '../../env';
 
 function loginController() {
-  const NIH_AUTH_URL = env.NIH_AUTH_URL || 'https://stsstg.nih.gov/auth/oauth/v2/authorize';
-  const NIH_CLIENT_ID = env.NIH_CLIENT_ID || "ThisIsASecret";
+  const NIH_AUTH_URL = process.env.NIH_AUTH_URL || process.env.REACT_APP_NIH_AUTHENTICATION_URL;
+  const NIH_CLIENT_ID = process.env.NIH_CLIENT_ID || process.env.REACT_APP_NIH_CLIENT_ID;
 
   const originDomain = window.location.origin;
   const urlParam = {
