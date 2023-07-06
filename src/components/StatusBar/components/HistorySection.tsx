@@ -212,7 +212,7 @@ const HistorySection: FC = () => {
   return (
     <>
       <StyledDate data-testid="status-bar-last-updated">
-        {status === "New" ? "N/A" : FormatDate(updatedAt)}
+        {status === "New" ? "N/A" : FormatDate(updatedAt, "M/D/YYYY", "N/A")}
       </StyledDate>
 
       {history && history.length > 0 && (
@@ -251,7 +251,7 @@ const HistorySection: FC = () => {
                     <StyledTimelineContent>
                       <Stack direction="row" alignContent="center" spacing={1}>
                         <StyledTypography title={dateTime}>
-                          {FormatDate(dateTime)}
+                          {FormatDate(dateTime, "M/D/YYYY", "N/A")}
                         </StyledTypography>
                         <StyledTypography status={status}>
                           {status?.toUpperCase()}

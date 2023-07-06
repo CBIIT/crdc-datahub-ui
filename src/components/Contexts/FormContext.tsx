@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import { useLazyQuery, useMutation } from '@apollo/client';
+import dayjs from "dayjs";
 import { GET_APP, SAVE_APP, SUBMIT_APP } from './graphql';
 import initialValues from "../../config/InitialValues";
 import { FormatDate } from "../StatusBar/utils";
@@ -73,6 +74,9 @@ type ProviderProps = {
 export const FormProvider: FC<ProviderProps> = (props) => {
   const { children, id } = props;
   const [state, setState] = useState<ContextState>(initialState);
+
+  const datePattern = "MM/DD/YYYY";
+  const dateTodayFallback = dayjs().format(datePattern);
 
   const [getAPP, { data, error }] = useLazyQuery(GET_APP, {
     variables: { id },
@@ -150,8 +154,8 @@ export const FormProvider: FC<ProviderProps> = (props) => {
           ...initialValues,
           ...applicationData,
           // To avoid false positive form changes
-          targetedReleaseDate: FormatDate(applicationData?.targetedReleaseDate, "MM/DD/YYYY"),
-          targetedSubmissionDate: FormatDate(applicationData?.targetedSubmissionDate, "MM/DD/YYYY"),
+          targetedReleaseDate: FormatDate(applicationData?.targetedReleaseDate, datePattern, dateTodayFallback),
+          targetedSubmissionDate: FormatDate(applicationData?.targetedSubmissionDate, datePattern, dateTodayFallback),
         }
       });
     }

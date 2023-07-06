@@ -142,7 +142,11 @@ const StatusSection: FC = () => {
           />
         </StyledAvatar>
       )}
-      <StyledStatus data-testid="status-bar-status" status={status} leftGap={!StatusIconMap[status]}>
+      <StyledStatus
+        data-testid="status-bar-status"
+        status={status}
+        leftGap={!StatusIconMap[status]}
+      >
         {status}
       </StyledStatus>
 
@@ -170,7 +174,9 @@ const StatusSection: FC = () => {
               <StyledTitle status={status}>Review Comments</StyledTitle>
               <StyledSubTitle title={lastReview?.dateTime}>
                 {`Based on submission from ${FormatDate(
-                  lastReview?.dateTime
+                  lastReview?.dateTime,
+                  "M/D/YYYY",
+                  "N/A"
                 )}:`}
               </StyledSubTitle>
             </StyledDialogTitle>
