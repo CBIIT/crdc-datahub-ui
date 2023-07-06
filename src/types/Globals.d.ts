@@ -19,6 +19,6 @@ type SectionConfig = {
 
 type SectionOption = {
   title: string;
+  id: string;
   component: React.ComponentType<FormSectionProps>;
-  urlPath: string;
 };

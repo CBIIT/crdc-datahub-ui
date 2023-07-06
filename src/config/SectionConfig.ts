@@ -15,28 +15,28 @@ import Review from '../content/questionnaire/sections/Review';
 const sections: SectionConfig = {
   A: {
     title: "Principal Investigator & Contact Information",
+    id: "A",
     component: A,
-    urlPath: "A"
   },
   B: {
     title: "Program & Study Registration",
+    id: "A",
     component: B,
-    urlPath: "B"
   },
   C: {
-    title: "Data Access and Disease Information",
+    title: "Data Access & Disease Information",
+    id: "A",
     component: C,
-    urlPath: "C"
   },
   D: {
     title: "Submission Data Types",
+    id: "A",
     component: D,
-    urlPath: "D"
   },
   REVIEW: {
     title: "Review & Submit",
+    id: "review",
     component: Review,
-    urlPath: "review"
   },
 };
 

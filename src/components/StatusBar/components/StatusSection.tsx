@@ -149,6 +149,7 @@ const StatusSection: FC = () => {
       {lastReview?.reviewComment && (
         <>
           <StyledButton
+            id="status-bar-review-comments-button"
             variant="contained"
             onClick={() => setOpen(true)}
             aria-label="Review Comments"
@@ -165,8 +166,8 @@ const StatusSection: FC = () => {
             data-testid="status-bar-review-dialog"
           >
             <StyledDialogTitle>
-              <StyledPreTitle>Data Intake Questionnaire</StyledPreTitle>
-              <StyledTitle status={status}>Submission Comments</StyledTitle>
+              <StyledPreTitle>CRDC Submission Request</StyledPreTitle>
+              <StyledTitle status={status}>Review Comments</StyledTitle>
               <StyledSubTitle title={lastReview?.dateTime}>
                 {`Based on submission from ${FormatDate(
                   lastReview?.dateTime
@@ -178,6 +179,7 @@ const StatusSection: FC = () => {
             </StyledDialogContent>
             <DialogActions>
               <StyledCloseButton
+                id="status-bar-close-review-comments-button"
                 onClick={() => setOpen(false)}
                 variant="outlined"
                 size="large"

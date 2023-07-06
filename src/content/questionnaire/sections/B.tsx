@@ -36,7 +36,7 @@ export type KeyedRepository = {
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
-const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
+const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
 
   const [program, setProgram] = useState<Program>(data.program);
@@ -63,7 +63,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
-  const getFormObject = () : FormObject | null => {
+  const getFormObject = (): FormObject | null => {
     if (!formRef.current) { return null; }
 
     const formObject = parseForm(formRef.current, { nullify: false });
@@ -241,12 +241,13 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
 
   return (
     <FormContainer
-      description="Program and Study Registration"
+      description={SectionOption.title}
       formRef={formRef}
     >
       {/* Program Registration Section */}
       <SectionGroup title="Provide information">
         <Autocomplete
+          id="section-b-program"
           gridWidth={12}
           label="Program"
           value={programOption?.isCustom ? programOption.name : program.name}
@@ -257,6 +258,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           disableClearable
         />
         <TextInput
+          id="section-b-program-name"
           label="Program name"
           name="program[name]"
           value={programOption?.isCustom ? program.name : programOption.name}
@@ -266,6 +268,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           required
         />
         <TextInput
+          id="section-b-program-abbreviation-or-acronym"
           label="Program abbreviation or acronym"
           name="program[abbreviation]"
           value={programOption?.isCustom ? program.abbreviation : programOption.abbreviation}
@@ -275,6 +278,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           required
         />
         <TextInput
+          id="section-b-program-description"
           label="Program description"
           name="program[description]"
           value={programOption?.isCustom ? program.description : " "}
@@ -291,6 +295,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
       {/* Study Registration Section */}
       <SectionGroup title="Study information">
         <Autocomplete
+          id="section-b-study"
           gridWidth={12}
           label="Study"
           value={studyOption?.isCustom ? studyOption.name : study.name}
@@ -301,6 +306,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           disableClearable
         />
         <TextInput
+          id="section-b-study-name"
           label="Study name"
           name="study[name]"
           value={studyOption?.isCustom ? study.name : studyOption.name}
@@ -310,6 +316,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           required
         />
         <TextInput
+          id="section-b-study-abbreviation-or-acronym"
           label="Study abbreviation or acronym"
           name="study[abbreviation]"
           value={studyOption?.isCustom ? study.abbreviation : studyOption.abbreviation}
@@ -319,6 +326,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           required
         />
         <TextInput
+          id="section-b-study-description"
           label="Study description"
           name="study[description]"
           value={studyOption?.isCustom ? study.description : " "}
@@ -344,6 +352,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
         )}
         endButton={(
           <AddRemoveButton
+            id="section-b-add-publication-button"
             label="Add Publication"
             startIcon={<AddCircleIcon />}
             onClick={addPublication}
@@ -355,6 +364,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           items={publications}
           renderItem={(pub: KeyedPublication, idx: number) => (
             <Publication
+              idPrefix="section-b-"
               index={idx}
               publication={pub}
               onDelete={() => removePublication(pub.key)}
@@ -368,6 +378,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
         title="Planned Publications and estimated publication date"
         endButton={(
           <AddRemoveButton
+            id="section-b-add-planned-publication-button"
             label="Add Planned Publication"
             startIcon={<AddCircleIcon />}
             onClick={addPlannedPublication}
@@ -379,6 +390,7 @@ const FormSectionB: FC<FormSectionProps> = ({ refs }: FormSectionProps) => {
           items={plannedPublications}
           renderItem={(pub: KeyedPlannedPublication, idx: number) => (
             <PlannedPublication
+              idPrefix="section-b-"
               index={idx}
               plannedPublication={pub}
               onDelete={() => removePlannedPublication(pub.key)}

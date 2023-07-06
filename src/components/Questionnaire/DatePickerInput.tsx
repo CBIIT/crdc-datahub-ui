@@ -97,6 +97,7 @@ const StyledDatePicker = styled(DatePicker)(() => ({
 }));
 
 type Props = {
+  inputID: string;
   initialValue?: string | Date;
   label: string;
   infoText?: string;
@@ -118,6 +119,7 @@ type Props = {
  * @returns {JSX.Element}
  */
 const DatePickerInput: FC<Props> = ({
+  inputID,
   initialValue,
   label,
   name,
@@ -206,7 +208,7 @@ const DatePickerInput: FC<Props> = ({
           slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{
             textField: {
-              id,
+              id: inputID,
               name,
               required,
               error,

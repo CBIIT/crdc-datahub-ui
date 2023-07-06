@@ -3,6 +3,7 @@ import {
   Link, useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { isEqual } from 'lodash';
 import { Button, Container, Divider, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -31,7 +32,7 @@ type Props = {
   classes: WithStyles<typeof styles>['classes'];
 };
 
-const validateSection = (section: string) => Object.keys(map).some((s) => map[s].urlPath === section);
+const validateSection = (section: string) => typeof map[section] !== 'undefined';
 
 const StyledSidebar = styled(Stack)({
   position: "sticky",
@@ -64,10 +65,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
   const [openSubmitDialog, setOpenSubmitDialog] = useState<boolean>(false);
 
-  const sectionUrls = Object.keys(map).map((mapKey) => map[mapKey].urlPath);
-  const sectionIndex = sectionUrls.indexOf(activeSection);
-  const prevSection = sectionUrls[sectionIndex - 1] ? `/questionnaire/${data?.['_id']}/${sectionUrls[sectionIndex - 1]}` : null;
-  const nextSection = sectionUrls[sectionIndex + 1] ? `/questionnaire/${data?.['_id']}/${sectionUrls[sectionIndex + 1]}` : null;
+  const sectionKeys = Object.keys(map);
+  const sectionIndex = sectionKeys.indexOf(activeSection);
+  const prevSection = sectionKeys[sectionIndex - 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
+  const nextSection = sectionKeys[sectionIndex + 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -210,7 +211,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   }
 
   if (status === FormStatus.ERROR || !data) {
-    navigate('/questionnaire', {
+    navigate('/submissions', {
       state: { error: error || 'Unknown form loading error' },
     });
     return null;
@@ -218,6 +219,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   return (
     <>
+      <Helmet>
+        <title>CRDC Submission Request</title>
+      </Helmet>
+
       <QuestionnaireBanner />
 
       <StyledContainer maxWidth="xl">
