@@ -9,7 +9,7 @@ import React, {
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { GET_APP, SAVE_APP, SUBMIT_APP } from './graphql';
 import initialValues from "../../config/InitialValues";
-import { FormatDate } from "../StatusBar/utils";
+import { FormatDate } from "../../utils";
 
 export type ContextState = {
   status: Status;

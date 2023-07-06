@@ -18,8 +18,9 @@ import {
 } from "@mui/lab";
 import { styled } from "@mui/material/styles";
 import { useFormContext } from "../../Contexts/FormContext";
-import { FormatDate, SortHistory } from "../utils";
+import { SortHistory } from "../utils";
 import { HistoryIconMap } from "../icons";
+import { FormatDate } from "../../../utils";
 
 const StyledDate = styled("span")({
   fontWeight: "600",
