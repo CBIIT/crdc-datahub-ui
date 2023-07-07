@@ -3,6 +3,7 @@ import { AutocompleteChangeReason } from "@mui/material";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import dayjs from "dayjs";
 import programOptions from "../../../config/ProgramConfig";
 import fundingAgencyOptions from "../../../config/FundingConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
@@ -205,7 +206,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addPlannedPublication = () => {
     setPlannedPublications([
       ...plannedPublications,
-      { key: `${plannedPublications.length}_${new Date().getTime()}`, title: "", expectedDate: "" },
+      { key: `${plannedPublications.length}_${new Date().getTime()}`, title: "", expectedDate: dayjs().format("MM/DD/YYYY") },
     ]);
   };
 
