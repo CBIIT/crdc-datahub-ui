@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-one-expression-per-line */
-import React, { FC } from 'react';
-import { useParams } from "react-router-dom";
+import React, { FC, useState } from 'react';
+import { useParams, useNavigate } from "react-router-dom";
 import styled from '@emotion/styled';
 import staticContent from '../../config/StaticPageContentConfig';
 
@@ -56,6 +56,44 @@ const StyledContainer = styled.div`
       font-size: 20px;
       font-weight: 600;
     }
+    .middleSearchBar{
+      background: #F0F0F0;
+      border-radius: 5px;
+      padding: 35px 30px 30px;
+      margin-bottom: 50px;
+    }
+    .searchButton {
+      font-family: "Lato",sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 2.625;
+      padding: 0 34px;
+      text-align: center;
+      color: #FFFFFF;
+      background: #007BBD;
+      background-image: linear-gradient(to right, #6C4DBF, #5062C4, #2E88CA);
+      background-color: #6C4DBF;
+      background-size: 117px;
+      width:  117.031px
+    }
+
+    .searchButton:hover {
+      cursor: pointer;
+      background: #004971;
+    }
+`;
+
+const SearchInput = styled.input`
+  font-family: Inter, sans-serif;
+  font-weight: normal;
+  color: #1b1b1b;
+  width: 100%;
+  height: 2.4375rem;
+  margin: 0 0 1rem;
+  padding: 0.5rem;
+  border: 1px solid #cacaca;
+  border-radius: 20px;
+  transition: box-shadow 0.5s,border-color 0.25s ease-in-out;
 `;
 type SearchResult = {
   title: string;
@@ -98,11 +136,30 @@ const boldKeyword = (text, keyphrase) => {
 
 const Search: FC = () => {
     const { keyword } = useParams();
+    const navigate = useNavigate();
+    const [localText, setLocalText] = useState("");
     const searchResults: SearchResult[] = helper(keyword);
-
+    const handleTextInputChange = (event) => {
+      const text = event.target.value;
+      setLocalText(text);
+    };
+    const handleKeyPress = (event) => {
+      if (event.key === "Enter") {
+        navigate(`/sitesearch/${localText.trim()}`);
+        setLocalText("");
+      }
+    };
+    const handleSearch = () => {
+      navigate(`/sitesearch/${localText.trim()}`);
+      setLocalText("");
+    };
     return (
       <StyledContainer>
         <h1>CRDC Search Results</h1>
+        <div className="middleSearchBar">
+          <SearchInput id="header-search-bar" type="search" value={localText} onChange={handleTextInputChange} onKeyDown={handleKeyPress} />
+          <div role="button" tabIndex={0} className="searchButton" onKeyDown={handleKeyPress} onClick={handleSearch}>Search</div>
+        </div>
         {searchResults.length === 0 ? <div className="noResults"> Your search yielded no results.</div>
         : (
           <div>
