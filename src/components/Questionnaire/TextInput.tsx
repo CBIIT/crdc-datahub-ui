@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useState } from "react";
+import React, { FC, ReactNode, useEffect, useId, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -7,11 +7,13 @@ import {
   OutlinedInputProps,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
+import Tooltip from "./Tooltip";
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
   label: string;
   infoText?: string;
+  tooltipText?: string | ReactNode;
   errorText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
@@ -38,6 +40,7 @@ const TextInput: FC<Props> = ({
   gridWidth,
   maxLength,
   infoText,
+  tooltipText,
   errorText,
   validate,
   filter,
@@ -86,6 +89,7 @@ const TextInput: FC<Props> = ({
         <label htmlFor={id} className={classes.label}>
           {label}
           {required ? <span className={classes.asterisk}>*</span> : ""}
+          {tooltipText && <Tooltip title={tooltipText} />}
         </label>
         <OutlinedInput
           classes={{ root: classes.input }}

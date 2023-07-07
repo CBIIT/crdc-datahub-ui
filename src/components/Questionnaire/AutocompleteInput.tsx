@@ -17,7 +17,7 @@ const DropdownArrowsIcon = styled("div")(() => ({
   backgroundRepeat: "no-repeat",
   width: "10px",
   height: "18px",
-  marginBottom: "-3px"
+  marginBottom: "1px"
 }));
 
 type Props = {

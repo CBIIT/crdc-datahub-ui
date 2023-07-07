@@ -337,6 +337,17 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           minRows={2}
           readOnly={!studyOption?.isCustom}
           required={studyOption?.isCustom}
+          tooltipText={(
+            <>
+              Describe your study and the data being submitted. Include objectives of the study and convey information about the experimental approach.
+              <br />
+              <br />
+              Provide a brief description of the scientific value of the data for submission. For example, how can other researchers benefit from the value of these data.
+              <br />
+              <br />
+              If the description is taken verbatim from a published or soon to be published article, please submit copyright permission from the Journal. Summaries with copyrighted material must include the following within the description: “Reprinted from [Article Citation], with permission from [Publisher].
+            </>
+          )}
           multiline
         />
       </SectionGroup>
