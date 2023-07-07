@@ -189,7 +189,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   return (
     <>
       <Helmet>
-        <title>CRDC Submission Request</title>
+        <title>Submission Request Form</title>
       </Helmet>
 
       <QuestionnaireBanner />

@@ -59,7 +59,6 @@ type PI = {
   position: string;
   email: string;
   institution: string;
-  eRAAccount: string;
   address: string;
 };
 
