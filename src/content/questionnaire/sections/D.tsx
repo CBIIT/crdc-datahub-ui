@@ -12,8 +12,8 @@ import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import { mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
-import TableAutocompleteInput from "../../../components/Questionnaire/TableAutocompleteInput";
-import fileTypeOptions from "../../../config/FileTypeConfig";
+import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
+import { fileTypeOptions } from "../../../config/FileTypeConfig";
 import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 /**
  * Form Section D View
@@ -76,7 +76,7 @@ const TableContainer = styled.div`
       border-right: 1px solid #6B7294;
       border-bottom: none;
       border-left: none;
-      padding: 10px 12px 10px 15px;
+      padding: 10px 12px 10px 12px;
     }
     .tableTopRowMiddle {
       border-top: none;
@@ -160,7 +160,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addFileDataType = () => {
     setFileTypeData([
       ...fileTypeData,
-      { key: `${fileTypeData.length}_${new Date().getTime()}`, type: ``, count: 0, amount: "" },
+      { key: `${fileTypeData.length}_${new Date().getTime()}`, type: ``, count: 0, amount: "", extension: "" },
     ]);
     fileTypeDataRef.current.setCustomValidity("");
   };
@@ -172,7 +172,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
     setFileTypeData(fileTypeData.filter((c) => c.key !== key));
   };
-  fileTypeData.map((data) => console.log(data.type));
   return (
     <FormContainer
       description={SectionOption.title}
@@ -338,13 +337,14 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           <Table className="noBorder">
             <TableHead className="noBorder">
               <TableRow className="noBorder">
-                <TableCell width="28%" className="fileTypeTableCell">
+                <TableCell width="24%" className="fileTypeTableCell">
                   File Type
                   <span className="asterisk">*</span>
                   <input tabIndex={-1} style={{ height: "0", border: "none", width: "0" }} ref={fileTypeDataRef} />
                 </TableCell>
-                <TableCell width="14%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
+                <TableCell width="18%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
                   File Extension
+                  <span className="asterisk">*</span>
                 </TableCell>
                 <TableCell width="17%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
                   Number of Files
@@ -362,26 +362,14 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                 <TableRow
                   key={fileData.key}
                 >
-                  <TableCell className="autoComplete">
-                    <TableAutocompleteInput
-                      inputID={`section-d-file-type-${idx}-file-type`}
-                      value={fileData.type}
-                      name={`files[${idx}][type]`}
-                      options={fileTypeOptions.map((fileType) => fileType)}
-                      placeholder="Select Type"
-                      freeSolo
-                    />
-                  </TableCell>
-                  <TableCell className="bottomRowMiddle">
-                    <TableAutocompleteInput
-                      inputID={`section-d-file-type-${idx}-file-extension`}
-                      value={fileData.type}
-                      name={`files[${idx}][extension]`}
-                      options={fileTypeOptions.map((fileType) => fileType)}
-                      placeholder="Select Type"
-                      freeSolo
-                    />
-                  </TableCell>
+                  <TableFileTypeAndExtensionInput
+                    inputID={`section-d-file-type-${idx}-file`}
+                    typeValue={fileData.type}
+                    extensionValue={fileData.extension}
+                    name={`files[${idx}]`}
+                    options={fileTypeOptions.map((fileType) => fileType)}
+                    placeholder="Select Type"
+                  />
                   <TableCell className="bottomRowMiddle">
                     <TableTextInput
                       id={`section-d-file-type-${idx}-number-of-files`}

@@ -82,6 +82,7 @@ const GridStyled = styled(Grid)`
     font-weight: 700;
     line-height: 19.6px;
     min-height: 20px;
+    margin-bottom:20px;
   }
   .asterisk {
     color: #D54309;
@@ -90,7 +91,7 @@ const GridStyled = styled(Grid)`
   .labelContainer {
     display: flex;
     align-items: center;
-    height: 40px;
+    height: 20px;
   }
   .switchYesNoContainer {
     display: flex;
