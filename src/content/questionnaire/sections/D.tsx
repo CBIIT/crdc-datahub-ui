@@ -2,7 +2,7 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import styled from 'styled-components';
-import { Grid, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
@@ -172,6 +172,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
     setFileTypeData(fileTypeData.filter((c) => c.key !== key));
   };
+  fileTypeData.map((data) => console.log(data.type));
   return (
     <FormContainer
       description={SectionOption.title}
@@ -199,10 +200,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           toggleContent={(
             <SwitchInput
               id="section-d-de-identified"
-              label="Confirm the data you plan to submit are de-identified"
+              label="Confirm the imaging data you plan to submit are de-identified"
               name="dataTypes[]"
               required
-              value={dataTypes.includes("Confirm the data you plan to submit are de-identified")}
+              value={dataTypes.includes("Confirm the imaging data you plan to submit are de-identified")}
               gridWidth={12}
             />
           )}
@@ -221,7 +222,13 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           value={dataTypes.includes("Immunology")}
         />
-        <Grid item md={6} />
+        <SwitchInput
+          id="section-d-epidemiologic-or-cohort"
+          label="Epidemiologic or Cohort"
+          name="dataTypes[]"
+          required
+          value={dataTypes.includes("Epidemiologic or Cohort")}
+        />
         <SwitchInput
           id="section-d-proteomics"
           label="Proteomics"
@@ -231,7 +238,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-d-other-data-types"
-          label="Other data types (specify)"
+          label="Other data types (Specify)"
           name="otherDataTypes"
           value={data.otherDataTypes}
           placeholder="Enter Types"
@@ -288,7 +295,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-d-clinical-data-other-data-types"
-          label="Other data types (specify)"
+          label="Other clinical data types (Specify)"
           name="clinicalData[otherDataTypes]"
           value={data.clinicalData.otherDataTypes}
           placeholder="Enter Types"
@@ -331,10 +338,13 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           <Table className="noBorder">
             <TableHead className="noBorder">
               <TableRow className="noBorder">
-                <TableCell width="42%" className="fileTypeTableCell">
+                <TableCell width="28%" className="fileTypeTableCell">
                   File Type
                   <span className="asterisk">*</span>
                   <input tabIndex={-1} style={{ height: "0", border: "none", width: "0" }} ref={fileTypeDataRef} />
+                </TableCell>
+                <TableCell width="14%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
+                  File Extension
                 </TableCell>
                 <TableCell width="17%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
                   Number of Files
@@ -361,7 +371,16 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       placeholder="Select Type"
                       freeSolo
                     />
-                    {/* {data.fileType} */}
+                  </TableCell>
+                  <TableCell className="bottomRowMiddle">
+                    <TableAutocompleteInput
+                      inputID={`section-d-file-type-${idx}-file-extension`}
+                      value={fileData.type}
+                      name={`files[${idx}][extension]`}
+                      options={fileTypeOptions.map((fileType) => fileType)}
+                      placeholder="Select Type"
+                      freeSolo
+                    />
                   </TableCell>
                   <TableCell className="bottomRowMiddle">
                     <TableTextInput

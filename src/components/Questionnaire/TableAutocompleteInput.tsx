@@ -47,8 +47,13 @@ const TableAutocompleteInput: FC<Props> = ({
   ...rest
 }) => {
   const [val, setVal] = useState(value);
-
+  const [textColor, setTextColor] = useState("#083A50");
   const onChangeWrapper = (e, v, r) => {
+    if (v.toLowerCase().includes("other")) {
+      setTextColor("#d3d3d3");
+    } else {
+      setTextColor("#083A50");
+    }
     if (typeof onChange === "function") {
       onChange(e, v, r);
     }
@@ -59,14 +64,21 @@ const TableAutocompleteInput: FC<Props> = ({
   useEffect(() => {
     onChangeWrapper(null, value, null);
   }, [value]);
-
   return (
     <Autocomplete
       isOptionEqualToValue={(option, value) => option.value === value.value}
       sx={{
         '& .MuiAutocomplete-endAdornment': {
           top: "auto"
-        }
+        },
+          "& .MuiInputBase-input": {
+          color: textColor,
+          fontWeight: 400,
+          fontSize: "16px",
+          fontFamily: "'Nunito', 'Rubik', sans-serif",
+          padding: "0 !important",
+          height: "20px",
+        },
       }}
       id={inputID}
       size="small"
@@ -140,14 +152,6 @@ const styles = () => ({
     backgroundColor: "#fff",
     "& .MuiAutocomplete-inputRoot.MuiInputBase-root": {
       padding: 0,
-    },
-    "& .MuiInputBase-input": {
-      color: "#083A50",
-      fontWeight: 400,
-      fontSize: "16px",
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      padding: "0 !important",
-      height: "20px",
     },
     "& ::placeholder": {
       color: "#929296",
