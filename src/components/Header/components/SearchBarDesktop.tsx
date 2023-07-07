@@ -84,13 +84,13 @@ const SearchBar = () => {
 
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
-      navigate(`/sitesearch?keyword=${localText.trim()}`);
+      navigate(`/sitesearch/${localText.trim()}`);
       setLocalText("");
     }
   };
 
   const handleSearch = () => {
-    navigate(`/sitesearch?keyword=${localText.trim()}`);
+    navigate(`/sitesearch/${localText.trim()}`);
     setLocalText("");
   };
 
