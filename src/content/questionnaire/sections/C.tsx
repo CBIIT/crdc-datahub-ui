@@ -3,6 +3,7 @@ import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { styled } from "@mui/material";
+import dayjs from "dayjs";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
@@ -19,6 +20,7 @@ import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfi
 import TimeConstraint from "../../../components/Questionnaire/TimeConstraint";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
+import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
@@ -40,6 +42,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { nextButtonRef, saveFormRef, submitFormRef, getFormObjectRef } = refs;
 
   const [timeConstraints, setTimeConstraints] = useState<KeyedTimeConstraint[]>(data.timeConstraints?.map(mapObjectWithKey));
+  const [dataIsDeIdentified, setDataIsDeIdentified] = useState<boolean>(false);
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -73,7 +76,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const constraints = !timeConstraints ? [] : timeConstraints;
     setTimeConstraints([
       ...constraints,
-      { key: `${constraints.length}_${new Date().getTime()}`, description: "", effectiveDate: new Date().toISOString() },
+      { key: `${constraints.length}_${new Date().getTime()}`, description: "", effectiveDate: dayjs().format("MM/DD/YYYY") },
     ]);
   };
 
@@ -237,6 +240,14 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           orientation="horizontal"
           gridWidth={12}
           allowMultipleChecked={false}
+        />
+        <SwitchInput
+          id="section-c-de-identified"
+          label="Confirm the data you plan to submit are de-identified"
+          name="" // TODO: Confirm where to send this data to
+          value={dataIsDeIdentified}
+          gridWidth={6}
+          required
         />
       </SectionGroup>
     </FormContainer>
