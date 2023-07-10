@@ -137,16 +137,10 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="pi[institution]"
           value={pi?.institution || ""}
           options={institutionConfig}
-          placeholder="Select Institution"
+          placeholder="Enter or Select an Institution"
           required
           disableClearable
           freeSolo
-        />
-        <TextInput
-          id="section-a-pi-era-commons-account"
-          label="If you have an eRA Commons account, provide it here:"
-          name="pi[eRAAccount]"
-          value={pi.eRAAccount}
         />
         <TextInput
           id="section-a-pi-institution-address"
@@ -231,7 +225,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="primaryContact[institution]"
           value={primaryContact?.institution || ""}
           options={institutionConfig}
-          placeholder="Select Institution"
+          placeholder="Enter or Select an Institution"
           readOnly={piAsPrimaryContact}
           disableClearable
           required

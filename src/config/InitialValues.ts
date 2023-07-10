@@ -7,7 +7,6 @@ const initialValues: Omit<Application, "_id" | "applicantID"> = {
     position: "",
     email: "",
     institution: "",
-    eRAAccount: "",
     address: "",
   },
   piAsPrimaryContact: false,
