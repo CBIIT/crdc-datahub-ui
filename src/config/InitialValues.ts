@@ -50,6 +50,7 @@ const initialValues: Omit<Application, "_id" | "applicantID"> = {
   species: [],
   cellLines: false,
   modelSystems: false,
+  dataDeIdentified: false,
   dataTypes: [],
   otherDataTypes: "",
   clinicalData: {

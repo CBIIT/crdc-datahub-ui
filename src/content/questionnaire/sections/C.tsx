@@ -19,6 +19,8 @@ import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfi
 import TimeConstraint from "../../../components/Questionnaire/TimeConstraint";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
+import SwitchInput from "../../../components/Questionnaire/SwitchInput";
+import { isValidInRange } from "../../../utils";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
@@ -213,9 +215,14 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Number of participants included in the submission"
           name="numberOfParticipants"
           placeholder="##"
-          value={data.numberOfParticipants}
-          validate={(input: string) => parseInt(input, 10) > 0}
           type="number"
+          value={data.numberOfParticipants}
+          validate={(input: string) => isValidInRange(input, 1)} // greater than 0
+          errorText="Value must be greater than 0. Please enter a valid number greater than 0."
+          inputProps={{
+            step: 1,
+            min: 1,
+          }}
           required
         />
         <SelectInput
@@ -236,6 +243,15 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           orientation="horizontal"
           gridWidth={12}
           allowMultipleChecked={false}
+        />
+        <SwitchInput
+          id="section-c-data-de-identified"
+          label="Confirm the data you plan to submit are de-identified"
+          name="dataDeIdentified"
+          value={data.dataDeIdentified}
+          gridWidth={6}
+          touchRequired
+          required
         />
       </SectionGroup>
     </FormContainer>

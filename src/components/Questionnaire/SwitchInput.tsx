@@ -1,5 +1,5 @@
-import React, { FC, ReactElement, useId, useState } from 'react';
-import { SwitchProps, Grid, Switch } from '@mui/material';
+import React, { FC, ReactElement, useEffect, useId, useRef, useState } from 'react';
+import { SwitchProps, Grid, Switch, FormHelperText } from '@mui/material';
 import styled from "styled-components";
 import Tooltip from "./Tooltip";
 
@@ -9,9 +9,11 @@ type Props = {
   tooltipText?: string;
   required?: boolean;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
+  errorText?: string;
   value: boolean;
   toggleContent?: ReactElement;
   isBoolean? : boolean;
+  touchRequired?: boolean;
 } & Omit<SwitchProps, "color">;
 
 const GridStyled = styled(Grid)`
@@ -100,11 +102,54 @@ const GridStyled = styled(Grid)`
   .tooltip {
     align-self: start;
   }
+  .errorMessage {
+    color: #D54309 !important;
+    margin-top: 4px;
+    min-height: 20px;
+  }
 `;
 
-const CustomSwitch: FC<Props> = ({ classes, label, required, value, name, tooltipText, gridWidth, toggleContent, isBoolean = false, ...rest }) => {
+const CustomSwitch: FC<Props> = ({
+  classes,
+  label,
+  required,
+  value,
+  name,
+  tooltipText,
+  errorText,
+  gridWidth,
+  toggleContent,
+  isBoolean = false,
+  touchRequired = false,
+  ...rest }) => {
   const id = useId();
   const [val, setVal] = useState(value || false);
+  const [touched, setTouched] = useState(false);
+  const [error, setError] = useState(false);
+  const errorMsg = errorText || (touchRequired ? "Please interact with the switch before continuing" : null);
+  const switchInputRef = useRef<HTMLInputElement>(null);
+
+  // Validation if touch is required
+  useEffect(() => {
+    if (!touchRequired) {
+      return;
+    }
+    if (!touched) {
+      switchInputRef?.current.setCustomValidity("Please interact with the switch before continuing");
+      setError(true);
+      return;
+    }
+    switchInputRef?.current.setCustomValidity("");
+    setError(false);
+  }, [touched, touchRequired]);
+
+  const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    if (!touched) {
+      setTouched(true);
+    }
+    setVal(checked);
+  };
+
   return (
     <GridStyled md={gridWidth || 6} xs={12} item>
       <div className="container" style={{ flexWrap: "wrap" }}>
@@ -116,18 +161,19 @@ const CustomSwitch: FC<Props> = ({ classes, label, required, value, name, toolti
         <div className="switchYesNoContainer">
           <div className={val ? "text" : "textChecked"}>No</div>
           <Switch
+            inputRef={switchInputRef}
             inputProps={{ datatype: "boolean" }}
             focusVisibleClassName="focusVisible"
             id={id}
             checked={val}
-            onChange={(_, c) => { setVal(c); }}
+            onChange={onChangeWrapper}
             classes={{
-          root: "switchRoot",
-          switchBase: "switchBase",
-          thumb: "thumb",
-          track: "track",
-          checked: "checked",
-        }}
+              root: "switchRoot",
+              switchBase: "switchBase",
+              thumb: "thumb",
+              track: "track",
+              checked: "checked",
+            }}
             {...rest}
           />
           {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
@@ -137,6 +183,9 @@ const CustomSwitch: FC<Props> = ({ classes, label, required, value, name, toolti
         </div>
       </div>
       {val ? toggleContent : <div />}
+      <FormHelperText className="errorMessage">
+        {error ? errorMsg : " "}
+      </FormHelperText>
     </GridStyled>
   );
 };
