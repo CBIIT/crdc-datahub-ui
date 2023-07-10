@@ -2,6 +2,7 @@ import React, { FC, ReactElement, useEffect, useId, useMemo, useRef, useState } 
 import { SwitchProps, Grid, Switch, FormHelperText } from '@mui/material';
 import styled from "styled-components";
 import Tooltip from "./Tooltip";
+import { updateInputValidity } from '../../utils';
 
 type Props = {
   label: string,
@@ -142,11 +143,11 @@ const CustomSwitch: FC<Props> = ({
       return;
     }
     if (!touched) {
-      switchInputRef?.current.setCustomValidity(errorMsg);
+      updateInputValidity(switchInputRef, errorMsg);
       setError(true);
       return;
     }
-    switchInputRef?.current.setCustomValidity("");
+    updateInputValidity(switchInputRef);
     setError(false);
   }, [touched, touchRequired]);
 
