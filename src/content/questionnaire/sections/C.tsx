@@ -250,6 +250,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="dataDeIdentified"
           value={data.dataDeIdentified}
           gridWidth={6}
+          isBoolean
           touchRequired
           required
         />

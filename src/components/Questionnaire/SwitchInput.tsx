@@ -124,7 +124,7 @@ const CustomSwitch: FC<Props> = ({
   ...rest }) => {
   const id = useId();
   const [val, setVal] = useState(value || false);
-  const [touched, setTouched] = useState(false);
+  const [touched, setTouched] = useState(!!value); // Set touched if loading in existing value
   const [error, setError] = useState(false);
   const errorMsg = errorText || (touchRequired ? "Please interact with the switch before continuing" : null);
   const switchInputRef = useRef<HTMLInputElement>(null);
@@ -147,6 +147,7 @@ const CustomSwitch: FC<Props> = ({
     if (!touched) {
       setTouched(true);
     }
+
     setVal(checked);
   };
 
