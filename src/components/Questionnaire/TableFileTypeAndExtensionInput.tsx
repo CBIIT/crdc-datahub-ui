@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState, Fragment } from "react";
+import React, { FC, useEffect, useState, useRef } from "react";
 import {
   Autocomplete,
   TextField,
@@ -51,15 +51,19 @@ const TableAutocompleteInput: FC<Props> = ({
   const [extensionVal, setExtensionVal] = useState(extensionValue);
   const [valTextColor, setValTextColor] = useState("#083A50");
   const [extensionTextColor, setExtensionTextColor] = useState("#083A50");
-
+  const fileTypeRef = useRef<HTMLInputElement>(null);
+  const fileExtensionRef = useRef<HTMLInputElement>(null);
   const onTypeValChangeWrapper = (e, v, r) => {
     v = v || "";
     if (v.toLowerCase().includes("other")) {
       setValTextColor("#d3d3d3");
       setExtensionVal("Other Extension");
       setExtensionTextColor("#d3d3d3");
+      fileTypeRef.current.setCustomValidity("Please specify a file type");
+      fileExtensionRef.current.setCustomValidity("Please specify a file extension type");
     } else {
       setValTextColor("#083A50");
+      fileTypeRef.current.setCustomValidity("");
     }
     if (typeof onChange === "function") {
       onChange(e, v, r);
@@ -71,14 +75,22 @@ const TableAutocompleteInput: FC<Props> = ({
     v = v || "";
     if (v.toLowerCase().includes("other")) {
       setExtensionTextColor("#d3d3d3");
+      fileExtensionRef.current.setCustomValidity("Please specify a file extension type");
     } else {
       setExtensionTextColor("#083A50");
+      fileExtensionRef.current.setCustomValidity("");
     }
     if (typeof onChange === "function") {
       onChange(e, v, r);
     }
 
     setExtensionVal(v);
+  };
+  const typeTextInputOnChange = (r) => {
+    onTypeValChangeWrapper(null, r.target.value, null);
+  };
+  const extensionTextInputOnChange = (r) => {
+    onExtensionValChangeWrapper(null, r.target.value, null);
   };
 
   useEffect(() => {
@@ -134,10 +146,12 @@ const TableAutocompleteInput: FC<Props> = ({
           renderInput={(p) => (
             <TextField
               {...p}
+              onChange={typeTextInputOnChange}
               name={name.concat("[type]")}
               required={required}
               placeholder={rest.placeholder || ""}
               variant="standard"
+              inputRef={fileTypeRef}
               InputProps={{ ...p.InputProps, disableUnderline: true }}
             />
         )}
@@ -187,10 +201,12 @@ const TableAutocompleteInput: FC<Props> = ({
           renderInput={(p) => (
             <TextField
               {...p}
+              onChange={extensionTextInputOnChange}
               name={name.concat("[extension]")}
               required={required}
               placeholder={rest.placeholder || ""}
               variant="standard"
+              inputRef={fileExtensionRef}
               InputProps={{ ...p.InputProps, disableUnderline: true }}
             />
           )}
