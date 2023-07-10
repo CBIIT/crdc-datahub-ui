@@ -12,6 +12,7 @@ type Props = {
   value: boolean;
   toggleContent?: ReactElement;
   isBoolean? : boolean;
+  graphQLValue?: string;
 } & Omit<SwitchProps, "color">;
 
 const GridStyled = styled(Grid)`
@@ -103,7 +104,7 @@ const GridStyled = styled(Grid)`
   }
 `;
 
-const CustomSwitch: FC<Props> = ({ classes, label, required, value, name, tooltipText, gridWidth, toggleContent, isBoolean = false, ...rest }) => {
+const CustomSwitch: FC<Props> = ({ classes, label, required, value, name, tooltipText, gridWidth, toggleContent, graphQLValue = "", isBoolean = false, ...rest }) => {
   const id = useId();
   const [val, setVal] = useState(value || false);
   return (
@@ -133,7 +134,7 @@ const CustomSwitch: FC<Props> = ({ classes, label, required, value, name, toolti
           />
           {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
           {/* eslint-disable-next-line no-nested-ternary */}
-          <input onChange={() => {}} className="input" name={name} type="checkbox" data-type={isBoolean ? "boolean" : "auto"} value={isBoolean ? val.toString() : (val ? label : "")} checked />
+          <input onChange={() => {}} className="input" name={name} type="checkbox" data-type={isBoolean ? "boolean" : "auto"} value={isBoolean ? val.toString() : (val ? graphQLValue : "")} checked />
           <div className={val ? "textChecked" : "text"}>Yes</div>
         </div>
       </div>

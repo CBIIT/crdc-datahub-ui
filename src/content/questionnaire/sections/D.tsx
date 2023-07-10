@@ -188,21 +188,24 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Clinical Trial"
           name="dataTypes[]"
           required
-          value={dataTypes.includes("Clinical Trial")}
+          graphQLValue="clinicalTrial"
+          value={dataTypes.includes("clinicalTrial")}
         />
         <SwitchInput
           id="section-d-imaging"
           label="Imaging"
           name="dataTypes[]"
+          graphQLValue="imaging"
           required
-          value={dataTypes.includes("Imaging")}
+          value={dataTypes.includes("imaging")}
           toggleContent={(
             <SwitchInput
               id="section-d-de-identified"
               label="Confirm the imaging data you plan to submit are de-identified"
               name="dataTypes[]"
+              graphQLValue="imagingDeidentified"
               required
-              value={dataTypes.includes("Confirm the imaging data you plan to submit are de-identified")}
+              value={dataTypes.includes("imagingDeidentified")}
               gridWidth={12}
             />
           )}
@@ -211,29 +214,33 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-d-genomics"
           label="Genomics"
           name="dataTypes[]"
+          graphQLValue="genomics"
           required
-          value={dataTypes.includes("Genomics")}
+          value={dataTypes.includes("genomics")}
         />
         <SwitchInput
           id="section-d-immunology"
           label="Immunology"
           name="dataTypes[]"
+          graphQLValue="immunology"
           required
-          value={dataTypes.includes("Immunology")}
+          value={dataTypes.includes("immunology")}
         />
         <SwitchInput
           id="section-d-epidemiologic-or-cohort"
           label="Epidemiologic or Cohort"
+          graphQLValue="epidemiologicOrCohort"
           name="dataTypes[]"
           required
-          value={dataTypes.includes("Epidemiologic or Cohort")}
+          value={dataTypes.includes("epidemiologicOrCohort")}
         />
         <SwitchInput
           id="section-d-proteomics"
           label="Proteomics"
+          graphQLValue="proteomics"
           name="dataTypes[]"
           required
-          value={dataTypes.includes("Proteomics")}
+          value={dataTypes.includes("proteomics")}
         />
         <TextInput
           id="section-d-other-data-types"
@@ -254,42 +261,48 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-d-demographic-data"
           label="Demographic Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Demographic Data")}
+          graphQLValue="demographicData"
+          value={data.clinicalData.dataTypes.includes("demographicData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           id="section-d-relapse-recurrence-data"
           label="Relapse/Recurrence Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Relapse/Recurrence Data")}
+          graphQLValue="relapseRecurrenceData"
+          value={data.clinicalData.dataTypes.includes("relapseRecurrenceData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           id="section-d-diagnosis-data"
           label="Diagnosis Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Diagnosis Data")}
+          graphQLValue="diagnosisData"
+          value={data.clinicalData.dataTypes.includes("diagnosisData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           id="section-d-outcome-data"
           label="Outcome Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Outcome Data")}
+          graphQLValue="outcomeData"
+          value={data.clinicalData.dataTypes.includes("outcomeData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           id="section-d-treatment-data"
           label="Treatment Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Treatment Data")}
+          graphQLValue="treatmentData"
+          value={data.clinicalData.dataTypes.includes("treatmentData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           id="section-d-biospecimen-data"
           label="Biospecimen Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Biospecimen Data")}
+          graphQLValue="biospecimenData"
+          value={data.clinicalData.dataTypes.includes("biospecimenData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <TextInput
