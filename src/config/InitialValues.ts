@@ -1,5 +1,5 @@
 // NOTE: this will have to be changed if schema changes
-const initialValues: Omit<Application, "_id" | "applicantID"> = {
+const initialValues: Omit<Application, "_id" | "applicantID" | "organization" | "applicant" | "history" | "submittedDate"> = {
   sections: [],
   pi: {
     firstName: "",
@@ -64,7 +64,6 @@ const initialValues: Omit<Application, "_id" | "applicantID"> = {
   reviewComment: "",
   createdAt: "",
   updatedAt: "",
-  history: [],
 };
 
 export default initialValues;

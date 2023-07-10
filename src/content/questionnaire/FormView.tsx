@@ -160,7 +160,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     // Wait for the save handler to complete
     await saveForm();
     setBlockedNavigate(false);
-    blocker.proceed();
+    blocker.proceed?.();
   };
 
   /**
@@ -172,7 +172,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const discardAndNavigate = () => {
     setBlockedNavigate(false);
-    blocker.proceed();
+    blocker.proceed?.();
   };
 
   if (status === FormStatus.LOADING) {

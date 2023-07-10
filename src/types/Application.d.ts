@@ -29,8 +29,10 @@ type Application = {
   reviewComment: string;
   createdAt: string; // YYYY-MM-DDTHH:MM:SS format
   updatedAt: string; // YYYY-MM-DDTHH:MM:SS format
+  submittedDate: string; // YYYY-MM-DDTHH:MM:SS format
   history: HistoryEvent[];
-  applicantID: string;
+  applicant?: Applicant;
+  organization?: string;
 };
 
 type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected";
@@ -123,4 +125,10 @@ type HistoryEvent = {
   reviewComment?: string;
   dateTime: string; // YYYY-MM-DDTHH:MM:SS format
   userID: number;
+};
+
+type Applicant = {
+  applicantID: string;
+  applicantName: string;
+  applicantEmail: string;
 };
