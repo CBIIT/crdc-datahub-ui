@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useEffect, useId, useRef, useState } from 'react';
+import React, { FC, ReactElement, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { SwitchProps, Grid, Switch, FormHelperText } from '@mui/material';
 import styled from "styled-components";
 import Tooltip from "./Tooltip";
@@ -123,11 +123,18 @@ const CustomSwitch: FC<Props> = ({
   touchRequired = false,
   ...rest }) => {
   const id = useId();
-  const [val, setVal] = useState(value || false);
-  const [touched, setTouched] = useState(!!value); // Set touched if loading in existing value
+  const [val, setVal] = useState<boolean | null>(value || false);
+  const [touched, setTouched] = useState(value?.toString()?.length > 0);
   const [error, setError] = useState(false);
-  const errorMsg = errorText || (touchRequired ? "Please interact with the switch before continuing" : null);
+
+  const errorMsg = errorText || (required ? "This field is required" : null);
   const switchInputRef = useRef<HTMLInputElement>(null);
+  const proxyValue = useMemo(() => {
+    if (isBoolean) {
+      return touchRequired && !touched ? undefined : val?.toString();
+    }
+    return val ? label : "";
+  }, [isBoolean, val, label]);
 
   // Validation if touch is required
   useEffect(() => {
@@ -135,7 +142,7 @@ const CustomSwitch: FC<Props> = ({
       return;
     }
     if (!touched) {
-      switchInputRef?.current.setCustomValidity("Please interact with the switch before continuing");
+      switchInputRef?.current.setCustomValidity(errorMsg);
       setError(true);
       return;
     }
@@ -179,7 +186,15 @@ const CustomSwitch: FC<Props> = ({
           />
           {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
           {/* eslint-disable-next-line no-nested-ternary */}
-          <input onChange={() => {}} className="input" name={name} type="checkbox" data-type={isBoolean ? "boolean" : "auto"} value={isBoolean ? val.toString() : (val ? label : "")} checked />
+          <input
+            onChange={() => {}}
+            className="input"
+            name={name}
+            type="checkbox"
+            data-type={isBoolean ? "boolean" : "auto"}
+            value={proxyValue}
+            checked
+          />
           <div className={val ? "textChecked" : "text"}>Yes</div>
         </div>
       </div>
