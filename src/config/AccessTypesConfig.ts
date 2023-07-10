@@ -5,7 +5,6 @@
   const options: string[] = [
     "Open Access",
     "Controlled Access",
-    "Registered Access"
   ];
 
   export default options;
