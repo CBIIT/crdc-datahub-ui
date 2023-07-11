@@ -76,7 +76,7 @@ const TableContainer = styled.div`
       border-right: 1px solid #6B7294;
       border-bottom: none;
       border-left: none;
-      padding: 10px 12px 10px 12px;
+      padding: 10px 20px 10px 20px;
     }
     .tableTopRowMiddle {
       border-top: none;
@@ -350,20 +350,20 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           <Table className="noBorder">
             <TableHead className="noBorder">
               <TableRow className="noBorder">
-                <TableCell width="24%" className="fileTypeTableCell">
+                <TableCell width="30%" className="fileTypeTableCell">
                   File Type
                   <span className="asterisk">*</span>
                   <input tabIndex={-1} style={{ height: "0", border: "none", width: "0" }} ref={fileTypeDataRef} />
                 </TableCell>
-                <TableCell width="18%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
+                <TableCell width="20%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
                   File Extension
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="17%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
-                  Number of Files
+                <TableCell width="13%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
+                  File Count
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="42%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
+                <TableCell width="20%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
                   Estimated amount of data (KB, MB, GB, TB)
                   <span className="asterisk">*</span>
                 </TableCell>

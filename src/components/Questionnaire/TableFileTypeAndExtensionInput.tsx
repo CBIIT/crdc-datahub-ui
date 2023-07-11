@@ -122,7 +122,6 @@ const TableAutocompleteInput: FC<Props> = ({
           onChange={onTypeValChangeWrapper}
           popupIcon={<DropdownArrowsIcon />}
           freeSolo
-          disableClearable
           slotProps={{
           paper: {
             className: classes.paper
@@ -178,7 +177,6 @@ const TableAutocompleteInput: FC<Props> = ({
           onChange={onExtensionValChangeWrapper}
           popupIcon={<DropdownArrowsIcon />}
           freeSolo
-          disableClearable
           slotProps={{
             paper: {
               className: classes.paper
