@@ -4,19 +4,6 @@ import styled from "styled-components";
 import Tooltip from "./Tooltip";
 import { updateInputValidity } from '../../utils';
 
-type Props = {
-  label: string,
-  name: string,
-  tooltipText?: string;
-  required?: boolean;
-  gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
-  errorText?: string;
-  value: boolean;
-  toggleContent?: ReactElement;
-  isBoolean? : boolean;
-  touchRequired?: boolean;
-} & Omit<SwitchProps, "color">;
-
 const GridStyled = styled(Grid)`
   margin-bottom: 16px !important;
   // Customize the root class
@@ -85,6 +72,7 @@ const GridStyled = styled(Grid)`
     font-weight: 700;
     line-height: 19.6px;
     min-height: 20px;
+    margin-bottom:20px;
   }
   .asterisk {
     color: #D54309;
@@ -93,7 +81,7 @@ const GridStyled = styled(Grid)`
   .labelContainer {
     display: flex;
     align-items: center;
-    height: 40px;
+    height: 20px;
   }
   .switchYesNoContainer {
     display: flex;
@@ -110,6 +98,20 @@ const GridStyled = styled(Grid)`
   }
 `;
 
+type Props = {
+  label: string,
+  name: string,
+  tooltipText?: string;
+  required?: boolean;
+  gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
+  errorText?: string;
+  value: boolean;
+  toggleContent?: ReactElement;
+  isBoolean? : boolean;
+  touchRequired?: boolean;
+  graphQLValue?: string;
+} & Omit<SwitchProps, "color">;
+
 const CustomSwitch: FC<Props> = ({
   classes,
   label,
@@ -117,12 +119,14 @@ const CustomSwitch: FC<Props> = ({
   value,
   name,
   tooltipText,
-  errorText,
   gridWidth,
+  errorText,
   toggleContent,
+  graphQLValue = "",
   isBoolean = false,
-  touchRequired = false,
-  ...rest }) => {
+  touchRequired,
+  ...rest
+}) => {
   const id = useId();
   const [val, setVal] = useState<boolean | null>(value || false);
   const [touched, setTouched] = useState(value?.toString()?.length > 0);
@@ -134,7 +138,7 @@ const CustomSwitch: FC<Props> = ({
     if (isBoolean) {
       return touchRequired && !touched ? undefined : val?.toString();
     }
-    return val ? label : "";
+    return val ? graphQLValue : "";
   }, [isBoolean, val, label]);
 
   // Validation if touch is required
