@@ -19,6 +19,7 @@ type Application = {
   species: string[];
   cellLines: boolean;
   modelSystems: boolean;
+  dataDeIdentified: boolean;
   dataTypes: string[];
   otherDataTypes: string;
   clinicalData: ClinicalData;
