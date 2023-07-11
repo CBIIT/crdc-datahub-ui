@@ -38,6 +38,8 @@ const initialValues: Omit<Application, "_id" | "applicantID"> = {
       nciGPA: "",
     },
   },
+  isdbGaPRegistered: false,
+  dbGaPPHSNumber: "",
   accessTypes: [],
   targetedSubmissionDate: "",
   targetedReleaseDate: "",
