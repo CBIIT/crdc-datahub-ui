@@ -17,6 +17,7 @@ import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import initialValues from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
+import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 
 type KeyedPublication = {
   key: string;
@@ -337,6 +338,31 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required={studyOption?.isCustom}
           multiline
         />
+      </SectionGroup>
+
+      {/* dbGaP Registration section */}
+      <SectionGroup title="Indicate if your study is currently registered with dbGaP">
+        <SwitchInput
+          id="section-b-is-dbgap-registered"
+          label="dbGaP Registered?"
+          name="isdbGaPRegistered"
+          required
+          value={data.isdbGaPRegistered}
+          isBoolean
+          toggleContent={(
+            <TextInput
+              id="section-b-dbgap-phs-number"
+              label="Please provide the associated dbGaP PHS Number"
+              name="dbGaPPHSNumber"
+              value={data.dbGaPPHSNumber}
+              maxLength={50}
+              placeholder="50 characters allowed"
+              required
+              gridWidth={12}
+            />
+)}
+        />
+
       </SectionGroup>
 
       {/* Associated Publications */}
