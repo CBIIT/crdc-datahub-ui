@@ -5,7 +5,6 @@ import Tooltip from "./Tooltip";
 import { updateInputValidity } from '../../utils';
 
 const GridStyled = styled(Grid)`
-  margin-bottom: 16px !important;
   // Customize the root class
   .switchRoot {
     width: 65px;
@@ -72,7 +71,6 @@ const GridStyled = styled(Grid)`
     font-weight: 700;
     line-height: 19.6px;
     min-height: 20px;
-    margin-bottom:20px;
   }
   .asterisk {
     color: #D54309;
@@ -93,8 +91,9 @@ const GridStyled = styled(Grid)`
   }
   .errorMessage {
     color: #D54309 !important;
-    margin-top: 4px;
+    margin-top: 0;
     min-height: 20px;
+    width: 100%;
   }
 `;
 
@@ -139,7 +138,7 @@ const CustomSwitch: FC<Props> = ({
       return touchRequired && !touched ? undefined : val?.toString();
     }
     return val ? graphQLValue : "";
-  }, [isBoolean, val, label]);
+  }, [isBoolean, val, graphQLValue, touched, touchRequired]);
 
   // Validation if touch is required
   useEffect(() => {
@@ -202,11 +201,9 @@ const CustomSwitch: FC<Props> = ({
           />
           <div className={val ? "textChecked" : "text"}>Yes</div>
         </div>
+        <FormHelperText className="errorMessage">{error ? errorMsg : " "}</FormHelperText>
       </div>
       {val ? toggleContent : <div />}
-      <FormHelperText className="errorMessage">
-        {error ? errorMsg : " "}
-      </FormHelperText>
     </GridStyled>
   );
 };
