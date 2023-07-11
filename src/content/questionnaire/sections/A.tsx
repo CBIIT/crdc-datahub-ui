@@ -180,8 +180,8 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             type="checkbox"
             name="piAsPrimaryContact"
             data-type="boolean"
-            value="true"
-            checked={piAsPrimaryContact}
+            value={piAsPrimaryContact?.toString()}
+            checked
             readOnly
           />
         </Grid>
