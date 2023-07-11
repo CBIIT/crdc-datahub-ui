@@ -106,6 +106,7 @@ type PlannedPublication = {
 
 type FileInfo = {
   type: string; // FE control allowed values
+  extension: string;
   count: number;
   amount: string; // xxxMB, GB etc
 };
