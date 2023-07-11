@@ -52,6 +52,7 @@ const initialValues: Omit<Application, "_id" | "applicantID"> = {
   species: [],
   cellLines: false,
   modelSystems: false,
+  imagingDataDeIdentified: null,
   dataDeIdentified: null,
   dataTypes: [],
   otherDataTypes: "",

@@ -202,11 +202,12 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             <SwitchInput
               id="section-d-de-identified"
               label="Confirm the imaging data you plan to submit are de-identified"
-              name="dataTypes[]"
-              graphQLValue="imagingDeidentified"
+              name="imagingDataDeIdentified"
+              value={data.imagingDataDeIdentified}
+              isBoolean
               required
-              value={dataTypes.includes("imagingDeidentified")}
               gridWidth={12}
+              touchRequired
             />
           )}
         />

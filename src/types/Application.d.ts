@@ -21,6 +21,7 @@ type Application = {
   species: string[];
   cellLines: boolean;
   modelSystems: boolean;
+  imagingDataDeIdentified: boolean;
   dataDeIdentified: boolean;
   dataTypes: string[];
   otherDataTypes: string;
