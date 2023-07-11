@@ -42,6 +42,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
 
   const [timeConstraints, setTimeConstraints] = useState<KeyedTimeConstraint[]>(data.timeConstraints?.map(mapObjectWithKey));
+  const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -239,7 +240,8 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           idPrefix="section-c-"
           label="Cell lines, model systems, or neither"
           options={cellLineModelSystemOptions}
-          value={reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)}
+          value={cellLineModelSystemCheckboxes}
+          onChange={(val: string[]) => setCellLineModelSystemCheckboxes(val)}
           orientation="horizontal"
           gridWidth={12}
           allowMultipleChecked={false}
