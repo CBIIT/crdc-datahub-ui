@@ -42,7 +42,6 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
 
   const [timeConstraints, setTimeConstraints] = useState<KeyedTimeConstraint[]>(data.timeConstraints?.map(mapObjectWithKey));
-  const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -113,7 +112,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               <AccessTypesDescription>(Select all that apply):</AccessTypesDescription>
             </>
           )}
-          name="accessTypes[]"
+          name="accessTypes"
           options={accessTypesOptions.map((option) => ({ label: option, value: option }))}
           value={data.accessTypes}
           gridWidth={12}
@@ -177,7 +176,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <SelectInput
           id="section-c-cancer-types"
           label="Cancer types (choose all that apply)"
-          name="cancerTypes[]"
+          name="cancerTypes"
           options={cancerTypeOptions.map((option) => ({ label: option, value: option }))}
           placeholder="Select types"
           value={data.cancerTypes}
@@ -196,7 +195,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <SelectInput
           id="section-c-pre-cancer-types"
           label="Pre-cancer types, of applicable (choose all that apply)"
-          name="preCancerTypes[]"
+          name="preCancerTypes"
           options={preCancerTypeOptions.map((option) => ({ label: option, value: option }))}
           placeholder="Select types"
           value={data.preCancerTypes}
@@ -240,8 +239,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           idPrefix="section-c-"
           label="Cell lines, model systems, or neither"
           options={cellLineModelSystemOptions}
-          value={cellLineModelSystemCheckboxes}
-          onChange={(val: string[]) => setCellLineModelSystemCheckboxes(val)}
+          value={reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)}
           orientation="horizontal"
           gridWidth={12}
           allowMultipleChecked={false}
