@@ -7,8 +7,6 @@ type Application = {
   additionalContacts: Contact[];
   program: Program;
   study: Study;
-  isdbGaPRegistered: boolean;
-  dbGaPPHSNumber: string;
   accessTypes: string[];
   targetedSubmissionDate: string; // YYYY-MM-DD format
   targetedReleaseDate: string; // YYYY-MM-DD format
@@ -89,6 +87,8 @@ type Study = {
   plannedPublications: PlannedPublication[];
   repositories: Repository[];
   funding: Funding;
+  isdbGaPRegistered: boolean;
+  dbGaPPHSNumber: string;
 };
 
 type Repository = {
