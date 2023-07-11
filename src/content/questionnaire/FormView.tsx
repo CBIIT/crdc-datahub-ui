@@ -124,7 +124,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the save was successful, false otherwise
    */
-  const saveForm = async () => {
+  const saveForm = async (hideValidation = false) => {
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
     if (!ref.current || !newData) {
@@ -132,7 +132,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
 
     // Update section status
-    const newStatus = ref.current.reportValidity() ? "Completed" : "In Progress";
+    const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
+    if (!hideValidation) {
+      ref.current.reportValidity();
+    }
     const currentSection : Section = newData.sections.find((s) => s.name === activeSection);
     if (currentSection) {
       currentSection.status = newStatus;
@@ -158,7 +161,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
-    await saveForm();
+    await saveForm(true);
     setBlockedNavigate(false);
     blocker.proceed();
   };
@@ -236,7 +239,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 ref={refs.saveFormRef}
                 size="large"
                 loading={status === FormStatus.SAVING}
-                onClick={saveForm}
+                onClick={() => saveForm()}
               >
                 Save
               </LoadingButton>

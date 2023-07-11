@@ -7,6 +7,8 @@ type Application = {
   additionalContacts: Contact[];
   program: Program;
   study: Study;
+  isdbGaPRegistered: boolean;
+  dbGaPPHSNumber: string;
   accessTypes: string[];
   targetedSubmissionDate: string; // YYYY-MM-DD format
   targetedReleaseDate: string; // YYYY-MM-DD format
@@ -19,6 +21,7 @@ type Application = {
   species: string[];
   cellLines: boolean;
   modelSystems: boolean;
+  dataDeIdentified: boolean;
   dataTypes: string[];
   otherDataTypes: string;
   clinicalData: ClinicalData;
