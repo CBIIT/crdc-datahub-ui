@@ -7,7 +7,6 @@ import {
   OutlinedInputProps,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
-import Tooltip from "./Tooltip";
 import { updateInputValidity } from "../../utils";
 
 type Props = {
@@ -83,9 +82,7 @@ const TextInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    if (value) {
-      onChange(value.toString().trim());
-    }
+    onChange(value?.toString()?.trim());
   }, [value]);
 
   return (

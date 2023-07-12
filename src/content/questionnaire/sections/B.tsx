@@ -97,10 +97,11 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @param r Reason for the event dispatch
    * @returns {void}
    */
-  const handleProgramChange = (e: React.SyntheticEvent, value: string, r: AutocompleteChangeReason) => {
+  const handleProgramChange = (e: React.SyntheticEvent, value: ProgramOption, r: AutocompleteChangeReason) => {
     if (r !== "selectOption") { return; }
 
-    const newProgram = findProgram(value);
+    const newProgram = findProgram(value.name);
+
     if (newProgram?.isCustom) {
       setProgram({ name: "", abbreviation: "", description: "" });
     } else {
@@ -132,43 +133,22 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @param r Reason for the event dispatch
    * @returns {void}
    */
-  const handleStudyChange = (e: React.SyntheticEvent, value: string, r: AutocompleteChangeReason) => {
+  const handleStudyChange = (e: React.SyntheticEvent, value: StudyOption, r: AutocompleteChangeReason) => {
     if (r !== "selectOption") {
       return;
     }
 
-    const newStudy = findStudy(value, programOption);
+    const newStudy = findStudy(value.name, programOption);
     if (newStudy?.isCustom) {
       setStudy({
-        ...study,
-        name: "",
-        abbreviation: "",
-        description: "",
-        publications: [],
-        plannedPublications: [],
-        repositories: [],
-        funding: {
-          agency: "",
-          grantNumber: "",
-          nciProgramOfficer: "",
-          nciGPA: "",
-        },
+        ...initialValues.study,
       });
     } else {
       setStudy({
+        ...initialValues.study,
         ...study,
         name: newStudy.name,
         abbreviation: newStudy.abbreviation,
-        description: "",
-        publications: [],
-        plannedPublications: [],
-        repositories: [],
-        funding: {
-          agency: "",
-          grantNumber: "",
-          nciProgramOfficer: "",
-          nciGPA: "",
-        },
       });
     }
 
@@ -244,17 +224,19 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       formRef={formRef}
     >
       {/* Program Registration Section */}
-      <SectionGroup title="Provide information">
+      <SectionGroup title="Program information">
         <Autocomplete
+          key={`program-${programOption.name}`}
           id="section-b-program"
           gridWidth={12}
           label="Program"
-          value={programOption?.isCustom ? programOption.name : program.name}
+          value={programOption?.isCustom ? programOption : program}
           onChange={handleProgramChange}
-          options={programOptions.map((option: ProgramOption) => option.name)}
+          options={programOptions}
+          getOptionLabel={(option: ProgramOption) => (option.isCustom ? option.name : `${option.name} (${option.abbreviation})`)}
+          isOptionEqualToValue={(option: ProgramOption, value: ProgramOption) => option.name === value.name && option.abbreviation === value.abbreviation}
           placeholder="– Search and Select Program –"
           required
-          disableClearable
         />
         <TextInput
           id="section-b-program-name"
@@ -294,15 +276,17 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       {/* Study Registration Section */}
       <SectionGroup title="Study information">
         <Autocomplete
+          key={`study-${studyOption.name}`}
           id="section-b-study"
           gridWidth={12}
           label="Study"
-          value={studyOption?.isCustom ? studyOption.name : study.name}
+          value={studyOption?.isCustom ? studyOption : study}
           onChange={handleStudyChange}
-          options={programOption.studies.map((option: StudyOption) => option.name)}
+          options={programOption.studies}
+          getOptionLabel={(option: StudyOption) => (option.isCustom ? option.name : `${option.name} (${option.abbreviation})`)}
+          isOptionEqualToValue={(option: StudyOption, value: StudyOption) => option.name === value.name && option.abbreviation === value.abbreviation}
           placeholder="– Search and Select Study –"
           required
-          disableClearable
         />
         <TextInput
           id="section-b-study-name"
