@@ -3,7 +3,6 @@ import {
   Link, useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { isEqual } from 'lodash';
 import { Button, Container, Divider, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -17,7 +16,8 @@ import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import Section from './sections';
 import map from '../../config/SectionConfig';
 import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
-import QuestionnaireBanner from '../../components/Questionnaire/QuestionnaireBanner';
+import PageBanner from '../../components/PageBanner';
+import bannerPng from "../../assets/banner/banner_background.png";
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -188,11 +188,12 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   return (
     <>
-      <Helmet>
-        <title>Submission Request Form</title>
-      </Helmet>
-
-      <QuestionnaireBanner />
+      <PageBanner
+        title="Submission Request"
+        pageTitle="Submission Request Form"
+        subTitle="The following set of high-level questions are intended to provide insight to the CRDC Data Hub, related to data storage, access, secondary sharing needs and other requirements of data submitters."
+        bannerSrc={bannerPng}
+      />
 
       <StyledContainer maxWidth="xl">
         <StyledContentWrapper direction="row" justifyContent="center">
