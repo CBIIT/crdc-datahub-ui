@@ -192,6 +192,30 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={dataTypes.includes("clinicalTrial")}
         />
         <SwitchInput
+          id="section-d-immunology"
+          label="Immunology"
+          name="dataTypes[]"
+          graphQLValue="immunology"
+          required
+          value={dataTypes.includes("immunology")}
+        />
+        <SwitchInput
+          id="section-d-genomics"
+          label="Genomics"
+          name="dataTypes[]"
+          graphQLValue="genomics"
+          required
+          value={dataTypes.includes("genomics")}
+        />
+        <SwitchInput
+          id="section-d-proteomics"
+          label="Proteomics"
+          graphQLValue="proteomics"
+          name="dataTypes[]"
+          required
+          value={dataTypes.includes("proteomics")}
+        />
+        <SwitchInput
           id="section-d-imaging"
           label="Imaging"
           name="dataTypes[]"
@@ -208,24 +232,9 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               required
               gridWidth={12}
               touchRequired
+              containerWidth="700px"
             />
           )}
-        />
-        <SwitchInput
-          id="section-d-genomics"
-          label="Genomics"
-          name="dataTypes[]"
-          graphQLValue="genomics"
-          required
-          value={dataTypes.includes("genomics")}
-        />
-        <SwitchInput
-          id="section-d-immunology"
-          label="Immunology"
-          name="dataTypes[]"
-          graphQLValue="immunology"
-          required
-          value={dataTypes.includes("immunology")}
         />
         <SwitchInput
           id="section-d-epidemiologic-or-cohort"
@@ -234,14 +243,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="dataTypes[]"
           required
           value={dataTypes.includes("epidemiologicOrCohort")}
-        />
-        <SwitchInput
-          id="section-d-proteomics"
-          label="Proteomics"
-          graphQLValue="proteomics"
-          name="dataTypes[]"
-          required
-          value={dataTypes.includes("proteomics")}
         />
         <TextInput
           id="section-d-other-data-types"

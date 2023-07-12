@@ -70,7 +70,7 @@ const GridStyled = styled(Grid)`
     font-family: Nunito;
     font-weight: 700;
     line-height: 19.6px;
-    min-height: 20px;
+    min-height: 50px;
   }
   .asterisk {
     color: #D54309;
@@ -85,15 +85,22 @@ const GridStyled = styled(Grid)`
     display: flex;
     align-items: center;
     margin-right: 32px;
+    min-height: 50px;
   }
   .tooltip {
     align-self: start;
   }
   .errorMessage {
     color: #D54309 !important;
-    margin-top: 0;
+    margin-top: 44px;
+    margin-left: 8px;
     min-height: 20px;
     width: 100%;
+    position: absolute;
+  }
+  .switchErrorContainer {
+    display: flex;
+    flex-direction: column;
   }
 `;
 
@@ -106,9 +113,10 @@ type Props = {
   errorText?: string;
   value: boolean;
   toggleContent?: ReactElement;
-  isBoolean? : boolean;
+  isBoolean?: boolean;
   touchRequired?: boolean;
   graphQLValue?: string;
+  containerWidth?: string;
 } & Omit<SwitchProps, "color">;
 
 const CustomSwitch: FC<Props> = ({
@@ -123,6 +131,7 @@ const CustomSwitch: FC<Props> = ({
   toggleContent,
   graphQLValue = "",
   isBoolean = false,
+  containerWidth = "auto",
   touchRequired,
   ...rest
 }) => {
@@ -164,44 +173,46 @@ const CustomSwitch: FC<Props> = ({
 
   return (
     <GridStyled md={gridWidth || 6} xs={12} item>
-      <div className="container" style={{ flexWrap: "wrap" }}>
+      <div className="container" style={{ flexWrap: "wrap", width: containerWidth }}>
         <div className="labelContainer">
           {label}
           {required ? <span className="asterisk">*</span> : ""}
           {tooltipText && <Tooltip placement="right" className="tooltip" title={tooltipText} />}
         </div>
-        <div className="switchYesNoContainer">
-          <div className={val ? "text" : "textChecked"}>No</div>
-          <Switch
-            inputRef={switchInputRef}
-            inputProps={{ datatype: "boolean" }}
-            focusVisibleClassName="focusVisible"
-            id={id}
-            checked={val}
-            onChange={onChangeWrapper}
-            classes={{
-              root: "switchRoot",
-              switchBase: "switchBase",
-              thumb: "thumb",
-              track: "track",
-              checked: "checked",
-            }}
-            {...rest}
-          />
-          {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
-          {/* eslint-disable-next-line no-nested-ternary */}
-          <input
-            onChange={() => {}}
-            className="input"
-            name={name}
-            type="checkbox"
-            data-type={isBoolean ? "boolean" : "auto"}
-            value={proxyValue}
-            checked
-          />
-          <div className={val ? "textChecked" : "text"}>Yes</div>
+        <div className="switchErrorContainer">
+          <div className="switchYesNoContainer">
+            <div className={val ? "text" : "textChecked"}>No</div>
+            <Switch
+              inputRef={switchInputRef}
+              inputProps={{ datatype: "boolean" }}
+              focusVisibleClassName="focusVisible"
+              id={id}
+              checked={val}
+              onChange={onChangeWrapper}
+              classes={{
+                root: "switchRoot",
+                switchBase: "switchBase",
+                thumb: "thumb",
+                track: "track",
+                checked: "checked",
+              }}
+              {...rest}
+            />
+            {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
+            {/* eslint-disable-next-line no-nested-ternary */}
+            <input
+              onChange={() => { }}
+              className="input"
+              name={name}
+              type="checkbox"
+              data-type={isBoolean ? "boolean" : "auto"}
+              value={proxyValue}
+              checked
+            />
+            <div className={val ? "textChecked" : "text"}>Yes</div>
+          </div>
+          <FormHelperText className="errorMessage">{error ? errorMsg : " "}</FormHelperText>
         </div>
-        <FormHelperText className="errorMessage">{error ? errorMsg : " "}</FormHelperText>
       </div>
       {val ? toggleContent : <div />}
     </GridStyled>
