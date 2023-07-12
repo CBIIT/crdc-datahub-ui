@@ -76,7 +76,7 @@ const TableContainer = styled.div`
       border-right: 1px solid #6B7294;
       border-bottom: none;
       border-left: none;
-      padding: 10px 12px 10px 12px;
+      padding: 10px 20px 10px 20px;
     }
     .tableTopRowMiddle {
       border-top: none;
@@ -192,23 +192,12 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={dataTypes.includes("clinicalTrial")}
         />
         <SwitchInput
-          id="section-d-imaging"
-          label="Imaging"
+          id="section-d-immunology"
+          label="Immunology"
           name="dataTypes[]"
-          graphQLValue="imaging"
+          graphQLValue="immunology"
           required
-          value={dataTypes.includes("imaging")}
-          toggleContent={(
-            <SwitchInput
-              id="section-d-de-identified"
-              label="Confirm the imaging data you plan to submit are de-identified"
-              name="dataTypes[]"
-              graphQLValue="imagingDeidentified"
-              required
-              value={dataTypes.includes("imagingDeidentified")}
-              gridWidth={12}
-            />
-          )}
+          value={dataTypes.includes("immunology")}
         />
         <SwitchInput
           id="section-d-genomics"
@@ -219,12 +208,33 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={dataTypes.includes("genomics")}
         />
         <SwitchInput
-          id="section-d-immunology"
-          label="Immunology"
+          id="section-d-proteomics"
+          label="Proteomics"
+          graphQLValue="proteomics"
           name="dataTypes[]"
-          graphQLValue="immunology"
           required
-          value={dataTypes.includes("immunology")}
+          value={dataTypes.includes("proteomics")}
+        />
+        <SwitchInput
+          id="section-d-imaging"
+          label="Imaging"
+          name="dataTypes[]"
+          graphQLValue="imaging"
+          required
+          value={dataTypes.includes("imaging")}
+          toggleContent={(
+            <SwitchInput
+              id="section-d-de-identified"
+              label="Confirm the imaging data you plan to submit are de-identified"
+              name="imagingDataDeIdentified"
+              value={data.imagingDataDeIdentified}
+              isBoolean
+              required
+              gridWidth={12}
+              touchRequired
+              containerWidth="700px"
+            />
+          )}
         />
         <SwitchInput
           id="section-d-epidemiologic-or-cohort"
@@ -233,14 +243,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="dataTypes[]"
           required
           value={dataTypes.includes("epidemiologicOrCohort")}
-        />
-        <SwitchInput
-          id="section-d-proteomics"
-          label="Proteomics"
-          graphQLValue="proteomics"
-          name="dataTypes[]"
-          required
-          value={dataTypes.includes("proteomics")}
         />
         <TextInput
           id="section-d-other-data-types"
@@ -350,20 +352,20 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           <Table className="noBorder">
             <TableHead className="noBorder">
               <TableRow className="noBorder">
-                <TableCell width="24%" className="fileTypeTableCell">
+                <TableCell width="30%" className="fileTypeTableCell">
                   File Type
                   <span className="asterisk">*</span>
                   <input tabIndex={-1} style={{ height: "0", border: "none", width: "0" }} ref={fileTypeDataRef} />
                 </TableCell>
-                <TableCell width="18%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
+                <TableCell width="20%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
                   File Extension
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="17%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
-                  Number of Files
+                <TableCell width="13%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
+                  File Count
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="42%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
+                <TableCell width="20%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
                   Estimated amount of data (KB, MB, GB, TB)
                   <span className="asterisk">*</span>
                 </TableCell>

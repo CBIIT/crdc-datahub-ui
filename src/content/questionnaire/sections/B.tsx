@@ -345,16 +345,16 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <SwitchInput
           id="section-b-is-dbgap-registered"
           label="dbGaP Registered?"
-          name="isdbGaPRegistered"
+          name="study[isdbGaPRegistered]"
           required
-          value={data.isdbGaPRegistered}
+          value={data.study.isdbGaPRegistered}
           isBoolean
           toggleContent={(
             <TextInput
               id="section-b-dbgap-phs-number"
               label="Please provide the associated dbGaP PHS Number"
-              name="dbGaPPHSNumber"
-              value={data.dbGaPPHSNumber}
+              name="study[dbGaPPHSNumber]"
+              value={data.study.dbGaPPHSNumber}
               maxLength={50}
               placeholder="50 characters allowed"
               required
