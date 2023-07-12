@@ -436,6 +436,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         )}
         endButton={(
           <AddRemoveButton
+            id="section-b-add-repository-button"
             label="Add Repository"
             startIcon={<AddCircleIcon />}
             onClick={addRepository}
@@ -448,6 +449,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           items={repositories}
           renderItem={(repo: KeyedRepository, idx: number) => (
             <Repository
+              idPrefix="section-b-"
               index={idx}
               repository={repo}
               onDelete={() => removeRepository(repo.key)}
@@ -459,6 +461,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       {/* Funding Agency */}
       <SectionGroup title="Agency(s) and/or organization(s) that funded this study">
         <Autocomplete
+          id="section-b-funding-agency"
           label="Funding Agency"
           value={funding.agency}
           name="study[funding][agency]"
@@ -469,6 +472,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-b-grant-or-contract-numbers"
           label="Grant or Contract Number(s)"
           name="study[funding][grantNumber]"
           value={funding?.grantNumber}
@@ -476,12 +480,14 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-b-nci-program-officer-name"
           label="NCI Program Officer name, if applicable"
           name="study[funding][nciProgramOfficer]"
           value={funding?.nciProgramOfficer}
           maxLength={50}
         />
         <TextInput
+          id="section-b-nci-gpa-name"
           label="NCI Genomic Program Administrator (GPA) name, if applicable"
           name="study[funding][nciGPA]"
           value={funding?.nciGPA}
