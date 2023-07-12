@@ -34,7 +34,7 @@ const StyledTableCell = styled(TableCell)(() => ({
   "&.MuiTableCell-root": {
     height: "100%",
     color: "#083A50",
-    fontFamily: "'Nunito'",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
     fontWeight: 400,

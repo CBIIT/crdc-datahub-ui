@@ -4,7 +4,7 @@ import { FC } from "react";
 const StyledLabel = styled("span")(() => ({
   color: "#889DA7",
   fontSize: "13px",
-  fontFamily: "Nunito",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontWeight: 700,
   lineHeight: "19.6px",
   letterSpacing: "0.52px",
@@ -14,14 +14,15 @@ const StyledLabel = styled("span")(() => ({
 const StyledValue = styled("span")(() => ({
   color: "#083A50",
   fontSize: "16px",
-  fontFamily: "Nunito",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontWeight: 400,
   lineHeight: "19.6px",
 }));
 
 const StyledLabelWrapper = styled(Stack)(() => ({
   display: "inline-flex",
-  marginRight: "22px"
+  marginRight: "22px",
+  minWidth: "fit-content",
 }));
 
 const StyledPropertyWrapper = styled(Stack)(() => ({

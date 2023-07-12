@@ -14,19 +14,9 @@ import ReviewDataListingProperty from "../../../components/Questionnaire/ReviewD
 import ReviewFileTypeTable from "../../../components/Questionnaire/ReviewFileTypeTable";
 import { formatPhoneNumber } from "../../../utils";
 
-const StyledAddressLabel = styled(Stack)(() => ({
-  display: "flex",
-  height: "33px",
-  flexDirection: "column",
-  flexShrink: "0",
-  "& span": {
-    lineHeight: "18px",
-  },
-}));
-
 const StyledAddress = styled(Stack)(() => ({
   display: "flex",
-  height: "35px",
+  minHeight: "35px",
   flexDirection: "column",
   flexShrink: "0",
   justifyContent: "center",
@@ -97,12 +87,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Email Address" value={pi.email} />
             <ReviewDataListingProperty
-              label={(
-                <StyledAddressLabel>
-                  <span>Institution</span>
-                  <span>Address</span>
-                </StyledAddressLabel>
-              )}
+              label="Institution Address"
               value={(
                 <StyledAddress>
                   {splitAddress?.length > 0 && <span>{`${splitAddress[0]}${splitAddress.length > 1 ? "," : ""}`}</span>}
