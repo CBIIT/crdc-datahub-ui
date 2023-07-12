@@ -222,6 +222,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
             >
               <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
                 <Button
+                  id="submission-form-back-button"
                   className={classes.backButton}
                   variant="outlined"
                   type="button"
@@ -233,6 +234,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 </Button>
               </Link>
               <LoadingButton
+                id="submission-form-save-button"
                 className={classes.saveButton}
                 variant="outlined"
                 type="button"
@@ -244,6 +246,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 Save
               </LoadingButton>
               <LoadingButton
+                id="submission-form-submit-button"
                 className={classes.submitButton}
                 variant="outlined"
                 type="submit"
@@ -254,6 +257,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
               </LoadingButton>
               <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
                 <Button
+                  id="submission-form-next-button"
                   className={classes.nextButton}
                   variant="outlined"
                   type="button"

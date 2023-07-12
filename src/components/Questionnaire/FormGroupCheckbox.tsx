@@ -141,7 +141,7 @@ const FormGroupCheckbox: FC<Props> = ({
               <CheckboxInput
                 id={idPrefix.concat(`-${option.label.toLowerCase().replace(" ", "-")}-checkbox`)}
                 key={option.value}
-                name={option.name ?? name}
+                name={name}
                 checked={isChecked}
                 value={option.value}
                 inputLabel={option.label}
@@ -166,7 +166,7 @@ const FormGroupCheckbox: FC<Props> = ({
           return (
             <input
               key={option.value}
-              name={option.name ?? name} // prioritizes option name over parent name
+              name={option.name}
               type="checkbox"
               data-type="boolean"
               value={isChecked ? "true" : "false"}

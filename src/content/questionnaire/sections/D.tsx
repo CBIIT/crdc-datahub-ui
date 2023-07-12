@@ -2,7 +2,7 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import styled from 'styled-components';
-import { Grid, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
@@ -12,8 +12,8 @@ import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import { mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
-import TableAutocompleteInput from "../../../components/Questionnaire/TableAutocompleteInput";
-import fileTypeOptions from "../../../config/FileTypeConfig";
+import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
+import { fileTypeOptions } from "../../../config/FileTypeConfig";
 import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 /**
  * Form Section D View
@@ -76,7 +76,7 @@ const TableContainer = styled.div`
       border-right: 1px solid #6B7294;
       border-bottom: none;
       border-left: none;
-      padding: 10px 12px 10px 15px;
+      padding: 10px 20px 10px 20px;
     }
     .tableTopRowMiddle {
       border-top: none;
@@ -160,7 +160,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addFileDataType = () => {
     setFileTypeData([
       ...fileTypeData,
-      { key: `${fileTypeData.length}_${new Date().getTime()}`, type: ``, count: 0, amount: "" },
+      { key: `${fileTypeData.length}_${new Date().getTime()}`, type: ``, count: 0, amount: "", extension: "" },
     ]);
     fileTypeDataRef.current.setCustomValidity("");
   };
@@ -188,50 +188,65 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Clinical Trial"
           name="dataTypes[]"
           required
-          value={dataTypes.includes("Clinical Trial")}
-        />
-        <SwitchInput
-          id="section-d-imaging"
-          label="Imaging"
-          name="dataTypes[]"
-          required
-          value={dataTypes.includes("Imaging")}
-          toggleContent={(
-            <SwitchInput
-              id="section-d-de-identified"
-              label="Confirm the data you plan to submit are de-identified"
-              name="dataTypes[]"
-              required
-              value={dataTypes.includes("Confirm the data you plan to submit are de-identified")}
-              gridWidth={12}
-            />
-          )}
-        />
-        <SwitchInput
-          id="section-d-genomics"
-          label="Genomics"
-          name="dataTypes[]"
-          required
-          value={dataTypes.includes("Genomics")}
+          graphQLValue="clinicalTrial"
+          value={dataTypes.includes("clinicalTrial")}
         />
         <SwitchInput
           id="section-d-immunology"
           label="Immunology"
           name="dataTypes[]"
+          graphQLValue="immunology"
           required
-          value={dataTypes.includes("Immunology")}
+          value={dataTypes.includes("immunology")}
         />
-        <Grid item md={6} />
+        <SwitchInput
+          id="section-d-genomics"
+          label="Genomics"
+          name="dataTypes[]"
+          graphQLValue="genomics"
+          required
+          value={dataTypes.includes("genomics")}
+        />
         <SwitchInput
           id="section-d-proteomics"
           label="Proteomics"
+          graphQLValue="proteomics"
           name="dataTypes[]"
           required
-          value={dataTypes.includes("Proteomics")}
+          value={dataTypes.includes("proteomics")}
+        />
+        <SwitchInput
+          id="section-d-imaging"
+          label="Imaging"
+          name="dataTypes[]"
+          graphQLValue="imaging"
+          required
+          value={dataTypes.includes("imaging")}
+          toggleContent={(
+            <SwitchInput
+              id="section-d-de-identified"
+              label="Confirm the imaging data you plan to submit are de-identified"
+              name="imagingDataDeIdentified"
+              value={data.imagingDataDeIdentified}
+              isBoolean
+              required
+              gridWidth={12}
+              touchRequired
+              containerWidth="700px"
+            />
+          )}
+        />
+        <SwitchInput
+          id="section-d-epidemiologic-or-cohort"
+          label="Epidemiologic or Cohort"
+          graphQLValue="epidemiologicOrCohort"
+          name="dataTypes[]"
+          required
+          value={dataTypes.includes("epidemiologicOrCohort")}
         />
         <TextInput
           id="section-d-other-data-types"
-          label="Other data types (specify)"
+          label="Other data types (Specify)"
           name="otherDataTypes"
           value={data.otherDataTypes}
           placeholder="Enter Types"
@@ -248,47 +263,53 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-d-demographic-data"
           label="Demographic Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Demographic Data")}
+          graphQLValue="demographicData"
+          value={data.clinicalData.dataTypes.includes("demographicData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           id="section-d-relapse-recurrence-data"
           label="Relapse/Recurrence Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Relapse/Recurrence Data")}
+          graphQLValue="relapseRecurrenceData"
+          value={data.clinicalData.dataTypes.includes("relapseRecurrenceData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           id="section-d-diagnosis-data"
           label="Diagnosis Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Diagnosis Data")}
+          graphQLValue="diagnosisData"
+          value={data.clinicalData.dataTypes.includes("diagnosisData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           id="section-d-outcome-data"
           label="Outcome Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Outcome Data")}
+          graphQLValue="outcomeData"
+          value={data.clinicalData.dataTypes.includes("outcomeData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           id="section-d-treatment-data"
           label="Treatment Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Treatment Data")}
+          graphQLValue="treatmentData"
+          value={data.clinicalData.dataTypes.includes("treatmentData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <SwitchInput
           id="section-d-biospecimen-data"
           label="Biospecimen Data"
           name="clinicalData[dataTypes][]"
-          value={data.clinicalData.dataTypes.includes("Biospecimen Data")}
+          graphQLValue="biospecimenData"
+          value={data.clinicalData.dataTypes.includes("biospecimenData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
         />
         <TextInput
           id="section-d-clinical-data-other-data-types"
-          label="Other data types (specify)"
+          label="Other clinical data types (Specify)"
           name="clinicalData[otherDataTypes]"
           value={data.clinicalData.otherDataTypes}
           placeholder="Enter Types"
@@ -331,16 +352,20 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           <Table className="noBorder">
             <TableHead className="noBorder">
               <TableRow className="noBorder">
-                <TableCell width="42%" className="fileTypeTableCell">
+                <TableCell width="30%" className="fileTypeTableCell">
                   File Type
                   <span className="asterisk">*</span>
                   <input tabIndex={-1} style={{ height: "0", border: "none", width: "0" }} ref={fileTypeDataRef} />
                 </TableCell>
-                <TableCell width="17%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
-                  Number of Files
+                <TableCell width="20%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
+                  File Extension
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="42%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
+                <TableCell width="13%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
+                  File Count
+                  <span className="asterisk">*</span>
+                </TableCell>
+                <TableCell width="20%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
                   Estimated amount of data (KB, MB, GB, TB)
                   <span className="asterisk">*</span>
                 </TableCell>
@@ -352,17 +377,14 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                 <TableRow
                   key={fileData.key}
                 >
-                  <TableCell className="autoComplete">
-                    <TableAutocompleteInput
-                      inputID={`section-d-file-type-${idx}-file-type`}
-                      value={fileData.type}
-                      name={`files[${idx}][type]`}
-                      options={fileTypeOptions.map((fileType) => fileType)}
-                      placeholder="Select Type"
-                      freeSolo
-                    />
-                    {/* {data.fileType} */}
-                  </TableCell>
+                  <TableFileTypeAndExtensionInput
+                    inputID={`section-d-file-type-${idx}-file`}
+                    typeValue={fileData.type}
+                    extensionValue={fileData.extension}
+                    name={`files[${idx}]`}
+                    options={fileTypeOptions.map((fileType) => fileType)}
+                    placeholder="Select Type"
+                  />
                   <TableCell className="bottomRowMiddle">
                     <TableTextInput
                       id={`section-d-file-type-${idx}-number-of-files`}

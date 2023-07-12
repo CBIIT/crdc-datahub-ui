@@ -113,7 +113,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               <AccessTypesDescription>(Select all that apply):</AccessTypesDescription>
             </>
           )}
-          name="accessTypes[]"
+          name="accessTypes"
           options={accessTypesOptions.map((option) => ({ label: option, value: option }))}
           value={data.accessTypes}
           gridWidth={12}
@@ -177,7 +177,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <SelectInput
           id="section-c-cancer-types"
           label="Cancer types (choose all that apply)"
-          name="cancerTypes[]"
+          name="cancerTypes"
           options={cancerTypeOptions.map((option) => ({ label: option, value: option }))}
           placeholder="Select types"
           value={data.cancerTypes}
@@ -196,7 +196,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <SelectInput
           id="section-c-pre-cancer-types"
           label="Pre-cancer types, of applicable (choose all that apply)"
-          name="preCancerTypes[]"
+          name="preCancerTypes"
           options={preCancerTypeOptions.map((option) => ({ label: option, value: option }))}
           placeholder="Select types"
           value={data.preCancerTypes}
