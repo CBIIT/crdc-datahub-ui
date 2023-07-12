@@ -82,7 +82,7 @@ type GridWidth = 2 | 4 | 6 | 8 | 10 | 12;
 
 type Props = {
   value: string;
-  name: string;
+  name?: string;
   label?: string;
   inputLabel: string;
   errorText?: string;

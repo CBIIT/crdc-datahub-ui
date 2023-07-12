@@ -78,7 +78,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, onDelete 
           name={`additionalContacts[${index}][institution]`}
           value={institution || ""}
           options={institutionConfig}
-          placeholder="Select Institution"
+          placeholder="Enter or Select an Institution"
           required
           disableClearable
           freeSolo
