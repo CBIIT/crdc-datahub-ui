@@ -134,7 +134,7 @@ mutation submitApplication($id: ID!) {
 
 export const GET_USER = gql`
   query getMyUser {
-    user {
+    getMyUser {
       _id
       firstName
       lastName

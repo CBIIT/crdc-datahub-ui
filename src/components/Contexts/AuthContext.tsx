@@ -10,6 +10,9 @@ import { useSearchParams } from 'react-router-dom';
 import { useLazyQuery } from '@apollo/client';
 import { GET_USER } from './graphql';
 
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_API || process.env.REACT_APP_AUTH_SERVICE_API;
+const USER_SERVICE_URL = process.env.USER_SERVICE_API || process.env.REACT_APP_USER_SERVICE_API;
+
 export type ContextState = {
   isLoggedIn: boolean;
   user: object;
@@ -74,25 +77,27 @@ export const AuthProvider: FC<ProviderProps> = (props) => {
 
   useEffect(() => {
     const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
-    myHeaders.append('Cookie', 'connect.sid=s%3AvOcaFQHqS3fAln2d4aFKB91ARVNF0iy8.BS0z5yuZn0CugxB%2FSojYbX4XRINNhGEkJWp4LRybsfo');
-    myHeaders.append('Access-Control-Allow-Origin', 'http://localhost:4000');
-
     const raw = JSON.stringify({
       code: authCode,
       IDP: 'nih',
     });
+    const requestRedirect:RequestRedirect = 'follow';
+
+    myHeaders.append('Content-Type', 'application/json');
+    // myHeaders.append('Set-Cookie', 'application/json');
+    myHeaders.append("Cookie", "connect.sid=s%3AvOcaFQHqS3fAln2d4aFKB91ARVNF0iy8.BS0z5yuZn0CugxB%2FSojYbX4XRINNhGEkJWp4LRybsfo");
 
     const requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
       body: raw,
-      // redirect: 'follow',
+      headers: myHeaders,
+      method: 'POST',
+      redirect: requestRedirect,
+      // withCredentials: true,
     };
 
-    fetch('http://localhost:4000/api/authn/login', requestOptions)
-      .then((response) => response.text())
-      .then((result) => console.log(result))
+    fetch(`${AUTH_SERVICE_URL}/login`, requestOptions)
+      .then((response) => response.json())
+      .then((result) => console.log('Login results:', result))
       .catch((error) => console.log('error', error));
     getUser();
   }, [getUser]);
