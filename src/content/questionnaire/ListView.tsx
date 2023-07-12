@@ -30,7 +30,7 @@ export const TempData: Response = {
     total: 6,
     applications: [
       {
-        _id: 1234,
+        _id: "1234",
         study: {
           abbreviation: "WORKING",
         },
@@ -41,7 +41,7 @@ export const TempData: Response = {
         submittedDate: "2023-07-09T13:05:11"
       },
       {
-        _id: 5678,
+        _id: "5678",
         study: {
           abbreviation: "BLABLA",
         },
@@ -51,7 +51,7 @@ export const TempData: Response = {
         status: "Rejected",
       },
       {
-        _id: 9012,
+        _id: "9012",
         study: {
           abbreviation: "STU-9012",
         },
@@ -61,7 +61,7 @@ export const TempData: Response = {
         status: "Rejected",
       },
       {
-        _id: 8492,
+        _id: "8492",
         study: {
           abbreviation: "STU-8492",
         },
@@ -71,7 +71,7 @@ export const TempData: Response = {
         status: "Submitted",
       },
       {
-        _id: 1337,
+        _id: "1337",
         study: {
           abbreviation: "STU-1337",
         },
@@ -81,7 +81,7 @@ export const TempData: Response = {
         status: "In Progress",
       },
       {
-        _id: 7676,
+        _id: "7676",
         study: {
           abbreviation: "STU-7676",
         },

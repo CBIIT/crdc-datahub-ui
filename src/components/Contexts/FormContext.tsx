@@ -7,7 +7,9 @@ import React, {
   useState,
 } from "react";
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { GET_APP, SAVE_APP, SUBMIT_APP } from './graphql';
+import { SAVE_APP, SUBMIT_APP } from './graphql';
+import { query as LAST_APP, Response as LastAppResp } from '../../graphql/getMyLastApplication';
+import { query as GET_APP, Response as GetAppResp } from '../../graphql/getApplication';
 import initialValues from "../../config/InitialValues";
 import { FormatDate } from "../../utils";
 
@@ -57,7 +59,7 @@ export const useFormContext = (): ContextState => {
 };
 
 type ProviderProps = {
-  id: string | number;
+  id: string;
   children: React.ReactNode;
 };
 
@@ -68,13 +70,17 @@ type ProviderProps = {
  * @param {ProviderProps} props - Form context provider props
  * @returns {JSX.Element} - Form context provider
  */
-export const FormProvider: FC<ProviderProps> = (props) => {
-  const { children, id } = props;
+export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
-  const [getAPP, { data, error }] = useLazyQuery(GET_APP, {
+  const [getApp] = useLazyQuery<GetAppResp>(GET_APP, {
     variables: { id },
     context: { clientName: 'mockService' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
@@ -89,61 +95,69 @@ export const FormProvider: FC<ProviderProps> = (props) => {
       fetchPolicy: 'no-cache'
     });
 
-  // Here we update the state and send the data to the API
-  // otherwise we can just update the local state (i.e. within form sections)
   const setData = async (data: Application) => new Promise<boolean>((resolve) => {
-    console.log("[UPDATING DATA]");
     console.log("prior state", state);
 
-    const newState = { ...state, data };
+    let newState = { ...state, data };
     setState({ ...newState, status: Status.SAVING });
-    console.log("new state", newState);
 
     // simulate the save event
     setTimeout(() => {
+      // TODO: if an ID is received from BE, update ID only in the state
+      if (!data?.["_id"] || data?.["_id"] === "new") {
+        newState = { ...newState, data: { ...data, _id: "ABC-ID-Goes-HERE" } };
+      }
+
       setState({ ...newState, status: Status.LOADED });
-      console.log("saved");
+      console.log("new state", newState);
       resolve(true);
     }, 1500);
   });
 
   useEffect(() => {
-     if (Number.isNaN(parseInt(id.toString(), 10))) {
+    if (!id) {
+      setState({ status: Status.ERROR, data: null, error: "Invalid application ID provided" });
+      return;
+    }
+
+    (async () => {
+      if (id === "new") {
+        const { data } = await lastApp();
+
         setState({
-          status: Status.ERROR,
-          data: null,
-          error: "Invalid form ID",
+          status: Status.LOADED,
+          data: {
+            ...initialValues,
+            _id: "new",
+            history: [],
+            pi: { ...initialValues.pi, ...data?.getMyLastApplication?.pi },
+          },
         });
         return;
       }
-      // Call the lazy query when the component mounts or when dependencies change
-      getAPP();
-  }, [getAPP, id]);
 
-  useEffect(() => {
-    // Update the state when the lazy query response changes
-    if (data) {
-      const applicationData = data?.getApplication;
+      const { data, error } = await getApp();
+      if (error) {
+        setState({
+          status: Status.ERROR,
+          data: null,
+          error: "An unknown API or GraphQL error occurred",
+        });
+        return;
+      }
+
       setState({
         status: Status.LOADED,
         data: {
           ...initialValues,
-          ...applicationData,
+          ...data?.getApplication,
           // To avoid false positive form changes
-          targetedReleaseDate: FormatDate(applicationData?.targetedReleaseDate, "MM/DD/YYYY"),
-          targetedSubmissionDate: FormatDate(applicationData?.targetedSubmissionDate, "MM/DD/YYYY"),
+          targetedReleaseDate: FormatDate(data?.getApplication?.targetedReleaseDate, "MM/DD/YYYY"),
+          targetedSubmissionDate: FormatDate(data?.getApplication?.targetedSubmissionDate, "MM/DD/YYYY"),
         }
       });
-    }
-
-    if (error) {
-      setState({
-          status: Status.ERROR,
-          data: null,
-          error: "GraphQL Errors",
-        });
-    }
-  }, [data, error]);
+    })();
+  }, []);
 
   const value = useMemo(() => ({ ...state, setData }), [state]);
 

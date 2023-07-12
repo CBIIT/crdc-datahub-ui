@@ -62,6 +62,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const { status, data, setData, error } = useFormContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
+  const idRef = useRef<string>(data?.['_id']);
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
@@ -103,6 +104,15 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   useEffect(() => {
     setActiveSection(validateSection(section) ? section : "A");
   }, [section]);
+
+  useEffect(() => {
+    // Update ID in URL when a new application is given an ID
+    if (!blockedNavigate && idRef.current === "new" && idRef.current !== data?.['_id']) {
+      navigate(`/submission/${data?.['_id']}/${activeSection}`);
+    }
+
+    idRef.current = data?.['_id'];
+  }, [data?.["_id"]]);
 
   /**
    * Determines if the form has unsaved changes.

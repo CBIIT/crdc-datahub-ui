@@ -5,7 +5,7 @@ import { MockedProvider } from '@apollo/client/testing';
 import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
 
 type Props = {
-  appId: string | number;
+  appId: string;
 };
 
 const TestChild: FC = () => {
@@ -34,15 +34,6 @@ const TestParent: FC<Props> = ({ appId } : Props) => (
 describe("FormContext tests", () => {
   it("should return an error for empty IDs", async () => {
     const screen = render(<TestParent appId="" />);
-
-    await waitFor(() => expect(screen.container.querySelector("#test-error")).toBeInTheDocument());
-
-    expect(screen.container.querySelector("#test-status").textContent).toEqual(FormStatus.ERROR);
-    expect(screen.container.querySelector("#test-error")).toBeInTheDocument();
-  });
-
-  it("should return an error for non-numeric IDs", async () => {
-    const screen = render(<TestParent appId="thisIsNotANumericId" />);
 
     await waitFor(() => expect(screen.container.querySelector("#test-error")).toBeInTheDocument());
 

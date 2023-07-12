@@ -1,5 +1,5 @@
 type Application = {
-  _id: number;
+  _id: string;
   sections: Section[];
   pi: PI;
   piAsPrimaryContact: boolean;
