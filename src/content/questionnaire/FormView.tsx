@@ -124,7 +124,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the save was successful, false otherwise
    */
-  const saveForm = async () => {
+  const saveForm = async (hideValidation = false) => {
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
     if (!ref.current || !newData) {
@@ -132,7 +132,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
 
     // Update section status
-    const newStatus = ref.current.reportValidity() ? "Completed" : "In Progress";
+    const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
+    if (!hideValidation) {
+      ref.current.reportValidity();
+    }
     const currentSection : Section = newData.sections.find((s) => s.name === activeSection);
     if (currentSection) {
       currentSection.status = newStatus;
@@ -158,7 +161,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
-    await saveForm();
+    await saveForm(true);
     setBlockedNavigate(false);
     blocker.proceed();
   };
@@ -189,7 +192,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   return (
     <>
       <Helmet>
-        <title>CRDC Submission Request</title>
+        <title>Submission Request Form</title>
       </Helmet>
 
       <QuestionnaireBanner />
@@ -219,6 +222,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
             >
               <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
                 <Button
+                  id="submission-form-back-button"
                   className={classes.backButton}
                   variant="outlined"
                   type="button"
@@ -230,17 +234,19 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 </Button>
               </Link>
               <LoadingButton
+                id="submission-form-save-button"
                 className={classes.saveButton}
                 variant="outlined"
                 type="button"
                 ref={refs.saveFormRef}
                 size="large"
                 loading={status === FormStatus.SAVING}
-                onClick={saveForm}
+                onClick={() => saveForm()}
               >
                 Save
               </LoadingButton>
               <LoadingButton
+                id="submission-form-submit-button"
                 className={classes.submitButton}
                 variant="outlined"
                 type="submit"
@@ -251,6 +257,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
               </LoadingButton>
               <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
                 <Button
+                  id="submission-form-next-button"
                   className={classes.nextButton}
                   variant="outlined"
                   type="button"

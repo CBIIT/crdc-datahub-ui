@@ -2,13 +2,20 @@
    * Configuration for Questionnaire Section D FileType List
    *
    */
-  const options: string[] = [
-    "Other type (specify)",
-    "Raw sequencing data (BAM, FASTQ, etc.)",
-    "Derived Sequencing data (VCF, MAF, etc.)",
-    "Clinical data (XML, JSON, etc.)",
-    "Protein expression data (e.g., TSV)",
-    "Imaging data (DICOM, SVS)",
+  export const fileTypeOptions: string[] = [
+    "Raw sequencing data",
+    "Derived sequencing data",
+    "Clinical data",
+    "Protein expression data",
+    "Imaging data",
+    "Other file type (Specify)",
   ];
 
-  export default options;
+  export const fileTypeExtensions = {
+  "Raw sequencing data": ["BAM", "FASTQ", "Other Extension"],
+    "Derived sequencing data": ["VCF", "MAF", "Other Extension"],
+    "Clinical data": ["XML", "JSON", "Other Extension"],
+    "Protein expression data": ["TSV", "Other Extension"],
+    "Imaging data": ["DICOM", "SVS", "Other Extension"],
+    "Other file type (Specify)": ["Other Extension"],
+  };

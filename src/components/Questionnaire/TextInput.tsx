@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useState } from "react";
+import React, { FC, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -7,6 +7,8 @@ import {
   OutlinedInputProps,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
+import Tooltip from "./Tooltip";
+import { updateInputValidity } from "../../utils";
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
@@ -27,7 +29,7 @@ type Props = {
  *   instead of using the TextField component because of the forced
  *   floating label behavior of TextField.
  *
- * @param {Props} props
+ * @param {Props} props & number props
  * @returns {JSX.Element}
  */
 const TextInput: FC<Props> = ({
@@ -41,24 +43,30 @@ const TextInput: FC<Props> = ({
   errorText,
   validate,
   filter,
+  type,
   ...rest
 }) => {
   const id = useId();
   const [val, setVal] = useState(value);
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const validateInput = (input: string) => {
     if (validate) {
-      return validate(input);
+      const customIsValid = validate(input);
+      updateInputValidity(inputRef, !customIsValid ? errorMsg : "");
+      return customIsValid;
     }
     if (typeof maxLength === "number" && input.length > maxLength) {
+      updateInputValidity(inputRef, `Input exceeds maximum length of ${maxLength} characters. Please shorten your input.`);
       return false;
     }
     if (required && input.trim().length === 0) {
       return false;
     }
 
+    updateInputValidity(inputRef); // Reset validity
     return true;
   };
 
@@ -88,8 +96,9 @@ const TextInput: FC<Props> = ({
           {required ? <span className={classes.asterisk}>*</span> : ""}
         </label>
         <OutlinedInput
+          inputRef={inputRef}
           classes={{ root: classes.input }}
-          type={rest.type || "text"}
+          type={type || "text"}
           id={id}
           size="small"
           value={val || ""}

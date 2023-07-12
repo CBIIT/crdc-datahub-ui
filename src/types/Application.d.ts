@@ -19,6 +19,8 @@ type Application = {
   species: string[];
   cellLines: boolean;
   modelSystems: boolean;
+  imagingDataDeIdentified: boolean;
+  dataDeIdentified: boolean;
   dataTypes: string[];
   otherDataTypes: string;
   clinicalData: ClinicalData;
@@ -59,7 +61,6 @@ type PI = {
   position: string;
   email: string;
   institution: string;
-  eRAAccount: string;
   address: string;
 };
 
@@ -86,6 +87,8 @@ type Study = {
   plannedPublications: PlannedPublication[];
   repositories: Repository[];
   funding: Funding;
+  isdbGaPRegistered: boolean;
+  dbGaPPHSNumber: string;
 };
 
 type Repository = {
@@ -107,6 +110,7 @@ type PlannedPublication = {
 
 type FileInfo = {
   type: string; // FE control allowed values
+  extension: string;
   count: number;
   amount: string; // xxxMB, GB etc
 };
