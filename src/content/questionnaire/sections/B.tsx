@@ -18,6 +18,7 @@ import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import initialValues from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
+import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 
 export type KeyedPublication = {
   key: string;
@@ -352,6 +353,31 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
       </SectionGroup>
 
+      {/* dbGaP Registration section */}
+      <SectionGroup title="Indicate if your study is currently registered with dbGaP">
+        <SwitchInput
+          id="section-b-is-dbgap-registered"
+          label="dbGaP Registered?"
+          name="study[isdbGaPRegistered]"
+          required
+          value={data.study.isdbGaPRegistered}
+          isBoolean
+          toggleContent={(
+            <TextInput
+              id="section-b-dbgap-phs-number"
+              label="Please provide the associated dbGaP PHS Number"
+              name="study[dbGaPPHSNumber]"
+              value={data.study.dbGaPPHSNumber}
+              maxLength={50}
+              placeholder="50 characters allowed"
+              required
+              gridWidth={12}
+            />
+)}
+        />
+
+      </SectionGroup>
+
       {/* Associated Publications */}
       <SectionGroup
         title="Publications associated with this study, if any."
@@ -423,6 +449,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         )}
         endButton={(
           <AddRemoveButton
+            id="section-b-add-repository-button"
             label="Add Repository"
             startIcon={<AddCircleIcon />}
             onClick={addRepository}
@@ -435,6 +462,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           items={repositories}
           renderItem={(repo: KeyedRepository, idx: number) => (
             <Repository
+              idPrefix="section-b-"
               index={idx}
               repository={repo}
               onDelete={() => removeRepository(repo.key)}
@@ -446,6 +474,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       {/* Funding Agency */}
       <SectionGroup title="Agency(s) and/or organization(s) that funded this study">
         <Autocomplete
+          id="section-b-funding-agency"
           label="Funding Agency"
           value={funding.agency}
           name="study[funding][agency]"
@@ -456,6 +485,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-b-grant-or-contract-numbers"
           label="Grant or Contract Number(s)"
           name="study[funding][grantNumber]"
           value={funding?.grantNumber}
@@ -463,12 +493,14 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
+          id="section-b-nci-program-officer-name"
           label="NCI Program Officer name, if applicable"
           name="study[funding][nciProgramOfficer]"
           value={funding?.nciProgramOfficer}
           maxLength={50}
         />
         <TextInput
+          id="section-b-nci-gpa-name"
           label="NCI Genomic Program Administrator (GPA) name, if applicable"
           name="study[funding][nciGPA]"
           value={funding?.nciGPA}
