@@ -50,5 +50,6 @@ export const logIn = (authCode) => {
   fetch(`${AUTH_SERVICE_URL}/login`, requestOptions)
   .then((response) => response.json())
   .then((result) => console.log('Login results:', result))
+  .then(() => isLoggedIn())
   .catch((error) => console.log('error', error));
 };
