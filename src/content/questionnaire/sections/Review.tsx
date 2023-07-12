@@ -1,19 +1,18 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
-import { Divider, Stack, styled } from "@mui/material";
+import { Divider, Grid, Stack, styled } from "@mui/material";
 import { useFormContext } from "../../../components/Contexts/FormContext";
 import { KeyedPlannedPublication, KeyedPublication } from "./B";
 import { mapObjectWithKey } from "../utils";
 import { KeyedContact } from "./A";
 import { KeyedFileTypeData } from "./D";
-import { FormatPhoneNumber } from "../../../components/StatusBar/utils";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import ReviewSection from "../../../components/Questionnaire/ReviewSection";
 import ReviewDataListing from "../../../components/Questionnaire/ReviewDataListing";
 import ReviewDataListingProperty from "../../../components/Questionnaire/ReviewDataListingProperty";
-import dataTypeOptions from "../../../config/DataTypesConfig";
-import clinicalDataOptions from "../../../config/ClinicalDataConfig";
+import ReviewFileTypeTable from "../../../components/Questionnaire/ReviewFileTypeTable";
+import { formatPhoneNumber } from "../../../utils";
 
 const StyledAddressLabel = styled(Stack)(() => ({
   display: "flex",
@@ -38,7 +37,7 @@ const StyledAddress = styled(Stack)(() => ({
 
 const StyledDivider = styled(Divider)(() => ({
   color: "#34A286",
-  marginTop: "65px",
+  marginTop: "34px",
   marginBottom: "8px",
 }));
 
@@ -89,43 +88,54 @@ const FormSectionReview: FC<FormSectionProps> = ({
     <FormContainer description="Review and Submit" formRef={formRef}>
       {/* Principal Investigator and Contact Information Section */}
       <ReviewSection title="Principal Investigator and Contact Information">
-        <ReviewDataListing title="Principal Investigator for the study:" required>
-          <ReviewDataListingProperty label="Name" value={`${pi.lastName}, ${pi.firstName}`} required />
-          <ReviewDataListingProperty label="Position" value={pi.position} required />
-          <ReviewDataListingProperty label="Email Address" value={pi.email} required />
-          <ReviewDataListingProperty label="Institution Name" value={pi.institution} required />
-          <ReviewDataListingProperty
-            label={(
-              <StyledAddressLabel>
-                <span>Institution</span>
-                <span>Address</span>
-              </StyledAddressLabel>
-            )}
-            value={(
-              <StyledAddress>
-                {splitAddress?.length > 0 && <span>{`${splitAddress[0]}${splitAddress.length > 1 ? "," : ""}`}</span>}
-                {splitAddress?.length > 1 && <span>{splitAddress.slice(1).join(",")}</span>}
-              </StyledAddress>
-            )}
-            required
-          />
+        <ReviewDataListing title="Principal Investigator for the study:">
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Name" value={`${pi.lastName}, ${pi.firstName}`} />
+            <ReviewDataListingProperty label="Position" value={pi.position} />
+            <ReviewDataListingProperty label="Institution Name" value={pi.institution} />
+          </Grid>
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Email Address" value={pi.email} />
+            <ReviewDataListingProperty
+              label={(
+                <StyledAddressLabel>
+                  <span>Institution</span>
+                  <span>Address</span>
+                </StyledAddressLabel>
+              )}
+              value={(
+                <StyledAddress>
+                  {splitAddress?.length > 0 && <span>{`${splitAddress[0]}${splitAddress.length > 1 ? "," : ""}`}</span>}
+                  {splitAddress?.length > 1 && <span>{splitAddress.slice(1).join(",")}</span>}
+                </StyledAddress>
+              )}
+            />
+          </Grid>
         </ReviewDataListing>
 
-        <ReviewDataListing title="Primary Contact assisting with data collection" required>
-          <ReviewDataListingProperty label="Name" value={`${primaryContact.lastName}, ${primaryContact.firstName}`} required />
-          <ReviewDataListingProperty label="Position" value={primaryContact.position} required />
-          <ReviewDataListingProperty label="Institution Name" value={primaryContact.institution} required />
-          <ReviewDataListingProperty label="Email Address" value={primaryContact.email} required />
-          <ReviewDataListingProperty label="Phone Number" value={FormatPhoneNumber(primaryContact.phone)} required />
+        <ReviewDataListing title="Primary Contact assisting with data collection">
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Name" value={`${primaryContact.lastName}, ${primaryContact.firstName}`} />
+            <ReviewDataListingProperty label="Position" value={primaryContact.position} />
+            <ReviewDataListingProperty label="Institution Name" value={primaryContact.institution} />
+          </Grid>
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Email Address" value={primaryContact.email} />
+            <ReviewDataListingProperty label="Phone Number" value={formatPhoneNumber(primaryContact.phone)} />
+          </Grid>
         </ReviewDataListing>
 
         {additionalContacts?.map((additionalContact: KeyedContact, idx: number) => (
-          <ReviewDataListing key={additionalContact.key} title={idx <= 1 ? "Additional Contacts" : null} hideTitle={idx === 1} required>
-            <ReviewDataListingProperty label="Contact Name" value={`${additionalContact.lastName}, ${additionalContact.firstName}`} required />
-            <ReviewDataListingProperty label="Position" value={additionalContact.position} required />
-            <ReviewDataListingProperty label="Institution Name" value={additionalContact.institution} required />
-            <ReviewDataListingProperty label="Email Address" value={additionalContact.email} required />
-            <ReviewDataListingProperty label="Phone Number" value={FormatPhoneNumber(additionalContact.phone)} required />
+          <ReviewDataListing key={additionalContact.key} title={idx <= 1 ? "Additional Contacts" : null} hideTitle={idx === 1}>
+            <Grid md={6} xs={12} item>
+              <ReviewDataListingProperty label="Contact Name" value={`${additionalContact.lastName}, ${additionalContact.firstName}`} />
+              <ReviewDataListingProperty label="Position" value={additionalContact.position} />
+              <ReviewDataListingProperty label="Institution Name" value={additionalContact.institution} />
+            </Grid>
+            <Grid md={6} xs={12} item>
+              <ReviewDataListingProperty label="Email Address" value={additionalContact.email} />
+              <ReviewDataListingProperty label="Phone Number" value={formatPhoneNumber(additionalContact.phone)} />
+            </Grid>
           </ReviewDataListing>
         ))}
 
@@ -133,69 +143,101 @@ const FormSectionReview: FC<FormSectionProps> = ({
 
       {/* Program and study information Section */}
       <ReviewSection title="Program and study information">
-        <ReviewDataListing title="Program" required>
-          <ReviewDataListingProperty label="Program Name" value={program.name} required />
-          <ReviewDataListingProperty label="Program Abbreviation" value={program.abbreviation} required />
-          <ReviewDataListingProperty label="Program Description" value={program.description} valuePlacement="bottom" required />
+        <ReviewDataListing title="Program">
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Program Name" value={program.name} />
+            <ReviewDataListingProperty label="Program Abbreviation" value={program.abbreviation} />
+          </Grid>
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Program Description" value={program.description} valuePlacement="bottom" />
+          </Grid>
         </ReviewDataListing>
 
-        <ReviewDataListing title="Study" required>
-          <ReviewDataListingProperty label="Study Name" value={study.name} required />
-          <ReviewDataListingProperty label="Study Abbreviation" value={study.abbreviation} required />
-          <ReviewDataListingProperty label="Study Description" value={study.description} valuePlacement="bottom" required />
+        <ReviewDataListing title="Study">
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Study Name" value={study.name} />
+            <ReviewDataListingProperty label="Study Abbreviation" value={study.abbreviation} />
+          </Grid>
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Study Description" value={study.description} valuePlacement="bottom" />
+          </Grid>
         </ReviewDataListing>
 
         {publications?.map((publication: KeyedPublication, idx: number) => (
-          <ReviewDataListing key={publication.key} title={idx <= 1 ? "Publications associated with study" : null} hideTitle={idx === 1} required>
-            <ReviewDataListingProperty label="Publication Title" value={publication.title} required />
-            <ReviewDataListingProperty label="PUBMEDID" value={publication.pubmedID} />
-            <ReviewDataListingProperty label="DOI" value={publication.DOI} />
+          <ReviewDataListing key={publication.key} title={idx === 0 ? "Publications associated with study" : null}>
+            <Grid md={6} xs={12} item>
+              <ReviewDataListingProperty label="Publication Title" value={publication.title} valuePlacement="bottom" />
+            </Grid>
+            <Grid md={6} xs={12} item>
+              <ReviewDataListingProperty label="PUBMEDID" value={publication.pubmedID} />
+              <ReviewDataListingProperty label="DOI" value={publication.DOI} />
+            </Grid>
+          </ReviewDataListing>
+        ))}
+
+        {plannedPublications?.map((plannedPublication: KeyedPlannedPublication, idx: number) => (
+          <ReviewDataListing key={plannedPublication.key} title={idx === 0 ? "Planned Publications" : null}>
+            <Grid md={6} xs={12} item>
+              <ReviewDataListingProperty label="Planned Publication Title" value={plannedPublication.title} valuePlacement="bottom" />
+            </Grid>
+            <Grid md={6} xs={12} item>
+              <ReviewDataListingProperty label="Expected Publication Date" value={plannedPublication.expectedDate} valuePlacement="bottom" />
+            </Grid>
           </ReviewDataListing>
         ))}
       </ReviewSection>
 
       {/* Data Access and Disease Information Section */}
       <ReviewSection title="Data Access and Disease Information">
-        <ReviewDataListing required>
-          <ReviewDataListingProperty label="Access Types" value={data.accessTypes.join(", ")} valuePlacement="bottom" required />
-          <ReviewDataListingProperty label="Targeted Data Submission Delivery Date" value={data.targetedSubmissionDate} valuePlacement="bottom" required />
-          <ReviewDataListingProperty label="Targeted Data Release Date" value={data.targetedReleaseDate} valuePlacement="bottom" required />
+        <ReviewDataListing>
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Access Types" value={data.accessTypes.join(", ")} valuePlacement="bottom" />
+          </Grid>
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Targeted Data Submission Delivery Date" value={data.targetedSubmissionDate} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Targeted Data Release Date" value={data.targetedReleaseDate} valuePlacement="bottom" />
+          </Grid>
         </ReviewDataListing>
-
-        {plannedPublications?.map((plannedPublication: KeyedPlannedPublication, idx: number) => (
-          <ReviewDataListing key={plannedPublication.key} title={idx === 0 ? "Planned Publications" : null} required>
-            <ReviewDataListingProperty label="Planned Publication Title" value={plannedPublication.title} required />
-            <ReviewDataListingProperty label="Expected Publication Date" value={plannedPublication.expectedDate} required />
-          </ReviewDataListing>
-        ))}
       </ReviewSection>
 
       {/* Submission Data types Section */}
       <ReviewSection title="Submission Data types">
-        <ReviewDataListing title="Data Types" required>
-          {dataTypeOptions.map((dataType) => (
-            <ReviewDataListingProperty key={dataType} label={dataType} value={data.dataTypes.includes(dataType) ? "Yes" : "No"} required />
-          ))}
-          <ReviewDataListingProperty label="Other Data types" value={data.otherDataTypes} valuePlacement="bottom" required />
+        <ReviewDataListing title="Data Types">
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Clinical Trial" value={data.dataTypes.includes("Clinical Trial") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Genomics" value={data.dataTypes.includes("Genomics") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Imaging" value={data.dataTypes.includes("Imaging") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Other Data types" value={data.otherDataTypes} valuePlacement="bottom" />
+          </Grid>
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Immunology" value={data.dataTypes.includes("Immunology") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Proteomics" value={data.dataTypes.includes("Proteomics") ? "Yes" : "No"} />
+          </Grid>
         </ReviewDataListing>
 
-        <ReviewDataListing title="Clinical Types" required>
-          {clinicalDataOptions.map((clinicalData) => (
-            <ReviewDataListingProperty key={clinicalData} label={clinicalData} value={data.dataTypes.includes(clinicalData) ? "Yes" : "No"} required />
-          ))}
-          <ReviewDataListingProperty label="Other Data types" value={data.clinicalData.otherDataTypes} valuePlacement="bottom" required />
+        <ReviewDataListing title="Clinical Types">
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Demographic Data" value={data.dataTypes.includes("Demographic Data") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Diagnosis Data" value={data.dataTypes.includes("Diagnosis Data") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Treatment Data" value={data.dataTypes.includes("Treatment Data") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Relapse/Recurrence data" value={data.dataTypes.includes("Relapse/Recurrence data") ? "Yes" : "No"} />
+          </Grid>
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Outcome Data" value={data.dataTypes.includes("Outcome Data") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Other Data types" value={data.clinicalData.otherDataTypes} valuePlacement="bottom" />
+          </Grid>
         </ReviewDataListing>
 
-        {fileTypes?.map((fileType: KeyedFileTypeData, idx: number) => (
-          <ReviewDataListing key={fileType.key} title={idx <= 1 ? "File Types" : null} hideTitle={idx === 1} required>
-            <ReviewDataListingProperty label={`File Type ${idx + 1}`} value={fileType.type} required />
-            <ReviewDataListingProperty label={`File Type ${idx + 1}, Number of Files`} value={fileType.count?.toString()} required />
-            <ReviewDataListingProperty label={`File Type ${idx + 1}, Est Amount Data`} value={fileType.amount} required />
-          </ReviewDataListing>
-          ))}
+        <ReviewDataListing title="File Types">
+          <Grid xs={12} item>
+            <ReviewFileTypeTable files={fileTypes} />
+          </Grid>
+        </ReviewDataListing>
 
         <ReviewDataListing title="Additional Comments">
-          <ReviewDataListingProperty value={data.submitterComment} valuePlacement="bottom" required />
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty value={data.submitterComment} valuePlacement="bottom" />
+          </Grid>
         </ReviewDataListing>
       </ReviewSection>
 

@@ -1,6 +1,13 @@
 import { Grid, Typography, styled } from "@mui/material";
 import { ReactNode } from "react";
 
+const GridContainer = styled(Grid)(() => ({
+  ":not(:first-of-type)": {
+    marginTop: "30px",
+  },
+  paddingTop: 0,
+}));
+
 const StyledTitle = styled(Typography)(() => ({
   color: "#083A50",
   fontSize: "16px",
@@ -11,37 +18,20 @@ const StyledTitle = styled(Typography)(() => ({
   height: "20px",
 }));
 
-const StyledAsterisk = styled("span")(() => ({
-  color: "#D54309",
-  marginLeft: "8px",
-  marginRight: "8px",
-}));
-
 type Props = {
   title?: string;
   hideTitle?: boolean;
-  required?: boolean;
   children: ReactNode;
 };
 
-const ReviewDataListing = ({
-  title,
-  hideTitle,
-  required = false,
-  children,
-}: Props) => (
-  <Grid md={6} xs={12} item>
+const ReviewDataListing = ({ title, hideTitle, children }: Props) => (
+  <Grid xs={12} item>
     {title && (
-      <StyledTitle variant="h6">
-        {!hideTitle ? (
-          <>
-            {title}
-            {required && <StyledAsterisk>*</StyledAsterisk>}
-          </>
-        ) : null}
-      </StyledTitle>
+      <StyledTitle variant="h6">{!hideTitle ? title : null}</StyledTitle>
     )}
-    {children}
+    <GridContainer container rowSpacing={3.75} columnSpacing={1.5}>
+      {children}
+    </GridContainer>
   </Grid>
 );
 

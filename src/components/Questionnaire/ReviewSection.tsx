@@ -2,8 +2,11 @@ import { Divider, Grid, Stack, Typography, styled } from "@mui/material";
 import { FC, ReactNode } from "react";
 
 const GridContainer = styled(Grid)(() => ({
- ":not(:first-of-type)": {
+ "&:not(:first-of-type)": {
     marginTop: "30px",
+ },
+ "&:first-of-type": {
+  paddingTop: "30px"
  },
   paddingTop: 0
 }));
@@ -31,8 +34,8 @@ type Props = {
 };
 
 const ReviewSection: FC<Props> = ({ title, divider = true, children }) => (
-  <GridContainer container rowSpacing={3.75} columnSpacing={1.5}>
-    <Grid xs={12} item>
+  <GridContainer container rowSpacing={3.75} columnSpacing={0}>
+    <Grid xs={12} item sx={{ padding: "0 !important" }}>
       <Stack direction="row" alignItems="center">
         {title && <StyledTitle variant="h6">{title}</StyledTitle>}
         {divider && <StyledDivider />}

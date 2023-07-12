@@ -19,14 +19,9 @@ const StyledValue = styled("span")(() => ({
   lineHeight: "19.6px",
 }));
 
-const StyledAsterisk = styled("span")(() => ({
-  color: "#D54309",
-  marginLeft: "8px",
-}));
-
 const StyledLabelWrapper = styled(Stack)(() => ({
   display: "inline-flex",
-  marginRight: "8px"
+  marginRight: "22px"
 }));
 
 const StyledPropertyWrapper = styled(Stack)(() => ({
@@ -38,7 +33,6 @@ type Props = {
   value: string | JSX.Element;
   valuePlacement?: "right" | "bottom";
   hideLabel?: boolean;
-  required?: boolean;
 };
 
 const ReviewDataListingProperty: FC<Props> = ({
@@ -46,7 +40,6 @@ const ReviewDataListingProperty: FC<Props> = ({
   value,
   valuePlacement = "right",
   hideLabel = false,
-  required = false,
 }) => (
   <StyledPropertyWrapper
     direction={valuePlacement === "bottom" ? "column" : "row"}
@@ -56,7 +49,6 @@ const ReviewDataListingProperty: FC<Props> = ({
     {label && (
       <StyledLabelWrapper direction="row" alignItems="center">
         <StyledLabel>{!hideLabel && label}</StyledLabel>
-        {required && <StyledAsterisk>*</StyledAsterisk>}
       </StyledLabelWrapper>
     )}
     <Stack
