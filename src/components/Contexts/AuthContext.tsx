@@ -6,12 +6,10 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useSearchParams } from 'react-router-dom';
-import { useLazyQuery } from '@apollo/client';
-import { GET_USER } from './graphql';
-
-const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_API || process.env.REACT_APP_AUTH_SERVICE_API;
-const USER_SERVICE_URL = process.env.USER_SERVICE_API || process.env.REACT_APP_USER_SERVICE_API;
+import {
+  isLoggedIn,
+  logIn
+} from '../../api/authn';
 
 export type ContextState = {
   isLoggedIn: boolean;
@@ -67,40 +65,14 @@ export const AuthProvider: FC<ProviderProps> = (props) => {
   const { children } = props;
   const [state, setState] = useState<ContextState>(initialState);
 
-  const [getUser, { data, error }] = useLazyQuery(GET_USER, {
-    context: { clientName: 'userService' },
-    fetchPolicy: 'no-cache'
-  });
-
-  const [searchParams] = useSearchParams();
-  const authCode = searchParams.get('code');
-
   useEffect(() => {
-    const myHeaders = new Headers();
-    const raw = JSON.stringify({
-      code: authCode,
-      IDP: 'nih',
-    });
-    const requestRedirect:RequestRedirect = 'follow';
+    const searchParams = new URLSearchParams(document.location.search);
+    const authCode = searchParams.get('code');
 
-    myHeaders.append('Content-Type', 'application/json');
-    // myHeaders.append('Set-Cookie', 'application/json');
-    myHeaders.append("Cookie", "connect.sid=s%3AvOcaFQHqS3fAln2d4aFKB91ARVNF0iy8.BS0z5yuZn0CugxB%2FSojYbX4XRINNhGEkJWp4LRybsfo");
-
-    const requestOptions = {
-      body: raw,
-      headers: myHeaders,
-      method: 'POST',
-      redirect: requestRedirect,
-      // withCredentials: true,
-    };
-
-    fetch(`${AUTH_SERVICE_URL}/login`, requestOptions)
-      .then((response) => response.json())
-      .then((result) => console.log('Login results:', result))
-      .catch((error) => console.log('error', error));
-    getUser();
-  }, [getUser]);
+    if (!isLoggedIn()) {
+      logIn(authCode);
+    }
+  }, []);
 
   const value = useMemo(() => ({ ...state }), [state]);
 
