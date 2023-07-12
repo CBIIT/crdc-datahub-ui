@@ -344,7 +344,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               required
               gridWidth={12}
             />
-)}
+          )}
         />
 
       </SectionGroup>

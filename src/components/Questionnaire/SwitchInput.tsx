@@ -199,7 +199,6 @@ const CustomSwitch: FC<Props> = ({
               {...rest}
             />
             {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
-            {/* eslint-disable-next-line no-nested-ternary */}
             <input
               onChange={() => { }}
               className="input"
@@ -214,7 +213,12 @@ const CustomSwitch: FC<Props> = ({
           <FormHelperText className="errorMessage">{error ? errorMsg : " "}</FormHelperText>
         </div>
       </div>
-      {val ? toggleContent : <div />}
+      {/* Keeping the input in the DOM to parse value from name */}
+      {val ? (
+        toggleContent
+      ) : (
+        <div style={{ display: 'none' }}>{toggleContent}</div>
+      )}
     </GridStyled>
   );
 };
