@@ -125,7 +125,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
     // Update the state when the lazy query response changes
     if (data) {
       const applicationData = data?.getApplication;
-      const newData = {
+      const newData: Application = {
         ...merge(initialValues, applicationData),
         // To avoid false positive form changes
         targetedReleaseDate: FormatDate(applicationData?.targetedReleaseDate, "MM/DD/YYYY"),

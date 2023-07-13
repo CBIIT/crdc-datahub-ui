@@ -13,6 +13,12 @@ export const OptionalProgram : ProgramOption = {
   isCustom: true,
 };
 
+export const BlankProgram : ProgramOption = {
+  name: "",
+  abbreviation: "",
+  studies: [],
+};
+
 /**
  * This is a special study option that is used
  * when the user selects "Other" from the study dropdown.
@@ -25,6 +31,11 @@ export const OptionalStudy : StudyOption = {
   name: "Other",
   abbreviation: "Other",
   isCustom: true,
+};
+
+export const BlankStudy : StudyOption = {
+  name: "",
+  abbreviation: "",
 };
 
 /**
@@ -95,8 +106,9 @@ const options: ProgramOption[] = [
       { name: "CPTACT CCRCC Confirmatory Study DIA Proteome", abbreviation: "NA" },
     ],
   },
-  // NOTE: This is a special program option that is used
+  // NOTE: These are special program options that are used
   // ADD NEW PROGRAMS ABOVE THIS LINE
+  BlankProgram,
   OptionalProgram,
 ];
 

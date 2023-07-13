@@ -95,7 +95,7 @@ const GridStyled = styled(Grid)`
     margin-top: 44px;
     margin-left: 8px;
     min-height: 20px;
-    width: 100%;
+    width: fit-content;
     position: absolute;
   }
   .switchErrorContainer {

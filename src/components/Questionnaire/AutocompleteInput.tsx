@@ -116,8 +116,15 @@ const StyledAutocomplete = styled(Autocomplete)(() => ({
     },
     "& .MuiAutocomplete-clearIndicator": {
       visibility: "hidden !important",
+      position: "absolute"
     },
   },
+}));
+
+const StyledFormHelperText = styled(FormHelperText)(() => ({
+  marginLeft: 0,
+  marginTop: "4px",
+  minHeight: "20px",
 }));
 
 type Props<T> = {
@@ -128,6 +135,7 @@ type Props<T> = {
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   helpText?: string;
   required?: boolean;
+  validate?: (input: T) => boolean;
 } & Omit<AutocompleteProps<T, false, true, true, "div">, "renderInput">;
 
 const AutocompleteInput = <T,>({
@@ -139,15 +147,27 @@ const AutocompleteInput = <T,>({
   value,
   onChange,
   options,
+  validate,
   placeholder,
   ...rest
 }: Props<T>) => {
   const id = useId();
 
   const [val, setVal] = useState<T>(value);
-  const [error] = useState();
+  const [error, setError] = useState<boolean>(false);
   const helperText = helpText || (required ? "This field is required" : " ");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const validateInput = (input: AutocompleteValue<T, false, false, false>,): boolean => {
+    if (validate) {
+      const customIsValid = validate(input);
+      return customIsValid;
+    }
+    if (required && !input) {
+      return false;
+    }
+    return true;
+  };
 
   const onChangeWrapper = (
     event: SyntheticEvent,
@@ -159,6 +179,7 @@ const AutocompleteInput = <T,>({
     }
 
     setVal(newValue);
+    setError(!validateInput(newValue));
   };
 
   useEffect(() => {
@@ -178,7 +199,6 @@ const AutocompleteInput = <T,>({
           options={options}
           forcePopupIcon
           popupIcon={<DropdownArrowsIconSvg />}
-          disableClearable
           slotProps={{
             popper: {
               disablePortal: true,
@@ -205,7 +225,7 @@ const AutocompleteInput = <T,>({
           )}
           {...rest}
         />
-        <FormHelperText>{error ? helperText : " "}</FormHelperText>
+        <StyledFormHelperText>{error ? helperText : " "}</StyledFormHelperText>
       </StyledFormControl>
     </Grid>
   );

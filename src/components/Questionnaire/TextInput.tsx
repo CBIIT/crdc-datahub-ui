@@ -16,6 +16,7 @@ type Props = {
   errorText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
+  hideValidation?: boolean;
   validate?: (input: string) => boolean;
   filter?: (input: string) => string;
 } & OutlinedInputProps;
@@ -40,6 +41,7 @@ const TextInput: FC<Props> = ({
   maxLength,
   infoText,
   errorText,
+  hideValidation,
   validate,
   filter,
   type,
@@ -104,7 +106,7 @@ const TextInput: FC<Props> = ({
           {...rest}
         />
         <FormHelperText className={classes.helperText}>
-          {(error ? errorMsg : infoText) || " "}
+          {(!hideValidation && error ? errorMsg : infoText) || " "}
         </FormHelperText>
       </FormControl>
     </Grid>

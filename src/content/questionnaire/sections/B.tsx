@@ -3,7 +3,7 @@ import { AutocompleteChangeReason } from "@mui/material";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import programOptions from "../../../config/ProgramConfig";
+import programOptions, { BlankProgram, BlankStudy, OptionalStudy } from "../../../config/ProgramConfig";
 import fundingAgencyOptions from "../../../config/FundingConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
@@ -41,9 +41,9 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { status, data } = useFormContext();
 
   const [program, setProgram] = useState<Program>(data.program);
-  const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(program.name));
+  const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(program.name, program.abbreviation));
   const [study, setStudy] = useState<Study>(data.study);
-  const [studyOption, setStudyOption] = useState<StudyOption>(findStudy(study?.name, programOption));
+  const [studyOption, setStudyOption] = useState<StudyOption>(findStudy(study.name, study.abbreviation, programOption));
   const [publications, setPublications] = useState<KeyedPublication[]>(data.study?.publications?.map(mapObjectWithKey) || []);
   const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
@@ -92,6 +92,17 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   /**
+   * Will set the study input values to empty strings
+   * as well as the study option to a blank study
+   *
+   * @returns {void}
+   */
+  const clearStudyAndStudyOption = (): void => {
+    setStudy({ ...study, ...BlankStudy, description: "" });
+    setStudyOption(BlankStudy);
+  };
+
+  /**
    * Handles the program change event and updates program/study states
    *
    * @param e event
@@ -100,9 +111,17 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @returns {void}
    */
   const handleProgramChange = (e: React.SyntheticEvent, value: ProgramOption, r: AutocompleteChangeReason) => {
-    if (r !== "selectOption") { return; }
+    if (r !== "selectOption" && r !== "clear") { return; }
+    if (r === "clear") {
+      setProgram({ name: "", abbreviation: "", description: "" });
+      setProgramOption({ ...BlankProgram, studies: [BlankStudy, OptionalStudy] });
+      if (!studyOption?.isCustom) {
+        clearStudyAndStudyOption();
+      }
+      return;
+    }
 
-    const newProgram = findProgram(value.name);
+    const newProgram = findProgram(value.name, value.abbreviation);
 
     if (newProgram?.isCustom) {
       setProgram({ name: "", abbreviation: "", description: "" });
@@ -114,14 +133,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     // The user may have entered a "Other" study and then changed the program
     // and we don't want to reset the entered information
     if (!studyOption?.isCustom) {
-      const newStudy = newProgram.studies[0];
-      if (newStudy?.isCustom) {
-        setStudy({ ...study, name: "", abbreviation: "", description: "" });
-      } else {
-        setStudy({ ...study, ...newProgram.studies[0] });
-      }
-
-      setStudyOption(newProgram.studies[0]);
+      clearStudyAndStudyOption();
     }
 
     setProgramOption(newProgram);
@@ -136,14 +148,19 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @returns {void}
    */
   const handleStudyChange = (e: React.SyntheticEvent, value: StudyOption, r: AutocompleteChangeReason) => {
-    if (r !== "selectOption") {
+    if (r !== "selectOption" && r !== "clear") { return; }
+    if (r === "clear") {
+      clearStudyAndStudyOption();
       return;
     }
 
-    const newStudy = findStudy(value.name, programOption);
+    const newStudy = findStudy(value.name, value.abbreviation, programOption);
     if (newStudy?.isCustom) {
       setStudy({
         ...initialValues.study,
+        name: "",
+        abbreviation: "",
+        description: ""
       });
     } else {
       setStudy({
@@ -220,6 +237,9 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setRepositories(repositories.filter((c) => c.key !== key));
   };
 
+  const readOnlyProgram = !programOption?.isCustom || programOption === BlankProgram;
+  const readOnlyStudy = !studyOption?.isCustom || studyOption === BlankStudy;
+
   return (
     <FormContainer
       description={SectionOption.title}
@@ -235,9 +255,16 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={programOption?.isCustom ? programOption : program}
           onChange={handleProgramChange}
           options={programOptions}
-          getOptionLabel={(option: ProgramOption) => (option.isCustom ? option.name : `${option.name} (${option.abbreviation})`)}
+          renderOption={(props, option: ProgramOption) => {
+            if (option === BlankProgram) {
+              return null;
+            }
+            return <li {...props}>{`${option.name}${!option.isCustom && option.abbreviation ? ` (${option.abbreviation})` : ""}`}</li>;
+          }}
+          getOptionLabel={(option: ProgramOption) => (option.isCustom ? option.name : `${option.name}${option.abbreviation ? ` (${option.abbreviation})` : ""}`)}
           isOptionEqualToValue={(option: ProgramOption, value: ProgramOption) => option.name === value.name && option.abbreviation === value.abbreviation}
           placeholder="– Search and Select Program –"
+          validate={(input: ProgramOption) => input?.name?.length > 0}
           required
         />
         <TextInput
@@ -247,7 +274,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={programOption?.isCustom ? program.name : programOption.name}
           maxLength={programOption?.isCustom ? 50 : undefined}
           placeholder="50 characters allowed"
-          readOnly={!programOption?.isCustom}
+          readOnly={readOnlyProgram}
+          hideValidation={readOnlyProgram}
           required
         />
         <TextInput
@@ -257,7 +285,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={programOption?.isCustom ? program.abbreviation : programOption.abbreviation}
           maxLength={programOption?.isCustom ? 20 : undefined}
           placeholder="20 characters allowed"
-          readOnly={!programOption?.isCustom}
+          readOnly={readOnlyProgram}
+          hideValidation={readOnlyProgram}
           required
         />
         <TextInput
@@ -269,7 +298,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           maxLength={500}
           placeholder="500 characters allowed"
           minRows={2}
-          readOnly={!programOption?.isCustom}
+          readOnly={readOnlyProgram}
+          hideValidation={readOnlyProgram}
           required={programOption?.isCustom}
           multiline
         />
@@ -285,9 +315,16 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={studyOption?.isCustom ? studyOption : study}
           onChange={handleStudyChange}
           options={programOption.studies}
-          getOptionLabel={(option: StudyOption) => (option.isCustom ? option.name : `${option.name} (${option.abbreviation})`)}
+          renderOption={(props, option: StudyOption) => {
+            if (option === BlankStudy) {
+              return null;
+            }
+            return <li {...props}>{`${option.name}${!option.isCustom && option.abbreviation ? ` (${option.abbreviation})` : ""}`}</li>;
+          }}
+          getOptionLabel={(option: StudyOption) => (option.isCustom ? option.name : `${option.name}${option.abbreviation ? ` (${option.abbreviation})` : ""}`)}
           isOptionEqualToValue={(option: StudyOption, value: StudyOption) => option.name === value.name && option.abbreviation === value.abbreviation}
           placeholder="– Search and Select Study –"
+          validate={(input: ProgramOption) => input?.name?.length > 0}
           required
         />
         <TextInput
@@ -297,7 +334,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={studyOption?.isCustom ? study.name : studyOption.name}
           maxLength={studyOption?.isCustom ? 50 : undefined}
           placeholder="50 characters allowed"
-          readOnly={!studyOption?.isCustom}
+          readOnly={readOnlyStudy}
+          hideValidation={readOnlyStudy}
           required
         />
         <TextInput
@@ -307,7 +345,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={studyOption?.isCustom ? study.abbreviation : studyOption.abbreviation}
           maxLength={studyOption?.isCustom ? 20 : undefined}
           placeholder="20 characters allowed"
-          readOnly={!studyOption?.isCustom}
+          readOnly={readOnlyStudy}
+          hideValidation={readOnlyStudy}
           required
         />
         <TextInput
@@ -319,7 +358,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           maxLength={500}
           placeholder="500 characters allowed"
           minRows={2}
-          readOnly={!studyOption?.isCustom}
+          readOnly={readOnlyStudy}
+          hideValidation={readOnlyStudy}
           required={studyOption?.isCustom}
           multiline
         />
@@ -464,6 +504,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="study[funding][grantNumber]"
           value={funding?.grantNumber}
           maxLength={50}
+          placeholder="Enter Grant or Contract Number(s)"
           required
         />
         <TextInput
@@ -471,6 +512,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="NCI Program Officer name, if applicable"
           name="study[funding][nciProgramOfficer]"
           value={funding?.nciProgramOfficer}
+          placeholder="Enter NCI Program Officer name, if applicable"
           maxLength={50}
         />
         <TextInput
@@ -478,6 +520,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="NCI Genomic Program Administrator (GPA) name, if applicable"
           name="study[funding][nciGPA]"
           value={funding?.nciGPA}
+          placeholder="Enter GPA name, if applicable"
         />
       </SectionGroup>
     </FormContainer>
