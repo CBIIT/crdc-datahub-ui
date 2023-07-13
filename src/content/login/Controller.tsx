@@ -4,6 +4,8 @@ function loginController() {
   const NIH_AUTH_URL = env.NIH_CLIENT_ID || "";
   const NIH_CLIENT_ID = env.NIH_AUTHORIZE_URL || "";
   const NIH_REDIRECT_URL = env.NIH_REDIRECT_URL || window.location.origin;
+  // should shown global warnning message
+  if (NIH_AUTH_URL === "" || NIH_CLIENT_ID === "") return null;
 
   const urlParam = {
     client_id: `${NIH_CLIENT_ID}`,

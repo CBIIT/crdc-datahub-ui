@@ -2,7 +2,7 @@
 import {
   ApolloClient, InMemoryCache, ApolloLink, HttpLink, DefaultOptions
 } from '@apollo/client';
-import env from './env';
+import env from './utils/env';
 
 const defaultOptions:DefaultOptions = {
   query: {
