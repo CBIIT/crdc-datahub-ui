@@ -48,6 +48,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
   const [funding] = useState<Funding>(data.study?.funding);
+  const [isdbGaPRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isdbGaPRegistered);
 
   const formRef = useRef<HTMLFormElement>();
   const {
@@ -331,7 +332,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="dbGaP Registered?"
           name="study[isdbGaPRegistered]"
           required
-          value={data.study.isdbGaPRegistered}
+          value={isdbGaPRegistered}
+          onChange={(e, checked: boolean) => setIsdbGaPRegistered(checked)}
           isBoolean
           toggleContent={(
             <TextInput
@@ -341,8 +343,9 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               value={data.study.dbGaPPHSNumber}
               maxLength={50}
               placeholder="50 characters allowed"
-              required
               gridWidth={12}
+              hidden
+              required={isdbGaPRegistered}
             />
           )}
         />

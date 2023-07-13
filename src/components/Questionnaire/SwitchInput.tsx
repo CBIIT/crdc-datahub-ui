@@ -124,6 +124,7 @@ const CustomSwitch: FC<Props> = ({
   label,
   required,
   value,
+  onChange,
   name,
   tooltipText,
   gridWidth,
@@ -164,6 +165,9 @@ const CustomSwitch: FC<Props> = ({
   }, [touched, touchRequired]);
 
   const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    if (typeof onChange === "function") {
+      onChange(event, checked);
+    }
     if (!touched) {
       setTouched(true);
     }
