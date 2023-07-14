@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from "react";
+import React, { FC, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Alert, Container, Button, Stack, styled,
@@ -18,80 +18,9 @@ type T = RecursivePartial<Application>;
 
 type Column = {
   label: string;
-  // TODO: change to user type
-  value: (a: T, user: any) => string | boolean | number | React.ReactNode;
+  value: (a: T, user: User) => string | boolean | number | React.ReactNode;
   sortable?: true;
   default?: true;
-};
-
-// TODO: get from API
-export const TempData: Response = {
-  listApplications: {
-    total: 6,
-    applications: [
-      {
-        _id: "1234",
-        study: {
-          abbreviation: "WORKING",
-        },
-        program: {
-          abbreviation: "WORKING APP",
-        },
-        status: "Submitted",
-        submittedDate: "2023-07-09T13:05:11"
-      },
-      {
-        _id: "5678",
-        study: {
-          abbreviation: "BLABLA",
-        },
-        program: {
-          abbreviation: "PRG-BLA",
-        },
-        status: "Rejected",
-      },
-      {
-        _id: "9012",
-        study: {
-          abbreviation: "STU-9012",
-        },
-        program: {
-          abbreviation: "PRG-9012",
-        },
-        status: "Rejected",
-      },
-      {
-        _id: "8492",
-        study: {
-          abbreviation: "STU-8492",
-        },
-        program: {
-          abbreviation: "PRG-8492",
-        },
-        status: "Submitted",
-      },
-      {
-        _id: "1337",
-        study: {
-          abbreviation: "STU-1337",
-        },
-        program: {
-          abbreviation: "PRG-1337",
-        },
-        status: "In Progress",
-      },
-      {
-        _id: "7676",
-        study: {
-          abbreviation: "STU-7676",
-        },
-        program: {
-          abbreviation: "PRG-7676",
-        },
-        status: "Submitted",
-      },
-    ],
-  },
 };
 
 const StyledButton = styled(Button)(({ theme }) => ({
@@ -229,15 +158,7 @@ const columns: Column[] = [
  */
 const ListingView: FC = () => {
   const { state } = useLocation();
-  // const { user } = useAuthContext();
-
-  // TODO: remove this
-  const { user } = { user: { role: "User" } };
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<Response | null>(null);
-  const error = null;
-  // const [emptyRows, setEmptyRows] = useState<number>(0);
-  // end of TODO
+  const { user } = useAuthContext();
 
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<Column>(
@@ -247,15 +168,15 @@ const ListingView: FC = () => {
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(5);
 
-  // const { data, loading, error } = useQuery(query, {
-  //   variables: {
-  //     first: perPage,
-  //     offset: page * perPage,
-  //     sortDirection: order.toUpperCase(),
-  //     orderBy: orderBy.label,
-  //   },
-  //   context: { clientName: 'backend' },
-  // });
+  const { data, loading, error } = useQuery<Response>(query, {
+    variables: {
+      first: perPage,
+      offset: page * perPage,
+      sortDirection: order.toUpperCase(),
+      orderBy: orderBy.label,
+    },
+    context: { clientName: 'backend' },
+  });
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
@@ -273,25 +194,6 @@ const ListingView: FC = () => {
     setPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  // TODO: remove this
-  useEffect(() => {
-    setLoading(true);
-
-    setTimeout(() => {
-      setData({
-        listApplications: {
-          ...TempData.listApplications,
-          applications: TempData.listApplications.applications.slice(page * perPage, (page + 1) * perPage),
-        }
-      });
-      // setEmptyRows(
-      //   page > 0 ? Math.max(0, (1 + page) * perPage - TempData.listApplications.total) : 0
-      // );
-      setLoading(false);
-    }, 1000);
-  }, [page, perPage, order, orderBy]);
-  // end of TODO
 
   if (!data && loading) {
     return <SuspenseLoader />;

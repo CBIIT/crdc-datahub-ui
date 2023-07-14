@@ -8,16 +8,17 @@ import React, {
 } from "react";
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { merge, cloneDeep } from "lodash";
-import { SAVE_APP, SUBMIT_APP } from './graphql';
 import { query as LAST_APP, Response as LastAppResp } from '../../graphql/getMyLastApplication';
 import { query as GET_APP, Response as GetAppResp } from '../../graphql/getApplication';
+import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
+import { mutation as SUBMIT_APP, Response as SubmitAppResp } from '../../graphql/submitApplication';
 import initialValues from "../../config/InitialValues";
 import { FormatDate } from "../../utils";
 
 export type ContextState = {
   status: Status;
   data: Application;
-  setData?: (Application) => Promise<boolean>;
+  setData?: (Application) => Promise<string | false>;
   error?: string;
 };
 
@@ -74,90 +75,94 @@ type ProviderProps = {
 export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
-  const [getApp] = useLazyQuery<GetAppResp>(GET_APP, {
-    variables: { id },
-    context: { clientName: 'mockService' },
-    fetchPolicy: 'no-cache'
-  });
-
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
-  const [saveApp] = useMutation(SAVE_APP, {
-      context: { clientName: 'mockService' },
-      fetchPolicy: 'no-cache'
-    });
+  const [getApp] = useLazyQuery<GetAppResp>(GET_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
 
-  const [submitApp] = useMutation(SUBMIT_APP, {
-      variables: { id },
-      context: { clientName: 'mockService' },
-      fetchPolicy: 'no-cache'
-    });
+  const [saveApp] = useMutation<SaveAppResp>(SAVE_APP, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
 
-  const setData = async (data: Application) => new Promise<boolean>((resolve) => {
-    console.log("prior state", state);
+  const [submitApp] = useMutation<SubmitAppResp>(SUBMIT_APP, {
+    variables: { id },
+    context: { clientName: 'mockService' },
+    fetchPolicy: 'no-cache'
+  });
 
+  const setData = async (data: Application) => {
     let newState = { ...state, data };
     setState({ ...newState, status: Status.SAVING });
 
-    // simulate the save event
-    setTimeout(() => {
-      // TODO: if an ID is received from BE, update ID only in the state
-      if (!data?.["_id"] || data?.["_id"] === "new") {
-        newState = { ...newState, data: { ...data, _id: "ABC-ID-Goes-HERE" } };
+    const { data: d, errors } = await saveApp({
+      variables: {
+        application: {
+          ...data,
+          _id: data["_id"] === "new" ? null : data["_id"],
+        }
       }
+    });
 
+    if (errors) {
       setState({ ...newState, status: Status.LOADED });
-      console.log("new state", newState);
-      resolve(true);
-    }, 1500);
-  });
+      return false;
+    }
+
+    if (d?.["id"] && data?.["_id"] === "new") {
+      newState = { ...newState, data: { ...data, _id: data["_id"] } };
+    }
+
+    setState({ ...newState, status: Status.LOADED });
+    return d?.["id"] || false;
+  };
 
   useEffect(() => {
-    if (!id) {
+    if (!id || !id.trim()) {
       setState({ status: Status.ERROR, data: null, error: "Invalid application ID provided" });
       return;
     }
 
     (async () => {
       if (id === "new") {
-        const { data } = await lastApp();
+        const { data: d } = await lastApp();
 
         setState({
           status: Status.LOADED,
           data: {
             ...initialValues,
             _id: "new",
+            pi: { ...initialValues.pi, ...d?.getMyLastApplication?.pi },
             history: [],
-            pi: { ...initialValues.pi, ...data?.getMyLastApplication?.pi },
           },
         });
+
         return;
       }
 
-      const { data, error } = await getApp();
+      const { data: d, error } = await getApp();
       if (error) {
-        setState({
-          status: Status.ERROR,
-          data: null,
-          error: "An unknown API or GraphQL error occurred",
-        });
+        setState({ status: Status.ERROR, data: null, error: "An unknown API or GraphQL error occurred" });
         return;
       }
 
       setState({
         status: Status.LOADED,
         data: {
-          ...merge(cloneDeep(initialValues), data?.getApplication),
+          ...merge(cloneDeep(initialValues), d?.getApplication),
           // To avoid false positive form changes
-          targetedReleaseDate: FormatDate(data?.getApplication?.targetedReleaseDate, "MM/DD/YYYY"),
-          targetedSubmissionDate: FormatDate(data?.getApplication?.targetedSubmissionDate, "MM/DD/YYYY"),
+          targetedReleaseDate: FormatDate(d?.getApplication?.targetedReleaseDate, "MM/DD/YYYY"),
+          targetedSubmissionDate: FormatDate(d?.getApplication?.targetedSubmissionDate, "MM/DD/YYYY"),
         }
       });
     })();
-  }, []);
+  }, [id]);
 
   const value = useMemo(() => ({ ...state, setData }), [state]);
 

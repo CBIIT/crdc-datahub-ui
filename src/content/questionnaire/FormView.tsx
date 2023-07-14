@@ -62,7 +62,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const { status, data, setData, error } = useFormContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
-  const idRef = useRef<string>(data?.['_id']);
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
@@ -105,15 +104,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     setActiveSection(validateSection(section) ? section : "A");
   }, [section]);
 
-  useEffect(() => {
-    // Update ID in URL when a new application is given an ID
-    if (!blockedNavigate && idRef.current === "new" && idRef.current !== data?.['_id']) {
-      navigate(`/submission/${data?.['_id']}/${activeSection}`);
-    }
-
-    idRef.current = data?.['_id'];
-  }, [data?.["_id"]]);
-
   /**
    * Determines if the form has unsaved changes.
    *
@@ -155,11 +145,17 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
     // Skip state update if there are no changes
     if (!isEqual(data, newData)) {
+      // TODO: handle save errors
       const r = await setData(newData);
+
+      if (!blockedNavigate && r && data["_id"] === "new" && r !== data?.['_id']) {
+        navigate(`/submission/${r}/${activeSection}`, { replace: true });
+      }
+
       return r;
     }
 
-    return true;
+    return data?.["_id"];
   };
 
   /**
@@ -171,9 +167,13 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
-    await saveForm(true);
-    setBlockedNavigate(false);
-    blocker.proceed?.();
+    const newId = await saveForm(true);
+
+    if (newId) {
+      setBlockedNavigate(false);
+      blocker.proceed?.();
+      navigate(blocker.location.pathname.replace("new", newId), { replace: true });
+    }
   };
 
   /**
