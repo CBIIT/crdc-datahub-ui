@@ -160,11 +160,12 @@ const AutocompleteInput = <T,>({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const validateInput = (input: AutocompleteValue<T, false, false, false>,): boolean => {
+    const isString = typeof input === "string";
     if (validate) {
       const customIsValid = validate(input);
       return customIsValid;
     }
-    if ((required && input) || (required && typeof input === "string" && input?.length > 0)) {
+    if ((required && !input) || !(required && isString && input?.length > 0)) {
       return false;
     }
     return true;
