@@ -8,6 +8,11 @@ import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
 import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
 import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
 
+const testLoggedInBool = false;
+const testData = {
+  name: "Michael"
+};
+
 const HeaderBanner = styled.div`
   width: 100%;
 `;
@@ -240,6 +245,15 @@ const Header = () => {
                   );
                 })
               }
+              {testLoggedInBool ? (<div className="loggedInName">{testData.name}</div>)
+                : (
+                  <Link id="navbar-link-home" to="/login">
+                    <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
+                      Login
+                    </div>
+                  </Link>
+
+                )}
             </div>
           </div>
           <div

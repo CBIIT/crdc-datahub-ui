@@ -1,8 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import styled from 'styled-components';
-
+import { useAuthContext } from '../../Contexts/AuthContext';
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
+
+const testLoggedInBool = false;
+const testData = {
+  name: "Michael aaaaaaaaaaaaaaaaaa"
+};
 
 const Nav = styled.div`
     top: 0;
@@ -20,6 +25,21 @@ const Nav = styled.div`
       margin: 0 auto;
       position: relative;
       width: 1400px;
+    }
+    .loggedInName{
+      color: #007BBD;
+      text-align: right;
+      font-size: 14px;
+      font-family: Poppins;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+      letter-spacing: 0.42px;
+      text-decoration: none;
+      text-transform: uppercase;
+      padding: 10px 0 10px 0;
+      margin-bottom: 4.5px;
+      margin-right: 40px;
     }
  `;
 
@@ -193,6 +213,15 @@ const DropdownContainer = styled.div`
       grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
       padding: 32px 32px 0 32px;
     }
+    .dropdownNameList {
+      background: #1F4671;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 32px 0 32px;
+      width: 400px;
+      height: 200px;
+      justify-content: end;
+    }
 
     .dropdownItem {
       padding: 0 10px 52px 10px;
@@ -220,6 +249,40 @@ const DropdownContainer = styled.div`
   }
 `;
 
+const NameDropdownContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    .dropdownItem {
+      padding-bottom: 12px;
+      text-align: center;
+      font-family: 'Poppins';
+      font-weight: 600;
+      font-style: normal;
+      font-size: 16px;
+      line-height: 110%;
+      color: #FFFFFF;
+      text-decoration: none;
+  }
+
+  .dropdownItem:hover {
+    text-decoration: underline;
+  }
+`;
+
+const NameDropdown = styled.div`
+    left: 0;
+    background: #1F4671;
+    z-index: 1100;
+    position: absolute;
+    // visibility: hidden;
+    // outline: none;
+    // opacity: 0;
+    /* border-left: 4px solid #5786FF;
+    border-bottom: 4px solid #5786FF;
+    border-right: 4px solid #5786FF; */
+    width: 100%;
+`;
+
 const StyledLoginLink = styled(Link)`
   color: #007BBD;
   text-align: right;
@@ -236,12 +299,12 @@ const StyledLoginLink = styled(Link)`
   margin-right: 32px;
 `;
 
-const useOutsideAlerter = (ref) => {
+const useOutsideAlerter = (ref1, ref2) => {
   useEffect(() => {
     function handleClickOutside(event) {
-      if (!event.target || (event.target.getAttribute("class") !== "dropdownList" && ref.current && !ref.current.contains(event.target))) {
+      if (!event.target || (event.target.getAttribute("class") !== "dropdownList" && ref1.current && !ref1.current.contains(event.target) && ref2.current && !ref2.current.contains(event.target))) {
         const toggle = document.getElementsByClassName("navText clicked");
-        if (toggle[0] && event.target.getAttribute("class") !== "navText clicked" && event.target.getAttribute("class") !== "navText clicked") {
+        if (toggle[0] && event.target.getAttribute("class") !== "navText clicked") {
           const temp: HTMLElement = toggle[0] as HTMLElement;
           temp.click();
         }
@@ -252,15 +315,18 @@ const useOutsideAlerter = (ref) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [ref]);
+  }, [ref1, ref2]);
 };
 
 const NavBar = () => {
   const [clickedTitle, setClickedTitle] = useState("");
   const dropdownSelection = useRef(null);
+  const nameDropdownSelection = useRef(null);
+
   const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
   const clickableTitle = clickableObject.map((item) => item.name);
-  useOutsideAlerter(dropdownSelection);
+  clickableTitle.push(testData.name);
+  useOutsideAlerter(dropdownSelection, nameDropdownSelection);
 
   const handleMenuClick = (e) => {
     if (e.target.innerText === clickedTitle || !clickableTitle.includes(e.target.innerText)) {
@@ -292,7 +358,6 @@ const NavBar = () => {
   useEffect(() => {
     setClickedTitle("");
   }, []);
-
   return (
     <Nav>
       <NavContainer>
@@ -341,15 +406,43 @@ const NavBar = () => {
             })
           }
         </UlContainer>
-        <StyledLoginLink id="header-navbar-login-button" to="/login">
-          Login
-        </StyledLoginLink>
+        {testLoggedInBool
+          ? (
+            <LiSection>
+              <div style={{ margin: "0", minWidth: "150px", border: "none" }} className={clickedTitle === testData.name ? 'navTitleClicked' : 'navTitle'}>
+                <div
+                  id="navbar-dropdown-name"
+                  onKeyDown={onKeyPressHandler}
+                  role="button"
+                  tabIndex={0} className={clickedTitle === testData.name ? 'navText clicked' : 'navText'}
+                  onClick={handleMenuClick}
+                >
+                  {testData.name}
+                </div>
+              </div>
+              <NameDropdown ref={nameDropdownSelection} style={clickedTitle !== testData.name ? { visibility: 'hidden', } : null}>
+                <NameDropdownContainer>
+                  <Link id="navbar-dropdown-item-name-user-profile" to="/userProfile" className="dropdownItem" onClick={() => setClickedTitle("")}>
+                    User Profile
+                  </Link>
+                  <Link id="navbar-dropdown-item-name-logout" to="/logout" className="dropdownItem" onClick={() => setClickedTitle("")}>
+                    Logout
+                  </Link>
+                </NameDropdownContainer>
+              </NameDropdown>
+            </LiSection>
+          )
+          : (
+            <StyledLoginLink id="header-navbar-login-button" to="/login">
+              Login
+            </StyledLoginLink>
+            )}
       </NavContainer>
-      <Dropdown ref={dropdownSelection} style={clickedTitle === '' ? { visibility: 'hidden', } : null}>
+      <Dropdown ref={dropdownSelection} style={(clickedTitle === '' || clickedTitle === testData.name) ? { visibility: 'hidden', } : null}>
         <DropdownContainer>
           <div className="dropdownList">
             {
-              clickedTitle !== "" ? navbarSublists[clickedTitle].map((dropItem, idx) => {
+              (clickedTitle !== "" && clickedTitle !== testData.name) ? navbarSublists[clickedTitle].map((dropItem, idx) => {
                 const dropkey = `drop_${idx}`;
                 return (
                   dropItem.link && (
