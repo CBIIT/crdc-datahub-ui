@@ -6,6 +6,7 @@ import App from './App';
 import client from './client';
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
+import { AuthProvider } from './components/Contexts/AuthContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -13,7 +14,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <ApolloProvider client={client}>
     <HelmetProvider>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </HelmetProvider>
   </ApolloProvider>,
 );
