@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, {
   FC,
   createContext,
@@ -117,15 +118,14 @@ export const FormProvider: FC<ProviderProps> = (props) => {
   // otherwise we can just update the local state (i.e. within form sections)
   const submitData = async (data: Application) => new Promise<boolean>((resolve) => {
     console.log("[SUBMITTING DATA]");
-    console.log("prior state", state);
+    console.log("submitting state", state);
 
-    const newState = { ...state, data };
-    setState({ ...newState, status: Status.SUBMITTING });
-    console.log("new state", newState);
+    setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
+    // submitApp();
 
     // simulate the submit event
     setTimeout(() => {
-      setState({ ...newState, status: Status.LOADED });
+      setState((prevState) => ({ ...prevState, status: Status.LOADED }));
       console.log("submitted");
       resolve(true);
     }, 1500);
