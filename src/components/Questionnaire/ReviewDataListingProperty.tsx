@@ -44,21 +44,29 @@ const ReviewDataListingProperty: FC<Props> = ({
 }) => (
   <StyledPropertyWrapper
     direction={valuePlacement === "bottom" ? "column" : "row"}
-    alignItems={valuePlacement === "bottom" ? "start" : "center"}
+    alignItems="start"
     justifyContent="start"
   >
     {label && (
-      <StyledLabelWrapper direction="row" alignItems="center">
+      <StyledLabelWrapper
+        direction="row"
+        alignItems="center"
+        sx={{ marginBottom: valuePlacement === "bottom" ? "3px" : 0 }}
+      >
         <StyledLabel>{!hideLabel && label}</StyledLabel>
       </StyledLabelWrapper>
     )}
-    <Stack
-      display={valuePlacement === "right" ? "inline-flex" : "flex"}
-      direction="row"
-      alignItems="center"
-    >
-      <StyledValue>{value}</StyledValue>
-    </Stack>
+    {typeof value === "string" ? (
+      <Stack
+        display={valuePlacement === "right" ? "inline-flex" : "flex"}
+        direction="row"
+        alignItems="center"
+      >
+        <StyledValue>{value}</StyledValue>
+      </Stack>
+    ) : (
+      value
+    )}
   </StyledPropertyWrapper>
 );
 

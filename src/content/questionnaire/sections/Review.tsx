@@ -16,10 +16,9 @@ import { formatPhoneNumber } from "../../../utils";
 
 const StyledAddress = styled(Stack)(() => ({
   display: "flex",
-  minHeight: "35px",
   flexDirection: "column",
   flexShrink: "0",
-  justifyContent: "center",
+  justifyContent: "start",
   "& span": {
     lineHeight: "18px",
   },
@@ -49,7 +48,8 @@ const FormSectionReview: FC<FormSectionProps> = ({
   const [publications] = useState<KeyedPublication[]>(data.study?.publications?.map(mapObjectWithKey) || []);
   const [plannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
   const [fileTypes] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
-  const splitAddress = pi?.address?.split(",");
+
+  const [piAddressPart1, ...piAddressPart2] = pi?.address?.split(",") || [];
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -90,8 +90,8 @@ const FormSectionReview: FC<FormSectionProps> = ({
               label="Institution Address"
               value={(
                 <StyledAddress>
-                  {splitAddress?.length > 0 && <span>{`${splitAddress[0]}${splitAddress.length > 1 ? "," : ""}`}</span>}
-                  {splitAddress?.length > 1 && <span>{splitAddress.slice(1).join(",")}</span>}
+                  <span>{`${piAddressPart1}${piAddressPart2?.length ? "," : ""}`}</span>
+                  <span>{piAddressPart2.join(",")}</span>
                 </StyledAddress>
               )}
             />
@@ -166,7 +166,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
               <ReviewDataListingProperty label="Planned Publication Title" value={plannedPublication.title} valuePlacement="bottom" />
             </Grid>
             <Grid md={6} xs={12} item>
-              <ReviewDataListingProperty label="Expected Publication Date" value={plannedPublication.expectedDate} valuePlacement="bottom" />
+              <ReviewDataListingProperty label="Expected Publication Date" value={plannedPublication.expectedDate} />
             </Grid>
           </ReviewDataListing>
         ))}
@@ -189,26 +189,26 @@ const FormSectionReview: FC<FormSectionProps> = ({
       <ReviewSection title="Submission Data types">
         <ReviewDataListing title="Data Types">
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Clinical Trial" value={data.dataTypes.includes("Clinical Trial") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Genomics" value={data.dataTypes.includes("Genomics") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Imaging" value={data.dataTypes.includes("Imaging") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Clinical Trial" value={data.dataTypes?.includes("Clinical Trial") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Genomics" value={data.dataTypes?.includes("Genomics") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Imaging" value={data.dataTypes?.includes("Imaging") ? "Yes" : "No"} />
             <ReviewDataListingProperty label="Other Data types" value={data.otherDataTypes} valuePlacement="bottom" />
           </Grid>
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Immunology" value={data.dataTypes.includes("Immunology") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Proteomics" value={data.dataTypes.includes("Proteomics") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Immunology" value={data.dataTypes?.includes("Immunology") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Proteomics" value={data.dataTypes?.includes("Proteomics") ? "Yes" : "No"} />
           </Grid>
         </ReviewDataListing>
 
         <ReviewDataListing title="Clinical Types">
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Demographic Data" value={data.dataTypes.includes("Demographic Data") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Diagnosis Data" value={data.dataTypes.includes("Diagnosis Data") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Treatment Data" value={data.dataTypes.includes("Treatment Data") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Relapse/Recurrence data" value={data.dataTypes.includes("Relapse/Recurrence data") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Demographic Data" value={data.dataTypes?.includes("Demographic Data") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Diagnosis Data" value={data.dataTypes?.includes("Diagnosis Data") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Treatment Data" value={data.dataTypes?.includes("Treatment Data") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Relapse/Recurrence data" value={data.dataTypes?.includes("Relapse/Recurrence data") ? "Yes" : "No"} />
           </Grid>
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Outcome Data" value={data.dataTypes.includes("Outcome Data") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Outcome Data" value={data.dataTypes?.includes("Outcome Data") ? "Yes" : "No"} />
             <ReviewDataListingProperty label="Other Data types" value={data.clinicalData.otherDataTypes} valuePlacement="bottom" />
           </Grid>
         </ReviewDataListing>
