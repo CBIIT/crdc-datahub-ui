@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useState } from "react";
+import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -7,14 +7,18 @@ import {
   OutlinedInputProps,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
+import { updateInputValidity } from "../../utils";
+import Tooltip from "./Tooltip";
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
   label: string;
   infoText?: string;
   errorText?: string;
+  tooltipText?: string | ReactNode;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
+  hideValidation?: boolean;
   validate?: (input: string) => boolean;
   filter?: (input: string) => string;
 } & OutlinedInputProps;
@@ -27,7 +31,7 @@ type Props = {
  *   instead of using the TextField component because of the forced
  *   floating label behavior of TextField.
  *
- * @param {Props} props
+ * @param {Props} props & number props
  * @returns {JSX.Element}
  */
 const TextInput: FC<Props> = ({
@@ -39,26 +43,34 @@ const TextInput: FC<Props> = ({
   maxLength,
   infoText,
   errorText,
+  tooltipText,
+  hideValidation,
   validate,
   filter,
+  type,
   ...rest
 }) => {
   const id = useId();
   const [val, setVal] = useState(value);
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const validateInput = (input: string) => {
     if (validate) {
-      return validate(input);
+      const customIsValid = validate(input);
+      updateInputValidity(inputRef, !customIsValid ? errorMsg : "");
+      return customIsValid;
     }
     if (typeof maxLength === "number" && input.length > maxLength) {
+      updateInputValidity(inputRef, `Input exceeds maximum length of ${maxLength} characters. Please shorten your input.`);
       return false;
     }
     if (required && input.trim().length === 0) {
       return false;
     }
 
+    updateInputValidity(inputRef); // Reset validity
     return true;
   };
 
@@ -75,9 +87,7 @@ const TextInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    if (value) {
-      onChange(value.toString().trim());
-    }
+    onChange(value?.toString()?.trim());
   }, [value]);
 
   return (
@@ -86,10 +96,12 @@ const TextInput: FC<Props> = ({
         <label htmlFor={id} className={classes.label}>
           {label}
           {required ? <span className={classes.asterisk}>*</span> : ""}
+          {tooltipText && <Tooltip placement="right" title={tooltipText} />}
         </label>
         <OutlinedInput
+          inputRef={inputRef}
           classes={{ root: classes.input }}
-          type={rest.type || "text"}
+          type={type || "text"}
           id={id}
           size="small"
           value={val || ""}
@@ -98,7 +110,7 @@ const TextInput: FC<Props> = ({
           {...rest}
         />
         <FormHelperText className={classes.helperText}>
-          {(error ? errorMsg : infoText) || " "}
+          {(!hideValidation && error ? errorMsg : infoText) || " "}
         </FormHelperText>
       </FormControl>
     </Grid>

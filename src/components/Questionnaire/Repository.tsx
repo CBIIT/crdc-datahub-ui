@@ -12,6 +12,7 @@ const GridContainer = styled(Grid)(() => ({
 }));
 
 type Props = {
+  idPrefix?: string;
   index: number;
   repository: Repository | null;
   onDelete: () => void;
@@ -24,6 +25,7 @@ type Props = {
  * @returns {JSX.Element}
  */
 const Repository: FC<Props> = ({
+  idPrefix = "",
   index,
   repository,
   onDelete,
@@ -36,6 +38,7 @@ const Repository: FC<Props> = ({
     <GridContainer container>
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
+          id={idPrefix.concat(`repository-${index}-name`)}
           label="Repository name"
           name={`study[repositories][${index}][name]`}
           value={name}
@@ -45,6 +48,7 @@ const Repository: FC<Props> = ({
           required
         />
         <TextInput
+          id={idPrefix.concat(`repository-${index}-study-id`)}
           label="Repository Study ID"
           name={`study[repositories][${index}][studyID]`}
           value={studyID}
@@ -54,6 +58,7 @@ const Repository: FC<Props> = ({
           required
         />
         <TextInput
+          id={idPrefix.concat(`repository-${index}-date-submitted`)}
           label="Date submitted"
           name={`study[repositories][${index}][submittedDate]`}
           value={submittedDate}
@@ -65,6 +70,7 @@ const Repository: FC<Props> = ({
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
+          id={idPrefix.concat(`repository-${index}-remove-repository-button`)}
           label="Remove Repository"
           placement="start"
           onClick={onDelete}

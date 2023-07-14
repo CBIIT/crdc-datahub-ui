@@ -37,6 +37,8 @@ const initialValues: Omit<Application, "_id" | "applicantID" | "organization" | 
       nciProgramOfficer: "",
       nciGPA: "",
     },
+    isdbGaPRegistered: false,
+    dbGaPPHSNumber: "",
   },
   accessTypes: [],
   targetedSubmissionDate: "",
@@ -50,6 +52,8 @@ const initialValues: Omit<Application, "_id" | "applicantID" | "organization" | 
   species: [],
   cellLines: false,
   modelSystems: false,
+  imagingDataDeIdentified: null,
+  dataDeIdentified: null,
   dataTypes: [],
   otherDataTypes: "",
   clinicalData: {

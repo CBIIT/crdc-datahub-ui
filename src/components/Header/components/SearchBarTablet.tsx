@@ -88,13 +88,13 @@ const SearchBar = () => {
 
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
-      navigate(`/sitesearch?keyword=${localText.trim()}`);
+      navigate(`/sitesearch/${localText.trim()}`);
       setLocalText("");
     }
   };
 
   const handleSearch = () => {
-    navigate(`/sitesearch?keyword=${localText.trim()}`);
+    navigate(`/sitesearch/${localText.trim()}`);
     setLocalText("");
   };
 
@@ -103,7 +103,7 @@ const SearchBar = () => {
       <div className="searchBar">
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label>
-          <SearchInput id="header-search-bar" type="search" value={localText} placeholder="" onChange={handleTextInputChange} onKeyPress={handleKeyPress} />
+          <SearchInput id="header-search-bar" type="search" value={localText} placeholder="" onChange={handleTextInputChange} onKeyDown={handleKeyPress} />
         </label>
       </div>
       <div role="button" tabIndex={0} className="searchButton" onKeyDown={handleKeyPress} onClick={handleSearch}><img src={searchIcon} alt="searchIcon" /></div>
