@@ -7,7 +7,6 @@ import {
   OutlinedInputProps,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
-import Tooltip from "./Tooltip";
 import { updateInputValidity } from "../../utils";
 
 type Props = {
@@ -17,6 +16,7 @@ type Props = {
   errorText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
+  hideValidation?: boolean;
   validate?: (input: string) => boolean;
   filter?: (input: string) => string;
 } & OutlinedInputProps;
@@ -41,6 +41,7 @@ const TextInput: FC<Props> = ({
   maxLength,
   infoText,
   errorText,
+  hideValidation,
   validate,
   filter,
   type,
@@ -83,9 +84,7 @@ const TextInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    if (value) {
-      onChange(value.toString().trim());
-    }
+    onChange(value?.toString()?.trim());
   }, [value]);
 
   return (
@@ -107,7 +106,7 @@ const TextInput: FC<Props> = ({
           {...rest}
         />
         <FormHelperText className={classes.helperText}>
-          {(error ? errorMsg : infoText) || " "}
+          {(!hideValidation && error ? errorMsg : infoText) || " "}
         </FormHelperText>
       </FormControl>
     </Grid>

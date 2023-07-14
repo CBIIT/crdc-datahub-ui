@@ -1,5 +1,5 @@
 import { FormGroupCheckboxOption } from '../../components/Questionnaire/FormGroupCheckbox';
-import programOptions, { OptionalProgram, OptionalStudy } from '../../config/ProgramConfig';
+import programOptions, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../../config/ProgramConfig';
 
 /**
  * Generic Email Validator
@@ -63,28 +63,42 @@ export const mapObjectWithKey = (obj, index: number) => ({
  * - This util helps differentiate between a
  *   saved CUSTOM program and a PRESELECTED
  *   program option.
- * - This util also adds the OptionalStudy to
- *   the study options.
+ * - This util also adds the OptionalStudy and
+ *   a BlankStudy to the study options.
+ * - If a valid name or abbreviation exists
+ *   then it will default to OptionalProgram,
+ *   otherwise, it will return a BlankProgram
  *
  * @param {string} name the name of the program
  * @returns {ProgramOption} the program option
  */
-export const findProgram = (name: string): ProgramOption => {
-  const program : ProgramOption = {
-    ...programOptions.find((option) => option.name === name) || OptionalProgram
+export const findProgram = (name: string, abbreviation: string): ProgramOption => {
+  const program : ProgramOption = programOptions.find((option) => option.name === name && option.abbreviation === abbreviation);
+  const optionalOrBlankFallback = name || abbreviation || program?.name || program?.abbreviation ? OptionalProgram : BlankProgram;
+  const realProgram = program || optionalOrBlankFallback;
+
+  const newProgram = {
+    ...realProgram,
+    studies: [...realProgram.studies, BlankStudy, OptionalStudy]
   };
 
-  program.studies = [...program.studies, OptionalStudy];
-  return program;
+  return newProgram;
 };
 
 /**
  * Finds the study option by name (name)
  *
+ * NOTE:
+ * - If a valid name or abbreviation exists
+ *   then it will default to OptionalStudy,
+ *   otherwise, it will return a BlankStudy
+ *
  * @param {string} name the name of the study
  * @param {ProgramOption} activeProgram the active program with the study options
  * @returns {StudyOption} the study option that matches the name
  */
-export const findStudy = (name: string, activeProgram: ProgramOption): StudyOption => (
-  activeProgram?.studies?.find((option) => option.name === name) || OptionalStudy
-);
+export const findStudy = (name: string, abbreviation: string, activeProgram: ProgramOption): StudyOption => {
+  const study : StudyOption = activeProgram?.studies?.find((option) => option.name === name && option.abbreviation === abbreviation);
+  const optionalOrBlankFallback = name || abbreviation || study?.name || study?.abbreviation ? OptionalStudy : BlankStudy;
+  return study || optionalOrBlankFallback;
+};

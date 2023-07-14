@@ -95,7 +95,7 @@ const GridStyled = styled(Grid)`
     margin-top: 44px;
     margin-left: 8px;
     min-height: 20px;
-    width: 100%;
+    width: fit-content;
     position: absolute;
   }
   .switchErrorContainer {
@@ -124,6 +124,7 @@ const CustomSwitch: FC<Props> = ({
   label,
   required,
   value,
+  onChange,
   name,
   tooltipText,
   gridWidth,
@@ -136,7 +137,7 @@ const CustomSwitch: FC<Props> = ({
   ...rest
 }) => {
   const id = useId();
-  const [val, setVal] = useState<boolean | null>(value || false);
+  const [val, setVal] = useState<boolean | null>(value);
   const [touched, setTouched] = useState(value?.toString()?.length > 0);
   const [error, setError] = useState(false);
 
@@ -164,6 +165,9 @@ const CustomSwitch: FC<Props> = ({
   }, [touched, touchRequired]);
 
   const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    if (typeof onChange === "function") {
+      onChange(event, checked);
+    }
     if (!touched) {
       setTouched(true);
     }
@@ -187,7 +191,7 @@ const CustomSwitch: FC<Props> = ({
               inputProps={{ datatype: "boolean" }}
               focusVisibleClassName="focusVisible"
               id={id}
-              checked={val}
+              checked={val || false}
               onChange={onChangeWrapper}
               classes={{
                 root: "switchRoot",
@@ -199,7 +203,6 @@ const CustomSwitch: FC<Props> = ({
               {...rest}
             />
             {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
-            {/* eslint-disable-next-line no-nested-ternary */}
             <input
               onChange={() => { }}
               className="input"
@@ -214,7 +217,12 @@ const CustomSwitch: FC<Props> = ({
           <FormHelperText className="errorMessage">{error ? errorMsg : " "}</FormHelperText>
         </div>
       </div>
-      {val ? toggleContent : <div />}
+      {/* Keeping the input in the DOM to parse value from name */}
+      {val ? (
+        toggleContent
+      ) : (
+        <div style={{ display: 'none' }}>{toggleContent}</div>
+      )}
     </GridStyled>
   );
 };
