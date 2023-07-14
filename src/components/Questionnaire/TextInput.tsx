@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useRef, useState } from "react";
+import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -7,16 +7,18 @@ import {
   OutlinedInputProps,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
-import Tooltip from "./Tooltip";
 import { updateInputValidity } from "../../utils";
+import Tooltip from "./Tooltip";
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
   label: string;
   infoText?: string;
   errorText?: string;
+  tooltipText?: string | ReactNode;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
+  hideValidation?: boolean;
   validate?: (input: string) => boolean;
   filter?: (input: string) => string;
 } & OutlinedInputProps;
@@ -41,6 +43,8 @@ const TextInput: FC<Props> = ({
   maxLength,
   infoText,
   errorText,
+  tooltipText,
+  hideValidation,
   validate,
   filter,
   type,
@@ -83,9 +87,7 @@ const TextInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    if (value) {
-      onChange(value.toString().trim());
-    }
+    onChange(value?.toString()?.trim());
   }, [value]);
 
   return (
@@ -94,6 +96,7 @@ const TextInput: FC<Props> = ({
         <label htmlFor={id} className={classes.label}>
           {label}
           {required ? <span className={classes.asterisk}>*</span> : ""}
+          {tooltipText && <Tooltip placement="right" title={tooltipText} />}
         </label>
         <OutlinedInput
           inputRef={inputRef}
@@ -107,7 +110,7 @@ const TextInput: FC<Props> = ({
           {...rest}
         />
         <FormHelperText className={classes.helperText}>
-          {(error ? errorMsg : infoText) || " "}
+          {(!hideValidation && error ? errorMsg : infoText) || " "}
         </FormHelperText>
       </FormControl>
     </Grid>
