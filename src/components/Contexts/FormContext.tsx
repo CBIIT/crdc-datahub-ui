@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { useLazyQuery, useMutation } from '@apollo/client';
 import dayjs from "dayjs";
+import { merge, cloneDeep } from "lodash";
 import { GET_APP, SAVE_APP, SUBMIT_APP } from './graphql';
 import initialValues from "../../config/InitialValues";
 import { FormatDate } from "../../utils";
@@ -148,15 +149,18 @@ export const FormProvider: FC<ProviderProps> = (props) => {
     // Update the state when the lazy query response changes
     if (data) {
       const applicationData = data?.getApplication;
+      const initialValuesData = cloneDeep(initialValues);
+
+      const newData: Application = {
+        ...merge(initialValuesData, applicationData),
+        // To avoid false positive form changes
+        targetedReleaseDate: FormatDate(applicationData?.targetedReleaseDate, datePattern, dateTodayFallback),
+        targetedSubmissionDate: FormatDate(applicationData?.targetedSubmissionDate, datePattern, dateTodayFallback),
+      };
+
       setState({
         status: Status.LOADED,
-        data: {
-          ...initialValues,
-          ...applicationData,
-          // To avoid false positive form changes
-          targetedReleaseDate: FormatDate(applicationData?.targetedReleaseDate, datePattern, dateTodayFallback),
-          targetedSubmissionDate: FormatDate(applicationData?.targetedSubmissionDate, datePattern, dateTodayFallback),
-        }
+        data: newData,
       });
     }
 

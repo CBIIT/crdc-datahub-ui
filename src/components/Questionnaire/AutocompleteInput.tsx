@@ -1,69 +1,193 @@
-import React, { FC, useEffect, useId, useState } from "react";
 import {
   Autocomplete,
+  AutocompleteChangeReason,
   AutocompleteProps,
+  AutocompleteValue,
   FormControl,
   FormHelperText,
   Grid,
   TextField,
   styled,
 } from "@mui/material";
-import { WithStyles, withStyles } from "@mui/styles";
-import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+import { SyntheticEvent, useEffect, useId, useRef, useState } from "react";
+import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
 
-const DropdownArrowsIcon = styled("div")(() => ({
-  backgroundImage: `url(${dropdownArrowsIcon})`,
-  backgroundSize: "contain",
-  backgroundRepeat: "no-repeat",
-  width: "10px",
-  height: "18px",
-  marginBottom: "1px"
+const StyledFormControl = styled(FormControl)(() => ({
+  height: "100%",
+  justifyContent: "end",
+  "& .MuiFormHelperText-root.Mui-error": {
+    color: "#D54309 !important",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderRadius: "8px",
+    borderColor: "#6B7294",
+  },
+  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+    border: "1px solid #209D7D !important",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+  },
+  "& .Mui-error fieldset": {
+    borderColor: "#D54309 !important",
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#929296",
+    fontWeight: 400,
+    opacity: 1,
+  },
+  "& .MuiAutocomplete-input": {
+    color: "#083A50",
+  },
+  "& .MuiAutocomplete-root .MuiAutocomplete-endAdornment": {
+    top: '50%',
+    transform: 'translateY(-50%)',
+    right: "12px",
+  },
+  "& .MuiAutocomplete-popupIndicator": {
+    marginRight: "1px",
+  },
+  "& .MuiAutocomplete-popupIndicatorOpen": {
+    transform: "none",
+  },
+
+  "& .MuiPaper-root": {
+    borderRadius: "8px",
+    border: "1px solid #6B7294",
+    marginTop: "2px",
+    "& .MuiAutocomplete-listbox": {
+      padding: 0,
+      overflow: "auto",
+      maxHeight: "300px",
+    },
+    "& .MuiAutocomplete-option[aria-selected='true']": {
+      color: "#083A50",
+      background: "#FFFFFF",
+    },
+    "& .MuiAutocomplete-option": {
+      padding: "7.5px 10px",
+      minHeight: "35px",
+      color: "#083A50",
+      background: "#FFFFFF",
+    },
+    "& .MuiAutocomplete-option:hover": {
+      backgroundColor: "#5E6787",
+      color: "#FFFFFF",
+    },
+    "& .MuiAutocomplete-option.Mui-focused": {
+      backgroundColor: "#5E6787 !important",
+      color: "#FFFFFF",
+    },
+  },
 }));
 
-type Props = {
-  classes: WithStyles<typeof styles>["classes"];
-  value: string;
-  label: string;
-  options: string[];
-  name?: string;
-  required?: boolean;
-  helpText?: string;
-  gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
-  placeholder?: string;
-  disableClearable?: boolean;
-  freeSolo?: boolean;
-  onChange?: (e: React.SyntheticEvent, v: string, r: string) => void;
-} & Omit<AutocompleteProps<unknown, false, true, true, "div">, "renderInput">;
+const StyledFormLabel = styled("label")(() => ({
+  fontWeight: 700,
+  fontSize: "16px",
+  lineHeight: "19.6px",
+  minHeight: "20px",
+  color: "#083A50",
+  marginBottom: "4px",
+}));
 
-/**
- * Generates a generic autocomplete select box with a label and help text
- *
- * @param {Props} props
- * @returns {JSX.Element}
- */
-const AutocompleteInput: FC<Props> = ({
-  classes,
-  value,
+const StyledAsterisk = styled("span")(() => ({
+  color: "#D54309",
+  marginLeft: "6px",
+}));
+
+const StyledAutocomplete = styled(Autocomplete)(() => ({
+  "& .MuiInputBase-root": {
+    backgroundColor: "#FFFFFF",
+    "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
+      display: 'flex',
+      alignItems: 'center',
+      padding: 0,
+    },
+    "&.MuiOutlinedInput-input:read-only": {
+      backgroundColor: "#D9DEE4",
+      cursor: "not-allowed",
+      borderRadius: "8px",
+    },
+    "& .MuiInputBase-input": {
+      fontWeight: 400,
+      fontSize: "16px",
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+      padding: "12px 30px 12px 12px !important",
+      height: "20px",
+    },
+    "& .MuiAutocomplete-clearIndicator": {
+      visibility: "hidden !important",
+      position: "absolute"
+    },
+  },
+}));
+
+const StyledFormHelperText = styled(FormHelperText)(() => ({
+  marginLeft: 0,
+  marginTop: "4px",
+  minHeight: "20px",
+}));
+
+type Props<T> = {
+  name?: string;
+  label?: string;
+  value?: T;
+  options?: T[];
+  gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
+  helpText?: string;
+  required?: boolean;
+  validate?: (input: T) => boolean;
+} & Omit<AutocompleteProps<T, false, true, true, "div">, "renderInput">;
+
+const AutocompleteInput = <T,>({
   name,
   label,
-  required = false,
-  helpText,
   gridWidth,
+  helpText,
+  required,
+  value,
   onChange,
+  options,
+  validate,
+  placeholder,
+  freeSolo,
   ...rest
-}) => {
+}: Props<T>) => {
   const id = useId();
 
-  const [val, setVal] = useState(value);
-  const [error] = useState(false);
+  const [val, setVal] = useState<T>(value);
+  const [error, setError] = useState<boolean>(false);
   const helperText = helpText || (required ? "This field is required" : " ");
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const onChangeWrapper = (e, v, r) => {
+  const validateInput = (input: AutocompleteValue<T, false, false, false>,): boolean => {
+    const isString = typeof input === "string";
+    if (validate) {
+      const customIsValid = validate(input);
+      return customIsValid;
+    }
+    if ((required && !input) || !(required && isString && input?.length > 0)) {
+      return false;
+    }
+    return true;
+  };
+
+  const onChangeWrapper = (
+    event: SyntheticEvent,
+    newValue: AutocompleteValue<T, false, false, false>,
+    reason: AutocompleteChangeReason
+  ): void => {
     if (typeof onChange === "function") {
-      onChange(e, v, r);
+      onChange(event, newValue, reason);
     }
 
-    setVal(v);
+    setVal(newValue);
+    setError(!validateInput(newValue));
+  };
+
+  const onBlurWrapper = (value: string): void => {
+    if (freeSolo) {
+      setError(!validateInput(value as T));
+    }
   };
 
   useEffect(() => {
@@ -71,29 +195,21 @@ const AutocompleteInput: FC<Props> = ({
   }, [value]);
 
   return (
-    <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
-      <FormControl fullWidth error={error}>
-        <label htmlFor={id} className={classes.label}>
+    <Grid md={gridWidth || 6} xs={12} item>
+      <StyledFormControl fullWidth error={error}>
+        <StyledFormLabel htmlFor={id}>
           {label}
-          {required ? <span className={classes.asterisk}>*</span> : ""}
-        </label>
-        <Autocomplete
-          sx={{
-                '& .MuiAutocomplete-endAdornment': {
-                  top: "auto"
-                }
-              }}
-          id={id}
-          size="small"
+          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+        </StyledFormLabel>
+        <StyledAutocomplete
           value={val}
-          classes={{ root: classes.input }}
           onChange={onChangeWrapper}
-          popupIcon={<DropdownArrowsIcon />}
+          onBlur={(event: React.FocusEvent<HTMLInputElement>) => onBlurWrapper(event.target.value)}
+          options={options}
           forcePopupIcon
+          popupIcon={<DropdownArrowsIconSvg />}
+          freeSolo={freeSolo}
           slotProps={{
-            paper: {
-              className: classes.paper
-            },
             popper: {
               disablePortal: true,
               modifiers: [
@@ -108,109 +224,21 @@ const AutocompleteInput: FC<Props> = ({
               ],
             },
           }}
-          renderInput={(p) => (
+          renderInput={(params) => (
             <TextField
-              {...p}
+              {...params}
+              ref={inputRef}
               name={name}
               required={required}
-              placeholder={rest.placeholder || ""}
+              placeholder={placeholder}
             />
           )}
           {...rest}
         />
-        <FormHelperText>{error ? helperText : " "}</FormHelperText>
-      </FormControl>
+        <StyledFormHelperText>{error ? helperText : " "}</StyledFormHelperText>
+      </StyledFormControl>
     </Grid>
   );
 };
 
-const styles = () => ({
-  root: {
-    "& .MuiFormHelperText-root.Mui-error": {
-      color: "#D54309 !important",
-    },
-    "& .MuiOutlinedInput-notchedOutline": {
-      borderRadius: "8px",
-      borderColor: "#6B7294",
-    },
-    "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-      border: "1px solid #209D7D",
-      boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-    },
-    "&.Mui-error fieldset": {
-      borderColor: "#D54309 !important",
-    },
-    "& .MuiInputBase-input::placeholder": {
-      color: "#929296",
-      fontWeight: 400,
-      opacity: 1
-    },
-    "& .MuiAutocomplete-input": {
-      color: "#083A50",
-    },
-    "& .MuiAutocomplete-root .MuiAutocomplete-endAdornment": {
-      right: "12px",
-    },
-    "& .MuiAutocomplete-popupIndicatorOpen": {
-      transform: "none"
-    }
-  },
-  label: {
-    fontWeight: 700,
-    fontSize: "16px",
-    color: "#083A50",
-    marginBottom: "4px",
-  },
-  asterisk: {
-    color: "#D54309",
-    marginLeft: "6px",
-  },
-  paper: {
-    borderRadius: "8px",
-    border: "1px solid #6B7294",
-    marginTop: "2px",
-    "& .MuiAutocomplete-listbox": {
-      padding: 0,
-      overflow: "auto",
-      maxHeight: "300px"
-    },
-    "& .MuiAutocomplete-option[aria-selected='true']": {
-      color: "#083A50",
-      background: "#FFFFFF"
-    },
-    "& .MuiAutocomplete-option": {
-      padding: "7.5px 10px",
-      minHeight: "35px",
-      color: "#083A50",
-      background: "#FFFFFF"
-    },
-    "& .MuiAutocomplete-option:hover": {
-      backgroundColor: "#5E6787",
-      color: "#FFFFFF"
-    },
-    "& .MuiAutocomplete-option.Mui-focused": {
-      backgroundColor: "#5E6787 !important",
-      color: "#FFFFFF"
-    },
-  },
-  input: {
-    backgroundColor: "#fff",
-    "&  .MuiAutocomplete-inputRoot.MuiInputBase-root": {
-      padding: 0,
-    },
-    "& .MuiInputBase-input": {
-      fontWeight: 400,
-      fontSize: "16px",
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      padding: "12px 30px 12px 12px !important",
-      height: "20px",
-    },
-    "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: "#D9DEE4",
-      cursor: "not-allowed",
-      borderRadius: "8px",
-    },
-  },
-});
-
-export default withStyles(styles, { withTheme: true })(AutocompleteInput);
+export default AutocompleteInput;
