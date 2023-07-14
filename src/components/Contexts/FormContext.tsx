@@ -18,7 +18,7 @@ export type ContextState = {
   status: Status;
   data: Application;
   setData?: (Application) => Promise<boolean>;
-  submitData?: (Application) => Promise<boolean>;
+  submitData?: () => Promise<boolean>;
   error?: string;
 };
 
@@ -115,10 +115,9 @@ export const FormProvider: FC<ProviderProps> = (props) => {
     }, 1500);
   });
 
-  // Here we update the state and send the data to the API
-  // otherwise we can just update the local state (i.e. within form sections)
-  const submitData = async (data: Application) => new Promise<boolean>((resolve) => {
-    console.log("[SUBMITTING DATA]");
+  // Here we submit to the API with the previously saved data from the form
+  const submitData = async () => new Promise<boolean>((resolve) => {
+    console.log("[SUBMITTING FORM]");
     console.log("submitting state", state);
 
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
