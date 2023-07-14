@@ -10,14 +10,26 @@ import {
   isLoggedIn,
   logIn
 } from '../../api/authn';
+// import env from '../../env';
+
+// console.log('Foo', env);
 
 export type ContextState = {
+  error?: string;
   isLoggedIn: boolean;
+  status: Status;
   user: User;
 };
 
+export enum Status {
+  LOADING = "LOADING", // Retrieving user data
+  LOADED = "LOADED", // Successfully retrieved user data
+  ERROR = "ERROR", // Error retrieving user data
+}
+
 const initialState: ContextState = {
   isLoggedIn: false,
+  status: Status.LOADING,
   user: null,
 };
 
