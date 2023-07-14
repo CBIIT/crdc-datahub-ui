@@ -115,12 +115,12 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       return false;
     }
 
-    if (d?.["id"] && data?.["_id"] === "new") {
+    if (d?.["_id"] && data?.["_id"] === "new") {
       newState = { ...newState, data: { ...data, _id: data["_id"] } };
     }
 
     setState({ ...newState, status: Status.LOADED });
-    return d?.["id"] || false;
+    return d?.["_id"] || false;
   };
 
   useEffect(() => {
