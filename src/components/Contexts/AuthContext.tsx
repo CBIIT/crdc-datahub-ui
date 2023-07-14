@@ -13,7 +13,7 @@ import {
 
 export type ContextState = {
   isLoggedIn: boolean;
-  user: object;
+  user: User;
 };
 
 const initialState: ContextState = {
