@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useAuthContext } from '../../Contexts/AuthContext';
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
 
-const testLoggedInBool = false;
+const testLoggedInBool = true;
 const testData = {
   name: "Michael aaaaaaaaaaaaaaaaaa"
 };

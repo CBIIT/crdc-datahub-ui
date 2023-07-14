@@ -8,6 +8,26 @@ import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
 import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
 import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
 
+const testLoggedInBool = true;
+const testData = {
+  name: "Michael"
+};
+
+navbarSublists[testData.name] = [
+  {
+    name: 'User Profile',
+    link: '/user_profile',
+    id: 'navbar-dropdown-item-user-profile',
+    className: 'navMobileSubItem',
+  },
+  {
+    name: 'Logout',
+    link: '/logout',
+    id: 'navbar-dropdown-item-logout',
+    className: 'navMobileSubItem',
+  },
+];
+
 const HeaderBanner = styled.div`
   width: 100%;
 `;
@@ -240,7 +260,26 @@ const Header = () => {
                   );
                 })
               }
+              {/* eslint-disable-next-line no-nested-ternary */}
+              {navbarMobileList === navMobileList ? (
+                testLoggedInBool ? (
+                  <div
+                    id="navbar-dropdown-name"
+                    role="button" tabIndex={0}
+                    className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
+                    onClick={clickNavItem}
+                  >
+                    {testData.name}
+                  </div>
+                )
+                  : (
+                    <Link id="navbar-link-home" to="/login">
+                      <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
+                        Login
+                      </div>
+                    </Link>
 
+                  )) : null}
             </div>
           </div>
           <div
@@ -256,8 +295,6 @@ const Header = () => {
             onClick={() => setNavMobileDisplay('none')}
             aria-label="greyContainer"
           />
-          {' '}
-
         </MenuArea>
       </NavMobileContainer>
     </>
