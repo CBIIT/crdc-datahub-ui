@@ -149,6 +149,7 @@ const AutocompleteInput = <T,>({
   options,
   validate,
   placeholder,
+  freeSolo,
   ...rest
 }: Props<T>) => {
   const id = useId();
@@ -163,7 +164,7 @@ const AutocompleteInput = <T,>({
       const customIsValid = validate(input);
       return customIsValid;
     }
-    if (required && !input) {
+    if ((required && input) || (required && typeof input === "string" && input?.length > 0)) {
       return false;
     }
     return true;
@@ -182,6 +183,12 @@ const AutocompleteInput = <T,>({
     setError(!validateInput(newValue));
   };
 
+  const onBlurWrapper = (value: string): void => {
+    if (freeSolo) {
+      setError(!validateInput(value as T));
+    }
+  };
+
   useEffect(() => {
     onChangeWrapper(null, value, null);
   }, [value]);
@@ -196,9 +203,11 @@ const AutocompleteInput = <T,>({
         <StyledAutocomplete
           value={val}
           onChange={onChangeWrapper}
+          onBlur={(event: React.FocusEvent<HTMLInputElement>) => onBlurWrapper(event.target.value)}
           options={options}
           forcePopupIcon
           popupIcon={<DropdownArrowsIconSvg />}
+          freeSolo={freeSolo}
           slotProps={{
             popper: {
               disablePortal: true,

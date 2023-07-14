@@ -384,7 +384,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               maxLength={50}
               placeholder="50 characters allowed"
               gridWidth={12}
-              hidden
               required={isdbGaPRegistered}
             />
           )}
@@ -497,6 +496,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           freeSolo
           disableClearable
           required
+          validate={(value: string) => value?.length > 0}
         />
         <TextInput
           id="section-b-grant-or-contract-numbers"

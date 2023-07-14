@@ -137,7 +137,7 @@ const CustomSwitch: FC<Props> = ({
   ...rest
 }) => {
   const id = useId();
-  const [val, setVal] = useState<boolean | null>(value || false);
+  const [val, setVal] = useState<boolean | null>(value);
   const [touched, setTouched] = useState(value?.toString()?.length > 0);
   const [error, setError] = useState(false);
 
@@ -191,7 +191,7 @@ const CustomSwitch: FC<Props> = ({
               inputProps={{ datatype: "boolean" }}
               focusVisibleClassName="focusVisible"
               id={id}
-              checked={val}
+              checked={val || false}
               onChange={onChangeWrapper}
               classes={{
                 root: "switchRoot",
