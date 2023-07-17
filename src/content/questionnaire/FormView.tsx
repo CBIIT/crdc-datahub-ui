@@ -63,7 +63,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const { status, data, setData, error } = useFormContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
-  const [changesAlert, setChangesAlert] = useState<boolean>(false);
+  const [changesAlert, setChangesAlert] = useState<string>("");
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
@@ -148,8 +148,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     // Skip state update if there are no changes
     if (!isEqual(data, newData)) {
       const r = await setData(newData);
-      setChangesAlert(true);
-      setTimeout(() => setChangesAlert(false), 10000);
+      setChangesAlert(`Your changes for the ${map[activeSection].title} section have been successfully saved.`);
+      setTimeout(() => setChangesAlert(""), 10000);
       return r;
     }
 
@@ -195,11 +195,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   return (
     <>
-      <GenericAlert open={changesAlert} key="formview-changes-alert">
+      <GenericAlert open={changesAlert !== ""} key="formview-changes-alert">
         <span>
-          {"Your changes for the "}
-          <b>{map[activeSection].title}</b>
-          {" section have been successfully saved."}
+          {changesAlert}
         </span>
       </GenericAlert>
 
