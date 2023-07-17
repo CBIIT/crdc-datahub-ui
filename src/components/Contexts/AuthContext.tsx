@@ -10,7 +10,6 @@ import {
   isLoggedIn,
   logIn
 } from '../../api/authn';
-// import env from '../../env';
 
 // console.log('Foo', env);
 
