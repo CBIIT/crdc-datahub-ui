@@ -363,12 +363,12 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           <Table className="noBorder">
             <TableHead className="noBorder">
               <TableRow className="noBorder">
-                <TableCell width="30%" className="fileTypeTableCell">
+                <TableCell width="25%" className="fileTypeTableCell">
                   File Type
                   <span className="asterisk">*</span>
                   <input tabIndex={-1} style={{ height: "0", border: "none", width: "0" }} ref={fileTypeDataRef} />
                 </TableCell>
-                <TableCell width="20%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
+                <TableCell width="25%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
                   File Extension
                   <span className="asterisk">*</span>
                 </TableCell>
@@ -394,7 +394,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                     extensionValue={fileData.extension}
                     name={`files[${idx}]`}
                     options={fileTypeOptions.map((fileType) => fileType)}
-                    placeholder="Select Type"
                   />
                   <TableCell className="bottomRowMiddle">
                     <TableTextInput

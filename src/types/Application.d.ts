@@ -137,3 +137,12 @@ type Applicant = {
   applicantName: string;
   applicantEmail: string;
 };
+
+type User = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'Admin' | 'User' | 'Curator' | 'FederalLead' | 'DC_POC';
+  userStatus: 'Active' | 'Inactive' | 'Disabled';
+  IDP: 'nih' | 'login.gov';
+};
