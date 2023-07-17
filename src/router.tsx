@@ -37,7 +37,7 @@ const routes: RouteObject[] = [
         element: <Questionnaire />
       },
       {
-        path: '/submission/:appId?/:section?',
+        path: '/submission/:appId/:section?',
         element: <Questionnaire />
       },
       {

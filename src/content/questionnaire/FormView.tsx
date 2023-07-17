@@ -145,7 +145,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
     // Skip state update if there are no changes
     if (!isEqual(data, newData)) {
-      // TODO: handle save errors
       const r = await setData(newData);
 
       if (!blockedNavigate && r && data["_id"] === "new" && r !== data?.['_id']) {
