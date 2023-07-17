@@ -8,6 +8,7 @@ import {
 import { FC, useEffect, useId, useRef, useState } from "react";
 import Tooltip from "./Tooltip";
 import CheckboxInput from "./CheckboxInput";
+import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 const StyledFormLabel = styled("label")(({ theme }) => ({
   fontWeight: 700,
@@ -51,6 +52,7 @@ type Props = {
   helpText?: string;
   tooltipText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
+  readOnly?: boolean;
   onChange?: (values: string[]) => void;
 };
 
@@ -66,9 +68,11 @@ const FormGroupCheckbox: FC<Props> = ({
   helpText,
   tooltipText,
   gridWidth,
+  readOnly,
   onChange,
 }) => {
   const id = useId();
+  const { readOnlyInputs } = useFormMode();
 
   const [val, setVal] = useState(value ?? []);
   const [error, setError] = useState(false);
@@ -148,6 +152,7 @@ const FormGroupCheckbox: FC<Props> = ({
                 inputLabelTooltipText={option.tooltipText}
                 errorText={option.errorText}
                 onChange={handleChange}
+                readOnly={readOnlyInputs || readOnly}
                 inputRef={(ref) => {
                   if (index === 0) {
                     firstCheckboxInputRef.current = ref;

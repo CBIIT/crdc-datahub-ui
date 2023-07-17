@@ -9,6 +9,7 @@ import {
 import { WithStyles, withStyles } from "@mui/styles";
 import { updateInputValidity } from "../../utils";
 import Tooltip from "./Tooltip";
+import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
@@ -48,9 +49,12 @@ const TextInput: FC<Props> = ({
   validate,
   filter,
   type,
+  readOnly,
   ...rest
 }) => {
   const id = useId();
+  const { readOnlyInputs } = useFormMode();
+
   const [val, setVal] = useState(value);
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
@@ -107,6 +111,7 @@ const TextInput: FC<Props> = ({
           value={val || ""}
           onChange={(e) => onChange(e.target.value)}
           required={required}
+          readOnly={readOnlyInputs || readOnly}
           {...rest}
         />
         <FormHelperText className={classes.helperText}>

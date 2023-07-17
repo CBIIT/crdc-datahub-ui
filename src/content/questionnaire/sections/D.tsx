@@ -15,6 +15,7 @@ import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
 import { fileTypeOptions } from "../../../config/FileTypeConfig";
 import TableTextInput from "../../../components/Questionnaire/TableTextInput";
+import useFormMode from "./hooks/useFormMode";
 /**
  * Form Section D View
  *
@@ -47,6 +48,10 @@ const TableContainer = styled.div`
     width: 100%;
     border: 1px solid #6B7294;
     border-radius: 10px;
+    .readOnly {
+      background-color: #D9DEE4;
+      cursor: not-allowed;
+    }
     .MuiTableContainer-root {
       width: 100%;
       margin-left: 12px;
@@ -127,6 +132,8 @@ const TableContainer = styled.div`
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
+  const { readOnlyInputs } = useFormMode();
+
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, getFormObjectRef } = refs;
@@ -389,6 +396,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               {fileTypeData.map((fileData: KeyedFileTypeData, idx: number) => (
                 <TableRow
                   key={fileData.key}
+                  className={`${readOnlyInputs ? "readOnly" : ""}`}
                 >
                   <TableFileTypeAndExtensionInput
                     inputID={`section-d-file-type-${idx}-file`}

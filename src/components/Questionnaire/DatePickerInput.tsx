@@ -10,6 +10,7 @@ import { DatePicker, DatePickerProps, DateValidationError } from "@mui/x-date-pi
 import dayjs, { Dayjs } from "dayjs";
 import Tooltip from "./Tooltip";
 import calendarIcon from "../../assets/icons/calendar.svg";
+import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 const CalendarIcon = styled("div")(() => ({
   backgroundImage: `url(${calendarIcon})`,
@@ -90,7 +91,7 @@ const StyledDatePicker = styled(DatePicker)(() => ({
     borderColor: "#D54309 !important",
   },
   // Target readOnly <input> inputs
-  "& .MuiOutlinedInput-input:read-only": {
+  "& .MuiInputBase-root:read-only": {
     backgroundColor: "#D9DEE4",
     cursor: "not-allowed",
   },
@@ -133,9 +134,12 @@ const DatePickerInput: FC<Props> = ({
   validate,
   filter,
   onChange,
+  readOnly,
   ...rest
 }) => {
   const id = useId();
+  const { readOnlyInputs } = useFormMode();
+
   const [val, setVal] = useState<Dayjs>(dayjs(initialValue ?? ""));
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
@@ -205,6 +209,7 @@ const DatePickerInput: FC<Props> = ({
           onChange={(value: Dayjs) => onChangeWrapper(value)}
           inputRef={inputRef}
           onError={handleOnError}
+          readOnly={readOnlyInputs || readOnly}
           slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{
             textField: {

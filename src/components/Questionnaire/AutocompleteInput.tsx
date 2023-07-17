@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { SyntheticEvent, useEffect, useId, useRef, useState } from "react";
 import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
+import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 const StyledFormControl = styled(FormControl)(() => ({
   height: "100%",
@@ -102,7 +103,7 @@ const StyledAutocomplete = styled(Autocomplete)(() => ({
       alignItems: 'center',
       padding: 0,
     },
-    "&.MuiOutlinedInput-input:read-only": {
+    "& .MuiOutlinedInput-input:read-only": {
       backgroundColor: "#D9DEE4",
       cursor: "not-allowed",
       borderRadius: "8px",
@@ -150,9 +151,11 @@ const AutocompleteInput = <T,>({
   validate,
   placeholder,
   freeSolo,
+  readOnly,
   ...rest
 }: Props<T>) => {
   const id = useId();
+  const { readOnlyInputs } = useFormMode();
 
   const [val, setVal] = useState<T>(value);
   const [error, setError] = useState<boolean>(false);
@@ -206,6 +209,7 @@ const AutocompleteInput = <T,>({
           onChange={onChangeWrapper}
           onBlur={(event: React.FocusEvent<HTMLInputElement>) => onBlurWrapper(event.target.value)}
           options={options}
+          readOnly={readOnlyInputs || readOnly}
           forcePopupIcon
           popupIcon={<DropdownArrowsIconSvg />}
           freeSolo={freeSolo}

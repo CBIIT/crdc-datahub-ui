@@ -19,6 +19,7 @@ import map from '../../config/SectionConfig';
 import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
 import QuestionnaireBanner from '../../components/Questionnaire/QuestionnaireBanner';
 import SubmitFormDialog from '../../components/Questionnaire/SubmitFormDialog';
+import useFormMode from './sections/hooks/useFormMode';
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -64,6 +65,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
   const [openSubmitDialog, setOpenSubmitDialog] = useState<boolean>(false);
+  const formMode = useFormMode();
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);

@@ -8,6 +8,7 @@ import {
 import config from '../../config/SectionConfig';
 import { useFormContext } from '../Contexts/FormContext';
 import StatusAdornment from './StatusAdornment';
+import useFormMode from '../../content/questionnaire/sections/hooks/useFormMode';
 
 type Props = {
   section: string;
@@ -71,6 +72,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
 
   const { data } = useFormContext();
   const { _id, sections: sectionStatuses } = data;
+  const { formMode } = useFormMode();
 
   const [sections, setSections] = useState<ProgressSection[]>([]);
 
@@ -93,11 +95,12 @@ const ProgressBar: FC<Props> = ({ section }) => {
       });
     });
 
-    // Special icon for the review section
-    const reviewSection = newSections.find((s) => s.title === "Review & Submit");
+    // Special icon and title for the review section
+    const reviewSection = newSections.find((s) => s.id === "review");
     if (reviewSection) {
       reviewSection.icon = completedSections === sectionKeys.length - 1 ? "Review" : "ReviewDisabled";
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
+      reviewSection.title = formMode === "Review" ? "Review" : "Review & Submit";
     }
 
     setSections(newSections);

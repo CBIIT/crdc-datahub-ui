@@ -1,5 +1,6 @@
 import { Button, ButtonProps, Stack, StackProps, styled } from "@mui/material";
 import { FC } from "react";
+import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 const ActionButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== "textColor" && prop !== "iconColor"
@@ -15,6 +16,10 @@ const ActionButton = styled(Button, {
   border: none !important;
   background: transparent;
   text-transform: none;
+  &.Mui-disabled {
+    cursor: not-allowed;
+    pointer-events: auto;
+  }
   & .MuiButton-startIcon {
     color: ${(props) => props.iconColor ?? "#6EC882"};
     margin-right: 4px;
@@ -34,18 +39,36 @@ type Props = ButtonProps & {
 const AddRemoveButton: FC<Props> = ({
   label,
   placement = "end",
+  disabled,
+  onClick,
   ...rest
-}) => (
-  <Stack direction="row" justifyContent={placement} alignItems="center">
-    <ActionButton
-      variant="outlined"
-      type="button"
-      size="small"
-      {...rest}
-    >
-      {label}
-    </ActionButton>
-  </Stack>
-);
+}) => {
+  const { readOnlyInputs } = useFormMode();
+
+  const onClickWrapper = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    if (readOnlyInputs) {
+      return;
+    }
+    if (typeof onClick === "function") {
+      onClick(event);
+    }
+  };
+
+  return (
+    <Stack direction="row" justifyContent={placement} alignItems="center">
+      <ActionButton
+        variant="outlined"
+        type="button"
+        size="small"
+        onClick={onClickWrapper}
+        disableRipple
+        disabled={readOnlyInputs || disabled}
+        {...rest}
+      >
+        {label}
+      </ActionButton>
+    </Stack>
+  );
+};
 
 export default AddRemoveButton;

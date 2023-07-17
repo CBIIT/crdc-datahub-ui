@@ -3,6 +3,7 @@ import { SwitchProps, Grid, Switch, FormHelperText } from '@mui/material';
 import styled from "styled-components";
 import Tooltip from "./Tooltip";
 import { updateInputValidity } from '../../utils';
+import useFormMode from '../../content/questionnaire/sections/hooks/useFormMode';
 
 const GridStyled = styled(Grid)`
   // Customize the root class
@@ -35,6 +36,12 @@ const GridStyled = styled(Grid)`
   }
   .MuiSwitch-track{
     background-color: white !important;
+  }
+  .MuiSwitch-track:read-only {
+    background-color: #D9DEE4 !important;
+  }
+  .MuiSwitch-input:read-only {
+    cursor: not-allowed;
   }
   .text {
     display: inline;
@@ -134,9 +141,12 @@ const CustomSwitch: FC<Props> = ({
   isBoolean = false,
   containerWidth = "auto",
   touchRequired,
+  readOnly,
   ...rest
 }) => {
   const id = useId();
+  const { readOnlyInputs } = useFormMode();
+
   const [val, setVal] = useState<boolean | null>(value);
   const [touched, setTouched] = useState(value?.toString()?.length > 0);
   const [error, setError] = useState(false);
@@ -152,7 +162,7 @@ const CustomSwitch: FC<Props> = ({
 
   // Validation if touch is required
   useEffect(() => {
-    if (!touchRequired) {
+    if (!touchRequired || readOnlyInputs) {
       return;
     }
     if (!touched) {
@@ -165,6 +175,9 @@ const CustomSwitch: FC<Props> = ({
   }, [touched, touchRequired]);
 
   const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    if (readOnlyInputs) {
+      return;
+    }
     if (typeof onChange === "function") {
       onChange(event, checked);
     }
@@ -193,6 +206,8 @@ const CustomSwitch: FC<Props> = ({
               id={id}
               checked={val || false}
               onChange={onChangeWrapper}
+              readOnly={readOnlyInputs || readOnly}
+              disableRipple
               classes={{
                 root: "switchRoot",
                 switchBase: "switchBase",
