@@ -49,20 +49,15 @@ const TableAutocompleteInput: FC<Props> = ({
 }) => {
   const [typeVal, setTypeVal] = useState(typeValue);
   const [extensionVal, setExtensionVal] = useState(extensionValue);
-  const [valTextColor, setValTextColor] = useState("#083A50");
-  const [extensionTextColor, setExtensionTextColor] = useState("#083A50");
   const fileTypeRef = useRef<HTMLInputElement>(null);
   const fileExtensionRef = useRef<HTMLInputElement>(null);
   const onTypeValChangeWrapper = (e, v, r) => {
     v = v || "";
-    if (v.toLowerCase().includes("other")) {
-      setValTextColor("#d3d3d3");
-      setExtensionVal("Other Extension");
-      setExtensionTextColor("#d3d3d3");
+    if (v === "") {
+      setExtensionVal("");
       fileTypeRef.current.setCustomValidity("Please specify a file type");
       fileExtensionRef.current.setCustomValidity("Please specify a file extension type");
     } else {
-      setValTextColor("#083A50");
       fileTypeRef.current.setCustomValidity("");
     }
     if (typeof onChange === "function") {
@@ -73,11 +68,9 @@ const TableAutocompleteInput: FC<Props> = ({
   };
   const onExtensionValChangeWrapper = (e, v, r) => {
     v = v || "";
-    if (v.toLowerCase().includes("other")) {
-      setExtensionTextColor("#d3d3d3");
+    if (v === "") {
       fileExtensionRef.current.setCustomValidity("Please specify a file extension type");
     } else {
-      setExtensionTextColor("#083A50");
       fileExtensionRef.current.setCustomValidity("");
     }
     if (typeof onChange === "function") {
@@ -107,7 +100,6 @@ const TableAutocompleteInput: FC<Props> = ({
           isOptionEqualToValue={(option, value) => option.value === value.value}
           sx={{
           "& .MuiInputBase-input": {
-            color: valTextColor,
             fontWeight: 400,
             fontSize: "16px",
             fontFamily: "'Nunito', 'Rubik', sans-serif",
@@ -148,7 +140,7 @@ const TableAutocompleteInput: FC<Props> = ({
               onChange={typeTextInputOnChange}
               name={name.concat("[type]")}
               required={required}
-              placeholder={rest.placeholder || ""}
+              placeholder={rest.placeholder || "Enter or select a type"}
               variant="standard"
               inputRef={fileTypeRef}
               InputProps={{ ...p.InputProps, disableUnderline: true }}
@@ -164,7 +156,6 @@ const TableAutocompleteInput: FC<Props> = ({
           isOptionEqualToValue={(option, value) => option.value === value.value}
           sx={{
             "& .MuiInputBase-input": {
-              color: extensionTextColor,
               fontWeight: 400,
               fontSize: "16px",
               fontFamily: "'Nunito', 'Rubik', sans-serif",
@@ -204,7 +195,7 @@ const TableAutocompleteInput: FC<Props> = ({
               onChange={extensionTextInputOnChange}
               name={name.concat("[extension]")}
               required={required}
-              placeholder={rest.placeholder || ""}
+              placeholder={rest.placeholder || "Enter or select an extension"}
               variant="standard"
               inputRef={fileExtensionRef}
               InputProps={{ ...p.InputProps, disableUnderline: true }}
