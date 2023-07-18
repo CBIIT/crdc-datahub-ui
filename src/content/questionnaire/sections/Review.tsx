@@ -113,17 +113,24 @@ const FormSectionReview: FC<FormSectionProps> = ({
         </ReviewDataListing>
 
         <ReviewDataListing title="Primary Contact assisting with data collection">
-          <Grid md={6} xs={12} item>
-            {/* TODO: Confirm this */}
-            {/* <ReviewDataListingProperty label="Same as Principal Investigator" value={piAsPrimaryContact ? "Yes" : "No"} /> */}
-            <ReviewDataListingProperty label="Primary Contact Name" value={`${primaryContact?.lastName}, ${primaryContact?.firstName}`} />
-            <ReviewDataListingProperty label="Email Address" value={primaryContact?.email} />
-            <ReviewDataListingProperty label="Phone Number" value={formatPhoneNumber(primaryContact?.phone)} />
-          </Grid>
-          <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Institution Name" value={primaryContact?.institution} />
-            <ReviewDataListingProperty label="Position" value={primaryContact?.position} />
-          </Grid>
+          {piAsPrimaryContact ? (
+            <Grid md={6} xs={12} item>
+              <ReviewDataListingProperty label="Same as Principal Investigator" value={piAsPrimaryContact ? "Yes" : "No"} />
+            </Grid>
+          ) : (
+            <>
+              <Grid md={6} xs={12} item>
+                <ReviewDataListingProperty label="Same as Principal Investigator" value={piAsPrimaryContact ? "Yes" : "No"} />
+                <ReviewDataListingProperty label="Primary Contact Name" value={`${primaryContact?.lastName}, ${primaryContact?.firstName}`} />
+                <ReviewDataListingProperty label="Email Address" value={primaryContact?.email} />
+                <ReviewDataListingProperty label="Phone Number" value={formatPhoneNumber(primaryContact?.phone)} />
+              </Grid>
+              <Grid md={6} xs={12} item>
+                <ReviewDataListingProperty label="Institution Name" value={primaryContact?.institution} />
+                <ReviewDataListingProperty label="Position" value={primaryContact?.position} />
+              </Grid>
+            </>
+          )}
         </ReviewDataListing>
 
         {additionalContacts?.map((additionalContact: KeyedContact, idx: number) => (
@@ -224,7 +231,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
               <ReviewDataListingProperty label="Time Constraint Description" value={timeConstraint.description} valuePlacement="bottom" />
             </Grid>
             <Grid md={6} xs={12} item>
-              <ReviewDataListingProperty label="Time Constraint Effective Date" value={timeConstraint.effectiveDate} />
+              <ReviewDataListingProperty label="Time Constraint Effective Date" value={timeConstraint.effectiveDate} valuePlacement="bottom" />
             </Grid>
           </ReviewDataListing>
         ))}
