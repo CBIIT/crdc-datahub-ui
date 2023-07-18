@@ -1,7 +1,7 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
-import { Divider, Grid, Stack, styled } from "@mui/material";
+import { Divider, Grid, Stack, Typography, styled } from "@mui/material";
 import { useFormContext } from "../../../components/Contexts/FormContext";
 import { KeyedPlannedPublication, KeyedPublication } from "./B";
 import { mapObjectWithKey } from "../utils";
@@ -13,6 +13,8 @@ import ReviewDataListing from "../../../components/Questionnaire/ReviewDataListi
 import ReviewDataListingProperty from "../../../components/Questionnaire/ReviewDataListingProperty";
 import ReviewFileTypeTable from "../../../components/Questionnaire/ReviewFileTypeTable";
 import { formatPhoneNumber } from "../../../utils";
+import { KeyedTimeConstraint } from "./C";
+import DataTypes from "../../../config/DataTypesConfig";
 
 const StyledAddress = styled(Stack)(() => ({
   display: "flex",
@@ -30,6 +32,17 @@ const StyledDivider = styled(Divider)(() => ({
   marginBottom: "8px",
 }));
 
+const StyledSectionInfoText = styled(Typography)(() => ({
+  fontWeight: 700,
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  lineHeight: "19.6px",
+  color: "#34A286",
+  fontSize: "16px",
+  "& span": {
+    fontWeight: 400
+  }
+}));
+
 /**
  * Form Section Review View
  *
@@ -40,13 +53,14 @@ const FormSectionReview: FC<FormSectionProps> = ({
   refs,
 }: FormSectionProps) => {
   const { data } = useFormContext();
-  const { pi, primaryContact, program, study } = data;
+  const { pi, primaryContact, piAsPrimaryContact, program, study } = data;
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, nextButtonRef, getFormObjectRef } = refs;
 
   const [additionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
   const [publications] = useState<KeyedPublication[]>(data.study?.publications?.map(mapObjectWithKey) || []);
   const [plannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
+  const [timeConstraints] = useState<KeyedTimeConstraint[]>(data.timeConstraints?.map(mapObjectWithKey) || []);
   const [fileTypes] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
 
   const [piAddressPart1, ...piAddressPart2] = pi?.address?.split(",") || [];
@@ -81,11 +95,10 @@ const FormSectionReview: FC<FormSectionProps> = ({
         <ReviewDataListing title="Principal Investigator for the study:">
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Name" value={`${pi.lastName}, ${pi.firstName}`} />
-            <ReviewDataListingProperty label="Position" value={pi.position} />
-            <ReviewDataListingProperty label="Institution Name" value={pi.institution} />
+            <ReviewDataListingProperty label="Email Address" value={pi.email} />
           </Grid>
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Email Address" value={pi.email} />
+            <ReviewDataListingProperty label="Institution Name" value={pi.institution} />
             <ReviewDataListingProperty
               label="Institution Address"
               value={(
@@ -95,18 +108,21 @@ const FormSectionReview: FC<FormSectionProps> = ({
                 </StyledAddress>
               )}
             />
+            <ReviewDataListingProperty label="Position" value={pi.position} />
           </Grid>
         </ReviewDataListing>
 
         <ReviewDataListing title="Primary Contact assisting with data collection">
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Name" value={`${primaryContact.lastName}, ${primaryContact.firstName}`} />
-            <ReviewDataListingProperty label="Position" value={primaryContact.position} />
-            <ReviewDataListingProperty label="Institution Name" value={primaryContact.institution} />
+            {/* TODO: Confirm this */}
+            {/* <ReviewDataListingProperty label="Same as Principal Investigator" value={piAsPrimaryContact ? "Yes" : "No"} /> */}
+            <ReviewDataListingProperty label="Primary Contact Name" value={`${primaryContact?.lastName}, ${primaryContact?.firstName}`} />
+            <ReviewDataListingProperty label="Email Address" value={primaryContact?.email} />
+            <ReviewDataListingProperty label="Phone Number" value={formatPhoneNumber(primaryContact?.phone)} />
           </Grid>
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Email Address" value={primaryContact.email} />
-            <ReviewDataListingProperty label="Phone Number" value={formatPhoneNumber(primaryContact.phone)} />
+            <ReviewDataListingProperty label="Institution Name" value={primaryContact?.institution} />
+            <ReviewDataListingProperty label="Position" value={primaryContact?.position} />
           </Grid>
         </ReviewDataListing>
 
@@ -114,12 +130,12 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <ReviewDataListing key={additionalContact.key} title={idx <= 1 ? "Additional Contacts" : null} hideTitle={idx === 1}>
             <Grid md={6} xs={12} item>
               <ReviewDataListingProperty label="Contact Name" value={`${additionalContact.lastName}, ${additionalContact.firstName}`} />
-              <ReviewDataListingProperty label="Position" value={additionalContact.position} />
-              <ReviewDataListingProperty label="Institution Name" value={additionalContact.institution} />
-            </Grid>
-            <Grid md={6} xs={12} item>
               <ReviewDataListingProperty label="Email Address" value={additionalContact.email} />
               <ReviewDataListingProperty label="Phone Number" value={formatPhoneNumber(additionalContact.phone)} />
+            </Grid>
+            <Grid md={6} xs={12} item>
+              <ReviewDataListingProperty label="Institution Name" value={additionalContact.institution} />
+              <ReviewDataListingProperty label="Position" value={additionalContact.position} />
             </Grid>
           </ReviewDataListing>
         ))}
@@ -131,9 +147,11 @@ const FormSectionReview: FC<FormSectionProps> = ({
         <ReviewDataListing title="Program">
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Program Name" value={program.name} />
-            <ReviewDataListingProperty label="Program Abbreviation" value={program.abbreviation} />
           </Grid>
           <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Program Abbreviation" value={program.abbreviation} />
+          </Grid>
+          <Grid xs={12} item sx={{ "&.MuiGrid-item": { paddingTop: 0 } }}>
             <ReviewDataListingProperty label="Program Description" value={program.description} valuePlacement="bottom" />
           </Grid>
         </ReviewDataListing>
@@ -141,9 +159,11 @@ const FormSectionReview: FC<FormSectionProps> = ({
         <ReviewDataListing title="Study">
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Study Name" value={study.name} />
-            <ReviewDataListingProperty label="Study Abbreviation" value={study.abbreviation} />
           </Grid>
           <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Study Abbreviation" value={study.abbreviation} />
+          </Grid>
+          <Grid xs={12} item sx={{ "&.MuiGrid-item": { paddingTop: 0 } }}>
             <ReviewDataListingProperty label="Study Description" value={study.description} valuePlacement="bottom" />
           </Grid>
         </ReviewDataListing>
@@ -154,7 +174,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
               <ReviewDataListingProperty label="Publication Title" value={publication.title} valuePlacement="bottom" />
             </Grid>
             <Grid md={6} xs={12} item>
-              <ReviewDataListingProperty label="PUBMEDID" value={publication.pubmedID} />
+              <ReviewDataListingProperty label="PUBMED ID" value={publication.pubmedID} />
               <ReviewDataListingProperty label="DOI" value={publication.DOI} />
             </Grid>
           </ReviewDataListing>
@@ -175,6 +195,20 @@ const FormSectionReview: FC<FormSectionProps> = ({
       {/* Data Access and Disease Information Section */}
       <ReviewSection title="Data Access and Disease Information">
         <ReviewDataListing>
+          <Grid xs={12} item>
+            <StyledSectionInfoText variant="h6">
+              Data Access.
+              <span>
+                {' '}
+                Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH. Learn about this at https://sharing.nih.gov/
+                <wbr />
+                genomic-data-sharing-policy/institutional-certifications
+              </span>
+            </StyledSectionInfoText>
+          </Grid>
+        </ReviewDataListing>
+
+        <ReviewDataListing>
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Access Types" value={data.accessTypes.join(", ")} valuePlacement="bottom" />
           </Grid>
@@ -183,33 +217,76 @@ const FormSectionReview: FC<FormSectionProps> = ({
             <ReviewDataListingProperty label="Targeted Data Release Date" value={data.targetedReleaseDate} valuePlacement="bottom" />
           </Grid>
         </ReviewDataListing>
+
+        {timeConstraints?.map((timeConstraint: KeyedTimeConstraint, idx: number) => (
+          <ReviewDataListing key={timeConstraint.key} title={idx === 0 ? "Time Constraints related to your submission" : null}>
+            <Grid md={6} xs={12} item>
+              <ReviewDataListingProperty label="Time Constraint Description" value={timeConstraint.description} valuePlacement="bottom" />
+            </Grid>
+            <Grid md={6} xs={12} item>
+              <ReviewDataListingProperty label="Time Constraint Effective Date" value={timeConstraint.effectiveDate} />
+            </Grid>
+          </ReviewDataListing>
+        ))}
+
+        <ReviewDataListing title="Type of Cancer(s) and, if applicable, pre-cancer(s) being studied">
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Cancer types" value={data.cancerTypes?.join(", ")} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Pre-cancer types" value={data.preCancerTypes?.join(", ")} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Number of participants included in the submission" value={data.numberOfParticipants?.toString()} valuePlacement="bottom" />
+          </Grid>
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Other cancer type not included" value={data.otherCancerTypes} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Other pre-cancer type not included" value={data.otherPreCancerTypes} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Species of participants" value={data.species?.join(", ")} valuePlacement="bottom" />
+          </Grid>
+        </ReviewDataListing>
+
+        <ReviewDataListing title="Cell lines, model systems, or neither">
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Cell lines" value={data.cellLines ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Model systems" value={data.modelSystems ? "Yes" : "No"} />
+          </Grid>
+        </ReviewDataListing>
+
+        <ReviewDataListing title="Confirm the data you plan to submit are de-identified">
+          <Grid md={6} xs={12} item>
+            <ReviewDataListingProperty label="Data de-identified" value={data.dataDeIdentified ? "Yes" : "No"} />
+          </Grid>
+        </ReviewDataListing>
       </ReviewSection>
 
       {/* Submission Data types Section */}
       <ReviewSection title="Submission Data types">
         <ReviewDataListing title="Data Types">
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Clinical Trial" value={data.dataTypes?.includes("Clinical Trial") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Genomics" value={data.dataTypes?.includes("Genomics") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Imaging" value={data.dataTypes?.includes("Imaging") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Clinical Trial" value={data.dataTypes?.includes(DataTypes.clinicalTrial) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Genomics" value={data.dataTypes?.includes(DataTypes.genomics) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Imaging" value={data.dataTypes?.includes(DataTypes.imaging) ? "Yes" : "No"} />
+            {data.dataTypes?.includes(DataTypes.imaging) && data.imagingDataDeIdentified !== null && <ReviewDataListingProperty label="Imaging Data de-identified" value={data.imagingDataDeIdentified ? "Yes" : "No"} />}
             <ReviewDataListingProperty label="Other Data types" value={data.otherDataTypes} valuePlacement="bottom" />
           </Grid>
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Immunology" value={data.dataTypes?.includes("Immunology") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Proteomics" value={data.dataTypes?.includes("Proteomics") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Immunology" value={data.dataTypes?.includes(DataTypes.immunology) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Proteomics" value={data.dataTypes?.includes(DataTypes.proteomics) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Epidemiologic or Cohort" value={data.dataTypes?.includes(DataTypes.epidemiologicOrCohort) ? "Yes" : "No"} />
           </Grid>
         </ReviewDataListing>
 
-        <ReviewDataListing title="Clinical Types">
+        <ReviewDataListing title="Clinical Data">
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Demographic Data" value={data.dataTypes?.includes("Demographic Data") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Diagnosis Data" value={data.dataTypes?.includes("Diagnosis Data") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Treatment Data" value={data.dataTypes?.includes("Treatment Data") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Relapse/Recurrence data" value={data.dataTypes?.includes("Relapse/Recurrence data") ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Demographic Data" value={data.dataTypes?.includes(DataTypes.demographicData) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Diagnosis Data" value={data.dataTypes?.includes(DataTypes.diagnosisData) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Treatment Data" value={data.dataTypes?.includes(DataTypes.treatmentData) ? "Yes" : "No"} />
           </Grid>
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Outcome Data" value={data.dataTypes?.includes("Outcome Data") ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Other Data types" value={data.clinicalData.otherDataTypes} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Relapse/Recurrence data" value={data.dataTypes?.includes(DataTypes.relapseRecurrenceData) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Outcome Data" value={data.dataTypes?.includes(DataTypes.outcomeData) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Biospecimen Data" value={data.dataTypes?.includes(DataTypes.biospecimenData) ? "Yes" : "No"} />
+          </Grid>
+          <Grid xs={12} item sx={{ "&.MuiGrid-item": { paddingTop: 0 } }}>
+            <ReviewDataListingProperty label="Additional Data in future" value={data.clinicalData?.futureDataTypes ? "Yes" : "No"} />
+            <ReviewDataListingProperty label="Other Data types" value={data.clinicalData?.otherDataTypes} valuePlacement="bottom" />
           </Grid>
         </ReviewDataListing>
 

@@ -5,6 +5,7 @@ import {
   TableBody,
   TableCell,
   TableContainer,
+  TableHead,
   TableRow,
 } from "@mui/material";
 import { addSpace } from "../../utils";
@@ -15,9 +16,19 @@ const StyledTableContainer = styled(TableContainer)(() => ({
   overflow: "hidden",
 }));
 
+const StyledTableHeaderRow = styled(TableRow)(() => ({
+  "&.MuiTableRow-root": {
+    height: "40px",
+    padding: 0,
+    justifyContent: "space-between",
+    alignItems: "center",
+    background: "#FFF",
+    borderBottom: "1px solid #6B7294",
+  },
+}));
+
 const StyledTableRow = styled(TableRow)(() => ({
   "&.MuiTableRow-root": {
-    display: "flex",
     height: "40px",
     padding: 0,
     justifyContent: "space-between",
@@ -26,6 +37,24 @@ const StyledTableRow = styled(TableRow)(() => ({
     borderBottom: "1px solid #6B7294",
     "&:last-child": {
       borderBottom: "none",
+    },
+  },
+}));
+
+const StyledTableHeaderCell = styled(TableCell)(() => ({
+  "&.MuiTableCell-root": {
+    height: "100%",
+    color: "#083A50",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    fontSize: '16px',
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: "19.6px",
+    padding: "10px 20px",
+    borderBottom: "0 !important",
+    borderRight: "1px solid #6B7294",
+    "&:last-child": {
+      borderRight: "none",
     },
   },
 }));
@@ -73,14 +102,23 @@ type ReviewFileTypeTableProps = {
 const ReviewFileTypeTable: React.FC<ReviewFileTypeTableProps> = ({ files }) => (
   <StyledTableContainer>
     <Table>
+      <TableHead>
+        <StyledTableHeaderRow>
+          <StyledTableHeaderCell width="auto">File Type</StyledTableHeaderCell>
+          <StyledTableHeaderCell width="25%">File Extension</StyledTableHeaderCell>
+          <StyledTableHeaderCell width="17%">Number of Files</StyledTableHeaderCell>
+          <StyledTableHeaderCell width="25%">Estimated amount of data (KB, MB, GB, TB)</StyledTableHeaderCell>
+        </StyledTableHeaderRow>
+      </TableHead>
       <TableBody>
         {files.map((file: FileInfo) => (
           <StyledTableRow key={`${file.type}-${file.count}-${file.amount}`}>
-            <StyledTableCell style={{ flex: 1 }}>{file.type}</StyledTableCell>
-            <StyledTableCellNumber style={{ flex: "0 0 17%" }}>
+            <StyledTableCell width="auto">{file.type}</StyledTableCell>
+            <StyledTableCell width="25%">{file.extension}</StyledTableCell>
+            <StyledTableCellNumber width="17%">
               {file.count}
             </StyledTableCellNumber>
-            <StyledTableCellNumber style={{ flex: "0 0 23%" }}>
+            <StyledTableCellNumber width="25%">
               {addSpace(file.amount)}
             </StyledTableCellNumber>
           </StyledTableRow>
