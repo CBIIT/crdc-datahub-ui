@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-
+import { Dialog } from "@mui/material";
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
+
+const testIsLoggedIn = false;
 
 const Nav = styled.div`
     top: 0;
@@ -236,6 +238,44 @@ const StyledLoginLink = styled(Link)`
   margin-right: 32px;
 `;
 
+const StyledDialog = styled(Dialog)`
+  .MuiDialog-paper {
+    width: 550px;
+    height: 218px;
+    border-radius: 8px;
+    border: 2px solid var(--secondary-one, #0B7F99);
+    background: linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B;
+    box-shadow: 0px 4px 45px 0px rgba(0, 0, 0, 0.40);
+  }
+  .loginDialogText {
+    margin-top: 57px;
+    /* Body */
+    font-family: Nunito;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 19.6px; /* 122.5% */
+    text-align: center;
+  }
+  .loginDialogCloseButton{
+    display: flex;
+    width: 128px;
+    height: 42px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    border: 1px solid #000;
+    align-self: center;
+    margin-top: 39px;
+  }
+  .loginDialogCloseButton:hover {
+    cursor: pointer;
+  }
+  #loginDialogLinkToLogin{
+    color:black;
+  }
+`;
+
 const useOutsideAlerter = (ref) => {
   useEffect(() => {
     function handleClickOutside(event) {
@@ -257,9 +297,12 @@ const useOutsideAlerter = (ref) => {
 
 const NavBar = () => {
   const [clickedTitle, setClickedTitle] = useState("");
+  const [loginDialogTitle, setLoginDialogTitle] = useState("");
   const dropdownSelection = useRef(null);
   const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
   const clickableTitle = clickableObject.map((item) => item.name);
+  const [showNavDialog, setShowNavDialog] = useState(false);
+  const navigate = useNavigate();
   useOutsideAlerter(dropdownSelection);
 
   const handleMenuClick = (e) => {
@@ -289,15 +332,25 @@ const NavBar = () => {
     return linkNames.includes(correctPath);
   }
 
+  const handleNavLinkClick = (dropItem) => {
+    setClickedTitle("");
+    if (testIsLoggedIn) {
+      navigate(dropItem.link);
+    } else {
+      setLoginDialogTitle(dropItem.name);
+      setShowNavDialog(true);
+    }
+  };
+
   useEffect(() => {
     setClickedTitle("");
   }, []);
-
   return (
-    <Nav>
-      <NavContainer>
-        <UlContainer>
-          {
+    <>
+      <Nav>
+        <NavContainer>
+          <UlContainer>
+            {
             navMobileList.map((navMobileItem, idx) => {
               const navkey = `nav_${idx}`;
               return (
@@ -340,32 +393,73 @@ const NavBar = () => {
               );
             })
           }
-        </UlContainer>
-        <StyledLoginLink id="header-navbar-login-button" to="/login">
-          Login
-        </StyledLoginLink>
-      </NavContainer>
-      <Dropdown ref={dropdownSelection} style={clickedTitle === '' ? { visibility: 'hidden', } : null}>
-        <DropdownContainer>
-          <div className="dropdownList">
-            {
+          </UlContainer>
+          <StyledLoginLink id="header-navbar-login-button" to="/login">
+            Login
+          </StyledLoginLink>
+        </NavContainer>
+        <Dropdown ref={dropdownSelection} style={clickedTitle === '' ? { visibility: 'hidden', } : null}>
+          <DropdownContainer>
+            <div className="dropdownList">
+              {
               clickedTitle !== "" ? navbarSublists[clickedTitle].map((dropItem, idx) => {
                 const dropkey = `drop_${idx}`;
                 return (
-                  dropItem.link && (
-                    <Link id={dropItem.id} to={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
-                      {dropItem.name}
-                      <div className="dropdownItemText">{dropItem.text}</div>
-                    </Link>
+                  dropItem.link && (!dropItem.needsAuthentication
+                    ? (
+                      <Link id={dropItem.id} to={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
+                        {dropItem.name}
+                        <div className="dropdownItemText">{dropItem.text}</div>
+                      </Link>
+)
+                    : (
+                      <div
+                        id={dropItem.id}
+                        key={dropkey}
+                        role="button"
+                        tabIndex={0}
+                        className="dropdownItem"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleNavLinkClick(dropItem);
+                          }
+                        }}
+                        onClick={() => { handleNavLinkClick(dropItem); }}
+                      >
+                        {dropItem.name}
+                      </div>
+)
                   )
                 );
               })
                 : null
             }
-          </div>
-        </DropdownContainer>
-      </Dropdown>
-    </Nav>
+            </div>
+          </DropdownContainer>
+        </Dropdown>
+      </Nav>
+      <StyledDialog open={showNavDialog}>
+        <pre className="loginDialogText">
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          Please <Link id="loginDialogLinkToLogin" to="/login" onClick={() => setClickedTitle("")}><strong>log in</strong></Link> to access {loginDialogTitle}.
+        </pre>
+        <div
+          role="button"
+          tabIndex={0}
+          id="loginDialogCloseButton"
+          className="loginDialogCloseButton"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setShowNavDialog(false);
+            }
+          }}
+          onClick={() => setShowNavDialog(false)}
+        >
+          <strong>Close</strong>
+        </div>
+
+      </StyledDialog>
+    </>
   );
 };
 

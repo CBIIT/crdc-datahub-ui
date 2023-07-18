@@ -59,6 +59,7 @@ export const navbarSublists = {
       link: '/submissions',
       id: 'navbar-dropdown-item-crdc-submission-requests',
       className: 'navMobileSubItem',
+      needsAuthentication: true,
     },
 ],
   About: [
