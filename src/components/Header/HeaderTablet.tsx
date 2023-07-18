@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { NavLink, Link, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Logo from "./components/LogoTablet";
-import SearchBar from "./components/SearchBarTablet";
+import { Dialog } from "@mui/material";
+import Logo from "./components/LogoMobile";
+import SearchBar from "./components/SearchBarMobile";
 import menuClearIcon from '../../assets/header/Menu_Cancel_Icon.svg';
 import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
 import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
 import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
+
+const testIsLoggedIn = false;
 
 const HeaderBanner = styled.div`
   width: 100%;
@@ -68,7 +71,7 @@ const MenuArea = styled.div`
 
     .menuContainer {
         background: #ffffff;
-        width: 385px;
+        width: 300px;
         height: 100%;
         padding: 21px 16px;
     }
@@ -126,7 +129,7 @@ const MenuArea = styled.div`
     }
 
     .navMobileItem {
-        width: 353px;
+        width: 268px;
         padding: 8px 24px 8px 16px;
         font-family: Open Sans;
         font-weight: 400;
@@ -157,12 +160,73 @@ const MenuArea = styled.div`
         cursor: pointer;
     }
 `;
+const StyledDialog = styled(Dialog)`
+  .MuiDialog-paper {
+    width: 550px;
+    height: 218px;
+    border-radius: 8px;
+    border: 2px solid var(--secondary-one, #0B7F99);
+    background: linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B;
+    box-shadow: 0px 4px 45px 0px rgba(0, 0, 0, 0.40);
+  }
+  .loginDialogText {
+    margin-top: 57px;
+    /* Body */
+    font-family: Nunito;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 19.6px; /* 122.5% */
+    text-align: center;
+    margin-left: 12px;
+    margin-right: 12px;
+    overflow-wrap: break-word;
+  }
+  .loginDialogCloseButton{
+    display: flex;
+    width: 128px;
+    height: 42px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    border: 1px solid #000;
+    align-self: center;
+    margin-top: 39px;
+  }
+  .loginDialogCloseButton:hover {
+    cursor: pointer;
+  }
+  #loginDialogLinkToLogin{
+    color:black;
+  }
+`;
+type NavbarMobileList = {
+  name: string;
+  link: string;
+  id: string;
+  className: string;
+  needsAuthentication?: boolean;
+}[];
 
 const Header = () => {
   const path = useLocation().pathname;
   const [navMobileDisplay, setNavMobileDisplay] = useState('none');
-  const [navbarMobileList, setNavbarMobileList] = useState(navMobileList);
+  const navMobileListHookResult = useState(navMobileList);
+  const navbarMobileList: NavbarMobileList = navMobileListHookResult[0];
+  const setNavbarMobileList = navMobileListHookResult[1];
+  const [showNavDialog, setShowNavDialog] = useState(false);
+  const [loginDialogTitle, setLoginDialogTitle] = useState("");
+  const navigate = useNavigate();
 
+  const handleNavLinkClick = (dropItem) => {
+    setNavMobileDisplay('none');
+    if (testIsLoggedIn) {
+      navigate(dropItem.link);
+    } else {
+      setLoginDialogTitle(dropItem.name);
+      setShowNavDialog(true);
+    }
+  };
   const clickNavItem = (e) => {
     const clickTitle = e.target.innerText;
     setNavbarMobileList(navbarSublists[clickTitle]);
@@ -175,8 +239,8 @@ const Header = () => {
           <Logo />
           <div className="headerLowerContainer">
             <div
-              id="header-navbar-open-menu-button"
               role="button"
+              id="header-navbar-open-menu-button"
               tabIndex={0}
               className="menuButton"
               onKeyDown={(e) => {
@@ -208,33 +272,88 @@ const Header = () => {
               onClick={() => setNavMobileDisplay('none')}
             >
               <img className="closeIconImg" src={menuClearIcon} alt="menuClearButton" />
+
             </div>
-            {navbarMobileList !== navMobileList
-              && (
-                <div
-                  role="button"
-                  id="navbar-back-to-main-menu-button"
-                  tabIndex={0}
-                  className="backButton"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      setNavbarMobileList(navMobileList);
-                    }
-                  }}
-                  onClick={() => setNavbarMobileList(navMobileList)}
-                >
-                  Main Menu
-                </div>
-              )}
+            {navbarMobileList !== navMobileList && (
+              <div
+                role="button"
+                id="navbar-back-to-main-menu-button"
+                tabIndex={0}
+                className="backButton"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setNavbarMobileList(navMobileList);
+                  }
+                }}
+                onClick={() => setNavbarMobileList(navMobileList)}
+              >
+                Main Menu
+              </div>
+            )}
             <div className="navMobileContainer">
               {
                 navbarMobileList.map((navMobileItem, idx) => {
                   const mobilekey = `mobile_${idx}`;
                   return (
                     <React.Fragment key={mobilekey}>
-                      {navMobileItem.className === 'navMobileItem' && <NavLink id={navMobileItem.id} to={navMobileItem.link} onClick={() => setNavMobileDisplay('none')}><div className="navMobileItem">{navMobileItem.name}</div></NavLink>}
-                      {navMobileItem.className === 'navMobileItem clickable' && <div id={navMobileItem.id} role="button" tabIndex={0} className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }} onClick={clickNavItem}>{navMobileItem.name}</div>}
-                      {navMobileItem.className === 'navMobileSubItem' && <Link id={navMobileItem.id} to={navMobileItem.link}><div role="button" tabIndex={0} className="navMobileItem SubItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>{navMobileItem.name}</div></Link>}
+                      {navMobileItem.className === 'navMobileItem'
+                        && (
+                          <NavLink
+                            id={navMobileItem.id}
+                            to={navMobileItem.link}
+                            onClick={() => setNavMobileDisplay('none')}
+                          >
+                            <div className="navMobileItem">{navMobileItem.name}</div>
+                          </NavLink>
+                        )}
+                      {navMobileItem.className === 'navMobileItem clickable'
+                        && (
+                          <div
+                            id={navMobileItem.id}
+                            role="button" tabIndex={0}
+                            className="navMobileItem clickable"
+                            onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
+                            onClick={clickNavItem}
+                          >
+                            {navMobileItem.name}
+                          </div>
+                        )}
+                      {navMobileItem.className === 'navMobileSubItem'
+                        && (!navMobileItem.needsAuthentication
+                          ? (
+                            <Link
+                              id={navMobileItem.id}
+                              to={navMobileItem.link}
+                            >
+                              <div
+                                role="button"
+                                tabIndex={0}
+                                className="navMobileItem SubItem"
+                                onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }}
+                                onClick={() => setNavMobileDisplay('none')}
+                              >
+                                {navMobileItem.name}
+                              </div>
+                            </Link>
+                          )
+                          : (
+                            <div
+                              id={navMobileItem.id}
+                              role="button"
+                              tabIndex={0}
+                              className="navMobileItem SubItem"
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleNavLinkClick(navMobileItem);
+                                }
+                              }}
+                              onClick={() => { handleNavLinkClick(navMobileItem); }}
+                            >
+                              {navMobileItem.name}
+                            </div>
+                          )
+
+                        )}
                       {navMobileItem.className === 'navMobileSubTitle' && <div className="navMobileItem">{navMobileItem.name}</div>}
                     </React.Fragment>
                   );
@@ -255,8 +374,30 @@ const Header = () => {
             onClick={() => setNavMobileDisplay('none')}
             aria-label="greyContainer"
           />
+          {' '}
+
         </MenuArea>
       </NavMobileContainer>
+      <StyledDialog open={showNavDialog}>
+        <pre className="loginDialogText">
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          Please <Link id="loginDialogLinkToLogin" to="/login" onClick={() => setNavMobileDisplay('none')}><strong>log in</strong></Link> to access {loginDialogTitle}.
+        </pre>
+        <div
+          role="button"
+          tabIndex={0}
+          id="loginDialogCloseButton"
+          className="loginDialogCloseButton"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setShowNavDialog(false);
+            }
+          }}
+          onClick={() => setShowNavDialog(false)}
+        >
+          <strong>Close</strong>
+        </div>
+      </StyledDialog>
     </>
   );
 };

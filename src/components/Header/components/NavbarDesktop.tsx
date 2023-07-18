@@ -411,7 +411,7 @@ const NavBar = () => {
                         {dropItem.name}
                         <div className="dropdownItemText">{dropItem.text}</div>
                       </Link>
-)
+                      )
                     : (
                       <div
                         id={dropItem.id}
@@ -428,7 +428,7 @@ const NavBar = () => {
                       >
                         {dropItem.name}
                       </div>
-)
+                    )
                   )
                 );
               })
@@ -457,7 +457,6 @@ const NavBar = () => {
         >
           <strong>Close</strong>
         </div>
-
       </StyledDialog>
     </>
   );
