@@ -41,6 +41,9 @@ const Nav = styled.div`
       margin-bottom: 4.5px;
       margin-right: 40px;
     }
+    .invisible {
+      visibility: hidden;
+    }
  `;
 
 const NavContainer = styled.div`
@@ -51,6 +54,12 @@ const NavContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: end;
+
+    #navbar-dropdown-name-container { 
+      margin: 0; 
+      min-width: 150px; 
+      border: none;
+    }
 `;
 
 const UlContainer = styled.ul`
@@ -169,7 +178,9 @@ const LiSection = styled.li`
       display: none;
     }
   }
-
+  .shouldBeUnderlined {
+    border-bottom: 4px solid #3A75BD !important;
+  }
   .navTitleClicked {
     display: block;
     color: #FFFFFF;
@@ -186,6 +197,9 @@ const LiSection = styled.li`
     border-top: 4px solid #5786FF;
     border-left: 4px solid #5786FF;
     border-right: 4px solid #5786FF;
+  }
+  .invisible {
+    visibility: hidden;
   }
 `;
 
@@ -376,9 +390,8 @@ const NavBar = () => {
                             onKeyDown={onKeyPressHandler}
                             role="button"
                             tabIndex={0}
-                            className="navText directLink"
+                            className={`navText directLink ${shouldBeUnderlined(navMobileItem.name) ? "shouldBeUnderlined" : ""}`}
                             onClick={handleMenuClick}
-                            style={shouldBeUnderlined(navMobileItem.name) ? { borderBottom: "4px solid #3A75BD" } : null}
                           >
                             {navMobileItem.name}
                           </div>
@@ -393,9 +406,9 @@ const NavBar = () => {
                           id={navMobileItem.id}
                           onKeyDown={onKeyPressHandler}
                           role="button"
-                          tabIndex={0} className={clickedTitle === navMobileItem.name ? 'navText clicked' : 'navText'}
+                          tabIndex={0}
+                          className={`${clickedTitle === navMobileItem.name ? 'navText clicked' : 'navText'} ${shouldBeUnderlined(navMobileItem.name) ? "shouldBeUnderlined" : ""}`}
                           onClick={handleMenuClick}
-                          style={shouldBeUnderlined(navMobileItem.name) ? { borderBottom: "4px solid #3A75BD" } : null}
                         >
                           {navMobileItem.name}
                         </div>
@@ -409,7 +422,7 @@ const NavBar = () => {
         {testLoggedInBool
           ? (
             <LiSection>
-              <div style={{ margin: "0", minWidth: "150px", border: "none" }} className={clickedTitle === testData.name ? 'navTitleClicked' : 'navTitle'}>
+              <div id="navbar-dropdown-name-container" className={(clickedTitle === testData.name ? 'navTitleClicked' : 'navTitle')}>
                 <div
                   id="navbar-dropdown-name"
                   onKeyDown={onKeyPressHandler}
@@ -420,7 +433,7 @@ const NavBar = () => {
                   {testData.name}
                 </div>
               </div>
-              <NameDropdown ref={nameDropdownSelection} style={clickedTitle !== testData.name ? { visibility: 'hidden', } : null}>
+              <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== testData.name ? "invisible" : ""}>
                 <NameDropdownContainer>
                   <Link id="navbar-dropdown-item-name-user-profile" to="/userProfile" className="dropdownItem" onClick={() => setClickedTitle("")}>
                     User Profile
@@ -438,7 +451,7 @@ const NavBar = () => {
             </StyledLoginLink>
             )}
       </NavContainer>
-      <Dropdown ref={dropdownSelection} style={(clickedTitle === '' || clickedTitle === testData.name) ? { visibility: 'hidden', } : null}>
+      <Dropdown ref={dropdownSelection} className={(clickedTitle === '' || clickedTitle === testData.name) ? "invisible" : ""}>
         <DropdownContainer>
           <div className="dropdownList">
             {

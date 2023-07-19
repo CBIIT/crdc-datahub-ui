@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import Logo from "./components/LogoTablet";
-import SearchBar from "./components/SearchBarTablet";
+import Logo from "./components/LogoMobile";
+import SearchBar from "./components/SearchBarMobile";
 import menuClearIcon from '../../assets/header/Menu_Cancel_Icon.svg';
 import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
 import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
@@ -26,7 +26,7 @@ navbarSublists[testData.name] = [
     id: 'navbar-dropdown-item-logout',
     className: 'navMobileSubItem',
   },
- ];
+];
 
 const HeaderBanner = styled.div`
   width: 100%;
@@ -71,8 +71,8 @@ const HeaderContainer = styled.div`
     // }
 `;
 
-const NavMobileContainer = styled.div`
-    // display: none;
+const NavMobileContainer = styled.div<{ $display?: string; }>`
+    display: ${(props) => props.$display};
     position: absolute;
     left: 0;
     top: 0;
@@ -88,7 +88,7 @@ const MenuArea = styled.div`
 
     .menuContainer {
         background: #ffffff;
-        width: 385px;
+        width: 300px;
         height: 100%;
         padding: 21px 16px;
     }
@@ -111,11 +111,6 @@ const MenuArea = styled.div`
     .closeIconImg:hover {
         cursor: pointer;
     }
-
-    // .closeIconImg:active {
-    //     outline: 0.25rem solid #2491ff;
-    //     outline-offset: 0.5rem
-    // }
 
     .backButton {
         font-family: Open Sans;
@@ -146,7 +141,7 @@ const MenuArea = styled.div`
     }
 
     .navMobileItem {
-        width: 353px;
+        width: 268px;
         padding: 8px 24px 8px 16px;
         font-family: Open Sans;
         font-weight: 400;
@@ -195,8 +190,8 @@ const Header = () => {
           <Logo />
           <div className="headerLowerContainer">
             <div
-              id="header-navbar-open-menu-button"
               role="button"
+              id="header-navbar-open-menu-button"
               tabIndex={0}
               className="menuButton"
               onKeyDown={(e) => {
@@ -212,7 +207,7 @@ const Header = () => {
           </div>
         </HeaderContainer>
       </HeaderBanner>
-      <NavMobileContainer style={{ display: navMobileDisplay }}>
+      <NavMobileContainer $display={navMobileDisplay}>
         <MenuArea>
           <div className="menuContainer">
             <div
@@ -228,24 +223,24 @@ const Header = () => {
               onClick={() => setNavMobileDisplay('none')}
             >
               <img className="closeIconImg" src={menuClearIcon} alt="menuClearButton" />
+
             </div>
-            {navbarMobileList !== navMobileList
-              && (
-                <div
-                  role="button"
-                  id="navbar-back-to-main-menu-button"
-                  tabIndex={0}
-                  className="backButton"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      setNavbarMobileList(navMobileList);
-                    }
-                  }}
-                  onClick={() => setNavbarMobileList(navMobileList)}
-                >
-                  Main Menu
-                </div>
-              )}
+            {navbarMobileList !== navMobileList && (
+              <div
+                role="button"
+                id="navbar-back-to-main-menu-button"
+                tabIndex={0}
+                className="backButton"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setNavbarMobileList(navMobileList);
+                  }
+                }}
+                onClick={() => setNavbarMobileList(navMobileList)}
+              >
+                Main Menu
+              </div>
+            )}
             <div className="navMobileContainer">
               {
                 navbarMobileList.map((navMobileItem, idx) => {
@@ -262,24 +257,24 @@ const Header = () => {
               }
               {/* eslint-disable-next-line no-nested-ternary */}
               {navbarMobileList === navMobileList ? (
-                 testLoggedInBool ? (
-                   <div
-                     id="navbar-dropdown-name"
-                     role="button" tabIndex={0}
-                     className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
-                     onClick={clickNavItem}
-                   >
-                     {testData.name}
-                   </div>
+                testLoggedInBool ? (
+                  <div
+                    id="navbar-dropdown-name"
+                    role="button" tabIndex={0}
+                    className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
+                    onClick={clickNavItem}
+                  >
+                    {testData.name}
+                  </div>
                 )
-                : (
-                  <Link id="navbar-link-home" to="/login">
-                    <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
-                      Login
-                    </div>
-                  </Link>
+                  : (
+                    <Link id="navbar-link-home" to="/login">
+                      <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
+                        Login
+                      </div>
+                    </Link>
 
-                )) : null}
+                  )) : null}
             </div>
           </div>
           <div

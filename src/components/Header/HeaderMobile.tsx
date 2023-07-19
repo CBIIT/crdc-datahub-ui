@@ -71,8 +71,8 @@ const HeaderContainer = styled.div`
     // }
 `;
 
-const NavMobileContainer = styled.div`
-    // display: none;
+const NavMobileContainer = styled.div<{ $display?: string; }>`
+    display: ${(props) => props.$display};
     position: absolute;
     left: 0;
     top: 0;
@@ -111,11 +111,6 @@ const MenuArea = styled.div`
     .closeIconImg:hover {
         cursor: pointer;
     }
-
-    // .closeIconImg:active {
-    //     outline: 0.25rem solid #2491ff;
-    //     outline-offset: 0.5rem
-    // }
 
     .backButton {
         font-family: Open Sans;
@@ -212,7 +207,7 @@ const Header = () => {
           </div>
         </HeaderContainer>
       </HeaderBanner>
-      <NavMobileContainer style={{ display: navMobileDisplay }}>
+      <NavMobileContainer $display={navMobileDisplay}>
         <MenuArea>
           <div className="menuContainer">
             <div
