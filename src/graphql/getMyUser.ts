@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 
-export const GET_USER = gql`
+export const query = gql`
   query getMyUser {
     getMyUser {
       _id
@@ -16,6 +16,6 @@ export const GET_USER = gql`
   }
 `;
 
-export type GET_USER_Resp = {
+export type Response = {
   getMyUser: User;
 };
