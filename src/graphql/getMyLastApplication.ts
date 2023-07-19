@@ -10,7 +10,6 @@ export const query = gql`
           position
           email
           institution
-          eRAAccount
           address
         }
         program {

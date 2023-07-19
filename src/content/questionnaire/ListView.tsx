@@ -182,7 +182,7 @@ const ListingView: FC = () => {
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
     return page > 0
-      ? Math.max(0, (1 + page) * perPage - data.listApplications.total)
+      ? Math.max(0, (1 + page) * perPage - (data?.listApplications?.total || 0))
       : 0;
   }, [data]);
 
@@ -208,7 +208,7 @@ const ListingView: FC = () => {
         subTitle="Below is a list of applications that are associated with your account. Please click on any of the applications to review or continue work."
         body={(
           <Stack direction="row" alignItems="center" justifyContent="flex-end">
-            {!["FederalLead"].includes(user.role) && (
+            {!["FederalLead"].includes(user?.role) && (
               <Link to="/submission/new">
                 <StyledButton type="button">Start a Submission Request</StyledButton>
               </Link>
@@ -247,7 +247,7 @@ const ListingView: FC = () => {
               </TableRow>
             </StyledTableHead>
             <TableBody>
-              {data.listApplications.applications.map((d: T) => (
+              {data?.listApplications?.applications.map((d: T) => (
                 <TableRow tabIndex={-1} hover key={d["_id"]}>
                   {columns.map((col: Column) => (
                     <StyledTableCell key={`${d["_id"]}_${col.label}`}>
@@ -265,7 +265,7 @@ const ListingView: FC = () => {
               )}
 
               {/* No content message */}
-              {data.listApplications.total === 0 && (
+              {(!data?.listApplications || data?.listApplications?.total === 0) && (
                 <TableRow style={{ height: 53 * perPage }}>
                   <TableCell colSpan={columns.length}>
                     <Typography
@@ -284,12 +284,12 @@ const ListingView: FC = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={data.listApplications.total}
+            count={data?.listApplications?.total || 0}
             rowsPerPage={perPage}
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{ disabled: data.listApplications?.total < perPage || loading }}
+            nextIconButtonProps={{ disabled: data?.listApplications?.total < perPage || loading }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>
