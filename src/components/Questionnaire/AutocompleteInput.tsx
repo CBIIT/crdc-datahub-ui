@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { SyntheticEvent, useEffect, useId, useRef, useState } from "react";
 import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
-import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 const StyledFormControl = styled(FormControl)(() => ({
   height: "100%",
@@ -155,7 +154,6 @@ const AutocompleteInput = <T,>({
   ...rest
 }: Props<T>) => {
   const id = useId();
-  const { readOnlyInputs } = useFormMode();
 
   const [val, setVal] = useState<T>(value);
   const [error, setError] = useState<boolean>(false);
@@ -209,7 +207,7 @@ const AutocompleteInput = <T,>({
           onChange={onChangeWrapper}
           onBlur={(event: React.FocusEvent<HTMLInputElement>) => onBlurWrapper(event.target.value)}
           options={options}
-          readOnly={readOnlyInputs || readOnly}
+          readOnly={readOnly}
           forcePopupIcon
           popupIcon={<DropdownArrowsIconSvg />}
           freeSolo={freeSolo}

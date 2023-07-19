@@ -22,6 +22,7 @@ import TransitionGroupWrapper from "../../../components/Questionnaire/Transition
 import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import { isValidInRange } from "../../../utils";
+import useFormMode from "./hooks/useFormMode";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
@@ -39,8 +40,9 @@ type KeyedTimeConstraint = {
  */
 const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
+  const { readOnlyInputs } = useFormMode();
   const formRef = useRef<HTMLFormElement>();
-  const { nextButtonRef, saveFormRef, submitFormRef, getFormObjectRef } = refs;
+  const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
 
   const [timeConstraints, setTimeConstraints] = useState<KeyedTimeConstraint[]>(data.timeConstraints?.map(mapObjectWithKey));
   const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
@@ -53,6 +55,8 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     nextButtonRef.current.style.display = "flex";
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
 
     getFormObjectRef.current = getFormObject;
   }, [refs]);
@@ -120,6 +124,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={data.accessTypes}
           gridWidth={12}
           required
+          readOnly={readOnlyInputs}
         />
         <DatePickerInput
           inputID="section-c-targeted-data-submission-delivery-date"
@@ -130,6 +135,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           gridWidth={6}
           disablePast
           required
+          readOnly={readOnlyInputs}
         />
         <DatePickerInput
           inputID="section-c-expected-publication-date"
@@ -140,6 +146,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           gridWidth={6}
           disablePast
           required
+          readOnly={readOnlyInputs}
         />
       </SectionGroup>
 
@@ -151,7 +158,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             label="Add Time Constraints"
             startIcon={<AddCircleIcon />}
             onClick={addTimeConstraint}
-            disabled={status === FormStatus.SAVING}
+            disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
         )}
       >
@@ -163,6 +170,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               index={idx}
               timeConstraint={constraint}
               onDelete={() => removeTimeConstraint(constraint.key)}
+              readOnly={readOnlyInputs}
             />
           )}
         />
@@ -185,6 +193,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={data.cancerTypes}
           multiple
           required
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-c-other-cancer-types"
@@ -193,6 +202,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Enter types"
           value={data.otherCancerTypes}
           maxLength={1000}
+          readOnly={readOnlyInputs}
         />
 
         <SelectInput
@@ -203,6 +213,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Select types"
           value={data.preCancerTypes}
           multiple
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-c-other-pre-cancer-types"
@@ -211,6 +222,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Enter types"
           value={data.otherPreCancerTypes}
           maxLength={1000}
+          readOnly={readOnlyInputs}
         />
 
         <TextInput
@@ -227,6 +239,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             min: 1,
           }}
           required
+          readOnly={readOnlyInputs}
         />
         <SelectInput
           id="section-c-species-of-participants"
@@ -237,6 +250,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={data.species}
           multiple
           required
+          readOnly={readOnlyInputs}
         />
         <FormGroupCheckbox
           idPrefix="section-c-"
@@ -247,6 +261,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           orientation="horizontal"
           gridWidth={12}
           allowMultipleChecked={false}
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-c-data-de-identified"
@@ -257,6 +272,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           isBoolean
           touchRequired
           required
+          readOnly={readOnlyInputs}
         />
       </SectionGroup>
     </FormContainer>

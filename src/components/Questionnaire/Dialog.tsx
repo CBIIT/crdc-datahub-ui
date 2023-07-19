@@ -53,7 +53,7 @@ const StyledDialogActions = styled(DialogActions)({
 
 type CustomDialogProps = {
   title?: string;
-  message?: string;
+  message?: string | ReactNode;
   actions?: ReactNode;
 } & DialogProps;
 
@@ -63,6 +63,7 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
   title,
   message,
   actions,
+  children,
   ...rest
 }) => (
   <StyledDialog
@@ -78,6 +79,11 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
         <StyledDialogContentText>
           {message}
         </StyledDialogContentText>
+      </StyledDialogContent>
+    )}
+    {children && (
+      <StyledDialogContent>
+        {children}
       </StyledDialogContent>
     )}
     {actions && <StyledDialogActions>{actions}</StyledDialogActions>}

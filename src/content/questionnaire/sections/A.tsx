@@ -13,6 +13,7 @@ import institutionConfig from "../../../config/InstitutionConfig";
 import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
 import { mapObjectWithKey } from '../utils';
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
+import useFormMode from "./hooks/useFormMode";
 
 export type KeyedContact = {
   key: string;
@@ -35,13 +36,14 @@ const StyledFormControlLabel = styled(FormControlLabel)({
 const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
   const { pi, primaryContact } = data;
+  const { readOnlyInputs } = useFormMode();
 
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(data?.piAsPrimaryContact || false);
   const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
 
   const formRef = useRef<HTMLFormElement>();
   const {
-    nextButtonRef, saveFormRef, submitFormRef, getFormObjectRef,
+    nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
@@ -50,6 +52,8 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     nextButtonRef.current.style.display = "flex";
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
 
     getFormObjectRef.current = getFormObject;
   }, [refs]);
@@ -104,6 +108,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Enter first name"
           maxLength={50}
           required
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-a-pi-last-name"
@@ -113,6 +118,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Enter last name"
           maxLength={50}
           required
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-a-pi-position"
@@ -122,6 +128,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Enter position"
           maxLength={100}
           required
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-a-pi-email"
@@ -131,6 +138,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={pi.email}
           placeholder="Enter email address"
           required
+          readOnly={readOnlyInputs}
         />
         <AutocompleteInput
           id="section-a-pi-institution"
@@ -142,6 +150,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           disableClearable
           freeSolo
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-a-pi-institution-address"
@@ -154,6 +163,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           rows={4}
           multiline
           required
+          readOnly={readOnlyInputs}
         />
       </SectionGroup>
 
@@ -166,6 +176,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               <Checkbox
                 checked={piAsPrimaryContact}
                 onChange={() => setPiAsPrimaryContact(!piAsPrimaryContact)}
+                readOnly={readOnlyInputs}
               />
             )}
           />
@@ -187,7 +198,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={primaryContact?.firstName || ""}
           placeholder="Enter first name"
           maxLength={50}
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
           required
         />
         <TextInput
@@ -197,7 +208,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={primaryContact?.lastName || ""}
           placeholder="Enter last name"
           maxLength={50}
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
           required
         />
         <TextInput
@@ -207,7 +218,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={primaryContact?.position || ""}
           placeholder="Enter position"
           maxLength={100}
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
           required
         />
         <TextInput
@@ -217,7 +228,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="primaryContact[email]"
           value={primaryContact?.email || ""}
           placeholder="Enter email address"
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
           required
         />
         <AutocompleteInput
@@ -227,7 +238,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={primaryContact?.institution || ""}
           options={institutionConfig}
           placeholder="Enter or Select an Institution"
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
           disableClearable
           required
           freeSolo
@@ -240,7 +251,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={primaryContact?.phone || ""}
           placeholder="Enter phone number"
           maxLength={25}
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
         />
       </SectionGroup>
 
@@ -253,7 +264,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             label="Add Contact"
             startIcon={<AddCircleIcon />}
             onClick={addContact}
-            disabled={status === FormStatus.SAVING}
+            disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
         )}
       >
@@ -265,6 +276,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               index={idx}
               contact={contact}
               onDelete={() => removeContact(contact.key)}
+              readOnly={readOnlyInputs}
             />
           )}
         />

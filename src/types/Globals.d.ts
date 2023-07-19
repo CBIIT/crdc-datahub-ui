@@ -3,6 +3,8 @@ type FormSectionProps = {
     saveFormRef: React.RefObject<HTMLButtonElement>;
     submitFormRef: React.RefObject<HTMLButtonElement>;
     nextButtonRef: React.RefObject<HTMLButtonElement>;
+    approveFormRef: React.RefObject<HTMLButtonElement>;
+    rejectFormRef: React.RefObject<HTMLButtonElement>;
     getFormObjectRef: React.MutableRefObject<(() => FormObject | null) | null>;
   };
   SectionOption: SectionOption;

@@ -37,10 +37,10 @@ const GridStyled = styled(Grid)`
   .MuiSwitch-track{
     background-color: white !important;
   }
-  .MuiSwitch-track:read-only {
+  .readOnly .MuiSwitch-track {
     background-color: #D9DEE4 !important;
   }
-  .MuiSwitch-input:read-only {
+  .readOnly .MuiSwitch-input {
     cursor: not-allowed;
   }
   .text {
@@ -145,7 +145,6 @@ const CustomSwitch: FC<Props> = ({
   ...rest
 }) => {
   const id = useId();
-  const { readOnlyInputs } = useFormMode();
 
   const [val, setVal] = useState<boolean | null>(value);
   const [touched, setTouched] = useState(value?.toString()?.length > 0);
@@ -162,7 +161,7 @@ const CustomSwitch: FC<Props> = ({
 
   // Validation if touch is required
   useEffect(() => {
-    if (!touchRequired || readOnlyInputs) {
+    if (!touchRequired || readOnly) {
       return;
     }
     if (!touched) {
@@ -175,7 +174,7 @@ const CustomSwitch: FC<Props> = ({
   }, [touched, touchRequired]);
 
   const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    if (readOnlyInputs) {
+    if (readOnly) {
       return;
     }
     if (typeof onChange === "function") {
@@ -206,8 +205,9 @@ const CustomSwitch: FC<Props> = ({
               id={id}
               checked={val || false}
               onChange={onChangeWrapper}
-              readOnly={readOnlyInputs || readOnly}
+              readOnly={readOnly}
               disableRipple
+              className={readOnly ? "readOnly" : ""}
               classes={{
                 root: "switchRoot",
                 switchBase: "switchBase",

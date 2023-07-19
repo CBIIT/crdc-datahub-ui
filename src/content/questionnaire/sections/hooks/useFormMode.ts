@@ -61,6 +61,16 @@ const useFormMode = () => {
     return formModes.UNAUTHORIZED;
   };
 
+  const userCanReview = (): boolean => {
+    const authorizedRoles: typeof role[] = ["FederalLead"];
+    return isStatusReview && authorizedRoles.includes(role);
+  };
+
+  const userCanEdit = (): boolean => {
+    const authorizedRoles: typeof role[] = ["User"];
+    return isStatusEdit && authorizedRoles.includes(role);
+  };
+
   /* if (!isLoggedIn) {
     return formModes.UNAUTHORIZED;
   } */
@@ -77,7 +87,7 @@ const useFormMode = () => {
 
   const readOnlyInputs: boolean = formMode === formModes.VIEW_ONLY || formMode === formModes.REVIEW;
 
-  return { formMode, readOnlyInputs };
+  return { formMode, readOnlyInputs, userCanReview, userCanEdit };
 };
 
 export default useFormMode;

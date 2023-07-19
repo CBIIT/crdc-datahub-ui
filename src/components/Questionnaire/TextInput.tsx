@@ -9,11 +9,10 @@ import {
 import { WithStyles, withStyles } from "@mui/styles";
 import { updateInputValidity } from "../../utils";
 import Tooltip from "./Tooltip";
-import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];
-  label: string;
+  label?: string;
   infoText?: string;
   errorText?: string;
   tooltipText?: string | ReactNode;
@@ -50,10 +49,10 @@ const TextInput: FC<Props> = ({
   filter,
   type,
   readOnly,
+  onChange,
   ...rest
 }) => {
   const id = useId();
-  const { readOnlyInputs } = useFormMode();
 
   const [val, setVal] = useState(value);
   const [error, setError] = useState(false);
@@ -78,7 +77,12 @@ const TextInput: FC<Props> = ({
     return true;
   };
 
-  const onChange = (newVal) => {
+  const processValue = (inputVal: string) => {
+    let newVal = inputVal;
+
+    if (readOnly) {
+      return;
+    }
     if (typeof filter === "function") {
       newVal = filter(newVal);
     }
@@ -90,8 +94,18 @@ const TextInput: FC<Props> = ({
     setError(!validateInput(newVal));
   };
 
+  const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const newVal = event.target.value;
+
+    if (typeof onChange === "function") {
+      onChange(event);
+    }
+
+    processValue(newVal);
+  };
+
   useEffect(() => {
-    onChange(value?.toString()?.trim());
+    processValue(value?.toString());
   }, [value]);
 
   return (
@@ -99,7 +113,7 @@ const TextInput: FC<Props> = ({
       <FormControl className={classes.formControl} fullWidth error={error}>
         <label htmlFor={id} className={classes.label}>
           {label}
-          {required ? <span className={classes.asterisk}>*</span> : ""}
+          {required && label ? <span className={classes.asterisk}>*</span> : ""}
           {tooltipText && <Tooltip placement="right" title={tooltipText} />}
         </label>
         <OutlinedInput
@@ -109,9 +123,9 @@ const TextInput: FC<Props> = ({
           id={id}
           size="small"
           value={val || ""}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={onChangeWrapper}
           required={required}
-          readOnly={readOnlyInputs || readOnly}
+          readOnly={readOnly}
           {...rest}
         />
         <FormHelperText className={classes.helperText}>

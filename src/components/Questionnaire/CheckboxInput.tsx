@@ -115,14 +115,13 @@ const CheckboxInput: FC<Props> = ({
   ...rest
 }) => {
   const id = useId();
-  const { readOnlyInputs } = useFormMode();
 
   const [val, setVal] = useState(value);
   const [error] = useState(false);
   const helperText = helpText || (required ? "This field is required" : " ");
 
   const onChangeWrapper = (newVal: string, checked: boolean) => {
-    if (readOnlyInputs || readOnly) {
+    if (readOnly) {
       return;
     }
     if (typeof onChange === "function") {
@@ -146,11 +145,11 @@ const CheckboxInput: FC<Props> = ({
         control={(
           <StyledCheckbox
             name={name}
-            icon={<UncheckedIcon readOnly={readOnlyInputs || readOnly} />}
-            checkedIcon={<CheckedIcon readOnly={readOnlyInputs || readOnly} />}
+            icon={<UncheckedIcon readOnly={readOnly} />}
+            checkedIcon={<CheckedIcon readOnly={readOnly} />}
             onChange={(e, checked) => onChangeWrapper(e.target.value, checked)}
             disableRipple
-            readOnly={readOnlyInputs || readOnly}
+            readOnly={readOnly}
             {...rest}
           />
         )}

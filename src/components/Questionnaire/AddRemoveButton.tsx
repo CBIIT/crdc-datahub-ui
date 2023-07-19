@@ -1,6 +1,5 @@
 import { Button, ButtonProps, Stack, StackProps, styled } from "@mui/material";
 import { FC } from "react";
-import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 const ActionButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== "textColor" && prop !== "iconColor"
@@ -43,10 +42,8 @@ const AddRemoveButton: FC<Props> = ({
   onClick,
   ...rest
 }) => {
-  const { readOnlyInputs } = useFormMode();
-
   const onClickWrapper = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    if (readOnlyInputs) {
+    if (disabled) {
       return;
     }
     if (typeof onClick === "function") {
@@ -62,7 +59,7 @@ const AddRemoveButton: FC<Props> = ({
         size="small"
         onClick={onClickWrapper}
         disableRipple
-        disabled={readOnlyInputs || disabled}
+        disabled={disabled}
         {...rest}
       >
         {label}

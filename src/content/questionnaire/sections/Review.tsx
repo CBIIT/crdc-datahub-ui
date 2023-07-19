@@ -13,6 +13,7 @@ import ReviewDataListing from "../../../components/Questionnaire/ReviewDataListi
 import ReviewDataListingProperty from "../../../components/Questionnaire/ReviewDataListingProperty";
 import ReviewFileTypeTable from "../../../components/Questionnaire/ReviewFileTypeTable";
 import { formatPhoneNumber } from "../../../utils";
+import useFormMode from "./hooks/useFormMode";
 
 const StyledAddress = styled(Stack)(() => ({
   display: "flex",
@@ -40,9 +41,10 @@ const FormSectionReview: FC<FormSectionProps> = ({
   refs,
 }: FormSectionProps) => {
   const { data } = useFormContext();
+  const { userCanReview } = useFormMode();
   const { pi, primaryContact, program, study } = data;
   const formRef = useRef<HTMLFormElement>();
-  const { saveFormRef, submitFormRef, nextButtonRef, getFormObjectRef } = refs;
+  const { saveFormRef, submitFormRef, nextButtonRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
 
   const [additionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
   const [publications] = useState<KeyedPublication[]>(data.study?.publications?.map(mapObjectWithKey) || []);
@@ -58,7 +60,16 @@ const FormSectionReview: FC<FormSectionProps> = ({
 
     saveFormRef.current.style.display = "none";
     nextButtonRef.current.style.display = "none";
-    submitFormRef.current.style.display = "initial";
+
+    if (userCanReview) {
+      approveFormRef.current.style.display = "initial";
+      rejectFormRef.current.style.display = "initial";
+      submitFormRef.current.style.display = "none";
+    } else {
+      approveFormRef.current.style.display = "none";
+      rejectFormRef.current.style.display = "none";
+      submitFormRef.current.style.display = "initial";
+    }
 
     getFormObjectRef.current = getFormObject;
   }, [refs]);

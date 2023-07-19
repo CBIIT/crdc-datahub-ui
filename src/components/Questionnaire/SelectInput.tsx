@@ -9,7 +9,6 @@ import {
   styled,
 } from "@mui/material";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
-import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 const DropdownArrowsIcon = styled("div")(() => ({
   backgroundImage: `url(${dropdownArrowsIcon})`,
@@ -119,7 +118,7 @@ const StyledSelect = styled(Select, {
     },
   },
   // Target readOnly <input> inputs
-  "& .MuiOutlinedInput-input:read-only": {
+  "& .Mui-readOnly.MuiOutlinedInput-input:read-only": {
     backgroundColor: "#D9DEE4",
     cursor: "not-allowed",
     borderRadius: "8px",
@@ -158,7 +157,6 @@ const SelectInput: FC<Props> = ({
   ...rest
 }) => {
   const id = useId();
-  const { readOnlyInputs } = useFormMode();
 
   const [val, setVal] = useState(multiple ? [] : "");
   const [error] = useState(false);
@@ -213,7 +211,7 @@ const SelectInput: FC<Props> = ({
           slotProps={{ input: { id } }}
           multiple={multiple}
           placeholderText={placeholder}
-          readOnly={readOnlyInputs || readOnly}
+          readOnly={readOnly}
           {...rest}
         >
           {options.map((option) => (
