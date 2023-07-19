@@ -14,7 +14,6 @@ export const query = gql`
         position
         email
         institution
-        eRAAccount
         address
       }
       piAsPrimaryContact
@@ -103,7 +102,10 @@ export const query = gql`
         dateTime
         userID
       }
-      applicantID
+      applicant {
+        applicantID
+        applicantName
+      }
     }
   }
 `;
