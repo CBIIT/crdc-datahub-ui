@@ -18,6 +18,7 @@ import Section from './sections';
 import map from '../../config/SectionConfig';
 import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
 import QuestionnaireBanner from '../../components/Questionnaire/QuestionnaireBanner';
+import GenericAlert from '../../components/GenericAlert';
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -62,6 +63,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const { status, data, setData, error } = useFormContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
+  const [changesAlert, setChangesAlert] = useState<string>("");
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
@@ -146,6 +148,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     // Skip state update if there are no changes
     if (!isEqual(data, newData)) {
       const r = await setData(newData);
+      setChangesAlert(`Your changes for the ${map[activeSection].title} section have been successfully saved.`);
+      setTimeout(() => setChangesAlert(""), 10000);
       return r;
     }
 
@@ -191,6 +195,12 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   return (
     <>
+      <GenericAlert open={changesAlert !== ""} key="formview-changes-alert">
+        <span>
+          {changesAlert}
+        </span>
+      </GenericAlert>
+
       <Helmet>
         <title>Submission Request Form</title>
       </Helmet>
