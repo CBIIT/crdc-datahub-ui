@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 import { GET_USER, GET_USER_Resp as getMyUserResp } from './graphql';
+import env from '../../env';
 
 const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
 
@@ -36,7 +37,11 @@ const userLogin = async (authCode : string) : Promise<boolean> => {
   const options = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code: authCode, IDP: 'nih', redirectUri: "" }),
+    body: JSON.stringify({
+      code: authCode,
+      IDP: 'nih',
+      redirectUri: env.REACT_APP_NIH_REDIRECT_URL,
+    }),
   };
 
   try {
