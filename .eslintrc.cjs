@@ -24,7 +24,8 @@ module.exports = {
     }
   },
   root: true,
-   rules: {
+  ignorePatterns: ["injectEnv.js"],
+  rules: {
     // Note: you must disable the base rule as it can report incorrect errors
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx", ".ts"] }],
     "no-empty-function": "warn",

@@ -449,7 +449,7 @@ const NavBar = () => {
             <StyledLoginLink id="header-navbar-login-button" to="/login">
               Login
             </StyledLoginLink>
-            )}
+          )}
       </NavContainer>
       <Dropdown ref={dropdownSelection} className={(clickedTitle === '' || clickedTitle === testData.name) ? "invisible" : ""}>
         <DropdownContainer>

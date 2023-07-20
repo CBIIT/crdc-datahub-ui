@@ -135,7 +135,7 @@ const TableContainer = styled.div`
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
-  const [dataTypes] = useState<string[]>(data.dataTypes);
+  const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
@@ -172,6 +172,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     ]);
     fileTypeDataRef.current.setCustomValidity("");
   };
+
   const removeFileDataType = (key: string) => {
     if (fileTypeData.length === 1) {
       fileTypeDataRef.current.setCustomValidity("At least one file type is required");
@@ -180,6 +181,15 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
     setFileTypeData(fileTypeData.filter((c) => c.key !== key));
   };
+
+  const handleDataTypesChange = (checked: boolean, value: string) => {
+    const updatedDataTypes = checked
+      ? [...dataTypes, value]
+      : dataTypes.filter((dt) => dt !== value);
+
+    setDataTypes(updatedDataTypes);
+  };
+
   return (
     <FormContainer
       description={SectionOption.title}
@@ -230,6 +240,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="imaging"
           required
           value={dataTypes.includes("imaging")}
+          onChange={(e, checked) => handleDataTypesChange(checked, "imaging")}
           toggleContent={(
             <SwitchInput
               id="section-d-de-identified"
@@ -237,10 +248,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               name="imagingDataDeIdentified"
               value={data.imagingDataDeIdentified}
               isBoolean
-              required
               gridWidth={12}
-              touchRequired
               containerWidth="700px"
+              touchRequired={dataTypes.includes("imaging")}
+              required={dataTypes.includes("imaging")}
             />
           )}
         />
@@ -360,7 +371,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           <Table className="noBorder">
             <TableHead className="noBorder">
               <TableRow className="noBorder">
-                <TableCell width="30%" className="fileTypeTableCell">
+                <TableCell width="25%" className="fileTypeTableCell">
                   File Type
                   <span className="asterisk">*</span>
                   <input tabIndex={-1} id="invisibleTableInput" ref={fileTypeDataRef} />
@@ -391,7 +402,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                     extensionValue={fileData.extension}
                     name={`files[${idx}]`}
                     options={fileTypeOptions.map((fileType) => fileType)}
-                    placeholder="Select Type"
                   />
                   <TableCell className="bottomRowMiddle">
                     <TableTextInput
