@@ -89,8 +89,8 @@ type Study = {
   plannedPublications: PlannedPublication[];
   repositories: Repository[];
   funding: Funding;
-  isdbGaPRegistered: boolean;
-  dbGaPPHSNumber: string;
+  isDbGapRegistered: boolean;
+  dbGaPPPHSNumber: string;
 };
 
 type Repository = {
@@ -119,7 +119,7 @@ type FileInfo = {
 
 type Funding = {
   agency: string;
-  grantNumber: string;
+  grantNumbers: string;
   nciProgramOfficer: string;
   nciGPA: string;
 };

@@ -51,7 +51,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
   const [funding] = useState<Funding>(data.study?.funding);
-  const [isdbGaPRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isdbGaPRegistered);
+  const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isDbGapRegistered);
 
   const formRef = useRef<HTMLFormElement>();
   const {
@@ -389,22 +389,22 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <SwitchInput
           id="section-b-is-dbgap-registered"
           label="dbGaP Registered?"
-          name="study[isdbGaPRegistered]"
+          name="study[isDbGapRegistered]"
           required
-          value={isdbGaPRegistered}
+          value={isDbGapRegistered}
           onChange={(e, checked: boolean) => setIsdbGaPRegistered(checked)}
           isBoolean
           toggleContent={(
             <TextInput
               id="section-b-dbgap-phs-number"
               label="Please provide the associated dbGaP PHS Number"
-              name="study[dbGaPPHSNumber]"
-              value={data.study.dbGaPPHSNumber}
+              name="study[dbGaPPPHSNumber]"
+              value={data.study.dbGaPPPHSNumber}
               maxLength={50}
               placeholder="50 characters allowed"
               gridWidth={12}
-              required={isdbGaPRegistered}
               readOnly={readOnlyInputs}
+              required={isDbGapRegistered}
             />
           )}
           readOnly={readOnlyInputs}
@@ -526,8 +526,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-b-grant-or-contract-numbers"
           label="Grant or Contract Number(s)"
-          name="study[funding][grantNumber]"
-          value={funding?.grantNumber}
+          name="study[funding][grantNumbers]"
+          value={funding?.grantNumbers}
           maxLength={50}
           placeholder="Enter Grant or Contract Number(s)"
           required

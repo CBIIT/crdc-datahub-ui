@@ -277,6 +277,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       setChangesAlert(`Your changes for the ${map[activeSection].title} section have been successfully saved.`);
 
       if (!blockedNavigate && r && data["_id"] === "new" && r !== data?.['_id']) {
+        // NOTE: This currently triggers a form data refetch, which is not ideal
         navigate(`/submission/${r}/${activeSection}`, { replace: true });
       }
 
@@ -297,10 +298,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
     const newId = await saveForm(true);
+    setBlockedNavigate(false);
+    blocker.proceed?.();
 
     if (newId) {
-      setBlockedNavigate(false);
-      blocker.proceed?.();
+      // NOTE: This currently triggers a form data refetch, which is not ideal
       navigate(blocker.location.pathname.replace("new", newId), { replace: true });
     }
   };
