@@ -266,7 +266,7 @@ const ListingView: FC = () => {
 
               {/* No content message */}
               {(!data?.listApplications || data?.listApplications?.total === 0) && (
-                <TableRow style={{ height: 53 * perPage }}>
+                <TableRow style={{ height: 53 * 5 }}>
                   <TableCell colSpan={columns.length}>
                     <Typography
                       variant="h6"
@@ -289,7 +289,7 @@ const ListingView: FC = () => {
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{ disabled: data?.listApplications?.total < perPage || loading }}
+            nextIconButtonProps={{ disabled: !data?.listApplications || (data.listApplications.total < perPage) || loading }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>
