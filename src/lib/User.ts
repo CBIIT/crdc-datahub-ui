@@ -83,7 +83,7 @@ class User {
       return this._firstName;
     }
 
-    return this._email;
+    return this._email.split('@')[0];
   }
 
   /**
@@ -96,7 +96,7 @@ class User {
       return `${this._firstName} ${this._lastName}`;
     }
 
-    return this._email;
+    return this._email.split('@')[0];
   }
 }
 
