@@ -58,10 +58,12 @@ export const query = gql`
         }
         funding {
           agency
-          grantNumber
+          grantNumbers
           nciProgramOfficer
           nciGPA
         }
+        isDbGapRegistered
+        dbGaPPPHSNumber
       }
       accessTypes
       targetedSubmissionDate
