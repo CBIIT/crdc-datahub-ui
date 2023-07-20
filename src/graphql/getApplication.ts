@@ -57,7 +57,7 @@ export const query = gql`
           submittedDate
         }
         funding {
-          agency
+          agencies
           grantNumbers
           nciProgramOfficer
           nciGPA

@@ -511,10 +511,10 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       {/* Funding Agency */}
       <SectionGroup title="Agency(s) and/or organization(s) that funded this study">
         <Autocomplete
-          id="section-b-funding-agency"
+          id="section-b-funding-agencies"
           label="Funding Agency"
-          value={funding.agency}
-          name="study[funding][agency]"
+          value={funding.agencies[0]}
+          name="study[funding][agencies]"
           options={fundingAgencyOptions}
           placeholder="– Search and Select Agency –"
           freeSolo
