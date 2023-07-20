@@ -1,12 +1,14 @@
+import env from '../../env';
+
 /**
  * Redirects to NIH login to get an authorization code
  *
  * @returns null
  */
 const loginController = () => {
-  const NIH_AUTHORIZE_URL = process.env.NIH_AUTHORIZE_URL || process.env.REACT_APP_NIH_AUTHORIZE_URL;
-  const NIH_CLIENT_ID = process.env.NIH_CLIENT_ID || process.env.REACT_APP_NIH_CLIENT_ID;
-  const NIH_REDIRECT_URL = process.env.NIH_REDIRECT_URL || process.env.REACT_APP_NIH_REDIRECT_URL;
+  const NIH_AUTHORIZE_URL = env.REACT_APP_NIH_AUTHORIZE_URL || env.NIH_AUTHORIZE_URL;
+  const NIH_CLIENT_ID = env.REACT_APP_NIH_CLIENT_ID || env.NIH_CLIENT_ID;
+  const NIH_REDIRECT_URL = env.REACT_APP_NIH_REDIRECT_URL || env.NIH_REDIRECT_URL;
 
   const urlParam = {
     client_id: `${NIH_CLIENT_ID}`,

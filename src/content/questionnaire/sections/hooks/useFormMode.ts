@@ -1,7 +1,7 @@
 import { useAuthContext } from "../../../../components/Contexts/AuthContext";
 import { useFormContext } from "../../../../components/Contexts/FormContext";
 
-const testUser: User = {
+const testUser = {
   _id: "abc123-def456",
   email: "testEmail@example.com",
   firstName: "John",
@@ -11,7 +11,7 @@ const testUser: User = {
   userStatus: "Active",
 };
 
-const testFederalLead: User = {
+const testFederalLead = {
   _id: "abc123-def456",
   email: "testEmail@example.com",
   firstName: "John",

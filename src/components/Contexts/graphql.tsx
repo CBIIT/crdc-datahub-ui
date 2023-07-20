@@ -147,3 +147,7 @@ export const GET_USER = gql`
     }
   }
 `;
+
+export type GET_USER_Resp = {
+  getMyUser: User;
+};
