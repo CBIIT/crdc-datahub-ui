@@ -61,6 +61,7 @@ module.exports = {
     indent: "off",
     "react/jsx-indent": ["warn"],
     "@typescript-eslint/indent": [0],
+    "no-underscore-dangle": ["off"],
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["off"],
     "@typescript-eslint/no-unused-vars": "warn",
