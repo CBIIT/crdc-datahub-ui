@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { merge, cloneDeep } from "lodash";
+import omitDeep from "omit-deep";
 import { query as LAST_APP, Response as LastAppResp } from '../../graphql/getMyLastApplication';
 import { query as GET_APP, Response as GetAppResp } from '../../graphql/getApplication';
 import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
@@ -150,7 +151,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       setState({
         status: Status.LOADED,
         data: {
-          ...merge(cloneDeep(initialValues), d?.getApplication),
+          ...merge(cloneDeep(initialValues), omitDeep(d?.getApplication, ["__typename"])),
           // To avoid false positive form changes
           targetedReleaseDate: FormatDate(d?.getApplication?.targetedReleaseDate, "MM/DD/YYYY"),
           targetedSubmissionDate: FormatDate(d?.getApplication?.targetedSubmissionDate, "MM/DD/YYYY"),
