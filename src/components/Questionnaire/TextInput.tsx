@@ -58,6 +58,7 @@ const TextInput: FC<Props> = ({
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const valRef = useRef(value);
 
   const validateInput = (input: string) => {
     if (validate) {
@@ -105,7 +106,10 @@ const TextInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    processValue(value?.toString());
+    // processValue(value?.toString());
+    // Only validate if the value actually changed
+    if (valRef.current !== value) processValue(value?.toString());
+    valRef.current = value;
   }, [value]);
 
   return (

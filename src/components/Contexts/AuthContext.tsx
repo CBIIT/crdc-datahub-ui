@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { GET_USER, GET_USER_Resp as getMyUserResp } from './graphql';
+import { query as GET_USER, Response as GetUserResp } from '../../graphql/getMyUser';
 import env from '../../env';
 
 const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
@@ -120,7 +120,7 @@ export const AuthProvider: FC<ProviderProps> = (props) => {
   const { children } = props;
   const [state, setState] = useState<ContextState>(initialState);
 
-  const [getMyUser] = useLazyQuery<getMyUserResp>(GET_USER, {
+  const [getMyUser] = useLazyQuery<GetUserResp>(GET_USER, {
     context: { clientName: 'userService' },
     fetchPolicy: 'no-cache',
   });
