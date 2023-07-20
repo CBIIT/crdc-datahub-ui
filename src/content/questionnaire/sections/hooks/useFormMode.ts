@@ -33,8 +33,8 @@ export const formModes = {
 const useFormMode = () => {
   const { isLoggedIn, user } = useAuthContext();
   const { data } = useFormContext();
-  const { status: formStatus } = { status: "In Review" } || data || {}; // TODO: Testing purposes, fix when finished
-  const { role } = user || testFederalLead || {};
+  const { status: formStatus } = { status: "In Progress" } || data || {}; // TODO: Testing purposes, fix when finished
+  const { role } = user || testUser || {};
 
   console.log({ data, formStatus, role });
 
@@ -73,10 +73,6 @@ const useFormMode = () => {
     }
     return formModes.UNAUTHORIZED;
   };
-
-  /* if (!isLoggedIn) {
-    return formModes.UNAUTHORIZED;
-  } */
 
   let formMode: FormMode = formModes.UNAUTHORIZED;
 

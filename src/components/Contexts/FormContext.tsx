@@ -10,9 +10,10 @@ import React, {
 import { useLazyQuery, useMutation } from '@apollo/client';
 import dayjs from "dayjs";
 import { merge, cloneDeep } from "lodash";
-import { GET_APP, SAVE_APP, SUBMIT_APP } from './graphql';
+import { GET_APP, SAVE_APP } from './graphql';
 import { mutation as APPROVE_APP, Response as ApproveAppResp } from '../../graphql/approveApplication';
 import { mutation as REJECT_APP, Response as RejectAppResp } from '../../graphql/rejectApplication';
+import { mutation as SUBMIT_APP, Response as SubmitAppResp } from '../../graphql/submitApplication';
 import initialValues from "../../config/InitialValues";
 import { FormatDate } from "../../utils";
 
@@ -20,7 +21,7 @@ export type ContextState = {
   status: Status;
   data: Application;
   setData?: (Application) => Promise<boolean>;
-  submitData?: () => Promise<boolean>;
+  submitData?: () => Promise<string | boolean>;
   approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
   error?: string;
@@ -95,7 +96,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
       fetchPolicy: 'no-cache'
     });
 
-  const [submitApp] = useMutation(SUBMIT_APP, {
+    const [submitApp] = useMutation<SubmitAppResp>(SUBMIT_APP, {
       variables: { id },
       context: { clientName: 'backend' },
       fetchPolicy: 'no-cache'
@@ -132,12 +133,12 @@ export const FormProvider: FC<ProviderProps> = (props) => {
   });
 
   // Here we submit to the API with the previously saved data from the form
-  const submitData = async () => new Promise<boolean>((resolve) => {
+  /* const submitData = async () => new Promise<boolean>((resolve) => {
     console.log("[SUBMITTING FORM]");
     console.log("submitting state", state);
 
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
-    // submitApp();
+    submitApp();
 
     // simulate the submit event
     setTimeout(() => {
@@ -145,7 +146,24 @@ export const FormProvider: FC<ProviderProps> = (props) => {
       console.log("submitted");
       resolve(true);
     }, 1500);
-  });
+  }); */
+  const submitData = async () => {
+    setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
+
+    const { data: res, errors } = await submitApp({
+      variables: {
+        _id: state?.data["_id"]
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      return false;
+    }
+
+    setState((prevState) => ({ ...prevState, status: Status.LOADED }));
+    return res?.submitApplication?.["_id"] || false;
+  };
 
   // Here we approve the form to the API with a comment and wholeProgram
   const approveForm = async (comment: string, wholeProgram: boolean) => {
