@@ -215,7 +215,7 @@ const Header = () => {
   const firstName = authData?.user?.firstName || "random first name no one has";
   const navigate = useNavigate();
 
-  const handleNavLinkClick = (dropItem) => {
+  const handleAuthenticationNavLinkClick = (dropItem) => {
     setNavMobileDisplay('none');
     if (authData.isLoggedIn) {
       navigate(dropItem.link);
@@ -344,8 +344,26 @@ const Header = () => {
                                 role="button"
                                 tabIndex={0}
                                 className="navMobileItem SubItem"
-                                onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }}
-                                onClick={() => setNavMobileDisplay('none')}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    setNavMobileDisplay('none');
+                                    if (navMobileItem.name === "Logout") {
+                                      authData.logout();
+                                      setNavbarMobileList(navMobileList);
+                                    } else {
+                                      navigate(navMobileItem.link);
+                                    }
+                                  }
+                                }}
+                                onClick={() => {
+                                  setNavMobileDisplay('none');
+                                  if (navMobileItem.name === "Logout") {
+                                    authData.logout();
+                                    setNavbarMobileList(navMobileList);
+                                  } else {
+                                    navigate(navMobileItem.link);
+                                  }
+                                }}
                               >
                                 {navMobileItem.name}
                               </div>
@@ -359,23 +377,11 @@ const Header = () => {
                               className="navMobileItem SubItem"
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
-                                  setNavMobileDisplay('none');
-                                  if (navMobileItem.name === "Logout") {
-                                    authData.logout();
-                                    setNavbarMobileList(navMobileList);
-                                  } else {
-                                    handleNavLinkClick(navMobileItem);
-                                  }
+                                  handleAuthenticationNavLinkClick(navMobileItem);
                                 }
                               }}
                               onClick={() => {
-                                setNavMobileDisplay('none');
-                                if (navMobileItem.name === "Logout") {
-                                  authData.logout();
-                                  setNavbarMobileList(navMobileList);
-                                } else {
-                                  handleNavLinkClick(navMobileItem);
-                                }
+                                handleAuthenticationNavLinkClick(navMobileItem);
                               }}
                             >
                               {navMobileItem.name}

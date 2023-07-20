@@ -5,8 +5,6 @@ import { Dialog } from "@mui/material";
 import { useAuthContext } from '../../Contexts/AuthContext';
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
 
-const testIsLoggedIn = false;
-
 const Nav = styled.div`
     top: 0;
     left: 0;
@@ -411,7 +409,7 @@ const NavBar = () => {
 
   const handleNavLinkClick = (dropItem) => {
     setClickedTitle("");
-    if (testIsLoggedIn) {
+    if (authData.isLoggedIn) {
       navigate(dropItem.link);
     } else {
       setLoginDialogTitle(dropItem.name);
