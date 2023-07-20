@@ -159,9 +159,9 @@ const Header = () => {
   const [navMobileDisplay, setNavMobileDisplay] = useState('none');
   const [navbarMobileList, setNavbarMobileList] = useState(navMobileList);
   const authData = useAuthContext();
-  const firstName = authData?.user?.firstName || "random first name no one has";
+  const displayName = authData?.user?.displayName || "random first name no one has";
   const navigate = useNavigate();
-  navbarSublists[firstName] = [
+  navbarSublists[displayName] = [
     {
       name: 'User Profile',
       link: '/user_profile',
@@ -293,7 +293,7 @@ const Header = () => {
                     className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
                     onClick={clickNavItem}
                   >
-                    {firstName}
+                    {displayName}
                   </div>
                 )
                   : (
