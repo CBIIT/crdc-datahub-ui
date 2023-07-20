@@ -1,4 +1,4 @@
-/* eslint-disable */ 
+/* eslint-disable */
 import {
   ApolloClient, InMemoryCache, ApolloLink, HttpLink, DefaultOptions
 } from '@apollo/client';
@@ -12,7 +12,7 @@ const defaultOptions:DefaultOptions = {
 
 const BACKEND = env.REACT_APP_BACKEND_API;
 const MOCK = 'https://7a242248-52f7-476a-a60f-d64a2db3dd5b.mock.pstmn.io/graphql';
-const AUTH_SERVICE = `${window.origin}/api/authn`;
+const AUTH_SERVICE = `${window.origin}/api/authn/graphql`;
 const USER_SERVICE = `${window.origin}/api/authz/graphql`;
 
 const backendService = new HttpLink({

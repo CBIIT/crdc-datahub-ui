@@ -8,8 +8,7 @@ import menuClearIcon from '../../assets/header/Menu_Cancel_Icon.svg';
 import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
 import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
 import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
-
-const testIsLoggedIn = false;
+import { useAuthContext } from '../Contexts/AuthContext';
 
 const HeaderBanner = styled.div`
   width: 100%;
@@ -54,8 +53,8 @@ const HeaderContainer = styled.div`
     // }
 `;
 
-const NavMobileContainer = styled.div`
-    // display: none;
+const NavMobileContainer = styled.div<{ $display?: string; }>`
+    display: ${(props) => props.$display};
     position: absolute;
     left: 0;
     top: 0;
@@ -94,11 +93,6 @@ const MenuArea = styled.div`
     .closeIconImg:hover {
         cursor: pointer;
     }
-
-    // .closeIconImg:active {
-    //     outline: 0.25rem solid #2491ff;
-    //     outline-offset: 0.5rem
-    // }
 
     .backButton {
         font-family: Open Sans;
@@ -216,17 +210,34 @@ const Header = () => {
   const setNavbarMobileList = navMobileListHookResult[1];
   const [showNavDialog, setShowNavDialog] = useState(false);
   const [loginDialogTitle, setLoginDialogTitle] = useState("");
+
+  const authData = useAuthContext();
+  const firstName = authData?.user?.firstName || "random first name no one has";
   const navigate = useNavigate();
 
   const handleNavLinkClick = (dropItem) => {
     setNavMobileDisplay('none');
-    if (testIsLoggedIn) {
+    if (authData.isLoggedIn) {
       navigate(dropItem.link);
     } else {
       setLoginDialogTitle(dropItem.name);
       setShowNavDialog(true);
     }
   };
+  navbarSublists[firstName] = [
+    {
+      name: 'User Profile',
+      link: '/user_profile',
+      id: 'navbar-dropdown-item-user-profile',
+      className: 'navMobileSubItem',
+    },
+    {
+      name: 'Logout',
+      link: '/logout',
+      id: 'navbar-dropdown-item-logout',
+      className: 'navMobileSubItem',
+    },
+  ];
   const clickNavItem = (e) => {
     const clickTitle = e.target.innerText;
     setNavbarMobileList(navbarSublists[clickTitle]);
@@ -256,7 +267,7 @@ const Header = () => {
           </div>
         </HeaderContainer>
       </HeaderBanner>
-      <NavMobileContainer style={{ display: navMobileDisplay }}>
+      <NavMobileContainer $display={navMobileDisplay}>
         <MenuArea>
           <div className="menuContainer">
             <div
@@ -272,7 +283,6 @@ const Header = () => {
               onClick={() => setNavMobileDisplay('none')}
             >
               <img className="closeIconImg" src={menuClearIcon} alt="menuClearButton" />
-
             </div>
             {navbarMobileList !== navMobileList && (
               <div
@@ -296,7 +306,8 @@ const Header = () => {
                   const mobilekey = `mobile_${idx}`;
                   return (
                     <React.Fragment key={mobilekey}>
-                      {navMobileItem.className === 'navMobileItem'
+                      {
+                        navMobileItem.className === 'navMobileItem'
                         && (
                           <NavLink
                             id={navMobileItem.id}
@@ -305,8 +316,10 @@ const Header = () => {
                           >
                             <div className="navMobileItem">{navMobileItem.name}</div>
                           </NavLink>
-                        )}
-                      {navMobileItem.className === 'navMobileItem clickable'
+                        )
+                      }
+                      {
+                        navMobileItem.className === 'navMobileItem clickable'
                         && (
                           <div
                             id={navMobileItem.id}
@@ -317,8 +330,10 @@ const Header = () => {
                           >
                             {navMobileItem.name}
                           </div>
-                        )}
-                      {navMobileItem.className === 'navMobileSubItem'
+                        )
+                      }
+                      {
+                        navMobileItem.className === 'navMobileSubItem'
                         && (!navMobileItem.needsAuthentication
                           ? (
                             <Link
@@ -344,20 +359,55 @@ const Header = () => {
                               className="navMobileItem SubItem"
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
+                                  setNavMobileDisplay('none');
+                                  if (navMobileItem.name === "Logout") {
+                                    authData.logout();
+                                    setNavbarMobileList(navMobileList);
+                                  } else {
+                                    handleNavLinkClick(navMobileItem);
+                                  }
+                                }
+                              }}
+                              onClick={() => {
+                                setNavMobileDisplay('none');
+                                if (navMobileItem.name === "Logout") {
+                                  authData.logout();
+                                  setNavbarMobileList(navMobileList);
+                                } else {
                                   handleNavLinkClick(navMobileItem);
                                 }
                               }}
-                              onClick={() => { handleNavLinkClick(navMobileItem); }}
                             >
                               {navMobileItem.name}
                             </div>
-                          )
-
-                        )}
+                          ))
+                      }
                       {navMobileItem.className === 'navMobileSubTitle' && <div className="navMobileItem">{navMobileItem.name}</div>}
                     </React.Fragment>
                   );
                 })
+              }
+              {
+                /* eslint-disable-next-line no-nested-ternary */
+                navbarMobileList === navMobileList ? (
+                  authData.isLoggedIn ? (
+                    <div
+                      id="navbar-dropdown-name"
+                      role="button" tabIndex={0}
+                      className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
+                      onClick={clickNavItem}
+                    >
+                      {firstName}
+                    </div>
+                  )
+                    : (
+                      <Link id="navbar-link-login" to="/login">
+                        <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
+                          Login
+                        </div>
+                      </Link>
+
+                    )) : null
               }
             </div>
           </div>
@@ -374,8 +424,6 @@ const Header = () => {
             onClick={() => setNavMobileDisplay('none')}
             aria-label="greyContainer"
           />
-          {' '}
-
         </MenuArea>
       </NavMobileContainer>
       <StyledDialog open={showNavDialog}>
