@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Link, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from "./components/LogoMobile";
 import SearchBar from "./components/SearchBarMobile";
@@ -7,26 +7,7 @@ import menuClearIcon from '../../assets/header/Menu_Cancel_Icon.svg';
 import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
 import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
 import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
-
-const testLoggedInBool = true;
-const testData = {
-  name: "Michael"
-};
-
-navbarSublists[testData.name] = [
-  {
-    name: 'User Profile',
-    link: '/user_profile',
-    id: 'navbar-dropdown-item-user-profile',
-    className: 'navMobileSubItem',
-  },
-  {
-    name: 'Logout',
-    link: '/logout',
-    id: 'navbar-dropdown-item-logout',
-    className: 'navMobileSubItem',
-  },
-];
+import { useAuthContext } from '../Contexts/AuthContext';
 
 const HeaderBanner = styled.div`
   width: 100%;
@@ -177,7 +158,23 @@ const Header = () => {
   const path = useLocation().pathname;
   const [navMobileDisplay, setNavMobileDisplay] = useState('none');
   const [navbarMobileList, setNavbarMobileList] = useState(navMobileList);
-
+  const authData = useAuthContext();
+  const firstName = authData?.user?.firstName || "random first name no one has";
+  const navigate = useNavigate();
+  navbarSublists[firstName] = [
+    {
+      name: 'User Profile',
+      link: '/user_profile',
+      id: 'navbar-dropdown-item-user-profile',
+      className: 'navMobileSubItem',
+    },
+    {
+      name: 'Logout',
+      link: '/logout',
+      id: 'navbar-dropdown-item-logout',
+      className: 'navMobileSubItem',
+    },
+  ];
   const clickNavItem = (e) => {
     const clickTitle = e.target.innerText;
     setNavbarMobileList(navbarSublists[clickTitle]);
@@ -249,7 +246,39 @@ const Header = () => {
                     <React.Fragment key={mobilekey}>
                       {navMobileItem.className === 'navMobileItem' && <NavLink id={navMobileItem.id} to={navMobileItem.link} onClick={() => setNavMobileDisplay('none')}><div className="navMobileItem">{navMobileItem.name}</div></NavLink>}
                       {navMobileItem.className === 'navMobileItem clickable' && <div id={navMobileItem.id} role="button" tabIndex={0} className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }} onClick={clickNavItem}>{navMobileItem.name}</div>}
-                      {navMobileItem.className === 'navMobileSubItem' && <Link id={navMobileItem.id} to={navMobileItem.link}><div role="button" tabIndex={0} className="navMobileItem SubItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>{navMobileItem.name}</div></Link>}
+                      {navMobileItem.className === 'navMobileSubItem'
+                        && (
+                          // <Link to={navMobileItem.link}>
+                          <div
+                            role="button"
+                            id={navMobileItem.id}
+                            tabIndex={0}
+                            className="navMobileItem SubItem"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                setNavMobileDisplay('none');
+                                if (navMobileItem.name === "Logout") {
+                                  authData.logout();
+                                  setNavbarMobileList(navMobileList);
+                                } else {
+                                  navigate(navMobileItem.link);
+                                }
+                              }
+                            }}
+                            onClick={() => {
+                              setNavMobileDisplay('none');
+                              if (navMobileItem.name === "Logout") {
+                                authData.logout();
+                                setNavbarMobileList(navMobileList);
+                              } else {
+                                navigate(navMobileItem.link);
+                              }
+                            }}
+                          >
+                            {navMobileItem.name}
+                          </div>
+                          // </Link>
+                        )}
                       {navMobileItem.className === 'navMobileSubTitle' && <div className="navMobileItem">{navMobileItem.name}</div>}
                     </React.Fragment>
                   );
@@ -257,18 +286,18 @@ const Header = () => {
               }
               {/* eslint-disable-next-line no-nested-ternary */}
               {navbarMobileList === navMobileList ? (
-                testLoggedInBool ? (
+                authData.isLoggedIn ? (
                   <div
                     id="navbar-dropdown-name"
                     role="button" tabIndex={0}
                     className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
                     onClick={clickNavItem}
                   >
-                    {testData.name}
+                    {firstName}
                   </div>
                 )
                   : (
-                    <Link id="navbar-link-home" to="/login">
+                    <Link id="navbar-link-login" to="/login">
                       <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
                         Login
                       </div>

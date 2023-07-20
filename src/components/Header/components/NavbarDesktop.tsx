@@ -4,11 +4,6 @@ import styled from 'styled-components';
 import { useAuthContext } from '../../Contexts/AuthContext';
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
 
-const testLoggedInBool = true;
-const testData = {
-  name: "Michael aaaaaaaaaaaaaaaaaa"
-};
-
 const Nav = styled.div`
     top: 0;
     left: 0;
@@ -336,10 +331,11 @@ const NavBar = () => {
   const [clickedTitle, setClickedTitle] = useState("");
   const dropdownSelection = useRef(null);
   const nameDropdownSelection = useRef(null);
-
   const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
   const clickableTitle = clickableObject.map((item) => item.name);
-  clickableTitle.push(testData.name);
+  const authData = useAuthContext();
+  const firstName = authData?.user?.firstName || "random first name no one has";
+  clickableTitle.push(firstName);
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
 
   const handleMenuClick = (e) => {
@@ -419,28 +415,40 @@ const NavBar = () => {
             })
           }
         </UlContainer>
-        {testLoggedInBool
+        {authData.isLoggedIn
           ? (
             <LiSection>
-              <div id="navbar-dropdown-name-container" className={(clickedTitle === testData.name ? 'navTitleClicked' : 'navTitle')}>
+              <div id="navbar-dropdown-name-container" className={(clickedTitle === firstName ? 'navTitleClicked' : 'navTitle')}>
                 <div
                   id="navbar-dropdown-name"
                   onKeyDown={onKeyPressHandler}
                   role="button"
-                  tabIndex={0} className={clickedTitle === testData.name ? 'navText clicked' : 'navText'}
+                  tabIndex={0} className={clickedTitle === firstName ? 'navText clicked' : 'navText'}
                   onClick={handleMenuClick}
                 >
-                  {testData.name}
+                  {firstName}
                 </div>
               </div>
-              <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== testData.name ? "invisible" : ""}>
+              <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== firstName ? "invisible" : ""}>
                 <NameDropdownContainer>
                   <Link id="navbar-dropdown-item-name-user-profile" to="/userProfile" className="dropdownItem" onClick={() => setClickedTitle("")}>
                     User Profile
                   </Link>
-                  <Link id="navbar-dropdown-item-name-logout" to="/logout" className="dropdownItem" onClick={() => setClickedTitle("")}>
+                  <div
+                    id="navbar-dropdown-item-name-logout"
+                    role="button"
+                    tabIndex={0}
+                    className="dropdownItem"
+                    onClick={() => { setClickedTitle(""); authData.logout(); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setClickedTitle("");
+                        authData.logout();
+                      }
+                    }}
+                  >
                     Logout
-                  </Link>
+                  </div>
                 </NameDropdownContainer>
               </NameDropdown>
             </LiSection>
@@ -451,11 +459,11 @@ const NavBar = () => {
             </StyledLoginLink>
           )}
       </NavContainer>
-      <Dropdown ref={dropdownSelection} className={(clickedTitle === '' || clickedTitle === testData.name) ? "invisible" : ""}>
+      <Dropdown ref={dropdownSelection} className={(clickedTitle === '' || clickedTitle === firstName) ? "invisible" : ""}>
         <DropdownContainer>
           <div className="dropdownList">
             {
-              (clickedTitle !== "" && clickedTitle !== testData.name) ? navbarSublists[clickedTitle].map((dropItem, idx) => {
+              (clickedTitle !== "" && clickedTitle !== firstName) ? navbarSublists[clickedTitle].map((dropItem, idx) => {
                 const dropkey = `drop_${idx}`;
                 return (
                   dropItem.link && (
