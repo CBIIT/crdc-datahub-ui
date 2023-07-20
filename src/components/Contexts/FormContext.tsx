@@ -11,6 +11,8 @@ import { useLazyQuery, useMutation } from '@apollo/client';
 import dayjs from "dayjs";
 import { merge, cloneDeep } from "lodash";
 import { GET_APP, SAVE_APP, SUBMIT_APP } from './graphql';
+import { mutation as APPROVE_APP, Response as ApproveAppResp } from '../../graphql/approveApplication';
+import { mutation as REJECT_APP, Response as RejectAppResp } from '../../graphql/rejectApplication';
 import initialValues from "../../config/InitialValues";
 import { FormatDate } from "../../utils";
 
@@ -19,6 +21,8 @@ export type ContextState = {
   data: Application;
   setData?: (Application) => Promise<boolean>;
   submitData?: () => Promise<boolean>;
+  approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
+  rejectForm?: (comment: string) => Promise<string | boolean>;
   error?: string;
 };
 
@@ -93,9 +97,21 @@ export const FormProvider: FC<ProviderProps> = (props) => {
 
   const [submitApp] = useMutation(SUBMIT_APP, {
       variables: { id },
-      context: { clientName: 'mockService' },
+      context: { clientName: 'backend' },
       fetchPolicy: 'no-cache'
     });
+
+  const [approveApp] = useMutation<ApproveAppResp>(APPROVE_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [rejectApp] = useMutation<RejectAppResp>(REJECT_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
 
   // Here we update the state and send the data to the API
   // otherwise we can just update the local state (i.e. within form sections)
@@ -130,6 +146,47 @@ export const FormProvider: FC<ProviderProps> = (props) => {
       resolve(true);
     }, 1500);
   });
+
+  // Here we approve the form to the API with a comment and wholeProgram
+  const approveForm = async (comment: string, wholeProgram: boolean) => {
+    setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
+
+    const { data: res, errors } = await approveApp({
+      variables: {
+        _id: state?.data["_id"],
+        comment,
+        wholeProgram
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      return false;
+    }
+
+    setState((prevState) => ({ ...prevState, status: Status.LOADED }));
+    return res?.approveApplication?.["_id"] || false;
+  };
+
+  // Here we reject the form to the API with a comment
+  const rejectForm = async (comment: string) => {
+    setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
+
+    const { data: res, errors } = await rejectApp({
+      variables: {
+        _id: state?.data["_id"],
+        comment
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      return false;
+    }
+
+    setState((prevState) => ({ ...prevState, status: Status.LOADED }));
+    return res?.rejectApplication?.["_id"] || false;
+  };
 
   useEffect(() => {
      if (Number.isNaN(parseInt(id.toString(), 10))) {
@@ -172,7 +229,7 @@ export const FormProvider: FC<ProviderProps> = (props) => {
     }
   }, [data, error]);
 
-  const value = useMemo(() => ({ ...state, setData, submitData }), [state]);
+  const value = useMemo(() => ({ ...state, setData, submitData, approveForm, rejectForm }), [state]);
 
   return (
     <Context.Provider value={value}>

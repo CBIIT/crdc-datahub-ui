@@ -2,6 +2,7 @@ import { useAuthContext } from "../../../../components/Contexts/AuthContext";
 import { useFormContext } from "../../../../components/Contexts/FormContext";
 
 const testUser: User = {
+  _id: "abc123-def456",
   email: "testEmail@example.com",
   firstName: "John",
   lastName: "Doe",
@@ -11,6 +12,7 @@ const testUser: User = {
 };
 
 const testFederalLead: User = {
+  _id: "abc123-def456",
   email: "testEmail@example.com",
   firstName: "John",
   lastName: "Doe",
@@ -21,12 +23,12 @@ const testFederalLead: User = {
 
 export type FormMode = "Unauthorized" | "Edit" | "View Only" | "Review";
 
-export const formModes: { [key: string]: FormMode } = {
+export const formModes = {
   UNAUTHORIZED: "Unauthorized",
   EDIT: "Edit",
   VIEW_ONLY: "View Only",
   REVIEW: "Review",
-};
+} as const;
 
 const useFormMode = () => {
   const { isLoggedIn, user } = useAuthContext();
@@ -41,7 +43,18 @@ const useFormMode = () => {
   const isStatusEdit = (): boolean => ["New", "In Progress"].includes(formStatus);
   const isStatusReview = (): boolean => ["Submitted", "In Review"].includes(formStatus);
 
+  const authorizedRolesForReview = ["FederalLead"];
+  const authorizedRolesForEdit = ["User"];
+
+  const userCanReview = isStatusReview() && authorizedRolesForReview?.includes(role);
+  const userCanEdit = isStatusEdit() && authorizedRolesForEdit?.includes(role);
+
+  const formBelongsToUser = (): boolean => data?.applicant?.applicantID !== user?.["_id"];
+
   const getFormModeForUser = (): FormMode => {
+   /*  if (!formBelongsToUser()) { // TODO: Add back when made available
+      return formModes.UNAUTHORIZED;
+    } */
     if (isStatusViewOnlyForUser()) {
       return formModes.VIEW_ONLY;
     }
@@ -51,7 +64,7 @@ const useFormMode = () => {
     return formModes.UNAUTHORIZED;
   };
 
-  const getFormModeForLead = (): FormMode => {
+  const getFormModeForFederalLead = (): FormMode => {
     if (isStatusReview()) {
       return formModes.REVIEW;
     }
@@ -59,16 +72,6 @@ const useFormMode = () => {
       return formModes.VIEW_ONLY;
     }
     return formModes.UNAUTHORIZED;
-  };
-
-  const userCanReview = (): boolean => {
-    const authorizedRoles: typeof role[] = ["FederalLead"];
-    return isStatusReview && authorizedRoles.includes(role);
-  };
-
-  const userCanEdit = (): boolean => {
-    const authorizedRoles: typeof role[] = ["User"];
-    return isStatusEdit && authorizedRoles.includes(role);
   };
 
   /* if (!isLoggedIn) {
@@ -82,10 +85,12 @@ const useFormMode = () => {
   }
 
   if (role === "FederalLead") {
-    formMode = getFormModeForLead();
+    formMode = getFormModeForFederalLead();
   }
 
   const readOnlyInputs: boolean = formMode === formModes.VIEW_ONLY || formMode === formModes.REVIEW;
+
+  console.log({ formMode });
 
   return { formMode, readOnlyInputs, userCanReview, userCanEdit };
 };

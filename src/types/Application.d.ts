@@ -1,5 +1,5 @@
 type Application = {
-  _id: number;
+  _id: string;
   sections: Section[];
   pi: PI;
   piAsPrimaryContact: boolean;
@@ -31,8 +31,10 @@ type Application = {
   reviewComment: string;
   createdAt: string; // YYYY-MM-DDTHH:MM:SS format
   updatedAt: string; // YYYY-MM-DDTHH:MM:SS format
+  submittedDate: string; // YYYY-MM-DDTHH:MM:SS format
   history: HistoryEvent[];
-  applicantID: string;
+  applicant?: Applicant;
+  organization?: string;
 };
 
 type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected";
@@ -130,7 +132,14 @@ type HistoryEvent = {
   userID: number;
 };
 
+type Applicant = {
+  applicantID: string;
+  applicantName: string;
+  applicantEmail: string;
+};
+
 type User = {
+  _id: string;
   email: string;
   firstName: string;
   lastName: string;
