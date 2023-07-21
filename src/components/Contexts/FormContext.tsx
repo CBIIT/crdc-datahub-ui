@@ -13,12 +13,12 @@ import { query as LAST_APP, Response as LastAppResp } from '../../graphql/getMyL
 import { query as GET_APP, Response as GetAppResp } from '../../graphql/getApplication';
 import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
 import { mutation as SUBMIT_APP, Response as SubmitAppResp } from '../../graphql/submitApplication';
-import initialValues from "../../config/InitialValues";
-import { FormatDate, omitForApi } from "../../utils";
+import { InitialApplication, InitialResponse } from "../../config/InitialValues";
+import { FormatDate } from "../../utils";
 
 export type ContextState = {
   status: Status;
-  data: Application;
+  data: ApplicationResponse;
   setData?: (Application) => Promise<string | false>;
   error?: string;
 };
@@ -99,10 +99,19 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
   });
 
   const setData = async (data: Application) => {
-    let newState = { ...state, data };
+    const newState = { ...state, data: { ...state.data, questionnaire: data } };
     setState({ ...newState, status: Status.SAVING });
 
-    const { data: d, errors } = await saveApp({ variables: omitForApi(data) });
+    const { data: d, errors } = await saveApp({
+      variables: {
+        application: {
+          _id: (!id || id === "new" ? undefined : id),
+          program: data?.program?.abbreviation,
+          study: data?.study?.abbreviation,
+          questionnaire: JSON.stringify(data),
+        },
+      }
+    });
 
     if (errors) {
       setState({ ...newState, status: Status.LOADED });
@@ -110,7 +119,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     }
 
     if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
-      newState = { ...newState, data: { ...data, _id: d.saveApplication["_id"] } };
+      newState.data["_id"] = d?.saveApplication?.["_id"];
     }
 
     setState({ ...newState, status: Status.LOADED });
@@ -126,16 +135,19 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     (async () => {
       if (id === "new") {
         const { data: d } = await lastApp();
+        const lastAppData = JSON.parse(d?.getMyLastApplication?.questionnaire || null) || {};
 
         setState({
           status: Status.LOADED,
           data: {
-            ...initialValues,
-            _id: "new",
-            pi: { ...initialValues.pi, ...d?.getMyLastApplication?.pi },
-            applicant: null,
-            organization: null,
-            history: [],
+            ...InitialResponse,
+            questionnaire: {
+              ...InitialApplication,
+              pi: {
+                ...InitialApplication.pi,
+                ...lastAppData?.pi
+              },
+            },
           },
         });
 
@@ -143,18 +155,23 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       }
 
       const { data: d, error } = await getApp();
-      if (error) {
+      if (error || !d?.getApplication?.questionnaire) {
         setState({ status: Status.ERROR, data: null, error: "An unknown API or GraphQL error occurred" });
         return;
       }
 
+      const { getApplication } = d;
+      const questionnaire = JSON.parse(getApplication?.questionnaire);
       setState({
         status: Status.LOADED,
         data: {
-          ...merge(cloneDeep(initialValues), omitDeep(d?.getApplication, ["__typename"])),
-          // To avoid false positive form changes
-          targetedReleaseDate: FormatDate(d?.getApplication?.targetedReleaseDate, "MM/DD/YYYY"),
-          targetedSubmissionDate: FormatDate(d?.getApplication?.targetedSubmissionDate, "MM/DD/YYYY"),
+          ...d?.getApplication,
+          questionnaire: {
+            ...merge(cloneDeep(InitialApplication), omitDeep(questionnaire, ["__typename"])),
+            // To avoid false positive form changes
+            targetedReleaseDate: FormatDate(questionnaire?.targetedReleaseDate, "MM/DD/YYYY"),
+            targetedSubmissionDate: FormatDate(questionnaire?.targetedSubmissionDate, "MM/DD/YYYY"),
+          },
         }
       });
     })();

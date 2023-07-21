@@ -70,7 +70,8 @@ const ProgressBar: FC<Props> = ({ section }) => {
   const sectionKeys = Object.keys(config);
 
   const { data } = useFormContext();
-  const { _id, sections: sectionStatuses } = data;
+  const { _id } = data;
+  const { questionnaire: { sections: sectionStatuses } } = data;
 
   const [sections, setSections] = useState<ProgressSection[]>([]);
 

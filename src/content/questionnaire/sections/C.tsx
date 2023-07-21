@@ -37,7 +37,7 @@ type KeyedTimeConstraint = {
  * @returns {JSX.Element}
  */
 const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { status, data: { questionnaire: data } } = useFormContext();
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
 

@@ -33,7 +33,7 @@ const StyledFormControlLabel = styled(FormControlLabel)({
  * @returns {JSX.Element}
  */
 const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { status, data: { questionnaire: data } } = useFormContext();
   const { pi, primaryContact } = data;
 
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(data?.piAsPrimaryContact || false);

@@ -114,7 +114,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const isDirty = () : boolean => {
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
-    return ref && (!data || !isEqual(data, newData));
+    return ref && (!data || !isEqual(data?.questionnaire, newData));
   };
 
   /**
@@ -146,7 +146,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
 
     // Skip state update if there are no changes
-    if (!isEqual(data, newData)) {
+    if (!isEqual(data?.questionnaire, newData)) {
       const r = await setData(newData);
       setChangesAlert(`Your changes for the ${map[activeSection].title} section have been successfully saved.`);
 

@@ -1,5 +1,30 @@
-type Application = {
+type ApplicationResponse = {
   _id: string;
+  status: ApplicationStatus;
+  programLevelApproval: boolean;
+  reviewComment: string;
+  createdAt: string; // YYYY-MM-DDTHH:MM:SS format
+  updatedAt: string; // YYYY-MM-DDTHH:MM:SS format
+  submittedDate: string; // YYYY-MM-DDTHH:MM:SS format
+  history: HistoryEvent[];
+  applicantID: string;
+  applicantName: string;
+  applicantEmail: string;
+  organization: string;
+
+  program: Program.abbreviation;
+  study: Study.abbreviation;
+  questionnaire: Application;
+};
+
+type ApplicationInput = {
+  _id: ApplicationResponse._id;
+  program: ApplicationResponse.program;
+  study: ApplicationResponse.study;
+  questionnaire: ApplicationResponse.questionnaire;
+};
+
+type Application = {
   sections: Section[];
   pi: PI;
   piAsPrimaryContact: boolean;
@@ -26,15 +51,6 @@ type Application = {
   clinicalData: ClinicalData;
   files: FileInfo[];
   submitterComment: string;
-  status: ApplicationStatus;
-  programLevelApproval: boolean;
-  reviewComment: string;
-  createdAt: string; // YYYY-MM-DDTHH:MM:SS format
-  updatedAt: string; // YYYY-MM-DDTHH:MM:SS format
-  submittedDate: string; // YYYY-MM-DDTHH:MM:SS format
-  history: HistoryEvent[];
-  applicant?: Applicant;
-  organization?: string;
 };
 
 type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected";
@@ -130,10 +146,4 @@ type HistoryEvent = {
   reviewComment?: string;
   dateTime: string; // YYYY-MM-DDTHH:MM:SS format
   userID: number;
-};
-
-type Applicant = {
-  applicantID: string;
-  applicantName: string;
-  applicantEmail: string;
 };

@@ -17,7 +17,8 @@ type Props = {
 
 const BaseComponent: FC<Props> = ({ section, data = {} } : Props) => {
   const value = useMemo<ContextState>(() => ({
-    data: data as Application, status: FormStatus.LOADED
+    data: { questionnaire: data as Application } as ApplicationResponse,
+    status: FormStatus.LOADED
   }), [data]);
 
   return (

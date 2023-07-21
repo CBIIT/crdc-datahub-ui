@@ -15,7 +15,7 @@ import Repository from "../../../components/Questionnaire/Repository";
 import { findProgram, findStudy, mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
-import initialValues from "../../../config/InitialValues";
+import { InitialApplication } from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 
@@ -38,7 +38,7 @@ type KeyedRepository = {
  * @returns {JSX.Element}
  */
 const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { status, data: { questionnaire: data } } = useFormContext();
 
   const [program, setProgram] = useState<Program>(data.program);
   const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(program.name, program.abbreviation));
@@ -72,7 +72,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
     // Reset study if the data failed to load
     if (!formObject.study) {
-      combinedData.study = initialValues.study;
+      combinedData.study = InitialApplication.study;
     }
 
     // Reset publications if the user has not entered any publications
@@ -157,14 +157,14 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const newStudy = findStudy(value.name, value.abbreviation, programOption);
     if (newStudy?.isCustom) {
       setStudy({
-        ...initialValues.study,
+        ...InitialApplication.study,
         name: "",
         abbreviation: "",
         description: ""
       });
     } else {
       setStudy({
-        ...initialValues.study,
+        ...InitialApplication.study,
         ...study,
         name: newStudy.name,
         abbreviation: newStudy.abbreviation,

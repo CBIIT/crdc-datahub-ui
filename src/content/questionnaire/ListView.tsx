@@ -15,7 +15,7 @@ import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 
-type T = RecursivePartial<Application>;
+type T = Omit<ApplicationResponse, "questionnaire">;
 
 type Column = {
   label: string;
@@ -94,7 +94,7 @@ const StyledActionButton = styled(Button)(({ bg, text, border } : { bg: string, 
 const columns: Column[] = [
   {
     label: "Submitter Name",
-    value: (a) => a.applicant?.applicantName,
+    value: (a) => a.applicantName,
     sortable: true,
   },
   {
@@ -125,7 +125,7 @@ const columns: Column[] = [
   },
   {
     label: "Action",
-    value: (a: RecursivePartial<Application>, user) => {
+    value: (a: T, user) => {
       const role = user?.role;
 
       if (role === "User" && ["New", "In Progress", "Rejected"].includes(a.status)) {
@@ -247,7 +247,7 @@ const ListingView: FC = () => {
               </TableRow>
             </StyledTableHead>
             <TableBody>
-              {data?.listApplications?.applications.map((d: T) => (
+              {data?.listApplications?.applications?.map((d: T) => (
                 <TableRow tabIndex={-1} hover key={d["_id"]}>
                   {columns.map((col: Column) => (
                     <StyledTableCell key={`${d["_id"]}_${col.label}`}>
@@ -265,7 +265,7 @@ const ListingView: FC = () => {
               )}
 
               {/* No content message */}
-              {(!data?.listApplications || data?.listApplications?.total === 0) && (
+              {(!data?.listApplications?.total || data?.listApplications?.total === 0) && (
                 <TableRow style={{ height: 53 * 5 }}>
                   <TableCell colSpan={columns.length}>
                     <Typography

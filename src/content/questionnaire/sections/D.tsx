@@ -126,7 +126,7 @@ const TableContainer = styled.div`
 `;
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { status, data: { questionnaire: data } } = useFormContext();
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
