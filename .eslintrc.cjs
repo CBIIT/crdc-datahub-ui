@@ -24,7 +24,8 @@ module.exports = {
     }
   },
   root: true,
-   rules: {
+  ignorePatterns: ["injectEnv.js"],
+  rules: {
     // Note: you must disable the base rule as it can report incorrect errors
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx", ".ts"] }],
     "no-empty-function": "warn",
@@ -60,6 +61,7 @@ module.exports = {
     indent: "off",
     "react/jsx-indent": ["warn"],
     "@typescript-eslint/indent": [0],
+    "no-underscore-dangle": ["off"],
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["off"],
     "@typescript-eslint/no-unused-vars": "warn",
