@@ -84,6 +84,9 @@ type ProviderProps = {
 export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
+  const datePattern = "MM/DD/YYYY";
+  const dateTodayFallback = dayjs().format(datePattern);
+
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
@@ -102,7 +105,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
 
   const [submitApp] = useMutation<SubmitAppResp>(SUBMIT_APP, {
     variables: { id },
-    context: { clientName: 'mockService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
@@ -137,21 +140,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     return d?.saveApplication?.["_id"] || false;
   };
 
-  // Here we submit to the API with the previously saved data from the form
-  /* const submitData = async () => new Promise<boolean>((resolve) => {
-    console.log("[SUBMITTING FORM]");
-    console.log("submitting state", state);
-
-    setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
-    submitApp();
-
-    // simulate the submit event
-    setTimeout(() => {
-      setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-      console.log("submitted");
-      resolve(true);
-    }, 1500);
-  }); */
   const submitData = async () => {
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
 
@@ -162,7 +150,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     });
 
     if (errors) {
-      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      setState((prevState) => ({ ...prevState, status: Status.LOADED }));
       return false;
     }
 
@@ -247,8 +235,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         data: {
           ...merge(cloneDeep(initialValues), omitDeep(d?.getApplication, ["__typename"])),
           // To avoid false positive form changes
-          targetedReleaseDate: FormatDate(d?.getApplication?.targetedReleaseDate, "MM/DD/YYYY"),
-          targetedSubmissionDate: FormatDate(d?.getApplication?.targetedSubmissionDate, "MM/DD/YYYY"),
+          targetedReleaseDate: FormatDate(d?.getApplication?.targetedReleaseDate, datePattern, dateTodayFallback),
+          targetedSubmissionDate: FormatDate(d?.getApplication?.targetedSubmissionDate, datePattern, dateTodayFallback),
         }
       });
     })();

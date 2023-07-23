@@ -175,7 +175,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             control={(
               <Checkbox
                 checked={piAsPrimaryContact}
-                onChange={() => setPiAsPrimaryContact(!piAsPrimaryContact)}
+                onChange={() => !readOnlyInputs && setPiAsPrimaryContact(!piAsPrimaryContact)}
                 readOnly={readOnlyInputs}
               />
             )}

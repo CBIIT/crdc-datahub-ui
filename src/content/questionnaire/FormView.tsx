@@ -23,6 +23,7 @@ import ApproveFormDialog from '../../components/Questionnaire/ApproveFormDialog'
 import PageBanner from '../../components/PageBanner';
 import bannerPng from "../../assets/banner/banner_background.png";
 import GenericAlert from '../../components/GenericAlert';
+import { Status as AuthStatus, useAuthContext } from '../../components/Contexts/AuthContext';
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -72,6 +73,7 @@ const StyledAlert = styled(Alert)({
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
   const { status, data, setData, submitData, approveForm, rejectForm, error } = useFormContext();
+  const { status: authStatus } = useAuthContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
   const [openSubmitDialog, setOpenSubmitDialog] = useState<boolean>(false);
@@ -105,7 +107,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   // Intercept React Router navigation actions with unsaved changes
   const blocker: Blocker = useBlocker(() => {
-    if (isDirty()) {
+    if (!readOnlyInputs && isDirty()) {
       setBlockedNavigate(true);
       return true;
     }
@@ -229,7 +231,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       setOpenRejectDialog(false);
       navigate('/submissions');
       setHasError(false);
-      console.log({ res });
       return res;
     } catch (err) {
       setOpenRejectDialog(false);
@@ -354,11 +355,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     if (!userCanReview) {
       return;
     }
-    console.log("NEW COMMENT CHANGE");
     setReviewComment(newComment);
   };
 
-  if (status === FormStatus.LOADING) {
+  if (status === FormStatus.LOADING || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
   }
 
@@ -366,6 +366,18 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     navigate('/submissions', {
       state: { error: error || 'Unknown form loading error' },
     });
+    return null;
+  }
+
+  if (authStatus === AuthStatus.ERROR) {
+    navigate('/submissions', {
+      state: { error: error || 'Unknown authorization error' },
+    });
+    return null;
+  }
+
+  if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
+    navigate('/submissions');
     return null;
   }
 

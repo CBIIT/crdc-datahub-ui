@@ -10,7 +10,6 @@ import {
 import Tooltip from "./Tooltip";
 import checkboxUncheckedIcon from "../../assets/icons/checkbox_unchecked.svg";
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
-import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   backgroundImage: `url(${checkboxUncheckedIcon})`,

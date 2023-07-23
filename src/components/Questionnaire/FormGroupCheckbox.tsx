@@ -41,7 +41,8 @@ export type FormGroupCheckboxOption = {
 
 type Props = {
   idPrefix?: string;
-  label: string | JSX.Element;
+  label?: string | JSX.Element;
+  hideLabel?: boolean;
   value: string[];
   name?: string;
   options: FormGroupCheckboxOption[];
@@ -58,6 +59,7 @@ type Props = {
 const FormGroupCheckbox: FC<Props> = ({
   idPrefix = "",
   label,
+  hideLabel,
   value,
   name,
   options,
@@ -131,11 +133,13 @@ const FormGroupCheckbox: FC<Props> = ({
   return (
     <Grid md={gridWidth || 6} xs={12} item>
       <FormControl fullWidth error={error}>
-        <StyledFormLabel htmlFor={id}>
-          {label}
-          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
-          {tooltipText && <Tooltip title={tooltipText} />}
-        </StyledFormLabel>
+        {!hideLabel && (
+          <StyledFormLabel htmlFor={id}>
+            {label}
+            {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+            {tooltipText && <Tooltip title={tooltipText} />}
+          </StyledFormLabel>
+        )}
         <FormGroup row={orientation === "horizontal"}>
           {options.map((option, index) => {
             const isChecked = val?.includes(option.value);

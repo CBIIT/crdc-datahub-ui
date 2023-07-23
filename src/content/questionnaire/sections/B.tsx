@@ -76,11 +76,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
-    // Reset study if the data failed to load
-    if (!formObject.study) {
-      combinedData.study = initialValues.study;
-    }
-
     // Reset publications if the user has not entered any publications
     if (!formObject.study.publications || formObject.study.publications.length === 0) {
       combinedData.study.publications = [];
@@ -511,10 +506,10 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       {/* Funding Agency */}
       <SectionGroup title="Agency(s) and/or organization(s) that funded this study">
         <Autocomplete
-          id="section-b-funding-agencies"
+          id="section-b-funding-agency"
           label="Funding Agency"
-          value={funding.agencies[0]}
-          name="study[funding][agencies]"
+          value={funding.agency}
+          name="study[funding][agency]"
           options={fundingAgencyOptions}
           placeholder="– Search and Select Agency –"
           freeSolo

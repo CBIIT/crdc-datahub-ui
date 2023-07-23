@@ -1,25 +1,6 @@
-import { useAuthContext } from "../../../../components/Contexts/AuthContext";
-import { useFormContext } from "../../../../components/Contexts/FormContext";
-
-const testUser = {
-  _id: "abc123-def456",
-  email: "testEmail@example.com",
-  firstName: "John",
-  lastName: "Doe",
-  role: "User",
-  IDP: "nih",
-  userStatus: "Active",
-};
-
-const testFederalLead = {
-  _id: "abc123-def456",
-  email: "testEmail@example.com",
-  firstName: "John",
-  lastName: "Doe",
-  role: "FederalLead",
-  IDP: "nih",
-  userStatus: "Active",
-};
+import { useEffect, useState } from "react";
+import { Status as AuthStatus, useAuthContext } from "../../../../components/Contexts/AuthContext";
+import { Status as FormStatus, useFormContext } from "../../../../components/Contexts/FormContext";
 
 export type FormMode = "Unauthorized" | "Edit" | "View Only" | "Review";
 
@@ -31,15 +12,17 @@ export const formModes = {
 } as const;
 
 const useFormMode = () => {
-  const { isLoggedIn, user } = useAuthContext();
-  const { data } = useFormContext();
-  const { status: formStatus } = { status: "In Progress" } || data || {}; // TODO: Testing purposes, fix when finished
-  const { role } = user || testUser || {};
+  const { user, status: authStatus } = useAuthContext();
+  const { data, status } = useFormContext();
+  const fedLeadUser = { ...data, role: "FederalLead" };
+  const { status: formStatus } = data || {};
+  const { role } = /* fedLeadUser ||  */user || {};
 
-  console.log({ data, formStatus, role });
+  const [formMode, setFormMode] = useState<FormMode>(undefined);
+  const [readOnlyInputs, setReadOnlyInputs] = useState<boolean>(false);
 
   const isStatusViewOnlyForUser = (): boolean => ["Submitted", "In Review", "Approved", "Rejected"].includes(formStatus);
-  const isStatusViewOnlyForLead = (): boolean => ["New", "In Progress", "Approved", "Rejected"].includes(formStatus);
+  const isStatusViewOnlyForLead = (): boolean => ["In Progress", "Approved", "Rejected"].includes(formStatus);
   const isStatusEdit = (): boolean => ["New", "In Progress"].includes(formStatus);
   const isStatusReview = (): boolean => ["Submitted", "In Review"].includes(formStatus);
 
@@ -49,12 +32,12 @@ const useFormMode = () => {
   const userCanReview = isStatusReview() && authorizedRolesForReview?.includes(role);
   const userCanEdit = isStatusEdit() && authorizedRolesForEdit?.includes(role);
 
-  const formBelongsToUser = (): boolean => data?.applicant?.applicantID !== user?.["_id"];
+  const formBelongsToUser = (): boolean => data?.applicant?.applicantID === user?.["_id"];
 
   const getFormModeForUser = (): FormMode => {
-   /*  if (!formBelongsToUser()) { // TODO: Add back when made available
+    if (formStatus !== "New" && !formBelongsToUser()) {
       return formModes.UNAUTHORIZED;
-    } */
+    }
     if (isStatusViewOnlyForUser()) {
       return formModes.VIEW_ONLY;
     }
@@ -74,19 +57,21 @@ const useFormMode = () => {
     return formModes.UNAUTHORIZED;
   };
 
-  let formMode: FormMode = formModes.UNAUTHORIZED;
+  useEffect(() => {
+    if (status === FormStatus.LOADING || authStatus === AuthStatus.LOADING) {
+      return;
+    }
+    let updatedFormMode: FormMode = formModes.UNAUTHORIZED;
+    if (role === "User") {
+      updatedFormMode = getFormModeForUser();
+    } else if (role === "FederalLead") {
+      updatedFormMode = getFormModeForFederalLead();
+    }
+    console.log({ data, status, authStatus, formStatus, role, updatedFormMode });
 
-  if (role === "User") {
-    formMode = getFormModeForUser();
-  }
-
-  if (role === "FederalLead") {
-    formMode = getFormModeForFederalLead();
-  }
-
-  const readOnlyInputs: boolean = formMode === formModes.VIEW_ONLY || formMode === formModes.REVIEW;
-
-  console.log({ formMode });
+    setFormMode(updatedFormMode);
+    setReadOnlyInputs(updatedFormMode === formModes.VIEW_ONLY || updatedFormMode === formModes.REVIEW);
+  }, [user, data, formStatus]);
 
   return { formMode, readOnlyInputs, userCanReview, userCanEdit };
 };

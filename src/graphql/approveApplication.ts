@@ -15,7 +15,6 @@ export const mutation = gql`
       sections {
         name
         status
-        __typename
       }
       pi {
         firstName
@@ -23,34 +22,29 @@ export const mutation = gql`
         position
         email
         institution
-        eRAAccount
         address
-        __typename
       }
       piAsPrimaryContact
       primaryContact {
-        institution
-        position
         firstName
         lastName
         email
         phone
-        __typename
+        position
+        institution
       }
       additionalContacts {
-        institution
-        position
         firstName
         lastName
         email
         phone
-        __typename
+        position
+        institution
       }
       program {
         name
         abbreviation
         description
-        __typename
       }
       study {
         name
@@ -60,7 +54,6 @@ export const mutation = gql`
           title
           pubmedID
           DOI
-          __typename
         }
         plannedPublications {
           title
@@ -72,19 +65,20 @@ export const mutation = gql`
           submittedDate
         }
         funding {
-          agencies
+          agency
           grantNumbers
           nciProgramOfficer
           nciGPA
         }
-        __typename
+        isDbGapRegistered
+        dbGaPPPHSNumber
       }
+      accessTypes
       targetedSubmissionDate
       targetedReleaseDate
       timeConstraints {
         description
         effectiveDate
-        __typename
       }
       cancerTypes
       otherCancerTypes
@@ -100,13 +94,11 @@ export const mutation = gql`
         dataTypes
         otherDataTypes
         futureDataTypes
-        __typename
       }
       files {
         type
         count
         amount
-        __typename
       }
       submitterComment
       status
@@ -119,12 +111,11 @@ export const mutation = gql`
         reviewComment
         dateTime
         userID
-        __typename
       }
-      applicantID
-      applicantName
-      organization
-      __typename
+      applicant {
+        applicantID
+        applicantName
+      }
     }
   }
 `;

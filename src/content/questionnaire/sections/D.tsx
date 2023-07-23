@@ -260,6 +260,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               containerWidth="700px"
               touchRequired={dataTypes.includes("imaging")}
               required={dataTypes.includes("imaging")}
+              readOnly={readOnlyInputs}
             />
           )}
           readOnly={readOnlyInputs}

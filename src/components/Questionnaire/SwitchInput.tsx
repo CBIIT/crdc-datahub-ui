@@ -3,7 +3,6 @@ import { SwitchProps, Grid, Switch, FormHelperText } from '@mui/material';
 import styled from "styled-components";
 import Tooltip from "./Tooltip";
 import { updateInputValidity } from '../../utils';
-import useFormMode from '../../content/questionnaire/sections/hooks/useFormMode';
 
 const GridStyled = styled(Grid)`
   // Customize the root class
@@ -229,7 +228,7 @@ const CustomSwitch: FC<Props> = ({
             />
             <div className={val ? "textChecked" : "text"}>Yes</div>
           </div>
-          <FormHelperText className="errorMessage">{error ? errorMsg : " "}</FormHelperText>
+          <FormHelperText className="errorMessage">{!readOnly && error ? errorMsg : " "}</FormHelperText>
         </div>
       </div>
       {/* Keeping the input in the DOM to parse value from name */}

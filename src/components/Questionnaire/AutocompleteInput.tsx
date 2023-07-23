@@ -239,7 +239,7 @@ const AutocompleteInput = <T,>({
           )}
           {...rest}
         />
-        <StyledFormHelperText>{error ? helperText : " "}</StyledFormHelperText>
+        <StyledFormHelperText>{!readOnly && error ? helperText : " "}</StyledFormHelperText>
       </StyledFormControl>
     </Grid>
   );

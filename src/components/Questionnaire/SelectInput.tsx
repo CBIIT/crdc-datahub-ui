@@ -233,7 +233,7 @@ const SelectInput: FC<Props> = ({
             <option key={option.value} value={option.value} aria-label={`${option.value}`} />
           ))}
         </ProxySelect>
-        <FormHelperText>{error ? helperText : " "}</FormHelperText>
+        <FormHelperText>{!readOnly && error ? helperText : " "}</FormHelperText>
       </FormControl>
     </GridItem>
   );

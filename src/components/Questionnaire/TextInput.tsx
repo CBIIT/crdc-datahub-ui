@@ -81,9 +81,6 @@ const TextInput: FC<Props> = ({
   const processValue = (inputVal: string) => {
     let newVal = inputVal;
 
-    if (readOnly) {
-      return;
-    }
     if (typeof filter === "function") {
       newVal = filter(newVal);
     }
@@ -133,7 +130,7 @@ const TextInput: FC<Props> = ({
           {...rest}
         />
         <FormHelperText className={classes.helperText}>
-          {(!hideValidation && error ? errorMsg : infoText) || " "}
+          {(!hideValidation && !readOnly && error ? errorMsg : infoText) || " "}
         </FormHelperText>
       </FormControl>
     </Grid>
