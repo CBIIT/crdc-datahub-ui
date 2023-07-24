@@ -19,9 +19,9 @@ type ApplicationResponse = {
 
 type ApplicationInput = {
   _id: ApplicationResponse["_id"];
-  program: ApplicationResponse["program"];
-  study: ApplicationResponse["study"];
-  questionnaire: ApplicationResponse["questionnaire"];
+  program: Program["abbreviation"];
+  study: Study["abbreviation"];
+  questionnaire: Application;
 };
 
 type Application = {
