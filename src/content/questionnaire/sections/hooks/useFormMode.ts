@@ -67,7 +67,6 @@ const useFormMode = () => {
     } else if (role === "FederalLead") {
       updatedFormMode = getFormModeForFederalLead();
     }
-    console.log({ data, status, authStatus, formStatus, role, updatedFormMode });
 
     setFormMode(updatedFormMode);
     setReadOnlyInputs(updatedFormMode === formModes.VIEW_ONLY || updatedFormMode === formModes.REVIEW);
