@@ -10,7 +10,7 @@ import { KeyedFileTypeData } from "./D";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import ReviewSection from "../../../components/Questionnaire/ReviewSection";
 import ReviewDataListing from "../../../components/Questionnaire/ReviewDataListing";
-import ReviewDataListingProperty from "../../../components/Questionnaire/ReviewDataListingProperty";
+import ReviewDataListingProperty, { StyledValue } from "../../../components/Questionnaire/ReviewDataListingProperty";
 import ReviewFileTypeTable from "../../../components/Questionnaire/ReviewFileTypeTable";
 import { formatPhoneNumber } from "../../../utils";
 import { KeyedTimeConstraint } from "./C";
@@ -40,6 +40,12 @@ const StyledSectionInfoText = styled(Typography)(() => ({
   fontSize: "16px",
   "& span": {
     fontWeight: 400
+  }
+}));
+
+const GridCondensed = styled(Grid)(() => ({
+  "&.MuiGrid-item": {
+    paddingTop: 0
   }
 }));
 
@@ -103,8 +109,8 @@ const FormSectionReview: FC<FormSectionProps> = ({
               label="Institution Address"
               value={(
                 <StyledAddress>
-                  <span>{`${piAddressPart1}${piAddressPart2?.length ? "," : ""}`}</span>
-                  <span>{piAddressPart2.join(",")}</span>
+                  <StyledValue>{`${piAddressPart1}${piAddressPart2?.length ? "," : ""}`}</StyledValue>
+                  <StyledValue>{piAddressPart2.join(",")}</StyledValue>
                 </StyledAddress>
               )}
             />
@@ -150,7 +156,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
       </ReviewSection>
 
       {/* Program and study information Section */}
-      <ReviewSection title="Program and study information">
+      <ReviewSection title="Program and Study Information">
         <ReviewDataListing title="Program">
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Program Name" value={program.name} />
@@ -158,9 +164,9 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Program Abbreviation" value={program.abbreviation} />
           </Grid>
-          <Grid xs={12} item sx={{ "&.MuiGrid-item": { paddingTop: 0 } }}>
+          <GridCondensed xs={12} item>
             <ReviewDataListingProperty label="Program Description" value={program.description} valuePlacement="bottom" />
-          </Grid>
+          </GridCondensed>
         </ReviewDataListing>
 
         <ReviewDataListing title="Study">
@@ -170,29 +176,29 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Study Abbreviation" value={study.abbreviation} />
           </Grid>
-          <Grid xs={12} item sx={{ "&.MuiGrid-item": { paddingTop: 0 } }}>
+          <GridCondensed xs={12} item>
             <ReviewDataListingProperty label="Study Description" value={study.description} valuePlacement="bottom" />
-          </Grid>
+          </GridCondensed>
         </ReviewDataListing>
 
         {publications?.map((publication: KeyedPublication, idx: number) => (
           <ReviewDataListing key={publication.key} title={idx === 0 ? "Publications associated with study" : null}>
-            <Grid md={6} xs={12} item>
+            <Grid xs={12} item>
               <ReviewDataListingProperty label="Publication Title" value={publication.title} valuePlacement="bottom" />
             </Grid>
-            <Grid md={6} xs={12} item>
+            <GridCondensed md={6} xs={12} item>
               <ReviewDataListingProperty label="PUBMED ID" value={publication.pubmedID} />
+            </GridCondensed>
+            <GridCondensed md={6} xs={12} item>
               <ReviewDataListingProperty label="DOI" value={publication.DOI} />
-            </Grid>
+            </GridCondensed>
           </ReviewDataListing>
         ))}
 
         {plannedPublications?.map((plannedPublication: KeyedPlannedPublication, idx: number) => (
           <ReviewDataListing key={plannedPublication.key} title={idx === 0 ? "Planned Publications" : null}>
-            <Grid md={6} xs={12} item>
+            <Grid xs={12} item>
               <ReviewDataListingProperty label="Planned Publication Title" value={plannedPublication.title} valuePlacement="bottom" />
-            </Grid>
-            <Grid md={6} xs={12} item>
               <ReviewDataListingProperty label="Expected Publication Date" value={plannedPublication.expectedDate} />
             </Grid>
           </ReviewDataListing>
@@ -200,7 +206,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
       </ReviewSection>
 
       {/* Data Access and Disease Information Section */}
-      <ReviewSection title="Data Access and Disease Information">
+      <ReviewSection title="Data access and disease Information">
         <ReviewDataListing>
           <Grid xs={12} item>
             <StyledSectionInfoText variant="h6">
@@ -291,14 +297,14 @@ const FormSectionReview: FC<FormSectionProps> = ({
             <ReviewDataListingProperty label="Outcome Data" value={data.dataTypes?.includes(DataTypes.outcomeData) ? "Yes" : "No"} />
             <ReviewDataListingProperty label="Biospecimen Data" value={data.dataTypes?.includes(DataTypes.biospecimenData) ? "Yes" : "No"} />
           </Grid>
-          <Grid xs={12} item sx={{ "&.MuiGrid-item": { paddingTop: 0 } }}>
+          <GridCondensed xs={12} item>
             <ReviewDataListingProperty label="Additional Data in future" value={data.clinicalData?.futureDataTypes ? "Yes" : "No"} />
             <ReviewDataListingProperty label="Other Data types" value={data.clinicalData?.otherDataTypes} valuePlacement="bottom" />
-          </Grid>
+          </GridCondensed>
         </ReviewDataListing>
 
         <ReviewDataListing title="File Types">
-          <Grid xs={12} item>
+          <Grid xs={12} item sx={{ marginTop: "25px" }}>
             <ReviewFileTypeTable files={fileTypes} />
           </Grid>
         </ReviewDataListing>
