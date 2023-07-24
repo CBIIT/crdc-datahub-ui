@@ -117,9 +117,14 @@ type ProviderProps = {
  * @param {ProviderProps} props - Auth context provider props
  * @returns {JSX.Element} - Auth context provider
  */
-export const AuthProvider: FC<ProviderProps> = (props) => {
-  const { children } = props;
-  const [state, setState] = useState<ContextState>(initialState);
+export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) => {
+  const cachedUser = JSON.parse(localStorage.getItem('userDetails'));
+  const cachedState = cachedUser ? {
+    isLoggedIn: true,
+    status: Status.LOADED,
+    user: new User(cachedUser)
+  } : null;
+  const [state, setState] = useState<ContextState>(cachedState || initialState);
 
   const [getMyUser] = useLazyQuery<GetUserResp>(GET_USER, {
     context: { clientName: 'userService' },
@@ -147,12 +152,8 @@ export const AuthProvider: FC<ProviderProps> = (props) => {
 
   useEffect(() => {
     (async () => {
-      // User has an active session, restore it
-      const userDetails = JSON.parse(localStorage.getItem('userDetails'));
-      if (userDetails) {
-        // Make cached data available to app immediately
-        setState({ isLoggedIn: true, status: Status.LOADED, user: userDetails });
-
+      // User had an active session, reverify with AuthZ
+      if (cachedState) {
         const { data, error } = await getMyUser();
         if (error || !data?.getMyUser) {
           setState({ ...initialState, status: Status.LOADED });
