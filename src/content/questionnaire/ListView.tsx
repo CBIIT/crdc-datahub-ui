@@ -104,12 +104,12 @@ const columns: Column[] = [
   },
   {
     label: "Study",
-    value: (a) => a.study?.abbreviation || "NA",
+    value: (a) => a.study || "NA",
     sortable: true,
   },
   {
     label: "Program",
-    value: (a) => a.program?.abbreviation || "NA",
+    value: (a) => a.program || "NA",
     sortable: true,
   },
   {

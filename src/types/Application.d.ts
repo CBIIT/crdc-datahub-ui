@@ -12,16 +12,16 @@ type ApplicationResponse = {
   applicantEmail: string;
   organization: string;
 
-  program: Program.abbreviation;
-  study: Study.abbreviation;
+  program: Program["abbreviation"];
+  study: Study["abbreviation"];
   questionnaire: Application;
 };
 
 type ApplicationInput = {
-  _id: ApplicationResponse._id;
-  program: ApplicationResponse.program;
-  study: ApplicationResponse.study;
-  questionnaire: ApplicationResponse.questionnaire;
+  _id: ApplicationResponse["_id"];
+  program: ApplicationResponse["program"];
+  study: ApplicationResponse["study"];
+  questionnaire: ApplicationResponse["questionnaire"];
 };
 
 type Application = {
