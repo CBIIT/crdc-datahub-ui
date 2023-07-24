@@ -452,7 +452,7 @@ const Header = () => {
       <StyledDialog open={showNavDialog}>
         <pre className="loginDialogText">
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-          Please <Link id="loginDialogLinkToLogin" to="/login" onClick={() => setNavMobileDisplay('none')}><strong>log in</strong></Link> to access {loginDialogTitle}.
+          Please <Link id="loginDialogLinkToLogin" to="/login" state={{ redirectURLOnLoginSuccess: "/submissions" }} onClick={() => setNavMobileDisplay('none')}><strong>log in</strong></Link> to access {loginDialogTitle}.
         </pre>
         <div
           role="button"

@@ -20,7 +20,7 @@ const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
  * @param {none}
  * @returns Promise that resolves to true if logged in, false if not
  */
-const userLogout = async () : Promise<boolean> => {
+const userLogout = async (): Promise<boolean> => {
   const d = await fetch(`${AUTH_SERVICE_URL}/logout`, { method: 'POST' }).catch(() => null);
   const { status } = await d.json().catch(() => null);
 
@@ -34,7 +34,7 @@ const userLogout = async () : Promise<boolean> => {
  * @param {string} authCode Authorization code used to verify login
  * @returns Promise that resolves to true if successful, false if not
  */
-const userLogin = async (authCode : string) : Promise<boolean> => {
+const userLogin = async (authCode: string): Promise<boolean> => {
   const options = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -120,13 +120,12 @@ type ProviderProps = {
 export const AuthProvider: FC<ProviderProps> = (props) => {
   const { children } = props;
   const [state, setState] = useState<ContextState>(initialState);
-
   const [getMyUser] = useLazyQuery<getMyUserResp>(GET_USER, {
     context: { clientName: 'userService' },
     fetchPolicy: 'no-cache',
   });
 
-  const logout = async () : Promise<boolean> => {
+  const logout = async (): Promise<boolean> => {
     if (!state.isLoggedIn) return true;
 
     const status = await userLogout();
@@ -137,7 +136,7 @@ export const AuthProvider: FC<ProviderProps> = (props) => {
     return status;
   };
 
-  const setData = async (data: UserInput) : Promise<boolean> => {
+  const setData = async (data: UserInput): Promise<boolean> => {
     if (!state.isLoggedIn) return false;
 
     // TODO: Implement updateMyUser mutation
@@ -175,6 +174,10 @@ export const AuthProvider: FC<ProviderProps> = (props) => {
 
         window.history.replaceState({}, document.title, window.location.pathname);
         setState({ isLoggedIn: true, status: Status.LOADED, user: new User(data?.getMyUser) });
+        const stateParam = searchParams.get('state');
+        if (stateParam !== null) {
+          window.location.href = stateParam;
+        }
         return;
       }
 
