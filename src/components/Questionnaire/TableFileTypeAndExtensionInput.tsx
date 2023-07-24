@@ -112,7 +112,7 @@ const TableAutocompleteInput: FC<Props> = ({
         }}
           id={inputID.concat("-type")}
           size="small"
-          value={typeVal}
+          value={typeVal || ""}
           classes={{ root: classes.inputInTable }}
           onChange={onTypeValChangeWrapper}
           popupIcon={<DropdownArrowsIcon />}
@@ -169,7 +169,7 @@ const TableAutocompleteInput: FC<Props> = ({
           }}
           id={inputID.concat("-extension")}
           size="small"
-          value={extensionVal}
+          value={extensionVal || ""}
           classes={{ root: classes.inputInTable }}
           onChange={onExtensionValChangeWrapper}
           popupIcon={<DropdownArrowsIcon />}
