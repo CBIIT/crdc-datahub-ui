@@ -308,7 +308,24 @@ const Header = () => {
                     <React.Fragment key={mobilekey}>
                       {
                         navMobileItem.className === 'navMobileItem'
-                        && (
+                        && (navMobileItem.needsAuthentication ? (
+                          <div
+                            id={navMobileItem.id}
+                            role="button"
+                            tabIndex={0}
+                            className="navMobileItem"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleAuthenticationNavLinkClick(navMobileItem);
+                              }
+                            }}
+                            onClick={() => {
+                              handleAuthenticationNavLinkClick(navMobileItem);
+                            }}
+                          >
+                            {navMobileItem.name}
+                          </div>
+                        ) : (
                           <NavLink
                             id={navMobileItem.id}
                             to={navMobileItem.link}
@@ -316,6 +333,7 @@ const Header = () => {
                           >
                             <div className="navMobileItem">{navMobileItem.name}</div>
                           </NavLink>
+                        )
                         )
                       }
                       {
@@ -399,7 +417,8 @@ const Header = () => {
                   <div
                     id="navbar-dropdown-name"
                     role="button" tabIndex={0}
-                    className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
+                    className="navMobileItem clickable"
+                    onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
                     onClick={clickNavItem}
                   >
                     {displayName}

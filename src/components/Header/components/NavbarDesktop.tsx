@@ -87,8 +87,8 @@ const LiSection = styled.li`
     line-height: 40px;
     letter-spacing: normal;
     text-decoration: none;
-    margin: 0 45px 0 5px;
-    padding: 0 15px;
+    margin: 0 5px 0 5px;
+    padding: 0 8px;
     user-select:none;
     border-top: 4px solid transparent;
     border-left: 4px solid transparent;
@@ -101,6 +101,8 @@ const LiSection = styled.li`
 
   .navText {
     border-bottom: 4px solid transparent;
+    width: fit-content;
+    margin: auto;
   }
 
   .navText:hover {
@@ -398,10 +400,17 @@ const NavBar = () => {
     link: string;
     className: string;
   };
-  function shouldBeUnderlined(linkName) {
+  function shouldBeUnderlined(item) {
+    const linkName = item.name;
     const correctPath = window.location.href.slice(window.location.href.lastIndexOf(window.location.host) + window.location.host.length);
-    if (linkName === "Home") {
-      return correctPath === "/";
+    // if (item.linkName === "Home") {
+    //   return correctPath === "/";
+    // }
+    if (item.className === "navMobileItem") {
+      return correctPath === item.link;
+    }
+    if (navbarSublists[linkName] === undefined) {
+      return false;
     }
     const linkNames = Object.values(navbarSublists[linkName]).map((e: NavSubLinkData) => e.link);
     return linkNames.includes(correctPath);
@@ -433,18 +442,35 @@ const NavBar = () => {
                     ? (
                       <LiSection key={navkey}>
                         <div className="navTitle directLink">
-                          <NavLink to={navMobileItem.link}>
+                          {navMobileItem.needsAuthentication ? (
                             <div
                               id={navMobileItem.id}
-                              onKeyDown={onKeyPressHandler}
                               role="button"
                               tabIndex={0}
-                              className={`navText directLink ${shouldBeUnderlined(navMobileItem.name) ? "shouldBeUnderlined" : ""}`}
-                              onClick={handleMenuClick}
+                              className={`navText directLink ${shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""}`}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleNavLinkClick(navMobileItem);
+                                }
+                              }}
+                              onClick={() => { handleNavLinkClick(navMobileItem); }}
                             >
                               {navMobileItem.name}
                             </div>
-                          </NavLink>
+                          ) : (
+                            <NavLink to={navMobileItem.link}>
+                              <div
+                                id={navMobileItem.id}
+                                onKeyDown={onKeyPressHandler}
+                                role="button"
+                                tabIndex={0}
+                                className={`navText directLink ${shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""}`}
+                                onClick={handleMenuClick}
+                              >
+                                {navMobileItem.name}
+                              </div>
+                            </NavLink>
+                          )}
                         </div>
                       </LiSection>
                     )
@@ -456,7 +482,7 @@ const NavBar = () => {
                             onKeyDown={onKeyPressHandler}
                             role="button"
                             tabIndex={0}
-                            className={`${clickedTitle === navMobileItem.name ? 'navText clicked' : 'navText'} ${shouldBeUnderlined(navMobileItem.name) ? "shouldBeUnderlined" : ""}`}
+                            className={`${clickedTitle === navMobileItem.name ? 'navText clicked' : 'navText'} ${shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""}`}
                             onClick={handleMenuClick}
                           >
                             {navMobileItem.name}
