@@ -70,6 +70,7 @@ const TableContainer = styled.div`
     .topRowLast {
       border: none;
       padding: 10px 8px 10px 8px;
+      text-align: center;
     }
     .fileTypeTableCell{
       border-top: none;
@@ -77,6 +78,7 @@ const TableContainer = styled.div`
       border-bottom: none;
       border-left: none;
       padding: 10px 20px 10px 20px;
+      text-align:center;
     }
     .tableTopRowMiddle {
       border-top: none;
@@ -84,6 +86,7 @@ const TableContainer = styled.div`
       border-bottom: none;
       border-left: none;
       padding: 10px 10px 10px 10px;
+      text-align: center;
     }
     .bottomRowMiddle {
       border-top: 1px solid #6B7294;
@@ -122,6 +125,11 @@ const TableContainer = styled.div`
     .asterisk {
       color: #D54309;
       margin-left: 6px;
+    }
+    #invisibleTableInput {
+       height: 0; 
+       border: none; 
+       width: 0;
     }
 `;
 
@@ -366,21 +374,21 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                 <TableCell width="25%" className="fileTypeTableCell">
                   File Type
                   <span className="asterisk">*</span>
-                  <input tabIndex={-1} style={{ height: "0", border: "none", width: "0" }} ref={fileTypeDataRef} />
+                  <input tabIndex={-1} id="invisibleTableInput" ref={fileTypeDataRef} />
                 </TableCell>
-                <TableCell width="25%" style={{ textAlign: 'center' }} className="fileTypeTableCell">
+                <TableCell width="20%" className="fileTypeTableCell">
                   File Extension
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="13%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
+                <TableCell width="13%" className="tableTopRowMiddle">
                   File Count
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="20%" style={{ textAlign: 'center' }} className="tableTopRowMiddle">
+                <TableCell width="20%" className="tableTopRowMiddle">
                   Estimated amount of data (KB, MB, GB, TB)
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="5%" style={{ textAlign: 'center' }} className="topRowLast">Remove</TableCell>
+                <TableCell width="5%" className="topRowLast">Remove</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

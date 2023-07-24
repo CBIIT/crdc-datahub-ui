@@ -14,7 +14,6 @@ export const query = gql`
         position
         email
         institution
-        eRAAccount
         address
       }
       piAsPrimaryContact
@@ -59,10 +58,12 @@ export const query = gql`
         }
         funding {
           agency
-          grantNumber
+          grantNumbers
           nciProgramOfficer
           nciGPA
         }
+        isDbGapRegistered
+        dbGaPPPHSNumber
       }
       accessTypes
       targetedSubmissionDate
@@ -103,7 +104,10 @@ export const query = gql`
         dateTime
         userID
       }
-      applicantID
+      applicant {
+        applicantID
+        applicantName
+      }
     }
   }
 `;

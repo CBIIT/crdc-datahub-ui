@@ -89,8 +89,8 @@ type Study = {
   plannedPublications: PlannedPublication[];
   repositories: Repository[];
   funding: Funding;
-  isdbGaPRegistered: boolean;
-  dbGaPPHSNumber: string;
+  isDbGapRegistered: boolean;
+  dbGaPPPHSNumber: string;
 };
 
 type Repository = {
@@ -119,7 +119,7 @@ type FileInfo = {
 
 type Funding = {
   agency: string;
-  grantNumber: string;
+  grantNumbers: string;
   nciProgramOfficer: string;
   nciGPA: string;
 };
@@ -136,13 +136,4 @@ type Applicant = {
   applicantID: string;
   applicantName: string;
   applicantEmail: string;
-};
-
-type User = {
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'Admin' | 'User' | 'Curator' | 'FederalLead' | 'DC_POC';
-  userStatus: 'Active' | 'Inactive' | 'Disabled';
-  IDP: 'nih' | 'login.gov';
 };

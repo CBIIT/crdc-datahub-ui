@@ -61,17 +61,7 @@ const GridStyled = styled(Grid)`
   .input {
     display: none;
   }
-  .container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 16px;
-    font-family: Nunito;
-    font-weight: 700;
-    line-height: 19.6px;
-    min-height: 50px;
-  }
+
   .asterisk {
     color: #D54309;
     margin-left: 6px;
@@ -102,6 +92,19 @@ const GridStyled = styled(Grid)`
     display: flex;
     flex-direction: column;
   }
+`;
+const Container = styled.div<{ $containerWidth?: string; }>`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  font-family: Nunito;
+  font-weight: 700;
+  line-height: 19.6px;
+  min-height: 50px;
+  flex-wrap: wrap;
+  width: ${(props) => props.$containerWidth};
 `;
 
 type Props = {
@@ -177,7 +180,7 @@ const CustomSwitch: FC<Props> = ({
 
   return (
     <GridStyled md={gridWidth || 6} xs={12} item>
-      <div className="container" style={{ flexWrap: "wrap", width: containerWidth }}>
+      <Container $containerWidth={containerWidth}>
         <div className="labelContainer">
           {label}
           {required ? <span className="asterisk">*</span> : ""}
@@ -216,13 +219,8 @@ const CustomSwitch: FC<Props> = ({
           </div>
           <FormHelperText className="errorMessage">{error ? errorMsg : " "}</FormHelperText>
         </div>
-      </div>
-      {/* Keeping the input in the DOM to parse value from name */}
-      {val ? (
-        toggleContent
-      ) : (
-        <div style={{ display: 'none' }}>{toggleContent}</div>
-      )}
+      </Container>
+      {val ? toggleContent : <div />}
     </GridStyled>
   );
 };

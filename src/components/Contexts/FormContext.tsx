@@ -8,12 +8,13 @@ import React, {
 } from "react";
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { merge, cloneDeep } from "lodash";
+import omitDeep from "omit-deep";
 import { query as LAST_APP, Response as LastAppResp } from '../../graphql/getMyLastApplication';
 import { query as GET_APP, Response as GetAppResp } from '../../graphql/getApplication';
 import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
 import { mutation as SUBMIT_APP, Response as SubmitAppResp } from '../../graphql/submitApplication';
 import initialValues from "../../config/InitialValues";
-import { FormatDate } from "../../utils";
+import { FormatDate, omitForApi } from "../../utils";
 
 export type ContextState = {
   status: Status;
@@ -101,26 +102,19 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     let newState = { ...state, data };
     setState({ ...newState, status: Status.SAVING });
 
-    const { data: d, errors } = await saveApp({
-      variables: {
-        application: {
-          ...data,
-          _id: data["_id"] === "new" ? null : data["_id"],
-        }
-      }
-    });
+    const { data: d, errors } = await saveApp({ variables: omitForApi(data) });
 
     if (errors) {
       setState({ ...newState, status: Status.LOADED });
       return false;
     }
 
-    if (d?.["_id"] && data?.["_id"] === "new") {
-      newState = { ...newState, data: { ...data, _id: data["_id"] } };
+    if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
+      newState = { ...newState, data: { ...data, _id: d.saveApplication["_id"] } };
     }
 
     setState({ ...newState, status: Status.LOADED });
-    return d?.["_id"] || false;
+    return d?.saveApplication?.["_id"] || false;
   };
 
   useEffect(() => {
@@ -139,6 +133,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
             ...initialValues,
             _id: "new",
             pi: { ...initialValues.pi, ...d?.getMyLastApplication?.pi },
+            applicant: null,
+            organization: null,
             history: [],
           },
         });
@@ -155,7 +151,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       setState({
         status: Status.LOADED,
         data: {
-          ...merge(cloneDeep(initialValues), d?.getApplication),
+          ...merge(cloneDeep(initialValues), omitDeep(d?.getApplication, ["__typename"])),
           // To avoid false positive form changes
           targetedReleaseDate: FormatDate(d?.getApplication?.targetedReleaseDate, "MM/DD/YYYY"),
           targetedSubmissionDate: FormatDate(d?.getApplication?.targetedSubmissionDate, "MM/DD/YYYY"),
