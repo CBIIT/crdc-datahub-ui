@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Link, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from "./components/LogoMobile";
 import SearchBar from "./components/SearchBarMobile";
@@ -7,6 +7,7 @@ import menuClearIcon from '../../assets/header/Menu_Cancel_Icon.svg';
 import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
 import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
 import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
+import { useAuthContext } from '../Contexts/AuthContext';
 
 const HeaderBanner = styled.div`
   width: 100%;
@@ -51,8 +52,8 @@ const HeaderContainer = styled.div`
     // }
 `;
 
-const NavMobileContainer = styled.div`
-    // display: none;
+const NavMobileContainer = styled.div<{ $display?: string; }>`
+    display: ${(props) => props.$display};
     position: absolute;
     left: 0;
     top: 0;
@@ -91,11 +92,6 @@ const MenuArea = styled.div`
     .closeIconImg:hover {
         cursor: pointer;
     }
-
-    // .closeIconImg:active {
-    //     outline: 0.25rem solid #2491ff;
-    //     outline-offset: 0.5rem
-    // }
 
     .backButton {
         font-family: Open Sans;
@@ -162,7 +158,23 @@ const Header = () => {
   const path = useLocation().pathname;
   const [navMobileDisplay, setNavMobileDisplay] = useState('none');
   const [navbarMobileList, setNavbarMobileList] = useState(navMobileList);
-
+  const authData = useAuthContext();
+  const displayName = authData?.user?.displayName || "random first name no one has";
+  const navigate = useNavigate();
+  navbarSublists[displayName] = [
+    {
+      name: 'User Profile',
+      link: '/user_profile',
+      id: 'navbar-dropdown-item-user-profile',
+      className: 'navMobileSubItem',
+    },
+    {
+      name: 'Logout',
+      link: '/logout',
+      id: 'navbar-dropdown-item-logout',
+      className: 'navMobileSubItem',
+    },
+  ];
   const clickNavItem = (e) => {
     const clickTitle = e.target.innerText;
     setNavbarMobileList(navbarSublists[clickTitle]);
@@ -192,7 +204,7 @@ const Header = () => {
           </div>
         </HeaderContainer>
       </HeaderBanner>
-      <NavMobileContainer style={{ display: navMobileDisplay }}>
+      <NavMobileContainer $display={navMobileDisplay}>
         <MenuArea>
           <div className="menuContainer">
             <div
@@ -234,12 +246,64 @@ const Header = () => {
                     <React.Fragment key={mobilekey}>
                       {navMobileItem.className === 'navMobileItem' && <NavLink id={navMobileItem.id} to={navMobileItem.link} onClick={() => setNavMobileDisplay('none')}><div className="navMobileItem">{navMobileItem.name}</div></NavLink>}
                       {navMobileItem.className === 'navMobileItem clickable' && <div id={navMobileItem.id} role="button" tabIndex={0} className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }} onClick={clickNavItem}>{navMobileItem.name}</div>}
-                      {navMobileItem.className === 'navMobileSubItem' && <Link id={navMobileItem.id} to={navMobileItem.link}><div role="button" tabIndex={0} className="navMobileItem SubItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>{navMobileItem.name}</div></Link>}
+                      {navMobileItem.className === 'navMobileSubItem'
+                        && (
+                          // <Link to={navMobileItem.link}>
+                          <div
+                            role="button"
+                            id={navMobileItem.id}
+                            tabIndex={0}
+                            className="navMobileItem SubItem"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                setNavMobileDisplay('none');
+                                if (navMobileItem.name === "Logout") {
+                                  authData.logout();
+                                  setNavbarMobileList(navMobileList);
+                                } else {
+                                  navigate(navMobileItem.link);
+                                }
+                              }
+                            }}
+                            onClick={() => {
+                              setNavMobileDisplay('none');
+                              if (navMobileItem.name === "Logout") {
+                                authData.logout();
+                                setNavbarMobileList(navMobileList);
+                              } else {
+                                navigate(navMobileItem.link);
+                              }
+                            }}
+                          >
+                            {navMobileItem.name}
+                          </div>
+                          // </Link>
+                        )}
                       {navMobileItem.className === 'navMobileSubTitle' && <div className="navMobileItem">{navMobileItem.name}</div>}
                     </React.Fragment>
                   );
                 })
               }
+              {/* eslint-disable-next-line no-nested-ternary */}
+              {navbarMobileList === navMobileList ? (
+                authData.isLoggedIn ? (
+                  <div
+                    id="navbar-dropdown-name"
+                    role="button" tabIndex={0}
+                    className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
+                    onClick={clickNavItem}
+                  >
+                    {displayName}
+                  </div>
+                )
+                  : (
+                    <Link id="navbar-link-login" to="/login">
+                      <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
+                        Login
+                      </div>
+                    </Link>
+
+                  )) : null}
             </div>
           </div>
           <div
@@ -255,8 +319,6 @@ const Header = () => {
             onClick={() => setNavMobileDisplay('none')}
             aria-label="greyContainer"
           />
-          {' '}
-
         </MenuArea>
       </NavMobileContainer>
     </>
