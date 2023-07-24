@@ -83,11 +83,13 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const [hasError, setHasError] = useState<boolean>(false);
   const { formMode, readOnlyInputs, userCanReview, userCanEdit } = useFormMode();
   const [changesAlert, setChangesAlert] = useState<string>("");
+  const [allSectionsComplete, setAllSectionsComplete] = useState<boolean>(false);
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
   const prevSection = sectionKeys[sectionIndex - 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
   const nextSection = sectionKeys[sectionIndex + 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
+  const isSectionD = sectionKeys[sectionIndex] === "D";
   const errorAlertRef = useRef(null);
 
   const refs = {
@@ -98,6 +100,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     rejectFormRef: createRef<HTMLButtonElement>(),
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
+
+  useEffect(() => {
+    const isComplete = isAllSectionsComplete();
+    setAllSectionsComplete(isComplete);
+  }, [status]);
 
   useEffect(() => {
     if (hasError && errorAlertRef?.current) {
@@ -134,6 +141,19 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   useEffect(() => {
     setActiveSection(validateSection(section) ? section : "A");
   }, [section]);
+
+  const isAllSectionsComplete = (): boolean => {
+    if (status === FormStatus.LOADING) {
+      return false;
+    }
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref?.current || !newData) {
+      return false;
+    }
+
+    return newData?.sections?.every((section) => section.status === "Completed");
+  };
 
   /**
    * Determines if the form has unsaved changes.
@@ -299,9 +319,16 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
     const newId = await saveForm(true);
-    setBlockedNavigate(false);
-    blocker.proceed?.();
+    const reviewSectionUrl = `/submission/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
+    const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 
+    setBlockedNavigate(false);
+
+    if (isNavigatingToReviewSection && !isAllSectionsComplete()) {
+      return;
+    }
+
+    blocker.proceed?.();
     if (newId) {
       // NOTE: This currently triggers a form data refetch, which is not ideal
       navigate(blocker.location.pathname.replace("new", newId), { replace: true });
@@ -349,6 +376,23 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const handleCloseRejectFormDialog = () => {
     setReviewComment("");
     setOpenRejectDialog(false);
+  };
+
+  const handleBackClick = () => {
+    if (status === FormStatus.SAVING || !prevSection) {
+      return;
+    }
+    navigate(prevSection);
+  };
+
+  const handleNextClick = () => {
+    if (status === FormStatus.SAVING || !nextSection) {
+      return;
+    }
+    if (isSectionD && !allSectionsComplete) {
+      return;
+    }
+    navigate(nextSection);
   };
 
   const handleReviewCommentChange = (newComment: string) => {
@@ -421,19 +465,18 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
               alignItems="center"
               spacing={2}
             >
-              <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
-                <Button
-                  id="submission-form-back-button"
-                  className={classes.backButton}
-                  variant="outlined"
-                  type="button"
-                  disabled={status === FormStatus.SAVING || !prevSection}
-                  size="large"
-                  startIcon={<BackwardArrowIcon />}
-                >
-                  Back
-                </Button>
-              </Link>
+              <Button
+                id="submission-form-back-button"
+                className={classes.backButton}
+                variant="outlined"
+                type="button"
+                disabled={status === FormStatus.SAVING || !prevSection}
+                onClick={handleBackClick}
+                size="large"
+                startIcon={<BackwardArrowIcon />}
+              >
+                Back
+              </Button>
               <LoadingButton
                 id="submission-form-save-button"
                 className={classes.saveButton}
@@ -479,20 +522,19 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
               >
                 Reject
               </LoadingButton>
-              <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
-                <Button
-                  id="submission-form-next-button"
-                  className={classes.nextButton}
-                  variant="outlined"
-                  type="button"
-                  ref={refs.nextButtonRef}
-                  disabled={status === FormStatus.SAVING || !nextSection}
-                  size="large"
-                  endIcon={<ForwardArrowIcon />}
-                >
-                  Next
-                </Button>
-              </Link>
+              <Button
+                id="submission-form-next-button"
+                className={classes.nextButton}
+                variant="outlined"
+                type="button"
+                ref={refs.nextButtonRef}
+                onClick={handleNextClick}
+                disabled={status === FormStatus.SAVING || !nextSection || (isSectionD && !allSectionsComplete)}
+                size="large"
+                endIcon={<ForwardArrowIcon />}
+              >
+                Next
+              </Button>
             </Stack>
           </Stack>
         </StyledContentWrapper>

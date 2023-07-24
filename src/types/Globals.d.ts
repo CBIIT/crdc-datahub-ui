@@ -19,8 +19,10 @@ type FormObject = {
   data: Application;
 };
 
+type SectionKey = 'A' | 'B' | 'C' | 'D' | 'REVIEW';
+
 type SectionConfig = {
-  [key: string]: SectionOption;
+  [key in SectionKey]: SectionOption;
 };
 
 type SectionOption = {

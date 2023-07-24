@@ -103,7 +103,6 @@ const TextInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    // processValue(value?.toString());
     // Only validate if the value actually changed
     if (valRef.current !== value) processValue(value?.toString());
     valRef.current = value;
