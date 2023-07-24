@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 import { query as GET_USER, Response as GetUserResp } from '../../graphql/getMyUser';
+import User from '../../lib/User';
 import env from '../../env';
 
 const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
@@ -158,7 +159,7 @@ export const AuthProvider: FC<ProviderProps> = (props) => {
           return;
         }
 
-        setState({ ...state, isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
+        setState({ ...state, isLoggedIn: true, status: Status.LOADED, user: new User(data?.getMyUser) });
         return;
       }
 
@@ -173,7 +174,7 @@ export const AuthProvider: FC<ProviderProps> = (props) => {
         }
 
         window.history.replaceState({}, document.title, window.location.pathname);
-        setState({ isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
+        setState({ isLoggedIn: true, status: Status.LOADED, user: new User(data?.getMyUser) });
         return;
       }
 
