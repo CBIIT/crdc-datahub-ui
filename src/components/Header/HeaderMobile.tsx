@@ -212,7 +212,7 @@ const Header = () => {
   const [loginDialogTitle, setLoginDialogTitle] = useState("");
 
   const authData = useAuthContext();
-  const firstName = authData?.user?.firstName || "random first name no one has";
+  const displayName = authData?.user?.displayName || "random first name no one has";
   const navigate = useNavigate();
 
   const handleAuthenticationNavLinkClick = (dropItem) => {
@@ -224,7 +224,7 @@ const Header = () => {
       setShowNavDialog(true);
     }
   };
-  navbarSublists[firstName] = [
+  navbarSublists[displayName] = [
     {
       name: 'User Profile',
       link: '/user_profile',
@@ -393,28 +393,26 @@ const Header = () => {
                   );
                 })
               }
-              {
-                /* eslint-disable-next-line no-nested-ternary */
-                navbarMobileList === navMobileList ? (
-                  authData.isLoggedIn ? (
-                    <div
-                      id="navbar-dropdown-name"
-                      role="button" tabIndex={0}
-                      className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
-                      onClick={clickNavItem}
-                    >
-                      {firstName}
-                    </div>
-                  )
-                    : (
-                      <Link id="navbar-link-login" to="/login">
-                        <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
-                          Login
-                        </div>
-                      </Link>
+              {/* eslint-disable-next-line no-nested-ternary */}
+              {navbarMobileList === navMobileList ? (
+                authData.isLoggedIn ? (
+                  <div
+                    id="navbar-dropdown-name"
+                    role="button" tabIndex={0}
+                    className="navMobileItem clickable" onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
+                    onClick={clickNavItem}
+                  >
+                    {displayName}
+                  </div>
+                )
+                  : (
+                    <Link id="navbar-link-login" to="/login">
+                      <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
+                        Login
+                      </div>
+                    </Link>
 
-                    )) : null
-              }
+                  )) : null}
             </div>
           </div>
           <div

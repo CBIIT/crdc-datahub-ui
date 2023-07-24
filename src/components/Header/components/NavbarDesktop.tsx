@@ -376,8 +376,8 @@ const NavBar = () => {
   const [showNavDialog, setShowNavDialog] = useState(false);
   const navigate = useNavigate();
   const authData = useAuthContext();
-  const firstName = authData?.user?.firstName || "random first name no one has";
-  clickableTitle.push(firstName);
+  const displayName = authData?.user?.displayName || "random first name no one has";
+  clickableTitle.push(displayName);
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
 
   const handleMenuClick = (e) => {
@@ -471,18 +471,18 @@ const NavBar = () => {
           {authData.isLoggedIn
             ? (
               <LiSection>
-                <div id="navbar-dropdown-name-container" className={(clickedTitle === firstName ? 'navTitleClicked' : 'navTitle')}>
+                <div id="navbar-dropdown-name-container" className={(clickedTitle === displayName ? 'navTitleClicked' : 'navTitle')}>
                   <div
                     id="navbar-dropdown-name"
                     onKeyDown={onKeyPressHandler}
                     role="button"
-                    tabIndex={0} className={clickedTitle === firstName ? 'navText clicked' : 'navText'}
+                    tabIndex={0} className={clickedTitle === displayName ? 'navText clicked' : 'navText'}
                     onClick={handleMenuClick}
                   >
-                    {firstName}
+                    {displayName}
                   </div>
                 </div>
-                <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== firstName ? "invisible" : ""}>
+                <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== displayName ? "invisible" : ""}>
                   <NameDropdownContainer>
                     <Link id="navbar-dropdown-item-name-user-profile" to="/userProfile" className="dropdownItem" onClick={() => setClickedTitle("")}>
                       User Profile
@@ -512,11 +512,11 @@ const NavBar = () => {
               </StyledLoginLink>
             )}
         </NavContainer>
-        <Dropdown ref={dropdownSelection} className={(clickedTitle === '' || clickedTitle === firstName) ? "invisible" : ""}>
+        <Dropdown ref={dropdownSelection} className={(clickedTitle === '' || clickedTitle === displayName) ? "invisible" : ""}>
           <DropdownContainer>
             <div className="dropdownList">
               {
-                (clickedTitle !== "" && clickedTitle !== firstName) ? navbarSublists[clickedTitle].map((dropItem, idx) => {
+                (clickedTitle !== "" && clickedTitle !== displayName) ? navbarSublists[clickedTitle].map((dropItem, idx) => {
                   const dropkey = `drop_${idx}`;
                   return (
                     dropItem.link && (!dropItem.needsAuthentication
