@@ -3,17 +3,19 @@ import { ReactNode } from "react";
 
 const GridContainer = styled(Grid)(() => ({
   ":not(:first-of-type)": {
-    marginTop: "30px",
+    marginTop: "25px",
   },
   paddingTop: 0,
 }));
 
 const StyledTitle = styled(Typography)(() => ({
-  color: "#083A50",
-  fontSize: "16px",
+  color: "#7899A1",
+  fontSize: "17px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontWeight: 700,
+  fontWeight: 500,
   lineHeight: "19.6px",
+  letterSpacing: "0.17px",
+  textTransform: "uppercase",
   marginBottom: "5px",
   height: "20px",
 }));

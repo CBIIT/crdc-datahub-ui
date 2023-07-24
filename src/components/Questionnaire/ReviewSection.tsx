@@ -3,22 +3,21 @@ import { FC, ReactNode } from "react";
 
 const GridContainer = styled(Grid)(() => ({
  "&:not(:first-of-type)": {
-    marginTop: "30px",
+    marginTop: "25px",
  },
  "&:first-of-type": {
-  paddingTop: "30px"
+  paddingTop: "25px"
  },
   paddingTop: 0
 }));
 
 const StyledTitle = styled(Typography)(() => ({
   color: "#34A286",
-  fontSize: "17px",
+  fontSize: "19px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
   fontWeight: 700,
   lineHeight: "19.6px",
-  textTransform: "uppercase",
 }));
 
 const StyledDivider = styled(Divider)(() => ({
@@ -34,7 +33,7 @@ type Props = {
 };
 
 const ReviewSection: FC<Props> = ({ title, divider = true, children }) => (
-  <GridContainer container rowSpacing={3.75} columnSpacing={0}>
+  <GridContainer container rowSpacing={3.125} columnSpacing={0}>
     <Grid xs={12} item sx={{ padding: "0 !important" }}>
       <Stack direction="row" alignItems="center">
         {title && <StyledTitle variant="h6">{title}</StyledTitle>}

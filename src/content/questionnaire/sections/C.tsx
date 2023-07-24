@@ -28,7 +28,7 @@ const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
 }));
 
-type KeyedTimeConstraint = {
+export type KeyedTimeConstraint = {
   key: string;
 } & TimeConstraint;
 

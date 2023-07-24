@@ -1,8 +1,8 @@
 import { Stack, styled } from "@mui/material";
 import { FC } from "react";
 
-const StyledLabel = styled("span")(() => ({
-  color: "#889DA7",
+export const StyledLabel = styled("span")(() => ({
+  color: "#000000",
   fontSize: "13px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontWeight: 700,
@@ -11,8 +11,8 @@ const StyledLabel = styled("span")(() => ({
   textTransform: "uppercase",
 }));
 
-const StyledValue = styled("span")(() => ({
-  color: "#083A50",
+export const StyledValue = styled("span")(() => ({
+  color: "#595959",
   fontSize: "16px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontWeight: 400,
