@@ -11,6 +11,8 @@
  * @
  */
 class User {
+  private _id: string;
+
   private _email: string;
 
   private _firstName: string;
@@ -23,13 +25,27 @@ class User {
 
   private _userStatus: string;
 
+  private _createdAt: string;
+
+  private _updateAt: string;
+
   constructor(userData) {
+    this._id = userData["_id"] ?? '';
     this._email = userData.email ?? '';
     this._firstName = userData.firstName ?? '';
     this._IDP = userData.IDP ?? '';
     this._lastName = userData.lastName ?? '';
     this._role = userData.role ?? '';
     this._userStatus = userData.userStatus ?? '';
+    this._createdAt = userData.createdAt ?? '';
+    this._updateAt = userData.updateAt ?? '';
+  }
+
+  /**
+   * @returns {string}
+   */
+  get id() {
+    return this._id;
   }
 
   /**
@@ -65,6 +81,20 @@ class User {
    */
   get role() {
     return this._role;
+  }
+
+  /**
+   * @returns {string}
+   */
+  get createdAt() {
+    return this._createdAt;
+  }
+
+  /**
+   * @returns {string}
+   */
+  get updateAt() {
+    return this._updateAt;
   }
 
   /**
