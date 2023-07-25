@@ -42,7 +42,15 @@ const TestParent: FC<Props> = ({ mocks, appId, children } : Props) => (
   </MockedProvider>
 );
 
-describe("FormContext tests", () => {
+describe("FormContext > useFormContext Tests", () => {
+  it("should throw an exception when used outside of a FormProvider", () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    expect(() => render(<TestChild />)).toThrow("FormContext cannot be used outside of the FormProvider component");
+    jest.spyOn(console, "error").mockRestore();
+  });
+});
+
+describe("FormContext > FormProvider Tests", () => {
   it("should return an error for empty IDs", async () => {
     const screen = render(<TestParent appId="" />);
 
