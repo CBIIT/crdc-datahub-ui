@@ -1,6 +1,6 @@
 import React, { FC, createRef, useEffect, useRef, useState } from 'react';
 import {
-  Link, useNavigate,
+  useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
 import { isEqual } from 'lodash';
@@ -14,7 +14,7 @@ import SuspenseLoader from '../../components/SuspenseLoader';
 import StatusBar from '../../components/StatusBar/StatusBar';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import Section from './sections';
-import map from '../../config/SectionConfig';
+import map, { InitialSections } from '../../config/SectionConfig';
 import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
 import SubmitFormDialog from '../../components/Questionnaire/SubmitFormDialog';
 import useFormMode from './sections/hooks/useFormMode';
@@ -89,7 +89,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const sectionIndex = sectionKeys.indexOf(activeSection);
   const prevSection = sectionKeys[sectionIndex - 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
   const nextSection = sectionKeys[sectionIndex + 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
-  const isSectionD = sectionKeys[sectionIndex] === "D";
+  const isSectionD = activeSection === "D";
   const errorAlertRef = useRef(null);
 
   const refs = {
@@ -149,6 +149,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
     if (!ref?.current || !newData) {
+      return false;
+    }
+
+    // form has not been created
+    if (newData?.sections?.length !== Object.keys(map).length - 1) {
       return false;
     }
 
@@ -281,6 +286,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
 
     // Update section status
+    if (newData?.sections?.length !== Object.keys(map).length - 1) { // Not including review section
+      newData.sections = InitialSections;
+    }
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
     if (!hideValidation) {
       ref.current.reportValidity();

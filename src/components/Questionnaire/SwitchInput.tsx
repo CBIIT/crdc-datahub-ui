@@ -113,6 +113,10 @@ const Container = styled.div<{ $containerWidth?: string; }>`
   width: ${(props) => props.$containerWidth};
 `;
 
+const HideContentWrapper = styled("div")({
+  display: "none !important"
+});
+
 type Props = {
   label: string,
   name: string,
@@ -234,7 +238,11 @@ const CustomSwitch: FC<Props> = ({
           <FormHelperText className="errorMessage">{!readOnly && error ? errorMsg : " "}</FormHelperText>
         </div>
       </Container>
-      {val ? toggleContent : <div />}
+      {val ? (
+        toggleContent
+      ) : (
+        <HideContentWrapper>{toggleContent}</HideContentWrapper>
+      )}
     </GridStyled>
   );
 };

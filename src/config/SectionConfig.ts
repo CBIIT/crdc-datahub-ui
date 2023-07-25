@@ -40,4 +40,6 @@ const sections: SectionConfig = {
   },
 };
 
+export const InitialSections: Section[] = Object.keys(sections)?.slice(0, -1)?.map((sectionKey) => ({ name: sections[sectionKey].id, status: "Not Started" }));
+
 export default sections;

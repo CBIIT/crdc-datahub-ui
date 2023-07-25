@@ -106,7 +106,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
   };
 
   return (
-    <FormContainer description="Review and Submit" formRef={formRef}>
+    <FormContainer description="Review and Submit" formRef={formRef} hideReturnToSubmissions={false}>
       {/* Principal Investigator and Contact Information Section */}
       <ReviewSection title="Principal Investigator and Contact Information">
         <ReviewDataListing title="Principal Investigator for the study:">
