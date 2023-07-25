@@ -500,8 +500,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <Autocomplete
           id="section-b-funding-agency"
           label="Funding Agency"
-          value={funding.agency}
-          name="study[funding][agency]"
+          value={funding?.agencies?.[0]}
+          name="study[funding][agencies][0]"
           options={fundingAgencyOptions}
           placeholder="– Search and Select Agency –"
           freeSolo

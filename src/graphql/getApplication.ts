@@ -57,7 +57,7 @@ export const query = gql`
           submittedDate
         }
         funding {
-          agency
+          agencies
           grantNumbers
           nciProgramOfficer
           nciGPA
@@ -80,6 +80,8 @@ export const query = gql`
       species
       cellLines
       modelSystems
+      imagingDataDeIdentified
+      dataDeIdentified
       dataTypes
       otherDataTypes
       clinicalData {
@@ -89,6 +91,7 @@ export const query = gql`
       }
       files {
         type
+        extension
         count
         amount
       }
