@@ -91,7 +91,6 @@ export const query = gql`
       }
       files {
         type
-        extension
         count
         amount
       }
