@@ -74,6 +74,9 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (!formObject.study) {
       combinedData.study = initialValues.study;
     }
+    if (!formObject?.study?.dbGaPPPHSNumber) {
+      combinedData.study.dbGaPPPHSNumber = "";
+    }
 
     // Reset publications if the user has not entered any publications
     if (!formObject.study.publications || formObject.study.publications.length === 0) {
@@ -88,6 +91,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.study.repositories = [];
     }
 
+    combinedData.study.funding.agencies = combinedData.study.funding.agencies.filter((a) => a.length > 0);
     return { ref: formRef, data: combinedData };
   };
 
