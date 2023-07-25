@@ -14,9 +14,8 @@ export const formModes = {
 const useFormMode = () => {
   const { user, status: authStatus } = useAuthContext();
   const { data, status } = useFormContext();
-  const fedLeadUser = { ...data, role: "FederalLead" };
   const { status: formStatus } = data || {};
-  const { role } = /* fedLeadUser ||  */user || {};
+  const { role } = user || {};
 
   const [formMode, setFormMode] = useState<FormMode>(undefined);
   const [readOnlyInputs, setReadOnlyInputs] = useState<boolean>(false);
