@@ -83,7 +83,6 @@ const LiSection = styled.li`
     line-height: 21px;
     padding: 10px 0px;
     text-align: right;
-    // text-transform: uppercase; // Prevents dropdown menu for some reason
     width: fit-content;
   }
 
@@ -344,7 +343,7 @@ const NavBar = () => {
   const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
   const clickableTitle = clickableObject.map((item) => item.name);
   const authData = useAuthContext();
-  const displayName = authData?.user?.displayName || "random first name no one has";
+  const displayName = authData?.user?.displayName?.toUpperCase() || "random first name no one has";
   clickableTitle.push(displayName);
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
 
