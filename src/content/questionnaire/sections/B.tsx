@@ -48,7 +48,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
   const [funding] = useState<Funding>(data.study?.funding);
-  const [isdbGaPRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isdbGaPRegistered);
+  const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isDbGapRegistered);
 
   const formRef = useRef<HTMLFormElement>();
   const {
@@ -74,6 +74,9 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (!formObject.study) {
       combinedData.study = initialValues.study;
     }
+    if (!formObject?.study?.dbGaPPPHSNumber) {
+      combinedData.study.dbGaPPPHSNumber = "";
+    }
 
     // Reset publications if the user has not entered any publications
     if (!formObject.study.publications || formObject.study.publications.length === 0) {
@@ -88,6 +91,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.study.repositories = [];
     }
 
+    combinedData.study.funding.agencies = combinedData.study.funding.agencies.filter((a) => a.length > 0);
     return { ref: formRef, data: combinedData };
   };
 
@@ -381,21 +385,21 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <SwitchInput
           id="section-b-is-dbgap-registered"
           label="dbGaP Registered?"
-          name="study[isdbGaPRegistered]"
+          name="study[isDbGapRegistered]"
           required
-          value={isdbGaPRegistered}
+          value={isDbGapRegistered}
           onChange={(e, checked: boolean) => setIsdbGaPRegistered(checked)}
           isBoolean
           toggleContent={(
             <TextInput
               id="section-b-dbgap-phs-number"
               label="Please provide the associated dbGaP PHS Number"
-              name="study[dbGaPPHSNumber]"
-              value={data.study.dbGaPPHSNumber}
+              name="study[dbGaPPPHSNumber]"
+              value={data.study.dbGaPPPHSNumber}
               maxLength={50}
               placeholder="50 characters allowed"
               gridWidth={12}
-              required={isdbGaPRegistered}
+              required={isDbGapRegistered}
             />
           )}
         />
@@ -500,8 +504,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <Autocomplete
           id="section-b-funding-agency"
           label="Funding Agency"
-          value={funding.agency}
-          name="study[funding][agency]"
+          value={funding?.agencies?.[0]}
+          name="study[funding][agencies][0]"
           options={fundingAgencyOptions}
           placeholder="– Search and Select Agency –"
           freeSolo
@@ -512,8 +516,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-b-grant-or-contract-numbers"
           label="Grant or Contract Number(s)"
-          name="study[funding][grantNumber]"
-          value={funding?.grantNumber}
+          name="study[funding][grantNumbers]"
+          value={funding?.grantNumbers}
           maxLength={50}
           placeholder="Enter Grant or Contract Number(s)"
           required

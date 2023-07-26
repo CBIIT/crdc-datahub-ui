@@ -1,3 +1,4 @@
+/* eslint-disable */
 window.injectedEnv = {
   NIH_AUTHORIZE_URL: 'https://link.to/nihlogin',
   NIH_CLIENT_ID: 'Sample Id',
