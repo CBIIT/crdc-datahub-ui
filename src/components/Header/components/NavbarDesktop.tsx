@@ -53,8 +53,6 @@ const NavContainer = styled.div`
 
     #navbar-dropdown-name-container { 
       margin: 0; 
-      min-width: 150px; 
-      border: none;
     }
 `;
 
@@ -271,37 +269,56 @@ const DropdownContainer = styled.div`
 `;
 
 const NameDropdownContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    .dropdownItem {
-      padding-bottom: 12px;
-      text-align: center;
-      font-family: 'Poppins';
-      font-weight: 600;
-      font-style: normal;
-      font-size: 16px;
-      line-height: 110%;
-      color: #FFFFFF;
-      text-decoration: none;
+  margin: 0 auto;
+  text-align: left;
+  position: relative;
+  max-width: 1400px;
+  .dropdownList {
+      background: #1F4671;
+      display: grid;
+      grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
+      padding: 32px 32px 0 32px;
+  }
+  .dropdownItem {
+    padding: 0 10px 52px 10px;
+    text-align: left;
+    font-family: 'Poppins';
+    font-weight: 600;
+    font-style: normal;
+    font-size: 20px;
+    line-height: 110%;
+    color: #FFFFFF;
+    text-decoration: none;
+    cursor: pointer;
   }
 
   .dropdownItem:hover {
     text-decoration: underline;
   }
+  #navbar-dropdown-item-name-logout {
+    max-width: 200px;
+  }
 `;
 
 const NameDropdown = styled.div`
+    top: 60.5px;
     left: 0;
+    width: 100%;
     background: #1F4671;
     z-index: 1100;
     position: absolute;
-    // visibility: hidden;
-    // outline: none;
-    // opacity: 0;
-    /* border-left: 4px solid #5786FF;
-    border-bottom: 4px solid #5786FF;
-    border-right: 4px solid #5786FF; */
-    width: 100%;
+
+    // left: 0;
+    // background: #1F4671;
+    // z-index: 1100;
+    // position: absolute;
+    // // visibility: hidden;
+    // // outline: none;
+    // // opacity: 0;
+    // /* border-left: 4px solid #5786FF;
+    // border-bottom: 4px solid #5786FF;
+    // border-right: 4px solid #5786FF; */
+    // width: 100%;
 `;
 
 const StyledLoginLink = styled(Link)`
@@ -363,7 +380,7 @@ const useOutsideAlerter = (ref1, ref2) => {
     function handleClickOutside(event) {
       if (!event.target || (event.target.getAttribute("class") !== "dropdownList" && ref1.current && !ref1.current.contains(event.target) && ref2.current && !ref2.current.contains(event.target))) {
         const toggle = document.getElementsByClassName("navText clicked");
-        if (toggle[0] && event.target.getAttribute("class") !== "navText clicked") {
+        if (toggle[0] && !event.target.getAttribute("class").includes("navText clicked")) {
           const temp: HTMLElement = toggle[0] as HTMLElement;
           temp.click();
         }
@@ -517,28 +534,6 @@ const NavBar = () => {
                     {displayName}
                   </div>
                 </div>
-                <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== displayName ? "invisible" : ""}>
-                  <NameDropdownContainer>
-                    <Link id="navbar-dropdown-item-name-user-profile" to="/userProfile" className="dropdownItem" onClick={() => setClickedTitle("")}>
-                      User Profile
-                    </Link>
-                    <div
-                      id="navbar-dropdown-item-name-logout"
-                      role="button"
-                      tabIndex={0}
-                      className="dropdownItem"
-                      onClick={() => { setClickedTitle(""); authData.logout(); }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          setClickedTitle("");
-                          authData.logout();
-                        }
-                      }}
-                    >
-                      Logout
-                    </div>
-                  </NameDropdownContainer>
-                </NameDropdown>
               </LiSection>
             )
             : (
@@ -547,7 +542,7 @@ const NavBar = () => {
               </StyledLoginLink>
             )}
         </NavContainer>
-        <Dropdown ref={dropdownSelection} className={(clickedTitle === '' || clickedTitle === displayName) ? "invisible" : ""}>
+        <Dropdown ref={dropdownSelection} className={(clickedTitle === '') ? "invisible" : ""}>
           <DropdownContainer>
             <div className="dropdownList">
               {
@@ -586,6 +581,30 @@ const NavBar = () => {
             </div>
           </DropdownContainer>
         </Dropdown>
+        <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== displayName ? "invisible" : ""}>
+          <NameDropdownContainer>
+            {/* <Link id="navbar-dropdown-item-name-user-profile" to="/userProfile" className="dropdownItem" onClick={() => setClickedTitle("")}>
+              User Profile
+            </Link> */}
+            <div className="dropdownList">
+              <div
+                id="navbar-dropdown-item-name-logout"
+                role="button"
+                tabIndex={0}
+                className="dropdownItem"
+                onClick={() => { setClickedTitle(""); authData.logout(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setClickedTitle("");
+                    authData.logout();
+                  }
+                }}
+              >
+                Logout
+              </div>
+            </div>
+          </NameDropdownContainer>
+        </NameDropdown>
       </Nav>
       <StyledDialog open={showNavDialog}>
         <pre className="loginDialogText">

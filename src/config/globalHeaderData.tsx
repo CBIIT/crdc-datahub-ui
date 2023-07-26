@@ -75,23 +75,23 @@ export const navbarSublists = {
   //       needsAuthentication: true,
   //     },
   // ],
-  //   About: [
-  //     {
-  //       name: 'Other Resources',
-  //       link: '/or',
-  //       id: 'navbar-dropdown-item-other-resources',
-  //       className: 'navMobileSubTitle',
-  //     },
-  //     {
-  //       name: 'Cancer Genomics Cloud',
-  //       link: '/cgc',
-  //       id: 'navbar-dropdown-item-cancer-genomics-cloud',
-  //       className: 'navMobileSubItem',
-  //     },
-  //     {
-  //       name: 'Database of Genotypes and Phenotypes',
-  //       link: '/dbgap',
-  //       id: 'navbar-dropdown-item-database-of-genotypes-and-phenotypes',
-  //       className: 'navMobileSubItem',
-  //     }],
+  // About: [
+  //   {
+  //     name: 'Other Resources',
+  //     link: '/or',
+  //     id: 'navbar-dropdown-item-other-resources',
+  //     className: 'navMobileSubTitle',
+  //   },
+  //   {
+  //     name: 'Cancer Genomics Cloud',
+  //     link: '/cgc',
+  //     id: 'navbar-dropdown-item-cancer-genomics-cloud',
+  //     className: 'navMobileSubItem',
+  //   },
+  //   {
+  //     name: 'Database of Genotypes and Phenotypes',
+  //     link: '/dbgap',
+  //     id: 'navbar-dropdown-item-database-of-genotypes-and-phenotypes',
+  //     className: 'navMobileSubItem',
+  //   }],
 };
