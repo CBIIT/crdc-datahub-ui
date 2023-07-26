@@ -41,7 +41,7 @@ const initialState: ContextState = { status: Status.LOADING, data: null };
  * @see ContextState – Form context state
  * @see useFormContext – Form context hook
  */
-export const Context = createContext<ContextState>(initialState);
+export const Context = createContext<ContextState>(null);
 Context.displayName = "FormContext";
 
 /**

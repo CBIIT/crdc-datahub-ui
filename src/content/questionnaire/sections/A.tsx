@@ -11,7 +11,7 @@ import TextInput from "../../../components/Questionnaire/TextInput";
 import AutocompleteInput from '../../../components/Questionnaire/AutocompleteInput';
 import institutionConfig from "../../../config/InstitutionConfig";
 import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
-import { mapObjectWithKey } from '../utils';
+import { filterNonNumeric, mapObjectWithKey } from '../utils';
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 
 type KeyedContact = {
@@ -233,9 +233,10 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-a-primary-contact-phone-number"
-          type="phone"
+          type="tel"
           label="Phone number"
           name="primaryContact[phone]"
+          filter={filterNonNumeric}
           value={(piAsPrimaryContact ? "" : primaryContact?.phone) || ""}
           placeholder="Enter phone number"
           maxLength={25}

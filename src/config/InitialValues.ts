@@ -32,7 +32,7 @@ const initialValues: Omit<Application, "_id" | "applicantID" | "organization" | 
     plannedPublications: [],
     repositories: [],
     funding: {
-      agency: "",
+      agencies: [],
       grantNumbers: "",
       nciProgramOfficer: "",
       nciGPA: "",

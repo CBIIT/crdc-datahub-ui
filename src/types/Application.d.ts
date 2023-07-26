@@ -118,7 +118,7 @@ type FileInfo = {
 };
 
 type Funding = {
-  agency: string;
+  agencies: string[];
   grantNumbers: string;
   nciProgramOfficer: string;
   nciGPA: string;
