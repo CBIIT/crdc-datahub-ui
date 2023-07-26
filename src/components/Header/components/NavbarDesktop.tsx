@@ -471,7 +471,7 @@ const NavBar = () => {
       <Nav>
         <GenericAlert open={showLogoutAlert}>
           <span>
-            You have been logged out.
+            You have been logged out. Authenticated communications sessions have been reliably terminated.
           </span>
         </GenericAlert>
         <NavContainer>
