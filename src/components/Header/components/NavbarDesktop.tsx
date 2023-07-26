@@ -78,6 +78,15 @@ const LiSection = styled.li`
     text-decoration: none;
   }
 
+  .displayName {
+    color: #007BBD;
+    font-size: 14px;
+    line-height: 21px;
+    padding: 10px 0px;
+    text-align: right;
+    width: fit-content;
+  }
+
   .navTitle {
     display: block;
     color: #585C65;
@@ -378,7 +387,7 @@ const NavBar = () => {
   const [showNavDialog, setShowNavDialog] = useState(false);
   const navigate = useNavigate();
   const authData = useAuthContext();
-  const displayName = authData?.user?.displayName || "random first name no one has";
+  const displayName = authData?.user?.displayName?.toUpperCase() || "random first name no one has";
   clickableTitle.push(displayName);
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
 
