@@ -11,41 +11,34 @@
  * @
  */
 class User {
-  private _id: string;
+  public _id: string;
 
   private _email: string;
 
   private _firstName: string;
 
-  private _IDP: string;
+  private _IDP: 'nih' | 'login.gov';
 
   private _lastName: string;
 
-  private _role: string;
+  private _role: 'Admin' | 'User' | 'Curator' | 'FederalLead' | 'DC_POC';
 
-  private _userStatus: string;
+  private _userStatus: 'Active' | 'Inactive' | 'Disabled';
 
   private _createdAt: string;
 
   private _updateAt: string;
 
   constructor(userData) {
-    this._id = userData["_id"] ?? '';
-    this._email = userData.email ?? '';
-    this._firstName = userData.firstName ?? '';
-    this._IDP = userData.IDP ?? '';
-    this._lastName = userData.lastName ?? '';
-    this._role = userData.role ?? '';
-    this._userStatus = userData.userStatus ?? '';
-    this._createdAt = userData.createdAt ?? '';
-    this._updateAt = userData.updateAt ?? '';
-  }
-
-  /**
-   * @returns {string}
-   */
-  get id() {
-    return this._id;
+    this._id = userData._id ?? '';
+    this._email = userData._email ?? userData.email ?? '';
+    this._firstName = userData._firstName ?? userData.firstName ?? '';
+    this._IDP = userData._IDP ?? userData.IDP ?? '';
+    this._lastName = userData._lastName ?? userData.lastName ?? '';
+    this._role = userData._role ?? userData.role ?? '';
+    this._userStatus = userData._userStatus ?? userData.userStatus ?? '';
+    this._createdAt = userData._createdAt ?? userData.createdAt ?? '';
+    this._updateAt = userData._updateAt ?? userData.updateAt ?? '';
   }
 
   /**
@@ -86,20 +79,6 @@ class User {
   /**
    * @returns {string}
    */
-  get createdAt() {
-    return this._createdAt;
-  }
-
-  /**
-   * @returns {string}
-   */
-  get updateAt() {
-    return this._updateAt;
-  }
-
-  /**
-   * @returns {string}
-   */
   get userStatus() {
     return this._userStatus;
   }
@@ -127,6 +106,24 @@ class User {
     }
 
     return this._email.split('@')[0];
+  }
+
+  /**
+   * Created at date
+   *
+   * @returns {string}
+   */
+  get createdAt() {
+    return this._createdAt;
+  }
+
+  /**
+   * Updated at date
+   *
+   * @returns {string}
+   */
+  get updateAt() {
+    return this._updateAt;
   }
 }
 

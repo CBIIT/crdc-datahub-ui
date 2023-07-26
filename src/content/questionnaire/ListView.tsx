@@ -248,7 +248,7 @@ const ListingView: FC = () => {
               </TableRow>
             </StyledTableHead>
             <TableBody>
-              {data?.listApplications?.applications.map((d: T) => (
+              {data?.listApplications?.applications?.map((d: T) => (
                 <TableRow tabIndex={-1} hover key={d["_id"]}>
                   {columns.map((col: Column) => (
                     <StyledTableCell key={`${d["_id"]}_${col.label}`}>
@@ -266,7 +266,7 @@ const ListingView: FC = () => {
               )}
 
               {/* No content message */}
-              {(!data?.listApplications || data?.listApplications?.total === 0) && (
+              {(!data?.listApplications?.total || data?.listApplications?.total === 0) && (
                 <TableRow style={{ height: 53 * 5 }}>
                   <TableCell colSpan={columns.length}>
                     <Typography

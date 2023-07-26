@@ -76,6 +76,14 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
+    // Reset study if the data failed to load
+    if (!formObject.study) {
+      combinedData.study = initialValues.study;
+    }
+    if (!formObject?.study?.dbGaPPPHSNumber) {
+      combinedData.study.dbGaPPPHSNumber = "";
+    }
+
     // Reset publications if the user has not entered any publications
     if (!formObject.study.publications || formObject.study.publications.length === 0) {
       combinedData.study.publications = [];
@@ -89,6 +97,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.study.repositories = [];
     }
 
+    combinedData.study.funding.agencies = combinedData.study.funding.agencies.filter((a) => a.length > 0);
     return { ref: formRef, data: combinedData };
   };
 
@@ -508,8 +517,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <Autocomplete
           id="section-b-funding-agency"
           label="Funding Agency"
-          value={funding.agency}
-          name="study[funding][agency]"
+          value={funding?.agencies?.[0]}
+          name="study[funding][agencies][0]"
           options={fundingAgencyOptions}
           placeholder="– Search and Select Agency –"
           freeSolo

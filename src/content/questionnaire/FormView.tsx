@@ -442,7 +442,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       </GenericAlert>
 
       <PageBanner
-        title="Submission Request"
+        title="Submission Request Form"
         pageTitle="Submission Request Form"
         subTitle="The following set of high-level questions are intended to provide insight to the CRDC Data Hub, related to data storage, access, secondary sharing needs and other requirements of data submitters."
         bannerSrc={bannerPng}

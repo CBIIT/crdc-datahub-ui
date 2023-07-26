@@ -6,6 +6,7 @@ import institutionConfig from "../../config/InstitutionConfig";
 import TextInput from "./TextInput";
 import AddRemoveButton from "./AddRemoveButton";
 import AutocompleteInput from "./AutocompleteInput";
+import { filterNonNumeric } from '../../content/questionnaire/utils';
 
 const GridContainer = styled(Grid)({
   border: "0.5px solid #DCDCDC !important",
@@ -93,7 +94,8 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly,
           id={idPrefix.concat(`additionalContacts-${index}-phone-number`)}
           label="Phone number"
           name={`additionalContacts[${index}][phone]`}
-          type="phone"
+          type="tel"
+          filter={filterNonNumeric}
           value={phone}
           placeholder="Enter phone number"
           maxLength={25}
