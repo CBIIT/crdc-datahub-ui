@@ -77,6 +77,15 @@ const LiSection = styled.li`
     text-decoration: none;
   }
 
+  .displayName {
+    color: #007BBD;
+    font-size: 14px;
+    line-height: 21px;
+    padding: 10px 0px;
+    text-align: right;
+    width: fit-content;
+  }
+
   .navTitle {
     display: block;
     color: #585C65;
@@ -334,7 +343,7 @@ const NavBar = () => {
   const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
   const clickableTitle = clickableObject.map((item) => item.name);
   const authData = useAuthContext();
-  const displayName = authData?.user?.displayName || "random first name no one has";
+  const displayName = authData?.user?.displayName?.toUpperCase() || "random first name no one has";
   clickableTitle.push(displayName);
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
 
@@ -421,9 +430,10 @@ const NavBar = () => {
               <div id="navbar-dropdown-name-container" className={(clickedTitle === displayName ? 'navTitleClicked' : 'navTitle')}>
                 <div
                   id="navbar-dropdown-name"
+                  className={clickedTitle === displayName ? 'navText displayName clicked' : 'navText displayName'}
                   onKeyDown={onKeyPressHandler}
                   role="button"
-                  tabIndex={0} className={clickedTitle === displayName ? 'navText clicked' : 'navText'}
+                  tabIndex={0}
                   onClick={handleMenuClick}
                 >
                   {displayName}
