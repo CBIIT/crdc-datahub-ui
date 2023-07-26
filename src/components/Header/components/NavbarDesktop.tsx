@@ -372,7 +372,6 @@ const useOutsideAlerter = (ref1, ref2) => {
       if (!event.target || (event.target.getAttribute("class") !== "dropdownList" && ref1.current && !ref1.current.contains(event.target) && ref2.current && !ref2.current.contains(event.target))) {
         const toggle = document.getElementsByClassName("navText clicked");
         if (toggle[0] && !event.target.getAttribute("class").includes("navText clicked")) {
-          console.log("test");
           const temp: HTMLElement = toggle[0] as HTMLElement;
           temp.click();
         }
