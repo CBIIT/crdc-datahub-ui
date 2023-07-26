@@ -1,3 +1,7 @@
+type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P]>;
+};
+
 type FormSectionProps = {
   refs: {
     saveFormRef: React.RefObject<HTMLButtonElement>;

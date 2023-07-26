@@ -94,18 +94,13 @@ const StyledAsterisk = styled("span")(() => ({
   marginLeft: "6px",
 }));
 
-const StyledAutocomplete = styled(Autocomplete)(() => ({
+const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : boolean }) => ({
   "& .MuiInputBase-root": {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: readOnly ? "#D9DEE4" : "#FFFFFF",
     "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
       display: 'flex',
       alignItems: 'center',
       padding: 0,
-    },
-    "&.MuiOutlinedInput-input:read-only": {
-      backgroundColor: "#D9DEE4",
-      cursor: "not-allowed",
-      borderRadius: "8px",
     },
     "& .MuiInputBase-input": {
       fontWeight: 400,
@@ -113,6 +108,7 @@ const StyledAutocomplete = styled(Autocomplete)(() => ({
       fontFamily: "'Nunito', 'Rubik', sans-serif",
       padding: "12px 30px 12px 12px !important",
       height: "20px",
+      cursor: readOnly ? "not-allowed !important" : "initial",
     },
     "& .MuiAutocomplete-clearIndicator": {
       visibility: "hidden !important",
@@ -158,6 +154,7 @@ const AutocompleteInput = <T,>({
   const [error, setError] = useState<boolean>(false);
   const helperText = helpText || (required ? "This field is required" : " ");
   const inputRef = useRef<HTMLInputElement>(null);
+  const valRef = useRef<T>(value);
 
   const validateInput = (input: AutocompleteValue<T, false, false, false>,): boolean => {
     const isString = typeof input === "string";
@@ -191,7 +188,8 @@ const AutocompleteInput = <T,>({
   };
 
   useEffect(() => {
-    onChangeWrapper(null, value, null);
+    if (value !== valRef.current) onChangeWrapper(null, value, null);
+    valRef.current = value;
   }, [value]);
 
   return (

@@ -1,5 +1,5 @@
 type Application = {
-  _id: number;
+  _id: string;
   sections: Section[];
   pi: PI;
   piAsPrimaryContact: boolean;
@@ -31,8 +31,10 @@ type Application = {
   reviewComment: string;
   createdAt: string; // YYYY-MM-DDTHH:MM:SS format
   updatedAt: string; // YYYY-MM-DDTHH:MM:SS format
+  submittedDate: string; // YYYY-MM-DDTHH:MM:SS format
   history: HistoryEvent[];
-  applicantID: string;
+  applicant?: Applicant;
+  organization?: string;
 };
 
 type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected";
@@ -87,8 +89,8 @@ type Study = {
   plannedPublications: PlannedPublication[];
   repositories: Repository[];
   funding: Funding;
-  isdbGaPRegistered: boolean;
-  dbGaPPHSNumber: string;
+  isDbGapRegistered: boolean;
+  dbGaPPPHSNumber: string;
 };
 
 type Repository = {
@@ -116,8 +118,8 @@ type FileInfo = {
 };
 
 type Funding = {
-  agency: string;
-  grantNumber: string;
+  agencies: string[];
+  grantNumbers: string;
   nciProgramOfficer: string;
   nciGPA: string;
 };
@@ -128,4 +130,10 @@ type HistoryEvent = {
   reviewComment?: string;
   dateTime: string; // YYYY-MM-DDTHH:MM:SS format
   userID: number;
+};
+
+type Applicant = {
+  applicantID: string;
+  applicantName: string;
+  applicantEmail: string;
 };

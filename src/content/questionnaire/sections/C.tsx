@@ -63,6 +63,10 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
+    combinedData.targetedReleaseDate = formObject.targetedReleaseDate === "MM/DD/YYYY" ? "" : formObject.targetedReleaseDate;
+    combinedData.targetedSubmissionDate = formObject.targetedSubmissionDate === "MM/DD/YYYY" ? "" : formObject.targetedSubmissionDate;
+    combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || 0;
+
     return { ref: formRef, data: combinedData };
   };
 

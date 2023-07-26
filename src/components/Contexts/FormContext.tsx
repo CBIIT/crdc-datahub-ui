@@ -8,14 +8,18 @@ import React, {
 } from "react";
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { merge, cloneDeep } from "lodash";
-import { GET_APP, SAVE_APP, SUBMIT_APP } from './graphql';
+import omitDeep from "omit-deep";
+import { query as LAST_APP, Response as LastAppResp } from '../../graphql/getMyLastApplication';
+import { query as GET_APP, Response as GetAppResp } from '../../graphql/getApplication';
+import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
+import { mutation as SUBMIT_APP, Response as SubmitAppResp } from '../../graphql/submitApplication';
 import initialValues from "../../config/InitialValues";
-import { FormatDate } from "../../utils";
+import { FormatDate, omitForApi } from "../../utils";
 
 export type ContextState = {
   status: Status;
   data: Application;
-  setData?: (Application) => Promise<boolean>;
+  setData?: (Application) => Promise<string | false>;
   error?: string;
 };
 
@@ -37,7 +41,7 @@ const initialState: ContextState = { status: Status.LOADING, data: null };
  * @see ContextState – Form context state
  * @see useFormContext – Form context hook
  */
-export const Context = createContext<ContextState>(initialState);
+export const Context = createContext<ContextState>(null);
 Context.displayName = "FormContext";
 
 /**
@@ -58,7 +62,7 @@ export const useFormContext = (): ContextState => {
 };
 
 type ProviderProps = {
-  id: string | number;
+  id: string;
   children: React.ReactNode;
 };
 
@@ -69,85 +73,92 @@ type ProviderProps = {
  * @param {ProviderProps} props - Form context provider props
  * @returns {JSX.Element} - Form context provider
  */
-export const FormProvider: FC<ProviderProps> = (props) => {
-  const { children, id } = props;
+export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
-  const [getAPP, { data, error }] = useLazyQuery(GET_APP, {
+  const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [getApp] = useLazyQuery<GetAppResp>(GET_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [saveApp] = useMutation<SaveAppResp>(SAVE_APP, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [submitApp] = useMutation<SubmitAppResp>(SUBMIT_APP, {
     variables: { id },
     context: { clientName: 'mockService' },
     fetchPolicy: 'no-cache'
   });
 
-  const [saveApp] = useMutation(SAVE_APP, {
-      context: { clientName: 'mockService' },
-      fetchPolicy: 'no-cache'
-    });
-
-  const [submitApp] = useMutation(SUBMIT_APP, {
-      variables: { id },
-      context: { clientName: 'mockService' },
-      fetchPolicy: 'no-cache'
-    });
-
-  // Here we update the state and send the data to the API
-  // otherwise we can just update the local state (i.e. within form sections)
-  const setData = async (data: Application) => new Promise<boolean>((resolve) => {
-    console.log("[UPDATING DATA]");
-    console.log("prior state", state);
-
-    const newState = { ...state, data };
+  const setData = async (data: Application) => {
+    let newState = { ...state, data };
     setState({ ...newState, status: Status.SAVING });
-    console.log("new state", newState);
 
-    // simulate the save event
-    setTimeout(() => {
+    const { data: d, errors } = await saveApp({ variables: omitForApi(data) });
+
+    if (errors) {
       setState({ ...newState, status: Status.LOADED });
-      console.log("saved");
-      resolve(true);
-    }, 1500);
-  });
+      return false;
+    }
+
+    if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
+      newState = { ...newState, data: { ...data, _id: d.saveApplication["_id"] } };
+    }
+
+    setState({ ...newState, status: Status.LOADED });
+    return d?.saveApplication?.["_id"] || false;
+  };
 
   useEffect(() => {
-     if (Number.isNaN(parseInt(id.toString(), 10))) {
+    if (!id || !id.trim()) {
+      setState({ status: Status.ERROR, data: null, error: "Invalid application ID provided" });
+      return;
+    }
+
+    (async () => {
+      if (id === "new") {
+        const { data: d } = await lastApp();
+
         setState({
-          status: Status.ERROR,
-          data: null,
-          error: "Invalid form ID",
+          status: Status.LOADED,
+          data: {
+            ...initialValues,
+            _id: "new",
+            pi: { ...initialValues.pi, ...d?.getMyLastApplication?.pi },
+            applicant: null,
+            organization: null,
+            history: [],
+          },
         });
+
         return;
       }
-      // Call the lazy query when the component mounts or when dependencies change
-      getAPP();
-  }, [getAPP, id]);
 
-  useEffect(() => {
-    // Update the state when the lazy query response changes
-    if (data) {
-      const applicationData = data?.getApplication;
-      const initialValuesData = cloneDeep(initialValues);
-
-      const newData: Application = {
-        ...merge(initialValuesData, applicationData),
-        // To avoid false positive form changes
-        targetedReleaseDate: FormatDate(applicationData?.targetedReleaseDate, "MM/DD/YYYY"),
-        targetedSubmissionDate: FormatDate(applicationData?.targetedSubmissionDate, "MM/DD/YYYY"),
-      };
+      const { data: d, error } = await getApp();
+      if (error) {
+        setState({ status: Status.ERROR, data: null, error: "An unknown API or GraphQL error occurred" });
+        return;
+      }
 
       setState({
         status: Status.LOADED,
-        data: newData,
+        data: {
+          ...merge(cloneDeep(initialValues), omitDeep(d?.getApplication, ["__typename"])),
+          // To avoid false positive form changes
+          targetedReleaseDate: FormatDate(d?.getApplication?.targetedReleaseDate, "MM/DD/YYYY"),
+          targetedSubmissionDate: FormatDate(d?.getApplication?.targetedSubmissionDate, "MM/DD/YYYY"),
+        }
       });
-    }
-
-    if (error) {
-      setState({
-          status: Status.ERROR,
-          data: null,
-          error: "GraphQL Errors",
-        });
-    }
-  }, [data, error]);
+    })();
+  }, [id]);
 
   const value = useMemo(() => ({ ...state, setData }), [state]);
 

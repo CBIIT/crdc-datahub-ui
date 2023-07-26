@@ -3,6 +3,6 @@ type ProgramOption = Omit<Program, "description"> & {
   isCustom?: true;
 };
 
-type StudyOption = Omit<Study, "description" | "publications" | "plannedPublications" | "repositories" | "funding" | "isdbGaPRegistered" | "dbGaPPHSNumber"> & {
+type StudyOption = Omit<Study, "description" | "publications" | "plannedPublications" | "repositories" | "funding" | "isDbGapRegistered" | "dbGaPPPHSNumber"> & {
   isCustom?: true;
 };
