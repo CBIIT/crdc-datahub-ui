@@ -57,7 +57,7 @@ export const mutation = gql`
           submittedDate
         }
         funding {
-          agency
+          agencies
           grantNumbers
           nciProgramOfficer
           nciGPA
@@ -80,6 +80,8 @@ export const mutation = gql`
       species
       cellLines
       modelSystems
+      imagingDataDeIdentified
+      dataDeIdentified
       dataTypes
       otherDataTypes
       clinicalData {
