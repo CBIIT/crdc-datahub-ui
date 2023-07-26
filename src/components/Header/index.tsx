@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import HeaderDesktop from './HeaderDesktop';
-import HeaderTablet from './HeaderTablet';
-import HeaderMobile from './HeaderMobile';
+import HeaderTabletAndMobile from './HeaderTabletAndMobile';
 import USABanner from './USABanner';
 
 const HeaderContainer = styled.div`
@@ -10,37 +9,20 @@ const HeaderContainer = styled.div`
     .desktop {
       display: block;
     }
-    .tablet {
-      display: none;
-    }
-    .mobile {
+    .tabletAndMobile {
       display: none;
     }
   }
 
-  @media (min-width:768px) and (max-width: 1024px) {
+  @media (max-width: 1024px) {
     .desktop {
       display: none;
     }
-    .tablet {
+    .tabletAndMobile {
       display: block;
-    }
-    .mobile {
-      display: none;
     }
   }
 
-  @media  (max-width: 768px) {
-    .desktop {
-      display: none;
-    }
-    .tablet {
-      display: none;
-    }
-    .mobile {
-      display: block;
-    }
-  }
 `;
 
 const Header = () => (
@@ -49,13 +31,10 @@ const Header = () => (
     <div className="desktop">
       <HeaderDesktop />
     </div>
-    <div className="tablet">
-      <HeaderTablet />
-    </div>
-    <div className="mobile">
-      <HeaderMobile />
+    <div className="tabletAndMobile">
+      <HeaderTabletAndMobile />
     </div>
   </HeaderContainer>
-  );
+);
 
 export default Header;
