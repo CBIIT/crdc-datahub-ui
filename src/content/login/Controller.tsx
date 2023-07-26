@@ -17,8 +17,11 @@ const loginController = () => {
     redirect_uri: `${NIH_REDIRECT_URL}`,
     response_type: 'code',
     scope: 'openid email profile',
-    state: redirectURLOnLoginSuccess
   };
+
+  if (redirectURLOnLoginSuccess !== null) {
+    urlParam["state"] = redirectURLOnLoginSuccess;
+  }
 
   const params = new URLSearchParams(urlParam).toString();
   const redirectUrl = `${NIH_AUTHORIZE_URL}?${params}`;
