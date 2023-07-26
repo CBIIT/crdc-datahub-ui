@@ -183,52 +183,52 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-a-primary-contact-first-name"
           label="First name"
           name="primaryContact[firstName]"
-          value={primaryContact?.firstName || ""}
+          value={(piAsPrimaryContact ? pi?.firstName : primaryContact?.firstName) || ""}
           placeholder="Enter first name"
           maxLength={50}
           readOnly={piAsPrimaryContact}
-          required
+          required={!piAsPrimaryContact}
         />
         <TextInput
           id="section-a-primary-contact-last-name"
           label="Last name"
           name="primaryContact[lastName]"
-          value={primaryContact?.lastName || ""}
+          value={(piAsPrimaryContact ? pi?.lastName : primaryContact?.lastName) || ""}
           placeholder="Enter last name"
           maxLength={50}
           readOnly={piAsPrimaryContact}
-          required
+          required={!piAsPrimaryContact}
         />
         <TextInput
           id="section-a-primary-contact-position"
           label="Position"
           name="primaryContact[position]"
-          value={primaryContact?.position || ""}
+          value={(piAsPrimaryContact ? pi?.position : primaryContact?.position) || ""}
           placeholder="Enter position"
           maxLength={100}
           readOnly={piAsPrimaryContact}
-          required
+          required={!piAsPrimaryContact}
         />
         <TextInput
           id="section-a-primary-contact-email"
           type="email"
           label="Email"
           name="primaryContact[email]"
-          value={primaryContact?.email || ""}
+          value={(piAsPrimaryContact ? pi?.email : primaryContact?.email) || ""}
           placeholder="Enter email address"
           readOnly={piAsPrimaryContact}
-          required
+          required={!piAsPrimaryContact}
         />
         <AutocompleteInput
           id="section-a-primary-contact-institution"
           label="Institution"
           name="primaryContact[institution]"
-          value={primaryContact?.institution || ""}
+          value={(piAsPrimaryContact ? pi?.institution : primaryContact?.institution) || ""}
           options={institutionConfig}
           placeholder="Enter or Select an Institution"
           readOnly={piAsPrimaryContact}
           disableClearable
-          required
+          required={!piAsPrimaryContact}
           freeSolo
         />
         <TextInput
@@ -237,7 +237,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Phone number"
           name="primaryContact[phone]"
           filter={filterNonNumeric}
-          value={primaryContact?.phone || ""}
+          value={(piAsPrimaryContact ? "" : primaryContact?.phone) || ""}
           placeholder="Enter phone number"
           maxLength={25}
           readOnly={piAsPrimaryContact}
