@@ -158,6 +158,7 @@ const AutocompleteInput = <T,>({
   const [error, setError] = useState<boolean>(false);
   const helperText = helpText || (required ? "This field is required" : " ");
   const inputRef = useRef<HTMLInputElement>(null);
+  const valRef = useRef<T>(value);
 
   const validateInput = (input: AutocompleteValue<T, false, false, false>,): boolean => {
     const isString = typeof input === "string";
@@ -191,7 +192,8 @@ const AutocompleteInput = <T,>({
   };
 
   useEffect(() => {
-    onChangeWrapper(null, value, null);
+    if (value !== valRef.current) onChangeWrapper(null, value, null);
+    valRef.current = value;
   }, [value]);
 
   return (

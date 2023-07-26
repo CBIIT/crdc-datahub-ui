@@ -27,6 +27,7 @@
     "src",
     ".eslintrc.cjs",
     "types/*.d.ts",
-    "conf"
+    "conf",
+    "public"
   ]
 }

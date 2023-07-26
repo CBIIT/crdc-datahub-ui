@@ -3,7 +3,6 @@ import {
   Link, useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { isEqual } from 'lodash';
 import { Button, Container, Divider, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -17,7 +16,8 @@ import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import Section from './sections';
 import map from '../../config/SectionConfig';
 import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
-import QuestionnaireBanner from '../../components/Questionnaire/QuestionnaireBanner';
+import PageBanner from '../../components/PageBanner';
+import bannerPng from "../../assets/banner/banner_background.png";
 import GenericAlert from '../../components/GenericAlert';
 
 const StyledContainer = styled(Container)(() => ({
@@ -149,11 +149,17 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     if (!isEqual(data, newData)) {
       const r = await setData(newData);
       setChangesAlert(`Your changes for the ${map[activeSection].title} section have been successfully saved.`);
+
+      if (!blockedNavigate && r && data["_id"] === "new" && r !== data?.['_id']) {
+        // NOTE: This currently triggers a form data refetch, which is not ideal
+        navigate(`/submission/${r}/${activeSection}`, { replace: true });
+      }
+
       setTimeout(() => setChangesAlert(""), 10000);
       return r;
     }
 
-    return true;
+    return data?.["_id"];
   };
 
   /**
@@ -165,9 +171,14 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
-    await saveForm(true);
+    const newId = await saveForm(true);
     setBlockedNavigate(false);
-    blocker.proceed();
+    blocker.proceed?.();
+
+    if (newId) {
+      // NOTE: This currently triggers a form data refetch, which is not ideal
+      navigate(blocker.location.pathname.replace("new", newId), { replace: true });
+    }
   };
 
   /**
@@ -179,7 +190,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const discardAndNavigate = () => {
     setBlockedNavigate(false);
-    blocker.proceed();
+    blocker.proceed?.();
   };
 
   if (status === FormStatus.LOADING) {
@@ -201,11 +212,12 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         </span>
       </GenericAlert>
 
-      <Helmet>
-        <title>Submission Request Form</title>
-      </Helmet>
-
-      <QuestionnaireBanner />
+      <PageBanner
+        title="Submission Request"
+        pageTitle="Submission Request Form"
+        subTitle="The following set of high-level questions are intended to provide insight to the CRDC Data Hub, related to data storage, access, secondary sharing needs and other requirements of data submitters."
+        bannerSrc={bannerPng}
+      />
 
       <StyledContainer maxWidth="xl">
         <StyledContentWrapper direction="row" justifyContent="center">
