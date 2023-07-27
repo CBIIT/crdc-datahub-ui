@@ -29,7 +29,7 @@ const BaseComponent: FC<Props> = ({ section, data = {} } : Props) => {
   );
 };
 
-describe("questionnaire ProgressBar tests", () => {
+describe("ProgressBar General Tests", () => {
   const keys = Object.keys(config);
   const sections = Object.values(config);
 
@@ -74,6 +74,7 @@ describe("questionnaire ProgressBar tests", () => {
 
     expect(reviewSection).toBeVisible();
     expect(reviewSection).toHaveAttribute("aria-disabled", "true");
+    expect(reviewSection.querySelector(".MuiAvatar-root svg")).toHaveAttribute("data-testid", "ArrowUpwardIcon");
   });
 
   it("renders the review section as enabled only when all sections are completed", () => {
@@ -90,5 +91,31 @@ describe("questionnaire ProgressBar tests", () => {
     });
 
     expect(getByTestId(`progress-bar-section-${keys.length - 1}`)).toHaveAttribute("aria-disabled", "false");
+  });
+
+  const completedStates : ApplicationStatus[] = ["Submitted", "In Review", "Approved", "Rejected"];
+  it.each(completedStates)("renders the Review section as unlocked with a CheckIcon icon for status %s", (status) => {
+    const data = {
+      sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
+      status,
+    };
+
+    const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
+    const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
+
+    expect(reviewSection.querySelector(".MuiAvatar-root svg")).toHaveAttribute("data-testid", "CheckIcon");
+  });
+
+  const incompleteStates : ApplicationStatus[] = ["New", "In Progress"];
+  it.each(incompleteStates)("renders the Review section as unlocked with an ArrowUpwardIcon icon for status %s", (status) => {
+    const data = {
+      sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
+      status,
+    };
+
+    const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
+    const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
+
+    expect(reviewSection.querySelector(".MuiAvatar-root svg")).toHaveAttribute("data-testid", "ArrowUpwardIcon");
   });
 });

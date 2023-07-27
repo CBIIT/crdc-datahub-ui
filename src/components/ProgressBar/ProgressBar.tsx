@@ -70,7 +70,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
   const sectionKeys = Object.keys(config);
 
   const { data } = useFormContext();
-  const { _id, sections: sectionStatuses } = data;
+  const { _id, status, sections: sectionStatuses } = data;
 
   const [sections, setSections] = useState<ProgressSection[]>([]);
 
@@ -95,8 +95,12 @@ const ProgressBar: FC<Props> = ({ section }) => {
 
     // Special icon for the review section
     const reviewSection = newSections.find((s) => s.title === "Review & Submit");
+    const reviewUnlocked = completedSections === sectionKeys.length - 1;
     if (reviewSection) {
-      reviewSection.icon = completedSections === sectionKeys.length - 1 ? "Review" : "ReviewDisabled";
+      // eslint-disable-next-line no-nested-ternary
+      reviewSection.icon = !["New", "In Progress"].includes(status) && reviewUnlocked
+        ? "Completed"
+        : reviewUnlocked ? "Review" : "ReviewDisabled";
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
     }
 
