@@ -11,20 +11,24 @@ import Tooltip from "./Tooltip";
 import checkboxUncheckedIcon from "../../assets/icons/checkbox_unchecked.svg";
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
 
-const UncheckedIcon = styled("div")(() => ({
+const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   backgroundImage: `url(${checkboxUncheckedIcon})`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   width: "24px",
   height: "24px",
+  backgroundColor: readOnly ? "#D9DEE4" : "initial",
+  cursor: readOnly ? "not-allowed" : "initial",
 }));
 
-const CheckedIcon = styled("div")(() => ({
+const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   backgroundImage: `url(${checkboxCheckedIcon})`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   width: "24px",
   height: "24px",
+  backgroundColor: readOnly ? "#D9DEE4" : "initial",
+  cursor: readOnly ? "not-allowed" : "initial",
 }));
 
 const StyledFormControl = styled(FormControl)(() => ({
@@ -106,6 +110,7 @@ const CheckboxInput: FC<Props> = ({
   errorText,
   onChange,
   gridWidth,
+  readOnly,
   ...rest
 }) => {
   const id = useId();
@@ -115,6 +120,9 @@ const CheckboxInput: FC<Props> = ({
   const helperText = helpText || (required ? "This field is required" : " ");
 
   const onChangeWrapper = (newVal: string, checked: boolean) => {
+    if (readOnly) {
+      return;
+    }
     if (typeof onChange === "function") {
       onChange(newVal, checked);
     }
@@ -136,10 +144,11 @@ const CheckboxInput: FC<Props> = ({
         control={(
           <StyledCheckbox
             name={name}
-            icon={<UncheckedIcon />}
-            checkedIcon={<CheckedIcon />}
+            icon={<UncheckedIcon readOnly={readOnly} />}
+            checkedIcon={<CheckedIcon readOnly={readOnly} />}
             onChange={(e, checked) => onChangeWrapper(e.target.value, checked)}
             disableRipple
+            readOnly={readOnly}
             {...rest}
           />
         )}

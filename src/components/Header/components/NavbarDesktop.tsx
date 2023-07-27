@@ -3,6 +3,7 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Dialog } from "@mui/material";
 import { useAuthContext } from '../../Contexts/AuthContext';
+import GenericAlert from '../../GenericAlert';
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
 
 const Nav = styled.div`
@@ -405,8 +406,18 @@ const NavBar = () => {
   const navigate = useNavigate();
   const authData = useAuthContext();
   const displayName = authData?.user?.displayName?.toUpperCase() || "random first name no one has";
+  const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
   clickableTitle.push(displayName);
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
+
+  const handleLogout = async () => {
+    setClickedTitle("");
+    const logoutStatus = await authData.logout();
+    if (logoutStatus) {
+      setShowLogoutAlert(true);
+      setTimeout(() => setShowLogoutAlert(false), 10000);
+    }
+  };
 
   const handleMenuClick = (e) => {
     if (e.target.innerText === clickedTitle || !clickableTitle.includes(e.target.innerText)) {
@@ -458,6 +469,11 @@ const NavBar = () => {
   return (
     <>
       <Nav>
+        <GenericAlert open={showLogoutAlert}>
+          <span>
+            You have been logged out.
+          </span>
+        </GenericAlert>
         <NavContainer>
           <UlContainer>
             {
@@ -592,11 +608,11 @@ const NavBar = () => {
                 role="button"
                 tabIndex={0}
                 className="dropdownItem"
-                onClick={() => { setClickedTitle(""); authData.logout(); }}
+                onClick={() => { setClickedTitle(""); handleLogout(); }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     setClickedTitle("");
-                    authData.logout();
+                    handleLogout();
                   }
                 }}
               >

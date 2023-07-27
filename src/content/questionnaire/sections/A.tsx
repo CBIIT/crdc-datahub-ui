@@ -13,8 +13,9 @@ import institutionConfig from "../../../config/InstitutionConfig";
 import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
 import { filterNonNumeric, mapObjectWithKey } from '../utils';
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
+import useFormMode from "./hooks/useFormMode";
 
-type KeyedContact = {
+export type KeyedContact = {
   key: string;
 } & Contact;
 
@@ -35,20 +36,24 @@ const StyledFormControlLabel = styled(FormControlLabel)({
 const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
   const { pi, primaryContact } = data;
+  const { readOnlyInputs } = useFormMode();
 
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(data?.piAsPrimaryContact || false);
   const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
 
   const formRef = useRef<HTMLFormElement>();
   const {
-    saveFormRef, submitFormRef, getFormObjectRef,
+    nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) { return; }
 
+    nextButtonRef.current.style.display = "flex";
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
 
     getFormObjectRef.current = getFormObject;
   }, [refs]);
@@ -94,7 +99,10 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       formRef={formRef}
     >
       {/* Principal Investigator */}
-      <SectionGroup title="Principal Investigator for study" divider={false}>
+      <SectionGroup
+        title="Principal Investigator"
+        description="Provide the Principal Investigator contact information for the study or collection"
+      >
         <TextInput
           id="section-a-pi-first-name"
           label="First name"
@@ -103,6 +111,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Enter first name"
           maxLength={50}
           required
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-a-pi-last-name"
@@ -112,6 +121,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Enter last name"
           maxLength={50}
           required
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-a-pi-position"
@@ -121,6 +131,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Enter position"
           maxLength={100}
           required
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-a-pi-email"
@@ -130,6 +141,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={pi.email}
           placeholder="Enter email address"
           required
+          readOnly={readOnlyInputs}
         />
         <AutocompleteInput
           id="section-a-pi-institution"
@@ -141,6 +153,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           disableClearable
           freeSolo
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-a-pi-institution-address"
@@ -153,18 +166,23 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           rows={4}
           multiline
           required
+          readOnly={readOnlyInputs}
         />
       </SectionGroup>
 
       {/* Primary Contact */}
-      <SectionGroup title="Primary Contact assisting with data collection">
+      <SectionGroup
+        title="Primary Contact"
+        description="Provide the contact information for the primary contact who will be assisting with data submission, if different from PI"
+      >
         <Grid item md={12}>
           <StyledFormControlLabel
             label="Same as Principal Investigator"
             control={(
               <Checkbox
                 checked={piAsPrimaryContact}
-                onChange={() => setPiAsPrimaryContact(!piAsPrimaryContact)}
+                onChange={() => !readOnlyInputs && setPiAsPrimaryContact(!piAsPrimaryContact)}
+                readOnly={readOnlyInputs}
               />
             )}
           />
@@ -186,7 +204,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={(piAsPrimaryContact ? pi?.firstName : primaryContact?.firstName) || ""}
           placeholder="Enter first name"
           maxLength={50}
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
           required={!piAsPrimaryContact}
         />
         <TextInput
@@ -196,7 +214,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={(piAsPrimaryContact ? pi?.lastName : primaryContact?.lastName) || ""}
           placeholder="Enter last name"
           maxLength={50}
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
           required={!piAsPrimaryContact}
         />
         <TextInput
@@ -206,7 +224,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={(piAsPrimaryContact ? pi?.position : primaryContact?.position) || ""}
           placeholder="Enter position"
           maxLength={100}
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
           required={!piAsPrimaryContact}
         />
         <TextInput
@@ -216,7 +234,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="primaryContact[email]"
           value={(piAsPrimaryContact ? pi?.email : primaryContact?.email) || ""}
           placeholder="Enter email address"
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
           required={!piAsPrimaryContact}
         />
         <AutocompleteInput
@@ -226,7 +244,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={(piAsPrimaryContact ? pi?.institution : primaryContact?.institution) || ""}
           options={institutionConfig}
           placeholder="Enter or Select an Institution"
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
           disableClearable
           required={!piAsPrimaryContact}
           freeSolo
@@ -240,20 +258,21 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={(piAsPrimaryContact ? "" : primaryContact?.phone) || ""}
           placeholder="Enter phone number"
           maxLength={25}
-          readOnly={piAsPrimaryContact}
+          readOnly={piAsPrimaryContact || readOnlyInputs}
         />
       </SectionGroup>
 
       {/* Additional Contacts */}
       <SectionGroup
         title="Additional Contacts"
+        description="If there are additional points of contact (e.g., scientific and/or technical data coordinator), enter the contact details for each.  If there is more than one, you may add additional rows for the details for each contact"
         endButton={(
           <AddRemoveButton
             id="section-a-add-additional-contact-button"
             label="Add Contact"
             startIcon={<AddCircleIcon />}
             onClick={addContact}
-            disabled={status === FormStatus.SAVING}
+            disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
         )}
       >
@@ -265,6 +284,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               index={idx}
               contact={contact}
               onDelete={() => removeContact(contact.key)}
+              readOnly={readOnlyInputs}
             />
           )}
         />

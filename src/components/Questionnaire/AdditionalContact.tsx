@@ -18,6 +18,7 @@ type Props = {
   idPrefix?: string;
   index: number;
   contact: Contact | null;
+  readOnly?: boolean;
   onDelete: () => void;
 };
 
@@ -27,7 +28,7 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, onDelete }: Props) => {
+const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly, onDelete }: Props) => {
   const { status } = useFormContext();
   const {
     firstName, lastName, email,
@@ -45,6 +46,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, onDelete 
           placeholder="Enter first name"
           maxLength={50}
           required
+          readOnly={readOnly}
         />
         <TextInput
           id={idPrefix.concat(`additionalContacts-${index}-last-name`)}
@@ -54,6 +56,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, onDelete 
           placeholder="Enter last name"
           maxLength={50}
           required
+          readOnly={readOnly}
         />
         <TextInput
           id={idPrefix.concat(`additionalContacts-${index}-position`)}
@@ -63,6 +66,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, onDelete 
           placeholder="Enter position"
           maxLength={100}
           required
+          readOnly={readOnly}
         />
         <TextInput
           id={idPrefix.concat(`additionalContacts-${index}-email`)}
@@ -72,6 +76,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, onDelete 
           value={email}
           placeholder="Enter email"
           required
+          readOnly={readOnly}
         />
         <AutocompleteInput
           id={idPrefix.concat(`additionalContacts-${index}-institution`)}
@@ -83,6 +88,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, onDelete 
           required
           disableClearable
           freeSolo
+          readOnly={readOnly}
         />
         <TextInput
           id={idPrefix.concat(`additionalContacts-${index}-phone-number`)}
@@ -93,6 +99,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, onDelete 
           value={phone}
           placeholder="Enter phone number"
           maxLength={25}
+          readOnly={readOnly}
         />
       </Grid>
       <Grid item xs={12}>
@@ -103,7 +110,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, onDelete 
           onClick={onDelete}
           startIcon={<RemoveCircleIcon />}
           iconColor="#F18E8E"
-          disabled={status === FormStatus.SAVING}
+          disabled={readOnly || status === FormStatus.SAVING}
         />
       </Grid>
     </GridContainer>

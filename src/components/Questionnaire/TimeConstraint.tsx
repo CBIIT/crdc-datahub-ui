@@ -22,6 +22,7 @@ type Props = {
   idPrefix?: string;
   index: number;
   timeConstraint: TimeConstraint | null;
+  readOnly?: boolean;
   onDelete: () => void;
 };
 
@@ -29,6 +30,7 @@ const TimeConstraint: FC<Props> = ({
   idPrefix = "",
   index,
   timeConstraint,
+  readOnly,
   onDelete
 }) => {
   const { status } = useFormContext();
@@ -48,6 +50,7 @@ const TimeConstraint: FC<Props> = ({
           minRows={2}
           multiline
           required
+          readOnly={readOnly}
         />
         <DatePickerInput
           inputID={idPrefix.concat(`time-constraint-${index}-effective-date`)}
@@ -57,6 +60,7 @@ const TimeConstraint: FC<Props> = ({
           required
           disablePast
           tooltipText="Date relating to this constraint"
+          readOnly={readOnly}
         />
       </Grid>
       <Grid item xs={12}>
@@ -67,7 +71,7 @@ const TimeConstraint: FC<Props> = ({
           onClick={onDelete}
           startIcon={<RemoveCircleIcon />}
           iconColor="#F18E8E"
-          disabled={status === FormStatus.SAVING}
+          disabled={readOnly || status === FormStatus.SAVING}
         />
       </Grid>
     </GridContainer>

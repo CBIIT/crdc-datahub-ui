@@ -15,6 +15,7 @@ type Props = {
   idPrefix?: string;
   index: number;
   repository: Repository | null;
+  readOnly?: boolean;
   onDelete: () => void;
 };
 
@@ -28,6 +29,7 @@ const Repository: FC<Props> = ({
   idPrefix = "",
   index,
   repository,
+  readOnly,
   onDelete,
 }: Props) => {
   const { status } = useFormContext();
@@ -46,6 +48,7 @@ const Repository: FC<Props> = ({
           maxLength={50}
           gridWidth={12}
           required
+          readOnly={readOnly}
         />
         <TextInput
           id={idPrefix.concat(`repository-${index}-study-id`)}
@@ -56,6 +59,7 @@ const Repository: FC<Props> = ({
           maxLength={50}
           gridWidth={6}
           required
+          readOnly={readOnly}
         />
         <TextInput
           id={idPrefix.concat(`repository-${index}-date-submitted`)}
@@ -66,6 +70,7 @@ const Repository: FC<Props> = ({
           maxLength={50}
           gridWidth={6}
           required
+          readOnly={readOnly}
         />
       </Grid>
       <Grid item xs={12}>
@@ -76,7 +81,7 @@ const Repository: FC<Props> = ({
           onClick={onDelete}
           startIcon={<RemoveCircleIcon />}
           iconColor="#F18E8E"
-          disabled={status === FormStatus.SAVING}
+          disabled={readOnly || status === FormStatus.SAVING}
         />
       </Grid>
     </GridContainer>

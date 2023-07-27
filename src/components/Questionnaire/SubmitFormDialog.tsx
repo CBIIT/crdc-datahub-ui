@@ -1,7 +1,11 @@
 import { LoadingButton } from "@mui/lab";
-import { Button, DialogProps } from "@mui/material";
+import { Button, DialogProps, styled } from "@mui/material";
 import { FC } from "react";
 import Dialog from "./Dialog";
+
+const StyledSubmitLoadingButton = styled(LoadingButton)(() => ({
+  color: "#0B7F99"
+}));
 
 type Props = {
   title?: string;
@@ -9,17 +13,17 @@ type Props = {
   disableActions?: boolean;
   loading?: boolean;
   onCancel?: () => void;
-  onSave?: () => void;
+  onSubmit?: () => void;
   onDiscard?: () => void;
 } & DialogProps;
 
-const UnsavedChangesDialog: FC<Props> = ({
+const SubmitFormDialog: FC<Props> = ({
   title,
   message,
   disableActions,
   loading,
   onCancel,
-  onSave,
+  onSubmit,
   onDiscard,
   open,
   onClose,
@@ -28,31 +32,25 @@ const UnsavedChangesDialog: FC<Props> = ({
   <Dialog
     open={open}
     onClose={onClose}
-    title={title || "Unsaved Changes"}
-    message={
-      message
-      || "You have unsaved changes. Your changes will be lost if you leave this section without saving. Do you want to save your data?"
-    }
+    title={title || "Submit Request"}
+    message={message || "Once your application is submitted for review, no further changes can be made. Are you sure you want to proceed?"}
     actions={(
       <>
         <Button onClick={onCancel} disabled={disableActions}>
           Cancel
         </Button>
-        <LoadingButton
-          onClick={onSave}
+        <StyledSubmitLoadingButton
+          onClick={onSubmit}
           loading={loading}
           disabled={disableActions}
           autoFocus
         >
-          Save
-        </LoadingButton>
-        <Button onClick={onDiscard} disabled={disableActions} color="error">
-          Discard
-        </Button>
+          Confirm to Submit
+        </StyledSubmitLoadingButton>
       </>
     )}
     {...rest}
   />
 );
 
-export default UnsavedChangesDialog;
+export default SubmitFormDialog;

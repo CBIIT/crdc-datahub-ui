@@ -41,7 +41,8 @@ export type FormGroupCheckboxOption = {
 
 type Props = {
   idPrefix?: string;
-  label: string | JSX.Element;
+  label?: string | JSX.Element;
+  hideLabel?: boolean;
   value: string[];
   name?: string;
   options: FormGroupCheckboxOption[];
@@ -51,12 +52,14 @@ type Props = {
   helpText?: string;
   tooltipText?: string;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
+  readOnly?: boolean;
   onChange?: (values: string[]) => void;
 };
 
 const FormGroupCheckbox: FC<Props> = ({
   idPrefix = "",
   label,
+  hideLabel,
   value,
   name,
   options,
@@ -66,6 +69,7 @@ const FormGroupCheckbox: FC<Props> = ({
   helpText,
   tooltipText,
   gridWidth,
+  readOnly,
   onChange,
 }) => {
   const id = useId();
@@ -129,11 +133,13 @@ const FormGroupCheckbox: FC<Props> = ({
   return (
     <Grid md={gridWidth || 6} xs={12} item>
       <FormControl fullWidth error={error}>
-        <StyledFormLabel htmlFor={id}>
-          {label}
-          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
-          {tooltipText && <Tooltip title={tooltipText} />}
-        </StyledFormLabel>
+        {!hideLabel && (
+          <StyledFormLabel htmlFor={id}>
+            {label}
+            {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+            {tooltipText && <Tooltip title={tooltipText} />}
+          </StyledFormLabel>
+        )}
         <FormGroup row={orientation === "horizontal"}>
           {options.map((option, index) => {
             const isChecked = val?.includes(option.value);
@@ -148,6 +154,7 @@ const FormGroupCheckbox: FC<Props> = ({
                 inputLabelTooltipText={option.tooltipText}
                 errorText={option.errorText}
                 onChange={handleChange}
+                readOnly={readOnly}
                 inputRef={(ref) => {
                   if (index === 0) {
                     firstCheckboxInputRef.current = ref;

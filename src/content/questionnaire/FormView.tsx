@@ -1,10 +1,10 @@
 import React, { FC, createRef, useEffect, useRef, useState } from 'react';
 import {
-  Link, useNavigate,
+  useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
 } from 'react-router-dom';
 import { isEqual } from 'lodash';
-import { Button, Container, Divider, Stack, styled } from '@mui/material';
+import { Alert, Button, Container, Divider, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
@@ -14,11 +14,16 @@ import SuspenseLoader from '../../components/SuspenseLoader';
 import StatusBar from '../../components/StatusBar/StatusBar';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import Section from './sections';
-import map from '../../config/SectionConfig';
+import map, { InitialSections } from '../../config/SectionConfig';
 import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
+import SubmitFormDialog from '../../components/Questionnaire/SubmitFormDialog';
+import useFormMode from './sections/hooks/useFormMode';
+import RejectFormDialog from '../../components/Questionnaire/RejectFormDialog';
+import ApproveFormDialog from '../../components/Questionnaire/ApproveFormDialog';
 import PageBanner from '../../components/PageBanner';
 import bannerPng from "../../assets/banner/banner_background.png";
 import GenericAlert from '../../components/GenericAlert';
+import { Status as AuthStatus, useAuthContext } from '../../components/Contexts/AuthContext';
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -52,6 +57,13 @@ const StyledContentWrapper = styled(Stack)({
   paddingBottom: "75px",
 });
 
+const StyledAlert = styled(Alert)({
+  fontWeight: 400,
+  fontSize: "16px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  scrollMarginTop: "64px"
+});
+
 /**
  * Intake Form View Component
  *
@@ -60,25 +72,49 @@ const StyledContentWrapper = styled(Stack)({
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
-  const { status, data, setData, error } = useFormContext();
+  const { status, data, setData, submitData, approveForm, rejectForm, error } = useFormContext();
+  const { status: authStatus } = useAuthContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
+  const [openSubmitDialog, setOpenSubmitDialog] = useState<boolean>(false);
+  const [openApproveDialog, setOpenApproveDialog] = useState<boolean>(false);
+  const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
+  const [reviewComment, setReviewComment] = useState<string>("");
+  const [hasError, setHasError] = useState<boolean>(false);
+  const { formMode, readOnlyInputs, userCanReview, userCanEdit } = useFormMode();
   const [changesAlert, setChangesAlert] = useState<string>("");
+  const [allSectionsComplete, setAllSectionsComplete] = useState<boolean>(false);
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
   const prevSection = sectionKeys[sectionIndex - 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
   const nextSection = sectionKeys[sectionIndex + 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
+  const isSectionD = activeSection === "D";
+  const errorAlertRef = useRef(null);
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
     submitFormRef: createRef<HTMLButtonElement>(),
+    nextButtonRef: createRef<HTMLButtonElement>(),
+    approveFormRef: createRef<HTMLButtonElement>(),
+    rejectFormRef: createRef<HTMLButtonElement>(),
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
 
+  useEffect(() => {
+    const isComplete = isAllSectionsComplete();
+    setAllSectionsComplete(isComplete);
+  }, [status]);
+
+  useEffect(() => {
+    if (hasError && errorAlertRef?.current) {
+      errorAlertRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [hasError, errorAlertRef]);
+
   // Intercept React Router navigation actions with unsaved changes
   const blocker: Blocker = useBlocker(() => {
-    if (isDirty()) {
+    if (!readOnlyInputs && isDirty()) {
       setBlockedNavigate(true);
       return true;
     }
@@ -107,6 +143,24 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     window.scrollTo(0, 0);
   }, [section]);
 
+  const isAllSectionsComplete = (): boolean => {
+    if (status === FormStatus.LOADING) {
+      return false;
+    }
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref?.current || !newData) {
+      return false;
+    }
+
+    // form has not been created
+    if (newData?.sections?.length !== Object.keys(map).length - 1) {
+      return false;
+    }
+
+    return newData?.sections?.every((section) => section.status === "Completed");
+  };
+
   /**
    * Determines if the form has unsaved changes.
    *
@@ -119,6 +173,100 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   /**
+   * submit the form data to the database.
+   *
+   *
+   * @returns {Promise<boolean>} true if the submit was successful, false otherwise
+   */
+  const submitForm = async (): Promise<string | boolean> => {
+    if (readOnlyInputs || !userCanEdit) {
+      return false;
+    }
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref.current || !newData) {
+      return false;
+    }
+
+    try {
+      const r = await submitData();
+      setOpenSubmitDialog(false);
+      setReviewComment("");
+      navigate('/submissions');
+      setHasError(false);
+      return r;
+    } catch (err) {
+      setOpenSubmitDialog(false);
+      setReviewComment("");
+      setHasError(true);
+      return false;
+    }
+  };
+
+  /**
+   * submit the review response to the form submission to the database.
+   *
+   *
+   * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
+   */
+  const submitApproveForm = async (): Promise<string | boolean> => {
+    if (!userCanReview) {
+      return false;
+    }
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref.current || !newData) {
+      return false;
+    }
+
+    try {
+      const res = await approveForm(reviewComment, true);
+      setOpenApproveDialog(false);
+      setReviewComment("");
+      if (res) {
+        setHasError(false);
+        navigate('/submissions');
+      }
+      return res;
+    } catch (err) {
+      setOpenApproveDialog(false);
+      setReviewComment("");
+      setHasError(true);
+      return false;
+    }
+  };
+
+  /**
+   * submit the review response to the form submission to the database.
+   *
+   *
+   * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
+   */
+  const submitRejectForm = async (): Promise<string | boolean> => {
+    if (!userCanReview) {
+      return false;
+    }
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref.current || !newData) {
+      return false;
+    }
+
+    try {
+      const res = await rejectForm(reviewComment);
+      setOpenRejectDialog(false);
+      navigate('/submissions');
+      setHasError(false);
+      return res;
+    } catch (err) {
+      setOpenRejectDialog(false);
+      setReviewComment("");
+      setHasError(true);
+      return false;
+    }
+  };
+
+  /**
    * Saves the form data to the database.
    *
    * NOTE:
@@ -128,6 +276,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    * @returns {Promise<boolean>} true if the save was successful, false otherwise
    */
   const saveForm = async (hideValidation = false) => {
+    if (readOnlyInputs || !userCanEdit) {
+      return false;
+    }
+
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
     if (!ref.current || !newData) {
@@ -135,6 +287,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
 
     // Update section status
+    if (newData?.sections?.length !== Object.keys(map).length - 1) { // Not including review section
+      newData.sections = InitialSections;
+    }
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
     if (!hideValidation) {
       ref.current.reportValidity();
@@ -173,9 +328,16 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
     const newId = await saveForm(true);
-    setBlockedNavigate(false);
-    blocker.proceed?.();
+    const reviewSectionUrl = `/submission/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
+    const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 
+    setBlockedNavigate(false);
+
+    if (isNavigatingToReviewSection && !isAllSectionsComplete()) {
+      return;
+    }
+
+    blocker.proceed?.();
     if (newId) {
       // NOTE: This currently triggers a form data refetch, which is not ideal
       navigate(blocker.location.pathname.replace("new", newId), { replace: true });
@@ -194,7 +356,62 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     blocker.proceed?.();
   };
 
-  if (status === FormStatus.LOADING) {
+  const handleSubmitForm = () => {
+    if (readOnlyInputs || !userCanEdit) {
+      return;
+    }
+    setOpenSubmitDialog(true);
+  };
+
+  const handleApproveForm = () => {
+    if (!userCanReview) {
+      return;
+    }
+    setOpenApproveDialog(true);
+  };
+
+  const handleRejectForm = () => {
+    if (!userCanReview) {
+      return;
+    }
+    setOpenRejectDialog(true);
+  };
+
+  const handleCloseApproveFormDialog = () => {
+    setReviewComment("");
+    setOpenApproveDialog(false);
+  };
+
+  const handleCloseRejectFormDialog = () => {
+    setReviewComment("");
+    setOpenRejectDialog(false);
+  };
+
+  const handleBackClick = () => {
+    if (status === FormStatus.SAVING || !prevSection) {
+      return;
+    }
+    navigate(prevSection);
+  };
+
+  const handleNextClick = () => {
+    if (status === FormStatus.SAVING || !nextSection) {
+      return;
+    }
+    if (isSectionD && !allSectionsComplete) {
+      return;
+    }
+    navigate(nextSection);
+  };
+
+  const handleReviewCommentChange = (newComment: string) => {
+    if (!userCanReview) {
+      return;
+    }
+    setReviewComment(newComment);
+  };
+
+  if (status === FormStatus.LOADING || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
   }
 
@@ -202,6 +419,18 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     navigate('/submissions', {
       state: { error: error || 'Unknown form loading error' },
     });
+    return null;
+  }
+
+  if (authStatus === AuthStatus.ERROR) {
+    navigate('/submissions', {
+      state: { error: error || 'Unknown authorization error' },
+    });
+    return null;
+  }
+
+  if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
+    navigate('/submissions');
     return null;
   }
 
@@ -234,6 +463,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
           <Stack className={classes.content} direction="column" spacing={5}>
             <StatusBar />
 
+            {hasError && <StyledAlert ref={errorAlertRef} severity="error">Oops! An error occurred. Please refresh the page or try again later.</StyledAlert>}
+
             <Section section={activeSection} refs={refs} />
 
             <Stack
@@ -243,19 +474,18 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
               alignItems="center"
               spacing={2}
             >
-              <Link to={prevSection} style={{ pointerEvents: prevSection ? "initial" : "none" }}>
-                <Button
-                  id="submission-form-back-button"
-                  className={classes.backButton}
-                  variant="outlined"
-                  type="button"
-                  disabled={status === FormStatus.SAVING || !prevSection}
-                  size="large"
-                  startIcon={<BackwardArrowIcon />}
-                >
-                  Back
-                </Button>
-              </Link>
+              <Button
+                id="submission-form-back-button"
+                className={classes.backButton}
+                variant="outlined"
+                type="button"
+                disabled={status === FormStatus.SAVING || !prevSection}
+                onClick={handleBackClick}
+                size="large"
+                startIcon={<BackwardArrowIcon />}
+              >
+                Back
+              </Button>
               <LoadingButton
                 id="submission-form-save-button"
                 className={classes.saveButton}
@@ -265,6 +495,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 size="large"
                 loading={status === FormStatus.SAVING}
                 onClick={() => saveForm()}
+                sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
               >
                 Save
               </LoadingButton>
@@ -275,22 +506,44 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 type="submit"
                 ref={refs.submitFormRef}
                 size="large"
+                onClick={handleSubmitForm}
+                sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
               >
                 Submit
               </LoadingButton>
-              <Link to={nextSection} style={{ pointerEvents: nextSection ? "initial" : "none" }}>
-                <Button
-                  id="submission-form-next-button"
-                  className={classes.nextButton}
-                  variant="outlined"
-                  type="button"
-                  disabled={status === FormStatus.SAVING || !nextSection}
-                  size="large"
-                  endIcon={<ForwardArrowIcon />}
-                >
-                  Next
-                </Button>
-              </Link>
+              <LoadingButton
+                id="submission-form-approve-button"
+                className={classes.approveButton}
+                variant="outlined"
+                ref={refs.approveFormRef}
+                size="large"
+                onClick={handleApproveForm}
+              >
+                Approve
+              </LoadingButton>
+              <LoadingButton
+                id="submission-form-approve-button"
+                className={classes.rejectButton}
+                variant="outlined"
+                ref={refs.rejectFormRef}
+                size="large"
+                onClick={handleRejectForm}
+              >
+                Reject
+              </LoadingButton>
+              <Button
+                id="submission-form-next-button"
+                className={classes.nextButton}
+                variant="outlined"
+                type="button"
+                ref={refs.nextButtonRef}
+                onClick={handleNextClick}
+                disabled={status === FormStatus.SAVING || !nextSection || (isSectionD && !allSectionsComplete)}
+                size="large"
+                endIcon={<ForwardArrowIcon />}
+              >
+                Next
+              </Button>
             </Stack>
           </Stack>
         </StyledContentWrapper>
@@ -302,6 +555,26 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         onSave={saveAndNavigate}
         onDiscard={discardAndNavigate}
         disableActions={status === FormStatus.SAVING}
+      />
+      <SubmitFormDialog
+        open={openSubmitDialog}
+        onCancel={() => setOpenSubmitDialog(false)}
+        onSubmit={submitForm}
+        disableActions={status === FormStatus.SUBMITTING}
+      />
+      <ApproveFormDialog
+        open={openApproveDialog}
+        reviewComment={reviewComment}
+        onReviewCommentChange={handleReviewCommentChange}
+        onCancel={handleCloseApproveFormDialog}
+        onSubmit={submitApproveForm}
+      />
+      <RejectFormDialog
+        open={openRejectDialog}
+        reviewComment={reviewComment}
+        onReviewCommentChange={handleReviewCommentChange}
+        onCancel={handleCloseRejectFormDialog}
+        onSubmit={submitRejectForm}
       />
     </>
   );
@@ -328,7 +601,7 @@ const styles = () => ({
       fontWeight: 700,
       fontSize: '16px',
       fontFamily: "'Nunito', 'Rubik', sans-serif",
-      letterSpacing: "2%",
+      letterSpacing: "0.32px",
       lineHeight: "20.14px",
       borderRadius: "8px",
       borderColor: "#828282",
@@ -375,10 +648,30 @@ const styles = () => ({
       background: "#22A584"
     }
   },
-  submitButton: {
+  approveButton: {
     "&.MuiButton-root": {
       borderColor: "#26B893",
       background: "#22A584"
+    }
+  },
+  rejectButton: {
+    "&.MuiButton-root": {
+      borderColor: "#26B893",
+      background: "#D54309"
+    }
+  },
+  submitButton: {
+    "&.MuiButton-root": {
+      display: "flex",
+      width: "128px",
+      height: "50.593px",
+      padding: "11px",
+      justifyContent: "center",
+      alignItems: "center",
+      flexShrink: 0,
+      borderRadius: "8px",
+      border: "1px solid #828282",
+      background: "#0B7F99",
     }
   },
 });
