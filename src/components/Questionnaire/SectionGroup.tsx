@@ -28,15 +28,16 @@ const StyledHeader = styled(Grid)({
   marginBottom: "24px",
 });
 
-const StyledTitle = styled(Typography)({
+export const StyledTitle = styled(Typography)({
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   lineHeight: "19.6px",
   fontWeight: 500,
   color: "#7899A1",
   fontSize: "17px",
+  textTransform: "uppercase"
 });
 
-const StyledDescription = styled(Typography)({
+export const StyledDescription = styled(Typography)({
   fontWeight: 400,
   color: "#34A286",
   marginTop: "25px",
@@ -59,7 +60,7 @@ const SectionGroup: FC<Props> = ({ title, description, children, endButton }) =>
       <Stack direction="column" alignItems="flex-start">
         {title && (
           <StyledTitle variant="h5">
-            {title.toUpperCase()}
+            {title}
           </StyledTitle>
         )}
         {description && (

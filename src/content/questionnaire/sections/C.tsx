@@ -1,25 +1,19 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { styled } from "@mui/material";
-import dayjs from "dayjs";
-import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
+import { useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
 import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
-import { mapObjectWithKey, reshapeCheckboxGroupOptions } from "../utils";
-import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
+import { reshapeCheckboxGroupOptions } from "../utils";
 import accessTypesOptions from "../../../config/AccessTypesConfig";
 import cancerTypeOptions from "../../../config/CancerTypesConfig";
 import preCancerTypeOptions from "../../../config/PreCancerTypesConfig";
 import speciesOptions from "../../../config/SpeciesConfig";
 import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
-import TimeConstraint from "../../../components/Questionnaire/TimeConstraint";
-import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
-import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import { isValidInRange } from "../../../utils";
 import useFormMode from "./hooks/useFormMode";
@@ -27,10 +21,6 @@ import useFormMode from "./hooks/useFormMode";
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
 }));
-
-export type KeyedTimeConstraint = {
-  key: string;
-} & TimeConstraint;
 
 /**
  * Form Section C View
@@ -44,7 +34,6 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
 
-  const [timeConstraints, setTimeConstraints] = useState<KeyedTimeConstraint[]>(data.timeConstraints?.map(mapObjectWithKey));
   const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
 
   useEffect(() => {
@@ -76,28 +65,6 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     return { ref: formRef, data: combinedData };
   };
 
-  /**
-  * Add a empty time constraint to the timeConstraints state
-  *
-  * @returns {void}
-  */
-  const addTimeConstraint = () => {
-    const constraints = !timeConstraints ? [] : timeConstraints;
-    setTimeConstraints([
-      ...constraints,
-      { key: `${constraints.length}_${new Date().getTime()}`, description: "", effectiveDate: dayjs().format("MM/DD/YYYY") },
-    ]);
-  };
-
-  /**
-  * Remove a time constraint from the timeConstraints state
-  *
-  * @param key generated key for the time constraint
-  */
-  const removeTimeConstraint = (key: string) => {
-    setTimeConstraints(timeConstraints.filter((c) => c.key !== key));
-  };
-
   return (
     <FormContainer
       description={SectionOption.title}
@@ -105,14 +72,8 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     >
       {/* Program Registration Section */}
       <SectionGroup
-        title="Data Access."
-        description={(
-          <>
-            Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH. Learn about this at https://sharing.nih.gov/
-            <wbr />
-            genomic-data-sharing-policy/institutional-certifications
-          </>
-        )}
+        title="Data Access"
+        description="Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH."
       >
         <FormGroupCheckbox
           idPrefix="section-c-access-types"
@@ -124,73 +85,21 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             </>
           )}
           name="accessTypes"
-          options={accessTypesOptions.map((option) => ({ label: option, value: option }))}
+          options={accessTypesOptions}
           value={data.accessTypes}
           gridWidth={12}
-          required
-          readOnly={readOnlyInputs}
-        />
-        <DatePickerInput
-          inputID="section-c-targeted-data-submission-delivery-date"
-          label="Targeted Data Submission Delivery Date"
-          name="targetedSubmissionDate"
-          tooltipText="Expected date that date submission can begin"
-          initialValue={data.targetedSubmissionDate}
-          gridWidth={6}
-          disablePast
-          required
-          readOnly={readOnlyInputs}
-        />
-        <DatePickerInput
-          inputID="section-c-expected-publication-date"
-          label="Expected Publication Date"
-          name="targetedReleaseDate"
-          tooltipText="Expected date that the submission is released to the community"
-          initialValue={data.targetedReleaseDate}
-          gridWidth={6}
-          disablePast
           required
           readOnly={readOnlyInputs}
         />
       </SectionGroup>
 
       <SectionGroup
-        title="Time Constraints related to your submission"
-        endButton={(
-          <AddRemoveButton
-            id="section-c-add-time-constraints-button"
-            label="Add Time Constraints"
-            startIcon={<AddCircleIcon />}
-            onClick={addTimeConstraint}
-            disabled={readOnlyInputs || status === FormStatus.SAVING}
-          />
-        )}
-      >
-        <TransitionGroupWrapper
-          items={timeConstraints}
-          renderItem={(constraint: KeyedTimeConstraint, idx: number) => (
-            <TimeConstraint
-              idPrefix="section-c-"
-              index={idx}
-              timeConstraint={constraint}
-              onDelete={() => removeTimeConstraint(constraint.key)}
-              readOnly={readOnlyInputs}
-            />
-          )}
-        />
-      </SectionGroup>
-
-      <SectionGroup description={(
-        <>
-          Type of Cancer(s) and, if applicable, pre-cancer(s) being studied.
-          <br />
-          Multiple cancer types may be selected. Use additional rows to specify each cancer type.
-        </>
-      )}
+        title="Cancer Types"
+        description="Select the types of cancer(s) and, if applicable, pre-cancer(s) being studied. Multiple cancer types may be selected."
       >
         <SelectInput
           id="section-c-cancer-types"
-          label="Cancer types (choose all that apply)"
+          label="Cancer types (select all that apply)"
           name="cancerTypes"
           options={cancerTypeOptions.map((option) => ({ label: option, value: option }))}
           placeholder="Select types"
@@ -201,9 +110,9 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-c-other-cancer-types"
-          label="Other cancer type not included (specify)"
+          label="Other cancer type(s)"
           name="otherCancerTypes"
-          placeholder="Enter types"
+          placeholder="Specify other cancer type(s)"
           value={data.otherCancerTypes}
           maxLength={1000}
           readOnly={readOnlyInputs}
@@ -211,7 +120,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
         <SelectInput
           id="section-c-pre-cancer-types"
-          label="Pre-cancer types, of applicable (choose all that apply)"
+          label="Pre-Cancer types (select all that apply)"
           name="preCancerTypes"
           options={preCancerTypeOptions.map((option) => ({ label: option, value: option }))}
           placeholder="Select types"
@@ -221,17 +130,31 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-c-other-pre-cancer-types"
-          label="Other pre-cancer type not included (specify)"
+          label="Other pre-cancer type(s)"
           name="otherPreCancerTypes"
-          placeholder="Enter types"
+          placeholder="Specify other pre-cancer type(s)"
           value={data.otherPreCancerTypes}
           maxLength={1000}
           readOnly={readOnlyInputs}
         />
+      </SectionGroup>
 
+      {/* Subjects/Species Section */}
+      <SectionGroup title="Subjects/Species">
+        <SelectInput
+          id="section-c-species-of-subjects"
+          label="Species of subjects (choose all that apply)"
+          name="species"
+          options={speciesOptions.map((option) => ({ label: option, value: option }))}
+          placeholder="Select species"
+          value={data.species}
+          multiple
+          required
+          readOnly={readOnlyInputs}
+        />
         <TextInput
-          id="section-c-number-of-participants-included-in-the-submission"
-          label="Number of participants included in the submission"
+          id="section-c-number-of-subjects-included-in-the-submission"
+          label="Number of subjects included in the submission"
           name="numberOfParticipants"
           placeholder="##"
           type="number"
@@ -245,26 +168,14 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           readOnly={readOnlyInputs}
         />
-        <SelectInput
-          id="section-c-species-of-participants"
-          label="Species of participants (choose all that apply)"
-          name="species"
-          options={speciesOptions.map((option) => ({ label: option, value: option }))}
-          placeholder="Select species"
-          value={data.species}
-          multiple
-          required
-          readOnly={readOnlyInputs}
-        />
         <FormGroupCheckbox
           idPrefix="section-c-"
-          label="Cell lines, model systems, or neither"
+          label="Cell lines, model systems (select all that apply or neither)"
           options={cellLineModelSystemOptions}
           value={cellLineModelSystemCheckboxes}
           onChange={(val: string[]) => setCellLineModelSystemCheckboxes(val)}
           orientation="horizontal"
           gridWidth={12}
-          allowMultipleChecked={false}
           readOnly={readOnlyInputs}
         />
         <SwitchInput

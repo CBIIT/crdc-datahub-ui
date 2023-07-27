@@ -91,6 +91,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const nextSection = sectionKeys[sectionIndex + 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
   const isSectionD = activeSection === "D";
   const errorAlertRef = useRef(null);
+  const formContentRef = useRef(null);
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -391,6 +392,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       return;
     }
     navigate(prevSection);
+    formContentRef.current?.scrollIntoView();
   };
 
   const handleNextClick = () => {
@@ -401,6 +403,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       return;
     }
     navigate(nextSection);
+    formContentRef.current?.scrollIntoView();
   };
 
   const handleReviewCommentChange = (newComment: string) => {
@@ -459,7 +462,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
             <StyledDivider orientation="vertical" />
           </StyledSidebar>
 
-          <Stack className={classes.content} direction="column" spacing={5}>
+          <Stack ref={formContentRef} className={classes.content} direction="column" spacing={5}>
             <StatusBar />
 
             {hasError && <StyledAlert ref={errorAlertRef} severity="error">Oops! An error occurred. Please refresh the page or try again later.</StyledAlert>}
