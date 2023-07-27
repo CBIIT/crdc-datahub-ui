@@ -99,8 +99,10 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
   });
 
   const setData = async (data: Application) => {
+    console.log("old state: ", state);
     let newState = { ...state, data };
     setState({ ...newState, status: Status.SAVING });
+    console.log("new state: ", newState);
 
     const { data: d, errors } = await saveApp({ variables: omitForApi(data) });
 

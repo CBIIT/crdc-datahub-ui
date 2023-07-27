@@ -19,17 +19,17 @@ const sections: SectionConfig = {
   },
   B: {
     title: "Program & Study Registration",
-    id: "A",
+    id: "V",
     component: B,
   },
   C: {
     title: "Data Access & Disease Information",
-    id: "A",
+    id: "C",
     component: C,
   },
   D: {
-    title: "Submission Data Types",
-    id: "A",
+    title: "Data Types",
+    id: "D",
     component: D,
   },
   REVIEW: {

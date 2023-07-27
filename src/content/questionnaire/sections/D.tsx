@@ -15,6 +15,8 @@ import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
 import { fileTypeOptions } from "../../../config/FileTypeConfig";
 import TableTextInput from "../../../components/Questionnaire/TableTextInput";
+import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
+import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 /**
  * Form Section D View
  *
@@ -162,6 +164,13 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     combinedData.dataTypes = combinedData.dataTypes.filter((str) => str !== "");
     combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter((str) => str !== "");
 
+    combinedData.targetedReleaseDate = formObject.targetedReleaseDate === "MM/DD/YYYY" ? "" : formObject.targetedReleaseDate;
+    combinedData.targetedSubmissionDate = formObject.targetedSubmissionDate === "MM/DD/YYYY" ? "" : formObject.targetedSubmissionDate;
+    if (formObject.imagingDataDeIdentified === "true") {
+      combinedData.imagingDataDeIdentified = true;
+    } else if (formObject.imagingDataDeIdentified === "false") {
+      combinedData.imagingDataDeIdentified = false;
+    }
     return { ref: formRef, data: combinedData };
   };
 
@@ -195,9 +204,32 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       description={SectionOption.title}
       formRef={formRef}
     >
+      {/* Targeted Data Submission Delivery Date Section */}
+      <SectionGroup
+        title="Data Delivery and Release Dates"
+      >
+        <DatePickerInput
+          inputID="section-c-targeted-data-submission-delivery-date"
+          label="Targeted Data Submission Delivery Date"
+          name="targetedSubmissionDate"
+          tooltipText="Expected date that date submission can begin"
+          initialValue={data.targetedSubmissionDate}
+          gridWidth={6}
+          disablePast
+        />
+        <DatePickerInput
+          inputID="section-c-expected-publication-date"
+          label="Expected Publication Date"
+          name="targetedReleaseDate"
+          tooltipText="Expected date that the submission is released to the community"
+          initialValue={data.targetedReleaseDate}
+          gridWidth={6}
+          disablePast
+        />
+      </SectionGroup>
       {/* Data Types Section */}
       <SectionGroup
-        title="Data Types."
+        title="Data Types"
         description="Indicate the major types of data included in this submission. For each type listed, select Yes or No. Describe any additional major types of data in Other (specify)"
         divider={false}
       >
@@ -208,6 +240,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           graphQLValue="clinicalTrial"
           value={dataTypes.includes("clinicalTrial")}
+          tooltipText="A research study in which one or more subjects are prospectively assigned to one or more interventions (which may include placebo or other control) to evaluate the effects of those interventions on health-related biomedical outcomes."
         />
         <SwitchInput
           id="section-d-immunology"
@@ -216,6 +249,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="immunology"
           required
           value={dataTypes.includes("immunology")}
+          tooltipText="Data from experiments studying the function of a body's immune system.  Experiments that focus primarily on genomic or imaging approaches should be classified in those areas as well."
         />
         <SwitchInput
           id="section-d-genomics"
@@ -224,6 +258,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="genomics"
           required
           value={dataTypes.includes("genomics")}
+          tooltipText="The branch of molecular biology concerned with the structure, function, evolution, and mapping of genomes.  Includes data from DNA sequencing, RNA sequencing, mutational analysis, and other experiments focused on genomes."
         />
         <SwitchInput
           id="section-d-proteomics"
@@ -232,6 +267,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="dataTypes[]"
           required
           value={dataTypes.includes("proteomics")}
+          tooltipText="Data from the study of the large scale expression and use of proteins."
         />
         <SwitchInput
           id="section-d-imaging"
@@ -242,18 +278,9 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={dataTypes.includes("imaging")}
           onChange={(e, checked) => handleDataTypesChange(checked, "imaging")}
           toggleContent={(
-            <SwitchInput
-              id="section-d-de-identified"
-              label="Confirm the imaging data you plan to submit are de-identified"
-              name="imagingDataDeIdentified"
-              value={data.imagingDataDeIdentified}
-              isBoolean
-              gridWidth={12}
-              containerWidth="700px"
-              touchRequired={dataTypes.includes("imaging")}
-              required={dataTypes.includes("imaging")}
-            />
+            <RadioYesNoInput value={(data.imagingDataDeIdentified ?? "").toString()} containerWidth="1100px" gridWidth={12} title="Confirm the imaging data you plan to submit are de-identified" name="imagingDataDeIdentified" />
           )}
+          tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
         />
         <SwitchInput
           id="section-d-epidemiologic-or-cohort"
@@ -262,6 +289,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="dataTypes[]"
           required
           value={dataTypes.includes("epidemiologicOrCohort")}
+          tooltipText="Data related to the incidence and distribution of disease across populations."
         />
         <TextInput
           id="section-d-other-data-types"
@@ -270,6 +298,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={data.otherDataTypes}
           placeholder="Enter Types"
           gridWidth={12}
+          tooltipText="Data that do not fit in any of the other categories."
         />
       </SectionGroup>
 
