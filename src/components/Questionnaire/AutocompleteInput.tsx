@@ -102,6 +102,11 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : bo
       alignItems: 'center',
       padding: 0,
     },
+    "& .MuiOutlinedInput-input:read-only": {
+      backgroundColor: "#D9DEE4",
+      cursor: "not-allowed",
+      borderRadius: "8px",
+    },
     "& .MuiInputBase-input": {
       fontWeight: 400,
       fontSize: "16px",
@@ -146,6 +151,7 @@ const AutocompleteInput = <T,>({
   validate,
   placeholder,
   freeSolo,
+  readOnly,
   ...rest
 }: Props<T>) => {
   const id = useId();
@@ -204,6 +210,7 @@ const AutocompleteInput = <T,>({
           onChange={onChangeWrapper}
           onBlur={(event: React.FocusEvent<HTMLInputElement>) => onBlurWrapper(event.target.value)}
           options={options}
+          readOnly={readOnly}
           forcePopupIcon
           popupIcon={<DropdownArrowsIconSvg />}
           freeSolo={freeSolo}
@@ -233,7 +240,7 @@ const AutocompleteInput = <T,>({
           )}
           {...rest}
         />
-        <StyledFormHelperText>{error ? helperText : " "}</StyledFormHelperText>
+        <StyledFormHelperText>{!readOnly && error ? helperText : " "}</StyledFormHelperText>
       </StyledFormControl>
     </Grid>
   );

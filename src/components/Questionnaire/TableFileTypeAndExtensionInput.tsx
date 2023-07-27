@@ -7,6 +7,7 @@ import { WithStyles, withStyles } from "@mui/styles";
 import styled from 'styled-components';
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 import { fileTypeExtensions } from "../../config/FileTypeConfig";
+import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 const DropdownArrowsIcon = styled("div")(() => ({
   backgroundImage: `url(${dropdownArrowsIcon})`,
@@ -47,6 +48,8 @@ const TableAutocompleteInput: FC<Props> = ({
   onChange,
   ...rest
 }) => {
+  const { readOnlyInputs } = useFormMode();
+
   const [typeVal, setTypeVal] = useState(typeValue);
   const [extensionVal, setExtensionVal] = useState(extensionValue);
   const fileTypeRef = useRef<HTMLInputElement>(null);
@@ -109,10 +112,11 @@ const TableAutocompleteInput: FC<Props> = ({
         }}
           id={inputID.concat("-type")}
           size="small"
-          value={typeVal}
+          value={typeVal || ""}
           classes={{ root: classes.inputInTable }}
           onChange={onTypeValChangeWrapper}
           popupIcon={<DropdownArrowsIcon />}
+          readOnly={readOnlyInputs}
           freeSolo
           slotProps={{
           paper: {
@@ -165,10 +169,11 @@ const TableAutocompleteInput: FC<Props> = ({
           }}
           id={inputID.concat("-extension")}
           size="small"
-          value={extensionVal}
+          value={extensionVal || ""}
           classes={{ root: classes.inputInTable }}
           onChange={onExtensionValChangeWrapper}
           popupIcon={<DropdownArrowsIcon />}
+          readOnly={readOnlyInputs}
           freeSolo
           slotProps={{
             paper: {
@@ -247,6 +252,10 @@ const styles = () => ({
       fontWeight: 400,
       opacity: 1
     },
+    "& .MuiAutocomplete-input:read-only": {
+      backgroundColor: "#D9DEE4",
+      cursor: "not-allowed",
+    }
   },
   autocomplete: {
     borderTop: "1px solid #6B7294 !important",

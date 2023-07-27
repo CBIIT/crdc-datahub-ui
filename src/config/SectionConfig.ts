@@ -2,6 +2,7 @@ import A from "../content/questionnaire/sections/A";
 import B from '../content/questionnaire/sections/B';
 import C from "../content/questionnaire/sections/C";
 import D from '../content/questionnaire/sections/D';
+import Review from '../content/questionnaire/sections/Review';
 
 /**
  * Configuration and mapping for Questionnaire Sections
@@ -35,8 +36,10 @@ const sections: SectionConfig = {
   REVIEW: {
     title: "Review & Submit",
     id: "review",
-    component: null,
+    component: Review,
   },
 };
+
+export const InitialSections: Section[] = Object.keys(sections)?.slice(0, -1)?.map((sectionKey) => ({ name: sections[sectionKey].id, status: "Not Started" }));
 
 export default sections;

@@ -3,6 +3,7 @@ import { AutocompleteChangeReason } from "@mui/material";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import dayjs from "dayjs";
 import programOptions, { BlankProgram, BlankStudy, OptionalStudy } from "../../../config/ProgramConfig";
 import fundingAgencyOptions from "../../../config/FundingConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
@@ -18,16 +19,17 @@ import PlannedPublication from "../../../components/Questionnaire/PlannedPublica
 import initialValues from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
+import useFormMode from "./hooks/useFormMode";
 
-type KeyedPublication = {
+export type KeyedPublication = {
   key: string;
 } & Publication;
 
-type KeyedPlannedPublication = {
+export type KeyedPlannedPublication = {
   key: string;
 } & PlannedPublication;
 
-type KeyedRepository = {
+export type KeyedRepository = {
   key: string;
 } & Repository;
 
@@ -39,6 +41,7 @@ type KeyedRepository = {
  */
 const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
+  const { readOnlyInputs } = useFormMode();
 
   const [program, setProgram] = useState<Program>(data.program);
   const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(program.name, program.abbreviation));
@@ -52,14 +55,17 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
   const formRef = useRef<HTMLFormElement>();
   const {
-    saveFormRef, submitFormRef, getFormObjectRef,
+    nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) { return; }
 
+    nextButtonRef.current.style.display = "flex";
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
 
     getFormObjectRef.current = getFormObject;
   }, [refs]);
@@ -207,7 +213,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addPlannedPublication = () => {
     setPlannedPublications([
       ...plannedPublications,
-      { key: `${plannedPublications.length}_${new Date().getTime()}`, title: "", expectedDate: "" },
+      { key: `${plannedPublications.length}_${new Date().getTime()}`, title: "", expectedDate: dayjs().format("MM/DD/YYYY") },
     ]);
   };
 
@@ -241,8 +247,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setRepositories(repositories.filter((c) => c.key !== key));
   };
 
-  const readOnlyProgram = !programOption?.isCustom || programOption === BlankProgram;
-  const readOnlyStudy = !studyOption?.isCustom || studyOption === BlankStudy;
+  const readOnlyProgram = readOnlyInputs || !programOption?.isCustom || programOption === BlankProgram;
+  const readOnlyStudy = readOnlyInputs || !studyOption?.isCustom || studyOption === BlankStudy;
 
   return (
     <FormContainer
@@ -270,6 +276,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="– Search and Select Program –"
           validate={(input: ProgramOption) => input?.name?.length > 0}
           required
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-b-program-name"
@@ -330,6 +337,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="– Search and Select Study –"
           validate={(input: ProgramOption) => input?.name?.length > 0}
           required
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-b-study-name"
@@ -399,9 +407,11 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               maxLength={50}
               placeholder="50 characters allowed"
               gridWidth={12}
+              readOnly={readOnlyInputs}
               required={isDbGapRegistered}
             />
           )}
+          readOnly={readOnlyInputs}
         />
 
       </SectionGroup>
@@ -422,7 +432,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             label="Add Publication"
             startIcon={<AddCircleIcon />}
             onClick={addPublication}
-            disabled={status === FormStatus.SAVING}
+            disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
         )}
       >
@@ -434,6 +444,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               index={idx}
               publication={pub}
               onDelete={() => removePublication(pub.key)}
+              readOnly={readOnlyInputs}
             />
           )}
         />
@@ -448,7 +459,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             label="Add Planned Publication"
             startIcon={<AddCircleIcon />}
             onClick={addPlannedPublication}
-            disabled={status === FormStatus.SAVING}
+            disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
         )}
       >
@@ -460,6 +471,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               index={idx}
               plannedPublication={pub}
               onDelete={() => removePlannedPublication(pub.key)}
+              readOnly={readOnlyInputs}
             />
           )}
         />
@@ -468,7 +480,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Study Repositories */}
       <SectionGroup
-        title={(
+        description={(
           <>
             Repository where study currently registered (e.g. dbGaP, ORCID),
             <br />
@@ -481,7 +493,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             label="Add Repository"
             startIcon={<AddCircleIcon />}
             onClick={addRepository}
-            disabled={status === FormStatus.SAVING}
+            disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
         )}
       >
@@ -494,6 +506,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               index={idx}
               repository={repo}
               onDelete={() => removeRepository(repo.key)}
+              readOnly={readOnlyInputs}
             />
           )}
         />
@@ -512,6 +525,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           disableClearable
           required
           validate={(value: string) => value?.length > 0}
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-b-grant-or-contract-numbers"
@@ -521,6 +535,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           maxLength={50}
           placeholder="Enter Grant or Contract Number(s)"
           required
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-b-nci-program-officer-name"
@@ -529,6 +544,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={funding?.nciProgramOfficer}
           placeholder="Enter NCI Program Officer name, if applicable"
           maxLength={50}
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-b-nci-gpa-name"
@@ -536,6 +552,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="study[funding][nciGPA]"
           value={funding?.nciGPA}
           placeholder="Enter GPA name, if applicable"
+          readOnly={readOnlyInputs}
         />
       </SectionGroup>
     </FormContainer>

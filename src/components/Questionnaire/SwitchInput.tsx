@@ -36,6 +36,12 @@ const GridStyled = styled(Grid)`
   .MuiSwitch-track{
     background-color: white !important;
   }
+  .readOnly .MuiSwitch-track {
+    background-color: #D9DEE4 !important;
+  }
+  .readOnly .MuiSwitch-input {
+    cursor: not-allowed;
+  }
   .text {
     display: inline;
     font-family: Lato;
@@ -108,6 +114,10 @@ const Container = styled.div<{ $containerWidth?: string; }>`
   width: ${(props) => props.$containerWidth};
 `;
 
+const HideContentWrapper = styled("div")({
+  display: "none !important"
+});
+
 type Props = {
   label: string,
   name: string,
@@ -138,9 +148,11 @@ const CustomSwitch: FC<Props> = ({
   isBoolean = false,
   containerWidth = "auto",
   touchRequired,
+  readOnly,
   ...rest
 }) => {
   const id = useId();
+
   const [val, setVal] = useState<boolean | null>(value);
   const [touched, setTouched] = useState(value?.toString()?.length > 0);
   const [error, setError] = useState(false);
@@ -156,7 +168,7 @@ const CustomSwitch: FC<Props> = ({
 
   // Validation if touch is required
   useEffect(() => {
-    if (!touchRequired) {
+    if (!touchRequired || readOnly) {
       return;
     }
     if (!touched) {
@@ -169,6 +181,9 @@ const CustomSwitch: FC<Props> = ({
   }, [touched, touchRequired]);
 
   const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    if (readOnly) {
+      return;
+    }
     if (typeof onChange === "function") {
       onChange(event, checked);
     }
@@ -197,6 +212,9 @@ const CustomSwitch: FC<Props> = ({
               id={id}
               checked={val || false}
               onChange={onChangeWrapper}
+              readOnly={readOnly}
+              disableRipple
+              className={readOnly ? "readOnly" : ""}
               classes={{
                 root: "switchRoot",
                 switchBase: "switchBase",
@@ -218,10 +236,14 @@ const CustomSwitch: FC<Props> = ({
             />
             <div className={val ? "textChecked" : "text"}>Yes</div>
           </div>
-          <FormHelperText className="errorMessage">{error ? errorMsg : " "}</FormHelperText>
+          <FormHelperText className="errorMessage">{!readOnly && error ? errorMsg : " "}</FormHelperText>
         </div>
       </Container>
-      {val ? toggleContent : <div />}
+      {val ? (
+        toggleContent
+      ) : (
+        <HideContentWrapper>{toggleContent}</HideContentWrapper>
+      )}
     </GridStyled>
   );
 };

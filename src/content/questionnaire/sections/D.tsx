@@ -17,6 +17,7 @@ import { fileTypeOptions } from "../../../config/FileTypeConfig";
 import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
+import useFormMode from "./hooks/useFormMode";
 /**
  * Form Section D View
  *
@@ -24,7 +25,7 @@ import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
  * @returns {JSX.Element}
  */
 
-type KeyedFileTypeData = {
+export type KeyedFileTypeData = {
   key: string;
 } & FileInfo;
 
@@ -49,6 +50,11 @@ const TableContainer = styled.div`
     width: 100%;
     border: 1px solid #6B7294;
     border-radius: 10px;
+    overflow: hidden;
+    .readOnly {
+      background-color: #D9DEE4;
+      cursor: not-allowed;
+    }
     .MuiTableContainer-root {
       width: 100%;
       margin-left: 12px;
@@ -137,18 +143,24 @@ const TableContainer = styled.div`
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data } = useFormContext();
+  const { readOnlyInputs } = useFormMode();
+
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
   const formRef = useRef<HTMLFormElement>();
-  const { saveFormRef, submitFormRef, getFormObjectRef } = refs;
+  const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
   const fileTypeDataRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
       return;
     }
 
+    nextButtonRef.current.style.display = "flex";
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
 
     getFormObjectRef.current = getFormObject;
   }, [refs]);
@@ -231,7 +243,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       <SectionGroup
         title="Data Types"
         description="Indicate the major types of data included in this submission. For each type listed, select Yes or No. Describe any additional major types of data in Other (specify)"
-        divider={false}
       >
         <SwitchInput
           id="section-d-clinical-trial"
@@ -241,6 +252,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="clinicalTrial"
           value={dataTypes.includes("clinicalTrial")}
           tooltipText="A research study in which one or more subjects are prospectively assigned to one or more interventions (which may include placebo or other control) to evaluate the effects of those interventions on health-related biomedical outcomes."
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-d-immunology"
@@ -250,6 +262,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           value={dataTypes.includes("immunology")}
           tooltipText="Data from experiments studying the function of a body's immune system.  Experiments that focus primarily on genomic or imaging approaches should be classified in those areas as well."
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-d-genomics"
@@ -259,6 +272,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           value={dataTypes.includes("genomics")}
           tooltipText="The branch of molecular biology concerned with the structure, function, evolution, and mapping of genomes.  Includes data from DNA sequencing, RNA sequencing, mutational analysis, and other experiments focused on genomes."
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-d-proteomics"
@@ -268,6 +282,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           value={dataTypes.includes("proteomics")}
           tooltipText="Data from the study of the large scale expression and use of proteins."
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-d-imaging"
@@ -281,6 +296,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             <RadioYesNoInput id="section-d-imaging-de-identified" value={(data.imagingDataDeIdentified ?? "").toString()} containerWidth="1100px" gridWidth={12} title="Confirm the imaging data you plan to submit are de-identified" name="imagingDataDeIdentified" />
           )}
           tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-d-epidemiologic-or-cohort"
@@ -290,6 +306,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           value={dataTypes.includes("epidemiologicOrCohort")}
           tooltipText="Data related to the incidence and distribution of disease across populations."
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-d-other-data-types"
@@ -299,6 +316,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Enter Types"
           gridWidth={12}
           tooltipText="Data that do not fit in any of the other categories."
+          readOnly={readOnlyInputs}
         />
       </SectionGroup>
 
@@ -314,6 +332,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="demographicData"
           value={data.clinicalData.dataTypes.includes("demographicData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-d-relapse-recurrence-data"
@@ -322,6 +341,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="relapseRecurrenceData"
           value={data.clinicalData.dataTypes.includes("relapseRecurrenceData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-d-diagnosis-data"
@@ -330,6 +350,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="diagnosisData"
           value={data.clinicalData.dataTypes.includes("diagnosisData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-d-outcome-data"
@@ -338,6 +359,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="outcomeData"
           value={data.clinicalData.dataTypes.includes("outcomeData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-d-treatment-data"
@@ -346,6 +368,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="treatmentData"
           value={data.clinicalData.dataTypes.includes("treatmentData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          readOnly={readOnlyInputs}
         />
         <SwitchInput
           id="section-d-biospecimen-data"
@@ -354,6 +377,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="biospecimenData"
           value={data.clinicalData.dataTypes.includes("biospecimenData")}
           tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-d-clinical-data-other-data-types"
@@ -362,6 +386,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={data.clinicalData.otherDataTypes}
           placeholder="Enter Types"
           gridWidth={12}
+          readOnly={readOnlyInputs}
         />
         <AdditionalDataInFutureSection>
           <div id="AdditionalDataInFutureSectionText">
@@ -374,6 +399,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             value={data.clinicalData.futureDataTypes}
             gridWidth={10}
             isBoolean
+            readOnly={readOnlyInputs}
           />
         </AdditionalDataInFutureSection>
       </SectionGroup>
@@ -392,7 +418,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             label="Add File Type"
             startIcon={<AddCircleIcon />}
             onClick={addFileDataType}
-            disabled={status === FormStatus.SAVING}
+            disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
         )}
       >
@@ -424,6 +450,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               {fileTypeData.map((fileData: KeyedFileTypeData, idx: number) => (
                 <TableRow
                   key={fileData.key}
+                  className={`${readOnlyInputs ? "readOnly" : ""}`}
                 >
                   <TableFileTypeAndExtensionInput
                     inputID={`section-d-file-type-${idx}-file`}
@@ -460,7 +487,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                         onClick={() => removeFileDataType(fileData.key)}
                         startIcon={<RemoveCircleIcon />}
                         iconColor="#F18E8E"
-                        disabled={status === FormStatus.SAVING}
+                        disabled={readOnlyInputs || status === FormStatus.SAVING}
                         sx={{ minWidth: "0px !important" }}
                       />
                     </div>
@@ -484,6 +511,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           minRows={5}
           multiline
           sx={{ marginTop: "-20px" }}
+          readOnly={readOnlyInputs}
         />
       </SectionGroup>
     </FormContainer>
