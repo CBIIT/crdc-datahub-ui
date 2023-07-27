@@ -140,7 +140,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   useEffect(() => {
     setActiveSection(validateSection(section) ? section : "A");
-    window.scrollTo(0, 0);
   }, [section]);
 
   const isAllSectionsComplete = (): boolean => {
