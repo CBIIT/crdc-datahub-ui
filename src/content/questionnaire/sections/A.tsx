@@ -99,7 +99,10 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       formRef={formRef}
     >
       {/* Principal Investigator */}
-      <SectionGroup title="Principal Investigator for study" divider={false}>
+      <SectionGroup
+        title="Principal Investigator"
+        description="Provide the Principal Investigator contact information for the study or collection"
+      >
         <TextInput
           id="section-a-pi-first-name"
           label="First name"
@@ -168,7 +171,10 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       </SectionGroup>
 
       {/* Primary Contact */}
-      <SectionGroup title="Primary Contact assisting with data collection">
+      <SectionGroup
+        title="Primary Contact"
+        description="Provide the contact information for the primary contact who will be assisting with data submission, if different from PI"
+      >
         <Grid item md={12}>
           <StyledFormControlLabel
             label="Same as Principal Investigator"
@@ -259,6 +265,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       {/* Additional Contacts */}
       <SectionGroup
         title="Additional Contacts"
+        description="If there are additional points of contact (e.g., scientific and/or technical data coordinator), enter the contact details for each.  If there is more than one, you may add additional rows for the details for each contact"
         endButton={(
           <AddRemoveButton
             id="section-a-add-additional-contact-button"
