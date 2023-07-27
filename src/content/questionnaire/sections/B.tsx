@@ -468,7 +468,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Study Repositories */}
       <SectionGroup
-        title={(
+        description={(
           <>
             Repository where study currently registered (e.g. dbGaP, ORCID),
             <br />

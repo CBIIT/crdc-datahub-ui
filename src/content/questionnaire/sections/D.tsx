@@ -199,7 +199,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       <SectionGroup
         title="Data Types."
         description="Indicate the major types of data included in this submission. For each type listed, select Yes or No. Describe any additional major types of data in Other (specify)"
-        divider={false}
       >
         <SwitchInput
           id="section-d-clinical-trial"
