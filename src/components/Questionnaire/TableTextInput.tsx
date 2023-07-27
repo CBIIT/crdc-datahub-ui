@@ -4,6 +4,7 @@ import {
   InputProps,
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
+import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 
 /*
 *Pass in a regex pattern if you want this field to have custom validation checking
@@ -32,9 +33,12 @@ const TableTextInput: FC<Props> = ({
   patternValidityMessage,
   maxLength,
   pattern,
+  readOnly,
   ...rest
 }) => {
   const id = useId();
+  const { readOnlyInputs } = useFormMode();
+
   const [val, setVal] = useState(value);
   const regex = new RegExp(pattern);
   const inputElement = useRef<HTMLInputElement>(null);
@@ -65,6 +69,7 @@ const TableTextInput: FC<Props> = ({
       onChange={(e) => onChange(e.target.value)}
       {...rest}
       disableUnderline
+      readOnly={readOnlyInputs || readOnly}
     />
   );
 };
@@ -85,6 +90,10 @@ const styles = () => ({
       color: "#929296",
       fontWeight: 400,
       opacity: 1
+    },
+    "& .MuiInputBase-input:read-only": {
+      backgroundColor: "#D9DEE4",
+      cursor: "not-allowed",
     },
   },
 });

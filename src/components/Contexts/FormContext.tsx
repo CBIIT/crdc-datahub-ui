@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, {
   FC,
   createContext,
@@ -7,8 +8,11 @@ import React, {
   useState,
 } from "react";
 import { useLazyQuery, useMutation } from '@apollo/client';
+import dayjs from "dayjs";
 import { merge, cloneDeep } from "lodash";
 import omitDeep from "omit-deep";
+import { mutation as APPROVE_APP, Response as ApproveAppResp } from '../../graphql/approveApplication';
+import { mutation as REJECT_APP, Response as RejectAppResp } from '../../graphql/rejectApplication';
 import { query as LAST_APP, Response as LastAppResp } from '../../graphql/getMyLastApplication';
 import { query as GET_APP, Response as GetAppResp } from '../../graphql/getApplication';
 import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
@@ -19,6 +23,9 @@ import { FormatDate, omitForApi } from "../../utils";
 export type ContextState = {
   status: Status;
   data: Application;
+  submitData?: () => Promise<string | boolean>;
+  approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
+  rejectForm?: (comment: string) => Promise<string | boolean>;
   setData?: (Application) => Promise<string | false>;
   error?: string;
 };
@@ -28,6 +35,7 @@ export enum Status {
   LOADED = "LOADED", // Successfully loaded data
   ERROR = "ERROR", // Error loading data
   SAVING = "SAVING", // Saving data to the API
+  SUBMITTING = "SUBMITTING", // Submitting data to the API
 }
 
 const initialState: ContextState = { status: Status.LOADING, data: null };
@@ -76,6 +84,9 @@ type ProviderProps = {
 export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
+  const datePattern = "MM/DD/YYYY";
+  const dateTodayFallback = dayjs().format(datePattern);
+
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
@@ -94,7 +105,19 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
 
   const [submitApp] = useMutation<SubmitAppResp>(SUBMIT_APP, {
     variables: { id },
-    context: { clientName: 'mockService' },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [approveApp] = useMutation<ApproveAppResp>(APPROVE_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [rejectApp] = useMutation<RejectAppResp>(REJECT_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
@@ -115,6 +138,65 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
 
     setState({ ...newState, status: Status.LOADED });
     return d?.saveApplication?.["_id"] || false;
+  };
+
+  const submitData = async () => {
+    setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
+
+    const { data: res, errors } = await submitApp({
+      variables: {
+        _id: state?.data["_id"]
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.LOADED }));
+      return false;
+    }
+
+    setState((prevState) => ({ ...prevState, status: Status.LOADED }));
+    return res?.submitApplication?.["_id"] || false;
+  };
+
+  // Here we approve the form to the API with a comment and wholeProgram
+  const approveForm = async (comment: string, wholeProgram: boolean) => {
+    setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
+
+    const { data: res, errors } = await approveApp({
+      variables: {
+        _id: state?.data["_id"],
+        comment,
+        wholeProgram
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      return false;
+    }
+
+    setState((prevState) => ({ ...prevState, status: Status.LOADED }));
+    return res?.approveApplication?.["_id"] || false;
+  };
+
+  // Here we reject the form to the API with a comment
+  const rejectForm = async (comment: string) => {
+    setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
+
+    const { data: res, errors } = await rejectApp({
+      variables: {
+        _id: state?.data["_id"],
+        comment
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      return false;
+    }
+
+    setState((prevState) => ({ ...prevState, status: Status.LOADED }));
+    return res?.rejectApplication?.["_id"] || false;
   };
 
   useEffect(() => {
@@ -153,14 +235,14 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         data: {
           ...merge(cloneDeep(initialValues), omitDeep(d?.getApplication, ["__typename"])),
           // To avoid false positive form changes
-          targetedReleaseDate: FormatDate(d?.getApplication?.targetedReleaseDate, "MM/DD/YYYY"),
-          targetedSubmissionDate: FormatDate(d?.getApplication?.targetedSubmissionDate, "MM/DD/YYYY"),
+          targetedReleaseDate: FormatDate(d?.getApplication?.targetedReleaseDate, datePattern, dateTodayFallback),
+          targetedSubmissionDate: FormatDate(d?.getApplication?.targetedSubmissionDate, datePattern, dateTodayFallback),
         }
       });
     })();
   }, [id]);
 
-  const value = useMemo(() => ({ ...state, setData }), [state]);
+  const value = useMemo(() => ({ ...state, setData, submitData, approveForm, rejectForm }), [state]);
 
   return (
     <Context.Provider value={value}>

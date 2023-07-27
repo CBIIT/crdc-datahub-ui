@@ -36,8 +36,9 @@ describe("questionnaire ProgressBar tests", () => {
   it("renders the progress bar with all config-defined sections", () => {
     const screen = render(<BaseComponent section={keys[0]} data={{}} />);
 
-    sections.forEach(({ title }, index) => {
-      const root = screen.getByText(title).closest("a");
+    sections.forEach(({ id, title }, index) => {
+      const isReviewSection = id === "review";
+      const root = screen.getByText(isReviewSection ? title || "Review" : title).closest("a");
 
       expect(root).toBeVisible();
       expect(root).toHaveAttribute("data-testId", `progress-bar-section-${index}`);

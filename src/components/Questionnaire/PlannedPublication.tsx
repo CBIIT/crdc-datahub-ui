@@ -16,6 +16,7 @@ type Props = {
   idPrefix?: string;
   index: number;
   plannedPublication: PlannedPublication | null;
+  readOnly?: boolean;
   onDelete: () => void;
 };
 
@@ -29,6 +30,7 @@ const PlannedPublication: FC<Props> = ({
   idPrefix = "",
   index,
   plannedPublication,
+  readOnly,
   onDelete,
 }: Props) => {
   const { status } = useFormContext();
@@ -47,6 +49,7 @@ const PlannedPublication: FC<Props> = ({
           maxLength={100}
           gridWidth={12}
           required
+          readOnly={readOnly}
         />
         <DatePickerInput
           inputID={idPrefix.concat(`planned-publication-${index}-expected-publication-date`)}
@@ -57,6 +60,7 @@ const PlannedPublication: FC<Props> = ({
           disablePast
           format="MM/DD/YYYY"
           required
+          readOnly={readOnly}
           tooltipText="Data made available for secondary research only
                       after investigators have obtained approval from
                       NIH to use the requested data for a particular
@@ -71,7 +75,7 @@ const PlannedPublication: FC<Props> = ({
           onClick={onDelete}
           startIcon={<RemoveCircleIcon />}
           iconColor="#F18E8E"
-          disabled={status === FormStatus.SAVING}
+          disabled={readOnly || status === FormStatus.SAVING}
         />
       </Grid>
     </GridContainer>

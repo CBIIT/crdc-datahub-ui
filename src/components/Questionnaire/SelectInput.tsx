@@ -116,7 +116,13 @@ const StyledSelect = styled(Select, {
       fontWeight: 400,
       opacity: 1
     },
-  }
+  },
+  // Target readOnly <input> inputs
+  "& .Mui-readOnly.MuiOutlinedInput-input:read-only": {
+    backgroundColor: "#D9DEE4",
+    cursor: "not-allowed",
+    borderRadius: "8px",
+  },
 }));
 
 type Props = {
@@ -147,6 +153,7 @@ const SelectInput: FC<Props> = ({
   onChange,
   multiple,
   placeholder,
+  readOnly,
   ...rest
 }) => {
   const id = useId();
@@ -204,6 +211,7 @@ const SelectInput: FC<Props> = ({
           slotProps={{ input: { id } }}
           multiple={multiple}
           placeholderText={placeholder}
+          readOnly={readOnly}
           {...rest}
         >
           {options.map((option) => (
@@ -225,7 +233,7 @@ const SelectInput: FC<Props> = ({
             <option key={option.value} value={option.value} aria-label={`${option.value}`} />
           ))}
         </ProxySelect>
-        <FormHelperText>{error ? helperText : " "}</FormHelperText>
+        <FormHelperText>{!readOnly && error ? helperText : " "}</FormHelperText>
       </FormControl>
     </GridItem>
   );
