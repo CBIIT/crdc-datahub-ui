@@ -19,7 +19,7 @@ const sections: SectionConfig = {
   },
   B: {
     title: "Program & Study Registration",
-    id: "V",
+    id: "B",
     component: B,
   },
   C: {

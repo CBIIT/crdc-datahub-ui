@@ -209,7 +209,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         title="Data Delivery and Release Dates"
       >
         <DatePickerInput
-          inputID="section-c-targeted-data-submission-delivery-date"
+          inputID="section-d-targeted-data-submission-delivery-date"
           label="Targeted Data Submission Delivery Date"
           name="targetedSubmissionDate"
           tooltipText="Expected date that date submission can begin"
@@ -218,7 +218,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           disablePast
         />
         <DatePickerInput
-          inputID="section-c-expected-publication-date"
+          inputID="section-d-expected-publication-date"
           label="Expected Publication Date"
           name="targetedReleaseDate"
           tooltipText="Expected date that the submission is released to the community"
@@ -278,7 +278,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={dataTypes.includes("imaging")}
           onChange={(e, checked) => handleDataTypesChange(checked, "imaging")}
           toggleContent={(
-            <RadioYesNoInput value={(data.imagingDataDeIdentified ?? "").toString()} containerWidth="1100px" gridWidth={12} title="Confirm the imaging data you plan to submit are de-identified" name="imagingDataDeIdentified" />
+            <RadioYesNoInput id="section-d-imaging-de-identified" value={(data.imagingDataDeIdentified ?? "").toString()} containerWidth="1100px" gridWidth={12} title="Confirm the imaging data you plan to submit are de-identified" name="imagingDataDeIdentified" />
           )}
           tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
         />

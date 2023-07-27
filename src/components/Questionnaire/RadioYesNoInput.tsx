@@ -30,6 +30,7 @@ type Props = {
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   containerWidth?: string;
   value: string;
+  id: string;
 };
 
 const BpIcon = styled('span')(() => ({
@@ -75,6 +76,7 @@ const RadioYesNoInput: FC<Props> = ({
   gridWidth,
   containerWidth,
   value,
+  id,
 }) => {
   const [statevalue, setValue] = useState(value);
   const radioGroupInputRef = useRef<HTMLInputElement>(null);
@@ -93,14 +95,15 @@ const RadioYesNoInput: FC<Props> = ({
   return (
     <GridStyled md={gridWidth || 6} xs={12} item $containerWidth={containerWidth}>
       <FormControl className="formControl">
-        <FormLabel id="demo-controlled-radio-buttons-group">{title}</FormLabel>
+        <FormLabel>{title}</FormLabel>
         <RadioGroup
           name={name}
           value={statevalue}
           onChange={handleChange}
+          id={id}
         >
-          <FormControlLabel value="true" color="#275D89" control={<BpRadio inputRef={radioGroupInputRef} />} label="Yes" />
-          <FormControlLabel value="false" color="#275D89" control={<BpRadio />} label="No" />
+          <FormControlLabel value="true" color="#275D89" control={<BpRadio inputRef={radioGroupInputRef} id={id.concat("-yes-radio-button")} />} label="Yes" />
+          <FormControlLabel value="false" color="#275D89" control={<BpRadio id={id.concat("-no-radio-button")} />} label="No" />
         </RadioGroup>
       </FormControl>
     </GridStyled>
