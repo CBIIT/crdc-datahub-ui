@@ -46,6 +46,7 @@ const AdditionalDataInFutureSection = styled.div`
 `;
 const TableContainer = styled.div`
     margin-left: 12px;
+    margin-bottom: 24px;
     display: flex;
     width: 100%;
     border: 1px solid #6B7294;
@@ -165,11 +166,18 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
+  useEffect(() => {
+    if (fileTypeData.length === 0) {
+      fileTypeDataRef.current.setCustomValidity("At least one file type is required");
+    } else {
+      fileTypeDataRef.current.setCustomValidity("");
+    }
+  }, [fileTypeDataRef]);
+
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
       return null;
     }
-
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
     // Remove empty strings from dataType arrays
