@@ -180,7 +180,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
       </SectionGroup>
 
-      <SectionGroup title={(
+      <SectionGroup description={(
         <>
           Type of Cancer(s) and, if applicable, pre-cancer(s) being studied.
           <br />
