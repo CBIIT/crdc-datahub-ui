@@ -214,7 +214,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
           data: {
             ...initialValues,
             _id: "new",
-            pi: { ...initialValues.pi, ...d?.getMyLastApplication?.pi },
+            pi: { ...initialValues.pi, ...omitDeep(d?.getMyLastApplication, ["__typename"])?.pi },
             applicant: null,
             organization: null,
             history: [],
