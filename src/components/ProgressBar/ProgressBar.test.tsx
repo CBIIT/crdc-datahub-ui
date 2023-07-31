@@ -5,10 +5,15 @@ import '@testing-library/jest-dom';
 import config from '../../config/SectionConfig';
 import ProgressBar from './ProgressBar';
 import {
-  ContextState,
+  ContextState as FormCtxState,
   Context as FormCtx,
   Status as FormStatus,
 } from '../Contexts/FormContext';
+import {
+  ContextState,
+  Context as AuthCtx,
+  Status as AuthStatus,
+} from '../Contexts/AuthContext';
 
 type Props = {
   section: string;
@@ -16,15 +21,23 @@ type Props = {
 };
 
 const BaseComponent: FC<Props> = ({ section, data = {} } : Props) => {
-  const value = useMemo<ContextState>(() => ({
+  const formValue = useMemo<FormCtxState>(() => ({
     data: data as Application, status: FormStatus.LOADED
   }), [data]);
 
+  const authValue = useMemo<ContextState>(() => ({
+    status: AuthStatus.LOADED,
+    user: null,
+    isLoggedIn: true,
+  }), []);
+
   return (
     <BrowserRouter>
-      <FormCtx.Provider value={value}>
-        <ProgressBar section={section} />
-      </FormCtx.Provider>
+      <AuthCtx.Provider value={authValue}>
+        <FormCtx.Provider value={formValue}>
+          <ProgressBar section={section} />
+        </FormCtx.Provider>
+      </AuthCtx.Provider>
     </BrowserRouter>
   );
 };
