@@ -48,7 +48,7 @@ const initialValues: Omit<Application, "_id" | "applicantID" | "organization" | 
   otherCancerTypes: "",
   preCancerTypes: [],
   otherPreCancerTypes: "",
-  numberOfParticipants: 0,
+  numberOfParticipants: null,
   species: [],
   cellLines: false,
   modelSystems: false,

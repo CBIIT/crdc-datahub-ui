@@ -14,9 +14,9 @@ import cancerTypeOptions from "../../../config/CancerTypesConfig";
 import preCancerTypeOptions from "../../../config/PreCancerTypesConfig";
 import speciesOptions from "../../../config/SpeciesConfig";
 import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
-import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import { isValidInRange } from "../../../utils";
 import useFormMode from "./hooks/useFormMode";
+import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
@@ -29,7 +29,7 @@ const AccessTypesDescription = styled("span")(() => ({
  * @returns {JSX.Element}
  */
 const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { data } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
@@ -58,9 +58,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
-    combinedData.targetedReleaseDate = formObject.targetedReleaseDate === "MM/DD/YYYY" ? "" : formObject.targetedReleaseDate;
-    combinedData.targetedSubmissionDate = formObject.targetedSubmissionDate === "MM/DD/YYYY" ? "" : formObject.targetedSubmissionDate;
-    combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || 0;
+    combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
 
     return { ref: formRef, data: combinedData };
   };
@@ -178,14 +176,13 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           gridWidth={12}
           readOnly={readOnlyInputs}
         />
-        <SwitchInput
+        <RadioYesNoInput
           id="section-c-data-de-identified"
-          label="Confirm the data you plan to submit are de-identified"
           name="dataDeIdentified"
+          label="Confirm the data you plan to submit are de-identified"
           value={data.dataDeIdentified}
-          gridWidth={6}
-          isBoolean
-          touchRequired
+          gridWidth={12}
+          row
           required
           readOnly={readOnlyInputs}
         />

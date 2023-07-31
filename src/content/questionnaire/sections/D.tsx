@@ -301,7 +301,16 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={dataTypes.includes("imaging")}
           onChange={(e, checked) => handleDataTypesChange(checked, "imaging")}
           toggleContent={(
-            <RadioYesNoInput id="section-d-imaging-de-identified" value={(data.imagingDataDeIdentified ?? "").toString()} containerWidth="1100px" gridWidth={12} title="Confirm the imaging data you plan to submit are de-identified" name="imagingDataDeIdentified" />
+            <RadioYesNoInput
+              id="section-d-imaging-de-identified"
+              value={data.imagingDataDeIdentified}
+              containerWidth="1100px"
+              gridWidth={12}
+              label="Confirm the imaging data you plan to submit are de-identified"
+              name="imagingDataDeIdentified"
+              required
+              readOnly={readOnlyInputs}
+            />
           )}
           tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
           readOnly={readOnlyInputs}
