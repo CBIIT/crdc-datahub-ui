@@ -184,7 +184,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
-    if (!ref.current || !newData) {
+    if (!ref?.current || !newData) {
       return false;
     }
 
@@ -215,7 +215,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
-    if (!ref.current || !newData) {
+    if (!ref?.current || !newData) {
       return false;
     }
 
@@ -248,7 +248,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
-    if (!ref.current || !newData) {
+    if (!ref?.current || !newData) {
       return false;
     }
 
@@ -282,7 +282,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
-    if (!ref.current || !newData) {
+    if (!ref?.current || !newData) {
       return false;
     }
 
