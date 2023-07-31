@@ -276,7 +276,7 @@ const NameDropdownContainer = styled.div`
   max-width: 1400px;
   .dropdownList {
       background: #1F4671;
-      display: grid;
+      display: inline-flex;
       grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
       padding: 32px 32px 0 32px;
   }
@@ -599,11 +599,14 @@ const NavBar = () => {
         </Dropdown>
         <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== displayName ? "invisible" : ""}>
           <NameDropdownContainer>
-            {/* <Link id="navbar-dropdown-item-name-user-profile" to="/userProfile" className="dropdownItem" onClick={() => setClickedTitle("")}>
-              User Profile
-            </Link> */}
+
             <div className="dropdownList">
-              <div
+              <span className="dropdownItem">
+                <Link id="navbar-dropdown-item-name-user-profile" to="/userProfile" className="dropdownItem" onClick={() => setClickedTitle("")}>
+                  User Profile
+                </Link>
+              </span>
+              <span
                 id="navbar-dropdown-item-name-logout"
                 role="button"
                 tabIndex={0}
@@ -617,7 +620,7 @@ const NavBar = () => {
                 }}
               >
                 Logout
-              </div>
+              </span>
             </div>
           </NameDropdownContainer>
         </NameDropdown>
