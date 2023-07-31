@@ -284,14 +284,14 @@ const ListingView: FC = () => {
             </TableBody>
           </Table>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[{ label: "All", value: -1 }, 5, 10, 25]}
             component="div"
             count={data?.listApplications?.total || 0}
             rowsPerPage={perPage}
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{ disabled: !data?.listApplications || (data.listApplications.total < perPage) || loading }}
+            nextIconButtonProps={{ disabled: perPage === -1 || !data?.listApplications || (data.listApplications.total < perPage) || loading }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>
