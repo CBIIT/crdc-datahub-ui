@@ -1,7 +1,7 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
-import { Divider, Grid, Stack, Typography, styled } from "@mui/material";
+import { Divider, Grid, Stack, styled } from "@mui/material";
 import { useFormContext } from "../../../components/Contexts/FormContext";
 import { KeyedPlannedPublication, KeyedPublication } from "./B";
 import { mapObjectWithKey } from "../utils";
@@ -14,8 +14,8 @@ import ReviewDataListingProperty, { StyledValue } from "../../../components/Ques
 import ReviewFileTypeTable from "../../../components/Questionnaire/ReviewFileTypeTable";
 import { formatPhoneNumber } from "../../../utils";
 import useFormMode from "./hooks/useFormMode";
-import { KeyedTimeConstraint } from "./C";
 import DataTypes from "../../../config/DataTypesConfig";
+import { StyledDescription, StyledTitle } from "../../../components/Questionnaire/SectionGroup";
 
 const StyledAddress = styled(Stack)(() => ({
   display: "flex",
@@ -31,17 +31,6 @@ const StyledDivider = styled(Divider)(() => ({
   color: "#34A286",
   marginTop: "34px",
   marginBottom: "8px",
-}));
-
-const StyledSectionInfoText = styled(Typography)(() => ({
-  fontWeight: 700,
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  lineHeight: "19.6px",
-  color: "#34A286",
-  fontSize: "16px",
-  "& span": {
-    fontWeight: 400
-  }
 }));
 
 const GridCondensed = styled(Grid)(() => ({
@@ -68,7 +57,6 @@ const FormSectionReview: FC<FormSectionProps> = ({
   const [additionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
   const [publications] = useState<KeyedPublication[]>(data.study?.publications?.map(mapObjectWithKey) || []);
   const [plannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
-  const [timeConstraints] = useState<KeyedTimeConstraint[]>(data.timeConstraints?.map(mapObjectWithKey) || []);
   const [fileTypes] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
 
   const [piAddressPart1, ...piAddressPart2] = pi?.address?.split(",") || [];
@@ -109,7 +97,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
     <FormContainer description="Review and Submit" formRef={formRef} hideReturnToSubmissions={false}>
       {/* Principal Investigator and Contact Information Section */}
       <ReviewSection title="Principal Investigator and Contact Information">
-        <ReviewDataListing title="Principal Investigator for the study:">
+        <ReviewDataListing title="Principal Investigator for the study">
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Name" value={`${pi.lastName}, ${pi.firstName}`} />
             <ReviewDataListingProperty label="Email Address" value={pi.email} />
@@ -220,15 +208,14 @@ const FormSectionReview: FC<FormSectionProps> = ({
       <ReviewSection title="Data access and disease Information">
         <ReviewDataListing>
           <Grid xs={12} item>
-            <StyledSectionInfoText variant="h6">
-              Data Access.
-              <span>
-                {' '}
-                Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH. Learn about this at https://sharing.nih.gov/
-                <wbr />
-                genomic-data-sharing-policy/institutional-certifications
-              </span>
-            </StyledSectionInfoText>
+            <Stack direction="column" alignItems="flex-start">
+              <StyledTitle variant="h5">
+                Data Access
+              </StyledTitle>
+              <StyledDescription variant="body1">
+                Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH.
+              </StyledDescription>
+            </Stack>
           </Grid>
         </ReviewDataListing>
 
@@ -242,31 +229,20 @@ const FormSectionReview: FC<FormSectionProps> = ({
           </Grid>
         </ReviewDataListing>
 
-        {timeConstraints?.map((timeConstraint: KeyedTimeConstraint, idx: number) => (
-          <ReviewDataListing key={timeConstraint.key} title={idx === 0 ? "Time Constraints related to your submission" : null}>
-            <Grid md={6} xs={12} item>
-              <ReviewDataListingProperty label="Time Constraint Description" value={timeConstraint.description} valuePlacement="bottom" />
-            </Grid>
-            <Grid md={6} xs={12} item>
-              <ReviewDataListingProperty label="Time Constraint Effective Date" value={timeConstraint.effectiveDate} valuePlacement="bottom" />
-            </Grid>
-          </ReviewDataListing>
-        ))}
-
         <ReviewDataListing title="Type of Cancer(s) and, if applicable, pre-cancer(s) being studied">
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Cancer types" value={data.cancerTypes?.join(", ")} valuePlacement="bottom" />
             <ReviewDataListingProperty label="Pre-cancer types" value={data.preCancerTypes?.join(", ")} valuePlacement="bottom" />
-            <ReviewDataListingProperty label="Number of participants included in the submission" value={data.numberOfParticipants?.toString()} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Species of subjects" value={data.species?.join(", ")} valuePlacement="bottom" />
           </Grid>
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Other cancer type not included" value={data.otherCancerTypes} valuePlacement="bottom" />
-            <ReviewDataListingProperty label="Other pre-cancer type not included" value={data.otherPreCancerTypes} valuePlacement="bottom" />
-            <ReviewDataListingProperty label="Species of participants" value={data.species?.join(", ")} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Other cancer types" value={data.otherCancerTypes} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Other pre-cancer types" value={data.otherPreCancerTypes} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Number of subjects included in the submission" value={data.numberOfParticipants?.toString()} valuePlacement="bottom" />
           </Grid>
         </ReviewDataListing>
 
-        <ReviewDataListing title="Cell lines, model systems, or neither">
+        <ReviewDataListing title="Cell lines & model systems">
           <Grid md={6} xs={12} item>
             <ReviewDataListingProperty label="Cell lines" value={data.cellLines ? "Yes" : "No"} />
             <ReviewDataListingProperty label="Model systems" value={data.modelSystems ? "Yes" : "No"} />

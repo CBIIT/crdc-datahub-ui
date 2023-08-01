@@ -29,7 +29,7 @@ const sections: SectionConfig = {
     component: C,
   },
   D: {
-    title: "Submission Data Types",
+    title: "Data Types",
     id: "D",
     component: D,
   },
