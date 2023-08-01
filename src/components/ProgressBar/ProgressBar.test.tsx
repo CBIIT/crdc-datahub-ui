@@ -60,7 +60,7 @@ describe("ProgressBar General Tests", () => {
     });
   });
 
-  it("renders the currently active section", () => {
+  it("renders the currently active section as highlighted", () => {
     const { container, getByTestId } = render(<BaseComponent section={keys[1]} data={{}} />);
     const activeLinks = container.querySelectorAll("a[aria-selected='true']");
 
@@ -82,7 +82,7 @@ describe("ProgressBar General Tests", () => {
     expect(element.querySelector(".MuiAvatar-root svg")).toHaveAttribute("data-testid", "CheckIcon");
   });
 
-  it("renders the review section as disabled by default", () => {
+  it("renders the Review section as disabled by default", () => {
     const { getByTestId } = render(<BaseComponent section={keys[0]} data={{}} />);
     const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
 
@@ -91,7 +91,7 @@ describe("ProgressBar General Tests", () => {
     expect(reviewSection.querySelector(".MuiAvatar-root svg")).toHaveAttribute("data-testid", "ArrowUpwardIcon");
   });
 
-  it("renders the review section as enabled only when all sections are completed", () => {
+  it("renders the Review section as enabled only when all sections are completed", () => {
     const data = {
       sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
     };
@@ -107,8 +107,8 @@ describe("ProgressBar General Tests", () => {
     expect(getByTestId(`progress-bar-section-${keys.length - 1}`)).toHaveAttribute("aria-disabled", "false");
   });
 
-  const completedStates : ApplicationStatus[] = ["Submitted", "In Review", "Approved", "Rejected"];
-  it.each(completedStates)("renders the Review section as unlocked with a CheckIcon icon for status %s", (status) => {
+  const completedStates : ApplicationStatus[] = ["Approved"];
+  it.each(completedStates)("renders the Review section as accessible and completed for status %s", (status) => {
     const data = {
       sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
       status,
@@ -120,8 +120,8 @@ describe("ProgressBar General Tests", () => {
     expect(reviewSection.querySelector(".MuiAvatar-root svg")).toHaveAttribute("data-testid", "CheckIcon");
   });
 
-  const incompleteStates : ApplicationStatus[] = ["New", "In Progress"];
-  it.each(incompleteStates)("renders the Review section as unlocked with an ArrowUpwardIcon icon for status %s", (status) => {
+  const incompleteStates : ApplicationStatus[] = ["New", "In Progress", "Submitted", "In Review", "Rejected"];
+  it.each(incompleteStates)("renders the Review section as accessible and incomplete for status %s", (status) => {
     const data = {
       sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
       status,

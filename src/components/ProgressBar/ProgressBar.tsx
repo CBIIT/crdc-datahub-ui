@@ -100,7 +100,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
     const reviewUnlocked = completedSections === sectionKeys.length - 1;
     if (reviewSection) {
       // eslint-disable-next-line no-nested-ternary
-      reviewSection.icon = !["New", "In Progress"].includes(status) && reviewUnlocked
+      reviewSection.icon = ["Approved"].includes(status) && reviewUnlocked
         ? "Completed"
         : reviewUnlocked ? "Review" : "ReviewDisabled";
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
