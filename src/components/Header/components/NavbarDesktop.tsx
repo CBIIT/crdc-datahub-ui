@@ -414,6 +414,7 @@ const NavBar = () => {
     setClickedTitle("");
     const logoutStatus = await authData.logout();
     if (logoutStatus) {
+      navigate("/");
       setShowLogoutAlert(true);
       setTimeout(() => setShowLogoutAlert(false), 10000);
     }

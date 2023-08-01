@@ -9,6 +9,7 @@ import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
 import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
 import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
 import { useAuthContext } from '../Contexts/AuthContext';
+import GenericAlert from '../GenericAlert';
 
 const HeaderBanner = styled.div`
   width: 100%;
@@ -210,10 +211,20 @@ const Header = () => {
   const setNavbarMobileList = navMobileListHookResult[1];
   const [showNavDialog, setShowNavDialog] = useState(false);
   const [loginDialogTitle, setLoginDialogTitle] = useState("");
+  const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
 
   const authData = useAuthContext();
   const displayName = authData?.user?.displayName || "random first name no one has";
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const logoutStatus = await authData.logout();
+    if (logoutStatus) {
+      navigate("/");
+      setShowLogoutAlert(true);
+      setTimeout(() => setShowLogoutAlert(false), 10000);
+    }
+  };
 
   const handleAuthenticationNavLinkClick = (dropItem) => {
     setNavMobileDisplay('none');
@@ -245,6 +256,11 @@ const Header = () => {
 
   return (
     <>
+      <GenericAlert open={showLogoutAlert}>
+        <span>
+          You have been logged out.
+        </span>
+      </GenericAlert>
       <HeaderBanner role="banner">
         <HeaderContainer>
           <Logo />
@@ -366,7 +382,7 @@ const Header = () => {
                                   if (e.key === "Enter") {
                                     setNavMobileDisplay('none');
                                     if (navMobileItem.name === "Logout") {
-                                      authData.logout();
+                                      handleLogout();
                                       setNavbarMobileList(navMobileList);
                                     } else {
                                       navigate(navMobileItem.link);
@@ -376,7 +392,7 @@ const Header = () => {
                                 onClick={() => {
                                   setNavMobileDisplay('none');
                                   if (navMobileItem.name === "Logout") {
-                                    authData.logout();
+                                    handleLogout();
                                     setNavbarMobileList(navMobileList);
                                   } else {
                                     navigate(navMobileItem.link);
