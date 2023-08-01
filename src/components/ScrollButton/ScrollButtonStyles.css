@@ -22,6 +22,7 @@
 
 #stt:active {
     outline: solid 4px #2491ff;
+    transition: none;
 }
 
 #stt::after {
