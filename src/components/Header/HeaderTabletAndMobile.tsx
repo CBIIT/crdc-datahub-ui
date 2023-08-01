@@ -345,6 +345,7 @@ const Header = () => {
                           <NavLink
                             id={navMobileItem.id}
                             to={navMobileItem.link}
+                            target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
                             onClick={() => setNavMobileDisplay('none')}
                           >
                             <div className="navMobileItem">{navMobileItem.name}</div>
@@ -373,6 +374,7 @@ const Header = () => {
                             <Link
                               id={navMobileItem.id}
                               to={navMobileItem.link}
+                              target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
                             >
                               <div
                                 role="button"

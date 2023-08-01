@@ -501,7 +501,7 @@ const NavBar = () => {
                               {navMobileItem.name}
                             </div>
                           ) : (
-                            <NavLink to={navMobileItem.link}>
+                            <NavLink to={navMobileItem.link} target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}>
                               <div
                                 id={navMobileItem.id}
                                 onKeyDown={onKeyPressHandler}
@@ -568,7 +568,7 @@ const NavBar = () => {
                   return (
                     dropItem.link && (!dropItem.needsAuthentication
                       ? (
-                        <Link id={dropItem.id} to={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
+                        <Link target={dropItem.link.startsWith("https://") ? "_blank" : "_self"} id={dropItem.id} to={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
                           {dropItem.name}
                           <div className="dropdownItemText">{dropItem.text}</div>
                         </Link>
