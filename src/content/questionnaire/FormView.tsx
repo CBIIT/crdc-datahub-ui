@@ -104,6 +104,12 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   useEffect(() => {
+    if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
+      navigate('/submissions');
+    }
+  }, [formMode, navigate, status, authStatus]);
+
+  useEffect(() => {
     const isComplete = isAllSectionsComplete();
     setAllSectionsComplete(isComplete);
   }, [status]);
@@ -430,11 +436,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     navigate('/submissions', {
       state: { error: error || 'Unknown authorization error' },
     });
-    return null;
-  }
-
-  if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
-    navigate('/submissions');
     return null;
   }
 
