@@ -2,8 +2,9 @@ import React, { FC, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Dialog } from "@mui/material";
 import { Link, useLocation } from 'react-router-dom';
+import InactivityDialog from '../components/InactivityDialog/InactivityDialog';
 
-const StyledDialog = styled(Dialog)`
+const LoginDialog = styled(Dialog)`
   .MuiDialog-paper {
     width: 550px;
     height: 218px;
@@ -55,7 +56,7 @@ const Home: FC = () => {
       }, []);
     return (
       <>
-        <StyledDialog open={showRedirectDialog}>
+        <LoginDialog open={showRedirectDialog}>
           <pre className="loginDialogText">
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
             Please <Link id="loginDialogLinkToLogin" to="/login" state={{ redirectURLOnLoginSuccess: dialogRedirectPath }} onClick={() => setShowRedirectDialog(false)}><strong>log in</strong></Link> to access {dialogLinkName}.
@@ -74,8 +75,9 @@ const Home: FC = () => {
           >
             <strong>Close</strong>
           </div>
-        </StyledDialog>
+        </LoginDialog>
         <div>This is Home Page</div>
+        <InactivityDialog />
       </>
 );
 };
