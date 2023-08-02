@@ -70,7 +70,7 @@ const GridStyled = styled(Grid)`
 
   .asterisk {
     color: #D54309;
-    margin-left: 6px;
+    margin-right: 4px;
   }
   .labelContainer {
     display: flex;
@@ -85,6 +85,7 @@ const GridStyled = styled(Grid)`
   }
   .tooltip {
     align-self: start;
+    margin-left: 6px;
   }
   .errorMessage {
     color: #D54309 !important;
@@ -197,8 +198,8 @@ const CustomSwitch: FC<Props> = ({
     <GridStyled md={gridWidth || 6} xs={12} item>
       <Container $containerWidth={containerWidth}>
         <div className="labelContainer">
-          {label}
           {required ? <span className="asterisk">*</span> : ""}
+          {label}
           {tooltipText && <Tooltip placement="right" className="tooltip" title={tooltipText} />}
         </div>
         <div className="switchErrorContainer">

@@ -66,11 +66,11 @@ const TextInput: FC<Props> = ({
       updateInputValidity(inputRef, !customIsValid ? errorMsg : "");
       return customIsValid;
     }
-    if (typeof maxLength === "number" && input.length > maxLength) {
+    if (typeof maxLength === "number" && input?.length > maxLength) {
       updateInputValidity(inputRef, `Input exceeds maximum length of ${maxLength} characters. Please shorten your input.`);
       return false;
     }
-    if (required && input.trim().length === 0) {
+    if (required && input?.trim()?.length === 0) {
       return false;
     }
 
@@ -84,7 +84,7 @@ const TextInput: FC<Props> = ({
     if (typeof filter === "function") {
       newVal = filter(newVal);
     }
-    if (typeof maxLength === "number" && newVal.length > maxLength) {
+    if (typeof maxLength === "number" && newVal?.length > maxLength) {
       newVal = newVal.slice(0, maxLength);
     }
 
@@ -122,7 +122,7 @@ const TextInput: FC<Props> = ({
           type={type || "text"}
           id={id}
           size="small"
-          value={val || ""}
+          value={val ?? ""}
           onChange={onChangeWrapper}
           required={required}
           readOnly={readOnly}
