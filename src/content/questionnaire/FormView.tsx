@@ -92,6 +92,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const isSectionD = activeSection === "D";
   const errorAlertRef = useRef(null);
   const formContentRef = useRef(null);
+  const lastSectionRef = useRef(null);
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -140,7 +141,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   });
 
   useEffect(() => {
-    setActiveSection(validateSection(section) ? section : "A");
+    const newSection = validateSection(section) ? section : "A";
+    setActiveSection(newSection);
+    if (lastSectionRef.current) formContentRef.current?.scrollIntoView();
+    lastSectionRef.current = newSection;
   }, [section]);
 
   const isAllSectionsComplete = (): boolean => {
@@ -392,7 +396,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       return;
     }
     navigate(prevSection);
-    formContentRef.current?.scrollIntoView();
   };
 
   const handleNextClick = () => {
@@ -403,7 +406,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       return;
     }
     navigate(nextSection);
-    formContentRef.current?.scrollIntoView();
   };
 
   const handleReviewCommentChange = (newComment: string) => {
