@@ -544,7 +544,7 @@ const NavBar = () => {
                     id="navbar-dropdown-name"
                     onKeyDown={onKeyPressHandler}
                     role="button"
-                    tabIndex={0} className={clickedTitle === displayName ? 'navText clicked' : 'navText'}
+                    tabIndex={0} className={clickedTitle === displayName ? 'navText displayName clicked' : 'navText displayName'}
                     onClick={handleMenuClick}
                   >
                     {displayName}
