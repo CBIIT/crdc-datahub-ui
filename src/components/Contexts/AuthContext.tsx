@@ -86,7 +86,7 @@ const initialState: ContextState = {
  * @see ContextState – Auth context state
  * @see useAuthContext – Auth context hook
  */
-export const Context = createContext<ContextState>(initialState);
+export const Context = createContext<ContextState>(null);
 Context.displayName = 'AuthContext';
 
 /**

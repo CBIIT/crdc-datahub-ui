@@ -16,11 +16,11 @@ const ScrollButton = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", updateScroll);
-    clickToTopRef.current.addEventListener("click", onClickScrollToTop);
+    clickToTopRef.current?.addEventListener("click", onClickScrollToTop);
 
     return () => {
       window.removeEventListener("scroll", updateScroll);
-      clickToTopRef.current.removeEventListener("click", onClickScrollToTop);
+      clickToTopRef.current?.removeEventListener("click", onClickScrollToTop);
     };
   }, []);
 

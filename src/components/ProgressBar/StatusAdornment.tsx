@@ -42,10 +42,6 @@ const ReviewAvatar = styled(BaseAvatar)({
   backgroundColor: "#CFCFCF",
 });
 
-const ReviewActiveAvatar = styled(ReviewAvatar)({
-  backgroundColor: "#888888",
-});
-
 /**
  * Progress Bar Icon/Adornment Component
  *
@@ -68,9 +64,9 @@ const StatusAdornment: FC<Props> = ({ icon }) => {
       );
     case "Review":
       return (
-        <ReviewActiveAvatar>
+        <CompleteAvatar>
           <ArrowUpwardIcon />
-        </ReviewActiveAvatar>
+        </CompleteAvatar>
       );
     case "ReviewDisabled":
       return (
