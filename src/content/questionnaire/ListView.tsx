@@ -14,7 +14,6 @@ import SuspenseLoader from "../../components/SuspenseLoader";
 import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
-import User from "../../lib/User";
 
 type T = Omit<Application, "questionnaireData">;
 
