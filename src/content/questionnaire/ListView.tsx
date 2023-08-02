@@ -21,7 +21,7 @@ type T = RecursivePartial<Application>;
 type Column = {
   label: string;
   value: (a: T, user: User) => string | boolean | number | React.ReactNode;
-  sortable?: true;
+  field?: string;
   default?: true;
 };
 
@@ -96,32 +96,32 @@ const columns: Column[] = [
   {
     label: "Submitter Name",
     value: (a) => a.applicant?.applicantName,
-    sortable: true,
+    field: "applicant.applicantName",
   },
   {
     label: "Organization",
     value: (a) => a?.organization,
-    sortable: true,
+    field: "organization",
   },
   {
     label: "Study",
     value: (a) => a.study?.abbreviation || "NA",
-    sortable: true,
+    field: "study.abbreviation",
   },
   {
     label: "Program",
     value: (a) => a.program?.abbreviation || "NA",
-    sortable: true,
+    field: "program.abbreviation",
   },
   {
     label: "Status",
     value: (a) => a.status,
-    sortable: true,
+    field: "status",
   },
   {
     label: "Submitted Date",
     value: (a) => (a.submittedDate ? FormatDate(a.submittedDate, "M/D/YYYY h:mm A") : ""),
-    sortable: true,
+    field: "submittedDate",
     default: true,
   },
   {
@@ -129,6 +129,7 @@ const columns: Column[] = [
     value: (a: RecursivePartial<Application>, user) => {
       const role = user?.role;
 
+      // TODO for MVP-2: Org Owners can also Resume their own submissions
       if (role === "User" && ["New", "In Progress", "Rejected"].includes(a.status)) {
         return (
           <Link to={`/submission/${a?.["_id"]}`}>
@@ -165,7 +166,7 @@ const ListingView: FC = () => {
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<Column>(
     columns.find((c) => c.default)
-    || columns.find((c) => c.sortable)
+    || columns.find((c) => c.field)
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(5);
@@ -175,14 +176,14 @@ const ListingView: FC = () => {
       first: perPage,
       offset: page * perPage,
       sortDirection: order.toUpperCase(),
-      orderBy: orderBy.label,
+      orderBy: orderBy.field,
     },
     context: { clientName: 'backend' },
   });
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
-    return page > 0
+    return (page > 0 && data?.listApplications?.total)
       ? Math.max(0, (1 + page) * perPage - (data?.listApplications?.total || 0))
       : 0;
   }, [data]);
@@ -232,7 +233,7 @@ const ListingView: FC = () => {
               <TableRow>
                 {columns.map((col: Column) => (
                   <StyledHeaderCell key={col.label}>
-                    {col.sortable ? (
+                    {col.field ? (
                       <TableSortLabel
                         active={orderBy === col}
                         direction={orderBy === col ? order : "asc"}
@@ -283,14 +284,14 @@ const ListingView: FC = () => {
             </TableBody>
           </Table>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[{ label: "All", value: -1 }, 5, 10, 25]}
             component="div"
             count={data?.listApplications?.total || 0}
             rowsPerPage={perPage}
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{ disabled: !data?.listApplications || (data.listApplications.total < perPage) || loading }}
+            nextIconButtonProps={{ disabled: perPage === -1 || !data?.listApplications || (data.listApplications.total < perPage) || loading }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>
