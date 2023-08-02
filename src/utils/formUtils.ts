@@ -1,5 +1,5 @@
-import { FormGroupCheckboxOption } from '../../components/Questionnaire/FormGroupCheckbox';
-import programOptions, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../../config/ProgramConfig';
+import { FormGroupCheckboxOption } from '../components/Questionnaire/FormGroupCheckbox';
+import programOptions, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../config/ProgramConfig';
 
 /**
  * Generic Email Validator

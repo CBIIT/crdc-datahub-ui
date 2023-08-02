@@ -13,7 +13,7 @@ import TextInput from "../../../components/Questionnaire/TextInput";
 import Autocomplete from "../../../components/Questionnaire/AutocompleteInput";
 import Publication from "../../../components/Questionnaire/Publication";
 import Repository from "../../../components/Questionnaire/Repository";
-import { findProgram, findStudy, mapObjectWithKey } from "../utils";
+import { findProgram, findStudy, mapObjectWithKey } from "../../../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import { InitialQuestionnaire } from "../../../config/InitialValues";

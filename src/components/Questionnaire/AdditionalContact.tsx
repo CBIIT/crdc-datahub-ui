@@ -6,7 +6,7 @@ import institutionConfig from "../../config/InstitutionConfig";
 import TextInput from "./TextInput";
 import AddRemoveButton from "./AddRemoveButton";
 import AutocompleteInput from "./AutocompleteInput";
-import { filterNonNumeric } from '../../content/questionnaire/utils';
+import { filterNonNumeric } from '../../utils';
 
 const GridContainer = styled(Grid)({
   border: "0.5px solid #DCDCDC !important",
