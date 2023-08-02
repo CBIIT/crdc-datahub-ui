@@ -1,13 +1,33 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, FC, ReactElement, useEffect } from 'react';
 import { RouteObject } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import Layout from './layouts';
 import SuspenseLoader from './components/SuspenseLoader';
+import { useAuthContext } from './components/Contexts/AuthContext';
 
 const Loader = (Component) => (props) => (
   <Suspense fallback={<SuspenseLoader />}>
     <Component {...props} />
   </Suspense>
 );
+
+type RequireAuthProps = {
+  component: ReactElement;
+  redirectPath: string;
+  redirectName: string;
+};
+
+const RequireAuth: FC<RequireAuthProps> = ({ component, redirectPath, redirectName }: RequireAuthProps) => {
+  const authenticated = useAuthContext().isLoggedIn;
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!authenticated) {
+      navigate("/", { state: { path: redirectPath, name: redirectName } });
+    }
+  }, []);
+
+  return component;
+};
 
 // Pages
 const Home = Loader(lazy(() => import('./content')));
@@ -25,7 +45,7 @@ const routes: RouteObject[] = [
     element: <Layout />,
     children: [
       {
-        path: '/',
+        path: '/:redirect?',
         element: <Home />
       },
       {
@@ -34,7 +54,11 @@ const routes: RouteObject[] = [
       },
       {
         path: '/submissions',
-        element: <Questionnaire />
+        element: <RequireAuth component={<Questionnaire />} redirectPath="/submissions" redirectName="Submission Requests" />
+      },
+      {
+        path: '/dataSubmissionsTodo',
+        element: <RequireAuth component={<Status404 />} redirectPath="/dataSubmissionsTodo" redirectName="Data Submissions" />
       },
       {
         path: '/submission/:appId/:section?',
