@@ -73,7 +73,8 @@ const StyledFormLabel = styled("label")(({ theme }) => ({
   },
 }));
 
-const StyledCheckbox = styled(Checkbox)(() => ({
+const StyledCheckbox = styled(Checkbox)(({ readOnly }) => ({
+  cursor: readOnly ? "not-allowed" : "initial",
   "&.MuiCheckbox-root": {
     padding: "10px",
   },
