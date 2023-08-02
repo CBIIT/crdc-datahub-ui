@@ -18,7 +18,7 @@ const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   width: "24px",
   height: "24px",
   backgroundColor: readOnly ? "#D9DEE4" : "initial",
-  cursor: readOnly ? "not-allowed" : "initial",
+  cursor: readOnly ? "not-allowed" : "pointer",
 }));
 
 const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
@@ -28,7 +28,7 @@ const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   width: "24px",
   height: "24px",
   backgroundColor: readOnly ? "#D9DEE4" : "initial",
-  cursor: readOnly ? "not-allowed" : "initial",
+  cursor: readOnly ? "not-allowed" : "pointer",
 }));
 
 const StyledFormControl = styled(FormControl)(() => ({
@@ -74,7 +74,7 @@ const StyledFormLabel = styled("label")(({ theme }) => ({
 }));
 
 const StyledCheckbox = styled(Checkbox)(({ readOnly }) => ({
-  cursor: readOnly ? "not-allowed" : "initial",
+  cursor: readOnly ? "not-allowed" : "pointer",
   "&.MuiCheckbox-root": {
     padding: "10px",
   },
