@@ -29,7 +29,7 @@ const AccessTypesDescription = styled("span")(() => ({
  * @returns {JSX.Element}
  */
 const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { data } = useFormContext();
+  const { data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;

@@ -16,7 +16,7 @@ type FormSectionProps = {
 
 type FormObject = {
   ref: React.RefObject<HTMLFormElement>;
-  data: Application;
+  data: QuestionnaireData;
 };
 
 type SectionKey = 'A' | 'B' | 'C' | 'D' | 'REVIEW';

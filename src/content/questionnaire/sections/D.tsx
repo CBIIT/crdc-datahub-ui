@@ -136,14 +136,14 @@ const TableContainer = styled.div`
       margin-left: 6px;
     }
     #invisibleTableInput {
-       height: 0; 
-       border: none; 
+       height: 0;
+       border: none;
        width: 0;
     }
 `;
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { status, data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);

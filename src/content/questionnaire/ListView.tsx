@@ -16,7 +16,7 @@ import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import User from "../../lib/User";
 
-type T = RecursivePartial<Application>;
+type T = Omit<Application, "questionnaireData">;
 
 type Column = {
   label: string;
@@ -100,18 +100,18 @@ const columns: Column[] = [
   },
   {
     label: "Organization",
-    value: (a) => a?.organization,
-    field: "organization",
+    value: (a) => a?.organization?.name,
+    field: "organization.name",
   },
   {
     label: "Study",
-    value: (a) => a.study?.abbreviation || "NA",
-    field: "study.abbreviation",
+    value: (a) => a.studyAbbreviation || "NA",
+    field: "studyAbbreviation",
   },
   {
     label: "Program",
-    value: (a) => a.program?.abbreviation || "NA",
-    field: "program.abbreviation",
+    value: (a) => a.programName || "NA",
+    field: "programName",
   },
   {
     label: "Status",

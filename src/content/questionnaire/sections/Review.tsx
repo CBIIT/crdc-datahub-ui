@@ -48,7 +48,7 @@ const GridCondensed = styled(Grid)(() => ({
 const FormSectionReview: FC<FormSectionProps> = ({
   refs,
 }: FormSectionProps) => {
-  const { data } = useFormContext();
+  const { data: { questionnaireData: data } } = useFormContext();
   const { userCanReview } = useFormMode();
   const { pi, primaryContact, piAsPrimaryContact, program, study } = data;
   const formRef = useRef<HTMLFormElement>();

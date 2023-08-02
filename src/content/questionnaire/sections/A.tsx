@@ -34,7 +34,7 @@ const StyledFormControlLabel = styled(FormControlLabel)({
  * @returns {JSX.Element}
  */
 const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { status, data: { questionnaireData: data } } = useFormContext();
   const { pi, primaryContact } = data;
   const { readOnlyInputs } = useFormMode();
 

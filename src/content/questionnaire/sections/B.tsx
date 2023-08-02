@@ -16,7 +16,7 @@ import Repository from "../../../components/Questionnaire/Repository";
 import { findProgram, findStudy, mapObjectWithKey } from "../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
-import initialValues from "../../../config/InitialValues";
+import { InitialQuestionnaire } from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import useFormMode from "./hooks/useFormMode";
@@ -40,7 +40,7 @@ export type KeyedRepository = {
  * @returns {JSX.Element}
  */
 const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { status, data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
 
   const [program, setProgram] = useState<Program>(data.program);
@@ -78,7 +78,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
     // Reset study if the data failed to load
     if (!formObject.study) {
-      combinedData.study = initialValues.study;
+      combinedData.study = InitialQuestionnaire.study;
     }
     if (!formObject?.study?.dbGaPPPHSNumber) {
       combinedData.study.dbGaPPPHSNumber = "";
@@ -167,14 +167,14 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const newStudy = findStudy(value.name, value.abbreviation, programOption);
     if (newStudy?.isCustom) {
       setStudy({
-        ...initialValues.study,
+        ...InitialQuestionnaire.study,
         name: "",
         abbreviation: "",
         description: ""
       });
     } else {
       setStudy({
-        ...initialValues.study,
+        ...InitialQuestionnaire.study,
         ...study,
         name: newStudy.name,
         abbreviation: newStudy.abbreviation,
