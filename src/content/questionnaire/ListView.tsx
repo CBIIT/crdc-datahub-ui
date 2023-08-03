@@ -124,12 +124,17 @@ const columns: Column[] = [
     default: true,
   },
   {
+    label: "Last Updated Date",
+    value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
+    field: "updatedAt",
+  },
+  {
     label: "Action",
     value: (a: RecursivePartial<Application>, user) => {
       const role = user?.role;
 
-      // TODO for MVP-2: Org Owners can also Resume their own submissions
-      if (role === "User" && ["New", "In Progress", "Rejected"].includes(a.status)) {
+      // NOTE for MVP-2: Org Owners can also Resume their own submissions
+      if ((role === "User" && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Rejected"].includes(a.status)) {
         return (
           <Link to={`/submission/${a?.["_id"]}`}>
             <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">Resume</StyledActionButton>
@@ -209,7 +214,8 @@ const ListingView: FC = () => {
         subTitle="Below is a list of applications that are associated with your account. Please click on any of the applications to review or continue work."
         body={(
           <Stack direction="row" alignItems="center" justifyContent="flex-end">
-            {!["FederalLead"].includes(user?.role) && (
+            {/* NOTE For MVP-2: Organization Owners are just Users */}
+            {user?.role === "User" && (
               <Link to="/submission/new">
                 <StyledButton type="button">Start a Submission Request</StyledButton>
               </Link>
