@@ -11,12 +11,24 @@ import { useLazyQuery, useMutation } from '@apollo/client';
 import dayjs from "dayjs";
 import { merge, cloneDeep } from "lodash";
 import omitDeep from "omit-deep";
-import { mutation as APPROVE_APP, Response as ApproveAppResp } from '../../graphql/approveApplication';
-import { mutation as REJECT_APP, Response as RejectAppResp } from '../../graphql/rejectApplication';
-import { query as LAST_APP, Response as LastAppResp } from '../../graphql/getMyLastApplication';
-import { query as GET_APP, Response as GetAppResp } from '../../graphql/getApplication';
-import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
-import { mutation as SUBMIT_APP, Response as SubmitAppResp } from '../../graphql/submitApplication';
+import {
+  APPROVE_APP,
+  GET_APP,
+  LAST_APP,
+  REJECT_APP,
+  REOPEN_APP,
+  REVIEW_APP,
+  SAVE_APP,
+  SUBMIT_APP,
+  ApproveAppResp,
+  GetAppResp,
+  LastAppResp,
+  RejectAppResp,
+  ReopenAppResp,
+  ReviewAppResp,
+  SaveAppResp,
+  SubmitAppResp,
+} from "../../graphql";
 import initialValues from "../../config/InitialValues";
 import { FormatDate, omitForApi } from "../../utils";
 
@@ -24,6 +36,8 @@ export type ContextState = {
   status: Status;
   data: Application;
   submitData?: () => Promise<string | boolean>;
+  reopenForm?: () => Promise<string | boolean>;
+  reviewForm?: () => Promise<string | boolean>;
   approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
   setData?: (Application) => Promise<string | false>;
@@ -104,6 +118,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
   });
 
   const [submitApp] = useMutation<SubmitAppResp>(SUBMIT_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [reviewApp] = useMutation<ReviewAppResp>(REVIEW_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [reopenApp] = useMutation<ReopenAppResp>(REOPEN_APP, {
     variables: { id },
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
@@ -199,6 +225,58 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     return res?.rejectApplication?.["_id"] || false;
   };
 
+  // Updating form status from Submitted to In Review
+  const reviewForm = async () => {
+    setState((prevState) => ({ ...prevState, status: Status.LOADING }));
+
+    const { data: res, errors } = await reviewApp({
+      variables: {
+        _id: state?.data["_id"],
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      return false;
+    }
+
+    setState((prevState) => ({
+      ...prevState,
+      data: {
+        ...prevState?.data,
+        ...omitDeep(res?.reviewApplication, ["__typename"]),
+      },
+      status: Status.LOADED,
+    }));
+    return res?.reviewApplication?.["_id"] || false;
+  };
+
+  // Reopen a form when it has been rejected and they submit an updated form
+  const reopenForm = async () => {
+    setState((prevState) => ({ ...prevState, status: Status.LOADING }));
+
+    const { data: res, errors } = await reopenApp({
+      variables: {
+        _id: state?.data["_id"],
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      return false;
+    }
+
+    setState((prevState) => ({
+      ...prevState,
+      data: {
+        ...prevState?.data,
+        ...omitDeep(res?.reopenApplication, ["__typename"]),
+      },
+      status: Status.LOADED,
+    }));
+    return res?.reopenApplication?.["_id"] || false;
+  };
+
   useEffect(() => {
     if (!id || !id.trim()) {
       setState({ status: Status.ERROR, data: null, error: "Invalid application ID provided" });
@@ -242,7 +320,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     })();
   }, [id]);
 
-  const value = useMemo(() => ({ ...state, setData, submitData, approveForm, rejectForm }), [state]);
+  const value = useMemo(
+    () => ({
+      ...state,
+      setData,
+      submitData,
+      approveForm,
+      rejectForm,
+      reviewForm,
+      reopenForm,
+    }),
+    [state]
+  );
 
   return (
     <Context.Provider value={value}>
