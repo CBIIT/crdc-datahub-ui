@@ -10,7 +10,7 @@ import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import { mapObjectWithKey } from "../utils";
+import { mapObjectWithKey } from "../../../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
 import { fileTypeOptions } from "../../../config/FileTypeConfig";
@@ -136,14 +136,14 @@ const TableContainer = styled.div`
       margin-left: 6px;
     }
     #invisibleTableInput {
-       height: 0; 
-       border: none; 
+       height: 0;
+       border: none;
        width: 0;
     }
 `;
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { status, data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);

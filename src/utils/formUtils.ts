@@ -1,5 +1,5 @@
-import { FormGroupCheckboxOption } from '../../components/Questionnaire/FormGroupCheckbox';
-import programOptions, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../../config/ProgramConfig';
+import { FormGroupCheckboxOption } from '../components/Questionnaire/FormGroupCheckbox';
+import programOptions, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../config/ProgramConfig';
 
 /**
  * Generic Email Validator
@@ -28,7 +28,7 @@ export const validateEmail = (email: string): boolean => {
  * @param {SectionItemContentOption[]} options The options, usually coming from config
  * @returns {string[]} The re-shaped options. Ex. ["name1", "name2"]
  */
-export const reshapeCheckboxGroupOptions = (options: FormGroupCheckboxOption[], data: Application): string[] => (
+export const reshapeCheckboxGroupOptions = (options: FormGroupCheckboxOption[], data: QuestionnaireData): string[] => (
   options.reduce((acc, option) => (data[option.name] ? [...acc, option.value] : acc), [])
 );
 
