@@ -22,7 +22,8 @@ type Props = {
 
 const BaseComponent: FC<Props> = ({ section, data = {} } : Props) => {
   const formValue = useMemo<FormCtxState>(() => ({
-    data: data as Application, status: FormStatus.LOADED
+    status: FormStatus.LOADED,
+    data: data as Application,
   }), [data]);
 
   const authValue = useMemo<ContextState>(() => ({
@@ -71,9 +72,11 @@ describe("ProgressBar General Tests", () => {
 
   it("renders the completed sections with a checkmark", () => {
     const data = {
-      sections: [
-        { name: keys[1], status: "Completed" },
-      ],
+      questionnaireData: {
+        sections: [
+          { name: keys[1], status: "Completed" },
+        ],
+      },
     };
 
     const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
@@ -93,7 +96,9 @@ describe("ProgressBar General Tests", () => {
 
   it("renders the Review section as enabled only when all sections are completed", () => {
     const data = {
-      sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
+      questionnaireData: {
+        sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
+      },
     };
 
     const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
@@ -110,8 +115,10 @@ describe("ProgressBar General Tests", () => {
   const completedStates : ApplicationStatus[] = ["Approved"];
   it.each(completedStates)("renders the Review section as accessible and completed for status %s", (status) => {
     const data = {
-      sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
       status,
+      questionnaireData: {
+        sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
+      },
     };
 
     const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
@@ -123,8 +130,10 @@ describe("ProgressBar General Tests", () => {
   const incompleteStates : ApplicationStatus[] = ["New", "In Progress", "Submitted", "In Review", "Rejected"];
   it.each(incompleteStates)("renders the Review section as accessible and incomplete for status %s", (status) => {
     const data = {
-      sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
       status,
+      questionnaireData: {
+        sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
+      },
     };
 
     const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);

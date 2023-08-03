@@ -15,6 +15,7 @@ type Props = {
 
 const TestChild: FC = () => {
   const { status, data, error } = useFormContext();
+  const { _id, questionnaireData } = data ?? {};
 
   if (status === FormStatus.LOADING) {
     return null;
@@ -27,9 +28,9 @@ const TestChild: FC = () => {
       {error && <div data-testid="error">{error}</div>}
 
       {/* API Data */}
-      {data?._id && <div data-testid="app-id">{data._id}</div>}
-      {(typeof data?.pi?.firstName === "string") && <div data-testid="pi-first-name">{data.pi.firstName}</div>}
-      {(typeof data?.pi?.lastName === "string") && <div data-testid="pi-last-name">{data.pi.lastName}</div>}
+      {_id && <div data-testid="app-id">{_id}</div>}
+      {(typeof questionnaireData?.pi?.firstName === "string") && <div data-testid="pi-first-name">{questionnaireData.pi.firstName}</div>}
+      {(typeof questionnaireData?.pi?.lastName === "string") && <div data-testid="pi-last-name">{questionnaireData.pi.lastName}</div>}
     </>
   );
 };
@@ -110,10 +111,12 @@ describe("FormContext > FormProvider Tests", () => {
         data: {
           getApplication: {
             _id: "556ac14a-f247-42e8-8878-8468060fb49a",
-            pi: {
-              firstName: "Successfully",
-              lastName: "Fetched",
-            },
+            questionnaireData: JSON.stringify({
+              pi: {
+                firstName: "Successfully",
+                lastName: "Fetched",
+              }
+            }),
           },
         },
       },
@@ -136,10 +139,13 @@ describe("FormContext > FormProvider Tests", () => {
       result: {
         data: {
           getMyLastApplication: {
-            pi: {
-              firstName: "Test",
-              lastName: "User",
-            },
+            _id: "ABC-LAST-ID-123",
+            questionnaireData: JSON.stringify({
+              pi: {
+                firstName: "Test",
+                lastName: "User",
+              }
+            }),
           },
         },
       },
