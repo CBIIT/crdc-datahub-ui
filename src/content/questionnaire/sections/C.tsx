@@ -8,13 +8,12 @@ import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
 import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
-import { reshapeCheckboxGroupOptions } from "../utils";
 import accessTypesOptions from "../../../config/AccessTypesConfig";
 import cancerTypeOptions from "../../../config/CancerTypesConfig";
 import preCancerTypeOptions from "../../../config/PreCancerTypesConfig";
 import speciesOptions from "../../../config/SpeciesConfig";
 import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
-import { isValidInRange } from "../../../utils";
+import { reshapeCheckboxGroupOptions, isValidInRange } from "../../../utils";
 import useFormMode from "./hooks/useFormMode";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 
@@ -29,7 +28,7 @@ const AccessTypesDescription = styled("span")(() => ({
  * @returns {JSX.Element}
  */
 const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { data } = useFormContext();
+  const { data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;

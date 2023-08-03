@@ -1,6 +1,18 @@
-// NOTE: this will have to be changed if schema changes
-const initialValues: Omit<Application, "_id" | "applicantID" | "organization" | "applicant" | "history" > = {
-  sections: [],
+export const InitialApplication: Omit<Application, "questionnaireData"> = {
+  _id: "new",
+  applicant: null,
+  organization: null,
+  status: 'New',
+  createdAt: '',
+  updatedAt: '',
+  submittedDate: '',
+  history: [],
+  programName: '',
+  studyAbbreviation: '',
+};
+
+export const InitialQuestionnaire: QuestionnaireData = {
+sections: [],
   pi: {
     firstName: "",
     lastName: "",
@@ -63,12 +75,4 @@ const initialValues: Omit<Application, "_id" | "applicantID" | "organization" | 
   },
   files: [],
   submitterComment: "",
-  status: "New",
-  programLevelApproval: false,
-  reviewComment: "",
-  createdAt: "",
-  updatedAt: "",
-  submittedDate: "",
 };
-
-export default initialValues;

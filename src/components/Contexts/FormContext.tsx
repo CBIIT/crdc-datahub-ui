@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, {
   FC,
   createContext,
@@ -10,7 +9,6 @@ import React, {
 import { useLazyQuery, useMutation } from '@apollo/client';
 import dayjs from "dayjs";
 import { merge, cloneDeep } from "lodash";
-import omitDeep from "omit-deep";
 import {
   APPROVE_APP,
   GET_APP,
@@ -29,8 +27,8 @@ import {
   SaveAppResp,
   SubmitAppResp,
 } from "../../graphql";
-import initialValues from "../../config/InitialValues";
-import { FormatDate, omitForApi } from "../../utils";
+import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+import { FormatDate } from "../../utils";
 
 export type ContextState = {
   status: Status;
@@ -112,7 +110,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     fetchPolicy: 'no-cache'
   });
 
-  const [saveApp] = useMutation<SaveAppResp>(SAVE_APP, {
+  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
@@ -147,19 +145,34 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     fetchPolicy: 'no-cache'
   });
 
-  const setData = async (data: Application) => {
-    let newState = { ...state, data };
+  const setData = async (data: QuestionnaireData) => {
+    const newState = {
+      ...state,
+      data: {
+        ...state.data,
+        questionnaireData: data
+      }
+    };
     setState({ ...newState, status: Status.SAVING });
 
-    const { data: d, errors } = await saveApp({ variables: omitForApi(data) });
+    const { data: d, errors } = await saveApp({
+      variables: {
+        application: {
+          _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
+          programName: data?.program?.name,
+          studyAbbreviation: data?.study?.abbreviation,
+          questionnaireData: JSON.stringify(data),
+        }
+      }
+    });
 
     if (errors) {
-      setState({ ...newState, status: Status.LOADED });
+      setState({ ...newState, status: Status.ERROR });
       return false;
     }
 
     if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
-      newState = { ...newState, data: { ...data, _id: d.saveApplication["_id"] } };
+      newState.data._id = d.saveApplication["_id"];
     }
 
     setState({ ...newState, status: Status.LOADED });
@@ -244,7 +257,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       ...prevState,
       data: {
         ...prevState?.data,
-        ...omitDeep(res?.reviewApplication, ["__typename"]),
+        ...res?.reviewApplication,
       },
       status: Status.LOADED,
     }));
@@ -270,7 +283,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       ...prevState,
       data: {
         ...prevState?.data,
-        ...omitDeep(res?.reopenApplication, ["__typename"]),
+        ...res?.reopenApplication
       },
       status: Status.LOADED,
     }));
@@ -286,16 +299,20 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     (async () => {
       if (id === "new") {
         const { data: d } = await lastApp();
+        const { getMyLastApplication } = d || {};
+        const lastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
 
         setState({
           status: Status.LOADED,
           data: {
-            ...initialValues,
-            _id: "new",
-            pi: { ...initialValues.pi, ...omitDeep(d?.getMyLastApplication, ["__typename"])?.pi },
-            applicant: null,
-            organization: null,
-            history: [],
+            ...InitialApplication,
+            questionnaireData: {
+              ...InitialQuestionnaire,
+              pi: {
+                ...InitialQuestionnaire.pi,
+                ...lastAppData?.pi,
+              },
+            },
           },
         });
 
@@ -303,18 +320,24 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       }
 
       const { data: d, error } = await getApp();
-      if (error) {
+      if (error || !d?.getApplication?.questionnaireData) {
         setState({ status: Status.ERROR, data: null, error: "An unknown API or GraphQL error occurred" });
         return;
       }
 
+      const { getApplication } = d;
+      const questionnaireData: QuestionnaireData = JSON.parse(getApplication?.questionnaireData || null);
       setState({
         status: Status.LOADED,
         data: {
-          ...merge(cloneDeep(initialValues), omitDeep(d?.getApplication, ["__typename"])),
-          // To avoid false positive form changes
-          targetedReleaseDate: FormatDate(d?.getApplication?.targetedReleaseDate, datePattern, dateTodayFallback),
-          targetedSubmissionDate: FormatDate(d?.getApplication?.targetedSubmissionDate, datePattern, dateTodayFallback),
+          ...merge(cloneDeep(InitialApplication), d?.getApplication),
+          questionnaireData: {
+          ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
+            // To avoid false positive form changes
+            // NOTE: We may be able to remove this since we control the nested object
+            targetedReleaseDate: FormatDate(questionnaireData.targetedReleaseDate, datePattern, dateTodayFallback),
+            targetedSubmissionDate: FormatDate(questionnaireData.targetedSubmissionDate, datePattern, dateTodayFallback),
+          },
         }
       });
     })();

@@ -1,7 +1,7 @@
 import React, { FC, createRef, useEffect, useRef, useState } from 'react';
 import {
   useNavigate,
-  unstable_useBlocker as useBlocker, unstable_Blocker as Blocker
+  unstable_useBlocker as useBlocker, unstable_Blocker as Blocker, Navigate
 } from 'react-router-dom';
 import { isEqual } from 'lodash';
 import { Alert, Button, Container, Divider, Stack, styled } from '@mui/material';
@@ -183,18 +183,13 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     if (status === FormStatus.LOADING) {
       return false;
     }
-    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
-
-    if (!ref?.current || !newData) {
-      return false;
-    }
 
     // form has not been created
-    if (newData?.sections?.length !== Object.keys(map).length - 1) {
+    if (!data?.questionnaireData || data?.questionnaireData?.sections?.length !== Object.keys(map).length - 1) {
       return false;
     }
 
-    return newData?.sections?.every((section) => section.status === "Completed");
+    return data?.questionnaireData?.sections?.every((section) => section.status === "Completed");
   };
 
   /**
@@ -205,12 +200,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const isDirty = () : boolean => {
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
-    return ref && (!data || !isEqual(data, newData));
+    return ref && (!data || !isEqual(data.questionnaireData, newData));
   };
 
   /**
    * submit the form data to the database.
-   *
    *
    * @returns {Promise<boolean>} true if the submit was successful, false otherwise
    */
@@ -391,7 +385,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
 
     // Skip state update if there are no changes
-    if (!isEqual(data, newData)) {
+    if (!isEqual(data.questionnaireData, newData)) {
       const r = await setData(newData);
       setChangesAlert(`Your changes for the ${map[activeSection].title} section have been successfully saved.`);
 
@@ -505,10 +499,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   }
 
   if (status === FormStatus.ERROR || !data) {
-    navigate('/submissions', {
-      state: { error: error || 'Unknown form loading error' },
-    });
-    return null;
+    return <Navigate to="/submissions" state={{ error: error || 'Unknown error' }} />;
   }
 
   if (authStatus === AuthStatus.ERROR) {

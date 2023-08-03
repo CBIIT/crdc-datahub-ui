@@ -11,7 +11,7 @@ import TextInput from "../../../components/Questionnaire/TextInput";
 import AutocompleteInput from '../../../components/Questionnaire/AutocompleteInput';
 import institutionConfig from "../../../config/InstitutionConfig";
 import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
-import { filterNonNumeric, mapObjectWithKey } from '../utils';
+import { filterNonNumeric, mapObjectWithKey } from '../../../utils';
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import useFormMode from "./hooks/useFormMode";
 
@@ -34,7 +34,7 @@ const StyledFormControlLabel = styled(FormControlLabel)({
  * @returns {JSX.Element}
  */
 const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { status, data: { questionnaireData: data } } = useFormContext();
   const { pi, primaryContact } = data;
   const { readOnlyInputs } = useFormMode();
 

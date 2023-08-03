@@ -9,7 +9,5 @@ export const mutation = gql`
 `;
 
 export type Response = {
-  saveApplication: {
-    _id: string;
-  };
+  saveApplication: Pick<Application, "_id">;
 };
