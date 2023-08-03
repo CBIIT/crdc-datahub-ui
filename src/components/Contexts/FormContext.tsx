@@ -120,13 +120,19 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
   });
 
   const setData = async (data: QuestionnaireData) => {
-    const newState = { ...state, data: { ...state.data, questionnaireData: data } };
+    const newState = {
+      ...state,
+      data: {
+        ...state.data,
+        questionnaireData: data
+      }
+    };
     setState({ ...newState, status: Status.SAVING });
 
     const { data: d, errors } = await saveApp({
       variables: {
         application: {
-          _id: data["_id"],
+          _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
           programName: data?.program?.name,
           studyAbbreviation: data?.study?.abbreviation,
           questionnaireData: JSON.stringify(data),
@@ -215,7 +221,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     (async () => {
       if (id === "new") {
         const { data: d } = await lastApp();
-        const { getMyLastApplication } = d;
+        const { getMyLastApplication } = d || {};
         const lastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
 
         setState({
