@@ -624,6 +624,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
       <UnsavedChangesDialog
         open={blockedNavigate}
+        currentSection={activeSection}
         onCancel={() => setBlockedNavigate(false)}
         onSave={saveAndNavigate}
         onDiscard={discardAndNavigate}

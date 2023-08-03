@@ -24,7 +24,7 @@ const sections: SectionConfig = {
     component: B,
   },
   C: {
-    title: "Data Access & Disease Information",
+    title: "Data Access and Disease",
     id: "C",
     component: C,
   },

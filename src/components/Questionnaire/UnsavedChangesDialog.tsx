@@ -6,6 +6,7 @@ import Dialog from "./Dialog";
 type Props = {
   title?: string;
   message?: string;
+  currentSection?: string;
   disableActions?: boolean;
   loading?: boolean;
   onCancel?: () => void;
@@ -16,6 +17,7 @@ type Props = {
 const UnsavedChangesDialog: FC<Props> = ({
   title,
   message,
+  currentSection,
   disableActions,
   loading,
   onCancel,
@@ -31,7 +33,7 @@ const UnsavedChangesDialog: FC<Props> = ({
     title={title || "Unsaved Changes"}
     message={
       message
-      || "You have unsaved changes. Your changes will be lost if you leave this section without saving. Do you want to save your data?"
+      || `You have unsaved changes. Your changes will be lost if you leave this section without saving. Do you want to save your data ${currentSection ? `for section ${currentSection}` : ""}?`
     }
     actions={(
       <>
