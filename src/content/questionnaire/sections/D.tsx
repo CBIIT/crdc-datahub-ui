@@ -310,6 +310,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               gridWidth={12}
               label="Confirm the imaging data you plan to submit are de-identified"
               name="imagingDataDeIdentified"
+              row
               required
               readOnly={readOnlyInputs}
             />
