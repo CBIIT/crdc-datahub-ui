@@ -191,6 +191,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     } else if (formObject.imagingDataDeIdentified === "false") {
       combinedData.imagingDataDeIdentified = false;
     }
+    // Override empty file array
+    combinedData.files = formObject.files;
     return { ref: formRef, data: combinedData };
   };
 
