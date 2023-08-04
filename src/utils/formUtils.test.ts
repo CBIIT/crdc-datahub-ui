@@ -1,5 +1,5 @@
-import * as utils from "./utils";
-import programs, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../../config/ProgramConfig';
+import * as utils from "./formUtils";
+import programs, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../config/ProgramConfig';
 
 describe("questionnaire filterNonNumeric cases", () => {
   it("should filter non-numerics", () => {
