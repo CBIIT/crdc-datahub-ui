@@ -120,7 +120,7 @@ const RadioYesNoInput: FC<Props> = ({
     setVal(newValue === "" ? null : newValue);
   };
   useEffect(() => {
-    if (required && !val) {
+    if (required && val === null) {
           updateInputValidity(radioGroupInputRef, "Please select an option");
         } else {
           updateInputValidity(radioGroupInputRef);
