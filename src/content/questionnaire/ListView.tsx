@@ -26,7 +26,7 @@ type Column = {
 };
 
 const StyledButton = styled(LoadingButton)(({ theme }) => ({
-  padding: "14px 18px",
+  padding: "14px 20px",
   fontWeight: 700,
   fontSize: "16px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
@@ -41,6 +41,10 @@ const StyledButton = styled(LoadingButton)(({ theme }) => ({
     marginRight: "100px",
   },
 }));
+
+const StyledContainer = styled(Container)({
+  marginTop: "-21px",
+});
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
@@ -261,7 +265,7 @@ const ListingView: FC = () => {
         bannerSrc={bannerSvg}
       />
 
-      <Container maxWidth="xl">
+      <StyledContainer maxWidth="xl">
         {(state?.error || error) && (
           <Alert sx={{ mb: 3, p: 2 }} severity="error">
             {state?.error || "An error occurred while loading the data."}
@@ -358,7 +362,7 @@ const ListingView: FC = () => {
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>
-      </Container>
+      </StyledContainer>
     </>
   );
 };
