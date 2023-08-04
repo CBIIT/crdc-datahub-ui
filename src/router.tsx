@@ -33,6 +33,7 @@ const RequireAuth: FC<RequireAuthProps> = ({ component, redirectPath, redirectNa
 const Home = Loader(lazy(() => import('./content')));
 const Login = Loader(lazy(() => import('./content/login/Controller')));
 const Questionnaire = Loader(lazy(() => import('./content/questionnaire/Controller')));
+const UserProfile = Loader(lazy(() => import('./content/userProfile/Controller')));
 const OtherResources = Loader(lazy(() => import('./content/static/OtherResources')));
 const Search = Loader(lazy(() => import('./content/search')));
 
@@ -67,6 +68,10 @@ const routes: RouteObject[] = [
       {
         path: '/sitesearch/:keyword',
         element: <Search />
+      },
+      {
+        path: '/userProfile',
+        element: <UserProfile />
       },
       {
         path: '/or',

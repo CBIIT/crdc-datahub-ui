@@ -8,6 +8,7 @@
  * @prop {string} lastName Last name
  * @prop {string} role User's role
  * @prop {string} userStatus User's status
+ * @prop {string} organization User's organization
  * @
  */
 class User {
@@ -25,6 +26,8 @@ class User {
 
   private _userStatus: 'Active' | 'Inactive' | 'Disabled';
 
+  private _organization: string;
+
   private _createdAt: string;
 
   private _updateAt: string;
@@ -37,6 +40,7 @@ class User {
     this._lastName = userData._lastName ?? userData.lastName ?? '';
     this._role = userData._role ?? userData.role ?? '';
     this._userStatus = userData._userStatus ?? userData.userStatus ?? '';
+    this._organization = userData._organization ?? userData.organization ?? '';
     this._createdAt = userData._createdAt ?? userData.createdAt ?? '';
     this._updateAt = userData._updateAt ?? userData.updateAt ?? '';
   }
@@ -81,6 +85,13 @@ class User {
    */
   get userStatus() {
     return this._userStatus;
+  }
+
+  /**
+   * @returns {string}
+   */
+  get organization() {
+    return this._organization;
   }
 
   /** First name if IDP is NIH; otherwise, email address
