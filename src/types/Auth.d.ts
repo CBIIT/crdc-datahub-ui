@@ -6,6 +6,7 @@ type User = {
   role: 'Admin' | 'User' | 'Curator' | 'FederalLead' | 'DC_POC';
   IDP: 'nih' | 'login.gov';
   email: string;
+  organization: string;
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
 };
