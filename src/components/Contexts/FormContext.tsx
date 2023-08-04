@@ -250,12 +250,26 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
 
       const { getApplication } = d;
       const questionnaireData: QuestionnaireData = JSON.parse(getApplication?.questionnaireData || null);
+
+      // Check if we need to autofill the PI details
+      const sectionA = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
+      if (!["In Progress", "Complete"].includes(sectionA?.status)) {
+        const { data: lastAppData } = await lastApp();
+        const { getMyLastApplication } = lastAppData || {};
+        const parsedLastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
+
+        questionnaireData.pi = {
+          ...questionnaireData.pi,
+          ...parsedLastAppData.pi,
+        };
+      }
+
       setState({
         status: Status.LOADED,
         data: {
           ...merge(cloneDeep(InitialApplication), d?.getApplication),
           questionnaireData: {
-          ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
+            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
             // To avoid false positive form changes
             // NOTE: We may be able to remove this since we control the nested object
             targetedReleaseDate: FormatDate(questionnaireData.targetedReleaseDate, datePattern, dateTodayFallback),

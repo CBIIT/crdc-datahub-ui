@@ -182,6 +182,98 @@ describe("FormContext > FormProvider Tests", () => {
     expect(screen.getByTestId("pi-last-name").textContent).toEqual("");
   });
 
+  it("should autofill PI details if Section A is not started", async () => {
+    const mocks = [
+      {
+        request: {
+          query: GET_LAST_APP,
+        },
+        result: {
+          data: {
+            getMyLastApplication: {
+              _id: "ABC-LAST-ID-123",
+              questionnaireData: JSON.stringify({
+                pi: {
+                  firstName: "Test",
+                  lastName: "User",
+                }
+              }),
+            },
+          },
+        },
+      },
+      {
+        request: {
+          query: GET_APP,
+          variables: {
+            id: "AAA-BBB-EXISTING-APP",
+          },
+        },
+        result: {
+          data: {
+            getApplication: {
+              _id: "AAA-BBB-EXISTING-APP",
+              questionnaireData: JSON.stringify({}),
+            },
+          },
+        },
+      }
+    ];
+    const screen = render(<TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />);
+
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+
+    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
+    expect(screen.getByTestId("pi-first-name").textContent).toEqual("Test");
+    expect(screen.getByTestId("pi-last-name").textContent).toEqual("User");
+  });
+
+  it("should not execute getMyLastApplication if Section A is started", async () => {
+    const mocks = [
+      {
+        request: {
+          query: GET_LAST_APP,
+        },
+        result: {
+          data: {
+            getMyLastApplication: {
+              _id: "ABC-LAST-ID-123",
+              questionnaireData: JSON.stringify({
+                pi: {
+                  firstName: "Should not be",
+                  lastName: "Used or called",
+                }
+              }),
+            },
+          },
+        },
+      },
+      {
+        request: {
+          query: GET_APP,
+          variables: {
+            id: "AAA-BBB-EXISTING-APP",
+          },
+        },
+        result: {
+          data: {
+            getApplication: {
+              _id: "AAA-BBB-EXISTING-APP",
+              questionnaireData: JSON.stringify({ sections: [{ name: "A", status: "In Progress" }] }),
+            },
+          },
+        },
+      }
+    ];
+    const screen = render(<TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />);
+
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+
+    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
+    expect(screen.getByTestId("pi-first-name").textContent).toEqual("");
+    expect(screen.getByTestId("pi-last-name").textContent).toEqual("");
+  });
+
   // it("should execute saveApplication when setData is called", async () => {
   //   fail("Not implemented");
   // });
