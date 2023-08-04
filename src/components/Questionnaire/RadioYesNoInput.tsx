@@ -94,7 +94,6 @@ type Props = {
   helpText?: string;
   required?: boolean;
   readOnly?: boolean;
-  isVisible?: boolean;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
 } & RadioGroupProps;
 
@@ -108,7 +107,6 @@ const RadioYesNoInput: FC<Props> = ({
   helpText,
   required,
   readOnly,
-  isVisible = true,
   ...rest
 }) => {
   const [val, setVal] = useState<string>(value?.toString() === "" ? null : value);
@@ -122,13 +120,11 @@ const RadioYesNoInput: FC<Props> = ({
     setVal(newValue === "" ? null : newValue);
   };
   useEffect(() => {
-    if (isVisible) {
-      if (required && !val) {
-            updateInputValidity(radioGroupInputRef, "Please select an option");
-          } else {
-            updateInputValidity(radioGroupInputRef);
-          }
-    }
+    if (required && !val) {
+          updateInputValidity(radioGroupInputRef, "Please select an option");
+        } else {
+          updateInputValidity(radioGroupInputRef);
+        }
   }, [val]);
 
   return (
