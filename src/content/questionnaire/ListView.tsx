@@ -1,19 +1,20 @@
 import React, { FC, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Alert, Container, Button, Stack, styled,
   Table, TableBody, TableCell,
   TableContainer, TableHead,
   TablePagination, TableRow,
-  TableSortLabel, Typography,
+  TableSortLabel, Typography, Box, CircularProgress,
 } from "@mui/material";
-import { useQuery } from '@apollo/client';
+import { LoadingButton } from '@mui/lab';
+import { useMutation, useQuery } from '@apollo/client';
 import { query, Response } from '../../graphql/listApplications';
 import bannerSvg from "../../assets/banner/list_banner.svg";
-import SuspenseLoader from "../../components/SuspenseLoader";
 import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
+import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
 
 type T = Omit<Application, "questionnaireData">;
 
@@ -24,9 +25,8 @@ type Column = {
   default?: true;
 };
 
-const StyledButton = styled(Button)(({ theme }) => ({
-  padding: "14px 11px",
-  minWidth: "128px",
+const StyledButton = styled(LoadingButton)(({ theme }) => ({
+  padding: "14px 20px",
   fontWeight: 700,
   fontSize: "16px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
@@ -42,10 +42,15 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+const StyledContainer = styled(Container)({
+  marginTop: "-21px",
+});
+
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
   border: "1px solid #083A50",
   marginBottom: "25px",
+  position: "relative",
 });
 
 const StyledTableHead = styled(TableHead)({
@@ -124,12 +129,17 @@ const columns: Column[] = [
     default: true,
   },
   {
+    label: "Last Updated Date",
+    value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
+    field: "updatedAt",
+  },
+  {
     label: "Action",
-    value: (a: RecursivePartial<Application>, user) => {
+    value: (a, user) => {
       const role = user?.role;
 
-      // TODO for MVP-2: Org Owners can also Resume their own submissions
-      if (role === "User" && ["New", "In Progress", "Rejected"].includes(a.status)) {
+      // NOTE for MVP-2: Org Owners can also Resume their own submissions
+      if ((role === "User" && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Rejected"].includes(a.status)) {
         return (
           <Link to={`/submission/${a?.["_id"]}`}>
             <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">Resume</StyledActionButton>
@@ -159,6 +169,7 @@ const columns: Column[] = [
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const { user } = useAuthContext();
 
@@ -169,15 +180,22 @@ const ListingView: FC = () => {
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(5);
+  const [creatingApplication, setCreatingApplication] = useState<boolean>(false);
 
   const { data, loading, error } = useQuery<Response>(query, {
     variables: {
-      first: perPage,
+      first: perPage + (page * perPage),
       offset: page * perPage,
       sortDirection: order.toUpperCase(),
       orderBy: orderBy.field,
     },
     context: { clientName: 'backend' },
+    fetchPolicy: "no-cache",
+  });
+
+  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
   });
 
   // eslint-disable-next-line arrow-body-style
@@ -197,9 +215,32 @@ const ListingView: FC = () => {
     setPage(0);
   };
 
-  if (!data && loading) {
-    return <SuspenseLoader />;
-  }
+  const createApp = async () => {
+    setCreatingApplication(true);
+    const { data: d, errors } = await saveApp({
+      variables: {
+        application: {
+          _id: undefined,
+          programName: "",
+          studyAbbreviation: "",
+          questionnaireData: "{}",
+        }
+      }
+    });
+
+    setCreatingApplication(false);
+
+    if (errors) {
+      navigate("", {
+        state: {
+          error: "Unable to create a submission request. Please try again later"
+        }
+      });
+      return;
+    }
+
+    navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`);
+  };
 
   return (
     <>
@@ -209,17 +250,22 @@ const ListingView: FC = () => {
         subTitle="Below is a list of applications that are associated with your account. Please click on any of the applications to review or continue work."
         body={(
           <Stack direction="row" alignItems="center" justifyContent="flex-end">
-            {!["FederalLead"].includes(user?.role) && (
-              <Link to="/submission/new">
-                <StyledButton type="button">Start a Submission Request</StyledButton>
-              </Link>
+            {/* NOTE For MVP-2: Organization Owners are just Users */}
+            {user?.role === "User" && (
+              <StyledButton
+                type="button"
+                onClick={createApp}
+                loading={creatingApplication}
+              >
+                Start a Submission Request
+              </StyledButton>
             )}
           </Stack>
         )}
         bannerSrc={bannerSvg}
       />
 
-      <Container maxWidth="xl">
+      <StyledContainer maxWidth="xl">
         {(state?.error || error) && (
           <Alert sx={{ mb: 3, p: 2 }} severity="error">
             {state?.error || "An error occurred while loading the data."}
@@ -248,6 +294,28 @@ const ListingView: FC = () => {
               </TableRow>
             </StyledTableHead>
             <TableBody>
+              {loading && (
+                <TableRow>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        background: '#fff',
+                        left: 0,
+                        top: 0,
+                        width: '100%',
+                        height: '100%',
+                        zIndex: "9999",
+                      }}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <CircularProgress size={64} disableShrink thickness={3} />
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              )}
               {data?.listApplications?.applications?.map((d: T) => (
                 <TableRow tabIndex={-1} hover key={d["_id"]}>
                   {columns.map((col: Column) => (
@@ -294,7 +362,7 @@ const ListingView: FC = () => {
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>
-      </Container>
+      </StyledContainer>
     </>
   );
 };
