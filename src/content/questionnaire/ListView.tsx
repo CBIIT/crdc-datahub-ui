@@ -1,16 +1,15 @@
-import React, { FC, useMemo, useState } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Alert, Container, Button, Stack, styled,
   Table, TableBody, TableCell,
   TableContainer, TableHead,
   TablePagination, TableRow,
-  TableSortLabel, Typography,
+  TableSortLabel, Typography, Box, CircularProgress,
 } from "@mui/material";
 import { useQuery } from '@apollo/client';
 import { query, Response } from '../../graphql/listApplications';
 import bannerSvg from "../../assets/banner/list_banner.svg";
-import SuspenseLoader from "../../components/SuspenseLoader";
 import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
@@ -46,6 +45,7 @@ const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
   border: "1px solid #083A50",
   marginBottom: "25px",
+  position: "relative",
 });
 
 const StyledTableHead = styled(TableHead)({
@@ -130,7 +130,7 @@ const columns: Column[] = [
   },
   {
     label: "Action",
-    value: (a: RecursivePartial<Application>, user) => {
+    value: (a, user) => {
       const role = user?.role;
 
       // NOTE for MVP-2: Org Owners can also Resume their own submissions
@@ -177,12 +177,13 @@ const ListingView: FC = () => {
 
   const { data, loading, error } = useQuery<Response>(query, {
     variables: {
-      first: perPage,
+      first: perPage + (page * perPage),
       offset: page * perPage,
       sortDirection: order.toUpperCase(),
       orderBy: orderBy.field,
     },
     context: { clientName: 'backend' },
+    fetchPolicy: "no-cache",
   });
 
   // eslint-disable-next-line arrow-body-style
@@ -201,10 +202,6 @@ const ListingView: FC = () => {
     setPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  if (!data && loading) {
-    return <SuspenseLoader />;
-  }
 
   return (
     <>
@@ -254,6 +251,28 @@ const ListingView: FC = () => {
               </TableRow>
             </StyledTableHead>
             <TableBody>
+              {loading && (
+                <TableRow>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        background: '#fff',
+                        left: 0,
+                        top: 0,
+                        width: '100%',
+                        height: '100%',
+                        zIndex: "9999",
+                      }}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <CircularProgress size={64} disableShrink thickness={3} />
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              )}
               {data?.listApplications?.applications?.map((d: T) => (
                 <TableRow tabIndex={-1} hover key={d["_id"]}>
                   {columns.map((col: Column) => (
