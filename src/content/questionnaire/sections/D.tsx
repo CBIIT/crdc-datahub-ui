@@ -306,6 +306,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             <RadioYesNoInput
               id="section-d-imaging-de-identified"
               value={data.imagingDataDeIdentified}
+              isVisible={dataTypes.includes("imaging")}
               containerWidth="1100px"
               gridWidth={12}
               label="Confirm the imaging data you plan to submit are de-identified"
