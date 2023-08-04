@@ -15,6 +15,7 @@ type Props = {
 
 const TestChild: FC = () => {
   const { status, data, error } = useFormContext();
+  const { _id, questionnaireData } = data ?? {};
 
   if (status === FormStatus.LOADING) {
     return null;
@@ -27,9 +28,9 @@ const TestChild: FC = () => {
       {error && <div data-testid="error">{error}</div>}
 
       {/* API Data */}
-      {data?._id && <div data-testid="app-id">{data._id}</div>}
-      {(typeof data?.pi?.firstName === "string") && <div data-testid="pi-first-name">{data.pi.firstName}</div>}
-      {(typeof data?.pi?.lastName === "string") && <div data-testid="pi-last-name">{data.pi.lastName}</div>}
+      {_id && <div data-testid="app-id">{_id}</div>}
+      {(typeof questionnaireData?.pi?.firstName === "string") && <div data-testid="pi-first-name">{questionnaireData.pi.firstName}</div>}
+      {(typeof questionnaireData?.pi?.lastName === "string") && <div data-testid="pi-last-name">{questionnaireData.pi.lastName}</div>}
     </>
   );
 };
@@ -110,10 +111,12 @@ describe("FormContext > FormProvider Tests", () => {
         data: {
           getApplication: {
             _id: "556ac14a-f247-42e8-8878-8468060fb49a",
-            pi: {
-              firstName: "Successfully",
-              lastName: "Fetched",
-            },
+            questionnaireData: JSON.stringify({
+              pi: {
+                firstName: "Successfully",
+                lastName: "Fetched",
+              }
+            }),
           },
         },
       },
@@ -136,10 +139,13 @@ describe("FormContext > FormProvider Tests", () => {
       result: {
         data: {
           getMyLastApplication: {
-            pi: {
-              firstName: "Test",
-              lastName: "User",
-            },
+            _id: "ABC-LAST-ID-123",
+            questionnaireData: JSON.stringify({
+              pi: {
+                firstName: "Test",
+                lastName: "User",
+              }
+            }),
           },
         },
       },
@@ -172,6 +178,98 @@ describe("FormContext > FormProvider Tests", () => {
 
     expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
     expect(screen.getByTestId("app-id").textContent).toEqual("new");
+    expect(screen.getByTestId("pi-first-name").textContent).toEqual("");
+    expect(screen.getByTestId("pi-last-name").textContent).toEqual("");
+  });
+
+  it("should autofill PI details if Section A is not started", async () => {
+    const mocks = [
+      {
+        request: {
+          query: GET_LAST_APP,
+        },
+        result: {
+          data: {
+            getMyLastApplication: {
+              _id: "ABC-LAST-ID-123",
+              questionnaireData: JSON.stringify({
+                pi: {
+                  firstName: "Test",
+                  lastName: "User",
+                }
+              }),
+            },
+          },
+        },
+      },
+      {
+        request: {
+          query: GET_APP,
+          variables: {
+            id: "AAA-BBB-EXISTING-APP",
+          },
+        },
+        result: {
+          data: {
+            getApplication: {
+              _id: "AAA-BBB-EXISTING-APP",
+              questionnaireData: JSON.stringify({}),
+            },
+          },
+        },
+      }
+    ];
+    const screen = render(<TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />);
+
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+
+    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
+    expect(screen.getByTestId("pi-first-name").textContent).toEqual("Test");
+    expect(screen.getByTestId("pi-last-name").textContent).toEqual("User");
+  });
+
+  it("should not execute getMyLastApplication if Section A is started", async () => {
+    const mocks = [
+      {
+        request: {
+          query: GET_LAST_APP,
+        },
+        result: {
+          data: {
+            getMyLastApplication: {
+              _id: "ABC-LAST-ID-123",
+              questionnaireData: JSON.stringify({
+                pi: {
+                  firstName: "Should not be",
+                  lastName: "Used or called",
+                }
+              }),
+            },
+          },
+        },
+      },
+      {
+        request: {
+          query: GET_APP,
+          variables: {
+            id: "AAA-BBB-EXISTING-APP",
+          },
+        },
+        result: {
+          data: {
+            getApplication: {
+              _id: "AAA-BBB-EXISTING-APP",
+              questionnaireData: JSON.stringify({ sections: [{ name: "A", status: "In Progress" }] }),
+            },
+          },
+        },
+      }
+    ];
+    const screen = render(<TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />);
+
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+
+    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
     expect(screen.getByTestId("pi-first-name").textContent).toEqual("");
     expect(screen.getByTestId("pi-last-name").textContent).toEqual("");
   });

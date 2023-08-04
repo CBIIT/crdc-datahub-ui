@@ -6,20 +6,19 @@ export const query = gql`
       total
       applications {
         _id
-        program {
-          abbreviation
-        }
-        study {
-          abbreviation
-        }
+        programName
+        studyAbbreviation
         status
         createdAt
         updatedAt
         submittedDate
         applicant {
           applicantName
+          applicantID
         }
-        organization
+        organization {
+          name
+        }
       }
     }
   }
@@ -28,6 +27,6 @@ export const query = gql`
 export type Response = {
   listApplications: {
     total: number;
-    applications: RecursivePartial<Application>[];
+    applications: Omit<Application, "questionnaireData">[];
   };
 };

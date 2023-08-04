@@ -10,7 +10,7 @@ import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import { mapObjectWithKey } from "../utils";
+import { mapObjectWithKey } from "../../../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
 import { fileTypeOptions } from "../../../config/FileTypeConfig";
@@ -136,14 +136,14 @@ const TableContainer = styled.div`
       margin-left: 6px;
     }
     #invisibleTableInput {
-       height: 0; 
-       border: none; 
+       height: 0;
+       border: none;
        width: 0;
     }
 `;
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data } = useFormContext();
+  const { status, data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
@@ -191,6 +191,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     } else if (formObject.imagingDataDeIdentified === "false") {
       combinedData.imagingDataDeIdentified = false;
     }
+    // Override empty file array
+    combinedData.files = formObject.files;
     return { ref: formRef, data: combinedData };
   };
 
@@ -232,7 +234,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           inputID="section-d-targeted-data-submission-delivery-date"
           label="Targeted Data Submission Delivery Date"
           name="targetedSubmissionDate"
-          tooltipText="Expected date that date submission can begin"
+          tooltipText="The date that transfer of data from the submitter to DataHub is expected to begin."
           initialValue={data.targetedSubmissionDate}
           gridWidth={6}
           disablePast
@@ -241,7 +243,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           inputID="section-d-expected-publication-date"
           label="Expected Publication Date"
           name="targetedReleaseDate"
-          tooltipText="Expected date that the submission is released to the community"
+          tooltipText="The date that submitters would like their data to be released to the public."
           initialValue={data.targetedReleaseDate}
           gridWidth={6}
           disablePast
@@ -308,6 +310,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               gridWidth={12}
               label="Confirm the imaging data you plan to submit are de-identified"
               name="imagingDataDeIdentified"
+              row
               required
               readOnly={readOnlyInputs}
             />
@@ -330,7 +333,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Other data types (Specify)"
           name="otherDataTypes"
           value={data.otherDataTypes}
-          placeholder="Enter Types"
+          placeholder="Other Data Types (Specify)"
           gridWidth={12}
           tooltipText="Data that do not fit in any of the other categories."
           readOnly={readOnlyInputs}
@@ -339,7 +342,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Clinical Data */}
       <SectionGroup
-        title="Clinical Data."
+        title="Clinical Data Types"
         description="If 'Clinical' data will be submitted, please provide more details about what types of clinical data will be included. Indicate Yes or No for each type listed below. Describe any additional data types in Other(specify)."
       >
         <SwitchInput
@@ -348,7 +351,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="clinicalData[dataTypes][]"
           graphQLValue="demographicData"
           value={data.clinicalData.dataTypes.includes("demographicData")}
-          tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          tooltipText="Indicate whether demographics information is available for the study (such as age or gender)."
           readOnly={readOnlyInputs}
         />
         <SwitchInput
@@ -357,7 +360,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="clinicalData[dataTypes][]"
           graphQLValue="relapseRecurrenceData"
           value={data.clinicalData.dataTypes.includes("relapseRecurrenceData")}
-          tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          tooltipText="Relapse/recurrence data refers to information associated with the return of a disease after a period of remission. Indicate whether relapse/recurrence data is available for the study."
           readOnly={readOnlyInputs}
         />
         <SwitchInput
@@ -366,7 +369,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="clinicalData[dataTypes][]"
           graphQLValue="diagnosisData"
           value={data.clinicalData.dataTypes.includes("diagnosisData")}
-          tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          tooltipText="Indicate whether diagnosis information is available for the study."
           readOnly={readOnlyInputs}
         />
         <SwitchInput
@@ -375,7 +378,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="clinicalData[dataTypes][]"
           graphQLValue="outcomeData"
           value={data.clinicalData.dataTypes.includes("outcomeData")}
-          tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          tooltipText="Outcome data refers to information on a specific result or effect that can be measured. Examples of outcomes include decreased pain, reduced tumor size, and improvement of disease. Indicate whether outcome data is available for the study."
           readOnly={readOnlyInputs}
         />
         <SwitchInput
@@ -384,7 +387,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="clinicalData[dataTypes][]"
           graphQLValue="treatmentData"
           value={data.clinicalData.dataTypes.includes("treatmentData")}
-          tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          tooltipText="Treatment data refers to information on the action or administration of therapeutic agents to produce an effect that is intended to alter the course of a pathological process. Indicate whether treatment data is available for the study."
           readOnly={readOnlyInputs}
         />
         <SwitchInput
@@ -393,16 +396,17 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="clinicalData[dataTypes][]"
           graphQLValue="biospecimenData"
           value={data.clinicalData.dataTypes.includes("biospecimenData")}
-          tooltipText="Data made available for secondy research only after investigators have obtained approval from NIH to use the requested data for a particular project"
+          tooltipText="Biospecimen data refers to information associated with the biological sample, portion, analyte, or aliquot. Indicate whether biospecimen data is available for the study."
           readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-d-clinical-data-other-data-types"
-          label="Other clinical data types (Specify)"
+          label="Other Clinical Data Types (Specify)"
           name="clinicalData[otherDataTypes]"
           value={data.clinicalData.otherDataTypes}
-          placeholder="Enter Types"
+          placeholder="Other clinical data types (Specify)"
           gridWidth={12}
+          tooltipText="If there are any additional types of data included with the study not already specified above, describe here."
           readOnly={readOnlyInputs}
         />
         <AdditionalDataInFutureSection>
@@ -421,7 +425,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         </AdditionalDataInFutureSection>
       </SectionGroup>
       <SectionGroup
-        title="File Type."
+        title="File Types"
         description={(
           <>
             List the number, size, and formats of files in the submission in the table below.
@@ -516,7 +520,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         </TableContainer>
       </SectionGroup>
       <SectionGroup
-        title="Additional comments or information about the submission"
+        title="Additional Comments"
+        description="Additional Comments or Information about this submission."
       >
         <TextInput
           label=""

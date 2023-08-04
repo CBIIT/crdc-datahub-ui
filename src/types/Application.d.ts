@@ -1,5 +1,29 @@
 type Application = {
+  // Application Details
   _id: string;
+  status: ApplicationStatus;
+  createdAt: string; // YYYY-MM-DDTHH:MM:SS format
+  updatedAt: string; // YYYY-MM-DDTHH:MM:SS format
+  submittedDate: string; // YYYY-MM-DDTHH:MM:SS format
+  history: HistoryEvent[];
+  // Applicant Details
+  applicant: Applicant;
+  organization: Organization;
+  // Sort Fields
+  programName: Program["name"];
+  studyAbbreviation: Study["abbreviation"];
+  // FE Questionnaire Data
+  questionnaireData: QuestionnaireData;
+};
+
+type ApplicationInput = {
+  _id: string;
+  programName: Program["name"];
+  studyAbbreviation: Study["abbreviation"];
+  questionnaireData: string; // Cast to QuestionnaireData
+};
+
+type QuestionnaireData = {
   sections: Section[];
   pi: PI;
   piAsPrimaryContact: boolean;
@@ -26,15 +50,6 @@ type Application = {
   clinicalData: ClinicalData;
   files: FileInfo[];
   submitterComment: string;
-  status: ApplicationStatus;
-  programLevelApproval: boolean;
-  reviewComment: string;
-  createdAt: string; // YYYY-MM-DDTHH:MM:SS format
-  updatedAt: string; // YYYY-MM-DDTHH:MM:SS format
-  submittedDate: string; // YYYY-MM-DDTHH:MM:SS format
-  history: HistoryEvent[];
-  applicant?: Applicant;
-  organization?: string;
 };
 
 type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected";
@@ -124,7 +139,6 @@ type Funding = {
   nciGPA: string;
 };
 
-// Renamed to HistoryEvent to avoid confusion with a DOM Event
 type HistoryEvent = {
   status: ApplicationStatus;
   reviewComment?: string;
@@ -136,4 +150,9 @@ type Applicant = {
   applicantID: string;
   applicantName: string;
   applicantEmail: string;
+};
+
+type Organization = {
+  _id: string;
+  name: string;
 };

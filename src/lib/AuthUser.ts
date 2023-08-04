@@ -11,26 +11,26 @@
  * @prop {string} organization User's organization
  * @
  */
-class User {
-  public _id: string;
+class AuthUser {
+  public _id: User["_id"];
 
-  private _email: string;
+  private _email: User["email"];
 
-  private _firstName: string;
+  private _firstName: User["firstName"];
 
-  private _IDP: 'nih' | 'login.gov';
+  private _IDP: User["IDP"];
 
-  private _lastName: string;
+  private _lastName: User["lastName"];
 
-  private _role: 'Admin' | 'User' | 'Curator' | 'FederalLead' | 'DC_POC';
+  private _role: User["role"];
 
-  private _userStatus: 'Active' | 'Inactive' | 'Disabled';
+  private _userStatus: User["userStatus"];
 
-  private _organization: string;
+  private _organization: User["organization"];
 
-  private _createdAt: string;
+  private _createdAt: User["createdAt"];
 
-  private _updateAt: string;
+  private _updateAt: User["updateAt"];
 
   constructor(userData) {
     this._id = userData._id ?? '';
@@ -138,4 +138,4 @@ class User {
   }
 }
 
-export default User;
+export default AuthUser;
