@@ -104,6 +104,12 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   useEffect(() => {
+    if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
+      navigate('/');
+    }
+  }, [formMode, navigate, status, authStatus]);
+
+  useEffect(() => {
     const isComplete = isAllSectionsComplete();
     setAllSectionsComplete(isComplete);
   }, [status]);
@@ -116,6 +122,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   // Intercept React Router navigation actions with unsaved changes
   const blocker: Blocker = useBlocker(() => {
+    // if unauthorized, skip blocker and redirect away
+    if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
+      return false;
+    }
     if (!readOnlyInputs && isDirty()) {
       setBlockedNavigate(true);
       return true;
@@ -418,14 +428,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   }
 
   if (authStatus === AuthStatus.ERROR) {
-    navigate('/submissions', {
-      state: { error: error || 'Unknown authorization error' },
-    });
-    return null;
-  }
-
-  if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
-    navigate('/submissions');
+    navigate('/');
     return null;
   }
 
