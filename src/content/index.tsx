@@ -12,6 +12,10 @@ const StyledDialog = styled(Dialog)`
     background: linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B;
     box-shadow: 0px 4px 45px 0px rgba(0, 0, 0, 0.40);
   }
+  .buttonContainer {
+    display: flex;
+    justify-content: space-around;
+  }
   .loginDialogText {
     margin-top: 57px;
     /* Body */
@@ -22,7 +26,7 @@ const StyledDialog = styled(Dialog)`
     line-height: 19.6px; /* 122.5% */
     text-align: center;
   }
-  .loginDialogCloseButton{
+  .loginDialogButton{
     display: flex;
     width: 128px;
     height: 42px;
@@ -30,10 +34,11 @@ const StyledDialog = styled(Dialog)`
     align-items: center;
     border-radius: 8px;
     border: 1px solid #000;
-    align-self: center;
     margin-top: 39px;
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.87);
   }
-  .loginDialogCloseButton:hover {
+  .loginDialogButton:hover {
     cursor: pointer;
   }
   #loginDialogLinkToLogin{
@@ -60,20 +65,45 @@ const Home: FC = () => {
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
             Please <Link id="loginDialogLinkToLogin" to="/login" state={{ redirectURLOnLoginSuccess: dialogRedirectPath }} onClick={() => setShowRedirectDialog(false)}><strong>log in</strong></Link> to access {dialogLinkName}.
           </pre>
-          <div
-            role="button"
-            tabIndex={0}
-            id="loginDialogCloseButton"
-            className="loginDialogCloseButton"
-            onKeyDown={(e) => {
+          <div className="buttonContainer">
+            <div
+              role="button"
+              tabIndex={0}
+              id="loginDialogCloseButton"
+              className="loginDialogButton"
+              onKeyDown={(e) => {
                     if (e.key === "Enter") {
                         setShowRedirectDialog(false);
                     }
                 }}
-            onClick={() => setShowRedirectDialog(false)}
-          >
-            <strong>Close</strong>
+              onClick={() => setShowRedirectDialog(false)}
+            >
+              <strong>Close</strong>
+            </div>
+            {/* <div
+              role="button"
+              tabIndex={0}
+              id="loginDialogLoginButton"
+              className="loginDialogButton"
+              onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        setShowRedirectDialog(false);
+                    }
+                }}
+              onClick={() => setShowRedirectDialog(false)}
+            >
+              <strong>Log In</strong>
+
+            </div> */}
+            <Link
+              id="loginDialogLoginButton" className="loginDialogButton"
+              to="/login" state={{ redirectURLOnLoginSuccess: dialogRedirectPath }}
+              onClick={() => setShowRedirectDialog(false)}
+            >
+              <strong>Log In</strong>
+            </Link>
           </div>
+
         </StyledDialog>
         <div>This is Home Page</div>
       </>
