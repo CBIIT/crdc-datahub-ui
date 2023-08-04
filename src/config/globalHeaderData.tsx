@@ -28,7 +28,6 @@ export const navMobileList = [
     link: '/submissions',
     id: 'navbar-dropdown-join-crdc-data-hub',
     className: 'navMobileItem',
-    needsAuthentication: true,
   },
   {
     name: 'Data Submissions',
@@ -60,38 +59,4 @@ export const navbarSublists = {
   //     className: 'navMobileSubTitle',
   //   },
   // ],
-  //   "Join CRDC Data Hub": [
-  //     {
-  //       name: 'Become a CRDC Submitter',
-  //       link: '/todo', // TODO: update link to help docs
-  //       id: 'navbar-dropdown-item-become-a-crdc-submitter',
-  //       className: 'navMobileSubItem',
-  //     },
-  //     {
-  //       name: 'CRDC Submission Requests',
-  //       link: '/submissions',
-  //       id: 'navbar-dropdown-item-crdc-submission-requests',
-  //       className: 'navMobileSubItem',
-  //       needsAuthentication: true,
-  //     },
-  // ],
-  // About: [
-  //   {
-  //     name: 'Other Resources',
-  //     link: '/or',
-  //     id: 'navbar-dropdown-item-other-resources',
-  //     className: 'navMobileSubTitle',
-  //   },
-  //   {
-  //     name: 'Cancer Genomics Cloud',
-  //     link: '/cgc',
-  //     id: 'navbar-dropdown-item-cancer-genomics-cloud',
-  //     className: 'navMobileSubItem',
-  //   },
-  //   {
-  //     name: 'Database of Genotypes and Phenotypes',
-  //     link: '/dbgap',
-  //     id: 'navbar-dropdown-item-database-of-genotypes-and-phenotypes',
-  //     className: 'navMobileSubItem',
-  //   }],
 };
