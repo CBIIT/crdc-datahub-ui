@@ -41,29 +41,31 @@ const Repository: FC<Props> = ({
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
           id={idPrefix.concat(`repository-${index}-name`)}
-          label="Repository name"
+          label="Repository Name"
           name={`study[repositories][${index}][name]`}
           value={name}
           placeholder="Enter Repository Name"
           maxLength={50}
           gridWidth={12}
+          tooltipText="Name of the repository (e.g., GEO, EGA, etc.)"
           required
           readOnly={readOnly}
         />
         <TextInput
           id={idPrefix.concat(`repository-${index}-study-id`)}
-          label="Repository Study ID"
+          label="Study ID"
           name={`study[repositories][${index}][studyID]`}
           value={studyID}
           placeholder="Enter ID"
           maxLength={50}
           gridWidth={6}
+          tooltipText="Associated repository study identifier"
           required
           readOnly={readOnly}
         />
         <TextInput
           id={idPrefix.concat(`repository-${index}-date-submitted`)}
-          label="Date submitted"
+          label="Date Type(s) Submitted"
           name={`study[repositories][${index}][submittedDate]`}
           value={submittedDate}
           placeholder="Enter date"

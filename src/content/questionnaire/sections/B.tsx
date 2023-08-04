@@ -256,7 +256,10 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       formRef={formRef}
     >
       {/* Program Registration Section */}
-      <SectionGroup title="Program information">
+      <SectionGroup
+        title="Program information"
+        description="If your study is part of a larger program, enter the program name(s) and/or organization(s) that funded this study."
+      >
         <Autocomplete
           key={`program-${programOption.name}`}
           id="section-b-program"
@@ -275,12 +278,13 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           isOptionEqualToValue={(option: ProgramOption, value: ProgramOption) => option.name === value.name && option.abbreviation === value.abbreviation}
           placeholder="– Search and Select Program –"
           validate={(input: ProgramOption) => input?.name?.length > 0}
+          tooltipText="The name of the broad administrative group that manages the data collection.  Example - Clinical Proteomic Tumor Analysis Consortium."
           required
           readOnly={readOnlyInputs}
         />
         <TextInput
-          id="section-b-program-name"
-          label="Program name"
+          id="section-b-program-title"
+          label="Program Title"
           name="program[name]"
           value={programOption?.isCustom ? program.name : programOption.name}
           maxLength={programOption?.isCustom ? 50 : undefined}
@@ -290,8 +294,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
-          id="section-b-program-abbreviation-or-acronym"
-          label="Program abbreviation or acronym"
+          id="section-b-program-abbreviation"
+          label="Program Abbreviation"
           name="program[abbreviation]"
           value={programOption?.isCustom ? program.abbreviation : programOption.abbreviation}
           maxLength={programOption?.isCustom ? 20 : undefined}
@@ -302,7 +306,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-b-program-description"
-          label="Program description"
+          label="Program Description"
           name="program[description]"
           value={programOption?.isCustom ? program.description : " "}
           gridWidth={12}
@@ -318,47 +322,28 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Study Registration Section */}
       <SectionGroup title="Study information">
-        <Autocomplete
-          key={`study-${studyOption.name}`}
-          id="section-b-study"
-          gridWidth={12}
-          label="Study"
-          value={studyOption?.isCustom ? studyOption : study}
-          onChange={handleStudyChange}
-          options={programOption.studies}
-          renderOption={(props, option: StudyOption) => {
-            if (option === BlankStudy) {
-              return null;
-            }
-            return <li {...props}>{`${option.name}${!option.isCustom && option.abbreviation ? ` (${option.abbreviation})` : ""}`}</li>;
-          }}
-          getOptionLabel={(option: StudyOption) => (option.isCustom ? option.name : `${option.name}${option.abbreviation ? ` (${option.abbreviation})` : ""}`)}
-          isOptionEqualToValue={(option: StudyOption, value: StudyOption) => option.name === value.name && option.abbreviation === value.abbreviation}
-          placeholder="– Search and Select Study –"
-          validate={(input: ProgramOption) => input?.name?.length > 0}
-          required
-          readOnly={readOnlyInputs}
-        />
         <TextInput
-          id="section-b-study-name"
-          label="Study name"
+          id="section-b-study-title"
+          label="Study Title"
           name="study[name]"
           value={studyOption?.isCustom ? study.name : studyOption.name}
-          maxLength={studyOption?.isCustom ? 50 : undefined}
-          placeholder="50 characters allowed"
+          maxLength={studyOption?.isCustom ? 100 : undefined}
+          placeholder="100 characters allowed"
           readOnly={readOnlyStudy}
           hideValidation={readOnlyStudy}
+          tooltipText="The title should provide a snapshot of the study; it should include a broad goal or conclusion of the project. It must use title case. For example, the manuscript title."
           required
         />
         <TextInput
           id="section-b-study-abbreviation-or-acronym"
-          label="Study abbreviation or acronym"
+          label="Study Abbreviation"
           name="study[abbreviation]"
           value={studyOption?.isCustom ? study.abbreviation : studyOption.abbreviation}
           maxLength={studyOption?.isCustom ? 20 : undefined}
           placeholder="20 characters allowed"
           readOnly={readOnlyStudy}
           hideValidation={readOnlyStudy}
+          tooltipText="Provide a short abbreviation or acronym (e.g., NCI-MATCH) for the study."
           required
         />
         <TextInput
@@ -367,8 +352,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="study[description]"
           value={studyOption?.isCustom ? study.description : " "}
           gridWidth={12}
-          maxLength={500}
-          placeholder="500 characters allowed"
+          maxLength={2500}
+          placeholder="2,500 characters allowed"
           minRows={2}
           readOnly={readOnlyStudy}
           hideValidation={readOnlyStudy}
@@ -388,44 +373,10 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
       </SectionGroup>
 
-      {/* dbGaP Registration section */}
-      <SectionGroup title="Indicate if your study is currently registered with dbGaP">
-        <SwitchInput
-          id="section-b-is-dbgap-registered"
-          label="dbGaP Registered?"
-          name="study[isDbGapRegistered]"
-          required
-          value={isDbGapRegistered}
-          onChange={(e, checked: boolean) => setIsdbGaPRegistered(checked)}
-          isBoolean
-          toggleContent={(
-            <TextInput
-              id="section-b-dbgap-phs-number"
-              label="Please provide the associated dbGaP PHS Number"
-              name="study[dbGaPPPHSNumber]"
-              value={data.study.dbGaPPPHSNumber}
-              maxLength={50}
-              placeholder="50 characters allowed"
-              gridWidth={12}
-              readOnly={readOnlyInputs}
-              required={isDbGapRegistered}
-            />
-          )}
-          readOnly={readOnlyInputs}
-        />
-
-      </SectionGroup>
-
-      {/* Associated Publications */}
+      {/* Existing Publications */}
       <SectionGroup
-        title="Publications associated with this study, if any."
-        description={(
-          <>
-            Include the PubMed ID (PMOID, DOI)
-            <br />
-            Indicate one Publication per row.
-          </>
-        )}
+        title="Existing Publications"
+        description="List existing publications associated with this study, include PubMed ID (PMID), DOI."
         endButton={(
           <AddRemoveButton
             id="section-b-add-publication-button"
@@ -452,7 +403,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Planned Publications */}
       <SectionGroup
-        title="Planned Publications and estimated publication date"
+        title="Planned Publications"
+        description="List planned publications and/or pre-prints associated with this study, if any, and the estimated publication date."
         endButton={(
           <AddRemoveButton
             id="section-b-add-planned-publication-button"
@@ -478,15 +430,38 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       </SectionGroup>
 
+      {/* dbGaP Registration section */}
+      <SectionGroup
+        title="Indicate if your study is currently registered with dbGaP"
+        description="Indicated if your study is currently registered with dbGaP."
+      >
+        <SwitchInput
+          id="section-b-dbGaP-registration"
+          label="dbGaP REGISTRATION"
+          name="study[isDbGapRegistered]"
+          required
+          value={isDbGapRegistered}
+          onChange={(e, checked: boolean) => setIsdbGaPRegistered(checked)}
+          isBoolean
+          readOnly={readOnlyInputs}
+        />
+        <TextInput
+          id="section-b-if-yes-provide-dbgap-phs-number"
+          label="If yes, provide dbGaP PHS number"
+          name="study[dbGaPPPHSNumber]"
+          value={data.study.dbGaPPPHSNumber}
+          maxLength={50}
+          placeholder="50 characters allowed"
+          gridWidth={12}
+          readOnly={readOnlyInputs}
+          required={isDbGapRegistered}
+        />
+      </SectionGroup>
+
       {/* Study Repositories */}
       <SectionGroup
-        description={(
-          <>
-            Repository where study currently registered (e.g. dbGaP, ORCID),
-            <br />
-            and associated repository study identifier
-          </>
-        )}
+        title="Repository"
+        description="Add repository if your study has submitted data to a non-CRDC repository"
         endButton={(
           <AddRemoveButton
             id="section-b-add-repository-button"
@@ -497,7 +472,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           />
         )}
       >
-
         <TransitionGroupWrapper
           items={repositories}
           renderItem={(repo: KeyedRepository, idx: number) => (
