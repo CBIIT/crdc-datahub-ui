@@ -109,9 +109,8 @@ const RadioYesNoInput: FC<Props> = ({
   readOnly,
   ...rest
 }) => {
-  const [val, setVal] = useState<string>(value?.toString() === "" ? null : value);
+  const [val, setVal] = useState<string>((value?.toString() === "" || value?.toString() === undefined) ? null : value?.toString());
   const radioGroupInputRef = useRef<HTMLInputElement>(null);
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (readOnly) {
       return;
