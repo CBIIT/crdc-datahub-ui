@@ -2,7 +2,6 @@ import React, { FC, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Dialog } from "@mui/material";
 import { Link, useLocation } from 'react-router-dom';
-import InactivityDialog from '../components/InactivityDialog/InactivityDialog';
 
 const LoginDialog = styled(Dialog)`
   .MuiDialog-paper {
@@ -81,21 +80,6 @@ const Home: FC = () => {
             >
               <strong>Close</strong>
             </div>
-            {/* <div
-              role="button"
-              tabIndex={0}
-              id="loginDialogLoginButton"
-              className="loginDialogButton"
-              onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                        setShowRedirectDialog(false);
-                    }
-                }}
-              onClick={() => setShowRedirectDialog(false)}
-            >
-              <strong>Log In</strong>
-
-            </div> */}
             <Link
               id="loginDialogLoginButton" className="loginDialogButton"
               to="/login" state={{ redirectURLOnLoginSuccess: dialogRedirectPath }}
@@ -107,7 +91,6 @@ const Home: FC = () => {
 
         </LoginDialog>
         <div>This is Home Page</div>
-        <InactivityDialog />
       </>
 );
 };
