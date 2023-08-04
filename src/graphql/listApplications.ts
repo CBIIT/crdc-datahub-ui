@@ -14,6 +14,7 @@ export const query = gql`
         submittedDate
         applicant {
           applicantName
+          applicantID
         }
         organization {
           name
