@@ -103,7 +103,7 @@ type Study = {
   publications: Publication[];
   plannedPublications: PlannedPublication[];
   repositories: Repository[];
-  funding: Funding;
+  funding: Funding[];
   isDbGapRegistered: boolean;
   dbGaPPPHSNumber: string;
 };
@@ -133,7 +133,7 @@ type FileInfo = {
 };
 
 type Funding = {
-  agencies: string[];
+  agency: string;
   grantNumbers: string;
   nciProgramOfficer: string;
   nciGPA: string;

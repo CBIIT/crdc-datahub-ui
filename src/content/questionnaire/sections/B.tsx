@@ -5,7 +5,6 @@ import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import dayjs from "dayjs";
 import programOptions, { BlankProgram, BlankStudy, OptionalStudy } from "../../../config/ProgramConfig";
-import fundingAgencyOptions from "../../../config/FundingConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
@@ -20,6 +19,7 @@ import { InitialQuestionnaire } from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import useFormMode from "./hooks/useFormMode";
+import FundingAgency from "../../../components/Questionnaire/FundingAgency";
 
 export type KeyedPublication = {
   key: string;
@@ -32,6 +32,10 @@ export type KeyedPlannedPublication = {
 export type KeyedRepository = {
   key: string;
 } & Repository;
+
+export type KeyedFunding = {
+  key: string;
+} & Funding;
 
 /**
  * Form Section B View
@@ -50,7 +54,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [publications, setPublications] = useState<KeyedPublication[]>(data.study?.publications?.map(mapObjectWithKey) || []);
   const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
-  const [funding] = useState<Funding>(data.study?.funding);
+  const [fundings, setFundings] = useState<KeyedFunding[]>(data.study?.funding?.map(mapObjectWithKey) || []);
   const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isDbGapRegistered);
 
   const formRef = useRef<HTMLFormElement>();
@@ -97,7 +101,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.study.repositories = [];
     }
 
-    combinedData.study.funding.agencies = combinedData.study.funding.agencies.filter((a) => a.length > 0);
     return { ref: formRef, data: combinedData };
   };
 
@@ -247,6 +250,27 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setRepositories(repositories.filter((c) => c.key !== key));
   };
 
+  /**
+   * Add a empty funding to the fundings state
+   *
+   * @returns {void}
+   */
+  const addFunding = () => {
+    setFundings([
+      ...fundings,
+      { key: `${fundings.length}_${new Date().getTime()}`, agency: "", grantNumbers: "", nciProgramOfficer: "", nciGPA: "" },
+    ]);
+  };
+
+  /**
+   * Remove a funding from the fundings state
+   *
+   * @param key generated key for the funding
+   */
+  const removeFunding = (key: string) => {
+    setFundings(fundings.filter((f) => f.key !== key));
+  };
+
   const readOnlyProgram = readOnlyInputs || !programOption?.isCustom || programOption === BlankProgram;
   const readOnlyStudy = readOnlyInputs || !studyOption?.isCustom || studyOption === BlankStudy;
 
@@ -373,6 +397,34 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
       </SectionGroup>
 
+      {/* Funding Agency */}
+      <SectionGroup
+        title="Funding Agency/Organization"
+        description="List the agency(s) and/or organization(s) that funded this study."
+        endButton={(
+          <AddRemoveButton
+            id="section-b-add-funding-button"
+            label="Add Funding"
+            startIcon={<AddCircleIcon />}
+            onClick={addFunding}
+            disabled={readOnlyInputs || status === FormStatus.SAVING}
+          />
+        )}
+      >
+        <TransitionGroupWrapper
+          items={fundings}
+          renderItem={(funding: KeyedFunding, idx: number) => (
+            <FundingAgency
+              idPrefix="section-b-"
+              index={idx}
+              funding={funding}
+              onDelete={() => removeFunding(funding.key)}
+              readOnly={readOnlyInputs}
+            />
+        )}
+        />
+      </SectionGroup>
+
       {/* Existing Publications */}
       <SectionGroup
         title="Existing Publications"
@@ -483,50 +535,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               readOnly={readOnlyInputs}
             />
           )}
-        />
-      </SectionGroup>
-
-      {/* Funding Agency */}
-      <SectionGroup title="Agency(s) and/or organization(s) that funded this study">
-        <Autocomplete
-          id="section-b-funding-agency"
-          label="Funding Agency"
-          value={funding?.agencies?.[0]}
-          name="study[funding][agencies][0]"
-          options={fundingAgencyOptions}
-          placeholder="– Search and Select Agency –"
-          freeSolo
-          disableClearable
-          required
-          validate={(value: string) => value?.length > 0}
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-b-grant-or-contract-numbers"
-          label="Grant or Contract Number(s)"
-          name="study[funding][grantNumbers]"
-          value={funding?.grantNumbers}
-          maxLength={50}
-          placeholder="Enter Grant or Contract Number(s)"
-          required
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-b-nci-program-officer-name"
-          label="NCI Program Officer name, if applicable"
-          name="study[funding][nciProgramOfficer]"
-          value={funding?.nciProgramOfficer}
-          placeholder="Enter NCI Program Officer name, if applicable"
-          maxLength={50}
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-b-nci-gpa-name"
-          label="NCI Genomic Program Administrator (GPA) name, if applicable"
-          name="study[funding][nciGPA]"
-          value={funding?.nciGPA}
-          placeholder="Enter GPA name, if applicable"
-          readOnly={readOnlyInputs}
         />
       </SectionGroup>
     </FormContainer>
