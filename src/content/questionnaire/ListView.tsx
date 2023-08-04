@@ -358,7 +358,7 @@ const ListingView: FC = () => {
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{ disabled: perPage === -1 || !data?.listApplications || (data.listApplications.total < perPage) || loading }}
+            nextIconButtonProps={{ disabled: perPage === -1 || !data?.listApplications || emptyRows > 0 || loading }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>
