@@ -1,5 +1,5 @@
 import React, { FC, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Alert, Container, Button, Stack, styled,
   Table, TableBody, TableCell,
@@ -7,12 +7,14 @@ import {
   TablePagination, TableRow,
   TableSortLabel, Typography, Box, CircularProgress,
 } from "@mui/material";
-import { useQuery } from '@apollo/client';
+import { LoadingButton } from '@mui/lab';
+import { useMutation, useQuery } from '@apollo/client';
 import { query, Response } from '../../graphql/listApplications';
 import bannerSvg from "../../assets/banner/list_banner.svg";
 import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
+import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
 
 type T = Omit<Application, "questionnaireData">;
 
@@ -23,9 +25,8 @@ type Column = {
   default?: true;
 };
 
-const StyledButton = styled(Button)(({ theme }) => ({
-  padding: "14px 11px",
-  minWidth: "128px",
+const StyledButton = styled(LoadingButton)(({ theme }) => ({
+  padding: "14px 18px",
   fontWeight: 700,
   fontSize: "16px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
@@ -164,6 +165,7 @@ const columns: Column[] = [
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const { user } = useAuthContext();
 
@@ -174,6 +176,7 @@ const ListingView: FC = () => {
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(5);
+  const [creatingApplication, setCreatingApplication] = useState<boolean>(false);
 
   const { data, loading, error } = useQuery<Response>(query, {
     variables: {
@@ -184,6 +187,11 @@ const ListingView: FC = () => {
     },
     context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
+  });
+
+  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
   });
 
   // eslint-disable-next-line arrow-body-style
@@ -203,6 +211,33 @@ const ListingView: FC = () => {
     setPage(0);
   };
 
+  const createApp = async () => {
+    setCreatingApplication(true);
+    const { data: d, errors } = await saveApp({
+      variables: {
+        application: {
+          _id: undefined,
+          programName: "",
+          studyAbbreviation: "",
+          questionnaireData: "{}",
+        }
+      }
+    });
+
+    setCreatingApplication(false);
+
+    if (errors) {
+      navigate("", {
+        state: {
+          error: "Unable to create a submission request. Please try again later"
+        }
+      });
+      return;
+    }
+
+    navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`);
+  };
+
   return (
     <>
       <PageBanner
@@ -213,9 +248,13 @@ const ListingView: FC = () => {
           <Stack direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}
             {user?.role === "User" && (
-              <Link to="/submission/new">
-                <StyledButton type="button">Start a Submission Request</StyledButton>
-              </Link>
+              <StyledButton
+                type="button"
+                onClick={createApp}
+                loading={creatingApplication}
+              >
+                Start a Submission Request
+              </StyledButton>
             )}
           </Stack>
         )}

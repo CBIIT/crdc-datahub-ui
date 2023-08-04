@@ -219,6 +219,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     }
 
     (async () => {
+      // NOTE: This logic is UNUSED but left as a fallback in case we need to revert to it
       if (id === "new") {
         const { data: d } = await lastApp();
         const { getMyLastApplication } = d || {};
