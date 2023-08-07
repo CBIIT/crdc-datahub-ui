@@ -105,7 +105,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
         ? "Completed"
         : reviewUnlocked ? "Review" : "ReviewDisabled";
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
-      reviewSection.title = formMode === "Review" ? "Review" : "Review & Submit";
+      reviewSection.title = formMode === "Review" ? "Review" : reviewSection.title;
     }
 
     setSections(newSections);
