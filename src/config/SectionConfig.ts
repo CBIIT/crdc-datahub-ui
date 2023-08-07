@@ -14,7 +14,7 @@ import Review from '../content/questionnaire/sections/Review';
  */
 const sections: SectionConfig = {
   A: {
-    title: "Principal Investigator & Contact Information",
+    title: "Principal Investigator and Contact",
     id: "A",
     component: A,
   },
@@ -34,7 +34,7 @@ const sections: SectionConfig = {
     component: D,
   },
   REVIEW: {
-    title: "Review & Submit",
+    title: "Review and Submit",
     id: "review",
     component: Review,
   },
