@@ -22,16 +22,16 @@ export default {
       title: 'About',
       items: [
         {
-          text: 'About CCDI Hub',
-          link: '/about',
+          text: 'About CRDC Data Hub',
+          link: 'https://datacommons.cancer.gov/',
         },
         {
-          text: 'About CCDI',
-          link: 'https://www.cancer.gov/research/areas/childhood/childhood-cancer-data-initiative',
+          text: 'About CRDC',
+          link: 'https://datacommons.cancer.gov/',
         },
         {
-          text: 'Contact CCDI Hub',
-          link: 'mailto:NCIChildhoodCancerDataInitiative@mail.nih.gov',
+          text: 'Contact CRDC Hub',
+          link: 'mailto:CRDCSubmissions@nih.gov',
         },
       ],
     }, {
@@ -39,7 +39,7 @@ export default {
       items: [
         {
           text: 'Contact Us',
-          link: 'https://www.cancer.gov/contact',
+          link: 'mailto:CRDCHelpDesk@nih.gov',
         },
         {
           text: 'Publications',
