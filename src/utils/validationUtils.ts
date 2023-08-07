@@ -8,6 +8,9 @@ export const updateInputValidity = (inputRef: React.RefObject<HTMLInputElement>,
   if (!inputRef?.current) {
     return; // Invalid ref
   }
+  if (typeof inputRef.current.setCustomValidity !== 'function') {
+    return; // Input element doesn't support custom validity
+  }
 
   inputRef.current.setCustomValidity(message);
 };
