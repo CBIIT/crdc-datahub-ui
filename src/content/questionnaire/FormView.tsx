@@ -283,7 +283,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the save was successful, false otherwise
    */
-  const saveForm = async (hideValidation = false) => {
+  const saveForm = async () => {
     if (readOnlyInputs || !userCanEdit) {
       return false;
     }
@@ -299,9 +299,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       newData.sections = InitialSections;
     }
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
-    if (!hideValidation) {
-      ref.current.reportValidity();
-    }
     const currentSection : Section = newData.sections.find((s) => s.name === activeSection);
     if (currentSection) {
       currentSection.status = newStatus;
@@ -335,7 +332,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
-    const newId = await saveForm(true);
+    const newId = await saveForm();
     const reviewSectionUrl = `/submission/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
     const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 
