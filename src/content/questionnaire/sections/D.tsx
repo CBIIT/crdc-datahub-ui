@@ -166,6 +166,14 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
+  useEffect(() => {
+    if (fileTypeData.length === 0) {
+      fileTypeDataRef.current.setCustomValidity("At least one file type is required");
+    } else {
+      fileTypeDataRef.current.setCustomValidity("");
+    }
+  }, [fileTypeDataRef]);
+
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
       return null;
@@ -186,12 +194,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
     // Override empty file array
     combinedData.files = formObject.files;
-
-    if (fileTypeData.length === 0) {
-      fileTypeDataRef.current.setCustomValidity("At least one file type is required");
-    } else {
-      fileTypeDataRef.current.setCustomValidity("");
-    }
 
     return { ref: formRef, data: combinedData };
   };
