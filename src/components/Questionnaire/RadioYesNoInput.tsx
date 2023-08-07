@@ -13,7 +13,7 @@ const GridStyled = styled(Grid)<{ $containerWidth?: string; }>`
     color: rgba(0, 0, 0, 0.6) !important;
   }
   .MuiRadio-root{
-    color: #275D89 !important;
+    color: #1D91AB !important;
     margin-left: 10px;
   }
 
@@ -38,7 +38,7 @@ const BpIcon = styled('span')(() => ({
   borderRadius: '50%',
   width: 24,
   height: 24,
-  outline: '6px auto #275D89',
+  outline: '6px auto #1D91AB',
   'input:hover ~ &': {
     outlineOffset: "2px",
   },
@@ -53,7 +53,7 @@ const BpCheckedIcon = styled(BpIcon)({
     marginLeft: "4px",
     width: 16,
     height: 16,
-    backgroundImage: 'radial-gradient(#275D89, #275D89)',
+    backgroundImage: 'radial-gradient(#1D91AB, #1D91AB)',
     content: '""',
   },
 });
@@ -119,7 +119,7 @@ const RadioYesNoInput: FC<Props> = ({
   readOnly,
   ...rest
 }) => {
-  const [val, setVal] = useState<string>(value?.toString() === "" ? null : value);
+  const [val, setVal] = useState<string>((value?.toString() === "" || value?.toString() === undefined) ? null : value?.toString());
   const [error, setError] = useState(false);
   const radioGroupInputRef = useRef<HTMLInputElement>(null);
 
@@ -133,11 +133,11 @@ const RadioYesNoInput: FC<Props> = ({
   };
 
   useEffect(() => {
-    if (required && !val) {
-      updateInputValidity(radioGroupInputRef, "Please select an option");
-    } else {
-      updateInputValidity(radioGroupInputRef);
-    }
+    if (required && val === null) {
+          updateInputValidity(radioGroupInputRef, "Please select an option");
+        } else {
+          updateInputValidity(radioGroupInputRef);
+        }
   }, [val]);
 
   useEffect(() => {
@@ -164,8 +164,8 @@ const RadioYesNoInput: FC<Props> = ({
           data-type="string"
           {...rest}
         >
-          <FormControlLabel value="true" color="#275D89" control={<BpRadio inputRef={radioGroupInputRef} id={id.concat("-yes-radio-button")} readOnly={readOnly} />} label="Yes" />
-          <FormControlLabel value="false" color="#275D89" control={<BpRadio id={id.concat("-no-radio-button")} readOnly={readOnly} />} label="No" />
+          <FormControlLabel value="true" color="#1D91AB" control={<BpRadio inputRef={radioGroupInputRef} id={id.concat("-yes-radio-button")} readOnly={readOnly} />} label="Yes" />
+          <FormControlLabel value="false" color="#1D91AB" control={<BpRadio id={id.concat("-no-radio-button")} readOnly={readOnly} />} label="No" />
         </RadioGroup>
         <FormHelperText>
           {(!readOnly && error ? "This field is required" : null) || " "}

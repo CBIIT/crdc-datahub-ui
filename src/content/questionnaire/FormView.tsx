@@ -72,7 +72,7 @@ const StyledAlert = styled(Alert)({
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
-  const { status, data, setData, submitData, approveForm, rejectForm, error } = useFormContext();
+  const { status, data, setData, submitData, approveForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
   const { status: authStatus } = useAuthContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
@@ -93,6 +93,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const errorAlertRef = useRef(null);
   const formContentRef = useRef(null);
   const lastSectionRef = useRef(null);
+  const hasReopenedFormRef = useRef(false);
+  const hasUpdatedReviewStatusRef = useRef(false);
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -104,7 +106,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   useEffect(() => {
-    if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
+    if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data) {
       navigate('/');
     }
   }, [formMode, navigate, status, authStatus]);
@@ -119,6 +121,26 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       errorAlertRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [hasError, errorAlertRef]);
+
+  useEffect(() => {
+    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
+      return;
+    }
+    if (!hasReopenedFormRef.current && data?.status === "Rejected" && userCanEdit) {
+      handleReopenForm();
+      hasReopenedFormRef.current = true;
+    }
+  }, [status, authStatus, userCanEdit, data?.status]);
+
+  useEffect(() => {
+    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
+      return;
+    }
+    if (!hasUpdatedReviewStatusRef.current && data?.status === "Submitted" && userCanReview) {
+      handleReviewForm();
+      hasUpdatedReviewStatusRef.current = true;
+    }
+  }, [status, authStatus, userCanReview, data?.status]);
 
   // Intercept React Router navigation actions with unsaved changes
   const blocker: Blocker = useBlocker(() => {
@@ -269,6 +291,59 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     } catch (err) {
       setOpenRejectDialog(false);
       setReviewComment("");
+      setHasError(true);
+      return false;
+    }
+  };
+
+  /**
+   * Reopen the form when it has already been rejected
+   * and the user wants to retry submission
+   *
+   *
+   * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
+   */
+  const handleReopenForm = async (): Promise<string | boolean> => {
+    if (!userCanEdit) {
+      return false;
+    }
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref?.current || !newData) {
+      return false;
+    }
+
+    try {
+      const res = await reopenForm();
+      setHasError(false);
+      return res;
+    } catch (err) {
+      setHasError(true);
+      return false;
+    }
+  };
+
+  /**
+   * Set form to In Review when it has been submitted
+   *
+   *
+   * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
+   */
+  const handleReviewForm = async (): Promise<string | boolean> => {
+    if (!userCanReview) {
+      return false;
+    }
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref?.current || !newData) {
+      return false;
+    }
+
+    try {
+      const res = await reviewForm();
+      setHasError(false);
+      return res;
+    } catch (err) {
       setHasError(true);
       return false;
     }

@@ -2,9 +2,9 @@ type Application = {
   // Application Details
   _id: string;
   status: ApplicationStatus;
-  createdAt: string; // YYYY-MM-DDTHH:MM:SS format
-  updatedAt: string; // YYYY-MM-DDTHH:MM:SS format
-  submittedDate: string; // YYYY-MM-DDTHH:MM:SS format
+  createdAt: string; // YYYY-MM-DDTHH:MM:SSZ format
+  updatedAt: string; // YYYY-MM-DDTHH:MM:SSZ format
+  submittedDate: string; // YYYY-MM-DDTHH:MM:SSZ format
   history: HistoryEvent[];
   // Applicant Details
   applicant: Applicant;
@@ -142,7 +142,7 @@ type Funding = {
 type HistoryEvent = {
   status: ApplicationStatus;
   reviewComment?: string;
-  dateTime: string; // YYYY-MM-DDTHH:MM:SS format
+  dateTime: string; // YYYY-MM-DDTHH:MM:SSZ format
   userID: number;
 };
 

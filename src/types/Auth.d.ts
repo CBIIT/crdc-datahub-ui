@@ -6,8 +6,8 @@ type User = {
   role: 'Admin' | 'User' | 'Curator' | 'FederalLead' | 'DC_POC';
   IDP: 'nih' | 'login.gov';
   email: string;
-  createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
-  updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
+  createdAt: string; // YYYY-MM-DDTHH:mm:ssZ
+  updateAt: string; // YYYY-MM-DDTHH:mm:ssZ
 };
 
 type UserInput = {

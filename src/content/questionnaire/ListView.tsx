@@ -184,7 +184,7 @@ const ListingView: FC = () => {
 
   const { data, loading, error } = useQuery<Response>(query, {
     variables: {
-      first: perPage + (page * perPage),
+      first: perPage,
       offset: page * perPage,
       sortDirection: order.toUpperCase(),
       orderBy: orderBy.field,
@@ -358,7 +358,14 @@ const ListingView: FC = () => {
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{ disabled: perPage === -1 || !data?.listApplications || (data.listApplications.total < perPage) || loading }}
+            nextIconButtonProps={{
+              disabled: perPage === -1
+                || !data?.listApplications
+                || data?.listApplications?.total === 0
+                || data?.listApplications?.total <= (page + 1) * perPage
+                || emptyRows > 0
+                || loading
+            }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>
