@@ -1,9 +1,8 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import styled from '@emotion/styled';
 import {
   List, ListItemText, ListItemButton,
-  Stack, ListItemAvatar
+  Stack, ListItemAvatar, styled
 } from '@mui/material';
 import config from '../../config/SectionConfig';
 import { useFormContext } from '../Contexts/FormContext';
