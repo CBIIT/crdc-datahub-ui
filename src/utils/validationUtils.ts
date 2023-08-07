@@ -16,6 +16,25 @@ export const updateInputValidity = (inputRef: React.RefObject<HTMLInputElement>,
 };
 
 /**
+ *  Updates the validity of a MUI select component by setting a custom validation message.
+ *
+ * NOTE: This interfaces with the MUI Select ref which returns { node, value, focus }
+ *
+ * @param selectRef - the reference to the MUI select component to be validated
+ * @param message - The custom validation message to be set. Defaults to an empty string if not provided.
+ */
+export const updateSelectValidity = (selectRef, message = ""): void => {
+  if (!selectRef?.current?.node) {
+    return; // Invalid ref
+  }
+  if (typeof selectRef.current.node?.setCustomValidity !== 'function') {
+    return; // Input element doesn't support custom validity
+  }
+
+  selectRef.current.node.setCustomValidity(message);
+};
+
+/**
  * Validates whether a given value (string or number) lies within a specified range.
  *
  * @param value - The value to be validated. It can be of type string or number.
