@@ -1,5 +1,5 @@
 import React, { FC, useState, useRef, useEffect } from 'react';
-import { Grid, FormControl, FormControlLabel, Radio, RadioGroup, RadioProps, RadioGroupProps } from '@mui/material';
+import { Grid, FormControl, FormControlLabel, Radio, RadioGroup, RadioProps, RadioGroupProps, FormHelperText } from '@mui/material';
 import styled from "styled-components";
 import { updateInputValidity } from '../../utils';
 
@@ -18,10 +18,20 @@ const GridStyled = styled(Grid)<{ $containerWidth?: string; }>`
   }
 
   #invisibleRadioInput{
-    height: 0; 
-    border: none; 
+    height: 0;
+    border: none;
     width: 0;
   }
+  "& .MuiFormHelperText-root": {
+    color: "#083A50",
+    marginLeft: "0",
+    [theme.breakpoints.up("lg")]: {
+      whiteSpace: "nowrap",
+    },
+  },
+  "& .MuiFormHelperText-root.Mui-error": {
+    color: "#D54309 !important",
+  },
 `;
 
 const BpIcon = styled('span')(() => ({
@@ -110,25 +120,38 @@ const RadioYesNoInput: FC<Props> = ({
   ...rest
 }) => {
   const [val, setVal] = useState<string>((value?.toString() === "" || value?.toString() === undefined) ? null : value?.toString());
+  const [error, setError] = useState(false);
   const radioGroupInputRef = useRef<HTMLInputElement>(null);
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (readOnly) {
       return;
     }
     const newValue = (event.target as HTMLInputElement).value;
     setVal(newValue === "" ? null : newValue);
+    setError(false);
   };
+
   useEffect(() => {
     if (required && val === null) {
-          updateInputValidity(radioGroupInputRef, "Please select an option");
-        } else {
-          updateInputValidity(radioGroupInputRef);
-        }
+      updateInputValidity(radioGroupInputRef, "Please select an option");
+    } else {
+      updateInputValidity(radioGroupInputRef);
+    }
   }, [val]);
+
+  useEffect(() => {
+    const invalid = () => setError(true);
+
+    radioGroupInputRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      radioGroupInputRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [radioGroupInputRef]);
 
   return (
     <GridStyled md={gridWidth || 6} xs={12} item $containerWidth={containerWidth}>
-      <FormControl className="formControl">
+      <FormControl className="formControl" error={error}>
         <StyledFormLabel>
           {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
           {label}
@@ -136,7 +159,7 @@ const RadioYesNoInput: FC<Props> = ({
         <RadioGroup
           name={name}
           value={val}
-          onChange={handleChange}
+          onChange={onChangeWrapper}
           id={id}
           data-type="string"
           {...rest}
@@ -144,6 +167,9 @@ const RadioYesNoInput: FC<Props> = ({
           <FormControlLabel value="true" color="#1D91AB" control={<BpRadio inputRef={radioGroupInputRef} id={id.concat("-yes-radio-button")} readOnly={readOnly} />} label="Yes" />
           <FormControlLabel value="false" color="#1D91AB" control={<BpRadio id={id.concat("-no-radio-button")} readOnly={readOnly} />} label="No" />
         </RadioGroup>
+        <FormHelperText>
+          {(!readOnly && error ? "This field is required" : null) || " "}
+        </FormHelperText>
       </FormControl>
     </GridStyled>
   );

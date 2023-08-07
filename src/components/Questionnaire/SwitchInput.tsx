@@ -1,4 +1,7 @@
-import React, { FC, ReactElement, useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, {
+  FC, ReactElement, useEffect,
+  useId, useMemo, useRef, useState
+} from 'react';
 import { SwitchProps, Grid, Switch, FormHelperText } from '@mui/material';
 import styled from "styled-components";
 import Tooltip from "./Tooltip";
@@ -156,9 +159,9 @@ const CustomSwitch: FC<Props> = ({
   const [val, setVal] = useState<boolean | null>(value);
   const [touched, setTouched] = useState(value?.toString()?.length > 0);
   const [error, setError] = useState(false);
-
   const errorMsg = errorText || (required ? "This field is required" : null);
-  const switchInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const proxyValue = useMemo(() => {
     if (isBoolean) {
       return touchRequired && !touched ? undefined : val?.toString();
@@ -172,12 +175,11 @@ const CustomSwitch: FC<Props> = ({
       return;
     }
     if (!touched) {
-      updateInputValidity(switchInputRef, errorMsg);
-      setError(true);
+      updateInputValidity(inputRef, errorMsg);
       return;
     }
-    updateInputValidity(switchInputRef);
-    setError(false);
+
+    updateInputValidity(inputRef);
   }, [touched, touchRequired]);
 
   const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -192,7 +194,17 @@ const CustomSwitch: FC<Props> = ({
     }
 
     setVal(checked);
+    setError(false);
   };
+
+  useEffect(() => {
+    const invalid = () => setError(true);
+
+    inputRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
 
   return (
     <GridStyled md={gridWidth || 6} xs={12} item>
@@ -206,7 +218,7 @@ const CustomSwitch: FC<Props> = ({
           <div className="switchYesNoContainer">
             <div className={val ? "text" : "textChecked"}>No</div>
             <Switch
-              inputRef={switchInputRef}
+              inputRef={inputRef}
               inputProps={{ datatype: "boolean" }}
               focusVisibleClassName="focusVisible"
               id={id}

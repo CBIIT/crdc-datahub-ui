@@ -6,10 +6,11 @@ import {
   TextFieldProps,
   styled,
 } from "@mui/material";
-import { DatePicker, DatePickerProps, DateValidationError } from "@mui/x-date-pickers";
+import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import Tooltip from "./Tooltip";
 import calendarIcon from "../../assets/icons/calendar.svg";
+import { updateInputValidity } from '../../utils';
 
 const CalendarIcon = styled("div")(() => ({
   backgroundImage: `url(${calendarIcon})`,
@@ -108,8 +109,6 @@ type Props = {
   name?: string;
   required?: boolean;
   inputProps?: TextFieldProps;
-  validate?: (input: string) => boolean;
-  filter?: (input: string) => string;
 } & DatePickerProps<Dayjs>;
 
 /**
@@ -130,8 +129,6 @@ const DatePickerInput: FC<Props> = ({
   infoText,
   tooltipText,
   errorText,
-  validate,
-  filter,
   onChange,
   readOnly,
   ...rest
@@ -143,55 +140,38 @@ const DatePickerInput: FC<Props> = ({
   const errorMsg = errorText || (required ? "This field is required" : null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const updateInputValidity = (message: string) => {
-    inputRef.current.setCustomValidity(message);
-  };
-
-  const validateInput = (input: Dayjs) => {
-    inputRef.current.checkValidity();
-    const value = input?.format("MM/DD/YYYY");
-    const invalidDateMessage = "The date is invalid. Please enter a date in the format MM/DD/YYYY";
-
-    if (validate) {
-      const isValidCustom = validate(value);
-      updateInputValidity(!isValidCustom ? invalidDateMessage : "");
-      return isValidCustom;
+  const processValue = (inputVal: Dayjs) => {
+    if (required && !inputVal) {
+      updateInputValidity(inputRef, errorMsg);
+    } else if (!inputVal.isValid()) {
+      updateInputValidity(inputRef, "The date is invalid. Please enter a date in the format MM/DD/YYYY");
+    } else {
+      updateInputValidity(inputRef);
     }
 
-    const missingValueWhenRequired = required && !value;
-    const isValid = input?.isValid() && !missingValueWhenRequired;
-    updateInputValidity(!isValid ? invalidDateMessage : "");
-
-    return isValid;
-  };
-
-  const handleOnError = (error: DateValidationError) => {
-    if (!error && val) {
-      setError(false);
-      return;
-    }
-    setError(true);
+    setVal(inputVal);
   };
 
   const onChangeWrapper = (newVal: Dayjs) => {
-    if (val === newVal) {
-      return;
-    }
-
     if (typeof onChange === "function") {
       onChange(newVal, null);
     }
 
-    if (!newVal) {
-      setError(true);
-    }
-
-    setVal(newVal);
-    setError(!validateInput(newVal));
+    processValue(newVal);
+    setError(false);
   };
 
   useEffect(() => {
-    onChangeWrapper(dayjs(initialValue?.toString().trim()));
+    const invalid = () => setError(true);
+
+    inputRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
+
+  useEffect(() => {
+    processValue(dayjs(initialValue?.toString().trim()));
   }, [initialValue]);
 
   return (
@@ -206,7 +186,6 @@ const DatePickerInput: FC<Props> = ({
           value={val}
           onChange={(value: Dayjs) => onChangeWrapper(value)}
           inputRef={inputRef}
-          onError={handleOnError}
           readOnly={readOnly}
           slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{
