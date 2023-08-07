@@ -28,6 +28,7 @@ const StyledDate = styled("span")({
   fontFamily: "Public Sans",
   textTransform: "uppercase",
   color: "#2E5481",
+  marginRight: "10px !important",
 });
 
 const StyledButton = styled(Button)({

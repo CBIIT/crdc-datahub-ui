@@ -26,6 +26,7 @@ const StyledStatus = styled("span")<{ status: ApplicationStatus, leftGap: boolea
     fontFamily: "Public Sans",
     textTransform: "uppercase",
     marginLeft: !leftGap ? "6px !important" : null,
+    marginRight: "10px !important",
     letterSpacing: "0.32px",
     color: theme.palette?.[status]?.main || "#2E5481",
   })
