@@ -2,7 +2,7 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import styled from 'styled-components';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { FormHelperText, Table, TableBody, TableCell, TableHead, TableRow, styled as MuiStyled } from '@mui/material';
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
@@ -18,12 +18,6 @@ import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 import useFormMode from "./hooks/useFormMode";
-/**
- * Form Section D View
- *
- * @param {FormSectionProps} props
- * @returns {JSX.Element}
- */
 
 export type KeyedFileTypeData = {
   key: string;
@@ -142,6 +136,12 @@ const TableContainer = styled.div`
     }
 `;
 
+const TableHelperText = MuiStyled(FormHelperText)({
+  color: "#D54309",
+  marginLeft: "22px",
+  marginTop: "-15px",
+});
+
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
@@ -166,18 +166,11 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
-  useEffect(() => {
-    if (fileTypeData.length === 0) {
-      fileTypeDataRef.current.setCustomValidity("At least one file type is required");
-    } else {
-      fileTypeDataRef.current.setCustomValidity("");
-    }
-  }, [fileTypeDataRef]);
-
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
       return null;
     }
+
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
     // Remove empty strings from dataType arrays
@@ -193,6 +186,13 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
     // Override empty file array
     combinedData.files = formObject.files;
+
+    if (fileTypeData.length === 0) {
+      fileTypeDataRef.current.setCustomValidity("At least one file type is required");
+    } else {
+      fileTypeDataRef.current.setCustomValidity("");
+    }
+
     return { ref: formRef, data: combinedData };
   };
 
@@ -235,6 +235,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Targeted Data Submission Delivery Date"
           name="targetedSubmissionDate"
           tooltipText="The date that transfer of data from the submitter to DataHub is expected to begin."
+          errorText="Please enter a valid date"
           initialValue={data.targetedSubmissionDate}
           gridWidth={6}
           disablePast
@@ -244,6 +245,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Expected Publication Date"
           name="targetedReleaseDate"
           tooltipText="The date that submitters would like their data to be released to the public."
+          errorText="Please enter a valid date"
           initialValue={data.targetedReleaseDate}
           gridWidth={6}
           disablePast
@@ -518,6 +520,11 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             </TableBody>
           </Table>
         </TableContainer>
+        {!fileTypeDataRef?.current?.checkValidity() && (
+          <TableHelperText>
+            At least one file type is required
+          </TableHelperText>
+        )}
       </SectionGroup>
       <SectionGroup
         title="Additional Comments"
