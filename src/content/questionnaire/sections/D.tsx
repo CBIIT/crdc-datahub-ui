@@ -313,7 +313,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               label="Confirm the imaging data you plan to submit are de-identified"
               name="imagingDataDeIdentified"
               row
-              required
+              required={dataTypes.includes("imaging")}
               readOnly={readOnlyInputs}
             />
           )}
