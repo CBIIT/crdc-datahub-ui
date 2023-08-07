@@ -1,6 +1,5 @@
 import React, { FC } from "react";
-import { Stack, Typography } from "@mui/material";
-import styled from "@emotion/styled";
+import { Stack, Typography, styled } from "@mui/material";
 import StatusSection from "./components/StatusSection";
 import HistorySection from "./components/HistorySection";
 

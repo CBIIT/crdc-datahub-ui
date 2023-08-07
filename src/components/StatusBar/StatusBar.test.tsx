@@ -82,7 +82,7 @@ describe("StatusBar > General Tests", () => {
   it("defaults the last updated to N/A for new applications", () => {
     const data = {
       status: "New",
-      updatedAt: "2023-06-20T09:13:58",
+      updatedAt: "2023-06-20T09:13:58Z",
     };
 
     const { getByTestId } = render(<BaseComponent data={data} />);
@@ -102,7 +102,7 @@ describe("StatusBar > General Tests", () => {
     expect(getByTestId("status-bar-last-updated")).toHaveTextContent("N/A");
   });
 
-  const validDates = [["2019-11-23T14:26:01", "11/23/2019"], ["2027-04-24T19:01:09", "4/24/2027"], ["2031-01-07T19:01:09", "1/7/2031"]];
+  const validDates = [["2019-11-23T14:26:01Z", "11/23/2019"], ["2027-04-24T19:01:09Z", "4/24/2027"], ["2031-01-07T19:01:09Z", "1/7/2031"]];
   it.each(validDates)("formats the last updated date %p as %p", (input, output) => {
     const data = {
       status: "In Progress",
@@ -136,9 +136,9 @@ describe("StatusBar > Comments Modal Tests", () => {
   it("does not render the modal if there are no comments in the history", () => {
     const data = {
       history: [
-        { reviewComment: "", dateTime: "2019-11-23T14:26:01", },
-        { reviewComment: "", dateTime: "2019-11-26T15:36:01", },
-        { reviewComment: "", dateTime: "2019-11-30T01:26:01", },
+        { reviewComment: "", dateTime: "2019-11-23T14:26:01Z", },
+        { reviewComment: "", dateTime: "2019-11-26T15:36:01Z", },
+        { reviewComment: "", dateTime: "2019-11-30T01:26:01Z", },
       ],
     };
 
@@ -166,9 +166,9 @@ describe("StatusBar > Comments Modal Tests", () => {
   it("renders the most recent comment by date", async () => {
     const data = {
       history: [
-        { reviewComment: "not visible", dateTime: "2019-11-23T14:26:01", },
-        { reviewComment: "not visible", dateTime: "2019-11-26T15:36:01", },
-        { reviewComment: "this is the most recent comment", dateTime: "2019-11-30T01:26:01", },
+        { reviewComment: "not visible", dateTime: "2019-11-23T14:26:01Z", },
+        { reviewComment: "not visible", dateTime: "2019-11-26T15:36:01Z", },
+        { reviewComment: "this is the most recent comment", dateTime: "2019-11-30T11:26:01Z", },
       ],
     };
 
@@ -186,10 +186,10 @@ describe("StatusBar > Comments Modal Tests", () => {
   it("uses the most recent comment regardless of sorting", async () => {
     const data = {
       history: [
-        { reviewComment: "not visible", dateTime: "2023-11-30T01:25:45", },
-        { reviewComment: "this is the most recent comment", dateTime: "2023-12-30T01:26:01", },
-        { reviewComment: "not visible", dateTime: "2023-11-23T14:26:01", },
-        { reviewComment: "not visible", dateTime: "2023-11-26T15:36:01", },
+        { reviewComment: "not visible", dateTime: "2023-11-30T01:25:45Z", },
+        { reviewComment: "this is the most recent comment", dateTime: "2023-12-30T11:26:01Z", },
+        { reviewComment: "not visible", dateTime: "2023-11-23T14:26:01Z", },
+        { reviewComment: "not visible", dateTime: "2023-11-26T15:36:01Z", },
       ],
     };
 
@@ -207,10 +207,10 @@ describe("StatusBar > Comments Modal Tests", () => {
   it("uses the last event with a comment", async () => {
     const data = {
       history: [
-        { reviewComment: "", dateTime: "2023-11-23T14:26:01", },
-        { reviewComment: "not the latest, but has a comment", dateTime: "2023-11-26T15:36:01", },
-        { reviewComment: "", dateTime: "2023-11-30T01:25:45", },
-        { reviewComment: "", dateTime: "2023-12-30T01:26:01", },
+        { reviewComment: "", dateTime: "2023-11-23T14:26:01Z", },
+        { reviewComment: "not the latest, but has a comment", dateTime: "2023-11-26T15:36:01Z", },
+        { reviewComment: "", dateTime: "2023-11-30T01:25:45Z", },
+        { reviewComment: "", dateTime: "2023-12-30T01:26:01Z", },
       ],
     };
 
@@ -227,7 +227,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
   it("provides the unformatted review date as a title attribute", () => {
     const data = {
-      history: [{ dateTime: "2009-11-24T01:25:45", reviewComment: "abc comment 123" }],
+      history: [{ dateTime: "2009-11-24T11:42:45Z", reviewComment: "abc comment 123" }],
     };
 
     const { getByText } = render(<BaseComponent data={data} />);
@@ -273,7 +273,7 @@ describe("StatusBar > History Modal Tests", () => {
 
   it("renders the modal if there are historical events", () => {
     const data = {
-      history: [{ dateTime: "2019-11-23T14:26:01", status: "New" }],
+      history: [{ dateTime: "2019-11-23T14:26:01Z", status: "New" }],
     };
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
@@ -288,9 +288,9 @@ describe("StatusBar > History Modal Tests", () => {
   it("sorts the historical events by date in descending order", () => {
     const data = {
       history: [
-        { dateTime: "2023-11-24T01:25:45", status: "Rejected" },
-        { dateTime: "2023-11-20T14:26:01", status: "New" },
-        { dateTime: "2023-11-22T15:36:01", status: "In Progress" },
+        { dateTime: "2023-11-24T13:25:45Z", status: "Rejected" },
+        { dateTime: "2023-11-20T14:26:01Z", status: "New" },
+        { dateTime: "2023-11-22T15:36:01Z", status: "In Progress" },
       ],
     };
 
@@ -312,8 +312,8 @@ describe("StatusBar > History Modal Tests", () => {
   it("renders only the most recent event with an icon", () => {
     const data = {
       history: [
-        { dateTime: "2023-11-24T01:25:45", status: "Rejected" },
-        { dateTime: "2023-11-22T15:36:01", status: "Completed" },
+        { dateTime: "2023-11-24T01:25:45Z", status: "Rejected" },
+        { dateTime: "2023-11-22T15:36:01Z", status: "Completed" },
       ],
     };
 
@@ -330,7 +330,7 @@ describe("StatusBar > History Modal Tests", () => {
   const noIconStatuses = ["In Progress"];
   it.each(noIconStatuses)("does not render an icon for status %s", (status) => {
     const data = {
-      history: [{ dateTime: "2023-11-24T01:25:45", status }],
+      history: [{ dateTime: "2023-11-24T01:25:45Z", status }],
     };
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
@@ -345,7 +345,7 @@ describe("StatusBar > History Modal Tests", () => {
   const statusesWithIcons = [["New", New], ["Submitted", Submitted], ["Approved", Approved], ["Rejected", Rejected], ["In Review", UnderReview]];
   it.each(statusesWithIcons)("renders the correct icon for the status %s", (status, svg) => {
     const data = {
-      history: [{ dateTime: "2023-11-24T01:25:45", status }],
+      history: [{ dateTime: "2023-11-24T01:25:45Z", status }],
     };
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
@@ -363,7 +363,7 @@ describe("StatusBar > History Modal Tests", () => {
 
   it("provides the unformatted event date as a title attribute", () => {
     const data = {
-      history: [{ dateTime: "2009-11-24T01:25:45", status: "Rejected" }],
+      history: [{ dateTime: "2009-11-24T01:25:45Z", status: "Rejected" }],
     };
 
     const { getByText } = render(<BaseComponent data={data} />);
@@ -377,7 +377,7 @@ describe("StatusBar > History Modal Tests", () => {
 
   it("closes the modal with the Close button", async () => {
     const data = {
-      history: [{ dateTime: "2009-11-24T01:25:45", status: "Rejected" }],
+      history: [{ dateTime: "2009-11-24T01:25:45Z", status: "Rejected" }],
     };
 
     const { queryByTestId, getByText } = render(<BaseComponent data={data} />);
