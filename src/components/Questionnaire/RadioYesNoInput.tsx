@@ -1,4 +1,3 @@
-// TODO
 import React, { FC, useState, useRef, useEffect } from 'react';
 import { Grid, FormControl, FormControlLabel, Radio, RadioGroup, RadioProps, RadioGroupProps, FormHelperText } from '@mui/material';
 import styled from "styled-components";
