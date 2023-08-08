@@ -323,6 +323,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           )}
           tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
           readOnly={readOnlyInputs}
+          sx={{ paddingBottom: "8px" }}
         />
         <SwitchInput
           id="section-d-epidemiologic-or-cohort"
@@ -395,6 +396,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={data.clinicalData.dataTypes.includes("treatmentData")}
           tooltipText="Treatment data refers to information on the action or administration of therapeutic agents to produce an effect that is intended to alter the course of a pathological process. Indicate whether treatment data is available for the study."
           readOnly={readOnlyInputs}
+          sx={{ paddingBottom: "8px" }}
         />
         <SwitchInput
           id="section-d-biospecimen-data"
