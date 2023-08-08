@@ -45,7 +45,7 @@ const StyledBannerBody = styled(Stack)({
 });
 
 const StyledContainer = styled(Container)({
-  marginTop: "-64px",
+  marginTop: "-62px",
 });
 
 const StyledTableContainer = styled(TableContainer)({
@@ -249,7 +249,7 @@ const ListingView: FC = () => {
       <PageBanner
         title="Submission Request List"
         subTitle="Below is a list of applications that are associated with your account. Please click on any of the applications to review or continue work."
-        containerPadding="57px 0 0 25px"
+        padding="57px 0 0 25px"
         body={(
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}

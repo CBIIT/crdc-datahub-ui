@@ -14,9 +14,9 @@ const StyledBanner = styled("div")(({ bannerSrc } : { bannerSrc: string }) => ({
   alignItems: "center",
 }));
 
-const StyledBannerContentContainer = styled(Container)(({ containerPadding } : { containerPadding?: string }) => ({
+const StyledBannerContentContainer = styled(Container)(({ padding } : { padding?: string }) => ({
   "&.MuiContainer-root": {
-    padding: containerPadding || "57px 0 0 65px",
+    padding: padding || "57px 0 0 65px",
     width: "100%",
     height: "100%",
   },
@@ -55,7 +55,7 @@ const StyledBannerSubtitle = styled("h6")({
 export type Props = {
   title: string;
   subTitle: string;
-  containerPadding?: string;
+  padding?: string;
   body?: string | React.ReactNode;
   bannerSrc: string;
 };
@@ -66,7 +66,7 @@ export type Props = {
  * @returns {React.FC<Props>}
  */
 const PageBanner: FC<Props> = ({
-  title, subTitle, containerPadding, body, bannerSrc
+  title, subTitle, padding, body, bannerSrc
 } : Props) => (
   <>
     <Helmet>
@@ -74,7 +74,7 @@ const PageBanner: FC<Props> = ({
     </Helmet>
 
     <StyledBanner bannerSrc={bannerSrc}>
-      <StyledBannerContentContainer maxWidth="xl" containerPadding={containerPadding}>
+      <StyledBannerContentContainer maxWidth="xl" padding={padding}>
         <StyledBannerTitle>{title}</StyledBannerTitle>
         <StyledBannerSubtitle>
           {subTitle}
