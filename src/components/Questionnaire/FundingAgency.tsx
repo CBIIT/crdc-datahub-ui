@@ -92,8 +92,8 @@ const FundingAgency: FC<Props> = ({
       <Grid item xs={12}>
         {index !== 0 ? (
           <AddRemoveButton
-            id={idPrefix.concat(`funding-${index}-remove-funding-button`)}
-            label="Remove Funding"
+            id={idPrefix.concat(`funding-${index}-remove-agency-button`)}
+            label="Remove Agency"
             placement="start"
             onClick={onDelete}
             startIcon={<RemoveCircleIcon />}

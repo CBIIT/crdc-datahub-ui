@@ -60,6 +60,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [fundings, setFundings] = useState<KeyedFunding[]>(data.study?.funding?.map(mapObjectWithKey) || []);
   const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isDbGapRegistered);
 
+  const programKeyRef = useRef(new Date().getTime());
   const formRef = useRef<HTMLFormElement>();
   const {
     nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef,
@@ -121,8 +122,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const newProgram = findProgram({ name: value });
-
     setProgramOption(newProgram);
+    programKeyRef.current = new Date().getTime();
 
     // if not applicable, clear fields and set notApplicable property
     if (newProgram?.name === NotApplicableProgram?.name) {
@@ -234,8 +235,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setFundings(fundings.filter((f) => f.key !== key));
   };
 
-  const currentKey = `_${new Date().getTime()}`;
   const readOnlyProgram = readOnlyInputs || !programOption?.editable;
+
   return (
     <FormContainer
       description={SectionOption.title}
@@ -259,7 +260,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           readOnly={readOnlyInputs}
         />
         <TextInput
-          key={`program-name-${program?.name}${currentKey}`}
+          key={`program-name-${program?.name}_${programKeyRef.current}`}
           id="section-b-program-title"
           label="Program Title"
           name="program[name]"
@@ -271,7 +272,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
-          key={`program-abbreviation-${program?.abbreviation}${currentKey}`}
+          key={`program-abbreviation-${program?.abbreviation}_${programKeyRef.current}`}
           id="section-b-program-abbreviation"
           label="Program Abbreviation"
           name="program[abbreviation]"
@@ -284,7 +285,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
         />
         <TextInput
-          key={`program-description-${program?.description}${currentKey}`}
+          key={`program-description-${program?.description}_${programKeyRef.current}`}
           id="section-b-program-description"
           label="Program Description"
           name="program[description]"
@@ -394,6 +395,34 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
       </SectionGroup>
 
+      {/* dbGaP Registration section */}
+      <SectionGroup
+        title="dbGaP Registration"
+        description="Indicated if your study is currently registered with dbGaP."
+      >
+        <SwitchInput
+          id="section-b-dbGaP-registration"
+          label="dbGaP REGISTRATION"
+          name="study[isDbGapRegistered]"
+          required
+          value={isDbGapRegistered}
+          onChange={(e, checked: boolean) => setIsdbGaPRegistered(checked)}
+          isBoolean
+          readOnly={readOnlyInputs}
+        />
+        <TextInput
+          id="section-b-if-yes-provide-dbgap-phs-number"
+          label="If yes, provide dbGaP PHS number"
+          name="study[dbGaPPPHSNumber]"
+          value={data.study.dbGaPPPHSNumber}
+          maxLength={50}
+          placeholder="50 characters allowed"
+          gridWidth={12}
+          readOnly={readOnlyInputs}
+          required={isDbGapRegistered}
+        />
+      </SectionGroup>
+
       {/* Existing Publications */}
       <SectionGroup
         title="Existing Publications"
@@ -401,7 +430,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         endButton={(
           <AddRemoveButton
             id="section-b-add-publication-button"
-            label="Add Publication"
+            label="Add Existing Publication"
             startIcon={<AddCircleIcon />}
             onClick={addPublication}
             disabled={readOnlyInputs || status === FormStatus.SAVING}
@@ -449,34 +478,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           )}
         />
 
-      </SectionGroup>
-
-      {/* dbGaP Registration section */}
-      <SectionGroup
-        title="dbGaP Registration"
-        description="Indicated if your study is currently registered with dbGaP."
-      >
-        <SwitchInput
-          id="section-b-dbGaP-registration"
-          label="dbGaP REGISTRATION"
-          name="study[isDbGapRegistered]"
-          required
-          value={isDbGapRegistered}
-          onChange={(e, checked: boolean) => setIsdbGaPRegistered(checked)}
-          isBoolean
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-b-if-yes-provide-dbgap-phs-number"
-          label="If yes, provide dbGaP PHS number"
-          name="study[dbGaPPPHSNumber]"
-          value={data.study.dbGaPPPHSNumber}
-          maxLength={50}
-          placeholder="50 characters allowed"
-          gridWidth={12}
-          readOnly={readOnlyInputs}
-          required={isDbGapRegistered}
-        />
       </SectionGroup>
 
       {/* Study Repositories */}
