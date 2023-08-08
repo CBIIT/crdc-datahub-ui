@@ -28,12 +28,22 @@ describe("filterForNumbers cases", () => {
     expect(utils.filterForNumbers('abc123-def456')).toBe('123-456');
   });
 
-  it('should return only numbers when given a string with numbers and spaces', () => {
-    expect(utils.filterForNumbers('123 456')).toBe('123456');
+  it('should return the original string when given a string with numbers and spaces', () => {
+    expect(utils.filterForNumbers('123 456')).toBe('123 456');
   });
 
-  it('should return only numbers and dashes when given a string with numbers, dashes, and spaces', () => {
-    expect(utils.filterForNumbers('123 - 456')).toBe('123-456');
+  it("should filter special characters", () => {
+    expect(utils.filterForNumbers("123!@#$%^&*()_+")).toEqual("123");
+  });
+
+  it("should filter newlines", () => {
+    // NOTE: This tests against the usage of \s in the regex
+    expect(utils.filterForNumbers("123\n")).toEqual("123");
+  });
+
+  it("should filter tabs", () => {
+    // NOTE: This tests against the usage of \s in the regex
+    expect(utils.filterForNumbers("123\t")).toEqual("123");
   });
 });
 
