@@ -82,7 +82,7 @@ const Repository: FC<Props> = ({
           placeholder="Select types"
           value={dataTypesSubmitted}
           multiple
-          tooltipText="data type(s) submitted"
+          tooltipText="Data type(s) submitted"
           required
           readOnly={readOnly}
         />

@@ -313,7 +313,10 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       </SectionGroup>
 
       {/* Study Registration Section */}
-      <SectionGroup title="Study information">
+      <SectionGroup
+        title="Study information"
+        description="A short description of the effort that these data have been collected for."
+      >
         <TextInput
           id="section-b-study-title"
           label="Study Title"

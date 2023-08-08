@@ -51,8 +51,8 @@ const Publication: FC<Props> = ({
           readOnly={readOnly}
         />
         <TextInput
-          id={idPrefix.concat(`publication-${index}-pubmed-id`)}
-          label="PubMed ID"
+          id={idPrefix.concat(`publication-${index}-pubmed-id-pmid`)}
+          label="PubMed ID (PMID)"
           name={`study[publications][${index}][pubmedID]`}
           value={pubmedID}
           placeholder="Enter ID"
