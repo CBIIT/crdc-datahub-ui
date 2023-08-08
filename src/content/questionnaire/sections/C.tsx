@@ -178,6 +178,9 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           filter={filterPositiveIntegerString}
           validate={(input: string) => isValidInRange(input, 1)} // greater than 0
           errorText="Value must be greater than 0."
+          inputProps={{
+            "data-type": "number"
+          } as unknown}
           required
           readOnly={readOnlyInputs}
         />
