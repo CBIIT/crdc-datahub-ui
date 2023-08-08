@@ -1,5 +1,6 @@
 import { FormGroupCheckboxOption } from '../components/Questionnaire/FormGroupCheckbox';
-import programOptions, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../config/ProgramConfig';
+import { SelectOption } from '../components/Questionnaire/SelectInput';
+import programOptions, { NotApplicableProgram, OptionalProgram } from '../config/ProgramConfig';
 
 /**
  * Generic Email Validator
@@ -57,48 +58,41 @@ export const mapObjectWithKey = (obj, index: number) => ({
 });
 
 /**
- * Finds the program option by name (name)
+ * Finds the program option by its name.
  *
  * NOTE:
- * - This util helps differentiate between a
+ * - This utility helps differentiate between a
  *   saved CUSTOM program and a PRESELECTED
  *   program option.
- * - This util also adds the OptionalStudy and
- *   a BlankStudy to the study options.
- * - If a valid name or abbreviation exists
- *   then it will default to OptionalProgram,
- *   otherwise, it will return a BlankProgram
  *
- * @param {string} name the name of the program
- * @returns {ProgramOption} the program option
+ * @param {Program} program - The program object to search for.
+ * @returns {ProgramOption | null} - Returns the program option if found, otherwise null.
  */
-export const findProgram = (name: string, abbreviation: string): ProgramOption => {
-  const program : ProgramOption = programOptions.find((option) => option.name === name && option.abbreviation === abbreviation);
-  const optionalOrBlankFallback = name || abbreviation || program?.name || program?.abbreviation ? OptionalProgram : BlankProgram;
-  const realProgram = program || optionalOrBlankFallback;
-
-  const newProgram = {
-    ...realProgram,
-    studies: [...realProgram.studies, BlankStudy, OptionalStudy]
-  };
-
+export const findProgram = (program: Program): ProgramOption => {
+  if (!program) {
+    return null;
+  }
+  if (program.notApplicable || program.name === NotApplicableProgram.name) {
+    return NotApplicableProgram;
+  }
+  const newProgram: ProgramOption = programOptions.find((option) => option.name === program.name);
+  if (!newProgram && (program.name?.length || program.abbreviation?.length || program.description?.length)) {
+    return OptionalProgram;
+  }
   return newProgram;
 };
 
 /**
- * Finds the study option by name (name)
+ * Converts a program option to a select dropdown option.
  *
  * NOTE:
- * - If a valid name or abbreviation exists
- *   then it will default to OptionalStudy,
- *   otherwise, it will return a BlankStudy
+ * - The returned object has 'label' which combines program name and abbreviation
+ *   and 'value' which is the program name.
  *
- * @param {string} name the name of the study
- * @param {ProgramOption} activeProgram the active program with the study options
- * @returns {StudyOption} the study option that matches the name
+ * @param {ProgramOption} program - The program option to convert.
+ * @returns {SelectOption} - Returns an object suitable for use in a select dropdown.
  */
-export const findStudy = (name: string, abbreviation: string, activeProgram: ProgramOption): StudyOption => {
-  const study : StudyOption = activeProgram?.studies?.find((option) => option.name === name && option.abbreviation === abbreviation);
-  const optionalOrBlankFallback = name || abbreviation || study?.name || study?.abbreviation ? OptionalStudy : BlankStudy;
-  return study || optionalOrBlankFallback;
-};
+export const programToSelectOption = (program: ProgramOption): SelectOption => ({
+  label: `${program.name || ""}${program.abbreviation ? ` (${program.abbreviation})` : ""}`?.trim(),
+  value: program.name || ""
+});
