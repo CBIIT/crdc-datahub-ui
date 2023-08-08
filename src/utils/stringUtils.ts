@@ -56,3 +56,23 @@ export const filterAlphaNumeric = (input: string, extraChars = ""): string => {
   // We replace characters that don't match the allowed set with an empty string.
   return input?.replace(pattern, "") || "";
 };
+
+/**
+ * Filters a string to allow only positive integers.
+ *
+ * @param {string} input The input string to be filtered
+ * @returns {string} A string containing only positive integers, otherwise an empty string
+ */
+export const filterPositiveIntegerString = (input: string): string => {
+  if (!input) {
+    return "";
+  }
+
+  const nonIntegerPattern = /[^0-9]/g;
+  const filtered = input.replace(nonIntegerPattern, '');
+
+  // Remove leading zeros using a regular expression
+  const noLeadingZeros = filtered.replace(/^0+/, '');
+
+  return noLeadingZeros || "";
+};

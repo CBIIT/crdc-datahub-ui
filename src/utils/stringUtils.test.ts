@@ -36,3 +36,89 @@ describe("filterAlphaNumeric utility function", () => {
     expect(result).toEqual("");
   });
 });
+
+describe("filterPositiveIntegerString utility function", () => {
+  it("should filter out non-integer values and only contain integers", () => {
+    const input = "1.1";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("11");
+  });
+
+  it("should filter out negative integer values and only contain integers", () => {
+    const input = "-5";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("5");
+  });
+
+  it("should allow positive integer values", () => {
+    const input = "5";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("5");
+  });
+
+  it("should return an empty string for non-numeric characters", () => {
+    const input = "abc";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("");
+  });
+
+  it("should extract only the integers for a mixed string with non-integer numbers", () => {
+    const input = "3.5abc";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("35");
+  });
+
+  it("should return an empty string if input string is empty", () => {
+    const input = "";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("");
+  });
+
+  it("should remove leading zeros", () => {
+    const input = "00123";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("123");
+  });
+
+  it("should return an empty string for input with whitespace", () => {
+    const input = " 123 ";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("123");
+  });
+
+  it("should handle very long numbers", () => {
+    const input = "1".repeat(10000);
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual(input);
+  });
+
+  it("should return an empty string for null string", () => {
+    const input = "null";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("");
+  });
+
+  it("should return an empty string for null value", () => {
+    const input = null;
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("");
+  });
+
+  it("should return an empty string for undefined string", () => {
+    const input = "undefined";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("");
+  });
+
+  it("should return an empty string for undefined value", () => {
+    const input = undefined;
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("");
+  });
+
+  it("should not allow periods to be in string", () => {
+    const input = "1.";
+    const result = utils.filterPositiveIntegerString(input);
+    expect(result).toEqual("1");
+  });
+});
