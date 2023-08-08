@@ -6,7 +6,7 @@ import institutionConfig from "../../config/InstitutionConfig";
 import TextInput from "./TextInput";
 import AddRemoveButton from "./AddRemoveButton";
 import AutocompleteInput from "./AutocompleteInput";
-import { filterNonNumeric } from '../../utils';
+import { filterForNumbers } from '../../utils';
 
 const GridContainer = styled(Grid)({
   border: "0.5px solid #DCDCDC !important",
@@ -95,7 +95,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly,
           label="Phone number"
           name={`additionalContacts[${index}][phone]`}
           type="tel"
-          filter={filterNonNumeric}
+          filter={filterForNumbers}
           value={phone}
           placeholder="Enter phone number"
           maxLength={25}

@@ -1,7 +1,7 @@
 import * as utils from "./formUtils";
 import programs, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../config/ProgramConfig';
 
-describe("questionnaire filterNonNumeric cases", () => {
+describe("filterNonNumeric cases", () => {
   it("should filter non-numerics", () => {
     expect(utils.filterNonNumeric("123abc")).toEqual("123");
   });
@@ -15,7 +15,29 @@ describe("questionnaire filterNonNumeric cases", () => {
   });
 });
 
-describe("questionnaire validateDomain cases", () => {
+describe("filterForNumbers cases", () => {
+  it('should return empty string when given an empty string', () => {
+    expect(utils.filterForNumbers('')).toBe('');
+  });
+
+  it('should return only numbers when given a string with numbers and other characters', () => {
+    expect(utils.filterForNumbers('abc123def456')).toBe('123456');
+  });
+
+  it('should return only numbers and dashes when given a string with numbers, dashes, and other characters', () => {
+    expect(utils.filterForNumbers('abc123-def456')).toBe('123-456');
+  });
+
+  it('should return only numbers when given a string with numbers and spaces', () => {
+    expect(utils.filterForNumbers('123 456')).toBe('123456');
+  });
+
+  it('should return only numbers and dashes when given a string with numbers, dashes, and spaces', () => {
+    expect(utils.filterForNumbers('123 - 456')).toBe('123-456');
+  });
+});
+
+describe("validateDomain cases", () => {
   it("should prevent domain-only emails", () => {
     expect(utils.validateEmail("abc.com")).toEqual(false);
   });
@@ -37,7 +59,7 @@ describe("questionnaire validateDomain cases", () => {
   });
 });
 
-describe("questionnaire mapObjectWithKey cases", () => {
+describe("mapObjectWithKey cases", () => {
   const object = [
     { name: "test1" },
     { name: "test2" },
@@ -58,7 +80,7 @@ describe("questionnaire mapObjectWithKey cases", () => {
   });
 });
 
-describe("questionnaire findProgram cases", () => {
+describe("findProgram cases", () => {
   it("should default to the optional program", () => {
     const program = utils.findProgram("test ABC 123 this should never exist", "test abbrev this should never exist either");
 
@@ -95,7 +117,7 @@ describe("questionnaire findProgram cases", () => {
   });
 });
 
-describe("questionnaire findStudy cases", () => {
+describe("findStudy cases", () => {
   const program = programs[0];
 
   it("should default to the optional study", () => {
