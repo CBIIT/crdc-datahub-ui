@@ -92,8 +92,9 @@ type Contact = {
 
 type Program = {
   name: string;
-  abbreviation: string;
-  description: string;
+  abbreviation?: string;
+  description?: string;
+  notApplicable?: boolean;
 };
 
 type Study = {
@@ -111,7 +112,8 @@ type Study = {
 type Repository = {
   name: string;
   studyID: string;
-  submittedDate: string;
+  dataTypesSubmitted: string[];
+  otherDataTypesSubmitted: string;
 };
 
 type Publication = {

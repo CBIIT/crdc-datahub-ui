@@ -35,6 +35,7 @@ sections: [],
     name: "",
     abbreviation: "",
     description: "",
+    notApplicable: false
   },
   study: {
     name: "",

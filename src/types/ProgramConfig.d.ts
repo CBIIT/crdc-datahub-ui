@@ -1,6 +1,5 @@
 type ProgramOption = Omit<Program, "description"> & {
-  studies: StudyOption[];
-  isCustom?: true;
+  editable?: boolean = false;
 };
 
 type StudyOption = Omit<Study, "description" | "publications" | "plannedPublications" | "repositories" | "funding" | "isDbGapRegistered" | "dbGaPPPHSNumber"> & {

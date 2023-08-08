@@ -4,12 +4,23 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import TextInput from "./TextInput";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import AddRemoveButton from "./AddRemoveButton";
+import SelectInput from "./SelectInput";
+import DataTypes from "../../config/DataTypesConfig";
 
 const GridContainer = styled(Grid)(() => ({
   border: "0.5px solid #DCDCDC !important",
   borderRadius: "10px",
   padding: "18px 15px",
 }));
+
+const repositoryDataTypesOptions = [
+  DataTypes.clinicalTrial,
+  DataTypes.genomics,
+  DataTypes.imaging,
+  DataTypes.immunology,
+  DataTypes.proteomics,
+  DataTypes.epidemiologicOrCohort,
+];
 
 type Props = {
   idPrefix?: string;
@@ -34,7 +45,7 @@ const Repository: FC<Props> = ({
 }: Props) => {
   const { status } = useFormContext();
 
-  const { name, studyID, submittedDate } = repository;
+  const { name, studyID, dataTypesSubmitted, otherDataTypesSubmitted } = repository;
 
   return (
     <GridContainer container>
@@ -46,7 +57,7 @@ const Repository: FC<Props> = ({
           value={name}
           placeholder="Enter Repository Name"
           maxLength={50}
-          gridWidth={12}
+          gridWidth={6}
           tooltipText="Name of the repository (e.g., GEO, EGA, etc.)"
           required
           readOnly={readOnly}
@@ -63,15 +74,26 @@ const Repository: FC<Props> = ({
           required
           readOnly={readOnly}
         />
-        <TextInput
-          id={idPrefix.concat(`repository-${index}-date-submitted`)}
-          label="Date Type(s) Submitted"
-          name={`study[repositories][${index}][submittedDate]`}
-          value={submittedDate}
-          placeholder="Enter date"
-          maxLength={50}
-          gridWidth={6}
+        <SelectInput
+          id={idPrefix.concat(`repository-${index}-data-types-submitted`)}
+          label="Data Type(s) Submitted"
+          name={`study[repositories][${index}][dataTypesSubmitted]`}
+          options={repositoryDataTypesOptions.map((option) => ({ label: option.label, value: option.name }))}
+          placeholder="Select types"
+          value={dataTypesSubmitted}
+          multiple
+          tooltipText="data type(s) submitted"
           required
+          readOnly={readOnly}
+        />
+        <TextInput
+          id={idPrefix.concat(`repository-${index}-other-data-types-submitted`)}
+          label="Other Data Type(s)"
+          name={`study[repositories][${index}][otherDataTypesSubmitted]`}
+          value={otherDataTypesSubmitted}
+          placeholder="Other, specify as free text"
+          maxLength={100}
+          gridWidth={6}
           readOnly={readOnly}
         />
       </Grid>
