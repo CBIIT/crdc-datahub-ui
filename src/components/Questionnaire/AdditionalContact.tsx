@@ -6,7 +6,7 @@ import institutionConfig from "../../config/InstitutionConfig";
 import TextInput from "./TextInput";
 import AddRemoveButton from "./AddRemoveButton";
 import AutocompleteInput from "./AutocompleteInput";
-import { filterForNumbers } from '../../utils';
+import { filterForNumbers, validateEmail } from '../../utils';
 
 const GridContainer = styled(Grid)({
   border: "0.5px solid #DCDCDC !important",
@@ -74,6 +74,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly,
           name={`additionalContacts[${index}][email]`}
           type="email"
           value={email}
+          validate={validateEmail}
           placeholder="Enter email"
           required
           readOnly={readOnly}

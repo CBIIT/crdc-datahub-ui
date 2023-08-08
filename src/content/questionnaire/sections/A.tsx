@@ -10,7 +10,7 @@ import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import AutocompleteInput from '../../../components/Questionnaire/AutocompleteInput';
 import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
-import { filterForNumbers, mapObjectWithKey } from '../../../utils';
+import { filterForNumbers, mapObjectWithKey, validateEmail } from '../../../utils';
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import institutionConfig from "../../../config/InstitutionConfig";
 import { InitialQuestionnaire } from '../../../config/InitialValues';
@@ -148,6 +148,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="pi[email]"
           value={pi?.email}
           placeholder="Enter email"
+          validate={validateEmail}
           required
           readOnly={readOnlyInputs}
         />
@@ -243,6 +244,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               label="Email"
               name="primaryContact[email]"
               value={primaryContact?.email || ""}
+              validate={validateEmail}
               placeholder="Enter email"
               readOnly={readOnlyInputs}
               required
