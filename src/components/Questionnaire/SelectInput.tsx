@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useEffect, useId, useState } from "react";
+import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 import Tooltip from "./Tooltip";
+import { updateInputValidity } from '../../utils';
 
 const DropdownArrowsIcon = styled("div")(() => ({
   backgroundImage: `url(${dropdownArrowsIcon})`,
@@ -126,8 +127,6 @@ const StyledSelect = styled(Select, {
   },
 }));
 
-export type SelectOption = { label: string; value: string | number };
-
 type Props = {
   value: string | string[];
   options: SelectOption[];
@@ -164,27 +163,24 @@ const SelectInput: FC<Props> = ({
   const id = useId();
 
   const [val, setVal] = useState(multiple ? [] : "");
-  const [error] = useState(false);
+  const [error, setError] = useState(false);
   const helperText = helpText || (required ? "This field is required" : " ");
+  const inputRef = useRef(null);
 
-  const validateInput = (input: string | string[]) => {
-    const inputIsArray = Array.isArray(input);
+  const processValue = (newValue: string | string[]) => {
+    const inputIsArray = Array.isArray(newValue);
     if (multiple && !inputIsArray) {
-      return false;
+      updateInputValidity(inputRef, "Please select at least one option");
+    } else if (inputIsArray) {
+      const containsOnlyValidOptions = newValue.every((value: string) => !!options.find((option) => option.value === value));
+      updateInputValidity(inputRef, containsOnlyValidOptions ? "" : "Please select only valid options");
+    } else if (required && !options.findIndex((option) => option.value === newValue)) {
+      updateInputValidity(inputRef, "Please select an entry from the list");
+    } else {
+      updateInputValidity(inputRef, "");
     }
 
-    if (inputIsArray) {
-      const containsOnlyValidOptions = input.every((value: string) => !!options.find((option) => option.value === value));
-      return containsOnlyValidOptions;
-    }
-    const isValidOption = !!options.find((option) => option.value === input);
-    return isValidOption;
-  };
-
-  const getValidInitialValue = (input: string | string[]) => {
-    const validInitialValue = multiple ? [] : "";
-
-    return validateInput(input) ? input : validInitialValue;
+    setVal(newValue);
   };
 
   const onChangeWrapper = (newVal) => {
@@ -192,11 +188,21 @@ const SelectInput: FC<Props> = ({
       onChange(newVal);
     }
 
-    setVal(newVal);
+    processValue(newVal);
+    setError(false);
   };
 
   useEffect(() => {
-    onChangeWrapper(getValidInitialValue(value));
+    const invalid = () => setError(true);
+
+    inputRef.current?.node?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.node?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
+
+  useEffect(() => {
+    processValue(value);
   }, [value]);
 
   return (
@@ -218,6 +224,7 @@ const SelectInput: FC<Props> = ({
           multiple={multiple}
           placeholderText={placeholder}
           readOnly={readOnly}
+          inputRef={inputRef}
           {...rest}
         >
           {options.map((option) => (

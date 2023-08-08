@@ -1,5 +1,3 @@
-import { FormGroupCheckboxOption } from '../components/Questionnaire/FormGroupCheckbox';
-import { SelectOption } from '../components/Questionnaire/SelectInput';
 import programOptions, { NotApplicableProgram, OptionalProgram } from '../config/ProgramConfig';
 
 /**

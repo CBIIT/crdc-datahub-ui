@@ -58,25 +58,6 @@ const TextInput: FC<Props> = ({
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const valRef = useRef(value);
-
-  const validateInput = (input: string) => {
-    if (validate) {
-      const customIsValid = validate(input);
-      updateInputValidity(inputRef, !customIsValid ? errorMsg : "");
-      return customIsValid;
-    }
-    if (typeof maxLength === "number" && input?.length > maxLength) {
-      updateInputValidity(inputRef, `Input exceeds maximum length of ${maxLength} characters. Please shorten your input.`);
-      return false;
-    }
-    if (required && input?.trim()?.length === 0) {
-      return false;
-    }
-
-    updateInputValidity(inputRef); // Reset validity
-    return true;
-  };
 
   const processValue = (inputVal: string) => {
     let newVal = inputVal;
@@ -87,9 +68,12 @@ const TextInput: FC<Props> = ({
     if (typeof maxLength === "number" && newVal?.length > maxLength) {
       newVal = newVal.slice(0, maxLength);
     }
+    if (typeof validate === "function") {
+      const customIsValid = validate(newVal);
+      updateInputValidity(inputRef, !customIsValid ? errorMsg : "");
+    }
 
     setVal(newVal);
-    setError(!validateInput(newVal));
   };
 
   const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -100,12 +84,20 @@ const TextInput: FC<Props> = ({
     }
 
     processValue(newVal);
+    setError(false);
   };
 
   useEffect(() => {
-    // Only validate if the value actually changed
-    if (valRef.current !== value) processValue(value?.toString());
-    valRef.current = value;
+    const invalid = () => setError(true);
+
+    inputRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
+
+  useEffect(() => {
+    processValue(value?.toString());
   }, [value]);
 
   return (
