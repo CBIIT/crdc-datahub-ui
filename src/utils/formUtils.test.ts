@@ -37,7 +37,7 @@ describe("filterForNumbers cases", () => {
   });
 });
 
-describe("validateDomain cases", () => {
+describe("validateEmail cases", () => {
   it("should prevent domain-only emails", () => {
     expect(utils.validateEmail("abc.com")).toEqual(false);
   });
@@ -46,16 +46,36 @@ describe("validateDomain cases", () => {
     expect(utils.validateEmail("test-email@example")).toEqual(false);
   });
 
+  it('should return false for invalid email', () => {
+    expect(utils.validateEmail('testexample.com')).toBe(false);
+  });
+
+  it('should return false for email with spaces', () => {
+    expect(utils.validateEmail('test example@example.com')).toBe(false);
+  });
+
+  it('should return false for email with special characters', () => {
+    expect(utils.validateEmail('test!example@example.com')).toBe(false);
+  });
+
+  it('should return false for email with multiple @ symbols', () => {
+    expect(utils.validateEmail('test@example@com')).toBe(false);
+  });
+
+  it("should allow periods", () => {
+    expect(utils.validateEmail("abc.123@example.com")).toEqual(true);
+  });
+
+  it('should return true for valid email', () => {
+    expect(utils.validateEmail('test@example.com')).toBe(true);
+  });
+
   it("should allow valid NIH emails", () => {
     expect(utils.validateEmail("abc@nih.gov")).toEqual(true);
   });
 
   it("should allow dashes", () => {
     expect(utils.validateEmail("test-email@example.com")).toEqual(true);
-  });
-
-  it("should allow periods", () => {
-    expect(utils.validateEmail("abc.123@example.com")).toEqual(true);
   });
 });
 
