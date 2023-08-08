@@ -54,5 +54,5 @@ export const filterAlphaNumeric = (input: string, extraChars = ""): string => {
   const pattern = new RegExp(`[^a-zA-Z0-9${extraChars.split("").map((char) => `\\${char}`).join("|")}]`, 'g');
 
   // We replace characters that don't match the allowed set with an empty string.
-  return input?.replace(pattern, '') || "";
+  return input?.replace(pattern, "") || "";
 };

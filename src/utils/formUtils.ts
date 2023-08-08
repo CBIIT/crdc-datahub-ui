@@ -1,3 +1,4 @@
+import { InitialQuestionnaire } from '../config/InitialValues';
 import programOptions, { NotApplicableProgram, OptionalProgram } from '../config/ProgramConfig';
 
 /**
@@ -64,11 +65,15 @@ export const mapObjectWithKey = (obj, index: number) => ({
  *   program option.
  *
  * @param {Program} program - The program object to search for.
- * @returns {ProgramOption | null} - Returns the program option if found, otherwise null.
+ * @returns {ProgramOption} - Returns the program option if found,
+ *                            otherwise returns program with initial values
  */
 export const findProgram = (program: Program): ProgramOption => {
+  const initialProgram: Program = {
+    ...InitialQuestionnaire.program
+  };
   if (!program) {
-    return null;
+    return initialProgram;
   }
   if (program.notApplicable || program.name === NotApplicableProgram.name) {
     return NotApplicableProgram;
@@ -77,7 +82,7 @@ export const findProgram = (program: Program): ProgramOption => {
   if (!newProgram && (program.name?.length || program.abbreviation?.length || program.description?.length)) {
     return OptionalProgram;
   }
-  return newProgram;
+  return newProgram || initialProgram;
 };
 
 /**

@@ -1,3 +1,4 @@
+import { InitialQuestionnaire } from "../config/InitialValues";
 import programOptions, { NotApplicableProgram, OptionalProgram } from "../config/ProgramConfig";
 import * as utils from "./formUtils";
 
@@ -98,10 +99,10 @@ describe("questionnaire findProgram cases", () => {
     expect(program).toEqual(existingProgram);
   });
 
-  it("should return null if no program is provided", () => {
+  it("should return program with initial values if no program is provided", () => {
     const program = utils.findProgram(null);
 
-    expect(program).toBeNull();
+    expect(program).toEqual(InitialQuestionnaire.program);
   });
 });
 
