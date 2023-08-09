@@ -75,6 +75,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly,
           type="email"
           value={email}
           validate={validateEmail}
+          errorText="Please provide a valid email address"
           placeholder="Enter email"
           required
           readOnly={readOnly}

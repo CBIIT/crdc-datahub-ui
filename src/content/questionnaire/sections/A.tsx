@@ -149,6 +149,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={pi?.email}
           placeholder="Enter email"
           validate={validateEmail}
+          errorText="Please provide a valid email address"
           required
           readOnly={readOnlyInputs}
         />
@@ -245,6 +246,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               name="primaryContact[email]"
               value={primaryContact?.email || ""}
               validate={validateEmail}
+              errorText="Please provide a valid email address"
               placeholder="Enter email"
               readOnly={readOnlyInputs}
               required
