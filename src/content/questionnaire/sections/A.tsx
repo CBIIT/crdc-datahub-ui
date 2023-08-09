@@ -107,7 +107,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-a-pi-first-name"
           label="First name"
           name="pi[firstName]"
-          value={pi.firstName}
+          value={pi?.firstName}
           placeholder="Enter first name"
           maxLength={50}
           required
@@ -117,7 +117,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-a-pi-last-name"
           label="Last name"
           name="pi[lastName]"
-          value={pi.lastName}
+          value={pi?.lastName}
           placeholder="Enter last name"
           maxLength={50}
           required
@@ -127,7 +127,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-a-pi-position"
           label="Position"
           name="pi[position]"
-          value={pi.position}
+          value={pi?.position}
           placeholder="Enter position"
           maxLength={100}
           required
@@ -138,7 +138,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           type="email"
           label="Email address"
           name="pi[email]"
-          value={pi.email}
+          value={pi?.email}
           placeholder="Enter email address"
           required
           readOnly={readOnlyInputs}
@@ -158,7 +158,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-a-pi-institution-address"
           label="Institution Address"
-          value={pi.address}
+          value={pi?.address}
           gridWidth={12}
           maxLength={200}
           name="pi[address]"

@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
 import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
+import { updateInputValidity } from '../../utils';
 
 /*
 *Pass in a regex pattern if you want this field to have custom validation checking
@@ -41,15 +42,15 @@ const TableTextInput: FC<Props> = ({
 
   const [val, setVal] = useState(value);
   const regex = new RegExp(pattern);
-  const inputElement = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const onChange = (newVal) => {
     if (typeof maxLength === "number" && newVal.length > maxLength) {
       newVal = newVal.slice(0, maxLength);
     }
     if (!newVal.match(regex)) {
-      inputElement.current.setCustomValidity(patternValidityMessage || "Please enter input in the correct format");
+      updateInputValidity(inputRef, patternValidityMessage || "Please enter input in the correct format");
     } else {
-      inputElement.current.setCustomValidity("");
+      updateInputValidity(inputRef);
     }
     setVal(newVal);
   };
@@ -60,7 +61,7 @@ const TableTextInput: FC<Props> = ({
 
   return (
     <Input
-      inputRef={inputElement}
+      inputRef={inputRef}
       sx={{ width: "100%" }}
       classes={{ root: classes.input }}
       id={id}

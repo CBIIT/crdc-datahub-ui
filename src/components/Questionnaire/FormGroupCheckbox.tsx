@@ -8,6 +8,7 @@ import {
 import { FC, useEffect, useId, useRef, useState } from "react";
 import Tooltip from "./Tooltip";
 import CheckboxInput from "./CheckboxInput";
+import { updateInputValidity } from '../../utils';
 
 const StyledFormLabel = styled("label")(({ theme }) => ({
   fontWeight: 700,
@@ -29,15 +30,6 @@ const StyledAsterisk = styled("span")(() => ({
 const StyledFormHelperText = styled(FormHelperText)(() => ({
   marginLeft: 0,
 }));
-
-export type FormGroupCheckboxOption = {
-  label: string;
-  value: string;
-  name?: string; // overrides parent name in checkboxes
-  tooltipText?: string;
-  errorText?: string;
-  required?: boolean;
-};
 
 type Props = {
   idPrefix?: string;
@@ -111,24 +103,27 @@ const FormGroupCheckbox: FC<Props> = ({
     const multipleChecked = val?.length > 1;
 
     if (notSelectedAndRequired) {
-      firstCheckboxInputRef?.current.setCustomValidity(
-        "Please select at least one option"
-      );
-      setError(true);
+      updateInputValidity(firstCheckboxInputRef, "Please select at least one option");
       return;
     }
 
     if (!allowMultipleChecked && multipleChecked) {
-      firstCheckboxInputRef?.current.setCustomValidity(
-        "Please select only one option"
-      );
-      setError(true);
+      updateInputValidity(firstCheckboxInputRef, "Please select only one option");
       return;
     }
 
-    firstCheckboxInputRef?.current.setCustomValidity("");
+    updateInputValidity(firstCheckboxInputRef);
     setError(false);
   }, [val]);
+
+  useEffect(() => {
+    const invalid = () => setError(true);
+
+    firstCheckboxInputRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      firstCheckboxInputRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [firstCheckboxInputRef]);
 
   return (
     <Grid md={gridWidth || 6} xs={12} item>

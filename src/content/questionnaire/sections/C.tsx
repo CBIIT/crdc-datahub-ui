@@ -1,4 +1,5 @@
 import { FC, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
 import { styled } from "@mui/material";
@@ -19,6 +20,11 @@ import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
+}));
+
+const StyledLink = styled(Link)(() => ({
+  textDecoration: "none",
+  color: "inherit"
 }));
 
 /**
@@ -70,7 +76,20 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       {/* Program Registration Section */}
       <SectionGroup
         title="Data Access"
-        description="Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH."
+        description={(
+          <>
+            Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH. Learn about this at
+            {" "}
+            <StyledLink
+              to="https://sharing.nih.gov/genomic-data-sharing-policy/institutional-certifications"
+              target="_blank"
+            >
+              https://sharing.nih.gov/
+              <wbr />
+              genomic-data-sharing-policy/institutional-certifications
+            </StyledLink>
+          </>
+        )}
       >
         <FormGroupCheckbox
           idPrefix="section-c-access-types"

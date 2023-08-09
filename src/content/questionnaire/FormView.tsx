@@ -72,7 +72,7 @@ const StyledAlert = styled(Alert)({
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
-  const { status, data, setData, submitData, approveForm, rejectForm, error } = useFormContext();
+  const { status, data, setData, submitData, approveForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
   const { status: authStatus } = useAuthContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
@@ -93,6 +93,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const errorAlertRef = useRef(null);
   const formContentRef = useRef(null);
   const lastSectionRef = useRef(null);
+  const hasReopenedFormRef = useRef(false);
+  const hasUpdatedReviewStatusRef = useRef(false);
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -104,7 +106,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   useEffect(() => {
-    if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
+    if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data) {
       navigate('/');
     }
   }, [formMode, navigate, status, authStatus]);
@@ -119,6 +121,26 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       errorAlertRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [hasError, errorAlertRef]);
+
+  useEffect(() => {
+    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
+      return;
+    }
+    if (!hasReopenedFormRef.current && data?.status === "Rejected" && userCanEdit) {
+      handleReopenForm();
+      hasReopenedFormRef.current = true;
+    }
+  }, [status, authStatus, userCanEdit, data?.status]);
+
+  useEffect(() => {
+    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
+      return;
+    }
+    if (!hasUpdatedReviewStatusRef.current && data?.status === "Submitted" && userCanReview) {
+      handleReviewForm();
+      hasUpdatedReviewStatusRef.current = true;
+    }
+  }, [status, authStatus, userCanReview, data?.status]);
 
   // Intercept React Router navigation actions with unsaved changes
   const blocker: Blocker = useBlocker(() => {
@@ -275,6 +297,59 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   /**
+   * Reopen the form when it has already been rejected
+   * and the user wants to retry submission
+   *
+   *
+   * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
+   */
+  const handleReopenForm = async (): Promise<string | boolean> => {
+    if (!userCanEdit) {
+      return false;
+    }
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref?.current || !newData) {
+      return false;
+    }
+
+    try {
+      const res = await reopenForm();
+      setHasError(false);
+      return res;
+    } catch (err) {
+      setHasError(true);
+      return false;
+    }
+  };
+
+  /**
+   * Set form to In Review when it has been submitted
+   *
+   *
+   * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
+   */
+  const handleReviewForm = async (): Promise<string | boolean> => {
+    if (!userCanReview) {
+      return false;
+    }
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref?.current || !newData) {
+      return false;
+    }
+
+    try {
+      const res = await reviewForm();
+      setHasError(false);
+      return res;
+    } catch (err) {
+      setHasError(true);
+      return false;
+    }
+  };
+
+  /**
    * Saves the form data to the database.
    *
    * NOTE:
@@ -283,7 +358,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the save was successful, false otherwise
    */
-  const saveForm = async (hideValidation = false) => {
+  const saveForm = async () => {
     if (readOnlyInputs || !userCanEdit) {
       return false;
     }
@@ -299,9 +374,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       newData.sections = InitialSections;
     }
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
-    if (!hideValidation) {
-      ref.current.reportValidity();
-    }
     const currentSection : Section = newData.sections.find((s) => s.name === activeSection);
     if (currentSection) {
       currentSection.status = newStatus;
@@ -335,7 +407,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
-    const newId = await saveForm(true);
+    const newId = await saveForm();
     const reviewSectionUrl = `/submission/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
     const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 

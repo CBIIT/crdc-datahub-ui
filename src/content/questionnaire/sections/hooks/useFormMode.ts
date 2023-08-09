@@ -20,9 +20,9 @@ const useFormMode = () => {
   const [formMode, setFormMode] = useState<FormMode>(undefined);
   const [readOnlyInputs, setReadOnlyInputs] = useState<boolean>(false);
 
-  const isStatusViewOnlyForUser = (): boolean => ["Submitted", "In Review", "Approved", "Rejected"].includes(formStatus);
+  const isStatusViewOnlyForUser = (): boolean => ["Submitted", "In Review", "Approved"].includes(formStatus);
   const isStatusViewOnlyForLead = (): boolean => ["In Progress", "Approved", "Rejected"].includes(formStatus);
-  const isStatusEdit = (): boolean => ["New", "In Progress"].includes(formStatus);
+  const isStatusEdit = (): boolean => ["New", "In Progress", "Rejected"].includes(formStatus);
   const isStatusReview = (): boolean => ["Submitted", "In Review"].includes(formStatus);
 
   const authorizedRolesForReview = ["FederalLead"];
