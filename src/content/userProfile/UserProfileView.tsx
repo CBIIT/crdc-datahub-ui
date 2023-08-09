@@ -1,13 +1,29 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import {
-  OutlinedInput,
-  OutlinedInputProps,
-} from "@mui/material";
-import { WithStyles, withStyles } from "@mui/styles";
+  IconButton,
+  TextField,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import { WithStyles, withStyles } from '@mui/styles';
 
 type Props = {
   user: User;
   classes: WithStyles<typeof styles>['classes'];
+};
+
+const handleEditKeypress = (event, getter, setter) => {
+  const validKeys = [
+    'Enter',
+    ' ',
+  ];
+
+  if (validKeys.includes(event.key)) {
+    toggleEditability(getter, setter);
+  }
+};
+
+const toggleEditability = (getter, setter) => {
+  setter(!getter);
 };
 
 /**
@@ -16,29 +32,48 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const UserProfileView: FC<Props> = ({ user, classes } : Props) => (
-  <>
-    {JSON.stringify(user)}
-    {user.IDP}
-    {user.email}
-    <OutlinedInput
-      type="text"
-      id="user-first-name"
-      size="small"
-      value={user.firstName}
-      required
-    />
-    <OutlinedInput
-      type="text"
-      id="user-last-name"
-      size="small"
-      value={user.lastName}
-      required
-    />
-    {user.role}
-    {user.userStatus}
-  </>
-);
+const UserProfileView: FC<Props> = ({ user, classes } : Props) => {
+  const [canEditFirstName, setCanEditFirstName] = useState(false);
+  const [canEditLastName, setCanEditLastName] = useState(false);
+
+  return (
+    <>
+      {JSON.stringify(user)}
+      {user.IDP}
+      {user.email}
+      <TextField
+        id="user-first-name"
+        defaultValue={user.firstName}
+        InputProps={{
+          readOnly: !canEditFirstName,
+        }}
+        size="small"
+      />
+      <IconButton
+        onClick={() => toggleEditability(canEditFirstName, setCanEditFirstName)}
+        onKeyUp={(e) => handleEditKeypress(e, canEditFirstName, setCanEditFirstName)}
+      >
+        <EditIcon />
+      </IconButton>
+      <TextField
+        id="user-last-name"
+        defaultValue={user.lastName}
+        InputProps={{
+          readOnly: !canEditLastName,
+        }}
+        size="small"
+      />
+      <IconButton
+        onClick={() => toggleEditability(canEditLastName, setCanEditLastName)}
+        onKeyUp={(e) => handleEditKeypress(e, canEditLastName, setCanEditLastName)}
+      >
+        <EditIcon />
+      </IconButton>
+      {user.role}
+      {user.userStatus}
+    </>
+  );
+};
 
 const styles = () => ({
   header: {
