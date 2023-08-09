@@ -73,6 +73,6 @@ sections: [],
     otherDataTypes: "",
     futureDataTypes: false,
   },
-  files: [],
+  files: [{ type: ``, count: null, amount: "", extension: "" }],
   submitterComment: "",
 };

@@ -85,7 +85,7 @@ const GridStyled = styled(Grid)`
   .switchYesNoContainer {
     display: flex;
     align-items: center;
-    margin-right: 32px;
+    margin-right: 72px;
     min-height: 50px;
   }
   .tooltip {
