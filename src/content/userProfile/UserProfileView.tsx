@@ -39,135 +39,74 @@ const UserProfileView: FC<Props> = ({ user, classes } : Props) => {
   return (
     <>
       {JSON.stringify(user)}
-      {user.IDP}
-      {user.email}
-      <TextField
-        id="user-first-name"
-        defaultValue={user.firstName}
-        InputProps={{
-          readOnly: !canEditFirstName,
-        }}
-        size="small"
-      />
-      <IconButton
-        onClick={() => toggleEditability(canEditFirstName, setCanEditFirstName)}
-        onKeyUp={(e) => handleEditKeypress(e, canEditFirstName, setCanEditFirstName)}
-      >
-        <EditIcon />
-      </IconButton>
-      <TextField
-        id="user-last-name"
-        defaultValue={user.lastName}
-        InputProps={{
-          readOnly: !canEditLastName,
-        }}
-        size="small"
-      />
-      <IconButton
-        onClick={() => toggleEditability(canEditLastName, setCanEditLastName)}
-        onKeyUp={(e) => handleEditKeypress(e, canEditLastName, setCanEditLastName)}
-      >
-        <EditIcon />
-      </IconButton>
-      {user.role}
-      {user.userStatus}
+      <div className={classes.userField}>
+        <span className={classes.userLabel}>Account Type</span>
+        {user.IDP.toUpperCase()}
+      </div>
+      <div className={classes.userField}>
+        <span className={classes.userLabel}>Email</span>
+        {user.email}
+      </div>
+      <div className={classes.userField}>
+        <span className={classes.userLabel}>First name</span>
+        <TextField
+          id="user-first-name"
+          defaultValue={user.firstName}
+          InputProps={{
+            readOnly: !canEditFirstName,
+          }}
+          size="small"
+        />
+        <IconButton
+          onClick={() => toggleEditability(canEditFirstName, setCanEditFirstName)}
+          onKeyUp={(e) => handleEditKeypress(e, canEditFirstName, setCanEditFirstName)}
+        >
+          <EditIcon />
+        </IconButton>
+      </div>
+      <div className={classes.userField}>
+        <span className={classes.userLabel}>Last name</span>
+        <TextField
+          id="user-last-name"
+          defaultValue={user.lastName}
+          InputProps={{
+            readOnly: !canEditLastName,
+          }}
+          size="small"
+        />
+        <IconButton
+          onClick={() => toggleEditability(canEditLastName, setCanEditLastName)}
+          onKeyUp={(e) => handleEditKeypress(e, canEditLastName, setCanEditLastName)}
+        >
+          <EditIcon />
+        </IconButton>
+      </div>
+      <div className={classes.userField}>
+        <span className={classes.userLabel}>Role</span>
+        {user.role}
+      </div>
+      <div className={classes.userField}>
+        <span className={classes.userLabel}>Account Status</span>
+        {user.userStatus}
+      </div>
+      <div className={classes.userField}>
+        <span className={classes.userLabel}>Organization</span>
+        {user.organization}
+      </div>
     </>
   );
 };
 
 const styles = () => ({
-  header: {
-    width: "100%",
-    height: "300px",
-    background: "#F2F4F8",
+  userField: {
+    margin: '0px 0px 31px 0px',
   },
-  content: {
-    width: "100%",
-    maxWidth: "980px",
-    marginLeft: '41px',
-  },
-  controls: {
-    color: "#FFFFFF",
-    marginTop: "15px !important",
-    "& button": {
-      margin: "0 6px",
-      padding: "14px 11px",
-      minWidth: "128px",
-      fontWeight: 700,
-      fontSize: '16px',
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      letterSpacing: "0.32px",
-      lineHeight: "20.14px",
-      borderRadius: "8px",
-      borderColor: "#828282",
-      background: "#949494",
-      color: "inherit",
-      textTransform: "none",
-    },
-    "& button:disabled": {
-      background: "#D9DEE4",
-    },
-    "& button:hover:not([disabled])": {
-      color: "#fff",
-      background: "#2A2A2A",
-    },
-    "& a": {
-      color: "inherit",
-      textDecoration: "none",
-    },
-    "& .MuiButton-startIcon": {
-      marginRight: "20px",
-    },
-    "& .MuiButton-endIcon": {
-      marginLeft: "20px"
-    },
-    "& .MuiSvgIcon-root": {
-      fontSize: "20px"
-    }
-  },
-  backButton: {
-    "&.MuiButton-root": {
-      display: "flex",
-      justifyContent: "flex-start"
-    }
-  },
-  nextButton: {
-    "&.MuiButton-root": {
-      display: "flex",
-      justifyContent: "flex-end"
-    }
-  },
-  saveButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#22A584"
-    }
-  },
-  approveButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#22A584"
-    }
-  },
-  rejectButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#D54309"
-    }
-  },
-  submitButton: {
-    "&.MuiButton-root": {
-      display: "flex",
-      width: "128px",
-      height: "50.593px",
-      padding: "11px",
-      justifyContent: "center",
-      alignItems: "center",
-      flexShrink: 0,
-      borderRadius: "8px",
-      border: "1px solid #828282",
-      background: "#0B7F99",
-    }
+  userLabel: {
+    color: '#356AAD',
+    fontWeight: '700',
+    lineHeight: '19.6px',
+    margin: '0px 20px 0px 0px',
+    size: '16px',
   },
 });
 
