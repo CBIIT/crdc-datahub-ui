@@ -451,7 +451,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       name={`files[${idx}][count]`}
                       type="number"
                       value={fileData.count ?? ""}
-                      placeholder="Enter file counts"
+                      placeholder="Enter file count"
                       pattern="^[1-9]\d*$"
                       patternValidityMessage="Please enter a whole number greater than 0"
                     />
