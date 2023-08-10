@@ -6,8 +6,8 @@ import { updateInputValidity } from '../../utils';
 const GridStyled = styled(Grid)<{ $containerWidth?: string; }>`
   width: ${(props) => props.$containerWidth};
   .formControl{
-    margin-top: 6px;
-    margin-bottom: 8px;
+    margin-top: 8px;
+    margin-bottom: 4px;
   }
   .css-hsm3ra-MuiFormLabel-root {
     color: rgba(0, 0, 0, 0.6) !important;
@@ -17,21 +17,21 @@ const GridStyled = styled(Grid)<{ $containerWidth?: string; }>`
     margin-left: 10px;
   }
 
-  #invisibleRadioInput{
+  #invisibleRadioInput {
     height: 0;
     border: none;
     width: 0;
   }
-  "& .MuiFormHelperText-root": {
-    color: "#083A50",
-    marginLeft: "0",
-    [theme.breakpoints.up("lg")]: {
-      whiteSpace: "nowrap",
-    },
-  },
-  "& .MuiFormHelperText-root.Mui-error": {
-    color: "#D54309 !important",
-  },
+  .MuiFormHelperText-root {
+    color: #083A50;
+    margin-left: 0;
+  }
+  .MuiFormHelperText-root.Mui-error {
+    color: #D54309 !important;
+  }
+  .displayNone {
+    display: none !important;
+  }
 `;
 
 const BpIcon = styled('span')(() => ({
@@ -167,7 +167,7 @@ const RadioYesNoInput: FC<Props> = ({
           <FormControlLabel value="true" color="#1D91AB" control={<BpRadio inputRef={radioGroupInputRef} id={id.concat("-yes-radio-button")} readOnly={readOnly} />} label="Yes" />
           <FormControlLabel value="false" color="#1D91AB" control={<BpRadio id={id.concat("-no-radio-button")} readOnly={readOnly} />} label="No" />
         </RadioGroup>
-        <FormHelperText>
+        <FormHelperText className={(!readOnly && error ? "" : "displayNone") || ""}>
           {(!readOnly && error ? "This field is required" : null) || " "}
         </FormHelperText>
       </FormControl>
