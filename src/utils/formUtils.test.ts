@@ -1,7 +1,7 @@
 import * as utils from "./formUtils";
 import programs, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../config/ProgramConfig';
 
-describe("questionnaire filterNonNumeric cases", () => {
+describe("filterNonNumeric cases", () => {
   it("should filter non-numerics", () => {
     expect(utils.filterNonNumeric("123abc")).toEqual("123");
   });
@@ -15,13 +15,69 @@ describe("questionnaire filterNonNumeric cases", () => {
   });
 });
 
-describe("questionnaire validateDomain cases", () => {
+describe("filterForNumbers cases", () => {
+  it('should return empty string when given an empty string', () => {
+    expect(utils.filterForNumbers('')).toBe('');
+  });
+
+  it('should return only numbers when given a string with numbers and other characters', () => {
+    expect(utils.filterForNumbers('abc123def456')).toBe('123456');
+  });
+
+  it('should return only numbers and dashes when given a string with numbers, dashes, and other characters', () => {
+    expect(utils.filterForNumbers('abc123-def456')).toBe('123-456');
+  });
+
+  it('should return the original string when given a string with numbers and spaces', () => {
+    expect(utils.filterForNumbers('123 456')).toBe('123 456');
+  });
+
+  it("should filter special characters", () => {
+    expect(utils.filterForNumbers("123!@#$%^&*()_+")).toEqual("123");
+  });
+
+  it("should filter newlines", () => {
+    // NOTE: This tests against the usage of \s in the regex
+    expect(utils.filterForNumbers("123\n")).toEqual("123");
+  });
+
+  it("should filter tabs", () => {
+    // NOTE: This tests against the usage of \s in the regex
+    expect(utils.filterForNumbers("123\t")).toEqual("123");
+  });
+});
+
+describe("validateEmail cases", () => {
   it("should prevent domain-only emails", () => {
     expect(utils.validateEmail("abc.com")).toEqual(false);
   });
 
   it("should prevent domains without TLDs emails", () => {
     expect(utils.validateEmail("test-email@example")).toEqual(false);
+  });
+
+  it('should return false for invalid email', () => {
+    expect(utils.validateEmail('testexample.com')).toBe(false);
+  });
+
+  it('should return false for email with spaces', () => {
+    expect(utils.validateEmail('test example@example.com')).toBe(false);
+  });
+
+  it('should return false for email with special characters', () => {
+    expect(utils.validateEmail('test!example@example.com')).toBe(false);
+  });
+
+  it('should return false for email with multiple @ symbols', () => {
+    expect(utils.validateEmail('test@example@com')).toBe(false);
+  });
+
+  it("should allow periods", () => {
+    expect(utils.validateEmail("abc.123@example.com")).toEqual(true);
+  });
+
+  it('should return true for valid email', () => {
+    expect(utils.validateEmail('test@example.com')).toBe(true);
   });
 
   it("should allow valid NIH emails", () => {
@@ -31,13 +87,9 @@ describe("questionnaire validateDomain cases", () => {
   it("should allow dashes", () => {
     expect(utils.validateEmail("test-email@example.com")).toEqual(true);
   });
-
-  it("should allow periods", () => {
-    expect(utils.validateEmail("abc.123@example.com")).toEqual(true);
-  });
 });
 
-describe("questionnaire mapObjectWithKey cases", () => {
+describe("mapObjectWithKey cases", () => {
   const object = [
     { name: "test1" },
     { name: "test2" },
@@ -58,7 +110,7 @@ describe("questionnaire mapObjectWithKey cases", () => {
   });
 });
 
-describe("questionnaire findProgram cases", () => {
+describe("findProgram cases", () => {
   it("should default to the optional program", () => {
     const program = utils.findProgram("test ABC 123 this should never exist", "test abbrev this should never exist either");
 
@@ -95,7 +147,7 @@ describe("questionnaire findProgram cases", () => {
   });
 });
 
-describe("questionnaire findStudy cases", () => {
+describe("findStudy cases", () => {
   const program = programs[0];
 
   it("should default to the optional study", () => {
