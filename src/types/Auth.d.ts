@@ -4,6 +4,7 @@ type User = {
   lastName: string;
   userStatus: 'Active' | 'Inactive' | 'Disabled';
   role: 'Admin' | 'User' | 'Curator' | 'FederalLead' | 'DC_POC';
+  organization: OrgInfo;
   IDP: 'nih' | 'login.gov';
   email: string;
   createdAt: string; // YYYY-MM-DDTHH:mm:ssZ
