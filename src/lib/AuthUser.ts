@@ -38,7 +38,7 @@ class AuthUser {
     this._IDP = userData._IDP ?? userData.IDP ?? '';
     this._lastName = userData._lastName ?? userData.lastName ?? '';
     this._role = userData._role ?? userData.role ?? '';
-    this._organization = userData._organization ?? userData.organization ?? '';
+    this._organization = userData._organization ?? userData.organization ?? {};
     this._userStatus = userData._userStatus ?? userData.userStatus ?? '';
     this._createdAt = userData._createdAt ?? userData.createdAt ?? '';
     this._updateAt = userData._updateAt ?? userData.updateAt ?? '';
