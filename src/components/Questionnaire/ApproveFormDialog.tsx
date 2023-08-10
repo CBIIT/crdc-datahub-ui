@@ -1,6 +1,6 @@
 import { LoadingButton } from "@mui/lab";
 import { Button, DialogProps, styled } from "@mui/material";
-import { FC } from "react";
+import { FC, useState } from "react";
 import Dialog from "./Dialog";
 import TextInput from "./TextInput";
 
@@ -15,12 +15,10 @@ const StyledDialog = styled(Dialog)({
 type Props = {
   title?: string;
   message?: string;
-  reviewComment?: string;
   disableActions?: boolean;
   loading?: boolean;
-  onReviewCommentChange?: (comment: string) => void;
   onCancel?: () => void;
-  onSubmit?: () => void;
+  onSubmit?: (reviewComment: string) => void;
 } & DialogProps;
 
 const ApproveFormDialog: FC<Props> = ({
@@ -28,17 +26,24 @@ const ApproveFormDialog: FC<Props> = ({
   message,
   disableActions,
   loading,
-  reviewComment,
-  onReviewCommentChange,
   onCancel,
   onSubmit,
   open,
   onClose,
   ...rest
 }) => {
+  const [reviewComment, setReviewComment] = useState("");
+
   const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const val = event?.target?.value || "";
-    onReviewCommentChange(val);
+    setReviewComment(val);
+  };
+
+  const handleOnCancel = () => {
+    if (typeof onCancel === "function") {
+      onCancel();
+    }
+    setReviewComment("");
   };
 
   return (
@@ -48,11 +53,11 @@ const ApproveFormDialog: FC<Props> = ({
       title={title || "Approve Application"}
       actions={(
         <>
-          <Button onClick={onCancel} disabled={disableActions}>
+          <Button onClick={handleOnCancel} disabled={disableActions}>
             Cancel
           </Button>
           <LoadingButton
-            onClick={onSubmit}
+            onClick={() => onSubmit(reviewComment)}
             loading={loading}
             disabled={!reviewComment || disableActions}
             autoFocus

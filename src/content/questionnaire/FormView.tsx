@@ -79,7 +79,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const [openSubmitDialog, setOpenSubmitDialog] = useState<boolean>(false);
   const [openApproveDialog, setOpenApproveDialog] = useState<boolean>(false);
   const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
-  const [reviewComment, setReviewComment] = useState<string>("");
   const [hasError, setHasError] = useState<boolean>(false);
   const { formMode, readOnlyInputs } = useFormMode();
   const [changesAlert, setChangesAlert] = useState<string>("");
@@ -221,13 +220,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     try {
       const r = await submitData();
       setOpenSubmitDialog(false);
-      setReviewComment("");
       navigate('/submissions');
       setHasError(false);
       return r;
     } catch (err) {
       setOpenSubmitDialog(false);
-      setReviewComment("");
       setHasError(true);
       return false;
     }
@@ -239,7 +236,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
    */
-  const submitApproveForm = async (): Promise<string | boolean> => {
+  const submitApproveForm = async (reviewComment): Promise<string | boolean> => {
     if (formMode !== "Review") {
       return false;
     }
@@ -252,7 +249,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     try {
       const res = await approveForm(reviewComment, true);
       setOpenApproveDialog(false);
-      setReviewComment("");
       if (res) {
         setHasError(false);
         navigate('/submissions');
@@ -260,7 +256,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       return res;
     } catch (err) {
       setOpenApproveDialog(false);
-      setReviewComment("");
       setHasError(true);
       return false;
     }
@@ -272,7 +267,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
    */
-  const submitRejectForm = async (): Promise<string | boolean> => {
+  const submitRejectForm = async (reviewComment: string): Promise<string | boolean> => {
     if (formMode !== "Review") {
       return false;
     }
@@ -290,7 +285,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       return res;
     } catch (err) {
       setOpenRejectDialog(false);
-      setReviewComment("");
       setHasError(true);
       return false;
     }
@@ -458,12 +452,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   const handleCloseApproveFormDialog = () => {
-    setReviewComment("");
     setOpenApproveDialog(false);
   };
 
   const handleCloseRejectFormDialog = () => {
-    setReviewComment("");
     setOpenRejectDialog(false);
   };
 
@@ -482,13 +474,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       return;
     }
     navigate(nextSection);
-  };
-
-  const handleReviewCommentChange = (newComment: string) => {
-    if (formMode !== "Review") {
-      return;
-    }
-    setReviewComment(newComment);
   };
 
   if (status === FormStatus.LOADING || authStatus === AuthStatus.LOADING) {
@@ -633,17 +618,13 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       />
       <ApproveFormDialog
         open={openApproveDialog}
-        reviewComment={reviewComment}
-        onReviewCommentChange={handleReviewCommentChange}
         onCancel={handleCloseApproveFormDialog}
-        onSubmit={submitApproveForm}
+        onSubmit={(reviewComment) => submitApproveForm(reviewComment)}
       />
       <RejectFormDialog
         open={openRejectDialog}
-        reviewComment={reviewComment}
-        onReviewCommentChange={handleReviewCommentChange}
         onCancel={handleCloseRejectFormDialog}
-        onSubmit={submitRejectForm}
+        onSubmit={(reviewComment) => submitRejectForm(reviewComment)}
       />
     </>
   );
