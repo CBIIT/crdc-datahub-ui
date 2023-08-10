@@ -72,6 +72,7 @@ const RejectFormDialog: FC<Props> = ({
         placeholder="500 characters allowed"
         required
         minRows={2}
+        maxRows={2}
         multiline
         sx={{ paddingY: "16px" }}
       />
