@@ -14,7 +14,7 @@ const StyledDialog = styled(Dialog)`
   }
   .buttonContainer {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
   }
   .loginDialogText {
     margin-top: 57px;
@@ -37,6 +37,8 @@ const StyledDialog = styled(Dialog)`
     margin-top: 39px;
     text-decoration: none;
     color: rgba(0, 0, 0, 0.87);
+    margin-left: 7px;
+    margin-right: 7px;
   }
   .loginDialogButton:hover {
     cursor: pointer;
@@ -80,21 +82,6 @@ const Home: FC = () => {
             >
               <strong>Close</strong>
             </div>
-            {/* <div
-              role="button"
-              tabIndex={0}
-              id="loginDialogLoginButton"
-              className="loginDialogButton"
-              onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                        setShowRedirectDialog(false);
-                    }
-                }}
-              onClick={() => setShowRedirectDialog(false)}
-            >
-              <strong>Log In</strong>
-
-            </div> */}
             <Link
               id="loginDialogLoginButton" className="loginDialogButton"
               to="/login" state={{ redirectURLOnLoginSuccess: dialogRedirectPath }}

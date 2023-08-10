@@ -41,6 +41,14 @@ export const reshapeCheckboxGroupOptions = (options: FormGroupCheckboxOption[], 
 export const filterNonNumeric = (value: string): string => value.replace(/[^0-9]/g, '');
 
 /**
+ * Filters input fields for Phone Numbers (numeric and dashes)
+ *
+ * @param {string} value The value to filter
+ * @returns {string} The filtered value
+ */
+export const filterForNumbers = (value: string): string => value?.replace(/[^0-9- ]+/g, '');
+
+/**
  * Adds a semi-stable key to the object
  *
  * NOTE:
