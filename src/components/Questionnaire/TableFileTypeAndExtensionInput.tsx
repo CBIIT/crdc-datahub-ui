@@ -54,6 +54,37 @@ const TableAutocompleteInput: FC<Props> = ({
   const [extensionVal, setExtensionVal] = useState(extensionValue);
   const fileTypeRef = useRef<HTMLInputElement>(null);
   const fileExtensionRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const invalid = (e) => {
+      if (!e.target.reportValidityInProgress) {
+        e.target.reportValidityInProgress = true;
+        e.target.reportValidity();
+        e.target.reportValidityInProgress = false;
+      }
+    };
+
+    fileTypeRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      fileTypeRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [fileTypeRef]);
+
+  useEffect(() => {
+    const invalid = (e) => {
+      if (!e.target.reportValidityInProgress) {
+        e.target.reportValidityInProgress = true;
+        e.target.reportValidity();
+        e.target.reportValidityInProgress = false;
+      }
+    };
+
+    fileExtensionRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      fileExtensionRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [fileExtensionRef]);
+
   const onTypeValChangeWrapper = (e, v, r) => {
     v = v || "";
     if (v === "") {

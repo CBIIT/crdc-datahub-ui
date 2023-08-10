@@ -9,6 +9,7 @@ type Props = {
   title?: string;
   description?: string | React.ReactNode;
   endButton?: React.ReactNode;
+  beginButton?: React.ReactNode;
 };
 
 const StyledGrid = styled(Grid)({
@@ -47,6 +48,12 @@ export const StyledDescription = styled(Typography)({
 const StyledEndAdornment = styled(Box)({
   marginLeft: "auto",
 });
+const StyledBeginAdornment = styled(Box)({
+  marginRight: "12px",
+  marginTop: "auto",
+  marginBottom: "auto",
+  paddingTop: "25px",
+});
 
 /**
  * Generic Form Input Section Group
@@ -54,7 +61,7 @@ const StyledEndAdornment = styled(Box)({
  * @param {Props} props
  * @returns {React.ReactNode}
  */
-const SectionGroup: FC<Props> = ({ title, description, children, endButton }) => (
+const SectionGroup: FC<Props> = ({ title, description, children, endButton, beginButton }) => (
   <StyledGrid container rowSpacing={0} columnSpacing={1.5}>
     <StyledHeader xs={12} item>
       <Stack direction="column" alignItems="flex-start">
@@ -63,11 +70,15 @@ const SectionGroup: FC<Props> = ({ title, description, children, endButton }) =>
             {title}
           </StyledTitle>
         )}
-        {description && (
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" width="100%">
+          {description && (
           <StyledDescription variant="body1">
             {description}
           </StyledDescription>
         )}
+          {beginButton && <StyledBeginAdornment>{beginButton}</StyledBeginAdornment>}
+        </Stack>
+
       </Stack>
     </StyledHeader>
     {children}

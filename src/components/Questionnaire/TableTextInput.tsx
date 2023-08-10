@@ -43,6 +43,20 @@ const TableTextInput: FC<Props> = ({
   const [val, setVal] = useState(value);
   const regex = new RegExp(pattern);
   const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const invalid = (e) => {
+      if (!e.target.reportValidityInProgress) {
+        e.target.reportValidityInProgress = true;
+        e.target.reportValidity();
+        e.target.reportValidityInProgress = false;
+      }
+    };
+
+    inputRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
   const onChange = (newVal) => {
     if (typeof maxLength === "number" && newVal.length > maxLength) {
       newVal = newVal.slice(0, maxLength);
