@@ -39,7 +39,7 @@
     "test": "TZ=UTC react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint . --ignore-path .gitignore",
-    "lint:fix": "lint -- --fix",
+    "lint:fix": "eslint --fix . --ignore-path .gitignore",
     "check": "tsc --noEmit"
   },
   "eslintConfig": {

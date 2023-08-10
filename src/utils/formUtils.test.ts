@@ -111,8 +111,7 @@ describe("mapObjectWithKey cases", () => {
   });
 });
 
-
-describe("questionnaire findProgram cases", () => {
+describe("findProgram cases", () => {
   // This test assumes that there is no program named "test ABC 123 this should never exist" in programOptions
   it("should default to the optional program when a non-existent program name is provided", () => {
     const programInput = { name: "test ABC 123 this should never exist" };
@@ -158,8 +157,7 @@ describe("questionnaire findProgram cases", () => {
   });
 });
 
-
-describe("questionnaire programToSelectOption cases", () => {
+describe("programToSelectOption cases", () => {
   it("should correctly format a program with abbreviation", () => {
     const program = {
       name: "Test Program",
