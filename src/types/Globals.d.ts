@@ -39,3 +39,5 @@ type FormGroupCheckboxOption = {
   errorText?: string;
   required?: boolean;
 };
+
+type SelectOption = { label: string; value: string | number };

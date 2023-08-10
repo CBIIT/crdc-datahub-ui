@@ -9,8 +9,9 @@ import {
   TextField,
   styled,
 } from "@mui/material";
-import { SyntheticEvent, useEffect, useId, useRef, useState } from "react";
+import { ReactNode, SyntheticEvent, useEffect, useId, useRef, useState } from "react";
 import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
+import Tooltip from "./Tooltip";
 import { updateInputValidity } from '../../utils';
 
 const StyledFormControl = styled(FormControl)(() => ({
@@ -136,6 +137,7 @@ type Props<T> = {
   options?: T[];
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   helpText?: string;
+  tooltipText?: string | ReactNode;
   required?: boolean;
   validate?: (input: T) => boolean;
 } & Omit<AutocompleteProps<T, false, true, true, "div">, "renderInput">;
@@ -145,6 +147,7 @@ const AutocompleteInput = <T,>({
   label,
   gridWidth,
   helpText,
+  tooltipText,
   required,
   value,
   onChange,
@@ -205,6 +208,7 @@ const AutocompleteInput = <T,>({
         <StyledFormLabel htmlFor={id}>
           {label}
           {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+          {tooltipText && <Tooltip placement="right" title={tooltipText} />}
         </StyledFormLabel>
         <StyledAutocomplete
           value={val}

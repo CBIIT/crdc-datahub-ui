@@ -35,6 +35,7 @@ sections: [],
     name: "",
     abbreviation: "",
     description: "",
+    notApplicable: false
   },
   study: {
     name: "",
@@ -43,12 +44,14 @@ sections: [],
     publications: [],
     plannedPublications: [],
     repositories: [],
-    funding: {
-      agencies: [],
-      grantNumbers: "",
-      nciProgramOfficer: "",
-      nciGPA: "",
-    },
+    funding: [
+      {
+        agency: "",
+        grantNumbers: "",
+        nciProgramOfficer: "",
+        nciGPA: "",
+      }
+    ],
     isDbGapRegistered: false,
     dbGaPPPHSNumber: "",
   },
