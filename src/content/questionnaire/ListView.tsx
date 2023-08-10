@@ -25,7 +25,7 @@ type Column = {
   default?: true;
 };
 
-const StyledButton = styled(LoadingButton)(({ theme }) => ({
+const StyledButton = styled(LoadingButton)({
   padding: "14px 20px",
   fontWeight: 700,
   fontSize: "16px",
@@ -37,13 +37,15 @@ const StyledButton = styled(LoadingButton)(({ theme }) => ({
   textTransform: "none",
   borderColor: "#26B893 !important",
   background: "#22A584 !important",
-  [theme.breakpoints.up("lg")]: {
-    marginRight: "100px",
-  },
-}));
+  marginRight: "25px",
+});
+
+const StyledBannerBody = styled(Stack)({
+  marginTop: "-20px",
+});
 
 const StyledContainer = styled(Container)({
-  marginTop: "-21px",
+  marginTop: "-62px",
 });
 
 const StyledTableContainer = styled(TableContainer)({
@@ -179,7 +181,7 @@ const ListingView: FC = () => {
     || columns.find((c) => c.field)
   );
   const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(5);
+  const [perPage, setPerPage] = useState<number>(10);
   const [creatingApplication, setCreatingApplication] = useState<boolean>(false);
 
   const { data, loading, error } = useQuery<Response>(query, {
@@ -246,10 +248,10 @@ const ListingView: FC = () => {
     <>
       <PageBanner
         title="Submission Request List"
-        pageTitle="Submission Request List"
         subTitle="Below is a list of applications that are associated with your account. Please click on any of the applications to review or continue work."
+        padding="57px 0 0 25px"
         body={(
-          <Stack direction="row" alignItems="center" justifyContent="flex-end">
+          <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}
             {user?.role === "User" && (
               <StyledButton
@@ -260,7 +262,7 @@ const ListingView: FC = () => {
                 Start a Submission Request
               </StyledButton>
             )}
-          </Stack>
+          </StyledBannerBody>
         )}
         bannerSrc={bannerSvg}
       />
@@ -335,7 +337,7 @@ const ListingView: FC = () => {
 
               {/* No content message */}
               {(!data?.listApplications?.total || data?.listApplications?.total === 0) && (
-                <TableRow style={{ height: 53 * 5 }}>
+                <TableRow style={{ height: 53 * 10 }}>
                   <TableCell colSpan={columns.length}>
                     <Typography
                       variant="h6"
@@ -351,7 +353,7 @@ const ListingView: FC = () => {
             </TableBody>
           </Table>
           <TablePagination
-            rowsPerPageOptions={[{ label: "All", value: -1 }, 5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 20, 50]}
             component="div"
             count={data?.listApplications?.total || 0}
             rowsPerPage={perPage}
