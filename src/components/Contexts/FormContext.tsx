@@ -172,8 +172,22 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     }
 
     if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
-      newState.data._id = d.saveApplication["_id"];
+      newState.data = {
+        ...newState.data,
+        _id: d.saveApplication["_id"],
+        applicant: d?.saveApplication?.applicant,
+        organization: d?.saveApplication?.organization,
+      };
     }
+
+    newState.data = {
+      ...newState.data,
+      status: d?.saveApplication?.status,
+      updatedAt: d?.saveApplication?.updatedAt,
+      createdAt: d?.saveApplication?.createdAt,
+      submittedDate: d?.saveApplication?.submittedDate,
+      history: d?.saveApplication?.history
+    };
 
     setState({ ...newState, status: Status.LOADED });
     return d?.saveApplication?.["_id"] || false;
