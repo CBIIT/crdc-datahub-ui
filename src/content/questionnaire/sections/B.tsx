@@ -146,7 +146,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setProgram({
       name: newProgram?.name || "",
       abbreviation: newProgram?.abbreviation || "",
-      description: "",
+      description: newProgram?.description || "",
       notApplicable: false
     });
   };
@@ -267,9 +267,9 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={program?.name}
           maxLength={50}
           placeholder="50 characters allowed"
-          readOnly={readOnlyProgram}
           hideValidation={readOnlyProgram}
           required
+          readOnly={readOnlyProgram}
         />
         <TextInput
           key={`program-abbreviation-${program?.abbreviation}_${programKeyRef.current}`}
@@ -280,9 +280,9 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
           maxLength={20}
           placeholder="20 characters allowed"
-          readOnly={readOnlyProgram}
           hideValidation={readOnlyProgram}
           required
+          readOnly={readOnlyProgram}
         />
         <TextInput
           key={`program-description-${program?.description}_${programKeyRef.current}`}
@@ -295,10 +295,10 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="500 characters allowed"
           minRows={2}
           maxRows={2}
-          readOnly={readOnlyProgram}
           hideValidation={readOnlyProgram}
-          required={programOption?.editable}
           multiline
+          required
+          readOnly={readOnlyProgram}
         />
         <StyledProxyCheckbox
           value={program?.notApplicable?.toString()}
@@ -307,8 +307,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="program[notApplicable]"
           type="checkbox"
           data-type="boolean"
-          readOnly={readOnlyProgram}
           checked
+          readOnly={readOnlyProgram}
         />
       </SectionGroup>
 

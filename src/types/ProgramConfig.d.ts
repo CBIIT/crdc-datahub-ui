@@ -1,4 +1,4 @@
-type ProgramOption = Omit<Program, "description"> & {
+type ProgramOption = Program & {
   editable?: boolean = false;
 };
 

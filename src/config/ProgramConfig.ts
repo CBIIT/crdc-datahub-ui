@@ -38,11 +38,13 @@ const options: ProgramOption[] = [
   {
     name: "Childhood Cancer Data Initiative",
     abbreviation: "CCDI",
+    description: "NCI’s Childhood Cancer Data Initiative (CCDI) is building a community centered around childhood cancer care and research data.",
     notApplicable: false,
   },
   {
     name: "Human Tumor Atlas Network",
     abbreviation: "HTAN",
+    description: "HTAN is a collaborative network of Research Centers and a central Data Coordinating Center are constructing 3-dimensional atlases of the cellular, morphological, and molecular features of human cancers as they evolve from precancerous lesions to advanced disease. ",
     notApplicable: false,
   },
   // NOTE: These are special program options that are used
