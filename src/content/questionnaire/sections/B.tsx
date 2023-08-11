@@ -236,6 +236,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const readOnlyProgram = readOnlyInputs || !programOption?.editable;
+  const predefinedProgram = programOption && !programOption.editable && !programOption.notApplicable;
 
   return (
     <FormContainer
@@ -264,7 +265,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-b-program-title"
           label="Program Title"
           name="program[name]"
-          value={program?.name}
+          value={predefinedProgram ? programOption?.name : program?.name}
           maxLength={50}
           placeholder="50 characters allowed"
           hideValidation={readOnlyProgram}
@@ -276,7 +277,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-b-program-abbreviation"
           label="Program Abbreviation"
           name="program[abbreviation]"
-          value={program.abbreviation}
+          value={predefinedProgram ? programOption?.abbreviation : program?.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
           maxLength={20}
           placeholder="20 characters allowed"
@@ -289,7 +290,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-b-program-description"
           label="Program Description"
           name="program[description]"
-          value={program.description}
+          value={predefinedProgram ? programOption?.description : program?.description}
           gridWidth={12}
           maxLength={500}
           placeholder="500 characters allowed"
