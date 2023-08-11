@@ -14,6 +14,7 @@ type Props = {
   pattern?: string;
   patternValidityMessage?: string;
   maxLength?: number;
+  filter?: (input: string) => string;
   classes: WithStyles<typeof styles>["classes"];
 } & InputProps;
 
@@ -35,6 +36,7 @@ const TableTextInput: FC<Props> = ({
   maxLength,
   pattern,
   readOnly,
+  filter,
   ...rest
 }) => {
   const id = useId();
@@ -58,6 +60,9 @@ const TableTextInput: FC<Props> = ({
     };
   }, [inputRef]);
   const onChange = (newVal) => {
+    if (typeof filter === "function") {
+      newVal = filter(newVal);
+    }
     if (typeof maxLength === "number" && newVal.length > maxLength) {
       newVal = newVal.slice(0, maxLength);
     }
@@ -97,7 +102,6 @@ const styles = () => ({
       fontWeight: 400,
       fontSize: "16px",
       fontFamily: "'Nunito', 'Rubik', sans-serif",
-      lineHeight: "19.6px",
       height: "20px",
       width: "100%"
     },
