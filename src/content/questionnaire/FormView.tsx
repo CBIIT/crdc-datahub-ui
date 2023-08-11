@@ -371,7 +371,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
     // Update section status
     if (newData?.sections?.length !== Object.keys(map).length - 1) { // Not including review section
-      newData.sections = InitialSections;
+      newData.sections = { ...InitialSections };
     }
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
     const currentSection : Section = newData.sections.find((s) => s.name === activeSection);
