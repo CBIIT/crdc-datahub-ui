@@ -115,10 +115,10 @@ describe('getFormMode tests based on provided requirements', () => {
       });
     });
 
-    it('should allow Submitter to edit without a role', () => {
+    it('should set Unauthorized if Submitter tries to access without a role', () => {
       user = { ...user, role: null };
 
-      expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.EDIT);
+      expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.UNAUTHORIZED);
     });
   });
 
@@ -134,12 +134,8 @@ describe('getFormMode tests based on provided requirements', () => {
       });
     });
 
-    it('should set Unauthorized mode for Fed Lead when status is New', () => {
-      expect(utils.getFormMode(user, { ...baseSubmission, status: "New" })).toBe(utils.FormModes.UNAUTHORIZED);
-    });
-
     it('should set View Only mode for Fed Lead for all other statuses', () => {
-      const statuses: ApplicationStatus[] = ['Approved', 'In Progress', 'Rejected'];
+      const statuses: ApplicationStatus[] = ['New', 'Approved', 'In Progress', 'Rejected'];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.VIEW_ONLY);
@@ -155,15 +151,6 @@ describe('getFormMode tests based on provided requirements', () => {
         statuses.forEach((status) => {
           expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.REVIEW);
         });
-      });
-    });
-
-    it('should set Unauthorized mode for Fed Lead when status is New when orgRole assigned', () => {
-      const orgRoles: OrgInfo["orgRole"][] = ['Submitter', 'Owner', "Concierge"];
-
-      orgRoles.forEach((orgRole) => {
-        user = { ...baseUser, role: "FederalLead", organization: { ...baseUser.organization, orgRole } };
-        expect(utils.getFormMode(user, { ...baseSubmission, status: "New" })).toBe(utils.FormModes.UNAUTHORIZED);
       });
     });
 
@@ -289,8 +276,8 @@ describe('getFormMode tests based on provided requirements', () => {
     describe('getFormMode > Edge Case Tests > Unknown role or no role and belongs to org tests', () => {
       const user: User = { ...baseUser, role: undefined };
 
-      it('should set Edit form if user role is unknown or not defined but has an orgRole', () => {
-        expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.EDIT);
+      it('should set Unauthorized form if user role is unknown or not defined but has an orgRole', () => {
+        expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.UNAUTHORIZED);
       });
     });
 

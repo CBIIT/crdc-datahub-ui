@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Status as AuthStatus, useAuthContext } from "../../../../components/Contexts/AuthContext";
 import { Status as FormStatus, useFormContext } from "../../../../components/Contexts/FormContext";
-import { FormMode, FormModes, getFormMode } from "../../../../utils/formModeUtils";
+import { FormMode, FormModes, getFormMode } from "../../../../utils";
 
 const useFormMode = () => {
   const { user, status: authStatus } = useAuthContext();

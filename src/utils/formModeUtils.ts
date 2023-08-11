@@ -1,5 +1,4 @@
 export type FormMode = "Unauthorized" | "Edit" | "View Only" | "Review";
-export type FormStatus = "New" | "Submitted" | "In Review" | "Approved" | "In Progress" | "Rejected";
 
 export const EditStatuses = ["New", "In Progress", "Rejected"];
 export const ReviewStatuses = ["Submitted", "In Review"];
@@ -15,8 +14,8 @@ export const FormModes = {
  * NOTE:
  *  - This is a private helper function for getFormMode
  *
- * @param {FormStatus} formStatus - Current form status.
- * @param {boolean} formBelongsToUser - True if the form belongs to the user.
+ * @param {User} user - The current user
+ * @param {Application} data - The current application/submission
  * @returns {FormMode} - Form mode corresponding to the given form status and user.
  */
 const _getFormModeForUser = (
@@ -25,7 +24,7 @@ const _getFormModeForUser = (
 ): FormMode => {
   const userOrgRoleExists = user?.organization?.orgRole?.length > 0;
   const belongsToSameOrg = user?.organization?.orgID === data?.organization?._id;
-  if ((user?.role !== "User" && !userOrgRoleExists) || (userOrgRoleExists && belongsToSameOrg && user.organization?.orgRole !== "Submitter")) {
+  if (user?.role !== "User" || (userOrgRoleExists && belongsToSameOrg && user.organization?.orgRole !== "Submitter")) {
     return FormModes.UNAUTHORIZED;
   }
 
@@ -63,16 +62,12 @@ const _getFormModeForFederalLead = (
   }
 
   const { status: formStatus } = data || {};
-  const isStatusViewOnlyForLead = ["In Progress", "Approved", "Rejected"].includes(formStatus);
 
   if (ReviewStatuses.includes(formStatus)) {
     return FormModes.REVIEW;
   }
-  if (isStatusViewOnlyForLead) {
-    return FormModes.VIEW_ONLY;
-  }
 
-  return FormModes.UNAUTHORIZED;
+  return FormModes.VIEW_ONLY;
 };
 
 /**
@@ -123,7 +118,7 @@ export const getFormMode = (
   user: User,
   data: Application,
 ): FormMode => {
-  if (!user || (!user?.role && !user?.organization?.orgRole) || !data) {
+  if (!user?.role || !data) {
     return FormModes.UNAUTHORIZED;
   }
 
