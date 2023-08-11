@@ -344,8 +344,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       const questionnaireData: QuestionnaireData = JSON.parse(getApplication?.questionnaireData || null);
 
       // Check if we need to autofill the PI details
-      const sectionA = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
-      if (!["In Progress", "Complete"].includes(sectionA?.status)) {
+      const sectionA: Section = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
+      if (!sectionA || sectionA?.status === "Not Started") {
         const { data: lastAppData } = await lastApp();
         const { getMyLastApplication } = lastAppData || {};
         const parsedLastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
