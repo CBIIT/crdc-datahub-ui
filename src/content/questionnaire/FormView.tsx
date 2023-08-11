@@ -105,10 +105,13 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   useEffect(() => {
-    if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data) {
-      navigate('/');
+    const formLoaded = status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
+    const invalidFormAuth = formMode === "Unauthorized" || authStatus === AuthStatus.ERROR || !user;
+
+    if (formLoaded && invalidFormAuth) {
+      navigate("/");
     }
-  }, [formMode, navigate, status, authStatus]);
+  }, [formMode, navigate, status, authStatus, user, data]);
 
   useEffect(() => {
     const isComplete = isAllSectionsComplete();
@@ -480,8 +483,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     return <SuspenseLoader />;
   }
 
-  if (authStatus === AuthStatus.ERROR || !user) {
-    navigate('/');
+  // hide content while being re-routed
+  if (authStatus === AuthStatus.ERROR) {
     return null;
   }
 
