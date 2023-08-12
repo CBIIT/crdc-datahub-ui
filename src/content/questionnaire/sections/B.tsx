@@ -59,6 +59,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
   const [fundings, setFundings] = useState<KeyedFunding[]>(data.study?.funding?.map(mapObjectWithKey) || []);
   const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isDbGapRegistered);
+  const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
 
   const programKeyRef = useRef(new Date().getTime());
   const formRef = useRef<HTMLFormElement>();
@@ -149,6 +150,13 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       description: newProgram?.description || "",
       notApplicable: false
     });
+  };
+
+  const handleIsDbGapRegisteredChange = (e, checked: boolean) => {
+    setIsdbGaPRegistered(checked);
+    if (!checked) {
+      setDbGaPPPHSNumber("");
+    }
   };
 
   /**
@@ -345,7 +353,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-b-study-description"
-          label="Study description"
+          label="Study Description"
           name="study[description]"
           value={study.description}
           gridWidth={12}
@@ -410,7 +418,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="study[isDbGapRegistered]"
           required
           value={isDbGapRegistered}
-          onChange={(e, checked: boolean) => setIsdbGaPRegistered(checked)}
+          onChange={handleIsDbGapRegisteredChange}
           isBoolean
           readOnly={readOnlyInputs}
         />
@@ -418,11 +426,12 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-b-if-yes-provide-dbgap-phs-number"
           label="If yes, provide dbGaP PHS number"
           name="study[dbGaPPPHSNumber]"
-          value={data.study.dbGaPPPHSNumber}
+          value={dbGaPPPHSNumber}
+          onChange={(e) => setDbGaPPPHSNumber(e.target.value || "")}
           maxLength={50}
           placeholder="50 characters allowed"
           gridWidth={12}
-          readOnly={readOnlyInputs}
+          readOnly={readOnlyInputs || !isDbGapRegistered}
           required={isDbGapRegistered}
         />
       </SectionGroup>
