@@ -81,8 +81,8 @@ const TableTextInput: FC<Props> = ({
   return (
     <Input
       inputRef={inputRef}
-      sx={{ width: "100%" }}
-      classes={{ root: classes.input }}
+      sx={{ width: "100%", display: "flex", alignItems: "center" }}
+      classes={{ input: classes.input }}
       id={id}
       size="small"
       value={val}
@@ -96,7 +96,7 @@ const TableTextInput: FC<Props> = ({
 
 const styles = () => ({
   input: {
-    "& .MuiInputBase-input": {
+    "&.MuiInputBase-input": {
       padding: "0px",
       color: "#083A50",
       fontWeight: 400,
@@ -105,12 +105,13 @@ const styles = () => ({
       height: "20px",
       width: "100%"
     },
-    "& ::placeholder": {
+    "&::placeholder": {
       color: "#929296",
       fontWeight: 400,
-      opacity: 1
+      opacity: 1,
+      height: "20px",
     },
-    "& .MuiInputBase-input:read-only": {
+    "&.MuiInputBase-input:read-only": {
       backgroundColor: "#D9DEE4",
       cursor: "not-allowed",
     },
