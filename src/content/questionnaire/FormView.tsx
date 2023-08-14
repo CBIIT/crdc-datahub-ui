@@ -73,15 +73,14 @@ const StyledAlert = styled(Alert)({
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
   const { status, data, setData, submitData, approveForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
-  const { status: authStatus } = useAuthContext();
+  const { user, status: authStatus } = useAuthContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
   const [openSubmitDialog, setOpenSubmitDialog] = useState<boolean>(false);
   const [openApproveDialog, setOpenApproveDialog] = useState<boolean>(false);
   const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
-  const [reviewComment, setReviewComment] = useState<string>("");
   const [hasError, setHasError] = useState<boolean>(false);
-  const { formMode, readOnlyInputs, userCanReview, userCanEdit } = useFormMode();
+  const { formMode, readOnlyInputs } = useFormMode();
   const [changesAlert, setChangesAlert] = useState<string>("");
   const [allSectionsComplete, setAllSectionsComplete] = useState<boolean>(false);
 
@@ -106,10 +105,13 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   useEffect(() => {
-    if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data) {
-      navigate('/');
+    const formLoaded = status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
+    const invalidFormAuth = formMode === "Unauthorized" || authStatus === AuthStatus.ERROR || !user;
+
+    if (formLoaded && invalidFormAuth) {
+      navigate("/");
     }
-  }, [formMode, navigate, status, authStatus]);
+  }, [formMode, navigate, status, authStatus, user, data]);
 
   useEffect(() => {
     const isComplete = isAllSectionsComplete();
@@ -126,21 +128,21 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
       return;
     }
-    if (!hasReopenedFormRef.current && data?.status === "Rejected" && userCanEdit) {
+    if (!hasReopenedFormRef.current && data?.status === "Rejected" && formMode === "Edit") {
       handleReopenForm();
       hasReopenedFormRef.current = true;
     }
-  }, [status, authStatus, userCanEdit, data?.status]);
+  }, [status, authStatus, formMode, data?.status]);
 
   useEffect(() => {
     if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
       return;
     }
-    if (!hasUpdatedReviewStatusRef.current && data?.status === "Submitted" && userCanReview) {
+    if (!hasUpdatedReviewStatusRef.current && data?.status === "Submitted" && formMode === "Review") {
       handleReviewForm();
       hasUpdatedReviewStatusRef.current = true;
     }
-  }, [status, authStatus, userCanReview, data?.status]);
+  }, [status, authStatus, formMode, data?.status]);
 
   // Intercept React Router navigation actions with unsaved changes
   const blocker: Blocker = useBlocker(() => {
@@ -209,7 +211,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    * @returns {Promise<boolean>} true if the submit was successful, false otherwise
    */
   const submitForm = async (): Promise<string | boolean> => {
-    if (readOnlyInputs || !userCanEdit) {
+    if (readOnlyInputs || formMode !== "Edit") {
       return false;
     }
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
@@ -221,13 +223,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     try {
       const r = await submitData();
       setOpenSubmitDialog(false);
-      setReviewComment("");
       navigate('/submissions');
       setHasError(false);
       return r;
     } catch (err) {
       setOpenSubmitDialog(false);
-      setReviewComment("");
       setHasError(true);
       return false;
     }
@@ -239,8 +239,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
    */
-  const submitApproveForm = async (): Promise<string | boolean> => {
-    if (!userCanReview) {
+  const submitApproveForm = async (reviewComment): Promise<string | boolean> => {
+    if (formMode !== "Review") {
       return false;
     }
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
@@ -252,7 +252,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     try {
       const res = await approveForm(reviewComment, true);
       setOpenApproveDialog(false);
-      setReviewComment("");
       if (res) {
         setHasError(false);
         navigate('/submissions');
@@ -260,7 +259,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       return res;
     } catch (err) {
       setOpenApproveDialog(false);
-      setReviewComment("");
       setHasError(true);
       return false;
     }
@@ -272,8 +270,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
    */
-  const submitRejectForm = async (): Promise<string | boolean> => {
-    if (!userCanReview) {
+  const submitRejectForm = async (reviewComment: string): Promise<string | boolean> => {
+    if (formMode !== "Review") {
       return false;
     }
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
@@ -290,7 +288,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       return res;
     } catch (err) {
       setOpenRejectDialog(false);
-      setReviewComment("");
       setHasError(true);
       return false;
     }
@@ -304,7 +301,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
    */
   const handleReopenForm = async (): Promise<string | boolean> => {
-    if (!userCanEdit) {
+    if (formMode !== "Edit") {
       return false;
     }
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
@@ -330,7 +327,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
    */
   const handleReviewForm = async (): Promise<string | boolean> => {
-    if (!userCanReview) {
+    if (formMode !== "Review") {
       return false;
     }
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
@@ -359,7 +356,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    * @returns {Promise<boolean>} true if the save was successful, false otherwise
    */
   const saveForm = async () => {
-    if (readOnlyInputs || !userCanEdit) {
+    if (readOnlyInputs || formMode !== "Edit") {
       return false;
     }
 
@@ -437,33 +434,31 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   const handleSubmitForm = () => {
-    if (readOnlyInputs || !userCanEdit) {
+    if (readOnlyInputs || formMode !== "Edit") {
       return;
     }
     setOpenSubmitDialog(true);
   };
 
   const handleApproveForm = () => {
-    if (!userCanReview) {
+    if (formMode !== "Review") {
       return;
     }
     setOpenApproveDialog(true);
   };
 
   const handleRejectForm = () => {
-    if (!userCanReview) {
+    if (formMode !== "Review") {
       return;
     }
     setOpenRejectDialog(true);
   };
 
   const handleCloseApproveFormDialog = () => {
-    setReviewComment("");
     setOpenApproveDialog(false);
   };
 
   const handleCloseRejectFormDialog = () => {
-    setReviewComment("");
     setOpenRejectDialog(false);
   };
 
@@ -484,24 +479,17 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     navigate(nextSection);
   };
 
-  const handleReviewCommentChange = (newComment: string) => {
-    if (!userCanReview) {
-      return;
-    }
-    setReviewComment(newComment);
-  };
-
   if (status === FormStatus.LOADING || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
   }
 
-  if (status === FormStatus.ERROR || !data) {
-    return <Navigate to="/submissions" state={{ error: error || 'Unknown error' }} />;
+  // hide content while being re-routed
+  if (authStatus === AuthStatus.ERROR) {
+    return null;
   }
 
-  if (authStatus === AuthStatus.ERROR) {
-    navigate('/');
-    return null;
+  if (status === FormStatus.ERROR || !data) {
+    return <Navigate to="/submissions" state={{ error: error || 'Unknown error' }} />;
   }
 
   return (
@@ -514,7 +502,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
       <PageBanner
         title="Submission Request Form"
-        pageTitle="Submission Request Form"
         subTitle="The following set of high-level questions are intended to provide insight to the CRDC Data Hub, related to data storage, access, secondary sharing needs and other requirements of data submitters."
         bannerSrc={bannerPng}
       />
@@ -634,17 +621,13 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
       />
       <ApproveFormDialog
         open={openApproveDialog}
-        reviewComment={reviewComment}
-        onReviewCommentChange={handleReviewCommentChange}
         onCancel={handleCloseApproveFormDialog}
-        onSubmit={submitApproveForm}
+        onSubmit={(reviewComment) => submitApproveForm(reviewComment)}
       />
       <RejectFormDialog
         open={openRejectDialog}
-        reviewComment={reviewComment}
-        onReviewCommentChange={handleReviewCommentChange}
         onCancel={handleCloseRejectFormDialog}
-        onSubmit={submitRejectForm}
+        onSubmit={(reviewComment) => submitRejectForm(reviewComment)}
       />
     </>
   );

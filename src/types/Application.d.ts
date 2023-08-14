@@ -92,8 +92,9 @@ type Contact = {
 
 type Program = {
   name: string;
-  abbreviation: string;
-  description: string;
+  abbreviation?: string;
+  description?: string;
+  notApplicable?: boolean;
 };
 
 type Study = {
@@ -103,7 +104,7 @@ type Study = {
   publications: Publication[];
   plannedPublications: PlannedPublication[];
   repositories: Repository[];
-  funding: Funding;
+  funding: Funding[];
   isDbGapRegistered: boolean;
   dbGaPPPHSNumber: string;
 };
@@ -111,7 +112,8 @@ type Study = {
 type Repository = {
   name: string;
   studyID: string;
-  submittedDate: string;
+  dataTypesSubmitted: string[];
+  otherDataTypesSubmitted: string;
 };
 
 type Publication = {
@@ -133,7 +135,7 @@ type FileInfo = {
 };
 
 type Funding = {
-  agencies: string[];
+  agency: string;
   grantNumbers: string;
   nciProgramOfficer: string;
   nciGPA: string;

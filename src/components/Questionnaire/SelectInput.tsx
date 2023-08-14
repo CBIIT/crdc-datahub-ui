@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useRef, useState } from "react";
+import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -9,6 +9,7 @@ import {
   styled,
 } from "@mui/material";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+import Tooltip from "./Tooltip";
 import { updateInputValidity } from '../../utils';
 
 const DropdownArrowsIcon = styled("div")(() => ({
@@ -128,14 +129,15 @@ const StyledSelect = styled(Select, {
 
 type Props = {
   value: string | string[];
-  options: { label: string; value: string | number }[];
-  name: string;
+  options: SelectOption[];
+  name?: string;
   label: string;
   required?: boolean;
   helpText?: string;
+  tooltipText?: string | ReactNode;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   onChange?: (value: string) => void;
-} & SelectProps;
+} & Omit<SelectProps, "onChange">;
 
 /**
  * Generates a generic select box with a label and help text
@@ -150,6 +152,7 @@ const SelectInput: FC<Props> = ({
   options,
   required = false,
   helpText,
+  tooltipText,
   gridWidth,
   onChange,
   multiple,
@@ -208,6 +211,7 @@ const SelectInput: FC<Props> = ({
         <StyledFormLabel htmlFor={id}>
           {label}
           {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+          {tooltipText && <Tooltip placement="right" title={tooltipText} />}
         </StyledFormLabel>
         <StyledSelect
           size="small"

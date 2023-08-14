@@ -1,7 +1,8 @@
+import { InitialQuestionnaire } from "../config/InitialValues";
+import programOptions, { NotApplicableProgram, OptionalProgram } from "../config/ProgramConfig";
 import * as utils from "./formUtils";
-import programs, { BlankProgram, BlankStudy, OptionalProgram, OptionalStudy } from '../config/ProgramConfig';
 
-describe("questionnaire filterNonNumeric cases", () => {
+describe("filterNonNumeric cases", () => {
   it("should filter non-numerics", () => {
     expect(utils.filterNonNumeric("123abc")).toEqual("123");
   });
@@ -15,13 +16,69 @@ describe("questionnaire filterNonNumeric cases", () => {
   });
 });
 
-describe("questionnaire validateDomain cases", () => {
+describe("filterForNumbers cases", () => {
+  it('should return empty string when given an empty string', () => {
+    expect(utils.filterForNumbers('')).toBe('');
+  });
+
+  it('should return only numbers when given a string with numbers and other characters', () => {
+    expect(utils.filterForNumbers('abc123def456')).toBe('123456');
+  });
+
+  it('should return only numbers and dashes when given a string with numbers, dashes, and other characters', () => {
+    expect(utils.filterForNumbers('abc123-def456')).toBe('123-456');
+  });
+
+  it('should return the original string when given a string with numbers and spaces', () => {
+    expect(utils.filterForNumbers('123 456')).toBe('123 456');
+  });
+
+  it("should filter special characters", () => {
+    expect(utils.filterForNumbers("123!@#$%^&*()_+")).toEqual("123");
+  });
+
+  it("should filter newlines", () => {
+    // NOTE: This tests against the usage of \s in the regex
+    expect(utils.filterForNumbers("123\n")).toEqual("123");
+  });
+
+  it("should filter tabs", () => {
+    // NOTE: This tests against the usage of \s in the regex
+    expect(utils.filterForNumbers("123\t")).toEqual("123");
+  });
+});
+
+describe("validateEmail cases", () => {
   it("should prevent domain-only emails", () => {
     expect(utils.validateEmail("abc.com")).toEqual(false);
   });
 
   it("should prevent domains without TLDs emails", () => {
     expect(utils.validateEmail("test-email@example")).toEqual(false);
+  });
+
+  it('should return false for invalid email', () => {
+    expect(utils.validateEmail('testexample.com')).toBe(false);
+  });
+
+  it('should return false for email with spaces', () => {
+    expect(utils.validateEmail('test example@example.com')).toBe(false);
+  });
+
+  it('should return false for email with special characters', () => {
+    expect(utils.validateEmail('test!example@example.com')).toBe(false);
+  });
+
+  it('should return false for email with multiple @ symbols', () => {
+    expect(utils.validateEmail('test@example@com')).toBe(false);
+  });
+
+  it("should allow periods", () => {
+    expect(utils.validateEmail("abc.123@example.com")).toEqual(true);
+  });
+
+  it('should return true for valid email', () => {
+    expect(utils.validateEmail('test@example.com')).toBe(true);
   });
 
   it("should allow valid NIH emails", () => {
@@ -31,13 +88,9 @@ describe("questionnaire validateDomain cases", () => {
   it("should allow dashes", () => {
     expect(utils.validateEmail("test-email@example.com")).toEqual(true);
   });
-
-  it("should allow periods", () => {
-    expect(utils.validateEmail("abc.123@example.com")).toEqual(true);
-  });
 });
 
-describe("questionnaire mapObjectWithKey cases", () => {
+describe("mapObjectWithKey cases", () => {
   const object = [
     { name: "test1" },
     { name: "test2" },
@@ -58,65 +111,81 @@ describe("questionnaire mapObjectWithKey cases", () => {
   });
 });
 
-describe("questionnaire findProgram cases", () => {
-  it("should default to the optional program", () => {
-    const program = utils.findProgram("test ABC 123 this should never exist", "test abbrev this should never exist either");
-
-    expect(program.name).toEqual(OptionalProgram.name);
-    expect(program.abbreviation).toEqual(OptionalProgram.abbreviation);
-    expect(program.studies).toEqual([...OptionalProgram.studies, BlankStudy, OptionalStudy]);
+describe("findProgram cases", () => {
+  // This test assumes that there is no program named "test ABC 123 this should never exist" in programOptions
+  it("should default to the optional program when a non-existent program name is provided", () => {
+    const programInput = { name: "test ABC 123 this should never exist" };
+    const program = utils.findProgram(programInput);
+    expect(program).toEqual(OptionalProgram);
   });
 
-  it("should default to the blank program if no valid name or abbreviation", () => {
-    const program = utils.findProgram("", "");
+  // This test assumes the provided program does not have a name, abbreviation, or description
+  it("should default to the optional program when the program contains name, abbreviation, and description that does not exist in programOptions", () => {
+    const programInput = { name: "this is a custom name" };
+    const program = utils.findProgram(programInput);
 
-    expect(program.name).toEqual(BlankProgram.name);
-    expect(program.abbreviation).toEqual(BlankProgram.abbreviation);
-    expect(program.studies).toEqual([...BlankProgram.studies, BlankStudy, OptionalStudy]);
+    expect(program).toEqual(OptionalProgram);
   });
 
-  it("should return the correct program", () => {
-    const program = utils.findProgram(programs[0].name, programs[0].abbreviation);
+  // This test checks the NotApplicableProgram scenario based on the findProgram function's behavior
+  it("should return NotApplicableProgram when program is marked as notApplicable", () => {
+    const programInput = { notApplicable: true, name: "DummyName" };
+    const program = utils.findProgram(programInput);
 
-    expect(program.name).toEqual(programs[0].name);
-    expect(program.abbreviation).toEqual(programs[0].abbreviation);
+    expect(program).toEqual(NotApplicableProgram);
   });
 
-  it("should put the optional study at the end of the list", () => {
-    const program = utils.findProgram(programs[0].name, programs[0].abbreviation);
+  it("should return NotApplicableProgram when program name matches NotApplicableProgram name", () => {
+    const programInput = { name: NotApplicableProgram.name };
+    const program = utils.findProgram(programInput);
 
-    expect(program.studies[program.studies.length - 1]).toEqual(OptionalStudy);
-    expect(program.studies.length).toEqual(programs[0].studies.length + 2);
+    expect(program).toEqual(NotApplicableProgram);
   });
-  it("should contain a blank study option in the list", () => {
-    const program = utils.findProgram(programs[0].name, programs[0].abbreviation);
 
-    expect(program.studies).toContain(BlankStudy);
+  it("should return the correct program option when an existing program name is provided", () => {
+    const existingProgram = programOptions[0];
+    const programInput = { name: existingProgram.name };
+    const program = utils.findProgram(programInput);
+
+    expect(program).toEqual(existingProgram);
+  });
+
+  it("should return program with initial values if no program is provided", () => {
+    const program = utils.findProgram(null);
+
+    expect(program).toEqual(InitialQuestionnaire.program);
   });
 });
 
-describe("questionnaire findStudy cases", () => {
-  const program = programs[0];
+describe("programToSelectOption cases", () => {
+  it("should correctly format a program with abbreviation", () => {
+    const program = {
+      name: "Test Program",
+      abbreviation: "TP"
+    };
+    const selectOption = utils.programToSelectOption(program);
 
-  it("should default to the optional study", () => {
-    const study = utils.findStudy("123 this 456 study shouldnt exist", "789 that abbrev study shouldnt exist", program);
-
-    expect(study.name).toEqual(OptionalStudy.name);
-    expect(study.abbreviation).toEqual(OptionalStudy.abbreviation);
+    expect(selectOption.label).toEqual("Test Program (TP)");
+    expect(selectOption.value).toEqual("Test Program");
   });
 
-  it("should default to blank study if no valid name or abbreviation", () => {
-    const study = utils.findStudy("", "", program);
+  it("should correctly format a program without abbreviation", () => {
+    const program = {
+      name: "Test Program",
+    };
 
-    expect(study.name).toEqual(BlankStudy.name);
-    expect(study.abbreviation).toEqual(BlankStudy.abbreviation);
-    expect(study.isCustom).toEqual(BlankStudy.isCustom);
+    const selectOption = utils.programToSelectOption(program);
+
+    expect(selectOption.label).toEqual("Test Program");
+    expect(selectOption.value).toEqual("Test Program");
   });
 
-  it("should return the correct study", () => {
-    const study = utils.findStudy(program.studies[0].name, program.studies[0].abbreviation, program);
+  it("should correctly format a program with empty name", () => {
+    const program = { name: "" };
 
-    expect(study.name).toEqual(program.studies[0].name);
-    expect(study.abbreviation).toEqual(program.studies[0].abbreviation);
+    const selectOption = utils.programToSelectOption(program);
+
+    expect(selectOption.label).toEqual("");
+    expect(selectOption.value).toEqual("");
   });
 });

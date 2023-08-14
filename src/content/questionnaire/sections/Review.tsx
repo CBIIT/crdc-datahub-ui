@@ -48,7 +48,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
   refs,
 }: FormSectionProps) => {
   const { data: { questionnaireData: data } } = useFormContext();
-  const { userCanReview } = useFormMode();
+  const { formMode } = useFormMode();
   const { pi, primaryContact, piAsPrimaryContact, program, study } = data;
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, nextButtonRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
@@ -68,7 +68,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
     saveFormRef.current.style.display = "none";
     nextButtonRef.current.style.display = "none";
 
-    if (userCanReview) {
+    if (formMode === "Review") {
       approveFormRef.current.style.display = "initial";
       rejectFormRef.current.style.display = "initial";
       submitFormRef.current.style.display = "none";
@@ -79,7 +79,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
     }
 
     getFormObjectRef.current = getFormObject;
-  }, [refs]);
+  }, [refs, formMode]);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -259,29 +259,29 @@ const FormSectionReview: FC<FormSectionProps> = ({
       <ReviewSection title="Submission Data types">
         <ReviewDataListing title="Data Types">
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Clinical Trial" value={data.dataTypes?.includes(DataTypes.clinicalTrial) ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Genomics" value={data.dataTypes?.includes(DataTypes.genomics) ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Imaging" value={data.dataTypes?.includes(DataTypes.imaging) ? "Yes" : "No"} />
-            {data.dataTypes?.includes(DataTypes.imaging) && data.imagingDataDeIdentified !== null && <ReviewDataListingProperty label="Imaging Data de-identified" value={data.imagingDataDeIdentified ? "Yes" : "No"} />}
+            <ReviewDataListingProperty label={DataTypes.clinicalTrial.label} value={data.dataTypes?.includes(DataTypes.clinicalTrial.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.genomics.label} value={data.dataTypes?.includes(DataTypes.genomics.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.imaging.label} value={data.dataTypes?.includes(DataTypes.imaging.name) ? "Yes" : "No"} />
+            {data.dataTypes?.includes(DataTypes.imaging.name) && data.imagingDataDeIdentified !== null && <ReviewDataListingProperty label="Imaging Data de-identified" value={data.imagingDataDeIdentified ? "Yes" : "No"} />}
             <ReviewDataListingProperty label="Other Data types" value={data.otherDataTypes} valuePlacement="bottom" />
           </Grid>
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Immunology" value={data.dataTypes?.includes(DataTypes.immunology) ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Proteomics" value={data.dataTypes?.includes(DataTypes.proteomics) ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Epidemiologic or Cohort" value={data.dataTypes?.includes(DataTypes.epidemiologicOrCohort) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.immunology.label} value={data.dataTypes?.includes(DataTypes.immunology.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.proteomics.label} value={data.dataTypes?.includes(DataTypes.proteomics.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.epidemiologicOrCohort.label} value={data.dataTypes?.includes(DataTypes.epidemiologicOrCohort.name) ? "Yes" : "No"} />
           </Grid>
         </ReviewDataListing>
 
         <ReviewDataListing title="Clinical Data">
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Demographic Data" value={data.dataTypes?.includes(DataTypes.demographicData) ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Diagnosis Data" value={data.dataTypes?.includes(DataTypes.diagnosisData) ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Treatment Data" value={data.dataTypes?.includes(DataTypes.treatmentData) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.demographicData.label} value={data.dataTypes?.includes(DataTypes.demographicData.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.diagnosisData.label} value={data.dataTypes?.includes(DataTypes.diagnosisData.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.treatmentData.label} value={data.dataTypes?.includes(DataTypes.treatmentData.name) ? "Yes" : "No"} />
           </Grid>
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Relapse/Recurrence data" value={data.dataTypes?.includes(DataTypes.relapseRecurrenceData) ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Outcome Data" value={data.dataTypes?.includes(DataTypes.outcomeData) ? "Yes" : "No"} />
-            <ReviewDataListingProperty label="Biospecimen Data" value={data.dataTypes?.includes(DataTypes.biospecimenData) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.relapseRecurrenceData.label} value={data.dataTypes?.includes(DataTypes.relapseRecurrenceData.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.outcomeData.label} value={data.dataTypes?.includes(DataTypes.outcomeData.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty label={DataTypes.biospecimenData.label} value={data.dataTypes?.includes(DataTypes.biospecimenData.name) ? "Yes" : "No"} />
           </Grid>
           <GridCondensed xs={12} item>
             <ReviewDataListingProperty label="Additional Data in future" value={data.clinicalData?.futureDataTypes ? "Yes" : "No"} />

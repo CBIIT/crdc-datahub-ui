@@ -99,12 +99,13 @@ const ProgressBar: FC<Props> = ({ section }) => {
     const reviewSection = newSections.find((s) => s.id === "review");
     const reviewUnlocked = completedSections === sectionKeys.length - 1;
     if (reviewSection) {
+      const showReviewTitle = formMode === "View Only" || formMode === "Review";
       // eslint-disable-next-line no-nested-ternary
       reviewSection.icon = ["Approved"].includes(status) && reviewUnlocked
         ? "Completed"
         : reviewUnlocked ? "Review" : "ReviewDisabled";
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
-      reviewSection.title = formMode === "Review" ? "Review" : reviewSection.title;
+      reviewSection.title = showReviewTitle ? "Review" : reviewSection.title;
     }
 
     setSections(newSections);

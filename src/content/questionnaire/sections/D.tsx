@@ -2,7 +2,7 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import styled from 'styled-components';
-import { FormHelperText, Table, TableBody, TableCell, TableHead, TableRow, styled as MuiStyled } from '@mui/material';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
@@ -23,21 +23,6 @@ export type KeyedFileTypeData = {
   key: string;
 } & FileInfo;
 
-const AdditionalDataInFutureSection = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: fit-content;
-    margin-left: 12px;
-    color: #083A50;
-    font-size: 16px;
-    font-family: Nunito;
-    font-weight: 700;
-    line-height: 19.6px;
-
-    #AdditionalDataInFutureSectionText {
-      margin-bottom: 16px;
-    }
-`;
 const TableContainer = styled.div`
     margin-left: 12px;
     margin-bottom: 24px;
@@ -129,18 +114,10 @@ const TableContainer = styled.div`
       color: #D54309;
       margin-left: 6px;
     }
-    #invisibleTableInput {
-       height: 0;
-       border: none;
-       width: 0;
+    .MuiButton-startIcon {
+      margin: 0 !important;
     }
 `;
-
-const TableHelperText = MuiStyled(FormHelperText)({
-  color: "#D54309",
-  marginLeft: "22px",
-  marginTop: "-15px",
-});
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data: { questionnaireData: data } } = useFormContext();
@@ -150,7 +127,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
-  const fileTypeDataRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -165,14 +141,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
     getFormObjectRef.current = getFormObject;
   }, [refs]);
-
-  useEffect(() => {
-    if (fileTypeData.length === 0) {
-      fileTypeDataRef.current.setCustomValidity("At least one file type is required");
-    } else {
-      fileTypeDataRef.current.setCustomValidity("");
-    }
-  }, [fileTypeDataRef]);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -201,17 +169,11 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addFileDataType = () => {
     setFileTypeData([
       ...fileTypeData,
-      { key: `${fileTypeData.length}_${new Date().getTime()}`, type: ``, count: 0, amount: "", extension: "" },
+      { key: `${fileTypeData.length}_${new Date().getTime()}`, type: ``, count: null, amount: "", extension: "" },
     ]);
-    fileTypeDataRef.current.setCustomValidity("");
   };
 
   const removeFileDataType = (key: string) => {
-    if (fileTypeData.length === 1) {
-      fileTypeDataRef.current.setCustomValidity("At least one file type is required");
-    } else {
-      fileTypeDataRef.current.setCustomValidity("");
-    }
     setFileTypeData(fileTypeData.filter((c) => c.key !== key));
   };
 
@@ -323,6 +285,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           )}
           tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
           readOnly={readOnlyInputs}
+          sx={{ paddingBottom: "8px" }}
         />
         <SwitchInput
           id="section-d-epidemiologic-or-cohort"
@@ -336,7 +299,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-d-other-data-types"
-          label="Other data types (Specify)"
+          label="Other Data Type(s)"
           name="otherDataTypes"
           value={data.otherDataTypes}
           placeholder="Other Data Types (Specify)"
@@ -395,6 +358,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={data.clinicalData.dataTypes.includes("treatmentData")}
           tooltipText="Treatment data refers to information on the action or administration of therapeutic agents to produce an effect that is intended to alter the course of a pathological process. Indicate whether treatment data is available for the study."
           readOnly={readOnlyInputs}
+          sx={{ paddingBottom: "8px" }}
         />
         <SwitchInput
           id="section-d-biospecimen-data"
@@ -407,7 +371,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-d-clinical-data-other-data-types"
-          label="Other Clinical Data Types (Specify)"
+          label="Other Clinical Data Types"
           name="clinicalData[otherDataTypes]"
           value={data.clinicalData.otherDataTypes}
           placeholder="Other clinical data types (Specify)"
@@ -415,20 +379,16 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           tooltipText="If there are any additional types of data included with the study not already specified above, describe here."
           readOnly={readOnlyInputs}
         />
-        <AdditionalDataInFutureSection>
-          <div id="AdditionalDataInFutureSectionText">
-            Inidcate if there will be additional types of data included with a future submission
-          </div>
-          <SwitchInput
-            id="section-d-additional-data-in-future"
-            label="Additional Data in future"
-            name="clinicalData[futureDataTypes]"
-            value={data.clinicalData.futureDataTypes}
-            gridWidth={10}
-            isBoolean
-            readOnly={readOnlyInputs}
-          />
-        </AdditionalDataInFutureSection>
+        <SwitchInput
+          id="section-d-additional-data-in-future"
+          label="Additional Data Types with a future submission?"
+          name="clinicalData[futureDataTypes]"
+          value={data.clinicalData.futureDataTypes}
+          gridWidth={8}
+          isBoolean
+          readOnly={readOnlyInputs}
+          tooltipText="Indicate if there will be additional types of data included with a future submission."
+        />
       </SectionGroup>
       <SectionGroup
         title="File Types"
@@ -439,7 +399,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             Indicate one file type per row. At least one file type is required.
           </>
         )}
-        endButton={(
+        beginButton={(
           <AddRemoveButton
             id="section-d-add-file-type-button"
             label="Add File Type"
@@ -456,18 +416,17 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                 <TableCell width="25%" className="fileTypeTableCell">
                   File Type
                   <span className="asterisk">*</span>
-                  <input tabIndex={-1} id="invisibleTableInput" ref={fileTypeDataRef} />
                 </TableCell>
-                <TableCell width="20%" className="fileTypeTableCell">
+                <TableCell width="24%" className="fileTypeTableCell">
                   File Extension
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="13%" className="tableTopRowMiddle">
-                  File Count
+                <TableCell width="15%" className="tableTopRowMiddle">
+                  Number of files
                   <span className="asterisk">*</span>
                 </TableCell>
                 <TableCell width="20%" className="tableTopRowMiddle">
-                  Estimated amount of data (KB, MB, GB, TB)
+                  Estimated data size
                   <span className="asterisk">*</span>
                 </TableCell>
                 <TableCell width="5%" className="topRowLast">Remove</TableCell>
@@ -491,8 +450,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       id={`section-d-file-type-${idx}-number-of-files`}
                       name={`files[${idx}][count]`}
                       type="number"
-                      value={fileData.count}
-                      placeholder="12345"
+                      value={fileData.count ?? ""}
+                      placeholder="Enter file count"
                       pattern="^[1-9]\d*$"
                       patternValidityMessage="Please enter a whole number greater than 0"
                     />
@@ -502,33 +461,31 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       id={`section-d-file-type-${idx}-amount-of-data`}
                       name={`files[${idx}][amount]`}
                       value={fileData.amount}
-                      placeholder="E.g. 200GB (50 Char Limit)"
+                      placeholder="E.g. 500 GB"
                       maxLength={50}
+                      required
                     />
                   </TableCell>
                   <TableCell className="bottomRowLast">
-                    <div className="removeButtonContainer">
-                      <AddRemoveButton
-                        id={`section-d-file-type-${idx}-remove-file-type-button`}
-                        placement="start"
-                        onClick={() => removeFileDataType(fileData.key)}
-                        startIcon={<RemoveCircleIcon />}
-                        iconColor="#F18E8E"
-                        disabled={readOnlyInputs || status === FormStatus.SAVING}
-                        sx={{ minWidth: "0px !important" }}
-                      />
-                    </div>
+                    {idx !== 0 ? (
+                      <div className="removeButtonContainer">
+                        <AddRemoveButton
+                          id={`section-d-file-type-${idx}-remove-file-type-button`}
+                          placement="start"
+                          onClick={() => removeFileDataType(fileData.key)}
+                          startIcon={<RemoveCircleIcon />}
+                          iconColor="#F18E8E"
+                          disabled={readOnlyInputs || status === FormStatus.SAVING}
+                          sx={{ minWidth: "0px !important" }}
+                        />
+                      </div>
+                    ) : null}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
-        {!fileTypeDataRef?.current?.checkValidity() && (
-          <TableHelperText>
-            At least one file type is required
-          </TableHelperText>
-        )}
       </SectionGroup>
       <SectionGroup
         title="Additional Comments"

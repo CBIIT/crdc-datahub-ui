@@ -8,6 +8,7 @@ import Tooltip from "./Tooltip";
 import { updateInputValidity } from '../../utils';
 
 const GridStyled = styled(Grid)`
+  margin-bottom: 20px;
   // Customize the root class
   .switchRoot {
     width: 65px;
@@ -76,6 +77,7 @@ const GridStyled = styled(Grid)`
     margin-right: 4px;
   }
   .labelContainer {
+    color: #083A50;
     display: flex;
     align-items: center;
     height: 20px;
@@ -83,7 +85,7 @@ const GridStyled = styled(Grid)`
   .switchYesNoContainer {
     display: flex;
     align-items: center;
-    margin-right: 32px;
+    margin-right: 72px;
     min-height: 50px;
   }
   .tooltip {
@@ -152,6 +154,7 @@ const CustomSwitch: FC<Props> = ({
   containerWidth = "auto",
   touchRequired,
   readOnly,
+  sx,
   ...rest
 }) => {
   const id = useId();
@@ -207,7 +210,7 @@ const CustomSwitch: FC<Props> = ({
   }, [inputRef]);
 
   return (
-    <GridStyled md={gridWidth || 6} xs={12} item>
+    <GridStyled md={gridWidth || 6} xs={12} item sx={sx}>
       <Container $containerWidth={containerWidth}>
         <div className="labelContainer">
           {required ? <span className="asterisk">*</span> : ""}

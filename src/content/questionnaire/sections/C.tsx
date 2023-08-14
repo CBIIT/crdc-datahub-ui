@@ -14,7 +14,7 @@ import cancerTypeOptions from "../../../config/CancerTypesConfig";
 import preCancerTypeOptions from "../../../config/PreCancerTypesConfig";
 import speciesOptions from "../../../config/SpeciesConfig";
 import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
-import { reshapeCheckboxGroupOptions, isValidInRange } from "../../../utils";
+import { reshapeCheckboxGroupOptions, isValidInRange, filterPositiveIntegerString } from "../../../utils";
 import useFormMode from "./hooks/useFormMode";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 
@@ -173,14 +173,14 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Number of subjects included in the submission"
           name="numberOfParticipants"
           placeholder="##"
-          type="number"
+          type="text"
           value={data.numberOfParticipants}
+          filter={filterPositiveIntegerString}
           validate={(input: string) => isValidInRange(input, 1)} // greater than 0
-          errorText="Value must be greater than 0. Please enter a valid number greater than 0."
+          errorText="Value must be greater than 0."
           inputProps={{
-            step: 1,
-            min: 1,
-          }}
+            "data-type": "number"
+          } as unknown}
           required
           readOnly={readOnlyInputs}
         />

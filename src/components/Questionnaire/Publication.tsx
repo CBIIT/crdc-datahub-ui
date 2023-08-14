@@ -51,8 +51,8 @@ const Publication: FC<Props> = ({
           readOnly={readOnly}
         />
         <TextInput
-          id={idPrefix.concat(`publication-${index}-pubmed-id`)}
-          label="PubMedID"
+          id={idPrefix.concat(`publication-${index}-pubmed-id-pmid`)}
+          label="PubMed ID (PMID)"
           name={`study[publications][${index}][pubmedID]`}
           value={pubmedID}
           placeholder="Enter ID"
@@ -74,7 +74,7 @@ const Publication: FC<Props> = ({
       <Grid item xs={12}>
         <AddRemoveButton
           id={idPrefix.concat(`publication-${index}-remove-publication-button`)}
-          label="Remove Publication"
+          label="Remove Existing Publication"
           placement="start"
           onClick={onDelete}
           startIcon={<RemoveCircleIcon />}
