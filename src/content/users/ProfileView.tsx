@@ -123,7 +123,7 @@ const UserProfileView: FC<Props> = ({ user, classes } : Props) => {
       </div>
       <div className={classes.userField}>
         <span className={classes.userLabel}>Organization</span>
-        {user.organization}
+        {user?.organization?.orgName}
       </div>
     </>
   );

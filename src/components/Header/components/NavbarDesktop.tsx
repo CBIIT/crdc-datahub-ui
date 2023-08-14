@@ -517,7 +517,7 @@ const NavBar = () => {
 
           <div className="dropdownList">
             <span className="dropdownItem">
-              <Link id="navbar-dropdown-item-name-user-profile" to="/userProfile" className="dropdownItem" onClick={() => setClickedTitle("")}>
+              <Link id="navbar-dropdown-item-name-user-profile" to={`/users/${authData?.user?._id}`} className="dropdownItem" onClick={() => setClickedTitle("")}>
                 User Profile
               </Link>
             </span>

@@ -28,8 +28,6 @@ class AuthUser {
 
   private _userStatus: User["userStatus"];
 
-  private _organization: User["organization"];
-
   private _createdAt: User["createdAt"];
 
   private _updateAt: User["updateAt"];
@@ -84,7 +82,7 @@ class AuthUser {
   }
 
   /**
-   * @returns {string}
+   * @returns {OrgInfo}
    */
   get organization() {
     return this._organization;
@@ -95,13 +93,6 @@ class AuthUser {
    */
   get userStatus() {
     return this._userStatus;
-  }
-
-  /**
-   * @returns {string}
-   */
-  get organization() {
-    return this._organization;
   }
 
   /** First name if IDP is NIH; otherwise, email address

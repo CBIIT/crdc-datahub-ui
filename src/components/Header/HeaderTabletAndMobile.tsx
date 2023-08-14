@@ -186,7 +186,7 @@ const Header = () => {
   navbarSublists[displayName] = [
     {
       name: 'User Profile',
-      link: '/user_profile',
+      link: `/users/${authData?.user?._id}`,
       id: 'navbar-dropdown-item-user-profile',
       className: 'navMobileSubItem',
     },
