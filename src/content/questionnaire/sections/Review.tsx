@@ -48,7 +48,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
   refs,
 }: FormSectionProps) => {
   const { data: { questionnaireData: data } } = useFormContext();
-  const { userCanReview } = useFormMode();
+  const { formMode } = useFormMode();
   const { pi, primaryContact, piAsPrimaryContact, program, study } = data;
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, nextButtonRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
@@ -68,7 +68,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
     saveFormRef.current.style.display = "none";
     nextButtonRef.current.style.display = "none";
 
-    if (userCanReview) {
+    if (formMode === "Review") {
       approveFormRef.current.style.display = "initial";
       rejectFormRef.current.style.display = "initial";
       submitFormRef.current.style.display = "none";
@@ -79,7 +79,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
     }
 
     getFormObjectRef.current = getFormObject;
-  }, [refs]);
+  }, [refs, formMode]);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
