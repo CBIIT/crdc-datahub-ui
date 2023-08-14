@@ -41,7 +41,7 @@ const validateSection = (section: string) => typeof map[section] !== 'undefined'
 
 const StyledSidebar = styled(Stack)({
   position: "sticky",
-  top: "25px",
+  top: 0,
   marginTop: "90px",
 });
 
