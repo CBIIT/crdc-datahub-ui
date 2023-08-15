@@ -142,16 +142,10 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
     return status;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- setData is not used yet
   const setData = (data: UserInput): void => {
     if (!state.isLoggedIn) return;
 
-    // NOTE: need to prefix fields with underscore in order
-    // to override cached value
-    setState((prev) => ({
-      ...prev,
-      user: { ...prev.user, ...data },
-    }));
+    setState((prev) => ({ ...prev, user: { ...prev.user, ...data } }));
   };
 
   useEffect(() => {
