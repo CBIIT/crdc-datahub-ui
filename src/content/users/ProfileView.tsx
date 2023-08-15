@@ -13,6 +13,7 @@ import profileIcon from '../../assets/icons/profile_icon.svg';
 import profileIconShadow from '../../assets/icons/profile_icon_shadow.svg';
 import { UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
+import { formatIDP } from '../../utils';
 
 type Props = {
   _id: User["_id"];
@@ -28,11 +29,8 @@ const StyledBanner = styled("div")({
 });
 
 const StyledProfileIcon = styled("div")({
-  marginTop: "-70px",
-  marginRight: "35px",
   position: "relative",
-  width: "188px",
-  height: "188px",
+  transform: "translate(-219px, -75px)",
   "& img": {
     position: "absolute",
   },
@@ -70,8 +68,7 @@ const StyledField = styled('div')({
 const StyledLabel = styled('span')({
   color: '#356AAD',
   fontWeight: '700',
-  lineHeight: '19.6px',
-  margin: '0px 20px 0px 0px',
+  marginRight: '20px',
   size: '16px',
 });
 
@@ -125,7 +122,7 @@ const StyledButton = styled(LoadingButton)(({ txt, border } : { txt: string, bor
  */
 const ProfileView: FC<Props> = ({ _id } : Props) => {
   const { user: currentUser, setData } = useAuthContext();
-  const user: User = _id === currentUser._id ? currentUser : null; // NOTE: This is prep for MVP-2
+  const user: User = _id === currentUser._id ? { ...currentUser } : null; // NOTE: This is prep for MVP-2
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
 
@@ -155,9 +152,15 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
     if (_id === currentUser._id) {
       setData(data);
     }
+
+    reset({ ...data });
   };
 
-  const onReset = () => reset();
+  const onReset = () => {
+    if (!formState.isDirty) return;
+
+    reset();
+  };
 
   if (!user) {
     // NOTE for MVP-2: This is the loading indicator when fetching user data
@@ -193,7 +196,7 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
             )}
 
             <StyledHeader>
-              <StyledHeaderText variant="h4">
+              <StyledHeaderText variant="h1">
                 {user.email}
               </StyledHeaderText>
             </StyledHeader>
@@ -201,7 +204,7 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
             <form onSubmit={handleSubmit(onSubmit)}>
               <StyledField>
                 <StyledLabel>Account Type</StyledLabel>
-                {user.IDP.toUpperCase()}
+                {formatIDP(user.IDP)}
               </StyledField>
               <StyledField>
                 <StyledLabel>Email</StyledLabel>
@@ -241,14 +244,14 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel>Organization</StyledLabel>
-                {user?.organization?.orgName ?? 'N/A'}
+                {user?.organization?.orgName}
               </StyledField>
 
               <StyledButtonStack
                 direction="row"
                 justifyContent="center"
                 alignItems="center"
-                spacing={2}
+                spacing={1}
               >
                 <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>
                 <StyledButton type="button" onClick={onReset} txt="#949494" border="#828282">Cancel</StyledButton>
