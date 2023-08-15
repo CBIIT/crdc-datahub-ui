@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Dialog, DialogTitle } from '@mui/material';
 import styled from 'styled-components';
 
@@ -115,12 +115,50 @@ const InactivityDialog = () => {
   const authData = useAuthContext();
   const { isLoggedIn } = authData;
   const [warning, setWarning] = useState(false);
-  const [timedOut, setTimedOut] = useState(true);
+  const [timedOut, setTimedOut] = useState(false);
+  const [intervalID, setIntervalID] = useState<NodeJS.Timer>(null);
   const navigate = useNavigate();
+  const thresholdTime = 300;
+
+  const [timeLeft, setTimeLeft] = useState(thresholdTime);
+
   const extendSession = () => {
     // todo: actual extend session logic
     console.log("session extended");
   };
+
+  const loadData = async () => {
+    // const AUTH_API = env.REACT_APP_AUTH_SERVICE_API;
+    try {
+      // TEMP MOCK API ENDPOINT
+      // TODO: PUT ACTUAL API ENDPOINT
+      const res = await fetch(`https://15468749-712b-41ab-8dfd-4b9908525af1.mock.pstmn.io/test`);
+      const data = await res.json();
+      const { ttl } = data;
+      console.log("ttl recieved from mock api: ", ttl);
+      if (ttl <= 0) {
+        // If user did not select any option and timed out in BE.
+        authData.logout();
+        setWarning(false);
+        setTimedOut(true);
+      } else if (ttl > 0 && ttl <= thresholdTime) {
+        setTimeLeft(ttl);
+        setWarning(true);
+      }
+    } catch (e) {
+      // Add Erro handler here.
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      // NOTE: 1000 milliseconds = 1 second, PING_INTERVAL * 1000 = PING_INTERVAL milliseconds;
+      const ID = setInterval(loadData, 5 * 1000);
+      setIntervalID(ID);
+    } else {
+      clearInterval(intervalID);
+    }
+  }, [isLoggedIn]);
 
   const handleExtendSession = () => {
     extendSession();

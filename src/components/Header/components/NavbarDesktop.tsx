@@ -367,7 +367,14 @@ const NavBar = () => {
   const displayName = authData?.user?.displayName?.toUpperCase() || "random first name no one has";
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
   clickableTitle.push(displayName);
+
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
+
+  useEffect(() => {
+    if (!authData.isLoggedIn) {
+      setClickedTitle("");
+    }
+  }, [authData]);
 
   const handleLogout = async () => {
     setClickedTitle("");
@@ -494,8 +501,8 @@ const NavBar = () => {
         <DropdownContainer>
           <div className="dropdownList">
             {
-              (clickedTitle !== "" && clickedTitle !== displayName)
-                ? navbarSublists[clickedTitle].map((dropItem, idx) => {
+              (clickedTitle !== "" && !authData.isLoggedIn && clickedTitle !== displayName)
+                ? navbarSublists[clickedTitle]?.map((dropItem, idx) => {
                   const dropkey = `drop_${idx}`;
                   return (
                     dropItem.link
