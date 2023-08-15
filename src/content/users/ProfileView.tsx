@@ -126,7 +126,7 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
 
-  const { handleSubmit, control, formState, reset } = useForm<UserInput>({
+  const { handleSubmit, control, reset } = useForm<UserInput>({
     defaultValues: {
       firstName: user?.firstName,
       lastName: user?.lastName,
@@ -139,8 +139,6 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
   });
 
   const onSubmit = async (data : UserInput) => {
-    if (!formState.isDirty) return;
-
     setSaving(true);
     const { errors } = await updateMyUser({ variables: { userInfo: data } });
     setSaving(false);
@@ -157,8 +155,6 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
   };
 
   const onReset = () => {
-    if (!formState.isDirty) return;
-
     reset();
   };
 
