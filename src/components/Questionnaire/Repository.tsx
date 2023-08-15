@@ -13,7 +13,7 @@ const GridContainer = styled(Grid)(() => ({
   padding: "18px 15px",
 }));
 
-const repositoryDataTypesOptions = [
+export const repositoryDataTypesOptions = [
   DataTypes.clinicalTrial,
   DataTypes.genomics,
   DataTypes.imaging,
