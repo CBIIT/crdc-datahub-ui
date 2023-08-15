@@ -20,5 +20,5 @@ export default () => {
   }
 
   // Viewing own profile or Admin/Org Owner viewing another user's profile
-  return <ProfileView user={user} />;
+  return <ProfileView _id={userId} />;
 };

@@ -1,42 +1,99 @@
 import React, { FC, useState } from 'react';
+import { useMutation } from '@apollo/client';
 import {
+  Alert,
   Button,
+  ButtonGroup,
+  Container,
   IconButton,
+  OutlinedInput,
+  Stack,
   TextField,
+  Typography,
+  styled,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import { WithStyles, withStyles } from '@mui/styles';
-import bannerSvg from '../../assets/banner/list_banner.svg';
-import PageBanner from '../../components/PageBanner';
-import { query as UPDATE_USER, Response as UpdateMyUserResp } from '../../graphql/updateMyUser';
+import { Controller, useForm } from 'react-hook-form';
+import bannerSvg from '../../assets/banner/profile_banner.svg';
+import profileIcon from '../../assets/icons/profile_icon.svg';
+import { UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
+import { useAuthContext } from '../../components/Contexts/AuthContext';
+import SuspenseLoader from '../../components/SuspenseLoader';
 
 type Props = {
-  user: User;
-  classes: WithStyles<typeof styles>['classes'];
+  _id: User["_id"];
 };
 
-const handleCancel = (setEditability) => {
-  setEditability(false);
-};
+const StyledBanner = styled("div")({
+  background: `url(${bannerSvg})`,
+  backgroundBlendMode: "luminosity, normal",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  width: "100%",
+  height: "146px",
+});
 
-const handleEditKeypress = (event, getter, setter, ref) => {
-  const validKeys = [
-    'Enter',
-    ' ',
-  ];
+const StyledProfileIcon = styled("img")({
+  marginTop: "-70px",
+  marginRight: "35px",
+  borderRadius: "50%",
+});
 
-  if (validKeys.includes(event.key)) {
-    toggleEditability(getter, setter, ref);
-  }
-};
+const StyledHeader = styled("div")({
+  textAlign: "left",
+  width: "100%",
+  marginTop: "30px",
+  marginBottom: "50px",
+});
 
-const toggleEditability = (getter, setter, ref) => {
-  setter(!getter);
+const StyledHeaderText = styled(Typography)({
+  fontSize: "26px",
+  lineHeight: "35px",
+  color: "#083A50",
+  fontWeight: 700
+});
 
-  if (!getter) {
-    ref.current.focus();
-  }
-};
+const StyledField = styled('div')({
+  margin: '0px 0px 20px 0px',
+});
+
+const StyledLabel = styled('span')({
+  color: '#356AAD',
+  fontWeight: '700',
+  lineHeight: '19.6px',
+  margin: '0px 20px 0px 0px',
+  size: '16px',
+});
+
+const StyledIconBtn = styled(IconButton)({
+  color: "#119472",
+});
+
+const StyledTextField = styled(OutlinedInput)({
+  width: "363px",
+  borderRadius: "8px",
+  backgroundColor: "#fff",
+  color: "#083A50",
+  "& .MuiInputBase-input": {
+    fontWeight: 400,
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    padding: "10px",
+    height: "20px",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#6B7294",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    border: "1px solid #209D7D",
+    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+  },
+  "& ::placeholder": {
+    color: "#929296",
+    fontWeight: 400,
+    opacity: 1
+  },
+});
 
 /**
  * User Profile View Component
@@ -44,110 +101,131 @@ const toggleEditability = (getter, setter, ref) => {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const UserProfileView: FC<Props> = ({ user, classes } : Props) => {
-  const [canEditFirstName, setCanEditFirstName] = useState(false);
-  const [canEditLastName, setCanEditLastName] = useState(false);
-  const firstNameRef = React.createRef<HTMLInputElement>();
-  const lastNameRef = React.createRef<HTMLInputElement>();
+const ProfileView: FC<Props> = ({ _id } : Props) => {
+  const { user: currentUser, setData } = useAuthContext();
+  const user: User = _id === currentUser._id ? currentUser : null; // NOTE: This is prep for MVP-2
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSave = () => {
-    const newFirstName = firstNameRef.current.value;
-    const newLastName = lastNameRef.current.value;
+  const { handleSubmit, control, reset } = useForm<UserInput>({
+    defaultValues: {
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+    },
+  });
+
+  const [updateMyUser] = useMutation<UpdateMyUserResp, { userInfo: UserInput }>(UPDATE_MY_USER, {
+    context: { clientName: 'userService' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const onSubmit = async (data : UserInput) => {
+    const { errors } = await updateMyUser({ variables: { userInfo: data } });
+
+    if (errors) {
+      setError("Unable to save profile changes");
+      return;
+    }
+
+    if (_id === currentUser._id) {
+      setData(data);
+    }
   };
+
+  const onReset = () => reset();
+
+  if (!user) {
+    return <SuspenseLoader />;
+  }
 
   return (
     <>
-      <div className={classes.userField}>
-        <span className={classes.userLabel}>Account Type</span>
-        {user.IDP.toUpperCase()}
-      </div>
-      <div className={classes.userField}>
-        <span className={classes.userLabel}>Email</span>
-        {user.email}
-      </div>
-      <div className={classes.userField}>
-        <span className={classes.userLabel}>First name</span>
-        <TextField
-          id="user-first-name"
-          defaultValue={user.firstName}
-          InputProps={{
-            readOnly: !canEditFirstName,
-          }}
-          inputRef={firstNameRef}
-          size="small"
-        />
-        <IconButton
-          onClick={() => toggleEditability(canEditFirstName, setCanEditFirstName, firstNameRef)}
-          onKeyUp={(e) => handleEditKeypress(e, canEditFirstName, setCanEditFirstName, firstNameRef)}
+      <StyledBanner />
+      <Container maxWidth="lg">
+        <Stack
+          direction="row"
+          justifyContent="center"
+          alignItems="flex-start"
+          spacing={2}
         >
-          <EditIcon />
-        </IconButton>
-        <Button className={classes.userAction} onClick={() => handleSave()} variant="outlined">
-          Save
-        </Button>
-        <Button className={classes.userAction} onClick={() => handleCancel(setCanEditFirstName)} variant="outlined">
-          Cancel
-        </Button>
-      </div>
-      <div className={classes.userField}>
-        <span className={classes.userLabel}>Last name</span>
-        <TextField
-          id="user-last-name"
-          defaultValue={user.lastName}
-          InputProps={{
-            readOnly: !canEditLastName,
-          }}
-          inputRef={lastNameRef}
-          size="small"
-        />
-        <IconButton
-          onClick={() => toggleEditability(canEditLastName, setCanEditLastName, lastNameRef)}
-          onKeyUp={(e) => handleEditKeypress(e, canEditLastName, setCanEditLastName, lastNameRef)}
-        >
-          <EditIcon />
-        </IconButton>
-        <Button className={classes.userAction} onClick={() => handleSave()} variant="outlined">
-          Save
-        </Button>
-        <Button className={classes.userAction} onClick={() => handleCancel(setCanEditFirstName)} variant="outlined">
-          Cancel
-        </Button>
-      </div>
-      <div className={classes.userField}>
-        <span className={classes.userLabel}>Role</span>
-        {user.role}
-      </div>
-      <div className={classes.userField}>
-        <span className={classes.userLabel}>Account Status</span>
-        {user.userStatus}
-      </div>
-      <div className={classes.userField}>
-        <span className={classes.userLabel}>Organization</span>
-        {user?.organization?.orgName}
-      </div>
+          {/* TODO: Drop shadow missing */}
+          <StyledProfileIcon src={profileIcon} alt="profile icon" />
+
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            spacing={2}
+          >
+            {error && (
+              <Alert sx={{ m: 2, p: 2, width: "100%" }} severity="error">
+                {error || "An error occurred while loading the data."}
+              </Alert>
+            )}
+            <StyledHeader>
+              <StyledHeaderText variant="h4">
+                {user.email}
+              </StyledHeaderText>
+            </StyledHeader>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <StyledField>
+                <StyledLabel>Account Type</StyledLabel>
+                {user.IDP.toUpperCase()}
+              </StyledField>
+              <StyledField>
+                <StyledLabel>Email</StyledLabel>
+                {user.email}
+              </StyledField>
+              <StyledField>
+                <StyledLabel>First name</StyledLabel>
+                <Controller
+                  name="firstName"
+                  control={control}
+                  render={({ field }) => <StyledTextField {...field} size="small" />}
+                />
+                <StyledIconBtn>
+                  <EditIcon />
+                </StyledIconBtn>
+              </StyledField>
+              <StyledField>
+                <StyledLabel>Last name</StyledLabel>
+                <Controller
+                  name="lastName"
+                  control={control}
+                  render={({ field }) => <StyledTextField {...field} size="small" />}
+                />
+                <StyledIconBtn>
+                  <EditIcon />
+                </StyledIconBtn>
+              </StyledField>
+              <StyledField>
+                <StyledLabel>Role</StyledLabel>
+                {user?.organization?.orgRole ?? user?.role}
+              </StyledField>
+              <StyledField>
+                <StyledLabel>Account Status</StyledLabel>
+                {user.userStatus}
+              </StyledField>
+              <StyledField>
+                <StyledLabel>Organization</StyledLabel>
+                {user?.organization?.orgName ?? 'N/A'}
+              </StyledField>
+
+              {/* TODO: centered in form */}
+              <Stack
+                direction="row"
+                justifyContent="center"
+                alignItems="center"
+                spacing={2}
+              >
+                <Button type="submit">Save</Button>
+                <Button type="button" onClick={onReset}>Cancel</Button>
+              </Stack>
+            </form>
+          </Stack>
+        </Stack>
+      </Container>
     </>
   );
 };
 
-const styles = () => ({
-  banner: {
-    height: '146px',
-  },
-  userAction: {
-    height: '51px',
-    margin: '0px 10px',
-    width: '101px',
-  },
-  userField: {
-    margin: '0px 0px 31px 0px',
-  },
-  userLabel: {
-    color: '#356AAD',
-    fontWeight: '700',
-    lineHeight: '19.6px',
-    margin: '0px 20px 0px 0px',
-    size: '16px',
-  },
-});
-
-export default withStyles(styles)(UserProfileView);
+export default ProfileView;

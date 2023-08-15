@@ -171,7 +171,7 @@ const Header = () => {
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
 
   const authData = useAuthContext();
-  const displayName = authData?.user?.displayName || "random first name no one has";
+  const displayName = authData?.user?.displayName || "N/A";
   const navigate = useNavigate();
 
   const handleLogout = async () => {

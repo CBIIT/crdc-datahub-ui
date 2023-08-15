@@ -51,8 +51,8 @@ const NavContainer = styled.div`
     justify-content: space-between;
     align-items: end;
 
-    #navbar-dropdown-name-container { 
-      margin: 0; 
+    #navbar-dropdown-name-container {
+      margin: 0;
     }
 `;
 
@@ -364,7 +364,7 @@ const NavBar = () => {
   const clickableTitle = clickableObject.map((item) => item.name);
   const navigate = useNavigate();
   const authData = useAuthContext();
-  const displayName = authData?.user?.displayName?.toUpperCase() || "random first name no one has";
+  const displayName = authData?.user?.displayName?.toUpperCase() || "N/A";
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
   clickableTitle.push(displayName);
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);

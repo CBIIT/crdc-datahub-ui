@@ -21,3 +21,6 @@ export type { Response as LastAppResp } from './getMyLastApplication';
 
 export { query as GET_APP } from './getApplication';
 export type { Response as GetAppResp } from './getApplication';
+
+export { mutation as UPDATE_MY_USER } from './updateMyUser';
+export type { Response as UpdateMyUserResp } from './updateMyUser';

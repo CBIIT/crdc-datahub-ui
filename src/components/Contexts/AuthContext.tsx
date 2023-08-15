@@ -61,7 +61,7 @@ export type ContextState = {
   user: AuthUser;
   error?: string;
   logout?: () => Promise<boolean>;
-  setData?: (data: UserInput) => Promise<boolean>;
+  setData?: (data: UserInput) => void;
 };
 
 export enum Status {
@@ -144,12 +144,19 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- setData is not used yet
-  const setData = async (data: UserInput): Promise<boolean> => {
-    if (!state.isLoggedIn) return false;
+  const setData = (data: UserInput): void => {
+    if (!state.isLoggedIn) return;
 
-    // TODO: Implement updateMyUser mutation
-
-    return false;
+    // NOTE: need to prefix fields with underscore in order
+    // to override cached value
+    setState((prev) => ({
+      ...prev,
+      user: new AuthUser({
+        ...prev.user,
+        _firstName: data.firstName,
+        _lastName: data.lastName,
+      })
+    }));
   };
 
   useEffect(() => {
