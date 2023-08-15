@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import { useLazyQuery } from '@apollo/client';
 import { query as GET_USER, Response as GetUserResp } from '../../graphql/getMyUser';
-import AuthUser from '../../lib/AuthUser';
 import env from '../../env';
 
 const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
@@ -58,7 +57,7 @@ const userLogin = async (authCode: string): Promise<boolean> => {
 export type ContextState = {
   status: Status;
   isLoggedIn: boolean;
-  user: AuthUser;
+  user: User;
   error?: string;
   logout?: () => Promise<boolean>;
   setData?: (data: UserInput) => void;
@@ -123,7 +122,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
   const cachedState = cachedUser ? {
     isLoggedIn: true,
     status: Status.LOADED,
-    user: new AuthUser(cachedUser)
+    user: cachedUser,
   } : null;
   const [state, setState] = useState<ContextState>(cachedState || initialState);
 
@@ -151,11 +150,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
     // to override cached value
     setState((prev) => ({
       ...prev,
-      user: new AuthUser({
-        ...prev.user,
-        _firstName: data.firstName,
-        _lastName: data.lastName,
-      })
+      user: { ...prev.user, ...data },
     }));
   };
 
@@ -169,7 +164,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
           return;
         }
 
-        setState({ ...state, isLoggedIn: true, status: Status.LOADED, user: new AuthUser(data?.getMyUser) });
+        setState({ ...state, isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
         return;
       }
 
@@ -184,7 +179,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
         }
 
         window.history.replaceState({}, document.title, window.location.pathname);
-        setState({ isLoggedIn: true, status: Status.LOADED, user: new AuthUser(data?.getMyUser) });
+        setState({ isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
         const stateParam = searchParams.get('state');
         if (stateParam !== null) {
           window.location.href = stateParam;

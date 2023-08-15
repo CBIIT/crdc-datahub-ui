@@ -364,7 +364,7 @@ const NavBar = () => {
   const clickableTitle = clickableObject.map((item) => item.name);
   const navigate = useNavigate();
   const authData = useAuthContext();
-  const displayName = authData?.user?.displayName?.toUpperCase() || "N/A";
+  const displayName = authData?.user?.firstName?.toUpperCase() || "N/A";
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
   clickableTitle.push(displayName);
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
