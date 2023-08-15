@@ -199,7 +199,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
     }
 
     localStorage.removeItem('userDetails');
-  }, [state.user]);
+  }, [state.isLoggedIn, state.user]);
 
   const value = useMemo(() => ({ ...state, logout, setData }), [state]);
 

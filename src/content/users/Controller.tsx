@@ -11,7 +11,7 @@ import ProfileView from "./ProfileView";
  */
 export default () => {
   const { userId } = useParams();
-  const { user, user: { _id, role, organization } } = useAuthContext();
+  const { user: { _id, role, organization } } = useAuthContext();
   const isAdministrative = role === "Admin" || organization?.orgRole === "Owner";
 
   // Non-admin users can only view their own profile, redirect to it

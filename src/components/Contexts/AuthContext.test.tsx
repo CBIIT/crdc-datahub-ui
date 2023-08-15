@@ -148,7 +148,7 @@ describe("AuthContext > AuthProvider Tests", () => {
     await waitFor(() => expect(screen.getByTestId("first-name").textContent).toEqual("The API updated my first name"));
 
     const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
-    expect(cachedUser._firstName).toEqual("The API updated my first name");
+    expect(cachedUser.firstName).toEqual("The API updated my first name");
   });
 
   it("should logout the user if the AuthZ API call fails", async () => {

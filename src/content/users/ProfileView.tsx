@@ -1,16 +1,18 @@
 import { FC, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import {
-  Alert, Button, Container, IconButton,
+  Alert, Container, IconButton,
   OutlinedInput, Stack, Typography, styled,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import EditIcon from '@mui/icons-material/Edit';
 import { Controller, useForm } from 'react-hook-form';
 import bannerSvg from '../../assets/banner/profile_banner.svg';
 import profileIcon from '../../assets/icons/profile_icon.svg';
+import profileIconShadow from '../../assets/icons/profile_icon_shadow.svg';
 import { UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
-import SuspenseLoader from '../../components/SuspenseLoader';
 
 type Props = {
   _id: User["_id"];
@@ -25,17 +27,29 @@ const StyledBanner = styled("div")({
   height: "146px",
 });
 
-const StyledProfileIcon = styled("img")({
+const StyledProfileIcon = styled("div")({
   marginTop: "-70px",
   marginRight: "35px",
-  borderRadius: "50%",
+  position: "relative",
+  width: "188px",
+  height: "188px",
+  "& img": {
+    position: "absolute",
+  },
+  "& img:nth-of-type(1)": {
+    zIndex: 2,
+  },
+  "& img:nth-of-type(2)": {
+    zIndex: 1,
+    transform: "translate(11px, 8px)",
+  }
 });
 
 const StyledHeader = styled("div")({
   textAlign: "left",
   width: "100%",
   marginTop: "30px",
-  marginBottom: "50px",
+  marginBottom: "34px",
 });
 
 const StyledHeaderText = styled(Typography)({
@@ -46,7 +60,11 @@ const StyledHeaderText = styled(Typography)({
 });
 
 const StyledField = styled('div')({
-  margin: '0px 0px 20px 0px',
+  marginBottom: '10px',
+  minHeight: '41px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-start',
 });
 
 const StyledLabel = styled('span')({
@@ -59,6 +77,7 @@ const StyledLabel = styled('span')({
 
 const StyledIconBtn = styled(IconButton)({
   color: "#119472",
+  cursor: "inherit",
 });
 
 const StyledTextField = styled(OutlinedInput)({
@@ -80,12 +99,23 @@ const StyledTextField = styled(OutlinedInput)({
     border: "1px solid #209D7D",
     boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
-  "& ::placeholder": {
-    color: "#929296",
-    fontWeight: 400,
-    opacity: 1
-  },
 });
+
+const StyledButtonStack = styled(Stack)({
+  margin: "50px 0",
+});
+
+const StyledButton = styled(LoadingButton)(({ txt, border } : { txt: string, border: string }) => ({
+  borderRadius: "8px",
+  border: `2px solid ${border}`,
+  color: `${txt} !important`,
+  width: "101px",
+  height: "51px",
+  textTransform: "none",
+  fontWeight: 700,
+  fontSize: "17px",
+  padding: "6px 8px",
+}));
 
 /**
  * User Profile View Component
@@ -97,8 +127,9 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
   const { user: currentUser, setData } = useAuthContext();
   const user: User = _id === currentUser._id ? currentUser : null; // NOTE: This is prep for MVP-2
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState<boolean>(false);
 
-  const { handleSubmit, control, reset } = useForm<UserInput>({
+  const { handleSubmit, control, formState, reset } = useForm<UserInput>({
     defaultValues: {
       firstName: user?.firstName,
       lastName: user?.lastName,
@@ -111,13 +142,16 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
   });
 
   const onSubmit = async (data : UserInput) => {
+    if (!formState.isDirty) return;
+
+    setSaving(true);
     const { errors } = await updateMyUser({ variables: { userInfo: data } });
+    setSaving(false);
 
     if (errors) {
       setError("Unable to save profile changes");
       return;
     }
-
     if (_id === currentUser._id) {
       setData(data);
     }
@@ -126,7 +160,9 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
   const onReset = () => reset();
 
   if (!user) {
-    return <SuspenseLoader />;
+    // NOTE for MVP-2: This is the loading indicator when fetching user data
+    // Disabled because it will load forever if currentUser._id is not _id ATM
+    return <Navigate to={`/users/${currentUser?._id}`} />;
   }
 
   return (
@@ -139,8 +175,10 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
           alignItems="flex-start"
           spacing={2}
         >
-          {/* TODO: Drop shadow missing */}
-          <StyledProfileIcon src={profileIcon} alt="profile icon" />
+          <StyledProfileIcon>
+            <img src={profileIcon} alt="profile icon" />
+            <img src={profileIconShadow} alt="profile icon shadow" />
+          </StyledProfileIcon>
 
           <Stack
             direction="column"
@@ -150,14 +188,16 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
           >
             {error && (
               <Alert sx={{ m: 2, p: 2, width: "100%" }} severity="error">
-                {error || "An error occurred while loading the data."}
+                {error || "An unknown API error occurred."}
               </Alert>
             )}
+
             <StyledHeader>
               <StyledHeaderText variant="h4">
                 {user.email}
               </StyledHeaderText>
             </StyledHeader>
+
             <form onSubmit={handleSubmit(onSubmit)}>
               <StyledField>
                 <StyledLabel>Account Type</StyledLabel>
@@ -172,9 +212,10 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
                 <Controller
                   name="firstName"
                   control={control}
-                  render={({ field }) => <StyledTextField {...field} size="small" />}
+                  rules={{ required: true }}
+                  render={({ field }) => <StyledTextField {...field} size="small" required />}
                 />
-                <StyledIconBtn>
+                <StyledIconBtn disableRipple>
                   <EditIcon />
                 </StyledIconBtn>
               </StyledField>
@@ -183,9 +224,10 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
                 <Controller
                   name="lastName"
                   control={control}
-                  render={({ field }) => <StyledTextField {...field} size="small" />}
+                  rules={{ required: true }}
+                  render={({ field }) => <StyledTextField {...field} size="small" required />}
                 />
-                <StyledIconBtn>
+                <StyledIconBtn disableRipple>
                   <EditIcon />
                 </StyledIconBtn>
               </StyledField>
@@ -202,16 +244,15 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
                 {user?.organization?.orgName ?? 'N/A'}
               </StyledField>
 
-              {/* TODO: centered in form */}
-              <Stack
+              <StyledButtonStack
                 direction="row"
                 justifyContent="center"
                 alignItems="center"
                 spacing={2}
               >
-                <Button type="submit">Save</Button>
-                <Button type="button" onClick={onReset}>Cancel</Button>
-              </Stack>
+                <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>
+                <StyledButton type="button" onClick={onReset} txt="#949494" border="#828282">Cancel</StyledButton>
+              </StyledButtonStack>
             </form>
           </Stack>
         </Stack>
