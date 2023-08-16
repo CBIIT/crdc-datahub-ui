@@ -19,15 +19,15 @@ const sectionMetadata = {
     sections: {
       PRINCIPAL_INVESTIGATOR: {
         title: "PRINCIPAL INVESTIGATOR",
-        description: "Provide the Principal Investigator contact information for the study or collection",
+        description: "Provide the Principal Investigator contact information for the study or collection.",
       },
       PRIMARY_CONTACT: {
         title: "PRIMARY CONTACT",
-        description: "Provide the contact information for the primary contact who will be assisting with data submission, if different from PI",
+        description: "Provide the contact information for the primary contact who will be assisting with data submission, if different from PI.",
       },
       ADDITIONAL_CONTACTS: {
         title: "ADDITIONAL CONTACTS",
-        description: "If there are additional points of contact (e.g., scientific and/or technical data coordinator), enter the contact details for each. If there is more than one, you may add additional rows for the details for each contact",
+        description: "If there are additional points of contact (e.g., scientific and/or technical data coordinator), enter the contact details for each. If there is more than one, you may add additional rows for the details for each contact.",
       },
     },
   },
@@ -104,7 +104,7 @@ const sectionMetadata = {
       },
       DATA_TYPES: {
         title: "DATA TYPES",
-        description: "Indicate the major types of data included in this submission. For each type listed, select Yes or No. Describe any additional major types of data in Other (specify)",
+        description: "Indicate the major types of data included in this submission. For each type listed, select Yes or No. Describe any additional major types of data in Other (specify).",
       },
       CLINICAL_DATA_TYPES: {
         title: "CLINICAL DATA TYPES",
