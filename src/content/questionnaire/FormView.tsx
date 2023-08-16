@@ -9,6 +9,7 @@ import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
+import { cloneDeep } from '@apollo/client/utilities';
 import { Status as FormStatus, useFormContext } from '../../components/Contexts/FormContext';
 import SuspenseLoader from '../../components/SuspenseLoader';
 import StatusBar from '../../components/StatusBar/StatusBar';
@@ -368,7 +369,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
     // Update section status
     if (newData?.sections?.length !== Object.keys(map).length - 1) { // Not including review section
-      newData.sections = { ...InitialSections };
+      newData.sections = cloneDeep(InitialSections);
     }
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
     const currentSection : Section = newData.sections.find((s) => s.name === activeSection);

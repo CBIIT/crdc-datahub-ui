@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import {
   Avatar,
   Button,
@@ -209,7 +209,7 @@ const HistorySection: FC = () => {
     data: { status, updatedAt, history },
   } = useFormContext();
   const [open, setOpen] = useState<boolean>(false);
-  const [sortedHistory] = useState<HistoryEvent[]>(SortHistory(history));
+  const sortedHistory = useMemo(() => SortHistory(history), [history]);
 
   return (
     <>
