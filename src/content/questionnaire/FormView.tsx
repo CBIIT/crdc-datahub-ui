@@ -3,13 +3,12 @@ import {
   useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker, Navigate
 } from 'react-router-dom';
-import { isEqual } from 'lodash';
+import { isEqual, cloneDeep } from 'lodash';
 import { Alert, Button, Container, Divider, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
-import { cloneDeep } from '@apollo/client/utilities';
 import { Status as FormStatus, useFormContext } from '../../components/Contexts/FormContext';
 import SuspenseLoader from '../../components/SuspenseLoader';
 import StatusBar from '../../components/StatusBar/StatusBar';
