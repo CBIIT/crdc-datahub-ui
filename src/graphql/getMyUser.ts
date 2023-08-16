@@ -12,6 +12,12 @@ export const query = gql`
       email
       createdAt
       updateAt
+      organization {
+        orgID
+        orgName
+        orgRole
+        orgStatus
+      }
     }
   }
 `;

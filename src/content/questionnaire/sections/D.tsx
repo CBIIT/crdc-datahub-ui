@@ -10,7 +10,7 @@ import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import { mapObjectWithKey } from "../../../utils";
+import { mapObjectWithKey, filterPositiveIntegerString } from "../../../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
 import { fileTypeOptions } from "../../../config/FileTypeConfig";
@@ -449,10 +449,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                     <TableTextInput
                       id={`section-d-file-type-${idx}-number-of-files`}
                       name={`files[${idx}][count]`}
-                      type="number"
                       value={fileData.count ?? ""}
                       placeholder="Enter file count"
                       pattern="^[1-9]\d*$"
+                      filter={filterPositiveIntegerString}
                       patternValidityMessage="Please enter a whole number greater than 0"
                     />
                   </TableCell>

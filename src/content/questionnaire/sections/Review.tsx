@@ -11,7 +11,7 @@ import ReviewSection from "../../../components/Questionnaire/ReviewSection";
 import ReviewDataListing from "../../../components/Questionnaire/ReviewDataListing";
 import ReviewDataListingProperty, { StyledValue } from "../../../components/Questionnaire/ReviewDataListingProperty";
 import ReviewFileTypeTable from "../../../components/Questionnaire/ReviewFileTypeTable";
-import { mapObjectWithKey, formatPhoneNumber } from "../../../utils";
+import { mapObjectWithKey, formatPhoneNumber, findProgram } from "../../../utils";
 import useFormMode from "./hooks/useFormMode";
 import DataTypes from "../../../config/DataTypesConfig";
 import { StyledDescription, StyledTitle } from "../../../components/Questionnaire/SectionGroup";
@@ -48,7 +48,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
   refs,
 }: FormSectionProps) => {
   const { data: { questionnaireData: data } } = useFormContext();
-  const { userCanReview } = useFormMode();
+  const { formMode } = useFormMode();
   const { pi, primaryContact, piAsPrimaryContact, program, study } = data;
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, nextButtonRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
@@ -57,8 +57,9 @@ const FormSectionReview: FC<FormSectionProps> = ({
   const [publications] = useState<KeyedPublication[]>(data.study?.publications?.map(mapObjectWithKey) || []);
   const [plannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
   const [fileTypes] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
-
   const [piAddressPart1, ...piAddressPart2] = pi?.address?.split(",") || [];
+  const [programOption] = useState<ProgramOption>(findProgram(data.program));
+  const predefinedProgram = programOption && !programOption.editable && !programOption.notApplicable;
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -68,7 +69,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
     saveFormRef.current.style.display = "none";
     nextButtonRef.current.style.display = "none";
 
-    if (userCanReview) {
+    if (formMode === "Review") {
       approveFormRef.current.style.display = "initial";
       rejectFormRef.current.style.display = "initial";
       submitFormRef.current.style.display = "none";
@@ -79,7 +80,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
     }
 
     getFormObjectRef.current = getFormObject;
-  }, [refs]);
+  }, [refs, formMode]);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -157,13 +158,13 @@ const FormSectionReview: FC<FormSectionProps> = ({
       <ReviewSection title="Program and Study Information">
         <ReviewDataListing title="Program">
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Program Name" value={program.name} />
+            <ReviewDataListingProperty label="Program Name" value={predefinedProgram ? programOption.name : program?.name} />
           </Grid>
           <Grid md={6} xs={12} item>
-            <ReviewDataListingProperty label="Program Abbreviation" value={program.abbreviation} />
+            <ReviewDataListingProperty label="Program Abbreviation" value={predefinedProgram ? programOption.abbreviation : program?.abbreviation} />
           </Grid>
           <GridCondensed xs={12} item>
-            <ReviewDataListingProperty label="Program Description" value={program.description} valuePlacement="bottom" />
+            <ReviewDataListingProperty label="Program Description" value={predefinedProgram ? programOption.description : program?.description} valuePlacement="bottom" />
           </GridCondensed>
         </ReviewDataListing>
 

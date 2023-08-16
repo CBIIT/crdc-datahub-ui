@@ -59,6 +59,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
   const [fundings, setFundings] = useState<KeyedFunding[]>(data.study?.funding?.map(mapObjectWithKey) || []);
   const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isDbGapRegistered);
+  const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
 
   const programKeyRef = useRef(new Date().getTime());
   const formRef = useRef<HTMLFormElement>();
@@ -146,9 +147,16 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setProgram({
       name: newProgram?.name || "",
       abbreviation: newProgram?.abbreviation || "",
-      description: "",
+      description: newProgram?.description || "",
       notApplicable: false
     });
+  };
+
+  const handleIsDbGapRegisteredChange = (e, checked: boolean) => {
+    setIsdbGaPRegistered(checked);
+    if (!checked) {
+      setDbGaPPPHSNumber("");
+    }
   };
 
   /**
@@ -236,6 +244,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const readOnlyProgram = readOnlyInputs || !programOption?.editable;
+  const predefinedProgram = programOption && !programOption.editable && !programOption.notApplicable;
 
   return (
     <FormContainer
@@ -264,41 +273,41 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-b-program-title"
           label="Program Title"
           name="program[name]"
-          value={program?.name}
+          value={predefinedProgram ? programOption?.name : program?.name}
           maxLength={50}
           placeholder="50 characters allowed"
-          readOnly={readOnlyProgram}
           hideValidation={readOnlyProgram}
           required
+          readOnly={readOnlyProgram}
         />
         <TextInput
           key={`program-abbreviation-${program?.abbreviation}_${programKeyRef.current}`}
           id="section-b-program-abbreviation"
           label="Program Abbreviation"
           name="program[abbreviation]"
-          value={program.abbreviation}
+          value={predefinedProgram ? programOption?.abbreviation : program?.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
           maxLength={20}
           placeholder="20 characters allowed"
-          readOnly={readOnlyProgram}
           hideValidation={readOnlyProgram}
           required
+          readOnly={readOnlyProgram}
         />
         <TextInput
           key={`program-description-${program?.description}_${programKeyRef.current}`}
           id="section-b-program-description"
           label="Program Description"
           name="program[description]"
-          value={program.description}
+          value={predefinedProgram ? programOption?.description : program?.description}
           gridWidth={12}
           maxLength={500}
           placeholder="500 characters allowed"
           minRows={2}
           maxRows={2}
-          readOnly={readOnlyProgram}
           hideValidation={readOnlyProgram}
-          required={programOption?.editable}
           multiline
+          required
+          readOnly={readOnlyProgram}
         />
         <StyledProxyCheckbox
           value={program?.notApplicable?.toString()}
@@ -307,8 +316,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="program[notApplicable]"
           type="checkbox"
           data-type="boolean"
-          readOnly={readOnlyProgram}
           checked
+          readOnly={readOnlyProgram}
         />
       </SectionGroup>
 
@@ -344,7 +353,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-b-study-description"
-          label="Study description"
+          label="Study Description"
           name="study[description]"
           value={study.description}
           gridWidth={12}
@@ -409,7 +418,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="study[isDbGapRegistered]"
           required
           value={isDbGapRegistered}
-          onChange={(e, checked: boolean) => setIsdbGaPRegistered(checked)}
+          onChange={handleIsDbGapRegisteredChange}
           isBoolean
           readOnly={readOnlyInputs}
         />
@@ -417,11 +426,12 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-b-if-yes-provide-dbgap-phs-number"
           label="If yes, provide dbGaP PHS number"
           name="study[dbGaPPPHSNumber]"
-          value={data.study.dbGaPPPHSNumber}
+          value={dbGaPPPHSNumber}
+          onChange={(e) => setDbGaPPPHSNumber(e.target.value || "")}
           maxLength={50}
           placeholder="50 characters allowed"
           gridWidth={12}
-          readOnly={readOnlyInputs}
+          readOnly={readOnlyInputs || !isDbGapRegistered}
           required={isDbGapRegistered}
         />
       </SectionGroup>
