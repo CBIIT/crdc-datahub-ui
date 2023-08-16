@@ -14,6 +14,7 @@ import { filterForNumbers, mapObjectWithKey, validateEmail } from '../../../util
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import institutionConfig from "../../../config/InstitutionConfig";
 import { InitialQuestionnaire } from '../../../config/InitialValues';
+import SectionMetadata from "../../../config/SectionMetadata";
 import useFormMode from "./hooks/useFormMode";
 
 export type KeyedContact = {
@@ -38,6 +39,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { status, data: { questionnaireData: data } } = useFormContext();
   const { pi } = data;
   const { readOnlyInputs } = useFormMode();
+  const { A: SectionAMetadata } = SectionMetadata;
 
   const [primaryContact, setPrimaryContact] = useState<Contact>(data?.primaryContact);
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(data?.piAsPrimaryContact || false);
@@ -108,8 +110,8 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     >
       {/* Principal Investigator */}
       <SectionGroup
-        title="Principal Investigator"
-        description="Provide the Principal Investigator contact information for the study or collection"
+        title={SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.title}
+        description={SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.description}
       >
         <TextInput
           id="section-a-pi-first-name"
@@ -182,8 +184,8 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Primary Contact */}
       <SectionGroup
-        title="Primary Contact"
-        description="Provide the contact information for the primary contact who will be assisting with data submission, if different from PI"
+        title={SectionAMetadata.sections.PRIMARY_CONTACT.title}
+        description={SectionAMetadata.sections.PRIMARY_CONTACT.description}
       >
         <Grid item md={12}>
           <StyledFormControlLabel
@@ -280,8 +282,8 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Additional Contacts */}
       <SectionGroup
-        title="Additional Contacts"
-        description="If there are additional points of contact (e.g., scientific and/or technical data coordinator), enter the contact details for each.  If there is more than one, you may add additional rows for the details for each contact"
+        title={SectionAMetadata.sections.ADDITIONAL_CONTACTS.title}
+        description={SectionAMetadata.sections.ADDITIONAL_CONTACTS.description}
         endButton={(
           <AddRemoveButton
             id="section-a-add-additional-contact-button"

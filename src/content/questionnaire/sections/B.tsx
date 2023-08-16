@@ -20,6 +20,7 @@ import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import useFormMode from "./hooks/useFormMode";
 import FundingAgency from "../../../components/Questionnaire/FundingAgency";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
+import SectionMetadata from "../../../config/SectionMetadata";
 
 const StyledProxyCheckbox = styled("input")({
   display: "none !important"
@@ -50,6 +51,7 @@ export type KeyedFunding = {
 const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
+  const { B: SectionBMetadata } = SectionMetadata;
 
   const [program, setProgram] = useState<Program>(data.program);
   const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(data.program));
@@ -253,8 +255,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     >
       {/* Program Registration Section */}
       <SectionGroup
-        title="Program information"
-        description="If your study is part of a larger program, enter the program name(s) and/or organization(s) that funded this study."
+        title={SectionBMetadata.sections.PROGRAM_INFORMATION.title}
+        description={SectionBMetadata.sections.PROGRAM_INFORMATION.description}
       >
         <SelectInput
           id="section-b-program"
@@ -323,8 +325,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Study Registration Section */}
       <SectionGroup
-        title="Study information"
-        description="A short description of the effort that these data have been collected for."
+        title={SectionBMetadata.sections.STUDY_INFORMATION.title}
+        description={SectionBMetadata.sections.STUDY_INFORMATION.description}
       >
         <TextInput
           id="section-b-study-title"
@@ -381,8 +383,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Funding Agency */}
       <SectionGroup
-        title="Funding Agency/Organization"
-        description="List the agency(s) and/or organization(s) that funded this study."
+        title={SectionBMetadata.sections.FUNDING_AGENCY.title}
+        description={SectionBMetadata.sections.FUNDING_AGENCY.description}
         endButton={(
           <AddRemoveButton
             id="section-b-add-funding-agency-button"
@@ -409,8 +411,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* dbGaP Registration section */}
       <SectionGroup
-        title="dbGaP Registration"
-        description="Indicated if your study is currently registered with dbGaP."
+        title={SectionBMetadata.sections.DBGAP_REGISTRATION.title}
+        description={SectionBMetadata.sections.DBGAP_REGISTRATION.description}
       >
         <SwitchInput
           id="section-b-dbGaP-registration"
@@ -438,8 +440,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Existing Publications */}
       <SectionGroup
-        title="Existing Publications"
-        description="List existing publications associated with this study, include PubMed ID (PMID), DOI."
+        title={SectionBMetadata.sections.EXISTING_PUBLICATIONS.title}
+        description={SectionBMetadata.sections.EXISTING_PUBLICATIONS.description}
         endButton={(
           <AddRemoveButton
             id="section-b-add-publication-button"
@@ -466,8 +468,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Planned Publications */}
       <SectionGroup
-        title="Planned Publications"
-        description="List planned publications and/or pre-prints associated with this study, if any, and the estimated publication date."
+        title={SectionBMetadata.sections.PLANNED_PUBLICATIONS.title}
+        description={SectionBMetadata.sections.PLANNED_PUBLICATIONS.description}
         endButton={(
           <AddRemoveButton
             id="section-b-add-planned-publication-button"
@@ -495,8 +497,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Study Repositories */}
       <SectionGroup
-        title="Repository"
-        description="Add repository if your study has submitted data to a non-CRDC repository"
+        title={SectionBMetadata.sections.REPOSITORY.title}
+        description={SectionBMetadata.sections.REPOSITORY.description}
         endButton={(
           <AddRemoveButton
             id="section-b-add-repository-button"
