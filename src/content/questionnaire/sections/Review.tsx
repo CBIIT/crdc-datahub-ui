@@ -235,7 +235,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
             <ReviewDataListingProperty label="Study ID" value={repository.studyID} valuePlacement="bottom" />
             <ReviewDataListingProperty
               label="Data Type(s) Submitted"
-              value={repository.dataTypesSubmitted.map((dataType) => repositoryDataTypesOptions.find((option) => option.name === dataType)?.label)}
+              value={repository.dataTypesSubmitted?.map((dataType) => repositoryDataTypesOptions.find((option) => option.name === dataType)?.label)}
               valuePlacement="bottom"
               isList
             />

@@ -45,7 +45,7 @@ const Repository: FC<Props> = ({
 }: Props) => {
   const { status } = useFormContext();
 
-  const { name, studyID, dataTypesSubmitted, otherDataTypesSubmitted } = repository;
+  const { name, studyID, dataTypesSubmitted, otherDataTypesSubmitted } = repository || {};
 
   return (
     <GridContainer container>
