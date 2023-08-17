@@ -324,7 +324,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
           title={SectionMetadata.D.sections.ADDITIONAL_COMMENTS.title}
           description={SectionMetadata.D.sections.ADDITIONAL_COMMENTS.description}
         >
-          <ReviewDataListingProperty value={data.submitterComment} valuePlacement="bottom" />
+          <ReviewDataListingProperty gridWidth={12} value={data.submitterComment} valuePlacement="bottom" />
         </ReviewDataListing>
       </ReviewSection>
 
