@@ -2,6 +2,8 @@ import React, { FC, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Dialog } from "@mui/material";
 import { Link, useLocation } from 'react-router-dom';
+import background from '../assets/loginPage/background.png';
+import { useAuthContext } from '../components/Contexts/AuthContext';
 
 const StyledDialog = styled(Dialog)`
   .MuiDialog-paper {
@@ -48,9 +50,64 @@ const StyledDialog = styled(Dialog)`
   }
 `;
 
+const PageContentContainer = styled.div`
+  width: 1440px;
+  height: 633px;
+  margin: auto;
+  background-image: url(${background});
+  background-size: cover;    
+  .loginPageTextContainer {
+    position: relative;
+    width: 611px;
+    height: 218px;
+    vertical-align: middle;
+    left: 646px;
+    top: 200px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+  .loginPageTextTitle {
+    font-family: Nunito Sans;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 40px;
+    letter-spacing: -1.5px;
+    text-align: center;
+    color: #294267;
+  }
+  .loginPageText{
+    font-family: Inter;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0em;
+    text-align: center;
+    margin-top: 30px;
+  }
+  .loginPageLoginButton{
+    display: flex;
+    width: 101px;
+    height: 51px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    border: 2px solid #005EA2;
+    margin-top: 30px;
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.87);
+    color: #005EA2;
+  }
+  .loginPageLoginButton:hover {
+    cursor: pointer;
+  }
+`;
+
 const Home: FC = () => {
     const [showRedirectDialog, setShowRedirectDialog] = useState(false);
     const { state } = useLocation();
+    const authData = useAuthContext();
     let dialogRedirectPath = state?.path ?? "";
     let dialogLinkName = state?.name ?? "";
     useEffect(() => {
@@ -92,7 +149,39 @@ const Home: FC = () => {
           </div>
 
         </StyledDialog>
-        <div>This is Home Page</div>
+        <PageContentContainer>
+          {authData.isLoggedIn ? (
+            <div className="loginPageTextContainer">
+              <div className="loginPageTextTitle">
+                Welcome to CRDC Data Hub
+              </div>
+              <div className="loginPageText">
+                You are logged in.
+                <br />
+                Please proceed to Submission Requests or Data Submissions.
+              </div>
+            </div>
+            )
+          : (
+            <div className="loginPageTextContainer">
+              <div className="loginPageTextTitle">
+                Login to CRDC Data Hub
+              </div>
+              <div className="loginPageText">
+                Welcome to the CRDC Data Hub.
+                <br />
+                Please login to access your data submissions.
+              </div>
+              <Link
+                id="loginPageLoginButton"
+                className="loginPageLoginButton"
+                to="/login"
+              >
+                <strong>Log In</strong>
+              </Link>
+            </div>
+            )}
+        </PageContentContainer>
       </>
 );
 };
