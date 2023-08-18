@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import { useLazyQuery } from '@apollo/client';
 import { query as GET_USER, Response as GetUserResp } from '../../graphql/getMyUser';
-import AuthUser from '../../lib/AuthUser';
 import env from '../../env';
 
 const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
@@ -58,10 +57,10 @@ const userLogin = async (authCode: string): Promise<boolean> => {
 export type ContextState = {
   status: Status;
   isLoggedIn: boolean;
-  user: AuthUser;
+  user: User;
   error?: string;
   logout?: () => Promise<boolean>;
-  setData?: (data: UserInput) => Promise<boolean>;
+  setData?: (data: UserInput) => void;
 };
 
 export enum Status {
@@ -123,7 +122,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
   const cachedState = cachedUser ? {
     isLoggedIn: true,
     status: Status.LOADED,
-    user: new AuthUser(cachedUser)
+    user: cachedUser,
   } : null;
   const [state, setState] = useState<ContextState>(cachedState || initialState);
 
@@ -143,13 +142,10 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
     return status;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- setData is not used yet
-  const setData = async (data: UserInput): Promise<boolean> => {
-    if (!state.isLoggedIn) return false;
+  const setData = (data: UserInput): void => {
+    if (!state.isLoggedIn) return;
 
-    // TODO: Implement updateMyUser mutation
-
-    return false;
+    setState((prev) => ({ ...prev, user: { ...prev.user, ...data } }));
   };
 
   useEffect(() => {
@@ -162,7 +158,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
           return;
         }
 
-        setState({ ...state, isLoggedIn: true, status: Status.LOADED, user: new AuthUser(data?.getMyUser) });
+        setState({ ...state, isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
         return;
       }
 
@@ -177,7 +173,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
         }
 
         window.history.replaceState({}, document.title, window.location.pathname);
-        setState({ isLoggedIn: true, status: Status.LOADED, user: new AuthUser(data?.getMyUser) });
+        setState({ isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
         const stateParam = searchParams.get('state');
         if (stateParam !== null) {
           window.location.href = stateParam;
@@ -197,7 +193,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
     }
 
     localStorage.removeItem('userDetails');
-  }, [state.user]);
+  }, [state.isLoggedIn, state.user]);
 
   const value = useMemo(() => ({ ...state, logout, setData }), [state]);
 

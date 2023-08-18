@@ -171,7 +171,7 @@ const Header = () => {
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
 
   const authData = useAuthContext();
-  const displayName = authData?.user?.displayName || "random first name no one has";
+  const displayName = authData?.user?.firstName || "N/A";
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -186,7 +186,7 @@ const Header = () => {
   navbarSublists[displayName] = [
     {
       name: 'User Profile',
-      link: '/user_profile',
+      link: `/users/${authData?.user?._id}`,
       id: 'navbar-dropdown-item-user-profile',
       className: 'navMobileSubItem',
     },
