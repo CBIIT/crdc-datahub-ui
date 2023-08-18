@@ -12,12 +12,13 @@ const GridContainer = styled(Grid)(() => ({
 }));
 
 const StyledTitle = styled(Typography)(() => ({
-  color: "#34A286",
-  fontSize: "19px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  background: "transparent",
+  color: "#327E8F",
   fontStyle: "normal",
   fontWeight: 700,
-  lineHeight: "19.6px",
+  fontSize: "24px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  lineHeight: "32.74px",
 }));
 
 const StyledDivider = styled(Divider)(() => ({

@@ -1,5 +1,4 @@
 import { FC, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
 import { styled } from "@mui/material";
@@ -17,14 +16,10 @@ import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfi
 import { reshapeCheckboxGroupOptions, isValidInRange, filterPositiveIntegerString } from "../../../utils";
 import useFormMode from "./hooks/useFormMode";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
+import SectionMetadata from "../../../config/SectionMetadata";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
-}));
-
-const StyledLink = styled(Link)(() => ({
-  textDecoration: "none",
-  color: "inherit"
 }));
 
 /**
@@ -38,6 +33,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { readOnlyInputs } = useFormMode();
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
+  const { C: SectionCMetadata } = SectionMetadata;
 
   const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
 
@@ -73,23 +69,10 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       description={SectionOption.title}
       formRef={formRef}
     >
-      {/* Program Registration Section */}
+      {/* Data Access Section */}
       <SectionGroup
-        title="Data Access"
-        description={(
-          <>
-            Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH. Learn about this at
-            {" "}
-            <StyledLink
-              to="https://sharing.nih.gov/genomic-data-sharing-policy/institutional-certifications"
-              target="_blank"
-            >
-              https://sharing.nih.gov/
-              <wbr />
-              genomic-data-sharing-policy/institutional-certifications
-            </StyledLink>
-          </>
-        )}
+        title={SectionCMetadata.sections.DATA_ACCESS.title}
+        description={SectionCMetadata.sections.DATA_ACCESS.description}
       >
         <FormGroupCheckbox
           idPrefix="section-c-access-types"
@@ -109,9 +92,10 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
       </SectionGroup>
 
+      {/* Cancer Types Section */}
       <SectionGroup
-        title="Cancer Types"
-        description="Select the types of cancer(s) and, if applicable, pre-cancer(s) being studied. Multiple cancer types may be selected."
+        title={SectionCMetadata.sections.CANCER_TYPES.title}
+        description={SectionCMetadata.sections.CANCER_TYPES.description}
       >
         <SelectInput
           id="section-c-cancer-types"
@@ -156,7 +140,9 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       </SectionGroup>
 
       {/* Subjects/Species Section */}
-      <SectionGroup title="Subjects/Species">
+      <SectionGroup
+        title={SectionCMetadata.sections.SUBJECTS.title}
+      >
         <SelectInput
           id="section-c-species-of-subjects"
           label="Species of subjects (choose all that apply)"

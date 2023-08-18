@@ -3,6 +3,7 @@ import B from '../content/questionnaire/sections/B';
 import C from "../content/questionnaire/sections/C";
 import D from '../content/questionnaire/sections/D';
 import Review from '../content/questionnaire/sections/Review';
+import sectionMetadata from "./SectionMetadata";
 
 /**
  * Configuration and mapping for Questionnaire Sections
@@ -14,28 +15,23 @@ import Review from '../content/questionnaire/sections/Review';
  */
 const sections: SectionConfig = {
   A: {
-    title: "Principal Investigator and Contact",
-    id: "A",
+    ...sectionMetadata.A,
     component: A,
   },
   B: {
-    title: "Program and Study",
-    id: "B",
+    ...sectionMetadata.B,
     component: B,
   },
   C: {
-    title: "Data Access and Disease",
-    id: "C",
+    ...sectionMetadata.C,
     component: C,
   },
   D: {
-    title: "Data Types",
-    id: "D",
+    ...sectionMetadata.D,
     component: D,
   },
   REVIEW: {
-    title: "Review and Submit",
-    id: "review",
+    ...sectionMetadata.REVIEW,
     component: Review,
   },
 };

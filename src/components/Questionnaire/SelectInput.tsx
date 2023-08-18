@@ -180,7 +180,12 @@ const SelectInput: FC<Props> = ({
       updateInputValidity(inputRef, "");
     }
 
-    setVal(newValue);
+    if (!newValue && multiple) {
+      setVal([]);
+      return;
+    }
+
+    setVal(newValue || "");
   };
 
   const onChangeWrapper = (newVal) => {

@@ -13,7 +13,7 @@ const GridContainer = styled(Grid)(() => ({
   padding: "18px 15px",
 }));
 
-const repositoryDataTypesOptions = [
+export const repositoryDataTypesOptions = [
   DataTypes.clinicalTrial,
   DataTypes.genomics,
   DataTypes.imaging,
@@ -45,7 +45,7 @@ const Repository: FC<Props> = ({
 }: Props) => {
   const { status } = useFormContext();
 
-  const { name, studyID, dataTypesSubmitted, otherDataTypesSubmitted } = repository;
+  const { name, studyID, dataTypesSubmitted, otherDataTypesSubmitted } = repository || {};
 
   return (
     <GridContainer container>

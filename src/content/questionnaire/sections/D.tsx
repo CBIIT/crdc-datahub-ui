@@ -18,6 +18,7 @@ import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 import useFormMode from "./hooks/useFormMode";
+import SectionMetadata from "../../../config/SectionMetadata";
 
 export type KeyedFileTypeData = {
   key: string;
@@ -122,6 +123,7 @@ const TableContainer = styled.div`
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
+  const { D: SectionDMetadata } = SectionMetadata;
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
   const formRef = useRef<HTMLFormElement>();
@@ -190,9 +192,9 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       description={SectionOption.title}
       formRef={formRef}
     >
-      {/* Targeted Data Submission Delivery Date Section */}
+      {/* Data Delivery and Release Dates Section */}
       <SectionGroup
-        title="Data Delivery and Release Dates"
+        title={SectionDMetadata.sections.DATA_DELIVERY_AND_RELEASE_DATES.title}
       >
         <DatePickerInput
           inputID="section-d-targeted-data-submission-delivery-date"
@@ -219,8 +221,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       </SectionGroup>
       {/* Data Types Section */}
       <SectionGroup
-        title="Data Types"
-        description="Indicate the major types of data included in this submission. For each type listed, select Yes or No. Describe any additional major types of data in Other (specify)"
+        title={SectionDMetadata.sections.DATA_TYPES.title}
+        description={SectionDMetadata.sections.DATA_TYPES.description}
       >
         <SwitchInput
           id="section-d-clinical-trial"
@@ -309,10 +311,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
       </SectionGroup>
 
-      {/* Clinical Data */}
+      {/* Clinical Data Types Section */}
       <SectionGroup
-        title="Clinical Data Types"
-        description="If 'Clinical' data will be submitted, please provide more details about what types of clinical data will be included. Indicate Yes or No for each type listed below. Describe any additional data types in Other(specify)."
+        title={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title}
+        description={SectionDMetadata.sections.CLINICAL_DATA_TYPES.description}
       >
         <SwitchInput
           id="section-d-demographic-data"
@@ -390,15 +392,11 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           tooltipText="Indicate if there will be additional types of data included with a future submission."
         />
       </SectionGroup>
+
+      {/* File Types Section */}
       <SectionGroup
-        title="File Types"
-        description={(
-          <>
-            List the number, size, and formats of files in the submission in the table below.
-            <br />
-            Indicate one file type per row. At least one file type is required.
-          </>
-        )}
+        title={SectionDMetadata.sections.FILE_TYPES.title}
+        description={SectionDMetadata.sections.FILE_TYPES.description}
         beginButton={(
           <AddRemoveButton
             id="section-d-add-file-type-button"
@@ -487,9 +485,11 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           </Table>
         </TableContainer>
       </SectionGroup>
+
+      {/* Additional Comments Section */}
       <SectionGroup
-        title="Additional Comments"
-        description="Additional Comments or Information about this submission."
+        title={SectionDMetadata.sections.ADDITIONAL_COMMENTS.title}
+        description={SectionDMetadata.sections.ADDITIONAL_COMMENTS.description}
       >
         <TextInput
           label=""
