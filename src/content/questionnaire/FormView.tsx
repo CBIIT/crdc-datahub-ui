@@ -3,7 +3,7 @@ import {
   useNavigate,
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker, Navigate
 } from 'react-router-dom';
-import { isEqual } from 'lodash';
+import { isEqual, cloneDeep } from 'lodash';
 import { Alert, Button, Container, Divider, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
@@ -368,7 +368,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
     // Update section status
     if (newData?.sections?.length !== Object.keys(map).length - 1) { // Not including review section
-      newData.sections = InitialSections;
+      newData.sections = cloneDeep(InitialSections);
     }
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
     const currentSection : Section = newData.sections.find((s) => s.name === activeSection);
