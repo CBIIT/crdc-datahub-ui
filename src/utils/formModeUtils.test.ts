@@ -64,22 +64,9 @@ describe('getFormMode tests based on provided requirements', () => {
       });
     });
 
-    it('should be View Only for User when User belongs to an organization and is not a Submitter orgRole', () => {
-      user = { ...user, organization: { ...user.organization, orgRole: "Concierge" } };
-
-      expect(utils.getFormMode(user, { ...baseSubmission, organization: { ...baseSubmission.organization, _id: user.organization.orgID } })).toBe(utils.FormModes.VIEW_ONLY);
-    });
-
-    it('should be Unauthorized for User when User belongs to a different org than form org and is not a Submitter orgRole', () => {
-      user = { ...user, organization: { ...user.organization, orgRole: "Concierge" } };
-      const submission: Application = { ...baseSubmission, organization: { ...baseSubmission.organization, _id: "random org id" } };
-
-      expect(utils.getFormMode(user, submission)).toBe(utils.FormModes.UNAUTHORIZED);
-    });
-
     it('should be Unauthorized for User when User does not own the Submission', () => {
       user = { ...user, role: "User", organization: { ...user.organization, orgRole: "Submitter" } };
-      const submission: Application = { ...baseSubmission, applicant: { ...baseSubmission.applicant, applicantID: "user-456-another-user" } };
+      const submission: Application = { ...baseSubmission, status: "In Progress", applicant: { ...baseSubmission.applicant, applicantID: "user-456-another-user" } };
 
       expect(utils.getFormMode(user, submission)).toBe(utils.FormModes.UNAUTHORIZED);
     });
@@ -91,12 +78,6 @@ describe('getFormMode tests based on provided requirements', () => {
 
     it('should allow Submitter to edit when form status is New', () => {
       expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.EDIT);
-    });
-
-    it('should be Unauthorized for Submitter when Submitter belongs to a different org than form org', () => {
-      const submission: Application = { ...baseSubmission, organization: { ...baseSubmission.organization, _id: "random org id" } };
-
-      expect(utils.getFormMode(user, submission)).toBe(utils.FormModes.UNAUTHORIZED);
     });
 
     it('should set View Only for Submitter when form is Submitted, In Review, or Approved', () => {
@@ -186,16 +167,6 @@ describe('getFormMode tests based on provided requirements', () => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.VIEW_ONLY);
       });
     });
-
-    it('should set View Only for Org Owner on other forms in his organization', () => {
-      const data: Application = {
-        ...baseSubmission,
-        applicant: { ...baseSubmission.applicant, applicantID: 'random user ID 123' },
-        organization: { ...baseSubmission.organization, _id: user.organization.orgID }
-      };
-
-      expect(utils.getFormMode(user, data)).toBe(utils.FormModes.VIEW_ONLY);
-    });
   });
 
   // Admin Tests
@@ -233,21 +204,6 @@ describe('getFormMode tests based on provided requirements', () => {
         const user: User = { ...baseUser, role, organization: null };
         statuses.forEach((status) => {
           expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.VIEW_ONLY);
-        });
-      });
-    });
-  });
-
-  // Other orgRole Tests
-  describe('getFormMode > Other orgRoles tests', () => {
-    it('should always set View Only for all other orgRoles', () => {
-      const orgRoles: OrgInfo["orgRole"][] = ['Concierge', 'A fake orgRole', 'Another fake one'] as OrgInfo["orgRole"][];
-      const statuses: ApplicationStatus[] = ['In Progress', 'Submitted', 'In Review', 'Approved', 'Rejected'];
-
-      orgRoles.forEach((orgRole) => {
-        const user: User = { ...baseUser, role: "User", organization: { ...baseUser.organization, orgRole } };
-        statuses.forEach((status) => {
-          expect(utils.getFormMode(user, { ...baseSubmission, status, organization: { ...baseSubmission.organization, _id: user.organization.orgID } })).toBe(utils.FormModes.VIEW_ONLY);
         });
       });
     });

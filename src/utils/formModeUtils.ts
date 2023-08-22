@@ -22,9 +22,7 @@ const _getFormModeForUser = (
   user: User,
   data: Application
 ): FormMode => {
-  const userOrgRoleExists = user?.organization?.orgRole?.length > 0;
-  const belongsToSameOrg = user?.organization?.orgID === data?.organization?._id;
-  if (user?.role !== "User" || (userOrgRoleExists && belongsToSameOrg && user.organization?.orgRole !== "Submitter")) {
+  if (user?.role !== "User" && user?.role !== "Submitter") {
     return FormModes.UNAUTHORIZED;
   }
 
@@ -83,9 +81,7 @@ const _getFormModeForOrgOwner = (
   user: User,
   data: Application
 ): FormMode => {
-  const belongsToSameOrg = user.organization?.orgID === data?.organization?._id;
-  const orgRole = belongsToSameOrg ? user.organization?.orgRole : null;
-  if (orgRole !== "Owner") {
+  if (user.role !== "Owner") {
     return FormModes.UNAUTHORIZED;
   }
 
@@ -122,26 +118,16 @@ export const getFormMode = (
     return FormModes.UNAUTHORIZED;
   }
 
-  const userOrgRoleExists = user?.organization?.orgRole?.length > 0;
-  const belongsToSameOrg = user.organization?.orgID === data?.organization?._id;
-  const orgRole = belongsToSameOrg ? user.organization?.orgRole : null;
-
   if (user.role === "FederalLead") {
     return _getFormModeForFederalLead(user, data);
   }
   if (user.role === "Admin") {
     return FormModes.VIEW_ONLY;
   }
-  if (userOrgRoleExists && !belongsToSameOrg) {
-    return FormModes.UNAUTHORIZED;
-  }
-  if (userOrgRoleExists && orgRole === "Owner") {
+  if (user.role === "Owner") {
     return _getFormModeForOrgOwner(user, data);
   }
-  if (userOrgRoleExists && orgRole !== "Submitter") {
-    return FormModes.VIEW_ONLY;
-  }
-  if (user.role === "User" || (userOrgRoleExists && orgRole === "Submitter")) {
+  if (user.role === "User" || user.role === "Submitter") {
     return _getFormModeForUser(user, data);
   }
   // Any other authorized user

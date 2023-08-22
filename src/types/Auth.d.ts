@@ -3,7 +3,7 @@ type User = {
   firstName: string;
   lastName: string;
   userStatus: 'Active' | 'Inactive' | 'Disabled';
-  role: 'Admin' | 'User' | 'Curator' | 'FederalLead' | 'DC_POC';
+  role: 'Admin' | 'User' | 'Curator' | 'FederalLead' | 'DC_POC' | "Owner" | "Submitter" | "Concierge";
   organization: OrgInfo;
   IDP: 'nih' | 'login.gov';
   email: string;
