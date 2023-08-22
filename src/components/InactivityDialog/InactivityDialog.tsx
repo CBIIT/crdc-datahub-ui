@@ -150,10 +150,10 @@ const InactivityDialog = () => {
 
       const res = await fetch(SESSION_TTL_API);
       const data = await res.json();
-      const { ttl } = data;
+      const { ttl } = data.ttl;
       if (ttl <= 0) {
         // If user did not select any option and timed out in BE.
-        handleSignOut();
+        handleSignOutNoBanner();
         setTimedOut(true);
       } else if (ttl > 0 && ttl <= thresholdTime) {
         setTimeLeft(ttl);
@@ -177,6 +177,14 @@ const InactivityDialog = () => {
 
   const handleExtendSession = () => {
     extendSession();
+  };
+  const handleSignOutNoBanner = async () => {
+    const logoutStatus = await authData.logout();
+    if (logoutStatus) {
+      navigate("/");
+      setWarning(false);
+      setTimeout(() => setShowLogoutAlert(false), 10000);
+    }
   };
   const handleSignOut = async () => {
     const logoutStatus = await authData.logout();
