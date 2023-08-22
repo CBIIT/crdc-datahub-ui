@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
 import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
+import { updateInputValidity } from '../../utils';
 
 /*
 *Pass in a regex pattern if you want this field to have custom validation checking
@@ -13,6 +14,7 @@ type Props = {
   pattern?: string;
   patternValidityMessage?: string;
   maxLength?: number;
+  filter?: (input: string) => string;
   classes: WithStyles<typeof styles>["classes"];
 } & InputProps;
 
@@ -34,6 +36,7 @@ const TableTextInput: FC<Props> = ({
   maxLength,
   pattern,
   readOnly,
+  filter,
   ...rest
 }) => {
   const id = useId();
@@ -41,15 +44,32 @@ const TableTextInput: FC<Props> = ({
 
   const [val, setVal] = useState(value);
   const regex = new RegExp(pattern);
-  const inputElement = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const invalid = (e) => {
+      if (!e.target.reportValidityInProgress) {
+        e.target.reportValidityInProgress = true;
+        e.target.reportValidity();
+        e.target.reportValidityInProgress = false;
+      }
+    };
+
+    inputRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
   const onChange = (newVal) => {
+    if (typeof filter === "function") {
+      newVal = filter(newVal);
+    }
     if (typeof maxLength === "number" && newVal.length > maxLength) {
       newVal = newVal.slice(0, maxLength);
     }
     if (!newVal.match(regex)) {
-      inputElement.current.setCustomValidity(patternValidityMessage || "Please enter input in the correct format");
+      updateInputValidity(inputRef, patternValidityMessage || "Please enter input in the correct format");
     } else {
-      inputElement.current.setCustomValidity("");
+      updateInputValidity(inputRef);
     }
     setVal(newVal);
   };
@@ -60,9 +80,9 @@ const TableTextInput: FC<Props> = ({
 
   return (
     <Input
-      inputRef={inputElement}
-      sx={{ width: "100%" }}
-      classes={{ root: classes.input }}
+      inputRef={inputRef}
+      sx={{ width: "100%", display: "flex", alignItems: "center" }}
+      classes={{ input: classes.input }}
       id={id}
       size="small"
       value={val}
@@ -76,22 +96,22 @@ const TableTextInput: FC<Props> = ({
 
 const styles = () => ({
   input: {
-    "& .MuiInputBase-input": {
+    "&.MuiInputBase-input": {
       padding: "0px",
       color: "#083A50",
       fontWeight: 400,
       fontSize: "16px",
       fontFamily: "'Nunito', 'Rubik', sans-serif",
-      lineHeight: "19.6px",
       height: "20px",
       width: "100%"
     },
-    "& ::placeholder": {
+    "&::placeholder": {
       color: "#929296",
       fontWeight: 400,
-      opacity: 1
+      opacity: 1,
+      height: "20px",
     },
-    "& .MuiInputBase-input:read-only": {
+    "&.MuiInputBase-input:read-only": {
       backgroundColor: "#D9DEE4",
       cursor: "not-allowed",
     },

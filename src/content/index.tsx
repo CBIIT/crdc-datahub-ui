@@ -14,7 +14,7 @@ const LoginDialog = styled(Dialog)`
   }
   .buttonContainer {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
   }
   .loginDialogText {
     margin-top: 57px;
@@ -37,6 +37,8 @@ const LoginDialog = styled(Dialog)`
     margin-top: 39px;
     text-decoration: none;
     color: rgba(0, 0, 0, 0.87);
+    margin-left: 7px;
+    margin-right: 7px;
   }
   .loginDialogButton:hover {
     cursor: pointer;

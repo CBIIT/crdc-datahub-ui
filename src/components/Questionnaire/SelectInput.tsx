@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useState } from "react";
+import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -9,6 +9,8 @@ import {
   styled,
 } from "@mui/material";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+import Tooltip from "./Tooltip";
+import { updateInputValidity } from '../../utils';
 
 const DropdownArrowsIcon = styled("div")(() => ({
   backgroundImage: `url(${dropdownArrowsIcon})`,
@@ -127,14 +129,15 @@ const StyledSelect = styled(Select, {
 
 type Props = {
   value: string | string[];
-  options: { label: string; value: string | number }[];
-  name: string;
+  options: SelectOption[];
+  name?: string;
   label: string;
   required?: boolean;
   helpText?: string;
+  tooltipText?: string | ReactNode;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   onChange?: (value: string) => void;
-} & SelectProps;
+} & Omit<SelectProps, "onChange">;
 
 /**
  * Generates a generic select box with a label and help text
@@ -149,6 +152,7 @@ const SelectInput: FC<Props> = ({
   options,
   required = false,
   helpText,
+  tooltipText,
   gridWidth,
   onChange,
   multiple,
@@ -159,27 +163,29 @@ const SelectInput: FC<Props> = ({
   const id = useId();
 
   const [val, setVal] = useState(multiple ? [] : "");
-  const [error] = useState(false);
+  const [error, setError] = useState(false);
   const helperText = helpText || (required ? "This field is required" : " ");
+  const inputRef = useRef(null);
 
-  const validateInput = (input: string | string[]) => {
-    const inputIsArray = Array.isArray(input);
+  const processValue = (newValue: string | string[]) => {
+    const inputIsArray = Array.isArray(newValue);
     if (multiple && !inputIsArray) {
-      return false;
+      updateInputValidity(inputRef, "Please select at least one option");
+    } else if (inputIsArray) {
+      const containsOnlyValidOptions = newValue.every((value: string) => !!options.find((option) => option.value === value));
+      updateInputValidity(inputRef, containsOnlyValidOptions ? "" : "Please select only valid options");
+    } else if (required && !options.findIndex((option) => option.value === newValue)) {
+      updateInputValidity(inputRef, "Please select an entry from the list");
+    } else {
+      updateInputValidity(inputRef, "");
     }
 
-    if (inputIsArray) {
-      const containsOnlyValidOptions = input.every((value: string) => !!options.find((option) => option.value === value));
-      return containsOnlyValidOptions;
+    if (!newValue && multiple) {
+      setVal([]);
+      return;
     }
-    const isValidOption = !!options.find((option) => option.value === input);
-    return isValidOption;
-  };
 
-  const getValidInitialValue = (input: string | string[]) => {
-    const validInitialValue = multiple ? [] : "";
-
-    return validateInput(input) ? input : validInitialValue;
+    setVal(newValue || "");
   };
 
   const onChangeWrapper = (newVal) => {
@@ -187,11 +193,21 @@ const SelectInput: FC<Props> = ({
       onChange(newVal);
     }
 
-    setVal(newVal);
+    processValue(newVal);
+    setError(false);
   };
 
   useEffect(() => {
-    onChangeWrapper(getValidInitialValue(value));
+    const invalid = () => setError(true);
+
+    inputRef.current?.node?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.node?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
+
+  useEffect(() => {
+    processValue(value);
   }, [value]);
 
   return (
@@ -200,6 +216,7 @@ const SelectInput: FC<Props> = ({
         <StyledFormLabel htmlFor={id}>
           {label}
           {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+          {tooltipText && <Tooltip placement="right" title={tooltipText} />}
         </StyledFormLabel>
         <StyledSelect
           size="small"
@@ -212,6 +229,7 @@ const SelectInput: FC<Props> = ({
           multiple={multiple}
           placeholderText={placeholder}
           readOnly={readOnly}
+          inputRef={inputRef}
           {...rest}
         >
           {options.map((option) => (

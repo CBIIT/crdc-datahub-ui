@@ -30,3 +30,14 @@ type SectionOption = {
   id: string;
   component: React.ComponentType<FormSectionProps>;
 };
+
+type FormGroupCheckboxOption = {
+  label: string;
+  value: string;
+  name?: string; // overrides parent name in checkboxes
+  tooltipText?: string;
+  errorText?: string;
+  required?: boolean;
+};
+
+type SelectOption = { label: string; value: string | number };

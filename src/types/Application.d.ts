@@ -2,9 +2,9 @@ type Application = {
   // Application Details
   _id: string;
   status: ApplicationStatus;
-  createdAt: string; // YYYY-MM-DDTHH:MM:SS format
-  updatedAt: string; // YYYY-MM-DDTHH:MM:SS format
-  submittedDate: string; // YYYY-MM-DDTHH:MM:SS format
+  createdAt: string; // YYYY-MM-DDTHH:MM:SSZ format
+  updatedAt: string; // YYYY-MM-DDTHH:MM:SSZ format
+  submittedDate: string; // YYYY-MM-DDTHH:MM:SSZ format
   history: HistoryEvent[];
   // Applicant Details
   applicant: Applicant;
@@ -92,8 +92,9 @@ type Contact = {
 
 type Program = {
   name: string;
-  abbreviation: string;
-  description: string;
+  abbreviation?: string;
+  description?: string;
+  notApplicable?: boolean;
 };
 
 type Study = {
@@ -103,7 +104,7 @@ type Study = {
   publications: Publication[];
   plannedPublications: PlannedPublication[];
   repositories: Repository[];
-  funding: Funding;
+  funding: Funding[];
   isDbGapRegistered: boolean;
   dbGaPPPHSNumber: string;
 };
@@ -111,7 +112,8 @@ type Study = {
 type Repository = {
   name: string;
   studyID: string;
-  submittedDate: string;
+  dataTypesSubmitted: string[];
+  otherDataTypesSubmitted: string;
 };
 
 type Publication = {
@@ -133,7 +135,7 @@ type FileInfo = {
 };
 
 type Funding = {
-  agencies: string[];
+  agency: string;
   grantNumbers: string;
   nciProgramOfficer: string;
   nciGPA: string;
@@ -142,7 +144,7 @@ type Funding = {
 type HistoryEvent = {
   status: ApplicationStatus;
   reviewComment?: string;
-  dateTime: string; // YYYY-MM-DDTHH:MM:SS format
+  dateTime: string; // YYYY-MM-DDTHH:MM:SSZ format
   userID: number;
 };
 

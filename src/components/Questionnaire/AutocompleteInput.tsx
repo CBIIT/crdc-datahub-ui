@@ -9,8 +9,10 @@ import {
   TextField,
   styled,
 } from "@mui/material";
-import { SyntheticEvent, useEffect, useId, useRef, useState } from "react";
+import { ReactNode, SyntheticEvent, useEffect, useId, useRef, useState } from "react";
 import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
+import Tooltip from "./Tooltip";
+import { updateInputValidity } from '../../utils';
 
 const StyledFormControl = styled(FormControl)(() => ({
   height: "100%",
@@ -135,6 +137,7 @@ type Props<T> = {
   options?: T[];
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   helpText?: string;
+  tooltipText?: string | ReactNode;
   required?: boolean;
   validate?: (input: T) => boolean;
 } & Omit<AutocompleteProps<T, false, true, true, "div">, "renderInput">;
@@ -144,6 +147,7 @@ const AutocompleteInput = <T,>({
   label,
   gridWidth,
   helpText,
+  tooltipText,
   required,
   value,
   onChange,
@@ -160,18 +164,16 @@ const AutocompleteInput = <T,>({
   const [error, setError] = useState<boolean>(false);
   const helperText = helpText || (required ? "This field is required" : " ");
   const inputRef = useRef<HTMLInputElement>(null);
-  const valRef = useRef<T>(value);
 
-  const validateInput = (input: AutocompleteValue<T, false, false, false>,): boolean => {
-    const isString = typeof input === "string";
-    if (validate) {
-      const customIsValid = validate(input);
-      return customIsValid;
+  const processValue = (newValue: T) => {
+    if (typeof validate === "function") {
+      const customIsValid = validate(newValue);
+      updateInputValidity(inputRef, !customIsValid ? helpText : "");
+    } else if (required) {
+      updateInputValidity(inputRef, !newValue ? helperText : "");
     }
-    if ((required && !input) || !(required && isString && input?.length > 0)) {
-      return false;
-    }
-    return true;
+
+    setVal(newValue);
   };
 
   const onChangeWrapper = (
@@ -183,19 +185,21 @@ const AutocompleteInput = <T,>({
       onChange(event, newValue, reason);
     }
 
-    setVal(newValue);
-    setError(!validateInput(newValue));
-  };
-
-  const onBlurWrapper = (value: string): void => {
-    if (freeSolo) {
-      setError(!validateInput(value as T));
-    }
+    processValue(newValue);
+    setError(false);
   };
 
   useEffect(() => {
-    if (value !== valRef.current) onChangeWrapper(null, value, null);
-    valRef.current = value;
+    const invalid = () => setError(true);
+
+    inputRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
+
+  useEffect(() => {
+    processValue(value);
   }, [value]);
 
   return (
@@ -204,11 +208,11 @@ const AutocompleteInput = <T,>({
         <StyledFormLabel htmlFor={id}>
           {label}
           {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+          {tooltipText && <Tooltip placement="right" title={tooltipText} />}
         </StyledFormLabel>
         <StyledAutocomplete
           value={val}
           onChange={onChangeWrapper}
-          onBlur={(event: React.FocusEvent<HTMLInputElement>) => onBlurWrapper(event.target.value)}
           options={options}
           readOnly={readOnly}
           forcePopupIcon
@@ -232,7 +236,7 @@ const AutocompleteInput = <T,>({
           renderInput={(params) => (
             <TextField
               {...params}
-              ref={inputRef}
+              inputRef={inputRef}
               name={name}
               required={required}
               placeholder={placeholder}

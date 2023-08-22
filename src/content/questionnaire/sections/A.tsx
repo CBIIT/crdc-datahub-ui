@@ -9,10 +9,12 @@ import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import AutocompleteInput from '../../../components/Questionnaire/AutocompleteInput';
-import institutionConfig from "../../../config/InstitutionConfig";
 import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
-import { filterNonNumeric, mapObjectWithKey } from '../../../utils';
+import { filterForNumbers, mapObjectWithKey, validateEmail } from '../../../utils';
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
+import institutionConfig from "../../../config/InstitutionConfig";
+import { InitialQuestionnaire } from '../../../config/InitialValues';
+import SectionMetadata from "../../../config/SectionMetadata";
 import useFormMode from "./hooks/useFormMode";
 
 export type KeyedContact = {
@@ -35,15 +37,18 @@ const StyledFormControlLabel = styled(FormControlLabel)({
  */
 const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data: { questionnaireData: data } } = useFormContext();
-  const { pi, primaryContact } = data;
+  const { pi } = data;
   const { readOnlyInputs } = useFormMode();
+  const { A: SectionAMetadata } = SectionMetadata;
 
+  const [primaryContact, setPrimaryContact] = useState<Contact>(data?.primaryContact);
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(data?.piAsPrimaryContact || false);
   const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
 
   const formRef = useRef<HTMLFormElement>();
   const {
-    nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef,
+    nextButtonRef, saveFormRef, submitFormRef,
+    approveFormRef, rejectFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
@@ -57,6 +62,11 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
     getFormObjectRef.current = getFormObject;
   }, [refs]);
+
+  const togglePrimaryPI = () => {
+    setPiAsPrimaryContact(!piAsPrimaryContact);
+    setPrimaryContact(cloneDeep(InitialQuestionnaire.primaryContact));
+  };
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) { return null; }
@@ -100,14 +110,14 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     >
       {/* Principal Investigator */}
       <SectionGroup
-        title="Principal Investigator"
-        description="Provide the Principal Investigator contact information for the study or collection"
+        title={SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.title}
+        description={SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.description}
       >
         <TextInput
           id="section-a-pi-first-name"
           label="First name"
           name="pi[firstName]"
-          value={pi.firstName}
+          value={pi?.firstName}
           placeholder="Enter first name"
           maxLength={50}
           required
@@ -117,7 +127,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-a-pi-last-name"
           label="Last name"
           name="pi[lastName]"
-          value={pi.lastName}
+          value={pi?.lastName}
           placeholder="Enter last name"
           maxLength={50}
           required
@@ -127,7 +137,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-a-pi-position"
           label="Position"
           name="pi[position]"
-          value={pi.position}
+          value={pi?.position}
           placeholder="Enter position"
           maxLength={100}
           required
@@ -136,10 +146,12 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-a-pi-email"
           type="email"
-          label="Email address"
+          label="Email"
           name="pi[email]"
-          value={pi.email}
-          placeholder="Enter email address"
+          value={pi?.email}
+          placeholder="Enter email"
+          validate={validateEmail}
+          errorText="Please provide a valid email address"
           required
           readOnly={readOnlyInputs}
         />
@@ -158,7 +170,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-a-pi-institution-address"
           label="Institution Address"
-          value={pi.address}
+          value={pi?.address}
           gridWidth={12}
           maxLength={200}
           name="pi[address]"
@@ -172,8 +184,8 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Primary Contact */}
       <SectionGroup
-        title="Primary Contact"
-        description="Provide the contact information for the primary contact who will be assisting with data submission, if different from PI"
+        title={SectionAMetadata.sections.PRIMARY_CONTACT.title}
+        description={SectionAMetadata.sections.PRIMARY_CONTACT.description}
       >
         <Grid item md={12}>
           <StyledFormControlLabel
@@ -181,7 +193,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             control={(
               <Checkbox
                 checked={piAsPrimaryContact}
-                onChange={() => !readOnlyInputs && setPiAsPrimaryContact(!piAsPrimaryContact)}
+                onChange={() => !readOnlyInputs && togglePrimaryPI()}
                 readOnly={readOnlyInputs}
               />
             )}
@@ -197,75 +209,81 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             readOnly
           />
         </Grid>
-        <TextInput
-          id="section-a-primary-contact-first-name"
-          label="First name"
-          name="primaryContact[firstName]"
-          value={(piAsPrimaryContact ? pi?.firstName : primaryContact?.firstName) || ""}
-          placeholder="Enter first name"
-          maxLength={50}
-          readOnly={piAsPrimaryContact || readOnlyInputs}
-          required={!piAsPrimaryContact}
-        />
-        <TextInput
-          id="section-a-primary-contact-last-name"
-          label="Last name"
-          name="primaryContact[lastName]"
-          value={(piAsPrimaryContact ? pi?.lastName : primaryContact?.lastName) || ""}
-          placeholder="Enter last name"
-          maxLength={50}
-          readOnly={piAsPrimaryContact || readOnlyInputs}
-          required={!piAsPrimaryContact}
-        />
-        <TextInput
-          id="section-a-primary-contact-position"
-          label="Position"
-          name="primaryContact[position]"
-          value={(piAsPrimaryContact ? pi?.position : primaryContact?.position) || ""}
-          placeholder="Enter position"
-          maxLength={100}
-          readOnly={piAsPrimaryContact || readOnlyInputs}
-          required={!piAsPrimaryContact}
-        />
-        <TextInput
-          id="section-a-primary-contact-email"
-          type="email"
-          label="Email"
-          name="primaryContact[email]"
-          value={(piAsPrimaryContact ? pi?.email : primaryContact?.email) || ""}
-          placeholder="Enter email address"
-          readOnly={piAsPrimaryContact || readOnlyInputs}
-          required={!piAsPrimaryContact}
-        />
-        <AutocompleteInput
-          id="section-a-primary-contact-institution"
-          label="Institution"
-          name="primaryContact[institution]"
-          value={(piAsPrimaryContact ? pi?.institution : primaryContact?.institution) || ""}
-          options={institutionConfig}
-          placeholder="Enter or Select an Institution"
-          readOnly={piAsPrimaryContact || readOnlyInputs}
-          disableClearable
-          required={!piAsPrimaryContact}
-          freeSolo
-        />
-        <TextInput
-          id="section-a-primary-contact-phone-number"
-          type="tel"
-          label="Phone number"
-          name="primaryContact[phone]"
-          filter={filterNonNumeric}
-          value={(piAsPrimaryContact ? "" : primaryContact?.phone) || ""}
-          placeholder="Enter phone number"
-          maxLength={25}
-          readOnly={piAsPrimaryContact || readOnlyInputs}
-        />
+        {!piAsPrimaryContact && (
+          <>
+            <TextInput
+              id="section-a-primary-contact-first-name"
+              label="First name"
+              name="primaryContact[firstName]"
+              value={primaryContact?.firstName || ""}
+              placeholder="Enter first name"
+              maxLength={50}
+              readOnly={readOnlyInputs}
+              required
+            />
+            <TextInput
+              id="section-a-primary-contact-last-name"
+              label="Last name"
+              name="primaryContact[lastName]"
+              value={primaryContact?.lastName || ""}
+              placeholder="Enter last name"
+              maxLength={50}
+              readOnly={readOnlyInputs}
+              required
+            />
+            <TextInput
+              id="section-a-primary-contact-position"
+              label="Position"
+              name="primaryContact[position]"
+              value={primaryContact?.position || ""}
+              placeholder="Enter position"
+              maxLength={100}
+              readOnly={readOnlyInputs}
+              required
+            />
+            <TextInput
+              id="section-a-primary-contact-email"
+              type="email"
+              label="Email"
+              name="primaryContact[email]"
+              value={primaryContact?.email || ""}
+              validate={validateEmail}
+              errorText="Please provide a valid email address"
+              placeholder="Enter email"
+              readOnly={readOnlyInputs}
+              required
+            />
+            <AutocompleteInput
+              id="section-a-primary-contact-institution"
+              label="Institution"
+              name="primaryContact[institution]"
+              value={primaryContact?.institution || ""}
+              options={institutionConfig}
+              placeholder="Enter or Select an Institution"
+              readOnly={readOnlyInputs}
+              disableClearable
+              required
+              freeSolo
+            />
+            <TextInput
+              id="section-a-primary-contact-phone-number"
+              type="tel"
+              label="Phone number"
+              name="primaryContact[phone]"
+              filter={filterForNumbers}
+              value={primaryContact?.phone || ""}
+              placeholder="Enter phone number"
+              maxLength={25}
+              readOnly={readOnlyInputs}
+            />
+          </>
+        )}
       </SectionGroup>
 
       {/* Additional Contacts */}
       <SectionGroup
-        title="Additional Contacts"
-        description="If there are additional points of contact (e.g., scientific and/or technical data coordinator), enter the contact details for each.  If there is more than one, you may add additional rows for the details for each contact"
+        title={SectionAMetadata.sections.ADDITIONAL_CONTACTS.title}
+        description={SectionAMetadata.sections.ADDITIONAL_CONTACTS.description}
         endButton={(
           <AddRemoveButton
             id="section-a-add-additional-contact-button"

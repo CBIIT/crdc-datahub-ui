@@ -1,25 +1,30 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import { AutocompleteChangeReason } from "@mui/material";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
+import { styled } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import dayjs from "dayjs";
-import programOptions, { BlankProgram, BlankStudy, OptionalStudy } from "../../../config/ProgramConfig";
-import fundingAgencyOptions from "../../../config/FundingConfig";
+import programOptions, { NotApplicableProgram, OptionalProgram } from "../../../config/ProgramConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import Autocomplete from "../../../components/Questionnaire/AutocompleteInput";
 import Publication from "../../../components/Questionnaire/Publication";
 import Repository from "../../../components/Questionnaire/Repository";
-import { findProgram, findStudy, mapObjectWithKey } from "../../../utils";
+import { filterAlphaNumeric, findProgram, mapObjectWithKey, programToSelectOption } from "../../../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import useFormMode from "./hooks/useFormMode";
+import FundingAgency from "../../../components/Questionnaire/FundingAgency";
+import SelectInput from "../../../components/Questionnaire/SelectInput";
+import SectionMetadata from "../../../config/SectionMetadata";
+
+const StyledProxyCheckbox = styled("input")({
+  display: "none !important"
+});
 
 export type KeyedPublication = {
   key: string;
@@ -33,6 +38,10 @@ export type KeyedRepository = {
   key: string;
 } & Repository;
 
+export type KeyedFunding = {
+  key: string;
+} & Funding;
+
 /**
  * Form Section B View
  *
@@ -42,17 +51,19 @@ export type KeyedRepository = {
 const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
+  const { B: SectionBMetadata } = SectionMetadata;
 
   const [program, setProgram] = useState<Program>(data.program);
-  const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(program.name, program.abbreviation));
-  const [study, setStudy] = useState<Study>(data.study);
-  const [studyOption, setStudyOption] = useState<StudyOption>(findStudy(study.name, study.abbreviation, programOption));
+  const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(data.program));
+  const [study] = useState<Study>(data.study);
   const [publications, setPublications] = useState<KeyedPublication[]>(data.study?.publications?.map(mapObjectWithKey) || []);
   const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
   const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
-  const [funding] = useState<Funding>(data.study?.funding);
+  const [fundings, setFundings] = useState<KeyedFunding[]>(data.study?.funding?.map(mapObjectWithKey) || []);
   const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isDbGapRegistered);
+  const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
 
+  const programKeyRef = useRef(new Date().getTime());
   const formRef = useRef<HTMLFormElement>();
   const {
     nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef,
@@ -97,19 +108,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.study.repositories = [];
     }
 
-    combinedData.study.funding.agencies = combinedData.study.funding.agencies.filter((a) => a.length > 0);
     return { ref: formRef, data: combinedData };
-  };
-
-  /**
-   * Will set the study input values to empty strings
-   * as well as the study option to a blank study
-   *
-   * @returns {void}
-   */
-  const clearStudyAndStudyOption = (): void => {
-    setStudy({ ...study, ...BlankStudy, description: "" });
-    setStudyOption(BlankStudy);
   };
 
   /**
@@ -120,68 +119,46 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @param r Reason for the event dispatch
    * @returns {void}
    */
-  const handleProgramChange = (e: React.SyntheticEvent, value: ProgramOption, r: AutocompleteChangeReason) => {
-    if (r !== "selectOption" && r !== "clear") { return; }
-    if (r === "clear") {
-      setProgram({ name: "", abbreviation: "", description: "" });
-      setProgramOption({ ...BlankProgram, studies: [BlankStudy, OptionalStudy] });
-      if (!studyOption?.isCustom) {
-        clearStudyAndStudyOption();
-      }
+  const handleProgramChange = (value: string) => {
+    if (programOption?.name === value) {
       return;
     }
 
-    const newProgram = findProgram(value.name, value.abbreviation);
-
-    if (newProgram?.isCustom) {
-      setProgram({ name: "", abbreviation: "", description: "" });
-    } else {
-      setProgram({ name: newProgram.name, abbreviation: newProgram.abbreviation, description: "" });
-    }
-
-    // Only reset study if the study is not currently custom
-    // The user may have entered a "Other" study and then changed the program
-    // and we don't want to reset the entered information
-    if (!studyOption?.isCustom) {
-      clearStudyAndStudyOption();
-    }
-
+    const newProgram = findProgram({ name: value });
     setProgramOption(newProgram);
-  };
+    programKeyRef.current = new Date().getTime();
 
-  /**
-   * Handles the study change event and updates the state
-   *
-   * @param e event
-   * @param value new study title
-   * @param r Reason for the event dispatch
-   * @returns {void}
-   */
-  const handleStudyChange = (e: React.SyntheticEvent, value: StudyOption, r: AutocompleteChangeReason) => {
-    if (r !== "selectOption" && r !== "clear") { return; }
-    if (r === "clear") {
-      clearStudyAndStudyOption();
+    // if not applicable, clear fields and set notApplicable property
+    if (newProgram?.name === NotApplicableProgram?.name) {
+      setProgram({ name: "", abbreviation: "", description: "", notApplicable: true });
       return;
     }
 
-    const newStudy = findStudy(value.name, value.abbreviation, programOption);
-    if (newStudy?.isCustom) {
-      setStudy({
-        ...InitialQuestionnaire.study,
+    // if "Other", then clear all fields
+    if (newProgram?.name === OptionalProgram.name) {
+      setProgram({
         name: "",
         abbreviation: "",
-        description: ""
+        description: "",
+        notApplicable: false
       });
-    } else {
-      setStudy({
-        ...InitialQuestionnaire.study,
-        ...study,
-        name: newStudy.name,
-        abbreviation: newStudy.abbreviation,
-      });
+      return;
     }
 
-    setStudyOption(newStudy);
+    // otherwise, prefill data from programOptions
+    setProgram({
+      name: newProgram?.name || "",
+      abbreviation: newProgram?.abbreviation || "",
+      description: newProgram?.description || "",
+      notApplicable: false
+    });
+  };
+
+  const handleIsDbGapRegisteredChange = (e, checked: boolean) => {
+    setIsdbGaPRegistered(checked);
+    if (!checked) {
+      setDbGaPPPHSNumber("");
+    }
   };
 
   /**
@@ -234,7 +211,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addRepository = () => {
     setRepositories([
       ...repositories,
-      { key: `${repositories.length}_${new Date().getTime()}`, name: "", studyID: "", submittedDate: "" },
+      { key: `${repositories.length}_${new Date().getTime()}`, name: "", studyID: "", dataTypesSubmitted: [], otherDataTypesSubmitted: "" },
     ]);
   };
 
@@ -247,8 +224,29 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setRepositories(repositories.filter((c) => c.key !== key));
   };
 
-  const readOnlyProgram = readOnlyInputs || !programOption?.isCustom || programOption === BlankProgram;
-  const readOnlyStudy = readOnlyInputs || !studyOption?.isCustom || studyOption === BlankStudy;
+  /**
+   * Add a empty funding to the fundings state
+   *
+   * @returns {void}
+   */
+  const addFunding = () => {
+    setFundings([
+      ...fundings,
+      { key: `${fundings.length}_${new Date().getTime()}`, agency: "", grantNumbers: "", nciProgramOfficer: "", nciGPA: "" },
+    ]);
+  };
+
+  /**
+   * Remove a funding from the fundings state
+   *
+   * @param key generated key for the funding
+   */
+  const removeFunding = (key: string) => {
+    setFundings(fundings.filter((f) => f.key !== key));
+  };
+
+  const readOnlyProgram = readOnlyInputs || !programOption?.editable;
+  const predefinedProgram = programOption && !programOption.editable && !programOption.notApplicable;
 
   return (
     <FormContainer
@@ -256,123 +254,118 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       formRef={formRef}
     >
       {/* Program Registration Section */}
-      <SectionGroup title="Program information">
-        <Autocomplete
-          key={`program-${programOption.name}`}
+      <SectionGroup
+        title={SectionBMetadata.sections.PROGRAM_INFORMATION.title}
+        description={SectionBMetadata.sections.PROGRAM_INFORMATION.description}
+      >
+        <SelectInput
           id="section-b-program"
-          gridWidth={12}
           label="Program"
-          value={programOption?.isCustom ? programOption : program}
+          options={programOptions?.map(programToSelectOption)}
+          value={programOption?.name}
           onChange={handleProgramChange}
-          options={programOptions}
-          renderOption={(props, option: ProgramOption) => {
-            if (option === BlankProgram) {
-              return null;
-            }
-            return <li {...props}>{`${option.name}${!option.isCustom && option.abbreviation ? ` (${option.abbreviation})` : ""}`}</li>;
-          }}
-          getOptionLabel={(option: ProgramOption) => (option.isCustom ? option.name : `${option.name}${option.abbreviation ? ` (${option.abbreviation})` : ""}`)}
-          isOptionEqualToValue={(option: ProgramOption, value: ProgramOption) => option.name === value.name && option.abbreviation === value.abbreviation}
-          placeholder="– Search and Select Program –"
-          validate={(input: ProgramOption) => input?.name?.length > 0}
+          placeholder="Select a program"
+          gridWidth={12}
+          tooltipText="The name of the broad administrative group that manages the data collection.  Example - Clinical Proteomic Tumor Analysis Consortium."
           required
           readOnly={readOnlyInputs}
         />
         <TextInput
-          id="section-b-program-name"
-          label="Program name"
+          key={`program-name-${program?.name}_${programKeyRef.current}`}
+          id="section-b-program-title"
+          label="Program Title"
           name="program[name]"
-          value={programOption?.isCustom ? program.name : programOption.name}
-          maxLength={programOption?.isCustom ? 50 : undefined}
+          value={predefinedProgram ? programOption?.name : program?.name}
+          maxLength={50}
           placeholder="50 characters allowed"
-          readOnly={readOnlyProgram}
           hideValidation={readOnlyProgram}
           required
+          readOnly={readOnlyProgram}
         />
         <TextInput
-          id="section-b-program-abbreviation-or-acronym"
-          label="Program abbreviation or acronym"
+          key={`program-abbreviation-${program?.abbreviation}_${programKeyRef.current}`}
+          id="section-b-program-abbreviation"
+          label="Program Abbreviation"
           name="program[abbreviation]"
-          value={programOption?.isCustom ? program.abbreviation : programOption.abbreviation}
-          maxLength={programOption?.isCustom ? 20 : undefined}
+          value={predefinedProgram ? programOption?.abbreviation : program?.abbreviation}
+          filter={(input: string) => filterAlphaNumeric(input, "- ")}
+          maxLength={20}
           placeholder="20 characters allowed"
-          readOnly={readOnlyProgram}
           hideValidation={readOnlyProgram}
           required
+          readOnly={readOnlyProgram}
         />
         <TextInput
+          key={`program-description-${program?.description}_${programKeyRef.current}`}
           id="section-b-program-description"
-          label="Program description"
+          label="Program Description"
           name="program[description]"
-          value={programOption?.isCustom ? program.description : " "}
+          value={predefinedProgram ? programOption?.description : program?.description}
           gridWidth={12}
           maxLength={500}
           placeholder="500 characters allowed"
           minRows={2}
-          readOnly={readOnlyProgram}
+          maxRows={2}
           hideValidation={readOnlyProgram}
-          required={programOption?.isCustom}
           multiline
+          required
+          readOnly={readOnlyProgram}
+        />
+        <StyledProxyCheckbox
+          value={program?.notApplicable?.toString()}
+          onChange={() => { }}
+          className="input"
+          name="program[notApplicable]"
+          type="checkbox"
+          data-type="boolean"
+          checked
+          readOnly={readOnlyProgram}
         />
       </SectionGroup>
 
       {/* Study Registration Section */}
-      <SectionGroup title="Study information">
-        <Autocomplete
-          key={`study-${studyOption.name}`}
-          id="section-b-study"
-          gridWidth={12}
-          label="Study"
-          value={studyOption?.isCustom ? studyOption : study}
-          onChange={handleStudyChange}
-          options={programOption.studies}
-          renderOption={(props, option: StudyOption) => {
-            if (option === BlankStudy) {
-              return null;
-            }
-            return <li {...props}>{`${option.name}${!option.isCustom && option.abbreviation ? ` (${option.abbreviation})` : ""}`}</li>;
-          }}
-          getOptionLabel={(option: StudyOption) => (option.isCustom ? option.name : `${option.name}${option.abbreviation ? ` (${option.abbreviation})` : ""}`)}
-          isOptionEqualToValue={(option: StudyOption, value: StudyOption) => option.name === value.name && option.abbreviation === value.abbreviation}
-          placeholder="– Search and Select Study –"
-          validate={(input: ProgramOption) => input?.name?.length > 0}
-          required
-          readOnly={readOnlyInputs}
-        />
+      <SectionGroup
+        title={SectionBMetadata.sections.STUDY_INFORMATION.title}
+        description={SectionBMetadata.sections.STUDY_INFORMATION.description}
+      >
         <TextInput
-          id="section-b-study-name"
-          label="Study name"
+          id="section-b-study-title"
+          label="Study Title"
           name="study[name]"
-          value={studyOption?.isCustom ? study.name : studyOption.name}
-          maxLength={studyOption?.isCustom ? 50 : undefined}
-          placeholder="50 characters allowed"
-          readOnly={readOnlyStudy}
-          hideValidation={readOnlyStudy}
+          value={study.name}
+          maxLength={100}
+          placeholder="100 characters allowed"
+          readOnly={readOnlyInputs}
+          hideValidation={readOnlyInputs}
+          tooltipText="The title should provide a snapshot of the study; it should include a broad goal or conclusion of the project. It must use title case. For example, the manuscript title."
           required
         />
         <TextInput
           id="section-b-study-abbreviation-or-acronym"
-          label="Study abbreviation or acronym"
+          label="Study Abbreviation"
           name="study[abbreviation]"
-          value={studyOption?.isCustom ? study.abbreviation : studyOption.abbreviation}
-          maxLength={studyOption?.isCustom ? 20 : undefined}
+          value={study.abbreviation}
+          filter={(input: string) => filterAlphaNumeric(input, "- ")}
+          maxLength={20}
           placeholder="20 characters allowed"
-          readOnly={readOnlyStudy}
-          hideValidation={readOnlyStudy}
+          readOnly={readOnlyInputs}
+          hideValidation={readOnlyInputs}
+          tooltipText="Provide a short abbreviation or acronym (e.g., NCI-MATCH) for the study."
           required
         />
         <TextInput
           id="section-b-study-description"
-          label="Study description"
+          label="Study Description"
           name="study[description]"
-          value={studyOption?.isCustom ? study.description : " "}
+          value={study.description}
           gridWidth={12}
-          maxLength={500}
-          placeholder="500 characters allowed"
+          maxLength={2500}
+          placeholder="2,500 characters allowed"
           minRows={2}
-          readOnly={readOnlyStudy}
-          hideValidation={readOnlyStudy}
-          required={studyOption?.isCustom}
+          maxRows={2}
+          readOnly={readOnlyInputs}
+          hideValidation={readOnlyInputs}
+          required
           multiline
           tooltipText={(
             <>
@@ -388,48 +381,71 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
       </SectionGroup>
 
+      {/* Funding Agency */}
+      <SectionGroup
+        title={SectionBMetadata.sections.FUNDING_AGENCY.title}
+        description={SectionBMetadata.sections.FUNDING_AGENCY.description}
+        endButton={(
+          <AddRemoveButton
+            id="section-b-add-funding-agency-button"
+            label="Add Agency"
+            startIcon={<AddCircleIcon />}
+            onClick={addFunding}
+            disabled={readOnlyInputs || status === FormStatus.SAVING}
+          />
+        )}
+      >
+        <TransitionGroupWrapper
+          items={fundings}
+          renderItem={(funding: KeyedFunding, idx: number) => (
+            <FundingAgency
+              idPrefix="section-b-"
+              index={idx}
+              funding={funding}
+              onDelete={() => removeFunding(funding.key)}
+              readOnly={readOnlyInputs}
+            />
+        )}
+        />
+      </SectionGroup>
+
       {/* dbGaP Registration section */}
-      <SectionGroup title="Indicate if your study is currently registered with dbGaP">
+      <SectionGroup
+        title={SectionBMetadata.sections.DBGAP_REGISTRATION.title}
+        description={SectionBMetadata.sections.DBGAP_REGISTRATION.description}
+      >
         <SwitchInput
-          id="section-b-is-dbgap-registered"
-          label="dbGaP Registered?"
+          id="section-b-dbGaP-registration"
+          label="dbGaP REGISTRATION"
           name="study[isDbGapRegistered]"
           required
           value={isDbGapRegistered}
-          onChange={(e, checked: boolean) => setIsdbGaPRegistered(checked)}
+          onChange={handleIsDbGapRegisteredChange}
           isBoolean
-          toggleContent={(
-            <TextInput
-              id="section-b-dbgap-phs-number"
-              label="Please provide the associated dbGaP PHS Number"
-              name="study[dbGaPPPHSNumber]"
-              value={data.study.dbGaPPPHSNumber}
-              maxLength={50}
-              placeholder="50 characters allowed"
-              gridWidth={12}
-              readOnly={readOnlyInputs}
-              required={isDbGapRegistered}
-            />
-          )}
           readOnly={readOnlyInputs}
         />
-
+        <TextInput
+          id="section-b-if-yes-provide-dbgap-phs-number"
+          label="If yes, provide dbGaP PHS number"
+          name="study[dbGaPPPHSNumber]"
+          value={dbGaPPPHSNumber}
+          onChange={(e) => setDbGaPPPHSNumber(e.target.value || "")}
+          maxLength={50}
+          placeholder="50 characters allowed"
+          gridWidth={12}
+          readOnly={readOnlyInputs || !isDbGapRegistered}
+          required={isDbGapRegistered}
+        />
       </SectionGroup>
 
-      {/* Associated Publications */}
+      {/* Existing Publications */}
       <SectionGroup
-        title="Publications associated with this study, if any."
-        description={(
-          <>
-            Include the PubMed ID (PMOID, DOI)
-            <br />
-            Indicate one Publication per row.
-          </>
-        )}
+        title={SectionBMetadata.sections.EXISTING_PUBLICATIONS.title}
+        description={SectionBMetadata.sections.EXISTING_PUBLICATIONS.description}
         endButton={(
           <AddRemoveButton
             id="section-b-add-publication-button"
-            label="Add Publication"
+            label="Add Existing Publication"
             startIcon={<AddCircleIcon />}
             onClick={addPublication}
             disabled={readOnlyInputs || status === FormStatus.SAVING}
@@ -452,7 +468,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Planned Publications */}
       <SectionGroup
-        title="Planned Publications and estimated publication date"
+        title={SectionBMetadata.sections.PLANNED_PUBLICATIONS.title}
+        description={SectionBMetadata.sections.PLANNED_PUBLICATIONS.description}
         endButton={(
           <AddRemoveButton
             id="section-b-add-planned-publication-button"
@@ -480,13 +497,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       {/* Study Repositories */}
       <SectionGroup
-        description={(
-          <>
-            Repository where study currently registered (e.g. dbGaP, ORCID),
-            <br />
-            and associated repository study identifier
-          </>
-        )}
+        title={SectionBMetadata.sections.REPOSITORY.title}
+        description={SectionBMetadata.sections.REPOSITORY.description}
         endButton={(
           <AddRemoveButton
             id="section-b-add-repository-button"
@@ -497,7 +509,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           />
         )}
       >
-
         <TransitionGroupWrapper
           items={repositories}
           renderItem={(repo: KeyedRepository, idx: number) => (
@@ -509,50 +520,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               readOnly={readOnlyInputs}
             />
           )}
-        />
-      </SectionGroup>
-
-      {/* Funding Agency */}
-      <SectionGroup title="Agency(s) and/or organization(s) that funded this study">
-        <Autocomplete
-          id="section-b-funding-agency"
-          label="Funding Agency"
-          value={funding?.agencies?.[0]}
-          name="study[funding][agencies][0]"
-          options={fundingAgencyOptions}
-          placeholder="– Search and Select Agency –"
-          freeSolo
-          disableClearable
-          required
-          validate={(value: string) => value?.length > 0}
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-b-grant-or-contract-numbers"
-          label="Grant or Contract Number(s)"
-          name="study[funding][grantNumbers]"
-          value={funding?.grantNumbers}
-          maxLength={50}
-          placeholder="Enter Grant or Contract Number(s)"
-          required
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-b-nci-program-officer-name"
-          label="NCI Program Officer name, if applicable"
-          name="study[funding][nciProgramOfficer]"
-          value={funding?.nciProgramOfficer}
-          placeholder="Enter NCI Program Officer name, if applicable"
-          maxLength={50}
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-b-nci-gpa-name"
-          label="NCI Genomic Program Administrator (GPA) name, if applicable"
-          name="study[funding][nciGPA]"
-          value={funding?.nciGPA}
-          placeholder="Enter GPA name, if applicable"
-          readOnly={readOnlyInputs}
         />
       </SectionGroup>
     </FormContainer>

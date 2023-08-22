@@ -9,12 +9,24 @@ import React, {
 import { useLazyQuery, useMutation } from '@apollo/client';
 import dayjs from "dayjs";
 import { merge, cloneDeep } from "lodash";
-import { mutation as APPROVE_APP, Response as ApproveAppResp } from '../../graphql/approveApplication';
-import { mutation as REJECT_APP, Response as RejectAppResp } from '../../graphql/rejectApplication';
-import { query as LAST_APP, Response as LastAppResp } from '../../graphql/getMyLastApplication';
-import { query as GET_APP, Response as GetAppResp } from '../../graphql/getApplication';
-import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
-import { mutation as SUBMIT_APP, Response as SubmitAppResp } from '../../graphql/submitApplication';
+import {
+  APPROVE_APP,
+  GET_APP,
+  LAST_APP,
+  REJECT_APP,
+  REOPEN_APP,
+  REVIEW_APP,
+  SAVE_APP,
+  SUBMIT_APP,
+  ApproveAppResp,
+  GetAppResp,
+  LastAppResp,
+  RejectAppResp,
+  ReopenAppResp,
+  ReviewAppResp,
+  SaveAppResp,
+  SubmitAppResp,
+} from "../../graphql";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import { FormatDate } from "../../utils";
 
@@ -22,6 +34,8 @@ export type ContextState = {
   status: Status;
   data: Application;
   submitData?: () => Promise<string | boolean>;
+  reopenForm?: () => Promise<string | boolean>;
+  reviewForm?: () => Promise<string | boolean>;
   approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
   setData?: (Application) => Promise<string | false>;
@@ -107,6 +121,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     fetchPolicy: 'no-cache'
   });
 
+  const [reviewApp] = useMutation<ReviewAppResp>(REVIEW_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [reopenApp] = useMutation<ReopenAppResp>(REOPEN_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
   const [approveApp] = useMutation<ApproveAppResp>(APPROVE_APP, {
     variables: { id },
     context: { clientName: 'backend' },
@@ -146,8 +172,22 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     }
 
     if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
-      newState.data._id = d.saveApplication["_id"];
+      newState.data = {
+        ...newState.data,
+        _id: d.saveApplication["_id"],
+        applicant: d?.saveApplication?.applicant,
+        organization: d?.saveApplication?.organization,
+      };
     }
+
+    newState.data = {
+      ...newState.data,
+      status: d?.saveApplication?.status,
+      updatedAt: d?.saveApplication?.updatedAt,
+      createdAt: d?.saveApplication?.createdAt,
+      submittedDate: d?.saveApplication?.submittedDate,
+      history: d?.saveApplication?.history
+    };
 
     setState({ ...newState, status: Status.LOADED });
     return d?.saveApplication?.["_id"] || false;
@@ -212,6 +252,58 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     return res?.rejectApplication?.["_id"] || false;
   };
 
+  // Updating form status from Submitted to In Review
+  const reviewForm = async () => {
+    setState((prevState) => ({ ...prevState, status: Status.LOADING }));
+
+    const { data: res, errors } = await reviewApp({
+      variables: {
+        _id: state?.data["_id"],
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      return false;
+    }
+
+    setState((prevState) => ({
+      ...prevState,
+      data: {
+        ...prevState?.data,
+        ...res?.reviewApplication,
+      },
+      status: Status.LOADED,
+    }));
+    return res?.reviewApplication?.["_id"] || false;
+  };
+
+  // Reopen a form when it has been rejected and they submit an updated form
+  const reopenForm = async () => {
+    setState((prevState) => ({ ...prevState, status: Status.LOADING }));
+
+    const { data: res, errors } = await reopenApp({
+      variables: {
+        _id: state?.data["_id"],
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      return false;
+    }
+
+    setState((prevState) => ({
+      ...prevState,
+      data: {
+        ...prevState?.data,
+        ...res?.reopenApplication
+      },
+      status: Status.LOADED,
+    }));
+    return res?.reopenApplication?.["_id"] || false;
+  };
+
   useEffect(() => {
     if (!id || !id.trim()) {
       setState({ status: Status.ERROR, data: null, error: "Invalid application ID provided" });
@@ -252,8 +344,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       const questionnaireData: QuestionnaireData = JSON.parse(getApplication?.questionnaireData || null);
 
       // Check if we need to autofill the PI details
-      const sectionA = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
-      if (!["In Progress", "Complete"].includes(sectionA?.status)) {
+      const sectionA: Section = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
+      if (!sectionA || sectionA?.status === "Not Started") {
         const { data: lastAppData } = await lastApp();
         const { getMyLastApplication } = lastAppData || {};
         const parsedLastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
@@ -280,7 +372,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     })();
   }, [id]);
 
-  const value = useMemo(() => ({ ...state, setData, submitData, approveForm, rejectForm }), [state]);
+  const value = useMemo(
+    () => ({
+      ...state,
+      setData,
+      submitData,
+      approveForm,
+      rejectForm,
+      reviewForm,
+      reopenForm,
+    }),
+    [state]
+  );
 
   return (
     <Context.Provider value={value}>

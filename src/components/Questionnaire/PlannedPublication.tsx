@@ -42,7 +42,7 @@ const PlannedPublication: FC<Props> = ({
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
           id={idPrefix.concat(`planned-publication-${index}-title`)}
-          label="Planned Publication Title"
+          label="Publication Title"
           name={`study[plannedPublications][${index}][title]`}
           value={title}
           placeholder="Enter title"

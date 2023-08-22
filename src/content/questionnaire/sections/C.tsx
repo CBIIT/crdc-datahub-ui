@@ -13,9 +13,10 @@ import cancerTypeOptions from "../../../config/CancerTypesConfig";
 import preCancerTypeOptions from "../../../config/PreCancerTypesConfig";
 import speciesOptions from "../../../config/SpeciesConfig";
 import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
-import { reshapeCheckboxGroupOptions, isValidInRange } from "../../../utils";
+import { reshapeCheckboxGroupOptions, isValidInRange, filterPositiveIntegerString } from "../../../utils";
 import useFormMode from "./hooks/useFormMode";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
+import SectionMetadata from "../../../config/SectionMetadata";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
@@ -32,6 +33,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { readOnlyInputs } = useFormMode();
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
+  const { C: SectionCMetadata } = SectionMetadata;
 
   const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
 
@@ -67,10 +69,10 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       description={SectionOption.title}
       formRef={formRef}
     >
-      {/* Program Registration Section */}
+      {/* Data Access Section */}
       <SectionGroup
-        title="Data Access"
-        description="Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH."
+        title={SectionCMetadata.sections.DATA_ACCESS.title}
+        description={SectionCMetadata.sections.DATA_ACCESS.description}
       >
         <FormGroupCheckbox
           idPrefix="section-c-access-types"
@@ -90,9 +92,10 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
       </SectionGroup>
 
+      {/* Cancer Types Section */}
       <SectionGroup
-        title="Cancer Types"
-        description="Select the types of cancer(s) and, if applicable, pre-cancer(s) being studied. Multiple cancer types may be selected."
+        title={SectionCMetadata.sections.CANCER_TYPES.title}
+        description={SectionCMetadata.sections.CANCER_TYPES.description}
       >
         <SelectInput
           id="section-c-cancer-types"
@@ -137,7 +140,9 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       </SectionGroup>
 
       {/* Subjects/Species Section */}
-      <SectionGroup title="Subjects/Species">
+      <SectionGroup
+        title={SectionCMetadata.sections.SUBJECTS.title}
+      >
         <SelectInput
           id="section-c-species-of-subjects"
           label="Species of subjects (choose all that apply)"
@@ -154,14 +159,14 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Number of subjects included in the submission"
           name="numberOfParticipants"
           placeholder="##"
-          type="number"
+          type="text"
           value={data.numberOfParticipants}
+          filter={filterPositiveIntegerString}
           validate={(input: string) => isValidInRange(input, 1)} // greater than 0
-          errorText="Value must be greater than 0. Please enter a valid number greater than 0."
+          errorText="Value must be greater than 0."
           inputProps={{
-            step: 1,
-            min: 1,
-          }}
+            "data-type": "number"
+          } as unknown}
           required
           readOnly={readOnlyInputs}
         />

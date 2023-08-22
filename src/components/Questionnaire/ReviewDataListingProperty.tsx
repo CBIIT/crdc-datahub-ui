@@ -1,5 +1,5 @@
-import { Stack, styled } from "@mui/material";
-import { FC } from "react";
+import { Grid, Stack, styled } from "@mui/material";
+import { FC, useMemo, useState } from "react";
 
 export const StyledLabel = styled("span")(() => ({
   color: "#000000",
@@ -17,6 +17,8 @@ export const StyledValue = styled("span")(() => ({
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontWeight: 400,
   lineHeight: "19.6px",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word"
 }));
 
 const StyledLabelWrapper = styled(Stack)(() => ({
@@ -25,14 +27,18 @@ const StyledLabelWrapper = styled(Stack)(() => ({
   minWidth: "fit-content",
 }));
 
-const StyledPropertyWrapper = styled(Stack)(() => ({
-  marginBottom: "3px",
+const StyledGrid = styled(Grid)(() => ({
+  marginBottom: "16px",
 }));
+
+type GridWidth = 2 | 4 | 6 | 8 | 10 | 12;
 
 type Props = {
   label?: string | JSX.Element;
-  value: string | JSX.Element;
+  value: string | JSX.Element | string[];
   valuePlacement?: "right" | "bottom";
+  isList?: boolean;
+  gridWidth?: GridWidth;
   hideLabel?: boolean;
 };
 
@@ -40,34 +46,63 @@ const ReviewDataListingProperty: FC<Props> = ({
   label,
   value,
   valuePlacement = "right",
+  isList,
+  gridWidth,
   hideLabel = false,
-}) => (
-  <StyledPropertyWrapper
-    direction={valuePlacement === "bottom" ? "column" : "row"}
-    alignItems="start"
-    justifyContent="start"
-  >
-    {label && (
-      <StyledLabelWrapper
-        direction="row"
-        alignItems="center"
-        sx={{ marginBottom: valuePlacement === "bottom" ? "3px" : 0 }}
-      >
-        <StyledLabel>{!hideLabel && label}</StyledLabel>
-      </StyledLabelWrapper>
-    )}
-    {typeof value === "string" ? (
+}) => {
+  const [isMultiple, setIsMultiple] = useState(false);
+
+  const displayValues: string[] = useMemo(() => {
+    if (!isList || (typeof value !== "string" && !Array.isArray(value))) {
+      return [];
+    }
+    if (typeof value === "string") {
+      const splitted = value.split(',').map((item) => item.trim()).filter((item) => item.length);
+      if (splitted.length > 1) {
+        setIsMultiple(true);
+      }
+      return splitted;
+    }
+    setIsMultiple(true);
+    return value?.map((item) => item.trim()).filter((item) => item.length);
+  }, [value, isList]);
+
+  return (
+    <StyledGrid md={gridWidth || 6} xs={12} item>
       <Stack
-        display={valuePlacement === "right" ? "inline-flex" : "flex"}
-        direction="row"
-        alignItems="center"
+        direction={valuePlacement === "bottom" ? "column" : "row"}
+        alignItems="start"
+        justifyContent="start"
       >
-        <StyledValue>{value}</StyledValue>
+        {label && (
+          <StyledLabelWrapper
+            direction="row"
+            alignItems="center"
+            sx={{ marginBottom: valuePlacement === "bottom" ? "3px" : 0 }}
+          >
+            <StyledLabel>{!hideLabel && label}</StyledLabel>
+          </StyledLabelWrapper>
+        )}
+        <Stack
+          display={valuePlacement === "right" ? "inline-flex" : "flex"}
+          direction={isMultiple ? "column" : "row"}
+          alignItems={isMultiple ? "flex-start" : "center"}
+          spacing={1}
+        >
+          {isList ? displayValues?.map((val, idx) => (
+            <StyledValue key={val?.toString()}>
+              {' '}
+              {`${val}${idx !== displayValues.length - 1 ? "," : ""}`}
+            </StyledValue>
+          )) : (
+            <StyledValue>
+              {value}
+            </StyledValue>
+          )}
+        </Stack>
       </Stack>
-    ) : (
-      value
-    )}
-  </StyledPropertyWrapper>
-);
+    </StyledGrid>
+  );
+};
 
 export default ReviewDataListingProperty;

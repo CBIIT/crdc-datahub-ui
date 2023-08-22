@@ -1,9 +1,8 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import styled from '@emotion/styled';
 import {
   List, ListItemText, ListItemButton,
-  Stack, ListItemAvatar
+  Stack, ListItemAvatar, styled
 } from '@mui/material';
 import config from '../../config/SectionConfig';
 import { useFormContext } from '../Contexts/FormContext';
@@ -100,12 +99,13 @@ const ProgressBar: FC<Props> = ({ section }) => {
     const reviewSection = newSections.find((s) => s.id === "review");
     const reviewUnlocked = completedSections === sectionKeys.length - 1;
     if (reviewSection) {
+      const showReviewTitle = formMode === "View Only" || formMode === "Review";
       // eslint-disable-next-line no-nested-ternary
       reviewSection.icon = ["Approved"].includes(status) && reviewUnlocked
         ? "Completed"
         : reviewUnlocked ? "Review" : "ReviewDisabled";
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
-      reviewSection.title = formMode === "Review" ? "Review" : "Review & Submit";
+      reviewSection.title = showReviewTitle ? "Review" : reviewSection.title;
     }
 
     setSections(newSections);

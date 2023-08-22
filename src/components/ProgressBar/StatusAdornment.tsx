@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
-import styled from '@emotion/styled';
-import { Avatar } from '@mui/material';
+import { Avatar, styled } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 

@@ -1,10 +1,14 @@
-import React, { FC, ReactElement, useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, {
+  FC, ReactElement, useEffect,
+  useId, useMemo, useRef, useState
+} from 'react';
 import { SwitchProps, Grid, Switch, FormHelperText } from '@mui/material';
 import styled from "styled-components";
 import Tooltip from "./Tooltip";
 import { updateInputValidity } from '../../utils';
 
 const GridStyled = styled(Grid)`
+  margin-bottom: 20px;
   // Customize the root class
   .switchRoot {
     width: 65px;
@@ -73,6 +77,7 @@ const GridStyled = styled(Grid)`
     margin-right: 4px;
   }
   .labelContainer {
+    color: #083A50;
     display: flex;
     align-items: center;
     height: 20px;
@@ -80,7 +85,7 @@ const GridStyled = styled(Grid)`
   .switchYesNoContainer {
     display: flex;
     align-items: center;
-    margin-right: 32px;
+    margin-right: 72px;
     min-height: 50px;
   }
   .tooltip {
@@ -149,6 +154,7 @@ const CustomSwitch: FC<Props> = ({
   containerWidth = "auto",
   touchRequired,
   readOnly,
+  sx,
   ...rest
 }) => {
   const id = useId();
@@ -156,9 +162,9 @@ const CustomSwitch: FC<Props> = ({
   const [val, setVal] = useState<boolean | null>(value);
   const [touched, setTouched] = useState(value?.toString()?.length > 0);
   const [error, setError] = useState(false);
-
   const errorMsg = errorText || (required ? "This field is required" : null);
-  const switchInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const proxyValue = useMemo(() => {
     if (isBoolean) {
       return touchRequired && !touched ? undefined : val?.toString();
@@ -172,12 +178,11 @@ const CustomSwitch: FC<Props> = ({
       return;
     }
     if (!touched) {
-      updateInputValidity(switchInputRef, errorMsg);
-      setError(true);
+      updateInputValidity(inputRef, errorMsg);
       return;
     }
-    updateInputValidity(switchInputRef);
-    setError(false);
+
+    updateInputValidity(inputRef);
   }, [touched, touchRequired]);
 
   const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -192,10 +197,20 @@ const CustomSwitch: FC<Props> = ({
     }
 
     setVal(checked);
+    setError(false);
   };
 
+  useEffect(() => {
+    const invalid = () => setError(true);
+
+    inputRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
+
   return (
-    <GridStyled md={gridWidth || 6} xs={12} item>
+    <GridStyled md={gridWidth || 6} xs={12} item sx={sx}>
       <Container $containerWidth={containerWidth}>
         <div className="labelContainer">
           {required ? <span className="asterisk">*</span> : ""}
@@ -206,7 +221,7 @@ const CustomSwitch: FC<Props> = ({
           <div className="switchYesNoContainer">
             <div className={val ? "text" : "textChecked"}>No</div>
             <Switch
-              inputRef={switchInputRef}
+              inputRef={inputRef}
               inputProps={{ datatype: "boolean" }}
               focusVisibleClassName="focusVisible"
               id={id}
