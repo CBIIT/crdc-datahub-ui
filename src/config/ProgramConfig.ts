@@ -38,7 +38,19 @@ const options: ProgramOption[] = [
   {
     name: "Childhood Cancer Data Initiative",
     abbreviation: "CCDI",
-    description: "NCI’s Childhood Cancer Data Initiative (CCDI) is building a community centered around childhood cancer care and research data.",
+    description: "NCI's Childhood Cancer Data Initiative (CCDI) is building a community centered around childhood cancer care and research data.",
+    notApplicable: false,
+  },
+  {
+    name: "Clinical Proteomic Tumor Analysis Consortium",
+    abbreviation: "CPTAC",
+    description: "The National Cancer Institute's Clinical Proteomic Tumor Analysis Consortium (CPTAC) is a national effort to accelerate the understanding of the molecular basis of cancer through the application of large-scale proteome and genome analysis, or proteogenomics.",
+    notApplicable: false,
+  },
+  {
+    name: "Division of Cancer Control and Population Sciences",
+    abbreviation: "DCCPS",
+    description: "The Division of Cancer Control and Population Sciences (DCCPS) plays a unique role in reducing the burden of cancer in America acting as NCI’s bridge to public health research, practice, and policy. DCCPS, an extramural division, has the lead responsibility at NCI for supporting research in surveillance, epidemiology, health services, behavioral science, and cancer survivorship.",
     notApplicable: false,
   },
   {
