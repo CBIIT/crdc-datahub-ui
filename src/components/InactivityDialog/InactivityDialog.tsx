@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 // import env from '../../utils/env';
 
 import { useAuthContext } from '../Contexts/AuthContext';
-import { PING_INTERVAL, REDIRECT_AFTER_SIGN_OUT, SHOW_WARNING_BEFORE } from '../../config/siteWideConfig';
 
 const InacivityWarningDialog = styled(Dialog)`
   .MuiDialog-paper {
@@ -111,6 +110,8 @@ const SessionTimeoutContent = styled.div`
     }
 `;
 
+const secondsToMinuteString = (seconds) => new Date(seconds * 1000).toISOString().substring(14, 19);
+
 const InactivityDialog = () => {
   const authData = useAuthContext();
   const { isLoggedIn } = authData;
@@ -118,24 +119,38 @@ const InactivityDialog = () => {
   const [timedOut, setTimedOut] = useState(false);
   const [intervalID, setIntervalID] = useState<NodeJS.Timer>(null);
   const navigate = useNavigate();
-  const thresholdTime = 300;
+  const thresholdTime = 1800;
 
   const [timeLeft, setTimeLeft] = useState(thresholdTime);
+  const extendSession = async () => {
+    const AUTH_API = `${window.origin}/api/authn/authenticated`;
+    try {
+      const res = await fetch(AUTH_API, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      }).then((response) => response.json()).catch(() => {
+      });
 
-  const extendSession = () => {
-    // todo: actual extend session logic
-    console.log("session extended");
+      if (res.status) {
+        setWarning(false);
+        console.log("extended session");
+      }
+    } catch (e) {
+      // Add Erro handler here.
+    }
   };
 
   const loadData = async () => {
-    // const AUTH_API = env.REACT_APP_AUTH_SERVICE_API;
     try {
-      // TEMP MOCK API ENDPOINT
-      // TODO: PUT ACTUAL API ENDPOINT
-      const res = await fetch(`https://15468749-712b-41ab-8dfd-4b9908525af1.mock.pstmn.io/test`);
+      const SESSION_TTL_API = `${window.origin}/api/authn/session-ttl`;
+
+      const res = await fetch(SESSION_TTL_API);
       const data = await res.json();
       const { ttl } = data;
-      console.log("ttl recieved from mock api: ", ttl);
+      console.log("ttl recieved from api: ", ttl);
       if (ttl <= 0) {
         // If user did not select any option and timed out in BE.
         authData.logout();
@@ -158,11 +173,11 @@ const InactivityDialog = () => {
     } else {
       clearInterval(intervalID);
     }
+    return () => clearInterval(intervalID);
   }, [isLoggedIn]);
 
   const handleExtendSession = () => {
     extendSession();
-    setWarning(false);
   };
   const handleSignOut = () => {
     authData.logout();
@@ -176,7 +191,9 @@ const InactivityDialog = () => {
         <InacivityWarningContent>
           This session is about to expire due to inactivity.
           <br />
-          You will be logged out in 3 minutes.
+          You will be logged out in
+          {` ${secondsToMinuteString(timeLeft)} `}
+          minutes.
           <br />
           Please elect to extend this session or logout.
           <div className="alignCenter">
