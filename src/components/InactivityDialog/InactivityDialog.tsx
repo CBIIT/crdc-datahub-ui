@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Dialog, DialogTitle } from '@mui/material';
 import styled from 'styled-components';
-
 import { useNavigate } from 'react-router-dom';
+import GenericAlert from '../GenericAlert';
+
 // import env from '../../utils/env';
 
 import { useAuthContext } from '../Contexts/AuthContext';
@@ -119,7 +120,8 @@ const InactivityDialog = () => {
   const [timedOut, setTimedOut] = useState(false);
   const [intervalID, setIntervalID] = useState<NodeJS.Timer>(null);
   const navigate = useNavigate();
-  const thresholdTime = 1800;
+  const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
+  const thresholdTime = 300;
 
   const [timeLeft, setTimeLeft] = useState(thresholdTime);
   const extendSession = async () => {
@@ -136,7 +138,6 @@ const InactivityDialog = () => {
 
       if (res.status) {
         setWarning(false);
-        console.log("extended session");
       }
     } catch (e) {
       // Add Erro handler here.
@@ -150,11 +151,9 @@ const InactivityDialog = () => {
       const res = await fetch(SESSION_TTL_API);
       const data = await res.json();
       const { ttl } = data;
-      console.log("ttl recieved from api: ", ttl);
       if (ttl <= 0) {
         // If user did not select any option and timed out in BE.
-        authData.logout();
-        setWarning(false);
+        handleSignOut();
         setTimedOut(true);
       } else if (ttl > 0 && ttl <= thresholdTime) {
         setTimeLeft(ttl);
@@ -179,13 +178,23 @@ const InactivityDialog = () => {
   const handleExtendSession = () => {
     extendSession();
   };
-  const handleSignOut = () => {
-    authData.logout();
-    setWarning(false);
+  const handleSignOut = async () => {
+    const logoutStatus = await authData.logout();
+    if (logoutStatus) {
+      navigate("/");
+      setWarning(false);
+      setShowLogoutAlert(true);
+      setTimeout(() => setShowLogoutAlert(false), 10000);
+    }
   };
 
   return (
     <>
+      <GenericAlert open={showLogoutAlert}>
+        <span>
+          You have been logged out.
+        </span>
+      </GenericAlert>
       <InacivityWarningDialog open={warning}>
         <DialogTitle id="customized-dialog-title"> Session Timeout Warning</DialogTitle>
         <InacivityWarningContent>
@@ -200,7 +209,6 @@ const InactivityDialog = () => {
             <Button
               variant="contained"
               className="buttonGroup extendButton"
-              autoFocus
               onClick={handleExtendSession}
             >
               EXTEND SESSION
@@ -239,7 +247,6 @@ const InactivityDialog = () => {
             <Button
               variant="contained"
               className="buttonGroup closeButton"
-              autoFocus
               onClick={() => setTimedOut(false)}
             >
               CLOSE
