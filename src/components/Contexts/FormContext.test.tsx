@@ -112,6 +112,7 @@ describe("FormContext > FormProvider Tests", () => {
           getApplication: {
             _id: "556ac14a-f247-42e8-8878-8468060fb49a",
             questionnaireData: JSON.stringify({
+              sections: [{ name: "A", status: "In Progress" }],
               pi: {
                 firstName: "Successfully",
                 lastName: "Fetched",

@@ -172,8 +172,22 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     }
 
     if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
-      newState.data._id = d.saveApplication["_id"];
+      newState.data = {
+        ...newState.data,
+        _id: d.saveApplication["_id"],
+        applicant: d?.saveApplication?.applicant,
+        organization: d?.saveApplication?.organization,
+      };
     }
+
+    newState.data = {
+      ...newState.data,
+      status: d?.saveApplication?.status,
+      updatedAt: d?.saveApplication?.updatedAt,
+      createdAt: d?.saveApplication?.createdAt,
+      submittedDate: d?.saveApplication?.submittedDate,
+      history: d?.saveApplication?.history
+    };
 
     setState({ ...newState, status: Status.LOADED });
     return d?.saveApplication?.["_id"] || false;
@@ -330,8 +344,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       const questionnaireData: QuestionnaireData = JSON.parse(getApplication?.questionnaireData || null);
 
       // Check if we need to autofill the PI details
-      const sectionA = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
-      if (!["In Progress", "Complete"].includes(sectionA?.status)) {
+      const sectionA: Section = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
+      if (!sectionA || sectionA?.status === "Not Started") {
         const { data: lastAppData } = await lastApp();
         const { getMyLastApplication } = lastAppData || {};
         const parsedLastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};

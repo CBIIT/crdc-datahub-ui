@@ -41,7 +41,7 @@ export const StyledTitle = styled(Typography)({
 export const StyledDescription = styled(Typography)({
   fontWeight: 400,
   color: "#34A286",
-  marginTop: "25px",
+  marginTop: "16px",
   fontSize: "16px",
 });
 

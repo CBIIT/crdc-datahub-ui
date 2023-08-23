@@ -7,8 +7,8 @@ type User = {
   organization: OrgInfo;
   IDP: 'nih' | 'login.gov';
   email: string;
-  createdAt: string; // YYYY-MM-DDTHH:mm:ssZ
-  updateAt: string; // YYYY-MM-DDTHH:mm:ssZ
+  createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
+  updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
 };
 
 type UserInput = {
