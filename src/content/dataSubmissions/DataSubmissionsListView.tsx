@@ -1,7 +1,7 @@
 import React, { FC, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
-  Alert, Container, Button, Stack, styled,
+  Alert, Container, Stack, styled,
   Table, TableBody, TableCell,
   TableContainer, TableHead,
   TablePagination, TableRow,
@@ -15,8 +15,9 @@ import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
+import SelectInput from "../../components/Questionnaire/SelectInput";
 
-type T = Omit<Application, "questionnaireData">;
+type T = DataSubmission;
 
 type Column = {
   label: string;
@@ -57,8 +58,17 @@ const StyledTableContainer = styled(TableContainer)({
   position: "relative",
 });
 
-const StyledTableHead = styled(TableHead)({
-  background: "#083A50",
+const OrganizationStatusContainer = styled('div')({
+  height: "45px",
+  fontFamily: "Nunito",
+  fontSize: "16px",
+  fontWeight: "700",
+  lineHeight: "20px",
+  letterSpacing: "0em",
+  textAlign: "left",
+  display: "flex",
+  alignItems: "center",
+  paddingLeft: "16px",
 });
 
 const StyledHeaderCell = styled(TableCell)({
@@ -66,14 +76,14 @@ const StyledHeaderCell = styled(TableCell)({
   fontSize: "16px",
   color: "#fff !important",
   "&.MuiTableCell-root": {
-    padding: "8px 16px",
+    padding: "8px 8px",
     color: "#fff !important",
   },
   "& .MuiSvgIcon-root,  & .MuiButtonBase-root": {
     color: "#fff !important",
   },
   "&:last-of-type": {
-    textAlign: "center",
+    paddingRight: "4px",
   },
 });
 
@@ -81,44 +91,42 @@ const StyledTableCell = styled(TableCell)({
   fontSize: "16px",
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
-    padding: "8px 16px",
+    padding: "8px 8px",
   },
   "&:last-of-type": {
-    textAlign: "center",
+    paddingRight: "4px",
   },
 });
-
-const StyledActionButton = styled(Button)(({ bg, text, border } : { bg: string, text: string, border: string }) => ({
-  background: `${bg} !important`,
-  borderRadius: "8px",
-  border: `2px solid ${border}`,
-  color: `${text} !important`,
-  width: "100px",
-  height: "30px",
-  textTransform: "none",
-  fontWeight: 700,
-  fontSize: "16px",
-}));
 
 const columns: Column[] = [
   {
     label: "Submission ID",
-    value: (a) => a.applicant?.applicantName,
+    value: (a) => a.id,
     field: "applicant.applicantName",
   },
   {
     label: "Submitter Name",
-    value: (a) => a.applicant?.applicantName,
+    value: (a) => a.submitterName,
+    field: "applicant.applicantName",
+  },
+  {
+    label: "Data Commons",
+    value: (a) => a.dataCommons,
     field: "applicant.applicantName",
   },
   {
     label: "Organization",
-    value: (a) => a?.organization?.name,
+    value: (a) => a.organization,
     field: "organization.name",
   },
   {
     label: "Study",
-    value: (a) => a.studyAbbreviation || "NA",
+    value: (a) => a.study,
+    field: "studyAbbreviation",
+  },
+  {
+    label: "dbGap ID",
+    value: (a) => a.dbGapID,
     field: "studyAbbreviation",
   },
   {
@@ -127,46 +135,19 @@ const columns: Column[] = [
     field: "status",
   },
   {
-    label: "Submitted Date",
-    value: (a) => (a.submittedDate ? FormatDate(a.submittedDate, "M/D/YYYY h:mm A") : ""),
-    field: "submittedDate",
-    default: true,
+    label: "Data Hub Concierge",
+    value: (a) => a.dataHubConcierge,
+    field: "applicant.applicantName",
   },
   {
     label: "Last Updated Date",
     value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
     field: "updatedAt",
   },
-  {
-    label: "Action",
-    value: (a, user) => {
-      const role = user?.role;
-
-      // NOTE for MVP-2: Org Owners can also Resume their own submissions
-      if ((role === "User" && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Rejected"].includes(a.status)) {
-        return (
-          <Link to={`/submission/${a?.["_id"]}`}>
-            <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">Resume</StyledActionButton>
-          </Link>
-        );
-      }
-      if (role === "FederalLead" && ["Submitted", "In Review"].includes(a.status)) {
-        return (
-          <Link to={`/submission/${a?.["_id"]}`}>
-            <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">Review</StyledActionButton>
-          </Link>
-        );
-      }
-
-      return (
-        <Link to={`/submission/${a?.["_id"]}`}>
-          <StyledActionButton bg="#74D9E7" text="#156071" border="#84B4BE">View</StyledActionButton>
-        </Link>
-      );
-    },
-  },
 ];
 
+const statusValues: DataSubmissionStatus[] = ["Initialized", "In Progress", "Submitted", "Released", "Completed", "Archived"];
+const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, value: v }));
 /**
  * View for List of Questionnaire/Submissions
  *
@@ -186,7 +167,108 @@ const ListingView: FC = () => {
   const [perPage, setPerPage] = useState<number>(10);
   const [creatingApplication, setCreatingApplication] = useState<boolean>(false);
 
-  const tempData = { listDataSubmissions: { total: 0, dataSubmissions: [] } };
+  const tempDataSubmissions: Array<T> = [
+    {
+      id: "000001",
+      submitterName: "John Doe",
+      dataCommons: "CDS",
+      organization: "NIH",
+      study: "ABC",
+      dbGapID: "3766-26",
+      status: "Initialized",
+      dataHubConcierge: "Name AAA",
+      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
+    },
+    {
+      id: "000002",
+      submitterName: "Teri Dactyl",
+      dataCommons: "CDS",
+      organization: "CBIIT",
+      study: "ABC",
+      dbGapID: "1234-65",
+      status: "Initialized",
+      dataHubConcierge: "Name AAA",
+      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
+    },
+    {
+      id: "000003",
+      submitterName: "Peg Legge",
+      dataCommons: "CDS",
+      organization: "uAlberta",
+      study: "ABC",
+      dbGapID: "6324-00",
+      status: "Initialized",
+      dataHubConcierge: "Name AAA",
+      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
+    },
+    {
+      id: "000004",
+      submitterName: "John Doe",
+      dataCommons: "CDS",
+      organization: "NIH",
+      study: "ABC",
+      dbGapID: "2455-26",
+      status: "Archived",
+      dataHubConcierge: "Name AAA",
+      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
+    },
+    {
+      id: "000005",
+      submitterName: "Allie Grater",
+      dataCommons: "CDS",
+      organization: "CBIIT",
+      study: "ABC",
+      dbGapID: "1233-35",
+      status: "Completed",
+      dataHubConcierge: "Name AAA",
+      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
+    },
+    {
+      id: "000006",
+      submitterName: "Olive Yew",
+      dataCommons: "CDS",
+      organization: "uAblerta",
+      study: "ABC",
+      dbGapID: "0004-43",
+      status: "Released",
+      dataHubConcierge: "Name AAA",
+      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
+    },
+    {
+      id: "000007",
+      submitterName: "Aida Bugg",
+      dataCommons: "CDS",
+      organization: "NIH",
+      study: "ABC",
+      dbGapID: "3434-36",
+      status: "Submitted",
+      dataHubConcierge: "Name AAA",
+      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
+    },
+    {
+      id: "000008",
+      submitterName: "Funny Pun",
+      dataCommons: "CDS",
+      organization: "CBIIT",
+      study: "ABC",
+      dbGapID: "4509-88",
+      status: "In Progress",
+      dataHubConcierge: "Name AAA",
+      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
+    },
+    {
+      id: "000009",
+      submitterName: "Marsh Mallow",
+      dataCommons: "CDS",
+      organization: "NIH",
+      study: "ABC",
+      dbGapID: "5966-10",
+      status: "Initialized",
+      dataHubConcierge: "Name AAA",
+      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
+    },
+  ];
+  const tempData = { listDataSubmissions: { total: tempDataSubmissions.length, dataSubmissions: tempDataSubmissions } };
 
   const { data, loading, error } = { data: tempData, loading: false, error: "" };
 
@@ -282,10 +364,36 @@ const ListingView: FC = () => {
 
         <StyledTableContainer>
           <Table>
-            <StyledTableHead>
+            <TableHead>
               <TableRow>
-                {columns.map((col: Column) => (
-                  <StyledHeaderCell key={col.label}>
+                <TableCell colSpan={12}>
+                  <OrganizationStatusContainer>
+                    Organization
+                    <SelectInput
+                      sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
+                      id="data-submissions-table-organization"
+                      label=""
+                      options={[{ label: "CBIIT", value: "CBIIT" }, { label: "NIH", value: "NIH" }]}
+                      value=""
+                      placeholder="Select an organization"
+                      readOnly={false}
+                    />
+                    Status
+                    <SelectInput
+                      sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
+                      id="data-submissions-table-status"
+                      label=""
+                      options={statusOptionArray}
+                      value=""
+                      placeholder="Select a status"
+                      readOnly={false}
+                    />
+                  </OrganizationStatusContainer>
+                </TableCell>
+              </TableRow>
+              <TableRow sx={{ background: "#083A50" }}>
+                {columns.map((col: Column, index) => (
+                  <StyledHeaderCell sx={{ paddingLeft: (index === 0 ? "32px !important" : "") }} key={col.label}>
                     {col.field ? (
                       <TableSortLabel
                         active={orderBy === col}
@@ -300,7 +408,7 @@ const ListingView: FC = () => {
                   </StyledHeaderCell>
                 ))}
               </TableRow>
-            </StyledTableHead>
+            </TableHead>
             <TableBody>
               {loading && (
                 <TableRow>
@@ -308,7 +416,7 @@ const ListingView: FC = () => {
                     <Box
                       sx={{
                         position: 'absolute',
-                        background: '#fff',
+                        background: "#fff",
                         left: 0,
                         top: 0,
                         width: '100%',
@@ -324,10 +432,10 @@ const ListingView: FC = () => {
                   </TableCell>
                 </TableRow>
               )}
-              {data?.listDataSubmissions?.dataSubmissions?.map((d: T) => (
-                <TableRow tabIndex={-1} hover key={d["_id"]}>
-                  {columns.map((col: Column) => (
-                    <StyledTableCell key={`${d["_id"]}_${col.label}`}>
+              {data?.listDataSubmissions?.dataSubmissions?.map((d: T, index) => (
+                <TableRow sx={{ background: (index % 2 === 0 ? "#fff" : "#E3EEF9") }} tabIndex={-1} hover key={d["_id"]}>
+                  {columns.map((col: Column, index) => (
+                    <StyledTableCell sx={{ paddingLeft: (index === 0 ? "32px !important" : "") }} key={`${d["_id"]}_${col.label}`}>
                       {col.value(d, user)}
                     </StyledTableCell>
                   ))}
