@@ -12,7 +12,7 @@ import ProfileView from "./ProfileView";
 export default () => {
   const { userId } = useParams();
   const { user: { _id, role } } = useAuthContext();
-  const isAdministrative = role === "Admin" || role === "Org Owner";
+  const isAdministrative = role === "Admin" || role === "ORG_OWNER";
 
   // Non-admin users can only view their own profile, redirect to it
   if (userId !== _id && !isAdministrative) {

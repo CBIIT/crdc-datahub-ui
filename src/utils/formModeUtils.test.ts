@@ -97,7 +97,7 @@ describe('getFormMode tests based on provided requirements', () => {
 
   // Federal Lead Tests
   describe('getFormMode > Fed Lead tests', () => {
-    const user: User = { ...baseUser, role: 'Fed Lead' };
+    const user: User = { ...baseUser, role: 'FederalLead' };
 
     it('should set Review mode for Fed Lead when status is Submitted or In Review', () => {
       const statuses: ApplicationStatus[] = ['Submitted', 'In Review'];
@@ -124,7 +124,7 @@ describe('getFormMode tests based on provided requirements', () => {
 
   // Org Owner Tests
   describe('getFormMode > Org Owner tests', () => {
-    const user: User = { ...baseUser, role: "Org Owner" };
+    const user: User = { ...baseUser, role: "ORG_OWNER" };
 
     it('should allow Org Owner to edit their own unsubmitted or rejected forms', () => {
       const statuses: ApplicationStatus[] = ['New', 'In Progress', 'Rejected'];
