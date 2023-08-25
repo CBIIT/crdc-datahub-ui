@@ -10,14 +10,20 @@ export const query = gql`
       role
       IDP
       email
-      createdAt
-      updateAt
       organization {
         orgID
         orgName
-        orgRole
-        orgStatus
+        createdAt
+        updateAt
       }
+      curatedOrganizations {
+        orgID
+        orgName
+        createdAt
+        updateAt
+      }
+      createdAt
+      updateAt
     }
   }
 `;

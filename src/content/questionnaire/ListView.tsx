@@ -148,7 +148,7 @@ const columns: Column[] = [
           </Link>
         );
       }
-      if (role === "FederalLead" && ["Submitted", "In Review"].includes(a.status)) {
+      if (role === "Fed Lead" && ["Submitted", "In Review"].includes(a.status)) {
         return (
           <Link to={`/submission/${a?.["_id"]}`}>
             <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">Review</StyledActionButton>

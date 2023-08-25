@@ -22,10 +22,6 @@ const _getFormModeForUser = (
   user: User,
   data: Application
 ): FormMode => {
-  if (user?.role !== "User" && user?.role !== "Submitter") {
-    return FormModes.UNAUTHORIZED;
-  }
-
   const { status: formStatus } = data || {};
   const formBelongsToUser = data?.applicant?.applicantID === user?.["_id"];
   const isStatusViewOnlyForUser = ["Submitted", "In Review", "Approved"].includes(formStatus);
@@ -47,18 +43,10 @@ const _getFormModeForUser = (
  * NOTE:
  *  - This is a private helper function for getFormMode
  *
- * @param {User} user - The current user
  * @param {Application} data - The current application/submission
  * @returns {FormMode} - Form mode corresponding to the given form status for a Federal Lead.
  */
-const _getFormModeForFederalLead = (
-  user: User,
-  data: Application
-): FormMode => {
-  if (user?.role !== "FederalLead") {
-    return FormModes.UNAUTHORIZED;
-  }
-
+const _getFormModeForFederalLead = (data: Application): FormMode => {
   const { status: formStatus } = data || {};
 
   if (ReviewStatuses.includes(formStatus)) {
@@ -81,21 +69,16 @@ const _getFormModeForOrgOwner = (
   user: User,
   data: Application
 ): FormMode => {
-  if (user.role !== "Owner") {
-    return FormModes.UNAUTHORIZED;
-  }
-
   const { status: formStatus } = data || {};
   const formBelongsToUser = data?.applicant?.applicantID === user?.["_id"];
-  const isStatusViewOnlyForOrgOwner = ["Submitted", "In Review", "Approved"].includes(formStatus);
 
-  if (!formBelongsToUser || isStatusViewOnlyForOrgOwner) {
+  if (!formBelongsToUser) {
     return FormModes.VIEW_ONLY;
   }
   if (EditStatuses.includes(formStatus)) {
     return FormModes.EDIT;
   }
-  return FormModes.UNAUTHORIZED;
+  return FormModes.VIEW_ONLY;
 };
 
 /**
@@ -118,22 +101,17 @@ export const getFormMode = (
     return FormModes.UNAUTHORIZED;
   }
 
-  if (user.role === "FederalLead") {
-    return _getFormModeForFederalLead(user, data);
+  switch (user.role) {
+    case "Fed Lead":
+      return _getFormModeForFederalLead(data);
+    case "Admin":
+      return FormModes.VIEW_ONLY;
+    case "Org Owner":
+      return _getFormModeForOrgOwner(user, data);
+    case "User":
+    case "Submitter":
+      return _getFormModeForUser(user, data);
+    default:
+      return FormModes.VIEW_ONLY;
   }
-  if (user.role === "Admin") {
-    return FormModes.VIEW_ONLY;
-  }
-  if (user.role === "Owner") {
-    return _getFormModeForOrgOwner(user, data);
-  }
-  if (user.role === "User" || user.role === "Submitter") {
-    return _getFormModeForUser(user, data);
-  }
-  // Any other authorized user
-  if (user.role) {
-    return FormModes.VIEW_ONLY;
-  }
-
-  return FormModes.UNAUTHORIZED;
 };
