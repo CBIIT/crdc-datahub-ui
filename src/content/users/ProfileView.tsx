@@ -136,10 +136,10 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
 
   const onSubmit = async (data : UserInput) => {
     setSaving(true);
-    const { errors } = await updateMyUser({ variables: { userInfo: data } });
+    const { data: d, errors } = await updateMyUser({ variables: { userInfo: data } }).catch(() => null) || {};
     setSaving(false);
 
-    if (errors) {
+    if (errors || !d) {
       setError("Unable to save profile changes");
       return;
     }
@@ -148,6 +148,7 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
       setData(data);
     }
 
+    setError(null);
     setTimeout(() => setChangesAlert(""), 10000);
     reset({ ...data });
   };
