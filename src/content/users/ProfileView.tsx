@@ -2,11 +2,10 @@ import { FC, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import {
-  Alert, Container, IconButton,
+  Alert, Container,
   OutlinedInput, Stack, Typography, styled,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import EditIcon from '@mui/icons-material/Edit';
 import { Controller, useForm } from 'react-hook-form';
 import bannerSvg from '../../assets/banner/profile_banner.svg';
 import profileIcon from '../../assets/icons/profile_icon.svg';
@@ -71,11 +70,6 @@ const StyledLabel = styled('span')({
   fontWeight: '700',
   marginRight: '20px',
   size: '16px',
-});
-
-const StyledIconBtn = styled(IconButton)({
-  color: "#119472",
-  cursor: "inherit",
 });
 
 const StyledTextField = styled(OutlinedInput)({
@@ -220,9 +214,6 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
                   rules={{ required: true }}
                   render={({ field }) => <StyledTextField {...field} size="small" required />}
                 />
-                <StyledIconBtn disableRipple>
-                  <EditIcon />
-                </StyledIconBtn>
               </StyledField>
               <StyledField>
                 <StyledLabel>Last name</StyledLabel>
@@ -232,9 +223,6 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
                   rules={{ required: true }}
                   render={({ field }) => <StyledTextField {...field} size="small" required />}
                 />
-                <StyledIconBtn disableRipple>
-                  <EditIcon />
-                </StyledIconBtn>
               </StyledField>
               <StyledField>
                 <StyledLabel>Role</StyledLabel>
