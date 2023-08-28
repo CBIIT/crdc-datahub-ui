@@ -14,6 +14,7 @@ import profileIconShadow from '../../assets/icons/profile_icon_shadow.svg';
 import { UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { formatIDP } from '../../utils';
+import GenericAlert from '../../components/GenericAlert';
 
 type Props = {
   _id: User["_id"];
@@ -125,6 +126,7 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
   const user: User = _id === currentUser._id ? { ...currentUser } : null; // NOTE: This is prep for MVP-2
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
+  const [changesAlert, setChangesAlert] = useState<string>("");
 
   const { handleSubmit, control, reset } = useForm<UserInput>({
     defaultValues: {
@@ -148,14 +150,12 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
       return;
     }
     if (_id === currentUser._id) {
+      setChangesAlert("All changes have been saved");
       setData(data);
     }
 
+    setTimeout(() => setChangesAlert(""), 10000);
     reset({ ...data });
-  };
-
-  const onReset = () => {
-    reset();
   };
 
   if (!user) {
@@ -166,6 +166,12 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
 
   return (
     <>
+      <GenericAlert open={!!changesAlert} key="profile-changes-alert">
+        <span>
+          {changesAlert}
+        </span>
+      </GenericAlert>
+
       <StyledBanner />
       <Container maxWidth="lg">
         <Stack
@@ -250,7 +256,6 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
                 spacing={1}
               >
                 <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>
-                <StyledButton type="button" onClick={onReset} txt="#949494" border="#828282">Cancel</StyledButton>
               </StyledButtonStack>
             </form>
           </Stack>
