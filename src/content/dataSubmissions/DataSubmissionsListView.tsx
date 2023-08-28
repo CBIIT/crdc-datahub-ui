@@ -6,6 +6,7 @@ import {
   TableContainer, TableHead,
   TablePagination, TableRow,
   TableSortLabel, Typography, Box, CircularProgress,
+  Dialog, DialogTitle
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { useMutation, useQuery } from '@apollo/client';
@@ -16,6 +17,7 @@ import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
 import SelectInput from "../../components/Questionnaire/SelectInput";
+import TextInput from "../../components/Questionnaire/TextInput";
 
 type T = DataSubmission;
 
@@ -146,6 +148,80 @@ const columns: Column[] = [
   },
 ];
 
+const CreateSubmissionDialog = styled(Dialog)`
+  .MuiDialog-paper {
+    width: 803px;
+    height: 740px;
+    border-radius: 8px;
+    border: 2px solid #5AB8FF;
+    background: #F2F6FA;
+    max-width: none;
+    max-height: none;
+  }
+  .closeIcon {
+    cursor: pointer;
+    text-align: end;
+    width: fit-content;
+    float: right;
+  }
+  .create-a-submission-header-container {
+    left: 75px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  #create-a-submission-title {
+    font-family: Nunito Sans;
+    font-size: 45px;
+    font-weight: 800;
+    line-height: 40px;
+    letter-spacing: -1.5px;
+    text-align: left;
+    color: #1873BD;
+    position: relative;
+  }
+  .optional-helper-text {
+    padding-top: 20px;
+    font-family: Inter;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0em;
+    text-align: left;
+    width: 445px;
+  }
+  .inputs-container{
+    align-self: center;
+    width: 485px;
+    height: 365px;
+    margin-top: 50px;
+    font-family: Nunito;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 20px;
+    letter-spacing: 0em;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+  }
+  .dialogButton{
+    display: flex;
+    width: 128px;
+    height: 50.59000015258789px;
+    padding: 12px 36.5px 14.59000015258789px 36.5px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    border: 1px solid #000;
+    margin-top: 50px;
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.87);
+    margin-left: 7px;
+    margin-right: 7px;
+    align-self: center;
+    cursor: pointer;
+  }
+`;
 const statusValues: DataSubmissionStatus[] = ["Initialized", "In Progress", "Submitted", "Released", "Completed", "Archived"];
 const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, value: v }));
 /**
@@ -165,7 +241,7 @@ const ListingView: FC = () => {
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
-  const [creatingApplication, setCreatingApplication] = useState<boolean>(false);
+  const [creatingSubmission, setCreatingSubmission] = useState<boolean>(true);
 
   const tempDataSubmissions: Array<T> = [
     {
@@ -305,31 +381,33 @@ const ListingView: FC = () => {
     setPage(0);
   };
 
-  const createApp = async () => {
-    setCreatingApplication(true);
-    const { data: d, errors } = await saveApp({
-      variables: {
-        application: {
-          _id: undefined,
-          programName: "",
-          studyAbbreviation: "",
-          questionnaireData: "{}",
-        }
-      }
-    });
+  const createSubmission = async () => {
+    setCreatingSubmission(true);
+    // todo: need to add BE api to create data submission
+    // setCreatingApplication(true);
+    // const { data: d, errors } = await saveApp({
+    //   variables: {
+    //     application: {
+    //       _id: undefined,
+    //       programName: "",
+    //       studyAbbreviation: "",
+    //       questionnaireData: "{}",
+    //     }
+    //   }
+    // });
 
-    setCreatingApplication(false);
+    // setCreatingApplication(false);
 
-    if (errors) {
-      navigate("", {
-        state: {
-          error: "Unable to create a submission request. Please try again later"
-        }
-      });
-      return;
-    }
+    // if (errors) {
+    //   navigate("", {
+    //     state: {
+    //       error: "Unable to create a submission request. Please try again later"
+    //     }
+    //   });
+    //   return;
+    // }
 
-    navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`);
+    // navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`);
   };
 
   return (
@@ -344,8 +422,9 @@ const ListingView: FC = () => {
             {user?.role === "User" && (
               <StyledButton
                 type="button"
-                onClick={createApp}
-                loading={creatingApplication}
+                onClick={createSubmission}
+                loading={creatingSubmission}
+                sx={{ bottom: "30px", right: "50px" }}
               >
                 Create a Submission
               </StyledButton>
@@ -486,6 +565,59 @@ const ListingView: FC = () => {
           />
         </StyledTableContainer>
       </StyledContainer>
+      <CreateSubmissionDialog open={creatingSubmission}>
+        <DialogTitle>
+          <div
+            role="button"
+            className="closeIcon"
+            onClick={() => setCreatingSubmission(false)}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setCreatingSubmission(false);
+              }
+            }}
+          >
+            <img style={{ height: 10, marginBottom: 2 }} src="https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/LocalFindCaseDeleteIcon.svg" alt="close icon" />
+          </div>
+        </DialogTitle>
+        <div className="create-a-submission-header-container">
+          <div id="create-a-submission-title"> Create a Submission</div>
+          <div className="optional-helper-text">
+            Do we need any intro/explanatory text to lay expectations for the user here?
+          </div>
+        </div>
+        <div className="inputs-container">
+          <TextInput value="Fill with organization" label="Organization" readOnly />
+          <SelectInput
+            options={[{ label: "CDS", value: "CDS" }]}
+            label="Data Commons"
+            required
+            value="CDS"
+          />
+          <SelectInput
+            options={[{ label: "COAS1", value: "COAS1" }]}
+            label="Study"
+            required
+            value="COAS1"
+          />
+          <TextInput multiline rows={2} required label="Submission Name" placeholder="25 characters allowed" />
+        </div>
+        <div
+          role="button"
+          tabIndex={0}
+          id="createSubmissionDialogSubmitButton"
+          className="dialogButton"
+          onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        setCreatingSubmission(false);
+                    }
+                }}
+          onClick={() => setCreatingSubmission(false)}
+        >
+          <strong>Submit</strong>
+        </div>
+      </CreateSubmissionDialog>
     </>
   );
 };
