@@ -232,7 +232,7 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel>Role</StyledLabel>
-                {user?.organization?.orgRole ?? user?.role}
+                {user?.role}
               </StyledField>
               <StyledField>
                 <StyledLabel>Account Status</StyledLabel>
