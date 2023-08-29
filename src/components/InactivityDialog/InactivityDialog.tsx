@@ -121,7 +121,7 @@ const InactivityDialog = () => {
   const [intervalID, setIntervalID] = useState<NodeJS.Timer>(null);
   const navigate = useNavigate();
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
-  const thresholdTime = 1800;
+  const thresholdTime = 300;
 
   const [timeLeft, setTimeLeft] = useState(thresholdTime);
   const extendSession = async () => {
