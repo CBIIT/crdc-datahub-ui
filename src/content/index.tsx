@@ -51,22 +51,32 @@ const LoginDialog = styled(Dialog)`
 `;
 
 const PageContentContainer = styled.div`
-  width: 1440px;
+  width: 100%;
   height: 633px;
   margin: auto;
   background-image: url(${background});
-  background-size: cover;    
+  background-blend-mode: luminosity, normal;
+  background-size: cover;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  
   .loginPageTextContainer {
-    position: relative;
-    width: 611px;
-    height: 218px;
-    vertical-align: middle;
-    left: 646px;
-    top: 200px;
+    width: 703px;
+    height: 265px;
     display: flex;
     flex-direction: column;
     text-align: center;
     align-items: center;
+    align-self: center;
+    justify-content: center;
+
+
+    border-radius: 5px;
+    border: 2px solid #C8E3FC;
+    background: #091a1961;
+    background-blend-mode: multiply;
+    box-shadow: -1px -1px 6px 0px rgba(62, 102, 125, 0.25), -1px -1px 6px 0px rgba(76, 121, 147, 0.25);
   }
   .loginPageTextTitle {
     font-family: Nunito Sans;
@@ -75,7 +85,7 @@ const PageContentContainer = styled.div`
     line-height: 40px;
     letter-spacing: -1.5px;
     text-align: center;
-    color: #294267;
+    color: #FFFFFF;
   }
   .loginPageText{
     font-family: Inter;
@@ -85,10 +95,11 @@ const PageContentContainer = styled.div`
     letter-spacing: 0em;
     text-align: center;
     margin-top: 30px;
+    color: #86E2F6;
   }
   .loginPageLoginButton{
     display: flex;
-    width: 101px;
+    width: 128px;
     height: 51px;
     justify-content: center;
     align-items: center;
@@ -96,8 +107,8 @@ const PageContentContainer = styled.div`
     border: 2px solid #005EA2;
     margin-top: 30px;
     text-decoration: none;
-    color: rgba(0, 0, 0, 0.87);
-    color: #005EA2;
+    color: #3F53B2;
+    background: #FFFFFF;
   }
   .loginPageLoginButton:hover {
     cursor: pointer;
@@ -157,8 +168,6 @@ const Home: FC = () => {
               </div>
               <div className="loginPageText">
                 You are logged in.
-                <br />
-                Please proceed to Submission Requests or Data Submissions.
               </div>
             </div>
             )
@@ -176,6 +185,7 @@ const Home: FC = () => {
                 id="loginPageLoginButton"
                 className="loginPageLoginButton"
                 to="/login"
+                state={{ redirectURLOnLoginSuccess: "/submissions" }}
               >
                 <strong>Log In</strong>
               </Link>
