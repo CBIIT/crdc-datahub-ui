@@ -150,7 +150,7 @@ const InactivityDialog = () => {
 
       const res = await fetch(SESSION_TTL_API);
       const data = await res.json();
-      const { ttl } = data.ttl;
+      const { ttl } = data;
       if (ttl <= 0) {
         // If user did not select any option and timed out in BE.
         handleSignOutNoBanner();
