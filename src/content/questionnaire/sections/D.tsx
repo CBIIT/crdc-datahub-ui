@@ -310,6 +310,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           gridWidth={12}
           tooltipText="Data that do not fit in any of the other categories."
           readOnly={readOnlyInputs}
+          maxLength={200}
         />
       </SectionGroup>
 
@@ -382,6 +383,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           gridWidth={12}
           tooltipText="If there are any additional types of data included with the study not already specified above, describe here."
           readOnly={readOnlyInputs}
+          maxLength={200}
         />
         <SwitchInput
           id="section-d-additional-data-in-future"
