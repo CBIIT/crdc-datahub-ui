@@ -5,7 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 import background from '../assets/loginPage/background.png';
 import { useAuthContext } from '../components/Contexts/AuthContext';
 
-const StyledDialog = styled(Dialog)`
+const LoginDialog = styled(Dialog)`
   .MuiDialog-paper {
     width: 550px;
     height: 218px;
@@ -119,7 +119,7 @@ const Home: FC = () => {
       }, []);
     return (
       <>
-        <StyledDialog open={showRedirectDialog}>
+        <LoginDialog open={showRedirectDialog}>
           <pre className="loginDialogText">
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
             Please <Link id="loginDialogLinkToLogin" to="/login" state={{ redirectURLOnLoginSuccess: dialogRedirectPath }} onClick={() => setShowRedirectDialog(false)}><strong>log in</strong></Link> to access {dialogLinkName}.
@@ -148,7 +148,7 @@ const Home: FC = () => {
             </Link>
           </div>
 
-        </StyledDialog>
+        </LoginDialog>
         <PageContentContainer>
           {authData.isLoggedIn ? (
             <div className="loginPageTextContainer">

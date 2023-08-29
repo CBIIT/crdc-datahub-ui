@@ -2,11 +2,10 @@ import { FC, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import {
-  Alert, Container, IconButton,
+  Alert, Container,
   OutlinedInput, Stack, Typography, styled,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import EditIcon from '@mui/icons-material/Edit';
 import { Controller, useForm } from 'react-hook-form';
 import bannerSvg from '../../assets/banner/profile_banner.svg';
 import profileIcon from '../../assets/icons/profile_icon.svg';
@@ -14,6 +13,7 @@ import profileIconShadow from '../../assets/icons/profile_icon_shadow.svg';
 import { UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { formatIDP } from '../../utils';
+import GenericAlert from '../../components/GenericAlert';
 
 type Props = {
   _id: User["_id"];
@@ -72,11 +72,6 @@ const StyledLabel = styled('span')({
   size: '16px',
 });
 
-const StyledIconBtn = styled(IconButton)({
-  color: "#119472",
-  cursor: "inherit",
-});
-
 const StyledTextField = styled(OutlinedInput)({
   width: "363px",
   borderRadius: "8px",
@@ -125,6 +120,7 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
   const user: User = _id === currentUser._id ? { ...currentUser } : null; // NOTE: This is prep for MVP-2
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
+  const [changesAlert, setChangesAlert] = useState<string>("");
 
   const { handleSubmit, control, reset } = useForm<UserInput>({
     defaultValues: {
@@ -140,22 +136,21 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
 
   const onSubmit = async (data : UserInput) => {
     setSaving(true);
-    const { errors } = await updateMyUser({ variables: { userInfo: data } });
+    const { data: d, errors } = await updateMyUser({ variables: { userInfo: data } }).catch(() => null) || {};
     setSaving(false);
 
-    if (errors) {
+    if (errors || !d) {
       setError("Unable to save profile changes");
       return;
     }
     if (_id === currentUser._id) {
+      setChangesAlert("All changes have been saved");
       setData(data);
     }
 
+    setError(null);
+    setTimeout(() => setChangesAlert(""), 10000);
     reset({ ...data });
-  };
-
-  const onReset = () => {
-    reset();
   };
 
   if (!user) {
@@ -166,6 +161,12 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
 
   return (
     <>
+      <GenericAlert open={!!changesAlert} key="profile-changes-alert">
+        <span>
+          {changesAlert}
+        </span>
+      </GenericAlert>
+
       <StyledBanner />
       <Container maxWidth="lg">
         <Stack
@@ -214,9 +215,6 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
                   rules={{ required: true }}
                   render={({ field }) => <StyledTextField {...field} size="small" required />}
                 />
-                <StyledIconBtn disableRipple>
-                  <EditIcon />
-                </StyledIconBtn>
               </StyledField>
               <StyledField>
                 <StyledLabel>Last name</StyledLabel>
@@ -226,13 +224,10 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
                   rules={{ required: true }}
                   render={({ field }) => <StyledTextField {...field} size="small" required />}
                 />
-                <StyledIconBtn disableRipple>
-                  <EditIcon />
-                </StyledIconBtn>
               </StyledField>
               <StyledField>
                 <StyledLabel>Role</StyledLabel>
-                {user?.organization?.orgRole ?? user?.role}
+                {user?.role}
               </StyledField>
               <StyledField>
                 <StyledLabel>Account Status</StyledLabel>
@@ -250,7 +245,6 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
                 spacing={1}
               >
                 <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>
-                <StyledButton type="button" onClick={onReset} txt="#949494" border="#828282">Cancel</StyledButton>
               </StyledButtonStack>
             </form>
           </Stack>

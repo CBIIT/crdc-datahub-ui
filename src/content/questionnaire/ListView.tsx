@@ -140,8 +140,7 @@ const columns: Column[] = [
     value: (a, user) => {
       const role = user?.role;
 
-      // NOTE for MVP-2: Org Owners can also Resume their own submissions
-      if ((role === "User" && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Rejected"].includes(a.status)) {
+      if (((role === "User" || role === "Submitter" || role === "ORG_OWNER") && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Rejected"].includes(a.status)) {
         return (
           <Link to={`/submission/${a?.["_id"]}`}>
             <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">Resume</StyledActionButton>
@@ -252,8 +251,7 @@ const ListingView: FC = () => {
         padding="57px 0 0 25px"
         body={(
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
-            {/* NOTE For MVP-2: Organization Owners are just Users */}
-            {user?.role === "User" && (
+            {(user?.role === "User" || user?.role === "Submitter" || user?.role === "ORG_OWNER") && (
               <StyledButton
                 type="button"
                 onClick={createApp}
