@@ -15,7 +15,7 @@ type User = {
     | "Admin";
   IDP: "nih" | "login.gov";
   email: string;
-  organization: OrgInfo;
+  organization: OrgInfo | null;
   curatedOrganizations: OrgInfo[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
@@ -24,14 +24,6 @@ type User = {
 type UserInput = {
   firstName: string;
   lastName: string;
-};
-
-type UserInfo = {
-  userID: string;
-  firstName: string;
-  lastName: string;
-  createdAt: string; // 2023-05-01T09:23:30Z, ISO data time format
-  updateAt: string; // 2023-05-01T09:23:30Z  ISO data time format
 };
 
 type OrgInfo = {
