@@ -18,9 +18,9 @@ export const headerData = {
 
 export const navMobileList = [
   {
-    name: 'Home',
-    link: '/',
-    id: 'navbar-link-home',
+    name: 'Return to CRDC',
+    link: 'https://datacommons.cancer.gov/',
+    id: 'navbar-dropdown-join-crdc-data-hub',
     className: 'navMobileItem',
   },
   {
@@ -33,18 +33,6 @@ export const navMobileList = [
     name: 'Data Submissions',
     link: '/dataSubmissionsTodo',
     id: 'navbar-dropdown-join-crdc-data-hub',
-    className: 'navMobileItem',
-  },
-  {
-    name: 'CRDC Data Commons',
-    link: 'https://datacommons.cancer.gov/',
-    id: 'navbar-dropdown-join-crdc-data-hub',
-    className: 'navMobileItem',
-  },
-  {
-    name: 'About',
-    link: '/aboutTodo',
-    id: 'navbar-dropdown-about',
     className: 'navMobileItem',
   },
 ];

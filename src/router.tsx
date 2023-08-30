@@ -81,7 +81,6 @@ const routes: RouteObject[] = [
         path: '*',
         element: <Status404 />
       },
-
     ]
   }
 ];

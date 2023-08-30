@@ -2,6 +2,8 @@ import React, { FC, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Dialog } from "@mui/material";
 import { Link, useLocation } from 'react-router-dom';
+import background from '../assets/loginPage/background.png';
+import { useAuthContext } from '../components/Contexts/AuthContext';
 
 const LoginDialog = styled(Dialog)`
   .MuiDialog-paper {
@@ -48,9 +50,75 @@ const LoginDialog = styled(Dialog)`
   }
 `;
 
+const PageContentContainer = styled.div`
+  width: 100%;
+  height: 633px;
+  margin: auto;
+  background-image: url(${background});
+  background-blend-mode: luminosity, normal;
+  background-size: cover;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  
+  .loginPageTextContainer {
+    width: 703px;
+    height: 265px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    align-self: center;
+    justify-content: center;
+
+
+    border-radius: 5px;
+    border: 2px solid #C8E3FC;
+    background: #091a1961;
+    background-blend-mode: multiply;
+    box-shadow: -1px -1px 6px 0px rgba(62, 102, 125, 0.25), -1px -1px 6px 0px rgba(76, 121, 147, 0.25);
+  }
+  .loginPageTextTitle {
+    font-family: Nunito Sans;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 40px;
+    letter-spacing: -1.5px;
+    text-align: center;
+    color: #FFFFFF;
+  }
+  .loginPageText{
+    font-family: Inter;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0em;
+    text-align: center;
+    margin-top: 30px;
+    color: #86E2F6;
+  }
+  .loginPageLoginButton{
+    display: flex;
+    width: 128px;
+    height: 51px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    border: 2px solid #005EA2;
+    margin-top: 30px;
+    text-decoration: none;
+    color: #3F53B2;
+    background: #FFFFFF;
+  }
+  .loginPageLoginButton:hover {
+    cursor: pointer;
+  }
+`;
+
 const Home: FC = () => {
     const [showRedirectDialog, setShowRedirectDialog] = useState(false);
     const { state } = useLocation();
+    const authData = useAuthContext();
     let dialogRedirectPath = state?.path ?? "";
     let dialogLinkName = state?.name ?? "";
     useEffect(() => {
@@ -92,7 +160,38 @@ const Home: FC = () => {
           </div>
 
         </LoginDialog>
-        <div>This is Home Page</div>
+        <PageContentContainer>
+          {authData.isLoggedIn ? (
+            <div className="loginPageTextContainer">
+              <div className="loginPageTextTitle">
+                Welcome to CRDC Data Hub
+              </div>
+              <div className="loginPageText">
+                You are logged in.
+              </div>
+            </div>
+            )
+          : (
+            <div className="loginPageTextContainer">
+              <div className="loginPageTextTitle">
+                Login to CRDC Data Hub
+              </div>
+              <div className="loginPageText">
+                Welcome to the CRDC Data Hub.
+                <br />
+                Please login to access your data submissions.
+              </div>
+              <Link
+                id="loginPageLoginButton"
+                className="loginPageLoginButton"
+                to="/login"
+                state={{ redirectURLOnLoginSuccess: "/submissions" }}
+              >
+                <strong>Log In</strong>
+              </Link>
+            </div>
+            )}
+        </PageContentContainer>
       </>
 );
 };
