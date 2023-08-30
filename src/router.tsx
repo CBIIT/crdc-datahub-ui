@@ -20,11 +20,12 @@ type RequireAuthProps = {
 const RequireAuth: FC<RequireAuthProps> = ({ component, redirectPath, redirectName }: RequireAuthProps) => {
   const authenticated = useAuthContext().isLoggedIn;
   const navigate = useNavigate();
+
   useEffect(() => {
     if (!authenticated) {
       navigate("/", { state: { path: redirectPath, name: redirectName } });
     }
-  }, []);
+  }, [authenticated]);
 
   return component;
 };
