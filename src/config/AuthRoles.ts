@@ -19,11 +19,11 @@ export const Roles: User["role"][] = [
 
 /**
  * Defines a list of roles in which an account
- * IS ALLOWED TO BE ASSIGNED TO AN ORGANIZATION.
+ * IS REQUIRED TO BE ASSIGNED TO AN ORGANIZATION.
  *
  * @type {User["role"][]}
  */
-export const OrgAllowedRoles: User["role"][] = [
+export const OrgRequiredRoles: User["role"][] = [
   "Submitter",
   "ORG_OWNER",
 ];

@@ -7,6 +7,7 @@ import {
   styled,
 } from '@mui/material';
 import { cloneDeep } from 'lodash';
+import { Helmet } from 'react-helmet-async';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import bannerSvg from '../../assets/banner/profile_banner.svg';
@@ -16,7 +17,7 @@ import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
 import GenericAlert from '../../components/GenericAlert';
 import SuspenseLoader from '../../components/SuspenseLoader';
-import { OrgAllowedRoles, Roles } from '../../config/AuthRoles';
+import { OrgRequiredRoles, Roles } from '../../config/AuthRoles';
 import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { formatIDP, getEditableFields } from '../../utils';
 
@@ -140,7 +141,7 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
   const { handleSubmit, register, reset, watch, setValue, control } = useForm<FormInput>();
 
   const role = watch("role");
-  const orgFieldDisabled = useMemo(() => !OrgAllowedRoles.includes(role), [role]);
+  const orgFieldDisabled = useMemo(() => !OrgRequiredRoles.includes(role) && role !== "User", [role]);
   const fieldset = useMemo(() => getEditableFields(currentUser, user), [user?._id, _id]);
 
   const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
@@ -169,11 +170,11 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
             lastName: data.lastName,
           }
         }
-      }).catch(() => null) || {};
+      }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 
       if (errors || !d) {
-        setError("Unable to save profile changes");
+        setError(errors || "Unable to save profile changes");
         return;
       }
 
@@ -186,11 +187,11 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
           role: data.role,
           status: data.userStatus,
         }
-      }).catch(() => null) || {};
+      }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 
       if (errors || !d) {
-        setError("Unable to save profile changes");
+        setError(errors || "Unable to save profile changes");
         return;
       }
     }
@@ -250,6 +251,8 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
 
   return (
     <>
+      {_id !== currentUser._id && <Helmet><title>Edit User</title></Helmet>}
+
       <GenericAlert open={!!changesAlert} key="profile-changes-alert">
         <span>
           {changesAlert}
@@ -356,7 +359,9 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
                   <Controller
                     name="organization.orgID"
                     control={control}
-                    rules={{ required: true }}
+                    rules={{
+                      // validate: (val) => role === "User" || !!val
+                    }}
                     render={({ field }) => (
                       <StyledSelect
                         {...field}
@@ -365,6 +370,7 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
                         MenuProps={{ disablePortal: true }}
                         disabled={orgFieldDisabled}
                       >
+                        <MenuItem value="">Select an organization</MenuItem>
                         {orgData?.map((org) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
                       </StyledSelect>
                     )}

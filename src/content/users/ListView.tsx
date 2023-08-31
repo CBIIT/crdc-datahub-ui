@@ -15,6 +15,7 @@ import {
   styled,
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
+import { Controller, useForm } from 'react-hook-form';
 import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
 import PageBanner from "../../components/PageBanner";
 import { Roles } from '../../config/AuthRoles';
@@ -29,6 +30,12 @@ type Column = {
   value: (a: T) => string | boolean | number | React.ReactNode;
   default?: true;
   comparator?: (a: T, b: T) => number;
+};
+
+type FilterForm = {
+  organization: OrgInfo["orgID"] | "All";
+  role: User["role"] | "All";
+  status: User["userStatus"] | "All";
 };
 
 const StyledContainer = styled(Container)({
@@ -87,6 +94,10 @@ const StyledSelect = styled(Select)({
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D",
     boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+  },
+  "& .Mui-disabled": {
+    WebkitTextFillColor: "#fff !important",
+    cursor: "not-allowed",
   },
 });
 
@@ -198,9 +209,12 @@ const ListingView: FC = () => {
   const [orderBy, setOrderBy] = useState<Column>(columns.find((c) => c.default) || columns.find((c) => !!c.comparator));
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
-  const [orgFilter, setOrgFilter] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
   const [dataset, setDataset] = useState<T[]>([]);
+
+  const { watch, setValue, control } = useForm<FilterForm>();
+  const orgFilter = watch("organization");
+  const roleFilter = watch("role");
+  const statusFilter = watch("status");
 
   const { data, loading, error } = useQuery<ListUsersResp>(LIST_USERS, {
     context: { clientName: 'userService' },
@@ -225,20 +239,24 @@ const ListingView: FC = () => {
   };
 
   useEffect(() => {
+    if (user.role !== "ORG_OWNER") {
+      return;
+    }
+
+    const orgID = orgData?.find((org: OrgInfo) => org.orgName === user.organization?.orgName)?.orgID;
+    setValue("organization", orgID || "All");
+  }, [user, orgData]);
+
+  useEffect(() => {
     if (!data?.listUsers?.length) {
       setDataset([]);
       return;
     }
 
     const sorted = data.listUsers
-      .filter((u: T) => {
-        if (orgFilter && orgFilter !== "All") return u.organization?.orgID === orgFilter;
-        return true;
-      })
-      .filter((u: T) => {
-        if (roleFilter && roleFilter !== "All") return u.role === roleFilter;
-        return true;
-      })
+      .filter((u: T) => (orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true))
+      .filter((u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true))
+      .filter((u: T) => (statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true))
       .filter((u: T) => u._id !== user._id)
       .sort((a, b) => orderBy?.comparator(a, b) || 0);
 
@@ -247,7 +265,7 @@ const ListingView: FC = () => {
     }
 
     setDataset(sorted.slice(page * perPage, (page * perPage) + perPage));
-  }, [data, perPage, page, orderBy, order, roleFilter, orgFilter]);
+  }, [data, perPage, page, orderBy, order, roleFilter, orgFilter, statusFilter]);
 
   return (
     <>
@@ -262,19 +280,58 @@ const ListingView: FC = () => {
 
         <StyledTableContainer>
           <StyledFilterContainer>
-            <StyledInlineLabel htmlFor="orgFilter">Organization</StyledInlineLabel>
+            <StyledInlineLabel>Organization</StyledInlineLabel>
             <StyledFormControl>
-              <StyledSelect id="orgFilter" defaultValue="All" onChange={(e) => setOrgFilter(e.target.value as string)}>
-                <MenuItem value="All">All</MenuItem>
-                {orgData?.map((org: OrgInfo) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
-              </StyledSelect>
+              <Controller
+                name="organization"
+                control={control}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    disabled={user.role === "ORG_OWNER"}
+                    defaultValue="All"
+                    value={field.value || "All"}
+                  >
+                    <MenuItem value="All">All</MenuItem>
+                    {orgData?.map((org: OrgInfo) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
+                  </StyledSelect>
+                )}
+              />
             </StyledFormControl>
-            <StyledInlineLabel htmlFor="roleFilter">Role</StyledInlineLabel>
+            <StyledInlineLabel>Role</StyledInlineLabel>
             <StyledFormControl>
-              <StyledSelect id="roleFilter" defaultValue="All" onChange={(e) => setRoleFilter(e.target.value as string)}>
-                <MenuItem value="All">All</MenuItem>
-                {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
-              </StyledSelect>
+              <Controller
+                name="role"
+                control={control}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    defaultValue="All"
+                    value={field.value || "All"}
+                  >
+                    <MenuItem value="All">All</MenuItem>
+                    {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
+                  </StyledSelect>
+                )}
+              />
+            </StyledFormControl>
+            <StyledInlineLabel>Status</StyledInlineLabel>
+            <StyledFormControl>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    defaultValue="All"
+                    value={field.value || "All"}
+                  >
+                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Inactive">Inactive</MenuItem>
+                  </StyledSelect>
+                )}
+              />
             </StyledFormControl>
           </StyledFilterContainer>
           <Table>
