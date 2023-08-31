@@ -218,6 +218,8 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
   };
 
   useEffect(() => {
+    setError(null);
+
     // No action needed if viewing own profile, using cached data
     if (_id === currentUser._id) {
       setUser({ ...currentUser });
@@ -359,9 +361,6 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
                   <Controller
                     name="organization.orgID"
                     control={control}
-                    rules={{
-                      // validate: (val) => role === "User" || !!val
-                    }}
                     render={({ field }) => (
                       <StyledSelect
                         {...field}
@@ -384,7 +383,7 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>
+                {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>}
                 {_id !== currentUser._id && <StyledButton type="button" onClick={() => navigate("/users")} txt="#949494" border="#828282">Cancel</StyledButton>}
               </StyledButtonStack>
             </form>
