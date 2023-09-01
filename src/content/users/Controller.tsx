@@ -32,7 +32,7 @@ export default () => {
   // Show list of users to Admin or Org Owner
   if (!userId && isAdministrative) {
     return (
-      <MemorizedProvider>
+      <MemorizedProvider preload>
         <ListView />
       </MemorizedProvider>
     );
@@ -40,7 +40,7 @@ export default () => {
 
   // Viewing own profile or Admin/Org Owner viewing another user's profile
   return (
-    <MemorizedProvider>
+    <MemorizedProvider preload={isAdministrative}>
       <ProfileView _id={userId} />
     </MemorizedProvider>
   );

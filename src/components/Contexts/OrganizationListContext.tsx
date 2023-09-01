@@ -51,6 +51,7 @@ export const useOrganizationListContext = (): ContextState => {
 };
 
 type ProviderProps = {
+  preload: boolean;
   children: React.ReactNode;
 };
 
@@ -61,13 +62,13 @@ type ProviderProps = {
  * @param {ProviderProps} props
  * @returns {JSX.Element} Context provider
  */
-export const OrganizationProvider: FC<ProviderProps> = ({ children } : ProviderProps) => {
+export const OrganizationProvider: FC<ProviderProps> = ({ preload, children } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
-  const { data, loading, error } = useQuery<ListOrgsResp>(LIST_ORGS, {
+  const { data, loading, error } = preload ? useQuery<ListOrgsResp>(LIST_ORGS, {
     context: { clientName: 'userService' },
     fetchPolicy: 'no-cache'
-  });
+  }) : { data: null, loading: false, error: null };
 
   useEffect(() => {
     if (loading) {
@@ -79,7 +80,7 @@ export const OrganizationProvider: FC<ProviderProps> = ({ children } : ProviderP
       return;
     }
 
-    setState({ status: Status.LOADED, data: data.listOrganizations });
+    setState({ status: Status.LOADED, data: data?.listOrganizations });
   }, [loading, error, data]);
 
   return (
