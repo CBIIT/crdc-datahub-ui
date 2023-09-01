@@ -426,7 +426,7 @@ const ListingView: FC = () => {
                 loading={creatingSubmission}
                 sx={{ bottom: "30px", right: "50px" }}
               >
-                Create a Submission
+                Start a Data Submission
               </StyledButton>
             )}
           </StyledBannerBody>
