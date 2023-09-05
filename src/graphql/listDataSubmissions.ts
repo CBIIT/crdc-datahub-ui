@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+  import gql from 'graphql-tag';
 
 export const query = gql`
   query listDataSubmissions($first: Int, $offset: Int, $orderBy: String, $sortDirection: String) {
