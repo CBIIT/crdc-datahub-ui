@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { useMutation, useQuery } from '@apollo/client';
-import { query, Response } from '../../graphql/listApplications';
+import { query, Response } from '../../graphql/listDataSubmissions';
 import bannerSvg from "../../assets/banner/data_submissions_banner.png";
 import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
@@ -103,7 +103,7 @@ const StyledTableCell = styled(TableCell)({
 const columns: Column[] = [
   {
     label: "Submission ID",
-    value: (a) => a.id,
+    value: (a) => a._id,
     field: "applicant.applicantName",
   },
   {
@@ -123,7 +123,7 @@ const columns: Column[] = [
   },
   {
     label: "Study",
-    value: (a) => a.study,
+    value: (a) => a.studyAbbreviation,
     field: "studyAbbreviation",
   },
   {
@@ -138,7 +138,7 @@ const columns: Column[] = [
   },
   {
     label: "Data Hub Concierge",
-    value: (a) => a.dataHubConcierge,
+    value: (a) => a.concierge,
     field: "applicant.applicantName",
   },
   {
@@ -222,7 +222,7 @@ const CreateSubmissionDialog = styled(Dialog)`
     cursor: pointer;
   }
 `;
-const statusValues: DataSubmissionStatus[] = ["Initialized", "In Progress", "Submitted", "Released", "Completed", "Archived"];
+const statusValues: DataSubmissionStatus[] = ["New", "In Progress", "Submitted", "Released", "Completed", "Archived"];
 const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, value: v }));
 /**
  * View for List of Questionnaire/Submissions
@@ -241,109 +241,80 @@ const ListingView: FC = () => {
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
-  const [creatingSubmission, setCreatingSubmission] = useState<boolean>(true);
+  const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
 
   const tempDataSubmissions: Array<T> = [
-    {
-      id: "000001",
-      submitterName: "John Doe",
-      dataCommons: "CDS",
-      organization: "NIH",
-      study: "ABC",
-      dbGapID: "3766-26",
-      status: "Initialized",
-      dataHubConcierge: "Name AAA",
-      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
-    },
-    {
-      id: "000002",
-      submitterName: "Teri Dactyl",
-      dataCommons: "CDS",
-      organization: "CBIIT",
-      study: "ABC",
-      dbGapID: "1234-65",
-      status: "Initialized",
-      dataHubConcierge: "Name AAA",
-      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
-    },
-    {
-      id: "000003",
-      submitterName: "Peg Legge",
-      dataCommons: "CDS",
-      organization: "uAlberta",
-      study: "ABC",
-      dbGapID: "6324-00",
-      status: "Initialized",
-      dataHubConcierge: "Name AAA",
-      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
-    },
-    {
-      id: "000004",
-      submitterName: "John Doe",
-      dataCommons: "CDS",
-      organization: "NIH",
-      study: "ABC",
-      dbGapID: "2455-26",
-      status: "Archived",
-      dataHubConcierge: "Name AAA",
-      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
-    },
-    {
-      id: "000005",
-      submitterName: "Allie Grater",
-      dataCommons: "CDS",
-      organization: "CBIIT",
-      study: "ABC",
-      dbGapID: "1233-35",
-      status: "Completed",
-      dataHubConcierge: "Name AAA",
-      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
-    },
-    {
-      id: "000006",
-      submitterName: "Olive Yew",
-      dataCommons: "CDS",
-      organization: "uAblerta",
-      study: "ABC",
-      dbGapID: "0004-43",
-      status: "Released",
-      dataHubConcierge: "Name AAA",
-      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
-    },
-    {
-      id: "000007",
-      submitterName: "Aida Bugg",
-      dataCommons: "CDS",
-      organization: "NIH",
-      study: "ABC",
-      dbGapID: "3434-36",
-      status: "Submitted",
-      dataHubConcierge: "Name AAA",
-      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
-    },
-    {
-      id: "000008",
-      submitterName: "Funny Pun",
-      dataCommons: "CDS",
-      organization: "CBIIT",
-      study: "ABC",
-      dbGapID: "4509-88",
-      status: "In Progress",
-      dataHubConcierge: "Name AAA",
-      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
-    },
-    {
-      id: "000009",
-      submitterName: "Marsh Mallow",
-      dataCommons: "CDS",
-      organization: "NIH",
-      study: "ABC",
-      dbGapID: "5966-10",
-      status: "Initialized",
-      dataHubConcierge: "Name AAA",
-      updatedAt: "07-22-2022 06:45 AM" // YYYY-MM-DDTHH:MM:SSZ format
-    },
+   {
+   _id: "00001", // aka. submissionID
+   name: "random name 1",
+   submitterID: "123123123",
+   submitterName: "john doe", // <first name> <last name>
+   organization: "random org",
+   dataCommons: "CDS",
+   modelVersion: "0.0.1", // # for future use
+   studyAbbreviation: "studyAbrv",
+   dbGapID: "2742-26", // # aka. phs number
+   bucketName: "todo: what is this", // # populated from organization
+   rootPath: "todo: no clue waht this is", // # a submission folder will be created under this path, default is / or "" meaning root folder
+   status: "New", // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
+   history: [{
+    status: "New", // # [New, In Progress, Submitted, In Review, Approved, Rejected]
+    reviewComment: "todo: ", // # if applicable
+    dateTime: "todo: date", // # YYYY-MM-DDTHH:MM:SS format
+    userID: "todo: ",
+  }],
+   concierge: "filler concierge", // # Concierge name
+   createdAt: "dunno", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+   updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+  },
+  {
+    _id: "00001", // aka. submissionID
+    name: "random name 1",
+    submitterID: "123123123",
+    submitterName: "john doe", // <first name> <last name>
+    organization: "random org",
+    dataCommons: "CDS",
+    modelVersion: "0.0.1", // # for future use
+    studyAbbreviation: "studyAbrv",
+    dbGapID: "2742-26", // # aka. phs number
+    bucketName: "todo: what is this", // # populated from organization
+    rootPath: "todo: no clue waht this is", // # a submission folder will be created under this path, default is / or "" meaning root folder
+    status: "New", // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
+    history: [{
+     status: "New", // # [New, In Progress, Submitted, In Review, Approved, Rejected]
+     reviewComment: "todo: ", // # if applicable
+     dateTime: "todo: date", // # YYYY-MM-DDTHH:MM:SS format
+     userID: "todo: ",
+   }],
+    concierge: "filler concierge", // # Concierge name
+    createdAt: "dunno", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+    updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+   },
+      {
+    _id: "00001", // aka. submissionID
+    name: "random name 1",
+    submitterID: "123123123",
+    submitterName: "john doe", // <first name> <last name>
+    organization: "random org",
+    dataCommons: "CDS",
+    modelVersion: "0.0.1", // # for future use
+    studyAbbreviation: "studyAbrv",
+    dbGapID: "2742-26", // # aka. phs number
+    bucketName: "todo: what is this", // # populated from organization
+    rootPath: "todo: no clue waht this is", // # a submission folder will be created under this path, default is / or "" meaning root folder
+    status: "New", // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
+    history: [{
+     status: "New", // # [New, In Progress, Submitted, In Review, Approved, Rejected]
+     reviewComment: "todo: ", // # if applicable
+     dateTime: "todo: date", // # YYYY-MM-DDTHH:MM:SS format
+     userID: "todo: ",
+   }],
+    concierge: "filler concierge", // # Concierge name
+    createdAt: "dunno", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+    updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+   }
   ];
+
   const tempData = { listDataSubmissions: { total: tempDataSubmissions.length, dataSubmissions: tempDataSubmissions } };
 
   const { data, loading, error } = { data: tempData, loading: false, error: "" };
