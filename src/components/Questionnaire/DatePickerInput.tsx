@@ -129,6 +129,7 @@ const DatePickerInput: FC<Props> = ({
   infoText,
   tooltipText,
   errorText,
+  disablePast,
   onChange,
   readOnly,
   ...rest
@@ -141,9 +142,10 @@ const DatePickerInput: FC<Props> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const processValue = (inputVal: Dayjs) => {
+    const isInvalidDay = !inputVal?.isValid() || (disablePast && inputVal?.isBefore(dayjs(new Date()).startOf("day")));
     if (required && !inputVal) {
       updateInputValidity(inputRef, errorMsg);
-    } else if (!inputVal.isValid()) {
+    } else if (isInvalidDay) {
       updateInputValidity(inputRef, "The date is invalid. Please enter a date in the format MM/DD/YYYY");
     } else {
       updateInputValidity(inputRef);
@@ -186,6 +188,7 @@ const DatePickerInput: FC<Props> = ({
           value={val}
           onChange={(value: Dayjs) => onChangeWrapper(value)}
           inputRef={inputRef}
+          disablePast={disablePast}
           readOnly={readOnly}
           slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{
