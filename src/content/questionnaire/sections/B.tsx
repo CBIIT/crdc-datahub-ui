@@ -416,7 +416,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       >
         <SwitchInput
           id="section-b-dbGaP-registration"
-          label="dbGaP REGISTRATION"
+          label="Has your study been registered in dbGaP?"
           name="study[isDbGapRegistered]"
           required
           value={isDbGapRegistered}
