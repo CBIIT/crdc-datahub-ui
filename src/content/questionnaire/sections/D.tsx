@@ -33,7 +33,8 @@ const TableContainer = styled.div`
     border-radius: 10px;
     overflow: hidden;
     .readOnly {
-      background-color: #D9DEE4;
+      background-color: #D2DFE9;
+      color: "#083A50";
       cursor: not-allowed;
     }
     .MuiTableContainer-root {
@@ -113,7 +114,7 @@ const TableContainer = styled.div`
     }
     .asterisk {
       color: #D54309;
-      margin-left: 6px;
+      margin-left: 2px;
     }
     .MuiButton-startIcon {
       margin: 0 !important;
@@ -476,7 +477,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                           placement="start"
                           onClick={() => removeFileDataType(fileData.key)}
                           startIcon={<RemoveCircleIcon />}
-                          iconColor="#F18E8E"
+                          iconColor="#E74040"
                           disabled={readOnlyInputs || status === FormStatus.SAVING}
                           sx={{ minWidth: "0px !important" }}
                         />

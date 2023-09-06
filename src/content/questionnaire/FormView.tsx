@@ -29,6 +29,7 @@ const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
     padding: 0,
     minHeight: "300px",
+    scrollMarginTop: "-60px",
   }
 }));
 
@@ -177,7 +178,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   useEffect(() => {
     const newSection = validateSection(section) ? section : "A";
     setActiveSection(newSection);
-    if (lastSectionRef.current) formContentRef.current?.scrollIntoView();
+    if (lastSectionRef.current) formContentRef.current?.scrollIntoView({ block: "start", inline: "start" });
     lastSectionRef.current = newSection;
   }, [section]);
 
@@ -506,7 +507,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         bannerSrc={bannerPng}
       />
 
-      <StyledContainer maxWidth="xl">
+      <StyledContainer ref={formContentRef} maxWidth="xl">
         <StyledContentWrapper direction="row" justifyContent="center">
           <StyledSidebar
             direction="row"
@@ -517,7 +518,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
             <StyledDivider orientation="vertical" />
           </StyledSidebar>
 
-          <Stack ref={formContentRef} className={classes.content} direction="column" spacing={5}>
+          <Stack className={classes.content} direction="column" spacing={5}>
             <StatusBar />
 
             {hasError && <StyledAlert ref={errorAlertRef} severity="error">Oops! An error occurred. Please refresh the page or try again later.</StyledAlert>}
@@ -663,7 +664,7 @@ const styles = () => ({
       textTransform: "none",
     },
     "& button:disabled": {
-      background: "#D9DEE4",
+      backgroundColor: "#D2DFE9",
     },
     "& button:hover:not([disabled])": {
       color: "#fff",

@@ -72,11 +72,11 @@ const StyledFormControl = styled(FormControl)(() => ({
       background: "#FFFFFF",
     },
     "& .MuiAutocomplete-option:hover": {
-      backgroundColor: "#5E6787",
+      backgroundColor: "#2F7664",
       color: "#FFFFFF",
     },
     "& .MuiAutocomplete-option.Mui-focused": {
-      backgroundColor: "#5E6787 !important",
+      backgroundColor: "#2F7664 !important",
       color: "#FFFFFF",
     },
   },
@@ -93,19 +93,19 @@ const StyledFormLabel = styled("label")(() => ({
 
 const StyledAsterisk = styled("span")(() => ({
   color: "#D54309",
-  marginLeft: "6px",
+  marginLeft: "2px",
 }));
 
 const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : boolean }) => ({
   "& .MuiInputBase-root": {
-    backgroundColor: readOnly ? "#D9DEE4" : "#FFFFFF",
     "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
       display: 'flex',
       alignItems: 'center',
       padding: 0,
     },
     "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: "#D9DEE4",
+      backgroundColor: "#D2DFE9",
+      color: "#083A50",
       cursor: "not-allowed",
       borderRadius: "8px",
     },

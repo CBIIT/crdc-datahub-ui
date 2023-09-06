@@ -112,7 +112,8 @@ const styles = () => ({
       height: "20px",
     },
     "&.MuiInputBase-input:read-only": {
-      backgroundColor: "#D9DEE4",
+      backgroundColor: "#D2DFE9",
+      color: "#083A50",
       cursor: "not-allowed",
     },
   },

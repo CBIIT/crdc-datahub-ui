@@ -26,14 +26,14 @@ const StyledGrid = styled(Grid)({
 });
 
 const StyledHeader = styled(Grid)({
-  marginBottom: "24px",
+  marginBottom: "18px",
 });
 
 export const StyledTitle = styled(Typography)({
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   lineHeight: "19.6px",
   fontWeight: 500,
-  color: "#7899A1",
+  color: "#5A7C81",
   fontSize: "17px",
   textTransform: "uppercase"
 });

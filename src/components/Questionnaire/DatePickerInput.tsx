@@ -40,7 +40,7 @@ const StyledFormControl = styled(FormControl)(() => ({
 
 const StyledAsterisk = styled("span")(() => ({
   color: "#D54309",
-  marginLeft: "6px",
+  marginLeft: "2px",
 }));
 
 const StyledFormLabel = styled("label")(({ theme }) => ({
@@ -92,8 +92,10 @@ const StyledDatePicker = styled(DatePicker)(() => ({
   },
   // Target readOnly <input> inputs
   "& .Mui-readOnly.MuiInputBase-root, .Mui-readOnly .MuiInputBase-input": {
-    backgroundColor: "#D9DEE4",
+    backgroundColor: "#D2DFE9",
+    color: "#083A50",
     cursor: "not-allowed",
+    overflow: "hidden"
   },
 }));
 
