@@ -64,7 +64,7 @@ const styles = () => ({
   },
   titleGroup: {
     background: "transparent",
-    color: "#327E8F",
+    color: "#337E90",
     paddingBottom: "40px",
     borderRadius: "8px 8px 0 0",
     display: "flex",
