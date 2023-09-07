@@ -227,11 +227,12 @@ const ListingView: FC = () => {
     return page > 0 && count
       ? Math.max(0, page * perPage - count)
       : 0;
-  }, [data, perPage, page]);
+  }, [count, perPage, page]);
 
   const handleRequestSort = (column: Column) => {
     setOrder(orderBy === column && order === "asc" ? "desc" : "asc");
     setOrderBy(column);
+    setPage(0);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -269,6 +270,10 @@ const ListingView: FC = () => {
     setCount(sorted.length);
     setDataset(sorted.slice(page * perPage, (page * perPage) + perPage));
   }, [data, perPage, page, orderBy, order, roleFilter, orgFilter, statusFilter]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [orgFilter, roleFilter, statusFilter]);
 
   return (
     <>
