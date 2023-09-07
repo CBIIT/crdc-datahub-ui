@@ -2,6 +2,7 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import styled from 'styled-components';
+import dayjs from "dayjs";
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -155,8 +156,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     combinedData.dataTypes = combinedData.dataTypes.filter((str) => str !== "");
     combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter((str) => str !== "");
 
-    combinedData.targetedReleaseDate = formObject.targetedReleaseDate === "MM/DD/YYYY" ? "" : formObject.targetedReleaseDate;
-    combinedData.targetedSubmissionDate = formObject.targetedSubmissionDate === "MM/DD/YYYY" ? "" : formObject.targetedSubmissionDate;
+    combinedData.targetedReleaseDate = dayjs(formObject.targetedReleaseDate).isValid() ? formObject.targetedReleaseDate : "";
+    combinedData.targetedSubmissionDate = dayjs(formObject.targetedSubmissionDate).isValid() ? formObject.targetedSubmissionDate : "";
     if (formObject.imagingDataDeIdentified === "true") {
       combinedData.imagingDataDeIdentified = true;
     } else if (formObject.imagingDataDeIdentified === "false") {
@@ -203,7 +204,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Targeted Data Submission Delivery Date"
           name="targetedSubmissionDate"
           tooltipText="The date that transfer of data from the submitter to DataHub is expected to begin."
-          errorText="Please enter a valid date"
           initialValue={data.targetedSubmissionDate}
           gridWidth={6}
           disablePast
@@ -214,7 +214,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Expected Publication Date"
           name="targetedReleaseDate"
           tooltipText="The date that submitters would like their data to be released to the public."
-          errorText="Please enter a valid date"
           initialValue={data.targetedReleaseDate}
           gridWidth={6}
           disablePast

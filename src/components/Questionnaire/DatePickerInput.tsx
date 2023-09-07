@@ -138,19 +138,23 @@ const DatePickerInput: FC<Props> = ({
 
   const [val, setVal] = useState<Dayjs>(dayjs(initialValue ?? ""));
   const [error, setError] = useState(false);
-  const errorMsg = errorText || (required ? "This field is required" : null);
+  const [errorMsg, setErrorMsg] = useState<string>(errorText || (required ? "This field is required" : null));
   const inputRef = useRef<HTMLInputElement>(null);
 
   const processValue = (inputVal: Dayjs) => {
-    const isInvalidDay = !inputVal?.isValid() || (disablePast && inputVal?.isBefore(dayjs(new Date()).startOf("day")));
+    const isInvalidDay = !inputVal?.isValid();
+    const isPastDate = inputVal?.isBefore(dayjs(new Date()).startOf("day"));
+    let newErrorMsg = "";
     if (required && !inputVal) {
-      updateInputValidity(inputRef, errorMsg);
+      newErrorMsg = "This field is required";
+    } else if (disablePast && isPastDate) {
+      newErrorMsg = "The date is invalid. Please select today's date or a future date";
     } else if (isInvalidDay) {
-      updateInputValidity(inputRef, "The date is invalid. Please enter a date in the format MM/DD/YYYY");
-    } else {
-      updateInputValidity(inputRef);
+      newErrorMsg = "The date is invalid. Please enter a date in the format MM/DD/YYYY";
     }
 
+    updateInputValidity(inputRef, newErrorMsg);
+    setErrorMsg(newErrorMsg);
     setVal(inputVal);
   };
 

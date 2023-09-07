@@ -361,11 +361,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         data: {
           ...merge(cloneDeep(InitialApplication), d?.getApplication),
           questionnaireData: {
-            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
-            // To avoid false positive form changes
-            // NOTE: We may be able to remove this since we control the nested object
-            targetedReleaseDate: FormatDate(questionnaireData.targetedReleaseDate, datePattern, dateTodayFallback),
-            targetedSubmissionDate: FormatDate(questionnaireData.targetedSubmissionDate, datePattern, dateTodayFallback),
+            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData)
           },
         }
       });
