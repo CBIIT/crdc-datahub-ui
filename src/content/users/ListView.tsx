@@ -223,8 +223,8 @@ const ListingView: FC = () => {
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
-    return page > 0 && data?.listUsers?.length
-      ? Math.max(0, page * perPage - (data?.listUsers?.length || 0))
+    return page > 0 && dataset.length
+      ? Math.max(0, page * perPage - dataset.length || 0)
       : 0;
   }, [data, perPage, page]);
 
@@ -414,7 +414,7 @@ const ListingView: FC = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 20, 50]}
             component="div"
-            count={data?.listUsers?.length || 0}
+            count={dataset.length}
             rowsPerPage={perPage}
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
@@ -422,9 +422,9 @@ const ListingView: FC = () => {
             nextIconButtonProps={{
               disabled:
                 perPage === -1
-                || !data?.listUsers
-                || data?.listUsers?.length === 0
-                || data?.listUsers?.length <= (page + 1) * perPage
+                || !dataset
+                || dataset.length === 0
+                || dataset.length <= (page + 1) * perPage
                 || emptyRows > 0
                 || loading,
             }}
