@@ -154,6 +154,7 @@ const TableAutocompleteInput: FC<Props> = ({
           },
           popper: {
             disablePortal: true,
+            sx: { top: "-2px !important" },
             modifiers: [
               {
                 // disables popper from flipping above the input when out of screen room
@@ -208,6 +209,7 @@ const TableAutocompleteInput: FC<Props> = ({
             },
             popper: {
               disablePortal: true,
+              sx: { top: "-2px !important" },
               modifiers: [
                 {
                   // disables popper from flipping above the input when out of screen room
@@ -255,6 +257,13 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : bo
       fontFamily: "'Nunito', 'Rubik', sans-serif",
       padding: "10px 12px 10px 12px !important",
       cursor: readOnly ? "not-allowed !important" : "initial",
+    },
+    "& .MuiAutocomplete-endAdornment": {
+      right: "8px",
+    },
+    "&.Mui-focused": {
+      boxShadow:
+        "2px 2px 2px 1px rgba(38, 184, 147, 0.10), -2px -2px 2px 1px rgba(38, 184, 147, 0.20)",
     },
   },
 }));
