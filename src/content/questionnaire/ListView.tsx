@@ -132,7 +132,6 @@ const columns: Column[] = [
   },
   {
     label: "Last Updated Date",
-    // eslint-disable-next-line no-nested-ternary
     value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
     field: "updatedAt",
   },
