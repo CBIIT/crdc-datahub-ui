@@ -367,7 +367,14 @@ const NavBar = () => {
   const displayName = authData?.user?.firstName?.toUpperCase() || "N/A";
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
   clickableTitle.push(displayName);
+
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
+
+  useEffect(() => {
+    if (!authData.isLoggedIn) {
+      setClickedTitle("");
+    }
+  }, [authData]);
 
   const handleLogout = async () => {
     setClickedTitle("");
@@ -400,9 +407,6 @@ const NavBar = () => {
   function shouldBeUnderlined(item) {
     const linkName = item.name;
     const correctPath = window.location.href.slice(window.location.href.lastIndexOf(window.location.host) + window.location.host.length);
-    // if (item.linkName === "Home") {
-    //   return correctPath === "/";
-    // }
     if (item.className === "navMobileItem") {
       return correctPath === item.link;
     }
@@ -494,8 +498,8 @@ const NavBar = () => {
         <DropdownContainer>
           <div className="dropdownList">
             {
-              (clickedTitle !== "" && clickedTitle !== displayName)
-                ? navbarSublists[clickedTitle].map((dropItem, idx) => {
+              (clickedTitle !== "" && !authData.isLoggedIn && clickedTitle !== displayName)
+                ? navbarSublists[clickedTitle]?.map((dropItem, idx) => {
                   const dropkey = `drop_${idx}`;
                   return (
                     dropItem.link

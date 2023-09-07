@@ -22,12 +22,6 @@ const _getFormModeForUser = (
   user: User,
   data: Application
 ): FormMode => {
-  const userOrgRoleExists = user?.organization?.orgRole?.length > 0;
-  const belongsToSameOrg = user?.organization?.orgID === data?.organization?._id;
-  if (user?.role !== "User" || (userOrgRoleExists && belongsToSameOrg && user.organization?.orgRole !== "Submitter")) {
-    return FormModes.UNAUTHORIZED;
-  }
-
   const { status: formStatus } = data || {};
   const formBelongsToUser = data?.applicant?.applicantID === user?.["_id"];
   const isStatusViewOnlyForUser = ["Submitted", "In Review", "Approved"].includes(formStatus);
@@ -49,18 +43,10 @@ const _getFormModeForUser = (
  * NOTE:
  *  - This is a private helper function for getFormMode
  *
- * @param {User} user - The current user
  * @param {Application} data - The current application/submission
  * @returns {FormMode} - Form mode corresponding to the given form status for a Federal Lead.
  */
-const _getFormModeForFederalLead = (
-  user: User,
-  data: Application
-): FormMode => {
-  if (user?.role !== "FederalLead") {
-    return FormModes.UNAUTHORIZED;
-  }
-
+const _getFormModeForFederalLead = (data: Application): FormMode => {
   const { status: formStatus } = data || {};
 
   if (ReviewStatuses.includes(formStatus)) {
@@ -83,23 +69,16 @@ const _getFormModeForOrgOwner = (
   user: User,
   data: Application
 ): FormMode => {
-  const belongsToSameOrg = user.organization?.orgID === data?.organization?._id;
-  const orgRole = belongsToSameOrg ? user.organization?.orgRole : null;
-  if (orgRole !== "Owner") {
-    return FormModes.UNAUTHORIZED;
-  }
-
   const { status: formStatus } = data || {};
   const formBelongsToUser = data?.applicant?.applicantID === user?.["_id"];
-  const isStatusViewOnlyForOrgOwner = ["Submitted", "In Review", "Approved"].includes(formStatus);
 
-  if (!formBelongsToUser || isStatusViewOnlyForOrgOwner) {
+  if (!formBelongsToUser) {
     return FormModes.VIEW_ONLY;
   }
   if (EditStatuses.includes(formStatus)) {
     return FormModes.EDIT;
   }
-  return FormModes.UNAUTHORIZED;
+  return FormModes.VIEW_ONLY;
 };
 
 /**
@@ -122,32 +101,17 @@ export const getFormMode = (
     return FormModes.UNAUTHORIZED;
   }
 
-  const userOrgRoleExists = user?.organization?.orgRole?.length > 0;
-  const belongsToSameOrg = user.organization?.orgID === data?.organization?._id;
-  const orgRole = belongsToSameOrg ? user.organization?.orgRole : null;
-
-  if (user.role === "FederalLead") {
-    return _getFormModeForFederalLead(user, data);
+  switch (user.role) {
+    case "FederalLead":
+      return _getFormModeForFederalLead(data);
+    case "Admin":
+      return FormModes.VIEW_ONLY;
+    case "ORG_OWNER":
+      return _getFormModeForOrgOwner(user, data);
+    case "User":
+    case "Submitter":
+      return _getFormModeForUser(user, data);
+    default:
+      return FormModes.VIEW_ONLY;
   }
-  if (user.role === "Admin") {
-    return FormModes.VIEW_ONLY;
-  }
-  if (userOrgRoleExists && !belongsToSameOrg) {
-    return FormModes.UNAUTHORIZED;
-  }
-  if (userOrgRoleExists && orgRole === "Owner") {
-    return _getFormModeForOrgOwner(user, data);
-  }
-  if (userOrgRoleExists && orgRole !== "Submitter") {
-    return FormModes.VIEW_ONLY;
-  }
-  if (user.role === "User" || (userOrgRoleExists && orgRole === "Submitter")) {
-    return _getFormModeForUser(user, data);
-  }
-  // Any other authorized user
-  if (user.role) {
-    return FormModes.VIEW_ONLY;
-  }
-
-  return FormModes.UNAUTHORIZED;
 };
