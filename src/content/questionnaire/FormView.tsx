@@ -659,7 +659,7 @@ const styles = () => ({
       lineHeight: "20.14px",
       borderRadius: "8px",
       borderColor: "#828282",
-      background: "#949494",
+      background: "#737373",
       color: "inherit",
       textTransform: "none",
     },
@@ -668,7 +668,7 @@ const styles = () => ({
     },
     "& button:hover:not([disabled])": {
       color: "#fff",
-      background: "#2A2A2A",
+      background: "#5E5E5E",
     },
     "& a": {
       color: "inherit",

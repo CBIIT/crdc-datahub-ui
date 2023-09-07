@@ -27,6 +27,9 @@ const StyledFormControlLabel = styled(FormControlLabel)({
     color: "#083A50",
     fontWeight: "700",
   },
+  "& .MuiCheckbox-root": {
+    color: "#005EA2 !important",
+  },
 });
 
 /**
