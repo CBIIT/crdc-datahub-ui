@@ -111,12 +111,12 @@ const columns: Column[] = [
   },
   {
     label: "Study",
-    value: (a) => a.studyAbbreviation || "N/A",
+    value: (a) => a.studyAbbreviation || "NA",
     field: "studyAbbreviation",
   },
   {
     label: "Program",
-    value: (a) => a.programName || "N/A",
+    value: (a) => a.programName || "NA",
     field: "programName",
   },
   {
