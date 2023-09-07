@@ -664,7 +664,7 @@ const styles = () => ({
       textTransform: "none",
     },
     "& button:disabled": {
-      backgroundColor: "#D2DFE9",
+      backgroundColor: "#CDCDCD",
     },
     "& button:hover:not([disabled])": {
       color: "#fff",
