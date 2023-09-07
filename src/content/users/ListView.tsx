@@ -415,7 +415,7 @@ const ListingView: FC = () => {
             </TableBody>
           </Table>
           <TablePagination
-            rowsPerPageOptions={[1, 2, 5, 10, 20, 50]}
+            rowsPerPageOptions={[5, 10, 20, 50]}
             component="div"
             count={count}
             rowsPerPage={perPage}
