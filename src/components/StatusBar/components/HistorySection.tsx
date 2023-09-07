@@ -206,7 +206,7 @@ const StyledCloseButton = styled(Button)({
  */
 const HistorySection: FC = () => {
   const {
-    data: { status, updatedAt, history },
+    data: { updatedAt, history },
   } = useFormContext();
   const [open, setOpen] = useState<boolean>(false);
   const sortedHistory = useMemo(() => SortHistory(history), [history]);
