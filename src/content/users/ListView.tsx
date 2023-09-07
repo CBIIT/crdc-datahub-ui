@@ -210,6 +210,7 @@ const ListingView: FC = () => {
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
   const [dataset, setDataset] = useState<T[]>([]);
+  const [count, setCount] = useState<number>(0);
 
   const { watch, setValue, control } = useForm<FilterForm>();
   const orgFilter = watch("organization");
@@ -223,8 +224,8 @@ const ListingView: FC = () => {
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
-    return page > 0 && dataset.length
-      ? Math.max(0, page * perPage - dataset.length || 0)
+    return page > 0 && count
+      ? Math.max(0, page * perPage - count)
       : 0;
   }, [data, perPage, page]);
 
@@ -250,6 +251,7 @@ const ListingView: FC = () => {
   useEffect(() => {
     if (!data?.listUsers?.length) {
       setDataset([]);
+      setCount(0);
       return;
     }
 
@@ -264,6 +266,7 @@ const ListingView: FC = () => {
       sorted.reverse();
     }
 
+    setCount(sorted.length);
     setDataset(sorted.slice(page * perPage, (page * perPage) + perPage));
   }, [data, perPage, page, orderBy, order, roleFilter, orgFilter, statusFilter]);
 
@@ -412,9 +415,9 @@ const ListingView: FC = () => {
             </TableBody>
           </Table>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 20, 50]}
+            rowsPerPageOptions={[1, 2, 5, 10, 20, 50]}
             component="div"
-            count={dataset.length}
+            count={count}
             rowsPerPage={perPage}
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
@@ -424,7 +427,7 @@ const ListingView: FC = () => {
                 perPage === -1
                 || !dataset
                 || dataset.length === 0
-                || dataset.length <= (page + 1) * perPage
+                || count <= (page + 1) * perPage
                 || emptyRows > 0
                 || loading,
             }}
