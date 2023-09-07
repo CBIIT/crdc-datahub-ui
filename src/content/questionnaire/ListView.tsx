@@ -111,12 +111,12 @@ const columns: Column[] = [
   },
   {
     label: "Study",
-    value: (a) => a.studyAbbreviation || "NA",
+    value: (a) => a.studyAbbreviation || "N/A",
     field: "studyAbbreviation",
   },
   {
     label: "Program",
-    value: (a) => a.programName || "NA",
+    value: (a) => a.programName || "N/A",
     field: "programName",
   },
   {
@@ -132,7 +132,8 @@ const columns: Column[] = [
   },
   {
     label: "Last Updated Date",
-    value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
+    // eslint-disable-next-line no-nested-ternary
+    value: (a) => (a.status === "New" ? "N/A" : (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : "")),
     field: "updatedAt",
   },
   {
