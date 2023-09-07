@@ -162,6 +162,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={pi?.institution || ""}
           options={institutionConfig}
           placeholder="Enter or Select an Institution"
+          validate={(v: string) => v?.trim()?.length > 0}
           required
           disableClearable
           freeSolo
@@ -261,6 +262,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               options={institutionConfig}
               placeholder="Enter or Select an Institution"
               readOnly={readOnlyInputs}
+              validate={(v: string) => v?.trim()?.length > 0}
               disableClearable
               required
               freeSolo

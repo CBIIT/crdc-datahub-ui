@@ -87,6 +87,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly,
           value={institution || ""}
           options={institutionConfig}
           placeholder="Enter or Select an Institution"
+          validate={(v: string) => v?.trim()?.length > 0}
           required
           disableClearable
           freeSolo

@@ -189,6 +189,14 @@ const AutocompleteInput = <T,>({
     setError(false);
   };
 
+  const onInputChangeWrapper = (
+    event: SyntheticEvent,
+    newValue: string,
+  ): void => {
+    processValue(newValue as unknown as T);
+    setError(false);
+  };
+
   useEffect(() => {
     const invalid = () => setError(true);
 
@@ -213,6 +221,7 @@ const AutocompleteInput = <T,>({
         <StyledAutocomplete
           value={val}
           onChange={onChangeWrapper}
+          onInputChange={onInputChangeWrapper}
           options={options}
           readOnly={readOnly}
           forcePopupIcon
