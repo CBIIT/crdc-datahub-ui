@@ -209,7 +209,9 @@ const TableAutocompleteInput: FC<Props> = ({
             },
             popper: {
               disablePortal: true,
-              sx: { top: "-2px !important" },
+              sx: {
+                top: "-2px !important",
+              },
               modifiers: [
                 {
                   // disables popper from flipping above the input when out of screen room
@@ -287,11 +289,11 @@ const styles = () => ({
       background: "#FFFFFF"
     },
     "& .MuiAutocomplete-option:hover": {
-      backgroundColor: "#5E6787",
+      backgroundColor: "#3E7E6D",
       color: "#FFFFFF"
     },
     "& .MuiAutocomplete-option.Mui-focused": {
-      backgroundColor: "#5E6787 !important",
+      backgroundColor: "#3E7E6D !important",
       color: "#FFFFFF"
     },
   },
