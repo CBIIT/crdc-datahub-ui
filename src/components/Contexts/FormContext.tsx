@@ -7,7 +7,6 @@ import React, {
   useState,
 } from "react";
 import { useLazyQuery, useMutation } from '@apollo/client';
-import dayjs from "dayjs";
 import { merge, cloneDeep } from "lodash";
 import {
   APPROVE_APP,
@@ -28,7 +27,6 @@ import {
   SubmitAppResp,
 } from "../../graphql";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
-import { FormatDate } from "../../utils";
 
 export type ContextState = {
   status: Status;
@@ -95,9 +93,6 @@ type ProviderProps = {
  */
 export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
-
-  const datePattern = "MM/DD/YYYY";
-  const dateTodayFallback = dayjs().format(datePattern);
 
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: 'backend' },

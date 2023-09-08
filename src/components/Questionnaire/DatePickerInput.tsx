@@ -3,7 +3,6 @@ import {
   FormControl,
   FormHelperText,
   Grid,
-  TextField,
   TextFieldProps,
   styled,
 } from "@mui/material";
@@ -98,18 +97,6 @@ const StyledDatePicker = styled(DatePicker)(() => ({
   },
 }));
 
-type ExtendedTextFieldProps = TextFieldProps & { onRawInputChange: (val: string) => void };
-
-const ExtendedTextField = ({ inputRef, onChange, onRawInputChange, ...props }: ExtendedTextFieldProps) => (
-  <TextField
-    {...props} inputRef={inputRef}
-    onChange={(event) => {
-      onChange(event);
-      onRawInputChange(event?.target?.value);
-    }}
-  />
-);
-
 type Props = {
   inputID: string;
   initialValue?: string | Date;
@@ -143,47 +130,42 @@ const DatePickerInput: FC<Props> = ({
   tooltipText,
   errorText,
   disablePast,
+  format = "MM/DD/YYYY",
   onChange,
   readOnly,
-  format = "MM/DD/YYYY",
   ...rest
 }) => {
   const id = useId();
 
   const [val, setVal] = useState<Dayjs>(dayjs(initialValue || null));
   const [error, setError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState<string>(errorText || (required ? "This field is required" : null));
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const validate = (inputVal: string) => {
-    const inputDayjsVal = dayjs(inputVal || null);
-    const isInvalidDay = !inputDayjsVal?.isValid();
-    const isPastDate = inputDayjsVal?.isBefore(dayjs(new Date()).startOf("day"));
+  const processValue = (inputVal: Dayjs) => {
+    const isInvalidDay = !inputVal?.isValid();
+    const isPastDate = inputVal?.isBefore(dayjs(new Date()).startOf("day"));
 
     let newErrorMsg = "";
     if (required && !inputVal) {
       newErrorMsg = "This field is required";
     } else if (disablePast && isPastDate) {
       newErrorMsg = "The date is invalid. Please select today's date or a future date";
-    } else if (inputVal?.length && isInvalidDay) {
+    } else if (inputVal !== null && inputRef.current?.value !== format && isInvalidDay) {
       newErrorMsg = `The date is invalid. Please enter a date in the format ${format}`;
     }
 
     updateInputValidity(inputRef, newErrorMsg);
     setErrorMsg(newErrorMsg);
+    setVal(inputVal);
   };
 
-  const processValue = (inputVal: string) => {
-    const inputDayjsVal = dayjs(inputVal || null);
-    validate(inputVal);
-    setVal(inputDayjsVal);
-  };
-
-  const onChangeWrapper = (newVal: string) => {
+  const onChangeWrapper = (newVal: Dayjs) => {
     if (typeof onChange === "function") {
-      onChange(dayjs(newVal), null);
+      onChange(newVal, null);
     }
-    validate(newVal || null);
+
+    processValue(newVal);
     setError(false);
   };
 
@@ -197,7 +179,7 @@ const DatePickerInput: FC<Props> = ({
   }, [inputRef]);
 
   useEffect(() => {
-    processValue(initialValue ? initialValue?.toString()?.trim() : null);
+    processValue(dayjs(initialValue?.toString()?.trim()));
   }, [initialValue]);
 
   return (
@@ -210,14 +192,12 @@ const DatePickerInput: FC<Props> = ({
         </StyledFormLabel>
         <StyledDatePicker
           value={val}
+          onChange={(value: Dayjs) => onChangeWrapper(value)}
           inputRef={inputRef}
           disablePast={disablePast}
           format={format}
           readOnly={readOnly}
-          slots={{
-            openPickerIcon: CalendarIcon,
-            textField: ExtendedTextField,
-          }}
+          slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{
             textField: {
               id: inputID,
@@ -225,9 +205,11 @@ const DatePickerInput: FC<Props> = ({
               required,
               error,
               size: "small",
-              onRawInputChange: (val: string) => onChangeWrapper(val),
+              onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                onChangeWrapper(event as unknown as Dayjs);
+              },
               ...inputProps,
-            } as ExtendedTextFieldProps,
+            },
             popper: {
               placement: "bottom-end",
               disablePortal: true,
