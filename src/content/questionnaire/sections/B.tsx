@@ -99,14 +99,20 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (!formObject.study.publications || formObject.study.publications.length === 0) {
       combinedData.study.publications = [];
     }
-    // Reset planned publications if the user has not entered any planned publications
-    if (!formObject.study.plannedPublications || formObject.study.plannedPublications.length === 0) {
-      combinedData.study.plannedPublications = [];
-    }
+
     // Reset repositories if the user has not entered any repositories
     if (!formObject.study.repositories || formObject.study.repositories.length === 0) {
       combinedData.study.repositories = [];
     }
+
+     // Reset planned publications if the user has not entered any planned publications
+     // Also reset expectedDate when invalid to avoid form submission unsaved changes warning
+    combinedData.study.plannedPublications = combinedData.study.plannedPublications?.map((plannedPublication) => ({
+        ...plannedPublication,
+        expectedDate: dayjs(plannedPublication.expectedDate).isValid()
+          ? plannedPublication.expectedDate
+          : "",
+      })) || [];
 
     return { ref: formRef, data: combinedData };
   };
