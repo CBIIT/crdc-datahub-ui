@@ -91,15 +91,15 @@ const StyledSelect = styled(Select, {
       background: "#FFFFFF"
     },
     "& .MuiMenuItem-root.Mui-selected": {
-      backgroundColor: "#2F7664",
+      backgroundColor: "#3E7E6D",
       color: "#FFFFFF",
     },
     "& .MuiMenuItem-root:hover": {
-      background: "#2F7664",
+      background: "#3E7E6D",
       color: "#FFFFFF"
     },
     "& .MuiMenuItem-root.Mui-focused": {
-      backgroundColor: "#2F7664 !important",
+      backgroundColor: "#3E7E6D !important",
       color: "#FFFFFF"
     },
   },

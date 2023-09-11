@@ -72,11 +72,11 @@ const StyledFormControl = styled(FormControl)(() => ({
       background: "#FFFFFF",
     },
     "& .MuiAutocomplete-option:hover": {
-      backgroundColor: "#2F7664",
+      backgroundColor: "#3E7E6D",
       color: "#FFFFFF",
     },
     "& .MuiAutocomplete-option.Mui-focused": {
-      backgroundColor: "#2F7664 !important",
+      backgroundColor: "#3E7E6D !important",
       color: "#FFFFFF",
     },
   },
