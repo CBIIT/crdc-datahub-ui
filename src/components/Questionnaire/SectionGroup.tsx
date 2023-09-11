@@ -35,7 +35,6 @@ export const StyledTitle = styled(Typography)({
   fontWeight: 500,
   color: "#5A7C81",
   fontSize: "17px",
-  textTransform: "uppercase"
 });
 
 export const StyledDescription = styled(Typography)({
