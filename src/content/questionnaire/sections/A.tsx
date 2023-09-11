@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Checkbox, FormControlLabel, Grid, styled } from '@mui/material';
 import { parseForm } from '@jalik/form-parser';
 import { cloneDeep } from 'lodash';
@@ -37,6 +38,7 @@ const StyledFormControlLabel = styled(FormControlLabel)({
  */
 const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data: { questionnaireData: data } } = useFormContext();
+  const location = useLocation();
   const { pi } = data;
   const { readOnlyInputs } = useFormMode();
   const { A: SectionAMetadata } = SectionMetadata;
@@ -105,8 +107,11 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   useEffect(() => {
+    if (location?.state?.from === "/submissions") {
+      return;
+    }
     formContainerRef.current.scrollIntoView({ block: "start" });
-  }, []);
+  }, [location]);
 
   return (
     <FormContainer
