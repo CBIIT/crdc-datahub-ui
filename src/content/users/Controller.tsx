@@ -1,7 +1,17 @@
-import React from "react";
+import React, { memo } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { useAuthContext } from '../../components/Contexts/AuthContext';
+import { OrganizationProvider } from '../../components/Contexts/OrganizationListContext';
+import ListView from "./ListView";
 import ProfileView from "./ProfileView";
+
+/**
+ * A memoized version of OrganizationProvider
+ * which caches data between ListView and ProfileView
+ *
+ * @see OrganizationProvider
+ */
+const MemorizedProvider = memo(OrganizationProvider);
 
 /**
  * Renders the correct view based on the URL and permissions-tier
@@ -19,6 +29,19 @@ export default () => {
     return <Navigate to={`/users/${_id}`} />;
   }
 
+  // Show list of users to Admin or Org Owner
+  if (!userId && isAdministrative) {
+    return (
+      <MemorizedProvider preload>
+        <ListView />
+      </MemorizedProvider>
+    );
+  }
+
   // Viewing own profile or Admin/Org Owner viewing another user's profile
-  return <ProfileView _id={userId} />;
+  return (
+    <MemorizedProvider preload={isAdministrative}>
+      <ProfileView _id={userId} />
+    </MemorizedProvider>
+  );
 };

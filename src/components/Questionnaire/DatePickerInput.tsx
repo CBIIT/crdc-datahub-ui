@@ -132,27 +132,33 @@ const DatePickerInput: FC<Props> = ({
   tooltipText,
   errorText,
   disablePast,
+  format = "MM/DD/YYYY",
   onChange,
   readOnly,
   ...rest
 }) => {
   const id = useId();
 
-  const [val, setVal] = useState<Dayjs>(dayjs(initialValue ?? ""));
+  const [val, setVal] = useState<Dayjs>(dayjs(initialValue || null));
   const [error, setError] = useState(false);
-  const errorMsg = errorText || (required ? "This field is required" : null);
+  const [errorMsg, setErrorMsg] = useState<string>(errorText || (required ? "This field is required" : null));
   const inputRef = useRef<HTMLInputElement>(null);
 
   const processValue = (inputVal: Dayjs) => {
-    const isInvalidDay = !inputVal?.isValid() || (disablePast && inputVal?.isBefore(dayjs(new Date()).startOf("day")));
+    const isInvalidDay = !inputVal?.isValid();
+    const isPastDate = inputVal?.isBefore(dayjs(new Date()).startOf("day"));
+
+    let newErrorMsg = "";
     if (required && !inputVal) {
-      updateInputValidity(inputRef, errorMsg);
-    } else if (isInvalidDay) {
-      updateInputValidity(inputRef, "The date is invalid. Please enter a date in the format MM/DD/YYYY");
-    } else {
-      updateInputValidity(inputRef);
+      newErrorMsg = "This field is required";
+    } else if (disablePast && isPastDate) {
+      newErrorMsg = "The date is invalid. Please select today's date or a future date";
+    } else if (inputVal !== null && inputRef.current?.value !== format && isInvalidDay) {
+      newErrorMsg = `The date is invalid. Please enter a date in the format ${format}`;
     }
 
+    updateInputValidity(inputRef, newErrorMsg);
+    setErrorMsg(newErrorMsg);
     setVal(inputVal);
   };
 
@@ -175,7 +181,7 @@ const DatePickerInput: FC<Props> = ({
   }, [inputRef]);
 
   useEffect(() => {
-    processValue(dayjs(initialValue?.toString().trim()));
+    processValue(dayjs(initialValue?.toString()?.trim()));
   }, [initialValue]);
 
   return (
@@ -191,6 +197,7 @@ const DatePickerInput: FC<Props> = ({
           onChange={(value: Dayjs) => onChangeWrapper(value)}
           inputRef={inputRef}
           disablePast={disablePast}
+          format={format}
           readOnly={readOnly}
           slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{
@@ -200,6 +207,9 @@ const DatePickerInput: FC<Props> = ({
               required,
               error,
               size: "small",
+              onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                onChangeWrapper(event as unknown as Dayjs);
+              },
               ...inputProps,
             },
             popper: {

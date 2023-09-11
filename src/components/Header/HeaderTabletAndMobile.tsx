@@ -197,6 +197,16 @@ const Header = () => {
       className: 'navMobileSubItem',
     },
   ];
+
+  if (authData?.user?.role === "Admin" || authData?.user?.role === "ORG_OWNER") {
+    navbarSublists[displayName].splice(1, 0, {
+      name: 'Manage Users',
+      link: '/users',
+      id: 'navbar-dropdown-item-user-manage',
+      className: 'navMobileSubItem',
+    });
+  }
+
   const clickNavItem = (e) => {
     const clickTitle = e.target.innerText;
     setNavbarMobileList(navbarSublists[clickTitle]);

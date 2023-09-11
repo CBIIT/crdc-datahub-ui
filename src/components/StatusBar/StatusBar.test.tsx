@@ -16,6 +16,7 @@ import Approved from './icons/Approved.svg';
 import Rejected from './icons/Rejected.svg';
 import Submitted from './icons/Submitted.svg';
 import UnderReview from './icons/UnderReview.svg';
+import { FormatDate } from "../../utils";
 
 type Props = {
   data: object;
@@ -79,7 +80,7 @@ describe("StatusBar > General Tests", () => {
     expect(btn).toHaveAttribute("aria-label", "Review Comments");
   });
 
-  it("defaults the last updated to N/A for new applications", () => {
+  it("new applications should still display the correct last updated date", () => {
     const data = {
       status: "New",
       updatedAt: "2023-06-20T09:13:58Z",
@@ -87,7 +88,7 @@ describe("StatusBar > General Tests", () => {
 
     const { getByTestId } = render(<BaseComponent data={data} />);
 
-    expect(getByTestId("status-bar-last-updated")).toHaveTextContent("N/A");
+    expect(getByTestId("status-bar-last-updated")).toHaveTextContent(FormatDate(data.updatedAt, "M/D/YYYY", "N/A"));
   });
 
   const invalidDates = ["", " ", "0-0-0", "YYYY-06-20T09:13:58", "-06-12T09:13:58.000Z", "12023-06-20T09:13:58"];
