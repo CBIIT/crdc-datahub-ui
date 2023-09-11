@@ -39,7 +39,7 @@ type FilterForm = {
 };
 
 const StyledContainer = styled(Container)({
-  marginTop: "-120px",
+  marginTop: "-210px",
 });
 
 const StyledTableContainer = styled(TableContainer)({
@@ -53,8 +53,7 @@ const StyledFilterContainer = styled(Box)({
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-start",
-  background: "#083A50",
-  paddingLeft: "15px",
+  paddingBottom: "10px",
 });
 
 const StyledTableHead = styled(TableHead)({
@@ -63,24 +62,17 @@ const StyledTableHead = styled(TableHead)({
 
 const StyledFormControl = styled(FormControl)({
   margin: "10px",
-  marginRight: "25px",
+  marginRight: "15px",
   minWidth: "250px",
-  "& fieldset": {
-    borderColor: "#fff !important",
-  },
 });
 
 const StyledInlineLabel = styled('label')({
-  color: "#fff",
   padding: "0 10px",
+  fontWeight: "700"
 });
 
 const StyledSelect = styled(Select)({
-  "& .MuiSvgIcon-root,  & .MuiButtonBase-root": {
-    color: "#fff !important",
-  },
   borderRadius: "8px",
-  color: "#fff",
   "& .MuiInputBase-input": {
     fontWeight: 400,
     fontSize: "16px",
@@ -277,7 +269,7 @@ const ListingView: FC = () => {
 
   return (
     <>
-      <PageBanner title="Manage Users" subTitle="" padding="57px 0 0 25px" />
+      <PageBanner title="Manage Users" subTitle="" padding="15px 0 0 25px" />
 
       <StyledContainer maxWidth="xl">
         {(state?.error || error) && (
@@ -286,62 +278,62 @@ const ListingView: FC = () => {
           </Alert>
         )}
 
+        <StyledFilterContainer>
+          <StyledInlineLabel>Organization</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="organization"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  disabled={user.role === "ORG_OWNER"}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {orgData?.map((org: OrgInfo) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+          <StyledInlineLabel>Role</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="role"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+          <StyledInlineLabel>Status</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  <MenuItem value="Active">Active</MenuItem>
+                  <MenuItem value="Inactive">Inactive</MenuItem>
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </StyledFilterContainer>
         <StyledTableContainer>
-          <StyledFilterContainer>
-            <StyledInlineLabel>Organization</StyledInlineLabel>
-            <StyledFormControl>
-              <Controller
-                name="organization"
-                control={control}
-                render={({ field }) => (
-                  <StyledSelect
-                    {...field}
-                    disabled={user.role === "ORG_OWNER"}
-                    defaultValue="All"
-                    value={field.value || "All"}
-                  >
-                    <MenuItem value="All">All</MenuItem>
-                    {orgData?.map((org: OrgInfo) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
-                  </StyledSelect>
-                )}
-              />
-            </StyledFormControl>
-            <StyledInlineLabel>Role</StyledInlineLabel>
-            <StyledFormControl>
-              <Controller
-                name="role"
-                control={control}
-                render={({ field }) => (
-                  <StyledSelect
-                    {...field}
-                    defaultValue="All"
-                    value={field.value || "All"}
-                  >
-                    <MenuItem value="All">All</MenuItem>
-                    {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
-                  </StyledSelect>
-                )}
-              />
-            </StyledFormControl>
-            <StyledInlineLabel>Status</StyledInlineLabel>
-            <StyledFormControl>
-              <Controller
-                name="status"
-                control={control}
-                render={({ field }) => (
-                  <StyledSelect
-                    {...field}
-                    defaultValue="All"
-                    value={field.value || "All"}
-                  >
-                    <MenuItem value="All">All</MenuItem>
-                    <MenuItem value="Active">Active</MenuItem>
-                    <MenuItem value="Inactive">Inactive</MenuItem>
-                  </StyledSelect>
-                )}
-              />
-            </StyledFormControl>
-          </StyledFilterContainer>
           <Table>
             <StyledTableHead>
               <TableRow>
