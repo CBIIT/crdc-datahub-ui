@@ -45,6 +45,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(data?.piAsPrimaryContact || false);
   const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
 
+  const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const {
     nextButtonRef, saveFormRef, submitFormRef,
@@ -103,10 +104,15 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
   };
 
+  useEffect(() => {
+    formContainerRef.current.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <FormContainer
-      description={SectionOption.title}
+      ref={formContainerRef}
       formRef={formRef}
+      description={SectionOption.title}
     >
       {/* Principal Investigator */}
       <SectionGroup

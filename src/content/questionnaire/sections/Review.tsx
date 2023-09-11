@@ -52,6 +52,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
   const { data: { questionnaireData: data } } = useFormContext();
   const { formMode } = useFormMode();
   const { pi, primaryContact, piAsPrimaryContact, program, study } = data;
+  const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const { saveFormRef, submitFormRef, nextButtonRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
 
@@ -98,8 +99,12 @@ const FormSectionReview: FC<FormSectionProps> = ({
     return { ref: formRef, data: combinedData };
   };
 
+  useEffect(() => {
+    formContainerRef.current.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
-    <FormContainer description={showReviewTitle ? "Review" : SectionOption.title} formRef={formRef} hideReturnToSubmissions={false}>
+    <FormContainer ref={formContainerRef} description={showReviewTitle ? "Review" : SectionOption.title} formRef={formRef} hideReturnToSubmissions={false}>
       {/* Principal Investigator and Contact Information Section */}
       <ReviewSection title={SectionMetadata.A.title}>
         <ReviewDataListing

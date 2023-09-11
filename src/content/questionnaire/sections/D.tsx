@@ -127,6 +127,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { D: SectionDMetadata } = SectionMetadata;
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
+  const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
@@ -190,10 +191,15 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setDataTypes(updatedDataTypes);
   };
 
+  useEffect(() => {
+    formContainerRef.current.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <FormContainer
-      description={SectionOption.title}
+      ref={formContainerRef}
       formRef={formRef}
+      description={SectionOption.title}
     >
       {/* Data Delivery and Release Dates Section */}
       <SectionGroup

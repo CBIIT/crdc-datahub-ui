@@ -17,6 +17,8 @@ const StyledAvatar = styled(Avatar)({
   background: "transparent",
   marginRight: "8px",
   marginLeft: "8px !important",
+  width: "39px",
+  height: "39px",
 });
 
 const StyledStatus = styled("span")<{ status: ApplicationStatus, leftGap: boolean }>(
@@ -40,6 +42,8 @@ const StyledButton = styled(Button)<{ status: ApplicationStatus }>(
     borderRadius: "8px",
     textTransform: "none",
     width: "165px",
+    lineHeight: "19px",
+    padding: "10px 20px 10px 20px",
     "&:hover": {
       background: theme.palette?.[status]?.contrastText || "#C0DAF3",
     },

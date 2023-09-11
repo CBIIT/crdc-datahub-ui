@@ -178,7 +178,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   useEffect(() => {
     const newSection = validateSection(section) ? section : "A";
     setActiveSection(newSection);
-    if (lastSectionRef.current) formContentRef.current?.scrollIntoView({ block: "start", inline: "start" });
     lastSectionRef.current = newSection;
   }, [section]);
 
