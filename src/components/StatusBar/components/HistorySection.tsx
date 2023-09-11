@@ -206,7 +206,7 @@ const StyledCloseButton = styled(Button)({
  */
 const HistorySection: FC = () => {
   const {
-    data: { status, updatedAt, history },
+    data: { updatedAt, history },
   } = useFormContext();
   const [open, setOpen] = useState<boolean>(false);
   const sortedHistory = useMemo(() => SortHistory(history), [history]);
@@ -214,7 +214,7 @@ const HistorySection: FC = () => {
   return (
     <>
       <StyledDate data-testid="status-bar-last-updated">
-        {status === "New" ? "N/A" : FormatDate(updatedAt, "M/D/YYYY", "N/A")}
+        {FormatDate(updatedAt, "M/D/YYYY", "N/A")}
       </StyledDate>
 
       {history && history.length > 0 && (
