@@ -193,7 +193,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   useEffect(() => {
-    formContainerRef.current.scrollIntoView({ block: "start" });
+    formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
   return (

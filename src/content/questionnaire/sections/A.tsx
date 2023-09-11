@@ -110,7 +110,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (location?.state?.from === "/submissions") {
       return;
     }
-    formContainerRef.current.scrollIntoView({ block: "start" });
+    formContainerRef.current?.scrollIntoView({ block: "start" });
   }, [location]);
 
   return (

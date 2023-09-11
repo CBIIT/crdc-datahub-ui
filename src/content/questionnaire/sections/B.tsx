@@ -253,7 +253,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   useEffect(() => {
-    formContainerRef.current.scrollIntoView({ block: "start" });
+    formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
   const readOnlyProgram = readOnlyInputs || !programOption?.editable;
