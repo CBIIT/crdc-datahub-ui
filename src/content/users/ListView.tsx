@@ -39,7 +39,7 @@ type FilterForm = {
 };
 
 const StyledContainer = styled(Container)({
-  marginTop: "-120px",
+  marginTop: "-210px",
 });
 
 const StyledTableContainer = styled(TableContainer)({
@@ -53,8 +53,7 @@ const StyledFilterContainer = styled(Box)({
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-start",
-  background: "#083A50",
-  paddingLeft: "15px",
+  paddingBottom: "10px",
 });
 
 const StyledTableHead = styled(TableHead)({
@@ -63,24 +62,17 @@ const StyledTableHead = styled(TableHead)({
 
 const StyledFormControl = styled(FormControl)({
   margin: "10px",
-  marginRight: "25px",
+  marginRight: "15px",
   minWidth: "250px",
-  "& fieldset": {
-    borderColor: "#fff !important",
-  },
 });
 
 const StyledInlineLabel = styled('label')({
-  color: "#fff",
   padding: "0 10px",
+  fontWeight: "700"
 });
 
 const StyledSelect = styled(Select)({
-  "& .MuiSvgIcon-root,  & .MuiButtonBase-root": {
-    color: "#fff !important",
-  },
   borderRadius: "8px",
-  color: "#fff",
   "& .MuiInputBase-input": {
     fontWeight: 400,
     fontSize: "16px",
@@ -210,6 +202,7 @@ const ListingView: FC = () => {
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
   const [dataset, setDataset] = useState<T[]>([]);
+  const [count, setCount] = useState<number>(0);
 
   const { watch, setValue, control } = useForm<FilterForm>();
   const orgFilter = watch("organization");
@@ -223,14 +216,15 @@ const ListingView: FC = () => {
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
-    return page > 0 && dataset.length
-      ? Math.max(0, page * perPage - dataset.length || 0)
+    return page > 0 && count
+      ? Math.max(0, page * perPage - count)
       : 0;
-  }, [data, perPage, page]);
+  }, [count, perPage, page]);
 
   const handleRequestSort = (column: Column) => {
     setOrder(orderBy === column && order === "asc" ? "desc" : "asc");
     setOrderBy(column);
+    setPage(0);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -250,6 +244,7 @@ const ListingView: FC = () => {
   useEffect(() => {
     if (!data?.listUsers?.length) {
       setDataset([]);
+      setCount(0);
       return;
     }
 
@@ -264,12 +259,17 @@ const ListingView: FC = () => {
       sorted.reverse();
     }
 
+    setCount(sorted.length);
     setDataset(sorted.slice(page * perPage, (page * perPage) + perPage));
   }, [data, perPage, page, orderBy, order, roleFilter, orgFilter, statusFilter]);
 
+  useEffect(() => {
+    setPage(0);
+  }, [orgFilter, roleFilter, statusFilter]);
+
   return (
     <>
-      <PageBanner title="Manage Users" subTitle="" padding="57px 0 0 25px" />
+      <PageBanner title="Manage Users" subTitle="" padding="15px 0 0 25px" />
 
       <StyledContainer maxWidth="xl">
         {(state?.error || error) && (
@@ -278,62 +278,62 @@ const ListingView: FC = () => {
           </Alert>
         )}
 
+        <StyledFilterContainer>
+          <StyledInlineLabel>Organization</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="organization"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  disabled={user.role === "ORG_OWNER"}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {orgData?.map((org: OrgInfo) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+          <StyledInlineLabel>Role</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="role"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+          <StyledInlineLabel>Status</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  <MenuItem value="Active">Active</MenuItem>
+                  <MenuItem value="Inactive">Inactive</MenuItem>
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </StyledFilterContainer>
         <StyledTableContainer>
-          <StyledFilterContainer>
-            <StyledInlineLabel>Organization</StyledInlineLabel>
-            <StyledFormControl>
-              <Controller
-                name="organization"
-                control={control}
-                render={({ field }) => (
-                  <StyledSelect
-                    {...field}
-                    disabled={user.role === "ORG_OWNER"}
-                    defaultValue="All"
-                    value={field.value || "All"}
-                  >
-                    <MenuItem value="All">All</MenuItem>
-                    {orgData?.map((org: OrgInfo) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
-                  </StyledSelect>
-                )}
-              />
-            </StyledFormControl>
-            <StyledInlineLabel>Role</StyledInlineLabel>
-            <StyledFormControl>
-              <Controller
-                name="role"
-                control={control}
-                render={({ field }) => (
-                  <StyledSelect
-                    {...field}
-                    defaultValue="All"
-                    value={field.value || "All"}
-                  >
-                    <MenuItem value="All">All</MenuItem>
-                    {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
-                  </StyledSelect>
-                )}
-              />
-            </StyledFormControl>
-            <StyledInlineLabel>Status</StyledInlineLabel>
-            <StyledFormControl>
-              <Controller
-                name="status"
-                control={control}
-                render={({ field }) => (
-                  <StyledSelect
-                    {...field}
-                    defaultValue="All"
-                    value={field.value || "All"}
-                  >
-                    <MenuItem value="All">All</MenuItem>
-                    <MenuItem value="Active">Active</MenuItem>
-                    <MenuItem value="Inactive">Inactive</MenuItem>
-                  </StyledSelect>
-                )}
-              />
-            </StyledFormControl>
-          </StyledFilterContainer>
           <Table>
             <StyledTableHead>
               <TableRow>
@@ -414,7 +414,7 @@ const ListingView: FC = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 20, 50]}
             component="div"
-            count={dataset.length}
+            count={count}
             rowsPerPage={perPage}
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
@@ -424,7 +424,7 @@ const ListingView: FC = () => {
                 perPage === -1
                 || !dataset
                 || dataset.length === 0
-                || dataset.length <= (page + 1) * perPage
+                || count <= (page + 1) * perPage
                 || emptyRows > 0
                 || loading,
             }}
