@@ -29,12 +29,12 @@ export const navMobileList = [
     id: 'navbar-dropdown-join-crdc-data-hub',
     className: 'navMobileItem',
   },
-  {
-    name: 'Data Submissions',
-    link: '/dataSubmissionsTodo',
-    id: 'navbar-dropdown-join-crdc-data-hub',
-    className: 'navMobileItem',
-  },
+  // {
+  //   name: 'Data Submissions',
+  //   link: '/dataSubmissionsTodo',
+  //   id: 'navbar-dropdown-join-crdc-data-hub',
+  //   className: 'navMobileItem',
+  // },
 ];
 
 export const navbarSublists = {
