@@ -46,7 +46,7 @@ const GridItem = styled(Grid)(() => ({
 
 const StyledAsterisk = styled("span")(() => ({
   color: "#D54309",
-  marginLeft: "6px",
+  marginLeft: "2px",
 }));
 
 const StyledFormLabel = styled("label")(({ theme }) => ({
@@ -91,15 +91,15 @@ const StyledSelect = styled(Select, {
       background: "#FFFFFF"
     },
     "& .MuiMenuItem-root.Mui-selected": {
-      backgroundColor: "#5E6787",
+      backgroundColor: "#3E7E6D",
       color: "#FFFFFF",
     },
     "& .MuiMenuItem-root:hover": {
-      background: "#5E6787",
+      background: "#3E7E6D",
       color: "#FFFFFF"
     },
     "& .MuiMenuItem-root.Mui-focused": {
-      backgroundColor: "#5E6787 !important",
+      backgroundColor: "#3E7E6D !important",
       color: "#FFFFFF"
     },
   },
@@ -121,7 +121,8 @@ const StyledSelect = styled(Select, {
   },
   // Target readOnly <input> inputs
   "& .Mui-readOnly.MuiOutlinedInput-input:read-only": {
-    backgroundColor: "#D9DEE4",
+    backgroundColor: "#D2DFE9",
+    color: "#083A50",
     cursor: "not-allowed",
     borderRadius: "8px",
   },

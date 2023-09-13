@@ -41,7 +41,7 @@ const GridStyled = styled(Grid)`
     background-color: white !important;
   }
   .readOnly .MuiSwitch-track {
-    background-color: #D9DEE4 !important;
+    background-color: #D2DFE9 !important;
   }
   .readOnly .MuiSwitch-input {
     cursor: not-allowed;
@@ -74,7 +74,7 @@ const GridStyled = styled(Grid)`
 
   .asterisk {
     color: #D54309;
-    margin-right: 4px;
+    margin-right: 2px;
   }
   .labelContainer {
     color: #083A50;

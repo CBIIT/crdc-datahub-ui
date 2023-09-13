@@ -5,11 +5,12 @@ import HistorySection from "./components/HistorySection";
 
 const StyledStack = styled(Stack)({
   padding: "27px",
+  paddingBottom: "28px",
   background: "#fff",
   boxShadow: "2px 4px 10px rgba(0, 0, 0, 0.35)",
   borderRadius: "8px",
   transform: "translateY(-54%)",
-  marginBottom: "-49px",
+  marginBottom: "1px",
 });
 
 const StyledH1 = styled(Typography)({

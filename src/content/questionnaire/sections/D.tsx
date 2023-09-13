@@ -34,7 +34,8 @@ const TableContainer = styled.div`
     border-radius: 10px;
     overflow: hidden;
     .readOnly {
-      background-color: #D9DEE4;
+      background-color: #D2DFE9;
+      color: "#083A50";
       cursor: not-allowed;
     }
     .MuiTableContainer-root {
@@ -114,7 +115,7 @@ const TableContainer = styled.div`
     }
     .asterisk {
       color: #D54309;
-      margin-left: 6px;
+      margin-left: 2px;
     }
     .MuiButton-startIcon {
       margin: 0 !important;
@@ -127,6 +128,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { D: SectionDMetadata } = SectionMetadata;
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
+  const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
@@ -190,10 +192,15 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setDataTypes(updatedDataTypes);
   };
 
+  useEffect(() => {
+    formContainerRef.current?.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <FormContainer
-      description={SectionOption.title}
+      ref={formContainerRef}
       formRef={formRef}
+      description={SectionOption.title}
     >
       {/* Data Delivery and Release Dates Section */}
       <SectionGroup
@@ -475,7 +482,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                           placement="start"
                           onClick={() => removeFileDataType(fileData.key)}
                           startIcon={<RemoveCircleIcon />}
-                          iconColor="#F18E8E"
+                          iconColor="#E74040"
                           disabled={readOnlyInputs || status === FormStatus.SAVING}
                           sx={{ minWidth: "0px !important" }}
                         />

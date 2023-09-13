@@ -284,7 +284,8 @@ const styles = () => ({
       opacity: 1
     },
     "& .MuiAutocomplete-input:read-only": {
-      backgroundColor: "#D9DEE4",
+      backgroundColor: "#D2DFE9",
+      color: "#083A50",
       cursor: "not-allowed",
     }
   },

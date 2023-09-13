@@ -64,6 +64,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
 
   const programKeyRef = useRef(new Date().getTime());
+  const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const {
     nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef,
@@ -251,13 +252,18 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setFundings(fundings.filter((f) => f.key !== key));
   };
 
+  useEffect(() => {
+    formContainerRef.current?.scrollIntoView({ block: "start" });
+  }, []);
+
   const readOnlyProgram = readOnlyInputs || !programOption?.editable;
   const predefinedProgram = programOption && !programOption.editable && !programOption.notApplicable;
 
   return (
     <FormContainer
-      description={SectionOption.title}
+      ref={formContainerRef}
       formRef={formRef}
+      description={SectionOption.title}
     >
       {/* Program Registration Section */}
       <SectionGroup

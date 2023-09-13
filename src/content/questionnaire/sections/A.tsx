@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Checkbox, FormControlLabel, Grid, styled } from '@mui/material';
 import { parseForm } from '@jalik/form-parser';
 import { cloneDeep } from 'lodash';
@@ -37,6 +38,7 @@ const StyledFormControlLabel = styled(FormControlLabel)({
  */
 const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data: { questionnaireData: data } } = useFormContext();
+  const location = useLocation();
   const { pi } = data;
   const { readOnlyInputs } = useFormMode();
   const { A: SectionAMetadata } = SectionMetadata;
@@ -45,6 +47,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(data?.piAsPrimaryContact || false);
   const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
 
+  const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const {
     nextButtonRef, saveFormRef, submitFormRef,
@@ -103,10 +106,18 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
   };
 
+  useEffect(() => {
+    if (location?.state?.from === "/submissions") {
+      return;
+    }
+    formContainerRef.current?.scrollIntoView({ block: "start" });
+  }, [location]);
+
   return (
     <FormContainer
-      description={SectionOption.title}
+      ref={formContainerRef}
       formRef={formRef}
+      description={SectionOption.title}
     >
       {/* Principal Investigator */}
       <SectionGroup

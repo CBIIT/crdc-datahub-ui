@@ -155,7 +155,7 @@ const styles = (theme) => ({
   },
   asterisk: {
     color: "#D54309",
-    marginLeft: "6px",
+    marginLeft: "2px",
   },
   input: {
     borderRadius: "8px",
@@ -194,13 +194,15 @@ const styles = (theme) => ({
     },
     // Target readOnly <textarea> inputs
     "&.MuiInputBase-multiline.Mui-readOnly": {
-      backgroundColor: "#D9DEE4",
+      backgroundColor: "#D2DFE9",
+      color: "#083A50",
       cursor: "not-allowed",
       borderRadius: "8px",
     },
     // Target readOnly <input> inputs
     "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: "#D9DEE4",
+      backgroundColor: "#D2DFE9",
+      color: "#083A50",
       cursor: "not-allowed",
       borderRadius: "8px",
     },

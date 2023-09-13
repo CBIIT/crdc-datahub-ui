@@ -90,7 +90,8 @@ const ReviewDataListingProperty: FC<Props> = ({
           spacing={1}
         >
           {isList ? displayValues?.map((val, idx) => (
-            <StyledValue key={val?.toString()}>
+            // eslint-disable-next-line react/no-array-index-key
+            <StyledValue key={`${val}_${idx}_${new Date().getTime()}`}>
               {' '}
               {`${val}${idx !== displayValues.length - 1 ? "," : ""}`}
             </StyledValue>

@@ -68,7 +68,7 @@ const StyledFormLabel = styled("label")(() => ({
 }));
 
 const StyledAsterisk = styled("span")(() => ({
-  marginRight: "4px",
+  marginRight: "2px",
   color: "#D54309",
 }));
 
@@ -77,7 +77,7 @@ const StyledRadio = styled(Radio)((props) => ({
     cursor: props.readOnly ? "not-allowed" : "initial",
   },
   "& .radio-icon": {
-    backgroundColor: props.readOnly ? "#D9DEE4 !important" : "initial",
+    backgroundColor: props.readOnly ? "#D2DFE9 !important" : "initial",
   }
 }));
 

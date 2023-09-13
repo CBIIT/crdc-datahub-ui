@@ -20,7 +20,7 @@ const ActionButton = styled(Button, {
     pointer-events: auto;
   }
   & .MuiButton-startIcon {
-    color: ${(props) => props.iconColor ?? "#6EC882"};
+    color: ${(props) => props.iconColor ?? "#44A759"};
     margin-right: 4px;
     & svg {
       font-size: 23px;

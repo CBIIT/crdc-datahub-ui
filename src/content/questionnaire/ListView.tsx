@@ -142,21 +142,21 @@ const columns: Column[] = [
 
       if (((role === "User" || role === "Submitter" || role === "ORG_OWNER") && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Rejected"].includes(a.status)) {
         return (
-          <Link to={`/submission/${a?.["_id"]}`}>
+          <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
             <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">Resume</StyledActionButton>
           </Link>
         );
       }
       if (role === "FederalLead" && ["Submitted", "In Review"].includes(a.status)) {
         return (
-          <Link to={`/submission/${a?.["_id"]}`}>
+          <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
             <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">Review</StyledActionButton>
           </Link>
         );
       }
 
       return (
-        <Link to={`/submission/${a?.["_id"]}`}>
+        <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
           <StyledActionButton bg="#74D9E7" text="#156071" border="#84B4BE">View</StyledActionButton>
         </Link>
       );
@@ -240,7 +240,7 @@ const ListingView: FC = () => {
       return;
     }
 
-    navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`);
+    navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`, { state: { from: "/submissions" } });
   };
 
   return (

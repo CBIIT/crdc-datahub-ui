@@ -25,6 +25,7 @@ const StyledTooltip = styled((props: TooltipProps) => (
     fontFamily: "'Inter', 'Rubik', sans-serif",
     fontSize: "16px",
     lineHeight: "19px",
+    boxShadow: "0px 4px 10px 0px rgba(0, 0, 0, 0.15)"
   },
 }));
 

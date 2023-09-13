@@ -112,7 +112,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly,
           placement="start"
           onClick={onDelete}
           startIcon={<RemoveCircleIcon />}
-          iconColor="#F18E8E"
+          iconColor="#E74040"
           disabled={readOnly || status === FormStatus.SAVING}
         />
       </Grid>
