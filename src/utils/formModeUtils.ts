@@ -102,11 +102,11 @@ export const getFormMode = (
   }
 
   switch (user.role) {
-    case "FederalLead":
+    case "Federal Lead":
       return _getFormModeForFederalLead(data);
     case "Admin":
       return FormModes.VIEW_ONLY;
-    case "ORG_OWNER":
+    case "Organization Owner":
       return _getFormModeForOrgOwner(user, data);
     case "User":
     case "Submitter":

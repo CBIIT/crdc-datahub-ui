@@ -198,7 +198,7 @@ const Header = () => {
     },
   ];
 
-  if (authData?.user?.role === "Admin" || authData?.user?.role === "ORG_OWNER") {
+  if (authData?.user?.role === "Admin" || authData?.user?.role === "Organization Owner") {
     navbarSublists[displayName].splice(1, 0, {
       name: 'Manage Users',
       link: '/users',
