@@ -8,14 +8,13 @@
 export const Roles: User["role"][] = [
   "User",
   "Submitter",
-  "Organization Owner",
-  "Federal Lead",
-  "Data Curator",
-  "Data Commons POC",
-  "Admin",
-  // TODO: Disabled in MVP-1
+  "ORG_OWNER",
+  "FederalLead",
   // "Concierge",
-  // "DC_OWNER",
+  "Curator",
+  "DC_OWNER",
+  // "DC_POC",
+  "Admin",
 ];
 
 /**
@@ -26,5 +25,5 @@ export const Roles: User["role"][] = [
  */
 export const OrgRequiredRoles: User["role"][] = [
   "Submitter",
-  "Organization Owner",
+  "ORG_OWNER",
 ];

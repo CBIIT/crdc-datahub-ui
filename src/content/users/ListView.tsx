@@ -233,7 +233,7 @@ const ListingView: FC = () => {
   };
 
   useEffect(() => {
-    if (user.role !== "Organization Owner") {
+    if (user.role !== "ORG_OWNER") {
       return;
     }
 
@@ -287,7 +287,7 @@ const ListingView: FC = () => {
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  disabled={user.role === "Organization Owner"}
+                  disabled={user.role === "ORG_OWNER"}
                   defaultValue="All"
                   value={field.value || "All"}
                 >
