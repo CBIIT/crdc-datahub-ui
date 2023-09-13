@@ -140,14 +140,14 @@ const columns: Column[] = [
     value: (a, user) => {
       const role = user?.role;
 
-      if (((role === "User" || role === "Submitter" || role === "ORG_OWNER") && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Rejected"].includes(a.status)) {
+      if (((role === "User" || role === "Submitter" || role === "Organization Owner") && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Rejected"].includes(a.status)) {
         return (
           <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
             <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">Resume</StyledActionButton>
           </Link>
         );
       }
-      if (role === "FederalLead" && ["Submitted", "In Review"].includes(a.status)) {
+      if (role === "Federal Lead" && ["Submitted", "In Review"].includes(a.status)) {
         return (
           <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
             <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">Review</StyledActionButton>
@@ -251,7 +251,7 @@ const ListingView: FC = () => {
         padding="57px 0 0 25px"
         body={(
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
-            {(user?.role === "User" || user?.role === "Submitter" || user?.role === "ORG_OWNER") && (
+            {(user?.role === "User" || user?.role === "Submitter" || user?.role === "Organization Owner") && (
               <StyledButton
                 type="button"
                 onClick={createApp}

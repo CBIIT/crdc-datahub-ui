@@ -524,7 +524,7 @@ const NavBar = () => {
                 User Profile
               </Link>
             </span>
-            {(authData?.user?.role === "Admin" || authData?.user?.role === "ORG_OWNER") && (
+            {(authData?.user?.role === "Admin" || authData?.user?.role === "Organization Owner") && (
               <span className="dropdownItem">
                 <Link id="navbar-dropdown-item-name-user-manage" to="/users" className="dropdownItem" onClick={() => setClickedTitle("")}>
                   Manage Users
