@@ -153,7 +153,7 @@ const DatePickerInput: FC<Props> = ({
       newErrorMsg = "This field is required";
     } else if (disablePast && isPastDate) {
       newErrorMsg = "The date is invalid. Please select today's date or a future date";
-    } else if (inputVal !== null && inputRef.current?.value !== format && isInvalidDay) {
+    } else if ((required || (inputVal !== null && inputRef.current?.value !== format)) && isInvalidDay) {
       newErrorMsg = `The date is invalid. Please enter a date in the format ${format}`;
     }
 
@@ -206,6 +206,9 @@ const DatePickerInput: FC<Props> = ({
               name,
               required,
               error,
+              onInput: (event: React.ChangeEvent<HTMLInputElement>) => {
+                onChangeWrapper(dayjs(event?.target?.value));
+              },
               size: "small",
               onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
                 onChangeWrapper(event as unknown as Dayjs);
