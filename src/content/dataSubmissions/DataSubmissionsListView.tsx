@@ -404,7 +404,6 @@ const ListingView: FC = () => {
         )}
         bannerSrc={bannerSvg}
       />
-
       <StyledContainer maxWidth="xl">
         {(state?.error || error) && (
           <Alert sx={{ mb: 3, p: 2 }} severity="error">
@@ -572,7 +571,7 @@ const ListingView: FC = () => {
             required
             value="COAS1"
           />
-          <TextInput multiline rows={2} required label="Submission Name" placeholder="25 characters allowed" />
+          <TextInput maxLength={25} multiline rows={2} required label="Submission Name" placeholder="25 characters allowed" />
         </div>
         <div
           role="button"
