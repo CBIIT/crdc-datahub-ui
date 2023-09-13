@@ -31,12 +31,12 @@ describe("getEditableFields cases", () => {
 
   const orgOwner: User = {
     _id: '3',
-    role: 'Organization Owner',
+    role: 'ORG_OWNER',
   } as User;
 
   const federalLead: User = {
     _id: '4',
-    role: 'Federal Lead',
+    role: 'FederalLead',
   } as User;
 
   it("should allow an Admin to edit their own firstName and lastName", () => {
@@ -55,7 +55,7 @@ describe("getEditableFields cases", () => {
     expect(utils.getEditableFields(admin, orgOwner).sort()).toEqual(expected);
   });
 
-  it("should allow an Admin to edit a Federal Lead's role, userStatus, and organization", () => {
+  it("should allow an Admin to edit a FederalLead's role, userStatus, and organization", () => {
     const expected = ['role', 'userStatus', 'organization'].sort();
     expect(utils.getEditableFields(admin, federalLead).sort()).toEqual(expected);
   });
@@ -70,7 +70,7 @@ describe("getEditableFields cases", () => {
     expect(utils.getEditableFields(orgOwner, user).sort()).toEqual(expected);
   });
 
-  it("should allow Federal Lead to edit their own firstName and lastName", () => {
+  it("should allow FederalLead to edit their own firstName and lastName", () => {
     const expected = ['firstName', 'lastName'].sort();
     expect(utils.getEditableFields(federalLead, federalLead).sort()).toEqual(expected);
   });
@@ -80,7 +80,7 @@ describe("getEditableFields cases", () => {
     expect(utils.getEditableFields(user, user).sort()).toEqual(expected);
   });
 
-  it("by default, should not allow Federal Lead to edit another user's fields", () => {
+  it("by default, should not allow FederalLead to edit another user's fields", () => {
     expect(utils.getEditableFields(federalLead, admin)).toEqual([]);
     expect(utils.getEditableFields(federalLead, orgOwner)).toEqual([]);
     expect(utils.getEditableFields(federalLead, user)).toEqual([]);

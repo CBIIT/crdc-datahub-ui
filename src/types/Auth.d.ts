@@ -6,12 +6,12 @@ type User = {
   role:
     | "User"
     | "Submitter"
-    | "Organization Owner"
-    | "Federal Lead"
+    | "ORG_OWNER"
+    | "FederalLead"
     // | "Concierge"
-    | "Data Curator"
-    // | "DC_OWNER"
-    | "Data Commons POC"
+    | "Curator"
+    | "DC_OWNER"
+    | "DC_POC"
     | "Admin";
   IDP: "nih" | "login.gov";
   email: string;

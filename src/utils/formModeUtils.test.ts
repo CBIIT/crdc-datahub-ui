@@ -97,7 +97,7 @@ describe('getFormMode tests based on provided requirements', () => {
 
   // Federal Lead Tests
   describe('getFormMode > Fed Lead tests', () => {
-    const user: User = { ...baseUser, role: 'Federal Lead' };
+    const user: User = { ...baseUser, role: 'FederalLead' };
 
     it('should set Review mode for Fed Lead when status is Submitted or In Review', () => {
       const statuses: ApplicationStatus[] = ['Submitted', 'In Review'];
@@ -124,7 +124,7 @@ describe('getFormMode tests based on provided requirements', () => {
 
   // Org Owner Tests
   describe('getFormMode > Org Owner tests', () => {
-    const user: User = { ...baseUser, role: "Organization Owner" };
+    const user: User = { ...baseUser, role: "ORG_OWNER" };
 
     it('should allow Org Owner to edit their own unsubmitted or rejected forms', () => {
       const statuses: ApplicationStatus[] = ['New', 'In Progress', 'Rejected'];
@@ -171,7 +171,7 @@ describe('getFormMode tests based on provided requirements', () => {
   // Other role Tests
   describe('getFormMode > Other roles tests', () => {
     it('should always set View Only for all other roles', () => {
-      const roles: User["role"][] = ['Data Commons POC', "Some other role", "This role doesn't exist"] as unknown as User["role"][];
+      const roles: User["role"][] = ['DC_POC', "Some other role", "This role doesn't exist"] as unknown as User["role"][];
       const statuses: ApplicationStatus[] = ['New', 'In Progress', 'Submitted', 'In Review', 'Approved', 'Rejected'];
 
       roles.forEach((role) => {
