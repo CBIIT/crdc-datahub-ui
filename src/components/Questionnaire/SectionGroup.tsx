@@ -40,7 +40,7 @@ export const StyledTitle = styled(Typography)({
 
 export const StyledDescription = styled(Typography)({
   fontWeight: 400,
-  color: "#34A286",
+  color: "#2A836D",
   marginTop: "16px",
   fontSize: "16px",
 });
@@ -72,10 +72,10 @@ const SectionGroup: FC<Props> = ({ title, description, children, endButton, begi
         )}
         <Stack direction="row" alignItems="flex-start" justifyContent="space-between" width="100%">
           {description && (
-          <StyledDescription variant="body1">
-            {description}
-          </StyledDescription>
-        )}
+            <StyledDescription variant="body1">
+              {description}
+            </StyledDescription>
+          )}
           {beginButton && <StyledBeginAdornment>{beginButton}</StyledBeginAdornment>}
         </Stack>
 
