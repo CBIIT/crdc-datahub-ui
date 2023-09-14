@@ -11,7 +11,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import bannerSvg from '../../assets/banner/profile_banner.svg';
 import profileIcon from '../../assets/icons/profile_icon.svg';
-import profileIconShadow from '../../assets/icons/profile_icon_shadow.svg';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
 import GenericAlert from '../../components/GenericAlert';
@@ -51,12 +50,8 @@ const StyledProfileIcon = styled("div")({
   },
   "& img:nth-of-type(1)": {
     zIndex: 2,
-    filter: "drop-shadow(10px 13px 9px rgba(0,0,0,0.3))",
+    filter: "drop-shadow(10px 13px 9px rgba(0, 0, 0, 0.35))",
   },
-  "& img:nth-of-type(2)": {
-    zIndex: 1,
-    transform: "translate(11px, 8px)",
-  }
 });
 
 const StyledHeader = styled("div")({
@@ -276,7 +271,6 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
         >
           <StyledProfileIcon>
             <img src={profileIcon} alt="profile icon" />
-            <img src={profileIconShadow} alt="profile icon shadow" />
           </StyledProfileIcon>
 
           <Stack
@@ -297,7 +291,6 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
               </Alert>
             )}
 
-            {/* TODO: Fix padding below this */}
             <StyledHeader>
               <StyledHeaderText variant="h1">
                 {user.email}
