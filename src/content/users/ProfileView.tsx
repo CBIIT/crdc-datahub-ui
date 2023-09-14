@@ -2,12 +2,11 @@ import { FC, useEffect, useMemo, useState } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { LoadingButton } from '@mui/lab';
 import {
-  Alert, Container, MenuItem,
+  Alert, Box, Container, MenuItem,
   OutlinedInput, Select, Stack, Typography,
   styled,
 } from '@mui/material';
 import { cloneDeep } from 'lodash';
-import { Helmet } from 'react-helmet-async';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import bannerSvg from '../../assets/banner/profile_banner.svg';
@@ -33,7 +32,15 @@ const StyledBanner = styled("div")({
   backgroundSize: "cover",
   backgroundPosition: "center",
   width: "100%",
-  height: "146px",
+  height: "153px",
+});
+
+const StyledPageTitle = styled(Typography)({
+  fontFamily: "Nunito Sans",
+  fontSize: "45px",
+  fontWeight: 800,
+  letterSpacing: "-1.5px",
+  color: "#fff",
 });
 
 const StyledProfileIcon = styled("div")({
@@ -44,6 +51,7 @@ const StyledProfileIcon = styled("div")({
   },
   "& img:nth-of-type(1)": {
     zIndex: 2,
+    filter: "drop-shadow(10px 13px 9px rgba(0,0,0,0.3))",
   },
   "& img:nth-of-type(2)": {
     zIndex: 1,
@@ -54,8 +62,8 @@ const StyledProfileIcon = styled("div")({
 const StyledHeader = styled("div")({
   textAlign: "left",
   width: "100%",
-  marginTop: "30px",
-  marginBottom: "34px",
+  marginTop: "-34px !important",
+  marginBottom: "41px !important",
 });
 
 const StyledHeaderText = styled(Typography)({
@@ -253,14 +261,11 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
 
   return (
     <>
-      {_id !== currentUser._id && <Helmet><title>Edit User</title></Helmet>}
-
       <GenericAlert open={!!changesAlert} key="profile-changes-alert">
         <span>
           {changesAlert}
         </span>
       </GenericAlert>
-
       <StyledBanner />
       <Container maxWidth="lg">
         <Stack
@@ -280,12 +285,19 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
             alignItems="center"
             spacing={2}
           >
+            <Box sx={{ mt: "-98px", mb: "100px", width: "100%" }}>
+              <StyledPageTitle variant="h4">
+                {currentUser?._id === _id ? "User Profile" : "Edit User Profile"}
+              </StyledPageTitle>
+            </Box>
+
             {error && (
               <Alert sx={{ m: 2, p: 2, width: "100%" }} severity="error">
                 {error || "An unknown API error occurred."}
               </Alert>
             )}
 
+            {/* TODO: Fix padding below this */}
             <StyledHeader>
               <StyledHeaderText variant="h1">
                 {user.email}
