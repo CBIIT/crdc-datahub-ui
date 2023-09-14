@@ -7,7 +7,6 @@ import React, {
   useState,
 } from "react";
 import { useLazyQuery, useMutation } from '@apollo/client';
-import dayjs from "dayjs";
 import { merge, cloneDeep } from "lodash";
 import {
   APPROVE_APP,
@@ -28,7 +27,6 @@ import {
   SubmitAppResp,
 } from "../../graphql";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
-import { FormatDate } from "../../utils";
 
 export type ContextState = {
   status: Status;
@@ -95,9 +93,6 @@ type ProviderProps = {
  */
 export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
-
-  const datePattern = "MM/DD/YYYY";
-  const dateTodayFallback = dayjs().format(datePattern);
 
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: 'backend' },
@@ -361,11 +356,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         data: {
           ...merge(cloneDeep(InitialApplication), d?.getApplication),
           questionnaireData: {
-            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
-            // To avoid false positive form changes
-            // NOTE: We may be able to remove this since we control the nested object
-            targetedReleaseDate: FormatDate(questionnaireData.targetedReleaseDate, datePattern, dateTodayFallback),
-            targetedSubmissionDate: FormatDate(questionnaireData.targetedSubmissionDate, datePattern, dateTodayFallback),
+            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData)
           },
         }
       });

@@ -100,7 +100,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
   };
 
   useEffect(() => {
-    formContainerRef.current.scrollIntoView({ block: "start" });
+    formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
   return (
