@@ -58,7 +58,7 @@ const StyledBeginAdornment = styled(Box)({
 
 const StyledAsterisk = styled('span')({
     color: "#D54309",
-    marginLeft: "4px",
+    marginLeft: "2px",
 });
 const StyledError = styled('div')({
   color: "#D54309",
