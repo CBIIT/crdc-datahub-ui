@@ -15,7 +15,7 @@ import bannerSvg from "../../assets/banner/data_submissions_banner.png";
 import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
-import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
+import { mutation as CREATE_DATA_SUBMISSION, Response as CreateDataSubmissionResp } from '../../graphql/createDataSubmission';
 import SelectInput from "../../components/Questionnaire/SelectInput";
 import TextInput from "../../components/Questionnaire/TextInput";
 
@@ -268,7 +268,7 @@ const ListingView: FC = () => {
    updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   },
   {
-    _id: "00001", // aka. submissionID
+    _id: "00002", // aka. submissionID
     name: "random name 1",
     submitterID: "123123123",
     submitterName: "john doe", // <first name> <last name>
@@ -291,7 +291,7 @@ const ListingView: FC = () => {
     updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
    },
       {
-    _id: "00001", // aka. submissionID
+    _id: "00003", // aka. submissionID
     name: "random name 1",
     submitterID: "123123123",
     submitterName: "john doe", // <first name> <last name>
@@ -330,7 +330,7 @@ const ListingView: FC = () => {
   //   fetchPolicy: "no-cache",
   // });
 
-  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
+  const [createDataSubmission] = useMutation<CreateDataSubmissionResp, { application: ApplicationInput }>(CREATE_DATA_SUBMISSION, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
@@ -354,29 +354,27 @@ const ListingView: FC = () => {
 
   const createSubmission = async () => {
     setCreatingSubmission(true);
-    // todo: need to add BE api to create data submission
-    // setCreatingApplication(true);
-    // const { data: d, errors } = await saveApp({
-    //   variables: {
-    //     application: {
-    //       _id: undefined,
-    //       programName: "",
-    //       studyAbbreviation: "",
-    //       questionnaireData: "{}",
-    //     }
-    //   }
-    // });
+    const { data: d, errors } = await createDataSubmission({
+      variables: {
+        application: {
+          _id: undefined,
+          programName: "",
+          studyAbbreviation: "",
+          questionnaireData: "{}",
+        }
+      }
+    });
 
-    // setCreatingApplication(false);
+    setCreatingSubmission(false);
 
-    // if (errors) {
-    //   navigate("", {
-    //     state: {
-    //       error: "Unable to create a submission request. Please try again later"
-    //     }
-    //   });
-    //   return;
-    // }
+    if (errors) {
+      navigate("", {
+        state: {
+          error: "Unable to create a submission request. Please try again later"
+        }
+      });
+      // return;
+    }
 
     // navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`);
   };
