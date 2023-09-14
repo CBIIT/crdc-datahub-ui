@@ -125,6 +125,12 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
   padding: "6px 8px",
 }));
 
+const StyledTitleBox = styled(Box)({
+  marginTop: "-98px",
+  marginBottom: "100px",
+  width: "100%",
+});
+
 /**
  * User Profile View Component
  *
@@ -279,11 +285,11 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
             alignItems="center"
             spacing={2}
           >
-            <Box sx={{ mt: "-98px", mb: "100px", width: "100%" }}>
+            <StyledTitleBox>
               <StyledPageTitle variant="h4">
                 {currentUser?._id === _id ? "User Profile" : "Edit User Profile"}
               </StyledPageTitle>
-            </Box>
+            </StyledTitleBox>
 
             {error && (
               <Alert sx={{ m: 2, p: 2, width: "100%" }} severity="error">
