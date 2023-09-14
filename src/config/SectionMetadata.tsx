@@ -104,7 +104,7 @@ const sectionMetadata = {
       },
       DATA_TYPES: {
         title: "DATA TYPES",
-        description: "Indicate the major types of data included in this submission. For each type listed, select Yes or No. Describe any additional major types of data in Other (specify).",
+        description: "Indicate the major types of data included in this submission. For each type listed, select Yes or No. Describe any additional major types of data in Other (specify). At least one data type is required.",
       },
       CLINICAL_DATA_TYPES: {
         title: "CLINICAL DATA TYPES",
