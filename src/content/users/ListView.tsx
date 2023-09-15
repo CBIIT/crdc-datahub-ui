@@ -252,7 +252,6 @@ const ListingView: FC = () => {
       .filter((u: T) => (orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true))
       .filter((u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true))
       .filter((u: T) => (statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true))
-      .filter((u: T) => u._id !== user._id)
       .sort((a, b) => orderBy?.comparator(a, b) || 0);
 
     if (order === "desc") {

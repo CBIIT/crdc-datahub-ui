@@ -3,11 +3,20 @@ import gql from 'graphql-tag';
 export const mutation = gql`
   mutation updateMyUser ($userInfo: UpdateUserInput!) {
     updateMyUser(userInfo: $userInfo) {
-      _id
+      firstName
+      lastName
+      userStatus
+      role
+      organization {
+        orgID
+        orgName
+        createdAt
+        updateAt
+      }
     }
   }
 `;
 
 export type Response = {
-  updateMyUser: User["_id"];
+  updateMyUser: Pick<User, 'firstName' | 'lastName' | 'userStatus' | 'role' | 'organization'>;
 };

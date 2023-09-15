@@ -21,6 +21,7 @@ import { formatIDP, getEditableFields } from '../../utils';
 
 type Props = {
   _id: User["_id"];
+  viewType: "users" | "profile";
 };
 
 type FormInput = UserInput | EditUserInput;
@@ -137,12 +138,14 @@ const StyledTitleBox = styled(Box)({
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const ProfileView: FC<Props> = ({ _id }: Props) => {
+const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const navigate = useNavigate();
   const { data: orgData } = useOrganizationListContext();
-  const { user: currentUser, setData } = useAuthContext();
+  const { user: currentUser, setData, logout } = useAuthContext();
 
-  const [user, setUser] = useState<User | null>(_id === currentUser._id ? { ...currentUser } : null);
+  const isSelf = _id === currentUser._id;
+
+  const [user, setUser] = useState<User | null>(isSelf && viewType === "profile" ? { ...currentUser } : null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<string>("");
@@ -151,7 +154,7 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
 
   const role = watch("role");
   const orgFieldDisabled = useMemo(() => !OrgRequiredRoles.includes(role) && role !== "User", [role]);
-  const fieldset = useMemo(() => getEditableFields(currentUser, user), [user?._id, _id]);
+  const fieldset = useMemo(() => getEditableFields(currentUser, user, viewType), [user?._id, _id, currentUser?.role, viewType]);
 
   const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
     context: { clientName: 'userService' },
@@ -171,7 +174,8 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
   const onSubmit = async (data) => {
     setSaving(true);
 
-    if (_id === currentUser._id) {
+    // Save profile changes
+    if (isSelf && viewType === "profile") {
       const { data: d, errors } = await updateMyUser({
         variables: {
           userInfo: {
@@ -182,12 +186,13 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 
-      if (errors || !d) {
+      if (errors || !d?.updateMyUser) {
         setError(errors || "Unable to save profile changes");
         return;
       }
 
-      setData(data as UserInput);
+      setData(d.updateMyUser);
+    // Save user changes
     } else {
       const { data: d, errors } = await editUser({
         variables: {
@@ -199,9 +204,16 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 
-      if (errors || !d) {
+      if (errors || !d?.editUser) {
         setError(errors || "Unable to save profile changes");
         return;
+      }
+
+      if (isSelf) {
+        setData(d.editUser);
+        if (d.editUser.userStatus === "Inactive") {
+          logout();
+        }
       }
     }
 
@@ -230,9 +242,9 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
     setError(null);
 
     // No action needed if viewing own profile, using cached data
-    if (_id === currentUser._id) {
+    if (isSelf && viewType === "profile") {
       setUser({ ...currentUser });
-      setFormValues(currentUser, getEditableFields(currentUser, currentUser));
+      setFormValues(currentUser, getEditableFields(currentUser, currentUser, viewType));
       return;
     }
 
@@ -287,16 +299,9 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
           >
             <StyledTitleBox>
               <StyledPageTitle variant="h4">
-                {currentUser?._id === _id ? "User Profile" : "Edit User Profile"}
+                {viewType === "profile" ? "User Profile" : "Edit User"}
               </StyledPageTitle>
             </StyledTitleBox>
-
-            {error && (
-              <Alert sx={{ m: 2, p: 2, width: "100%" }} severity="error">
-                {error || "An unknown API error occurred."}
-              </Alert>
-            )}
-
             <StyledHeader>
               <StyledHeaderText variant="h1">
                 {user.email}
@@ -304,6 +309,12 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
             </StyledHeader>
 
             <form onSubmit={handleSubmit(onSubmit)}>
+              {error && (
+                <Alert sx={{ mb: 2, p: 2, width: "100%" }} severity="error">
+                  {error || "An unknown API error occurred."}
+                </Alert>
+              )}
+
               <StyledField>
                 <StyledLabel>Account Type</StyledLabel>
                 {formatIDP(user.IDP)}
@@ -395,7 +406,7 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
                 spacing={1}
               >
                 {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>}
-                {_id !== currentUser._id && <StyledButton type="button" onClick={() => navigate("/users")} txt="#949494" border="#828282">Cancel</StyledButton>}
+                {viewType === "users" && <StyledButton type="button" onClick={() => navigate("/users")} txt="#949494" border="#828282">Cancel</StyledButton>}
               </StyledButtonStack>
             </form>
           </Stack>

@@ -21,22 +21,24 @@ export const formatIDP = (idp: User["IDP"]): string => {
  * NOTE:
  * - The `organization` field means organization assignment in general,
  *   it does not mean modifying the actual organization
- * - When a `organization` is assigned, the `User.role` should be
- *   switched to `User` on save if it's not already
  *
  * @param current the authenticated user
  * @param profileOf the user whose profile is being viewed
+ * @param viewType the page where the user originated from
  * @return array of editable fields derived from User type keys
  */
-export const getEditableFields = (current: User, profileOf: User): (keyof User)[] => {
+export const getEditableFields = (current: User, profileOf: User, viewType: "users" | "profile"): (keyof User)[] => {
   const fields: (keyof User)[] = [];
   const isSelf: boolean = current._id === profileOf?._id;
 
-  if (current.role === "Admin" && !isSelf) {
-    fields.push("userStatus", "role", "organization");
-  }
-  if (isSelf) {
+  // Only allowed if a user is viewing their own profile
+  if (isSelf && viewType === "profile") {
     fields.push("firstName", "lastName");
+  }
+
+  // Only allowed if an Admin is coming from Manage Users
+  if (current.role === "Admin" && viewType === "users") {
+    fields.push("userStatus", "role", "organization");
   }
 
   return fields;
