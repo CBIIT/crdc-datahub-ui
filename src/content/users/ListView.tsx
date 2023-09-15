@@ -200,7 +200,7 @@ const ListingView: FC = () => {
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<Column>(columns.find((c) => c.default) || columns.find((c) => !!c.comparator));
   const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(10);
+  const [perPage, setPerPage] = useState<number>(20);
   const [dataset, setDataset] = useState<T[]>([]);
   const [count, setCount] = useState<number>(0);
 
