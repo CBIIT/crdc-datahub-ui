@@ -242,6 +242,9 @@ const ListingView: FC = () => {
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
+  const [dataCommons, setDataCommons] = useState<string>("CDS");
+  const [study, setStudy] = useState<string>("COAS1");
+  const [submissionName, setSubmissionName] = useState<string>("");
 
   const tempDataSubmissions: Array<T> = [
    {
@@ -330,7 +333,7 @@ const ListingView: FC = () => {
   //   fetchPolicy: "no-cache",
   // });
 
-  const [createDataSubmission] = useMutation<CreateDataSubmissionResp, { application: ApplicationInput }>(CREATE_DATA_SUBMISSION, {
+  const [createDataSubmission] = useMutation<CreateDataSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string }>(CREATE_DATA_SUBMISSION, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
@@ -351,22 +354,22 @@ const ListingView: FC = () => {
     setPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  const createSubmission = async () => {
+  const onCreateSubmissionButtonClick = async () => {
     setCreatingSubmission(true);
+    setDataCommons("");
+    setStudy("");
+    setSubmissionName("");
+  };
+  const createSubmission = async () => {
     const { data: d, errors } = await createDataSubmission({
       variables: {
-        application: {
-          _id: undefined,
-          programName: "",
-          studyAbbreviation: "",
-          questionnaireData: "{}",
-        }
+        studyAbbreviation: study,
+        dataCommons,
+        name: submissionName,
       }
     });
 
     setCreatingSubmission(false);
-
     if (errors) {
       navigate("", {
         state: {
@@ -378,7 +381,6 @@ const ListingView: FC = () => {
 
     // navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`);
   };
-
   return (
     <>
       <PageBanner
@@ -391,7 +393,7 @@ const ListingView: FC = () => {
             {user?.role === "User" && (
               <StyledButton
                 type="button"
-                onClick={createSubmission}
+                onClick={onCreateSubmissionButtonClick}
                 loading={creatingSubmission}
                 sx={{ bottom: "30px", right: "50px" }}
               >
@@ -561,15 +563,17 @@ const ListingView: FC = () => {
             options={[{ label: "CDS", value: "CDS" }]}
             label="Data Commons"
             required
-            value="CDS"
+            value={dataCommons}
+            onChange={(value) => setDataCommons(value)}
           />
           <SelectInput
-            options={[{ label: "COAS1", value: "COAS1" }]}
+            options={[{ label: "COAS1", value: "COAS1" }, { label: "test1", value: "test1" }, { label: "2", value: "2" }, { label: "3", value: "3" }, { label: "4", value: "4" }]}
             label="Study"
             required
-            value="COAS1"
+            value={study}
+            onChange={(value) => setStudy(value)}
           />
-          <TextInput maxLength={25} multiline rows={2} required label="Submission Name" placeholder="25 characters allowed" />
+          <TextInput value={submissionName} onChange={(event) => setSubmissionName(event.target.value)} maxLength={25} multiline rows={2} required label="Submission Name" placeholder="25 characters allowed" />
         </div>
         <div
           role="button"
@@ -578,10 +582,10 @@ const ListingView: FC = () => {
           className="dialogButton"
           onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                        setCreatingSubmission(false);
+                      createSubmission();
                     }
                 }}
-          onClick={() => setCreatingSubmission(false)}
+          onClick={() => createSubmission()}
         >
           <strong>Submit</strong>
         </div>
