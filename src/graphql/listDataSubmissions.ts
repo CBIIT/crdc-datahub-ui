@@ -1,32 +1,29 @@
   import gql from 'graphql-tag';
 
 export const query = gql`
-  query listDataSubmissions($first: Int, $offset: Int, $orderBy: String, $sortDirection: String) {
-    listDataSubmissions(first: $first, offset: $offset, orderBy: $orderBy, sortDirection: $sortDirection) {
+  query listDataSubmissions($first: Int, $offset: Int, $orderBy: String, $sortDirection: String, $organization: String, $status: String) {
+    listDataSubmissions(first: $first, offset: $offset, orderBy: $orderBy, sortDirection: $sortDirection, organization: $organization, status: $status) {
       total
-      applications {
-        _id
-        programName
+      submissions {
+        displayID
+        name
+        submitterName
+        organization
+        dataCommons
         studyAbbreviation
+        dbGapID
         status
+        concierge
         createdAt
         updatedAt
-        submittedDate
-        applicant {
-          applicantName
-          applicantID
-        }
-        organization {
-          name
-        }
       }
     }
   }
 `;
 
 export type Response = {
-  listApplications: {
+  listDataSubmissions: {
     total: number;
-    applications: Omit<Application, "questionnaireData">[];
+    dataSubmissions: Omit<DataSubmission, "rootPath" | "bucketName">[];
   };
 };
