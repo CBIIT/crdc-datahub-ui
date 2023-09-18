@@ -1,5 +1,6 @@
 type DataSubmission = {
     _id: string; // aka. submissionID
+    displayID: string; // minimum 6 digit integer with leading zeros, can have more digits
     name: string;
     submitterID: string;
     submitterName: string; // <first name> <last name>

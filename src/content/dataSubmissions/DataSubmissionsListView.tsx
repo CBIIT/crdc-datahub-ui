@@ -254,6 +254,7 @@ const ListingView: FC = () => {
   const tempDataSubmissions: Array<T> = [
    {
    _id: "00001", // aka. submissionID
+   displayID: "00001",
    name: "random name 1",
    submitterID: "123123123",
    submitterName: "john doe", // <first name> <last name>
@@ -277,6 +278,7 @@ const ListingView: FC = () => {
   },
   {
     _id: "00002", // aka. submissionID
+    displayID: "00001",
     name: "random name 1",
     submitterID: "123123123",
     submitterName: "john doe", // <first name> <last name>
@@ -300,6 +302,7 @@ const ListingView: FC = () => {
    },
       {
     _id: "00003", // aka. submissionID
+    displayID: "00001",
     name: "random name 1",
     submitterID: "123123123",
     submitterName: "john doe", // <first name> <last name>
@@ -409,7 +412,7 @@ const ListingView: FC = () => {
         body={(
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}
-            {user?.role === "User" && (
+            {(user?.role === "Organization Owner" || user?.role === "Submitter") && (
               <StyledButton
                 type="button"
                 onClick={onCreateSubmissionButtonClick}
@@ -595,7 +598,7 @@ const ListingView: FC = () => {
             />
             <TextInput
               value={dbgapid}
-              onChange={(event) => setDbgapid(event.target.value)}
+              parentStateSetter={(newVal) => setDbgapid(newVal)}
               maxLength={8}
               required
               label="dbGaP ID"
@@ -603,7 +606,7 @@ const ListingView: FC = () => {
             />
             <TextInput
               value={submissionName}
-              onChange={(event) => setSubmissionName(event.target.value)}
+              parentStateSetter={(newVal) => setSubmissionName(newVal)}
               maxLength={25}
               multiline
               rows={2}
