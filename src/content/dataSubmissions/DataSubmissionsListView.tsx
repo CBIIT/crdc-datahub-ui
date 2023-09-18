@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from "react";
+import React, { FC, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Alert, Container, Stack, styled,
@@ -18,6 +18,7 @@ import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { mutation as CREATE_DATA_SUBMISSION, Response as CreateDataSubmissionResp } from '../../graphql/createDataSubmission';
 import SelectInput from "../../components/Questionnaire/SelectInput";
 import TextInput from "../../components/Questionnaire/TextInput";
+import GenericAlert from '../../components/GenericAlert';
 
 type T = DataSubmission;
 
@@ -127,7 +128,7 @@ const columns: Column[] = [
     field: "studyAbbreviation",
   },
   {
-    label: "dbGap ID",
+    label: "dbGaP ID",
     value: (a) => a.dbGapID,
     field: "studyAbbreviation",
   },
@@ -150,13 +151,14 @@ const columns: Column[] = [
 
 const CreateSubmissionDialog = styled(Dialog)`
   .MuiDialog-paper {
-    width: 803px;
-    height: 740px;
+    width: 725px;
+    height: 800px;
     border-radius: 8px;
     border: 2px solid #5AB8FF;
     background: #F2F6FA;
     max-width: none;
     max-height: none;
+    overflow: hidden;
   }
   .closeIcon {
     cursor: pointer;
@@ -193,8 +195,8 @@ const CreateSubmissionDialog = styled(Dialog)`
   .inputs-container{
     align-self: center;
     width: 485px;
-    height: 365px;
-    margin-top: 50px;
+    height: 450px;
+    margin-top: 25px;
     font-family: Nunito;
     font-size: 16px;
     font-weight: 700;
@@ -242,9 +244,12 @@ const ListingView: FC = () => {
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
-  const [dataCommons, setDataCommons] = useState<string>("CDS");
-  const [study, setStudy] = useState<string>("COAS1");
-  const [submissionName, setSubmissionName] = useState<string>("");
+  const [dataCommons, setDataCommons] = useState<string>(null);
+  const [study, setStudy] = useState<string>(null);
+  const [dbgapid, setDbgapid] = useState<string>(null);
+  const [submissionName, setSubmissionName] = useState<string>(null);
+  const [submissionCreatedSuccessfullyAlert, setSubmissionCreatedSuccessfullyAlert] = useState<boolean>(false);
+  const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
 
   const tempDataSubmissions: Array<T> = [
    {
@@ -333,7 +338,7 @@ const ListingView: FC = () => {
   //   fetchPolicy: "no-cache",
   // });
 
-  const [createDataSubmission] = useMutation<CreateDataSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string }>(CREATE_DATA_SUBMISSION, {
+  const [createDataSubmission] = useMutation<CreateDataSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGapID: string }>(CREATE_DATA_SUBMISSION, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
@@ -356,9 +361,16 @@ const ListingView: FC = () => {
   };
   const onCreateSubmissionButtonClick = async () => {
     setCreatingSubmission(true);
-    setDataCommons("");
-    setStudy("");
-    setSubmissionName("");
+    setDataCommons(null);
+    setStudy(null);
+    setSubmissionName(null);
+    setDbgapid(null);
+  };
+  const onDialogSubmit = async () => {
+    const valid = createSubmissionDialogFormRef.current.checkValidity();
+    if (valid) {
+      createSubmission();
+    }
   };
   const createSubmission = async () => {
     const { data: d, errors } = await createDataSubmission({
@@ -366,23 +378,30 @@ const ListingView: FC = () => {
         studyAbbreviation: study,
         dataCommons,
         name: submissionName,
+        dbGapID: dbgapid,
       }
     });
 
-    setCreatingSubmission(false);
     if (errors) {
       navigate("", {
         state: {
           error: "Unable to create a submission request. Please try again later"
         }
       });
-      // return;
+      return;
     }
 
-    // navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`);
+    setSubmissionCreatedSuccessfullyAlert(true);
+    setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
+    setCreatingSubmission(false);
   };
   return (
     <>
+      <GenericAlert open={submissionCreatedSuccessfullyAlert}>
+        <span>
+          Data Submission Created Successfully
+        </span>
+      </GenericAlert>
       <PageBanner
         title="Data Submission List"
         subTitle="Below is a list of data submissions that are associated with your account. Please click on any of the data submissions to review or continue work."
@@ -552,28 +571,48 @@ const ListingView: FC = () => {
           </div>
         </DialogTitle>
         <div className="create-a-submission-header-container">
-          <div id="create-a-submission-title"> Create a Submission</div>
+          <div id="create-a-submission-title"> Create a Data Submission</div>
           <div className="optional-helper-text">
             Do we need any intro/explanatory text to lay expectations for the user here?
           </div>
         </div>
         <div className="inputs-container">
-          <TextInput value="Fill with organization" label="Organization" readOnly />
-          <SelectInput
-            options={[{ label: "CDS", value: "CDS" }]}
-            label="Data Commons"
-            required
-            value={dataCommons}
-            onChange={(value) => setDataCommons(value)}
-          />
-          <SelectInput
-            options={[{ label: "COAS1", value: "COAS1" }, { label: "test1", value: "test1" }, { label: "2", value: "2" }, { label: "3", value: "3" }, { label: "4", value: "4" }]}
-            label="Study"
-            required
-            value={study}
-            onChange={(value) => setStudy(value)}
-          />
-          <TextInput value={submissionName} onChange={(event) => setSubmissionName(event.target.value)} maxLength={25} multiline rows={2} required label="Submission Name" placeholder="25 characters allowed" />
+          <form ref={createSubmissionDialogFormRef}>
+            <TextInput value="Fill with organization" label="Organization" readOnly />
+            <SelectInput
+              options={[{ label: "CDS", value: "CDS" }]}
+              label="Data Commons"
+              required
+              value={dataCommons}
+              onChange={(value) => setDataCommons(value)}
+            />
+            <SelectInput
+              options={[{ label: "COAS1", value: "COAS1" }, { label: "test1", value: "test1" }, { label: "2", value: "2" }, { label: "3", value: "3" }, { label: "4", value: "4" }]}
+              label="Study"
+              required
+              value={study}
+              onChange={(value) => setStudy(value)}
+            />
+            <TextInput
+              value={dbgapid}
+              onChange={(event) => setDbgapid(event.target.value)}
+              maxLength={8}
+              required
+              label="dbGaP ID"
+              placeholder="Input dbGaP ID"
+            />
+            <TextInput
+              value={submissionName}
+              onChange={(event) => setSubmissionName(event.target.value)}
+              maxLength={25}
+              multiline
+              rows={2}
+              required
+              label="Submission Name"
+              placeholder="25 characters allowed"
+            />
+          </form>
+
         </div>
         <div
           role="button"
@@ -582,10 +621,10 @@ const ListingView: FC = () => {
           className="dialogButton"
           onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      createSubmission();
+                      onDialogSubmit();
                     }
                 }}
-          onClick={() => createSubmission()}
+          onClick={() => onDialogSubmit()}
         >
           <strong>Submit</strong>
         </div>
