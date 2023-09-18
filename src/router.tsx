@@ -68,7 +68,11 @@ const routes: RouteObject[] = [
       },
       {
         path: '/users/:userId?',
-        element: <RequireAuth component={<Users />} redirectPath="/users" redirectName="User Management" />
+        element: <RequireAuth component={<Users key="users-view" type="users" />} redirectPath="/users" redirectName="User Management" />
+      },
+      {
+        path: '/profile/:userId?',
+        element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
       },
       {
         path: '/sitesearch/:keyword',
