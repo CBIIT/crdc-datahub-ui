@@ -121,8 +121,8 @@ export default {
       link: 'tel:+18004226237',
     },
     {
-      text: 'cdshelpdesk@mail.nih.gov',
-      link: 'mailto:+cdshelpdesk@mail.nih.gov',
+      text: 'NCIinfo@nih.gov',
+      link: 'mailto:+NCIinfo@nih.gov',
     },
     {
       text: 'Site Feedback',
