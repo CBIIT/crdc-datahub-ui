@@ -1,4 +1,5 @@
 import { Grid, Stack, styled } from "@mui/material";
+import { CSSProperties } from "@mui/styles";
 import { FC, useMemo, useState } from "react";
 
 export const StyledLabel = styled("span")(() => ({
@@ -40,6 +41,7 @@ type Props = {
   isList?: boolean;
   gridWidth?: GridWidth;
   hideLabel?: boolean;
+  textTransform?: CSSProperties["textTransform"];
 };
 
 const ReviewDataListingProperty: FC<Props> = ({
@@ -48,6 +50,7 @@ const ReviewDataListingProperty: FC<Props> = ({
   valuePlacement = "right",
   isList,
   gridWidth,
+  textTransform = "uppercase",
   hideLabel = false,
 }) => {
   const [isMultiple, setIsMultiple] = useState(false);
@@ -80,7 +83,7 @@ const ReviewDataListingProperty: FC<Props> = ({
             alignItems="center"
             sx={{ marginBottom: valuePlacement === "bottom" ? "3px" : 0 }}
           >
-            <StyledLabel>{!hideLabel && label}</StyledLabel>
+            <StyledLabel sx={{ textTransform }}>{!hideLabel && label}</StyledLabel>
           </StyledLabelWrapper>
         )}
         <Stack

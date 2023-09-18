@@ -203,8 +203,8 @@ const FormSectionReview: FC<FormSectionProps> = ({
           title={SectionMetadata.B.sections.DBGAP_REGISTRATION.title}
           description={SectionMetadata.B.sections.DBGAP_REGISTRATION.description}
         >
-          <ReviewDataListingProperty label="dbGaP REGISTRATION" value={study.isDbGapRegistered ? "Yes" : "No"} />
-          <ReviewDataListingProperty label="dbGaP PHS number" value={study.dbGaPPPHSNumber} />
+          <ReviewDataListingProperty label="HAS YOUR STUDY BEEN REGISTERED IN dbGaP?" value={study.isDbGapRegistered ? "Yes" : "No"} textTransform="none" />
+          <ReviewDataListingProperty label="dbGaP PHS NUMBER" value={study.isDbGapRegistered ? study.dbGaPPPHSNumber : "NA"} textTransform="none" />
         </ReviewDataListing>
 
         {publications?.map((publication: KeyedPublication, idx: number) => (

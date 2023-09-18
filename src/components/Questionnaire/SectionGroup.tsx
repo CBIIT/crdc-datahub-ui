@@ -37,7 +37,6 @@ export const StyledTitle = styled(Typography)({
   fontWeight: 500,
   color: "#5A7C81",
   fontSize: "17px",
-  textTransform: "uppercase",
 });
 
 export const StyledDescription = styled(Typography)({
@@ -59,7 +58,7 @@ const StyledBeginAdornment = styled(Box)({
 
 const StyledAsterisk = styled('span')({
     color: "#D54309",
-    marginLeft: "4px",
+    marginLeft: "2px",
 });
 const StyledError = styled('div')({
   color: "#D54309",

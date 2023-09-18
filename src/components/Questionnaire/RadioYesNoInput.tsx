@@ -68,7 +68,7 @@ const StyledFormLabel = styled("label")(() => ({
 }));
 
 const StyledAsterisk = styled("span")(() => ({
-  marginRight: "2px",
+  marginLeft: "2px",
   color: "#D54309",
 }));
 
@@ -153,8 +153,8 @@ const RadioYesNoInput: FC<Props> = ({
     <GridStyled md={gridWidth || 6} xs={12} item $containerWidth={containerWidth}>
       <FormControl className="formControl" error={error}>
         <StyledFormLabel>
-          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
           {label}
+          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
         </StyledFormLabel>
         <RadioGroup
           name={name}
