@@ -2,17 +2,15 @@ import { FC, useEffect, useMemo, useState } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { LoadingButton } from '@mui/lab';
 import {
-  Alert, Container, MenuItem,
+  Alert, Box, Container, MenuItem,
   OutlinedInput, Select, Stack, Typography,
   styled,
 } from '@mui/material';
 import { cloneDeep } from 'lodash';
-import { Helmet } from 'react-helmet-async';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import bannerSvg from '../../assets/banner/profile_banner.svg';
 import profileIcon from '../../assets/icons/profile_icon.svg';
-import profileIconShadow from '../../assets/icons/profile_icon_shadow.svg';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
 import GenericAlert from '../../components/GenericAlert';
@@ -33,7 +31,15 @@ const StyledBanner = styled("div")({
   backgroundSize: "cover",
   backgroundPosition: "center",
   width: "100%",
-  height: "146px",
+  height: "153px",
+});
+
+const StyledPageTitle = styled(Typography)({
+  fontFamily: "Nunito Sans",
+  fontSize: "45px",
+  fontWeight: 800,
+  letterSpacing: "-1.5px",
+  color: "#fff",
 });
 
 const StyledProfileIcon = styled("div")({
@@ -44,18 +50,15 @@ const StyledProfileIcon = styled("div")({
   },
   "& img:nth-of-type(1)": {
     zIndex: 2,
+    filter: "drop-shadow(10px 13px 9px rgba(0, 0, 0, 0.35))",
   },
-  "& img:nth-of-type(2)": {
-    zIndex: 1,
-    transform: "translate(11px, 8px)",
-  }
 });
 
 const StyledHeader = styled("div")({
   textAlign: "left",
   width: "100%",
-  marginTop: "30px",
-  marginBottom: "34px",
+  marginTop: "-34px !important",
+  marginBottom: "41px !important",
 });
 
 const StyledHeaderText = styled(Typography)({
@@ -121,6 +124,12 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
   fontSize: "17px",
   padding: "6px 8px",
 }));
+
+const StyledTitleBox = styled(Box)({
+  marginTop: "-98px",
+  marginBottom: "100px",
+  width: "100%",
+});
 
 /**
  * User Profile View Component
@@ -253,14 +262,11 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
 
   return (
     <>
-      {_id !== currentUser._id && <Helmet><title>Edit User</title></Helmet>}
-
       <GenericAlert open={!!changesAlert} key="profile-changes-alert">
         <span>
           {changesAlert}
         </span>
       </GenericAlert>
-
       <StyledBanner />
       <Container maxWidth="lg">
         <Stack
@@ -271,7 +277,6 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
         >
           <StyledProfileIcon>
             <img src={profileIcon} alt="profile icon" />
-            <img src={profileIconShadow} alt="profile icon shadow" />
           </StyledProfileIcon>
 
           <Stack
@@ -280,6 +285,12 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
             alignItems="center"
             spacing={2}
           >
+            <StyledTitleBox>
+              <StyledPageTitle variant="h4">
+                {currentUser?._id === _id ? "User Profile" : "Edit User Profile"}
+              </StyledPageTitle>
+            </StyledTitleBox>
+
             {error && (
               <Alert sx={{ m: 2, p: 2, width: "100%" }} severity="error">
                 {error || "An unknown API error occurred."}
