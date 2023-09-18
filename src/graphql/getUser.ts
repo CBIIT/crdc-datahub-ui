@@ -15,6 +15,8 @@ export const query = gql`
       organization {
         orgID
         orgName
+        createdAt
+        updateAt
       }
     }
   }

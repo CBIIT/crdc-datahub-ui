@@ -200,7 +200,7 @@ const ListingView: FC = () => {
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<Column>(columns.find((c) => c.default) || columns.find((c) => !!c.comparator));
   const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(10);
+  const [perPage, setPerPage] = useState<number>(20);
   const [dataset, setDataset] = useState<T[]>([]);
   const [count, setCount] = useState<number>(0);
 
@@ -252,7 +252,6 @@ const ListingView: FC = () => {
       .filter((u: T) => (orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true))
       .filter((u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true))
       .filter((u: T) => (statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true))
-      .filter((u: T) => u._id !== user._id)
       .sort((a, b) => orderBy?.comparator(a, b) || 0);
 
     if (order === "desc") {
