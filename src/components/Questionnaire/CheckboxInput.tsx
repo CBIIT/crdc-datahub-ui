@@ -8,16 +8,15 @@ import {
   styled,
 } from "@mui/material";
 import Tooltip from "./Tooltip";
-import checkboxUncheckedIcon from "../../assets/icons/checkbox_unchecked.svg";
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
-  backgroundImage: `url(${checkboxUncheckedIcon})`,
-  backgroundSize: "auto",
-  backgroundRepeat: "no-repeat",
+  outline: "2px solid #1D91AB",
+  outlineOffset: -2,
   width: "24px",
   height: "24px",
-  backgroundColor: readOnly ? "#D9DEE4" : "initial",
+  backgroundColor: readOnly ? "#D2DFE9" : "initial",
+  color: "#083A50",
   cursor: readOnly ? "not-allowed" : "pointer",
 }));
 
@@ -27,7 +26,8 @@ const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   backgroundRepeat: "no-repeat",
   width: "24px",
   height: "24px",
-  backgroundColor: readOnly ? "#D9DEE4" : "initial",
+  backgroundColor: readOnly ? "#D2DFE9" : "initial",
+  color: "#1D91AB",
   cursor: readOnly ? "not-allowed" : "pointer",
 }));
 
@@ -38,7 +38,7 @@ const StyledFormControl = styled(FormControl)(() => ({
 
 const StyledAsterisk = styled("span")(() => ({
   color: "#D54309",
-  marginLeft: "6px",
+  marginLeft: "2px",
 }));
 
 const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({

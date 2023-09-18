@@ -3,8 +3,15 @@ import { ReactNode } from "react";
 import { StyledDescription, StyledTitle } from "./SectionGroup";
 
 const GridContainer = styled(Grid)(() => ({
-  ":not(:first-of-type)": {
+  "&:not(:first-of-type)": {
     marginTop: "25px",
+  },
+  paddingTop: 0,
+}));
+
+const StyledGridHeader = styled(Grid)(() => ({
+  "&:not(:first-of-type)": {
+    marginTop: "30px",
   },
   paddingTop: 0,
 }));
@@ -24,14 +31,14 @@ const ReviewDataListing = ({
 }: Props) => (
   <>
     {title || description ? (
-      <Grid xs={12} item>
+      <StyledGridHeader xs={12} item>
         {title && (
           <StyledTitle variant="h5">{!hideTitle ? title : null}</StyledTitle>
         )}
         {description && (
           <StyledDescription variant="body1">{description}</StyledDescription>
         )}
-      </Grid>
+      </StyledGridHeader>
     ) : null}
     <Grid xs={12} item>
       <GridContainer container rowSpacing={0} columnSpacing={1.5}>

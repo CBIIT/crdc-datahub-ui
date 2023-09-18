@@ -104,7 +104,7 @@ const Repository: FC<Props> = ({
           placement="start"
           onClick={onDelete}
           startIcon={<RemoveCircleIcon />}
-          iconColor="#F18E8E"
+          iconColor="#E74040"
           disabled={readOnly || status === FormStatus.SAVING}
         />
       </Grid>

@@ -31,6 +31,7 @@ const AccessTypesDescription = styled("span")(() => ({
 const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { data: { questionnaireData: data } } = useFormContext();
   const { readOnlyInputs } = useFormMode();
+  const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
   const { C: SectionCMetadata } = SectionMetadata;
@@ -64,10 +65,15 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     return { ref: formRef, data: combinedData };
   };
 
+  useEffect(() => {
+    formContainerRef.current?.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <FormContainer
-      description={SectionOption.title}
+      ref={formContainerRef}
       formRef={formRef}
+      description={SectionOption.title}
     >
       {/* Data Access Section */}
       <SectionGroup

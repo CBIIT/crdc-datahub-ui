@@ -10,6 +10,8 @@ type Props = {
   description?: string | React.ReactNode;
   endButton?: React.ReactNode;
   beginButton?: React.ReactNode;
+  required?: boolean;
+  error?: string;
 };
 
 const StyledGrid = styled(Grid)({
@@ -26,21 +28,21 @@ const StyledGrid = styled(Grid)({
 });
 
 const StyledHeader = styled(Grid)({
-  marginBottom: "24px",
+  marginBottom: "18px",
 });
 
 export const StyledTitle = styled(Typography)({
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   lineHeight: "19.6px",
   fontWeight: 500,
-  color: "#7899A1",
+  color: "#5A7C81",
   fontSize: "17px",
-  textTransform: "uppercase"
+  textTransform: "uppercase",
 });
 
 export const StyledDescription = styled(Typography)({
   fontWeight: 400,
-  color: "#34A286",
+  color: "#2A836D",
   marginTop: "16px",
   fontSize: "16px",
 });
@@ -55,27 +57,47 @@ const StyledBeginAdornment = styled(Box)({
   paddingTop: "25px",
 });
 
+const StyledAsterisk = styled('span')({
+    color: "#D54309",
+    marginLeft: "4px",
+});
+const StyledError = styled('div')({
+  color: "#D54309",
+  textTransform: "none",
+  fontFamily: 'Nunito',
+  fontWeight: '400',
+  fontSize: '0.75rem',
+  lineHeight: '1.66',
+  textAlign: 'left',
+  marginTop: '3px',
+  marginRight: '14px',
+  marginBottom: '0',
+  minHeight: '20px',
+});
 /**
  * Generic Form Input Section Group
  *
  * @param {Props} props
  * @returns {React.ReactNode}
  */
-const SectionGroup: FC<Props> = ({ title, description, children, endButton, beginButton }) => (
+const SectionGroup: FC<Props> = ({ title, description, children, endButton, beginButton, required, error }) => (
   <StyledGrid container rowSpacing={0} columnSpacing={1.5}>
     <StyledHeader xs={12} item>
       <Stack direction="column" alignItems="flex-start">
         {title && (
           <StyledTitle variant="h5">
             {title}
+            {required ? <StyledAsterisk className="asterisk">*</StyledAsterisk> : ""}
+            {error ? <StyledError className="asterisk">{error}</StyledError> : ""}
+
           </StyledTitle>
         )}
         <Stack direction="row" alignItems="flex-start" justifyContent="space-between" width="100%">
           {description && (
-          <StyledDescription variant="body1">
-            {description}
-          </StyledDescription>
-        )}
+            <StyledDescription variant="body1">
+              {description}
+            </StyledDescription>
+          )}
           {beginButton && <StyledBeginAdornment>{beginButton}</StyledBeginAdornment>}
         </Stack>
 

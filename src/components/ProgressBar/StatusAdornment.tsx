@@ -17,16 +17,16 @@ const BaseAvatar = styled(Avatar)({
 });
 
 const CompleteAvatar = styled(BaseAvatar)({
-  backgroundColor: "#26B893",
+  backgroundColor: "#22A584",
 });
 
 const NotStartedAvatar = styled(BaseAvatar)({
-  border: "2.25px solid #26B893",
+  border: "2.25px solid #22A584",
 });
 
 const InProgressAvatar = styled(NotStartedAvatar)({
   position: "relative",
-  backgroundColor: "#26B893",
+  backgroundColor: "#22A584",
   "&::after": {
     content: "''",
     position: "absolute",

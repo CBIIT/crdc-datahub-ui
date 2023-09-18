@@ -64,6 +64,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
 
   const programKeyRef = useRef(new Date().getTime());
+  const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const {
     nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef,
@@ -99,14 +100,20 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (!formObject.study.publications || formObject.study.publications.length === 0) {
       combinedData.study.publications = [];
     }
-    // Reset planned publications if the user has not entered any planned publications
-    if (!formObject.study.plannedPublications || formObject.study.plannedPublications.length === 0) {
-      combinedData.study.plannedPublications = [];
-    }
+
     // Reset repositories if the user has not entered any repositories
     if (!formObject.study.repositories || formObject.study.repositories.length === 0) {
       combinedData.study.repositories = [];
     }
+
+     // Reset planned publications if the user has not entered any planned publications
+     // Also reset expectedDate when invalid to avoid form submission unsaved changes warning
+    combinedData.study.plannedPublications = combinedData.study.plannedPublications?.map((plannedPublication) => ({
+        ...plannedPublication,
+        expectedDate: dayjs(plannedPublication.expectedDate).isValid()
+          ? plannedPublication.expectedDate
+          : "",
+      })) || [];
 
     return { ref: formRef, data: combinedData };
   };
@@ -245,13 +252,18 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setFundings(fundings.filter((f) => f.key !== key));
   };
 
+  useEffect(() => {
+    formContainerRef.current?.scrollIntoView({ block: "start" });
+  }, []);
+
   const readOnlyProgram = readOnlyInputs || !programOption?.editable;
   const predefinedProgram = programOption && !programOption.editable && !programOption.notApplicable;
 
   return (
     <FormContainer
-      description={SectionOption.title}
+      ref={formContainerRef}
       formRef={formRef}
+      description={SectionOption.title}
     >
       {/* Program Registration Section */}
       <SectionGroup
@@ -416,7 +428,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       >
         <SwitchInput
           id="section-b-dbGaP-registration"
-          label="dbGaP REGISTRATION"
+          label="Has your study been registered in dbGaP?"
           name="study[isDbGapRegistered]"
           required
           value={isDbGapRegistered}

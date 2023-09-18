@@ -1,23 +1,31 @@
-import { FC, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useMutation } from '@apollo/client';
-import {
-  Alert, Container,
-  OutlinedInput, Stack, Typography, styled,
-} from '@mui/material';
+import { FC, useEffect, useMemo, useState } from 'react';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import { LoadingButton } from '@mui/lab';
+import {
+  Alert, Container, MenuItem,
+  OutlinedInput, Select, Stack, Typography,
+  styled,
+} from '@mui/material';
+import { cloneDeep } from 'lodash';
+import { Helmet } from 'react-helmet-async';
 import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import bannerSvg from '../../assets/banner/profile_banner.svg';
 import profileIcon from '../../assets/icons/profile_icon.svg';
 import profileIconShadow from '../../assets/icons/profile_icon_shadow.svg';
-import { UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
-import { formatIDP } from '../../utils';
+import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
 import GenericAlert from '../../components/GenericAlert';
+import SuspenseLoader from '../../components/SuspenseLoader';
+import { OrgRequiredRoles, Roles } from '../../config/AuthRoles';
+import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
+import { formatIDP, getEditableFields } from '../../utils';
 
 type Props = {
   _id: User["_id"];
 };
+
+type FormInput = UserInput | EditUserInput;
 
 const StyledBanner = styled("div")({
   background: `url(${bannerSvg})`,
@@ -69,10 +77,11 @@ const StyledLabel = styled('span')({
   color: '#356AAD',
   fontWeight: '700',
   marginRight: '20px',
-  size: '16px',
+  fontSize: '16px',
+  minWidth: '113px',
 });
 
-const StyledTextField = styled(OutlinedInput)({
+const BaseInputStyling = {
   width: "363px",
   borderRadius: "8px",
   backgroundColor: "#fff",
@@ -91,13 +100,17 @@ const StyledTextField = styled(OutlinedInput)({
     border: "1px solid #209D7D",
     boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
-});
+};
+
+const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
+
+const StyledSelect = styled(Select)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
   margin: "50px 0",
 });
 
-const StyledButton = styled(LoadingButton)(({ txt, border } : { txt: string, border: string }) => ({
+const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, border: string }) => ({
   borderRadius: "8px",
   border: `2px solid ${border}`,
   color: `${txt} !important`,
@@ -115,18 +128,25 @@ const StyledButton = styled(LoadingButton)(({ txt, border } : { txt: string, bor
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const ProfileView: FC<Props> = ({ _id } : Props) => {
+const ProfileView: FC<Props> = ({ _id }: Props) => {
+  const navigate = useNavigate();
+  const { data: orgData } = useOrganizationListContext();
   const { user: currentUser, setData } = useAuthContext();
-  const user: User = _id === currentUser._id ? { ...currentUser } : null; // NOTE: This is prep for MVP-2
+
+  const [user, setUser] = useState<User | null>(_id === currentUser._id ? { ...currentUser } : null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<string>("");
 
-  const { handleSubmit, control, reset } = useForm<UserInput>({
-    defaultValues: {
-      firstName: user?.firstName,
-      lastName: user?.lastName,
-    },
+  const { handleSubmit, register, reset, watch, setValue, control } = useForm<FormInput>();
+
+  const role = watch("role");
+  const orgFieldDisabled = useMemo(() => !OrgRequiredRoles.includes(role) && role !== "User", [role]);
+  const fieldset = useMemo(() => getEditableFields(currentUser, user), [user?._id, _id]);
+
+  const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
+    context: { clientName: 'userService' },
+    fetchPolicy: 'no-cache'
   });
 
   const [updateMyUser] = useMutation<UpdateMyUserResp, { userInfo: UserInput }>(UPDATE_MY_USER, {
@@ -134,33 +154,107 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
     fetchPolicy: 'no-cache'
   });
 
-  const onSubmit = async (data : UserInput) => {
-    setSaving(true);
-    const { data: d, errors } = await updateMyUser({ variables: { userInfo: data } }).catch(() => null) || {};
-    setSaving(false);
+  const [editUser] = useMutation<EditUserResp>(EDIT_USER, {
+    context: { clientName: 'userService' },
+    fetchPolicy: 'no-cache'
+  });
 
-    if (errors || !d) {
-      setError("Unable to save profile changes");
-      return;
-    }
+  const onSubmit = async (data) => {
+    setSaving(true);
+
     if (_id === currentUser._id) {
-      setChangesAlert("All changes have been saved");
-      setData(data);
+      const { data: d, errors } = await updateMyUser({
+        variables: {
+          userInfo: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+          }
+        }
+      }).catch((e) => ({ errors: e?.message, data: null }));
+      setSaving(false);
+
+      if (errors || !d) {
+        setError(errors || "Unable to save profile changes");
+        return;
+      }
+
+      setData(data as UserInput);
+    } else {
+      const { data: d, errors } = await editUser({
+        variables: {
+          userID: _id,
+          organization: data.organization.orgID,
+          role: data.role,
+          status: data.userStatus,
+        }
+      }).catch((e) => ({ errors: e?.message, data: null }));
+      setSaving(false);
+
+      if (errors || !d) {
+        setError(errors || "Unable to save profile changes");
+        return;
+      }
     }
 
     setError(null);
+    setChangesAlert("All changes have been saved");
     setTimeout(() => setChangesAlert(""), 10000);
-    reset({ ...data });
+    setFormValues(data);
   };
 
+  /**
+   * Updates the default form values after save or initial fetch
+   *
+   * @param data FormInput
+   */
+  const setFormValues = (data: FormInput, fields = fieldset) => {
+    const resetData = {};
+
+    fields.forEach((field) => {
+      resetData[field] = cloneDeep(data[field]);
+    });
+
+    reset(resetData);
+  };
+
+  useEffect(() => {
+    setError(null);
+
+    // No action needed if viewing own profile, using cached data
+    if (_id === currentUser._id) {
+      setUser({ ...currentUser });
+      setFormValues(currentUser, getEditableFields(currentUser, currentUser));
+      return;
+    }
+
+    (async () => {
+      const { data, error } = await getUser({ variables: { userID: _id } });
+
+      if (error || !data?.getUser) {
+        navigate("/users", { state: { error: "Unable to fetch user data" } });
+        return;
+      }
+
+      setUser({ ...data?.getUser });
+      setFormValues(data?.getUser);
+    })();
+  }, [_id]);
+
+  useEffect(() => {
+    if (orgFieldDisabled) {
+      const nciID = orgData?.find((org) => org.orgName === "NCI")?.orgID;
+      setValue("organization.orgID", nciID || "");
+    }
+  }, [orgFieldDisabled, user, orgData]);
+
   if (!user) {
-    // NOTE for MVP-2: This is the loading indicator when fetching user data
-    // Disabled because it will load forever if currentUser._id is not _id ATM
-    return <Navigate to={`/users/${currentUser?._id}`} />;
+    return <SuspenseLoader />;
   }
 
   return (
     <>
+      {_id !== currentUser._id && <Helmet><title>Edit User</title></Helmet>}
+
       <GenericAlert open={!!changesAlert} key="profile-changes-alert">
         <span>
           {changesAlert}
@@ -209,33 +303,78 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel>First name</StyledLabel>
-                <Controller
-                  name="firstName"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => <StyledTextField {...field} size="small" required />}
-                />
+                {fieldset.includes("firstName") ? (
+                  <StyledTextField {...register("firstName", { required: true })} size="small" required />
+                ) : user.firstName}
               </StyledField>
               <StyledField>
                 <StyledLabel>Last name</StyledLabel>
-                <Controller
-                  name="lastName"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => <StyledTextField {...field} size="small" required />}
-                />
+                {fieldset.includes("lastName") ? (
+                  <StyledTextField {...register("lastName", { required: true })} size="small" required />
+                ) : user.lastName}
               </StyledField>
               <StyledField>
                 <StyledLabel>Role</StyledLabel>
-                {user?.role}
+                {fieldset.includes("role") ? (
+                  <Stack direction="column" justifyContent="flex-start" alignItems="flex-start" spacing={1}>
+                    <Controller
+                      name="role"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <StyledSelect
+                          {...field}
+                          size="small"
+                          MenuProps={{ disablePortal: true }}
+                        >
+                          {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
+                        </StyledSelect>
+                      )}
+                    />
+                  </Stack>
+                ) : user?.role}
               </StyledField>
               <StyledField>
                 <StyledLabel>Account Status</StyledLabel>
-                {user.userStatus}
+                {fieldset.includes("userStatus") ? (
+                  <Controller
+                    name="userStatus"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        size="small"
+                        value={field.value || ""}
+                        MenuProps={{ disablePortal: true }}
+                      >
+                        <MenuItem value="Active">Active</MenuItem>
+                        <MenuItem value="Inactive">Inactive</MenuItem>
+                      </StyledSelect>
+                    )}
+                  />
+                ) : user.userStatus}
               </StyledField>
               <StyledField>
                 <StyledLabel>Organization</StyledLabel>
-                {user?.organization?.orgName}
+                {fieldset.includes("organization") ? (
+                  <Controller
+                    name="organization.orgID"
+                    control={control}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        size="small"
+                        value={field.value || ""}
+                        MenuProps={{ disablePortal: true }}
+                        disabled={orgFieldDisabled}
+                      >
+                        <MenuItem value="">Select an organization</MenuItem>
+                        {orgData?.map((org) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
+                      </StyledSelect>
+                    )}
+                  />
+                ) : user?.organization?.orgName}
               </StyledField>
 
               <StyledButtonStack
@@ -244,7 +383,8 @@ const ProfileView: FC<Props> = ({ _id } : Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>
+                {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>}
+                {_id !== currentUser._id && <StyledButton type="button" onClick={() => navigate("/users")} txt="#949494" border="#828282">Cancel</StyledButton>}
               </StyledButtonStack>
             </form>
           </Stack>

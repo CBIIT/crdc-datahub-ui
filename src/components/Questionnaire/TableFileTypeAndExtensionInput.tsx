@@ -130,8 +130,7 @@ const TableAutocompleteInput: FC<Props> = ({
   return (
     <>
       <TableCell className={classes.autocomplete}>
-        <Autocomplete
-          isOptionEqualToValue={(option, value) => option.value === value.value}
+        <StyledAutocomplete
           sx={{
           "& .MuiInputBase-input": {
             fontWeight: 400,
@@ -155,8 +154,7 @@ const TableAutocompleteInput: FC<Props> = ({
           },
           popper: {
             disablePortal: true,
-            sx: { marginTop: "8px !important" },
-            style: { width: "200% !important" },
+            sx: { top: "-2px !important" },
             modifiers: [
               {
                 // disables popper from flipping above the input when out of screen room
@@ -187,8 +185,7 @@ const TableAutocompleteInput: FC<Props> = ({
         />
       </TableCell>
       <TableCell className={classes.autocomplete}>
-        <Autocomplete
-          isOptionEqualToValue={(option, value) => option.value === value.value}
+        <StyledAutocomplete
           sx={{
             "& .MuiInputBase-input": {
               fontWeight: 400,
@@ -212,7 +209,9 @@ const TableAutocompleteInput: FC<Props> = ({
             },
             popper: {
               disablePortal: true,
-              sx: { marginTop: "8px !important" },
+              sx: {
+                top: "-2px !important",
+              },
               modifiers: [
                 {
                   // disables popper from flipping above the input when out of screen room
@@ -246,6 +245,31 @@ const TableAutocompleteInput: FC<Props> = ({
   );
 };
 
+const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : boolean }) => ({
+  "& .MuiInputBase-root": {
+    backgroundColor: readOnly ? "#D9DEE4" : "#FFFFFF",
+    "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
+      display: 'flex',
+      alignItems: 'center',
+      padding: 0,
+    },
+    "& .MuiInputBase-input": {
+      fontWeight: 400,
+      fontSize: "16px",
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+      padding: "10px 12px 10px 12px !important",
+      cursor: readOnly ? "not-allowed !important" : "initial",
+    },
+    "& .MuiAutocomplete-endAdornment": {
+      right: "8px",
+    },
+    "&.Mui-focused": {
+      boxShadow:
+        "2px 2px 2px 1px rgba(38, 184, 147, 0.10), -2px -2px 2px 1px rgba(38, 184, 147, 0.20)",
+    },
+  },
+}));
+
 const styles = () => ({
   paper: {
     borderRadius: "8px",
@@ -265,11 +289,11 @@ const styles = () => ({
       background: "#FFFFFF"
     },
     "& .MuiAutocomplete-option:hover": {
-      backgroundColor: "#5E6787",
+      backgroundColor: "#3E7E6D",
       color: "#FFFFFF"
     },
     "& .MuiAutocomplete-option.Mui-focused": {
-      backgroundColor: "#5E6787 !important",
+      backgroundColor: "#3E7E6D !important",
       color: "#FFFFFF"
     },
   },
@@ -284,16 +308,17 @@ const styles = () => ({
       opacity: 1
     },
     "& .MuiAutocomplete-input:read-only": {
-      backgroundColor: "#D9DEE4",
+      backgroundColor: "#D2DFE9",
+      color: "#083A50",
       cursor: "not-allowed",
-    }
+    },
   },
   autocomplete: {
     borderTop: "1px solid #6B7294 !important",
     borderRight: "1px solid #6B7294 !important",
     borderBottom: "none!important",
     borderLeft: "none!important",
-    padding: "10px 12px 10px 12px",
+    padding: "0",
     "& .MuiStack-root": {
       width: "auto",
     }
