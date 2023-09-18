@@ -186,7 +186,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     // Override empty file array
     combinedData.files = formObject.files;
     // Overwrite number type. If empty string, convert to null.
-    combinedData.files.map((file) => file.count = parseInt(file.count, 10) || null);
+    combinedData.files.map((file) => file.count = parseInt(file.count.toString(), 10) || null);
 
     return { ref: formRef, data: combinedData };
   };
