@@ -9,7 +9,7 @@ import {
 import { cloneDeep } from 'lodash';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import bannerSvg from '../../assets/banner/profile_banner.svg';
+import bannerSvg from '../../assets/banner/profile_banner.png';
 import profileIcon from '../../assets/icons/profile_icon.svg';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
