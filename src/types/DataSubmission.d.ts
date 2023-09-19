@@ -24,22 +24,23 @@ type DataSubmissionHistoryEvent = {
   dateTime: string; // # YYYY-MM-DDTHH:MM:SS format
   userID: string;
 };
-  type DataSubmissionStatus = "New" | "In Progress" | "Submitted" | "Released" | "Canceled" | "Transferred" | "Completed" | "Archived";
 
-  type HistoryEvent = {
-    status: ApplicationStatus;
-    reviewComment?: string;
-    dateTime: string; // YYYY-MM-DDTHH:MM:SSZ format
-    userID: number;
-  };
+type DataSubmissionStatus = "New" | "In Progress" | "Submitted" | "Released" | "Canceled" | "Transferred" | "Completed" | "Archived";
 
-  type Applicant = {
-    applicantID: string;
-    applicantName: string;
-    applicantEmail: string;
-  };
+type HistoryEvent = {
+  status: ApplicationStatus;
+  reviewComment?: string;
+  dateTime: string; // YYYY-MM-DDTHH:MM:SSZ format
+  userID: number;
+};
 
-  type Organization = {
-    _id: string;
-    name: string;
-  };
+type Applicant = {
+  applicantID: string;
+  applicantName: string;
+  applicantEmail: string;
+};
+
+type Organization = {
+  _id: string;
+  name: string;
+};

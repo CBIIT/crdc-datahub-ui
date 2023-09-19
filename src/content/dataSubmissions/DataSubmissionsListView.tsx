@@ -104,18 +104,23 @@ const StyledTableCell = styled(TableCell)({
 const columns: Column[] = [
   {
     label: "Submission ID",
-    value: (a) => a._id,
-    field: "applicant.applicantName",
+    value: (a) => a.displayID,
+    field: "displayID",
+  },
+  {
+    label: "Submission Name",
+    value: (a) => a.name,
+    field: "name",
   },
   {
     label: "Submitter Name",
     value: (a) => a.submitterName,
-    field: "applicant.applicantName",
+    field: "submitterName",
   },
   {
     label: "Data Commons",
     value: (a) => a.dataCommons,
-    field: "applicant.applicantName",
+    field: "dataCommons",
   },
   {
     label: "Organization",
@@ -130,7 +135,7 @@ const columns: Column[] = [
   {
     label: "dbGaP ID",
     value: (a) => a.dbGapID,
-    field: "studyAbbreviation",
+    field: "dbGapID",
   },
   {
     label: "Status",
@@ -138,9 +143,14 @@ const columns: Column[] = [
     field: "status",
   },
   {
-    label: "Data Hub Concierge",
+    label: "Data Hub Primary Contact",
     value: (a) => a.concierge,
-    field: "applicant.applicantName",
+    field: "concierge",
+  },
+  {
+    label: "Created Date",
+    value: (a) => (a.createdAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
+    field: "createdAt",
   },
   {
     label: "Last Updated Date",
@@ -326,20 +336,21 @@ const ListingView: FC = () => {
    }
   ];
 
-  const tempData = { listDataSubmissions: { total: tempDataSubmissions.length, dataSubmissions: tempDataSubmissions } };
+  // const tempData = { listDataSubmissions: { total: tempDataSubmissions.length, dataSubmissions: tempDataSubmissions } };
 
-  const { data, loading, error } = { data: tempData, loading: false, error: "" };
+  // const { data, loading, error } = { data: tempData, loading: false, error: "" };
 
-  // const { data, loading, error } = useQuery<Response>(query, {
-  //   variables: {
-  //     first: perPage,
-  //     offset: page * perPage,
-  //     sortDirection: order.toUpperCase(),
-  //     orderBy: orderBy.field,
-  //   },
-  //   context: { clientName: 'backend' },
-  //   fetchPolicy: "no-cache",
-  // });
+  const { data, loading, error } = useQuery<Response>(query, {
+    variables: {
+      first: perPage,
+      offset: page * perPage,
+      sortDirection: order.toUpperCase(),
+      orderBy: orderBy.field,
+    },
+    context: { clientName: 'backend' },
+    fetchPolicy: "no-cache",
+  });
+  console.log(data);
 
   const [createDataSubmission] = useMutation<CreateDataSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGapID: string }>(CREATE_DATA_SUBMISSION, {
     context: { clientName: 'backend' },
@@ -503,7 +514,7 @@ const ListingView: FC = () => {
                   </TableCell>
                 </TableRow>
               )}
-              {data?.listDataSubmissions?.dataSubmissions?.map((d: T, index) => (
+              {data?.listDataSubmissions?.submissions?.map((d: T, index) => (
                 <TableRow sx={{ background: (index % 2 === 0 ? "#fff" : "#E3EEF9") }} tabIndex={-1} hover key={d["_id"]}>
                   {columns.map((col: Column, index) => (
                     <StyledTableCell sx={{ paddingLeft: (index === 0 ? "32px !important" : "") }} key={`${d["_id"]}_${col.label}`}>
