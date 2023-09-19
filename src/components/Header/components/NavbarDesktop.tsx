@@ -531,6 +531,13 @@ const NavBar = () => {
                 </Link>
               </span>
             )}
+            {(authData?.user?.role === "Admin") && (
+              <span className="dropdownItem">
+                <Link id="navbar-dropdown-item-name-organization-manage" to="/organizations" className="dropdownItem" onClick={() => setClickedTitle("")}>
+                  Manage Organizations
+                </Link>
+              </span>
+            )}
             <span
               id="navbar-dropdown-item-name-logout"
               role="button"

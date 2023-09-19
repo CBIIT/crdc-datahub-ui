@@ -7,7 +7,7 @@ import {
   FormHelperText,
   styled,
 } from "@mui/material";
-import Tooltip from "./Tooltip";
+import Tooltip from "../Tooltip";
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
