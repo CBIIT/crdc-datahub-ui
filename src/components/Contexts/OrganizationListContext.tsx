@@ -10,7 +10,7 @@ import { LIST_ORGS, ListOrgsResp } from '../../graphql';
 
 export type ContextState = {
   status: Status;
-  data: OrgInfo[];
+  data: Partial<Organization>[];
 };
 
 export enum Status {
@@ -36,6 +36,9 @@ Context.displayName = "OrganizationListContext";
 /**
  * Org Context Hook
  *
+ * Note:
+ * - The organization list contains only Active organizations
+ *
  * @see OrganizationProvider – Must be wrapped in a OrganizationProvider component
  * @see ContextState – Organization context state returned by the hook
  * @returns {ContextState} - Organization context
@@ -56,7 +59,7 @@ type ProviderProps = {
 };
 
 /**
- * Creates a form context for the given form ID
+ * Creates a organization context provider
  *
  * @see useOrganizationListContext
  * @param {ProviderProps} props
@@ -80,7 +83,10 @@ export const OrganizationProvider: FC<ProviderProps> = ({ preload, children } : 
       return;
     }
 
-    setState({ status: Status.LOADED, data: data?.listOrganizations });
+    setState({
+      status: Status.LOADED,
+      data: data?.listOrganizations?.filter((org: Organization) => org.status === 'Active') || [],
+    });
   }, [loading, error, data]);
 
   return (

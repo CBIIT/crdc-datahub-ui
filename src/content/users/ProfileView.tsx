@@ -263,7 +263,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
   useEffect(() => {
     if (orgFieldDisabled) {
-      const nciID = orgData?.find((org) => org.orgName === "NCI")?.orgID;
+      const nciID = orgData?.find((org) => org.name === "NCI")?._id;
       setValue("organization.orgID", nciID || "");
     }
   }, [orgFieldDisabled, user, orgData]);
@@ -392,7 +392,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         disabled={orgFieldDisabled}
                       >
                         <MenuItem value="">Select an organization</MenuItem>
-                        {orgData?.map((org) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
+                        {orgData?.map((org) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
                       </StyledSelect>
                     )}
                   />
