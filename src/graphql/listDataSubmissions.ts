@@ -25,7 +25,7 @@ export type Response = {
   listDataSubmissions: {
     total: number;
     submissions: Omit<DataSubmission, "_id" | "submitterID"
-    | "modelVersion" | "bucketName" | "rootPath">[];
+    | "modelVersion" | "bucketName" | "rootPath" | "history">[];
   };
 };
 
