@@ -150,7 +150,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<string>("");
 
-  const { handleSubmit, register, reset, watch, setValue, control } = useForm<FormInput>();
+  const { handleSubmit, register, reset, watch, setValue, control, formState } = useForm<FormInput>();
 
   const role = watch("role");
   const orgFieldDisabled = useMemo(() => !OrgRequiredRoles.includes(role) && role !== "User", [role]);
@@ -269,6 +269,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     const expectedOrg = orgData?.find((org) => org.orgName === OrgAssignmentMap[role])?.orgID;
     setValue("organization.orgID", expectedOrg || "");
   }, [orgFieldDisabled, role, user, orgData]);
+
+  useEffect(() => {
+    if (role === "User" && (formState?.dirtyFields as EditUserInput)?.role) {
+      setValue("organization.orgID", "");
+    }
+  }, [role]);
 
   if (!user) {
     return <SuspenseLoader />;
