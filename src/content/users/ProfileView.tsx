@@ -15,7 +15,7 @@ import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
 import GenericAlert from '../../components/GenericAlert';
 import SuspenseLoader from '../../components/SuspenseLoader';
-import { OrgRequiredRoles, Roles } from '../../config/AuthRoles';
+import { OrgAssignmentMap, OrgRequiredRoles, Roles } from '../../config/AuthRoles';
 import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { formatIDP, getEditableFields } from '../../utils';
 
@@ -150,7 +150,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<string>("");
 
-  const { handleSubmit, register, reset, watch, setValue, control } = useForm<FormInput>();
+  const { handleSubmit, register, reset, watch, setValue, control, formState } = useForm<FormInput>();
 
   const role = watch("role");
   const orgFieldDisabled = useMemo(() => !OrgRequiredRoles.includes(role) && role !== "User", [role]);
@@ -262,11 +262,19 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   }, [_id]);
 
   useEffect(() => {
-    if (orgFieldDisabled) {
-      const nciID = orgData?.find((org) => org.orgName === "NCI")?.orgID;
-      setValue("organization.orgID", nciID || "");
+    if (!orgFieldDisabled || !OrgAssignmentMap[role]) {
+      return;
     }
-  }, [orgFieldDisabled, user, orgData]);
+
+    const expectedOrg = orgData?.find((org) => org.orgName === OrgAssignmentMap[role])?.orgID;
+    setValue("organization.orgID", expectedOrg || "");
+  }, [orgFieldDisabled, role, user, orgData]);
+
+  useEffect(() => {
+    if (role === "User" && (formState?.dirtyFields as EditUserInput)?.role) {
+      setValue("organization.orgID", "");
+    }
+  }, [role]);
 
   if (!user) {
     return <SuspenseLoader />;
@@ -391,7 +399,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         MenuProps={{ disablePortal: true }}
                         disabled={orgFieldDisabled}
                       >
-                        <MenuItem value="">Select an organization</MenuItem>
+                        <MenuItem value="">{"<Not Set>"}</MenuItem>
                         {orgData?.map((org) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
                       </StyledSelect>
                     )}

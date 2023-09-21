@@ -1,7 +1,5 @@
 /**
- * Defines a list of valid roles that can be assigned to a user.
- *
- * NOTE: Must be updated with the User type.
+ * Defines a list of valid user roles.
  *
  * @type {User["role"][]}
  */
@@ -19,12 +17,26 @@ export const Roles: User["role"][] = [
 ];
 
 /**
- * Defines a list of roles in which an account
- * IS REQUIRED TO BE ASSIGNED TO AN ORGANIZATION.
+ * Defines a list of roles that are required to have an
+ * organization assigned to them. This unlocks the org dropdown.
  *
  * @type {User["role"][]}
  */
 export const OrgRequiredRoles: User["role"][] = [
   "Submitter",
   "Organization Owner",
+  "Data Commons POC",
 ];
+
+/**
+ * A map of the roles that are required to be pre-assigned
+ * to a specific organization in the database. This locks the org dropdown.
+ *
+ * NOTE: This depends on the organizations existing in the database.
+ */
+type RoleSubset = Extends<User["role"], "Admin" | "Data Curator" | "Federal Lead">;
+export const OrgAssignmentMap: Record<RoleSubset, Organization["name"]> = {
+  Admin: "FNL",
+  "Data Curator": "FNL",
+  "Federal Lead": "NCI",
+};
