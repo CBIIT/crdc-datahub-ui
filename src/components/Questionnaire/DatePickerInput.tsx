@@ -82,7 +82,7 @@ const StyledDatePicker = styled(DatePicker)(() => ({
     borderColor: "#6B7294",
   },
   "& .MuiInputBase-input::placeholder": {
-    color: "#929296",
+    color: "#87878C",
     fontWeight: 400,
     opacity: 1
   },
@@ -92,7 +92,7 @@ const StyledDatePicker = styled(DatePicker)(() => ({
   },
   // Target readOnly <input> inputs
   "& .Mui-readOnly.MuiInputBase-root, .Mui-readOnly .MuiInputBase-input": {
-    backgroundColor: "#D2DFE9",
+    backgroundColor: "#E5EEF4",
     color: "#083A50",
     cursor: "not-allowed",
     overflow: "hidden"

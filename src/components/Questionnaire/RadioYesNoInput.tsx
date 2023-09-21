@@ -77,7 +77,7 @@ const StyledRadio = styled(Radio)((props) => ({
     cursor: props.readOnly ? "not-allowed" : "initial",
   },
   "& .radio-icon": {
-    backgroundColor: props.readOnly ? "#D2DFE9 !important" : "initial",
+    backgroundColor: props.readOnly ? "#E5EEF4 !important" : "initial",
   }
 }));
 

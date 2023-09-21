@@ -303,12 +303,12 @@ const styles = () => ({
       padding: 0,
     },
     "& ::placeholder": {
-      color: "#929296",
+      color: "#87878C",
       fontWeight: 400,
       opacity: 1
     },
     "& .MuiAutocomplete-input:read-only": {
-      backgroundColor: "#D2DFE9",
+      backgroundColor: "#E5EEF4",
       color: "#083A50",
       cursor: "not-allowed",
     },
