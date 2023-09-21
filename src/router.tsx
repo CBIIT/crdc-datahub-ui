@@ -35,8 +35,6 @@ const Home = Loader(lazy(() => import('./content')));
 const Login = Loader(lazy(() => import('./content/login/Controller')));
 const Questionnaire = Loader(lazy(() => import('./content/questionnaire/Controller')));
 const Users = Loader(lazy(() => import('./content/users/Controller')));
-const OtherResources = Loader(lazy(() => import('./content/static/OtherResources')));
-const Search = Loader(lazy(() => import('./content/search')));
 
 // Status Pages
 const Status404 = Loader(lazy(() => import('./content/status/Page404')));
@@ -73,14 +71,6 @@ const routes: RouteObject[] = [
       {
         path: '/profile/:userId?',
         element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
-      },
-      {
-        path: '/sitesearch/:keyword',
-        element: <Search />
-      },
-      {
-        path: '/or',
-        element: <OtherResources />
       },
       {
         path: '*',
