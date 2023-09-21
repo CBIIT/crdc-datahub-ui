@@ -21,7 +21,7 @@ import useFormMode from './sections/hooks/useFormMode';
 import RejectFormDialog from '../../components/Questionnaire/RejectFormDialog';
 import ApproveFormDialog from '../../components/Questionnaire/ApproveFormDialog';
 import PageBanner from '../../components/PageBanner';
-import bannerPng from "../../assets/banner/banner_background.png";
+import bannerPng from "../../assets/banner/submission_banner.png";
 import GenericAlert from '../../components/GenericAlert';
 import { Status as AuthStatus, useAuthContext } from '../../components/Contexts/AuthContext';
 
