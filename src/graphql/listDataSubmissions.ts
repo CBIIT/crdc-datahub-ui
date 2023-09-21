@@ -5,7 +5,7 @@ export const query = gql`
     listDataSubmissions(first: $first, offset: $offset, orderBy: $orderBy, sortDirection: $sortDirection, organization: $organization, status: $status) {
       total
       submissions {
-        displayID
+        _id
         name
         submitterName
         organization
@@ -24,7 +24,7 @@ export const query = gql`
 export type Response = {
   listDataSubmissions: {
     total: number;
-    submissions: Omit<DataSubmission, "_id" | "submitterID"
+    submissions: Omit<DataSubmission, "submitterID"
     | "modelVersion" | "bucketName" | "rootPath" | "history">[];
   };
 };

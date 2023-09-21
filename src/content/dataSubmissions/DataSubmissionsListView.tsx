@@ -103,17 +103,12 @@ const StyledTableCell = styled(TableCell)({
 
 const columns: Column[] = [
   {
-    label: "Submission ID",
-    value: (a) => a.displayID,
-    field: "displayID",
-  },
-  {
     label: "Submission Name",
     value: (a) => a.name,
     field: "name",
   },
   {
-    label: "Submitter Name",
+    label: "Submitter",
     value: (a) => a.submitterName,
     field: "submitterName",
   },
@@ -143,7 +138,7 @@ const columns: Column[] = [
     field: "status",
   },
   {
-    label: "Data Hub Primary Contact",
+    label: "Primary Contact",
     value: (a) => a.concierge,
     field: "concierge",
   },
@@ -153,9 +148,10 @@ const columns: Column[] = [
     field: "createdAt",
   },
   {
-    label: "Last Updated Date",
+    label: "Last Updated",
     value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
     field: "updatedAt",
+    default: true,
   },
 ];
 
@@ -234,7 +230,7 @@ const CreateSubmissionDialog = styled(Dialog)`
     cursor: pointer;
   }
 `;
-const statusValues: DataSubmissionStatus[] = ["New", "In Progress", "Submitted", "Released", "Completed", "Archived"];
+const statusValues: string[] = ["New", "In Progress", "Submitted", "Released", "Completed", "Archived", "All"];
 const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, value: v }));
 /**
  * View for List of Questionnaire/Submissions
@@ -255,90 +251,11 @@ const ListingView: FC = () => {
   const [perPage, setPerPage] = useState<number>(10);
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [dataCommons, setDataCommons] = useState<string>(null);
-  const [study, setStudy] = useState<string>(null);
+  const [study, setStudy] = useState<string>("All");
   const [dbgapid, setDbgapid] = useState<string>(null);
   const [submissionName, setSubmissionName] = useState<string>(null);
   const [submissionCreatedSuccessfullyAlert, setSubmissionCreatedSuccessfullyAlert] = useState<boolean>(false);
   const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
-
-  const tempDataSubmissions: Array<T> = [
-   {
-   _id: "00001", // aka. submissionID
-   displayID: "00001",
-   name: "random name 1",
-   submitterID: "123123123",
-   submitterName: "john doe", // <first name> <last name>
-   organization: "random org",
-   dataCommons: "CDS",
-   modelVersion: "0.0.1", // # for future use
-   studyAbbreviation: "studyAbrv",
-   dbGapID: "2742-26", // # aka. phs number
-   bucketName: "todo: what is this", // # populated from organization
-   rootPath: "todo: no clue waht this is", // # a submission folder will be created under this path, default is / or "" meaning root folder
-   status: "New", // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
-   history: [{
-    status: "New", // # [New, In Progress, Submitted, In Review, Approved, Rejected]
-    reviewComment: "todo: ", // # if applicable
-    dateTime: "todo: date", // # YYYY-MM-DDTHH:MM:SS format
-    userID: "todo: ",
-  }],
-   concierge: "filler concierge", // # Concierge name
-   createdAt: "dunno", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-   updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-  },
-  {
-    _id: "00002", // aka. submissionID
-    displayID: "00001",
-    name: "random name 1",
-    submitterID: "123123123",
-    submitterName: "john doe", // <first name> <last name>
-    organization: "random org",
-    dataCommons: "CDS",
-    modelVersion: "0.0.1", // # for future use
-    studyAbbreviation: "studyAbrv",
-    dbGapID: "2742-26", // # aka. phs number
-    bucketName: "todo: what is this", // # populated from organization
-    rootPath: "todo: no clue waht this is", // # a submission folder will be created under this path, default is / or "" meaning root folder
-    status: "New", // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
-    history: [{
-     status: "New", // # [New, In Progress, Submitted, In Review, Approved, Rejected]
-     reviewComment: "todo: ", // # if applicable
-     dateTime: "todo: date", // # YYYY-MM-DDTHH:MM:SS format
-     userID: "todo: ",
-   }],
-    concierge: "filler concierge", // # Concierge name
-    createdAt: "dunno", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-    updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-   },
-      {
-    _id: "00003", // aka. submissionID
-    displayID: "00001",
-    name: "random name 1",
-    submitterID: "123123123",
-    submitterName: "john doe", // <first name> <last name>
-    organization: "random org",
-    dataCommons: "CDS",
-    modelVersion: "0.0.1", // # for future use
-    studyAbbreviation: "studyAbrv",
-    dbGapID: "2742-26", // # aka. phs number
-    bucketName: "todo: what is this", // # populated from organization
-    rootPath: "todo: no clue waht this is", // # a submission folder will be created under this path, default is / or "" meaning root folder
-    status: "New", // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
-    history: [{
-     status: "New", // # [New, In Progress, Submitted, In Review, Approved, Rejected]
-     reviewComment: "todo: ", // # if applicable
-     dateTime: "todo: date", // # YYYY-MM-DDTHH:MM:SS format
-     userID: "todo: ",
-   }],
-    concierge: "filler concierge", // # Concierge name
-    createdAt: "dunno", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-    updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-   }
-  ];
-
-  // const tempData = { listDataSubmissions: { total: tempDataSubmissions.length, dataSubmissions: tempDataSubmissions } };
-
-  // const { data, loading, error } = { data: tempData, loading: false, error: "" };
 
   const { data, loading, error } = useQuery<Response>(query, {
     variables: {
@@ -350,7 +267,6 @@ const ListingView: FC = () => {
     context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
-  console.log(data);
 
   const [createDataSubmission] = useMutation<CreateDataSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGapID: string }>(CREATE_DATA_SUBMISSION, {
     context: { clientName: 'backend' },
@@ -405,6 +321,7 @@ const ListingView: FC = () => {
       return;
     }
 
+    navigate(0);
     setSubmissionCreatedSuccessfullyAlert(true);
     setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
     setCreatingSubmission(false);
@@ -594,14 +511,14 @@ const ListingView: FC = () => {
           <form ref={createSubmissionDialogFormRef}>
             <TextInput value="Fill with organization" label="Organization" readOnly />
             <SelectInput
-              options={[{ label: "CDS", value: "CDS" }]}
+              options={[{ label: "CDS", value: "CDS" }, { label: "NIH", value: "NIH" }, { label: "All", value: "All" }]}
               label="Data Commons"
               required
               value={dataCommons}
               onChange={(value) => setDataCommons(value)}
             />
             <SelectInput
-              options={[{ label: "COAS1", value: "COAS1" }, { label: "test1", value: "test1" }, { label: "2", value: "2" }, { label: "3", value: "3" }, { label: "4", value: "4" }]}
+              options={[{ label: "All", value: "All" }, { label: "COAS1", value: "COAS1" }, { label: "test1", value: "test1" }, { label: "2", value: "2" }, { label: "3", value: "3" }, { label: "4", value: "4" }]}
               label="Study"
               required
               value={study}
