@@ -54,7 +54,7 @@ export default ({ type } : Props) => {
   // Show list of users to Admin or Org Owner
   if (!userId && isAdministrative) {
     return (
-      <MemorizedProvider preload>
+      <MemorizedProvider preload filterInactive>
         <ListView />
       </MemorizedProvider>
     );
@@ -62,7 +62,7 @@ export default ({ type } : Props) => {
 
   // Admin or Org Owner viewing a user's "Edit User" page or their own "Edit User" page
   return (
-    <MemorizedProvider preload={isAdministrative && type === "users"}>
+    <MemorizedProvider preload={isAdministrative && type === "users"} filterInactive>
       <ProfileView _id={userId} viewType={type} />
     </MemorizedProvider>
   );

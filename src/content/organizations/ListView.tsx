@@ -1,5 +1,4 @@
 import React, { FC, useEffect, useMemo, useState } from "react";
-import { useQuery } from '@apollo/client';
 import {
   Alert, Box, Button, CircularProgress,
   Container, FormControl, MenuItem,
@@ -11,8 +10,8 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from 'react-hook-form';
 import PageBanner from "../../components/PageBanner";
-import { LIST_ORGS, ListOrgsResp } from '../../graphql';
 import Tooltip from '../../components/Tooltip';
+import { useOrganizationListContext, Status } from '../../components/Contexts/OrganizationListContext';
 
 type T = Partial<Organization>;
 
@@ -193,6 +192,7 @@ const columns: Column[] = [
  */
 const ListingView: FC = () => {
   const { state } = useLocation();
+  const { status, data } = useOrganizationListContext();
 
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<Column>(columns.find((c) => c.default) || columns.find((c) => !!c.comparator));
@@ -205,11 +205,6 @@ const ListingView: FC = () => {
   const orgFilter = watch("organization");
   const studyFilter = watch("study");
   const statusFilter = watch("status");
-
-  const { data, loading, error } = useQuery<ListOrgsResp>(LIST_ORGS, {
-    context: { clientName: 'userService' },
-    fetchPolicy: "no-cache",
-  });
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
@@ -230,13 +225,13 @@ const ListingView: FC = () => {
   };
 
   useEffect(() => {
-    if (!data?.listOrganizations?.length) {
+    if (!data?.length) {
       setDataset([]);
       setCount(0);
       return;
     }
 
-    const sorted = data.listOrganizations
+    const sorted = data
       .filter((u: T) => (orgFilter && orgFilter.length > 0 ? u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1 : true))
       .filter((u: T) => (statusFilter && statusFilter !== "All" ? u.status === statusFilter : true))
       .filter((u: T) => {
@@ -268,7 +263,7 @@ const ListingView: FC = () => {
       <PageBanner title="Manage Organizations" subTitle="" padding="15px 0 0 25px" />
 
       <StyledContainer maxWidth="xl">
-        {(state?.error || error) && (
+        {(state?.error || status === Status.ERROR) && (
           <Alert sx={{ mb: 3, p: 2 }} severity="error">
             {state?.error || "An error occurred while loading the data."}
           </Alert>
@@ -324,7 +319,7 @@ const ListingView: FC = () => {
               </TableRow>
             </StyledTableHead>
             <TableBody>
-              {loading && (
+              {status === Status.LOADING && (
                 <TableRow>
                   <TableCell>
                     <Box
@@ -395,9 +390,9 @@ const ListingView: FC = () => {
                 || dataset.length === 0
                 || count <= (page + 1) * perPage
                 || emptyRows > 0
-                || loading,
+                || status === Status.LOADING,
             }}
-            backIconButtonProps={{ disabled: page === 0 || loading }}
+            backIconButtonProps={{ disabled: page === 0 || status === Status.LOADING }}
           />
         </StyledTableContainer>
       </StyledContainer>
