@@ -19,39 +19,27 @@ export default {
   // Ideal size for icon is 20x20 px
   link_sections: [
     {
-      title: 'About',
+      title: 'More Information',
       items: [
         {
-          text: 'About CRDC Data Hub',
-          link: 'https://datacommons.cancer.gov/',
+          text: 'Events',
+          link: 'https://www.cancer.gov/news-events/events',
         },
         {
-          text: 'About CRDC',
-          link: 'https://datacommons.cancer.gov/',
+          text: 'Data Access and Submission',
+          link: 'https://datacommons.cancer.gov/data',
         },
         {
-          text: 'Contact CRDC Hub',
-          link: 'mailto:CRDCSubmissions@nih.gov',
+          text: 'Data Release Updates',
+          link: 'https://datacommons.cancer.gov/data-release-updates',
         },
-      ],
-    }, {
-      title: 'Resources',
-      items: [
         {
-          text: 'Contact Us',
-          link: 'mailto:CRDCHelpDesk@nih.gov',
+          text: 'Support for Researchers',
+          link: 'https://datacommons.cancer.gov/more/support-researchers',
         },
         {
           text: 'Publications',
-          link: 'https://www.cancer.gov/publications',
-        },
-        {
-          text: 'Dictionary of Cancer Terms',
-          link: 'https://www.cancer.gov/publications/dictionaries/cancer-terms',
-        },
-        {
-          text: 'Find a Clinical Trial',
-          link: 'https://www.cancer.gov/policies/disclaimer',
+          link: 'https://datacommons.cancer.gov/selected-publications',
         },
       ],
     },
@@ -63,19 +51,15 @@ export default {
           link: 'https://www.cancer.gov/policies/accessibility',
         },
         {
-          text: 'FOIA',
-          link: 'https://www.cancer.gov/policies/foia',
-        },
-        {
-          text: 'Privacy & Security',
-          link: 'https://www.cancer.gov/policies/privacy-security',
-        },
-        {
           text: 'Disclaimer',
           link: 'https://www.cancer.gov/policies/disclaimer',
         },
         {
-          text: 'Vulnerability Disclosure',
+          text: 'FOIA',
+          link: 'https://www.cancer.gov/policies/foia',
+        },
+        {
+          text: 'HHS Vulnerability Disclosure',
           link: 'https://www.hhs.gov/vulnerability-disclosure-policy/index.html',
         },
       ],
@@ -118,7 +102,7 @@ export default {
     },
     {
       text: '1-800-4-CANCER',
-      link: 'tel:+18004226237',
+      link: 'tel:1-800-4-CANCER',
     },
     {
       text: 'NCIinfo@nih.gov',
@@ -135,12 +119,12 @@ export default {
       link: 'https://www.hhs.gov',
     },
     {
-      text: 'National Institutes of Health',
-      link: 'https://www.nih.gov',
-    },
-    {
       text: 'National Cancer Institute',
       link: 'https://www.cancer.gov',
+    },
+    {
+      text: 'National Institutes of Health',
+      link: 'https://www.nih.gov',
     },
     {
       text: 'USA.gov',

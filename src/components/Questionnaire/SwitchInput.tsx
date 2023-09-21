@@ -41,7 +41,7 @@ const GridStyled = styled(Grid)`
     background-color: white !important;
   }
   .readOnly .MuiSwitch-track {
-    background-color: #D2DFE9 !important;
+    background-color: #E5EEF4 !important;
   }
   .readOnly .MuiSwitch-input {
     cursor: not-allowed;

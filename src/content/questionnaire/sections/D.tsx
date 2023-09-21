@@ -34,7 +34,7 @@ const TableContainer = styled.div`
     border-radius: 10px;
     overflow: hidden;
     .readOnly {
-      background-color: #D2DFE9;
+      background-color: #E5EEF4;
       color: "#083A50";
       cursor: not-allowed;
     }

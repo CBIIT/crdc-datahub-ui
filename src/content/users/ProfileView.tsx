@@ -15,7 +15,7 @@ import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
 import GenericAlert from '../../components/GenericAlert';
 import SuspenseLoader from '../../components/SuspenseLoader';
-import { OrgRequiredRoles, Roles } from '../../config/AuthRoles';
+import { OrgAssignmentMap, OrgRequiredRoles, Roles } from '../../config/AuthRoles';
 import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { formatIDP, getEditableFields } from '../../utils';
 
@@ -25,6 +25,10 @@ type Props = {
 };
 
 type FormInput = UserInput | EditUserInput;
+
+const StyledContainer = styled(Container)({
+  marginBottom: "90px",
+});
 
 const StyledBanner = styled("div")({
   background: `url(${bannerSvg})`,
@@ -75,14 +79,14 @@ const StyledField = styled('div')({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-start',
+  fontSize: '18px',
 });
 
 const StyledLabel = styled('span')({
   color: '#356AAD',
   fontWeight: '700',
   marginRight: '20px',
-  fontSize: '16px',
-  minWidth: '113px',
+  minWidth: '127px',
 });
 
 const BaseInputStyling = {
@@ -92,7 +96,7 @@ const BaseInputStyling = {
   color: "#083A50",
   "& .MuiInputBase-input": {
     fontWeight: 400,
-    fontSize: "16px",
+    fontSize: "18px",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     padding: "10px",
     height: "20px",
@@ -104,6 +108,12 @@ const BaseInputStyling = {
     border: "1px solid #209D7D",
     boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
+  "& .MuiList-root": {
+    padding: 0,
+  },
+  "& .MuiMenuItem-root.Mui-selected": {
+    background: "#D5EDE5",
+  },
 };
 
 const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
@@ -111,7 +121,7 @@ const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
 const StyledSelect = styled(Select)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
-  margin: "50px 0",
+  marginTop: "50px",
 });
 
 const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, border: string }) => ({
@@ -127,8 +137,8 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
 }));
 
 const StyledTitleBox = styled(Box)({
-  marginTop: "-98px",
-  marginBottom: "100px",
+  marginTop: "-118px",
+  marginBottom: "120px",
   width: "100%",
 });
 
@@ -150,7 +160,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<string>("");
 
-  const { handleSubmit, register, reset, watch, setValue, control } = useForm<FormInput>();
+  const { handleSubmit, register, reset, watch, setValue, control, formState } = useForm<FormInput>();
 
   const role = watch("role");
   const orgFieldDisabled = useMemo(() => !OrgRequiredRoles.includes(role) && role !== "User", [role]);
@@ -262,11 +272,19 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   }, [_id]);
 
   useEffect(() => {
-    if (orgFieldDisabled) {
-      const nciID = orgData?.find((org) => org.name === "NCI")?._id;
-      setValue("organization.orgID", nciID || "");
+    if (!orgFieldDisabled || !OrgAssignmentMap[role]) {
+      return;
     }
-  }, [orgFieldDisabled, user, orgData]);
+
+    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[role])?._id;
+    setValue("organization.orgID", expectedOrg || "");
+  }, [orgFieldDisabled, role, user, orgData]);
+
+  useEffect(() => {
+    if (role === "User" && (formState?.dirtyFields as EditUserInput)?.role) {
+      setValue("organization.orgID", "");
+    }
+  }, [role]);
 
   if (!user) {
     return <SuspenseLoader />;
@@ -280,7 +298,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
         </span>
       </GenericAlert>
       <StyledBanner />
-      <Container maxWidth="lg">
+      <StyledContainer maxWidth="lg">
         <Stack
           direction="row"
           justifyContent="center"
@@ -391,7 +409,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         MenuProps={{ disablePortal: true }}
                         disabled={orgFieldDisabled}
                       >
-                        <MenuItem value="">Select an organization</MenuItem>
+                        <MenuItem value="">{"<Not Set>"}</MenuItem>
                         {orgData?.map((org) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
                       </StyledSelect>
                     )}
@@ -411,7 +429,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
             </form>
           </Stack>
         </Stack>
-      </Container>
+      </StyledContainer>
     </>
   );
 };
