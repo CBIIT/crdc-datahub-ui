@@ -112,7 +112,7 @@ const BaseInputStyling = {
     padding: 0,
   },
   "& .MuiMenuItem-root.Mui-selected": {
-    background: "#D5EDE5",
+    background: "#D5EDE5 !important",
   },
 };
 
