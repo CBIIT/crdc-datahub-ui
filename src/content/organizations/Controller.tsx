@@ -1,6 +1,7 @@
 import React from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { useAuthContext } from '../../components/Contexts/AuthContext';
+import { OrganizationProvider } from '../../components/Contexts/OrganizationListContext';
 import ListView from "./ListView";
 
 /**
@@ -22,5 +23,9 @@ export default () => {
     return <div>{orgId}</div>;
   }
 
-  return <ListView />;
+  return (
+    <OrganizationProvider preload>
+      <ListView />
+    </OrganizationProvider>
+  );
 };

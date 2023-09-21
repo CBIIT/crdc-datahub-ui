@@ -55,6 +55,7 @@ export const useOrganizationListContext = (): ContextState => {
 
 type ProviderProps = {
   preload: boolean;
+  filterInactive?: boolean;
   children: React.ReactNode;
 };
 
@@ -65,7 +66,7 @@ type ProviderProps = {
  * @param {ProviderProps} props
  * @returns {JSX.Element} Context provider
  */
-export const OrganizationProvider: FC<ProviderProps> = ({ preload, children } : ProviderProps) => {
+export const OrganizationProvider: FC<ProviderProps> = ({ preload, filterInactive, children } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
   const { data, loading, error } = preload ? useQuery<ListOrgsResp>(LIST_ORGS, {
@@ -85,7 +86,7 @@ export const OrganizationProvider: FC<ProviderProps> = ({ preload, children } : 
 
     setState({
       status: Status.LOADED,
-      data: data?.listOrganizations?.filter((org: Organization) => org.status === 'Active') || [],
+      data: data?.listOrganizations?.filter((org: Organization) => (filterInactive ? org.status === 'Active' : true)) || [],
     });
   }, [loading, error, data]);
 
