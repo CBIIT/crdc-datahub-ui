@@ -12,7 +12,7 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
 };
 
 export const InitialQuestionnaire: QuestionnaireData = {
-sections: [],
+  sections: [],
   pi: {
     firstName: "",
     lastName: "",
@@ -35,7 +35,8 @@ sections: [],
     name: "",
     abbreviation: "",
     description: "",
-    notApplicable: false
+    notApplicable: false,
+    isCustom: false
   },
   study: {
     name: "",
