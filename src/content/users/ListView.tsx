@@ -39,7 +39,8 @@ type FilterForm = {
 };
 
 const StyledContainer = styled(Container)({
-  marginTop: "-210px",
+  marginTop: "-180px",
+  paddingBottom: "90px",
 });
 
 const StyledTableContainer = styled(TableContainer)({
@@ -91,6 +92,12 @@ const StyledSelect = styled(Select)({
     WebkitTextFillColor: "#fff !important",
     cursor: "not-allowed",
   },
+  "& .MuiList-root": {
+    padding: "0 !important",
+  },
+  "& .MuiMenuItem-root.Mui-selected": {
+    background: "#D5EDE5 !important",
+  },
 });
 
 const StyledHeaderCell = styled(TableCell)({
@@ -133,6 +140,11 @@ const StyledActionButton = styled(Button)(
     fontSize: "16px",
   })
 );
+
+const StyledTablePagination = styled(TablePagination)<{ component: React.ElementType }>({
+  borderTop: "2px solid #083A50",
+  background: "#F5F7F8",
+});
 
 const columns: Column[] = [
   {
@@ -179,7 +191,7 @@ const columns: Column[] = [
     label: "Action",
     value: (a) => (
       <Link to={`/users/${a?.["_id"]}`}>
-        <StyledActionButton bg="#74D9E7" text="#156071" border="#84B4BE">
+        <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
       </Link>
@@ -268,7 +280,7 @@ const ListingView: FC = () => {
 
   return (
     <>
-      <PageBanner title="Manage Users" subTitle="" padding="15px 0 0 25px" />
+      <PageBanner title="Manage Users" subTitle="" padding="38px 0 0 25px" />
 
       <StyledContainer maxWidth="xl">
         {(state?.error || error) && (
@@ -289,6 +301,7 @@ const ListingView: FC = () => {
                   disabled={user.role === "Organization Owner"}
                   defaultValue="All"
                   value={field.value || "All"}
+                  MenuProps={{ disablePortal: true }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {orgData?.map((org: OrgInfo) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
@@ -306,6 +319,7 @@ const ListingView: FC = () => {
                   {...field}
                   defaultValue="All"
                   value={field.value || "All"}
+                  MenuProps={{ disablePortal: true }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
@@ -323,6 +337,7 @@ const ListingView: FC = () => {
                   {...field}
                   defaultValue="All"
                   value={field.value || "All"}
+                  MenuProps={{ disablePortal: true }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Active">Active</MenuItem>
@@ -410,7 +425,7 @@ const ListingView: FC = () => {
               )}
             </TableBody>
           </Table>
-          <TablePagination
+          <StyledTablePagination
             rowsPerPageOptions={[5, 10, 20, 50]}
             component="div"
             count={count}

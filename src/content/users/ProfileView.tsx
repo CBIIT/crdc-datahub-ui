@@ -26,6 +26,10 @@ type Props = {
 
 type FormInput = UserInput | EditUserInput;
 
+const StyledContainer = styled(Container)({
+  marginBottom: "90px",
+});
+
 const StyledBanner = styled("div")({
   background: `url(${bannerSvg})`,
   backgroundBlendMode: "luminosity, normal",
@@ -75,14 +79,14 @@ const StyledField = styled('div')({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-start',
+  fontSize: '18px',
 });
 
 const StyledLabel = styled('span')({
   color: '#356AAD',
   fontWeight: '700',
   marginRight: '20px',
-  fontSize: '16px',
-  minWidth: '113px',
+  minWidth: '127px',
 });
 
 const BaseInputStyling = {
@@ -92,7 +96,7 @@ const BaseInputStyling = {
   color: "#083A50",
   "& .MuiInputBase-input": {
     fontWeight: 400,
-    fontSize: "16px",
+    fontSize: "18px",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     padding: "10px",
     height: "20px",
@@ -104,6 +108,12 @@ const BaseInputStyling = {
     border: "1px solid #209D7D",
     boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
+  "& .MuiList-root": {
+    padding: 0,
+  },
+  "& .MuiMenuItem-root.Mui-selected": {
+    background: "#D5EDE5 !important",
+  },
 };
 
 const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
@@ -111,7 +121,7 @@ const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
 const StyledSelect = styled(Select)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
-  margin: "50px 0",
+  marginTop: "50px",
 });
 
 const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, border: string }) => ({
@@ -127,8 +137,8 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
 }));
 
 const StyledTitleBox = styled(Box)({
-  marginTop: "-98px",
-  marginBottom: "100px",
+  marginTop: "-118px",
+  marginBottom: "120px",
   width: "100%",
 });
 
@@ -288,7 +298,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
         </span>
       </GenericAlert>
       <StyledBanner />
-      <Container maxWidth="lg">
+      <StyledContainer maxWidth="lg">
         <Stack
           direction="row"
           justifyContent="center"
@@ -419,7 +429,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
             </form>
           </Stack>
         </Stack>
-      </Container>
+      </StyledContainer>
     </>
   );
 };
