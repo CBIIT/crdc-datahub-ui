@@ -477,6 +477,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       pattern="^[1-9]\d*$"
                       filter={filterPositiveIntegerString}
                       patternValidityMessage="Please enter a whole number greater than 0"
+                      maxLength={10}
+                      required
                     />
                   </TableCell>
                   <TableCell className="bottomRowMiddle">
