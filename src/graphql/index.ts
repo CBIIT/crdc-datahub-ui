@@ -45,3 +45,6 @@ export type { Response as EditOrgResp } from './editOrganization';
 
 export { query as LIST_CURATORS } from './listActiveCurators';
 export type { Response as ListCuratorsResp } from './listActiveCurators';
+
+export { query as LIST_APPROVED_STUDIES } from './listApprovedStudies';
+export type { Response as ListApprovedStudiesResp } from './listApprovedStudies';
