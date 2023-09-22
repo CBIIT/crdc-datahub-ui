@@ -110,7 +110,7 @@ const FooterLinksContainer = styled.div`
 
   .footItemSubtitle {
     margin-bottom: 10px;
-    max-width: 180px;
+    max-width: 290px;
   }
 
   .footItemLink {
