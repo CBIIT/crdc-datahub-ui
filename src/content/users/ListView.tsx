@@ -208,7 +208,7 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { data: orgData } = useOrganizationListContext();
 
-  const [order, setOrder] = useState<"asc" | "desc">("desc");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [orderBy, setOrderBy] = useState<Column>(columns.find((c) => c.default) || columns.find((c) => !!c.comparator));
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(20);
