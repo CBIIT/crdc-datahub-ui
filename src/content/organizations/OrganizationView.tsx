@@ -19,7 +19,12 @@ type Props = {
   _id: Organization["_id"] | "new"; // PREP for CRDCDH-402
 };
 
-type FormInput = EditOrganizationInput;
+type FormInput = Omit<EditOrganizationInput, "studies"> & {
+  /**
+   * Select boxes cannot contain objects, using `studyAbbreviation` instead
+   */
+  studies: ApprovedStudy["studyAbbreviation"][];
+};
 
 const StyledContainer = styled(Container)({
   marginBottom: "90px",
@@ -52,20 +57,6 @@ const StyledProfileIcon = styled("div")({
     zIndex: 2,
     filter: "drop-shadow(10px 13px 9px rgba(0, 0, 0, 0.35))",
   },
-});
-
-const StyledHeader = styled("div")({
-  textAlign: "left",
-  width: "100%",
-  marginTop: "-34px !important",
-  marginBottom: "41px !important",
-});
-
-const StyledHeaderText = styled(Typography)({
-  fontSize: "26px",
-  lineHeight: "35px",
-  color: "#083A50",
-  fontWeight: 700
 });
 
 const StyledField = styled('div')({
@@ -182,11 +173,16 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
 
+    const studyAbbrToName: { [studyAbbreviation: string]: Pick<ApprovedStudy, "studyName" | "studyAbbreviation"> } = {};
+    approvedStudies?.listApprovedStudies?.forEach(({ studyName, studyAbbreviation }) => {
+      studyAbbrToName[studyAbbreviation] = { studyName, studyAbbreviation };
+    });
+
     const { data: d, errors } = await editOrganization({
       variables: {
         orgID: _id,
         ...data,
-        studies: null, // TODO: Map study _id to approvedStudies with { studyName, studyAbbreviation }
+        studies: data.studies.map((abbr) => (studyAbbrToName[abbr])).filter((s) => !!s?.studyName && !!s?.studyAbbreviation),
       }
     }).catch((e) => ({ errors: e?.message, data: null }));
     setSaving(false);
@@ -224,12 +220,15 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       const { data, error } = await getOrganization({ variables: { orgID: _id } });
 
       if (error || !data?.getOrganization) {
-        navigate("/organizations", { state: { error: "Unable to fetch user data" } });
+        navigate("/organizations", { state: { error: "Unable to fetch organization" } });
         return;
       }
 
       setOrganization(data?.getOrganization);
-      setFormValues(data?.getOrganization);
+      setFormValues({
+        ...data?.getOrganization,
+        studies: data?.getOrganization?.studies?.filter((s) => !!s?.studyName && !!s?.studyAbbreviation).map(({ studyAbbreviation }) => studyAbbreviation) || [],
+      });
     })();
   }, [_id]);
 
@@ -270,11 +269,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 Organization
               </StyledPageTitle>
             </StyledTitleBox>
-            <StyledHeader>
-              <StyledHeaderText variant="h1">
-                {organization.name}
-              </StyledHeaderText>
-            </StyledHeader>
 
             <form onSubmit={handleSubmit(onSubmit)}>
               {error && (
@@ -284,7 +278,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               )}
 
               <StyledField>
-                {/* TODO: "name" or "organization"? */}
                 <StyledLabel>Organization</StyledLabel>
                 <StyledTextField {...register("name", { required: true })} size="small" required />
               </StyledField>
@@ -304,7 +297,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       >
                         <MenuItem value="">{"<Not Set>"}</MenuItem>
                         {activeCurators?.listActiveCurators?.map(({ userID, firstName, lastName }) => (
-                          <MenuItem value={userID}>{(`${firstName} ${lastName}`).trim()}</MenuItem>
+                          <MenuItem key={userID} value={userID}>{(`${firstName} ${lastName}`).trim()}</MenuItem>
                         ))}
                       </StyledSelect>
                     )}
@@ -326,7 +319,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       multiple
                     >
                       {approvedStudies?.listApprovedStudies?.map(({ studyName, studyAbbreviation }) => (
-                        <MenuItem value={_id}>
+                        <MenuItem key={studyAbbreviation} value={studyAbbreviation}>
                           {studyName}
                           {" ("}
                           {studyAbbreviation}
