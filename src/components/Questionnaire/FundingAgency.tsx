@@ -42,7 +42,7 @@ const FundingAgency: FC<Props> = ({
     <GridContainer container>
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <Autocomplete
-          id="section-b-funding-agency-organization"
+          id={idPrefix.concat(`funding-agency-${index}-organization`)}
           label="Funding Agency/Organization"
           value={agency}
           name={`study[funding][${index}][agency]`}
@@ -55,7 +55,7 @@ const FundingAgency: FC<Props> = ({
           readOnly={readOnly}
         />
         <TextInput
-          id="section-b-grant-or-contract-numbers"
+          id={idPrefix.concat(`funding-agency-${index}-grant-or-contract-numbers`)}
           label="Grant or Contract Number(s)"
           name={`study[funding][${index}][grantNumbers]`}
           value={grantNumbers}
@@ -72,7 +72,7 @@ const FundingAgency: FC<Props> = ({
           readOnly={readOnly}
         />
         <TextInput
-          id="section-b-nci-program-officer"
+          id={idPrefix.concat(`funding-agency-${index}-nci-program-officer`)}
           label="NCI Program Officer"
           name={`study[funding][${index}][nciProgramOfficer]`}
           value={nciProgramOfficer}
@@ -81,7 +81,7 @@ const FundingAgency: FC<Props> = ({
           readOnly={readOnly}
         />
         <TextInput
-          id="section-b-nci-genomic-program-administrator"
+          id={idPrefix.concat(`funding-agency-${index}-nci-genomic-program-administrator`)}
           label="NCI Genomic Program Administrator"
           name={`study[funding][${index}][nciGPA]`}
           value={nciGPA}
@@ -92,7 +92,7 @@ const FundingAgency: FC<Props> = ({
       <Grid item xs={12}>
         {index !== 0 ? (
           <AddRemoveButton
-            id={idPrefix.concat(`funding-${index}-remove-agency-button`)}
+            id={idPrefix.concat(`funding-agency-${index}-remove-agency-button`)}
             label="Remove Agency"
             placement="start"
             onClick={onDelete}
