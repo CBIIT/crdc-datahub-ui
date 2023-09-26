@@ -8,7 +8,10 @@ export const query = gql`
         _id
         name
         submitterName
-        organization
+        organization {
+          _id
+          name
+        }
         dataCommons
         studyAbbreviation
         dbGapID

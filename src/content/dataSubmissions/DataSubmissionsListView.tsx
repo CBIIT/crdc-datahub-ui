@@ -119,7 +119,7 @@ const columns: Column[] = [
   },
   {
     label: "Organization",
-    value: (a) => a.organization,
+    value: (a) => a.organization.name,
     field: "organization.name",
   },
   {
@@ -230,7 +230,7 @@ const CreateSubmissionDialog = styled(Dialog)`
     cursor: pointer;
   }
 `;
-const statusValues: string[] = ["New", "In Progress", "Submitted", "Released", "Completed", "Archived", "All"];
+const statusValues: string[] = ["All", "New", "In Progress", "Submitted", "Released", "Completed", "Archived"];
 const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, value: v }));
 /**
  * View for List of Questionnaire/Submissions
@@ -247,12 +247,18 @@ const ListingView: FC = () => {
     columns.find((c) => c.default)
     || columns.find((c) => c.field)
   );
+
+  // Only org owners/submitters with organizations assigned can create data submissions
+  const canCreateDataSubmission = ((user?.role === "Organization Owner" || user?.role === "Submitter") && (user?.organization !== null && user.organization.orgID !== null));
+
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [dataCommons, setDataCommons] = useState<string>(null);
   const [study, setStudy] = useState<string>("All");
   const [dbgapid, setDbgapid] = useState<string>(null);
+  const [organizationFilter, setOrganizationFilter] = useState<string>(canCreateDataSubmission ? user.organization.orgName : "All");
+  const [statusFilter, setStatusFilter] = useState<string>("All");
   const [submissionName, setSubmissionName] = useState<string>(null);
   const [submissionCreatedSuccessfullyAlert, setSubmissionCreatedSuccessfullyAlert] = useState<boolean>(false);
   const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
@@ -263,6 +269,8 @@ const ListingView: FC = () => {
       offset: page * perPage,
       sortDirection: order.toUpperCase(),
       orderBy: orderBy.field,
+      organization: organizationFilter,
+      status: statusFilter,
     },
     context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
@@ -326,6 +334,7 @@ const ListingView: FC = () => {
     setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
     setCreatingSubmission(false);
   };
+
   return (
     <>
       <GenericAlert open={submissionCreatedSuccessfullyAlert}>
@@ -340,14 +349,15 @@ const ListingView: FC = () => {
         body={(
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}
-            {(user?.role === "Organization Owner" || user?.role === "Submitter") && (
+            {/* Create a submission only available to org owners and submitters that have organizations assigned */}
+            {canCreateDataSubmission && (
               <StyledButton
                 type="button"
                 onClick={onCreateSubmissionButtonClick}
                 loading={creatingSubmission}
                 sx={{ bottom: "30px", right: "50px" }}
               >
-                Start a Data Submission
+                Create a Data Submission
               </StyledButton>
             )}
           </StyledBannerBody>
@@ -372,10 +382,11 @@ const ListingView: FC = () => {
                       sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
                       id="data-submissions-table-organization"
                       label=""
-                      options={[{ label: "CBIIT", value: "CBIIT" }, { label: "NIH", value: "NIH" }]}
-                      value=""
+                      options={[{ label: "All", value: "All" }, { label: "test org", value: "test org" }, { label: "CBIIT", value: "CBIIT" }, { label: "NIH", value: "NIH" }, { label: "NCI", value: "NCI" }]}
+                      value={organizationFilter}
                       placeholder="Select an organization"
-                      readOnly={false}
+                      readOnly={canCreateDataSubmission}
+                      onChange={(newOrganization) => setOrganizationFilter(newOrganization)}
                     />
                     Status
                     <SelectInput
@@ -383,9 +394,10 @@ const ListingView: FC = () => {
                       id="data-submissions-table-status"
                       label=""
                       options={statusOptionArray}
-                      value=""
+                      value={statusFilter}
                       placeholder="Select a status"
                       readOnly={false}
+                      onChange={(newStatus) => setStatusFilter(newStatus)}
                     />
                   </OrganizationStatusContainer>
                 </TableCell>
@@ -509,16 +521,16 @@ const ListingView: FC = () => {
         </div>
         <div className="inputs-container">
           <form ref={createSubmissionDialogFormRef}>
-            <TextInput value="Fill with organization" label="Organization" readOnly />
+            <TextInput value={user.organization.orgName} label="Organization" readOnly />
             <SelectInput
-              options={[{ label: "CDS", value: "CDS" }, { label: "NIH", value: "NIH" }, { label: "All", value: "All" }]}
+              options={[{ label: "CDS", value: "CDS" }]}
               label="Data Commons"
               required
               value={dataCommons}
               onChange={(value) => setDataCommons(value)}
             />
             <SelectInput
-              options={[{ label: "All", value: "All" }, { label: "COAS1", value: "COAS1" }, { label: "test1", value: "test1" }, { label: "2", value: "2" }, { label: "3", value: "3" }, { label: "4", value: "4" }]}
+              options={[{ label: "COAS1", value: "COAS1" }, { label: "test1", value: "test1" }, { label: "2", value: "2" }, { label: "3", value: "3" }, { label: "4", value: "4" }]}
               label="Study"
               required
               value={study}

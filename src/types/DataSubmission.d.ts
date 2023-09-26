@@ -1,9 +1,14 @@
+type Organization = {
+  _id: string;
+  name: string;
+};
+
 type DataSubmission = {
     _id: string; // aka. submissionID
     name: string;
     submitterID: string;
     submitterName: string; // <first name> <last name>
-    organization: string;
+    organization: Organization;
     dataCommons: string;
     modelVersion: string; // # for future use
     studyAbbreviation: string;
@@ -37,9 +42,4 @@ type Applicant = {
   applicantID: string;
   applicantName: string;
   applicantEmail: string;
-};
-
-type Organization = {
-  _id: string;
-  name: string;
 };
