@@ -33,7 +33,7 @@ const userLogout = async (): Promise<boolean> => {
  * @param {string} authCode Authorization code used to verify login
  * @returns Promise that resolves to true if successful, false if not
  */
-const userLogin = async (authCode: string): Promise<boolean> => {
+const userLogin = async (authCode: string): Promise<[boolean, string]> => {
   const options = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -48,9 +48,9 @@ const userLogin = async (authCode: string): Promise<boolean> => {
     const data = await fetch(`${AUTH_SERVICE_URL}/login`, options);
     const { timeout, error } = await data.json();
 
-    return typeof timeout === "number" && typeof error === "undefined";
+    return [typeof timeout === "number" && typeof error === "undefined", error];
   } catch (e) {
-    return false;
+    return [false, undefined];
   }
 };
 
@@ -171,7 +171,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
       // User came from NIH SSO, login to AuthN
       const searchParams = new URLSearchParams(document.location.search);
       const authCode = searchParams.get('code');
-      if (authCode && await userLogin(authCode)) {
+      if (authCode && await userLogin(authCode)[0]) {
         const { data, error } = await getMyUser();
         if (error || !data?.getMyUser) {
           setState({ ...initialState, status: Status.LOADED });
@@ -188,7 +188,14 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
       }
 
       // User is not logged in or login failed
-      setState({ ...initialState, status: Status.LOADED });
+      if (authCode) {
+        // Login Failed
+        const userLoginResult = await userLogin(authCode);
+        setState({ ...initialState, error: userLoginResult[1], status: Status.LOADED });
+      } else {
+        // User is not logged in
+        setState({ ...initialState, status: Status.LOADED });
+      }
     })();
   }, []);
 
