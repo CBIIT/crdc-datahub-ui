@@ -21,7 +21,7 @@ import useFormMode from './sections/hooks/useFormMode';
 import RejectFormDialog from '../../components/Questionnaire/RejectFormDialog';
 import ApproveFormDialog from '../../components/Questionnaire/ApproveFormDialog';
 import PageBanner from '../../components/PageBanner';
-import bannerPng from "../../assets/banner/banner_background.png";
+import bannerPng from "../../assets/banner/submission_banner.png";
 import GenericAlert from '../../components/GenericAlert';
 import { Status as AuthStatus, useAuthContext } from '../../components/Contexts/AuthContext';
 
@@ -29,6 +29,7 @@ const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
     padding: 0,
     minHeight: "300px",
+    scrollMarginTop: "-60px",
   }
 }));
 
@@ -177,7 +178,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   useEffect(() => {
     const newSection = validateSection(section) ? section : "A";
     setActiveSection(newSection);
-    if (lastSectionRef.current) formContentRef.current?.scrollIntoView();
     lastSectionRef.current = newSection;
   }, [section]);
 
@@ -506,7 +506,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         bannerSrc={bannerPng}
       />
 
-      <StyledContainer maxWidth="xl">
+      <StyledContainer ref={formContentRef} maxWidth="xl">
         <StyledContentWrapper direction="row" justifyContent="center">
           <StyledSidebar
             direction="row"
@@ -517,7 +517,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
             <StyledDivider orientation="vertical" />
           </StyledSidebar>
 
-          <Stack ref={formContentRef} className={classes.content} direction="column" spacing={5}>
+          <Stack className={classes.content} direction="column" spacing={5}>
             <StatusBar />
 
             {hasError && <StyledAlert ref={errorAlertRef} severity="error">Oops! An error occurred. Please refresh the page or try again later.</StyledAlert>}
@@ -658,16 +658,16 @@ const styles = () => ({
       lineHeight: "20.14px",
       borderRadius: "8px",
       borderColor: "#828282",
-      background: "#949494",
+      background: "#737373",
       color: "inherit",
       textTransform: "none",
     },
     "& button:disabled": {
-      background: "#D9DEE4",
+      backgroundColor: "#CDCDCD",
     },
     "& button:hover:not([disabled])": {
       color: "#fff",
-      background: "#2A2A2A",
+      background: "#5E5E5E",
     },
     "& a": {
       color: "inherit",

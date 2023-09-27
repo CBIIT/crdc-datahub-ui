@@ -68,7 +68,7 @@ const StyledFormLabel = styled("label")(() => ({
 }));
 
 const StyledAsterisk = styled("span")(() => ({
-  marginRight: "4px",
+  marginLeft: "2px",
   color: "#D54309",
 }));
 
@@ -77,7 +77,7 @@ const StyledRadio = styled(Radio)((props) => ({
     cursor: props.readOnly ? "not-allowed" : "initial",
   },
   "& .radio-icon": {
-    backgroundColor: props.readOnly ? "#D9DEE4 !important" : "initial",
+    backgroundColor: props.readOnly ? "#E5EEF4 !important" : "initial",
   }
 }));
 
@@ -153,8 +153,8 @@ const RadioYesNoInput: FC<Props> = ({
     <GridStyled md={gridWidth || 6} xs={12} item $containerWidth={containerWidth}>
       <FormControl className="formControl" error={error}>
         <StyledFormLabel>
-          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
           {label}
+          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
         </StyledFormLabel>
         <RadioGroup
           name={name}

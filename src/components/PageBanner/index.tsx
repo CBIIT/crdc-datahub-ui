@@ -3,7 +3,7 @@ import { Container, styled } from '@mui/material';
 import { Helmet } from "react-helmet-async";
 
 const StyledBanner = styled("div")(({ bannerSrc } : { bannerSrc: string }) => ({
-  background: `url(${bannerSrc})`,
+  background: bannerSrc ? `url(${bannerSrc})` : "transparent",
   backgroundBlendMode: "luminosity, normal",
   backgroundSize: "cover",
   backgroundPosition: "center",
@@ -57,7 +57,7 @@ export type Props = {
   subTitle: string;
   padding?: string;
   body?: string | React.ReactNode;
-  bannerSrc: string;
+  bannerSrc?: string;
 };
 
 /**

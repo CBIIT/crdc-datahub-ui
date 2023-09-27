@@ -60,7 +60,7 @@ export type ContextState = {
   user: User;
   error?: string;
   logout?: () => Promise<boolean>;
-  setData?: (data: UserInput) => void;
+  setData?: (data: Partial<User>) => void;
 };
 
 export enum Status {
@@ -142,10 +142,16 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
     return status;
   };
 
-  const setData = (data: UserInput): void => {
+  const setData = (data: Partial<User>): void => {
     if (!state.isLoggedIn) return;
 
-    setState((prev) => ({ ...prev, user: { ...prev.user, ...data } }));
+    // Remove any nested objects that are null
+    const newUser = { ...state.user, ...data };
+    if (!data?.organization) {
+      delete newUser.organization;
+    }
+
+    setState((prev) => ({ ...prev, user: newUser }));
   };
 
   useEffect(() => {

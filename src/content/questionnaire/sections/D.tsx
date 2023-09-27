@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from "react";
+import dayjs from "dayjs";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import styled from 'styled-components';
@@ -33,7 +34,8 @@ const TableContainer = styled.div`
     border-radius: 10px;
     overflow: hidden;
     .readOnly {
-      background-color: #D9DEE4;
+      background-color: #E5EEF4;
+      color: "#083A50";
       cursor: not-allowed;
     }
     .MuiTableContainer-root {
@@ -113,11 +115,19 @@ const TableContainer = styled.div`
     }
     .asterisk {
       color: #D54309;
-      margin-left: 6px;
+      margin-left: 2px;
     }
     .MuiButton-startIcon {
       margin: 0 !important;
     }
+`;
+
+const InvisibleInput = styled.input`
+  height: 0;
+  width: 0;
+  padding: 0;
+  border: 0;
+  display: block;
 `;
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
@@ -126,7 +136,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { D: SectionDMetadata } = SectionMetadata;
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
+  const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
+  const [dataTypesErrorMsg, setDataTypesErrorMsg] = useState<string>("");
+  const dataTypesInputRef = useRef<HTMLInputElement>(null);
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
 
@@ -153,10 +166,18 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const combinedData = { ...cloneDeep(data), ...formObject };
     // Remove empty strings from dataType arrays
     combinedData.dataTypes = combinedData.dataTypes.filter((str) => str !== "");
-    combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter((str) => str !== "");
+    // Handle validity for at dataTypes section
+    if (combinedData.dataTypes.length !== 0 || combinedData.otherDataTypes !== "") {
+      setDataTypesErrorMsg("");
+      dataTypesInputRef.current.setCustomValidity("");
+    } else {
+      setDataTypesErrorMsg("At least one data type is required");
+      dataTypesInputRef.current.setCustomValidity("At least one data type is required");
+    }
 
-    combinedData.targetedReleaseDate = formObject.targetedReleaseDate === "MM/DD/YYYY" ? "" : formObject.targetedReleaseDate;
-    combinedData.targetedSubmissionDate = formObject.targetedSubmissionDate === "MM/DD/YYYY" ? "" : formObject.targetedSubmissionDate;
+    combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter((str) => str !== "");
+    combinedData.targetedReleaseDate = dayjs(formObject.targetedReleaseDate).isValid() ? formObject.targetedReleaseDate : "";
+    combinedData.targetedSubmissionDate = dayjs(formObject.targetedSubmissionDate).isValid() ? formObject.targetedSubmissionDate : "";
     if (formObject.imagingDataDeIdentified === "true") {
       combinedData.imagingDataDeIdentified = true;
     } else if (formObject.imagingDataDeIdentified === "false") {
@@ -165,7 +186,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     // Override empty file array
     combinedData.files = formObject.files;
     // Overwrite number type. If empty string, convert to null.
-    combinedData.files.map((file) => file.count = parseInt(file.count, 10) || null);
+    combinedData.files.map((file) => file.count = parseInt(file.count.toString(), 10) || null);
 
     return { ref: formRef, data: combinedData };
   };
@@ -189,10 +210,15 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setDataTypes(updatedDataTypes);
   };
 
+  useEffect(() => {
+    formContainerRef.current?.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <FormContainer
-      description={SectionOption.title}
+      ref={formContainerRef}
       formRef={formRef}
+      description={SectionOption.title}
     >
       {/* Data Delivery and Release Dates Section */}
       <SectionGroup
@@ -203,7 +229,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Targeted Data Submission Delivery Date"
           name="targetedSubmissionDate"
           tooltipText="The date that transfer of data from the submitter to DataHub is expected to begin."
-          errorText="Please enter a valid date"
           initialValue={data.targetedSubmissionDate}
           gridWidth={6}
           disablePast
@@ -214,7 +239,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Expected Publication Date"
           name="targetedReleaseDate"
           tooltipText="The date that submitters would like their data to be released to the public."
-          errorText="Please enter a valid date"
           initialValue={data.targetedReleaseDate}
           gridWidth={6}
           disablePast
@@ -225,12 +249,14 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       <SectionGroup
         title={SectionDMetadata.sections.DATA_TYPES.title}
         description={SectionDMetadata.sections.DATA_TYPES.description}
+        required
+        error={dataTypesErrorMsg}
       >
+        <InvisibleInput ref={dataTypesInputRef} />
         <SwitchInput
           id="section-d-clinical-trial"
           label="Clinical Trial"
           name="dataTypes[]"
-          required
           graphQLValue="clinicalTrial"
           value={dataTypes.includes("clinicalTrial")}
           tooltipText="A research study in which one or more subjects are prospectively assigned to one or more interventions (which may include placebo or other control) to evaluate the effects of those interventions on health-related biomedical outcomes."
@@ -241,7 +267,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Immunology"
           name="dataTypes[]"
           graphQLValue="immunology"
-          required
           value={dataTypes.includes("immunology")}
           tooltipText="Data from experiments studying the function of a body's immune system.  Experiments that focus primarily on genomic or imaging approaches should be classified in those areas as well."
           readOnly={readOnlyInputs}
@@ -251,7 +276,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Genomics"
           name="dataTypes[]"
           graphQLValue="genomics"
-          required
           value={dataTypes.includes("genomics")}
           tooltipText="The branch of molecular biology concerned with the structure, function, evolution, and mapping of genomes.  Includes data from DNA sequencing, RNA sequencing, mutational analysis, and other experiments focused on genomes."
           readOnly={readOnlyInputs}
@@ -261,7 +285,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Proteomics"
           graphQLValue="proteomics"
           name="dataTypes[]"
-          required
           value={dataTypes.includes("proteomics")}
           tooltipText="Data from the study of the large scale expression and use of proteins."
           readOnly={readOnlyInputs}
@@ -271,7 +294,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Imaging"
           name="dataTypes[]"
           graphQLValue="imaging"
-          required
           value={dataTypes.includes("imaging")}
           onChange={(e, checked) => handleDataTypesChange(checked, "imaging")}
           toggleContent={(
@@ -296,7 +318,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Epidemiologic or Cohort"
           graphQLValue="epidemiologicOrCohort"
           name="dataTypes[]"
-          required
           value={dataTypes.includes("epidemiologicOrCohort")}
           tooltipText="Data related to the incidence and distribution of disease across populations."
           readOnly={readOnlyInputs}
@@ -456,6 +477,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       pattern="^[1-9]\d*$"
                       filter={filterPositiveIntegerString}
                       patternValidityMessage="Please enter a whole number greater than 0"
+                      maxLength={10}
+                      required
                     />
                   </TableCell>
                   <TableCell className="bottomRowMiddle">
@@ -476,7 +499,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                           placement="start"
                           onClick={() => removeFileDataType(fileData.key)}
                           startIcon={<RemoveCircleIcon />}
-                          iconColor="#F18E8E"
+                          iconColor="#E74040"
                           disabled={readOnlyInputs || status === FormStatus.SAVING}
                           sx={{ minWidth: "0px !important" }}
                         />

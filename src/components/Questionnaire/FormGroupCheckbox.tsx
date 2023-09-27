@@ -24,7 +24,7 @@ const StyledFormLabel = styled("label")(({ theme }) => ({
 
 const StyledAsterisk = styled("span")(() => ({
   color: "#D54309",
-  marginLeft: "6px",
+  marginLeft: "2px",
 }));
 
 const StyledFormHelperText = styled(FormHelperText)(() => ({

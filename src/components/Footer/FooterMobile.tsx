@@ -43,6 +43,7 @@ const FooterEmailSignupContainer = styled.form`
     height: 47px;
     font-size: 25px;
     padding-left: 8px;
+    margin-top: 4px;
   }
 
   .signUpInputBox:focus {
@@ -103,7 +104,7 @@ const FooterLinksContainer = styled.div`
 
   .footItemSubtitle {
     margin-bottom: 10px;
-    max-width: 180px;
+    max-width: 290px;
   }
 
   .footItemLink {
@@ -298,6 +299,11 @@ const BottomFooter = styled.div`
   }
 `;
 
+const StyledAsterisk = styled("span")(() => ({
+  color: "#D54309",
+  marginLeft: "2px",
+}));
+
 const FooterMobile = () => {
   const [errorClass, setErrorClass] = useState("");
   const [emailContent, setEmailContent] = useState("");
@@ -367,7 +373,8 @@ const FooterMobile = () => {
             <div className={errorClass !== "" ? 'ErrorBorder' : null}>
               <div className="enterTitle">
                 <label htmlFor="email">
-                  Enter your email address
+                  Sign up for the newsletter
+                  <StyledAsterisk>*</StyledAsterisk>
                   <div className={errorClass}>
                     {errorClass !== "" ? <div className="enterTitle">Enter a valid email address</div> : null}
                     <input id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />

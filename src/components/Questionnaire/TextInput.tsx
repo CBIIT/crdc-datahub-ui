@@ -155,7 +155,7 @@ const styles = (theme) => ({
   },
   asterisk: {
     color: "#D54309",
-    marginLeft: "6px",
+    marginLeft: "2px",
   },
   input: {
     borderRadius: "8px",
@@ -184,7 +184,7 @@ const styles = (theme) => ({
       boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
     },
     "& ::placeholder": {
-      color: "#929296",
+      color: "#87878C",
       fontWeight: 400,
       opacity: 1
     },
@@ -194,13 +194,15 @@ const styles = (theme) => ({
     },
     // Target readOnly <textarea> inputs
     "&.MuiInputBase-multiline.Mui-readOnly": {
-      backgroundColor: "#D9DEE4",
+      backgroundColor: "#E5EEF4",
+      color: "#083A50",
       cursor: "not-allowed",
       borderRadius: "8px",
     },
     // Target readOnly <input> inputs
     "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: "#D9DEE4",
+      backgroundColor: "#E5EEF4",
+      color: "#083A50",
       cursor: "not-allowed",
       borderRadius: "8px",
     },

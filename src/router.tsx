@@ -20,11 +20,12 @@ type RequireAuthProps = {
 const RequireAuth: FC<RequireAuthProps> = ({ component, redirectPath, redirectName }: RequireAuthProps) => {
   const authenticated = useAuthContext().isLoggedIn;
   const navigate = useNavigate();
+
   useEffect(() => {
     if (!authenticated) {
       navigate("/", { state: { path: redirectPath, name: redirectName } });
     }
-  }, []);
+  }, [authenticated]);
 
   return component;
 };
@@ -35,8 +36,6 @@ const Login = Loader(lazy(() => import('./content/login/Controller')));
 const Questionnaire = Loader(lazy(() => import('./content/questionnaire/Controller')));
 const DataSubmissions = Loader(lazy(() => import('./content/dataSubmissions/Controller')));
 const Users = Loader(lazy(() => import('./content/users/Controller')));
-const OtherResources = Loader(lazy(() => import('./content/static/OtherResources')));
-const Search = Loader(lazy(() => import('./content/search')));
 
 // Status Pages
 const Status404 = Loader(lazy(() => import('./content/status/Page404')));
@@ -68,15 +67,11 @@ const routes: RouteObject[] = [
       },
       {
         path: '/users/:userId?',
-        element: <RequireAuth component={<Users />} redirectPath="/users" redirectName="User Management" />
+        element: <RequireAuth component={<Users key="users-view" type="users" />} redirectPath="/users" redirectName="User Management" />
       },
       {
-        path: '/sitesearch/:keyword',
-        element: <Search />
-      },
-      {
-        path: '/or',
-        element: <OtherResources />
+        path: '/profile/:userId?',
+        element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
       },
       {
         path: '*',
