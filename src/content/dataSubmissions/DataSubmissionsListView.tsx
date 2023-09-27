@@ -1,5 +1,5 @@
 import React, { FC, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Alert, Container, Stack, styled,
   Table, TableBody, TableCell,
@@ -103,7 +103,7 @@ const StyledTableCell = styled(TableCell)({
 const columns: Column[] = [
   {
     label: "Submission ID",
-    value: (a) => a._id,
+    value: (a) => <Link to={`/data-submission/${a._id}/data-upload`}>{a._id}</Link>,
     field: "applicant.applicantName",
   },
   {
@@ -245,7 +245,7 @@ const ListingView: FC = () => {
 
   const tempDataSubmissions: Array<T> = [
    {
-   _id: "00001", // aka. submissionID
+   _id: "8887654", // aka. submissionID
    name: "random name 1",
    submitterID: "123123123",
    submitterName: "john doe", // <first name> <last name>
@@ -264,11 +264,12 @@ const ListingView: FC = () => {
     userID: "todo: ",
   }],
    concierge: "filler concierge", // # Concierge name
+   conciergeEmail: "concierge1@example.com",
    createdAt: "dunno", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
    updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   },
   {
-    _id: "00001", // aka. submissionID
+    _id: "8887655", // aka. submissionID
     name: "random name 1",
     submitterID: "123123123",
     submitterName: "john doe", // <first name> <last name>
@@ -287,11 +288,12 @@ const ListingView: FC = () => {
      userID: "todo: ",
    }],
     concierge: "filler concierge", // # Concierge name
+    conciergeEmail: "concierge2@example.com",
     createdAt: "dunno", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
     updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
    },
       {
-    _id: "00001", // aka. submissionID
+    _id: "8887656", // aka. submissionID
     name: "random name 1",
     submitterID: "123123123",
     submitterName: "john doe", // <first name> <last name>
@@ -310,6 +312,7 @@ const ListingView: FC = () => {
      userID: "todo: ",
    }],
     concierge: "filler concierge", // # Concierge name
+    conciergeEmail: "concierge3@example.com",
     createdAt: "dunno", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
     updatedAt: "2023-05-01T09:23:30Z", // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
    }
