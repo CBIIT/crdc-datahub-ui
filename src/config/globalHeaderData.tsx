@@ -26,13 +26,12 @@ export const navMobileList = [
     id: 'navbar-dropdown-join-crdc-data-hub',
     className: 'navMobileItem',
   },
-  // This is implemented in mvp-2. For mvp-1, leave commented
-  // {
-  //   name: 'Data Submissions',
-  //   link: '/dataSubmissionsTodo',
-  //   id: 'navbar-dropdown-join-crdc-data-hub',
-  //   className: 'navMobileItem',
-  // },
+  {
+    name: 'Data Submissions',
+    link: '/data-submissions',
+    id: 'navbar-dropdown-join-crdc-data-hub',
+    className: 'navMobileItem',
+  },
 ];
 
 export const navbarSublists = {
