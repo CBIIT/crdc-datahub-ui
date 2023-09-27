@@ -11,6 +11,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { useMutation, useQuery } from '@apollo/client';
 import { query, Response } from '../../graphql/listDataSubmissions';
+import { query as approvedStudiesQuery, Response as approvedStudiesRespone } from "../../graphql/listApprovedStudies";
 import bannerSvg from "../../assets/banner/data_submissions_banner.png";
 import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
@@ -249,15 +250,15 @@ const ListingView: FC = () => {
   );
 
   // Only org owners/submitters with organizations assigned can create data submissions
-  const canCreateDataSubmission = ((user?.role === "Organization Owner" || user?.role === "Submitter") && (user?.organization !== null && user.organization.orgID !== null));
-
+  const orgOwnerOrSubmitter = (user?.role === "Organization Owner" || user?.role === "Submitter");
+  const hasOrganizationAssigned = (user?.organization !== null && user.organization.orgID !== null);
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [dataCommons, setDataCommons] = useState<string>(null);
   const [study, setStudy] = useState<string>("All");
   const [dbgapid, setDbgapid] = useState<string>(null);
-  const [organizationFilter, setOrganizationFilter] = useState<string>(canCreateDataSubmission ? user.organization.orgName : "All");
+  const [organizationFilter, setOrganizationFilter] = useState<string>(hasOrganizationAssigned ? user.organization.orgName : "All");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [submissionName, setSubmissionName] = useState<string>(null);
   const [submissionCreatedSuccessfullyAlert, setSubmissionCreatedSuccessfullyAlert] = useState<boolean>(false);
@@ -275,7 +276,12 @@ const ListingView: FC = () => {
     context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
-
+  const approvedStudiesQueryResult = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
+    variables: {
+    },
+    context: { clientName: 'backend' },
+    fetchPolicy: "no-cache",
+  });
   const [createDataSubmission] = useMutation<CreateDataSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGapID: string }>(CREATE_DATA_SUBMISSION, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
@@ -311,7 +317,7 @@ const ListingView: FC = () => {
     }
   };
   const createSubmission = async () => {
-    const { data: d, errors } = await createDataSubmission({
+    const { data, errors } = await createDataSubmission({
       variables: {
         studyAbbreviation: study,
         dataCommons,
@@ -334,7 +340,7 @@ const ListingView: FC = () => {
     setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
     setCreatingSubmission(false);
   };
-
+  const approvedStudesAbbrvList = approvedStudiesQueryResult?.data?.listApprovedStudies.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
   return (
     <>
       <GenericAlert open={submissionCreatedSuccessfullyAlert}>
@@ -350,7 +356,7 @@ const ListingView: FC = () => {
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}
             {/* Create a submission only available to org owners and submitters that have organizations assigned */}
-            {canCreateDataSubmission && (
+            {orgOwnerOrSubmitter && (
               <StyledButton
                 type="button"
                 onClick={onCreateSubmissionButtonClick}
@@ -385,7 +391,7 @@ const ListingView: FC = () => {
                       options={[{ label: "All", value: "All" }, { label: "test org", value: "test org" }, { label: "CBIIT", value: "CBIIT" }, { label: "NIH", value: "NIH" }, { label: "NCI", value: "NCI" }]}
                       value={organizationFilter}
                       placeholder="Select an organization"
-                      readOnly={canCreateDataSubmission}
+                      readOnly={orgOwnerOrSubmitter && hasOrganizationAssigned}
                       onChange={(newOrganization) => setOrganizationFilter(newOrganization)}
                     />
                     Status
@@ -530,7 +536,7 @@ const ListingView: FC = () => {
               onChange={(value) => setDataCommons(value)}
             />
             <SelectInput
-              options={[{ label: "COAS1", value: "COAS1" }, { label: "test1", value: "test1" }, { label: "2", value: "2" }, { label: "3", value: "3" }, { label: "4", value: "4" }]}
+              options={approvedStudesAbbrvList}
               label="Study"
               required
               value={study}
