@@ -74,21 +74,11 @@ const StyledHistoryButton = styled(Button)(() => ({
 
 const StyledSectionDivider = styled(Divider)(() => ({
   "&.MuiDivider-root": {
-    width: "1.5px",
+    width: "2px",
     height: "107px",
     background: "#6CACDA",
     marginLeft: "35px",
     marginTop: "9px",
-  },
-}));
-
-const StyledSubmitterDivider = styled(Divider)(() => ({
-  "&.MuiDivider-root": {
-    width: "1.5px",
-    height: "23px",
-    background: "#D5EAF3",
-    marginLeft: "14px",
-    marginRight: "16px",
   },
 }));
 
@@ -159,26 +149,22 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
 
         <StyledGridContainer container rowSpacing={2} columnSpacing={14}>
           <SubmissionHeaderProperty
-            label="Submission ID"
+            label="Submission Name"
             value={(
               <Stack direction="row" alignItems="center" sx={{ minWidth: 0 }}>
-                <StyledValue>{dataSubmission?._id}</StyledValue>
                 {dataSubmission?.name && (
-                  <>
-                    <StyledSubmitterDivider orientation="vertical" />
-                    <Tooltip
-                      title="Submission Name"
-                      body={(
-                        <StyledTooltipSubmitterName variant="body2">
-                          {dataSubmission?.name}
-                        </StyledTooltipSubmitterName>
-                      )}
-                    >
-                      <StyledSubmitterName>
+                  <Tooltip
+                    title="Submission Name"
+                    body={(
+                      <StyledTooltipSubmitterName variant="body2">
                         {dataSubmission?.name}
-                      </StyledSubmitterName>
-                    </Tooltip>
-                  </>
+                      </StyledTooltipSubmitterName>
+                    )}
+                  >
+                    <StyledSubmitterName>
+                      {dataSubmission?.name}
+                    </StyledSubmitterName>
+                  </Tooltip>
                 )}
               </Stack>
             )}
