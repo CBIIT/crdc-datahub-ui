@@ -13,6 +13,7 @@ import SubmissionHeaderProperty, {
 import Tooltip from "./Tooltip";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
+import HistoryDialog from "../Shared/HistoryDialog";
 
 const StyledSummaryWrapper = styled("div")(() => ({
   background: `url(${summaryBannerSvg})`,
@@ -219,7 +220,23 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           />
         </StyledGridContainer>
       </Stack>
-      {/* TODO: History Dialog */}
+      <HistoryDialog
+        open={historyDialogOpen}
+        onClose={handleOnHistoryDialogClose}
+        preTitle="CRDC Data Submission"
+        title="Data Submission History"
+        history={dataSubmission?.history}
+        iconMap={undefined}
+        getTextColor={(status) => {
+          let color;
+          switch (status) {
+            default:
+              color = "#FFF";
+          }
+
+          return color;
+        }}
+      />
     </StyledSummaryWrapper>
   );
 };
