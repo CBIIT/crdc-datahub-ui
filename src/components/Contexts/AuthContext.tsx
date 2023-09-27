@@ -171,31 +171,30 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
       // User came from NIH SSO, login to AuthN
       const searchParams = new URLSearchParams(document.location.search);
       const authCode = searchParams.get('code');
-      if (authCode && await userLogin(authCode)[0]) {
-        const { data, error } = await getMyUser();
-        if (error || !data?.getMyUser) {
-          setState({ ...initialState, status: Status.LOADED });
+      if (authCode) {
+        const userLoginResult = await userLogin(authCode);
+        // If login success
+        if (userLoginResult[0]) {
+          const { data, error } = await getMyUser();
+          if (error || !data?.getMyUser) {
+            setState({ ...initialState, status: Status.LOADED });
+            return;
+          }
+
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setState({ isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
+          const stateParam = searchParams.get('state');
+          if (stateParam !== null) {
+            window.location.href = stateParam;
+          }
           return;
         }
-
-        window.history.replaceState({}, document.title, window.location.pathname);
-        setState({ isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
-        const stateParam = searchParams.get('state');
-        if (stateParam !== null) {
-          window.location.href = stateParam;
-        }
-        return;
+        // Login failed
+          setState({ ...initialState, error: userLoginResult[1], status: Status.LOADED });
+          return;
       }
-
-      // User is not logged in or login failed
-      if (authCode) {
-        // Login Failed
-        const userLoginResult = await userLogin(authCode);
-        setState({ ...initialState, error: userLoginResult[1], status: Status.LOADED });
-      } else {
-        // User is not logged in
+      // User is not logged in
         setState({ ...initialState, status: Status.LOADED });
-      }
     })();
   }, []);
 
