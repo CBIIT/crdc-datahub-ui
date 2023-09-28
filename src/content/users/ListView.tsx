@@ -95,7 +95,11 @@ const StyledSelect = styled(Select)({
     padding: "0 !important",
   },
   "& .MuiMenuItem-root.Mui-selected": {
-    background: "#D5EDE5 !important",
+    background: "#3E7E6D !important",
+    color: "#FFFFFF !important",
+  },
+  "& .MuiMenuItem-root:hover": {
+    background: "#D5EDE5",
   },
 });
 
