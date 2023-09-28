@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import {
   Alert,
@@ -11,7 +11,6 @@ import {
   Tabs,
   styled,
 } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
 import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
@@ -22,7 +21,7 @@ import GenericAlert from "../../components/GenericAlert";
 import PieChart from "../../components/DataSubmissions/PieChart";
 import DataSubmissionBatchTable, { Column, FetchListing } from "../../components/DataSubmissions/DataSubmissionBatchTable";
 import { FormatDate } from "../../utils";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
+import DataSubmissionActions from "./DataSubmissionActions";
 
 const dummyChartData = [
   { label: 'Group A', value: 12, color: "#DFC798" },
@@ -58,89 +57,6 @@ const StyledBannerContentContainer = styled(Container)(
     },
   })
 );
-
-const StyledActionWrapper = styled(Stack)(() => ({
-  justifyContent: "center",
-  alignItems: "center",
-}));
-
-const StyledButtonBase = styled(LoadingButton)(() => ({
-  display: "flex",
-  width: "128px",
-  height: "51px",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "10px",
-  flexShrink: 0,
-  borderRadius: "8px",
-  textAlign: "center",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "16px",
-  letterSpacing: "0.32px",
-  textTransform: "initial",
-  zIndex: 3,
-}));
-
-const StyledSubmitButton = styled(StyledButtonBase)(() => ({
-  background: "#1D91AB",
-  color: "#FFF",
-  "&:hover": {
-    background: "#1A7B90",
-  }
-}));
-
-const StyledReleaseButton = styled(StyledButtonBase)(() => ({
-  background: "#8DC63F",
-  color: "#FFF",
-  "&:hover": {
-    background: "#7AB32E",
-  }
-}));
-
-const StyledWithdrawButton = styled(StyledButtonBase)(() => ({
-  background: "#DAA520",
-  color: "#FFF",
-  "&:hover": {
-    background: "#C8941A",
-  }
-}));
-
-const StyledRejectButton = styled(StyledButtonBase)(() => ({
-  background: "#D54309",
-  color: "#FFF",
-  "&:hover": {
-    background: "#B83A07",
-  }
-}));
-
-const StyledCompleteButton = styled(StyledButtonBase)(() => ({
-  background: "#4CAF50",
-  color: "#FFF",
-  "&:hover": {
-    background: "#418E46",
-  }
-}));
-
-const StyledCancelButton = styled(StyledButtonBase)(() => ({
-  border: "1px solid #AEAEAE",
-  background: "#757D88",
-  color: "#FFF",
-  "&:hover": {
-    background: "#5B6169",
-  }
-}));
-
-const StyledArchiveButton = styled(StyledButtonBase)(() => ({
-  background: "#6A5ACD",
-  color: "#FFF",
-  "&:hover": {
-    background: "#594ABF",
-  }
-}));
 
 const StyledCard = styled(Card)(() => ({
   borderRadius: "8px",
@@ -280,33 +196,16 @@ const columns: Column<BatchFile>[] = [
   },
 ];
 
-type UserRole = User["role"];
-
-const SubmitRoles: UserRole[] = ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"];
-const ReleaseRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-const WithdrawRoles: UserRole[] = ["Submitter", "Organization Owner", "Federal Lead"];
-const RejectRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-const CompleteRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-const CancelRoles: UserRole[] = ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"];
-const ArchiveRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-
-const SubmitStatuses: DataSubmissionStatus[] = ["In Progress"];
-const ReleaseStatuses: DataSubmissionStatus[] = ["Submitted"];
-const WithdrawStatuses: DataSubmissionStatus[] = ["Submitted"];
-const RejectStatuses: DataSubmissionStatus[] = ["Submitted"];
-const CompleteStatuses: DataSubmissionStatus[] = ["Released"];
-const CancelStatuses: DataSubmissionStatus[] = ["New", "In Progress"];
-const ArchiveStatuses: DataSubmissionStatus[] = ["Completed"];
-
 const URLTabs = {
   DATA_UPLOAD: "data-upload",
   QUALITY_CONTROL: "quality-control"
 };
 
+const submissionLockedStatuses: DataSubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
+
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
-  const { user } = useAuthContext();
-  const navigate = useNavigate();
+
   const [dataSubmission, setDataSubmission] = useState<DataSubmission>(null);
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<BatchFile>>(null);
@@ -379,8 +278,8 @@ const DataSubmission = () => {
     })();
   }, [submissionId]);
 
-  const handleOnCancel = () => {
-    navigate("/data-submissions");
+  const handleOnDataSubmissionChange = (dataSubmission: DataSubmission) => {
+    setDataSubmission(dataSubmission);
   };
 
   const handleOnUpload = (message: string) => {
@@ -516,7 +415,10 @@ const DataSubmission = () => {
             <StyledMainContentArea>
               {tab === URLTabs.DATA_UPLOAD ? (
                 <Stack direction="column" justifyContent="center">
-                  <DataSubmissionUpload onUpload={handleOnUpload} />
+                  <DataSubmissionUpload
+                    onUpload={handleOnUpload}
+                    readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
+                  />
                   <DataSubmissionBatchTable
                     columns={columns}
                     data={batchFiles || []}
@@ -529,79 +431,10 @@ const DataSubmission = () => {
             </StyledMainContentArea>
           </CardContent>
           <CardActions>
-            <StyledActionWrapper direction="row" spacing={2}>
-              {SubmitStatuses.includes(dataSubmission?.status) && SubmitRoles.includes(user?.role) ? (
-                <StyledSubmitButton
-                  variant="contained"
-                  disableElevation
-                  disableRipple
-                  disableTouchRipple
-                >
-                  Submit
-                </StyledSubmitButton>
-              ) : null}
-              {ReleaseStatuses.includes(dataSubmission?.status) && ReleaseRoles.includes(user?.role) ? (
-                <StyledReleaseButton
-                  variant="contained"
-                  disableElevation
-                  disableRipple
-                  disableTouchRipple
-                >
-                  Release
-                </StyledReleaseButton>
-              ) : null}
-              {WithdrawStatuses.includes(dataSubmission?.status) && WithdrawRoles.includes(user?.role) ? (
-                <StyledWithdrawButton
-                  variant="contained"
-                  disableElevation
-                  disableRipple
-                  disableTouchRipple
-                >
-                  Withdraw
-                </StyledWithdrawButton>
-              ) : null}
-              {RejectStatuses.includes(dataSubmission?.status) && RejectRoles.includes(user?.role) ? (
-                <StyledRejectButton
-                  variant="contained"
-                  disableElevation
-                  disableRipple
-                  disableTouchRipple
-                >
-                  Reject
-                </StyledRejectButton>
-              ) : null}
-              {CompleteStatuses.includes(dataSubmission?.status) && CompleteRoles.includes(user?.role) ? (
-                <StyledCompleteButton
-                  variant="contained"
-                  disableElevation
-                  disableRipple
-                  disableTouchRipple
-                >
-                  Complete
-                </StyledCompleteButton>
-              ) : null}
-              {ArchiveStatuses.includes(dataSubmission?.status) && ArchiveRoles.includes(user?.role) ? (
-                <StyledArchiveButton
-                  variant="contained"
-                  disableElevation
-                  disableRipple
-                  disableTouchRipple
-                >
-                  Archive
-                </StyledArchiveButton>
-              ) : null}
-              {CancelStatuses.includes(dataSubmission?.status) && CancelRoles.includes(user?.role) ? (
-                <StyledCancelButton
-                  variant="contained"
-                  onClick={handleOnCancel}
-                  disableElevation
-                  disableRipple
-                  disableTouchRipple
-                >
-                  Cancel
-                </StyledCancelButton>
-              ) : null}
-            </StyledActionWrapper>
+            <DataSubmissionActions
+              dataSubmission={dataSubmission}
+              onDataSubmissionChange={handleOnDataSubmissionChange}
+            />
           </CardActions>
         </StyledCard>
       </StyledBannerContentContainer>
