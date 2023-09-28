@@ -105,14 +105,18 @@ const BaseInputStyling = {
     borderColor: "#6B7294",
   },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #D5EDE5",
+    border: "1px solid #209D7D",
     boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   "& .MuiList-root": {
     padding: 0,
   },
   "& .MuiMenuItem-root.Mui-selected": {
-    background: "#D5EDE5 !important",
+    background: "#3E7E6D !important",
+    color: "#FFFFFF !important",
+  },
+  "& .MuiMenuItem-root:hover": {
+    background: "#D5EDE5",
   },
 };
 
