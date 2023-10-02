@@ -128,7 +128,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   useEffect(() => {
     const isComplete = isAllSectionsComplete();
     setAllSectionsComplete(isComplete);
-  }, [status]);
+  }, [status, data]);
 
   useEffect(() => {
     if (hasError && errorAlertRef?.current) {
