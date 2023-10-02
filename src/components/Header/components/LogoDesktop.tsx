@@ -8,10 +8,12 @@ const LogoArea = styled.div`
     img {
       width: fit-content;
       height: 56px;
+      max-width: 100%
     }
 
     .logoContainer {
       margin-top: 35px;
+      max-width: 440px;
     }
 
 `;
