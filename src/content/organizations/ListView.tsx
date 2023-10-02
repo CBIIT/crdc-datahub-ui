@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from "react";
+import React, { ElementType, FC, useEffect, useMemo, useState } from "react";
 import {
   Alert, Box, Button, CircularProgress,
   Container, FormControl, MenuItem,
@@ -7,7 +7,7 @@ import {
   TableContainer, TableHead, TablePagination, TableRow,
   TableSortLabel, Typography, styled,
 } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
+import { Link, LinkProps, useLocation } from "react-router-dom";
 import { Controller, useForm } from 'react-hook-form';
 import PageBanner from "../../components/PageBanner";
 import Tooltip from '../../components/Tooltip';
@@ -31,6 +31,25 @@ type FilterForm = {
 const StyledContainer = styled(Container)({
   marginTop: "-180px",
   paddingBottom: "90px",
+});
+
+const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
+  padding: "14px 20px",
+  fontWeight: 700,
+  fontSize: "16px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  letterSpacing: "2%",
+  lineHeight: "20.14px",
+  borderRadius: "8px",
+  color: "#fff",
+  textTransform: "none",
+  borderColor: "#26B893 !important",
+  background: "#22A584 !important",
+  marginRight: "25px",
+});
+
+const StyledBannerBody = styled(Stack)({
+  marginTop: "-53px",
 });
 
 const StyledTableContainer = styled(TableContainer)({
@@ -272,15 +291,28 @@ const ListingView: FC = () => {
 
   return (
     <>
-      <PageBanner title="Manage Organizations" subTitle="" padding="38px 0 0 25px" />
-
-      <StyledContainer maxWidth="xl">
+      <Container maxWidth="xl">
         {(state?.error || status === Status.ERROR) && (
-          <Alert sx={{ mb: 3, p: 2 }} severity="error">
+          <Alert sx={{ mt: 2, mx: "auto", p: 2 }} severity="error">
             {state?.error || "An error occurred while loading the data."}
           </Alert>
         )}
+      </Container>
 
+      <PageBanner
+        title="Manage Organizations"
+        subTitle=""
+        padding="38px 0 0 25px"
+        body={(
+          <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
+            <StyledButton component={Link} to="/organizations/new">
+              Add Organization
+            </StyledButton>
+          </StyledBannerBody>
+        )}
+      />
+
+      <StyledContainer maxWidth="xl">
         <StyledFilterContainer>
           <StyledInlineLabel>Organization</StyledInlineLabel>
           <StyledFormControl>

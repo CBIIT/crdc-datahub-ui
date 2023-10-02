@@ -48,3 +48,6 @@ export type { Response as ListCuratorsResp } from './listActiveCurators';
 
 export { query as LIST_APPROVED_STUDIES } from './listApprovedStudies';
 export type { Response as ListApprovedStudiesResp } from './listApprovedStudies';
+
+export { mutation as CREATE_ORG } from './createOrganization';
+export type { Response as CreateOrgResp } from './createOrganization';
