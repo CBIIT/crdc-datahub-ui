@@ -45,6 +45,11 @@ const StyledButton = styled(LoadingButton)({
   borderColor: "#005EA2 !important",
   background: "#005EA2 !important",
   marginRight: "25px",
+
+  "&.Mui-disabled": {
+    cursor: "not-allowed",
+    pointerEvents: "all",
+  },
 });
 
 const StyledBannerBody = styled(Stack)({
@@ -258,7 +263,7 @@ const ListingView: FC = () => {
   const [dataCommons, setDataCommons] = useState<string>(null);
   const [study, setStudy] = useState<string>("All");
   const [dbgapid, setDbgapid] = useState<string>(null);
-  const [organizationFilter, setOrganizationFilter] = useState<string>(hasOrganizationAssigned ? user.organization.orgName : "All");
+  const [organizationFilter, setOrganizationFilter] = useState<string>(hasOrganizationAssigned ? user.organization?.orgName : "All");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [submissionName, setSubmissionName] = useState<string>(null);
   const [submissionCreatedSuccessfullyAlert, setSubmissionCreatedSuccessfullyAlert] = useState<boolean>(false);
@@ -340,7 +345,9 @@ const ListingView: FC = () => {
     setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
     setCreatingSubmission(false);
   };
-  const approvedStudesAbbrvList = approvedStudiesQueryResult?.data?.listApprovedStudies.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
+  const approvedStudiesAbbrvList = approvedStudiesQueryResult?.data?.listApprovedStudies.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
+  const approvedStudiesMapToDbGaPID = {};
+  approvedStudiesQueryResult?.data?.listApprovedStudies.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
   return (
     <>
       <GenericAlert open={submissionCreatedSuccessfullyAlert}>
@@ -362,6 +369,7 @@ const ListingView: FC = () => {
                 onClick={onCreateSubmissionButtonClick}
                 loading={creatingSubmission}
                 sx={{ bottom: "30px", right: "50px" }}
+                disabled={!hasOrganizationAssigned}
               >
                 Create a Data Submission
               </StyledButton>
@@ -391,7 +399,7 @@ const ListingView: FC = () => {
                       options={[{ label: "All", value: "All" }, { label: "test org", value: "test org" }, { label: "CBIIT", value: "CBIIT" }, { label: "NIH", value: "NIH" }, { label: "NCI", value: "NCI" }]}
                       value={organizationFilter}
                       placeholder="Select an organization"
-                      readOnly={orgOwnerOrSubmitter && hasOrganizationAssigned}
+                      readOnly={orgOwnerOrSubmitter}
                       onChange={(newOrganization) => setOrganizationFilter(newOrganization)}
                     />
                     Status
@@ -527,7 +535,7 @@ const ListingView: FC = () => {
         </div>
         <div className="inputs-container">
           <form ref={createSubmissionDialogFormRef}>
-            <TextInput value={user.organization.orgName} label="Organization" readOnly />
+            <TextInput value={user.organization?.orgName} label="Organization" readOnly />
             <SelectInput
               options={[{ label: "CDS", value: "CDS" }]}
               label="Data Commons"
@@ -536,11 +544,14 @@ const ListingView: FC = () => {
               onChange={(value) => setDataCommons(value)}
             />
             <SelectInput
-              options={approvedStudesAbbrvList}
+              options={approvedStudiesAbbrvList}
               label="Study"
               required
               value={study}
-              onChange={(value) => setStudy(value)}
+              onChange={(value) => {
+                setStudy(value);
+                setDbgapid(approvedStudiesMapToDbGaPID[value]);
+              }}
             />
             <TextInput
               value={dbgapid}
