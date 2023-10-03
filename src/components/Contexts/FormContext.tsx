@@ -155,6 +155,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       }
     };
 
+    setState((prevState) => ({ ...prevState, status: Status.SAVING }));
+
     try {
       const { data: d, errors } = await saveApp({
         variables: {
@@ -174,8 +176,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
           errorMessage: "An unknown GraphQL Error occured"
         };
       }
-
-      setState({ ...newState, status: Status.SAVING });
 
       if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
         newState.data = {
