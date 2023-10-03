@@ -154,7 +154,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         questionnaireData: data
       }
     };
-    setState({ ...newState, status: Status.SAVING });
+
+    setState((prevState) => ({ ...prevState, status: Status.SAVING }));
 
     try {
       const { data: d, errors } = await saveApp({
@@ -215,19 +216,19 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         errorMessage = String(error);
       }
 
-      let newErrorState = newState;
+      let newErrorState = state;
       // If duplicate study abbrev error, then prevent section from being completed
       if (errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
-        const newSections = newState?.data?.questionnaireData?.sections?.map((section) => (section.name === sectionMetadata.B.id ? {
+        const newSections = state?.data?.questionnaireData?.sections?.map((section) => (section.name === sectionMetadata.B.id ? {
           ...section,
           status: "In Progress"
         } as Section : section));
         newErrorState = {
-          ...newState,
+          ...state,
           data: {
-            ...newState?.data,
+            ...state?.data,
             questionnaireData: {
-              ...newState?.data?.questionnaireData,
+              ...state?.data?.questionnaireData,
               sections: newSections
             }
           }

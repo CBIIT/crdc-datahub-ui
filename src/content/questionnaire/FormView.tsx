@@ -66,6 +66,10 @@ const StyledAlert = styled(Alert)({
   scrollMarginTop: "64px"
 });
 
+export type SaveForm =
+  | { status: "success"; id: string }
+  | { status: "failed"; errorMessage: string };
+
 type AlertState = {
   message: string;
   severity: AlertColor;
@@ -101,6 +105,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
   const hasUpdatedReviewStatusRef = useRef(false);
+  const alertTimeoutRef = useRef(null);
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -123,7 +128,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   useEffect(() => {
     const isComplete = isAllSectionsComplete();
     setAllSectionsComplete(isComplete);
-  }, [status]);
+  }, [status, data]);
 
   useEffect(() => {
     if (hasError && errorAlertRef?.current) {
@@ -361,15 +366,21 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the save was successful, false otherwise
    */
-  const saveForm = async () => {
+  const saveForm = async (): Promise<SaveForm> => {
     if (readOnlyInputs || formMode !== "Edit") {
-      return false;
+      return {
+        status: 'failed',
+        errorMessage: null
+      };
     }
 
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
     if (!ref?.current || !newData) {
-      return false;
+      return {
+        status: 'failed',
+        errorMessage: null
+      };
     }
 
     // Update section status
@@ -385,7 +396,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
 
     // Skip state update if there are no changes
-    if (!isEqual(data.questionnaireData, newData)) {
+    if (!isEqual(data.questionnaireData, newData) || error === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
       const res = await setData(newData);
       if (res?.status === "failed" && res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
         setChangesAlert({ severity: "error", message: `The Study Abbreviation already existed in the system. Your changes were unable to be saved.` });
@@ -393,17 +404,32 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         setChangesAlert({ severity: "success", message: `Your changes for the ${map[activeSection].title} section have been successfully saved.` });
       }
 
-      setTimeout(() => setChangesAlert(null), 10000);
+      if (alertTimeoutRef.current) {
+        clearTimeout(alertTimeoutRef.current);
+      }
+      alertTimeoutRef.current = setTimeout(() => setChangesAlert(null), 10000);
 
       if (!blockedNavigate && res?.status === "success" && data["_id"] === "new" && res.id !== data?.['_id']) {
         // NOTE: This currently triggers a form data refetch, which is not ideal
         navigate(`/submission/${res.id}/${activeSection}`, { replace: true });
       }
 
-      return res?.status === "success" ? res.id : false;
+      if (res?.status === "success") {
+        return {
+          status: 'success',
+          id: res.id
+        };
+      }
+      return {
+        status: 'failed',
+        errorMessage: res?.errorMessage
+      };
     }
 
-    return data?.["_id"];
+    return {
+      status: 'success',
+      id: data?.["_id"]
+    };
   };
 
   const areSectionsValid = (): boolean => {
@@ -442,20 +468,25 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
-    const newId = await saveForm();
+    const res = await saveForm();
     const reviewSectionUrl = `/submission/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
     const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 
     setBlockedNavigate(false);
 
-    if (isNavigatingToReviewSection && (!newId || !areSectionsValid())) {
+    // if invalid data, then block navigation
+    if ((isNavigatingToReviewSection && ((res?.status === "success" && !res?.id) || !areSectionsValid()))) {
+      return;
+    }
+    // if duplicate study error, then block navigation
+    if (res?.status === "failed" && res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
       return;
     }
 
     blocker.proceed?.();
-    if (newId) {
+    if (res?.status === "success" && res.id) {
       // NOTE: This currently triggers a form data refetch, which is not ideal
-      navigate(blocker.location.pathname.replace("new", newId), { replace: true });
+      navigate(blocker.location.pathname.replace("new", res.id), { replace: true });
     }
   };
 
