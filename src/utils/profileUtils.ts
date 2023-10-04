@@ -38,7 +38,7 @@ export const getEditableFields = (current: User, profileOf: User, viewType: "use
 
   // Only allowed if an Admin is coming from Manage Users
   if (current.role === "Admin" && viewType === "users") {
-    fields.push("userStatus", "role", "organization");
+    fields.push("userStatus", "role", "organization", "dataCommons");
   }
 
   return fields;

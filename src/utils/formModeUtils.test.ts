@@ -17,7 +17,8 @@ describe('getFormMode tests based on provided requirements', () => {
       createdAt: '2023-05-01T09:23:30Z',
       updateAt: '2023-05-02T09:23:30Z'
     },
-    curatedOrganizations: []
+    curatedOrganizations: [],
+    dataCommons: [],
   };
 
   // submission created by baseUser and part of the same org

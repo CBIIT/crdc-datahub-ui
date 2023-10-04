@@ -17,6 +17,7 @@ type User = {
   email: string;
   organization: OrgInfo | null;
   curatedOrganizations: OrgInfo[];
+  dataCommons: string[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
 };
@@ -47,6 +48,7 @@ type EditUserInput = {
   organization: {
     orgID: OrgInfo['orgID'];
   };
+  dataCommons: User['dataCommons'];
   role: User['role'];
 };
 
