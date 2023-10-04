@@ -9,5 +9,5 @@ export const mutation = gql`
 `;
 
 export type Response = {
-  editUser: Pick<Organization, "_id">;
+  editOrganization: Pick<Organization, "_id">;
 };
