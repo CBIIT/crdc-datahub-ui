@@ -46,6 +46,7 @@ const FooterEmailSignupContainer = styled.form`
     height: 47px;
     font-size: 25px;
     padding-left: 8px;
+    margin-top: 4px;
   }
 
   .signUpInputBox:focus {
@@ -67,23 +68,6 @@ const FooterEmailSignupContainer = styled.form`
 
   .signUpButton:hover {
     cursor: pointer;
-  }
-
-  .errorEmail {
-    background: #e41154;
-    padding: 10px 5px 5px 5px;
-
-    .signUpInputBox {
-      outline: 0.25rem solid #2491ff;
-      outline-offset: 5px;
-    }
-  }
-
-  .ErrorBorder {
-    position: relative;
-    border-left: 0.25rem solid #e41154;
-    padding-left: 1rem;
-    left: -20px;
   }
 `;
 
@@ -109,7 +93,7 @@ const FooterLinksContainer = styled.div`
 
   .footItemSubtitle {
     margin-bottom: 10px;
-    max-width: 180px;
+    max-width: 290px;
   }
 
   .footItemLink {
@@ -253,10 +237,15 @@ const BottomFooter = styled.div`
   }
 `;
 
+const StyledAsterisk = styled("span")(() => ({
+  color: "#D54309",
+  marginLeft: "2px",
+}));
+
 const FooterTablet = () => {
-  const [errorClass, setErrorClass] = useState("");
   const [emailContent, setEmailContent] = useState("");
-  const emailForm = useRef(null);
+  const emailForm = useRef<HTMLFormElement>(null);
+  const emailInput = useRef<HTMLInputElement>(null);
 
   function validateEmail(email) {
     const reg = /^[A-Za-z0-9]+([_.-][A-Za-z0-9]+)*@([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}$/;
@@ -264,11 +253,12 @@ const FooterTablet = () => {
   }
 
   const handleSubmit = (e) => {
+    emailForm.current.reportValidity();
     if (!validateEmail(emailContent)) {
-      setErrorClass("errorEmail");
+      emailInput.current.setCustomValidity("Please enter valid email");
       e.preventDefault();
     } else {
-      setErrorClass("");
+      emailInput.current.setCustomValidity("");
       emailForm.current.submit();
     }
   };
@@ -311,17 +301,12 @@ const FooterTablet = () => {
             <div className="signUpTitle">
               Sign up for email updates
             </div>
-            <div className={errorClass !== "" ? 'ErrorBorder' : null}>
-              <div className="enterTitle">
-                <label htmlFor="email">
-                  Enter your email address
-                  <div className={errorClass}>
-                    {errorClass !== "" ? <div className="enterTitle">Enter a valid email address</div> : null}
-                    <input id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
-                  </div>
-                </label>
-              </div>
-
+            <div className="enterTitle">
+              <label htmlFor="email">
+                Sign up for the newsletter
+                <StyledAsterisk>*</StyledAsterisk>
+                <input ref={emailInput} id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
+              </label>
             </div>
             <button type="submit" className="signUpButton">
               Sign up

@@ -6,8 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useLazyQuery, useMutation } from '@apollo/client';
-import dayjs from "dayjs";
+import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { merge, cloneDeep } from "lodash";
 import {
   APPROVE_APP,
@@ -28,7 +27,12 @@ import {
   SubmitAppResp,
 } from "../../graphql";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
-import { FormatDate } from "../../utils";
+import ErrorCodes from "../../config/ErrorCodes";
+import sectionMetadata from "../../config/SectionMetadata";
+
+export type SetDataReturnType =
+  | { status: "success"; id: string }
+  | { status: "failed"; errorMessage: string };
 
 export type ContextState = {
   status: Status;
@@ -38,7 +42,7 @@ export type ContextState = {
   reviewForm?: () => Promise<string | boolean>;
   approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
-  setData?: (Application) => Promise<string | false>;
+  setData?: (Application) => Promise<SetDataReturnType>;
   error?: string;
 };
 
@@ -96,9 +100,6 @@ type ProviderProps = {
 export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
-  const datePattern = "MM/DD/YYYY";
-  const dateTodayFallback = dayjs().format(datePattern);
-
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
@@ -145,7 +146,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     fetchPolicy: 'no-cache'
   });
 
-  const setData = async (data: QuestionnaireData) => {
+  const setData = async (data: QuestionnaireData): Promise<SetDataReturnType> => {
     const newState = {
       ...state,
       data: {
@@ -153,44 +154,93 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         questionnaireData: data
       }
     };
-    setState({ ...newState, status: Status.SAVING });
 
-    const { data: d, errors } = await saveApp({
-      variables: {
-        application: {
-          _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
-          programName: data?.program?.name,
-          studyAbbreviation: data?.study?.abbreviation,
-          questionnaireData: JSON.stringify(data),
+    setState((prevState) => ({ ...prevState, status: Status.SAVING }));
+
+    try {
+      const { data: d, errors } = await saveApp({
+        variables: {
+          application: {
+            _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
+            programName: data?.program?.name,
+            studyAbbreviation: data?.study?.abbreviation,
+            questionnaireData: JSON.stringify(data),
+          }
         }
+      });
+
+      if (errors) {
+        setState({ ...newState, status: Status.ERROR, error: "An unknown GraphQL Error occured" });
+        return {
+          status: "failed",
+          errorMessage: "An unknown GraphQL Error occured"
+        };
       }
-    });
 
-    if (errors) {
-      setState({ ...newState, status: Status.ERROR });
-      return false;
-    }
+      if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
+        newState.data = {
+          ...newState.data,
+          _id: d.saveApplication["_id"],
+          applicant: d?.saveApplication?.applicant,
+          organization: d?.saveApplication?.organization,
+        };
+      }
 
-    if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
       newState.data = {
         ...newState.data,
-        _id: d.saveApplication["_id"],
-        applicant: d?.saveApplication?.applicant,
-        organization: d?.saveApplication?.organization,
+        status: d?.saveApplication?.status,
+        updatedAt: d?.saveApplication?.updatedAt,
+        createdAt: d?.saveApplication?.createdAt,
+        submittedDate: d?.saveApplication?.submittedDate,
+        history: d?.saveApplication?.history
+      };
+
+      if (!d?.saveApplication?.["_id"]) {
+        setState({ ...newState, status: Status.ERROR, error: "An unknown issue occured" });
+        return {
+          status: "failed",
+          errorMessage: "An unknown issue occured"
+        };
+      }
+
+      setState({ ...newState, status: Status.LOADED, error: null });
+      return {
+        status: "success",
+        id: d.saveApplication["_id"]
+      };
+    } catch (error) {
+      let errorMessage: string;
+      if (error instanceof ApolloError) {
+        errorMessage = error.message;
+      } else {
+        errorMessage = String(error);
+      }
+
+      let newErrorState = state;
+      // If duplicate study abbrev error, then prevent section from being completed
+      if (errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
+        const newSections = state?.data?.questionnaireData?.sections?.map((section) => (section.name === sectionMetadata.B.id ? {
+          ...section,
+          status: "In Progress"
+        } as Section : section));
+        newErrorState = {
+          ...state,
+          data: {
+            ...state?.data,
+            questionnaireData: {
+              ...state?.data?.questionnaireData,
+              sections: newSections
+            }
+          }
+        };
+      }
+
+      setState({ ...newErrorState, status: Status.ERROR, error: errorMessage });
+      return {
+        status: "failed",
+        errorMessage
       };
     }
-
-    newState.data = {
-      ...newState.data,
-      status: d?.saveApplication?.status,
-      updatedAt: d?.saveApplication?.updatedAt,
-      createdAt: d?.saveApplication?.createdAt,
-      submittedDate: d?.saveApplication?.submittedDate,
-      history: d?.saveApplication?.history
-    };
-
-    setState({ ...newState, status: Status.LOADED });
-    return d?.saveApplication?.["_id"] || false;
   };
 
   const submitData = async () => {
@@ -361,11 +411,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         data: {
           ...merge(cloneDeep(InitialApplication), d?.getApplication),
           questionnaireData: {
-            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
-            // To avoid false positive form changes
-            // NOTE: We may be able to remove this since we control the nested object
-            targetedReleaseDate: FormatDate(questionnaireData.targetedReleaseDate, datePattern, dateTodayFallback),
-            targetedSubmissionDate: FormatDate(questionnaireData.targetedSubmissionDate, datePattern, dateTodayFallback),
+            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData)
           },
         }
       });

@@ -8,17 +8,18 @@ const GridContainer = styled(Grid)(() => ({
  "&:first-of-type": {
   paddingTop: "25px"
  },
-  paddingTop: 0
+ "& .review-section-header + .MuiGrid-root.MuiGrid-item": {
+  marginTop: "0 !important"
+ }
 }));
 
 const StyledTitle = styled(Typography)(() => ({
-  background: "transparent",
-  color: "#327E8F",
+  color: "#34A286",
+  fontSize: "19px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
   fontWeight: 700,
-  fontSize: "24px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  lineHeight: "32.74px",
+  lineHeight: "19.6px",
 }));
 
 const StyledDivider = styled(Divider)(() => ({
@@ -28,16 +29,17 @@ const StyledDivider = styled(Divider)(() => ({
 }));
 
 type Props = {
+  idPrefix: string;
   title: string;
   divider?: boolean;
   children?: ReactNode;
 };
 
-const ReviewSection: FC<Props> = ({ title, divider = true, children }) => (
+const ReviewSection: FC<Props> = ({ idPrefix, title, divider = true, children }) => (
   <GridContainer container rowSpacing={3.125} columnSpacing={0}>
-    <Grid xs={12} item sx={{ padding: "0 !important" }}>
+    <Grid className="review-section-header" xs={12} item sx={{ padding: "0 !important" }}>
       <Stack direction="row" alignItems="center">
-        {title && <StyledTitle variant="h6">{title}</StyledTitle>}
+        {title && <StyledTitle id={idPrefix.concat("-section-header-title")} variant="h6">{title}</StyledTitle>}
         {divider && <StyledDivider />}
       </Stack>
     </Grid>

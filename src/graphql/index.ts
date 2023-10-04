@@ -24,3 +24,15 @@ export type { Response as GetAppResp } from './getApplication';
 
 export { mutation as UPDATE_MY_USER } from './updateMyUser';
 export type { Response as UpdateMyUserResp } from './updateMyUser';
+
+export { query as GET_USER } from './getUser';
+export type { Response as GetUserResp } from './getUser';
+
+export { query as LIST_USERS } from './listUsers';
+export type { Response as ListUsersResp } from './listUsers';
+
+export { mutation as EDIT_USER } from './editUser';
+export type { Response as EditUserResp } from './editUser';
+
+export { query as LIST_ORGS } from './listOrganizations';
+export type { Response as ListOrgsResp } from './listOrganizations';

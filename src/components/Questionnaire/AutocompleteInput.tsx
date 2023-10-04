@@ -33,7 +33,7 @@ const StyledFormControl = styled(FormControl)(() => ({
     borderColor: "#D54309 !important",
   },
   "& .MuiInputBase-input::placeholder": {
-    color: "#929296",
+    color: "#87878C",
     fontWeight: 400,
     opacity: 1,
   },
@@ -72,11 +72,11 @@ const StyledFormControl = styled(FormControl)(() => ({
       background: "#FFFFFF",
     },
     "& .MuiAutocomplete-option:hover": {
-      backgroundColor: "#5E6787",
+      backgroundColor: "#3E7E6D",
       color: "#FFFFFF",
     },
     "& .MuiAutocomplete-option.Mui-focused": {
-      backgroundColor: "#5E6787 !important",
+      backgroundColor: "#3E7E6D !important",
       color: "#FFFFFF",
     },
   },
@@ -93,19 +93,19 @@ const StyledFormLabel = styled("label")(() => ({
 
 const StyledAsterisk = styled("span")(() => ({
   color: "#D54309",
-  marginLeft: "6px",
+  marginLeft: "2px",
 }));
 
 const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : boolean }) => ({
   "& .MuiInputBase-root": {
-    backgroundColor: readOnly ? "#D9DEE4" : "#FFFFFF",
     "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
       display: 'flex',
       alignItems: 'center',
       padding: 0,
     },
     "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: "#D9DEE4",
+      backgroundColor: "#E5EEF4",
+      color: "#083A50",
       cursor: "not-allowed",
       borderRadius: "8px",
     },
@@ -189,6 +189,14 @@ const AutocompleteInput = <T,>({
     setError(false);
   };
 
+  const onInputChangeWrapper = (
+    event: SyntheticEvent,
+    newValue: string,
+  ): void => {
+    processValue(newValue as unknown as T);
+    setError(false);
+  };
+
   useEffect(() => {
     const invalid = () => setError(true);
 
@@ -213,6 +221,7 @@ const AutocompleteInput = <T,>({
         <StyledAutocomplete
           value={val}
           onChange={onChangeWrapper}
+          onInputChange={onInputChangeWrapper}
           options={options}
           readOnly={readOnly}
           forcePopupIcon

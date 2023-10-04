@@ -518,13 +518,19 @@ const NavBar = () => {
       </Dropdown>
       <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== displayName ? "invisible" : ""}>
         <NameDropdownContainer>
-
           <div className="dropdownList">
             <span className="dropdownItem">
-              <Link id="navbar-dropdown-item-name-user-profile" to={`/users/${authData?.user?._id}`} className="dropdownItem" onClick={() => setClickedTitle("")}>
+              <Link id="navbar-dropdown-item-name-user-profile" to={`/profile/${authData?.user?._id}`} className="dropdownItem" onClick={() => setClickedTitle("")}>
                 User Profile
               </Link>
             </span>
+            {(authData?.user?.role === "Admin" || authData?.user?.role === "Organization Owner") && (
+              <span className="dropdownItem">
+                <Link id="navbar-dropdown-item-name-user-manage" to="/users" className="dropdownItem" onClick={() => setClickedTitle("")}>
+                  Manage Users
+                </Link>
+              </span>
+            )}
             <span
               id="navbar-dropdown-item-name-logout"
               role="button"

@@ -95,6 +95,7 @@ type Program = {
   abbreviation?: string;
   description?: string;
   notApplicable?: boolean;
+  isCustom?: boolean;
 };
 
 type Study = {

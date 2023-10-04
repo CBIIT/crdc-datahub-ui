@@ -1,6 +1,5 @@
 import Logo from '../assets/header/Portal_Logo.svg';
 import LogoSmall from '../assets/header/Portal_Logo_Small.svg';
-import searchbarIcon from '../assets/header/Search_Icon.svg';
 import usaFlagSmall from '../assets/header/us_flag_small.svg';
 
 // globalHeaderLogo image 468x100
@@ -10,8 +9,6 @@ export const headerData = {
   globalHeaderLogoSmall: LogoSmall,
   globalHeaderLogoLink: '/',
   globalHeaderLogoAltText: 'Portal Logo',
-  globalHeaderSearchIcon: searchbarIcon,
-  globalHeaderSearchIconAltText: 'search Icon',
   usaFlagSmall,
   usaFlagSmallAltText: 'usaFlagSmall',
 };
@@ -29,12 +26,13 @@ export const navMobileList = [
     id: 'navbar-dropdown-join-crdc-data-hub',
     className: 'navMobileItem',
   },
-  {
-    name: 'Data Submissions',
-    link: '/dataSubmissionsTodo',
-    id: 'navbar-dropdown-join-crdc-data-hub',
-    className: 'navMobileItem',
-  },
+  // This is implemented in mvp-2. For mvp-1, leave commented
+  // {
+  //   name: 'Data Submissions',
+  //   link: '/dataSubmissionsTodo',
+  //   id: 'navbar-dropdown-join-crdc-data-hub',
+  //   className: 'navMobileItem',
+  // },
 ];
 
 export const navbarSublists = {
