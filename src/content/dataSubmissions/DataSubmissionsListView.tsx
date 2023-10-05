@@ -281,7 +281,7 @@ const ListingView: FC = () => {
     context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
-  const approvedStudiesQueryResult = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
+  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
     variables: {
     },
     context: { clientName: 'backend' },
@@ -345,9 +345,9 @@ const ListingView: FC = () => {
     setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
     setCreatingSubmission(false);
   };
-  const approvedStudiesAbbrvList = approvedStudiesQueryResult?.data?.listApprovedStudies?.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
+  const approvedStudiesAbbrvList = approvedStudiesData?.listApprovedStudies?.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
   const approvedStudiesMapToDbGaPID = {};
-  approvedStudiesQueryResult?.data?.listApprovedStudies?.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
+  approvedStudiesData?.listApprovedStudies?.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
   return (
     <>
       <GenericAlert open={submissionCreatedSuccessfullyAlert}>
