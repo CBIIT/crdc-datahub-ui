@@ -345,9 +345,9 @@ const ListingView: FC = () => {
     setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
     setCreatingSubmission(false);
   };
-  const approvedStudiesAbbrvList = approvedStudiesQueryResult?.data?.listApprovedStudies.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
+  const approvedStudiesAbbrvList = approvedStudiesQueryResult?.data?.listApprovedStudies?.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
   const approvedStudiesMapToDbGaPID = {};
-  approvedStudiesQueryResult?.data?.listApprovedStudies.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
+  approvedStudiesQueryResult?.data?.listApprovedStudies?.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
   return (
     <>
       <GenericAlert open={submissionCreatedSuccessfullyAlert}>
