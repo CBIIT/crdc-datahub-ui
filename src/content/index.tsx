@@ -96,6 +96,8 @@ const PageContentContainer = styled.div`
     text-align: center;
     margin-top: 30px;
     color: #86E2F6;
+    margin-left: 30px;
+    margin-right: 30px;
   }
   .loginPageLoginButton{
     display: flex;
@@ -174,12 +176,10 @@ const Home: FC = () => {
           : (
             <div className="loginPageTextContainer">
               <div className="loginPageTextTitle">
-                Login to CRDC Data Hub
+                Login to CRDC
               </div>
               <div className="loginPageText">
-                Welcome to the CRDC Data Hub.
-                <br />
-                Please login to access your data submissions.
+                Please login with a Login.gov account to make a data submission request or to upload data for approved submissions
               </div>
               <Link
                 id="loginPageLoginButton"
