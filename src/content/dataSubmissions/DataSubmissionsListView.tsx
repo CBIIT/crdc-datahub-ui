@@ -10,18 +10,18 @@ import {
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { useMutation, useQuery } from '@apollo/client';
-import { query, Response } from '../../graphql/listDataSubmissions';
+import { query, Response } from '../../graphql/listSubmissions';
 import { query as approvedStudiesQuery, Response as approvedStudiesRespone } from "../../graphql/listApprovedStudies";
 import bannerSvg from "../../assets/banner/data_submissions_banner.png";
 import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
-import { mutation as CREATE_DATA_SUBMISSION, Response as CreateDataSubmissionResp } from '../../graphql/createDataSubmission';
+import { mutation as CREATE_SUBMISSION, Response as CreateSubmissionResp } from '../../graphql/createSubmission';
 import SelectInput from "../../components/Questionnaire/SelectInput";
 import TextInput from "../../components/Questionnaire/TextInput";
 import GenericAlert from '../../components/GenericAlert';
 
-type T = DataSubmission;
+type T = Submission;
 
 type Column = {
   label: string;
@@ -287,15 +287,15 @@ const ListingView: FC = () => {
     context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
-  const [createDataSubmission] = useMutation<CreateDataSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGapID: string }>(CREATE_DATA_SUBMISSION, {
+  const [createDataSubmission] = useMutation<CreateSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGapID: string }>(CREATE_SUBMISSION, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
-    return (page > 0 && data?.listDataSubmissions?.total)
-      ? Math.max(0, (1 + page) * perPage - (data?.listDataSubmissions?.total || 0))
+    return (page > 0 && data?.listSubmissions?.total)
+      ? Math.max(0, (1 + page) * perPage - (data?.listSubmissions?.total || 0))
       : 0;
   }, [data]);
 
@@ -457,7 +457,7 @@ const ListingView: FC = () => {
                   </TableCell>
                 </TableRow>
               )}
-              {data?.listDataSubmissions?.submissions?.map((d: T, index) => (
+              {data?.listSubmissions?.submissions?.map((d: T, index) => (
                 <TableRow sx={{ background: (index % 2 === 0 ? "#fff" : "#E3EEF9") }} tabIndex={-1} hover key={d["_id"]}>
                   {columns.map((col: Column, index) => (
                     <StyledTableCell sx={{ paddingLeft: (index === 0 ? "32px !important" : "") }} key={`${d["_id"]}_${col.label}`}>
@@ -475,7 +475,7 @@ const ListingView: FC = () => {
               )}
 
               {/* No content message */}
-              {(!data?.listDataSubmissions?.total || data?.listDataSubmissions?.total === 0) && (
+              {(!data?.listSubmissions?.total || data?.listSubmissions?.total === 0) && (
                 <TableRow style={{ height: 53 * 10 }}>
                   <TableCell colSpan={columns.length}>
                     <Typography
@@ -494,16 +494,16 @@ const ListingView: FC = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 20, 50]}
             component="div"
-            count={data?.listDataSubmissions?.total || 0}
+            count={data?.listSubmissions?.total || 0}
             rowsPerPage={perPage}
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
             onRowsPerPageChange={handleChangeRowsPerPage}
             nextIconButtonProps={{
               disabled: perPage === -1
-                || !data?.listDataSubmissions
-                || data?.listDataSubmissions?.total === 0
-                || data?.listDataSubmissions?.total <= (page + 1) * perPage
+                || !data?.listSubmissions
+                || data?.listSubmissions?.total === 0
+                || data?.listSubmissions?.total <= (page + 1) * perPage
                 || emptyRows > 0
                 || loading
             }}

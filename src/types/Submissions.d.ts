@@ -3,7 +3,7 @@ type Organization = {
   name: string;
 };
 
-type DataSubmission = {
+type Submission = {
     _id: string; // aka. submissionID
     name: string;
     submitterID: string;
@@ -22,14 +22,14 @@ type DataSubmission = {
     updatedAt: string; // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
-type DataSubmissionHistoryEvent = {
-  status: DataSubmissionStatus; // # [New, In Progress, Submitted, In Review, Approved, Rejected]
+type SubmissionHistoryEvent = {
+  status: SubmissionStatus; // # [New, In Progress, Submitted, In Review, Approved, Rejected]
   reviewComment: string; // # if applicable
   dateTime: string; // # YYYY-MM-DDTHH:MM:SS format
   userID: string;
 };
 
-type DataSubmissionStatus = "New" | "In Progress" | "Submitted" | "Released" | "Canceled" | "Transferred" | "Completed" | "Archived";
+type SubmissionStatus = "New" | "In Progress" | "Submitted" | "Released" | "Canceled" | "Transferred" | "Completed" | "Archived";
 
 type HistoryEvent = {
   status: ApplicationStatus;

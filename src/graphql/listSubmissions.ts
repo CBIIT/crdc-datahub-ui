@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export const query = gql`
-  query listDataSubmissions($first: Int, $offset: Int, $orderBy: String, $sortDirection: String, $organization: String, $status: String) {
-    listDataSubmissions(first: $first, offset: $offset, orderBy: $orderBy, sortDirection: $sortDirection, organization: $organization, status: $status) {
+  query listSubmissions($first: Int, $offset: Int, $orderBy: String, $sortDirection: String, $organization: String, $status: String) {
+    listSubmissions(first: $first, offset: $offset, orderBy: $orderBy, sortDirection: $sortDirection, organization: $organization, status: $status) {
       total
       submissions {
         _id
@@ -25,9 +25,9 @@ export const query = gql`
 `;
 
 export type Response = {
-  listDataSubmissions: {
+  listSubmissions: {
     total: number;
-    submissions: Omit<DataSubmission, "submitterID"
+    submissions: Omit<Submission, "submitterID"
     | "modelVersion" | "bucketName" | "rootPath" | "history">[];
   };
 };
