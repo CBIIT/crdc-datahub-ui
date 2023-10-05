@@ -295,7 +295,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                       >
-                        <MenuItem value="">{"<Not Set>"}</MenuItem>
+                        <MenuItem value={null}>{"<Not Set>"}</MenuItem>
                         {activeCurators?.listActiveCurators?.map(({ userID, firstName, lastName }) => (
                           <MenuItem key={userID} value={userID}>{(`${firstName} ${lastName}`).trim()}</MenuItem>
                         ))}
