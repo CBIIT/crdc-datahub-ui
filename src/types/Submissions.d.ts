@@ -12,7 +12,7 @@ type Submission = {
     dataCommons: string;
     modelVersion: string; // # for future use
     studyAbbreviation: string;
-    dbGapID: string; // # aka. phs number
+    dbGaPID: string; // # aka. phs number
     bucketName: string; // # populated from organization
     rootPath: string; // # a submission folder will be created under this path, default is / or "" meaning root folder
     status: DataSubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]

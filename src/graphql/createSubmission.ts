@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export const mutation = gql`
-    mutation createSubmission ($studyAbbreviation: String, $dataCommons: String, $name: String, $dbGapID: String){
-        createSubmission(studyAbbreviation : $studyAbbreviation, dataCommons : $dataCommons, name : $name, dbGapID: $dbGapID) {
+    mutation createSubmission ($studyAbbreviation: String, $dataCommons: String, $name: String, $dbGaPID: String){
+        createSubmission(studyAbbreviation : $studyAbbreviation, dataCommons : $dataCommons, name : $name, dbGaPID: $dbGapID) {
             _id
             status
             createdAt

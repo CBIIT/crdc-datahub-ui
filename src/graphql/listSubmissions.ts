@@ -14,7 +14,7 @@ export const query = gql`
         }
         dataCommons
         studyAbbreviation
-        dbGapID
+        dbGaPID
         status
         concierge
         createdAt

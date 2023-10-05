@@ -135,7 +135,7 @@ const columns: Column[] = [
   },
   {
     label: "dbGaP ID",
-    value: (a) => a.dbGapID,
+    value: (a) => a.dbGaPID,
     field: "dbGapID",
   },
   {
@@ -322,7 +322,7 @@ const ListingView: FC = () => {
     }
   };
   const createSubmission = async () => {
-    const { data, errors } = await createDataSubmission({
+    const { errors } = await createDataSubmission({
       variables: {
         studyAbbreviation: study,
         dataCommons,
