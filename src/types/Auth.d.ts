@@ -77,5 +77,5 @@ type ApprovedStudy = {
    * @example GIS
    */
   studyAbbreviation: string;
-  dbGapID: string;
+  dbGaPID: string;
 };

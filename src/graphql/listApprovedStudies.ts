@@ -7,7 +7,7 @@ export const query = gql`
       originalOrg
       studyName
       studyAbbreviation
-      dbGapID
+      dbGaPID
     }
   }
 `;
