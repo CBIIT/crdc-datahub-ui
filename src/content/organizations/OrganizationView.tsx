@@ -127,13 +127,14 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
 }));
 
 const StyledContentStack = styled(Stack)({
-  transform: "translateX(-19px)",
-  marginRight: "-19px !important",
+  // TODO: Fix dropdown menu broken with transform/translate
+  // transform: "translateX(-19px)",
+  // marginRight: "-19px !important",
 });
 
 const StyledTitleBox = styled(Box)({
-  marginTop: "-118px",
-  marginBottom: "120px",
+  marginTop: "-86px",
+  marginBottom: "88px",
   width: "100%",
 });
 
@@ -261,7 +262,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
           spacing={2}
         >
           <StyledProfileIcon>
-            {/* TODO: we need an organization icon */}
             <img src={profileIcon} alt="organization icon" />
           </StyledProfileIcon>
 
@@ -300,7 +300,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     render={({ field }) => (
                       <StyledSelect
                         {...field}
-                        size="small"
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                       >
@@ -322,7 +321,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   render={({ field }) => (
                     <StyledSelect
                       {...field}
-                      size="small"
                       value={field.value || []}
                       MenuProps={{ disablePortal: true }}
                       multiple
@@ -348,7 +346,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   render={({ field }) => (
                     <StyledSelect
                       {...field}
-                      size="small"
                       value={field.value || ""}
                       MenuProps={{ disablePortal: true }}
                     >
