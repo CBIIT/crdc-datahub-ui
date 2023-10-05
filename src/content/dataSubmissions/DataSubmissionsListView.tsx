@@ -287,7 +287,7 @@ const ListingView: FC = () => {
     context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
-  const [createDataSubmission] = useMutation<CreateSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGapID: string }>(CREATE_SUBMISSION, {
+  const [createDataSubmission] = useMutation<CreateSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGaPID: string }>(CREATE_SUBMISSION, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
@@ -327,7 +327,7 @@ const ListingView: FC = () => {
         studyAbbreviation: study,
         dataCommons,
         name: submissionName,
-        dbGapID: dbgapid,
+        dbGaPID: dbgapid,
       }
     });
 
