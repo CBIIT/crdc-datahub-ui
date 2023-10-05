@@ -86,6 +86,9 @@ export const findProgram = (program: Program): ProgramOption => {
   if (program.notApplicable || program.name === NotApplicableProgram.name) {
     return NotApplicableProgram;
   }
+  if (program.isCustom) {
+    return OptionalProgram;
+  }
   const newProgram: ProgramOption = programOptions.find((option) => option.name === program.name);
   if (!newProgram && (program.name?.length || program.abbreviation?.length || program.description?.length)) {
     return OptionalProgram;

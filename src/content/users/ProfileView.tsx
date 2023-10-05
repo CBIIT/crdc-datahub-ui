@@ -85,7 +85,7 @@ const StyledField = styled('div')({
 const StyledLabel = styled('span')({
   color: '#356AAD',
   fontWeight: '700',
-  marginRight: '20px',
+  marginRight: '40px',
   minWidth: '127px',
 });
 
@@ -112,6 +112,10 @@ const BaseInputStyling = {
     padding: 0,
   },
   "& .MuiMenuItem-root.Mui-selected": {
+    background: "#3E7E6D !important",
+    color: "#FFFFFF !important",
+  },
+  "& .MuiMenuItem-root:hover": {
     background: "#D5EDE5",
   },
 };
@@ -137,8 +141,9 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
 }));
 
 const StyledTitleBox = styled(Box)({
-  marginTop: "-118px",
-  marginBottom: "120px",
+  marginTop: "-86px",
+  marginBottom: "88px",
+  marginRight: "40px",
   width: "100%",
 });
 

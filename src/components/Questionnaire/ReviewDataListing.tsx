@@ -17,6 +17,7 @@ const StyledGridHeader = styled(Grid)(() => ({
 }));
 
 type Props = {
+  idPrefix: string;
   title?: string;
   description?: string | JSX.Element;
   hideTitle?: boolean;
@@ -24,6 +25,7 @@ type Props = {
 };
 
 const ReviewDataListing = ({
+  idPrefix,
   title,
   description,
   hideTitle,
@@ -33,10 +35,10 @@ const ReviewDataListing = ({
     {title || description ? (
       <StyledGridHeader xs={12} item>
         {title && (
-          <StyledTitle variant="h5">{!hideTitle ? title : null}</StyledTitle>
+          <StyledTitle id={idPrefix.concat(`-section-title`)} variant="h5">{!hideTitle ? title : null}</StyledTitle>
         )}
         {description && (
-          <StyledDescription variant="body1">{description}</StyledDescription>
+          <StyledDescription id={idPrefix.concat(`-section-description`)} variant="body1">{description}</StyledDescription>
         )}
       </StyledGridHeader>
     ) : null}
