@@ -10,7 +10,7 @@ import { cloneDeep } from 'lodash';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import bannerSvg from '../../assets/banner/profile_banner.png';
-import profileIcon from '../../assets/icons/profile_icon.svg';
+import profileIcon from '../../assets/icons/organization.svg';
 import GenericAlert from '../../components/GenericAlert';
 import SuspenseLoader from '../../components/SuspenseLoader';
 import { EDIT_ORG, EditOrgResp, GET_ORG, GetOrgResp, LIST_APPROVED_STUDIES, LIST_CURATORS, ListApprovedStudiesResp, ListCuratorsResp } from '../../graphql';
