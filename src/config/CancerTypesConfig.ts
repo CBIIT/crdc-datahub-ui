@@ -5,7 +5,7 @@
 const options: string[] = [
   "Adrenal Gland, Adrenocortical Carcinoma",
   "Adrenal Gland, Pheochromocytoma",
-  "Bile Duct, Cholangiocarcinomaetc",
+  "Bile Duct, Cholangiocarcinoma",
   "Bladder, Urothelial (Transitional Cell) Carcinoma",
   "Blood/Bone Marrow, Acute Lymphocytic Leukemia (ALL)",
   "Blood/Bone Marrow, Acute Myeloid Leukemia (AML)",
