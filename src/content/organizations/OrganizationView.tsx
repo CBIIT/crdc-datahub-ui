@@ -71,7 +71,7 @@ const StyledField = styled('div')({
 const StyledLabel = styled('span')({
   color: '#356AAD',
   fontWeight: '700',
-  marginRight: '20px',
+  marginRight: '40px',
   minWidth: '135px',
 });
 
@@ -98,6 +98,10 @@ const BaseInputStyling = {
     padding: 0,
   },
   "& .MuiMenuItem-root.Mui-selected": {
+    background: "#3E7E6D !important",
+    color: "#FFFFFF !important",
+  },
+  "& .MuiMenuItem-root:hover": {
     background: "#D5EDE5",
   },
 };
@@ -121,6 +125,11 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
   fontSize: "17px",
   padding: "6px 8px",
 }));
+
+const StyledContentStack = styled(Stack)({
+  transform: "translateX(-19px)",
+  marginRight: "-19px !important",
+});
 
 const StyledTitleBox = styled(Box)({
   marginTop: "-118px",
@@ -256,7 +265,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
             <img src={profileIcon} alt="organization icon" />
           </StyledProfileIcon>
 
-          <Stack
+          <StyledContentStack
             direction="column"
             justifyContent="center"
             alignItems="center"
@@ -356,11 +365,11 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>
+                <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">Save</StyledButton>
                 <StyledButton type="button" onClick={() => navigate("/organizations")} txt="#949494" border="#828282">Cancel</StyledButton>
               </StyledButtonStack>
             </form>
-          </Stack>
+          </StyledContentStack>
         </Stack>
       </StyledContainer>
     </>
