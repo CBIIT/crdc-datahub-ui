@@ -14,6 +14,7 @@ import Tooltip from "./Tooltip";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
 import HistoryDialog from "../Shared/HistoryDialog";
+import DataSubmissionIconMap from "./DataSubmissionIconMap";
 
 const StyledSummaryWrapper = styled("div")(() => ({
   background: `url(${summaryBannerSvg})`,
@@ -125,6 +126,19 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
     setHistoryDialogOpen(false);
   };
 
+  const getHistoryTextColorFromStatus = (status: DataSubmissionStatus) => {
+    let color: string;
+    switch (status) {
+      case "Archived":
+        color = "#10EBA9";
+        break;
+      default:
+        color = "#FFF";
+    }
+
+    return color;
+  };
+
   return (
     <StyledSummaryWrapper>
       <Stack
@@ -209,19 +223,11 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
       <HistoryDialog
         open={historyDialogOpen}
         onClose={handleOnHistoryDialogClose}
-        preTitle="CRDC Data Submission"
-        title="Data Submission History"
+        preTitle="Data Submission Request"
+        title="Submission History"
         history={dataSubmission?.history}
-        iconMap={undefined}
-        getTextColor={(status) => {
-          let color;
-          switch (status) {
-            default:
-              color = "#FFF";
-          }
-
-          return color;
-        }}
+        iconMap={DataSubmissionIconMap}
+        getTextColor={getHistoryTextColorFromStatus}
       />
     </StyledSummaryWrapper>
   );
