@@ -49,7 +49,7 @@ const StyledPageTitle = styled(Typography)({
 
 const StyledProfileIcon = styled("div")({
   position: "relative",
-  transform: "translate(-219px, -75px)",
+  transform: "translate(-218px, -75px)",
   "& img": {
     position: "absolute",
   },
@@ -140,10 +140,13 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
   padding: "6px 8px",
 }));
 
+const StyledContentStack = styled(Stack)({
+  marginLeft: "2px !important",
+});
+
 const StyledTitleBox = styled(Box)({
   marginTop: "-86px",
   marginBottom: "88px",
-  marginRight: "40px",
   width: "100%",
 });
 
@@ -314,7 +317,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
             <img src={profileIcon} alt="profile icon" />
           </StyledProfileIcon>
 
-          <Stack
+          <StyledContentStack
             direction="column"
             justifyContent="center"
             alignItems="center"
@@ -428,11 +431,11 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>}
+                {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">Save</StyledButton>}
                 {viewType === "users" && <StyledButton type="button" onClick={() => navigate("/users")} txt="#949494" border="#828282">Cancel</StyledButton>}
               </StyledButtonStack>
             </form>
-          </Stack>
+          </StyledContentStack>
         </Stack>
       </StyledContainer>
     </>
