@@ -49,7 +49,7 @@ const StyledPageTitle = styled(Typography)({
 
 const StyledProfileIcon = styled("div")({
   position: "relative",
-  transform: "translate(-219px, -75px)",
+  transform: "translate(-218px, -75px)",
   "& img": {
     position: "absolute",
   },
@@ -127,9 +127,7 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
 }));
 
 const StyledContentStack = styled(Stack)({
-  // TODO: Fix dropdown menu broken with transform/translate
-  // transform: "translateX(-19px)",
-  // marginRight: "-19px !important",
+  marginLeft: "-2px !important",
 });
 
 const StyledTitleBox = styled(Box)({
