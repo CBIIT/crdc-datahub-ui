@@ -9,9 +9,12 @@ import {
   CardContent,
   Container,
   Stack,
+  Tabs,
   styled,
 } from "@mui/material";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
+import LinkTab from "../../components/DataSubmissions/LinkTab";
+import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
 import { GET_DATA_SUBMISSION, GetDataSubmissionResp } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert from "../../components/GenericAlert";
@@ -163,6 +166,26 @@ const StyledMainContentArea = styled("div")(() => ({
   padding: "21px 40px 0",
 }));
 
+const StyledTabs = styled(Tabs)(() => ({
+  position: 'relative',
+  "& .MuiTabs-flexContainer": {
+    justifyContent: "center"
+  },
+  "& .MuiTabs-indicator": {
+    display: "none !important"
+  },
+
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderBottom: '1.25px solid #6CACDA',
+    zIndex: 1,
+  },
+}));
+
 const StyledAlert = styled(Alert)({
   fontWeight: 400,
   fontSize: "16px",
@@ -175,12 +198,18 @@ const StyledWrapper = styled("div")({
   background: "#FBFDFF",
 });
 
+const URLTabs = {
+  DATA_UPLOAD: "data-upload",
+  QUALITY_CONTROL: "quality-control"
+};
+
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
   const navigate = useNavigate();
   const [dataSubmission, setDataSubmission] = useState<DataSubmission>(null);
   const [error, setError] = useState(false);
   const [openAlert, setOpenAlert] = useState<string>(null);
+  const isValidTab = tab && Object.values(URLTabs).includes(tab);
 
   const [getDataSubmission] = useLazyQuery<GetDataSubmissionResp>(GET_DATA_SUBMISSION, {
     variables: { id: "8887654" }, // TODO: Replace with submissionId
@@ -206,6 +235,11 @@ const DataSubmission = () => {
 
   const handleOnCancel = () => {
     navigate("/data-submissions");
+  };
+
+  const handleOnUpload = (message: string) => {
+    setOpenAlert(message);
+    setTimeout(() => setOpenAlert(null), 10000);
   };
 
   return (
@@ -318,11 +352,28 @@ const DataSubmission = () => {
               </Stack>
             </StyledChartArea>
 
-            {/* TODO: Tabs */}
+            <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
+              <LinkTab
+                value={URLTabs.DATA_UPLOAD}
+                label="Data Upload"
+                to={`/data-submission/${submissionId}/${URLTabs.DATA_UPLOAD}`}
+                selected={tab === URLTabs.DATA_UPLOAD}
+              />
+              <LinkTab
+                value={URLTabs.QUALITY_CONTROL}
+                label="Quality Control"
+                to={`/data-submission/${submissionId}/${URLTabs.QUALITY_CONTROL}`}
+                selected={tab === URLTabs.QUALITY_CONTROL}
+              />
+            </StyledTabs>
 
             <StyledMainContentArea>
-              {/* TODO: DataSubmissionUpload */}
-              {/* TODO: DataSubmissionBatchTable */}
+              {tab === URLTabs.DATA_UPLOAD ? (
+                <Stack direction="column" justifyContent="center">
+                  <DataSubmissionUpload onUpload={handleOnUpload} />
+                  {/* TODO: DataSubmissionBatchTable */}
+                </Stack>
+              ) : null}
             </StyledMainContentArea>
           </CardContent>
           <CardActions>
