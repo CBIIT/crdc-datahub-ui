@@ -9,7 +9,7 @@ import {
   styled,
 } from "@mui/material";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
-import Tooltip from "./Tooltip";
+import Tooltip from "../Tooltip";
 import { updateInputValidity } from '../../utils';
 
 const DropdownArrowsIcon = styled("div")(() => ({

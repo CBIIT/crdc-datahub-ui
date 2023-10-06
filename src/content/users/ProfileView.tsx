@@ -281,7 +281,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       return;
     }
 
-    const expectedOrg = orgData?.find((org) => org.orgName === OrgAssignmentMap[role])?.orgID;
+    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[role])?._id;
     setValue("organization.orgID", expectedOrg || "");
   }, [orgFieldDisabled, role, user, orgData]);
 
@@ -415,7 +415,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         disabled={orgFieldDisabled}
                       >
                         <MenuItem value="">{"<Not Set>"}</MenuItem>
-                        {orgData?.map((org) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
+                        {orgData?.map((org) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
                       </StyledSelect>
                     )}
                   />

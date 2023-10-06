@@ -8,7 +8,7 @@ type Application = {
   history: HistoryEvent[];
   // Applicant Details
   applicant: Applicant;
-  organization: Organization;
+  organization: Pick<Organization, "_id" | "name">;
   // Sort Fields
   programName: Program["name"];
   studyAbbreviation: Study["abbreviation"];
@@ -153,9 +153,4 @@ type Applicant = {
   applicantID: string;
   applicantName: string;
   applicantEmail: string;
-};
-
-type Organization = {
-  _id: string;
-  name: string;
 };
