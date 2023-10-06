@@ -74,7 +74,7 @@ const StyledTimelineItem = styled(TimelineItem)({
     right: "0",
     bottom: "0",
     position: "absolute",
-    background: "#033277",
+    background: "#375F9A",
   },
   // Add vertical lines between timeline item dots (top)
   "&:not(:first-of-type) .MuiTimelineSeparator-root::before": {
@@ -142,6 +142,7 @@ const StyledTimelineVerticalLine = styled("span")({
 
 const StyledTimelineContent = styled(TimelineContent)({
   marginLeft: "60px",
+  paddingRight: 0,
   color: "#fff",
 });
 
@@ -155,6 +156,9 @@ const StyledTypography = styled(Typography)<{ color: CSSProperties["color"] }>((
 const StyledAvatar = styled(Avatar)({
   background: "transparent",
   marginRight: "8px",
+  "&.MuiAvatar-root": {
+    marginLeft: "auto"
+  }
 });
 
 const StyledCloseButton = styled(Button)({
@@ -222,7 +226,7 @@ const HistoryDialog = <T extends string>({
                 <StyledTimelineVerticalLine />
               </StyledTimelineSeparator>
               <StyledTimelineContent>
-                <Stack direction="row" alignContent="center" spacing={1}>
+                <Stack direction="row" alignContent="center" spacing={1} paddingRight={0}>
                   <StyledTypography title={dateTime} color={typeof getTextColor === "function" ? getTextColor(status) : "#FFF"}>
                     {FormatDate(dateTime, "M/D/YYYY", "N/A")}
                   </StyledTypography>

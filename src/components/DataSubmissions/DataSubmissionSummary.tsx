@@ -132,6 +132,9 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
       case "Archived":
         color = "#10EBA9";
         break;
+      case "Rejected":
+        color = "#FF7A42";
+        break;
       default:
         color = "#FFF";
     }
