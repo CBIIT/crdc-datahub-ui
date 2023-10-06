@@ -183,7 +183,6 @@ const InactivityDialog = () => {
     if (logoutStatus) {
       navigate("/");
       setWarning(false);
-      setTimeout(() => setShowLogoutAlert(false), 10000);
     }
   };
   const handleSignOut = async () => {

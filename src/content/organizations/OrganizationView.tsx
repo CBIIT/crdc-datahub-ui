@@ -10,7 +10,7 @@ import { cloneDeep } from 'lodash';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import bannerSvg from '../../assets/banner/profile_banner.png';
-import profileIcon from '../../assets/icons/profile_icon.svg';
+import profileIcon from '../../assets/icons/organization.svg';
 import GenericAlert from '../../components/GenericAlert';
 import SuspenseLoader from '../../components/SuspenseLoader';
 import {
@@ -55,7 +55,7 @@ const StyledPageTitle = styled(Typography)({
 
 const StyledProfileIcon = styled("div")({
   position: "relative",
-  transform: "translate(-219px, -75px)",
+  transform: "translate(-218px, -75px)",
   "& img": {
     position: "absolute",
   },
@@ -77,7 +77,7 @@ const StyledField = styled('div')({
 const StyledLabel = styled('span')({
   color: '#356AAD',
   fontWeight: '700',
-  marginRight: '20px',
+  marginRight: '40px',
   minWidth: '135px',
 });
 
@@ -104,6 +104,10 @@ const BaseInputStyling = {
     padding: 0,
   },
   "& .MuiMenuItem-root.Mui-selected": {
+    background: "#3E7E6D !important",
+    color: "#FFFFFF !important",
+  },
+  "& .MuiMenuItem-root:hover": {
     background: "#D5EDE5",
   },
 };
@@ -128,9 +132,13 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
   padding: "6px 8px",
 }));
 
+const StyledContentStack = styled(Stack)({
+  marginLeft: "-2px !important",
+});
+
 const StyledTitleBox = styled(Box)({
-  marginTop: "-118px",
-  marginBottom: "120px",
+  marginTop: "-86px",
+  marginBottom: "88px",
   width: "100%",
 });
 
@@ -291,11 +299,10 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
           spacing={2}
         >
           <StyledProfileIcon>
-            {/* TODO: we need an organization icon */}
             <img src={profileIcon} alt="organization icon" />
           </StyledProfileIcon>
 
-          <Stack
+          <StyledContentStack
             direction="column"
             justifyContent="center"
             alignItems="center"
@@ -330,11 +337,10 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     render={({ field }) => (
                       <StyledSelect
                         {...field}
-                        size="small"
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                       >
-                        <MenuItem value="">{"<Not Set>"}</MenuItem>
+                        <MenuItem value={null}>{"<Not Set>"}</MenuItem>
                         {activeCurators?.listActiveCurators?.map(({ userID, firstName, lastName }) => (
                           <MenuItem key={userID} value={userID}>{(`${firstName} ${lastName}`).trim()}</MenuItem>
                         ))}
@@ -352,7 +358,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   render={({ field }) => (
                     <StyledSelect
                       {...field}
-                      size="small"
                       value={field.value || []}
                       MenuProps={{ disablePortal: true }}
                       multiple
@@ -378,7 +383,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   render={({ field }) => (
                     <StyledSelect
                       {...field}
-                      size="small"
                       value={field.value || ""}
                       disabled={_id === "new"}
                       MenuProps={{ disablePortal: true }}
@@ -396,11 +400,11 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>
+                <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">Save</StyledButton>
                 <StyledButton type="button" onClick={() => navigate("/organizations")} txt="#949494" border="#828282">Cancel</StyledButton>
               </StyledButtonStack>
             </form>
-          </Stack>
+          </StyledContentStack>
         </Stack>
       </StyledContainer>
     </>
