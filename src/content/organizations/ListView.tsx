@@ -416,7 +416,7 @@ const ListingView: FC = () => {
                       fontSize={18}
                       color="#AAA"
                     >
-                      No users found.
+                      No organizations found.
                     </Typography>
                   </TableCell>
                 </TableRow>

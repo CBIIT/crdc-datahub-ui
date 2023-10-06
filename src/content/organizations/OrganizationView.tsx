@@ -212,10 +212,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
         return;
       }
 
-      // NOTE: This is state replaced by the redirect. It's here to prevent a flash of the loader
-      setOrganization(d.createOrganization);
+      setOrganization(null);
       setChangesAlert("This organization has been successfully added.");
-      navigate(`/organizations/${d.createOrganization._id}`);
+      reset();
     } else {
       const { data: d, errors } = await editOrganization({ variables: { orgID: organization._id, ...variables, } })
         .catch((e) => ({ errors: e?.message, data: null }));
@@ -227,11 +226,11 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       }
 
       setChangesAlert("All changes have been saved");
+      setFormValues(data);
     }
 
     setError(null);
     setTimeout(() => setChangesAlert(""), 10000);
-    setFormValues(data);
   };
 
   /**
