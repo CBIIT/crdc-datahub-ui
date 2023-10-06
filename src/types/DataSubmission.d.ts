@@ -18,7 +18,7 @@ type DataSubmission = {
   updatedAt: string; // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
-type DataSubmissionStatus = "New" | "In Progress" | "Submitted" | "Released" | "Completed" | "Archived";
+type DataSubmissionStatus = "New" | "In Progress" | "Submitted" | "Released" | "Withdrawn" | "Rejected" | "Completed" | "Archived" | "Canceled";
 
 type BatchFile = {
   _id: string;
