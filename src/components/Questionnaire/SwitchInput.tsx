@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { SwitchProps, Grid, Switch, FormHelperText } from '@mui/material';
 import styled from "styled-components";
-import Tooltip from "./Tooltip";
+import Tooltip from "../Tooltip";
 import { updateInputValidity } from '../../utils';
 
 const GridStyled = styled(Grid)`

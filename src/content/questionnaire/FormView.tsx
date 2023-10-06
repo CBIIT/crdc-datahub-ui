@@ -4,7 +4,7 @@ import {
   unstable_useBlocker as useBlocker, unstable_Blocker as Blocker, Navigate
 } from 'react-router-dom';
 import { isEqual, cloneDeep } from 'lodash';
-import { Alert, Button, Container, Divider, Stack, styled } from '@mui/material';
+import { Alert, AlertColor, Button, Container, Divider, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { WithStyles, withStyles } from "@mui/styles";
 import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
@@ -24,6 +24,7 @@ import PageBanner from '../../components/PageBanner';
 import bannerPng from "../../assets/banner/submission_banner.png";
 import GenericAlert from '../../components/GenericAlert';
 import { Status as AuthStatus, useAuthContext } from '../../components/Contexts/AuthContext';
+import ErrorCodes from '../../config/ErrorCodes';
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -65,6 +66,15 @@ const StyledAlert = styled(Alert)({
   scrollMarginTop: "64px"
 });
 
+export type SaveForm =
+  | { status: "success"; id: string }
+  | { status: "failed"; errorMessage: string };
+
+type AlertState = {
+  message: string;
+  severity: AlertColor;
+};
+
 /**
  * Intake Form View Component
  *
@@ -82,7 +92,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const { formMode, readOnlyInputs } = useFormMode();
-  const [changesAlert, setChangesAlert] = useState<string>("");
+  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const [allSectionsComplete, setAllSectionsComplete] = useState<boolean>(false);
 
   const sectionKeys = Object.keys(map);
@@ -95,6 +105,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
   const hasUpdatedReviewStatusRef = useRef(false);
+  const alertTimeoutRef = useRef(null);
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -117,7 +128,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   useEffect(() => {
     const isComplete = isAllSectionsComplete();
     setAllSectionsComplete(isComplete);
-  }, [status]);
+  }, [status, data]);
 
   useEffect(() => {
     if (hasError && errorAlertRef?.current) {
@@ -355,15 +366,21 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the save was successful, false otherwise
    */
-  const saveForm = async () => {
+  const saveForm = async (): Promise<SaveForm> => {
     if (readOnlyInputs || formMode !== "Edit") {
-      return false;
+      return {
+        status: 'failed',
+        errorMessage: null
+      };
     }
 
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
     if (!ref?.current || !newData) {
-      return false;
+      return {
+        status: 'failed',
+        errorMessage: null
+      };
     }
 
     // Update section status
@@ -379,20 +396,67 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
 
     // Skip state update if there are no changes
-    if (!isEqual(data.questionnaireData, newData)) {
-      const r = await setData(newData);
-      setChangesAlert(`Your changes for the ${map[activeSection].title} section have been successfully saved.`);
-
-      if (!blockedNavigate && r && data["_id"] === "new" && r !== data?.['_id']) {
-        // NOTE: This currently triggers a form data refetch, which is not ideal
-        navigate(`/submission/${r}/${activeSection}`, { replace: true });
+    if (!isEqual(data.questionnaireData, newData) || error === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
+      const res = await setData(newData);
+      if (res?.status === "failed" && res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
+        setChangesAlert({ severity: "error", message: `The Study Abbreviation already existed in the system. Your changes were unable to be saved.` });
+      } else {
+        setChangesAlert({ severity: "success", message: `Your changes for the ${map[activeSection].title} section have been successfully saved.` });
       }
 
-      setTimeout(() => setChangesAlert(""), 10000);
-      return r;
+      if (alertTimeoutRef.current) {
+        clearTimeout(alertTimeoutRef.current);
+      }
+      alertTimeoutRef.current = setTimeout(() => setChangesAlert(null), 10000);
+
+      if (!blockedNavigate && res?.status === "success" && data["_id"] === "new" && res.id !== data?.['_id']) {
+        // NOTE: This currently triggers a form data refetch, which is not ideal
+        navigate(`/submission/${res.id}/${activeSection}`, { replace: true });
+      }
+
+      if (res?.status === "success") {
+        return {
+          status: 'success',
+          id: res.id
+        };
+      }
+      return {
+        status: 'failed',
+        errorMessage: res?.errorMessage
+      };
     }
 
-    return data?.["_id"];
+    return {
+      status: 'success',
+      id: data?.["_id"]
+    };
+  };
+
+  const areSectionsValid = (): boolean => {
+    if (status === FormStatus.LOADING) {
+      return false;
+    }
+
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+    if (!ref?.current || !newData) {
+      return false;
+    }
+
+    const sectionsClone = cloneDeep(data?.questionnaireData?.sections);
+    if (sectionsClone?.length !== Object.keys(map).length - 1) { // Not including review section
+      return false;
+    }
+
+    const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
+    const currentSection : Section = sectionsClone.find((s) => s.name === activeSection);
+    if (currentSection) {
+      currentSection.status = newStatus;
+    } else {
+      sectionsClone.push({ name: activeSection, status: newStatus });
+    }
+
+    return sectionsClone?.every((section) => section.status === "Completed");
   };
 
   /**
@@ -404,20 +468,25 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    */
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
-    const newId = await saveForm();
+    const res = await saveForm();
     const reviewSectionUrl = `/submission/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
     const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 
     setBlockedNavigate(false);
 
-    if (isNavigatingToReviewSection && !isAllSectionsComplete()) {
+    // if invalid data, then block navigation
+    if ((isNavigatingToReviewSection && ((res?.status === "success" && !res?.id) || !areSectionsValid()))) {
+      return;
+    }
+    // if duplicate study error, then block navigation
+    if (res?.status === "failed" && res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
       return;
     }
 
     blocker.proceed?.();
-    if (newId) {
+    if (res?.status === "success" && res.id) {
       // NOTE: This currently triggers a form data refetch, which is not ideal
-      navigate(blocker.location.pathname.replace("new", newId), { replace: true });
+      navigate(blocker.location.pathname.replace("new", res.id), { replace: true });
     }
   };
 
@@ -488,15 +557,15 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     return null;
   }
 
-  if (status === FormStatus.ERROR || !data) {
+  if ((status === FormStatus.ERROR && error !== ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) || !data) {
     return <Navigate to="/submissions" state={{ error: error || 'Unknown error' }} />;
   }
 
   return (
     <>
-      <GenericAlert open={changesAlert !== ""} key="formview-changes-alert">
+      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="formview-changes-alert">
         <span>
-          {changesAlert}
+          {changesAlert?.message}
         </span>
       </GenericAlert>
 

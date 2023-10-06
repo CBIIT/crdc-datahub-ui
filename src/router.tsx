@@ -36,6 +36,7 @@ const Login = Loader(lazy(() => import('./content/login/Controller')));
 const Questionnaire = Loader(lazy(() => import('./content/questionnaire/Controller')));
 const DataSubmissions = Loader(lazy(() => import('./content/dataSubmissions/Controller')));
 const Users = Loader(lazy(() => import('./content/users/Controller')));
+const Organizations = Loader(lazy(() => import('./content/organizations/Controller')));
 
 // Status Pages
 const Status404 = Loader(lazy(() => import('./content/status/Page404')));
@@ -76,6 +77,10 @@ const routes: RouteObject[] = [
       {
         path: '/profile/:userId?',
         element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
+      },
+      {
+        path: '/organizations/:orgId?',
+        element: <RequireAuth component={<Organizations />} redirectPath="/organizations" redirectName="Organization Management" />
       },
       {
         path: '*',

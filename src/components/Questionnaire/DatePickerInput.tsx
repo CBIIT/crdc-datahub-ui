@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
-import Tooltip from "./Tooltip";
+import Tooltip from "../Tooltip";
 import calendarIcon from "../../assets/icons/calendar.svg";
 import { updateInputValidity } from '../../utils';
 

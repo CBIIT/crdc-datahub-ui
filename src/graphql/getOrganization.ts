@@ -1,22 +1,21 @@
 import gql from 'graphql-tag';
 
 export const query = gql`
-  query listOrganizations {
-    listOrganizations {
+  query getOrganization($orgID: ID!) {
+    getOrganization(orgID: $orgID) {
       _id
       name
       status
+      conciergeID
       conciergeName
       studies {
         studyName
         studyAbbreviation
       }
-      createdAt
-      updateAt
     }
   }
 `;
 
 export type Response = {
-  listOrganizations: Pick<Organization, "_id" | "name" | "status" | "conciergeName" | "studies" | "createdAt" | "updateAt">[];
+  getOrganization: Organization;
 };
