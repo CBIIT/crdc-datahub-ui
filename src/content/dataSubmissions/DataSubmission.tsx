@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import {
   Alert,
-  Button,
   Card,
   CardActions,
   CardContent,
@@ -22,6 +21,7 @@ import GenericAlert from "../../components/GenericAlert";
 import PieChart from "../../components/DataSubmissions/PieChart";
 import DataSubmissionBatchTable, { Column, FetchListing } from "../../components/DataSubmissions/DataSubmissionBatchTable";
 import { FormatDate } from "../../utils";
+import DataSubmissionActions from "./DataSubmissionActions";
 
 const dummyChartData = [
   { label: 'Group A', value: 12, color: "#DFC798" },
@@ -57,64 +57,6 @@ const StyledBannerContentContainer = styled(Container)(
     },
   })
 );
-
-const StyledActionWrapper = styled(Stack)(() => ({
-  justifyContent: "center",
-  alignItems: "center",
-}));
-
-const StyledSubmitButton = styled(Button)(() => ({
-  display: "flex",
-  width: "128px",
-  height: "51px",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "10px",
-  flexShrink: 0,
-  borderRadius: "8px",
-  background: "#1D91AB",
-  color: "#FFF",
-  textAlign: "center",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "16px",
-  letterSpacing: "0.32px",
-  textTransform: "initial",
-  zIndex: 3,
-  "&:hover": {
-    background: "#1A7B90",
-  }
-}));
-
-const StyledCancelButton = styled(Button)(() => ({
-  display: "flex",
-  width: "128px",
-  height: "51px",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "10px",
-  flexShrink: 0,
-  borderRadius: "8px",
-  border: "1px solid #AEAEAE",
-  background: "#757D88",
-  color: "#FFF",
-  textAlign: "center",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "16px",
-  letterSpacing: "0.32px",
-  textTransform: "initial",
-  zIndex: 3,
-  "&:hover": {
-    background: "#5B6169",
-  }
-}));
 
 const StyledCard = styled(Card)(() => ({
   borderRadius: "8px",
@@ -259,9 +201,11 @@ const URLTabs = {
   QUALITY_CONTROL: "quality-control"
 };
 
+const submissionLockedStatuses: DataSubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
+
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
-  const navigate = useNavigate();
+
   const [dataSubmission, setDataSubmission] = useState<DataSubmission>(null);
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<BatchFile>>(null);
@@ -334,8 +278,8 @@ const DataSubmission = () => {
     })();
   }, [submissionId]);
 
-  const handleOnCancel = () => {
-    navigate("/data-submissions");
+  const handleOnDataSubmissionChange = (dataSubmission: DataSubmission) => {
+    setDataSubmission(dataSubmission);
   };
 
   const handleOnUpload = (message: string) => {
@@ -471,7 +415,10 @@ const DataSubmission = () => {
             <StyledMainContentArea>
               {tab === URLTabs.DATA_UPLOAD ? (
                 <Stack direction="column" justifyContent="center">
-                  <DataSubmissionUpload onUpload={handleOnUpload} />
+                  <DataSubmissionUpload
+                    onUpload={handleOnUpload}
+                    readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
+                  />
                   <DataSubmissionBatchTable
                     columns={columns}
                     data={batchFiles || []}
@@ -484,25 +431,10 @@ const DataSubmission = () => {
             </StyledMainContentArea>
           </CardContent>
           <CardActions>
-            <StyledActionWrapper direction="row" spacing={2}>
-              <StyledSubmitButton
-                variant="contained"
-                disableElevation
-                disableRipple
-                disableTouchRipple
-              >
-                Submit
-              </StyledSubmitButton>
-              <StyledCancelButton
-                variant="contained"
-                onClick={handleOnCancel}
-                disableElevation
-                disableRipple
-                disableTouchRipple
-              >
-                Cancel
-              </StyledCancelButton>
-            </StyledActionWrapper>
+            <DataSubmissionActions
+              dataSubmission={dataSubmission}
+              onDataSubmissionChange={handleOnDataSubmissionChange}
+            />
           </CardActions>
         </StyledCard>
       </StyledBannerContentContainer>

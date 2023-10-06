@@ -201,7 +201,7 @@ const RadioYesNoInput: FC<Props> = ({
                   control={(
                     <BpRadio
                       id={id.concat(`-${option.label}-radio-button`)}
-                      readOnly={option.disabled}
+                      readOnly={readOnly || option.disabled}
                       disabled={option.disabled}
                       {...(isFirstOption && { inputRef: radioGroupInputRef })}
                     />

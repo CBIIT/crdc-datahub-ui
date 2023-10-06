@@ -106,9 +106,10 @@ type UploadType = "New" | "Update";
 
 type Props = {
   onUpload: (message: string) => void;
+  readOnly?: boolean;
 };
 
-const DataSubmissionUpload = ({ onUpload }: Props) => {
+const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
   const [uploadType, setUploadType] = useState<UploadType>("New");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -169,6 +170,7 @@ const DataSubmissionUpload = ({ onUpload }: Props) => {
         onChange={(event, value: UploadType) => setUploadType(value)}
         options={[{ label: "New", value: "New" }, { label: "Update", value: "Update", disabled: true }]}
         gridWidth={4}
+        readOnly={readOnly}
         inline
         row
       />
@@ -179,12 +181,13 @@ const DataSubmissionUpload = ({ onUpload }: Props) => {
           type="file"
             /* accept="text/tab-separated-values" */
           onChange={handleChooseFiles}
+          readOnly={readOnly}
           multiple
         />
         <StyledChooseFilesButton
           variant="outlined"
-          disabled={isUploading}
           onClick={handleChooseFilesClick}
+          disabled={readOnly || isUploading}
         >
           Choose Files
         </StyledChooseFilesButton>
@@ -196,7 +199,7 @@ const DataSubmissionUpload = ({ onUpload }: Props) => {
         variant="contained"
         onClick={handleUploadFiles}
         loading={isUploading}
-        disabled={!selectedFiles?.length}
+        disabled={readOnly || !selectedFiles?.length}
         disableElevation
         disableRipple
         disableTouchRipple

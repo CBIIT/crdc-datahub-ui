@@ -1,7 +1,7 @@
 import { LoadingButton } from "@mui/lab";
 import { Button, DialogProps } from "@mui/material";
 import { FC } from "react";
-import Dialog from "./Dialog";
+import Dialog from "../Shared/Dialog";
 
 type Props = {
   title?: string;
