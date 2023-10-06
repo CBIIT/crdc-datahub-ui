@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from "./components/LogoMobile";
-import SearchBar from "./components/SearchBarMobile";
 import menuClearIcon from '../../assets/header/Menu_Cancel_Icon.svg';
 import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
 import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
@@ -18,11 +17,6 @@ const HeaderContainer = styled.div`
     margin: 0 auto;
     padding-left: 16px;
     box-shadow: -0.1px 6px 9px -6px rgba(0, 0, 0, 0.5);
-
-    .searchBarArea {
-        padding: 0 16px 0 0;
-        margin-left: 24px;
-    }
 
     .headerLowerContainer {
         display: flex;
@@ -163,7 +157,6 @@ type NavbarMobileList = {
 }[];
 
 const Header = () => {
-  const path = useLocation().pathname;
   const [navMobileDisplay, setNavMobileDisplay] = useState('none');
   const navMobileListHookResult = useState(navMobileList);
   const navbarMobileList: NavbarMobileList = navMobileListHookResult[0];
@@ -186,7 +179,7 @@ const Header = () => {
   navbarSublists[displayName] = [
     {
       name: 'User Profile',
-      link: `/users/${authData?.user?._id}`,
+      link: `/profile/${authData?.user?._id}`,
       id: 'navbar-dropdown-item-user-profile',
       className: 'navMobileSubItem',
     },
@@ -202,6 +195,14 @@ const Header = () => {
     navbarSublists[displayName].splice(1, 0, {
       name: 'Manage Users',
       link: '/users',
+      id: 'navbar-dropdown-item-user-manage',
+      className: 'navMobileSubItem',
+    });
+  }
+  if (authData?.user?.role === "Admin") {
+    navbarSublists[displayName].splice(1, 0, {
+      name: 'Manage Organizations',
+      link: '/organizations',
       id: 'navbar-dropdown-item-user-manage',
       className: 'navMobileSubItem',
     });
@@ -237,7 +238,6 @@ const Header = () => {
             >
               Menu
             </div>
-            {path !== "/sitesearch" && <div className="searchBarArea"><SearchBar /></div>}
           </div>
         </HeaderContainer>
       </HeaderBanner>

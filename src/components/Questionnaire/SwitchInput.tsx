@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { SwitchProps, Grid, Switch, FormHelperText } from '@mui/material';
 import styled from "styled-components";
-import Tooltip from "./Tooltip";
+import Tooltip from "../Tooltip";
 import { updateInputValidity } from '../../utils';
 
 const GridStyled = styled(Grid)`
@@ -41,7 +41,7 @@ const GridStyled = styled(Grid)`
     background-color: white !important;
   }
   .readOnly .MuiSwitch-track {
-    background-color: #D2DFE9 !important;
+    background-color: #E5EEF4 !important;
   }
   .readOnly .MuiSwitch-input {
     cursor: not-allowed;
@@ -74,7 +74,7 @@ const GridStyled = styled(Grid)`
 
   .asterisk {
     color: #D54309;
-    margin-right: 2px;
+    margin-left: 2px;
   }
   .labelContainer {
     color: #083A50;
@@ -213,8 +213,8 @@ const CustomSwitch: FC<Props> = ({
     <GridStyled md={gridWidth || 6} xs={12} item sx={sx}>
       <Container $containerWidth={containerWidth}>
         <div className="labelContainer">
-          {required ? <span className="asterisk">*</span> : ""}
           {label}
+          {required ? <span className="asterisk">*</span> : ""}
           {tooltipText && <Tooltip placement="right" className="tooltip" title={tooltipText} />}
         </div>
         <div className="switchErrorContainer">

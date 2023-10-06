@@ -1,21 +1,20 @@
 import gql from 'graphql-tag';
 
 export const mutation = gql`
-  mutation editUser($userID: String, $organization: String, $status: String, $role: String) {
+  mutation editUser($userID: ID, $organization: String, $status: String, $role: String) {
     editUser(userID: $userID, organization: $organization, status: $status, role: $role) {
-      _id
-      firstName
-      lastName
       userStatus
       role
       organization {
         orgID
         orgName
+        createdAt
+        updateAt
       }
     }
   }
 `;
 
 export type Response = {
-  editUser: User;
+  editUser: Pick<User, 'userStatus' | 'role' | 'organization'>;
 };

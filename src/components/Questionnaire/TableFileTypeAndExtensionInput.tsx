@@ -2,9 +2,12 @@ import React, { FC, useEffect, useState, useRef } from "react";
 import {
   Autocomplete,
   TextField,
-  TableCell } from "@mui/material";
+  TableCell,
+  Tooltip,
+  TooltipProps,
+  styled
+} from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
-import styled from 'styled-components';
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 import { fileTypeExtensions } from "../../config/FileTypeConfig";
 import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
@@ -31,6 +34,20 @@ type Props = {
   onChange?: (e: React.SyntheticEvent, v: string, r: string) => void;
 };
 
+const StyledTooltip = styled((props: TooltipProps) => (
+  <Tooltip classes={{ popper: props.className }} {...props} />
+))(() => ({
+  "& .MuiTooltip-tooltip": {
+    marginTop: "4px !important",
+    color: "#D54309",
+    background: "#FFFFFF",
+    border: "1px solid #2B528B",
+  },
+  "& .MuiTooltip-arrow": {
+    color: "#2B528B",
+  },
+}));
+
 /**
  * Generates a generic autocomplete select box with a label and help text
  *
@@ -54,16 +71,13 @@ const TableAutocompleteInput: FC<Props> = ({
   const [extensionVal, setExtensionVal] = useState(extensionValue);
   const fileTypeRef = useRef<HTMLInputElement>(null);
   const fileExtensionRef = useRef<HTMLInputElement>(null);
+  const [showFileTypeEror, setShowFileTypeError] = useState<boolean>(false);
+  const [showFileExtensionError, setShowFileExtensionError] = useState<boolean>(false);
 
   useEffect(() => {
-    const invalid = (e) => {
-      if (!e.target.reportValidityInProgress) {
-        e.target.reportValidityInProgress = true;
-        e.target.reportValidity();
-        e.target.reportValidityInProgress = false;
-      }
+    const invalid = () => {
+      setShowFileTypeError(true);
     };
-
     fileTypeRef.current?.addEventListener("invalid", invalid);
     return () => {
       fileTypeRef.current?.removeEventListener("invalid", invalid);
@@ -71,12 +85,8 @@ const TableAutocompleteInput: FC<Props> = ({
   }, [fileTypeRef]);
 
   useEffect(() => {
-    const invalid = (e) => {
-      if (!e.target.reportValidityInProgress) {
-        e.target.reportValidityInProgress = true;
-        e.target.reportValidity();
-        e.target.reportValidityInProgress = false;
-      }
+    const invalid = () => {
+      setShowFileExtensionError(true);
     };
 
     fileExtensionRef.current?.addEventListener("invalid", invalid);
@@ -86,11 +96,10 @@ const TableAutocompleteInput: FC<Props> = ({
   }, [fileExtensionRef]);
 
   const onTypeValChangeWrapper = (e, v, r) => {
+    setShowFileTypeError(false);
     v = v || "";
     if (v === "") {
-      setExtensionVal("");
       fileTypeRef.current.setCustomValidity("Please specify a file type");
-      fileExtensionRef.current.setCustomValidity("Please specify a file extension type");
     } else {
       fileTypeRef.current.setCustomValidity("");
     }
@@ -101,6 +110,7 @@ const TableAutocompleteInput: FC<Props> = ({
     setTypeVal(v);
   };
   const onExtensionValChangeWrapper = (e, v, r) => {
+    setShowFileExtensionError(false);
     v = v || "";
     if (v === "") {
       fileExtensionRef.current.setCustomValidity("Please specify a file extension type");
@@ -154,7 +164,10 @@ const TableAutocompleteInput: FC<Props> = ({
           },
           popper: {
             disablePortal: true,
-            sx: { top: "-2px !important" },
+            sx: {
+              top: "-2px !important",
+              zIndex: "2000"
+            },
             modifiers: [
               {
                 // disables popper from flipping above the input when out of screen room
@@ -168,18 +181,28 @@ const TableAutocompleteInput: FC<Props> = ({
           },
         }}
           renderInput={(p) => (
-            <TextField
-              {...p}
-              onChange={typeTextInputOnChange}
-              name={name.concat("[type]")}
-              required={required}
-              placeholder={rest.placeholder || "Enter or select a type"}
-              variant="standard"
-              inputRef={fileTypeRef}
-              InputProps={{ ...p.InputProps, disableUnderline: true }}
+            <StyledTooltip
+              title="Missing required field"
+              arrow
+              disableHoverListener
+              disableFocusListener
+              disableTouchListener
+              open={showFileTypeEror}
+              slotProps={{ tooltip: { style: { marginTop: "4px !important" } } }}
+            >
+              <TextField
+                {...p}
+                onChange={typeTextInputOnChange}
+                name={name.concat("[type]")}
+                required={required}
+                placeholder={rest.placeholder || "Enter or select a type"}
+                variant="standard"
+                inputRef={fileTypeRef}
+                InputProps={{ ...p.InputProps, disableUnderline: true }}
               // eslint-disable-next-line react/jsx-no-duplicate-props
-              inputProps={{ ...p.inputProps, maxLength: 30 }}
-            />
+                inputProps={{ ...p.inputProps, maxLength: 30 }}
+              />
+            </StyledTooltip>
         )}
           {...rest}
         />
@@ -211,6 +234,7 @@ const TableAutocompleteInput: FC<Props> = ({
               disablePortal: true,
               sx: {
                 top: "-2px !important",
+                zIndex: "2000"
               },
               modifiers: [
                 {
@@ -225,18 +249,27 @@ const TableAutocompleteInput: FC<Props> = ({
             },
           }}
           renderInput={(p) => (
-            <TextField
-              {...p}
-              onChange={extensionTextInputOnChange}
-              name={name.concat("[extension]")}
-              required={required}
-              placeholder={rest.placeholder || "Enter or select an extension"}
-              variant="standard"
-              inputRef={fileExtensionRef}
-              InputProps={{ ...p.InputProps, disableUnderline: true }}
+            <StyledTooltip
+              title="Missing required field"
+              arrow
+              disableHoverListener
+              disableFocusListener
+              disableTouchListener
+              open={showFileExtensionError}
+            >
+              <TextField
+                {...p}
+                onChange={extensionTextInputOnChange}
+                name={name.concat("[extension]")}
+                required={required}
+                placeholder={rest.placeholder || "Enter or select an extension"}
+                variant="standard"
+                inputRef={fileExtensionRef}
+                InputProps={{ ...p.InputProps, disableUnderline: true }}
               // eslint-disable-next-line react/jsx-no-duplicate-props
-              inputProps={{ ...p.inputProps, maxLength: 10 }}
-            />
+                inputProps={{ ...p.inputProps, maxLength: 10 }}
+              />
+            </StyledTooltip>
           )}
           options={fileTypeExtensions[typeVal] || []}
         />
@@ -303,12 +336,12 @@ const styles = () => ({
       padding: 0,
     },
     "& ::placeholder": {
-      color: "#929296",
+      color: "#87878C",
       fontWeight: 400,
       opacity: 1
     },
     "& .MuiAutocomplete-input:read-only": {
-      backgroundColor: "#D2DFE9",
+      backgroundColor: "#E5EEF4",
       color: "#083A50",
       cursor: "not-allowed",
     },

@@ -137,7 +137,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
     // if not applicable, clear fields and set notApplicable property
     if (newProgram?.name === NotApplicableProgram?.name) {
-      setProgram({ name: "", abbreviation: "", description: "", notApplicable: true });
+      setProgram({ name: "", abbreviation: "", description: "", notApplicable: true, isCustom: false });
       return;
     }
 
@@ -147,7 +147,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         name: "",
         abbreviation: "",
         description: "",
-        notApplicable: false
+        notApplicable: false,
+        isCustom: true
       });
       return;
     }
@@ -157,7 +158,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       name: newProgram?.name || "",
       abbreviation: newProgram?.abbreviation || "",
       description: newProgram?.description || "",
-      notApplicable: false
+      notApplicable: false,
+      isCustom: false
     });
   };
 
@@ -328,6 +330,16 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           onChange={() => { }}
           className="input"
           name="program[notApplicable]"
+          type="checkbox"
+          data-type="boolean"
+          checked
+          readOnly={readOnlyProgram}
+        />
+        <StyledProxyCheckbox
+          value={program?.isCustom?.toString()}
+          onChange={() => { }}
+          className="input"
+          name="program[isCustom]"
           type="checkbox"
           data-type="boolean"
           checked

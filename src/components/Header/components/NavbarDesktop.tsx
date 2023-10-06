@@ -520,7 +520,7 @@ const NavBar = () => {
         <NameDropdownContainer>
           <div className="dropdownList">
             <span className="dropdownItem">
-              <Link id="navbar-dropdown-item-name-user-profile" to={`/users/${authData?.user?._id}`} className="dropdownItem" onClick={() => setClickedTitle("")}>
+              <Link id="navbar-dropdown-item-name-user-profile" to={`/profile/${authData?.user?._id}`} className="dropdownItem" onClick={() => setClickedTitle("")}>
                 User Profile
               </Link>
             </span>
@@ -528,6 +528,13 @@ const NavBar = () => {
               <span className="dropdownItem">
                 <Link id="navbar-dropdown-item-name-user-manage" to="/users" className="dropdownItem" onClick={() => setClickedTitle("")}>
                   Manage Users
+                </Link>
+              </span>
+            )}
+            {(authData?.user?.role === "Admin") && (
+              <span className="dropdownItem">
+                <Link id="navbar-dropdown-item-name-organization-manage" to="/organizations" className="dropdownItem" onClick={() => setClickedTitle("")}>
+                  Manage Organizations
                 </Link>
               </span>
             )}

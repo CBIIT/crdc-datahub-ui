@@ -13,7 +13,7 @@
   export const fileTypeExtensions = {
   "Raw sequencing data": ["BAM", "FASTQ"],
     "Derived sequencing data": ["VCF", "MAF"],
-    "Clinical data": ["XML", "JSON"],
+    "Clinical data": ["XML", "JSON", "TSV"],
     "Protein expression data": ["TSV"],
     "Imaging data": ["DICOM", "SVS"],
   };

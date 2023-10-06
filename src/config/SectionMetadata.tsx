@@ -48,7 +48,7 @@ const sectionMetadata = {
         description: "List the agency(s) and/or organization(s) that funded this study.",
       },
       DBGAP_REGISTRATION: {
-        title: "DBGAP REGISTRATION",
+        title: "dbGaP REGISTRATION",
         description: "Indicated if your study is currently registered with dbGaP.",
       },
       EXISTING_PUBLICATIONS: {

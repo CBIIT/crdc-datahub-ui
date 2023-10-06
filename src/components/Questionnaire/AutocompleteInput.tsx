@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { ReactNode, SyntheticEvent, useEffect, useId, useRef, useState } from "react";
 import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
-import Tooltip from "./Tooltip";
+import Tooltip from "../Tooltip";
 import { updateInputValidity } from '../../utils';
 
 const StyledFormControl = styled(FormControl)(() => ({
@@ -33,7 +33,7 @@ const StyledFormControl = styled(FormControl)(() => ({
     borderColor: "#D54309 !important",
   },
   "& .MuiInputBase-input::placeholder": {
-    color: "#929296",
+    color: "#87878C",
     fontWeight: 400,
     opacity: 1,
   },
@@ -104,7 +104,7 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : bo
       padding: 0,
     },
     "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: "#D2DFE9",
+      backgroundColor: "#E5EEF4",
       color: "#083A50",
       cursor: "not-allowed",
       borderRadius: "8px",

@@ -1,29 +1,19 @@
 import React, { FC, useEffect, useMemo, useState } from "react";
-import { useQuery } from '@apollo/client';
 import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  FormControl,
-  MenuItem,
-  Select,
-  Table, TableBody, TableCell,
+  Alert, Box, Button, CircularProgress,
+  Container, FormControl, MenuItem,
+  OutlinedInput,
+  Select, Stack, Table, TableBody, TableCell,
   TableContainer, TableHead, TablePagination, TableRow,
-  TableSortLabel, Typography,
-  styled,
+  TableSortLabel, Typography, styled,
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from 'react-hook-form';
-import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
 import PageBanner from "../../components/PageBanner";
-import { Roles } from '../../config/AuthRoles';
-import { LIST_USERS, ListUsersResp } from '../../graphql';
-import { formatIDP } from '../../utils';
-import { useAuthContext } from '../../components/Contexts/AuthContext';
+import Tooltip from '../../components/Tooltip';
+import { useOrganizationListContext, Status } from '../../components/Contexts/OrganizationListContext';
 
-type T = User;
+type T = Partial<Organization>;
 
 type Column = {
   label: string;
@@ -33,9 +23,9 @@ type Column = {
 };
 
 type FilterForm = {
-  organization: OrgInfo["orgID"] | "All";
-  role: User["role"] | "All";
-  status: User["userStatus"] | "All";
+  organization: string;
+  study: string;
+  status: Organization["status"] | "All";
 };
 
 const StyledContainer = styled(Container)({
@@ -72,7 +62,7 @@ const StyledInlineLabel = styled('label')({
   fontWeight: "700"
 });
 
-const StyledSelect = styled(Select)({
+const baseTextFieldStyles = {
   borderRadius: "8px",
   "& .MuiInputBase-input": {
     fontWeight: 400,
@@ -101,7 +91,10 @@ const StyledSelect = styled(Select)({
   "& .MuiMenuItem-root:hover": {
     background: "#D5EDE5",
   },
-});
+};
+
+const StyledTextField = styled(OutlinedInput)(baseTextFieldStyles);
+const StyledSelect = styled(Select)(baseTextFieldStyles);
 
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
@@ -152,48 +145,53 @@ const StyledTablePagination = styled(TablePagination)<{ component: React.Element
 const columns: Column[] = [
   {
     label: "Name",
-    value: (a) => `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`,
-    comparator: (a, b) => {
-      const aName = `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`;
-      const bName = `${b.lastName ? `${b.lastName}, ` : ""}${b.firstName || ""}`;
-
-      return aName.localeCompare(bName);
-    }
+    value: (a) => a.name,
+    comparator: (a, b) => a.name.localeCompare(b.name),
   },
   {
-    label: "Account Type",
-    value: (a) => formatIDP(a.IDP),
-    comparator: (a, b) => a.IDP.localeCompare(b.IDP),
+    label: "Primary Contact",
+    value: (a) => a.conciergeName,
+    comparator: (a, b) => a?.conciergeName?.localeCompare(b?.conciergeName),
   },
   {
-    label: "Email",
-    value: (a) => a.email,
-    comparator: (a, b) => a.email.localeCompare(b.email),
-  },
-  {
-    label: "Organization",
-    value: (a) => a.organization?.orgName || "",
-    comparator: (a, b) => {
-      const aOrg = a.organization?.orgName || "";
-      const bOrg = b.organization?.orgName || "";
-
-      return aOrg.localeCompare(bOrg);
-    }
+    label: "Studies",
+    value: ({ _id, studies }) => (
+      <Stack direction="row">
+        <Typography variant="body1">
+          {studies?.slice(0, 2).map((s) => s.studyAbbreviation).join(", ")}
+          {studies?.length > 2 && ", ..."}
+        </Typography>
+        {studies?.length > 0 && (
+          <Tooltip
+            title={(
+              <Typography variant="body1">
+                {studies.map(({ studyName, studyAbbreviation }) => (
+                  <React.Fragment key={`${_id}_study_${studyName}`}>
+                    {studyName}
+                    {" ("}
+                    {studyAbbreviation}
+                    {") "}
+                    <br />
+                  </React.Fragment>
+                ))}
+              </Typography>
+            )}
+            placement="top"
+            arrow
+          />
+        )}
+      </Stack>
+    ),
   },
   {
     label: "Status",
-    value: (a) => a.userStatus,
-    comparator: (a, b) => a.userStatus.localeCompare(b.userStatus),
-  },
-  {
-    label: "Role",
-    value: (a) => a.role,
-    comparator: (a, b) => a.role.localeCompare(b.role),
+    value: (a) => a.status,
+    comparator: (a, b) => a.status.localeCompare(b.status),
   },
   {
     label: "Action",
     value: (a) => (
-      <Link to={`/users/${a?.["_id"]}`}>
+      <Link to={`/organizations/${a?.["_id"]}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
@@ -203,14 +201,13 @@ const columns: Column[] = [
 ];
 
 /**
- * View for List of Users
+ * View for List of Organizations
  *
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
-  const { user } = useAuthContext();
   const { state } = useLocation();
-  const { data: orgData } = useOrganizationListContext();
+  const { status, data } = useOrganizationListContext();
 
   const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [orderBy, setOrderBy] = useState<Column>(columns.find((c) => c.default) || columns.find((c) => !!c.comparator));
@@ -219,15 +216,10 @@ const ListingView: FC = () => {
   const [dataset, setDataset] = useState<T[]>([]);
   const [count, setCount] = useState<number>(0);
 
-  const { watch, setValue, control } = useForm<FilterForm>();
+  const { watch, register, control } = useForm<FilterForm>();
   const orgFilter = watch("organization");
-  const roleFilter = watch("role");
+  const studyFilter = watch("study");
   const statusFilter = watch("status");
-
-  const { data, loading, error } = useQuery<ListUsersResp>(LIST_USERS, {
-    context: { clientName: 'userService' },
-    fetchPolicy: "no-cache",
-  });
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
@@ -248,25 +240,25 @@ const ListingView: FC = () => {
   };
 
   useEffect(() => {
-    if (user.role !== "Organization Owner") {
-      return;
-    }
-
-    const orgID = orgData?.find((org: Organization) => org.name === user.organization?.orgName)?._id;
-    setValue("organization", orgID || "All");
-  }, [user, orgData]);
-
-  useEffect(() => {
-    if (!data?.listUsers?.length) {
+    if (!data?.length) {
       setDataset([]);
       setCount(0);
       return;
     }
 
-    const sorted = data.listUsers
-      .filter((u: T) => (orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true))
-      .filter((u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true))
-      .filter((u: T) => (statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true))
+    const sorted = data
+      .filter((u: T) => (orgFilter && orgFilter.length > 0 ? u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1 : true))
+      .filter((u: T) => (statusFilter && statusFilter !== "All" ? u.status === statusFilter : true))
+      .filter((u: T) => {
+          if (!studyFilter || studyFilter.trim().length < 1) {
+            return true;
+          }
+
+          const nameMatch = u?.studies?.some((s) => s.studyName.toLowerCase().indexOf(studyFilter.toLowerCase()) !== -1);
+          const abbrMatch = u?.studies?.some((s) => s.studyAbbreviation.toLowerCase().indexOf(studyFilter.toLowerCase()) !== -1);
+
+          return nameMatch || abbrMatch;
+      })
       .sort((a, b) => orderBy?.comparator(a, b) || 0);
 
     if (order === "desc") {
@@ -275,18 +267,18 @@ const ListingView: FC = () => {
 
     setCount(sorted.length);
     setDataset(sorted.slice(page * perPage, (page * perPage) + perPage));
-  }, [data, perPage, page, orderBy, order, roleFilter, orgFilter, statusFilter]);
+  }, [data, perPage, page, orderBy, order, studyFilter, orgFilter, statusFilter]);
 
   useEffect(() => {
     setPage(0);
-  }, [orgFilter, roleFilter, statusFilter]);
+  }, [orgFilter, studyFilter, statusFilter]);
 
   return (
     <>
-      <PageBanner title="Manage Users" subTitle="" padding="38px 0 0 25px" />
+      <PageBanner title="Manage Organizations" subTitle="" padding="38px 0 0 25px" />
 
       <StyledContainer maxWidth="xl">
-        {(state?.error || error) && (
+        {(state?.error || status === Status.ERROR) && (
           <Alert sx={{ mb: 3, p: 2 }} severity="error">
             {state?.error || "An error occurred while loading the data."}
           </Alert>
@@ -295,40 +287,11 @@ const ListingView: FC = () => {
         <StyledFilterContainer>
           <StyledInlineLabel>Organization</StyledInlineLabel>
           <StyledFormControl>
-            <Controller
-              name="organization"
-              control={control}
-              render={({ field }) => (
-                <StyledSelect
-                  {...field}
-                  disabled={user.role === "Organization Owner"}
-                  defaultValue="All"
-                  value={field.value || "All"}
-                  MenuProps={{ disablePortal: true }}
-                >
-                  <MenuItem value="All">All</MenuItem>
-                  {orgData?.map((org: Organization) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
-                </StyledSelect>
-              )}
-            />
+            <StyledTextField {...register("organization")} placeholder="Enter a Organization" required />
           </StyledFormControl>
-          <StyledInlineLabel>Role</StyledInlineLabel>
+          <StyledInlineLabel>Study</StyledInlineLabel>
           <StyledFormControl>
-            <Controller
-              name="role"
-              control={control}
-              render={({ field }) => (
-                <StyledSelect
-                  {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
-                  MenuProps={{ disablePortal: true }}
-                >
-                  <MenuItem value="All">All</MenuItem>
-                  {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
-                </StyledSelect>
-              )}
-            />
+            <StyledTextField {...register("study")} placeholder="Enter a Study" required />
           </StyledFormControl>
           <StyledInlineLabel>Status</StyledInlineLabel>
           <StyledFormControl>
@@ -372,7 +335,7 @@ const ListingView: FC = () => {
               </TableRow>
             </StyledTableHead>
             <TableBody>
-              {loading && (
+              {status === Status.LOADING && (
                 <TableRow>
                   <TableCell>
                     <Box
@@ -443,9 +406,9 @@ const ListingView: FC = () => {
                 || dataset.length === 0
                 || count <= (page + 1) * perPage
                 || emptyRows > 0
-                || loading,
+                || status === Status.LOADING,
             }}
-            backIconButtonProps={{ disabled: page === 0 || loading }}
+            backIconButtonProps={{ disabled: page === 0 || status === Status.LOADING }}
           />
         </StyledTableContainer>
       </StyledContainer>

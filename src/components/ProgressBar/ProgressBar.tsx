@@ -5,7 +5,7 @@ import {
   Stack, ListItemAvatar, styled
 } from '@mui/material';
 import config from '../../config/SectionConfig';
-import { useFormContext } from '../Contexts/FormContext';
+import { Status, useFormContext } from '../Contexts/FormContext';
 import StatusAdornment from './StatusAdornment';
 import useFormMode from '../../content/questionnaire/sections/hooks/useFormMode';
 
@@ -69,7 +69,7 @@ const StyledButton = styled(ListItemButton)({
 const ProgressBar: FC<Props> = ({ section }) => {
   const sectionKeys = Object.keys(config);
 
-  const { data } = useFormContext();
+  const { data, status: formStatus } = useFormContext();
   const { formMode } = useFormMode();
   const { _id, status, questionnaireData } = data;
   const sectionStatuses = questionnaireData?.sections;
@@ -77,6 +77,9 @@ const ProgressBar: FC<Props> = ({ section }) => {
   const [sections, setSections] = useState<ProgressSection[]>([]);
 
   useEffect(() => {
+    if (formStatus === Status.LOADING || formStatus === Status.SAVING) {
+      return;
+    }
     const newSections: ProgressSection[] = [];
     let completedSections = 0;
 
@@ -109,7 +112,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
     }
 
     setSections(newSections);
-  }, [section, sectionStatuses, formMode]);
+  }, [section, sectionStatuses, formMode, formStatus]);
 
   return (
     <StyledList>

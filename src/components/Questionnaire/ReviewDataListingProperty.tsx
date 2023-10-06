@@ -1,4 +1,5 @@
 import { Grid, Stack, styled } from "@mui/material";
+import { CSSProperties } from "@mui/styles";
 import { FC, useMemo, useState } from "react";
 
 export const StyledLabel = styled("span")(() => ({
@@ -34,20 +35,24 @@ const StyledGrid = styled(Grid)(() => ({
 type GridWidth = 2 | 4 | 6 | 8 | 10 | 12;
 
 type Props = {
+  idPrefix: string;
   label?: string | JSX.Element;
   value: string | JSX.Element | string[];
   valuePlacement?: "right" | "bottom";
   isList?: boolean;
   gridWidth?: GridWidth;
   hideLabel?: boolean;
+  textTransform?: CSSProperties["textTransform"];
 };
 
 const ReviewDataListingProperty: FC<Props> = ({
+  idPrefix,
   label,
   value,
   valuePlacement = "right",
   isList,
   gridWidth,
+  textTransform = "uppercase",
   hideLabel = false,
 }) => {
   const [isMultiple, setIsMultiple] = useState(false);
@@ -80,7 +85,9 @@ const ReviewDataListingProperty: FC<Props> = ({
             alignItems="center"
             sx={{ marginBottom: valuePlacement === "bottom" ? "3px" : 0 }}
           >
-            <StyledLabel>{!hideLabel && label}</StyledLabel>
+            <StyledLabel id={idPrefix.concat(`-property-label`)} sx={{ textTransform }}>
+              {!hideLabel && label}
+            </StyledLabel>
           </StyledLabelWrapper>
         )}
         <Stack
@@ -90,13 +97,16 @@ const ReviewDataListingProperty: FC<Props> = ({
           spacing={1}
         >
           {isList ? displayValues?.map((val, idx) => (
+            <StyledValue
             // eslint-disable-next-line react/no-array-index-key
-            <StyledValue key={`${val}_${idx}_${new Date().getTime()}`}>
+              key={`${val}_${idx}_${new Date().getTime()}`}
+              id={idPrefix.concat(`-property-value-${idx}`)}
+            >
               {' '}
               {`${val}${idx !== displayValues.length - 1 ? "," : ""}`}
             </StyledValue>
           )) : (
-            <StyledValue>
+            <StyledValue id={idPrefix.concat(`-property-value`)}>
               {value}
             </StyledValue>
           )}

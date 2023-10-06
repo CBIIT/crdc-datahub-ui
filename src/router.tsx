@@ -36,8 +36,7 @@ const Login = Loader(lazy(() => import('./content/login/Controller')));
 const Questionnaire = Loader(lazy(() => import('./content/questionnaire/Controller')));
 const DataSubmissions = Loader(lazy(() => import('./content/dataSubmissions/Controller')));
 const Users = Loader(lazy(() => import('./content/users/Controller')));
-const OtherResources = Loader(lazy(() => import('./content/static/OtherResources')));
-const Search = Loader(lazy(() => import('./content/search')));
+const Organizations = Loader(lazy(() => import('./content/organizations/Controller')));
 
 // Status Pages
 const Status404 = Loader(lazy(() => import('./content/status/Page404')));
@@ -69,15 +68,15 @@ const routes: RouteObject[] = [
       },
       {
         path: '/users/:userId?',
-        element: <RequireAuth component={<Users />} redirectPath="/users" redirectName="User Management" />
+        element: <RequireAuth component={<Users key="users-view" type="users" />} redirectPath="/users" redirectName="User Management" />
       },
       {
-        path: '/sitesearch/:keyword',
-        element: <Search />
+        path: '/profile/:userId?',
+        element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
       },
       {
-        path: '/or',
-        element: <OtherResources />
+        path: '/organizations/:orgId?',
+        element: <RequireAuth component={<Organizations />} redirectPath="/organizations" redirectName="Organization Management" />
       },
       {
         path: '*',

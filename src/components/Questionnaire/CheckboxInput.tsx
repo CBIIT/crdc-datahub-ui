@@ -7,7 +7,7 @@ import {
   FormHelperText,
   styled,
 } from "@mui/material";
-import Tooltip from "./Tooltip";
+import Tooltip from "../Tooltip";
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
@@ -15,7 +15,7 @@ const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outlineOffset: -2,
   width: "24px",
   height: "24px",
-  backgroundColor: readOnly ? "#D2DFE9" : "initial",
+  backgroundColor: readOnly ? "#E5EEF4" : "initial",
   color: "#083A50",
   cursor: readOnly ? "not-allowed" : "pointer",
 }));
@@ -26,7 +26,7 @@ const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   backgroundRepeat: "no-repeat",
   width: "24px",
   height: "24px",
-  backgroundColor: readOnly ? "#D2DFE9" : "initial",
+  backgroundColor: readOnly ? "#E5EEF4" : "initial",
   color: "#1D91AB",
   cursor: readOnly ? "not-allowed" : "pointer",
 }));

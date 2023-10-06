@@ -34,7 +34,7 @@ const TableContainer = styled.div`
     border-radius: 10px;
     overflow: hidden;
     .readOnly {
-      background-color: #D2DFE9;
+      background-color: #E5EEF4;
       color: "#083A50";
       cursor: not-allowed;
     }
@@ -186,7 +186,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     // Override empty file array
     combinedData.files = formObject.files;
     // Overwrite number type. If empty string, convert to null.
-    combinedData.files.map((file) => file.count = parseInt(file.count, 10) || null);
+    combinedData.files.map((file) => file.count = parseInt(file.count.toString(), 10) || null);
 
     return { ref: formRef, data: combinedData };
   };
@@ -477,6 +477,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       pattern="^[1-9]\d*$"
                       filter={filterPositiveIntegerString}
                       patternValidityMessage="Please enter a whole number greater than 0"
+                      maxLength={10}
+                      required
                     />
                   </TableCell>
                   <TableCell className="bottomRowMiddle">

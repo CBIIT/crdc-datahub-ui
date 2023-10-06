@@ -2,30 +2,33 @@ import { FC, useEffect, useMemo, useState } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { LoadingButton } from '@mui/lab';
 import {
-  Alert, Container, MenuItem,
+  Alert, Box, Container, MenuItem,
   OutlinedInput, Select, Stack, Typography,
   styled,
 } from '@mui/material';
 import { cloneDeep } from 'lodash';
-import { Helmet } from 'react-helmet-async';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import bannerSvg from '../../assets/banner/profile_banner.svg';
+import bannerSvg from '../../assets/banner/profile_banner.png';
 import profileIcon from '../../assets/icons/profile_icon.svg';
-import profileIconShadow from '../../assets/icons/profile_icon_shadow.svg';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
 import GenericAlert from '../../components/GenericAlert';
 import SuspenseLoader from '../../components/SuspenseLoader';
-import { OrgRequiredRoles, Roles } from '../../config/AuthRoles';
+import { OrgAssignmentMap, OrgRequiredRoles, Roles } from '../../config/AuthRoles';
 import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { formatIDP, getEditableFields } from '../../utils';
 
 type Props = {
   _id: User["_id"];
+  viewType: "users" | "profile";
 };
 
 type FormInput = UserInput | EditUserInput;
+
+const StyledContainer = styled(Container)({
+  marginBottom: "90px",
+});
 
 const StyledBanner = styled("div")({
   background: `url(${bannerSvg})`,
@@ -33,29 +36,34 @@ const StyledBanner = styled("div")({
   backgroundSize: "cover",
   backgroundPosition: "center",
   width: "100%",
-  height: "146px",
+  height: "153px",
+});
+
+const StyledPageTitle = styled(Typography)({
+  fontFamily: "Nunito Sans",
+  fontSize: "45px",
+  fontWeight: 800,
+  letterSpacing: "-1.5px",
+  color: "#fff",
 });
 
 const StyledProfileIcon = styled("div")({
   position: "relative",
-  transform: "translate(-219px, -75px)",
+  transform: "translate(-218px, -75px)",
   "& img": {
     position: "absolute",
   },
   "& img:nth-of-type(1)": {
     zIndex: 2,
+    filter: "drop-shadow(10px 13px 9px rgba(0, 0, 0, 0.35))",
   },
-  "& img:nth-of-type(2)": {
-    zIndex: 1,
-    transform: "translate(11px, 8px)",
-  }
 });
 
 const StyledHeader = styled("div")({
   textAlign: "left",
   width: "100%",
-  marginTop: "30px",
-  marginBottom: "34px",
+  marginTop: "-34px !important",
+  marginBottom: "41px !important",
 });
 
 const StyledHeaderText = styled(Typography)({
@@ -71,14 +79,14 @@ const StyledField = styled('div')({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-start',
+  fontSize: '18px',
 });
 
 const StyledLabel = styled('span')({
   color: '#356AAD',
   fontWeight: '700',
-  marginRight: '20px',
-  fontSize: '16px',
-  minWidth: '113px',
+  marginRight: '40px',
+  minWidth: '127px',
 });
 
 const BaseInputStyling = {
@@ -88,7 +96,7 @@ const BaseInputStyling = {
   color: "#083A50",
   "& .MuiInputBase-input": {
     fontWeight: 400,
-    fontSize: "16px",
+    fontSize: "18px",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     padding: "10px",
     height: "20px",
@@ -100,6 +108,16 @@ const BaseInputStyling = {
     border: "1px solid #209D7D",
     boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
+  "& .MuiList-root": {
+    padding: 0,
+  },
+  "& .MuiMenuItem-root.Mui-selected": {
+    background: "#3E7E6D !important",
+    color: "#FFFFFF !important",
+  },
+  "& .MuiMenuItem-root:hover": {
+    background: "#D5EDE5",
+  },
 };
 
 const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
@@ -107,7 +125,7 @@ const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
 const StyledSelect = styled(Select)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
-  margin: "50px 0",
+  marginTop: "50px",
 });
 
 const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, border: string }) => ({
@@ -122,27 +140,39 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
   padding: "6px 8px",
 }));
 
+const StyledContentStack = styled(Stack)({
+  marginLeft: "2px !important",
+});
+
+const StyledTitleBox = styled(Box)({
+  marginTop: "-86px",
+  marginBottom: "88px",
+  width: "100%",
+});
+
 /**
  * User Profile View Component
  *
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const ProfileView: FC<Props> = ({ _id }: Props) => {
+const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const navigate = useNavigate();
   const { data: orgData } = useOrganizationListContext();
-  const { user: currentUser, setData } = useAuthContext();
+  const { user: currentUser, setData, logout } = useAuthContext();
 
-  const [user, setUser] = useState<User | null>(_id === currentUser._id ? { ...currentUser } : null);
+  const isSelf = _id === currentUser._id;
+
+  const [user, setUser] = useState<User | null>(isSelf && viewType === "profile" ? { ...currentUser } : null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<string>("");
 
-  const { handleSubmit, register, reset, watch, setValue, control } = useForm<FormInput>();
+  const { handleSubmit, register, reset, watch, setValue, control, formState } = useForm<FormInput>();
 
   const role = watch("role");
   const orgFieldDisabled = useMemo(() => !OrgRequiredRoles.includes(role) && role !== "User", [role]);
-  const fieldset = useMemo(() => getEditableFields(currentUser, user), [user?._id, _id]);
+  const fieldset = useMemo(() => getEditableFields(currentUser, user, viewType), [user?._id, _id, currentUser?.role, viewType]);
 
   const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
     context: { clientName: 'userService' },
@@ -162,7 +192,8 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
   const onSubmit = async (data) => {
     setSaving(true);
 
-    if (_id === currentUser._id) {
+    // Save profile changes
+    if (isSelf && viewType === "profile") {
       const { data: d, errors } = await updateMyUser({
         variables: {
           userInfo: {
@@ -173,12 +204,13 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 
-      if (errors || !d) {
+      if (errors || !d?.updateMyUser) {
         setError(errors || "Unable to save profile changes");
         return;
       }
 
-      setData(data as UserInput);
+      setData(d.updateMyUser);
+    // Save user changes
     } else {
       const { data: d, errors } = await editUser({
         variables: {
@@ -190,9 +222,16 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 
-      if (errors || !d) {
+      if (errors || !d?.editUser) {
         setError(errors || "Unable to save profile changes");
         return;
+      }
+
+      if (isSelf) {
+        setData(d.editUser);
+        if (d.editUser.userStatus === "Inactive") {
+          logout();
+        }
       }
     }
 
@@ -221,9 +260,9 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
     setError(null);
 
     // No action needed if viewing own profile, using cached data
-    if (_id === currentUser._id) {
+    if (isSelf && viewType === "profile") {
       setUser({ ...currentUser });
-      setFormValues(currentUser, getEditableFields(currentUser, currentUser));
+      setFormValues(currentUser, getEditableFields(currentUser, currentUser, viewType));
       return;
     }
 
@@ -241,11 +280,19 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
   }, [_id]);
 
   useEffect(() => {
-    if (orgFieldDisabled) {
-      const nciID = orgData?.find((org) => org.orgName === "NCI")?.orgID;
-      setValue("organization.orgID", nciID || "");
+    if (!orgFieldDisabled || !OrgAssignmentMap[role]) {
+      return;
     }
-  }, [orgFieldDisabled, user, orgData]);
+
+    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[role])?._id;
+    setValue("organization.orgID", expectedOrg || "");
+  }, [orgFieldDisabled, role, user, orgData]);
+
+  useEffect(() => {
+    if (role === "User" && (formState?.dirtyFields as EditUserInput)?.role) {
+      setValue("organization.orgID", "");
+    }
+  }, [role]);
 
   if (!user) {
     return <SuspenseLoader />;
@@ -253,16 +300,13 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
 
   return (
     <>
-      {_id !== currentUser._id && <Helmet><title>Edit User</title></Helmet>}
-
       <GenericAlert open={!!changesAlert} key="profile-changes-alert">
         <span>
           {changesAlert}
         </span>
       </GenericAlert>
-
       <StyledBanner />
-      <Container maxWidth="lg">
+      <StyledContainer maxWidth="lg">
         <Stack
           direction="row"
           justifyContent="center"
@@ -271,21 +315,19 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
         >
           <StyledProfileIcon>
             <img src={profileIcon} alt="profile icon" />
-            <img src={profileIconShadow} alt="profile icon shadow" />
           </StyledProfileIcon>
 
-          <Stack
+          <StyledContentStack
             direction="column"
             justifyContent="center"
             alignItems="center"
             spacing={2}
           >
-            {error && (
-              <Alert sx={{ m: 2, p: 2, width: "100%" }} severity="error">
-                {error || "An unknown API error occurred."}
-              </Alert>
-            )}
-
+            <StyledTitleBox>
+              <StyledPageTitle variant="h4">
+                {viewType === "profile" ? "User Profile" : "Edit User"}
+              </StyledPageTitle>
+            </StyledTitleBox>
             <StyledHeader>
               <StyledHeaderText variant="h1">
                 {user.email}
@@ -293,6 +335,12 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
             </StyledHeader>
 
             <form onSubmit={handleSubmit(onSubmit)}>
+              {error && (
+                <Alert sx={{ mb: 2, p: 2, width: "100%" }} severity="error">
+                  {error || "An unknown API error occurred."}
+                </Alert>
+              )}
+
               <StyledField>
                 <StyledLabel>Account Type</StyledLabel>
                 {formatIDP(user.IDP)}
@@ -369,8 +417,8 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
                         MenuProps={{ disablePortal: true }}
                         disabled={orgFieldDisabled}
                       >
-                        <MenuItem value="">Select an organization</MenuItem>
-                        {orgData?.map((org) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
+                        <MenuItem value="">{"<Not Set>"}</MenuItem>
+                        {orgData?.map((org) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
                       </StyledSelect>
                     )}
                   />
@@ -383,13 +431,13 @@ const ProfileView: FC<Props> = ({ _id }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>}
-                {_id !== currentUser._id && <StyledButton type="button" onClick={() => navigate("/users")} txt="#949494" border="#828282">Cancel</StyledButton>}
+                {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">Save</StyledButton>}
+                {viewType === "users" && <StyledButton type="button" onClick={() => navigate("/users")} txt="#949494" border="#828282">Cancel</StyledButton>}
               </StyledButtonStack>
             </form>
-          </Stack>
+          </StyledContentStack>
         </Stack>
-      </Container>
+      </StyledContainer>
     </>
   );
 };

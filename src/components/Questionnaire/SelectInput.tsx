@@ -9,7 +9,7 @@ import {
   styled,
 } from "@mui/material";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
-import Tooltip from "./Tooltip";
+import Tooltip from "../Tooltip";
 import { updateInputValidity } from '../../utils';
 
 const DropdownArrowsIcon = styled("div")(() => ({
@@ -72,7 +72,7 @@ const StyledSelect = styled(Select, {
   "& .MuiSelect-select .notranslate::after": {
     // content: `'${(props) => props.placeholderText || "none"}'`,
     content: `'${props.placeholderText ?? "Select"}'`,
-    color: "#929296",
+    color: "#87878C",
     fontWeight: 400,
     opacity: 1
   },
@@ -115,14 +115,14 @@ const StyledSelect = styled(Select, {
     height: "20px !important",
     minHeight: "20px !important",
     "&::placeholder": {
-      color: "#929296",
+      color: "#87878C",
       fontWeight: 400,
       opacity: 1
     },
   },
   // Target readOnly <input> inputs
   "& .Mui-readOnly.MuiOutlinedInput-input:read-only": {
-    backgroundColor: "#D2DFE9",
+    backgroundColor: "#E5EEF4",
     color: "#083A50",
     cursor: "not-allowed",
     borderRadius: "8px",

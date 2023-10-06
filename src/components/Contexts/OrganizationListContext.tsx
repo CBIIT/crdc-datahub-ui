@@ -10,7 +10,7 @@ import { LIST_ORGS, ListOrgsResp } from '../../graphql';
 
 export type ContextState = {
   status: Status;
-  data: OrgInfo[];
+  data: Partial<Organization>[];
 };
 
 export enum Status {
@@ -36,6 +36,9 @@ Context.displayName = "OrganizationListContext";
 /**
  * Org Context Hook
  *
+ * Note:
+ * - The organization list contains only Active organizations
+ *
  * @see OrganizationProvider – Must be wrapped in a OrganizationProvider component
  * @see ContextState – Organization context state returned by the hook
  * @returns {ContextState} - Organization context
@@ -52,17 +55,18 @@ export const useOrganizationListContext = (): ContextState => {
 
 type ProviderProps = {
   preload: boolean;
+  filterInactive?: boolean;
   children: React.ReactNode;
 };
 
 /**
- * Creates a form context for the given form ID
+ * Creates a organization context provider
  *
  * @see useOrganizationListContext
  * @param {ProviderProps} props
  * @returns {JSX.Element} Context provider
  */
-export const OrganizationProvider: FC<ProviderProps> = ({ preload, children } : ProviderProps) => {
+export const OrganizationProvider: FC<ProviderProps> = ({ preload, filterInactive, children } : ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
   const { data, loading, error } = preload ? useQuery<ListOrgsResp>(LIST_ORGS, {
@@ -80,7 +84,10 @@ export const OrganizationProvider: FC<ProviderProps> = ({ preload, children } : 
       return;
     }
 
-    setState({ status: Status.LOADED, data: data?.listOrganizations });
+    setState({
+      status: Status.LOADED,
+      data: data?.listOrganizations?.filter((org: Organization) => (filterInactive ? org.status === 'Active' : true)) || [],
+    });
   }, [loading, error, data]);
 
   return (

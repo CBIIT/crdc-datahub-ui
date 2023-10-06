@@ -33,7 +33,7 @@ const userLogout = async (): Promise<boolean> => {
  * @param {string} authCode Authorization code used to verify login
  * @returns Promise that resolves to true if successful, false if not
  */
-const userLogin = async (authCode: string): Promise<boolean> => {
+const userLogin = async (authCode: string): Promise<[boolean, string]> => {
   const options = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -48,9 +48,9 @@ const userLogin = async (authCode: string): Promise<boolean> => {
     const data = await fetch(`${AUTH_SERVICE_URL}/login`, options);
     const { timeout, error } = await data.json();
 
-    return typeof timeout === "number" && typeof error === "undefined";
+    return [typeof timeout === "number" && typeof error === "undefined", error];
   } catch (e) {
-    return false;
+    return [false, undefined];
   }
 };
 
@@ -60,7 +60,7 @@ export type ContextState = {
   user: User;
   error?: string;
   logout?: () => Promise<boolean>;
-  setData?: (data: UserInput) => void;
+  setData?: (data: Partial<User>) => void;
 };
 
 export enum Status {
@@ -142,10 +142,16 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
     return status;
   };
 
-  const setData = (data: UserInput): void => {
+  const setData = (data: Partial<User>): void => {
     if (!state.isLoggedIn) return;
 
-    setState((prev) => ({ ...prev, user: { ...prev.user, ...data } }));
+    // Remove any nested objects that are null
+    const newUser = { ...state.user, ...data };
+    if (!data?.organization) {
+      delete newUser.organization;
+    }
+
+    setState((prev) => ({ ...prev, user: newUser }));
   };
 
   useEffect(() => {
@@ -165,24 +171,30 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
       // User came from NIH SSO, login to AuthN
       const searchParams = new URLSearchParams(document.location.search);
       const authCode = searchParams.get('code');
-      if (authCode && await userLogin(authCode)) {
-        const { data, error } = await getMyUser();
-        if (error || !data?.getMyUser) {
-          setState({ ...initialState, status: Status.LOADED });
+      if (authCode) {
+        const userLoginResult = await userLogin(authCode);
+        // If login success
+        if (userLoginResult[0]) {
+          const { data, error } = await getMyUser();
+          if (error || !data?.getMyUser) {
+            setState({ ...initialState, status: Status.LOADED });
+            return;
+          }
+
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setState({ isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
+          const stateParam = searchParams.get('state');
+          if (stateParam !== null) {
+            window.location.href = stateParam;
+          }
           return;
         }
-
-        window.history.replaceState({}, document.title, window.location.pathname);
-        setState({ isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
-        const stateParam = searchParams.get('state');
-        if (stateParam !== null) {
-          window.location.href = stateParam;
-        }
-        return;
+        // Login failed
+          setState({ ...initialState, error: userLoginResult[1], status: Status.LOADED });
+          return;
       }
-
-      // User is not logged in or login failed
-      setState({ ...initialState, status: Status.LOADED });
+      // User is not logged in
+        setState({ ...initialState, status: Status.LOADED });
     })();
   }, []);
 
