@@ -12,13 +12,16 @@ import {
   Tabs,
   styled,
 } from "@mui/material";
+import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
-import { GET_DATA_SUBMISSION, GetDataSubmissionResp } from "../../graphql";
+import { GET_DATA_SUBMISSION, GET_DATA_SUBMISSION_BATCH_FILES, GetDataSubmissionBatchFilesResp, GetDataSubmissionResp } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert from "../../components/GenericAlert";
 import PieChart from "../../components/DataSubmissions/PieChart";
+import DataSubmissionBatchTable, { Column, FetchListing } from "../../components/DataSubmissions/DataSubmissionBatchTable";
+import { FormatDate } from "../../utils";
 
 const dummyChartData = [
   { label: 'Group A', value: 12, color: "#DFC798" },
@@ -198,6 +201,59 @@ const StyledWrapper = styled("div")({
   background: "#FBFDFF",
 });
 
+const StyledRejectedStatus = styled("div")(() => ({
+  color: "#E25C22",
+  fontWeight: 600
+}));
+
+const StyledErrorCount = styled("div")(() => ({
+  color: "#0D78C5",
+  fontFamily: "Inter",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "25px",
+  textDecorationLine: "underline",
+}));
+
+const columns: Column<BatchFile>[] = [
+  {
+    label: "Batch ID",
+    value: (data) => data?._id,
+    field: "_id",
+    default: true,
+  },
+  {
+    label: "Uploaded Type",
+    value: (data) => data?.uploadType,
+    field: "uploadType",
+  },
+  {
+    label: "File Count",
+    value: (data) => Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data?.fileCount || 0),
+    field: "fileCount",
+  },
+  {
+    label: "Status",
+    value: (data) => (data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status),
+    field: "status",
+  },
+  {
+    label: "Last Access Date",
+    value: (data) => (data?.submittedDate ? FormatDate(data.submittedDate, "M-D-YYYY hh:mm A") : ""),
+    field: "submittedDate",
+  },
+  {
+    label: "Error Count",
+    value: (data) => (
+      <StyledErrorCount>
+        {data.errorCount > 0 ? `${data.errorCount} ${data.errorCount === 1 ? "Error" : "Errors"}` : ""}
+      </StyledErrorCount>
+    ),
+    field: "errorCount",
+  },
+];
+
 const URLTabs = {
   DATA_UPLOAD: "data-upload",
   QUALITY_CONTROL: "quality-control"
@@ -207,7 +263,10 @@ const DataSubmission = () => {
   const { submissionId, tab } = useParams();
   const navigate = useNavigate();
   const [dataSubmission, setDataSubmission] = useState<DataSubmission>(null);
+  const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
+  const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<BatchFile>>(null);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [openAlert, setOpenAlert] = useState<string>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
 
@@ -216,6 +275,48 @@ const DataSubmission = () => {
     context: { clientName: 'mockService' },
     fetchPolicy: 'no-cache'
   });
+
+  const [getBatchFiles] = useLazyQuery<GetDataSubmissionBatchFilesResp>(GET_DATA_SUBMISSION_BATCH_FILES, {
+    context: { clientName: 'mockService' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFile>) => {
+    const { first, offset, sortDirection, orderBy } = fetchListing || {};
+    if (!submissionId) {
+      setError(true);
+      return;
+    }
+    if (batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
+      return;
+    }
+
+    setPrevBatchFetch(fetchListing);
+
+    try {
+      setLoading(true);
+      const { data: newBatchFiles, error: batchFilesError } = await getBatchFiles({
+        variables: { // TODO: Replace with dynamic variables when real endpoint is created
+          id: "8887654",
+          first: 10,
+          offset: 0,
+          sortDirection: "desc",
+          orderBy: "_id"
+        },
+        context: { clientName: 'mockService' },
+        fetchPolicy: 'no-cache'
+      });
+      if (batchFilesError || !newBatchFiles?.getDataSubmissionBatchFiles) {
+        setError(true);
+        return;
+      }
+      setBatchFiles(newBatchFiles.getDataSubmissionBatchFiles.batchFiles);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!submissionId) {
@@ -371,7 +472,13 @@ const DataSubmission = () => {
               {tab === URLTabs.DATA_UPLOAD ? (
                 <Stack direction="column" justifyContent="center">
                   <DataSubmissionUpload onUpload={handleOnUpload} />
-                  {/* TODO: DataSubmissionBatchTable */}
+                  <DataSubmissionBatchTable
+                    columns={columns}
+                    data={batchFiles || []}
+                    total={batchFiles?.length || 0}
+                    loading={loading}
+                    onFetchData={handleFetchBatchFiles}
+                  />
                 </Stack>
               ) : null}
             </StyledMainContentArea>
