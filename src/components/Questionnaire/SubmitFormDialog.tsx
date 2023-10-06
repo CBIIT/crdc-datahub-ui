@@ -33,7 +33,7 @@ const SubmitFormDialog: FC<Props> = ({
     open={open}
     onClose={onClose}
     title={title || "Submit Request"}
-    message={message || "Once your submission request is submitted for review, no further changes can be made. Are you sure you want to proceed?"}
+    message={message || "Once your application is submitted for review, no further changes can be made. Are you sure you want to proceed?"}
     actions={(
       <>
         <Button onClick={onCancel} disabled={disableActions}>

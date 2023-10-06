@@ -62,7 +62,7 @@ const PageContentContainer = styled.div`
   justify-content: center;
   
   .loginPageTextContainer {
-    width: 775px;
+    width: 703px;
     height: 265px;
     display: flex;
     flex-direction: column;
@@ -166,7 +166,7 @@ const Home: FC = () => {
           {authData.isLoggedIn ? (
             <div className="loginPageTextContainer">
               <div className="loginPageTextTitle">
-                Welcome to CRDC Submission Portal
+                Welcome to CRDC Data Hub
               </div>
               <div className="loginPageText">
                 You are logged in.

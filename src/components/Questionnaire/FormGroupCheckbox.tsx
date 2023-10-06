@@ -6,7 +6,7 @@ import {
   styled,
 } from "@mui/material";
 import { FC, useEffect, useId, useRef, useState } from "react";
-import Tooltip from "../Tooltip";
+import Tooltip from "./Tooltip";
 import CheckboxInput from "./CheckboxInput";
 import { updateInputValidity } from '../../utils';
 

@@ -1,9 +1,7 @@
-import React, { FC, useEffect, useState } from 'react';
-import { Alert, AlertProps, styled } from '@mui/material';
+import React, { FC } from 'react';
+import { Alert, styled } from '@mui/material';
 
-const StyledAlert = styled(Alert, {
-  shouldForwardProp: (prop) => prop !== "bgColor"
-})((({ bgColor } : { bgColor?: string }) => ({
+const StyledAlert = styled(Alert)((({ bgColor } : { bgColor?: string }) => ({
   color: '#ffffff',
   backgroundColor: bgColor || '#5D53F6',
   width: '535px',
@@ -22,38 +20,14 @@ const StyledAlert = styled(Alert, {
 
 type Props = {
   open: boolean;
-  severity?: AlertProps["severity"],
   children: React.ReactNode;
 };
 
-const GenericAlert : FC<Props> = ({
-  open,
-  children,
-  severity = "success"
-} : Props) => {
-  const [bgColor, setBgColor] = useState<string>(null);
-
-  useEffect(() => {
-    let newBgColor;
-    switch (severity) {
-      case "success":
-        newBgColor = "#5D53F6";
-        break;
-      case "error":
-        newBgColor = "#E74040";
-        break;
-      default:
-        newBgColor = "#5D53F6";
-        break;
-    }
-
-    setBgColor(newBgColor);
-  }, [severity]);
-
+const GenericAlert : FC<Props> = ({ open, children } : Props) => {
   if (!open) return null;
 
   return (
-    <StyledAlert severity={severity} bgColor={bgColor} icon={false}>
+    <StyledAlert severity="success" icon={false}>
       {children}
     </StyledAlert>
   );

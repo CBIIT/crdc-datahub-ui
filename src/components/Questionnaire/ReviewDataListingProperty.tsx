@@ -35,7 +35,6 @@ const StyledGrid = styled(Grid)(() => ({
 type GridWidth = 2 | 4 | 6 | 8 | 10 | 12;
 
 type Props = {
-  idPrefix: string;
   label?: string | JSX.Element;
   value: string | JSX.Element | string[];
   valuePlacement?: "right" | "bottom";
@@ -46,7 +45,6 @@ type Props = {
 };
 
 const ReviewDataListingProperty: FC<Props> = ({
-  idPrefix,
   label,
   value,
   valuePlacement = "right",
@@ -85,9 +83,7 @@ const ReviewDataListingProperty: FC<Props> = ({
             alignItems="center"
             sx={{ marginBottom: valuePlacement === "bottom" ? "3px" : 0 }}
           >
-            <StyledLabel id={idPrefix.concat(`-property-label`)} sx={{ textTransform }}>
-              {!hideLabel && label}
-            </StyledLabel>
+            <StyledLabel sx={{ textTransform }}>{!hideLabel && label}</StyledLabel>
           </StyledLabelWrapper>
         )}
         <Stack
@@ -97,16 +93,13 @@ const ReviewDataListingProperty: FC<Props> = ({
           spacing={1}
         >
           {isList ? displayValues?.map((val, idx) => (
-            <StyledValue
             // eslint-disable-next-line react/no-array-index-key
-              key={`${val}_${idx}_${new Date().getTime()}`}
-              id={idPrefix.concat(`-property-value-${idx}`)}
-            >
+            <StyledValue key={`${val}_${idx}_${new Date().getTime()}`}>
               {' '}
               {`${val}${idx !== displayValues.length - 1 ? "," : ""}`}
             </StyledValue>
           )) : (
-            <StyledValue id={idPrefix.concat(`-property-value`)}>
+            <StyledValue>
               {value}
             </StyledValue>
           )}

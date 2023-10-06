@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { WithStyles, withStyles } from "@mui/styles";
 import { updateInputValidity } from "../../utils";
-import Tooltip from "../Tooltip";
+import Tooltip from "./Tooltip";
 
 type Props = {
   classes: WithStyles<typeof styles>["classes"];

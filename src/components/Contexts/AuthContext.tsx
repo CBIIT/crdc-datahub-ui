@@ -33,7 +33,7 @@ const userLogout = async (): Promise<boolean> => {
  * @param {string} authCode Authorization code used to verify login
  * @returns Promise that resolves to true if successful, false if not
  */
-const userLogin = async (authCode: string): Promise<[boolean, string]> => {
+const userLogin = async (authCode: string): Promise<boolean> => {
   const options = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -48,9 +48,9 @@ const userLogin = async (authCode: string): Promise<[boolean, string]> => {
     const data = await fetch(`${AUTH_SERVICE_URL}/login`, options);
     const { timeout, error } = await data.json();
 
-    return [typeof timeout === "number" && typeof error === "undefined", error];
+    return typeof timeout === "number" && typeof error === "undefined";
   } catch (e) {
-    return [false, undefined];
+    return false;
   }
 };
 
@@ -171,30 +171,24 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
       // User came from NIH SSO, login to AuthN
       const searchParams = new URLSearchParams(document.location.search);
       const authCode = searchParams.get('code');
-      if (authCode) {
-        const userLoginResult = await userLogin(authCode);
-        // If login success
-        if (userLoginResult[0]) {
-          const { data, error } = await getMyUser();
-          if (error || !data?.getMyUser) {
-            setState({ ...initialState, status: Status.LOADED });
-            return;
-          }
-
-          window.history.replaceState({}, document.title, window.location.pathname);
-          setState({ isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
-          const stateParam = searchParams.get('state');
-          if (stateParam !== null) {
-            window.location.href = stateParam;
-          }
+      if (authCode && await userLogin(authCode)) {
+        const { data, error } = await getMyUser();
+        if (error || !data?.getMyUser) {
+          setState({ ...initialState, status: Status.LOADED });
           return;
         }
-        // Login failed
-          setState({ ...initialState, error: userLoginResult[1], status: Status.LOADED });
-          return;
+
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setState({ isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
+        const stateParam = searchParams.get('state');
+        if (stateParam !== null) {
+          window.location.href = stateParam;
+        }
+        return;
       }
-      // User is not logged in
-        setState({ ...initialState, status: Status.LOADED });
+
+      // User is not logged in or login failed
+      setState({ ...initialState, status: Status.LOADED });
     })();
   }, []);
 

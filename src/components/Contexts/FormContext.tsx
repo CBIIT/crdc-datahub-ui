@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import { merge, cloneDeep } from "lodash";
 import {
   APPROVE_APP,
@@ -27,12 +27,6 @@ import {
   SubmitAppResp,
 } from "../../graphql";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
-import ErrorCodes from "../../config/ErrorCodes";
-import sectionMetadata from "../../config/SectionMetadata";
-
-export type SetDataReturnType =
-  | { status: "success"; id: string }
-  | { status: "failed"; errorMessage: string };
 
 export type ContextState = {
   status: Status;
@@ -42,7 +36,7 @@ export type ContextState = {
   reviewForm?: () => Promise<string | boolean>;
   approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
-  setData?: (Application) => Promise<SetDataReturnType>;
+  setData?: (Application) => Promise<string | false>;
   error?: string;
 };
 
@@ -146,7 +140,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     fetchPolicy: 'no-cache'
   });
 
-  const setData = async (data: QuestionnaireData): Promise<SetDataReturnType> => {
+  const setData = async (data: QuestionnaireData) => {
     const newState = {
       ...state,
       data: {
@@ -154,93 +148,44 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         questionnaireData: data
       }
     };
+    setState({ ...newState, status: Status.SAVING });
 
-    setState((prevState) => ({ ...prevState, status: Status.SAVING }));
-
-    try {
-      const { data: d, errors } = await saveApp({
-        variables: {
-          application: {
-            _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
-            programName: data?.program?.name,
-            studyAbbreviation: data?.study?.abbreviation,
-            questionnaireData: JSON.stringify(data),
-          }
+    const { data: d, errors } = await saveApp({
+      variables: {
+        application: {
+          _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
+          programName: data?.program?.name,
+          studyAbbreviation: data?.study?.abbreviation,
+          questionnaireData: JSON.stringify(data),
         }
-      });
-
-      if (errors) {
-        setState({ ...newState, status: Status.ERROR, error: "An unknown GraphQL Error occured" });
-        return {
-          status: "failed",
-          errorMessage: "An unknown GraphQL Error occured"
-        };
       }
+    });
 
-      if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
-        newState.data = {
-          ...newState.data,
-          _id: d.saveApplication["_id"],
-          applicant: d?.saveApplication?.applicant,
-          organization: d?.saveApplication?.organization,
-        };
-      }
+    if (errors) {
+      setState({ ...newState, status: Status.ERROR });
+      return false;
+    }
 
+    if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
       newState.data = {
         ...newState.data,
-        status: d?.saveApplication?.status,
-        updatedAt: d?.saveApplication?.updatedAt,
-        createdAt: d?.saveApplication?.createdAt,
-        submittedDate: d?.saveApplication?.submittedDate,
-        history: d?.saveApplication?.history
-      };
-
-      if (!d?.saveApplication?.["_id"]) {
-        setState({ ...newState, status: Status.ERROR, error: "An unknown issue occured" });
-        return {
-          status: "failed",
-          errorMessage: "An unknown issue occured"
-        };
-      }
-
-      setState({ ...newState, status: Status.LOADED, error: null });
-      return {
-        status: "success",
-        id: d.saveApplication["_id"]
-      };
-    } catch (error) {
-      let errorMessage: string;
-      if (error instanceof ApolloError) {
-        errorMessage = error.message;
-      } else {
-        errorMessage = String(error);
-      }
-
-      let newErrorState = state;
-      // If duplicate study abbrev error, then prevent section from being completed
-      if (errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
-        const newSections = state?.data?.questionnaireData?.sections?.map((section) => (section.name === sectionMetadata.B.id ? {
-          ...section,
-          status: "In Progress"
-        } as Section : section));
-        newErrorState = {
-          ...state,
-          data: {
-            ...state?.data,
-            questionnaireData: {
-              ...state?.data?.questionnaireData,
-              sections: newSections
-            }
-          }
-        };
-      }
-
-      setState({ ...newErrorState, status: Status.ERROR, error: errorMessage });
-      return {
-        status: "failed",
-        errorMessage
+        _id: d.saveApplication["_id"],
+        applicant: d?.saveApplication?.applicant,
+        organization: d?.saveApplication?.organization,
       };
     }
+
+    newState.data = {
+      ...newState.data,
+      status: d?.saveApplication?.status,
+      updatedAt: d?.saveApplication?.updatedAt,
+      createdAt: d?.saveApplication?.createdAt,
+      submittedDate: d?.saveApplication?.submittedDate,
+      history: d?.saveApplication?.history
+    };
+
+    setState({ ...newState, status: Status.LOADED });
+    return d?.saveApplication?.["_id"] || false;
   };
 
   const submitData = async () => {

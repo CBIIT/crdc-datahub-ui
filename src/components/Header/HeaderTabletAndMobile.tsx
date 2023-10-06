@@ -199,14 +199,6 @@ const Header = () => {
       className: 'navMobileSubItem',
     });
   }
-  if (authData?.user?.role === "Admin") {
-    navbarSublists[displayName].splice(1, 0, {
-      name: 'Manage Organizations',
-      link: '/organizations',
-      id: 'navbar-dropdown-item-user-manage',
-      className: 'navMobileSubItem',
-    });
-  }
 
   const clickNavItem = (e) => {
     const clickTitle = e.target.innerText;

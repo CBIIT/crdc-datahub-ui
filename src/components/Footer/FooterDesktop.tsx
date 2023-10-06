@@ -70,6 +70,22 @@ const FooterEmailSignupContainer = styled.form`
     cursor: pointer;
   }
 
+  .errorEmail {
+    background: #e41154;
+    padding: 10px 5px 5px 5px;
+
+    .signUpInputBox {
+      outline: 0.25rem solid #2491ff;
+      outline-offset: 5px;
+    }
+  }
+
+  .ErrorBorder {
+    position: relative;
+    border-left: 0.25rem solid #e41154;
+    padding-left: 1rem;
+    left: -20px;
+  }
 `;
 
 const FooterLinksContainer = styled.div`
@@ -228,21 +244,21 @@ const StyledAsterisk = styled("span")(() => ({
 }));
 
 const FooterDesktop = () => {
+  const [errorClass, setErrorClass] = useState("");
   const [emailContent, setEmailContent] = useState("");
-  const emailForm = useRef<HTMLFormElement>(null);
-  const emailInput = useRef<HTMLInputElement>(null);
+  const emailForm = useRef(null);
+
   function validateEmail(email) {
     const reg = /^[A-Za-z0-9]+([_.-][A-Za-z0-9]+)*@([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}$/;
     return reg.test(email);
   }
 
   const handleSubmit = (e) => {
-    emailForm.current.reportValidity();
     if (!validateEmail(emailContent)) {
-      emailInput.current.setCustomValidity("Please enter valid email");
+      setErrorClass("errorEmail");
       e.preventDefault();
     } else {
-      emailInput.current.setCustomValidity("");
+      setErrorClass("");
       emailForm.current.submit();
     }
   };
@@ -285,12 +301,19 @@ const FooterDesktop = () => {
             <div className="signUpTitle">
               Sign up for email updates
             </div>
-            <div className="enterTitle">
-              <label htmlFor="email">
-                Sign up for the newsletter
-                <StyledAsterisk>*</StyledAsterisk>
-                <input ref={emailInput} id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
-              </label>
+            <div className={errorClass !== "" ? 'ErrorBorder' : null}>
+              <div className="enterTitle">
+                <label htmlFor="email">
+                  Sign up for the newsletter
+                  <StyledAsterisk>*</StyledAsterisk>
+                  <div className={errorClass}>
+                    {errorClass !== "" ? <div className="enterTitle">Enter a valid email address</div> : null}
+                    <input id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
+                  </div>
+                </label>
+
+              </div>
+
             </div>
             <button type="submit" className="signUpButton">
               Sign up

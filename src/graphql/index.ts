@@ -44,17 +44,5 @@ export { mutation as EDIT_USER } from "./editUser";
 export type { Response as EditUserResp } from "./editUser";
 
 // Organizations
-export { query as LIST_ORGS } from './listOrganizations';
-export type { Response as ListOrgsResp } from './listOrganizations';
-
-export { query as GET_ORG } from './getOrganization';
-export type { Response as GetOrgResp } from './getOrganization';
-
-export { mutation as EDIT_ORG } from './editOrganization';
-export type { Response as EditOrgResp } from './editOrganization';
-
-export { query as LIST_CURATORS } from './listActiveCurators';
-export type { Response as ListCuratorsResp } from './listActiveCurators';
-
-export { query as LIST_APPROVED_STUDIES } from './listApprovedStudies';
-export type { Response as ListApprovedStudiesResp } from './listApprovedStudies';
+export { query as LIST_ORGS } from "./listOrganizations";
+export type { Response as ListOrgsResp } from "./listOrganizations";

@@ -95,11 +95,7 @@ const StyledSelect = styled(Select)({
     padding: "0 !important",
   },
   "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
+    background: "#D5EDE5 !important",
   },
 });
 
@@ -252,7 +248,7 @@ const ListingView: FC = () => {
       return;
     }
 
-    const orgID = orgData?.find((org: Organization) => org.name === user.organization?.orgName)?._id;
+    const orgID = orgData?.find((org: OrgInfo) => org.orgName === user.organization?.orgName)?.orgID;
     setValue("organization", orgID || "All");
   }, [user, orgData]);
 
@@ -307,7 +303,7 @@ const ListingView: FC = () => {
                   MenuProps={{ disablePortal: true }}
                 >
                   <MenuItem value="All">All</MenuItem>
-                  {orgData?.map((org: Organization) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
+                  {orgData?.map((org: OrgInfo) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
                 </StyledSelect>
               )}
             />
