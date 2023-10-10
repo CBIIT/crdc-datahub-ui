@@ -1,14 +1,9 @@
-type Organization = {
-  _id: string;
-  name: string;
-};
-
 type Submission = {
     _id: string; // aka. submissionID
     name: string;
     submitterID: string;
     submitterName: string; // <first name> <last name>
-    organization: Organization;
+    organization: Pick<Organization, "_id", | "name">;
     dataCommons: string;
     modelVersion: string; // # for future use
     studyAbbreviation: string;

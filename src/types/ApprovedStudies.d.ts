@@ -1,7 +1,18 @@
 type ApprovedStudy = {
     _id: string;
-    originalOrg: string; // # organization at the time of approval, can be absent if a submission request doesn't have an organization associated
+    originalOrg: Organization["_id"];
+    /**
+     * Study name
+     *
+     * @example Genomic Information System
+     */
     studyName: string;
-    studyAbbreviation: string; // # must be unique
-    dbGaPID: string; /// # aka. phs number
+    /**
+     * Study Abbreviation
+     * This is a unique constraint across all studies
+     *
+     * @example GIS
+     */
+    studyAbbreviation: string;
+    dbGaPID: string;
 };
