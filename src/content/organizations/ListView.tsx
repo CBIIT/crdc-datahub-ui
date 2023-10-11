@@ -151,7 +151,7 @@ const columns: Column[] = [
   {
     label: "Primary Contact",
     value: (a) => a.conciergeName,
-    comparator: (a, b) => a?.conciergeName?.localeCompare(b?.conciergeName),
+    comparator: (a, b) => (a?.conciergeName || "").localeCompare(b?.conciergeName || ""),
   },
   {
     label: "Studies",
@@ -186,7 +186,7 @@ const columns: Column[] = [
   {
     label: "Status",
     value: (a) => a.status,
-    comparator: (a, b) => a.status.localeCompare(b.status),
+    comparator: (a, b) => (a?.status || "").localeCompare(b?.status || ""),
   },
   {
     label: "Action",
