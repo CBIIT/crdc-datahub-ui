@@ -269,7 +269,7 @@ const ListingView: FC = () => {
   const [submissionCreatedSuccessfullyAlert, setSubmissionCreatedSuccessfullyAlert] = useState<boolean>(false);
   const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
 
-  const { data, loading, error } = useQuery<Response>(query, {
+  const { data, loading, error, refetch } = useQuery<Response>(query, {
     variables: {
       first: perPage,
       offset: page * perPage,
@@ -340,7 +340,7 @@ const ListingView: FC = () => {
       return;
     }
 
-    navigate(0);
+    refetch();
     setSubmissionCreatedSuccessfullyAlert(true);
     setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
     setCreatingSubmission(false);
