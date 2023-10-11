@@ -16,7 +16,6 @@ type User = {
   IDP: "nih" | "login.gov";
   email: string;
   organization: OrgInfo | null;
-  curatedOrganizations: OrgInfo[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
 };
