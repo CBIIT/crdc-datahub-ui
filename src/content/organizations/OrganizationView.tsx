@@ -13,10 +13,16 @@ import bannerSvg from '../../assets/banner/profile_banner.png';
 import profileIcon from '../../assets/icons/organization.svg';
 import GenericAlert from '../../components/GenericAlert';
 import SuspenseLoader from '../../components/SuspenseLoader';
-import { EDIT_ORG, EditOrgResp, GET_ORG, GetOrgResp, LIST_APPROVED_STUDIES, LIST_CURATORS, ListApprovedStudiesResp, ListCuratorsResp } from '../../graphql';
+import {
+  CREATE_ORG, CreateOrgResp,
+  EDIT_ORG, EditOrgResp,
+  GET_ORG, GetOrgResp,
+  LIST_APPROVED_STUDIES, ListApprovedStudiesResp,
+  LIST_CURATORS, ListCuratorsResp
+} from '../../graphql';
 
 type Props = {
-  _id: Organization["_id"] | "new"; // PREP for CRDCDH-402
+  _id: Organization["_id"] | "new";
 };
 
 type FormInput = Omit<EditOrganizationInput, "studies"> & {
@@ -178,6 +184,11 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     fetchPolicy: 'no-cache'
   });
 
+  const [createOrganization] = useMutation<CreateOrgResp>(CREATE_ORG, {
+    context: { clientName: 'userService' },
+    fetchPolicy: 'no-cache'
+  });
+
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
 
@@ -186,24 +197,40 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       studyAbbrToName[studyAbbreviation] = { studyName, studyAbbreviation };
     });
 
-    const { data: d, errors } = await editOrganization({
-      variables: {
-        orgID: _id,
-        ...data,
-        studies: data.studies.map((abbr) => (studyAbbrToName[abbr])).filter((s) => !!s?.studyName && !!s?.studyAbbreviation),
-      }
-    }).catch((e) => ({ errors: e?.message, data: null }));
-    setSaving(false);
+    const variables = {
+      ...data,
+      studies: data.studies.map((abbr) => (studyAbbrToName[abbr])).filter((s) => !!s?.studyName && !!s?.studyAbbreviation),
+    };
 
-    if (errors || !d?.editOrganization) {
-      setError(errors || "Unable to save changes");
-      return;
+    if (_id === "new" && !organization?._id) {
+      const { data: d, errors } = await createOrganization({ variables })
+        .catch((e) => ({ errors: e?.message, data: null }));
+      setSaving(false);
+
+      if (errors || !d?.createOrganization?._id) {
+        setError(errors || "Unable to create organization");
+        return;
+      }
+
+      setOrganization(null);
+      setChangesAlert("This organization has been successfully added.");
+      reset();
+    } else {
+      const { data: d, errors } = await editOrganization({ variables: { orgID: organization._id, ...variables, } })
+        .catch((e) => ({ errors: e?.message, data: null }));
+      setSaving(false);
+
+      if (errors || !d?.editOrganization) {
+        setError(errors || "Unable to save changes");
+        return;
+      }
+
+      setChangesAlert("All changes have been saved");
+      setFormValues(data);
     }
 
     setError(null);
-    setChangesAlert("All changes have been saved");
     setTimeout(() => setChangesAlert(""), 10000);
-    setFormValues(data);
   };
 
   /**
@@ -224,6 +251,17 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   useEffect(() => {
     setError(null);
 
+    if (_id === "new") {
+      setOrganization(null);
+      setFormValues({
+        name: "",
+        conciergeID: "",
+        studies: [],
+        status: "Active",
+      }, ["name", "conciergeID", "studies", "status"]);
+      return;
+    }
+
     (async () => {
       const { data, error } = await getOrganization({ variables: { orgID: _id } });
 
@@ -240,7 +278,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     })();
   }, [_id]);
 
-  if (!organization) {
+  if (!organization && _id !== "new") {
     return <SuspenseLoader />;
   }
 
@@ -271,7 +309,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
           >
             <StyledTitleBox>
               <StyledPageTitle variant="h4">
-                {_id !== "new" ? "Edit" : "Create"}
+                {_id !== "new" ? "Edit" : "Add"}
                 {" "}
                 Organization
               </StyledPageTitle>
@@ -285,7 +323,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               )}
 
               <StyledField>
-                <StyledLabel>Organization</StyledLabel>
+                <StyledLabel>{_id !== "new" ? "Organization" : "Name"}</StyledLabel>
                 <StyledTextField {...register("name", { required: true })} size="small" required />
               </StyledField>
               <StyledField>
@@ -345,6 +383,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     <StyledSelect
                       {...field}
                       value={field.value || ""}
+                      disabled={_id === "new"}
                       MenuProps={{ disablePortal: true }}
                     >
                       <MenuItem value="Active">Active</MenuItem>
