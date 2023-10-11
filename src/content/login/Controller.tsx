@@ -17,6 +17,7 @@ const loginController = () => {
     redirect_uri: `${NIH_REDIRECT_URL}`,
     response_type: 'code',
     scope: 'openid email profile',
+    prompt: 'login',
   };
 
   if (redirectURLOnLoginSuccess !== null) {

@@ -16,6 +16,7 @@ type User = {
   IDP: "nih" | "login.gov";
   email: string;
   organization: OrgInfo | null;
+  dataCommons: string[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
 };
@@ -46,6 +47,7 @@ type EditUserInput = {
   organization: {
     orgID: OrgInfo['orgID'];
   };
+  dataCommons: User['dataCommons'];
   role: User['role'];
 };
 
