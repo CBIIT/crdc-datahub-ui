@@ -399,7 +399,7 @@ const ListingView: FC = () => {
                       options={[{ label: "All", value: "All" }, { label: "test org", value: "test org" }, { label: "CBIIT", value: "CBIIT" }, { label: "NIH", value: "NIH" }, { label: "NCI", value: "NCI" }]}
                       value={organizationFilter}
                       placeholder="Select an organization"
-                      readOnly={orgOwnerOrSubmitter}
+                      readOnly={orgOwnerOrSubmitter || user?.role === "User"}
                       onChange={(newOrganization) => setOrganizationFilter(newOrganization)}
                     />
                     Status
