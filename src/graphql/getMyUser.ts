@@ -17,12 +17,6 @@ export const query = gql`
         createdAt
         updateAt
       }
-      curatedOrganizations {
-        orgID
-        orgName
-        createdAt
-        updateAt
-      }
       createdAt
       updateAt
     }

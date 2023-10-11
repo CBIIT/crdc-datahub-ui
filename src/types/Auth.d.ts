@@ -16,7 +16,6 @@ type User = {
   IDP: "nih" | "login.gov";
   email: string;
   organization: OrgInfo | null;
-  curatedOrganizations: OrgInfo[];
   dataCommons: string[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
@@ -59,13 +58,33 @@ type Organization = {
   conciergeID: string | null;
   conciergeName: string | null;
   conciergeEmail: string | null;
-  studies: StudyInfo[];
+  studies: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
 };
 
-// NOTE: This is a derivative of the `Study` type
-type StudyInfo = {
+type EditOrganizationInput = {
+  name: Organization["name"];
+  conciergeID: User["_id"];
+  studies: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">[];
+  status: Organization["status"];
+};
+
+type ApprovedStudy = {
+  _id: string;
+  originalOrg: Organization["_id"];
+  /**
+   * Study name
+   *
+   * @example Genomic Information System
+   */
   studyName: string;
+  /**
+   * Study Abbreviation
+   * This is a unique constraint across all studies
+   *
+   * @example GIS
+   */
   studyAbbreviation: string;
+  dbGaPID: string;
 };

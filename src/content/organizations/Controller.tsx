@@ -3,6 +3,7 @@ import { Navigate, useParams } from "react-router-dom";
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { OrganizationProvider } from '../../components/Contexts/OrganizationListContext';
 import ListView from "./ListView";
+import OrganizationView from './OrganizationView';
 
 /**
  * Renders the correct view based on the URL and permissions-tier
@@ -20,7 +21,7 @@ export default () => {
   }
 
   if (orgId) {
-    return <div>{orgId}</div>;
+    return <OrganizationView _id={orgId} />;
   }
 
   return (
