@@ -43,3 +43,10 @@ type FormGroupCheckboxOption = {
 };
 
 type SelectOption = { label: string; value: string | number };
+
+type HistoryBase<T> = {
+  status: T;
+  reviewComment?: string;
+  dateTime: string; // YYYY-MM-DDTHH:MM:SSZ format
+  userID: string;
+};

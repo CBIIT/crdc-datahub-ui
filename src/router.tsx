@@ -59,8 +59,12 @@ const routes: RouteObject[] = [
         element: <RequireAuth component={<Questionnaire />} redirectPath="/submissions" redirectName="Submission Requests" />
       },
       {
-        path: '/dataSubmissions',
-        element: <RequireAuth component={<DataSubmissions />} redirectPath="/dataSubmissions" redirectName="Data Submissions" />
+        path: '/data-submissions',
+        element: <RequireAuth component={<DataSubmissions />} redirectPath="/data-submissions" redirectName="Data Submissions" />
+      },
+      {
+        path: '/data-submission/:submissionId/:tab?',
+        element: <RequireAuth component={<DataSubmissions />} redirectPath="/data-submission" redirectName="Data Submission" />
       },
       {
         path: '/submission/:appId/:section?',

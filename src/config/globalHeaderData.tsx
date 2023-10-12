@@ -28,7 +28,7 @@ export const navMobileList = [
   },
   {
     name: 'Data Submissions',
-    link: '/dataSubmissions',
+    link: '/data-submissions',
     id: 'navbar-dropdown-join-crdc-data-hub',
     className: 'navMobileItem',
   },

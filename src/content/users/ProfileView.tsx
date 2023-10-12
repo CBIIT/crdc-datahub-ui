@@ -18,6 +18,7 @@ import SuspenseLoader from '../../components/SuspenseLoader';
 import { OrgAssignmentMap, OrgRequiredRoles, Roles } from '../../config/AuthRoles';
 import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { formatIDP, getEditableFields } from '../../utils';
+import { DataCommons } from '../../config/Datacommons';
 
 type Props = {
   _id: User["_id"];
@@ -172,6 +173,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
   const role = watch("role");
   const orgFieldDisabled = useMemo(() => !OrgRequiredRoles.includes(role) && role !== "User", [role]);
+  const dcFieldDisabled = useMemo(() => role !== "Data Commons POC", [role]);
+  const displayDataCommons = (viewType === "profile" && user?.role === "Data Commons POC") || (viewType === "users" && !dcFieldDisabled);
   const fieldset = useMemo(() => getEditableFields(currentUser, user, viewType), [user?._id, _id, currentUser?.role, viewType]);
 
   const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
@@ -218,6 +221,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
           organization: data.organization.orgID,
           role: data.role,
           status: data.userStatus,
+          dataCommons: data.dataCommons,
         }
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
@@ -423,6 +427,28 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     )}
                   />
                 ) : user?.organization?.orgName}
+              </StyledField>
+              <StyledField sx={{ display: displayDataCommons ? "block" : "none" }}>
+                <StyledLabel>Data Commons</StyledLabel>
+                {fieldset.includes("dataCommons") ? (
+                  <Controller
+                    name="dataCommons"
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        size="small"
+                        value={field.value || []}
+                        disabled={dcFieldDisabled}
+                        MenuProps={{ disablePortal: true }}
+                        multiple
+                      >
+                        {DataCommons.map((dc) => <MenuItem key={dc} value={dc}>{dc}</MenuItem>)}
+                      </StyledSelect>
+                    )}
+                  />
+                ) : user.dataCommons?.join(", ")}
               </StyledField>
 
               <StyledButtonStack

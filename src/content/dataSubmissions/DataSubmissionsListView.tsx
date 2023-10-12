@@ -1,5 +1,5 @@
 import React, { FC, useMemo, useState, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Alert, Container, Stack, styled,
   Table, TableBody, TableCell,
@@ -110,7 +110,7 @@ const StyledTableCell = styled(TableCell)({
 const columns: Column[] = [
   {
     label: "Submission Name",
-    value: (a) => a.name,
+    value: (a) => <Link to={`/data-submission/${a._id}/data-upload`}>{a.name}</Link>,
     field: "name",
   },
   {
