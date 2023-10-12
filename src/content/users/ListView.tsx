@@ -252,7 +252,7 @@ const ListingView: FC = () => {
       return;
     }
 
-    const orgID = orgData?.find((org: Organization) => org.name === user.organization?.orgName)?._id;
+    const orgID = orgData?.find((org: Organization) => org._id === user.organization?.orgID)?._id;
     setValue("organization", orgID || "All");
   }, [user, orgData]);
 
