@@ -1,7 +1,7 @@
 import { LoadingButton } from "@mui/lab";
 import { Button, DialogProps, styled } from "@mui/material";
 import { FC, useState } from "react";
-import Dialog from "./Dialog";
+import Dialog from "../Shared/Dialog";
 import TextInput from "./TextInput";
 
 const StyledDialog = styled(Dialog)({

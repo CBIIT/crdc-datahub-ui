@@ -142,12 +142,7 @@ type Funding = {
   nciGPA: string;
 };
 
-type HistoryEvent = {
-  status: ApplicationStatus;
-  reviewComment?: string;
-  dateTime: string; // YYYY-MM-DDTHH:MM:SSZ format
-  userID: number;
-};
+type HistoryEvent = HistoryBase<ApplicationStatus>;
 
 type Applicant = {
   applicantID: string;

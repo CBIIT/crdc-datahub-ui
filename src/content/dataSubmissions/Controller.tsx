@@ -1,5 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
+import DataSubmission from "./DataSubmission";
 import ListView from "./DataSubmissionsListView";
 
 /**
@@ -9,15 +10,10 @@ import ListView from "./DataSubmissionsListView";
  * @returns {FC} - React component
  */
 export default () => {
-  const { appId, section } = useParams();
+  const { submissionId } = useParams();
 
-  if (appId) {
-    return (
-         null
-    //   <FormProvider id={appId}>
-    //     <FormView section={section} />
-    //   </FormProvider>
-    );
+  if (submissionId) {
+    return <DataSubmission />;
   }
 
   return <ListView />;
