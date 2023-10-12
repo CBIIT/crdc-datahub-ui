@@ -12,6 +12,7 @@ import { LoadingButton } from '@mui/lab';
 import { useMutation, useQuery } from '@apollo/client';
 import { query, Response } from '../../graphql/listSubmissions';
 import { query as approvedStudiesQuery, Response as approvedStudiesRespone } from "../../graphql/listApprovedStudies";
+import { query as listOrganizationsQuery, Response as listOrganizationsResponse } from "../../graphql/listOrganizations";
 import bannerSvg from "../../assets/banner/data_submissions_banner.png";
 import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
@@ -236,7 +237,7 @@ const CreateSubmissionDialog = styled(Dialog)`
     cursor: pointer;
   }
 `;
-const statusValues: string[] = ["All", "New", "In Progress", "Submitted", "Released", "Completed", "Archived"];
+const statusValues: string[] = ["All", "New", "In Progress", "Submitted", "Released", "Withdrawn", "Rejected", "Completed", "Archived", "Canceled"];
 const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, value: v }));
 /**
  * View for List of Questionnaire/Submissions
@@ -269,20 +270,28 @@ const ListingView: FC = () => {
   const [submissionCreatedSuccessfullyAlert, setSubmissionCreatedSuccessfullyAlert] = useState<boolean>(false);
   const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
 
+  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
+    variables: {
+    },
+    context: { clientName: 'backend' },
+    fetchPolicy: "no-cache",
+  });
+
+  const { data: allOrganizations } = useQuery<listOrganizationsResponse>(listOrganizationsQuery, {
+    variables: {
+    },
+    context: { clientName: 'userService' },
+    fetchPolicy: "no-cache",
+  });
+
   const { data, loading, error, refetch } = useQuery<Response>(query, {
     variables: {
       first: perPage,
       offset: page * perPage,
       sortDirection: order.toUpperCase(),
       orderBy: orderBy.field,
-      organization: organizationFilter,
+      organization: (organizationFilter !== "All" ? allOrganizations?.listOrganizations?.find((org) => org.name === organizationFilter)._id : "All"),
       status: statusFilter,
-    },
-    context: { clientName: 'backend' },
-    fetchPolicy: "no-cache",
-  });
-  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
-    variables: {
     },
     context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
@@ -345,6 +354,9 @@ const ListingView: FC = () => {
     setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
     setCreatingSubmission(false);
   };
+
+  const organizationNames: SelectOption[] = allOrganizations?.listOrganizations?.map((org) => ({ label: org.name, value: org.name }));
+  organizationNames?.unshift({ label: "All", value: "All" });
   const approvedStudiesAbbrvList = approvedStudiesData?.listApprovedStudies?.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
   const approvedStudiesMapToDbGaPID = {};
   approvedStudiesData?.listApprovedStudies?.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
@@ -396,7 +408,7 @@ const ListingView: FC = () => {
                       sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
                       id="data-submissions-table-organization"
                       label=""
-                      options={[{ label: "All", value: "All" }, { label: "test org", value: "test org" }, { label: "CBIIT", value: "CBIIT" }, { label: "NIH", value: "NIH" }, { label: "NCI", value: "NCI" }]}
+                      options={organizationNames || []}
                       value={organizationFilter}
                       placeholder="Select an organization"
                       readOnly={orgOwnerOrSubmitter || user?.role === "User"}
