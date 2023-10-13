@@ -1,5 +1,5 @@
 import React, { FC, useMemo, useState, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Alert, Container, Stack, styled,
   Table, TableBody, TableCell,
@@ -165,7 +165,7 @@ const columns: Column[] = [
 const CreateSubmissionDialog = styled(Dialog)`
   .MuiDialog-paper {
     width: 725px;
-    height: 800px;
+    height: fit-content;
     border-radius: 8px;
     border: 2px solid #5AB8FF;
     background: #F2F6FA;
@@ -228,13 +228,23 @@ const CreateSubmissionDialog = styled(Dialog)`
     align-items: center;
     border-radius: 8px;
     border: 1px solid #000;
-    margin-top: 50px;
     text-decoration: none;
     color: rgba(0, 0, 0, 0.87);
+    margin-top: 50px;
     margin-left: 7px;
     margin-right: 7px;
+    margin-bottom: 40px;
     align-self: center;
     cursor: pointer;
+  }
+  .createSubmissionError {
+    color: #D54309;
+    text-align: center;
+    margin-bottom: 30px;
+    margin-top: -20px;
+  }
+  .invisible{
+    display: none;
   }
 `;
 const statusValues: string[] = ["All", "New", "In Progress", "Submitted", "Released", "Withdrawn", "Rejected", "Completed", "Archived", "Canceled"];
@@ -245,7 +255,6 @@ const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, v
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
-  const navigate = useNavigate();
   const { state } = useLocation();
   const { user } = useAuthContext();
 
@@ -265,6 +274,7 @@ const ListingView: FC = () => {
   const [dataCommons, setDataCommons] = useState<string>(null);
   const [study, setStudy] = useState<string>("All");
   const [dbgapid, setDbgapid] = useState<string>(null);
+  const [createSubmissionError, setCreateSubmissionError] = useState<boolean>(false);
   // eslint-disable-next-line no-nested-ternary
   const [organizationFilter, setOrganizationFilter] = useState<string>(shouldHaveAllFilter ? "All" : (hasOrganizationAssigned ? user.organization?.orgName : "All"));
   const [statusFilter, setStatusFilter] = useState<string>("All");
@@ -333,28 +343,23 @@ const ListingView: FC = () => {
     }
   };
   const createSubmission = async () => {
-    const { errors } = await createDataSubmission({
+    await createDataSubmission({
       variables: {
         studyAbbreviation: study,
         dataCommons,
         name: submissionName,
         dbGaPID: dbgapid,
       }
+    }).then(() => {
+      refetch();
+      setSubmissionCreatedSuccessfullyAlert(true);
+      setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
+      setCreatingSubmission(false);
+      setCreateSubmissionError(false);
+    })
+    .catch((e) => {
+      setCreateSubmissionError(true);
     });
-
-    if (errors) {
-      navigate("", {
-        state: {
-          error: "Unable to create a submission request. Please try again later"
-        }
-      });
-      return;
-    }
-
-    refetch();
-    setSubmissionCreatedSuccessfullyAlert(true);
-    setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
-    setCreatingSubmission(false);
   };
 
   const organizationNames: SelectOption[] = allOrganizations?.listOrganizations?.map((org) => ({ label: org.name, value: org.name }));
@@ -530,11 +535,15 @@ const ListingView: FC = () => {
           <div
             role="button"
             className="closeIcon"
-            onClick={() => setCreatingSubmission(false)}
+            onClick={() => {
+              setCreatingSubmission(false);
+              setCreateSubmissionError(false);
+            }}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 setCreatingSubmission(false);
+                setCreateSubmissionError(false);
               }
             }}
           >
@@ -544,7 +553,7 @@ const ListingView: FC = () => {
         <div className="create-a-submission-header-container">
           <div id="create-a-submission-title"> Create a Data Submission</div>
           <div className="optional-helper-text">
-            Do we need any intro/explanatory text to lay expectations for the user here?
+            Please fill out the form below to start your data submission
           </div>
         </div>
         <div className="inputs-container">
@@ -601,6 +610,13 @@ const ListingView: FC = () => {
           onClick={() => onDialogSubmit()}
         >
           <strong>Submit</strong>
+        </div>
+        <div className={createSubmissionError ? "createSubmissionError" : "invisible"}>
+          Unable to create this data submission. If the problem persists please contact
+          <br />
+          <a href="mailto:ncicrdchelpdesk@mail.nih.gov">
+            ncicrdchelpdesk@mail.nih.gov
+          </a>
         </div>
       </CreateSubmissionDialog>
     </>
