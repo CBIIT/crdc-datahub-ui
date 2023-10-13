@@ -79,6 +79,10 @@ const routes: RouteObject[] = [
         element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
       },
       {
+        path: '/profile/:userId?/api-token',
+        element: <RequireAuth component={<Users key="api-token-view" type="api-token" />} redirectPath="/api-token" redirectName="User API Token" />
+      },
+      {
         path: '/organizations/:orgId?',
         element: <RequireAuth component={<Organizations />} redirectPath="/organizations" redirectName="Organization Management" />
       },
