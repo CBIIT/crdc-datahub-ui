@@ -18,27 +18,7 @@ type Submission = {
   updatedAt: string; // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
-type SubmissionHistoryEvent = {
-  status: SubmissionStatus; // # [New, In Progress, Submitted, In Review, Approved, Rejected]
-  reviewComment: string; // # if applicable
-  dateTime: string; // # YYYY-MM-DDTHH:MM:SS format
-  userID: string;
-};
-
 type SubmissionStatus = "New" | "In Progress" | "Submitted" | "Released" | "Withdrawn" | "Rejected" | "Completed" | "Archived" | "Canceled";
-
-type HistoryEvent = {
-  status: ApplicationStatus;
-  reviewComment?: string;
-  dateTime: string; // YYYY-MM-DDTHH:MM:SSZ format
-  userID: number;
-};
-
-type Applicant = {
-  applicantID: string;
-  applicantName: string;
-  applicantEmail: string;
-};
 
 type BatchFile = {
   _id: string;

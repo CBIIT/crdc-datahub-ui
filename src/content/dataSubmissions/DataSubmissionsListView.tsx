@@ -357,7 +357,7 @@ const ListingView: FC = () => {
       setCreatingSubmission(false);
       setCreateSubmissionError(false);
     })
-    .catch((e) => {
+    .catch(() => {
       setCreateSubmissionError(true);
     });
   };
