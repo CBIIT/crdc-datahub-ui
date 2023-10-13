@@ -11,7 +11,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { useMutation, useQuery } from '@apollo/client';
 import { query, Response } from '../../graphql/listSubmissions';
-import { query as approvedStudiesQuery, Response as approvedStudiesRespone } from "../../graphql/listApprovedStudies";
+import { query as approvedStudiesQuery, Response as approvedStudiesRespone } from "../../graphql/listApprovedStudiesOfMyOrganization";
 import { query as listOrganizationsQuery, Response as listOrganizationsResponse } from "../../graphql/listOrganizations";
 import bannerSvg from "../../assets/banner/data_submissions_banner.png";
 import PageBanner from '../../components/PageBanner';
@@ -258,13 +258,15 @@ const ListingView: FC = () => {
   // Only org owners/submitters with organizations assigned can create data submissions
   const orgOwnerOrSubmitter = (user?.role === "Organization Owner" || user?.role === "Submitter");
   const hasOrganizationAssigned = (user?.organization !== null && user.organization.orgID !== null);
+  const shouldHaveAllFilter = (user?.role === "Admin" || user?.role === "Federal Lead" || user?.role === "Data Curator" || user?.role === "Data Commons POC");
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [dataCommons, setDataCommons] = useState<string>(null);
   const [study, setStudy] = useState<string>("All");
   const [dbgapid, setDbgapid] = useState<string>(null);
-  const [organizationFilter, setOrganizationFilter] = useState<string>(hasOrganizationAssigned ? user.organization?.orgName : "All");
+  // eslint-disable-next-line no-nested-ternary
+  const [organizationFilter, setOrganizationFilter] = useState<string>(shouldHaveAllFilter ? "All" : (hasOrganizationAssigned ? user.organization?.orgName : "All"));
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [submissionName, setSubmissionName] = useState<string>(null);
   const [submissionCreatedSuccessfullyAlert, setSubmissionCreatedSuccessfullyAlert] = useState<boolean>(false);
@@ -357,9 +359,9 @@ const ListingView: FC = () => {
 
   const organizationNames: SelectOption[] = allOrganizations?.listOrganizations?.map((org) => ({ label: org.name, value: org.name }));
   organizationNames?.unshift({ label: "All", value: "All" });
-  const approvedStudiesAbbrvList = approvedStudiesData?.listApprovedStudies?.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
+  const approvedStudiesAbbrvList = approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
   const approvedStudiesMapToDbGaPID = {};
-  approvedStudiesData?.listApprovedStudies?.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
+  approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
   return (
     <>
       <GenericAlert open={submissionCreatedSuccessfullyAlert}>
