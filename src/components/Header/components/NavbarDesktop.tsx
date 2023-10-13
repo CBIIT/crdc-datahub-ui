@@ -524,6 +524,11 @@ const NavBar = () => {
                 User Profile
               </Link>
             </span>
+            <span className="dropdownItem">
+              <Link id="navbar-dropdown-item-name-api-token" to={`/profile/${authData?.user?._id}/api-token`} className="dropdownItem" onClick={() => setClickedTitle("")}>
+                API Token
+              </Link>
+            </span>
             {(authData?.user?.role === "Admin" || authData?.user?.role === "Organization Owner") && (
               <span className="dropdownItem">
                 <Link id="navbar-dropdown-item-name-user-manage" to="/users" className="dropdownItem" onClick={() => setClickedTitle("")}>

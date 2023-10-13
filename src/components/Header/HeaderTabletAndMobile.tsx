@@ -184,6 +184,12 @@ const Header = () => {
       className: 'navMobileSubItem',
     },
     {
+      name: 'API Token',
+      link: `/profile/${authData?.user?._id}/api-token`,
+      id: 'navbar-dropdown-item-api-token',
+      className: 'navMobileSubItem',
+    },
+    {
       name: 'Logout',
       link: '/logout',
       id: 'navbar-dropdown-item-logout',
