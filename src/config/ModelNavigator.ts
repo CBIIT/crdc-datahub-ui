@@ -14,30 +14,25 @@ const facetFilterSearchData = [
       { name: 'Administrative', isChecked: false, group: 'category' },
     ],
   },
+  // NOTE: Do NOT remove these filters or DMN will crash, they are
+  // hidden visually using the `show` property
   {
     groupName: 'UI Display',
     datafield: 'uiDisplay',
-    section: 'B',
-    tooltip: 'inclusion',
-    show: true,
-    checkboxItems: [
-      { name: 'no', isChecked: false, group: 'no' },
-      { name: 'yes', isChecked: false, group: 'yes' },
-    ],
+    show: false,
+    checkboxItems: [],
+  },
+  {
+    groupName: 'Inclusion',
+    datafield: 'inclusion',
+    show: false,
+    checkboxItems: [],
   },
 ];
 
 const facetFilterSectionVariables = {
   A: {
     color: '#0D71A3',
-    checkBoxColorsOne: '#E3F4FD',
-    checkBoxColorsTwo: '#f0f8ff',
-    checkBoxBorderColor: '#0D71A3',
-    height: '7px',
-    isExpanded: true,
-  },
-  B: {
-    color: '#94C0EC',
     checkBoxColorsOne: '#E3F4FD',
     checkBoxColorsTwo: '#f0f8ff',
     checkBoxBorderColor: '#0D71A3',
