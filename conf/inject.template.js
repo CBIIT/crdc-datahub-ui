@@ -1,4 +1,4 @@
-/* eslint-disable */ 
+/* eslint-disable */
 window.injectedEnv = {
     NIH_CLIENT_ID: '${NIH_CLIENT_ID}',
     NIH_AUTHORIZE_URL: '${NIH_AUTHORIZE_URL}',
