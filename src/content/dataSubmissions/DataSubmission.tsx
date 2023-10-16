@@ -201,12 +201,12 @@ const URLTabs = {
   QUALITY_CONTROL: "quality-control"
 };
 
-const submissionLockedStatuses: DataSubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
+const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
 
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
 
-  const [dataSubmission, setDataSubmission] = useState<DataSubmission>(null);
+  const [dataSubmission, setDataSubmission] = useState<Submission>(null);
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<BatchFile>>(null);
   const [error, setError] = useState(false);
@@ -278,7 +278,7 @@ const DataSubmission = () => {
     })();
   }, [submissionId]);
 
-  const handleOnDataSubmissionChange = (dataSubmission: DataSubmission) => {
+  const handleOnDataSubmissionChange = (dataSubmission: Submission) => {
     setDataSubmission(dataSubmission);
   };
 

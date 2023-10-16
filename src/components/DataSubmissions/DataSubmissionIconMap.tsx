@@ -14,7 +14,7 @@ import { IconType } from "../Shared/HistoryDialog";
  *
  * @see ApplicationStatus
  */
-const HistoryIconMap : IconType<DataSubmissionStatus> = {
+const HistoryIconMap : IconType<SubmissionStatus> = {
   New,
   "In Progress": InProgress,
   Submitted,
@@ -24,6 +24,6 @@ const HistoryIconMap : IconType<DataSubmissionStatus> = {
   Completed,
   Archived,
   Canceled
-} as IconType<DataSubmissionStatus>;
+} as IconType<SubmissionStatus>;
 
 export default HistoryIconMap;

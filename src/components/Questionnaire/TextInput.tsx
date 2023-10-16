@@ -21,6 +21,7 @@ type Props = {
   hideValidation?: boolean;
   validate?: (input: string) => boolean;
   filter?: (input: string) => string;
+  parentStateSetter?: (string) => void;
 } & OutlinedInputProps;
 
 /**
@@ -50,6 +51,7 @@ const TextInput: FC<Props> = ({
   type,
   readOnly,
   onChange,
+  parentStateSetter,
   ...rest
 }) => {
   const id = useId();
@@ -72,7 +74,9 @@ const TextInput: FC<Props> = ({
       const customIsValid = validate(newVal);
       updateInputValidity(inputRef, !customIsValid ? errorMsg : "");
     }
-
+    if (typeof parentStateSetter === "function") {
+      parentStateSetter(newVal);
+    }
     setVal(newVal);
   };
 

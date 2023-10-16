@@ -32,5 +32,5 @@ export const query = gql`
 `;
 
 export type Response = {
-  getDataSubmission: DataSubmission;
+  getDataSubmission: Submission;
 };
