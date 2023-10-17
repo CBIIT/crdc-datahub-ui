@@ -1,6 +1,6 @@
-export const DATA_MODEL = "https://raw.githubusercontent.com/CBIIT/icdc-model-tool/develop/model-desc/icdc-model.yml";
-export const DATA_MODEL_PROPS = "https://raw.githubusercontent.com/CBIIT/icdc-model-tool/develop/model-desc/icdc-model-props.yml";
-export const DATA_MODEL_README = "https://raw.githubusercontent.com/CBIIT/cds-model/main/README.md";
+export const DATA_MODEL = "models/icdc-model.yml";
+export const DATA_MODEL_PROPS = "models/icdc-model-props.yml";
+export const DATA_MODEL_README = "models/icdc-model-readme.md";
 
 const facetFilterSearchData = [
   {
@@ -151,7 +151,6 @@ export const pdfDownloadConfig = {
   fileType: 'pdf',
   prefix: 'Data_Model_',
   landscape: 'true',
-  // TODO: is this typo intentional?
   catagoryIcon: {
     url: 'https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/icdc/DMN/Pdf/',
     type: '.png',
