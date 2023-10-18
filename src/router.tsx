@@ -36,6 +36,7 @@ const Login = Loader(lazy(() => import('./content/login/Controller')));
 const Questionnaire = Loader(lazy(() => import('./content/questionnaire/Controller')));
 const DataSubmissions = Loader(lazy(() => import('./content/dataSubmissions/Controller')));
 const Users = Loader(lazy(() => import('./content/users/Controller')));
+const DMN = Loader(lazy(() => import('./content/templates/Controller')));
 const Organizations = Loader(lazy(() => import('./content/organizations/Controller')));
 
 // Status Pages
@@ -77,6 +78,10 @@ const routes: RouteObject[] = [
       {
         path: '/profile/:userId?',
         element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
+      },
+      {
+        path: '/submission-templates',
+        element: <RequireAuth component={<DMN />} redirectPath="/submission-templates" redirectName="Data Submission Templates" />
       },
       {
         path: '/organizations/:orgId?',
