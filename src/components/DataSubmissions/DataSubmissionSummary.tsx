@@ -112,7 +112,7 @@ const StyledGridContainer = styled(Grid)(() => ({
 }));
 
 type Props = {
-  dataSubmission: DataSubmission;
+  dataSubmission: Submission;
 };
 
 const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
@@ -126,7 +126,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
     setHistoryDialogOpen(false);
   };
 
-  const getHistoryTextColorFromStatus = (status: DataSubmissionStatus) => {
+  const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
     let color: string;
     switch (status) {
       case "Archived":

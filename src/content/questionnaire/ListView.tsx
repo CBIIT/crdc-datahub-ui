@@ -193,7 +193,6 @@ const ListingView: FC = () => {
     context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
-
   const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'

@@ -23,6 +23,7 @@ const DropdownArrowsIcon = styled("div")(() => ({
 const GridItem = styled(Grid)(() => ({
   "& .MuiFormHelperText-root.Mui-error": {
     color: "#D54309 !important",
+    marginLeft: "0px"
   },
   "& .MuiOutlinedInput-notchedOutline": {
     borderRadius: "8px",

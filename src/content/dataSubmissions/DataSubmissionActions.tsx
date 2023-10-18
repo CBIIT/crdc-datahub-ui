@@ -113,13 +113,13 @@ const CompleteRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
 const CancelRoles: UserRole[] = ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"];
 const ArchiveRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
 
-const SubmitStatuses: DataSubmissionStatus[] = ["In Progress"];
-const ReleaseStatuses: DataSubmissionStatus[] = ["Submitted"];
-const WithdrawStatuses: DataSubmissionStatus[] = ["Submitted"];
-const RejectStatuses: DataSubmissionStatus[] = ["Submitted"];
-const CompleteStatuses: DataSubmissionStatus[] = ["Released"];
-const CancelStatuses: DataSubmissionStatus[] = ["New", "In Progress"];
-const ArchiveStatuses: DataSubmissionStatus[] = ["Completed"];
+const SubmitStatuses: SubmissionStatus[] = ["In Progress"];
+const ReleaseStatuses: SubmissionStatus[] = ["Submitted"];
+const WithdrawStatuses: SubmissionStatus[] = ["Submitted"];
+const RejectStatuses: SubmissionStatus[] = ["Submitted"];
+const CompleteStatuses: SubmissionStatus[] = ["Released"];
+const CancelStatuses: SubmissionStatus[] = ["New", "In Progress"];
+const ArchiveStatuses: SubmissionStatus[] = ["Completed"];
 
 type DataSubmissionAction =
   | "Submitting"
@@ -131,8 +131,8 @@ type DataSubmissionAction =
   | "Archiving";
 
 type Props = {
-  dataSubmission: DataSubmission;
-  onDataSubmissionChange: (dataSubmission: DataSubmission) => void;
+  dataSubmission: Submission;
+  onDataSubmissionChange: (dataSubmission: Submission) => void;
 };
 
 const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props) => {
