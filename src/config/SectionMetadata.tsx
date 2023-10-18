@@ -49,7 +49,7 @@ const sectionMetadata = {
       },
       DBGAP_REGISTRATION: {
         title: "dbGaP REGISTRATION",
-        description: "Indicated if your study is currently registered with dbGaP.",
+        description: "Please indicate if your study is currently registered with dbGaP.",
       },
       EXISTING_PUBLICATIONS: {
         title: "EXISTING PUBLICATIONS",
