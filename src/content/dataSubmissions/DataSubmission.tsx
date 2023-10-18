@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import {
   Alert,
+  AlertColor,
   Card,
   CardActions,
   CardContent,
@@ -196,6 +197,11 @@ const columns: Column<BatchFile>[] = [
   },
 ];
 
+type AlertState = {
+  message: string;
+  severity: AlertColor;
+};
+
 const URLTabs = {
   DATA_UPLOAD: "data-upload",
   QUALITY_CONTROL: "quality-control"
@@ -211,7 +217,7 @@ const DataSubmission = () => {
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<BatchFile>>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [openAlert, setOpenAlert] = useState<string>(null);
+  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
 
   const [getDataSubmission] = useLazyQuery<GetDataSubmissionResp>(GET_DATA_SUBMISSION, {
@@ -282,16 +288,16 @@ const DataSubmission = () => {
     setDataSubmission(dataSubmission);
   };
 
-  const handleOnUpload = (message: string) => {
-    setOpenAlert(message);
-    setTimeout(() => setOpenAlert(null), 10000);
+  const handleOnUpload = (message: string, severity: AlertColor) => {
+    setChangesAlert({ message, severity });
+    setTimeout(() => setChangesAlert(null), 10000);
   };
 
   return (
     <StyledWrapper>
-      <GenericAlert open={openAlert?.length > 0} key="data-submission-alert">
+      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
         <span>
-          {openAlert}
+          {changesAlert?.message}
         </span>
       </GenericAlert>
       <StyledBanner bannerSrc={bannerSvg} />
