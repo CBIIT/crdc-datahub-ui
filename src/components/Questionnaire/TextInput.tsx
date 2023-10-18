@@ -81,11 +81,10 @@ const TextInput: FC<Props> = ({
   };
 
   const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const newVal = event.target.value;
-
     if (typeof onChange === "function") {
       onChange(event);
     }
+    const newVal = event.target.value;
 
     processValue(newVal);
     setError(false);

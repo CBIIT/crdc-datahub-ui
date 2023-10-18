@@ -303,6 +303,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="program[abbreviation]"
           value={predefinedProgram ? programOption?.abbreviation : program?.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
+          onChange={(e) => { e.target.value = e.target.value.toUpperCase(); }}
           maxLength={20}
           placeholder="20 characters allowed"
           hideValidation={readOnlyProgram}
@@ -370,6 +371,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="study[abbreviation]"
           value={study.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
+          onChange={(e) => { e.target.value = e.target.value.toUpperCase(); }}
           maxLength={20}
           placeholder="20 characters allowed"
           readOnly={readOnlyInputs}
