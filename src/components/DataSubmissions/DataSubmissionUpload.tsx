@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import { useMutation } from "@apollo/client";
+import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import {
+  AlertColor,
   Stack,
   Typography,
   styled,
 } from "@mui/material";
 import RadioInput from "./RadioInput";
+import { CREATE_BATCH, CreateBatchResp } from "../../graphql";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -105,15 +109,22 @@ const VisuallyHiddenInput = styled("input")(() => ({
 type UploadType = "New" | "Update";
 
 type Props = {
-  onUpload: (message: string) => void;
+  onUpload: (message: string, severity: AlertColor) => void;
   readOnly?: boolean;
 };
 
 const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
+  const { submissionId } = useParams();
+
   const [uploadType, setUploadType] = useState<UploadType>("New");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetatadataInputRef = useRef<HTMLInputElement>(null);
+
+  const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
 
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
@@ -145,20 +156,72 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
     setSelectedFiles(files);
   };
 
-  const handleUploadFiles = () => {
+  const createNewBatch = async (): Promise<NewBatch> => {
+    if (!selectedFiles?.length) {
+      return null;
+    }
+
+    try {
+      console.log({ selectedFiles });
+      const formattedFiles: FileInput[] = Array.from(selectedFiles)?.map((file) => ({ fileName: file.name, size: file.size }));
+      const { data: batch, errors } = await createBatch({
+        variables: {
+          submissionID: submissionId,
+          type: "metadata",
+          metadataIntention: "New",
+          files: formattedFiles,
+        }
+      });
+
+      if (errors) {
+        onUploadFail();
+      }
+
+      return batch?.createBatch;
+    } catch (err) {
+      onUploadFail();
+      return null;
+    }
+  };
+
+  const handleUploadFiles = async () => {
     if (!selectedFiles?.length) {
       return;
     }
 
-    // Simulate uploading files
     setIsUploading(true);
-    setTimeout(() => {
-      setSelectedFiles(null);
-      setIsUploading(false);
-      if (typeof onUpload === "function") {
-        onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully uploaded`);
+    const newBatch: NewBatch = await createNewBatch();
+    if (!newBatch) {
+      return;
+    }
+
+    const uploadPromises = newBatch.files?.map(async (file: FileURL) => {
+      const selectedFile: File = Array.from(selectedFiles).find((f) => f.name === file.fileName);
+      try {
+        const res = await fetch(file.signedURL, {
+          method: "POST",
+          body: selectedFile,
+          headers: {
+            'Content-Type': selectedFile.type,
+          }
+        });
+        console.log({ res });
+        if (!res.ok) {
+          onUploadFail();
+        }
+      } catch (err) {
+        onUploadFail();
       }
-    }, 3500);
+    });
+
+    // Wait for all uploads to finish
+    await Promise.all(uploadPromises);
+  };
+
+  const onUploadFail = () => {
+    onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} failed to upload`, "error");
+    setSelectedFiles(null);
+    setIsUploading(false);
   };
 
   return (
