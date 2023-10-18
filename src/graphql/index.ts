@@ -33,6 +33,12 @@ export type { Response as GetDataSubmissionResp } from "./getDataSubmission";
 export { query as GET_DATA_SUBMISSION_BATCH_FILES } from "./getDataSubmissionBatchFiles";
 export type { Response as GetDataSubmissionBatchFilesResp } from "./getDataSubmissionBatchFiles";
 
+export { mutation as CREATE_BATCH } from './createBatch';
+export type { Response as CreateBatchResp } from './createBatch';
+
+export { mutation as UPDATE_BATCH } from './updateBatch';
+export type { Response as UpdateBatchResp } from './updateBatch';
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";
