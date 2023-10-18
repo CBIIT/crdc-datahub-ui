@@ -201,7 +201,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           />
           <SubmissionHeaderProperty
             label="Organization"
-            value={dataSubmission?.organization}
+            value={dataSubmission?.organization?.name}
           />
           <SubmissionHeaderProperty
             label="Primary Contact"
