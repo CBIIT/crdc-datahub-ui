@@ -201,16 +201,16 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           />
           <SubmissionHeaderProperty
             label="Organization"
-            value={dataSubmission?.organization}
+            value={dataSubmission?.organization?.name}
           />
           <SubmissionHeaderProperty
             label="Primary Contact"
             value={(
               <Stack direction="row" alignItems="center" spacing={1.375}>
                 <StyledSubmitterName>
-                  {dataSubmission?.concierge}
+                  {dataSubmission?.conciergeName}
                 </StyledSubmitterName>
-                {dataSubmission?.concierge && (
+                {dataSubmission?.conciergeEmail && (
                   <a
                     href={`mailto:${dataSubmission?.conciergeEmail}`}
                     aria-label="Email Primary Contact"
