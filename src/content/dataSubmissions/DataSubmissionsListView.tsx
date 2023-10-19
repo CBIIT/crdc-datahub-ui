@@ -146,8 +146,8 @@ const columns: Column[] = [
   },
   {
     label: "Primary Contact",
-    value: (a) => a.concierge,
-    field: "concierge",
+    value: (a) => a.conciergeName,
+    field: "conciergeName",
   },
   {
     label: "Created Date",

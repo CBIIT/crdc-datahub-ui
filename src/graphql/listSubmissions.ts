@@ -16,7 +16,7 @@ export const query = gql`
         studyAbbreviation
         dbGaPID
         status
-        concierge
+        conciergeName
         createdAt
         updatedAt
       }
