@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
 import styled from 'styled-components';
 import { useAuthContext } from '../../Contexts/AuthContext';
 import GenericAlert from '../../GenericAlert';
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
+import APITokenDialog from '../../../content/users/APITokenDialog';
 
 const Nav = styled.div`
     top: 0;
@@ -358,6 +360,7 @@ const useOutsideAlerter = (ref1, ref2) => {
 
 const NavBar = () => {
   const [clickedTitle, setClickedTitle] = useState("");
+  const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
   const dropdownSelection = useRef(null);
   const nameDropdownSelection = useRef(null);
   const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
@@ -525,9 +528,9 @@ const NavBar = () => {
               </Link>
             </span>
             <span className="dropdownItem">
-              <Link id="navbar-dropdown-item-name-api-token" to={`/profile/${authData?.user?._id}/api-token`} className="dropdownItem" onClick={() => setClickedTitle("")}>
+              <Button id="navbar-dropdown-item-name-api-token" className="dropdownItem" onClick={() => setOpenAPITokenDialog(true)} sx={{ textTransform: "none" }}>
                 API Token
-              </Link>
+              </Button>
             </span>
             {(authData?.user?.role === "Admin" || authData?.user?.role === "Organization Owner") && (
               <span className="dropdownItem">
@@ -561,6 +564,7 @@ const NavBar = () => {
           </div>
         </NameDropdownContainer>
       </NameDropdown>
+      <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
     </Nav>
   );
 };
