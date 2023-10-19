@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { Button, Dialog, DialogProps, IconButton, OutlinedInput, Stack, Typography, Tooltip as MuiToolTip, styled, TooltipProps } from "@mui/material";
+import { Button, Dialog, DialogProps, IconButton, OutlinedInput, Stack, Typography, styled } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { useMutation } from "@apollo/client";
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
