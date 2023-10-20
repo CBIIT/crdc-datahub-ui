@@ -80,8 +80,8 @@ const routes: RouteObject[] = [
         element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
       },
       {
-        path: '/submission-templates',
-        element: <RequireAuth component={<DMN />} redirectPath="/submission-templates" redirectName="Data Submission Templates" />
+        path: '/model-navigator',
+        element: <RequireAuth component={<DMN />} redirectPath="/model-navigator" redirectName="Model Navigator" />
       },
       {
         path: '/organizations/:orgId?',

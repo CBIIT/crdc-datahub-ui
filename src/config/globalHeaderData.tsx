@@ -33,9 +33,9 @@ export const navMobileList = [
     className: 'navMobileItem',
   },
   {
-    name: 'Data Submission Templates',
-    link: '/submission-templates',
-    id: 'navbar-dropdown-submission-templates',
+    name: 'Model Navigator',
+    link: '/model-navigator',
+    id: 'navbar-dropdown-model-navigator',
     className: 'navMobileItem',
   }
 ];
