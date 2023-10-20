@@ -141,7 +141,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
 
     return color;
   };
-
+  console.log(dataSubmission);
   return (
     <StyledSummaryWrapper>
       <Stack
@@ -208,9 +208,9 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             value={(
               <Stack direction="row" alignItems="center" spacing={1.375}>
                 <StyledSubmitterName>
-                  {dataSubmission?.concierge}
+                  {dataSubmission?.conciergeName}
                 </StyledSubmitterName>
-                {dataSubmission?.concierge && (
+                {dataSubmission?.conciergeName && (
                   <a
                     href={`mailto:${dataSubmission?.conciergeEmail}`}
                     aria-label="Email Primary Contact"
