@@ -25,7 +25,7 @@ const StyledSummaryWrapper = styled("div")(() => ({
   borderBottom: "1px solid #6CACDA",
   textWrap: "nowrap",
   // boxShadow: "0px 2px 35px 0px rgba(62, 87, 88, 0.35)",
-  padding: "25px 0px 66px 48px",
+  padding: "25px 0px 58px 48px",
 }));
 
 const StyledSubmissionTitle = styled(Typography)(() => ({
@@ -51,7 +51,7 @@ const StyledSubmissionStatus = styled(Typography)(() => ({
 
 const StyledHistoryButton = styled(Button)(() => ({
   marginTop: "16px",
-  marginBottom: "4px",
+  marginBottom: "10px",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -88,6 +88,12 @@ const StyledSubmitterName = styled(StyledValue)(() => ({
   whiteSpace: "nowrap",
   overflow: "hidden",
   textOverflow: "ellipsis",
+  maxWidth: "100%",
+  lineHeight: "19.6px",
+  flexShrink: 1
+}));
+
+const StyledConciergeName = styled(StyledValue)(() => ({
   maxWidth: "100%",
   lineHeight: "19.6px",
   flexShrink: 1
@@ -235,9 +241,9 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             label="Primary Contact"
             value={(
               <Stack direction="row" alignItems="center" spacing={1.375}>
-                <StyledSubmitterName>
+                <StyledConciergeName>
                   {dataSubmission?.conciergeName}
-                </StyledSubmitterName>
+                </StyledConciergeName>
                 {dataSubmission?.conciergeName && dataSubmission?.conciergeEmail && (
                   <a
                     href={`mailto:${dataSubmission?.conciergeEmail}`}
