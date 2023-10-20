@@ -25,7 +25,7 @@ const StyledSummaryWrapper = styled("div")(() => ({
   borderBottom: "1px solid #6CACDA",
   textWrap: "nowrap",
   // boxShadow: "0px 2px 35px 0px rgba(62, 87, 88, 0.35)",
-  padding: "25px 0px 58px 48px",
+  padding: "25px 21px 59px 48px",
 }));
 
 const StyledSubmissionTitle = styled(Typography)(() => ({
@@ -80,7 +80,7 @@ const StyledSectionDivider = styled(Divider)(() => ({
     height: "114px",
     background: "#6CACDA",
     marginLeft: "44px",
-    marginTop: "9px",
+    marginTop: "8px",
     alignSelft: "flex-end"
   },
 }));
