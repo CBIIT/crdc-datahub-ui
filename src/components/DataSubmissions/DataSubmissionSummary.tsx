@@ -77,10 +77,11 @@ const StyledHistoryButton = styled(Button)(() => ({
 const StyledSectionDivider = styled(Divider)(() => ({
   "&.MuiDivider-root": {
     width: "2px",
-    height: "107px",
+    height: "114px",
     background: "#6CACDA",
     marginLeft: "44px",
     marginTop: "9px",
+    alignSelft: "flex-end"
   },
 }));
 
