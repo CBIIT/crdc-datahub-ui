@@ -123,8 +123,7 @@ type Props = {
   dataSubmission: Submission;
 };
 
-const DataSubmissionSummary: FC<Props> = ({ dataSubmission: test }) => {
-  const dataSubmission = { ...test, name: "AAAAAAAAAAAAAAAAAAAAAAAAA" };
+const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const [historyDialogOpen, setHistoryDialogOpen] = useState<boolean>(false);
   const [hasEllipsis, setHasEllipsis] = useState(false);
   const textRef = useRef<HTMLParagraphElement | null>(null);
