@@ -1,4 +1,7 @@
+import { cloneElement, useState } from "react";
 import {
+  Box,
+  ClickAwayListener,
   Tooltip as MuiToolTip,
   TooltipProps,
   Typography,
@@ -52,14 +55,15 @@ const StyledBodyWrapper = styled("div")(() => ({
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "19.6px",
+  textWrap: "initial"
 }));
 
-type Props = {
+type Props = TooltipProps & {
   icon?: React.ReactElement | JSX.Element;
   title?: string;
   subtitle?: string;
   body?: string | JSX.Element;
-} & Partial<TooltipProps>;
+};
 
 const Tooltip = ({
   classes,
@@ -69,21 +73,59 @@ const Tooltip = ({
   subtitle,
   body,
   placement,
+  disableFocusListener,
+  disableHoverListener,
+  disableTouchListener,
   ...rest
-}: Props) => (
-  <StyledTooltip
-    title={(
-      <>
-        {title && <StyledTitle variant="h5">{title}</StyledTitle>}
-        {subtitle && <StyledSubtitle variant="h6">{subtitle}</StyledSubtitle>}
-        {body && <StyledBodyWrapper>{body}</StyledBodyWrapper>}
-      </>
-    )}
-    placement={placement || "bottom"}
-    {...rest}
-  >
-    {children}
-  </StyledTooltip>
-);
+}: Props) => {
+  const [open, setOpen] = useState(false);
+
+  const handleTooltipClose = () => {
+    setOpen(false);
+  };
+
+  const handleTooltipOpen = () => {
+    setOpen(true);
+  };
+
+  const toggleTooltip = () => {
+    setOpen((prev) => !prev);
+  };
+
+  return (
+    <ClickAwayListener onClickAway={handleTooltipClose}>
+      <Box
+        onMouseOver={!disableHoverListener ? handleTooltipOpen : undefined}
+        onMouseOut={!disableHoverListener ? handleTooltipClose : undefined}
+        onTouchStart={!disableTouchListener ? handleTooltipOpen : undefined}
+        onFocus={!disableFocusListener ? handleTooltipOpen : undefined}
+        onBlur={!disableFocusListener ? handleTooltipClose : undefined}
+        sx={{ width: "100%" }}
+      >
+        <StyledTooltip
+          {...rest}
+          PopperProps={{
+            disablePortal: true,
+            ...rest.PopperProps
+          }}
+          open={open}
+          onClose={handleTooltipClose}
+          title={(
+            <>
+              {title && <StyledTitle variant="h5">{title}</StyledTitle>}
+              {subtitle && <StyledSubtitle variant="h6">{subtitle}</StyledSubtitle>}
+              {body && <StyledBodyWrapper>{body}</StyledBodyWrapper>}
+            </>
+          )}
+          placement={placement || "bottom"}
+        >
+          {cloneElement(children, {
+            onClick: disableHoverListener ? toggleTooltip : handleTooltipOpen
+          })}
+        </StyledTooltip>
+      </Box>
+    </ClickAwayListener>
+  );
+};
 
 export default Tooltip;
