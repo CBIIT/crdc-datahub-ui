@@ -15,11 +15,19 @@ import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
-import { GET_DATA_SUBMISSION_BATCH_FILES, GET_SUBMISSION, GetDataSubmissionBatchFilesResp, GetSubmissionResp } from "../../graphql";
+import {
+  GET_DATA_SUBMISSION_BATCH_FILES,
+  GET_SUBMISSION,
+  GetDataSubmissionBatchFilesResp,
+  GetSubmissionResp,
+} from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
-import GenericAlert from "../../components/GenericAlert";
+import GenericAlert, { AlertState } from "../../components/GenericAlert";
 import PieChart from "../../components/DataSubmissions/PieChart";
-import DataSubmissionBatchTable, { Column, FetchListing } from "../../components/DataSubmissions/DataSubmissionBatchTable";
+import DataSubmissionBatchTable, {
+  Column,
+  FetchListing,
+} from "../../components/DataSubmissions/DataSubmissionBatchTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 
@@ -209,9 +217,9 @@ const DataSubmission = () => {
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<BatchFile>>(null);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string>(null);
   const [loading, setLoading] = useState(false);
-  const [openAlert, setOpenAlert] = useState<string>(null);
+  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
 
   const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
@@ -228,7 +236,7 @@ const DataSubmission = () => {
   const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFile>) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
-      setError(true);
+      setError("Invalid submission ID provided.");
       return;
     }
     if (batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
@@ -251,12 +259,12 @@ const DataSubmission = () => {
         fetchPolicy: 'no-cache'
       });
       if (batchFilesError || !newBatchFiles?.getDataSubmissionBatchFiles) {
-        setError(true);
+        setError("Unable to retrieve batch data.");
         return;
       }
       setBatchFiles(newBatchFiles.getDataSubmissionBatchFiles.batchFiles);
     } catch (err) {
-      setError(true);
+      setError("Unable to retrieve batch data.");
     } finally {
       setLoading(false);
     }
@@ -264,13 +272,14 @@ const DataSubmission = () => {
 
   useEffect(() => {
     if (!submissionId) {
+      setError("Invalid submission ID provided.");
       return;
     }
     (async () => {
       if (!dataSubmission?._id) {
         const { data: newDataSubmission, error } = await getSubmission();
         if (error || !newDataSubmission?.getSubmission) {
-          setError(true);
+          setError("Unable to retrieve Data Submission.");
           return;
         }
         setDataSubmission(newDataSubmission.getSubmission);
@@ -278,27 +287,37 @@ const DataSubmission = () => {
     })();
   }, [submissionId]);
 
-  const handleOnDataSubmissionChange = (dataSubmission: Submission) => {
-    setDataSubmission(dataSubmission);
+  const createAlert = (alert: AlertState, duration = 10000) => {
+    setChangesAlert(alert);
+    setTimeout(() => setChangesAlert(null), duration);
   };
 
   const handleOnUpload = (message: string) => {
-    setOpenAlert(message);
-    setTimeout(() => setOpenAlert(null), 10000);
+    createAlert({ message, severity: "success" });
+  };
+
+  const handleSubmissionAction = async (submission: Submission) => {
+    // createAlert({ message: `Submission has been ${submission?.status?.toLowerCase()} successfully.`, severity: "success" });
+    setDataSubmission((prevSubmission) => ({ ...prevSubmission, ...submission }));
   };
 
   return (
     <StyledWrapper>
-      <GenericAlert open={openAlert?.length > 0} key="data-submission-alert">
+      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
         <span>
-          {openAlert}
+          {changesAlert?.message}
         </span>
       </GenericAlert>
       <StyledBanner bannerSrc={bannerSvg} />
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCard>
           <CardContent>
-            {error && <StyledAlert severity="error">Oops! An error occurred. Unable to retrieve Data Submission.</StyledAlert>}
+            {error && (
+            <StyledAlert severity="error">
+              Oops! An error occurred.
+              {error}
+            </StyledAlert>
+)}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
             <StyledChartArea>
               <Stack direction="row" justifyContent="center" sx={{ width: "960px", textAlign: "center" }}>
@@ -432,8 +451,9 @@ const DataSubmission = () => {
           </CardContent>
           <CardActions>
             <DataSubmissionActions
-              dataSubmission={dataSubmission}
-              onDataSubmissionChange={handleOnDataSubmissionChange}
+              submission={dataSubmission}
+              onSubmissionChange={handleSubmissionAction}
+              onError={setError}
             />
           </CardActions>
         </StyledCard>
