@@ -1,4 +1,4 @@
-import { Grid, Stack, Typography, styled } from "@mui/material";
+import { Box, Grid, Stack, Typography, styled } from "@mui/material";
 import { FC } from "react";
 
 const StyledLabel = styled(Typography)(() => ({
@@ -10,7 +10,6 @@ const StyledLabel = styled(Typography)(() => ({
   lineHeight: "19.6px",
   letterSpacing: "0.52px",
   textTransform: "uppercase",
-  marginRight: "22px",
 }));
 
 export const StyledValue = styled(Typography)(() => ({
@@ -28,14 +27,16 @@ type Props = {
 };
 
 const SubmissionHeaderProperty: FC<Props> = ({ label, value }) => (
-  <Grid md={6} xs={12} item>
-    <Stack direction="row" alignItems="center">
+  <Grid lg={6} xs={12} item>
+    <Stack direction="row" alignItems="center" width="100%" maxWidth="100%" spacing={2.75}>
       <StyledLabel variant="body1">{label}</StyledLabel>
-      {typeof value === "string" ? (
-        <StyledValue variant="body1">{value}</StyledValue>
-      ) : (
-        value
-      )}
+      <Box flexGrow={1} overflow="hidden">
+        {typeof value === "string" ? (
+          <StyledValue variant="body1">{value}</StyledValue>
+        ) : (
+          value
+        )}
+      </Box>
     </Stack>
   </Grid>
 );

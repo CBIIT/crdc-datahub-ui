@@ -15,7 +15,7 @@ import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
-import { GET_DATA_SUBMISSION, GET_DATA_SUBMISSION_BATCH_FILES, GetDataSubmissionBatchFilesResp, GetDataSubmissionResp } from "../../graphql";
+import { GET_DATA_SUBMISSION_BATCH_FILES, GET_SUBMISSION, GetDataSubmissionBatchFilesResp, GetSubmissionResp } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert from "../../components/GenericAlert";
 import PieChart from "../../components/DataSubmissions/PieChart";
@@ -214,9 +214,9 @@ const DataSubmission = () => {
   const [openAlert, setOpenAlert] = useState<string>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
 
-  const [getDataSubmission] = useLazyQuery<GetDataSubmissionResp>(GET_DATA_SUBMISSION, {
-    variables: { id: "8887654" }, // TODO: Replace with submissionId
-    context: { clientName: 'mockService' },
+  const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
+    variables: { id: submissionId },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
@@ -268,12 +268,12 @@ const DataSubmission = () => {
     }
     (async () => {
       if (!dataSubmission?._id) {
-        const { data: newDataSubmission, error } = await getDataSubmission();
-        if (error || !newDataSubmission?.getDataSubmission) {
+        const { data: newDataSubmission, error } = await getSubmission();
+        if (error || !newDataSubmission?.getSubmission) {
           setError(true);
           return;
         }
-        setDataSubmission(newDataSubmission.getDataSubmission);
+        setDataSubmission(newDataSubmission.getSubmission);
       }
     })();
   }, [submissionId]);

@@ -6,7 +6,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { FC, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import SubmissionHeaderProperty, {
   StyledValue,
 } from "./SubmissionHeaderProperty";
@@ -25,7 +25,7 @@ const StyledSummaryWrapper = styled("div")(() => ({
   borderBottom: "1px solid #6CACDA",
   textWrap: "nowrap",
   // boxShadow: "0px 2px 35px 0px rgba(62, 87, 88, 0.35)",
-  padding: "24px 105px 66px 37px",
+  padding: "25px 21px 59px 48px",
 }));
 
 const StyledSubmissionTitle = styled(Typography)(() => ({
@@ -51,7 +51,7 @@ const StyledSubmissionStatus = styled(Typography)(() => ({
 
 const StyledHistoryButton = styled(Button)(() => ({
   marginTop: "16px",
-  marginBottom: "4px",
+  marginBottom: "10px",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -77,10 +77,11 @@ const StyledHistoryButton = styled(Button)(() => ({
 const StyledSectionDivider = styled(Divider)(() => ({
   "&.MuiDivider-root": {
     width: "2px",
-    height: "107px",
+    height: "114px",
     background: "#6CACDA",
-    marginLeft: "35px",
-    marginTop: "9px",
+    marginLeft: "44px",
+    marginTop: "8px",
+    alignSelft: "flex-end"
   },
 }));
 
@@ -88,8 +89,15 @@ const StyledSubmitterName = styled(StyledValue)(() => ({
   whiteSpace: "nowrap",
   overflow: "hidden",
   textOverflow: "ellipsis",
-  maxWidth: "211px",
+  maxWidth: "100%",
   lineHeight: "19.6px",
+  flexShrink: 1
+}));
+
+const StyledConciergeName = styled(StyledValue)(() => ({
+  maxWidth: "100%",
+  lineHeight: "19.6px",
+  flexShrink: 1
 }));
 
 const StyledTooltipSubmitterName = styled(StyledValue)(() => ({
@@ -102,13 +110,20 @@ const StyledTooltipSubmitterName = styled(StyledValue)(() => ({
   marginTop: "6px",
 }));
 
-const StyledGridContainer = styled(Grid)(() => ({
+const StyledGridContainer = styled(Grid)(({ theme }) => ({
   "&.MuiGrid-container": {
-    marginLeft: "69px",
+    marginLeft: "45px",
+    width: "100%",
+    overflow: "hidden"
   },
   "& .MuiGrid-item:nth-of-type(2n + 1)": {
     paddingLeft: 0,
   },
+  [theme.breakpoints.down("lg")]: {
+    "& .MuiGrid-item": {
+      paddingLeft: 0,
+    },
+  }
 }));
 
 type Props = {
@@ -117,6 +132,21 @@ type Props = {
 
 const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const [historyDialogOpen, setHistoryDialogOpen] = useState<boolean>(false);
+  const [hasEllipsis, setHasEllipsis] = useState(false);
+  const textRef = useRef<HTMLParagraphElement | null>(null);
+
+  useEffect(() => {
+    const checkEllipsis = () => {
+      if (textRef.current) {
+        setHasEllipsis(textRef.current.offsetWidth < textRef.current.scrollWidth);
+      }
+    };
+
+    checkEllipsis();
+
+    window.addEventListener("resize", checkEllipsis);
+    return () => window.removeEventListener("resize", checkEllipsis);
+  }, [dataSubmission?.name]);
 
   const handleOnHistoryDialogOpen = () => {
     setHistoryDialogOpen(true);
@@ -141,7 +171,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
 
     return color;
   };
-  console.log(dataSubmission);
+
   return (
     <StyledSummaryWrapper>
       <Stack
@@ -165,12 +195,12 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
 
         <StyledSectionDivider orientation="vertical" />
 
-        <StyledGridContainer container rowSpacing={2} columnSpacing={14}>
+        <StyledGridContainer container flexDirection={{ xs: "column", lg: "row" }} rowSpacing={2} columnSpacing={{ xs: 0, lg: 8.25 }}>
           <SubmissionHeaderProperty
             label="Submission Name"
             value={(
-              <Stack direction="row" alignItems="center" sx={{ minWidth: 0 }}>
-                {dataSubmission?.name && (
+              <Stack direction="row" alignItems="center" sx={{ minWidth: 0, flexWrap: "nowrap" }}>
+                {hasEllipsis ? (
                   <Tooltip
                     title="Submission Name"
                     body={(
@@ -178,11 +208,16 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
                         {dataSubmission?.name}
                       </StyledTooltipSubmitterName>
                     )}
+                    disableHoverListener
                   >
-                    <StyledSubmitterName>
+                    <StyledSubmitterName ref={textRef}>
                       {dataSubmission?.name}
                     </StyledSubmitterName>
                   </Tooltip>
+                ) : (
+                  <StyledSubmitterName ref={textRef}>
+                    {dataSubmission?.name}
+                  </StyledSubmitterName>
                 )}
               </Stack>
             )}
@@ -201,16 +236,16 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           />
           <SubmissionHeaderProperty
             label="Organization"
-            value={dataSubmission?.organization}
+            value={dataSubmission?.organization?.name}
           />
           <SubmissionHeaderProperty
             label="Primary Contact"
             value={(
               <Stack direction="row" alignItems="center" spacing={1.375}>
-                <StyledSubmitterName>
+                <StyledConciergeName>
                   {dataSubmission?.conciergeName}
-                </StyledSubmitterName>
-                {dataSubmission?.conciergeName && (
+                </StyledConciergeName>
+                {dataSubmission?.conciergeName && dataSubmission?.conciergeEmail && (
                   <a
                     href={`mailto:${dataSubmission?.conciergeEmail}`}
                     aria-label="Email Primary Contact"
