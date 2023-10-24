@@ -18,11 +18,16 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "src",
     ".eslintrc.cjs",
-    "types/*.d.ts"
+    "types/*.d.ts",
+    "conf",
+    "public"
   ]
 }

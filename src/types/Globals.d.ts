@@ -1,8 +1,16 @@
+type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P]>;
+};
+
+type Extends<T, U extends T> = U;
+
 type FormSectionProps = {
-  classes?: any;
   refs: {
     saveFormRef: React.RefObject<HTMLButtonElement>;
     submitFormRef: React.RefObject<HTMLButtonElement>;
+    nextButtonRef: React.RefObject<HTMLButtonElement>;
+    approveFormRef: React.RefObject<HTMLButtonElement>;
+    rejectFormRef: React.RefObject<HTMLButtonElement>;
     getFormObjectRef: React.MutableRefObject<(() => FormObject | null) | null>;
   };
   SectionOption: SectionOption;
@@ -10,14 +18,28 @@ type FormSectionProps = {
 
 type FormObject = {
   ref: React.RefObject<HTMLFormElement>;
-  data: Application;
+  data: QuestionnaireData;
 };
 
+type SectionKey = 'A' | 'B' | 'C' | 'D' | 'REVIEW';
+
 type SectionConfig = {
-  [key: string]: SectionOption
+  [key in SectionKey]: SectionOption;
 };
 
 type SectionOption = {
   title: string;
+  id: string;
   component: React.ComponentType<FormSectionProps>;
 };
+
+type FormGroupCheckboxOption = {
+  label: string;
+  value: string;
+  name?: string; // overrides parent name in checkboxes
+  tooltipText?: string;
+  errorText?: string;
+  required?: boolean;
+};
+
+type SelectOption = { label: string; value: string | number };

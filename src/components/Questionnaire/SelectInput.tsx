@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useState } from "react";
+import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -8,131 +8,74 @@ import {
   SelectProps,
   styled,
 } from "@mui/material";
-import { WithStyles, withStyles } from "@mui/styles";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+import Tooltip from "./Tooltip";
+import { updateInputValidity } from '../../utils';
 
 const DropdownArrowsIcon = styled("div")(() => ({
   backgroundImage: `url(${dropdownArrowsIcon})`,
   backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
-  width: "9.17px",
+  width: "10px",
   height: "18px",
 }));
 
-type Props = {
-  classes: WithStyles<typeof styles>["classes"];
-  value: string;
-  options: { label: string; value: string | number }[];
-  name: string;
-  label: string;
-  required?: boolean;
-  helpText?: string;
-  gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
-  onChange?: (value: string) => void;
-} & SelectProps;
-
-/**
- * Generates a generic select box with a label and help text
- *
- * @param {Props} props
- * @returns {JSX.Element}
- */
-const SelectInput: FC<Props> = ({
-  classes,
-  value,
-  name,
-  label,
-  options,
-  required = false,
-  helpText,
-  gridWidth,
-  onChange,
-  ...rest
-}) => {
-  const id = useId();
-
-  const [val, setVal] = useState(value);
-  const [error] = useState(false);
-  const helperText = helpText || (required ? "This field is required" : " ");
-
-  const onChangeWrapper = (newVal) => {
-    if (typeof onChange === "function") {
-      onChange(newVal);
-    }
-
-    setVal(newVal);
-  };
-
-  useEffect(() => {
-    onChangeWrapper(value);
-  }, [value]);
-
-  return (
-    <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
-      <FormControl fullWidth error={error}>
-        <label htmlFor={id} className={classes.label}>
-          {label}
-          {required ? <span className={classes.asterisk}>*</span> : ""}
-        </label>
-        <Select
-          classes={{ select: classes.input }}
-          size="small"
-          value={val}
-          onChange={(e) => onChangeWrapper(e.target.value)}
-          required={required}
-          name={name}
-          IconComponent={DropdownArrowsIcon}
-          MenuProps={{ PaperProps: { className: classes.paper } }}
-          slotProps={{ input: { id } }}
-          {...rest}
-        >
-          {options.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
-        <FormHelperText>{error ? helperText : " "}</FormHelperText>
-      </FormControl>
-    </Grid>
-  );
-};
-
-const styles = () => ({
-  root: {
-    "& .MuiFormHelperText-root.Mui-error": {
-      color: "#D54309 !important",
-    },
-    "& .MuiOutlinedInput-notchedOutline": {
-      borderRadius: "8px",
-      borderColor: "#6B7294",
-      padding: "0 12px"
-    },
-    "&.Mui-error fieldset": {
-      borderColor: "#D54309 !important",
-    },
-    "& .MuiSelect-icon": {
-      right: "12px"
-    },
-    "& .MuiSelect-iconOpen": {
-      transform: "none"
-    },
-    "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-      border: "1px solid #209D7D",
-      boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-    },
+const GridItem = styled(Grid)(() => ({
+  "& .MuiFormHelperText-root.Mui-error": {
+    color: "#D54309 !important",
   },
-  label: {
-    fontWeight: 700,
-    fontSize: "16px",
-    color: "#083A50",
-    marginBottom: "4px",
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderRadius: "8px",
+    borderColor: "#6B7294",
+    padding: "0 12px"
   },
-  asterisk: {
-    color: "#D54309",
-    marginLeft: "6px",
+  "&.Mui-error fieldset": {
+    borderColor: "#D54309 !important",
   },
-  paper: {
+  "& .MuiSelect-icon": {
+    right: "12px"
+  },
+  "& .MuiSelect-iconOpen": {
+    transform: "none"
+  },
+  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+    border: "1px solid #209D7D !important",
+    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+  },
+}));
+
+const StyledAsterisk = styled("span")(() => ({
+  color: "#D54309",
+  marginLeft: "2px",
+}));
+
+const StyledFormLabel = styled("label")(({ theme }) => ({
+  fontWeight: 700,
+  fontSize: "16px",
+  lineHeight: "19.6px",
+  minHeight: "20px",
+  color: "#083A50",
+  marginBottom: "4px",
+  [theme.breakpoints.up("lg")]: {
+    whiteSpace: "nowrap",
+  },
+}));
+
+const ProxySelect = styled("select")(() => ({
+  display: "none"
+}));
+
+const StyledSelect = styled(Select, {
+  shouldForwardProp: (prop) => prop !== "placeholderText"
+})<SelectProps & { placeholderText: string; }>((props) => ({
+  "& .MuiSelect-select .notranslate::after": {
+    // content: `'${(props) => props.placeholderText || "none"}'`,
+    content: `'${props.placeholderText ?? "Select"}'`,
+    color: "#87878C",
+    fontWeight: 400,
+    opacity: 1
+  },
+  "& .MuiPaper-root": {
     borderRadius: "8px",
     border: "1px solid #6B7294",
     marginTop: "2px",
@@ -148,36 +91,171 @@ const styles = () => ({
       background: "#FFFFFF"
     },
     "& .MuiMenuItem-root.Mui-selected": {
-      backgroundColor: "#FFFFFF",
-      color: "#083A50",
+      backgroundColor: "#3E7E6D",
+      color: "#FFFFFF",
     },
     "& .MuiMenuItem-root:hover": {
-      background: "#5E6787",
+      background: "#3E7E6D",
       color: "#FFFFFF"
     },
     "& .MuiMenuItem-root.Mui-focused": {
-      backgroundColor: "#5E6787 !important",
+      backgroundColor: "#3E7E6D !important",
       color: "#FFFFFF"
     },
   },
-  input: {
+  "& .MuiInputBase-input": {
     backgroundColor: "#fff",
     color: "#083A50 !important",
-    "&.MuiInputBase-input": {
-      fontWeight: 400,
-      fontSize: "16px",
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      lineHeight: "19.6px",
-      padding: "12px",
-      height: "20px",
-      minHeight: "20px"
-    },
-    "&.MuiInputBase-input::placeholder": {
-      color: "#929296",
+    fontWeight: 400,
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    lineHeight: "19.6px",
+    padding: "12px",
+    height: "20px !important",
+    minHeight: "20px !important",
+    "&::placeholder": {
+      color: "#87878C",
       fontWeight: 400,
       opacity: 1
     },
   },
-});
+  // Target readOnly <input> inputs
+  "& .Mui-readOnly.MuiOutlinedInput-input:read-only": {
+    backgroundColor: "#E5EEF4",
+    color: "#083A50",
+    cursor: "not-allowed",
+    borderRadius: "8px",
+  },
+}));
 
-export default withStyles(styles, { withTheme: true })(SelectInput);
+type Props = {
+  value: string | string[];
+  options: SelectOption[];
+  name?: string;
+  label: string;
+  required?: boolean;
+  helpText?: string;
+  tooltipText?: string | ReactNode;
+  gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
+  onChange?: (value: string) => void;
+} & Omit<SelectProps, "onChange">;
+
+/**
+ * Generates a generic select box with a label and help text
+ *
+ * @param {Props} props
+ * @returns {JSX.Element}
+ */
+const SelectInput: FC<Props> = ({
+  value,
+  name,
+  label,
+  options,
+  required = false,
+  helpText,
+  tooltipText,
+  gridWidth,
+  onChange,
+  multiple,
+  placeholder,
+  readOnly,
+  ...rest
+}) => {
+  const id = useId();
+
+  const [val, setVal] = useState(multiple ? [] : "");
+  const [error, setError] = useState(false);
+  const helperText = helpText || (required ? "This field is required" : " ");
+  const inputRef = useRef(null);
+
+  const processValue = (newValue: string | string[]) => {
+    const inputIsArray = Array.isArray(newValue);
+    if (multiple && !inputIsArray) {
+      updateInputValidity(inputRef, "Please select at least one option");
+    } else if (inputIsArray) {
+      const containsOnlyValidOptions = newValue.every((value: string) => !!options.find((option) => option.value === value));
+      updateInputValidity(inputRef, containsOnlyValidOptions ? "" : "Please select only valid options");
+    } else if (required && !options.findIndex((option) => option.value === newValue)) {
+      updateInputValidity(inputRef, "Please select an entry from the list");
+    } else {
+      updateInputValidity(inputRef, "");
+    }
+
+    if (!newValue && multiple) {
+      setVal([]);
+      return;
+    }
+
+    setVal(newValue || "");
+  };
+
+  const onChangeWrapper = (newVal) => {
+    if (typeof onChange === "function") {
+      onChange(newVal);
+    }
+
+    processValue(newVal);
+    setError(false);
+  };
+
+  useEffect(() => {
+    const invalid = () => setError(true);
+
+    inputRef.current?.node?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.node?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
+
+  useEffect(() => {
+    processValue(value);
+  }, [value]);
+
+  return (
+    <GridItem md={gridWidth || 6} xs={12} item>
+      <FormControl fullWidth error={error}>
+        <StyledFormLabel htmlFor={id}>
+          {label}
+          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+          {tooltipText && <Tooltip placement="right" title={tooltipText} />}
+        </StyledFormLabel>
+        <StyledSelect
+          size="small"
+          value={val}
+          onChange={(e) => onChangeWrapper(e.target.value)}
+          required={required}
+          IconComponent={DropdownArrowsIcon}
+          MenuProps={{ disablePortal: true }}
+          slotProps={{ input: { id } }}
+          multiple={multiple}
+          placeholderText={placeholder}
+          readOnly={readOnly}
+          inputRef={inputRef}
+          {...rest}
+        >
+          {options.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </StyledSelect>
+
+        {/* Proxy select for the form parser to correctly parse data if multiple attribute is on */}
+        <ProxySelect
+          name={name}
+          value={val}
+          onChange={() => {}}
+          multiple={multiple}
+          hidden
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value} aria-label={`${option.value}`} />
+          ))}
+        </ProxySelect>
+        <FormHelperText>{!readOnly && error ? helperText : " "}</FormHelperText>
+      </FormControl>
+    </GridItem>
+  );
+};
+
+export default SelectInput;

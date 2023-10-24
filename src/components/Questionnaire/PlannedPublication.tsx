@@ -10,12 +10,13 @@ const GridContainer = styled(Grid)(() => ({
   border: "0.5px solid #DCDCDC !important",
   borderRadius: "10px",
   padding: "18px 15px",
-  marginLeft: "12px",
 }));
 
 type Props = {
+  idPrefix?: string;
   index: number;
   plannedPublication: PlannedPublication | null;
+  readOnly?: boolean;
   onDelete: () => void;
 };
 
@@ -26,8 +27,10 @@ type Props = {
  * @returns {JSX.Element}
  */
 const PlannedPublication: FC<Props> = ({
+  idPrefix = "",
   index,
   plannedPublication,
+  readOnly,
   onDelete,
 }: Props) => {
   const { status } = useFormContext();
@@ -38,20 +41,26 @@ const PlannedPublication: FC<Props> = ({
     <GridContainer container>
       <Grid container item xs={12} rowSpacing={0} columnSpacing={1.5}>
         <TextInput
-          label="Planned Publication Title"
-          name={`plannedPublications[${index}][title]`}
+          id={idPrefix.concat(`planned-publication-${index}-title`)}
+          label="Publication Title"
+          name={`study[plannedPublications][${index}][title]`}
           value={title}
           placeholder="Enter title"
           maxLength={100}
           gridWidth={12}
           required
+          readOnly={readOnly}
         />
         <DatePickerInput
+          inputID={idPrefix.concat(`planned-publication-${index}-expected-publication-date`)}
           label="Expected Publication Date"
-          name={`plannedPublications[${index}][expectedDate]`}
+          name={`study[plannedPublications][${index}][expectedDate]`}
           initialValue={expectedDate}
           gridWidth={6}
+          disablePast
+          format="MM/DD/YYYY"
           required
+          readOnly={readOnly}
           tooltipText="Data made available for secondary research only
                       after investigators have obtained approval from
                       NIH to use the requested data for a particular
@@ -60,12 +69,13 @@ const PlannedPublication: FC<Props> = ({
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
+          id={idPrefix.concat(`planned-publication-${index}-remove-planned-publication-button`)}
           label="Remove Planned Publication"
           placement="start"
           onClick={onDelete}
           startIcon={<RemoveCircleIcon />}
-          iconColor="#F18E8E"
-          disabled={status === FormStatus.SAVING}
+          iconColor="#E74040"
+          disabled={readOnly || status === FormStatus.SAVING}
         />
       </Grid>
     </GridContainer>

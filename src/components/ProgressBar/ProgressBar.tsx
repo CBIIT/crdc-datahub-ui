@@ -1,13 +1,13 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import styled from '@emotion/styled';
 import {
   List, ListItemText, ListItemButton,
-  Stack, ListItemAvatar
+  Stack, ListItemAvatar, styled
 } from '@mui/material';
 import config from '../../config/SectionConfig';
-import { useFormContext } from '../Contexts/FormContext';
+import { Status, useFormContext } from '../Contexts/FormContext';
 import StatusAdornment from './StatusAdornment';
+import useFormMode from '../../content/questionnaire/sections/hooks/useFormMode';
 
 type Props = {
   section: string;
@@ -15,6 +15,7 @@ type Props = {
 
 type ProgressSection = {
   title: string;
+  id: string;
   url: string;
   icon: SectionStatus | "Review" | "ReviewDisabled";
   disabled?: boolean;
@@ -22,7 +23,7 @@ type ProgressSection = {
 };
 
 const StyledList = styled(List)({
-  marginTop: "30px",
+  marginTop: "22px",
   width: '250px',
   "& a": {
     color: "inherit",
@@ -68,43 +69,56 @@ const StyledButton = styled(ListItemButton)({
 const ProgressBar: FC<Props> = ({ section }) => {
   const sectionKeys = Object.keys(config);
 
-  const { data } = useFormContext();
-  const { _id, sections: sectionStatuses } = data;
+  const { data, status: formStatus } = useFormContext();
+  const { formMode } = useFormMode();
+  const { _id, status, questionnaireData } = data;
+  const sectionStatuses = questionnaireData?.sections;
 
   const [sections, setSections] = useState<ProgressSection[]>([]);
 
   useEffect(() => {
+    if (formStatus === Status.LOADING || formStatus === Status.SAVING) {
+      return;
+    }
     const newSections: ProgressSection[] = [];
     let completedSections = 0;
 
     // Dynamically build the progress bar with section statuses
     sectionKeys.forEach((s) => {
-      const { title } = config[s];
+      const { title, id } = config[s];
       const status = sectionStatuses?.find((sec) => sec.name === s)?.status || "Not Started";
       completedSections += status === "Completed" ? 1 : 0;
 
       newSections.push({
         title,
-        url: `/questionnaire/${_id}/${s}`,
+        id,
+        url: `/submission/${_id}/${s}`,
         icon: status,
         selected: s === section,
       });
     });
 
-    // Special icon for the review section
-    const reviewSection = newSections.find((s) => s.title === "Review & Submit");
+    // Special icon and title for the review section
+    const reviewSection = newSections.find((s) => s.id === "review");
+    const reviewUnlocked = completedSections === sectionKeys.length - 1;
     if (reviewSection) {
-      reviewSection.icon = completedSections === sectionKeys.length - 1 ? "Review" : "ReviewDisabled";
+      const showReviewTitle = formMode === "View Only" || formMode === "Review";
+      // eslint-disable-next-line no-nested-ternary
+      reviewSection.icon = ["Approved"].includes(status) && reviewUnlocked
+        ? "Completed"
+        : reviewUnlocked ? "Review" : "ReviewDisabled";
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
+      reviewSection.title = showReviewTitle ? "Review" : reviewSection.title;
     }
 
     setSections(newSections);
-  }, [section, sectionStatuses]);
+  }, [section, sectionStatuses, formMode, formStatus]);
 
   return (
     <StyledList>
-      {sections.map(({ url, icon, title, disabled, selected }, idx) => (
+      {sections.map(({ url, id, icon, title, disabled, selected }, idx) => (
         <Link
+          id={`progress-bar-section-${id}`}
           key={title}
           to={url}
           style={{ pointerEvents: !disabled ? "initial" : "none" }}

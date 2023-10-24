@@ -1,4 +1,4 @@
-FROM node:16-bullseye  as build
+FROM node:18.17.1-alpine3.18  as build
 
 WORKDIR /usr/src/app
 
@@ -8,7 +8,7 @@ RUN NODE_OPTIONS="--max-old-space-size=4096" npm install --legacy-peer-deps
 
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
-FROM nginx:1.23.3-alpine
+FROM nginx:1.25.2-alpine3.18-slim as prod
 
 COPY --from=build /usr/src/app/build /usr/share/nginx/html
 COPY --from=build /usr/src/app/conf/inject.template.js /usr/share/nginx/html/inject.template.js

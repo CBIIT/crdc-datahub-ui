@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useState } from "react";
+import React, { FC, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -6,10 +6,11 @@ import {
   TextFieldProps,
   styled,
 } from "@mui/material";
-import { DatePicker, DatePickerProps, DateValidationError } from "@mui/x-date-pickers";
+import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import Tooltip from "./Tooltip";
 import calendarIcon from "../../assets/icons/calendar.svg";
+import { updateInputValidity } from '../../utils';
 
 const CalendarIcon = styled("div")(() => ({
   backgroundImage: `url(${calendarIcon})`,
@@ -39,7 +40,7 @@ const StyledFormControl = styled(FormControl)(() => ({
 
 const StyledAsterisk = styled("span")(() => ({
   color: "#D54309",
-  marginLeft: "6px",
+  marginLeft: "2px",
 }));
 
 const StyledFormLabel = styled("label")(({ theme }) => ({
@@ -81,7 +82,7 @@ const StyledDatePicker = styled(DatePicker)(() => ({
     borderColor: "#6B7294",
   },
   "& .MuiInputBase-input::placeholder": {
-    color: "#929296",
+    color: "#87878C",
     fontWeight: 400,
     opacity: 1
   },
@@ -90,13 +91,16 @@ const StyledDatePicker = styled(DatePicker)(() => ({
     borderColor: "#D54309 !important",
   },
   // Target readOnly <input> inputs
-  "& .MuiOutlinedInput-input:read-only": {
-    backgroundColor: "#D9DEE4",
+  "& .Mui-readOnly.MuiInputBase-root, .Mui-readOnly .MuiInputBase-input": {
+    backgroundColor: "#E5EEF4",
+    color: "#083A50",
     cursor: "not-allowed",
+    overflow: "hidden"
   },
 }));
 
 type Props = {
+  inputID: string;
   initialValue?: string | Date;
   label: string;
   infoText?: string;
@@ -107,8 +111,6 @@ type Props = {
   name?: string;
   required?: boolean;
   inputProps?: TextFieldProps;
-  validate?: (input: string) => boolean;
-  filter?: (input: string) => string;
 } & DatePickerProps<Dayjs>;
 
 /**
@@ -118,6 +120,7 @@ type Props = {
  * @returns {JSX.Element}
  */
 const DatePickerInput: FC<Props> = ({
+  inputID,
   initialValue,
   label,
   name,
@@ -128,40 +131,57 @@ const DatePickerInput: FC<Props> = ({
   infoText,
   tooltipText,
   errorText,
-  validate,
-  filter,
+  disablePast,
+  format = "MM/DD/YYYY",
   onChange,
+  readOnly,
   ...rest
 }) => {
   const id = useId();
-  const [val, setVal] = useState<Dayjs>(dayjs(initialValue));
-  const [error, setError] = useState(false);
-  const errorMsg = errorText || (required ? "This field is required" : null);
 
-  const handleOnError = (error: DateValidationError) => {
-    if (!error && val) {
-      setError(false);
-      return;
+  const [val, setVal] = useState<Dayjs>(dayjs(initialValue || null));
+  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string>(errorText || (required ? "This field is required" : null));
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const processValue = (inputVal: Dayjs) => {
+    const isInvalidDay = !inputVal?.isValid();
+    const isPastDate = inputVal?.isBefore(dayjs(new Date()).startOf("day"));
+
+    let newErrorMsg = "";
+    if (required && !inputVal) {
+      newErrorMsg = "This field is required";
+    } else if (disablePast && isPastDate) {
+      newErrorMsg = "The date is invalid. Please select today's date or a future date";
+    } else if ((required || (inputVal !== null && inputRef.current?.value !== format)) && isInvalidDay) {
+      newErrorMsg = `The date is invalid. Please enter a date in the format ${format}`;
     }
-    setError(true);
+
+    updateInputValidity(inputRef, newErrorMsg);
+    setErrorMsg(newErrorMsg);
+    setVal(inputVal);
   };
 
-  const onChangeWrapper = (newVal) => {
+  const onChangeWrapper = (newVal: Dayjs) => {
     if (typeof onChange === "function") {
       onChange(newVal, null);
     }
 
-    if (!newVal) {
-      setError(true);
-    }
-
-    setVal(newVal);
+    processValue(newVal);
+    setError(false);
   };
 
   useEffect(() => {
-    if (initialValue) {
-      onChangeWrapper(initialValue.toString().trim());
-   }
+    const invalid = () => setError(true);
+
+    inputRef.current?.addEventListener("invalid", invalid);
+    return () => {
+      inputRef.current?.removeEventListener("invalid", invalid);
+    };
+  }, [inputRef]);
+
+  useEffect(() => {
+    processValue(dayjs(initialValue?.toString()?.trim()));
   }, [initialValue]);
 
   return (
@@ -174,16 +194,25 @@ const DatePickerInput: FC<Props> = ({
         </StyledFormLabel>
         <StyledDatePicker
           value={val}
-          onChange={(value) => onChangeWrapper(value)}
-          onError={handleOnError}
+          onChange={(value: Dayjs) => onChangeWrapper(value)}
+          inputRef={inputRef}
+          disablePast={disablePast}
+          format={format}
+          readOnly={readOnly}
           slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{
             textField: {
-              id,
+              id: inputID,
               name,
               required,
               error,
+              onInput: (event: React.ChangeEvent<HTMLInputElement>) => {
+                onChangeWrapper(dayjs(event?.target?.value));
+              },
               size: "small",
+              onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                onChangeWrapper(event as unknown as Dayjs);
+              },
               ...inputProps,
             },
             popper: {

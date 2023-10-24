@@ -5,10 +5,15 @@ import '@testing-library/jest-dom';
 import config from '../../config/SectionConfig';
 import ProgressBar from './ProgressBar';
 import {
-  ContextState,
+  ContextState as FormCtxState,
   Context as FormCtx,
   Status as FormStatus,
 } from '../Contexts/FormContext';
+import {
+  ContextState,
+  Context as AuthCtx,
+  Status as AuthStatus,
+} from '../Contexts/AuthContext';
 
 type Props = {
   section: string;
@@ -16,27 +21,36 @@ type Props = {
 };
 
 const BaseComponent: FC<Props> = ({ section, data = {} } : Props) => {
-  const value = useMemo<ContextState>(() => ({
-    data: data as Application, status: FormStatus.LOADED
+  const formValue = useMemo<FormCtxState>(() => ({
+    status: FormStatus.LOADED,
+    data: data as Application,
   }), [data]);
+
+  const authValue = useMemo<ContextState>(() => ({
+    status: AuthStatus.LOADED,
+    user: null,
+    isLoggedIn: true,
+  }), []);
 
   return (
     <BrowserRouter>
-      <FormCtx.Provider value={value}>
-        <ProgressBar section={section} />
-      </FormCtx.Provider>
+      <AuthCtx.Provider value={authValue}>
+        <FormCtx.Provider value={formValue}>
+          <ProgressBar section={section} />
+        </FormCtx.Provider>
+      </AuthCtx.Provider>
     </BrowserRouter>
   );
 };
 
-describe("questionnaire ProgressBar tests", () => {
+describe("ProgressBar General Tests", () => {
   const keys = Object.keys(config);
   const sections = Object.values(config);
 
-  it("renders the progress bar with all config-defined sections", () => {
+  it("renders the progress bar with all A-D config-defined sections", () => {
     const screen = render(<BaseComponent section={keys[0]} data={{}} />);
 
-    sections.forEach(({ title }, index) => {
+    sections.filter((section) => section.id !== config.REVIEW.id).forEach(({ title }, index) => {
       const root = screen.getByText(title).closest("a");
 
       expect(root).toBeVisible();
@@ -46,7 +60,7 @@ describe("questionnaire ProgressBar tests", () => {
     });
   });
 
-  it("renders the currently active section", () => {
+  it("renders the currently active section as highlighted", () => {
     const { container, getByTestId } = render(<BaseComponent section={keys[1]} data={{}} />);
     const activeLinks = container.querySelectorAll("a[aria-selected='true']");
 
@@ -57,9 +71,11 @@ describe("questionnaire ProgressBar tests", () => {
 
   it("renders the completed sections with a checkmark", () => {
     const data = {
-      sections: [
-        { name: keys[1], status: "Completed" },
-      ],
+      questionnaireData: {
+        sections: [
+          { name: keys[1], status: "Completed" },
+        ],
+      },
     };
 
     const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
@@ -68,17 +84,20 @@ describe("questionnaire ProgressBar tests", () => {
     expect(element.querySelector(".MuiAvatar-root svg")).toHaveAttribute("data-testid", "CheckIcon");
   });
 
-  it("renders the review section as disabled by default", () => {
+  it("renders the Review section as disabled by default", () => {
     const { getByTestId } = render(<BaseComponent section={keys[0]} data={{}} />);
     const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
 
     expect(reviewSection).toBeVisible();
     expect(reviewSection).toHaveAttribute("aria-disabled", "true");
+    expect(reviewSection.querySelector(".MuiAvatar-root svg")).toHaveAttribute("data-testid", "ArrowUpwardIcon");
   });
 
-  it("renders the review section as enabled only when all sections are completed", () => {
+  it("renders the Review section as enabled only when all sections are completed", () => {
     const data = {
-      sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
+      questionnaireData: {
+        sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
+      },
     };
 
     const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
@@ -90,5 +109,35 @@ describe("questionnaire ProgressBar tests", () => {
     });
 
     expect(getByTestId(`progress-bar-section-${keys.length - 1}`)).toHaveAttribute("aria-disabled", "false");
+  });
+
+  const completedStates : ApplicationStatus[] = ["Approved"];
+  it.each(completedStates)("renders the Review section as accessible and completed for status %s", (status) => {
+    const data = {
+      status,
+      questionnaireData: {
+        sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
+    const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
+
+    expect(reviewSection.querySelector(".MuiAvatar-root svg")).toHaveAttribute("data-testid", "CheckIcon");
+  });
+
+  const incompleteStates : ApplicationStatus[] = ["New", "In Progress", "Submitted", "In Review", "Rejected"];
+  it.each(incompleteStates)("renders the Review section as accessible and incomplete for status %s", (status) => {
+    const data = {
+      status,
+      questionnaireData: {
+        sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
+    const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
+
+    expect(reviewSection.querySelector(".MuiAvatar-root svg")).toHaveAttribute("data-testid", "ArrowUpwardIcon");
   });
 });

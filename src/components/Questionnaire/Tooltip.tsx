@@ -14,7 +14,7 @@ const StyledTooltip = styled((props: TooltipProps) => (
   <MuiToolTip classes={{ popper: props.className }} {...props} />
 ))(() => ({
   "& .MuiTooltip-tooltip": {
-    minWidth: "412px",
+    maxWidth: "412px",
     minHeight: "43px",
     color: "#2B528B",
     border: "1px solid #2B528B",
@@ -25,6 +25,7 @@ const StyledTooltip = styled((props: TooltipProps) => (
     fontFamily: "'Inter', 'Rubik', sans-serif",
     fontSize: "16px",
     lineHeight: "19px",
+    boxShadow: "0px 4px 10px 0px rgba(0, 0, 0, 0.15)"
   },
 }));
 
@@ -61,6 +62,7 @@ const Tooltip = ({ classes, icon, children, title, ...rest }: Props) => {
       open={tooltipIsOpen}
       onBlur={closeTooltip}
       title={title || ""}
+      placement="right"
       disableHoverListener
       {...rest}
     >

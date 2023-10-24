@@ -7,24 +7,27 @@
  * @see ProgramOption
  */
 export const OptionalProgram : ProgramOption = {
-  title: "Other",
-  abbreviation: "Other",
-  studies: [],
-  isCustom: true,
+  name: "Other",
+  abbreviation: null,
+  editable: true,
+  notApplicable: false,
+  isCustom: true
 };
 
 /**
- * This is a special study option that is used
- * when the user selects "Other" from the study dropdown.
+ * This is a special program option that is used
+ * when the user selects "Not Applicable" from the program dropdown.
  *
  * NOTE: You probably don't need to modify this.
  *
- * @see StudyOption
+ * @see ProgramOption
  */
-export const OptionalStudy : StudyOption = {
-  title: "Other",
-  abbreviation: "Other",
-  isCustom: true,
+export const NotApplicableProgram : ProgramOption = {
+  name: "Not Applicable",
+  abbreviation: null,
+  editable: false,
+  notApplicable: true,
+  isCustom: false,
 };
 
 /**
@@ -33,69 +36,36 @@ export const OptionalStudy : StudyOption = {
  * @see ProgramOption
  */
 const options: ProgramOption[] = [
+  NotApplicableProgram,
   {
-    title: "The Cancer Genome Atlas",
-    abbreviation: "TCGA",
-    studies: [
-      { title: "TCGA-BRCA", abbreviation: "TCGA-BRCA" },
-      { title: "TCGA-GMB", abbreviation: "TCGA-GMB" },
-      { title: "TCGA-OV", abbreviation: "TCGA-OV" },
-      { title: "TCGA-LUAD", abbreviation: "TCGA-LUAD" },
-      { title: "TCGA-UCEC", abbreviation: "TCGA-UCEC" },
-      { title: "TCGA-KIRC", abbreviation: "TCGA-KIRC" },
-      { title: "TCGA-HNSC", abbreviation: "TCGA-HNSC" },
-      { title: "TCGALGG", abbreviation: "TCGALGG" },
-      { title: "TCGA-THCA", abbreviation: "TCGA-THCA" },
-      { title: "TCGA-LUSC", abbreviation: "TCGA-LUSC" },
-      { title: "TCGA-PRAD", abbreviation: "TCGA-PRAD" },
-      { title: "TCGA-SKCM", abbreviation: "TCGA-SKCM" },
-      { title: "TCGA-COAD", abbreviation: "TCGA-COAD" },
-      { title: "TCGA-STAD", abbreviation: "TCGA-STAD" },
-      { title: "TCGA BLCA", abbreviation: "TCGA BLCA" },
-      { title: "TCGA-LIHC", abbreviation: "TCGA-LIHC" },
-      { title: "TCGA-CESC", abbreviation: "TCGA-CESC" },
-      { title: "TCGA-LAML", abbreviation: "TCGA-LAML" },
-    ],
-  },
-  {
-    title: "Childhood Cancer Data Initiative",
+    name: "Childhood Cancer Data Initiative",
     abbreviation: "CCDI",
-    studies: [
-      { title: "PIVOT", abbreviation: "PIVOT" },
-      { title: "MCI", abbreviation: "MCI" },
-      { title: "P30 Grant Supplement", abbreviation: "P30 Grant Supplement" },
-      { title: "GMKF", abbreviation: "GMKF" },
-    ],
+    description: "NCI's Childhood Cancer Data Initiative (CCDI) is building a community centered around childhood cancer care and research data.",
+    notApplicable: false,
+    isCustom: false,
   },
   {
-    title: "Human Tumor Atlas Network",
-    abbreviation: "HTAN",
-    studies: [
-      { title: "The Lung Pre-Cancer Atlas", abbreviation: "The Lung Pre-Cancer Atlas" },
-      { title: "Human Tumor Atlas Pilot Project", abbreviation: "Human Tumor Atlas Pilot Project" },
-      { title: "Center for Pediatric Tumor Cell Atlas", abbreviation: "Center for Pediatric Tumor Cell Atlas" },
-      { title: "Breast Pre-Cancer Atlas", abbreviation: "Breast Pre-Cancer Atlas" },
-      { title: "Pre-Cancer Atlases of Cutaneous and Hematologic Origin", abbreviation: "Pre-Cancer Atlases of Cutaneous and Hematologic Origin" },
-      { title: "Transition to Metastatic State: Lung Cancer, Pancreatic Cancer and Brain Metastasis", abbreviation: "Transition to Metastatic State: Lung Cancer, Pancreatic Cancer and Brain Metastasis" },
-      { title: "Omic and Multidimensional Spatial Atlas fo Metasistic Breast Cancers", abbreviation: "Omic and Multidimensional Spatial Atlas fo Metasistic Breast Cancers" },
-      { title: "Multi-Omic Characterization of Transformation of Familial Adenomatous Polyposis", abbreviation: "Multi-Omic Characterization of Transformation of Familial Adenomatous Polyposis" },
-      { title: "Comparing image methosds across centers", abbreviation: "Comparing image methosds across centers" },
-      { title: "Colon Molecular Atlas Project", abbreviation: "Colon Molecular Atlas Project" },
-      { title: "Washington University Human Tumor Atlas Research Center", abbreviation: "Washington University Human Tumor Atlas Research Center" },
-    ],
-  },
-  {
-    title: "Clinical Proteomic Tumor Analysis Consortium",
+    name: "Clinical Proteomic Tumor Analysis Consortium",
     abbreviation: "CPTAC",
-    studies: [
-      { title: "CPTAC-2", abbreviation: "CPTAC-2" },
-      { title: "CPTAC-3", abbreviation: "CPTAC-3" },
-      { title: "CPTAC CCRCC Confirmatory Study", abbreviation: "CPTAC CCRCC Confirmatory Study" },
-      { title: "CPTAC CCRCC Confirmatory Study DIA Phosphoproteome", abbreviation: "CPTAC CCRCC Confirmatory Study DIA Phosphoproteome" },
-      { title: "CPTACT CCRCC Confirmatory Study DIA Proteome", abbreviation: "CPTACT CCRCC Confirmatory Study DIA Proteome" },
-    ],
+    description: "The National Cancer Institute's Clinical Proteomic Tumor Analysis Consortium (CPTAC) is a national effort to accelerate the understanding of the molecular basis of cancer through the application of large-scale proteome and genome analysis, or proteogenomics.",
+    notApplicable: false,
+    isCustom: false,
   },
-  // NOTE: This is a special program option that is used
+  {
+    name: "Division of Cancer Control and Population Sciences",
+    abbreviation: "DCCPS",
+    description: "The Division of Cancer Control and Population Sciences (DCCPS) plays a unique role in reducing the burden of cancer in America acting as NCI’s bridge to public health research, practice, and policy. DCCPS, an extramural division, has the lead responsibility at NCI for supporting research in surveillance, epidemiology, health services, behavioral science, and cancer survivorship.",
+    notApplicable: false,
+    isCustom: false,
+  },
+  {
+    name: "Human Tumor Atlas Network",
+    abbreviation: "HTAN",
+    description: "HTAN is a collaborative network of Research Centers and a central Data Coordinating Center are constructing 3-dimensional atlases of the cellular, morphological, and molecular features of human cancers as they evolve from precancerous lesions to advanced disease. ",
+    notApplicable: false,
+    isCustom: false,
+  },
+  // NOTE: These are special program options that are used
   // ADD NEW PROGRAMS ABOVE THIS LINE
   OptionalProgram,
 ];

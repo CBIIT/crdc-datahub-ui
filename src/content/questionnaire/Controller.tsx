@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import FormView from "./FormView";
-import ListingView from "./ListingView";
+import ListView from "./ListView";
 import { FormProvider } from "../../components/Contexts/FormContext";
 
 /**
@@ -21,5 +21,5 @@ export default () => {
     );
   }
 
-  return <ListingView />;
+  return <ListView />;
 };

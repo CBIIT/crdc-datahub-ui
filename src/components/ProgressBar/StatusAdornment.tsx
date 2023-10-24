@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
-import styled from '@emotion/styled';
-import { Avatar } from '@mui/material';
+import { Avatar, styled } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
@@ -18,16 +17,16 @@ const BaseAvatar = styled(Avatar)({
 });
 
 const CompleteAvatar = styled(BaseAvatar)({
-  backgroundColor: "#26B893",
+  backgroundColor: "#22A584",
 });
 
 const NotStartedAvatar = styled(BaseAvatar)({
-  border: "2.25px solid #26B893",
+  border: "2.25px solid #22A584",
 });
 
 const InProgressAvatar = styled(NotStartedAvatar)({
   position: "relative",
-  backgroundColor: "#26B893",
+  backgroundColor: "#22A584",
   "&::after": {
     content: "''",
     position: "absolute",
@@ -40,10 +39,6 @@ const InProgressAvatar = styled(NotStartedAvatar)({
 
 const ReviewAvatar = styled(BaseAvatar)({
   backgroundColor: "#CFCFCF",
-});
-
-const ReviewActiveAvatar = styled(ReviewAvatar)({
-  backgroundColor: "#888888",
 });
 
 /**
@@ -68,9 +63,9 @@ const StatusAdornment: FC<Props> = ({ icon }) => {
       );
     case "Review":
       return (
-        <ReviewActiveAvatar>
+        <CompleteAvatar>
           <ArrowUpwardIcon />
-        </ReviewActiveAvatar>
+        </CompleteAvatar>
       );
     case "ReviewDisabled":
       return (
