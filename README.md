@@ -15,6 +15,4 @@ To run the CRDC Data Hub project locally, follow these steps:
 4. Start the development server: `npm start`
 5. Open your browser and visit `http://localhost:3000` to access the application.
 
-## Local Setup
-
-Please see the instructions in [nginx/README.md](./nginx/README.md) for setting up NGINX locally.
+Please see the instructions in [nginx/README.md](./nginx/README.md) for configuring Nginx.
