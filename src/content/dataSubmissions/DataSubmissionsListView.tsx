@@ -560,7 +560,7 @@ const ListingView: FC = () => {
           <form ref={createSubmissionDialogFormRef}>
             <TextInput value={user.organization?.orgName} label="Organization" readOnly />
             <SelectInput
-              options={[{ label: "CDS", value: "CDS" }]}
+              options={[{ label: "CDS", value: "CDS" }, { label: "CCDI", value: "CCDI" }]}
               label="Data Commons"
               required
               value={dataCommons}
