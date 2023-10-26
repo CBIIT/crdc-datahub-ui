@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import { Button, Stack, Typography, styled } from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 
@@ -87,6 +89,15 @@ const StyledArchiveButton = styled(StyledButtonBase)(() => ({
   },
 }));
 
+const StyledReturnButton = styled(StyledButtonBase)(() => ({
+  background: "#6A5ACD",
+  color: "#FFF",
+  flexDirection: "row",
+  "&:hover": {
+    background: "#594ABF",
+  },
+}));
+
 const StyledDialog = styled(CustomDialog)({
   "& .MuiDialog-paper": {
     maxWidth: "none",
@@ -137,6 +148,7 @@ type Props = {
 
 const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props) => {
   const { user } = useAuthContext();
+  const navigate = useNavigate();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<DataSubmissionAction | null>(null);
@@ -219,8 +231,25 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
     setCurrentDialog(null);
   };
 
+  const returnToSubmissionList = () => {
+    navigate("/data-submissions");
+    window.scrollTo(0, 0);
+  };
+
   return (
     <StyledActionWrapper direction="row" spacing={2}>
+      {/* Return to Data Submission List Button */}
+      <StyledReturnButton
+        variant="contained"
+        onClick={returnToSubmissionList}
+        startIcon={<ArrowBackIcon fontSize="small" />}
+        disabled={!!action}
+        disableElevation
+        disableRipple
+        disableTouchRipple
+      >
+        Return
+      </StyledReturnButton>
       {/* Action Buttons */}
       {SubmitStatuses.includes(dataSubmission?.status) && SubmitRoles.includes(user?.role) ? (
         <StyledSubmitButton
