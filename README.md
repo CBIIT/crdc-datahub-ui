@@ -5,7 +5,6 @@
 CRDC Data Hub is a React application designed to provide a user-friendly interface for accessing and managing data using various technologies and tools. This project utilizes TypeScript, React v18, Material-UI v5, ESLint, React Router DOM, GraphQL, and Apollo.
 
 
-
 ## Installation
 
 To run the CRDC Data Hub project locally, follow these steps:
