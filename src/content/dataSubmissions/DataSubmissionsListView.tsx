@@ -271,7 +271,7 @@ const ListingView: FC = () => {
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
-  const [dataCommons, setDataCommons] = useState<string>(null);
+  const [dataCommons, setDataCommons] = useState<string>("CDS");
   const [study, setStudy] = useState<string>("All");
   const [dbgapid, setDbgapid] = useState<string>(null);
   const [createSubmissionError, setCreateSubmissionError] = useState<boolean>(false);
@@ -331,7 +331,7 @@ const ListingView: FC = () => {
   };
   const onCreateSubmissionButtonClick = async () => {
     setCreatingSubmission(true);
-    setDataCommons(null);
+    setDataCommons("CDS");
     setStudy(null);
     setSubmissionName(null);
     setDbgapid(null);
