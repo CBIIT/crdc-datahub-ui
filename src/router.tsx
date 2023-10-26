@@ -81,7 +81,7 @@ const routes: RouteObject[] = [
       },
       {
         path: '/model-navigator',
-        element: <RequireAuth component={<DMN />} redirectPath="/model-navigator" redirectName="Model Navigator" />
+        element: <DMN />
       },
       {
         path: '/organizations/:orgId?',
