@@ -317,11 +317,11 @@ const DataSubmission = () => {
         <StyledCard>
           <CardContent>
             {error && (
-            <StyledAlert severity="error">
-              Oops! An error occurred.
-              {error}
-            </StyledAlert>
-)}
+              <StyledAlert severity="error">
+                Oops! An error occurred.
+                {error}
+              </StyledAlert>
+            )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
             <StyledChartArea>
               <Stack direction="row" justifyContent="center" sx={{ width: "960px", textAlign: "center" }}>
