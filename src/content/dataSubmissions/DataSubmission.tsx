@@ -182,7 +182,7 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Uploaded Date",
-    value: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "M-D-YYYY")} at ${FormatDate(data.createdAt, "hh:mm A")}` : ""),
+    value: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
     field: "createdAt",
     default: true,
     minWidth: "240px"
