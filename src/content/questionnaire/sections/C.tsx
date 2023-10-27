@@ -33,7 +33,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { readOnlyInputs } = useFormMode();
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
-  const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
+  const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, getFormObjectRef } = refs;
   const { C: SectionCMetadata } = SectionMetadata;
 
   const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
@@ -47,7 +47,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
     approveFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
+    inquireFormRef.current.style.display = "none";
 
     getFormObjectRef.current = getFormObject;
   }, [refs]);

@@ -140,7 +140,7 @@ const columns: Column[] = [
     value: (a, user) => {
       const role = user?.role;
 
-      if (((role === "User" || role === "Submitter" || role === "Organization Owner") && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Rejected"].includes(a.status)) {
+      if (((role === "User" || role === "Submitter" || role === "Organization Owner") && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Inquyed"].includes(a.status)) {
         return (
           <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
             <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">Resume</StyledActionButton>

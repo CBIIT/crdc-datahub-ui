@@ -18,7 +18,7 @@ import map, { InitialSections } from '../../config/SectionConfig';
 import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
 import SubmitFormDialog from '../../components/Questionnaire/SubmitFormDialog';
 import useFormMode from './sections/hooks/useFormMode';
-import RejectFormDialog from '../../components/Questionnaire/RejectFormDialog';
+import InquireFormDialog from '../../components/Questionnaire/InquireFormDialog';
 import ApproveFormDialog from '../../components/Questionnaire/ApproveFormDialog';
 import PageBanner from '../../components/PageBanner';
 import bannerPng from "../../assets/banner/submission_banner.png";
@@ -83,13 +83,14 @@ type AlertState = {
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
-  const { status, data, setData, submitData, approveForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
+  // TODO: use rejectForm
+  const { status, data, setData, submitData, approveForm, inquireForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
   const { user, status: authStatus } = useAuthContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
   const [openSubmitDialog, setOpenSubmitDialog] = useState<boolean>(false);
   const [openApproveDialog, setOpenApproveDialog] = useState<boolean>(false);
-  const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
+  const [openInquireDialog, setOpenInquireDialog] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const { formMode, readOnlyInputs } = useFormMode();
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
@@ -112,7 +113,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     submitFormRef: createRef<HTMLButtonElement>(),
     nextButtonRef: createRef<HTMLButtonElement>(),
     approveFormRef: createRef<HTMLButtonElement>(),
-    rejectFormRef: createRef<HTMLButtonElement>(),
+    inquireFormRef: createRef<HTMLButtonElement>(),
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
 
@@ -140,7 +141,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
       return;
     }
-    if (!hasReopenedFormRef.current && data?.status === "Rejected" && formMode === "Edit") {
+    if (!hasReopenedFormRef.current && data?.status === "Inquired" && formMode === "Edit") {
       handleReopenForm();
       hasReopenedFormRef.current = true;
     }
@@ -281,7 +282,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
    *
    * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
    */
-  const submitRejectForm = async (reviewComment: string): Promise<string | boolean> => {
+  const submitInquireForm = async (reviewComment: string): Promise<string | boolean> => {
     if (formMode !== "Review") {
       return false;
     }
@@ -292,20 +293,21 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
 
     try {
-      const res = await rejectForm(reviewComment);
-      setOpenRejectDialog(false);
+      // TODO: rename to inquire
+      const res = await inquireForm(reviewComment);
+      setOpenInquireDialog(false);
       navigate('/submissions');
       setHasError(false);
       return res;
     } catch (err) {
-      setOpenRejectDialog(false);
+      setOpenInquireDialog(false);
       setHasError(true);
       return false;
     }
   };
 
   /**
-   * Reopen the form when it has already been rejected
+   * Reopen the form when it has already been inquired
    * and the user wants to retry submission
    *
    *
@@ -516,19 +518,19 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     setOpenApproveDialog(true);
   };
 
-  const handleRejectForm = () => {
+  const handleInquireForm = () => {
     if (formMode !== "Review") {
       return;
     }
-    setOpenRejectDialog(true);
+    setOpenInquireDialog(true);
   };
 
   const handleCloseApproveFormDialog = () => {
     setOpenApproveDialog(false);
   };
 
-  const handleCloseRejectFormDialog = () => {
-    setOpenRejectDialog(false);
+  const handleCloseInquireFormDialog = () => {
+    setOpenInquireDialog(false);
   };
 
   const handleBackClick = () => {
@@ -648,14 +650,14 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 Approve
               </LoadingButton>
               <LoadingButton
-                id="submission-form-approve-button"
-                className={classes.rejectButton}
+                id="submission-form-inquire-button"
+                className={classes.inquireButton}
                 variant="outlined"
-                ref={refs.rejectFormRef}
+                ref={refs.inquireFormRef}
                 size="large"
-                onClick={handleRejectForm}
+                onClick={handleInquireForm}
               >
-                Reject
+                Inquire Additional Information
               </LoadingButton>
               <Button
                 id="submission-form-next-button"
@@ -693,10 +695,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         onCancel={handleCloseApproveFormDialog}
         onSubmit={(reviewComment) => submitApproveForm(reviewComment)}
       />
-      <RejectFormDialog
-        open={openRejectDialog}
-        onCancel={handleCloseRejectFormDialog}
-        onSubmit={(reviewComment) => submitRejectForm(reviewComment)}
+      <InquireFormDialog
+        open={openInquireDialog}
+        onCancel={handleCloseInquireFormDialog}
+        onSubmit={(reviewComment) => submitInquireForm(reviewComment)}
       />
     </>
   );
@@ -776,7 +778,7 @@ const styles = () => ({
       background: "#22A584"
     }
   },
-  rejectButton: {
+  inquireButton: {
     "&.MuiButton-root": {
       borderColor: "#26B893",
       background: "#D54309"

@@ -137,7 +137,7 @@ const columns: Column[] = [
   {
     label: "dbGaP ID",
     value: (a) => a.dbGaPID,
-    field: "dbGapID",
+    field: "dbGaPID",
   },
   {
     label: "Status",
