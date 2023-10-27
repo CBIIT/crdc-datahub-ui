@@ -65,7 +65,7 @@ type BatchFileInfo = {
   updatedAt: string // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
-type BatchStatus = "New" | "Uploaded" | "Upload Failed" | "Loaded" | Rejected;
+type BatchStatus = "New" | "Uploaded" | "Upload Failed" | "Loaded" | "Rejected";
 
 type Batch = {
   _id: string;
