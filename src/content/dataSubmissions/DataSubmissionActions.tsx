@@ -248,7 +248,7 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
         disableRipple
         disableTouchRipple
       >
-        Return
+        Back
       </StyledReturnButton>
       {/* Action Buttons */}
       {SubmitStatuses.includes(dataSubmission?.status) && SubmitRoles.includes(user?.role) ? (
