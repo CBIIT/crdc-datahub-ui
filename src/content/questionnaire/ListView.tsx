@@ -246,7 +246,7 @@ const ListingView: FC = () => {
     <>
       <PageBanner
         title="Submission Request List"
-        subTitle="Below is a list of applications that are associated with your account. Please click on any of the applications to review or continue work."
+        subTitle="Below is a list of submission requests that are associated with your account. Please click on any of the submission requests to review or continue work."
         padding="57px 0 0 25px"
         body={(
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
@@ -342,7 +342,7 @@ const ListingView: FC = () => {
                       fontSize={18}
                       color="#AAA"
                     >
-                      There are no applications associated with your account
+                      There are no submission requests associated with your account
                     </Typography>
                   </TableCell>
                 </TableRow>
