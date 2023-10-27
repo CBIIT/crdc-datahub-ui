@@ -50,7 +50,7 @@ const RejectFormDialog: FC<Props> = ({
     <StyledDialog
       open={open}
       onClose={onClose}
-      title={title || "Reject Application"}
+      title={title || "Reject Submission Request"}
       actions={(
         <>
           <Button onClick={handleOnCancel} disabled={disableActions}>
