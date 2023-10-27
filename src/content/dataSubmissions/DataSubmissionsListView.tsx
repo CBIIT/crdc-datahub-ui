@@ -137,7 +137,7 @@ const columns: Column[] = [
   {
     label: "dbGaP ID",
     value: (a) => a.dbGaPID,
-    field: "dbGapID",
+    field: "dbGaPID",
   },
   {
     label: "Status",
@@ -579,7 +579,7 @@ const ListingView: FC = () => {
             <TextInput
               value={dbgapid}
               parentStateSetter={(newVal) => setDbgapid(newVal)}
-              maxLength={50}
+              maxLength={25}
               required
               label="dbGaP ID"
               placeholder="Input dbGaP ID"
