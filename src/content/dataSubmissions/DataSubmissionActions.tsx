@@ -118,21 +118,47 @@ const StyledCancelText = styled(Typography)({
 export type ActiveDialog = "Withdraw" | "Reject" | "Complete" | "Cancel";
 type UserRole = User["role"];
 
-const SubmitRoles: UserRole[] = ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"];
-const ReleaseRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-const WithdrawRoles: UserRole[] = ["Submitter", "Organization Owner", "Federal Lead"];
-const RejectRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-const CompleteRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-const CancelRoles: UserRole[] = ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"];
-const ArchiveRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
+type ActionConfig = {
+  roles: UserRole[];
+  statuses: SubmissionStatus[];
+};
 
-const SubmitStatuses: SubmissionStatus[] = ["In Progress"];
-const ReleaseStatuses: SubmissionStatus[] = ["Submitted"];
-const WithdrawStatuses: SubmissionStatus[] = ["Submitted"];
-const RejectStatuses: SubmissionStatus[] = ["Submitted"];
-const CompleteStatuses: SubmissionStatus[] = ["Released"];
-const CancelStatuses: SubmissionStatus[] = ["New", "In Progress"];
-const ArchiveStatuses: SubmissionStatus[] = ["Completed"];
+type ActionKey = "Submit" | "Release" | "Withdraw" | "SubmittedReject" | "ReleasedReject" | "Complete" | "Cancel" | "Archive";
+
+const actionConfig: Record<ActionKey, ActionConfig> = {
+  Submit: {
+    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"],
+    statuses: ["In Progress"],
+  },
+  Release: {
+    roles: ["Data Curator", "Admin", "Federal Lead"],
+    statuses: ["Submitted"],
+  },
+  Withdraw: {
+    roles: ["Submitter", "Organization Owner", "Federal Lead"],
+    statuses: ["Submitted"],
+  },
+  SubmittedReject: {
+    roles: ["Data Curator", "Admin", "Federal Lead"],
+    statuses: ["Submitted"],
+  },
+  ReleasedReject: {
+    roles: ["Data Commons POC", "Admin", "Federal Lead"],
+    statuses: ["Released"],
+  },
+  Complete: {
+    roles: ["Data Curator", "Admin", "Federal Lead"],
+    statuses: ["Released"],
+  },
+  Cancel: {
+    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"],
+    statuses: ["New", "In Progress"],
+  },
+  Archive: {
+    roles: ["Data Curator", "Admin", "Federal Lead"],
+    statuses: ["Completed"],
+  },
+};
 
 type Props = {
   submission: Submission;
@@ -197,6 +223,11 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
     window.scrollTo(0, 0);
   };
 
+  const canShowAction = (actionKey: ActionKey) => {
+    const config = actionConfig[actionKey];
+    return config?.statuses?.includes(submission?.status) && config?.roles?.includes(user?.role);
+  };
+
   return (
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Return to Data Submission List Button */}
@@ -212,7 +243,7 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
         Back
       </StyledReturnButton>
       {/* Action Buttons */}
-      {SubmitStatuses.includes(submission?.status) && SubmitRoles.includes(user?.role) ? (
+      {canShowAction("Submit") ? (
         <StyledSubmitButton
           variant="contained"
           onClick={() => handleOnAction("Submit")}
@@ -225,7 +256,7 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
           Submit
         </StyledSubmitButton>
       ) : null}
-      {ReleaseStatuses.includes(submission?.status) && ReleaseRoles.includes(user?.role) ? (
+      {canShowAction("Release") ? (
         <StyledReleaseButton
           variant="contained"
           onClick={() => handleOnAction("Release")}
@@ -238,7 +269,7 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
           Release
         </StyledReleaseButton>
       ) : null}
-      {WithdrawStatuses.includes(submission?.status) && WithdrawRoles.includes(user?.role) ? (
+      {canShowAction("Withdraw") ? (
         <StyledWithdrawButton
           variant="contained"
           onClick={() => onOpenDialog("Withdraw")}
@@ -251,7 +282,7 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
           Withdraw
         </StyledWithdrawButton>
       ) : null}
-      {RejectStatuses.includes(submission?.status) && RejectRoles.includes(user?.role) ? (
+      {canShowAction("SubmittedReject") || canShowAction("ReleasedReject") ? (
         <StyledRejectButton
           variant="contained"
           onClick={() => onOpenDialog("Reject")}
@@ -264,7 +295,7 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
           Reject
         </StyledRejectButton>
       ) : null}
-      {CompleteStatuses.includes(submission?.status) && CompleteRoles.includes(user?.role) ? (
+      {canShowAction("Complete") ? (
         <StyledCompleteButton
           variant="contained"
           onClick={() => onOpenDialog("Complete")}
@@ -277,7 +308,7 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
           Complete
         </StyledCompleteButton>
       ) : null}
-      {ArchiveStatuses.includes(submission?.status) && ArchiveRoles.includes(user?.role) ? (
+      {canShowAction("Archive") ? (
         <StyledArchiveButton
           variant="contained"
           onClick={() => handleOnAction("Archive")}
@@ -290,7 +321,7 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
           Archive
         </StyledArchiveButton>
       ) : null}
-      {CancelStatuses.includes(submission?.status) && CancelRoles.includes(user?.role) ? (
+      {canShowAction("Cancel") ? (
         <StyledCancelButton
           variant="contained"
           onClick={() => onOpenDialog("Cancel")}
