@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import {
   Alert,
+  Box,
   Card,
   CardActions,
   CardContent,
@@ -16,10 +17,10 @@ import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
 import {
-  GET_DATA_SUBMISSION_BATCH_FILES,
   GET_SUBMISSION,
-  GetDataSubmissionBatchFilesResp,
+  LIST_BATCHES,
   GetSubmissionResp,
+  ListBatchesResp
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
@@ -166,17 +167,16 @@ const StyledErrorCount = styled("div")(() => ({
   textDecorationLine: "underline",
 }));
 
-const columns: Column<BatchFile>[] = [
+const columns: Column<Batch>[] = [
   {
-    label: "Batch ID",
-    value: (data) => data?._id,
-    field: "_id",
-    default: true,
+    label: "Upload Type",
+    value: (data) => data?.metadataIntention,
+    field: "metadataIntention",
   },
   {
-    label: "Uploaded Type",
-    value: (data) => data?.uploadType,
-    field: "uploadType",
+    label: "Batch Type",
+    value: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
+    field: "type",
   },
   {
     label: "File Count",
@@ -189,18 +189,20 @@ const columns: Column<BatchFile>[] = [
     field: "status",
   },
   {
-    label: "Last Access Date",
-    value: (data) => (data?.submittedDate ? FormatDate(data.submittedDate, "M-D-YYYY hh:mm A") : ""),
-    field: "submittedDate",
+    label: "Uploaded Date",
+    value: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "M-D-YYYY")} at ${FormatDate(data.createdAt, "hh:mm A")}` : ""),
+    field: "createdAt",
+    default: true,
+    minWidth: "240px"
   },
   {
-    label: "Error Count",
+    label: "Error",
     value: (data) => (
       <StyledErrorCount>
-        {data.errorCount > 0 ? `${data.errorCount} ${data.errorCount === 1 ? "Error" : "Errors"}` : ""}
+        {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
       </StyledErrorCount>
     ),
-    field: "errorCount",
+    field: "errors",
   },
 ];
 
@@ -215,9 +217,10 @@ const DataSubmission = () => {
   const { submissionId, tab } = useParams();
 
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
-  const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
-  const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<BatchFile>>(null);
-  const [error, setError] = useState<string>(null);
+  const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
+  const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
+  const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
@@ -228,12 +231,12 @@ const DataSubmission = () => {
     fetchPolicy: 'no-cache'
   });
 
-  const [getBatchFiles] = useLazyQuery<GetDataSubmissionBatchFilesResp>(GET_DATA_SUBMISSION_BATCH_FILES, {
-    context: { clientName: 'mockService' },
+  const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
-  const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFile>) => {
+  const handleFetchBatchFiles = async (fetchListing: FetchListing<Batch>) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
       setError("Invalid submission ID provided.");
@@ -247,22 +250,23 @@ const DataSubmission = () => {
 
     try {
       setLoading(true);
-      const { data: newBatchFiles, error: batchFilesError } = await getBatchFiles({
-        variables: { // TODO: Replace with dynamic variables when real endpoint is created
-          id: "8887654",
-          first: 10,
-          offset: 0,
-          sortDirection: "desc",
-          orderBy: "_id"
+      const { data: newBatchFiles, error: batchFilesError } = await listBatches({
+        variables: {
+          submissionID: submissionId,
+          first,
+          offset,
+          sortDirection,
+          orderBy
         },
-        context: { clientName: 'mockService' },
+        context: { clientName: 'backend' },
         fetchPolicy: 'no-cache'
       });
-      if (batchFilesError || !newBatchFiles?.getDataSubmissionBatchFiles) {
+      if (batchFilesError || !newBatchFiles?.listBatches) {
         setError("Unable to retrieve batch data.");
         return;
       }
-      setBatchFiles(newBatchFiles.getDataSubmissionBatchFiles.batchFiles);
+      setBatchFiles(newBatchFiles.listBatches.batches);
+      setTotalBatchFiles(newBatchFiles.listBatches.total);
     } catch (err) {
       setError("Unable to retrieve batch data.");
     } finally {
@@ -441,7 +445,7 @@ const DataSubmission = () => {
                   <DataSubmissionBatchTable
                     columns={columns}
                     data={batchFiles || []}
-                    total={batchFiles?.length || 0}
+                    total={totalBatchFiles || 0}
                     loading={loading}
                     onFetchData={handleFetchBatchFiles}
                   />

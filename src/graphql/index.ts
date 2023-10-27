@@ -36,6 +36,9 @@ export type { Response as GetDataSubmissionBatchFilesResp } from "./getDataSubmi
 export { mutation as SUBMISSION_ACTION } from "./submissionAction";
 export type { Response as SubmissionActionResp } from "./submissionAction";
 
+export { query as LIST_BATCHES } from "./listBatches";
+export type { Response as ListBatchesResp } from "./listBatches";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";

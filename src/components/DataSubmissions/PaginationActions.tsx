@@ -52,7 +52,7 @@ const PaginationActions = ({
 }: TablePaginationProps) => (
   <StyledPagination
     count={Math.ceil(count / rowsPerPage)}
-    page={page}
+    page={page + 1}
     onChange={onPageChange}
     variant="outlined"
     shape="rounded"

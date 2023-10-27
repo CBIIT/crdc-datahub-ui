@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import { Button, Stack, Typography, styled } from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 import { SUBMISSION_ACTION, SubmissionActionResp } from "../../graphql";
@@ -89,6 +91,15 @@ const StyledArchiveButton = styled(StyledButtonBase)(() => ({
   },
 }));
 
+const StyledReturnButton = styled(StyledButtonBase)(() => ({
+  background: "#6A5ACD",
+  color: "#FFF",
+  flexDirection: "row",
+  "&:hover": {
+    background: "#594ABF",
+  },
+}));
+
 const StyledDialog = styled(CustomDialog)({
   "& .MuiDialog-paper": {
     maxWidth: "none",
@@ -131,6 +142,7 @@ type Props = {
 
 const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Props) => {
   const { user } = useAuthContext();
+  const navigate = useNavigate();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
@@ -180,8 +192,25 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
     setCurrentDialog(null);
   };
 
+  const returnToSubmissionList = () => {
+    navigate("/data-submissions");
+    window.scrollTo(0, 0);
+  };
+
   return (
     <StyledActionWrapper direction="row" spacing={2}>
+      {/* Return to Data Submission List Button */}
+      <StyledReturnButton
+        variant="contained"
+        onClick={returnToSubmissionList}
+        startIcon={<ArrowBackIcon fontSize="small" />}
+        disabled={!!action}
+        disableElevation
+        disableRipple
+        disableTouchRipple
+      >
+        Back
+      </StyledReturnButton>
       {/* Action Buttons */}
       {SubmitStatuses.includes(submission?.status) && SubmitRoles.includes(user?.role) ? (
         <StyledSubmitButton
