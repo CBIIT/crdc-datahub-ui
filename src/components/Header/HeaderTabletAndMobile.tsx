@@ -191,12 +191,6 @@ const Header = () => {
       className: 'navMobileSubItem',
     },
     {
-      name: 'API Token',
-      onClick: () => setOpenAPITokenDialog(true),
-      id: 'navbar-dropdown-item-api-token',
-      className: 'navMobileSubItem action',
-    },
-    {
       name: 'Logout',
       link: '/logout',
       id: 'navbar-dropdown-item-logout',
@@ -218,6 +212,14 @@ const Header = () => {
       link: '/organizations',
       id: 'navbar-dropdown-item-user-manage',
       className: 'navMobileSubItem',
+    });
+  }
+  if (authData?.user?.role === "Submitter" || authData?.user?.role === "Organization Owner") {
+    navbarSublists[displayName].splice(1, 0, {
+      name: 'API Token',
+      onClick: () => setOpenAPITokenDialog(true),
+      id: 'navbar-dropdown-item-api-token',
+      className: 'navMobileSubItem action',
     });
   }
 
