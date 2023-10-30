@@ -5,6 +5,7 @@ import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon.svg";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import { useAuthContext } from "../../components/Contexts/AuthContext";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -132,6 +133,8 @@ const StyledCloseButton = styled(Button)({
   marginTop: "45px"
 });
 
+const canGenerateTokenRoles: User["role"][] = ["Submitter", "Organization Owner"];
+
 type Props = {
   title?: string;
   message?: string;
@@ -151,6 +154,8 @@ const APITokenDialog: FC<Props> = ({
   open,
   ...rest
 }) => {
+  const { user } = useAuthContext();
+
   const [tokens, setTokens] = useState<string[]>([]);
   const [tokenIdx, setTokenIdx] = useState<number | null>(null);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
@@ -166,6 +171,11 @@ const APITokenDialog: FC<Props> = ({
   };
 
   const generateToken = async () => {
+    if (!canGenerateTokenRoles.includes(user?.role)) {
+      onGenerateTokenError();
+      return;
+    }
+
     try {
       const { data: d, errors } = await grantToken();
       const tokens = d?.grantToken?.tokens;
