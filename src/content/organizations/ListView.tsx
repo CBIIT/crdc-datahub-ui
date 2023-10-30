@@ -10,7 +10,7 @@ import {
 import { Link, LinkProps, useLocation } from "react-router-dom";
 import { Controller, useForm } from 'react-hook-form';
 import PageBanner from "../../components/PageBanner";
-import Tooltip from '../../components/HoveredTooltip';
+import Tooltip from '../../components/Tooltip';
 import { useOrganizationListContext, Status } from '../../components/Contexts/OrganizationListContext';
 
 type T = Partial<Organization>;
@@ -191,12 +191,15 @@ const columns: Column[] = [
             </Typography>
           )}
           placement="top"
+          open={undefined}
+          onBlur={undefined}
+          disableHoverListener={false}
           arrow
         >
-          <>
+          <Typography variant="body2" component="span" sx={{ borderBottom: "1px dashed", cursor: "pointer" }}>
             {studies?.slice(0, 2)?.map((s) => s.studyAbbreviation).join(", ")}
             {studies?.length > 2 && ", ..."}
-          </>
+          </Typography>
         </Tooltip>
       </Stack>
     ),
