@@ -9,7 +9,7 @@ import {
   styled,
 } from "@mui/material";
 import RadioInput from "./RadioInput";
-import { CREATE_BATCH, CreateBatchResp } from "../../graphql";
+import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -126,6 +126,11 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
     fetchPolicy: 'no-cache'
   });
 
+  const [updateBatch] = useMutation<UpdateBatchResp>(UPDATE_BATCH, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
     const unloadHandler = (event: BeforeUnloadEvent) => {
@@ -162,7 +167,6 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
     }
 
     try {
-      console.log({ selectedFiles });
       const formattedFiles: FileInput[] = Array.from(selectedFiles)?.map((file) => ({ fileName: file.name, size: file.size }));
       const { data: batch, errors } = await createBatch({
         variables: {
@@ -174,7 +178,7 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
       });
 
       if (errors) {
-        onUploadFail();
+        throw new Error("Unexpected network error");
       }
 
       return batch?.createBatch;
@@ -195,27 +199,51 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
       return;
     }
 
+    const uploadResult: UploadResult[] = [];
+
     const uploadPromises = newBatch.files?.map(async (file: FileURL) => {
       const selectedFile: File = Array.from(selectedFiles).find((f) => f.name === file.fileName);
       try {
         const res = await fetch(file.signedURL, {
-          method: "POST",
+          method: "PUT",
           body: selectedFile,
           headers: {
-            'Content-Type': selectedFile.type,
+            'Content-Type': 'text/tab-separated-values',
           }
         });
-        console.log({ res });
         if (!res.ok) {
-          onUploadFail();
+          throw new Error("Unexpected network error");
         }
+        uploadResult.push({ fileName: file.fileName, succeeded: true, errors: null });
       } catch (err) {
         onUploadFail();
+        uploadResult.push({ fileName: file.fileName, succeeded: false, errors: err?.toString() });
       }
     });
 
     // Wait for all uploads to finish
     await Promise.all(uploadPromises);
+    onBucketUpload(newBatch._id, uploadResult);
+  };
+
+  const onBucketUpload = async (batchID: string, files: UploadResult[]) => {
+    try {
+      const { errors } = await updateBatch({
+        variables: {
+          batchID,
+          files
+        }
+      });
+
+      if (errors) {
+        throw new Error("Unexpected network error");
+      }
+      // Batch upload completed successfully
+      setIsUploading(false);
+      setSelectedFiles(null);
+    } catch (err) {
+      onUploadFail();
+    }
   };
 
   const onUploadFail = () => {
@@ -242,7 +270,7 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
         <VisuallyHiddenInput
           ref={uploadMetatadataInputRef}
           type="file"
-            /* accept="text/tab-separated-values" */
+          accept="text/tab-separated-values"
           onChange={handleChooseFiles}
           readOnly={readOnly}
           multiple
