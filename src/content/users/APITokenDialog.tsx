@@ -1,17 +1,28 @@
 import { FC, useState } from "react";
 import { Button, Dialog, DialogProps, IconButton, OutlinedInput, Stack, Typography, styled } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
 import { useMutation } from "@apollo/client";
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
+import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon.svg";
+import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
     maxWidth: "none",
     borderRadius: "8px",
     width: "755px !important",
-    padding: "70px"
+    padding: "47px 59px 71px 54px"
   },
+});
+
+const StyledHeader = styled(Typography)({
+  color: "#0B7F99",
+  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+  fontSize: "35px",
+  fontStyle: "normal",
+  fontWeight: 900,
+  lineHeight: "30px",
+  marginBottom: "50px"
 });
 
 const StyledTitle = styled(Typography)({
@@ -20,7 +31,8 @@ const StyledTitle = styled(Typography)({
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "19.6px",
-  height: "74px"
+  height: "74px",
+  marginBottom: "58px"
 });
 
 const StyledTokenInput = styled(OutlinedInput)({
@@ -71,27 +83,44 @@ const StyledGenerateButton = styled(Button)({
   },
 });
 
-const StyledCopyTokenButton = styled(StyledGenerateButton)(() => ({
-  background: "#005EA2",
-  color: "#FFF",
-  "&:hover": {
-    background: "#005EA2",
-  },
-  "&.MuiButton-root.Mui-disabled": {
-    background: "#BDBDBD",
-    color: "#ECECEC"
+const StyledCopyTokenButton = styled(IconButton)(() => ({
+  color: "#000000",
+  "&.MuiIconButton-root.Mui-disabled": {
+    color: "#B0B0B0"
   }
 }));
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
   position: 'absolute',
-  right: 14,
-  top: 4,
+  right: "21px",
+  top: "11px",
   padding: "10px",
   "& svg": {
     color: "#44627C"
   }
 }));
+
+const StyledCloseButton = styled(Button)({
+  display: "flex",
+  width: "128px",
+  height: "42px",
+  padding: "12px 60px",
+  justifyContent: "center",
+  alignItems: "center",
+  borderRadius: "8px",
+  border: "1px solid #000",
+  color: "#000",
+  textAlign: "center",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: "700",
+  lineHeight: "24px",
+  letterSpacing: "0.32px",
+  textTransform: "none",
+  alignSelf: "center",
+  marginTop: "112px"
+});
 
 type Props = {
   title?: string;
@@ -137,8 +166,6 @@ const APITokenDialog: FC<Props> = ({
 
       setTokens(tokens);
       setTokenIdx(0);
-      setChangesAlert({ severity: "success", message: `New API token was created successfully.` });
-      setTimeout(() => setChangesAlert(null), 10000);
     } catch (err) {
       onGenerateTokenError();
     }
@@ -159,10 +186,19 @@ const APITokenDialog: FC<Props> = ({
     navigator.clipboard.writeText(tokens[tokenIdx]);
   };
 
+  const handleCloseDialog = () => {
+    if (typeof onClose === "function") {
+      onClose();
+    }
+    setTokens(null);
+    setTokenIdx(null);
+    setChangesAlert(null);
+  };
+
   return (
     <StyledDialog
       open={open}
-      onClose={onClose}
+      onClose={handleCloseDialog}
       title=""
       {...rest}
     >
@@ -173,22 +209,31 @@ const APITokenDialog: FC<Props> = ({
       </GenericAlert>
       <StyledCloseDialogButton
         aria-label="close"
-        onClick={onClose}
+        onClick={handleCloseDialog}
       >
-        <CloseIcon />
+        <CloseIconSvg />
       </StyledCloseDialogButton>
+      <StyledHeader variant="h3">
+        API Token
+      </StyledHeader>
       <StyledTitle variant="h6">
-        API Tokens can be used to make API calls when using the Uploader CLI tool to upload your files. The token will expire 60 days after it's created.
+        An API Token is required to utilize the Uploader CLI tool for file uploads.
+        <br />
+        <br />
+        Each time you click the 'Create Token' button, a new token will be generated, and the previous token will be invalidated. A token expires 60 days after its creation.
       </StyledTitle>
-      <Stack direction="row" spacing={2.75} justifyContent="center" alignItems="center">
+      <Stack direction="row" spacing={1.875} justifyContent="center" alignItems="center">
         <StyledGenerateButton onClick={handleCreateToken}>
-          {tokens?.length ? "Refresh Token" : "Create Token"}
+          Create Token
         </StyledGenerateButton>
+        <StyledTokenInput value={tokens?.length ? "*************************************" : ""} readOnly />
         <StyledCopyTokenButton disabled={!tokens?.length} onClick={handleCopyToken}>
-          Copy Token
+          <CopyIconSvg />
         </StyledCopyTokenButton>
       </Stack>
-      <StyledTokenInput value={tokens?.length ? "*************************************" : ""} readOnly />
+      <StyledCloseButton variant="outlined" onClick={handleCloseDialog}>
+        Close
+      </StyledCloseButton>
     </StyledDialog>
   );
 };
