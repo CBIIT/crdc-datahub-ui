@@ -4,10 +4,9 @@ import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { OrganizationProvider } from '../../components/Contexts/OrganizationListContext';
 import ListView from "./ListView";
 import ProfileView from "./ProfileView";
-import APIToken from "./APIToken";
 
 type Props = {
-  type: "users" | "profile" | "api-token";
+  type: "users" | "profile";
 };
 
 /**
@@ -46,10 +45,6 @@ export default ({ type } : Props) => {
   const { user } = useAuthContext();
   const { _id, role } = user || {};
   const isAdministrative = role === "Admin" || role === "Organization Owner";
-
-  if (type === "api-token") {
-    return <APIToken _id={userId} />;
-  }
 
   // Accounts can only view their own "profile", redirect to it
   if ((type === "profile" && userId !== _id) || (type === "users" && !isAdministrative)) {
