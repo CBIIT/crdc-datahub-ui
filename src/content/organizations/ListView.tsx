@@ -10,7 +10,7 @@ import {
 import { Link, LinkProps, useLocation } from "react-router-dom";
 import { Controller, useForm } from 'react-hook-form';
 import PageBanner from "../../components/PageBanner";
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../components/HoveredTooltip';
 import { useOrganizationListContext, Status } from '../../components/Contexts/OrganizationListContext';
 
 type T = Partial<Organization>;
@@ -176,29 +176,28 @@ const columns: Column[] = [
     label: "Studies",
     value: ({ _id, studies }) => (
       <Stack direction="row">
-        <Typography variant="body1">
-          {studies?.slice(0, 2).map((s) => s.studyAbbreviation).join(", ")}
-          {studies?.length > 2 && ", ..."}
-        </Typography>
-        {studies?.length > 0 && (
-          <Tooltip
-            title={(
-              <Typography variant="body1">
-                {studies.map(({ studyName, studyAbbreviation }) => (
-                  <React.Fragment key={`${_id}_study_${studyName}`}>
-                    {studyName}
-                    {" ("}
-                    {studyAbbreviation}
-                    {") "}
-                    <br />
-                  </React.Fragment>
-                ))}
-              </Typography>
-            )}
-            placement="top"
-            arrow
-          />
-        )}
+        <Tooltip
+          title={(
+            <Typography variant="body1">
+              {studies?.map(({ studyName, studyAbbreviation }) => (
+                <React.Fragment key={`${_id}_study_${studyName}`}>
+                  {studyName}
+                  {" ("}
+                  {studyAbbreviation}
+                  {") "}
+                  <br />
+                </React.Fragment>
+              ))}
+            </Typography>
+          )}
+          placement="top"
+          arrow
+        >
+          <>
+            {studies?.slice(0, 2)?.map((s) => s.studyAbbreviation).join(", ")}
+            {studies?.length > 2 && ", ..."}
+          </>
+        </Tooltip>
       </Stack>
     ),
   },
