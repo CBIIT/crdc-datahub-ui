@@ -102,6 +102,7 @@ const StyledTableCell = styled(TableCell)({
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
     padding: "8px 8px",
+    overflowWrap: "anywhere",
   },
   "&:last-of-type": {
     paddingRight: "4px",
@@ -137,7 +138,7 @@ const columns: Column[] = [
   {
     label: "dbGaP ID",
     value: (a) => a.dbGaPID,
-    field: "dbGapID",
+    field: "dbGaPID",
   },
   {
     label: "Status",
