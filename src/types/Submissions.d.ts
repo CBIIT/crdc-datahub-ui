@@ -3,19 +3,19 @@ type Submission = {
   name: string;
   submitterID: string;
   submitterName: string; // <first name> <last name>
-  organization: Organization; // Organization
+  organization: Pick<Organization, "_id" | "name">; // Organization
   dataCommons: string;
   modelVersion: string; // for future use
   studyAbbreviation: string;
   dbGaPID: string; // # aka. phs number
   bucketName: string; // # populated from organization
   rootPath: string; // # a submission folder will be created under this path, default is / or "" meaning root folder
-  status: DataSubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
-  history: DataSubmissionHistoryEvent[]
-  conciergeName: string; // # Concierge name
-  conciergeEmail: string; // # Concierge email (MIGHT CHANGE)
-  createdAt: string; // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-  updatedAt: string; // # ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+  status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
+  history: SubmissionHistoryEvent[];
+  conciergeName: string; // Concierge name
+  conciergeEmail: string; // Concierge email
+  createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+  updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
 type SubmissionStatus =
@@ -55,14 +55,26 @@ type UploadResult = {
   errors: string[];
 };
 
+type BatchFileInfo = {
+  filePrefix: string; // prefix/path within S3 bucket
+  fileName: string;
+  size: number;
+  status: string; // [New, Uploaded, Failed]
+  errors: string[];
+  createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+  updatedAt: string // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+};
+
+type BatchStatus = "New" | "Uploaded" | "Upload Failed" | "Loaded" | "Rejected";
+
 type Batch = {
   _id: string;
   submissionID: string; // parent
   type: string; // [metadata, file]
   metadataIntention: string; // [New, Update, Delete], Update is meant for "Update or insert", metadata only! file batches are always treated as Update
   fileCount: number; // calculated by BE
-  files: FileInfo[];
-  status: string; // [New, Uploaded, Upload Failed, Loaded, Rejected] Loaded and Rejected are for metadata batch only
+  files: BatchFileInfo[];
+  status: BatchStatus; // [New, Uploaded, Upload Failed, Loaded, Rejected] Loaded and Rejected are for metadata batch only
   errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
@@ -77,7 +89,7 @@ type NewBatch = {
   metadataIntention: string; // [New, Update, Delete], Update is meant for "Update or insert", metadata only! file batches are always treated as Update
   fileCount: number; // calculated by BE
   files: FileURL[];
-  status: string; // [New, Uploaded, Upload Failed, Loaded, Rejected] Loaded and Rejected are for metadata batch only
+  status: BatchStatus; // [New, Uploaded, Upload Failed, Loaded, Rejected] Loaded and Rejected are for metadata batch only
   errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
@@ -92,4 +104,15 @@ type BatchFile = {
   errorCount: number;
 };
 
-type DataSubmissionHistoryEvent = HistoryBase<SubmissionStatus>;
+type ListBatches = {
+  total: number;
+  batches: Batch[];
+};
+
+type TempCredentials = {
+  accessKeyId: string;
+  secretAccessKey: string;
+  sessionToken: string;
+};
+
+type SubmissionHistoryEvent = HistoryBase<SubmissionStatus>;

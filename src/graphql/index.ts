@@ -27,8 +27,8 @@ export { mutation as UPDATE_MY_USER } from "./updateMyUser";
 export type { Response as UpdateMyUserResp } from "./updateMyUser";
 
 // Data Submissions
-export { query as GET_DATA_SUBMISSION } from "./getDataSubmission";
-export type { Response as GetDataSubmissionResp } from "./getDataSubmission";
+export { query as GET_SUBMISSION } from "./getSubmission";
+export type { Response as GetSubmissionResp } from "./getSubmission";
 
 export { query as GET_DATA_SUBMISSION_BATCH_FILES } from "./getDataSubmissionBatchFiles";
 export type { Response as GetDataSubmissionBatchFilesResp } from "./getDataSubmissionBatchFiles";
@@ -38,6 +38,9 @@ export type { Response as CreateBatchResp } from './createBatch';
 
 export { mutation as UPDATE_BATCH } from './updateBatch';
 export type { Response as UpdateBatchResp } from './updateBatch';
+
+export { query as LIST_BATCHES } from "./listBatches";
+export type { Response as ListBatchesResp } from "./listBatches";
 
 // User Profile
 export { query as GET_USER } from "./getUser";

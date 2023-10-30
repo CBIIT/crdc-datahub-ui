@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import {
   Box,
   CircularProgress,
@@ -37,17 +38,25 @@ const StyledTableHead = styled(TableHead)({
   background: "#5C8FA7",
 });
 
+const StyledTableRow = styled(TableRow)({
+  height: "46.59px",
+  minHeight: "46.59px"
+});
+
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
   fontSize: "16px",
   lineHeight: "16px",
   color: "#fff !important",
-  "&.MuiTableCell-root": {
-    padding: "16px",
+  padding: "22px 53px 22px 16px",
+  "&.MuiTableCell-root:first-of-type": {
+    paddingTop: "22px",
+    paddingRight: "16px",
+    paddingBottom: "22px",
     color: "#fff !important",
     verticalAlign: "top",
   },
-  "& .MuiSvgIcon-root,  & .MuiButtonBase-root": {
+  "& .MuiSvgIcon-root, & .MuiButtonBase-root": {
     color: "#fff !important",
   },
 });
@@ -56,7 +65,7 @@ const StyledTableCell = styled(TableCell)({
   fontSize: "16px",
   color: "#083A50 !important",
   borderBottom: "0.5px solid #6B7294",
-  fontFamily: "'Nunito'",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "19.6px",
@@ -110,6 +119,7 @@ export type Column<T> = {
   value: (a: T, user: User) => string | boolean | number | React.ReactNode;
   field?: keyof T;
   default?: true;
+  minWidth?: string;
 };
 
 export type FetchListing<T> = {
@@ -191,11 +201,28 @@ const DataSubmissionBatchTable = <T,>({
 
   return (
     <StyledTableContainer>
+      {loading && (
+        <Box
+          sx={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: "9999",
+          }}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <CircularProgress size={64} disableShrink thickness={3} />
+        </Box>
+      )}
       <Table>
         <StyledTableHead>
           <TableRow>
             {columns.map((col: Column<T>) => (
-              <StyledHeaderCell key={col.label.toString()}>
+              <StyledHeaderCell key={col.label.toString()} sx={{ minWidth: col.minWidth ?? "fit-content" }}>
                 {col.field ? (
                   <TableSortLabel
                     active={orderBy === col}
@@ -212,48 +239,33 @@ const DataSubmissionBatchTable = <T,>({
           </TableRow>
         </StyledTableHead>
         <TableBody>
-          {loading && (
-            <TableRow>
-              <TableCell>
-                <Box
-                  sx={{
-                    position: "absolute",
-                    background: "#fff",
-                    left: 0,
-                    top: 0,
-                    width: "100%",
-                    height: "100%",
-                    zIndex: "9999",
-                  }}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <CircularProgress size={64} disableShrink thickness={3} />
-                </Box>
-              </TableCell>
-            </TableRow>
-          )}
-          {data?.map((d: T) => (
-            <TableRow tabIndex={-1} hover key={d["_id"]}>
-              {columns.map((col: Column<T>) => (
-                <StyledTableCell key={`${d["_id"]}_${col.label}`}>
-                  {col.value(d, user)}
-                </StyledTableCell>
-              ))}
-            </TableRow>
-          ))}
-
-          {/* Fill the difference between perPage and count to prevent height changes */}
-          {emptyRows > 0 && (
-            <TableRow style={{ height: 53 * emptyRows }}>
+          {loading ? Array.from(Array(perPage).keys())?.map((_, idx) => (
+            <StyledTableRow key={`loading_row_${idx}`}>
               <TableCell colSpan={columns.length} />
-            </TableRow>
+            </StyledTableRow>
+          )) : (
+            data?.map((d: T) => (
+              <TableRow tabIndex={-1} hover key={d["_id"]}>
+                {columns.map((col: Column<T>) => (
+                  <StyledTableCell key={`${d["_id"]}_${col.label}`}>
+                    {col.value(d, user)}
+                  </StyledTableCell>
+                ))}
+              </TableRow>
+            ))
+          )}
+
+          {!loading && emptyRows > 0 && (
+            Array.from(Array(emptyRows).keys())?.map((row) => (
+              <StyledTableRow key={`empty_row_${row}`}>
+                <TableCell colSpan={columns.length} />
+              </StyledTableRow>
+            ))
           )}
 
           {/* No content message */}
-          {(!total || total === 0) && (
-            <TableRow style={{ height: 53 * 10 }}>
+          {!loading && (!total || total === 0) && (
+            <TableRow style={{ height: 46 * 10 }}>
               <TableCell colSpan={columns.length}>
                 <Typography
                   variant="h6"

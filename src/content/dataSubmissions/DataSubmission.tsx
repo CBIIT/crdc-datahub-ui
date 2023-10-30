@@ -4,6 +4,7 @@ import { useLazyQuery } from "@apollo/client";
 import {
   Alert,
   AlertColor,
+  Box,
   Card,
   CardActions,
   CardContent,
@@ -16,7 +17,7 @@ import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
-import { GET_DATA_SUBMISSION, GET_DATA_SUBMISSION_BATCH_FILES, GetDataSubmissionBatchFilesResp, GetDataSubmissionResp } from "../../graphql";
+import { GET_SUBMISSION, GetSubmissionResp, LIST_BATCHES, ListBatchesResp } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert from "../../components/GenericAlert";
 import PieChart from "../../components/DataSubmissions/PieChart";
@@ -159,17 +160,16 @@ const StyledErrorCount = styled("div")(() => ({
   textDecorationLine: "underline",
 }));
 
-const columns: Column<BatchFile>[] = [
+const columns: Column<Batch>[] = [
   {
-    label: "Batch ID",
-    value: (data) => data?._id,
-    field: "_id",
-    default: true,
+    label: "Upload Type",
+    value: (data) => data?.metadataIntention,
+    field: "metadataIntention",
   },
   {
-    label: "Uploaded Type",
-    value: (data) => data?.uploadType,
-    field: "uploadType",
+    label: "Batch Type",
+    value: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
+    field: "type",
   },
   {
     label: "File Count",
@@ -182,18 +182,20 @@ const columns: Column<BatchFile>[] = [
     field: "status",
   },
   {
-    label: "Last Access Date",
-    value: (data) => (data?.submittedDate ? FormatDate(data.submittedDate, "M-D-YYYY hh:mm A") : ""),
-    field: "submittedDate",
+    label: "Uploaded Date",
+    value: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    field: "createdAt",
+    default: true,
+    minWidth: "240px"
   },
   {
-    label: "Error Count",
+    label: "Error",
     value: (data) => (
       <StyledErrorCount>
-        {data.errorCount > 0 ? `${data.errorCount} ${data.errorCount === 1 ? "Error" : "Errors"}` : ""}
+        {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
       </StyledErrorCount>
     ),
-    field: "errorCount",
+    field: "errors",
   },
 ];
 
@@ -213,25 +215,26 @@ const DataSubmission = () => {
   const { submissionId, tab } = useParams();
 
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
-  const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
-  const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<BatchFile>>(null);
+  const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
+  const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
+  const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
 
-  const [getDataSubmission] = useLazyQuery<GetDataSubmissionResp>(GET_DATA_SUBMISSION, {
-    variables: { id: "8887654" }, // TODO: Replace with submissionId
-    context: { clientName: 'mockService' },
+  const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
+    variables: { id: submissionId },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
-  const [getBatchFiles] = useLazyQuery<GetDataSubmissionBatchFilesResp>(GET_DATA_SUBMISSION_BATCH_FILES, {
-    context: { clientName: 'mockService' },
+  const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
-  const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFile>) => {
+  const handleFetchBatchFiles = async (fetchListing: FetchListing<Batch>) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
       setError(true);
@@ -245,22 +248,23 @@ const DataSubmission = () => {
 
     try {
       setLoading(true);
-      const { data: newBatchFiles, error: batchFilesError } = await getBatchFiles({
-        variables: { // TODO: Replace with dynamic variables when real endpoint is created
-          id: "8887654",
-          first: 10,
-          offset: 0,
-          sortDirection: "desc",
-          orderBy: "_id"
+      const { data: newBatchFiles, error: batchFilesError } = await listBatches({
+        variables: {
+          submissionID: submissionId,
+          first,
+          offset,
+          sortDirection,
+          orderBy
         },
-        context: { clientName: 'mockService' },
+        context: { clientName: 'backend' },
         fetchPolicy: 'no-cache'
       });
-      if (batchFilesError || !newBatchFiles?.getDataSubmissionBatchFiles) {
+      if (batchFilesError || !newBatchFiles?.listBatches) {
         setError(true);
         return;
       }
-      setBatchFiles(newBatchFiles.getDataSubmissionBatchFiles.batchFiles);
+      setBatchFiles(newBatchFiles.listBatches.batches);
+      setTotalBatchFiles(newBatchFiles.listBatches.total);
     } catch (err) {
       setError(true);
     } finally {
@@ -274,12 +278,12 @@ const DataSubmission = () => {
     }
     (async () => {
       if (!dataSubmission?._id) {
-        const { data: newDataSubmission, error } = await getDataSubmission();
-        if (error || !newDataSubmission?.getDataSubmission) {
+        const { data: newDataSubmission, error } = await getSubmission();
+        if (error || !newDataSubmission?.getSubmission) {
           setError(true);
           return;
         }
-        setDataSubmission(newDataSubmission.getDataSubmission);
+        setDataSubmission(newDataSubmission.getSubmission);
       }
     })();
   }, [submissionId]);
@@ -428,7 +432,7 @@ const DataSubmission = () => {
                   <DataSubmissionBatchTable
                     columns={columns}
                     data={batchFiles || []}
-                    total={batchFiles?.length || 0}
+                    total={totalBatchFiles || 0}
                     loading={loading}
                     onFetchData={handleFetchBatchFiles}
                   />
