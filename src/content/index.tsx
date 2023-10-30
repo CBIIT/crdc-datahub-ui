@@ -62,7 +62,7 @@ const PageContentContainer = styled.div`
   justify-content: center;
   
   .loginPageTextContainer {
-    width: 703px;
+    width: 775px;
     height: 265px;
     display: flex;
     flex-direction: column;
@@ -166,7 +166,7 @@ const Home: FC = () => {
           {authData.isLoggedIn ? (
             <div className="loginPageTextContainer">
               <div className="loginPageTextTitle">
-                Welcome to CRDC Data Hub
+                Welcome to CRDC Submission Portal
               </div>
               <div className="loginPageText">
                 You are logged in.
@@ -176,7 +176,7 @@ const Home: FC = () => {
           : (
             <div className="loginPageTextContainer">
               <div className="loginPageTextTitle">
-                Login to CRDC
+                Login to CRDC Submission Portal
               </div>
               <div className="loginPageText">
                 Please login with a Login.gov account to make a data submission request or to upload data for approved submissions
