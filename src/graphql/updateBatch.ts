@@ -19,10 +19,13 @@ export const mutation = gql`
       metadataIntention
       fileCount
       files {
-        type
-        extension
-        count
-        amount
+        filePrefix
+        fileName
+        size
+        status
+        errors
+        createdAt
+        updatedAt
       }
       status
       createdAt
