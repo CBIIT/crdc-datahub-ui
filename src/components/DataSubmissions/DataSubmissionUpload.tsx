@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import RadioInput from "./RadioInput";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
+import { useAuthContext } from "../Contexts/AuthContext";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -106,20 +107,26 @@ const VisuallyHiddenInput = styled("input")(() => ({
   display: "none !important",
 }));
 
+const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
+
 type UploadType = "New" | "Update";
 
 type Props = {
-  onUpload: (message: string, severity: AlertColor) => void;
+  submitterID: string;
   readOnly?: boolean;
+  onUpload: (message: string, severity: AlertColor) => void;
 };
 
-const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
+const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   const { submissionId } = useParams();
+  const { user } = useAuthContext();
 
   const [uploadType, setUploadType] = useState<UploadType>("New");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetatadataInputRef = useRef<HTMLInputElement>(null);
+  const isSubmissionOwner = submitterID === user?._id;
+  const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
     context: { clientName: 'backend' },
@@ -148,6 +155,9 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
   });
 
   const handleChooseFilesClick = () => {
+    if (!canUpload) {
+      return;
+    }
     uploadMetatadataInputRef?.current?.click();
   };
 
@@ -189,7 +199,7 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
   };
 
   const handleUploadFiles = async () => {
-    if (!selectedFiles?.length) {
+    if (!selectedFiles?.length || !canUpload) {
       return;
     }
 
@@ -239,6 +249,7 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
         throw new Error("Unexpected network error");
       }
       // Batch upload completed successfully
+      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully uploaded`, "success");
       setIsUploading(false);
       setSelectedFiles(null);
     } catch (err) {
@@ -278,7 +289,7 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
         <StyledChooseFilesButton
           variant="outlined"
           onClick={handleChooseFilesClick}
-          disabled={readOnly || isUploading}
+          disabled={readOnly || isUploading || !canUpload}
         >
           Choose Files
         </StyledChooseFilesButton>
@@ -290,7 +301,7 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
         variant="contained"
         onClick={handleUploadFiles}
         loading={isUploading}
-        disabled={readOnly || !selectedFiles?.length}
+        disabled={readOnly || !selectedFiles?.length || !canUpload}
         disableElevation
         disableRipple
         disableTouchRipple
