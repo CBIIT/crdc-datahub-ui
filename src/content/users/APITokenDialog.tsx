@@ -26,13 +26,23 @@ const StyledHeader = styled(Typography)({
 });
 
 const StyledTitle = styled(Typography)({
-  fontFamily: "'Nunito'",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "19.6px",
-  height: "74px",
   marginBottom: "58px"
+});
+
+const StyledExplanationText = styled(Typography)({
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  color: "#083A50",
+  textAlign: "center",
+  fontSize: "16px",
+  fontStyle: "italic",
+  fontWeight: 400,
+  lineHeight: "19.6px",
+  marginTop: "20px"
 });
 
 const StyledTokenInput = styled(OutlinedInput)({
@@ -47,7 +57,7 @@ const StyledTokenInput = styled(OutlinedInput)({
   flexShrink: 0,
   background: "#FFFFFF",
   color: "#000000",
-  fontFamily: "'Nunito'",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 400,
@@ -71,7 +81,7 @@ const StyledGenerateButton = styled(Button)({
   background: "#1D91AB",
   color: "#FFFFFF",
   textAlign: "center",
-  fontFamily: "'Nunito'",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 700,
@@ -119,7 +129,7 @@ const StyledCloseButton = styled(Button)({
   letterSpacing: "0.32px",
   textTransform: "none",
   alignSelf: "center",
-  marginTop: "112px"
+  marginTop: "45px"
 });
 
 type Props = {
@@ -213,25 +223,32 @@ const APITokenDialog: FC<Props> = ({
       >
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      <StyledHeader variant="h3">
+      <StyledHeader id="api-token-header" variant="h3">
         API Token
       </StyledHeader>
-      <StyledTitle variant="h6">
+      <StyledTitle id="api-token-title" variant="h6">
         An API Token is required to utilize the Uploader CLI tool for file uploads.
         <br />
         <br />
-        Each time you click the 'Create Token' button, a new token will be generated, and the previous token will be invalidated. A token expires 60 days after its creation.
+        Each time you click the 'Create Token' button, a new token will be generated, and
+        <br />
+        the previous token will be invalidated. A token expires 60 days after its creation.
       </StyledTitle>
-      <Stack direction="row" spacing={1.875} justifyContent="center" alignItems="center">
-        <StyledGenerateButton onClick={handleCreateToken}>
+      <Stack direction={{ xs: "column", md: "row" }} spacing={1.875} justifyContent="center" alignItems="center">
+        <StyledGenerateButton id="api-token-create-token-button" onClick={handleCreateToken}>
           Create Token
         </StyledGenerateButton>
-        <StyledTokenInput value={tokens?.length ? "*************************************" : ""} readOnly />
-        <StyledCopyTokenButton disabled={!tokens?.length} onClick={handleCopyToken}>
+        <StyledTokenInput id="api-token-input" value={tokens?.length ? "*************************************" : ""} readOnly />
+        <StyledCopyTokenButton id="api-token-copy-token-button" disabled={!tokens?.length} onClick={handleCopyToken}>
           <CopyIconSvg />
         </StyledCopyTokenButton>
       </Stack>
-      <StyledCloseButton variant="outlined" onClick={handleCloseDialog}>
+      <StyledExplanationText id="api-token-explanation" sx={{ visibility: tokens?.length ? "visible" : "hidden" }}>
+        Copy your token to the clipboard,
+        <br />
+        as this will be the only time you can see this token
+      </StyledExplanationText>
+      <StyledCloseButton id="api-token-close-button" variant="outlined" onClick={handleCloseDialog}>
         Close
       </StyledCloseButton>
     </StyledDialog>
