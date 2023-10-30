@@ -80,10 +80,6 @@ const routes: RouteObject[] = [
         element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
       },
       {
-        path: '/profile/:userId?/api-token',
-        element: <RequireAuth component={<Users key="api-token-view" type="api-token" />} redirectPath="/api-token" redirectName="User API Token" />
-      },
-      {
         path: '/submission-templates',
         element: <RequireAuth component={<DMN />} redirectPath="/submission-templates" redirectName="Data Submission Templates" />
       },
