@@ -456,8 +456,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="study[dbGaPPPHSNumber]"
           value={dbGaPPPHSNumber}
           onChange={(e) => setDbGaPPPHSNumber(e.target.value || "")}
-          maxLength={25}
-          placeholder="25 characters allowed"
+          maxLength={50}
+          placeholder="50 characters allowed"
           gridWidth={12}
           readOnly={readOnlyInputs || !isDbGapRegistered}
           required={isDbGapRegistered}

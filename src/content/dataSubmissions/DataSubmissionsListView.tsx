@@ -102,6 +102,7 @@ const StyledTableCell = styled(TableCell)({
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
     padding: "8px 8px",
+    overflowWrap: "anywhere",
   },
   "&:last-of-type": {
     paddingRight: "4px",
@@ -579,7 +580,7 @@ const ListingView: FC = () => {
             <TextInput
               value={dbgapid}
               parentStateSetter={(newVal) => setDbgapid(newVal)}
-              maxLength={25}
+              maxLength={50}
               required
               label="dbGaP ID"
               placeholder="Input dbGaP ID"
