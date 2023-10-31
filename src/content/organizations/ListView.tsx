@@ -161,6 +161,12 @@ const StyledTablePagination = styled(TablePagination)<{ component: React.Element
   background: "#F5F7F8",
 });
 
+const StyledStudyCount = styled(Typography)<{ component: ElementType }>(({ theme }) => ({
+  textDecoration: "underline",
+  cursor: "pointer",
+  color: theme.palette.primary.main,
+}));
+
 const columns: Column[] = [
   {
     label: "Name",
@@ -174,35 +180,34 @@ const columns: Column[] = [
   },
   {
     label: "Studies",
-    value: ({ _id, studies }) => (
-      <Stack direction="row">
-        <Tooltip
-          title={(
-            <Typography variant="body1">
-              {studies?.map(({ studyName, studyAbbreviation }) => (
-                <React.Fragment key={`${_id}_study_${studyName}`}>
-                  {studyName}
-                  {" ("}
-                  {studyAbbreviation}
-                  {") "}
-                  <br />
-                </React.Fragment>
-              ))}
-            </Typography>
+    value: ({ _id, studies }) => {
+      if (!studies || studies?.length < 1) {
+        return "";
+      }
+
+      return (
+        <>
+          {studies[0].studyAbbreviation}
+          {studies.length > 1 && " and "}
+          {studies.length > 1 && (
+            <Tooltip
+              title={<StudyContent _id={_id} studies={studies} />}
+              placement="top"
+              open={undefined}
+              onBlur={undefined}
+              disableHoverListener={false}
+              arrow
+            >
+              <StyledStudyCount variant="body2" component="span">
+                other
+                {" "}
+                {studies.length - 1}
+              </StyledStudyCount>
+            </Tooltip>
           )}
-          placement="top"
-          open={undefined}
-          onBlur={undefined}
-          disableHoverListener={false}
-          arrow
-        >
-          <Typography variant="body2" component="span" sx={{ borderBottom: "1px dashed", cursor: "pointer" }}>
-            {studies?.slice(0, 2)?.map((s) => s.studyAbbreviation).join(", ")}
-            {studies?.length > 2 && ", ..."}
-          </Typography>
-        </Tooltip>
-      </Stack>
-    ),
+        </>
+      );
+    },
   },
   {
     label: "Status",
@@ -220,6 +225,20 @@ const columns: Column[] = [
     ),
   },
 ];
+
+const StudyContent: FC<{ _id: Organization["_id"], studies: Organization["studies"] }> = ({ _id, studies }) => (
+  <Typography variant="body1">
+    {studies?.map(({ studyName, studyAbbreviation }) => (
+      <React.Fragment key={`${_id}_study_${studyName}`}>
+        {studyName}
+        {" ("}
+        {studyAbbreviation}
+        {") "}
+        <br />
+      </React.Fragment>
+    ))}
+  </Typography>
+);
 
 /**
  * View for List of Organizations
