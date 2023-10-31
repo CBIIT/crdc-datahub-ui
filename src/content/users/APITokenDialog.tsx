@@ -12,7 +12,10 @@ const StyledDialog = styled(Dialog)({
     maxWidth: "none",
     borderRadius: "8px",
     width: "755px !important",
-    padding: "47px 59px 71px 54px"
+    padding: "47px 59px 71px 54px",
+    border: "2px solid #0B7F99",
+    background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
+    boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
   },
 });
 
@@ -130,7 +133,11 @@ const StyledCloseButton = styled(Button)({
   letterSpacing: "0.32px",
   textTransform: "none",
   alignSelf: "center",
-  marginTop: "45px"
+  marginTop: "45px",
+  "&:hover": {
+    background: "transparent",
+    border: "1px solid #000",
+  }
 });
 
 const canGenerateTokenRoles: User["role"][] = ["Submitter", "Organization Owner"];
