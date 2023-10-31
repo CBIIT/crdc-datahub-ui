@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import { Button, Stack, Typography, styled } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
-import { SUBMISSION_ACTION, SubmissionActionResp } from "../../graphql";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -162,52 +160,25 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
 
 type Props = {
   submission: Submission;
-  onSubmissionChange: (submission: Submission) => void;
-  onError?: (error: string) => void;
+  onAction: (action: SubmissionAction) => Promise<void>;
 };
 
-const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Props) => {
+const DataSubmissionActions = ({ submission, onAction }: Props) => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
 
-  const [submissionAction] = useMutation<SubmissionActionResp>(SUBMISSION_ACTION, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  });
-
-  const updateSubmissionAction = async (action: SubmissionAction) => {
-    if (!submission?._id) {
-      return;
-    }
-
-    try {
-      const { data: d, errors } = await submissionAction({
-        variables: {
-          submissionID: submission._id,
-          action
-        }
-      });
-      if (errors || !d?.submissionAction?._id) {
-        onError(`Error occurred while performing '${action}' submission action.`);
-        return;
-      }
-      onSubmissionChange(d.submissionAction);
-    } catch (err) {
-      onError(`Error occurred while performing '${action}' submission action.`);
-    } finally {
-      setAction(null);
-    }
-  };
-
-  const handleOnAction = (action: SubmissionAction) => {
+  const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
       setCurrentDialog(null);
     }
     setAction(action);
-    updateSubmissionAction(action);
+    if (typeof onAction === "function") {
+      await onAction(action);
+    }
+    setAction(null);
   };
 
   const onOpenDialog = (dialog: ActiveDialog) => {
@@ -269,32 +240,6 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
           Release
         </StyledReleaseButton>
       ) : null}
-      {canShowAction("Withdraw") ? (
-        <StyledWithdrawButton
-          variant="contained"
-          onClick={() => onOpenDialog("Withdraw")}
-          loading={action === "Withdraw"}
-          disabled={action && action !== "Withdraw"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
-        >
-          Withdraw
-        </StyledWithdrawButton>
-      ) : null}
-      {canShowAction("SubmittedReject") || canShowAction("ReleasedReject") ? (
-        <StyledRejectButton
-          variant="contained"
-          onClick={() => onOpenDialog("Reject")}
-          loading={action === "Reject"}
-          disabled={action && action !== "Reject"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
-        >
-          Reject
-        </StyledRejectButton>
-      ) : null}
       {canShowAction("Complete") ? (
         <StyledCompleteButton
           variant="contained"
@@ -320,6 +265,32 @@ const DataSubmissionActions = ({ submission, onSubmissionChange, onError }: Prop
         >
           Archive
         </StyledArchiveButton>
+      ) : null}
+      {canShowAction("Withdraw") ? (
+        <StyledWithdrawButton
+          variant="contained"
+          onClick={() => onOpenDialog("Withdraw")}
+          loading={action === "Withdraw"}
+          disabled={action && action !== "Withdraw"}
+          disableElevation
+          disableRipple
+          disableTouchRipple
+        >
+          Withdraw
+        </StyledWithdrawButton>
+      ) : null}
+      {canShowAction("SubmittedReject") || canShowAction("ReleasedReject") ? (
+        <StyledRejectButton
+          variant="contained"
+          onClick={() => onOpenDialog("Reject")}
+          loading={action === "Reject"}
+          disabled={action && action !== "Reject"}
+          disableElevation
+          disableRipple
+          disableTouchRipple
+        >
+          Reject
+        </StyledRejectButton>
       ) : null}
       {canShowAction("Cancel") ? (
         <StyledCancelButton

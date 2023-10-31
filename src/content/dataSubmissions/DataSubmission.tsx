@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Alert,
   AlertColor,
@@ -20,8 +20,10 @@ import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissio
 import {
   GET_SUBMISSION,
   LIST_BATCHES,
+  SUBMISSION_ACTION,
   GetSubmissionResp,
-  ListBatchesResp
+  ListBatchesResp,
+  SubmissionActionResp,
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
@@ -235,6 +237,11 @@ const DataSubmission = () => {
     fetchPolicy: 'no-cache'
   });
 
+  const [submissionAction] = useMutation<SubmissionActionResp>(SUBMISSION_ACTION, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
   const handleFetchBatchFiles = async (fetchListing: FetchListing<Batch>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
@@ -273,6 +280,28 @@ const DataSubmission = () => {
     }
   };
 
+  const updateSubmissionAction = async (action: SubmissionAction) => {
+    if (!submissionId) {
+      return;
+    }
+
+    try {
+      const { data: d, errors } = await submissionAction({
+        variables: {
+          submissionID: submissionId,
+          action
+        }
+      });
+      if (errors || !d?.submissionAction?._id) {
+        throw new Error(`Error occurred while performing '${action}' submission action.`);
+        return;
+      }
+      setDataSubmission((prevSubmission) => ({ ...prevSubmission, ...d.submissionAction }));
+    } catch (err) {
+      setError(err?.toString());
+    }
+  };
+
   useEffect(() => {
     if (!submissionId) {
       setError("Invalid submission ID provided.");
@@ -294,14 +323,15 @@ const DataSubmission = () => {
     tableRef.current?.refresh();
   };
 
-  const handleOnDataSubmissionChange = (dataSubmission: Submission) => {
-    setDataSubmission(dataSubmission);
-  };
-
   const handleOnUpload = (message: string, severity: AlertColor) => {
     refreshBatchTable();
     setChangesAlert({ message, severity });
     setTimeout(() => setChangesAlert(null), 10000);
+
+    const preInProgressStatuses = ["Rejected"];
+    if (preInProgressStatuses.includes(dataSubmission?.status)) {
+      updateSubmissionAction("Resume");
+    }
   };
 
   return (
@@ -318,6 +348,7 @@ const DataSubmission = () => {
             {error && (
               <StyledAlert severity="error">
                 Oops! An error occurred.
+                {" "}
                 {error}
               </StyledAlert>
             )}
@@ -457,8 +488,7 @@ const DataSubmission = () => {
           <CardActions>
             <DataSubmissionActions
               submission={dataSubmission}
-              onSubmissionChange={handleOnDataSubmissionChange}
-              onError={setError}
+              onAction={updateSubmissionAction}
             />
           </CardActions>
         </StyledCard>

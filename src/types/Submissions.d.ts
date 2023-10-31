@@ -34,6 +34,7 @@ type SubmissionAction =
   | "Release"
   | "Withdraw"
   | "Reject"
+  | "Resume" // Rejected => In Progress
   | "Complete"
   | "Cancel"
   | "Archive";
