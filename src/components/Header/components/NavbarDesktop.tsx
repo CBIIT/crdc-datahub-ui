@@ -297,6 +297,13 @@ const NameDropdownContainer = styled.div`
   .dropdownItem:hover {
     text-decoration: underline;
   }
+  .dropdownItemButton {
+    padding-bottom: 0;
+    text-transform: none;
+  }
+  .dropdownItemButton:hover {
+    background: transparent;
+  }
   #navbar-dropdown-item-name-logout {
     max-width: 200px;
   }
@@ -543,7 +550,7 @@ const NavBar = () => {
             )}
             {(authData?.user?.role === "Submitter" || authData?.user?.role === "Organization Owner") && (
               <span className="dropdownItem">
-                <Button id="navbar-dropdown-item-name-api-token" className="dropdownItem" onClick={() => setOpenAPITokenDialog(true)} sx={{ textTransform: "none" }}>
+                <Button id="navbar-dropdown-item-name-api-token" className="dropdownItem dropdownItemButton" onClick={() => setOpenAPITokenDialog(true)}>
                   API Token
                 </Button>
               </span>
