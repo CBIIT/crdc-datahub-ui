@@ -8,6 +8,7 @@ import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
 import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
 import { useAuthContext } from '../Contexts/AuthContext';
 import GenericAlert from '../GenericAlert';
+import APITokenDialog from '../../content/users/APITokenDialog';
 
 const HeaderBanner = styled.div`
   width: 100%;
@@ -147,10 +148,15 @@ const MenuArea = styled.div`
     .clickable {
         cursor: pointer;
     }
+    
+    .action {
+        cursor: pointer;
+    }
 `;
 type NavbarMobileList = {
   name: string;
   link: string;
+  onClick?: () => void;
   id: string;
   className: string;
   needsAuthentication?: boolean;
@@ -158,6 +164,7 @@ type NavbarMobileList = {
 
 const Header = () => {
   const [navMobileDisplay, setNavMobileDisplay] = useState('none');
+  const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
   const navMobileListHookResult = useState(navMobileList);
   const navbarMobileList: NavbarMobileList = navMobileListHookResult[0];
   const setNavbarMobileList = navMobileListHookResult[1];
@@ -205,6 +212,14 @@ const Header = () => {
       link: '/organizations',
       id: 'navbar-dropdown-item-user-manage',
       className: 'navMobileSubItem',
+    });
+  }
+  if (authData?.user?.role === "Submitter" || authData?.user?.role === "Organization Owner") {
+    navbarSublists[displayName].splice(1, 0, {
+      name: 'API Token',
+      onClick: () => setOpenAPITokenDialog(true),
+      id: 'navbar-dropdown-item-api-token',
+      className: 'navMobileSubItem action',
     });
   }
 
@@ -309,6 +324,21 @@ const Header = () => {
                         )
                       }
                       {
+                        navMobileItem.className === 'navMobileSubItem action'
+                        && typeof navMobileItem.onClick === "function"
+                        && (
+                          <div
+                            id={navMobileItem.id}
+                            role="button" tabIndex={0}
+                            className="navMobileItem SubItem action"
+                            onKeyDown={(e) => { if (e.key === "Enter") { navMobileItem.onClick(); } }}
+                            onClick={() => navMobileItem.onClick()}
+                          >
+                            {navMobileItem.name}
+                          </div>
+                        )
+                      }
+                      {
                         navMobileItem.className === 'navMobileSubItem'
                         && (
                         <Link
@@ -388,6 +418,7 @@ const Header = () => {
             aria-label="greyContainer"
           />
         </MenuArea>
+        <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
       </NavMobileContainer>
     </>
   );
