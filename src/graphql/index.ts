@@ -70,3 +70,7 @@ export type { Response as ListApprovedStudiesResp } from './listApprovedStudies'
 
 export { mutation as CREATE_ORG } from './createOrganization';
 export type { Response as CreateOrgResp } from './createOrganization';
+
+// Misc.
+export { mutation as GRANT_TOKEN } from './grantToken';
+export type { Response as GrantTokenResp } from './grantToken';
