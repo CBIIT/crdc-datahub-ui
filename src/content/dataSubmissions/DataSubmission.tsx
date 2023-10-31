@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import {
   Alert,
+  AlertColor,
   Box,
   Card,
   CardActions,
@@ -20,7 +21,7 @@ import { GET_SUBMISSION, GetSubmissionResp, LIST_BATCHES, ListBatchesResp } from
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert from "../../components/GenericAlert";
 import PieChart from "../../components/DataSubmissions/PieChart";
-import DataSubmissionBatchTable, { Column, FetchListing } from "../../components/DataSubmissions/DataSubmissionBatchTable";
+import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 
@@ -188,7 +189,7 @@ const columns: Column<Batch>[] = [
     minWidth: "240px"
   },
   {
-    label: "Error",
+    label: "Error Count",
     value: (data) => (
       <StyledErrorCount>
         {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
@@ -197,6 +198,11 @@ const columns: Column<Batch>[] = [
     field: "errors",
   },
 ];
+
+type AlertState = {
+  message: string;
+  severity: AlertColor;
+};
 
 const URLTabs = {
   DATA_UPLOAD: "data-upload",
@@ -214,7 +220,8 @@ const DataSubmission = () => {
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [openAlert, setOpenAlert] = useState<string>(null);
+  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
+  const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
 
   const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
@@ -228,13 +235,13 @@ const DataSubmission = () => {
     fetchPolicy: 'no-cache'
   });
 
-  const handleFetchBatchFiles = async (fetchListing: FetchListing<Batch>) => {
+  const handleFetchBatchFiles = async (fetchListing: FetchListing<Batch>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
       setError(true);
       return;
     }
-    if (batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
+    if (!force && batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
       return;
     }
 
@@ -282,20 +289,25 @@ const DataSubmission = () => {
     })();
   }, [submissionId]);
 
+  const refreshBatchTable = () => {
+    tableRef.current?.refresh();
+  };
+
   const handleOnDataSubmissionChange = (dataSubmission: Submission) => {
     setDataSubmission(dataSubmission);
   };
 
-  const handleOnUpload = (message: string) => {
-    setOpenAlert(message);
-    setTimeout(() => setOpenAlert(null), 10000);
+  const handleOnUpload = (message: string, severity: AlertColor) => {
+    refreshBatchTable();
+    setChangesAlert({ message, severity });
+    setTimeout(() => setChangesAlert(null), 10000);
   };
 
   return (
     <StyledWrapper>
-      <GenericAlert open={openAlert?.length > 0} key="data-submission-alert">
+      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
         <span>
-          {openAlert}
+          {changesAlert?.message}
         </span>
       </GenericAlert>
       <StyledBanner bannerSrc={bannerSvg} />
@@ -420,10 +432,12 @@ const DataSubmission = () => {
               {tab === URLTabs.DATA_UPLOAD ? (
                 <Stack direction="column" justifyContent="center">
                   <DataSubmissionUpload
-                    onUpload={handleOnUpload}
+                    submitterID={dataSubmission?.submitterID}
                     readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
+                    onUpload={handleOnUpload}
                   />
                   <DataSubmissionBatchTable
+                    ref={tableRef}
                     columns={columns}
                     data={batchFiles || []}
                     total={totalBatchFiles || 0}

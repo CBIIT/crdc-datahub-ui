@@ -14,7 +14,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { ElementType, useEffect, useMemo, useState } from "react";
+import { ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useAuthContext } from "../Contexts/AuthContext";
 import PaginationActions from "./PaginationActions";
 
@@ -129,13 +129,17 @@ export type FetchListing<T> = {
   orderBy: keyof T;
 };
 
+export type TableMethods = {
+  refresh: () => void;
+};
+
 type Props<T> = {
   columns: Column<T>[];
   data: T[];
   total: number;
   loading?: boolean;
   noContentText?: string;
-  onFetchData?: (params: FetchListing<T>) => void;
+  onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
   onOrderByChange?: (orderBy: Column<T>) => void;
   onPerPageChange?: (perPage: number) => void;
@@ -151,7 +155,7 @@ const DataSubmissionBatchTable = <T,>({
   onOrderChange,
   onOrderByChange,
   onPerPageChange,
-}: Props<T>) => {
+}: Props<T>, ref: React.Ref<TableMethods>) => {
   const { user } = useAuthContext();
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<Column<T>>(
@@ -161,6 +165,16 @@ const DataSubmissionBatchTable = <T,>({
   const [perPage, setPerPage] = useState<number>(10);
 
   useEffect(() => {
+    fetchData();
+  }, [page, perPage, order, orderBy]);
+
+  useImperativeHandle(ref, () => ({
+    refresh: () => {
+      fetchData(true);
+    }
+  }));
+
+  const fetchData = (force = false) => {
     if (!onFetchData) {
       return;
     }
@@ -169,8 +183,8 @@ const DataSubmissionBatchTable = <T,>({
       offset: page * perPage,
       sortDirection: order,
       orderBy: orderBy?.field,
-    });
-  }, [page, perPage, order, orderBy]);
+    }, force);
+  };
 
   const emptyRows = useMemo(() => (page > 0 && total
       ? Math.max(0, (1 + page) * perPage - (total || 0))
@@ -303,4 +317,6 @@ const DataSubmissionBatchTable = <T,>({
   );
 };
 
-export default DataSubmissionBatchTable;
+const BatchTableWithRef = forwardRef(DataSubmissionBatchTable) as <T>(props: Props<T> & { ref?: React.Ref<TableMethods> }) => ReturnType<typeof DataSubmissionBatchTable>;
+
+export default BatchTableWithRef;

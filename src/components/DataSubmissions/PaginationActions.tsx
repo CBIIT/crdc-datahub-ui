@@ -33,6 +33,10 @@ const StyledPagination = styled(Pagination)(() => ({
   },
   "& .MuiPagination-ul li:last-of-type .MuiPaginationItem-root": {
     borderRightWidth: "1px",
+    borderLeftWidth: 0
+  },
+  "& .MuiPagination-ul li:nth-last-of-type(2) .MuiPaginationItem-page": {
+    borderRight: "1px solid #415B88",
   },
 }));
 const StyledPaginationItem = styled(PaginationItem)(({ selected }) => ({
