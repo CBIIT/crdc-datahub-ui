@@ -5,4 +5,5 @@
  */
 export const DataCommons: string[] = [
   "CDS",
+  "CCDI",
 ];

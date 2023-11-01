@@ -102,6 +102,7 @@ const StyledTableCell = styled(TableCell)({
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
     padding: "8px 8px",
+    overflowWrap: "anywhere",
   },
   "&:last-of-type": {
     paddingRight: "4px",
@@ -271,7 +272,7 @@ const ListingView: FC = () => {
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
-  const [dataCommons, setDataCommons] = useState<string>(null);
+  const [dataCommons, setDataCommons] = useState<string>("CDS");
   const [study, setStudy] = useState<string>("All");
   const [dbgapid, setDbgapid] = useState<string>(null);
   const [createSubmissionError, setCreateSubmissionError] = useState<boolean>(false);
@@ -331,7 +332,7 @@ const ListingView: FC = () => {
   };
   const onCreateSubmissionButtonClick = async () => {
     setCreatingSubmission(true);
-    setDataCommons(null);
+    setDataCommons("CDS");
     setStudy(null);
     setSubmissionName(null);
     setDbgapid(null);
@@ -560,7 +561,7 @@ const ListingView: FC = () => {
           <form ref={createSubmissionDialogFormRef}>
             <TextInput value={user.organization?.orgName} label="Organization" readOnly />
             <SelectInput
-              options={[{ label: "CDS", value: "CDS" }]}
+              options={[{ label: "CDS", value: "CDS" }, { label: "CCDI", value: "CCDI" }]}
               label="Data Commons"
               required
               value={dataCommons}

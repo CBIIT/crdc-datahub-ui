@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Alert, AlertProps, styled } from '@mui/material';
+import { Alert, AlertColor, AlertProps, styled } from '@mui/material';
 
 const StyledAlert = styled(Alert, {
   shouldForwardProp: (prop) => prop !== "bgColor"
@@ -19,6 +19,11 @@ const StyledAlert = styled(Alert, {
   transform: 'translateX(-50%)',
   userSelect: 'none',
 })));
+
+export type AlertState = {
+  message: string;
+  severity: AlertColor;
+};
 
 type Props = {
   open: boolean;
