@@ -338,7 +338,7 @@ const ListingView: FC = () => {
     setSubmissionName(null);
     setDbgapid(null);
   };
-  const onDialogSubmit = async () => {
+  const onDialogCreate = async () => {
     const valid = createSubmissionDialogFormRef.current.checkValidity();
     if (valid) {
       createSubmission();
@@ -602,16 +602,16 @@ const ListingView: FC = () => {
         <div
           role="button"
           tabIndex={0}
-          id="createSubmissionDialogSubmitButton"
+          id="createSubmissionDialogCreateButton"
           className="dialogButton"
           onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      onDialogSubmit();
+                      onDialogCreate();
                     }
                 }}
-          onClick={() => onDialogSubmit()}
+          onClick={() => onDialogCreate()}
         >
-          <strong>Submit</strong>
+          <strong>Create</strong>
         </div>
         <div className={createSubmissionError ? "createSubmissionError" : "invisible"}>
           Unable to create this data submission. If the problem persists please contact
