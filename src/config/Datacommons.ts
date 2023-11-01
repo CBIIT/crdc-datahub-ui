@@ -4,12 +4,12 @@
 export const DataCommons: DataCommon[] = [
   {
     name: "CDS",
-    relative_assets: null,
-    source_assets: null
+    route: "icdc",
+    config: null,
   },
   {
     name: "CCDI",
-    relative_assets: null,
-    source_assets: null
+    route: "icdc",
+    config: null,
   },
 ];

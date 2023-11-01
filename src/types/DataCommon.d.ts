@@ -1,48 +1,79 @@
 type DataCommon = {
   /**
    * The user-friendly name of the Data Common.
+   * This is also used to retrieve asset URLs from DataCommonAssets.
    *
    * @example "CDS"
    */
   name: string;
   /**
-   * The relative-URLs of the Data Common's asset locations
-   * stored in the production `/build` folder.
+   * The route of the Data Model Navigator.
    *
-   * Examples of relative-URLs: "/models/cds/1.0.0/model.yaml"
+   * No leading or trailing slashes.
+   *
+   * @example "cds-model"
    */
-  relative_assets: DataCommonAssets;
+  route: string;
   /**
-   * The public URLs of the Data Common's asset locations
-   * stored in their respective GitHub repositories.
-   *
-   * These are fetched and stored during the production build process.
-   *
-   * Examples of public-URLs: "https://raw.githubusercontent.com/..."
+   * The Data Model Navigator configuration for the Data Common.
    */
-  source_assets: DataCommonAssets;
+  config: DataCommonConfig;
 };
 
+/**
+ * The strictly-typed configuration for the Data Model Navigator.
+ *
+ * @TODO The exact requirements of this type are not yet known.
+ */
+type DataCommonConfig = null;
+
+/**
+ * The Data Commons assets file.
+ * This is a JSON file that contains asset details for data models.
+ * It is maintained in a CRDC Hub repository.
+ *
+ * @see TODO
+ */
 type DataCommonAssets = {
+  [key in DataCommon["name"]]: DataCommonAsset;
+};
+
+/**
+ * The type definition for the Data Commons assets file.
+ *
+ * Imported dynamically from a CRDC Hub maintained repository.
+ */
+type DataCommonAsset = {
   /**
-   * The URL of the Data Common's model.
+   * The file name of the Data Model file.
    *
-   * @example "/models/cds/1.0.0/model.yaml"
-   * @example "https://raw.githubusercontent.com/.../model.yaml"
+   * @example "cds-model.yaml"
    */
-  model: string;
+  "model-file": string;
   /**
-   * The URL of the Data Common's model props.
+   * The file name of the Data Model properties file.
    *
-   * @example "/models/cds/1.0.0/model-props.yaml"
-   * @example "https://raw.githubusercontent.com/.../model-props.yaml"
+   * @example "cds-model-props.yaml"
    */
-  props: string;
+  "prop-file": string;
   /**
-   * The URL of the Data Common's model readme.
+   * The file name of the Data Model README file.
    *
-   * @example "/models/cds/1.0.0/README.md"
-   * @example "https://raw.githubusercontent.com/.../README.md"
+   * @example "cds-model-readme.md"
+   * @example "README.md"
    */
-  readme: string;
+  "readme-file": string;
+  /**
+   * The most-recent version of the Data Model to import
+   *
+   * @example "1.0"
+   */
+  "current-version": string | number;
+  /**
+   * The full list of Data Model versions.
+   * Includes the most-recent version as well.
+   *
+   * @example ["1.0", "1.1", "1.3"]
+   */
+  "versions": string[] | number[];
 };
