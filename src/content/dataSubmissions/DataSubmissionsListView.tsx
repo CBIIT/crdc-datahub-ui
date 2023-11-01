@@ -21,6 +21,7 @@ import { mutation as CREATE_SUBMISSION, Response as CreateSubmissionResp } from 
 import SelectInput from "../../components/Questionnaire/SelectInput";
 import TextInput from "../../components/Questionnaire/TextInput";
 import GenericAlert from '../../components/GenericAlert';
+import { DataCommons } from '../../config/DataCommons';
 
 type T = Submission;
 
@@ -561,7 +562,7 @@ const ListingView: FC = () => {
           <form ref={createSubmissionDialogFormRef}>
             <TextInput value={user.organization?.orgName} label="Organization" readOnly />
             <SelectInput
-              options={[{ label: "CDS", value: "CDS" }, { label: "CCDI", value: "CCDI" }]}
+              options={DataCommons.map((dc) => ({ label: dc.name, value: dc.name }))}
               label="Data Commons"
               required
               value={dataCommons}

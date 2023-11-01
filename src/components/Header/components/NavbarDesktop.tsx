@@ -505,10 +505,10 @@ const NavBar = () => {
             )}
       </NavContainer>
       <Dropdown ref={dropdownSelection} className={(clickedTitle === '') ? "invisible" : ""}>
-        <DropdownContainer>
+        <NameDropdownContainer>
           <div className="dropdownList">
             {
-              (clickedTitle !== "" && !authData.isLoggedIn && clickedTitle !== displayName)
+              (clickedTitle !== "" && clickedTitle !== displayName)
                 ? navbarSublists[clickedTitle]?.map((dropItem, idx) => {
                   const dropkey = `drop_${idx}`;
                   return (
@@ -524,7 +524,7 @@ const NavBar = () => {
                 : null
               }
           </div>
-        </DropdownContainer>
+        </NameDropdownContainer>
       </Dropdown>
       <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== displayName ? "invisible" : ""}>
         <NameDropdownContainer>
