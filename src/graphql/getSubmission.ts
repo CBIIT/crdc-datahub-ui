@@ -1,17 +1,20 @@
 import gql from "graphql-tag";
 
 export const query = gql`
-  query getDataSubmission($id: ID!) {
-    getDataSubmission(_id: $id) {
+  query getSubmission($id: ID!) {
+    getSubmission(_id: $id) {
       _id
       name
       submitterID
       submitterName
-      organization
+      organization {
+        _id
+        name
+      }
       dataCommons
       modelVersion
       studyAbbreviation
-      dbGapID
+      dbGaPID
       bucketName
       rootPath
       status
@@ -20,17 +23,15 @@ export const query = gql`
           reviewComment
           dateTime
           userID
-          __typename
       }
-      concierge
+      conciergeName
       conciergeEmail
       createdAt
       updatedAt
-      __typename
     }
   }
 `;
 
 export type Response = {
-  getDataSubmission: Submission;
+  getSubmission: Submission;
 };

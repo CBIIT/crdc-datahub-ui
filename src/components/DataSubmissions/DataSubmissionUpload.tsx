@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+import { useMutation } from "@apollo/client";
+import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import {
+  AlertColor,
   Stack,
   Typography,
   styled,
 } from "@mui/material";
 import RadioInput from "./RadioInput";
+import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
+import { useAuthContext } from "../Contexts/AuthContext";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -102,18 +107,36 @@ const VisuallyHiddenInput = styled("input")(() => ({
   display: "none !important",
 }));
 
+const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
+
 type UploadType = "New" | "Update";
 
 type Props = {
-  onUpload: (message: string) => void;
+  submitterID: string;
   readOnly?: boolean;
+  onUpload: (message: string, severity: AlertColor) => void;
 };
 
-const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
+const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
+  const { submissionId } = useParams();
+  const { user } = useAuthContext();
+
   const [uploadType, setUploadType] = useState<UploadType>("New");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetatadataInputRef = useRef<HTMLInputElement>(null);
+  const isSubmissionOwner = submitterID === user?._id;
+  const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
+
+  const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [updateBatch] = useMutation<UpdateBatchResp>(UPDATE_BATCH, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
 
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
@@ -132,6 +155,9 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
   });
 
   const handleChooseFilesClick = () => {
+    if (!canUpload) {
+      return;
+    }
     uploadMetatadataInputRef?.current?.click();
   };
 
@@ -145,20 +171,108 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
     setSelectedFiles(files);
   };
 
-  const handleUploadFiles = () => {
+  const createNewBatch = async (): Promise<NewBatch> => {
     if (!selectedFiles?.length) {
+      return null;
+    }
+
+    try {
+      const formattedFiles: FileInput[] = Array.from(selectedFiles)?.map((file) => ({ fileName: file.name, size: file.size }));
+      const { data: batch, errors } = await createBatch({
+        variables: {
+          submissionID: submissionId,
+          type: "metadata",
+          metadataIntention: "New",
+          files: formattedFiles,
+        }
+      });
+
+      if (errors) {
+        throw new Error("Unexpected network error");
+      }
+
+      return batch?.createBatch;
+    } catch (err) {
+      // Unable to initiate upload process so all failed
+      onUploadFail(selectedFiles?.length);
+      return null;
+    }
+  };
+
+  const handleUploadFiles = async () => {
+    if (!selectedFiles?.length || !canUpload) {
       return;
     }
 
-    // Simulate uploading files
     setIsUploading(true);
-    setTimeout(() => {
-      setSelectedFiles(null);
-      setIsUploading(false);
-      if (typeof onUpload === "function") {
-        onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully uploaded`);
+    const newBatch: NewBatch = await createNewBatch();
+    if (!newBatch) {
+      return;
+    }
+
+    const uploadResult: UploadResult[] = [];
+
+    const uploadPromises = newBatch.files?.map(async (file: FileURL) => {
+      const selectedFile: File = Array.from(selectedFiles).find((f) => f.name === file.fileName);
+      try {
+        const res = await fetch(file.signedURL, {
+          method: "PUT",
+          body: selectedFile,
+          headers: {
+            'Content-Type': 'text/tab-separated-values',
+          }
+        });
+        if (!res.ok) {
+          throw new Error("Unexpected network error");
+        }
+        uploadResult.push({ fileName: file.fileName, succeeded: true, errors: null });
+      } catch (err) {
+        uploadResult.push({ fileName: file.fileName, succeeded: false, errors: err?.toString() });
       }
-    }, 3500);
+    });
+
+    // Wait for all uploads to finish
+    await Promise.all(uploadPromises);
+    onBucketUpload(newBatch._id, uploadResult);
+  };
+
+  const onBucketUpload = async (batchID: string, files: UploadResult[]) => {
+    let failedFilesCount = 0;
+    files?.forEach((file) => {
+      if (!file.succeeded) {
+        failedFilesCount++;
+      }
+    });
+
+    try {
+      const { errors } = await updateBatch({
+        variables: {
+          batchID,
+          files
+        }
+      });
+
+      if (errors) {
+        throw new Error("Unexpected network error");
+      }
+      if (failedFilesCount > 0) {
+        onUploadFail(failedFilesCount);
+        return;
+      }
+      // Batch upload completed successfully
+      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully uploaded`, "success");
+      setIsUploading(false);
+      setSelectedFiles(null);
+    } catch (err) {
+      // Unable to let BE know of upload result so all fail
+      onUploadFail(selectedFiles?.length);
+    }
+  };
+
+  const onUploadFail = (fileCount = 0) => {
+    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to upload`, "error");
+    setSelectedFiles(null);
+    setIsUploading(false);
   };
 
   return (
@@ -179,7 +293,7 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
         <VisuallyHiddenInput
           ref={uploadMetatadataInputRef}
           type="file"
-            /* accept="text/tab-separated-values" */
+          accept="text/tab-separated-values"
           onChange={handleChooseFiles}
           readOnly={readOnly}
           multiple
@@ -187,7 +301,7 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
         <StyledChooseFilesButton
           variant="outlined"
           onClick={handleChooseFilesClick}
-          disabled={readOnly || isUploading}
+          disabled={readOnly || isUploading || !canUpload}
         >
           Choose Files
         </StyledChooseFilesButton>
@@ -199,7 +313,7 @@ const DataSubmissionUpload = ({ onUpload, readOnly }: Props) => {
         variant="contained"
         onClick={handleUploadFiles}
         loading={isUploading}
-        disabled={readOnly || !selectedFiles?.length}
+        disabled={readOnly || !selectedFiles?.length || !canUpload}
         disableElevation
         disableRipple
         disableTouchRipple
