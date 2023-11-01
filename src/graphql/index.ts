@@ -42,6 +42,9 @@ export type { Response as UpdateBatchResp } from './updateBatch';
 export { query as LIST_BATCHES } from "./listBatches";
 export type { Response as ListBatchesResp } from "./listBatches";
 
+export { query as LIST_LOGS } from "./listLogs";
+export type { Response as ListLogsResp } from "./listLogs";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";

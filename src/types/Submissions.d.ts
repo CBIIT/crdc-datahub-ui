@@ -118,3 +118,14 @@ type TempCredentials = {
 };
 
 type SubmissionHistoryEvent = HistoryBase<SubmissionStatus>;
+
+type ListLogFiles = {
+  logFiles: LogFile[]
+};
+
+type LogFile = {
+  fileName: string;
+  uploadType: string; // [metadata, file]
+  downloadUrl: string; // s3 presigned download url of the file
+  fileSize: number // size in byte
+};
