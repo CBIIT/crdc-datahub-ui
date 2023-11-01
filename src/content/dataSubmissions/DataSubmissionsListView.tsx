@@ -21,6 +21,7 @@ import { mutation as CREATE_SUBMISSION, Response as CreateSubmissionResp } from 
 import SelectInput from "../../components/Questionnaire/SelectInput";
 import TextInput from "../../components/Questionnaire/TextInput";
 import GenericAlert from '../../components/GenericAlert';
+import { DataCommons } from '../../config/DataCommons';
 
 type T = Submission;
 
@@ -102,6 +103,7 @@ const StyledTableCell = styled(TableCell)({
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
     padding: "8px 8px",
+    overflowWrap: "anywhere",
   },
   "&:last-of-type": {
     paddingRight: "4px",
@@ -137,7 +139,7 @@ const columns: Column[] = [
   {
     label: "dbGaP ID",
     value: (a) => a.dbGaPID,
-    field: "dbGapID",
+    field: "dbGaPID",
   },
   {
     label: "Status",
@@ -560,7 +562,7 @@ const ListingView: FC = () => {
           <form ref={createSubmissionDialogFormRef}>
             <TextInput value={user.organization?.orgName} label="Organization" readOnly />
             <SelectInput
-              options={[{ label: "CDS", value: "CDS" }, { label: "CCDI", value: "CCDI" }]}
+              options={DataCommons.map((dc) => ({ label: dc.name, value: dc.name }))}
               label="Data Commons"
               required
               value={dataCommons}

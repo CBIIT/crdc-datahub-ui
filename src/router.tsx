@@ -36,7 +36,7 @@ const Login = Loader(lazy(() => import('./content/login/Controller')));
 const Questionnaire = Loader(lazy(() => import('./content/questionnaire/Controller')));
 const DataSubmissions = Loader(lazy(() => import('./content/dataSubmissions/Controller')));
 const Users = Loader(lazy(() => import('./content/users/Controller')));
-const DMN = Loader(lazy(() => import('./content/templates/Controller')));
+const DMN = Loader(lazy(() => import('./content/modelNavigator/Controller')));
 const Organizations = Loader(lazy(() => import('./content/organizations/Controller')));
 
 // Status Pages
@@ -80,7 +80,7 @@ const routes: RouteObject[] = [
         element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
       },
       {
-        path: '/model-navigator',
+        path: '/model-navigator/:dataCommons',
         element: <DMN />
       },
       {

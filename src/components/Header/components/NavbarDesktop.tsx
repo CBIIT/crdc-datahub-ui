@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
 import styled from 'styled-components';
 import { useAuthContext } from '../../Contexts/AuthContext';
 import GenericAlert from '../../GenericAlert';
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
+import APITokenDialog from '../../../content/users/APITokenDialog';
 
 const Nav = styled.div`
     top: 0;
@@ -295,6 +297,13 @@ const NameDropdownContainer = styled.div`
   .dropdownItem:hover {
     text-decoration: underline;
   }
+  .dropdownItemButton {
+    padding-bottom: 0;
+    text-transform: none;
+  }
+  .dropdownItemButton:hover {
+    background: transparent;
+  }
   #navbar-dropdown-item-name-logout {
     max-width: 200px;
   }
@@ -342,7 +351,7 @@ const useOutsideAlerter = (ref1, ref2) => {
     function handleClickOutside(event) {
       if (!event.target || (event.target.getAttribute("class") !== "dropdownList" && ref1.current && !ref1.current.contains(event.target) && ref2.current && !ref2.current.contains(event.target))) {
         const toggle = document.getElementsByClassName("navText clicked");
-        if (toggle[0] && !event.target.getAttribute("class").includes("navText clicked")) {
+        if (toggle[0] && !event.target.getAttribute("class")?.includes("navText clicked")) {
           const temp: HTMLElement = toggle[0] as HTMLElement;
           temp.click();
         }
@@ -358,6 +367,7 @@ const useOutsideAlerter = (ref1, ref2) => {
 
 const NavBar = () => {
   const [clickedTitle, setClickedTitle] = useState("");
+  const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
   const dropdownSelection = useRef(null);
   const nameDropdownSelection = useRef(null);
   const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
@@ -495,10 +505,10 @@ const NavBar = () => {
             )}
       </NavContainer>
       <Dropdown ref={dropdownSelection} className={(clickedTitle === '') ? "invisible" : ""}>
-        <DropdownContainer>
+        <NameDropdownContainer>
           <div className="dropdownList">
             {
-              (clickedTitle !== "" && !authData.isLoggedIn && clickedTitle !== displayName)
+              (clickedTitle !== "" && clickedTitle !== displayName)
                 ? navbarSublists[clickedTitle]?.map((dropItem, idx) => {
                   const dropkey = `drop_${idx}`;
                   return (
@@ -514,7 +524,7 @@ const NavBar = () => {
                 : null
               }
           </div>
-        </DropdownContainer>
+        </NameDropdownContainer>
       </Dropdown>
       <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== displayName ? "invisible" : ""}>
         <NameDropdownContainer>
@@ -538,6 +548,13 @@ const NavBar = () => {
                 </Link>
               </span>
             )}
+            {(authData?.user?.role === "Submitter" || authData?.user?.role === "Organization Owner") && (
+              <span className="dropdownItem">
+                <Button id="navbar-dropdown-item-name-api-token" className="dropdownItem dropdownItemButton" onClick={() => setOpenAPITokenDialog(true)}>
+                  API Token
+                </Button>
+              </span>
+            )}
             <span
               id="navbar-dropdown-item-name-logout"
               role="button"
@@ -556,6 +573,7 @@ const NavBar = () => {
           </div>
         </NameDropdownContainer>
       </NameDropdown>
+      <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
     </Nav>
   );
 };
