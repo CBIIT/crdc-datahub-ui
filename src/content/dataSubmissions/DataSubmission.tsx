@@ -453,7 +453,7 @@ const DataSubmission = () => {
                     onFetchData={handleFetchBatchFiles}
                   />
                 </Stack>
-              ) : <QualityControl />}
+              ) : <QualityControl submitterID={dataSubmission?.submitterID} />}
             </StyledMainContentArea>
           </CardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
