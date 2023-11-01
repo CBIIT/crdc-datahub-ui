@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import {
   Box,
   CircularProgress,
@@ -13,7 +14,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { ElementType, useEffect, useMemo, useState } from "react";
+import { ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useAuthContext } from "../Contexts/AuthContext";
 import PaginationActions from "./PaginationActions";
 
@@ -37,17 +38,25 @@ const StyledTableHead = styled(TableHead)({
   background: "#5C8FA7",
 });
 
+const StyledTableRow = styled(TableRow)({
+  height: "46.59px",
+  minHeight: "46.59px"
+});
+
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
   fontSize: "16px",
   lineHeight: "16px",
   color: "#fff !important",
-  "&.MuiTableCell-root": {
-    padding: "16px",
+  padding: "22px 53px 22px 16px",
+  "&.MuiTableCell-root:first-of-type": {
+    paddingTop: "22px",
+    paddingRight: "16px",
+    paddingBottom: "22px",
     color: "#fff !important",
     verticalAlign: "top",
   },
-  "& .MuiSvgIcon-root,  & .MuiButtonBase-root": {
+  "& .MuiSvgIcon-root, & .MuiButtonBase-root": {
     color: "#fff !important",
   },
 });
@@ -56,7 +65,7 @@ const StyledTableCell = styled(TableCell)({
   fontSize: "16px",
   color: "#083A50 !important",
   borderBottom: "0.5px solid #6B7294",
-  fontFamily: "'Nunito'",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "19.6px",
@@ -110,6 +119,7 @@ export type Column<T> = {
   value: (a: T, user: User) => string | boolean | number | React.ReactNode;
   field?: keyof T;
   default?: true;
+  minWidth?: string;
 };
 
 export type FetchListing<T> = {
@@ -119,13 +129,17 @@ export type FetchListing<T> = {
   orderBy: keyof T;
 };
 
+export type TableMethods = {
+  refresh: () => void;
+};
+
 type Props<T> = {
   columns: Column<T>[];
   data: T[];
   total: number;
   loading?: boolean;
   noContentText?: string;
-  onFetchData?: (params: FetchListing<T>) => void;
+  onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
   onOrderByChange?: (orderBy: Column<T>) => void;
   onPerPageChange?: (perPage: number) => void;
@@ -141,7 +155,7 @@ const DataSubmissionBatchTable = <T,>({
   onOrderChange,
   onOrderByChange,
   onPerPageChange,
-}: Props<T>) => {
+}: Props<T>, ref: React.Ref<TableMethods>) => {
   const { user } = useAuthContext();
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<Column<T>>(
@@ -151,6 +165,16 @@ const DataSubmissionBatchTable = <T,>({
   const [perPage, setPerPage] = useState<number>(10);
 
   useEffect(() => {
+    fetchData();
+  }, [page, perPage, order, orderBy]);
+
+  useImperativeHandle(ref, () => ({
+    refresh: () => {
+      fetchData(true);
+    }
+  }));
+
+  const fetchData = (force = false) => {
     if (!onFetchData) {
       return;
     }
@@ -159,8 +183,8 @@ const DataSubmissionBatchTable = <T,>({
       offset: page * perPage,
       sortDirection: order,
       orderBy: orderBy?.field,
-    });
-  }, [page, perPage, order, orderBy]);
+    }, force);
+  };
 
   const emptyRows = useMemo(() => (page > 0 && total
       ? Math.max(0, (1 + page) * perPage - (total || 0))
@@ -191,11 +215,28 @@ const DataSubmissionBatchTable = <T,>({
 
   return (
     <StyledTableContainer>
+      {loading && (
+        <Box
+          sx={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: "9999",
+          }}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <CircularProgress size={64} disableShrink thickness={3} />
+        </Box>
+      )}
       <Table>
         <StyledTableHead>
           <TableRow>
             {columns.map((col: Column<T>) => (
-              <StyledHeaderCell key={col.label.toString()}>
+              <StyledHeaderCell key={col.label.toString()} sx={{ minWidth: col.minWidth ?? "fit-content" }}>
                 {col.field ? (
                   <TableSortLabel
                     active={orderBy === col}
@@ -212,48 +253,33 @@ const DataSubmissionBatchTable = <T,>({
           </TableRow>
         </StyledTableHead>
         <TableBody>
-          {loading && (
-            <TableRow>
-              <TableCell>
-                <Box
-                  sx={{
-                    position: "absolute",
-                    background: "#fff",
-                    left: 0,
-                    top: 0,
-                    width: "100%",
-                    height: "100%",
-                    zIndex: "9999",
-                  }}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <CircularProgress size={64} disableShrink thickness={3} />
-                </Box>
-              </TableCell>
-            </TableRow>
-          )}
-          {data?.map((d: T) => (
-            <TableRow tabIndex={-1} hover key={d["_id"]}>
-              {columns.map((col: Column<T>) => (
-                <StyledTableCell key={`${d["_id"]}_${col.label}`}>
-                  {col.value(d, user)}
-                </StyledTableCell>
-              ))}
-            </TableRow>
-          ))}
-
-          {/* Fill the difference between perPage and count to prevent height changes */}
-          {emptyRows > 0 && (
-            <TableRow style={{ height: 53 * emptyRows }}>
+          {loading ? Array.from(Array(perPage).keys())?.map((_, idx) => (
+            <StyledTableRow key={`loading_row_${idx}`}>
               <TableCell colSpan={columns.length} />
-            </TableRow>
+            </StyledTableRow>
+          )) : (
+            data?.map((d: T) => (
+              <TableRow tabIndex={-1} hover key={d["_id"]}>
+                {columns.map((col: Column<T>) => (
+                  <StyledTableCell key={`${d["_id"]}_${col.label}`}>
+                    {col.value(d, user)}
+                  </StyledTableCell>
+                ))}
+              </TableRow>
+            ))
+          )}
+
+          {!loading && emptyRows > 0 && (
+            Array.from(Array(emptyRows).keys())?.map((row) => (
+              <StyledTableRow key={`empty_row_${row}`}>
+                <TableCell colSpan={columns.length} />
+              </StyledTableRow>
+            ))
           )}
 
           {/* No content message */}
-          {(!total || total === 0) && (
-            <TableRow style={{ height: 53 * 10 }}>
+          {!loading && (!total || total === 0) && (
+            <TableRow style={{ height: 46 * 10 }}>
               <TableCell colSpan={columns.length}>
                 <Typography
                   variant="h6"
@@ -291,4 +317,6 @@ const DataSubmissionBatchTable = <T,>({
   );
 };
 
-export default DataSubmissionBatchTable;
+const BatchTableWithRef = forwardRef(DataSubmissionBatchTable) as <T>(props: Props<T> & { ref?: React.Ref<TableMethods> }) => ReturnType<typeof DataSubmissionBatchTable>;
+
+export default BatchTableWithRef;

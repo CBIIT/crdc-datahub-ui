@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import {
   Alert,
+  AlertColor,
+  Box,
   Card,
   CardActions,
   CardContent,
@@ -15,11 +17,11 @@ import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
-import { GET_DATA_SUBMISSION_BATCH_FILES, GET_SUBMISSION, GetDataSubmissionBatchFilesResp, GetSubmissionResp } from "../../graphql";
+import { GET_SUBMISSION, GetSubmissionResp, LIST_BATCHES, ListBatchesResp } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert from "../../components/GenericAlert";
 import PieChart from "../../components/DataSubmissions/PieChart";
-import DataSubmissionBatchTable, { Column, FetchListing } from "../../components/DataSubmissions/DataSubmissionBatchTable";
+import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 
@@ -158,17 +160,16 @@ const StyledErrorCount = styled("div")(() => ({
   textDecorationLine: "underline",
 }));
 
-const columns: Column<BatchFile>[] = [
+const columns: Column<Batch>[] = [
   {
-    label: "Batch ID",
-    value: (data) => data?._id,
-    field: "_id",
-    default: true,
+    label: "Upload Type",
+    value: (data) => data?.metadataIntention,
+    field: "metadataIntention",
   },
   {
-    label: "Uploaded Type",
-    value: (data) => data?.uploadType,
-    field: "uploadType",
+    label: "Batch Type",
+    value: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
+    field: "type",
   },
   {
     label: "File Count",
@@ -181,20 +182,27 @@ const columns: Column<BatchFile>[] = [
     field: "status",
   },
   {
-    label: "Last Access Date",
-    value: (data) => (data?.submittedDate ? FormatDate(data.submittedDate, "M-D-YYYY hh:mm A") : ""),
-    field: "submittedDate",
+    label: "Uploaded Date",
+    value: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    field: "createdAt",
+    default: true,
+    minWidth: "240px"
   },
   {
     label: "Error Count",
     value: (data) => (
       <StyledErrorCount>
-        {data.errorCount > 0 ? `${data.errorCount} ${data.errorCount === 1 ? "Error" : "Errors"}` : ""}
+        {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
       </StyledErrorCount>
     ),
-    field: "errorCount",
+    field: "errors",
   },
 ];
+
+type AlertState = {
+  message: string;
+  severity: AlertColor;
+};
 
 const URLTabs = {
   DATA_UPLOAD: "data-upload",
@@ -207,11 +215,13 @@ const DataSubmission = () => {
   const { submissionId, tab } = useParams();
 
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
-  const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
-  const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<BatchFile>>(null);
+  const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
+  const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
+  const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [openAlert, setOpenAlert] = useState<string>(null);
+  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
+  const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
 
   const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
@@ -220,18 +230,18 @@ const DataSubmission = () => {
     fetchPolicy: 'no-cache'
   });
 
-  const [getBatchFiles] = useLazyQuery<GetDataSubmissionBatchFilesResp>(GET_DATA_SUBMISSION_BATCH_FILES, {
-    context: { clientName: 'mockService' },
+  const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
-  const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFile>) => {
+  const handleFetchBatchFiles = async (fetchListing: FetchListing<Batch>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
       setError(true);
       return;
     }
-    if (batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
+    if (!force && batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
       return;
     }
 
@@ -239,22 +249,23 @@ const DataSubmission = () => {
 
     try {
       setLoading(true);
-      const { data: newBatchFiles, error: batchFilesError } = await getBatchFiles({
-        variables: { // TODO: Replace with dynamic variables when real endpoint is created
-          id: "8887654",
-          first: 10,
-          offset: 0,
-          sortDirection: "desc",
-          orderBy: "_id"
+      const { data: newBatchFiles, error: batchFilesError } = await listBatches({
+        variables: {
+          submissionID: submissionId,
+          first,
+          offset,
+          sortDirection,
+          orderBy
         },
-        context: { clientName: 'mockService' },
+        context: { clientName: 'backend' },
         fetchPolicy: 'no-cache'
       });
-      if (batchFilesError || !newBatchFiles?.getDataSubmissionBatchFiles) {
+      if (batchFilesError || !newBatchFiles?.listBatches) {
         setError(true);
         return;
       }
-      setBatchFiles(newBatchFiles.getDataSubmissionBatchFiles.batchFiles);
+      setBatchFiles(newBatchFiles.listBatches.batches);
+      setTotalBatchFiles(newBatchFiles.listBatches.total);
     } catch (err) {
       setError(true);
     } finally {
@@ -278,20 +289,25 @@ const DataSubmission = () => {
     })();
   }, [submissionId]);
 
+  const refreshBatchTable = () => {
+    tableRef.current?.refresh();
+  };
+
   const handleOnDataSubmissionChange = (dataSubmission: Submission) => {
     setDataSubmission(dataSubmission);
   };
 
-  const handleOnUpload = (message: string) => {
-    setOpenAlert(message);
-    setTimeout(() => setOpenAlert(null), 10000);
+  const handleOnUpload = (message: string, severity: AlertColor) => {
+    refreshBatchTable();
+    setChangesAlert({ message, severity });
+    setTimeout(() => setChangesAlert(null), 10000);
   };
 
   return (
     <StyledWrapper>
-      <GenericAlert open={openAlert?.length > 0} key="data-submission-alert">
+      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
         <span>
-          {openAlert}
+          {changesAlert?.message}
         </span>
       </GenericAlert>
       <StyledBanner bannerSrc={bannerSvg} />
@@ -416,13 +432,15 @@ const DataSubmission = () => {
               {tab === URLTabs.DATA_UPLOAD ? (
                 <Stack direction="column" justifyContent="center">
                   <DataSubmissionUpload
-                    onUpload={handleOnUpload}
+                    submitterID={dataSubmission?.submitterID}
                     readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
+                    onUpload={handleOnUpload}
                   />
                   <DataSubmissionBatchTable
+                    ref={tableRef}
                     columns={columns}
                     data={batchFiles || []}
-                    total={batchFiles?.length || 0}
+                    total={totalBatchFiles || 0}
                     loading={loading}
                     onFetchData={handleFetchBatchFiles}
                   />
