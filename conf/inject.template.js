@@ -1,4 +1,4 @@
-/* eslint-disable */ 
+/* eslint-disable */
 window.injectedEnv = {
     NIH_CLIENT_ID: '${NIH_CLIENT_ID}',
     NIH_AUTHORIZE_URL: '${NIH_AUTHORIZE_URL}',
@@ -22,6 +22,7 @@ window.injectedEnv = {
     REACT_APP_NIH_REDIRECT_URL: '${REACT_APP_NIH_REDIRECT_URL}',
     REACT_APP_BACKEND_PUBLIC_API: '${REACT_APP_BACKEND_PUBLIC_API}',
     REACT_APP_AUTH: '${REACT_APP_AUTH}',
+    REACT_APP_DEV_TIER: '${DEV_TIER}',
     PUBLIC_ACCESS: '${PUBLIC_ACCESS}',
     NODE_LEVEL_ACCESS:'${NODE_LEVEL_ACCESS}',
     NODE_LABEL: '${NODE_LABEL}'
