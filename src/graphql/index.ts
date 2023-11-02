@@ -8,6 +8,9 @@ export type { Response as ReopenAppResp } from "./reopenApplication";
 export { mutation as APPROVE_APP } from "./approveApplication";
 export type { Response as ApproveAppResp } from "./approveApplication";
 
+export { mutation as INQUIRE_APP } from "./inquireApplication";
+export type { Response as InquireAppResp } from "./inquireApplication";
+
 export { mutation as REJECT_APP } from "./rejectApplication";
 export type { Response as RejectAppResp } from "./rejectApplication";
 

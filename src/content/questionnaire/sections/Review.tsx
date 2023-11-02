@@ -54,7 +54,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
   const { pi, primaryContact, piAsPrimaryContact, program, study } = data;
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
-  const { saveFormRef, submitFormRef, nextButtonRef, approveFormRef, rejectFormRef, getFormObjectRef } = refs;
+  const { saveFormRef, submitFormRef, nextButtonRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef } = refs;
 
   const [additionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
   const [fundingAgencies] = useState<KeyedFunding[]>(data.study?.funding?.map(mapObjectWithKey) || []);
@@ -77,10 +77,12 @@ const FormSectionReview: FC<FormSectionProps> = ({
 
     if (formMode === "Review") {
       approveFormRef.current.style.display = "initial";
+      inquireFormRef.current.style.display = "initial";
       rejectFormRef.current.style.display = "initial";
       submitFormRef.current.style.display = "none";
     } else {
       approveFormRef.current.style.display = "none";
+      inquireFormRef.current.style.display = "none";
       rejectFormRef.current.style.display = "none";
       submitFormRef.current.style.display = "initial";
     }
