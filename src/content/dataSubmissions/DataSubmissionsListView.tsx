@@ -21,6 +21,7 @@ import { mutation as CREATE_SUBMISSION, Response as CreateSubmissionResp } from 
 import SelectInput from "../../components/Questionnaire/SelectInput";
 import TextInput from "../../components/Questionnaire/TextInput";
 import GenericAlert from '../../components/GenericAlert';
+import { DataCommons } from '../../config/DataCommons';
 
 type T = Submission;
 
@@ -337,7 +338,7 @@ const ListingView: FC = () => {
     setSubmissionName(null);
     setDbgapid(null);
   };
-  const onDialogSubmit = async () => {
+  const onDialogCreate = async () => {
     const valid = createSubmissionDialogFormRef.current.checkValidity();
     if (valid) {
       createSubmission();
@@ -561,7 +562,7 @@ const ListingView: FC = () => {
           <form ref={createSubmissionDialogFormRef}>
             <TextInput value={user.organization?.orgName} label="Organization" readOnly />
             <SelectInput
-              options={[{ label: "CDS", value: "CDS" }, { label: "CCDI", value: "CCDI" }]}
+              options={DataCommons.map((dc) => ({ label: dc.name, value: dc.name }))}
               label="Data Commons"
               required
               value={dataCommons}
@@ -601,16 +602,16 @@ const ListingView: FC = () => {
         <div
           role="button"
           tabIndex={0}
-          id="createSubmissionDialogSubmitButton"
+          id="createSubmissionDialogCreateButton"
           className="dialogButton"
           onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      onDialogSubmit();
+                      onDialogCreate();
                     }
                 }}
-          onClick={() => onDialogSubmit()}
+          onClick={() => onDialogCreate()}
         >
-          <strong>Submit</strong>
+          <strong>Create</strong>
         </div>
         <div className={createSubmissionError ? "createSubmissionError" : "invisible"}>
           Unable to create this data submission. If the problem persists please contact

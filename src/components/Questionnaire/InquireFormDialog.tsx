@@ -21,7 +21,7 @@ type Props = {
   onSubmit?: (reviewComment: string) => void;
 } & DialogProps;
 
-const RejectFormDialog: FC<Props> = ({
+const InquireFormDialog: FC<Props> = ({
   title,
   message,
   disableActions,
@@ -50,7 +50,7 @@ const RejectFormDialog: FC<Props> = ({
     <StyledDialog
       open={open}
       onClose={onClose}
-      title={title || "Reject Submission Request"}
+      title={title || "Request Additional Changes"}
       actions={(
         <>
           <Button onClick={handleOnCancel} disabled={disableActions}>
@@ -62,7 +62,7 @@ const RejectFormDialog: FC<Props> = ({
             disabled={!reviewComment || disableActions}
             autoFocus
           >
-            Confirm to Reject
+            Confirm to move to Inquired
           </LoadingButton>
         </>
       )}
@@ -85,4 +85,4 @@ const RejectFormDialog: FC<Props> = ({
   );
 };
 
-export default RejectFormDialog;
+export default InquireFormDialog;

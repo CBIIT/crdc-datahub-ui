@@ -7,6 +7,7 @@ import {
   Box,
   Card,
   CardActions,
+  CardActionsProps,
   CardContent,
   Container,
   Stack,
@@ -31,6 +32,7 @@ import PieChart from "../../components/DataSubmissions/PieChart";
 import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
+import QualityControl from "./QualityControl";
 
 const dummyChartData = [
   { label: 'Group A', value: 12, color: "#DFC798" },
@@ -118,6 +120,12 @@ const StyledMainContentArea = styled("div")(() => ({
   background: "#FFFFFF",
   minHeight: "300px",
   padding: "21px 40px 0",
+}));
+
+const StyledCardActions = styled(CardActions, {
+  shouldForwardProp: (prop) => prop !== "isVisible"
+})<CardActionsProps & { isVisible: boolean; }>(({ isVisible }) => ({
+  visibility: isVisible ? "visible" : "hidden"
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
@@ -482,15 +490,15 @@ const DataSubmission = () => {
                     onFetchData={handleFetchBatchFiles}
                   />
                 </Stack>
-              ) : null}
+              ) : <QualityControl submitterID={dataSubmission?.submitterID} />}
             </StyledMainContentArea>
           </CardContent>
-          <CardActions>
+          <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
             <DataSubmissionActions
               submission={dataSubmission}
               onAction={updateSubmissionAction}
             />
-          </CardActions>
+          </StyledCardActions>
         </StyledCard>
       </StyledBannerContentContainer>
     </StyledWrapper>

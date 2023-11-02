@@ -18,7 +18,7 @@ import SuspenseLoader from '../../components/SuspenseLoader';
 import { OrgAssignmentMap, OrgRequiredRoles, Roles } from '../../config/AuthRoles';
 import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { formatIDP, getEditableFields } from '../../utils';
-import { DataCommons } from '../../config/Datacommons';
+import { DataCommons } from '../../config/DataCommons';
 
 type Props = {
   _id: User["_id"];
@@ -444,7 +444,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         MenuProps={{ disablePortal: true }}
                         multiple
                       >
-                        {DataCommons.map((dc) => <MenuItem key={dc} value={dc}>{dc}</MenuItem>)}
+                        {DataCommons.map((dc) => <MenuItem key={dc.name} value={dc.name}>{dc.name}</MenuItem>)}
                       </StyledSelect>
                     )}
                   />

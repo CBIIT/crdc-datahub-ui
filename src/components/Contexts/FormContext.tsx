@@ -13,6 +13,7 @@ import {
   GET_APP,
   LAST_APP,
   REJECT_APP,
+  INQUIRE_APP,
   REOPEN_APP,
   REVIEW_APP,
   SAVE_APP,
@@ -20,6 +21,7 @@ import {
   ApproveAppResp,
   GetAppResp,
   LastAppResp,
+  InquireAppResp,
   RejectAppResp,
   ReopenAppResp,
   ReviewAppResp,
@@ -41,6 +43,7 @@ export type ContextState = {
   reopenForm?: () => Promise<string | boolean>;
   reviewForm?: () => Promise<string | boolean>;
   approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
+  inquireForm?: (comment: string) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
   setData?: (Application) => Promise<SetDataReturnType>;
   error?: string;
@@ -135,6 +138,12 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
   });
 
   const [approveApp] = useMutation<ApproveAppResp>(APPROVE_APP, {
+    variables: { id },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const [inquireApp] = useMutation<InquireAppResp>(INQUIRE_APP, {
     variables: { id },
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
@@ -282,6 +291,26 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     return res?.approveApplication?.["_id"] || false;
   };
 
+  // Here we set the form to inquired through the API with a comment
+  const inquireForm = async (comment: string) => {
+    setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
+
+    const { data: res, errors } = await inquireApp({
+      variables: {
+        _id: state?.data["_id"],
+        comment
+      }
+    });
+
+    if (errors) {
+      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
+      return false;
+    }
+
+    setState((prevState) => ({ ...prevState, status: Status.LOADED }));
+    return res?.inquireApplication?.["_id"] || false;
+  };
+
   // Here we reject the form to the API with a comment
   const rejectForm = async (comment: string) => {
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
@@ -424,6 +453,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       setData,
       submitData,
       approveForm,
+      inquireForm,
       rejectForm,
       reviewForm,
       reopenForm,

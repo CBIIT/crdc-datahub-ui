@@ -193,7 +193,8 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
 
       return batch?.createBatch;
     } catch (err) {
-      onUploadFail();
+      // Unable to initiate upload process so all failed
+      onUploadFail(selectedFiles?.length);
       return null;
     }
   };
@@ -226,7 +227,6 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         }
         uploadResult.push({ fileName: file.fileName, succeeded: true, errors: null });
       } catch (err) {
-        onUploadFail();
         uploadResult.push({ fileName: file.fileName, succeeded: false, errors: err?.toString() });
       }
     });
@@ -237,6 +237,13 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   };
 
   const onBucketUpload = async (batchID: string, files: UploadResult[]) => {
+    let failedFilesCount = 0;
+    files?.forEach((file) => {
+      if (!file.succeeded) {
+        failedFilesCount++;
+      }
+    });
+
     try {
       const { errors } = await updateBatch({
         variables: {
@@ -248,17 +255,22 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       if (errors) {
         throw new Error("Unexpected network error");
       }
+      if (failedFilesCount > 0) {
+        onUploadFail(failedFilesCount);
+        return;
+      }
       // Batch upload completed successfully
       onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully uploaded`, "success");
       setIsUploading(false);
       setSelectedFiles(null);
     } catch (err) {
-      onUploadFail();
+      // Unable to let BE know of upload result so all fail
+      onUploadFail(selectedFiles?.length);
     }
   };
 
-  const onUploadFail = () => {
-    onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} failed to upload`, "error");
+  const onUploadFail = (fileCount = 0) => {
+    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to upload`, "error");
     setSelectedFiles(null);
     setIsUploading(false);
   };

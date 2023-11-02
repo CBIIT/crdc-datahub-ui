@@ -67,7 +67,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const {
-    nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef,
+    nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
@@ -77,8 +77,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
     approveFormRef.current.style.display = "none";
+    inquireFormRef.current.style.display = "none";
     rejectFormRef.current.style.display = "none";
-
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
