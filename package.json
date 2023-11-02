@@ -40,10 +40,8 @@
     "typescript": "^5.0.4"
   },
   "scripts": {
-    "postinstall": "node scripts/postInstall.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "postbuild": "rm ./build/models/.gitkeep",
     "test": "TZ=UTC react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint . --ignore-path .gitignore",

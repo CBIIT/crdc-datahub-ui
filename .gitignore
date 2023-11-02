@@ -7,8 +7,6 @@
 /coverage
 
 # production
-/public/models/*
-!/public/models/.gitkeep
 /build
 
 # misc
