@@ -1,7 +1,3 @@
-export const DATA_MODEL = "/models/icdc-model.yml";
-export const DATA_MODEL_PROPS = "/models/icdc-model-props.yml";
-export const DATA_MODEL_README = "/models/icdc-model-readme.md";
-
 const facetFilterSearchData = [
   {
     groupName: 'Category',
@@ -161,7 +157,6 @@ export const pdfDownloadConfig = {
  * Configuration for the "README" button
  */
 export const readMeConfig = {
-  readMeUrl: DATA_MODEL_README,
   readMeTitle: 'Understanding the Data Model',
 };
 
