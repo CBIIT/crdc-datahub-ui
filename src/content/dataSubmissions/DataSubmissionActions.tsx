@@ -125,35 +125,35 @@ type ActionKey = "Submit" | "Release" | "Withdraw" | "SubmittedReject" | "Releas
 
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
-    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"],
+    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
     statuses: ["In Progress"],
   },
   Release: {
-    roles: ["Data Curator", "Admin", "Federal Lead"],
+    roles: ["Data Curator", "Admin"],
     statuses: ["Submitted"],
   },
   Withdraw: {
-    roles: ["Submitter", "Organization Owner", "Federal Lead"],
+    roles: ["Submitter", "Organization Owner"],
     statuses: ["Submitted"],
   },
   SubmittedReject: {
-    roles: ["Data Curator", "Admin", "Federal Lead"],
+    roles: ["Data Curator", "Admin"],
     statuses: ["Submitted"],
   },
   ReleasedReject: {
-    roles: ["Data Commons POC", "Admin", "Federal Lead"],
+    roles: ["Data Commons POC", "Admin"],
     statuses: ["Released"],
   },
   Complete: {
-    roles: ["Data Curator", "Admin", "Federal Lead"],
+    roles: ["Data Curator", "Admin"],
     statuses: ["Released"],
   },
   Cancel: {
-    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"],
+    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
     statuses: ["New", "In Progress"],
   },
   Archive: {
-    roles: ["Data Curator", "Admin", "Federal Lead"],
+    roles: ["Data Curator", "Admin"],
     statuses: ["Completed"],
   },
 };
