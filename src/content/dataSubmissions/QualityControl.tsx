@@ -70,6 +70,7 @@ const QualityControl = ({ submitterID }: Props) => {
 
   const [files, setFiles] = useState<LogFile[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const metadataLogs = files.filter((file) => file.uploadType === "metadata");
   const fileLogs = files.filter((file) => file.uploadType === "file");
@@ -96,40 +97,61 @@ const QualityControl = ({ submitterID }: Props) => {
 
         setFiles(d.listLogs.logFiles);
       } catch (err) {
-        setChangesAlert({
+        updateAlert({
           message: "Unable to retrieve logs",
           severity: "error",
         });
-        if (alertTimeoutRef.current) {
-          clearTimeout(alertTimeoutRef.current);
-        }
-        alertTimeoutRef.current = setTimeout(
-          () => setChangesAlert(null),
-          10000
-        );
       } finally {
         setLoading(false);
       }
     })();
   }, [submissionId, submitterID, user]);
 
-  const downloadFiles = async (uploadType: UploadType) => {
-    const zip = new JSZip();
-    const filesToDownload = files.filter(
-      (file) => file.uploadType === uploadType
-    );
+  const updateAlert = (alert: AlertState) => {
+    if (!alert?.message || !alert?.severity) {
+      return;
+    }
 
-    await Promise.all(
-      filesToDownload.map(async (file) => {
-        const response = await fetch(file.downloadUrl);
-        const blob = await response.blob();
-        zip.file(file.fileName, blob);
-      })
-    );
-
-    zip.generateAsync({ type: "blob" }).then((blob) => {
-      saveAs(blob, `${uploadType}_logs.zip`);
+    setChangesAlert({
+      message: alert.message,
+      severity: alert.severity,
     });
+    if (alertTimeoutRef.current) {
+      clearTimeout(alertTimeoutRef.current);
+    }
+    alertTimeoutRef.current = setTimeout(
+      () => setChangesAlert(null),
+      10000
+    );
+  };
+
+  const downloadFiles = async (uploadType: UploadType) => {
+    try {
+      setIsDownloading(true);
+      const zip = new JSZip();
+      const filesToDownload = files.filter(
+        (file) => file.uploadType === uploadType
+      );
+
+      await Promise.all(
+        filesToDownload.map(async (file) => {
+          const response = await fetch(file.downloadUrl);
+          const blob = await response.blob();
+          zip.file(file.fileName, blob);
+        })
+      );
+
+      zip.generateAsync({ type: "blob" }).then((blob) => {
+        saveAs(blob, `${uploadType}_logs.zip`);
+      });
+    } catch (err) {
+      updateAlert({
+        message: "Unable to download logs",
+        severity: "error",
+      });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -163,7 +185,7 @@ const QualityControl = ({ submitterID }: Props) => {
             </StyledDownloadLabel>
             <StyledDownloadButton
               onClick={() => downloadFiles("file")}
-              loading={loading}
+              loading={loading || isDownloading}
               disabled={!fileLogs?.length}
             >
               Download
@@ -184,7 +206,7 @@ const QualityControl = ({ submitterID }: Props) => {
             </StyledDownloadLabel>
             <StyledDownloadButton
               onClick={() => downloadFiles("metadata")}
-              loading={loading}
+              loading={loading || isDownloading}
               disabled={!metadataLogs?.length}
             >
               Download
