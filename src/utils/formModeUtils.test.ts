@@ -47,16 +47,16 @@ describe('getFormMode tests based on provided requirements', () => {
       expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.EDIT);
     });
 
-    it('should set View Only for User when form is Submitted, In Review, or Approved', () => {
-      const statuses: ApplicationStatus[] = ['Submitted', 'In Review', 'Approved'];
+    it('should set View Only for User when form is Submitted, In Review, Approved, or Rejected', () => {
+      const statuses: ApplicationStatus[] = ['Submitted', 'In Review', 'Approved', 'Rejected'];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.VIEW_ONLY);
       });
     });
 
-    it('should allow User to edit when form status is New or In Progress', () => {
-      const statuses: ApplicationStatus[] = ['New', 'In Progress'];
+    it('should allow User to edit when form status is New, In Progress or Inquired', () => {
+      const statuses: ApplicationStatus[] = ['New', 'In Progress', 'Inquired'];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.EDIT);
@@ -78,16 +78,16 @@ describe('getFormMode tests based on provided requirements', () => {
       expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.EDIT);
     });
 
-    it('should set View Only for Submitter when form is Submitted, In Review, or Approved', () => {
-      const statuses: ApplicationStatus[] = ['Submitted', 'In Review', 'Approved'];
+    it('should set View Only for Submitter when form is Submitted, In Review, Approved, or Rejected', () => {
+      const statuses: ApplicationStatus[] = ['Submitted', 'In Review', 'Approved', 'Rejected'];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.VIEW_ONLY);
       });
     });
 
-    it('should allow Submitter to edit when form status is New or In Progress', () => {
-      const statuses: ApplicationStatus[] = ['New', 'In Progress'];
+    it('should allow Submitter to edit when form status is New, In Progress, or Inquired', () => {
+      const statuses: ApplicationStatus[] = ['New', 'In Progress', 'Inquired'];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.EDIT);
@@ -108,7 +108,7 @@ describe('getFormMode tests based on provided requirements', () => {
     });
 
     it('should set View Only mode for Fed Lead for all other statuses', () => {
-      const statuses: ApplicationStatus[] = ['New', 'Approved', 'In Progress', 'Rejected'];
+      const statuses: ApplicationStatus[] = ['New', 'Approved', 'In Progress', 'Rejected', 'Inquired'];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.VIEW_ONLY);
@@ -126,16 +126,16 @@ describe('getFormMode tests based on provided requirements', () => {
   describe('getFormMode > Org Owner tests', () => {
     const user: User = { ...baseUser, role: "Organization Owner" };
 
-    it('should allow Org Owner to edit their own unsubmitted or rejected forms', () => {
-      const statuses: ApplicationStatus[] = ['New', 'In Progress', 'Rejected'];
+    it('should allow Org Owner to edit their own unsubmitted or inquired forms', () => {
+      const statuses: ApplicationStatus[] = ['New', 'In Progress', 'Inquired'];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.EDIT);
       });
     });
 
-    it('should set View Only for Org Owner when form is Submitted, In Review, or Approved', () => {
-      const statuses: ApplicationStatus[] = ['Submitted', 'In Review', 'Approved'];
+    it('should set View Only for Org Owner when form is Submitted, In Review, Approved, or Rejected', () => {
+      const statuses: ApplicationStatus[] = ['Submitted', 'In Review', 'Approved', 'Rejected'];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.VIEW_ONLY);
@@ -154,7 +154,7 @@ describe('getFormMode tests based on provided requirements', () => {
     const user: User = { ...baseUser, role: 'Admin' };
 
     it('should always set View Only for Admin', () => {
-      const statuses: ApplicationStatus[] = ['New', 'Submitted', 'In Review', 'Approved', 'In Progress', 'Rejected'];
+      const statuses: ApplicationStatus[] = ['New', 'Submitted', 'In Review', 'Approved', 'In Progress', 'Rejected', 'Inquired'];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.VIEW_ONLY);
@@ -172,7 +172,7 @@ describe('getFormMode tests based on provided requirements', () => {
   describe('getFormMode > Other roles tests', () => {
     it('should always set View Only for all other roles', () => {
       const roles: User["role"][] = ['Data Commons POC', "Some other role", "This role doesn't exist"] as unknown as User["role"][];
-      const statuses: ApplicationStatus[] = ['New', 'In Progress', 'Submitted', 'In Review', 'Approved', 'Rejected'];
+      const statuses: ApplicationStatus[] = ['New', 'In Progress', 'Submitted', 'In Review', 'Approved', 'Rejected', 'Inquired'];
 
       roles.forEach((role) => {
         const user: User = { ...baseUser, role };
@@ -180,6 +180,33 @@ describe('getFormMode tests based on provided requirements', () => {
           expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.VIEW_ONLY);
         });
       });
+    });
+  });
+
+  // New Rejected status tests
+  describe('getFormMode > New Rejected status test', () => {
+    it('rejected is a final state, no role should be able to do anything past rejected', () => {
+      const roles: User["role"][] = ['Data Commons POC', "Some other role", "This role doesn't exist"] as unknown as User["role"][];
+      const status: ApplicationStatus = 'Rejected';
+
+      roles.forEach((role) => {
+        const user: User = { ...baseUser, role };
+          expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.VIEW_ONLY);
+      });
+    });
+  });
+
+  // New Inquired status tests
+  describe('getFormMode > New Inquired status test', () => {
+    it('inquired should be read only for Fed Lead but not for the submission request owner', () => {
+      const submission: Application = { ...baseSubmission, status: "Inquired", applicant: { ...baseSubmission.applicant, applicantID: "user-456-another-user" } };
+      const fedLead: User = { ...baseUser, role: "Organization Owner" };
+      const submitterOwner: User = { ...baseUser, role: "Submitter", _id: "user-456-another-user" };
+      const orgOwnerSubmissionOwner: User = { ...baseUser, role: "Organization Owner", _id: "user-456-another-user" };
+
+      expect(utils.getFormMode(fedLead, submission)).toBe(utils.FormModes.VIEW_ONLY);
+      expect(utils.getFormMode(submitterOwner, submission)).toBe(utils.FormModes.EDIT);
+      expect(utils.getFormMode(orgOwnerSubmissionOwner, submission)).toBe(utils.FormModes.EDIT);
     });
   });
 

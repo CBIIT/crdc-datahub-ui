@@ -8,6 +8,9 @@ export type { Response as ReopenAppResp } from "./reopenApplication";
 export { mutation as APPROVE_APP } from "./approveApplication";
 export type { Response as ApproveAppResp } from "./approveApplication";
 
+export { mutation as INQUIRE_APP } from "./inquireApplication";
+export type { Response as InquireAppResp } from "./inquireApplication";
+
 export { mutation as REJECT_APP } from "./rejectApplication";
 export type { Response as RejectAppResp } from "./rejectApplication";
 
@@ -30,9 +33,6 @@ export type { Response as UpdateMyUserResp } from "./updateMyUser";
 export { query as GET_SUBMISSION } from "./getSubmission";
 export type { Response as GetSubmissionResp } from "./getSubmission";
 
-export { query as GET_DATA_SUBMISSION_BATCH_FILES } from "./getDataSubmissionBatchFiles";
-export type { Response as GetDataSubmissionBatchFilesResp } from "./getDataSubmissionBatchFiles";
-
 export { mutation as CREATE_BATCH } from './createBatch';
 export type { Response as CreateBatchResp } from './createBatch';
 
@@ -41,6 +41,9 @@ export type { Response as UpdateBatchResp } from './updateBatch';
 
 export { query as LIST_BATCHES } from "./listBatches";
 export type { Response as ListBatchesResp } from "./listBatches";
+
+export { query as LIST_LOGS } from "./listLogs";
+export type { Response as ListLogsResp } from "./listLogs";
 
 // User Profile
 export { query as GET_USER } from "./getUser";
