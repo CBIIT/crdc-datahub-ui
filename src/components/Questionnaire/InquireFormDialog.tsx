@@ -50,7 +50,7 @@ const InquireFormDialog: FC<Props> = ({
     <StyledDialog
       open={open}
       onClose={onClose}
-      title={title || "Inquire Additional Changes"}
+      title={title || "Request Additional Changes"}
       actions={(
         <>
           <Button onClick={handleOnCancel} disabled={disableActions}>

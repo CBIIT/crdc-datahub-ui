@@ -696,7 +696,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 size="large"
                 onClick={handleInquireForm}
               >
-                Inquire Additional Information
+                Request Additional Information
               </LoadingButton>
               <LoadingButton
                 id="submission-form-reject-button"
