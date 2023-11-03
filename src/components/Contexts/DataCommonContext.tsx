@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import { DataCommons } from '../../config/DataCommons';
-import { fetchManifest } from '../../utils/dataModelUtils';
+import { fetchManifest } from '../../utils';
 
 type LoadingState = {
   status: Status.LOADING;

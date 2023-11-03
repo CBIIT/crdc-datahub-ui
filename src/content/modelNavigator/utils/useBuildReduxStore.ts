@@ -4,7 +4,7 @@ import { ddgraph, moduleReducers as submission, versionInfo, getModelExploreData
 import ReduxThunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from '../../../config/ModelNavigator';
-import { buildAssetUrls, buildBaseFilterContainers, buildFilterOptionsList } from '../../../utils/dataModelUtils';
+import { buildAssetUrls, buildBaseFilterContainers, buildFilterOptionsList } from '../../../utils';
 
 export type Status = "waiting" | "loading" | "error" | "success";
 
