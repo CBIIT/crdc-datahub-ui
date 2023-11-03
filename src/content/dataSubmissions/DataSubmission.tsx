@@ -310,6 +310,19 @@ const DataSubmission = () => {
     }
   };
 
+  const getDataSubmission = async () => {
+    try {
+      const { data: newDataSubmission, error } = await getSubmission();
+      if (error || !newDataSubmission?.getSubmission) {
+        throw new Error("Unable to retrieve Data Submission.");
+        return;
+      }
+      setDataSubmission(newDataSubmission.getSubmission);
+    } catch (err) {
+      setError(err?.toString());
+    }
+  };
+
   useEffect(() => {
     if (!submissionId) {
       setError("Invalid submission ID provided.");
@@ -317,12 +330,7 @@ const DataSubmission = () => {
     }
     (async () => {
       if (!dataSubmission?._id) {
-        const { data: newDataSubmission, error } = await getSubmission();
-        if (error || !newDataSubmission?.getSubmission) {
-          setError("Unable to retrieve Data Submission.");
-          return;
-        }
-        setDataSubmission(newDataSubmission.getSubmission);
+        await getDataSubmission();
       }
     })();
   }, [submissionId]);
@@ -331,14 +339,15 @@ const DataSubmission = () => {
     tableRef.current?.refresh();
   };
 
-  const handleOnUpload = (message: string, severity: AlertColor) => {
+  const handleOnUpload = async (message: string, severity: AlertColor) => {
     refreshBatchTable();
     setChangesAlert({ message, severity });
     setTimeout(() => setChangesAlert(null), 10000);
 
-    const preInProgressStatuses = ["Rejected"];
+    const preInProgressStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected"];
+    // createBatch will update the status to 'In Progress'
     if (preInProgressStatuses.includes(dataSubmission?.status)) {
-      updateSubmissionAction("Resume");
+      await getDataSubmission();
     }
   };
 
