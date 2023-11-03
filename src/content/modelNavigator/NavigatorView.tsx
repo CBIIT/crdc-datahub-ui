@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC } from 'react';
 import { Box } from '@mui/material';
 import { Provider } from 'react-redux';
 import { ReduxDataDictionary } from 'data-model-navigator';
@@ -20,15 +20,12 @@ const ModelNavigator: FC = () => {
   const { status, DataCommon } = useDataCommonContext();
   const [{ status: buildStatus, store },, populate] = useBuildReduxStore();
 
-  useEffect(() => {
-    if (status !== Status.LOADED) {
-      return;
-    }
-
-    populate(DataCommon);
-  }, [DataCommon, status]);
-
   if (status === Status.LOADING || buildStatus === "loading") {
+    return <SuspenseLoader />;
+  }
+
+  if (status === Status.LOADED && buildStatus === "waiting") {
+    populate(DataCommon);
     return <SuspenseLoader />;
   }
 
