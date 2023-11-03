@@ -1,7 +1,5 @@
 import { MODEL_FILE_REPO } from '../config/DataCommons';
-
-// TODO: Read from env
-const tier = "dev2";
+import env from '../env';
 
 /**
  * Fetch the tracked Data Model content manifest.
@@ -14,7 +12,7 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
     return JSON.parse(sessionStorage.getItem("manifest"));
   }
 
-  const response = await fetch(`${MODEL_FILE_REPO}${tier}/content.json`).catch(() => null);
+  const response = await fetch(`${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/content.json`).catch(() => null);
   const parsed = await response?.json() || {};
   if (response && parsed) {
     sessionStorage.setItem("manifest", JSON.stringify(parsed));

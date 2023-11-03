@@ -7,6 +7,7 @@ import {
   filterConfig, graphViewConfig, pdfDownloadConfig, readMeConfig,
 } from '../../../config/ModelNavigator';
 import { MODEL_FILE_REPO } from '../../../config/DataCommons';
+import env from '../../../env';
 
 export type Status = "waiting" | "loading" | "error" | "success";
 
@@ -56,8 +57,7 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
       return;
     }
 
-    // TODO: load from env
-    const tier = "dev2";
+    const tier = env.REACT_APP_DEV_TIER || "prod";
     const ASSET_URLS: { [key: string]: string } = {
       model: `${MODEL_FILE_REPO}${tier}/${datacommon.name}/${datacommon.assets["current-version"]}/${datacommon.assets["model-file"]}`,
       props: `${MODEL_FILE_REPO}${tier}/${datacommon.name}/${datacommon.assets["current-version"]}/${datacommon.assets["prop-file"]}`,
