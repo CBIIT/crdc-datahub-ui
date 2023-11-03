@@ -13,13 +13,13 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
   }
 
   const response = await fetch(`${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/content.json`).catch(() => null);
-  const parsed = await response?.json() || {};
+  const parsed = await response?.json().catch(() => null);
   if (response && parsed) {
     sessionStorage.setItem("manifest", JSON.stringify(parsed));
     return parsed;
   }
 
-  throw new Error("Unable to fetch manifest");
+  throw new Error("Unable to fetch or parse manifest");
 };
 
 /**
@@ -29,9 +29,9 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
  * @returns ModelAssetUrls
  */
 export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
-  model: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc.name}/${dc?.assets["current-version"]}/${dc?.assets["model-file"]}`,
-  props: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc.name}/${dc?.assets["current-version"]}/${dc?.assets["prop-file"]}`,
-  readme: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc.name}/${dc?.assets["current-version"]}/${dc?.assets["readme-file"]}`,
+  model: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.["current-version"]}/${dc?.assets?.["model-file"]}`,
+  props: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.["current-version"]}/${dc?.assets?.["prop-file"]}`,
+  readme: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.["current-version"]}/${dc?.assets?.["readme-file"]}`,
 });
 
 /**
