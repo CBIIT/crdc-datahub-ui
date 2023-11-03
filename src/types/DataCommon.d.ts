@@ -17,15 +17,12 @@ type DataCommon = {
    *   when it's needed.
    */
   assets: ManifestAssets;
+  /**
+   * The Data Model Navigator configuration. This is used to fine-tune
+   * the navigator for a specific Data Common.
+   */
+  configuration: ModelNavigatorConfig;
 };
-
-/**
- * The strictly-typed configuration for the Data Model Navigator.
- * This is used to configure the Data Model Navigator for a specific Data Common.
- *
- * @TODO The exact requirements of this type are not yet known.
- */
-type DataCommonConfig = null;
 
 /**
  * The Data Commons assets file.

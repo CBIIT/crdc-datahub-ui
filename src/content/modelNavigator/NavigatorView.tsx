@@ -3,12 +3,16 @@ import { Box } from '@mui/material';
 import { Provider } from 'react-redux';
 import { ReduxDataDictionary } from 'data-model-navigator';
 import SuspenseLoader from '../../components/SuspenseLoader';
-import { pdfDownloadConfig } from '../../config/ModelNavigator';
 import { Status, useDataCommonContext } from '../../components/Contexts/DataCommonContext';
 import useBuildReduxStore from './utils/useBuildReduxStore';
 
 /**
  * Encapsulates the Data Model Navigator component
+ *
+ * This component handles the following:
+ * - Loading the Data Common assets
+ * - Building the Redux store for the Data Model Navigator
+ * - Rendering the Data Model Navigator
  *
  * @returns {JSX.Element}
  */
@@ -29,13 +33,13 @@ const ModelNavigator: FC = () => {
   }
 
   if (status === Status.ERROR || buildStatus === "error") {
-    throw new Error("Data model navigator is not configured");
+    throw new Error("Unable to build Model Navigator for the selected Data Common");
   }
 
   return (
     <Box sx={{ mt: "40px", }}>
       <Provider store={store}>
-        <ReduxDataDictionary pdfDownloadConfig={pdfDownloadConfig} />
+        <ReduxDataDictionary pdfDownloadConfig={DataCommon.configuration.pdfConfig} />
       </Provider>
     </Box>
   );

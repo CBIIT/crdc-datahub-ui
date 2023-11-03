@@ -3,11 +3,10 @@ import { createStore, applyMiddleware, combineReducers, Store } from 'redux';
 import { ddgraph, moduleReducers as submission, versionInfo, getModelExploreData } from 'data-model-navigator';
 import ReduxThunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
-import {
-  filterConfig, graphViewConfig, pdfDownloadConfig, readMeConfig,
-} from '../../../config/ModelNavigator';
+import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from '../../../config/ModelNavigator';
 import { MODEL_FILE_REPO } from '../../../config/DataCommons';
 import env from '../../../env';
+import { buildBaseFilterContainers, buildFilterOptionsList } from '../../../utils/dataModelUtils';
 
 export type Status = "waiting" | "loading" | "error" | "success";
 
@@ -73,17 +72,29 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
     }
 
     store.dispatch({ type: 'RECEIVE_VERSION_INFO', data: response.version });
-    store.dispatch({ type: 'REACT_FLOW_GRAPH_DICTIONARY', dictionary: response.data, pdfDownloadConfig, graphViewConfig });
+    store.dispatch({
+      type: 'REACT_FLOW_GRAPH_DICTIONARY',
+      dictionary: response.data,
+      pdfDownloadConfig: datacommon.configuration.pdfConfig,
+      graphViewConfig
+    });
     store.dispatch({
       type: 'RECEIVE_DICTIONARY',
       payload: {
         data: response.data,
-        facetfilterConfig: filterConfig,
+        facetfilterConfig: {
+          ...baseConfiguration,
+          facetSearchData: datacommon.configuration.facetFilterSearchData,
+          facetSectionVariables: datacommon.configuration.facetFilterSectionVariables,
+          facetFilterSections: datacommon.configuration.facetFilterSearchData.map((s) => s?.datafield),
+          baseFacetFilters: buildBaseFilterContainers(datacommon),
+          filterOptions: buildFilterOptionsList(datacommon),
+        },
         readMeConfig: {
           readMeUrl: ASSET_URLS.readme,
-          ...readMeConfig,
+          readMeTitle: datacommon.configuration?.readMeTitle || defaultReadMeTitle,
         },
-        pdfDownloadConfig,
+        pdfDownloadConfig: datacommon.configuration.pdfConfig,
         graphViewConfig,
       },
     });
