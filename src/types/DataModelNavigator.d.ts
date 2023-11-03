@@ -19,6 +19,15 @@ type ModelNavigatorConfig = {
   },
 };
 
+/**
+ * This is an object that contains the fully qualified URLs for the Data Model assets.
+ */
+type ModelAssetUrls = {
+  model: string;
+  props: string;
+  readme: string;
+};
+
 type FacetSearchData = {
   [key: string]: unknown;
   datafield: string;

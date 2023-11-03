@@ -4,9 +4,7 @@ import { ddgraph, moduleReducers as submission, versionInfo, getModelExploreData
 import ReduxThunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from '../../../config/ModelNavigator';
-import { MODEL_FILE_REPO } from '../../../config/DataCommons';
-import env from '../../../env';
-import { buildBaseFilterContainers, buildFilterOptionsList } from '../../../utils/dataModelUtils';
+import { buildAssetUrls, buildBaseFilterContainers, buildFilterOptionsList } from '../../../utils/dataModelUtils';
 
 export type Status = "waiting" | "loading" | "error" | "success";
 
@@ -56,16 +54,10 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
       return;
     }
 
-    const tier = env.REACT_APP_DEV_TIER || "prod";
-    const ASSET_URLS: { [key: string]: string } = {
-      model: `${MODEL_FILE_REPO}${tier}/${datacommon.name}/${datacommon.assets["current-version"]}/${datacommon.assets["model-file"]}`,
-      props: `${MODEL_FILE_REPO}${tier}/${datacommon.name}/${datacommon.assets["current-version"]}/${datacommon.assets["prop-file"]}`,
-      readme: `${MODEL_FILE_REPO}${tier}/${datacommon.name}/${datacommon.assets["current-version"]}/${datacommon.assets["readme-file"]}`,
-    };
-
     setStatus("loading");
 
-    const response = await getModelExploreData(ASSET_URLS.model, ASSET_URLS.props);
+    const assets = buildAssetUrls(datacommon);
+    const response = await getModelExploreData(assets.model, assets.props);
     if (!response?.data || !response?.version) {
       setStatus("error");
       return;
@@ -86,12 +78,12 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
           ...baseConfiguration,
           facetSearchData: datacommon.configuration.facetFilterSearchData,
           facetSectionVariables: datacommon.configuration.facetFilterSectionVariables,
-          facetFilterSections: datacommon.configuration.facetFilterSearchData.map((s) => s?.datafield),
-          baseFacetFilters: buildBaseFilterContainers(datacommon),
+          baseFilters: buildBaseFilterContainers(datacommon),
+          filterSections: datacommon.configuration.facetFilterSearchData.map((s) => s?.datafield),
           filterOptions: buildFilterOptionsList(datacommon),
         },
         readMeConfig: {
-          readMeUrl: ASSET_URLS.readme,
+          readMeUrl: assets.readme,
           readMeTitle: datacommon.configuration?.readMeTitle || defaultReadMeTitle,
         },
         pdfDownloadConfig: datacommon.configuration.pdfConfig,

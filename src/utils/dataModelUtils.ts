@@ -23,6 +23,18 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
 };
 
 /**
+ * Builds the asset URLs for the Data Model Navigator to import from
+ *
+ * @param dc The data common to build the asset URLs for
+ * @returns ModelAssetUrls
+ */
+export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
+  model: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc.name}/${dc?.assets["current-version"]}/${dc?.assets["model-file"]}`,
+  props: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc.name}/${dc?.assets["current-version"]}/${dc?.assets["prop-file"]}`,
+  readme: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc.name}/${dc?.assets["current-version"]}/${dc?.assets["readme-file"]}`,
+});
+
+/**
  * Helper function to SAFELY build a set of base filter containers for the Data Model Navigator
  *
  * @example { category: [], uiDisplay: [], ... }
