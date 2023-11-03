@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { ReduxDataDictionary } from 'data-model-navigator';
 import SuspenseLoader from '../../components/SuspenseLoader';
 import { Status, useDataCommonContext } from '../../components/Contexts/DataCommonContext';
-import useBuildReduxStore from './utils/useBuildReduxStore';
+import useBuildReduxStore from './hooks/useBuildReduxStore';
 
 /**
  * Encapsulates the Data Model Navigator component
