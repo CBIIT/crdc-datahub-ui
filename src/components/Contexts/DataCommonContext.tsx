@@ -85,6 +85,11 @@ export const DataCommonProvider: FC<ProviderProps> = ({ DataCommon, children } :
 
   useEffect(() => {
     if (!DataCommon || DataCommons.find((dc) => dc.name === DataCommon) === undefined) {
+      setState({
+        status: Status.ERROR,
+        DataCommon: null,
+        error: new Error("The provided Data Common is not supported"),
+      });
       return;
     }
 
