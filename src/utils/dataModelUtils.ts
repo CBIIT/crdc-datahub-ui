@@ -31,7 +31,9 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
 export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
   model: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.["current-version"]}/${dc?.assets?.["model-file"]}`,
   props: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.["current-version"]}/${dc?.assets?.["prop-file"]}`,
-  readme: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.["current-version"]}/${dc?.assets?.["readme-file"]}`,
+  readme: dc?.assets?.["readme-file"]
+    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.["current-version"]}/${dc?.assets?.["readme-file"]}`
+    : null,
 });
 
 /**

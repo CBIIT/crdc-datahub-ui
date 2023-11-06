@@ -122,6 +122,23 @@ describe('buildAssetUrls cases', () => {
     });
   });
 
+  const readMeValues = ['', null, undefined, false];
+  it.each(readMeValues)('should not include a README URL if the filename is %s', (readme) => {
+    const dc: DataCommon = {
+      name: 'test-name',
+      assets: {
+        'current-version': '1.0',
+        'model-file': 'model-file',
+        'prop-file': 'prop-file',
+        'readme-file': readme,
+      } as ManifestAssets,
+    } as DataCommon;
+
+    const result = utils.buildAssetUrls(dc);
+
+    expect(result.readme).toEqual(null);
+  });
+
   it('should not throw an exception if dealing with invalid data', () => {
     expect(() => utils.buildAssetUrls(null)).not.toThrow();
     expect(() => utils.buildAssetUrls({} as DataCommon)).not.toThrow();
