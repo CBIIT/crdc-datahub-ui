@@ -27,7 +27,6 @@ const makeStore = (): Store => {
  * A hook to build and populate the Redux store with DMN data
  *
  * @params {void}
- * @returns {Status} - the status of the hook
  */
 const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (assets: DataCommon) => void] => {
   const [status, setStatus] = useState<Status>("waiting");
@@ -90,7 +89,7 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
         pdfDownloadConfig: datacommon.configuration.pdfConfig,
         loadingExampleConfig: {
           type: 'static',
-          url: assets.loading,
+          url: assets.loading_file,
         },
         graphViewConfig,
       },

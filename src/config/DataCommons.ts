@@ -23,10 +23,6 @@ export const DataCommons: DataCommon[] = [
         downloadPrefix: 'CDS_',
         footnote: ' ',
         landscape: 'true',
-        catagoryIcon: {
-          url: 'https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/icdc/DMN/Pdf/',
-          type: '.png',
-        },
       },
       // TODO: this is for the ICDC model
       facetFilterSearchData: [

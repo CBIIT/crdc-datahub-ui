@@ -47,7 +47,7 @@ type ModelAssetUrls = {
   /**
    * The URL for the Data Model Loading files zip
    */
-  loading: string;
+  loading_file: string;
 };
 
 type FacetSearchData = {
