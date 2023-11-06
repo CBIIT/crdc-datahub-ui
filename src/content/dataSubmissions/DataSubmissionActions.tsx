@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
-import { Button, Stack, Typography, styled } from "@mui/material";
+import { Button, Stack, TextField, Typography, styled } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
@@ -113,7 +113,12 @@ const StyledCancelText = styled(Typography)({
   lineHeight: "19.6px",
 });
 
-export type ActiveDialog = "Withdraw" | "Reject" | "Complete" | "Cancel";
+const StyledReviewCommentInput = styled(TextField)({
+  width: "100%",
+  marginTop: "16px"
+});
+
+export type ActiveDialog = "Submit" | "Release" | "Withdraw" | "Reject" | "Complete" | "Cancel";
 type UserRole = User["role"];
 
 type ActionConfig = {
@@ -145,7 +150,7 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
     statuses: ["Released"],
   },
   Complete: {
-    roles: ["Data Curator", "Admin"],
+    roles: ["Data Curator", "Admin", "Data Commons POC"],
     statuses: ["Released"],
   },
   Cancel: {
@@ -169,6 +174,12 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
+  const [reviewComment, setReviewComment] = useState("");
+
+  const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const val = event?.target?.value || "";
+    setReviewComment(val);
+  };
 
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
@@ -186,6 +197,7 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
   };
 
   const onCloseDialog = () => {
+    setReviewComment("");
     setCurrentDialog(null);
   };
 
@@ -217,7 +229,7 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
       {canShowAction("Submit") ? (
         <StyledSubmitButton
           variant="contained"
-          onClick={() => handleOnAction("Submit")}
+          onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
           disabled={action && action !== "Submit"} /* TODO: Post MVP2-M2 - Will be disabled if fails validation check */
           disableElevation
@@ -306,6 +318,56 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
         </StyledCancelButton>
       ) : null}
 
+      {/* Submit Dialog */}
+      <StyledDialog
+        open={currentDialog === "Submit"}
+        onClose={onCloseDialog}
+        title="Submit Data Submission"
+        actions={(
+          <>
+            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+            <LoadingButton
+              onClick={() => handleOnAction("Submit")}
+              loading={!!action}
+              color="error"
+              autoFocus
+            >
+              Yes
+            </LoadingButton>
+          </>
+        )}
+      >
+        <StyledCancelText variant="body2">
+          This action will lock your submission and it will no longer accept updates
+          to the data. Are you sure you want to proceed?
+        </StyledCancelText>
+      </StyledDialog>
+
+      {/* Release Dialog */}
+      <StyledDialog
+        open={currentDialog === "Release"}
+        onClose={onCloseDialog}
+        title="Release Data Submission"
+        actions={(
+          <>
+            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+            <LoadingButton
+              onClick={() => handleOnAction("Release")}
+              loading={!!action}
+              color="error"
+              autoFocus
+            >
+              Yes
+            </LoadingButton>
+          </>
+        )}
+      >
+        <StyledCancelText variant="body2">
+          This action will release this submission to data commons and it can no
+          longer accept changes to the data.  Are you sure you want to proceed?
+        </StyledCancelText>
+      </StyledDialog>
+
       {/* Cancel Dialog */}
       <StyledDialog
         open={currentDialog === "Cancel"}
@@ -341,6 +403,7 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
             <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
             <LoadingButton
               onClick={() => handleOnAction("Withdraw")}
+              disabled={!reviewComment?.length}
               loading={!!action}
               color="error"
               autoFocus
@@ -354,6 +417,18 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
           This action will stop the submission process and revert control of the
           submission to you. Are you sure you want to proceed?
         </StyledCancelText>
+        <StyledReviewCommentInput
+          id="submission-actions-withdraw-comment"
+          value={reviewComment}
+          onChange={handleCommentChange}
+          placeholder="500 characters allowed"
+          inputProps={{ maxLength: 500 }}
+          variant="outlined"
+          required
+          minRows={2}
+          maxRows={2}
+          multiline
+        />
       </StyledDialog>
 
       {/* Reject Dialog */}
@@ -376,7 +451,8 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
         )}
       >
         <StyledCancelText variant="body2">
-          This action will reject the submission and return control to the submitter. Are you sure you want to proceed?
+          This action will reject the submission and return control to the submitter.
+          Are you sure you want to proceed?
         </StyledCancelText>
       </StyledDialog>
 
@@ -400,7 +476,8 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
         )}
       >
         <StyledCancelText variant="body2">
-          This action will close out the submission and start close out activities.  Are you sure you want to proceed?
+          This action will close out the submission and start close out activities.
+          Are you sure you want to proceed?
         </StyledCancelText>
       </StyledDialog>
     </StyledActionWrapper>
