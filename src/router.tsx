@@ -26,8 +26,10 @@ const RequireAuth: FC<RequireAuthProps> = ({ component, redirectPath, redirectNa
       navigate("/", { state: { path: redirectPath, name: redirectName } });
     }
   }, [authenticated]);
-
-  return component;
+  if (authenticated) {
+    return component;
+  }
+  return null;
 };
 
 // Pages
