@@ -12,6 +12,14 @@ type ModelNavigatorConfig = {
   readMeTitle?: string,
   pdfConfig?: {
     [key: string]: unknown;
+    /**
+     * Override ALL download file names with this prefix.
+     */
+    downloadPrefix: string;
+    /**
+     * Override default ICDC URL in PDF footers
+     */
+    footnote: string;
   },
   facetFilterSearchData: FacetSearchData[],
   facetFilterSectionVariables: {
@@ -23,9 +31,23 @@ type ModelNavigatorConfig = {
  * This is an object that contains the fully qualified URLs for the Data Model assets.
  */
 type ModelAssetUrls = {
+  /**
+   * The URL to the Data Model file
+   */
   model: string;
+  /**
+   * The URL to the Data Model properties file
+   */
   props: string;
+  /**
+   * The URL to the Data Model README file
+   * If this is null, the README button will not be displayed
+   */
   readme: string;
+  /**
+   * The URL for the Data Model Loading files zip
+   */
+  loading: string;
 };
 
 type FacetSearchData = {

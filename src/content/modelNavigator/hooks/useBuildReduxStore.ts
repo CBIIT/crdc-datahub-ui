@@ -85,8 +85,13 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
         readMeConfig: {
           readMeUrl: assets.readme,
           readMeTitle: datacommon.configuration?.readMeTitle || defaultReadMeTitle,
+          allowDownload: false,
         },
         pdfDownloadConfig: datacommon.configuration.pdfConfig,
+        loadingExampleConfig: {
+          type: 'static',
+          url: assets.loading,
+        },
         graphViewConfig,
       },
     });

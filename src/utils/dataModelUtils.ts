@@ -34,6 +34,9 @@ export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
   readme: dc?.assets?.["readme-file"]
     ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.["current-version"]}/${dc?.assets?.["readme-file"]}`
     : null,
+  loading: dc?.assets?.["loading-file"]
+    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.["current-version"]}/${dc?.assets?.["loading-file"]}`
+    : null,
 });
 
 /**

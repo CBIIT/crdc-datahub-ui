@@ -20,6 +20,8 @@ export const DataCommons: DataCommon[] = [
       pdfConfig: {
         fileType: 'pdf',
         prefix: 'CDS_',
+        downloadPrefix: 'CDS_',
+        footnote: ' ',
         landscape: 'true',
         catagoryIcon: {
           url: 'https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/icdc/DMN/Pdf/',

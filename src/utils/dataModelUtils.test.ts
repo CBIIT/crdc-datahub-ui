@@ -110,6 +110,7 @@ describe('buildAssetUrls cases', () => {
         'model-file': 'model-file',
         'prop-file': 'prop-file',
         'readme-file': 'readme-file',
+        'loading-file': 'loading-file-zip-name',
       } as ManifestAssets,
     } as DataCommon;
 
@@ -119,6 +120,7 @@ describe('buildAssetUrls cases', () => {
       model: `${MODEL_FILE_REPO}prod/test-name/1.0/model-file`,
       props: `${MODEL_FILE_REPO}prod/test-name/1.0/prop-file`,
       readme: `${MODEL_FILE_REPO}prod/test-name/1.0/readme-file`,
+      loading: `${MODEL_FILE_REPO}prod/test-name/1.0/loading-file-zip-name`,
     });
   });
 
