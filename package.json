@@ -47,10 +47,12 @@
     "build": "react-scripts build",
     "postbuild": "rm ./build/models/.gitkeep",
     "test": "TZ=UTC react-scripts test",
+    "test:ci": "TZ=UTC CI=true react-scripts test --passWithNoTests",
     "eject": "react-scripts eject",
     "lint": "eslint . --ignore-path .gitignore",
     "lint:fix": "eslint --fix . --ignore-path .gitignore",
-    "check": "tsc --noEmit"
+    "lint:ci": "eslint . --ignore-path .gitignore --max-warnings 0",
+    "check:ci": "tsc --noEmit"
   },
   "eslintConfig": {
     "extends": [

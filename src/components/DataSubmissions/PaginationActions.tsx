@@ -50,7 +50,7 @@ const StyledPaginationItem = styled(PaginationItem)(({ selected }) => ({
 const PaginationActions = ({
   count,
   page,
-  onChange,
+  // onChange,
   rowsPerPage,
   onPageChange,
 }: TablePaginationProps) => (
