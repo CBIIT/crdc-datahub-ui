@@ -8,7 +8,7 @@ export const DataCommons: DataCommon[] = [
     config: null,
   },
   {
-    name: "CCDI",
+    name: "ICDC",
     route: "icdc",
     config: null,
   },
