@@ -165,16 +165,6 @@ const StyledRejectedStatus = styled("div")(() => ({
   fontWeight: 600
 }));
 
-const StyledErrorCount = styled("div")(() => ({
-  color: "#0D78C5",
-  fontFamily: "Inter",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 600,
-  lineHeight: "25px",
-  textDecorationLine: "underline",
-}));
-
 const columns: Column<Batch>[] = [
   {
     label: "Upload Type",
@@ -203,15 +193,7 @@ const columns: Column<Batch>[] = [
     default: true,
     minWidth: "240px"
   },
-  {
-    label: "Error Count",
-    value: (data) => (
-      <StyledErrorCount>
-        {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
-      </StyledErrorCount>
-    ),
-    field: "errors",
-  },
+  /* TODO: Error Count removed for MVP2-M2. Will be re-added in the future */
 ];
 
 const URLTabs = {
@@ -371,100 +353,7 @@ const DataSubmission = () => {
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
             <StyledChartArea>
-              <Stack direction="row" justifyContent="center" sx={{ width: "960px", textAlign: "center" }}>
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-              </Stack>
+              {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
             </StyledChartArea>
 
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
