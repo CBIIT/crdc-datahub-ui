@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Alert,
   AlertColor,
@@ -18,9 +18,16 @@ import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
-import { GET_SUBMISSION, GetSubmissionResp, LIST_BATCHES, ListBatchesResp } from "../../graphql";
+import {
+  GET_SUBMISSION,
+  LIST_BATCHES,
+  SUBMISSION_ACTION,
+  GetSubmissionResp,
+  ListBatchesResp,
+  SubmissionActionResp,
+} from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
-import GenericAlert from "../../components/GenericAlert";
+import GenericAlert, { AlertState } from "../../components/GenericAlert";
 import PieChart from "../../components/DataSubmissions/PieChart";
 import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
 import { FormatDate } from "../../utils";
@@ -207,11 +214,6 @@ const columns: Column<Batch>[] = [
   },
 ];
 
-type AlertState = {
-  message: string;
-  severity: AlertColor;
-};
-
 const URLTabs = {
   DATA_UPLOAD: "data-upload",
   QUALITY_CONTROL: "quality-control"
@@ -226,7 +228,7 @@ const DataSubmission = () => {
   const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
   const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const tableRef = useRef<TableMethods>(null);
@@ -243,10 +245,15 @@ const DataSubmission = () => {
     fetchPolicy: 'no-cache'
   });
 
+  const [submissionAction] = useMutation<SubmissionActionResp>(SUBMISSION_ACTION, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
   const handleFetchBatchFiles = async (fetchListing: FetchListing<Batch>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
-      setError(true);
+      setError("Invalid submission ID provided.");
       return;
     }
     if (!force && batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
@@ -269,30 +276,61 @@ const DataSubmission = () => {
         fetchPolicy: 'no-cache'
       });
       if (batchFilesError || !newBatchFiles?.listBatches) {
-        setError(true);
+        setError("Unable to retrieve batch data.");
         return;
       }
       setBatchFiles(newBatchFiles.listBatches.batches);
       setTotalBatchFiles(newBatchFiles.listBatches.total);
     } catch (err) {
-      setError(true);
+      setError("Unable to retrieve batch data.");
     } finally {
       setLoading(false);
     }
   };
 
+  const updateSubmissionAction = async (action: SubmissionAction) => {
+    if (!submissionId) {
+      return;
+    }
+
+    try {
+      const { data: d, errors } = await submissionAction({
+        variables: {
+          submissionID: submissionId,
+          action
+        }
+      });
+      if (errors || !d?.submissionAction?._id) {
+        throw new Error(`Error occurred while performing '${action}' submission action.`);
+        return;
+      }
+      setDataSubmission((prevSubmission) => ({ ...prevSubmission, ...d.submissionAction }));
+    } catch (err) {
+      setError(err?.toString());
+    }
+  };
+
+  const getDataSubmission = async () => {
+    try {
+      const { data: newDataSubmission, error } = await getSubmission();
+      if (error || !newDataSubmission?.getSubmission) {
+        throw new Error("Unable to retrieve Data Submission.");
+        return;
+      }
+      setDataSubmission(newDataSubmission.getSubmission);
+    } catch (err) {
+      setError(err?.toString());
+    }
+  };
+
   useEffect(() => {
     if (!submissionId) {
+      setError("Invalid submission ID provided.");
       return;
     }
     (async () => {
       if (!dataSubmission?._id) {
-        const { data: newDataSubmission, error } = await getSubmission();
-        if (error || !newDataSubmission?.getSubmission) {
-          setError(true);
-          return;
-        }
-        setDataSubmission(newDataSubmission.getSubmission);
+        await getDataSubmission();
       }
     })();
   }, [submissionId]);
@@ -301,14 +339,16 @@ const DataSubmission = () => {
     tableRef.current?.refresh();
   };
 
-  const handleOnDataSubmissionChange = (dataSubmission: Submission) => {
-    setDataSubmission(dataSubmission);
-  };
-
-  const handleOnUpload = (message: string, severity: AlertColor) => {
+  const handleOnUpload = async (message: string, severity: AlertColor) => {
     refreshBatchTable();
     setChangesAlert({ message, severity });
     setTimeout(() => setChangesAlert(null), 10000);
+
+    const preInProgressStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected"];
+    // createBatch will update the status to 'In Progress'
+    if (preInProgressStatuses.includes(dataSubmission?.status)) {
+      await getDataSubmission();
+    }
   };
 
   return (
@@ -322,7 +362,13 @@ const DataSubmission = () => {
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCard>
           <CardContent>
-            {error && <StyledAlert severity="error">Oops! An error occurred. Unable to retrieve Data Submission.</StyledAlert>}
+            {error && (
+              <StyledAlert severity="error">
+                Oops! An error occurred.
+                {" "}
+                {error}
+              </StyledAlert>
+            )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
             <StyledChartArea>
               <Stack direction="row" justifyContent="center" sx={{ width: "960px", textAlign: "center" }}>
@@ -458,8 +504,8 @@ const DataSubmission = () => {
           </CardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
             <DataSubmissionActions
-              dataSubmission={dataSubmission}
-              onDataSubmissionChange={handleOnDataSubmissionChange}
+              submission={dataSubmission}
+              onAction={updateSubmissionAction}
             />
           </StyledCardActions>
         </StyledCard>

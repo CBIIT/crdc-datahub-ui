@@ -33,6 +33,9 @@ export type { Response as UpdateMyUserResp } from "./updateMyUser";
 export { query as GET_SUBMISSION } from "./getSubmission";
 export type { Response as GetSubmissionResp } from "./getSubmission";
 
+export { mutation as SUBMISSION_ACTION } from "./submissionAction";
+export type { Response as SubmissionActionResp } from "./submissionAction";
+
 export { mutation as CREATE_BATCH } from './createBatch';
 export type { Response as CreateBatchResp } from './createBatch';
 

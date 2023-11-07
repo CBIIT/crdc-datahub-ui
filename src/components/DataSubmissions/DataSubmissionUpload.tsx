@@ -155,7 +155,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   });
 
   const handleChooseFilesClick = () => {
-    if (!canUpload) {
+    if (!canUpload || readOnly) {
       return;
     }
     uploadMetatadataInputRef?.current?.click();
@@ -212,7 +212,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   };
 
   const handleUploadFiles = async () => {
-    if (!selectedFiles?.length || !canUpload) {
+    if (!selectedFiles?.length || !canUpload || readOnly) {
       return;
     }
 
