@@ -28,18 +28,10 @@ import {
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
-import PieChart from "../../components/DataSubmissions/PieChart";
 import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
-
-const dummyChartData = [
-  { label: 'Group A', value: 12, color: "#DFC798" },
-  { label: 'Group B', value: 28, color: "#137E87" },
-  { label: 'Group C', value: 30, color: "#99A4E4" },
-  { label: 'Group D', value: 30, color: "#CB2809" },
-];
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
