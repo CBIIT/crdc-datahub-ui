@@ -6,7 +6,7 @@ import ErrorBoundary from '../../components/ErrorBoundary';
 
 export default () => (
   <Provider store={store}>
-    <ErrorBoundary errorMessage="Unable to load the Data Submission Templates">
+    <ErrorBoundary errorMessage="Unable to load the Model Navigator">
       <NavigatorView />
     </ErrorBoundary>
   </Provider>

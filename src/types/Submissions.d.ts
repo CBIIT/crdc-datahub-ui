@@ -29,6 +29,16 @@ type SubmissionStatus =
   | "Archived"
   | "Canceled";
 
+type SubmissionAction =
+  | "Submit"
+  | "Release"
+  | "Withdraw"
+  | "Reject"
+  | "Resume" // Rejected => In Progress
+  | "Complete"
+  | "Cancel"
+  | "Archive";
+
 type FileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;
@@ -69,10 +79,12 @@ type BatchStatus = "New" | "Uploaded" | "Upload Failed" | "Loaded" | "Rejected";
 
 type MetadataIntention = "New" | "Update" | "Delete";
 
+type UploadType = "metadata" | "file";
+
 type Batch = {
   _id: string;
   submissionID: string; // parent
-  type: string; // [metadata, file]
+  type: UploadType; // [metadata, file]
   metadataIntention: MetadataIntention; // [New, Update, Delete], Update is meant for "Update or insert", metadata only! file batches are always treated as Update
   fileCount: number; // calculated by BE
   files: BatchFileInfo[];
@@ -97,15 +109,6 @@ type NewBatch = {
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
-type BatchFile = {
-  _id: string;
-  uploadType: string;
-  fileCount: number;
-  status: string;
-  submittedDate: string;
-  errorCount: number;
-};
-
 type ListBatches = {
   total: number;
   batches: Batch[];
@@ -118,3 +121,14 @@ type TempCredentials = {
 };
 
 type SubmissionHistoryEvent = HistoryBase<SubmissionStatus>;
+
+type ListLogFiles = {
+  logFiles: LogFile[]
+};
+
+type LogFile = {
+  fileName: string;
+  uploadType: UploadType; // [metadata, file]
+  downloadUrl: string; // s3 presigned download url of the file
+  fileSize: number // size in byte
+};

@@ -1,6 +1,7 @@
 import Logo from '../assets/header/Portal_Logo.svg';
 import LogoSmall from '../assets/header/Portal_Logo_Small.svg';
 import usaFlagSmall from '../assets/header/us_flag_small.svg';
+import { DataCommons } from './DataCommons';
 
 // globalHeaderLogo image 468x100
 // globalHeaderImage: image 2200x100
@@ -33,10 +34,10 @@ export const navMobileList = [
     className: 'navMobileItem',
   },
   {
-    name: 'Data Submission Templates',
-    link: '/submission-templates',
-    id: 'navbar-dropdown-submission-templates',
-    className: 'navMobileItem',
+    name: 'Model Navigator',
+    link: '#',
+    id: 'navbar-dropdown-model-navigator',
+    className: 'navMobileItem clickable',
   }
 ];
 
@@ -50,4 +51,10 @@ export const navbarSublists = {
   //     className: 'navMobileSubTitle',
   //   },
   // ],
+  "Model Navigator": DataCommons.map((dc) => ({
+    name: `${dc.name} Model`,
+    link: `/model-navigator/${dc.route}`,
+    text: '',
+    className: 'navMobileSubTitle',
+  })),
 };

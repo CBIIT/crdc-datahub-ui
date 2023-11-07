@@ -1,6 +1,6 @@
-export const DATA_MODEL = "models/icdc-model.yml";
-export const DATA_MODEL_PROPS = "models/icdc-model-props.yml";
-export const DATA_MODEL_README = "models/icdc-model-readme.md";
+export const DATA_MODEL = "/models/icdc-model.yml";
+export const DATA_MODEL_PROPS = "/models/icdc-model-props.yml";
+export const DATA_MODEL_README = "/models/icdc-model-readme.md";
 
 const facetFilterSearchData = [
   {
