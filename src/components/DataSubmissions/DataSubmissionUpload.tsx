@@ -155,7 +155,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   });
 
   const handleChooseFilesClick = () => {
-    if (!canUpload) {
+    if (!canUpload || readOnly) {
       return;
     }
     uploadMetatadataInputRef?.current?.click();
@@ -165,10 +165,22 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
     const { files } = event?.target || {};
 
     if (!files) {
+      setSelectedFiles(null);
       return;
     }
 
-    setSelectedFiles(files);
+    // Filter out any file that is not tsv
+    const filteredFiles = Array.from(files)?.filter((file: File) => file.type === "text/tab-separated-values");
+    if (!filteredFiles?.length) {
+      setSelectedFiles(null);
+      return;
+    }
+
+    // Add the files back to a FileList
+    const dataTransfer = new DataTransfer();
+    filteredFiles.forEach((file) => dataTransfer?.items?.add(file));
+
+    setSelectedFiles(dataTransfer?.files);
   };
 
   const createNewBatch = async (): Promise<NewBatch> => {
@@ -200,7 +212,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   };
 
   const handleUploadFiles = async () => {
-    if (!selectedFiles?.length || !canUpload) {
+    if (!selectedFiles?.length || !canUpload || readOnly) {
       return;
     }
 

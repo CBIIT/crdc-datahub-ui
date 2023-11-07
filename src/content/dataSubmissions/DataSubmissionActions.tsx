@@ -106,121 +106,79 @@ const StyledDialog = styled(CustomDialog)({
   },
 });
 
-const StyledCancelText = styled(Typography)({
+const StyledDialogText = styled(Typography)({
   fontWeight: 400,
   fontSize: "16px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   lineHeight: "19.6px",
 });
 
-export type ActiveDialog = "Withdraw" | "Reject" | "Complete" | "Cancel";
+export type ActiveDialog = "Submit" | "Release" | "Withdraw" | "Reject" | "Complete" | "Cancel";
 type UserRole = User["role"];
 
-const SubmitRoles: UserRole[] = ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"];
-const ReleaseRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-const WithdrawRoles: UserRole[] = ["Submitter", "Organization Owner", "Federal Lead"];
-const RejectRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-const CompleteRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-const CancelRoles: UserRole[] = ["Submitter", "Organization Owner", "Data Curator", "Admin", "Federal Lead"];
-const ArchiveRoles: UserRole[] = ["Data Curator", "Admin", "Federal Lead"];
-
-const SubmitStatuses: SubmissionStatus[] = ["In Progress"];
-const ReleaseStatuses: SubmissionStatus[] = ["Submitted"];
-const WithdrawStatuses: SubmissionStatus[] = ["Submitted"];
-const RejectStatuses: SubmissionStatus[] = ["Submitted"];
-const CompleteStatuses: SubmissionStatus[] = ["Released"];
-const CancelStatuses: SubmissionStatus[] = ["New", "In Progress"];
-const ArchiveStatuses: SubmissionStatus[] = ["Completed"];
-
-type DataSubmissionAction =
-  | "Submitting"
-  | "Releasing"
-  | "Withdrawing"
-  | "Rejecting"
-  | "Completing"
-  | "Canceling"
-  | "Archiving";
-
-type Props = {
-  dataSubmission: Submission;
-  onDataSubmissionChange: (dataSubmission: Submission) => void;
+type ActionConfig = {
+  roles: UserRole[];
+  statuses: SubmissionStatus[];
 };
 
-const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props) => {
+type ActionKey = "Submit" | "Release" | "Withdraw" | "SubmittedReject" | "ReleasedReject" | "Complete" | "Cancel" | "Archive";
+
+const actionConfig: Record<ActionKey, ActionConfig> = {
+  Submit: {
+    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
+    statuses: ["In Progress"],
+  },
+  Release: {
+    roles: ["Data Curator", "Admin"],
+    statuses: ["Submitted"],
+  },
+  Withdraw: {
+    roles: ["Submitter", "Organization Owner"],
+    statuses: ["Submitted"],
+  },
+  SubmittedReject: {
+    roles: ["Data Curator", "Admin"],
+    statuses: ["Submitted"],
+  },
+  ReleasedReject: {
+    roles: ["Data Commons POC", "Admin"],
+    statuses: ["Released"],
+  },
+  Complete: {
+    roles: ["Data Curator", "Admin", "Data Commons POC"],
+    statuses: ["Released"],
+  },
+  Cancel: {
+    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
+    statuses: ["New", "In Progress"],
+  },
+  Archive: {
+    roles: ["Data Curator", "Admin"],
+    statuses: ["Completed"],
+  },
+};
+
+type Props = {
+  submission: Submission;
+  onAction: (action: SubmissionAction) => Promise<void>;
+};
+
+const DataSubmissionActions = ({ submission, onAction }: Props) => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
-  const [action, setAction] = useState<DataSubmissionAction | null>(null);
+  const [action, setAction] = useState<SubmissionAction | null>(null);
 
-  const handleOnSubmit = () => {
-    setAction("Submitting");
-    // TODO: Submit the Data Submission
-    setTimeout(() => {
-      onDataSubmissionChange({ ...dataSubmission, status: "Submitted" });
-      onCloseDialog();
-      setAction(null);
-    }, 3500);
-  };
-
-  const handleOnRelease = () => {
-    setAction("Releasing");
-    // TODO: Release the Data Submission
-    setTimeout(() => {
-      onDataSubmissionChange({ ...dataSubmission, status: "Released" });
-      onCloseDialog();
-      setAction(null);
-    }, 3500);
-  };
-
-  const handleOnWithdraw = () => {
-    setAction("Withdrawing");
-    // TODO: Withdraw the Data Submission
-    setTimeout(() => {
-      onDataSubmissionChange({ ...dataSubmission, status: "Withdrawn" });
-      onCloseDialog();
-      setAction(null);
-    }, 3500);
-  };
-
-  const handleOnReject = () => {
-    setAction("Rejecting");
-    // TODO: Reject the Data Submission
-    setTimeout(() => {
-      onDataSubmissionChange({ ...dataSubmission, status: "Rejected" });
-      onCloseDialog();
-      setAction(null);
-    }, 3500);
-  };
-
-  const handleOnComplete = () => {
-    setAction("Completing");
-    // TODO: Reject the Data Submission
-    setTimeout(() => {
-      onDataSubmissionChange({ ...dataSubmission, status: "Completed" });
-      onCloseDialog();
-      setAction(null);
-    }, 3500);
-  };
-
-  const handleOnArchive = () => {
-    setAction("Archiving");
-    // TODO: Archive the Data Submission
-    setTimeout(() => {
-      onDataSubmissionChange({ ...dataSubmission, status: "Archived" });
-      onCloseDialog();
-      setAction(null);
-    }, 3500);
-  };
-
-  const handleOnCancel = () => {
-    setAction("Canceling");
-    // TODO: Cancel the Data Submission
-    setTimeout(() => {
-      onDataSubmissionChange({ ...dataSubmission, status: "Canceled" });
-      onCloseDialog();
-      setAction(null);
-    }, 3500);
+  const handleOnAction = async (action: SubmissionAction) => {
+    if (currentDialog) {
+      setCurrentDialog(null);
+    }
+    setAction(action);
+    if (typeof onAction === "function") {
+      await onAction(action);
+    }
+    setAction(null);
   };
 
   const onOpenDialog = (dialog: ActiveDialog) => {
@@ -234,6 +192,11 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
   const returnToSubmissionList = () => {
     navigate("/data-submissions");
     window.scrollTo(0, 0);
+  };
+
+  const canShowAction = (actionKey: ActionKey) => {
+    const config = actionConfig[actionKey];
+    return config?.statuses?.includes(submission?.status) && config?.roles?.includes(user?.role);
   };
 
   return (
@@ -251,12 +214,12 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
         Back
       </StyledReturnButton>
       {/* Action Buttons */}
-      {SubmitStatuses.includes(dataSubmission?.status) && SubmitRoles.includes(user?.role) ? (
+      {canShowAction("Submit") ? (
         <StyledSubmitButton
           variant="contained"
-          onClick={handleOnSubmit}
-          loading={action === "Submitting"}
-          disabled={action && action !== "Submitting"} /* TODO: Post MVP2-M2 - Will be disabled if fails validation check */
+          onClick={() => onOpenDialog("Submit")}
+          loading={action === "Submit"}
+          disabled={action && action !== "Submit"} /* TODO: Post MVP2-M2 - Will be disabled if fails validation check */
           disableElevation
           disableRipple
           disableTouchRipple
@@ -264,12 +227,12 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
           Submit
         </StyledSubmitButton>
       ) : null}
-      {ReleaseStatuses.includes(dataSubmission?.status) && ReleaseRoles.includes(user?.role) ? (
+      {canShowAction("Release") ? (
         <StyledReleaseButton
           variant="contained"
-          onClick={handleOnRelease}
-          loading={action === "Releasing"}
-          disabled={action && action !== "Releasing"}
+          onClick={() => handleOnAction("Release")}
+          loading={action === "Release"}
+          disabled={action && action !== "Release"}
           disableElevation
           disableRipple
           disableTouchRipple
@@ -277,38 +240,12 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
           Release
         </StyledReleaseButton>
       ) : null}
-      {WithdrawStatuses.includes(dataSubmission?.status) && WithdrawRoles.includes(user?.role) ? (
-        <StyledWithdrawButton
-          variant="contained"
-          onClick={() => onOpenDialog("Withdraw")}
-          loading={action === "Withdrawing"}
-          disabled={action && action !== "Withdrawing"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
-        >
-          Withdraw
-        </StyledWithdrawButton>
-      ) : null}
-      {RejectStatuses.includes(dataSubmission?.status) && RejectRoles.includes(user?.role) ? (
-        <StyledRejectButton
-          variant="contained"
-          onClick={() => onOpenDialog("Reject")}
-          loading={action === "Rejecting"}
-          disabled={action && action !== "Rejecting"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
-        >
-          Reject
-        </StyledRejectButton>
-      ) : null}
-      {CompleteStatuses.includes(dataSubmission?.status) && CompleteRoles.includes(user?.role) ? (
+      {canShowAction("Complete") ? (
         <StyledCompleteButton
           variant="contained"
           onClick={() => onOpenDialog("Complete")}
-          loading={action === "Completing"}
-          disabled={action && action !== "Completing"}
+          loading={action === "Complete"}
+          disabled={action && action !== "Complete"}
           disableElevation
           disableRipple
           disableTouchRipple
@@ -316,12 +253,12 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
           Complete
         </StyledCompleteButton>
       ) : null}
-      {ArchiveStatuses.includes(dataSubmission?.status) && ArchiveRoles.includes(user?.role) ? (
+      {canShowAction("Archive") ? (
         <StyledArchiveButton
           variant="contained"
-          onClick={handleOnArchive}
-          loading={action === "Archiving"}
-          disabled={action && action !== "Archiving"}
+          onClick={() => handleOnAction("Archive")}
+          loading={action === "Archive"}
+          disabled={action && action !== "Archive"}
           disableElevation
           disableRipple
           disableTouchRipple
@@ -329,12 +266,38 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
           Archive
         </StyledArchiveButton>
       ) : null}
-      {CancelStatuses.includes(dataSubmission?.status) && CancelRoles.includes(user?.role) ? (
+      {canShowAction("Withdraw") ? (
+        <StyledWithdrawButton
+          variant="contained"
+          onClick={() => onOpenDialog("Withdraw")}
+          loading={action === "Withdraw"}
+          disabled={action && action !== "Withdraw"}
+          disableElevation
+          disableRipple
+          disableTouchRipple
+        >
+          Withdraw
+        </StyledWithdrawButton>
+      ) : null}
+      {canShowAction("SubmittedReject") || canShowAction("ReleasedReject") ? (
+        <StyledRejectButton
+          variant="contained"
+          onClick={() => onOpenDialog("Reject")}
+          loading={action === "Reject"}
+          disabled={action && action !== "Reject"}
+          disableElevation
+          disableRipple
+          disableTouchRipple
+        >
+          Reject
+        </StyledRejectButton>
+      ) : null}
+      {canShowAction("Cancel") ? (
         <StyledCancelButton
           variant="contained"
           onClick={() => onOpenDialog("Cancel")}
-          loading={action === "Canceling"}
-          disabled={action && action !== "Canceling"}
+          loading={action === "Cancel"}
+          disabled={action && action !== "Cancel"}
           disableElevation
           disableRipple
           disableTouchRipple
@@ -342,6 +305,56 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
           Cancel
         </StyledCancelButton>
       ) : null}
+
+      {/* Submit Dialog */}
+      <StyledDialog
+        open={currentDialog === "Submit"}
+        onClose={onCloseDialog}
+        title="Submit Data Submission"
+        actions={(
+          <>
+            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+            <LoadingButton
+              onClick={() => handleOnAction("Submit")}
+              loading={!!action}
+              color="error"
+              autoFocus
+            >
+              Yes
+            </LoadingButton>
+          </>
+        )}
+      >
+        <StyledDialogText variant="body2">
+          This action will lock your submission and it will no longer accept updates
+          to the data. Are you sure you want to proceed?
+        </StyledDialogText>
+      </StyledDialog>
+
+      {/* Release Dialog */}
+      <StyledDialog
+        open={currentDialog === "Release"}
+        onClose={onCloseDialog}
+        title="Release Data Submission"
+        actions={(
+          <>
+            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+            <LoadingButton
+              onClick={() => handleOnAction("Release")}
+              loading={!!action}
+              color="error"
+              autoFocus
+            >
+              Yes
+            </LoadingButton>
+          </>
+        )}
+      >
+        <StyledDialogText variant="body2">
+          This action will release this submission to data commons and it can no
+          longer accept changes to the data.  Are you sure you want to proceed?
+        </StyledDialogText>
+      </StyledDialog>
 
       {/* Cancel Dialog */}
       <StyledDialog
@@ -352,7 +365,7 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
           <>
             <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
             <LoadingButton
-              onClick={handleOnCancel}
+              onClick={() => handleOnAction("Cancel")}
               loading={!!action}
               color="error"
               autoFocus
@@ -362,10 +375,10 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
           </>
         )}
       >
-        <StyledCancelText variant="body2">
+        <StyledDialogText variant="body2">
           This action will remove this submission and it will no longer be
           accessible. Are you sure you want to proceed?
-        </StyledCancelText>
+        </StyledDialogText>
       </StyledDialog>
 
       {/* Withdraw Dialog */}
@@ -375,22 +388,22 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
         title="Withdraw Data Submission"
         actions={(
           <>
-            <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
             <LoadingButton
-              onClick={handleOnWithdraw}
+              onClick={() => handleOnAction("Withdraw")}
               loading={!!action}
               color="error"
               autoFocus
             >
-              Withdraw
+              Yes
             </LoadingButton>
           </>
         )}
       >
-        <StyledCancelText variant="body2">
-          This action will stop the submission process and revert control of the
-          submission to you. Are you sure you want to proceed?
-        </StyledCancelText>
+        <StyledDialogText variant="body2">
+          This action will halt the data curation process and give control back to you
+          if you wish to update the data within the submission. Are you certain you want to proceed?
+        </StyledDialogText>
       </StyledDialog>
 
       {/* Reject Dialog */}
@@ -400,21 +413,22 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
         title="Reject Data Submission"
         actions={(
           <>
-            <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
             <LoadingButton
-              onClick={handleOnReject}
+              onClick={() => handleOnAction("Reject")}
               loading={!!action}
               color="error"
               autoFocus
             >
-              Reject
+              Yes
             </LoadingButton>
           </>
         )}
       >
-        <StyledCancelText variant="body2">
-          This action will reject the submission and return control to the submitter. Are you sure you want to proceed?
-        </StyledCancelText>
+        <StyledDialogText variant="body2">
+          This action will reject the submission and return control to the submitter.
+          Are you sure you want to proceed?
+        </StyledDialogText>
       </StyledDialog>
 
       {/* Complete Dialog */}
@@ -424,21 +438,22 @@ const DataSubmissionActions = ({ dataSubmission, onDataSubmissionChange }: Props
         title="Complete Data Submission"
         actions={(
           <>
-            <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
             <LoadingButton
-              onClick={handleOnComplete}
+              onClick={() => handleOnAction("Complete")}
               loading={!!action}
               color="error"
               autoFocus
             >
-              Complete
+              Yes
             </LoadingButton>
           </>
         )}
       >
-        <StyledCancelText variant="body2">
-          This action will close out the submission and start close out activities.  Are you sure you want to proceed?
-        </StyledCancelText>
+        <StyledDialogText variant="body2">
+          This action will close out the submission and start close out activities.
+          Are you sure you want to proceed?
+        </StyledDialogText>
       </StyledDialog>
     </StyledActionWrapper>
   );

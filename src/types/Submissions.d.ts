@@ -29,6 +29,16 @@ type SubmissionStatus =
   | "Archived"
   | "Canceled";
 
+type SubmissionAction =
+  | "Submit"
+  | "Release"
+  | "Withdraw"
+  | "Reject"
+  | "Resume" // Rejected => In Progress
+  | "Complete"
+  | "Cancel"
+  | "Archive";
+
 type FileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;

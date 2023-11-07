@@ -118,7 +118,7 @@ export const DataCommons: DataCommon[] = [
     },
   },
   {
-    name: "CCDI",
+    name: "ICDC",
     assets: null,
     configuration: null,
   },
