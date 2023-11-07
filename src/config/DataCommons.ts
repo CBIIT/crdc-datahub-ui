@@ -1,3 +1,5 @@
+import logo from "../assets/modelNavigator/Logo.jpg";
+
 /**
  * The URL of the Data Commons Model Repo
  *
@@ -21,10 +23,10 @@ export const DataCommons: DataCommon[] = [
         fileType: 'pdf',
         prefix: 'CDS_',
         downloadPrefix: 'CDS_',
-        footnote: ' ',
+        iconSrc: logo,
+        footnote: "https://hub.datacommons.cancer.gov/model-navigator/CDS",
         landscape: 'true',
       },
-      // TODO: this is for the ICDC model
       facetFilterSearchData: [
         {
           groupName: 'Category',
@@ -89,7 +91,6 @@ export const DataCommons: DataCommon[] = [
           ],
         },
       ],
-      // TODO: this is for the ICDC model
       facetFilterSectionVariables: {
         'Filter By Nodes': {
           color: '#0D71A3',
