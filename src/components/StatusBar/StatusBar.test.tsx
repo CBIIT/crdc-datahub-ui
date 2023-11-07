@@ -16,6 +16,7 @@ import Approved from './icons/Approved.svg';
 import Rejected from './icons/Rejected.svg';
 import Submitted from './icons/Submitted.svg';
 import UnderReview from './icons/UnderReview.svg';
+import InProgress from './icons/InProgress.svg';
 import { FormatDate } from "../../utils";
 
 type Props = {
@@ -328,22 +329,7 @@ describe("StatusBar > History Modal Tests", () => {
     expect(() => getByTestId("status-bar-history-item-1-icon")).toThrow();
   });
 
-  const noIconStatuses = ["In Progress"];
-  it.each(noIconStatuses)("does not render an icon for status %s", (status) => {
-    const data = {
-      history: [{ dateTime: "2023-11-24T01:25:45Z", status }],
-    };
-
-    const { getByTestId, getByText } = render(<BaseComponent data={data} />);
-
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
-
-    expect(() => getByTestId("status-bar-history-item-0-icon")).toThrow();
-  });
-
-  const statusesWithIcons = [["New", New], ["Submitted", Submitted], ["Approved", Approved], ["Rejected", Rejected], ["In Review", UnderReview]];
+  const statusesWithIcons = [["New", New], ["Submitted", Submitted], ["Approved", Approved], ["Rejected", Rejected], ["In Review", UnderReview], ["In Progress", InProgress]];
   it.each(statusesWithIcons)("renders the correct icon for the status %s", (status, svg) => {
     const data = {
       history: [{ dateTime: "2023-11-24T01:25:45Z", status }],
