@@ -222,53 +222,53 @@ const Dropdown = styled.div`
     // opacity: 0;
 `;
 
-const DropdownContainer = styled.div`
-    margin: 0 auto;
-    text-align: left;
-    position: relative;
-    max-width: 1400px;
+// const DropdownContainer = styled.div`
+//     margin: 0 auto;
+//     text-align: left;
+//     position: relative;
+//     max-width: 1400px;
 
-    .dropdownList {
-      background: #1F4671;
-      display: grid;
-      grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
-      padding: 32px 32px 0 32px;
-    }
-    .dropdownNameList {
-      background: #1F4671;
-      display: flex;
-      flex-direction: column;
-      padding: 32px 32px 0 32px;
-      width: 400px;
-      height: 200px;
-      justify-content: end;
-    }
+//     .dropdownList {
+//       background: #1F4671;
+//       display: grid;
+//       grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
+//       padding: 32px 32px 0 32px;
+//     }
+//     .dropdownNameList {
+//       background: #1F4671;
+//       display: flex;
+//       flex-direction: column;
+//       padding: 32px 32px 0 32px;
+//       width: 400px;
+//       height: 200px;
+//       justify-content: end;
+//     }
 
-    .dropdownItem {
-      padding: 0 10px 52px 10px;
-      text-align: left;
-      font-family: 'Poppins';
-      font-weight: 600;
-      font-style: normal;
-      font-size: 20px;
-      line-height: 110%;
-      color: #FFFFFF;
-      text-decoration: none;
-  }
+//     .dropdownItem {
+//       padding: 0 10px 52px 10px;
+//       text-align: left;
+//       font-family: 'Poppins';
+//       font-weight: 600;
+//       font-style: normal;
+//       font-size: 20px;
+//       line-height: 110%;
+//       color: #FFFFFF;
+//       text-decoration: none;
+//   }
 
-  .dropdownItem:hover {
-    text-decoration: underline;
-  }
+//   .dropdownItem:hover {
+//     text-decoration: underline;
+//   }
 
-  .dropdownItemText {
-    margin-top: 5px;
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16.16px;
-    line-height: 22px;
-  }
-`;
+//   .dropdownItemText {
+//     margin-top: 5px;
+//     font-family: 'Open Sans';
+//     font-style: normal;
+//     font-weight: 400;
+//     font-size: 16.16px;
+//     line-height: 22px;
+//   }
+// `;
 
 const NameDropdownContainer = styled.div`
   margin: 0 auto;
