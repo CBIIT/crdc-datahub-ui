@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
+import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
 import {
@@ -93,20 +94,6 @@ const StyledCard = styled(Card)(() => ({
   },
 }));
 
-const StyledChartArea = styled("div")(() => ({
-  height: "253.42px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  overflow: "visible",
-  "& div": {
-    overflow: "visible",
-    margin: "0 auto",
-    marginLeft: "30px",
-    marginRight: "30px"
-  }
-}));
-
 const StyledMainContentArea = styled("div")(() => ({
   borderRadius: 0,
   background: "#FFFFFF",
@@ -150,6 +137,13 @@ const StyledAlert = styled(Alert)({
 
 const StyledWrapper = styled("div")({
   background: "#FBFDFF",
+});
+
+const StyledCardContent = styled(CardContent)({
+  background: `url(${summaryBannerSvg})`,
+  backgroundSize: "auto",
+  backgroundRepeat: "no-repeat",
+  backgroundPosition: "top",
 });
 
 const StyledRejectedStatus = styled("div")(() => ({
@@ -335,7 +329,7 @@ const DataSubmission = () => {
       <StyledBanner bannerSrc={bannerSvg} />
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCard>
-          <CardContent>
+          <StyledCardContent>
             {error && (
               <StyledAlert severity="error">
                 Oops! An error occurred.
@@ -344,9 +338,8 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
-            <StyledChartArea>
-              {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
-            </StyledChartArea>
+
+            {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
 
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
@@ -382,7 +375,7 @@ const DataSubmission = () => {
                 </Stack>
               ) : <QualityControl submitterID={dataSubmission?.submitterID} />}
             </StyledMainContentArea>
-          </CardContent>
+          </StyledCardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
             <DataSubmissionActions
               submission={dataSubmission}
