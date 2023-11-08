@@ -11,11 +11,13 @@ import { fetchManifest } from '../../utils';
 type LoadingState = {
   status: Status.LOADING;
   DataCommon: null;
+  error: null;
 };
 
 type LoadedState = {
   status: Status.LOADED;
   DataCommon: DataCommon;
+  error: null;
 };
 
 type ErrorState = {
@@ -32,7 +34,7 @@ export enum Status {
   ERROR = "ERROR",
 }
 
-const initialState: ContextState = { status: Status.LOADING, DataCommon: null };
+const initialState: ContextState = { status: Status.LOADING, DataCommon: null, error: null };
 
 /**
  * Data Common Context Provider
@@ -112,6 +114,7 @@ export const DataCommonProvider: FC<ProviderProps> = ({ DataCommon, children } :
           ...DataCommons.find((dc) => dc.name === DataCommon),
           assets: { ...manifest[DataCommon] },
         },
+        error: null,
       });
     })();
   }, [DataCommon]);
