@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
+import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
 import {
@@ -28,18 +29,10 @@ import {
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
-import PieChart from "../../components/DataSubmissions/PieChart";
 import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
-
-const dummyChartData = [
-  { label: 'Group A', value: 12, color: "#DFC798" },
-  { label: 'Group B', value: 28, color: "#137E87" },
-  { label: 'Group C', value: 30, color: "#99A4E4" },
-  { label: 'Group D', value: 30, color: "#CB2809" },
-];
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -101,20 +94,6 @@ const StyledCard = styled(Card)(() => ({
   },
 }));
 
-const StyledChartArea = styled("div")(() => ({
-  height: "253.42px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  overflow: "visible",
-  "& div": {
-    overflow: "visible",
-    margin: "0 auto",
-    marginLeft: "30px",
-    marginRight: "30px"
-  }
-}));
-
 const StyledMainContentArea = styled("div")(() => ({
   borderRadius: 0,
   background: "#FFFFFF",
@@ -160,19 +139,16 @@ const StyledWrapper = styled("div")({
   background: "#FBFDFF",
 });
 
+const StyledCardContent = styled(CardContent)({
+  background: `url(${summaryBannerSvg})`,
+  backgroundSize: "auto",
+  backgroundRepeat: "no-repeat",
+  backgroundPosition: "top",
+});
+
 const StyledRejectedStatus = styled("div")(() => ({
   color: "#E25C22",
   fontWeight: 600
-}));
-
-const StyledErrorCount = styled("div")(() => ({
-  color: "#0D78C5",
-  fontFamily: "Inter",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 600,
-  lineHeight: "25px",
-  textDecorationLine: "underline",
 }));
 
 const columns: Column<Batch>[] = [
@@ -203,15 +179,7 @@ const columns: Column<Batch>[] = [
     default: true,
     minWidth: "240px"
   },
-  {
-    label: "Error Count",
-    value: (data) => (
-      <StyledErrorCount>
-        {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
-      </StyledErrorCount>
-    ),
-    field: "errors",
-  },
+  /* TODO: Error Count removed for MVP2-M2. Will be re-added in the future */
 ];
 
 const URLTabs = {
@@ -361,7 +329,7 @@ const DataSubmission = () => {
       <StyledBanner bannerSrc={bannerSvg} />
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCard>
-          <CardContent>
+          <StyledCardContent>
             {error && (
               <StyledAlert severity="error">
                 Oops! An error occurred.
@@ -370,102 +338,8 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
-            <StyledChartArea>
-              <Stack direction="row" justifyContent="center" sx={{ width: "960px", textAlign: "center" }}>
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-              </Stack>
-            </StyledChartArea>
+
+            {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
 
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
@@ -501,7 +375,7 @@ const DataSubmission = () => {
                 </Stack>
               ) : <QualityControl submitterID={dataSubmission?.submitterID} />}
             </StyledMainContentArea>
-          </CardContent>
+          </StyledCardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
             <DataSubmissionActions
               submission={dataSubmission}
