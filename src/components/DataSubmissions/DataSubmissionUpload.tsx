@@ -280,7 +280,9 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully uploaded`, "success");
       setIsUploading(false);
       setSelectedFiles(null);
-      uploadMetatadataInputRef.current.value = "";
+      if (uploadMetatadataInputRef.current) {
+        uploadMetatadataInputRef.current.value = "";
+      }
     } catch (err) {
       // Unable to let BE know of upload result so all fail
       onUploadFail(selectedFiles?.length);
@@ -291,7 +293,9 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
     onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to upload`, "error");
     setSelectedFiles(null);
     setIsUploading(false);
-    uploadMetatadataInputRef.current.value = "";
+    if (uploadMetatadataInputRef.current) {
+      uploadMetatadataInputRef.current.value = "";
+    }
   };
 
   console.log({ selectedFiles });
