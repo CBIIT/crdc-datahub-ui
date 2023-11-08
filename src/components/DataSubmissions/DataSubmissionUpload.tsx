@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
@@ -165,8 +164,6 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   const handleChooseFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = event?.target || {};
 
-    console.log({ event });
-    console.log({ files });
     if (!files) {
       setSelectedFiles(null);
       return;
@@ -174,7 +171,6 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
 
     // Filter out any file that is not tsv
     const filteredFiles = Array.from(files)?.filter((file: File) => file.name?.toLowerCase()?.endsWith(".tsv"));
-    console.log({ filteredFiles });
     if (!filteredFiles?.length) {
       setSelectedFiles(null);
       return;
@@ -183,7 +179,6 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
     // Add the files back to a FileList
     const dataTransfer = new DataTransfer();
     filteredFiles.forEach((file) => dataTransfer?.items?.add(file));
-    console.log({ dataTransferFiles: dataTransfer?.files });
 
     setSelectedFiles(dataTransfer?.files);
   };
@@ -297,8 +292,6 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       uploadMetatadataInputRef.current.value = "";
     }
   };
-
-  console.log({ selectedFiles });
 
   return (
     <StyledUploadWrapper direction="row" alignItems="center" spacing={1.25}>
