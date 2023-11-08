@@ -170,7 +170,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
     }
 
     // Filter out any file that is not tsv
-    const filteredFiles = Array.from(files)?.filter((file: File) => file.type === "text/tab-separated-values");
+    const filteredFiles = Array.from(files)?.filter((file: File) => file.name?.toLowerCase()?.endsWith(".tsv"));
     if (!filteredFiles?.length) {
       setSelectedFiles(null);
       return;
@@ -275,6 +275,9 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully uploaded`, "success");
       setIsUploading(false);
       setSelectedFiles(null);
+      if (uploadMetatadataInputRef.current) {
+        uploadMetatadataInputRef.current.value = "";
+      }
     } catch (err) {
       // Unable to let BE know of upload result so all fail
       onUploadFail(selectedFiles?.length);
@@ -285,6 +288,9 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
     onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to upload`, "error");
     setSelectedFiles(null);
     setIsUploading(false);
+    if (uploadMetatadataInputRef.current) {
+      uploadMetatadataInputRef.current.value = "";
+    }
   };
 
   return (
