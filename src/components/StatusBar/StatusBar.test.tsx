@@ -9,14 +9,14 @@ import {
   Status as FormStatus,
 } from '../Contexts/FormContext';
 import StatusBar from './StatusBar';
-import StatusApproved from './icons/StatusApproved.svg';
-import StatusRejected from './icons/StatusRejected.svg';
-import New from './icons/New.svg';
-import Approved from './icons/Approved.svg';
-import Rejected from './icons/Rejected.svg';
-import Submitted from './icons/Submitted.svg';
-import UnderReview from './icons/UnderReview.svg';
-import InProgress from './icons/InProgress.svg';
+import StatusApproved from '../../assets/history/submissionRequest/StatusApproved.svg';
+import StatusRejected from '../../assets/history/submissionRequest/StatusRejected.svg';
+import New from '../../assets/history/submissionRequest/New.svg';
+import Approved from '../../assets/history/submissionRequest/Approved.svg';
+import Rejected from '../../assets/history/submissionRequest/Rejected.svg';
+import Submitted from '../../assets/history/submissionRequest/Submitted.svg';
+import UnderReview from '../../assets/history/submissionRequest/UnderReview.svg';
+import InProgress from '../../assets/history/submissionRequest/InProgress.svg';
 import { FormatDate } from "../../utils";
 
 type Props = {
