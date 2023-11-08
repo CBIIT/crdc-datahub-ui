@@ -11,10 +11,10 @@ import {
 import StatusBar from './StatusBar';
 import StatusApproved from '../../assets/history/submissionRequest/StatusApproved.svg';
 import StatusRejected from '../../assets/history/submissionRequest/StatusRejected.svg';
-import New from '../../assets/history/submissionRequest/New.svg';
+import New from '../../assets/history/submissionRequest/SubmissionRequestNew.svg';
 import Approved from '../../assets/history/submissionRequest/Approved.svg';
 import Rejected from '../../assets/history/submissionRequest/Rejected.svg';
-import Submitted from '../../assets/history/submissionRequest/Submitted.svg';
+import Submitted from '../../assets/history/submissionRequest/SubmissionRequestSubmitted.svg';
 import UnderReview from '../../assets/history/submissionRequest/UnderReview.svg';
 import InProgress from '../../assets/history/submissionRequest/InProgress.svg';
 import { FormatDate } from "../../utils";
