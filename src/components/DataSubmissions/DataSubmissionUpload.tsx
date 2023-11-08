@@ -244,7 +244,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
     });
 
     // Wait for all uploads to finish
-    await Promise.all(uploadPromises);
+    await Promise.allSettled(uploadPromises);
     onBucketUpload(newBatch._id, uploadResult);
   };
 
