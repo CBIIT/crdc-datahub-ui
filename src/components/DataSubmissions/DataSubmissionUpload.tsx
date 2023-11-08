@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
