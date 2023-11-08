@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useFormContext } from "../../Contexts/FormContext";
-import { StatusIconMap } from "../icons";
+import { StatusIconMap } from "../../../assets/history/submissionRequest";
 import { FormatDate, SortHistory } from "../../../utils";
 
 const StyledAvatar = styled(Avatar)({

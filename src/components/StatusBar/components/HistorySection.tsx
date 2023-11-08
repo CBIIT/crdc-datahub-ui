@@ -18,7 +18,7 @@ import {
 } from "@mui/lab";
 import { styled } from "@mui/material/styles";
 import { useFormContext } from "../../Contexts/FormContext";
-import { HistoryIconMap } from "../icons";
+import { HistoryIconMap } from "../../../assets/history/submissionRequest";
 import { FormatDate, SortHistory } from "../../../utils";
 
 const StyledDate = styled("span")({
