@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
 import { useParams } from "react-router-dom";
 import { Stack, Typography, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
@@ -119,39 +117,46 @@ const QualityControl = ({ submitterID }: Props) => {
     if (alertTimeoutRef.current) {
       clearTimeout(alertTimeoutRef.current);
     }
-    alertTimeoutRef.current = setTimeout(
-      () => setChangesAlert(null),
-      10000
-    );
+    alertTimeoutRef.current = setTimeout(() => setChangesAlert(null), 10000);
   };
 
   const downloadFiles = async (uploadType: UploadType) => {
-    try {
-      setIsDownloading(true);
-      const zip = new JSZip();
-      const filesToDownload = files.filter(
-        (file) => file.uploadType === uploadType
-      );
+    setIsDownloading(true);
 
-      await Promise.all(
-        filesToDownload.map(async (file) => {
-          const response = await fetch(file.downloadUrl);
-          const blob = await response.blob();
-          zip.file(file.fileName, blob);
-        })
-      );
-
-      zip.generateAsync({ type: "blob" }).then((blob) => {
-        saveAs(blob, `${uploadType}_logs.zip`);
+    const downloadPromises = files
+      .filter((file) => file.uploadType === uploadType)
+      .map(async (file) => {
+        const fileName = file.fileName || `${uploadType}_logs`;
+        try {
+          const res = await fetch(file.downloadUrl);
+          if (!res?.ok) {
+            throw new Error("Unexpected network error");
+          }
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        } catch (error) {
+          throw new Error(error);
+        }
       });
-    } catch (err) {
+
+    const results = await Promise.allSettled(downloadPromises);
+    const errors = results?.filter((result) => result.status === 'rejected');
+
+    if (errors?.length > 0) {
       updateAlert({
-        message: "Unable to download logs",
+        message: `Failed to download ${errors.length} log(s)`,
         severity: "error",
       });
-    } finally {
-      setIsDownloading(false);
     }
+
+    setIsDownloading(false);
   };
 
   return (
