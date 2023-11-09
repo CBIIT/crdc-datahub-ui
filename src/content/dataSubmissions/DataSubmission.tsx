@@ -30,9 +30,17 @@ import {
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
 import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
+import PieChart from '../../components/DataSubmissions/PieChart';
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
+
+const dummyChartData = [
+  { label: 'Group A', value: 12, color: "#DFC798" },
+  { label: 'Group B', value: 28, color: "#137E87" },
+  { label: 'Group C', value: 30, color: "#99A4E4" },
+  { label: 'Group D', value: 30, color: "#CB2809" },
+];
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -99,6 +107,20 @@ const StyledMainContentArea = styled("div")(() => ({
   background: "#FFFFFF",
   minHeight: "300px",
   padding: "21px 40px 0",
+}));
+
+const StyledChartArea = styled("div")(() => ({
+  height: "253.42px",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  overflow: "visible",
+  "& div": {
+    overflow: "visible",
+    margin: "0 auto",
+    marginLeft: "30px",
+    marginRight: "30px"
+  }
 }));
 
 const StyledCardActions = styled(CardActions, {
@@ -339,7 +361,102 @@ const DataSubmission = () => {
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
 
-            {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
+            <StyledChartArea>
+              <Stack direction="row" justifyContent="center" sx={{ width: "960px", textAlign: "center" }}>
+                <PieChart
+                  label="Study"
+                  series={[
+                    {
+                      innerRadius: 40,
+                      outerRadius: 55,
+                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
+                    },
+                    {
+                      innerRadius: 55,
+                      outerRadius: 75,
+                      data: dummyChartData,
+                      highlighted: { additionalRadius: 5 },
+                      highlightScope: { faded: 'none', highlighted: 'item' },
+                    },
+                  ]}
+                  margin={{ right: 5 }}
+                  width={150}
+                  height={150}
+                  legend={{ hidden: true }}
+                  tooltip={{ trigger: 'none' }}
+                  sx={{ rotate: "270deg", overflow: "visible" }}
+                />
+                <PieChart
+                  label="Study"
+                  series={[
+                    {
+                      innerRadius: 40,
+                      outerRadius: 55,
+                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
+                    },
+                    {
+                      innerRadius: 55,
+                      outerRadius: 75,
+                      data: dummyChartData,
+                      highlighted: { additionalRadius: 5 },
+                      highlightScope: { faded: 'none', highlighted: 'item' },
+                    },
+                  ]}
+                  margin={{ right: 5 }}
+                  width={150}
+                  height={150}
+                  legend={{ hidden: true }}
+                  tooltip={{ trigger: 'none' }}
+                  sx={{ rotate: "270deg", overflow: "visible" }}
+                />
+                <PieChart
+                  label="Study"
+                  series={[
+                    {
+                      innerRadius: 40,
+                      outerRadius: 55,
+                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
+                    },
+                    {
+                      innerRadius: 55,
+                      outerRadius: 75,
+                      data: dummyChartData,
+                      highlighted: { additionalRadius: 5 },
+                      highlightScope: { faded: 'none', highlighted: 'item' },
+                    },
+                  ]}
+                  margin={{ right: 5 }}
+                  width={150}
+                  height={150}
+                  legend={{ hidden: true }}
+                  tooltip={{ trigger: 'none' }}
+                  sx={{ rotate: "270deg", overflow: "visible" }}
+                />
+                <PieChart
+                  label="Study"
+                  series={[
+                    {
+                      innerRadius: 40,
+                      outerRadius: 55,
+                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
+                    },
+                    {
+                      innerRadius: 55,
+                      outerRadius: 75,
+                      data: dummyChartData,
+                      highlighted: { additionalRadius: 5 },
+                      highlightScope: { faded: 'none', highlighted: 'item' },
+                    },
+                  ]}
+                  margin={{ right: 5 }}
+                  width={150}
+                  height={150}
+                  legend={{ hidden: true }}
+                  tooltip={{ trigger: 'none' }}
+                  sx={{ rotate: "270deg", overflow: "visible" }}
+                />
+              </Stack>
+            </StyledChartArea>
 
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
