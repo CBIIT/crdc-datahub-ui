@@ -18,6 +18,7 @@ import map, { InitialSections } from '../../config/SectionConfig';
 import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
 import SubmitFormDialog from '../../components/Questionnaire/SubmitFormDialog';
 import useFormMode from './sections/hooks/useFormMode';
+import InquireFormDialog from '../../components/Questionnaire/InquireFormDialog';
 import RejectFormDialog from '../../components/Questionnaire/RejectFormDialog';
 import ApproveFormDialog from '../../components/Questionnaire/ApproveFormDialog';
 import PageBanner from '../../components/PageBanner';
@@ -83,12 +84,13 @@ type AlertState = {
  */
 const FormView: FC<Props> = ({ section, classes } : Props) => {
   const navigate = useNavigate();
-  const { status, data, setData, submitData, approveForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
+  const { status, data, setData, submitData, approveForm, inquireForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
   const { user, status: authStatus } = useAuthContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
   const [openSubmitDialog, setOpenSubmitDialog] = useState<boolean>(false);
   const [openApproveDialog, setOpenApproveDialog] = useState<boolean>(false);
+  const [openInquireDialog, setOpenInquireDialog] = useState<boolean>(false);
   const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const { formMode, readOnlyInputs } = useFormMode();
@@ -112,6 +114,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     submitFormRef: createRef<HTMLButtonElement>(),
     nextButtonRef: createRef<HTMLButtonElement>(),
     approveFormRef: createRef<HTMLButtonElement>(),
+    inquireFormRef: createRef<HTMLButtonElement>(),
     rejectFormRef: createRef<HTMLButtonElement>(),
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
@@ -140,7 +143,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
       return;
     }
-    if (!hasReopenedFormRef.current && data?.status === "Rejected" && formMode === "Edit") {
+    if (!hasReopenedFormRef.current && data?.status === "Inquired" && formMode === "Edit") {
       handleReopenForm();
       hasReopenedFormRef.current = true;
     }
@@ -245,10 +248,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   /**
-   * submit the review response to the form submission to the database.
+   * submit the approval comment from the form submission to the database.
    *
-   *
-   * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
+   * @returns {Promise<boolean>} true if the approval submission was successful, false otherwise
    */
   const submitApproveForm = async (reviewComment): Promise<string | boolean> => {
     if (formMode !== "Review") {
@@ -276,12 +278,12 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   };
 
   /**
-   * submit the review response to the form submission to the database.
+   * submit the inquire comment from the form submission to the database.
    *
    *
-   * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
+   * @returns {Promise<boolean>} true if the inquire submission was successful, false otherwise
    */
-  const submitRejectForm = async (reviewComment: string): Promise<string | boolean> => {
+  const submitInquireForm = async (reviewComment: string): Promise<string | boolean> => {
     if (formMode !== "Review") {
       return false;
     }
@@ -292,20 +294,49 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     }
 
     try {
-      const res = await rejectForm(reviewComment);
-      setOpenRejectDialog(false);
+      const res = await inquireForm(reviewComment);
+      setOpenInquireDialog(false);
       navigate('/submissions');
       setHasError(false);
       return res;
     } catch (err) {
-      setOpenRejectDialog(false);
+      setOpenInquireDialog(false);
       setHasError(true);
       return false;
     }
   };
 
+    /**
+   * submit the reject comment from the form submission to the database.
+   *
+   *
+   * @returns {Promise<boolean>} true if the reject submission was successful, false otherwise
+   */
+    const submitRejectForm = async (reviewComment: string): Promise<string | boolean> => {
+      if (formMode !== "Review") {
+        return false;
+      }
+      const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+
+      if (!ref?.current || !newData) {
+        return false;
+      }
+
+      try {
+        const res = await rejectForm(reviewComment);
+        setOpenRejectDialog(false);
+        navigate('/submissions');
+        setHasError(false);
+        return res;
+      } catch (err) {
+        setOpenRejectDialog(false);
+        setHasError(true);
+        return false;
+      }
+    };
+
   /**
-   * Reopen the form when it has already been rejected
+   * Reopen the form when it has already been inquired
    * and the user wants to retry submission
    *
    *
@@ -516,15 +547,25 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     setOpenApproveDialog(true);
   };
 
+  const handleInquireForm = () => {
+    if (formMode !== "Review") {
+      return;
+    }
+    setOpenInquireDialog(true);
+  };
+
   const handleRejectForm = () => {
     if (formMode !== "Review") {
       return;
     }
     setOpenRejectDialog(true);
   };
-
   const handleCloseApproveFormDialog = () => {
     setOpenApproveDialog(false);
+  };
+
+  const handleCloseInquireFormDialog = () => {
+    setOpenInquireDialog(false);
   };
 
   const handleCloseRejectFormDialog = () => {
@@ -571,7 +612,7 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
       <PageBanner
         title="Submission Request Form"
-        subTitle="The following set of high-level questions are intended to provide insight to the CRDC Data Hub, related to data storage, access, secondary sharing needs and other requirements of data submitters."
+        subTitle="The following set of high-level questions are intended to provide insight to the CRDC, related to data storage, access, secondary sharing needs and other requirements of data submitters."
         bannerSrc={bannerPng}
       />
 
@@ -648,7 +689,17 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 Approve
               </LoadingButton>
               <LoadingButton
-                id="submission-form-approve-button"
+                id="submission-form-inquire-button"
+                className={classes.inquireButton}
+                variant="outlined"
+                ref={refs.inquireFormRef}
+                size="large"
+                onClick={handleInquireForm}
+              >
+                Request Additional Information
+              </LoadingButton>
+              <LoadingButton
+                id="submission-form-reject-button"
                 className={classes.rejectButton}
                 variant="outlined"
                 ref={refs.rejectFormRef}
@@ -692,6 +743,11 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
         open={openApproveDialog}
         onCancel={handleCloseApproveFormDialog}
         onSubmit={(reviewComment) => submitApproveForm(reviewComment)}
+      />
+      <InquireFormDialog
+        open={openInquireDialog}
+        onCancel={handleCloseInquireFormDialog}
+        onSubmit={(reviewComment) => submitInquireForm(reviewComment)}
       />
       <RejectFormDialog
         open={openRejectDialog}
@@ -774,6 +830,12 @@ const styles = () => ({
     "&.MuiButton-root": {
       borderColor: "#26B893",
       background: "#22A584"
+    }
+  },
+  inquireButton: {
+    "&.MuiButton-root": {
+      borderColor: "#26B893",
+      background: "#D54309"
     }
   },
   rejectButton: {

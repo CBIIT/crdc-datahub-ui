@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Alert,
+  AlertColor,
+  Box,
   Card,
   CardActions,
+  CardActionsProps,
   CardContent,
   Container,
   Stack,
@@ -13,22 +16,23 @@ import {
 } from "@mui/material";
 import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
+import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
-import { GET_DATA_SUBMISSION_BATCH_FILES, GET_SUBMISSION, GetDataSubmissionBatchFilesResp, GetSubmissionResp } from "../../graphql";
+import {
+  GET_SUBMISSION,
+  LIST_BATCHES,
+  SUBMISSION_ACTION,
+  GetSubmissionResp,
+  ListBatchesResp,
+  SubmissionActionResp,
+} from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
-import GenericAlert from "../../components/GenericAlert";
-import PieChart from "../../components/DataSubmissions/PieChart";
-import DataSubmissionBatchTable, { Column, FetchListing } from "../../components/DataSubmissions/DataSubmissionBatchTable";
+import GenericAlert, { AlertState } from "../../components/GenericAlert";
+import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
-
-const dummyChartData = [
-  { label: 'Group A', value: 12, color: "#DFC798" },
-  { label: 'Group B', value: 28, color: "#137E87" },
-  { label: 'Group C', value: 30, color: "#99A4E4" },
-  { label: 'Group D', value: 30, color: "#CB2809" },
-];
+import QualityControl from "./QualityControl";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -90,25 +94,17 @@ const StyledCard = styled(Card)(() => ({
   },
 }));
 
-const StyledChartArea = styled("div")(() => ({
-  height: "253.42px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  overflow: "visible",
-  "& div": {
-    overflow: "visible",
-    margin: "0 auto",
-    marginLeft: "30px",
-    marginRight: "30px"
-  }
-}));
-
 const StyledMainContentArea = styled("div")(() => ({
   borderRadius: 0,
   background: "#FFFFFF",
   minHeight: "300px",
   padding: "21px 40px 0",
+}));
+
+const StyledCardActions = styled(CardActions, {
+  shouldForwardProp: (prop) => prop !== "isVisible"
+})<CardActionsProps & { isVisible: boolean; }>(({ isVisible }) => ({
+  visibility: isVisible ? "visible" : "hidden"
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
@@ -143,32 +139,28 @@ const StyledWrapper = styled("div")({
   background: "#FBFDFF",
 });
 
+const StyledCardContent = styled(CardContent)({
+  background: `url(${summaryBannerSvg})`,
+  backgroundSize: "auto",
+  backgroundRepeat: "no-repeat",
+  backgroundPosition: "top",
+});
+
 const StyledRejectedStatus = styled("div")(() => ({
   color: "#E25C22",
   fontWeight: 600
 }));
 
-const StyledErrorCount = styled("div")(() => ({
-  color: "#0D78C5",
-  fontFamily: "Inter",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 600,
-  lineHeight: "25px",
-  textDecorationLine: "underline",
-}));
-
-const columns: Column<BatchFile>[] = [
+const columns: Column<Batch>[] = [
   {
-    label: "Batch ID",
-    value: (data) => data?._id,
-    field: "_id",
-    default: true,
+    label: "Upload Type",
+    value: (data) => data?.metadataIntention,
+    field: "metadataIntention",
   },
   {
-    label: "Uploaded Type",
-    value: (data) => data?.uploadType,
-    field: "uploadType",
+    label: "Batch Type",
+    value: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
+    field: "type",
   },
   {
     label: "File Count",
@@ -181,19 +173,13 @@ const columns: Column<BatchFile>[] = [
     field: "status",
   },
   {
-    label: "Last Access Date",
-    value: (data) => (data?.submittedDate ? FormatDate(data.submittedDate, "M-D-YYYY hh:mm A") : ""),
-    field: "submittedDate",
+    label: "Uploaded Date",
+    value: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    field: "createdAt",
+    default: true,
+    minWidth: "240px"
   },
-  {
-    label: "Error Count",
-    value: (data) => (
-      <StyledErrorCount>
-        {data.errorCount > 0 ? `${data.errorCount} ${data.errorCount === 1 ? "Error" : "Errors"}` : ""}
-      </StyledErrorCount>
-    ),
-    field: "errorCount",
-  },
+  /* TODO: Error Count removed for MVP2-M2. Will be re-added in the future */
 ];
 
 const URLTabs = {
@@ -207,11 +193,13 @@ const DataSubmission = () => {
   const { submissionId, tab } = useParams();
 
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
-  const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
-  const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<BatchFile>>(null);
-  const [error, setError] = useState(false);
+  const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
+  const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
+  const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [openAlert, setOpenAlert] = useState<string>(null);
+  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
+  const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
 
   const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
@@ -220,18 +208,23 @@ const DataSubmission = () => {
     fetchPolicy: 'no-cache'
   });
 
-  const [getBatchFiles] = useLazyQuery<GetDataSubmissionBatchFilesResp>(GET_DATA_SUBMISSION_BATCH_FILES, {
-    context: { clientName: 'mockService' },
+  const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
-  const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFile>) => {
+  const [submissionAction] = useMutation<SubmissionActionResp>(SUBMISSION_ACTION, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const handleFetchBatchFiles = async (fetchListing: FetchListing<Batch>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
-      setError(true);
+      setError("Invalid submission ID provided.");
       return;
     }
-    if (batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
+    if (!force && batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
       return;
     }
 
@@ -239,163 +232,114 @@ const DataSubmission = () => {
 
     try {
       setLoading(true);
-      const { data: newBatchFiles, error: batchFilesError } = await getBatchFiles({
-        variables: { // TODO: Replace with dynamic variables when real endpoint is created
-          id: "8887654",
-          first: 10,
-          offset: 0,
-          sortDirection: "desc",
-          orderBy: "_id"
+      const { data: newBatchFiles, error: batchFilesError } = await listBatches({
+        variables: {
+          submissionID: submissionId,
+          first,
+          offset,
+          sortDirection,
+          orderBy
         },
-        context: { clientName: 'mockService' },
+        context: { clientName: 'backend' },
         fetchPolicy: 'no-cache'
       });
-      if (batchFilesError || !newBatchFiles?.getDataSubmissionBatchFiles) {
-        setError(true);
+      if (batchFilesError || !newBatchFiles?.listBatches) {
+        setError("Unable to retrieve batch data.");
         return;
       }
-      setBatchFiles(newBatchFiles.getDataSubmissionBatchFiles.batchFiles);
+      setBatchFiles(newBatchFiles.listBatches.batches);
+      setTotalBatchFiles(newBatchFiles.listBatches.total);
     } catch (err) {
-      setError(true);
+      setError("Unable to retrieve batch data.");
     } finally {
       setLoading(false);
     }
   };
 
+  const updateSubmissionAction = async (action: SubmissionAction) => {
+    if (!submissionId) {
+      return;
+    }
+
+    try {
+      const { data: d, errors } = await submissionAction({
+        variables: {
+          submissionID: submissionId,
+          action
+        }
+      });
+      if (errors || !d?.submissionAction?._id) {
+        throw new Error(`Error occurred while performing '${action}' submission action.`);
+        return;
+      }
+      setDataSubmission((prevSubmission) => ({ ...prevSubmission, ...d.submissionAction }));
+    } catch (err) {
+      setError(err?.toString());
+    }
+  };
+
+  const getDataSubmission = async () => {
+    try {
+      const { data: newDataSubmission, error } = await getSubmission();
+      if (error || !newDataSubmission?.getSubmission) {
+        throw new Error("Unable to retrieve Data Submission.");
+        return;
+      }
+      setDataSubmission(newDataSubmission.getSubmission);
+    } catch (err) {
+      setError(err?.toString());
+    }
+  };
+
   useEffect(() => {
     if (!submissionId) {
+      setError("Invalid submission ID provided.");
       return;
     }
     (async () => {
       if (!dataSubmission?._id) {
-        const { data: newDataSubmission, error } = await getSubmission();
-        if (error || !newDataSubmission?.getSubmission) {
-          setError(true);
-          return;
-        }
-        setDataSubmission(newDataSubmission.getSubmission);
+        await getDataSubmission();
       }
     })();
   }, [submissionId]);
 
-  const handleOnDataSubmissionChange = (dataSubmission: Submission) => {
-    setDataSubmission(dataSubmission);
+  const refreshBatchTable = () => {
+    tableRef.current?.refresh();
   };
 
-  const handleOnUpload = (message: string) => {
-    setOpenAlert(message);
-    setTimeout(() => setOpenAlert(null), 10000);
+  const handleOnUpload = async (message: string, severity: AlertColor) => {
+    refreshBatchTable();
+    setChangesAlert({ message, severity });
+    setTimeout(() => setChangesAlert(null), 10000);
+
+    const preInProgressStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected"];
+    // createBatch will update the status to 'In Progress'
+    if (preInProgressStatuses.includes(dataSubmission?.status)) {
+      await getDataSubmission();
+    }
   };
 
   return (
     <StyledWrapper>
-      <GenericAlert open={openAlert?.length > 0} key="data-submission-alert">
+      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
         <span>
-          {openAlert}
+          {changesAlert?.message}
         </span>
       </GenericAlert>
       <StyledBanner bannerSrc={bannerSvg} />
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCard>
-          <CardContent>
-            {error && <StyledAlert severity="error">Oops! An error occurred. Unable to retrieve Data Submission.</StyledAlert>}
+          <StyledCardContent>
+            {error && (
+              <StyledAlert severity="error">
+                Oops! An error occurred.
+                {" "}
+                {error}
+              </StyledAlert>
+            )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
-            <StyledChartArea>
-              <Stack direction="row" justifyContent="center" sx={{ width: "960px", textAlign: "center" }}>
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-              </Stack>
-            </StyledChartArea>
+
+            {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
 
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
@@ -416,26 +360,28 @@ const DataSubmission = () => {
               {tab === URLTabs.DATA_UPLOAD ? (
                 <Stack direction="column" justifyContent="center">
                   <DataSubmissionUpload
-                    onUpload={handleOnUpload}
+                    submitterID={dataSubmission?.submitterID}
                     readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
+                    onUpload={handleOnUpload}
                   />
                   <DataSubmissionBatchTable
+                    ref={tableRef}
                     columns={columns}
                     data={batchFiles || []}
-                    total={batchFiles?.length || 0}
+                    total={totalBatchFiles || 0}
                     loading={loading}
                     onFetchData={handleFetchBatchFiles}
                   />
                 </Stack>
-              ) : null}
+              ) : <QualityControl submitterID={dataSubmission?.submitterID} />}
             </StyledMainContentArea>
-          </CardContent>
-          <CardActions>
+          </StyledCardContent>
+          <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
             <DataSubmissionActions
-              dataSubmission={dataSubmission}
-              onDataSubmissionChange={handleOnDataSubmissionChange}
+              submission={dataSubmission}
+              onAction={updateSubmissionAction}
             />
-          </CardActions>
+          </StyledCardActions>
         </StyledCard>
       </StyledBannerContentContainer>
     </StyledWrapper>

@@ -21,6 +21,7 @@ import { mutation as CREATE_SUBMISSION, Response as CreateSubmissionResp } from 
 import SelectInput from "../../components/Questionnaire/SelectInput";
 import TextInput from "../../components/Questionnaire/TextInput";
 import GenericAlert from '../../components/GenericAlert';
+import { DataCommons } from '../../config/DataCommons';
 
 type T = Submission;
 
@@ -102,6 +103,7 @@ const StyledTableCell = styled(TableCell)({
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
     padding: "8px 8px",
+    overflowWrap: "anywhere",
   },
   "&:last-of-type": {
     paddingRight: "4px",
@@ -137,7 +139,7 @@ const columns: Column[] = [
   {
     label: "dbGaP ID",
     value: (a) => a.dbGaPID,
-    field: "dbGapID",
+    field: "dbGaPID",
   },
   {
     label: "Status",
@@ -266,12 +268,12 @@ const ListingView: FC = () => {
 
   // Only org owners/submitters with organizations assigned can create data submissions
   const orgOwnerOrSubmitter = (user?.role === "Organization Owner" || user?.role === "Submitter");
-  const hasOrganizationAssigned = (user?.organization !== null && user.organization.orgID !== null);
+  const hasOrganizationAssigned = (user?.organization !== null && user?.organization?.orgID !== null);
   const shouldHaveAllFilter = (user?.role === "Admin" || user?.role === "Federal Lead" || user?.role === "Data Curator" || user?.role === "Data Commons POC");
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
-  const [dataCommons, setDataCommons] = useState<string>(null);
+  const [dataCommons, setDataCommons] = useState<string>("CDS");
   const [study, setStudy] = useState<string>("All");
   const [dbgapid, setDbgapid] = useState<string>(null);
   const [createSubmissionError, setCreateSubmissionError] = useState<boolean>(false);
@@ -302,7 +304,7 @@ const ListingView: FC = () => {
       offset: page * perPage,
       sortDirection: order.toUpperCase(),
       orderBy: orderBy.field,
-      organization: (organizationFilter !== "All" ? allOrganizations?.listOrganizations?.find((org) => org.name === organizationFilter)._id : "All"),
+      organization: (organizationFilter !== "All" ? allOrganizations?.listOrganizations?.find((org) => org.name === organizationFilter)?._id : "All"),
       status: statusFilter,
     },
     context: { clientName: 'backend' },
@@ -331,12 +333,12 @@ const ListingView: FC = () => {
   };
   const onCreateSubmissionButtonClick = async () => {
     setCreatingSubmission(true);
-    setDataCommons(null);
+    setDataCommons("CDS");
     setStudy(null);
     setSubmissionName(null);
     setDbgapid(null);
   };
-  const onDialogSubmit = async () => {
+  const onDialogCreate = async () => {
     const valid = createSubmissionDialogFormRef.current.checkValidity();
     if (valid) {
       createSubmission();
@@ -560,7 +562,7 @@ const ListingView: FC = () => {
           <form ref={createSubmissionDialogFormRef}>
             <TextInput value={user.organization?.orgName} label="Organization" readOnly />
             <SelectInput
-              options={[{ label: "CDS", value: "CDS" }]}
+              options={DataCommons.map((dc) => ({ label: dc.name, value: dc.name }))}
               label="Data Commons"
               required
               value={dataCommons}
@@ -600,16 +602,16 @@ const ListingView: FC = () => {
         <div
           role="button"
           tabIndex={0}
-          id="createSubmissionDialogSubmitButton"
+          id="createSubmissionDialogCreateButton"
           className="dialogButton"
           onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      onDialogSubmit();
+                      onDialogCreate();
                     }
                 }}
-          onClick={() => onDialogSubmit()}
+          onClick={() => onDialogCreate()}
         >
-          <strong>Submit</strong>
+          <strong>Create</strong>
         </div>
         <div className={createSubmissionError ? "createSubmissionError" : "invisible"}>
           Unable to create this data submission. If the problem persists please contact

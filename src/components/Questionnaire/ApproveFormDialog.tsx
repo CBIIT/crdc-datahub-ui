@@ -50,7 +50,7 @@ const ApproveFormDialog: FC<Props> = ({
     <StyledDialog
       open={open}
       onClose={onClose}
-      title={title || "Approve Application"}
+      title={title || "Approve Submission Request"}
       actions={(
         <>
           <Button onClick={handleOnCancel} disabled={disableActions}>

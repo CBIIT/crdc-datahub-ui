@@ -69,3 +69,8 @@ type EditOrganizationInput = {
   studies: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">[];
   status: Organization["status"];
 };
+
+type Tokens = {
+  tokens: string[];
+  message: string;
+};
