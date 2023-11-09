@@ -48,7 +48,7 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
    * @param datacommon The Data Model to inject assets from
    */
   const populateStore = async (datacommon: DataCommon) => {
-    if (!datacommon?.name || !datacommon?.assets || !datacommon?.assets["current-version"]) {
+    if (!datacommon?.name || !datacommon?.assets || !datacommon?.assets["current-version"] || !datacommon.configuration?.pdfConfig) {
       setStatus("error");
       return;
     }

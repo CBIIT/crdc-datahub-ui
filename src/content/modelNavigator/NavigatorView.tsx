@@ -29,14 +29,14 @@ const ModelNavigator: FC = () => {
     return <SuspenseLoader />;
   }
 
-  if (status === Status.ERROR || buildStatus === "error") {
+  if (!DataCommon || status === Status.ERROR || buildStatus === "error") {
     throw new Error("Unable to build Model Navigator for the selected Data Common");
   }
 
   return (
     <Box sx={{ mt: "40px", }}>
       <Provider store={store}>
-        <ReduxDataDictionary pdfDownloadConfig={DataCommon.configuration.pdfConfig} />
+        <ReduxDataDictionary pdfDownloadConfig={DataCommon.configuration?.pdfConfig} />
       </Provider>
     </Box>
   );
