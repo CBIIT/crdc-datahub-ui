@@ -11,20 +11,13 @@ import SubmissionHeaderProperty, {
   StyledValue,
 } from "./SubmissionHeaderProperty";
 import Tooltip from "./Tooltip";
-import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
 import HistoryDialog from "../Shared/HistoryDialog";
 import DataSubmissionIconMap from "./DataSubmissionIconMap";
 
 const StyledSummaryWrapper = styled("div")(() => ({
-  background: `url(${summaryBannerSvg})`,
-  backgroundSize: "cover",
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "top",
   borderRadius: "8px 8px 0px 0px",
-  borderBottom: "1px solid #6CACDA",
   textWrap: "nowrap",
-  // boxShadow: "0px 2px 35px 0px rgba(62, 87, 88, 0.35)",
   padding: "25px 21px 59px 48px",
 }));
 

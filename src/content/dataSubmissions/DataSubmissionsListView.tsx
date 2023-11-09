@@ -268,7 +268,7 @@ const ListingView: FC = () => {
 
   // Only org owners/submitters with organizations assigned can create data submissions
   const orgOwnerOrSubmitter = (user?.role === "Organization Owner" || user?.role === "Submitter");
-  const hasOrganizationAssigned = (user?.organization !== null && user.organization.orgID !== null);
+  const hasOrganizationAssigned = (user?.organization !== null && user?.organization?.orgID !== null);
   const shouldHaveAllFilter = (user?.role === "Admin" || user?.role === "Federal Lead" || user?.role === "Data Curator" || user?.role === "Data Commons POC");
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
@@ -304,7 +304,7 @@ const ListingView: FC = () => {
       offset: page * perPage,
       sortDirection: order.toUpperCase(),
       orderBy: orderBy.field,
-      organization: (organizationFilter !== "All" ? allOrganizations?.listOrganizations?.find((org) => org.name === organizationFilter)._id : "All"),
+      organization: (organizationFilter !== "All" ? allOrganizations?.listOrganizations?.find((org) => org.name === organizationFilter)?._id : "All"),
       status: statusFilter,
     },
     context: { clientName: 'backend' },
