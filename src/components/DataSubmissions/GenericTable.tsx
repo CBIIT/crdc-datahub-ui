@@ -49,12 +49,12 @@ const StyledHeaderCell = styled(TableCell)({
   lineHeight: "16px",
   color: "#fff !important",
   padding: "22px 53px 22px 16px",
+  verticalAlign: "top",
   "&.MuiTableCell-root:first-of-type": {
     paddingTop: "22px",
     paddingRight: "16px",
     paddingBottom: "22px",
     color: "#fff !important",
-    verticalAlign: "top",
   },
   "& .MuiSvgIcon-root, & .MuiButtonBase-root": {
     color: "#fff !important",

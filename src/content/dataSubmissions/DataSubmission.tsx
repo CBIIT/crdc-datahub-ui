@@ -29,7 +29,7 @@ import {
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
-import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
+import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
@@ -364,7 +364,7 @@ const DataSubmission = () => {
                     readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
                     onUpload={handleOnUpload}
                   />
-                  <DataSubmissionBatchTable
+                  <GenericTable
                     ref={tableRef}
                     columns={columns}
                     data={batchFiles || []}
