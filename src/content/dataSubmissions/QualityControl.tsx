@@ -6,6 +6,8 @@ import { LoadingButton } from "@mui/lab";
 import { LIST_LOGS, ListLogsResp } from "../../graphql";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
+import GenericTable, { Column, TableMethods } from "../../components/DataSubmissions/GenericTable";
+import { FormatDate } from "../../utils";
 
 const StyledDownloadButton = styled(LoadingButton)({
   display: "flex",
@@ -58,6 +60,84 @@ const StyledValidationMessage = styled(Typography)({
   lineHeight: "23px",
 });
 
+const testData = [
+  {
+    _id: "c4366aaa-8adf-41e9-9432-864b2101231d",
+    nodeType: "Participant",
+    batchID: "123a5678-8adf-41e9-9432-864b2108191d",
+    nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
+    crdcID: "123a5678-8adf-41e9-9432-864b2108191d",
+    severity: "error",
+    description: "Incorrect control vocabulary.",
+    updatedAt: "2023-11-08T19:39:15.469Z",
+    submittedDate: "2023-11-08T19:39:15.469Z",
+    createdAt: "2023-11-08T19:39:15.469Z",
+  },
+  {
+    _id: "c4366aab-8adf-41e9-9432-864b2101231d",
+    nodeType: "Participant",
+    batchID: "123a5678-8adf-41e9-9432-864b2108191d",
+    nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
+    crdcID: "123a5678-8adf-41e9-9432-864b2108191d",
+    severity: "error",
+    description: "Missing required field.",
+    submittedDate: "2023-11-07T19:39:15.469Z",
+    createdAt: "2023-11-07T19:39:15.469Z",
+    updatedAt: "2023-11-07T19:39:15.469Z"
+  },
+  {
+    _id: "c4366aac-8adf-41e9-9432-864b2101231d",
+    nodeType: "Participant",
+    batchID: "123a5678-8adf-41e9-9432-864b2108191d",
+    nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
+    crdcID: "123a5678-8adf-41e9-9432-864b2108191d",
+    severity: "error",
+    description: "Value not in the range.",
+    submittedDate: "2023-11-06T19:39:15.469Z",
+    createdAt: "2023-11-06T19:39:15.469Z",
+    updatedAt: "2023-11-06T19:39:15.469Z"
+  },
+];
+
+const columns: Column<any>[] = [
+  {
+    label: "Type",
+    value: (data) => data?.nodeType,
+    field: "nodeType",
+  },
+  {
+    label: "Batch ID",
+    value: (data) => data?.batchID,
+    field: "batchID",
+  },
+  {
+    label: "Node ID",
+    value: (data) => data?.nodeID,
+    field: "nodeID",
+  },
+  {
+    label: "CRDC ID",
+    value: (data) => data?.crdcID,
+    field: "crdcID",
+  },
+  {
+    label: "Severity",
+    value: (data) => data?.severity,
+    field: "severity",
+  },
+  {
+    label: "Submitted Date",
+    value: (data) => (data?.submittedDate ? `${FormatDate(data.submittedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    field: "submittedDate",
+    default: true
+  },
+  {
+    label: "Description",
+    value: (data) => data?.description,
+    field: "description",
+  },
+];
+
 type Props = {
   submitterID: string;
 };
@@ -70,10 +150,13 @@ const QualityControl = ({ submitterID }: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
+  const [data, setData] = useState(testData);
+  const [totalData, setTotalData] = useState(testData.length);
   const metadataLogs = files.filter((file) => file.uploadType === "metadata");
   const fileLogs = files.filter((file) => file.uploadType === "file");
   const alertTimeoutRef = useRef(null);
   const isSubmissionOwner = submitterID === user?._id;
+  const tableRef = useRef<TableMethods>(null);
 
   const [listLogs] = useLazyQuery<ListLogsResp>(LIST_LOGS, {
     variables: { submissionID: submissionId },
@@ -168,6 +251,14 @@ const QualityControl = ({ submitterID }: Props) => {
       >
         <span>{changesAlert?.message}</span>
       </GenericAlert>
+      <GenericTable
+        ref={tableRef}
+        columns={columns}
+        data={data || []}
+        total={totalData || 0}
+        loading={loading}
+        onFetchData={() => {}}
+      />
       <Stack
         direction="column"
         alignItems="center"
