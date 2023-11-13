@@ -56,7 +56,7 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
     setStatus("loading");
 
     const assets = buildAssetUrls(datacommon);
-    const response = await getModelExploreData(assets.model, assets.props);
+    const response = await getModelExploreData(assets.model, assets.props)?.catch(() => null);
     if (!response?.data || !response?.version) {
       setStatus("error");
       return;
