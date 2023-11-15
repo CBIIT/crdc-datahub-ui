@@ -187,7 +187,6 @@ const StyledCopyValue = styled(Typography)(() => ({
   fontWeight: 400,
   lineHeight: "19.6px",
   letterSpacing: "0.32px",
-  textTransform: "uppercase",
 }));
 
 const StyledCopyIDButton = styled(IconButton)(() => ({
