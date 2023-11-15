@@ -383,7 +383,7 @@ const DataSubmission = () => {
       <StyledBanner bannerSrc={bannerSvg} />
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCopyWrapper direction="row" spacing={1.625} alignItems="center">
-          <StyledCopyLabel id="data-submission-id-label" variant="body1">SUBMISSION ID</StyledCopyLabel>
+          <StyledCopyLabel id="data-submission-id-label" variant="body1">SUBMISSION ID:</StyledCopyLabel>
           <StyledCopyValue id="data-submission-id-value" variant="body1">{submissionId}</StyledCopyValue>
           {submissionId && (
             <StyledCopyIDButton id="data-submission-copy-id-button" onClick={handleCopyID}>
