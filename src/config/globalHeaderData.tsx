@@ -53,7 +53,7 @@ export const navbarSublists = {
   // ],
   "Model Navigator": DataCommons.map((dc) => ({
     name: `${dc.name} Model`,
-    link: `/model-navigator/${dc.route}`,
+    link: `/model-navigator/${dc.name}`,
     text: '',
     className: 'navMobileSubTitle',
   })),
