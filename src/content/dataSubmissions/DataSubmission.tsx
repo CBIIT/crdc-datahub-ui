@@ -10,11 +10,16 @@ import {
   CardActionsProps,
   CardContent,
   Container,
+  FormControlLabel,
+  RadioGroup,
   Stack,
   Tabs,
   styled,
 } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+
 import { isEqual } from "lodash";
+import { useAuthContext } from '../../components/Contexts/AuthContext';
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
@@ -33,6 +38,32 @@ import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "..
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
+import StyledRadioButton from "../../components/Questionnaire/StyledRadioButton";
+
+const StyledValidateButton = styled(LoadingButton)(() => ({
+  alignSelf: "center",
+  display: "flex",
+  flexDirection: "column",
+  padding: "12px 22px",
+  justifyContent: "center",
+  alignItems: "center",
+  borderRadius: "8px",
+  background: "#005EA2",
+  color: "#FFF",
+  textAlign: "center",
+  fontFamily: "'Nunito'",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 700,
+  lineHeight: "16px",
+  letterSpacing: "0.32px",
+  textTransform: "none",
+  "&.MuiButtonBase-root": {
+    height: "fit-content",
+    marginLeft: "auto",
+    marginRight: "21.5px"
+  }
+}));
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -94,6 +125,57 @@ const StyledCard = styled(Card)(() => ({
   },
 }));
 
+const StyledFileValidationSection = styled("div")(() => ({
+  borderRadius: 0,
+  minHeight: "125px",
+  padding: "21px 40px 0",
+  borderTop: "solid 1.5px #6CACDA",
+  background: "#E3EEF9",
+  gridAutoFlow: "row",
+  gridTemplateColumns: "2.5fr 0.5fr",
+  display: "grid",
+  ".headerText": {
+    fontFamily: "Nunito",
+    fontSize: "16px",
+    fontWeight: "700",
+    lineHeight: "20px",
+    letterSpacing: "0em",
+    textAlign: "left",
+    minWidth: "200px;"
+  },
+
+  ".fileValidationLeftSide": {
+    display: "flex",
+    flexDirection: "column",
+  },
+  ".fileValidationLeftSideTopRow": {
+    display: "grid",
+    gridTemplateColumns: "1fr 3fr",
+    height: "45px",
+    alignItems: "center",
+    borderBottom: "1px solid #0B7F99",
+    width: "710px",
+  },
+  ".fileValidationLeftSideBottomRow": {
+    display: "grid",
+    gridTemplateColumns: "1fr 3fr",
+    height: "45px",
+    alignItems: "center",
+    width: "800px",
+  },
+  ".fileValidationRadioButtonGroup": {
+    marginLeft: "20px",
+  },
+  "& .MuiFormControlLabel-label": {
+    fontFamily: "Nunito",
+    fontSize: "16px",
+    fontWeight: "500",
+    lineHeight: "20px",
+    letterSpacing: "0em",
+    textAlign: "left",
+  }
+}));
+
 const StyledMainContentArea = styled("div")(() => ({
   borderRadius: 0,
   background: "#FFFFFF",
@@ -108,6 +190,7 @@ const StyledCardActions = styled(CardActions, {
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
+  background: "#E3EEF9",
   position: 'relative',
   "& .MuiTabs-flexContainer": {
     justifyContent: "center"
@@ -188,10 +271,11 @@ const URLTabs = {
 };
 
 const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
-
+type ValidationType = "Metadata" | "Data Files" | "Both";
+type UploadType = "New" | "All";
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
-
+  const { user } = useAuthContext();
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
   const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
   const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
@@ -201,6 +285,10 @@ const DataSubmission = () => {
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
+  const [validationType, setValidationType] = useState<ValidationType>(null);
+  const [uploadType, setUploadType] = useState<UploadType>(null);
+
+  const canValidateData = (user?.role === "Submitter" || user?.role === "Data Curator" || user?.role === "Organization Owner" || user?.role === "Admin");
 
   const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
     variables: { id: submissionId },
@@ -340,7 +428,82 @@ const DataSubmission = () => {
             <DataSubmissionSummary dataSubmission={dataSubmission} />
 
             {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
+            <StyledFileValidationSection>
+              <div className="fileValidationLeftSide">
+                <div className="fileValidationLeftSideTopRow">
+                  <div className="headerText">Choose validation type:</div>
+                  <div className="fileValidationRadioButtonGroup">
+                    <RadioGroup
+                      row
+                      value={validationType}
+                      onChange={(event, val: ValidationType) => setValidationType(val)}
+                    >
+                      <FormControlLabel
+                        sx={{ minWidth: "200px",
+                            marginRight: "20px", }}
+                        value="Metadata"
+                        color="#1D91AB" control={<StyledRadioButton id="test-id" readOnly={false} />}
+                        label="Validate Metadata"
+                        disabled={!canValidateData}
+                      />
+                      <FormControlLabel
+                        sx={{ minWidth: "200px",
+                            marginRight: "20px", }}
+                        value="Data Files" color="#1D91AB"
+                        control={<StyledRadioButton id="test-id" readOnly={false} />} label="Validate data files"
+                        disabled={!canValidateData}
 
+                      />
+                      <FormControlLabel
+                        sx={{ marginRight: "0px", }}
+                        value="Both" color="#1D91AB"
+                        control={<StyledRadioButton id="test-id" readOnly={false} />} label="Both"
+                        disabled={!canValidateData}
+                      />
+                    </RadioGroup>
+                  </div>
+                </div>
+                <div className="fileValidationLeftSideBottomRow">
+                  <div className="headerText">Choose upload type:</div>
+                  <div className="fileValidationRadioButtonGroup">
+                    <RadioGroup
+                      row
+                      value={uploadType}
+                      onChange={(event, val: UploadType) => setUploadType(val)}
+                    >
+                      <FormControlLabel
+                        sx={{ minWidth: "200px",
+                            marginRight: "20px", }}
+                        value="New"
+                        color="#1D91AB"
+                        control={<StyledRadioButton id="test-id" readOnly={false} />}
+                        label="New uploaded data"
+                        disabled={!canValidateData || validationType === null}
+
+                      />
+                      <FormControlLabel
+                        sx={{ minWidth: "200px",
+                            marginRight: "20px", }}
+                        value="All"
+                        color="#1D91AB"
+                        control={<StyledRadioButton id="test-id" readOnly={false} />}
+                        label="All uploaded available data"
+                        disabled={!canValidateData || validationType === null}
+                      />
+                    </RadioGroup>
+                  </div>
+                </div>
+              </div>
+              <StyledValidateButton
+                variant="contained"
+                disableElevation
+                disableRipple
+                disableTouchRipple
+                disabled={!canValidateData || validationType === null || uploadType === null}
+              >
+                Validate
+              </StyledValidateButton>
+            </StyledFileValidationSection>
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
                 value={URLTabs.DATA_UPLOAD}
