@@ -582,7 +582,6 @@ const ListingView: FC = () => {
               value={dbgapid}
               parentStateSetter={(newVal) => setDbgapid(newVal)}
               maxLength={50}
-              required
               label="dbGaP ID"
               placeholder="Input dbGaP ID"
             />
