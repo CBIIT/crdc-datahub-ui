@@ -15,11 +15,17 @@ type ModelNavigatorConfig = {
     /**
      * Override ALL download file names with this prefix.
      */
-    downloadPrefix: string;
+    downloadPrefix?: string;
     /**
      * Override default ICDC URL in PDF footers
      */
     footnote: string;
+    /**
+     * Whether to render the PDF in landscape mode
+     *
+     * @note The portrait mode is broken ATM.
+     */
+    landscape?: boolean;
   },
   facetFilterSearchData: FacetSearchData[],
   facetFilterSectionVariables: {
