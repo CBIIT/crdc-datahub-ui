@@ -30,7 +30,7 @@ const StyledMetadataText = styled(StyledUploadTypeText)(() => ({
 const StyledUploadFilesButton = styled(LoadingButton)(() => ({
   display: "flex",
   flexDirection: "column",
-  padding: "12px 22px",
+  padding: "12px 20px",
   justifyContent: "center",
   alignItems: "center",
   borderRadius: "8px",
@@ -46,7 +46,8 @@ const StyledUploadFilesButton = styled(LoadingButton)(() => ({
   textTransform: "none",
   "&.MuiButtonBase-root": {
     marginLeft: "auto",
-    marginRight: "21.5px"
+    marginRight: "21.5px",
+    minWidth: "137px",
   }
 }));
 
@@ -336,7 +337,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         disableRipple
         disableTouchRipple
       >
-        Upload Files
+        Upload
       </StyledUploadFilesButton>
     </StyledUploadWrapper>
   );

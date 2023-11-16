@@ -44,7 +44,7 @@ const StyledValidateButton = styled(LoadingButton)(() => ({
   alignSelf: "center",
   display: "flex",
   flexDirection: "column",
-  padding: "12px 22px",
+  padding: "12px 20px",
   justifyContent: "center",
   alignItems: "center",
   borderRadius: "8px",
@@ -61,7 +61,8 @@ const StyledValidateButton = styled(LoadingButton)(() => ({
   "&.MuiButtonBase-root": {
     height: "fit-content",
     marginLeft: "auto",
-    marginRight: "21.5px"
+    marginRight: "21.5px",
+    minWidth: "137px",
   }
 }));
 
@@ -285,11 +286,11 @@ const DataSubmission = () => {
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
-  const [validationType, setValidationType] = useState<ValidationType>(null);
-  const [uploadType, setUploadType] = useState<UploadType>(null);
+  const [validationType, setValidationType] = useState<ValidationType>("Metadata");
+  const [uploadType, setUploadType] = useState<UploadType>("New");
 
   const canValidateData = (user?.role === "Submitter" || user?.role === "Data Curator" || user?.role === "Organization Owner" || user?.role === "Admin");
-
+  const validateButtonEnabled = dataSubmission?.status === "In Progress" || dataSubmission?.status === "Withdrawn" || dataSubmission?.status === "Rejected";
   const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
     variables: { id: submissionId },
     context: { clientName: 'backend' },
@@ -478,7 +479,7 @@ const DataSubmission = () => {
                         color="#1D91AB"
                         control={<StyledRadioButton id="test-id" readOnly={false} />}
                         label="New uploaded data"
-                        disabled={!canValidateData || validationType === null}
+                        disabled={!canValidateData}
 
                       />
                       <FormControlLabel
@@ -488,7 +489,7 @@ const DataSubmission = () => {
                         color="#1D91AB"
                         control={<StyledRadioButton id="test-id" readOnly={false} />}
                         label="All uploaded available data"
-                        disabled={!canValidateData || validationType === null}
+                        disabled={!canValidateData}
                       />
                     </RadioGroup>
                   </div>
@@ -499,7 +500,7 @@ const DataSubmission = () => {
                 disableElevation
                 disableRipple
                 disableTouchRipple
-                disabled={!canValidateData || validationType === null || uploadType === null}
+                disabled={!canValidateData || !validateButtonEnabled}
               >
                 Validate
               </StyledValidateButton>
