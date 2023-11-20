@@ -51,7 +51,7 @@ const StyledValidateButton = styled(LoadingButton)(() => ({
   justifyContent: "center",
   alignItems: "center",
   borderRadius: "8px",
-  background: "#005EA2",
+  background: "#1A7B90",
   color: "#FFF",
   textAlign: "center",
   fontFamily: "'Nunito'",
@@ -61,7 +61,15 @@ const StyledValidateButton = styled(LoadingButton)(() => ({
   lineHeight: "16px",
   letterSpacing: "0.32px",
   textTransform: "none",
+  border: "1.5px solid #136071",
   "&.MuiButtonBase-root": {
+    height: "fit-content",
+    marginLeft: "auto",
+    marginRight: "21.5px",
+    minWidth: "137px",
+  },
+  "&.MuiButtonBase-root:hover": {
+    background: "#496065",
     height: "fit-content",
     marginLeft: "auto",
     marginRight: "21.5px",
@@ -454,6 +462,11 @@ const DataSubmission = () => {
     }
   };
 
+  const handleValidateFiles = async () => {
+    // TODO: Call the Validate Submission API with the correct params:
+    console.log("Validating Files with these params: ", validationType, uploadType);
+  };
+
   const handleCopyID = () => {
     if (!submissionId) {
       return;
@@ -563,6 +576,7 @@ const DataSubmission = () => {
                 disableRipple
                 disableTouchRipple
                 disabled={!canValidateData || !validateButtonEnabled}
+                onClick={handleValidateFiles}
               >
                 Validate
               </StyledValidateButton>
