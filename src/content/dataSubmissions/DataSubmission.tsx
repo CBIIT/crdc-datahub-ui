@@ -68,6 +68,14 @@ const StyledValidateButton = styled(LoadingButton)(() => ({
     marginRight: "21.5px",
     minWidth: "137px",
   },
+  "&.MuiButtonBase-root:disabled": {
+    height: "fit-content",
+    marginLeft: "auto",
+    marginRight: "21.5px",
+    minWidth: "137px",
+    background: "#949494",
+    color: "#CBCBCB",
+  },
   "&.MuiButtonBase-root:hover": {
     background: "#496065",
     height: "fit-content",
