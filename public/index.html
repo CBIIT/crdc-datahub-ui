@@ -30,8 +30,14 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>CRDC DataHub</title>
+    <!-- Import web component for gov shutdown header -->
+    <script src="https://cbiit.github.io/crdc-alert-elements/components/include-html.js"></script>
   </head>
   <body>
+    <header>
+      <!-- Set government shutdown banner -->
+      <include-html src="https://cbiit.github.io/crdc-alert-elements/banners/government-shutdown.html"></include-html>
+    </header>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <!--

@@ -10,8 +10,10 @@ import {
   CardActionsProps,
   CardContent,
   Container,
+  IconButton,
   Stack,
   Tabs,
+  Typography,
   styled,
 } from "@mui/material";
 import { isEqual } from "lodash";
@@ -34,6 +36,7 @@ import PieChart from '../../components/DataSubmissions/PieChart';
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
+import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
 
 const dummyChartData = [
   { label: 'Group A', value: 12, color: "#DFC798" },
@@ -60,7 +63,7 @@ const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
 const StyledBannerContentContainer = styled(Container)(
   ({ padding }: { padding?: string }) => ({
     "&.MuiContainer-root": {
-      padding: padding || "61px 73px 186px",
+      padding: padding || "58px 73px 186px",
       marginTop: "-295px",
       width: "100%",
       height: "100%",
@@ -87,7 +90,9 @@ const StyledCard = styled(Card)(() => ({
     position: "relative"
   },
   "&.MuiPaper-root": {
-    border: "1px solid #6CACDA"
+    border: "1px solid #6CACDA",
+    borderTopRightRadius: 0,
+    borderTopLeftRadius: 0,
   },
   "&::after": {
     content: '""',
@@ -171,6 +176,47 @@ const StyledCardContent = styled(CardContent)({
 const StyledRejectedStatus = styled("div")(() => ({
   color: "#E25C22",
   fontWeight: 600
+}));
+
+const StyledCopyWrapper = styled(Stack)(() => ({
+  height: "42px",
+  width: "fit-content",
+  minWidth: "342px",
+  padding: "11px 20px",
+  borderRadius: "8px 8px 0px 0px",
+  borderTop: "1.25px solid #6DADDB",
+  borderRight: "1.25px solid #6DADDB",
+  borderLeft: "1.25px solid #6DADDB",
+  background: "#EAF5F8",
+}));
+
+const StyledCopyLabel = styled(Typography)(() => ({
+  color: "#125868",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "12px",
+  fontStyle: "normal",
+  fontWeight: 800,
+  lineHeight: "19.6px",
+  letterSpacing: "0.24px",
+  textTransform: "uppercase",
+}));
+
+const StyledCopyValue = styled(Typography)(() => ({
+  color: "#125868",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 400,
+  lineHeight: "19.6px",
+  letterSpacing: "0.32px",
+}));
+
+const StyledCopyIDButton = styled(IconButton)(() => ({
+  color: "#000000",
+  padding: 0,
+  "&.MuiIconButton-root.Mui-disabled": {
+    color: "#B0B0B0"
+  }
 }));
 
 const columns: Column<Batch>[] = [
@@ -341,6 +387,13 @@ const DataSubmission = () => {
     }
   };
 
+  const handleCopyID = () => {
+    if (!submissionId) {
+      return;
+    }
+    navigator.clipboard.writeText(submissionId);
+  };
+
   return (
     <StyledWrapper>
       <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
@@ -350,6 +403,15 @@ const DataSubmission = () => {
       </GenericAlert>
       <StyledBanner bannerSrc={bannerSvg} />
       <StyledBannerContentContainer maxWidth="xl">
+        <StyledCopyWrapper direction="row" spacing={1.625} alignItems="center">
+          <StyledCopyLabel id="data-submission-id-label" variant="body1">SUBMISSION ID:</StyledCopyLabel>
+          <StyledCopyValue id="data-submission-id-value" variant="body1">{submissionId}</StyledCopyValue>
+          {submissionId && (
+            <StyledCopyIDButton id="data-submission-copy-id-button" onClick={handleCopyID}>
+              <CopyIconSvg />
+            </StyledCopyIDButton>
+          )}
+        </StyledCopyWrapper>
         <StyledCard>
           <StyledCardContent>
             {error && (

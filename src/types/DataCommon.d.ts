@@ -1,41 +1,41 @@
 type DataCommon = {
   /**
    * The user-friendly name of the Data Common.
-   * This is also used to retrieve asset URLs from DataCommonAssets.
+   *
+   * Note:
+   * - This should appear in `DataModelManifest` as the key.
+   * - If this does not exist there, an error will be thrown.
    *
    * @example "CDS"
    */
   name: string;
   /**
-   * The route of the Data Model Navigator.
+   * The Data Common assets.
    *
-   * No leading or trailing slashes.
-   *
-   * @example "cds-model"
+   * NOTE:
+   * - This is loaded dynamically from a CRDC Hub maintained repository
+   *   when it's needed.
    */
-  route: string;
+  assets: ManifestAssets;
   /**
-   * The Data Model Navigator configuration for the Data Common.
+   * The Data Model Navigator configuration. This is used to fine-tune
+   * the navigator for a specific Data Common.
    */
-  config: DataCommonConfig;
+  configuration: ModelNavigatorConfig;
 };
-
-/**
- * The strictly-typed configuration for the Data Model Navigator.
- *
- * @TODO The exact requirements of this type are not yet known.
- */
-type DataCommonConfig = null;
 
 /**
  * The Data Commons assets file.
  * This is a JSON file that contains asset details for data models.
  * It is maintained in a CRDC Hub repository.
- *
- * @see TODO
  */
-type DataCommonAssets = {
-  [key in DataCommon["name"]]: DataCommonAsset;
+type DataModelManifest = {
+  /**
+   * Mapped by Data Common name.
+   *
+   * @example "CDS": { ... }
+   */
+  [key: string]: ManifestAssets;
 };
 
 /**
@@ -43,7 +43,7 @@ type DataCommonAssets = {
  *
  * Imported dynamically from a CRDC Hub maintained repository.
  */
-type DataCommonAsset = {
+type ManifestAssets = {
   /**
    * The file name of the Data Model file.
    *
@@ -63,6 +63,12 @@ type DataCommonAsset = {
    * @example "README.md"
    */
   "readme-file": string;
+  /**
+   * The pre-zipped example loading file.
+   *
+   * @example "cds-model-loading.zip"
+   */
+  "loading-file": string;
   /**
    * The most-recent version of the Data Model to import
    *
