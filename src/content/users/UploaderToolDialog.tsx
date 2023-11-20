@@ -104,9 +104,8 @@ const UploaderToolDialog: FC<Props> = ({
     </StyledHeader>
     <StyledDialogContent>
       <StyledBodyText id="uploader-cli-body" variant="h6">
-        The Uploader CLI is a command-line interface tool provided for directly uploading
-        data submission files from your workstation to the Data Hub cloud storage.
-        To download the tool and locate the README for instructions, click on the GitHub URL below.
+        The Uploader CLI is a command-line interface tool provided for directly uploading data submission files from your workstation to the Data Hub cloud storage.
+        To download the tool and accompanying instructions, click on the Download link.
       </StyledBodyText>
       <Link to="https://github.com/CBIIT/crdc-datahub-cli-uploader" target="_blank">https://github.com/CBIIT/crdc-datahub-cli-uploader</Link>
     </StyledDialogContent>
