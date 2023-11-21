@@ -126,7 +126,7 @@ type ActionKey = "Submit" | "Release" | "Withdraw" | "SubmittedReject" | "Releas
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
-    statuses: ["In Progress"],
+    statuses: ["In Progress", "Withdrawn"],
   },
   Release: {
     roles: ["Data Curator", "Admin"],
