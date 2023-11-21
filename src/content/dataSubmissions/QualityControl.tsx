@@ -60,18 +60,16 @@ const StyledValidationMessage = styled(Typography)({
   lineHeight: "23px",
 });
 
-const testData = [
+const testData: QualityControlResults[] = [
   {
     _id: "c4366aaa-8adf-41e9-9432-864b2101231d",
     nodeType: "Participant",
     batchID: "123a5678-8adf-41e9-9432-864b2108191d",
     nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
     crdcID: "123a5678-8adf-41e9-9432-864b2108191d",
-    severity: "error",
+    severity: "Error",
     description: "Incorrect control vocabulary.",
-    updatedAt: "2023-11-08T19:39:15.469Z",
-    submittedDate: "2023-11-08T19:39:15.469Z",
-    createdAt: "2023-11-08T19:39:15.469Z",
+    uploadedDate: "2023-11-08T19:39:15.469Z",
   },
   {
     _id: "c4366aab-8adf-41e9-9432-864b2101231d",
@@ -79,11 +77,9 @@ const testData = [
     batchID: "123a5678-8adf-41e9-9432-864b2108191d",
     nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
     crdcID: "123a5678-8adf-41e9-9432-864b2108191d",
-    severity: "error",
+    severity: "Error",
     description: "Missing required field.",
-    submittedDate: "2023-11-07T19:39:15.469Z",
-    createdAt: "2023-11-07T19:39:15.469Z",
-    updatedAt: "2023-11-07T19:39:15.469Z"
+    uploadedDate: "2023-11-07T19:39:15.469Z",
   },
   {
     _id: "c4366aac-8adf-41e9-9432-864b2101231d",
@@ -91,15 +87,13 @@ const testData = [
     batchID: "123a5678-8adf-41e9-9432-864b2108191d",
     nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
     crdcID: "123a5678-8adf-41e9-9432-864b2108191d",
-    severity: "error",
+    severity: "Error",
     description: "Value not in the range.",
-    submittedDate: "2023-11-06T19:39:15.469Z",
-    createdAt: "2023-11-06T19:39:15.469Z",
-    updatedAt: "2023-11-06T19:39:15.469Z"
+    uploadedDate: "2023-11-06T19:39:15.469Z",
   },
 ];
 
-const columns: Column<any>[] = [
+const columns: Column<QualityControlResults>[] = [
   {
     label: "Type",
     value: (data) => data?.nodeType,
@@ -127,8 +121,8 @@ const columns: Column<any>[] = [
   },
   {
     label: "Submitted Date",
-    value: (data) => (data?.submittedDate ? `${FormatDate(data.submittedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
-    field: "submittedDate",
+    value: (data) => (data?.uploadedDate ? `${FormatDate(data.uploadedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    field: "uploadedDate",
     default: true
   },
   {

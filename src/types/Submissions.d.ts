@@ -132,3 +132,14 @@ type LogFile = {
   downloadUrl: string; // s3 presigned download url of the file
   fileSize: number // size in byte
 };
+
+type QualityControlResults = {
+  _id: string;
+  nodeType: string;
+  batchID: string;
+  nodeID: string;
+  crdcID: string;
+  severity: "Error" | "Warning";
+  uploadedDate: string;
+  description: string;
+};
