@@ -230,7 +230,7 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
       {canShowAction("Release") ? (
         <StyledReleaseButton
           variant="contained"
-          onClick={() => handleOnAction("Release")}
+          onClick={() => onOpenDialog("Release")}
           loading={action === "Release"}
           disabled={action && action !== "Release"}
           disableElevation
