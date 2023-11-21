@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
-import { Stack, Typography, styled } from "@mui/material";
+import { Button, Stack, Typography, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { LIST_LOGS, ListLogsResp } from "../../graphql";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
@@ -58,6 +58,23 @@ const StyledValidationMessage = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "700",
   lineHeight: "23px",
+});
+
+const StyledErrorDetailsButton = styled(Button)({
+  display: "inline",
+  color: "#0D78C5",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "19.6px",
+  padding: 0,
+  textDecorationLine: "underline",
+  textTransform: "none",
+  "&:hover": {
+    background: "transparent",
+    textDecorationLine: "underline",
+  },
 });
 
 const testData: QualityControlResults[] = [
@@ -127,7 +144,20 @@ const columns: Column<QualityControlResults>[] = [
   },
   {
     label: "Description",
-    value: (data) => data?.description,
+    value: (data) => data?.description && (
+      <>
+        <span>{data?.description}</span>
+        {" "}
+        <StyledErrorDetailsButton
+          variant="text"
+          disableRipple
+          disableTouchRipple
+          disableFocusRipple
+        >
+          See details
+        </StyledErrorDetailsButton>
+      </>
+      ),
     field: "description",
   },
 ];
