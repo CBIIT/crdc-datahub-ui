@@ -133,13 +133,55 @@ type LogFile = {
   fileSize: number // size in byte
 };
 
-type QualityControlResults = {
-  _id: string;
+type S3FileInfo = {
+  fileName: string;
+  size: number;
+  md5: string;
+  status: "New" | "Passed" | "Error"; // # [New, Passed, Error]
+  errors: ErrorMessage[];
+  warnings: ErrorMessage[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+type ParentNode = {
+  parentType: string; // node type of the parent node, e.g. "study"
+  parentIDPropName: string; // ID property name can be used to identify parent node, e.g., "study_id"
+  parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
+};
+
+type QCResults = {
+  submissionID: string;
   nodeType: string;
   batchID: string;
   nodeID: string;
-  crdcID: string;
-  severity: "Error" | "Warning";
-  uploadedDate: string;
+  CRDC_ID: string;
+  severity: "Error" | "Warning"; // [Error, Warning]
+  uploadedDate: string // batch.updatedAt
+  description: ErrorMessage[];
+};
+
+type ErrorMessage = {
+  title: string;
   description: string;
+};
+
+type DataRecord = {
+  _id: string;
+  submissionID: string;
+  batchIDs: string[]; // all batch IDs, each time this record is reloaded in a new batch, append batchID here
+  status: string; // [New, Passed, Error, Warning], Loaded is the initial state each time it's loaded
+  errors: ErrorMessage[];
+  warnings: ErrorMessage[];
+  createdAt: string;
+  updatedAt: string;
+  orginalFileName: string; // holds original file name the data is read from
+  lineNumber: number; // line number in the original file
+  nodeType: string; // type of the node, in "type" column of the file
+  nodeID: string; // ID of the node, for example: "cds-case-99907"
+  // props: Properties; // properties of the node
+  parents: ParentNode[];
+  // relationshipProps: [RelationshipProperty] # for future use
+  // rawData: RawData
+  s3FileInfo: S3FileInfo; // only for "file" types, should be null for other nodes
 };
