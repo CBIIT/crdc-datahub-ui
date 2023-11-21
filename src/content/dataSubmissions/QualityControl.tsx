@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
-import { Button, Stack, Typography, styled } from "@mui/material";
+import { Box, Button, Stack, Typography, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { LIST_LOGS, ListLogsResp } from "../../graphql";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
@@ -133,7 +133,7 @@ const columns: Column<QualityControlResults>[] = [
   },
   {
     label: "Severity",
-    value: (data) => data?.severity,
+    value: (data) => <Box color={data?.severity === "Error" ? "#E25C22" : "#8D5809"}>{data?.severity}</Box>,
     field: "severity",
   },
   {
@@ -144,7 +144,7 @@ const columns: Column<QualityControlResults>[] = [
   },
   {
     label: "Description",
-    value: (data) => data?.description && (
+    value: (data) => data?.description?.length > 0 && (
       <>
         <span>{data?.description}</span>
         {" "}
