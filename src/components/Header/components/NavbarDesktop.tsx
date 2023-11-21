@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@mui/material';
 import styled from 'styled-components';
 import { useAuthContext } from '../../Contexts/AuthContext';
@@ -374,8 +374,11 @@ const NavBar = () => {
   const clickableTitle = clickableObject.map((item) => item.name);
   const navigate = useNavigate();
   const authData = useAuthContext();
+  const location = useLocation();
   const displayName = authData?.user?.firstName?.toUpperCase() || "N/A";
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
+  const [restorePath, setRestorePath] = useState<string>(null);
+
   clickableTitle.push(displayName);
 
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
@@ -430,6 +433,16 @@ const NavBar = () => {
   useEffect(() => {
     setClickedTitle("");
   }, []);
+
+  useEffect(() => {
+    if (!location?.pathname || location?.pathname === "/") {
+      setRestorePath(null);
+      return;
+    }
+
+    setRestorePath(location?.pathname);
+  }, [location]);
+
   return (
     <Nav>
       <GenericAlert open={showLogoutAlert}>
@@ -497,9 +510,8 @@ const NavBar = () => {
                   </div>
                 </div>
               </LiSection>
-            )
-            : (
-              <StyledLoginLink id="header-navbar-login-button" to="/login">
+            ) : (
+              <StyledLoginLink id="header-navbar-login-button" to="/login" state={{ redirectURLOnLoginSuccess: restorePath }}>
                 Login
               </StyledLoginLink>
             )}

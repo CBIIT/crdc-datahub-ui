@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from "./components/LogoMobile";
 import menuClearIcon from '../../assets/header/Menu_Cancel_Icon.svg';
@@ -148,7 +148,7 @@ const MenuArea = styled.div`
     .clickable {
         cursor: pointer;
     }
-    
+
     .action {
         cursor: pointer;
     }
@@ -169,10 +169,12 @@ const Header = () => {
   const navbarMobileList: NavbarMobileList = navMobileListHookResult[0];
   const setNavbarMobileList = navMobileListHookResult[1];
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
+  const [restorePath, setRestorePath] = useState<string>(null);
 
   const authData = useAuthContext();
   const displayName = authData?.user?.firstName || "N/A";
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     const logoutStatus = await authData.logout();
@@ -227,6 +229,15 @@ const Header = () => {
     const clickTitle = e.target.innerText;
     setNavbarMobileList(navbarSublists[clickTitle]);
   };
+
+  useEffect(() => {
+    if (!location?.pathname || location?.pathname === "/") {
+      setRestorePath(null);
+      return;
+    }
+
+    setRestorePath(location?.pathname);
+  }, [location]);
 
   return (
     <>
@@ -393,15 +404,13 @@ const Header = () => {
                   >
                     {displayName}
                   </div>
-                )
-                  : (
-                    <Link id="navbar-link-login" to="/login">
-                      <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
-                        Login
-                      </div>
-                    </Link>
-
-                  )) : null}
+                ) : (
+                  <Link id="navbar-link-login" to="/login" state={{ redirectURLOnLoginSuccess: restorePath }}>
+                    <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
+                      Login
+                    </div>
+                  </Link>
+                )) : null}
             </div>
           </div>
           <div
