@@ -55,6 +55,6 @@ export const navbarSublists = {
     name: `${dc.name} Model`,
     link: `/model-navigator/${dc.name}`,
     text: '',
-    className: 'navMobileSubTitle',
+    className: 'navMobileSubItem',
   })),
 };
