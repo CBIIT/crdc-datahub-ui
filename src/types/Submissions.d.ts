@@ -150,6 +150,12 @@ type ParentNode = {
   parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
 };
 
+// TODO: Confirm type, based on assumption
+type ListQCResults = {
+  total: number;
+  qcResults: QCResults[]
+};
+
 type QCResults = {
   submissionID: string;
   nodeType: string;

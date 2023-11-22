@@ -200,27 +200,27 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
 const columns: Column<Batch>[] = [
   {
     label: "Upload Type",
-    value: (data) => data?.metadataIntention,
+    renderValue: (data) => data?.metadataIntention,
     field: "metadataIntention",
   },
   {
     label: "Batch Type",
-    value: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
+    renderValue: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
     field: "type",
   },
   {
     label: "File Count",
-    value: (data) => Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data?.fileCount || 0),
+    renderValue: (data) => Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data?.fileCount || 0),
     field: "fileCount",
   },
   {
     label: "Status",
-    value: (data) => (data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status),
+    renderValue: (data) => (data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status),
     field: "status",
   },
   {
     label: "Uploaded Date",
-    value: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    renderValue: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
     field: "createdAt",
     default: true,
     minWidth: "240px"
@@ -433,7 +433,7 @@ const DataSubmission = () => {
                   loading={loading}
                   onFetchData={handleFetchBatchFiles}
                 />
-              ) : <QualityControl submitterID={dataSubmission?.submitterID} />}
+              ) : <QualityControl />}
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>

@@ -19,5 +19,5 @@ export const query = gql`
 `;
 
 export type Response = {
-  submissionQCResults: QCResults[];
+  submissionQCResults: ListQCResults;
 };

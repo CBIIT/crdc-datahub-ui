@@ -116,7 +116,7 @@ export type Order = "asc" | "desc";
 
 export type Column<T> = {
   label: string | React.ReactNode;
-  value: (a: T, user: User) => string | boolean | number | React.ReactNode;
+  renderValue: (a: T, user: User) => string | boolean | number | React.ReactNode;
   field?: keyof T;
   default?: true;
   minWidth?: string;
@@ -262,7 +262,7 @@ const DataSubmissionBatchTable = <T,>({
               <TableRow tabIndex={-1} hover key={d["_id"]}>
                 {columns.map((col: Column<T>) => (
                   <StyledTableCell key={`${d["_id"]}_${col.label}`}>
-                    {col.value(d, user)}
+                    {col.renderValue(d, user)}
                   </StyledTableCell>
                 ))}
               </TableRow>
