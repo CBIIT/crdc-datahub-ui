@@ -149,24 +149,23 @@ const OverlayWindow = () => {
 
   const handleClose = () => {
     setOpen(false);
-    document.cookie = 'overlayLoad=true; path=/';
+    sessionStorage.setItem('overlayLoad', 'true');
   };
 
   useEffect(() => {
-    if (document.cookie.indexOf('overlayLoad') === -1) {
+    if (!sessionStorage.length) {
       setOpen(true);
     }
   }, [open]);
 
-  const content = text.content.map((item, index) => {
-      const textKey = `key_${index}`;
-      return (
-        <DialogContentText key={textKey} id="alert-dialog-description">
-          {item}
-        </DialogContentText>
-      );
-  });
-
+    const content = text.content.map((item, index) => {
+        const textKey = `key_${index}`;
+        return (
+          <DialogContentText key={textKey} id="alert-dialog-description">
+            {item}
+          </DialogContentText>
+        );
+    });
   const list = text.list.map((item, index) => {
     const listKey = `key_${index}`;
     return (
@@ -178,8 +177,8 @@ const OverlayWindow = () => {
           {item}
         </ListItemText>
       </ListItem>
-    );
-  });
+  );
+});
 
   return (
     <ThemeProvider theme={theme}>
