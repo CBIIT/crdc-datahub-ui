@@ -6,6 +6,7 @@ import { useAuthContext } from '../../Contexts/AuthContext';
 import GenericAlert from '../../GenericAlert';
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
 import APITokenDialog from '../../../content/users/APITokenDialog';
+import UploaderToolDialog from '../../../content/users/UploaderToolDialog';
 
 const Nav = styled.div`
     top: 0;
@@ -368,6 +369,7 @@ const useOutsideAlerter = (ref1, ref2) => {
 const NavBar = () => {
   const [clickedTitle, setClickedTitle] = useState("");
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
+  const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
   const dropdownSelection = useRef(null);
   const nameDropdownSelection = useRef(null);
   const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
@@ -546,6 +548,11 @@ const NavBar = () => {
                 User Profile
               </Link>
             </span>
+            <span className="dropdownItem">
+              <Button id="navbar-dropdown-item-name-uploader-tool" className="dropdownItem dropdownItemButton" onClick={() => setUploaderToolOpen(true)}>
+                Uploader CLI Tool
+              </Button>
+            </span>
             {(authData?.user?.role === "Admin" || authData?.user?.role === "Organization Owner") && (
               <span className="dropdownItem">
                 <Link id="navbar-dropdown-item-name-user-manage" to="/users" className="dropdownItem" onClick={() => setClickedTitle("")}>
@@ -586,6 +593,7 @@ const NavBar = () => {
         </NameDropdownContainer>
       </NameDropdown>
       <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
+      <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
     </Nav>
   );
 };

@@ -9,6 +9,7 @@ import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
 import { useAuthContext } from '../Contexts/AuthContext';
 import GenericAlert from '../GenericAlert';
 import APITokenDialog from '../../content/users/APITokenDialog';
+import UploaderToolDialog from '../../content/users/UploaderToolDialog';
 
 const HeaderBanner = styled.div`
   width: 100%;
@@ -165,6 +166,7 @@ type NavbarMobileList = {
 const Header = () => {
   const [navMobileDisplay, setNavMobileDisplay] = useState('none');
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
+  const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
   const navMobileListHookResult = useState(navMobileList);
   const navbarMobileList: NavbarMobileList = navMobileListHookResult[0];
   const setNavbarMobileList = navMobileListHookResult[1];
@@ -191,6 +193,12 @@ const Header = () => {
       link: `/profile/${authData?.user?._id}`,
       id: 'navbar-dropdown-item-user-profile',
       className: 'navMobileSubItem',
+    },
+    {
+      name: 'Uploader CLI Tool',
+      onClick: () => setUploaderToolOpen(true),
+      id: 'navbar-dropdown-item-uploader-tool',
+      className: 'navMobileSubItem action',
     },
     {
       name: 'Logout',
@@ -428,6 +436,7 @@ const Header = () => {
           />
         </MenuArea>
         <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
+        <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
       </NavMobileContainer>
     </>
   );
