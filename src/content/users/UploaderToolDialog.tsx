@@ -20,12 +20,12 @@ const StyledDialog = styled(Dialog)({
 
 const StyledHeader = styled(Typography)({
   color: "#0B7F99",
-  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
-  fontSize: "35px",
+  fontFamily: "'Nunito Sans', 'Rubik', sans-serif !important",
+  fontSize: "35px !important",
   fontStyle: "normal",
-  fontWeight: 900,
-  lineHeight: "30px",
-  marginBottom: "50px"
+  fontWeight: "900 !important",
+  lineHeight: "30px !important",
+  marginBottom: "50px !important",
 });
 
 const StyledDialogContent = styled(DialogContent)({
@@ -33,16 +33,17 @@ const StyledDialogContent = styled(DialogContent)({
 });
 
 const StyledBodyText = styled(Typography)({
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif !important",
+  fontSize: "16px !important",
   fontStyle: "normal",
-  fontWeight: 400,
-  lineHeight: "19.6px",
-  marginBottom: "28px",
+  fontWeight: "400 !important",
+  lineHeight: "19.6px !important",
+  marginBottom: "28px !important",
+  letterSpacing: "unset !important",
 });
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
-  position: 'absolute',
+  position: 'absolute !important' as 'absolute',
   right: "21px",
   top: "11px",
   padding: "10px",
@@ -52,28 +53,24 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledCloseButton = styled(Button)({
-  display: "flex",
   width: "128px",
   height: "42px",
-  padding: "12px 60px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  border: "1px solid #000",
-  color: "#000",
+  padding: "12px 60px !important",
+  borderRadius: "8px !important",
+  border: "1px solid #000 !important",
+  color: "#000 !important",
   textAlign: "center",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif !important",
+  fontSize: "16px !important",
   fontStyle: "normal",
-  fontWeight: "700",
-  lineHeight: "24px",
+  fontWeight: "700 !important",
+  lineHeight: "24px !important",
   letterSpacing: "0.32px",
-  textTransform: "none",
+  textTransform: "none !important" as 'none',
   alignSelf: "center",
-  marginTop: "45px",
+  marginTop: "45px !important",
   "&:hover": {
-    background: "transparent",
-    border: "1px solid #000",
+    background: "transparent !important",
   }
 });
 
