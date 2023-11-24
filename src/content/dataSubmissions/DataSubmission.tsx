@@ -32,18 +32,11 @@ import {
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
 import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
-import PieChart from '../../components/DataSubmissions/PieChart';
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
-
-const dummyChartData = [
-  { label: 'Group A', value: 12, color: "#DFC798" },
-  { label: 'Group B', value: 28, color: "#137E87" },
-  { label: 'Group C', value: 30, color: "#99A4E4" },
-  { label: 'Group D', value: 30, color: "#CB2809" },
-];
+import DataSubmissionStatistics from '../../components/DataSubmissions/DataSubmissionStatistics';
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -112,20 +105,6 @@ const StyledMainContentArea = styled("div")(() => ({
   background: "#FFFFFF",
   minHeight: "300px",
   padding: "21px 40px 0",
-}));
-
-const StyledChartArea = styled("div")(() => ({
-  height: "253.42px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  overflow: "visible",
-  "& div": {
-    overflow: "visible",
-    margin: "0 auto",
-    marginLeft: "30px",
-    marginRight: "30px"
-  }
 }));
 
 const StyledCardActions = styled(CardActions, {
@@ -261,6 +240,7 @@ const DataSubmission = () => {
   const { submissionId, tab } = useParams();
 
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
+  const [submissionStats, setSubmissionStats] = useState<SubmissionStatistic[]>(null);
   const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
   const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
@@ -351,9 +331,9 @@ const DataSubmission = () => {
       const { data: newDataSubmission, error } = await getSubmission();
       if (error || !newDataSubmission?.getSubmission) {
         throw new Error("Unable to retrieve Data Submission.");
-        return;
       }
       setDataSubmission(newDataSubmission.getSubmission);
+      setSubmissionStats(newDataSubmission.submissionStats);
     } catch (err) {
       setError(err?.toString());
     }
@@ -422,104 +402,7 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
-
-            <StyledChartArea>
-              <Stack direction="row" justifyContent="center" sx={{ width: "960px", textAlign: "center" }}>
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-                <PieChart
-                  label="Study"
-                  series={[
-                    {
-                      innerRadius: 40,
-                      outerRadius: 55,
-                      data: [{ label: "inner", value: 1, color: "#9FD1D6" }],
-                    },
-                    {
-                      innerRadius: 55,
-                      outerRadius: 75,
-                      data: dummyChartData,
-                      highlighted: { additionalRadius: 5 },
-                      highlightScope: { faded: 'none', highlighted: 'item' },
-                    },
-                  ]}
-                  margin={{ right: 5 }}
-                  width={150}
-                  height={150}
-                  legend={{ hidden: true }}
-                  tooltip={{ trigger: 'none' }}
-                  sx={{ rotate: "270deg", overflow: "visible" }}
-                />
-              </Stack>
-            </StyledChartArea>
-
+            <DataSubmissionStatistics dataSubmission={dataSubmission} statistics={submissionStats} />
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
                 value={URLTabs.DATA_UPLOAD}

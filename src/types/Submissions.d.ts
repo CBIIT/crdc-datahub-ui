@@ -132,3 +132,12 @@ type LogFile = {
   downloadUrl: string; // s3 presigned download url of the file
   fileSize: number // size in byte
 };
+
+type SubmissionStatistic = {
+  nodeName: string;
+  total: number;
+  new: number;
+  passed: number;
+  warning: number;
+  error: number;
+};
