@@ -157,6 +157,7 @@ type ListQCResults = {
 };
 
 type QCResults = {
+  _id: string;
   submissionID: string;
   nodeType: string;
   batchID: string;

@@ -26,6 +26,7 @@ const StyledErrorDetailsButton = styled(Button)({
 
 const testData: QCResults[] = [
   {
+    _id: "1",
     submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
     nodeType: "Participant",
     batchID: "123a5678-8adf-41e9-9432-864b2108191d",
@@ -49,6 +50,7 @@ const testData: QCResults[] = [
     uploadedDate: "2023-11-08T19:39:15.469Z",
   },
   {
+    _id: "2",
     submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
     nodeType: "Participant",
     batchID: "123a5678-8adf-41e9-9432-864b2108191d",
@@ -64,6 +66,7 @@ const testData: QCResults[] = [
     uploadedDate: "2023-11-08T19:39:15.469Z",
   },
   {
+    _id: "3",
     submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
     nodeType: "Participant",
     batchID: "123a5678-8adf-41e9-9432-864b2108191d",
