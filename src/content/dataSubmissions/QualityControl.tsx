@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
@@ -6,6 +6,8 @@ import { Box, Button, styled } from "@mui/material";
 import { SUBMISSION_QC_RESULTS, submissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
+import ErrorDialog from "./ErrorDialog";
+import QCResultsContext from "./Contexts/QCResultsContext";
 
 const StyledErrorDetailsButton = styled(Button)({
   display: "inline",
@@ -87,6 +89,60 @@ const testData: QCResults[] = [
   },
 ];
 
+const columns: Column<QCResults>[] = [
+  {
+    label: "Type",
+    renderValue: (data) => data?.nodeType,
+    field: "nodeType",
+  },
+  {
+    label: "Batch ID",
+    renderValue: (data) => data?.batchID,
+    field: "batchID",
+  },
+  {
+    label: "Node ID",
+    renderValue: (data) => data?.nodeID,
+    field: "nodeID",
+  },
+  {
+    label: "CRDC ID",
+    renderValue: (data) => data?.CRDC_ID,
+    field: "CRDC_ID",
+  },
+  {
+    label: "Severity",
+    renderValue: (data) => <Box color={data?.severity === "Error" ? "#E25C22" : "#8D5809"}>{data?.severity}</Box>,
+    field: "severity",
+  },
+  {
+    label: "Submitted Date",
+    renderValue: (data) => (data?.uploadedDate ? `${FormatDate(data.uploadedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    field: "uploadedDate",
+    default: true
+  },
+  {
+    label: "Description",
+    renderValue: (data) => data?.description?.length > 0 && (
+      <QCResultsContext.Consumer>
+        {({ handleOpenErrorDialog }) => (
+          <>
+            <span>{data.description[0].title}</span>
+            {" "}
+            <StyledErrorDetailsButton
+              onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data?._id)}
+              variant="text"
+            >
+              See details
+            </StyledErrorDetailsButton>
+          </>
+        )}
+      </QCResultsContext.Consumer>
+    ),
+    field: "description",
+  },
+];
+
 const QualityControl = () => {
   const { submissionId } = useParams();
 
@@ -96,7 +152,10 @@ const QualityControl = () => {
   const [data, setData] = useState<QCResults[]>(testData);
   const [prevData, setPrevData] = useState<FetchListing<QCResults>>(null);
   const [totalData, setTotalData] = useState(testData.length);
+  const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<string>(null);
   const tableRef = useRef<TableMethods>(null);
+  const selectedData = data?.find((item) => item._id === selectedRow);
 
   const [submissionQCResults] = useLazyQuery<submissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
     variables: { id: submissionId },
@@ -142,70 +201,35 @@ const QualityControl = () => {
     }
   };
 
-  const columns: Column<QCResults>[] = [
-    {
-      label: "Type",
-      renderValue: (data) => data?.nodeType,
-      field: "nodeType",
-    },
-    {
-      label: "Batch ID",
-      renderValue: (data) => data?.batchID,
-      field: "batchID",
-    },
-    {
-      label: "Node ID",
-      renderValue: (data) => data?.nodeID,
-      field: "nodeID",
-    },
-    {
-      label: "CRDC ID",
-      renderValue: (data) => data?.CRDC_ID,
-      field: "CRDC_ID",
-    },
-    {
-      label: "Severity",
-      renderValue: (data) => <Box color={data?.severity === "Error" ? "#E25C22" : "#8D5809"}>{data?.severity}</Box>,
-      field: "severity",
-    },
-    {
-      label: "Submitted Date",
-      renderValue: (data) => (data?.uploadedDate ? `${FormatDate(data.uploadedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
-      field: "uploadedDate",
-      default: true
-    },
-    {
-      label: "Description",
-      renderValue: (data) => data?.description?.length > 0 && (
-        <>
-          <span>{data?.description[0].title}</span>
-          {" "}
-          <StyledErrorDetailsButton
-            onClick={() => {}}
-            variant="text"
-            disableRipple
-            disableTouchRipple
-            disableFocusRipple
-          >
-            See details
-          </StyledErrorDetailsButton>
-        </>
-      ),
-      field: "description",
-    },
-  ];
+  const handleOpenErrorDialog = (id: string) => {
+    setOpenErrorDialog(true);
+    setSelectedRow(id);
+  };
+
+  const providerValue = useMemo(() => ({
+    handleOpenErrorDialog
+  }), [handleOpenErrorDialog]);
 
   return (
     <>
-      <GenericTable
-        ref={tableRef}
-        columns={columns}
-        data={data || []}
-        total={totalData || 0}
-        loading={loading}
-        onFetchData={handleFetchQCResults}
+      <QCResultsContext.Provider value={providerValue}>
+        <GenericTable
+          ref={tableRef}
+          columns={columns}
+          data={data || []}
+          total={totalData || 0}
+          loading={loading}
+          onFetchData={handleFetchQCResults}
+        />
+      </QCResultsContext.Provider>
+      <ErrorDialog
+        open={openErrorDialog}
+        onClose={() => setOpenErrorDialog(false)}
+        header="Data Submission"
+        title="Error Count"
+        errors={selectedData?.description}
+        uploadedDate={selectedData?.uploadedDate}
       />
-      {/* Error Dialog */}
     </>
   );
 };
