@@ -3,7 +3,7 @@ import "./ScrollButtonStyles.css";
 
 const ScrollButton = () => {
   const [scroll, setScroll] = useState(0);
-  const clickToTopRef = useRef<HTMLAnchorElement>(null);
+  const clickToTopRef = useRef<HTMLButtonElement>(null);
 
   const updateScroll = () => {
     setScroll(window.scrollY);
@@ -25,7 +25,8 @@ const ScrollButton = () => {
   }, []);
 
   return (
-    <a
+    <button
+      type="button"
       ref={clickToTopRef}
       id="stt"
       style={
@@ -43,7 +44,7 @@ const ScrollButton = () => {
       }
     >
       <span id="stt-span">BACK TO TOP</span>
-    </a>
+    </button>
   );
 };
 

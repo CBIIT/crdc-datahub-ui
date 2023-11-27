@@ -6,7 +6,7 @@ import USABanner from './USABanner';
 import GenericAlert from '../GenericAlert';
 import { useAuthContext } from '../Contexts/AuthContext';
 
-const HeaderContainer = styled.div`
+const HeaderContainer = styled.header`
  @media (min-width: 1024px) {
     .desktop {
       display: block;

@@ -70,6 +70,7 @@
     ]
   },
   "devDependencies": {
+    "@axe-core/react": "^4.8.1",
     "@types/lodash": "^4.14.198",
     "@types/node": "^20.4.0",
     "@types/redux": "^3.6.0",
@@ -80,6 +81,7 @@
     "eslint": "^8.40.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
     "typescript": "^5.0.4"
   }
 }
