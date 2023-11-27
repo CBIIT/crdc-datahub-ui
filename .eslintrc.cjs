@@ -24,7 +24,7 @@ module.exports = {
     }
   },
   root: true,
-  ignorePatterns: ["injectEnv.js"],
+  ignorePatterns: ["public/injectEnv.js", "public/js/session.js"],
   rules: {
     // Note: you must disable the base rule as it can report incorrect errors
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx", ".ts"] }],

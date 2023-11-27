@@ -51,10 +51,12 @@ export const navbarSublists = {
   //     className: 'navMobileSubTitle',
   //   },
   // ],
+  //
+  // To make it a link, the className has to be navMobileSubItem
   "Model Navigator": DataCommons.map((dc) => ({
     name: `${dc.name} Model`,
     link: `/model-navigator/${dc.name}`,
     text: '',
-    className: 'navMobileSubTitle',
+    className: 'navMobileSubItem',
   })),
 };
