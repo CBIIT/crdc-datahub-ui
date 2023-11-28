@@ -124,7 +124,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
           style={{ pointerEvents: !disabled ? "initial" : "none" }}
           data-testid={`progress-bar-section-${idx}`}
           aria-disabled={disabled || false}
-          aria-selected={selected}
+          data-selected={selected || false}
         >
           <Stack direction="row" alignItems="center" justifyContent="center">
             <StyledAvatar>

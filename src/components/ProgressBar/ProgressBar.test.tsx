@@ -62,7 +62,7 @@ describe("ProgressBar General Tests", () => {
 
   it("renders the currently active section as highlighted", () => {
     const { container, getByTestId } = render(<BaseComponent section={keys[1]} data={{}} />);
-    const activeLinks = container.querySelectorAll("a[aria-selected='true']");
+    const activeLinks = container.querySelectorAll("a[data-selected='true']");
 
     expect(activeLinks.length).toBe(1);
     expect(activeLinks[0]).toBe(getByTestId("progress-bar-section-1"));

@@ -10,7 +10,7 @@ import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './components/Contexts/AuthContext';
 
 if (process.env.NODE_ENV !== "production") {
-  axe(React, ReactDOM, 1000);
+  axe(React, ReactDOM, 1500);
 }
 
 const root = ReactDOM.createRoot(

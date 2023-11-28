@@ -22,7 +22,7 @@ const StyledBannerContentContainer = styled(Container)(({ padding } : { padding?
   },
 }));
 
-const StyledBannerTitle = styled("h2")({
+const StyledBannerTitle = styled("h1")({
   maxWidth: "611px",
   height: "79px",
   display: "flex",
@@ -38,7 +38,7 @@ const StyledBannerTitle = styled("h2")({
   margin: 0,
 });
 
-const StyledBannerSubtitle = styled("h6")({
+const StyledBannerSubtitle = styled("h2")({
   display: "flex",
   maxWidth: "565px",
   height: "59px",
