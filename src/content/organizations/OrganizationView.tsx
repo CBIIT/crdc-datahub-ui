@@ -323,8 +323,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               )}
 
               <StyledField>
-                <StyledLabel>{_id !== "new" ? "Organization" : "Name"}</StyledLabel>
-                <StyledTextField {...register("name", { required: true })} size="small" required />
+                <StyledLabel id="organizationName">{_id !== "new" ? "Organization" : "Name"}</StyledLabel>
+                <StyledTextField
+                  {...register("name", { required: true })}
+                  size="small"
+                  required
+                  inputProps={{ "aria-labelledby": "organizationName" }}
+                />
               </StyledField>
               <StyledField>
                 <StyledLabel>Primary Contact</StyledLabel>

@@ -76,9 +76,7 @@ const PageBanner: FC<Props> = ({
     <StyledBanner bannerSrc={bannerSrc}>
       <StyledBannerContentContainer maxWidth="xl" padding={padding}>
         <StyledBannerTitle>{title}</StyledBannerTitle>
-        <StyledBannerSubtitle>
-          {subTitle}
-        </StyledBannerSubtitle>
+        {subTitle && (<StyledBannerSubtitle>{subTitle}</StyledBannerSubtitle>)}
         {body}
       </StyledBannerContentContainer>
     </StyledBanner>

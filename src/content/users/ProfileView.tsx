@@ -354,15 +354,25 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 {user.email}
               </StyledField>
               <StyledField>
-                <StyledLabel>First name</StyledLabel>
+                <StyledLabel id="firstNameLabel">First name</StyledLabel>
                 {fieldset.includes("firstName") ? (
-                  <StyledTextField {...register("firstName", { required: true })} size="small" required />
+                  <StyledTextField
+                    {...register("firstName", { required: true })}
+                    size="small"
+                    inputProps={{ "aria-labelledby": "firstNameLabel" }}
+                    required
+                  />
                 ) : user.firstName}
               </StyledField>
               <StyledField>
-                <StyledLabel>Last name</StyledLabel>
+                <StyledLabel id="lastNameLabel">Last name</StyledLabel>
                 {fieldset.includes("lastName") ? (
-                  <StyledTextField {...register("lastName", { required: true })} size="small" required />
+                  <StyledTextField
+                    {...register("lastName", { required: true })}
+                    size="small"
+                    required
+                    inputProps={{ "aria-labelledby": "lastNameLabel" }}
+                  />
                 ) : user.lastName}
               </StyledField>
               <StyledField>
