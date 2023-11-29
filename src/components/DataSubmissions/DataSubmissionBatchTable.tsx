@@ -309,7 +309,8 @@ const DataSubmissionBatchTable = <T,>({
               || total <= (page + 1) * perPage
               || emptyRows > 0
               || loading
-          }}
+        }}
+        SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
         backIconButtonProps={{ disabled: page === 0 || loading }}
         ActionsComponent={PaginationActions}
       />

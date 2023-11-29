@@ -445,6 +445,7 @@ const ListingView: FC = () => {
                 || emptyRows > 0
                 || loading,
             }}
+            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>

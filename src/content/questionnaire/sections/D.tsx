@@ -252,7 +252,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         required
         error={dataTypesErrorMsg}
       >
-        <InvisibleInput ref={dataTypesInputRef} />
+        <InvisibleInput ref={dataTypesInputRef} aria-label={SectionDMetadata.sections.DATA_TYPES.title} />
         <SwitchInput
           id="section-d-clinical-trial"
           label="Clinical Trial"
@@ -474,6 +474,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       name={`files[${idx}][count]`}
                       value={fileData.count ?? ""}
                       placeholder="Enter file count"
+                      inputProps={{ "aria-label": "File count" }}
                       pattern="^[1-9]\d*$"
                       filter={filterPositiveIntegerString}
                       patternValidityMessage="Please enter a whole number greater than 0"
@@ -487,6 +488,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       name={`files[${idx}][amount]`}
                       value={fileData.amount}
                       placeholder="E.g. 500 GB"
+                      inputProps={{ "aria-label": "File size" }}
                       maxLength={50}
                       required
                     />
@@ -519,7 +521,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         description={SectionDMetadata.sections.ADDITIONAL_COMMENTS.description}
       >
         <TextInput
-          label=""
           name="submitterComment"
           value={data.submitterComment}
           gridWidth={12}
@@ -527,8 +528,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="500 characters allowed"
           minRows={5}
           multiline
-          sx={{ marginTop: "-20px" }}
           readOnly={readOnlyInputs}
+          inputProps={{
+            "aria-label": SectionDMetadata.sections.ADDITIONAL_COMMENTS.title
+          }}
         />
       </SectionGroup>
     </FormContainer>

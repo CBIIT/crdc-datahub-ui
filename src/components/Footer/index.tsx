@@ -1,59 +1,21 @@
-import React from 'react';
-import styled from 'styled-components';
+import { useMediaQuery } from '@mui/material';
 import FooterDesktop from './FooterDesktop';
 import FooterTablet from './FooterTablet';
 import FooterMobile from './FooterMobile';
 
-const FooterContainer = styled.footer`
- @media (min-width: 1024px) {
-    .desktop {
-      display: block;
-    }
-    .tablet {
-      display: none;
-    }
-    .mobile {
-      display: none;
-    }
+const Footer = () => {
+  const tablet = useMediaQuery("(min-width: 768px) and (max-width: 1024px)");
+  const mobile = useMediaQuery("(max-width: 767px)");
+
+  if (mobile) {
+    return <FooterMobile />;
   }
 
-  @media (min-width:768px) and (max-width: 1024px) {
-    .desktop {
-      display: none;
-    }
-    .tablet {
-      display: block;
-    }
-    .mobile {
-      display: none;
-    }
+  if (tablet) {
+    return <FooterTablet />;
   }
 
-  @media (max-width: 768px) {
-    .desktop {
-      display: none;
-    }
-    .tablet {
-      display: none;
-    }
-    .mobile {
-      display: block;
-    }
-  }
-`;
-
-const Footer = () => (
-  <FooterContainer>
-    <div className="desktop">
-      <FooterDesktop />
-    </div>
-    <div className="tablet">
-      <FooterTablet />
-    </div>
-    <div className="mobile">
-      <FooterMobile />
-    </div>
-  </FooterContainer>
-  );
+  return <FooterDesktop />;
+};
 
 export default Footer;
