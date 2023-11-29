@@ -8,8 +8,9 @@ import client from './client';
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './components/Contexts/AuthContext';
+import env from './env';
 
-if (process.env.NODE_ENV !== "production") {
+if (env.REACT_APP_DEV_TIER === "dev" || env.REACT_APP_DEV_TIER === "dev2") {
   axe(React, ReactDOM, 1500);
 }
 
@@ -27,9 +28,6 @@ root.render(
   </ApolloProvider>,
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
 serviceWorker.unregister();
