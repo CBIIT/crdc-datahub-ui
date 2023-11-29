@@ -96,14 +96,10 @@ const StyledErrorDetails = styled(Stack)({
   padding: "10px",
 });
 
-type ErrorMessage = { // TODO: REMOVE
-  title: string;
-  description: string;
-};
-
 type Props = {
   header?: string;
   title?: string;
+  closeText?: string;
   errors: ErrorMessage[];
   uploadedDate: string;
   onClose?: () => void;
@@ -112,6 +108,7 @@ type Props = {
 const ErrorDialog = ({
   header,
   title,
+  closeText = "Close",
   errors,
   uploadedDate,
   onClose,
@@ -130,10 +127,10 @@ const ErrorDialog = ({
         <CloseIconSvg />
       </StyledCloseDialogButton>
       <StyledHeader variant="h3">
-        Data Submission
+        {header}
       </StyledHeader>
       <StyledTitle variant="h6">
-        Error Count
+        {title}
       </StyledTitle>
       <StyledErrorDetails direction="column" spacing={2.5}>
         <StyledSubtitle variant="body2">
@@ -148,8 +145,8 @@ const ErrorDialog = ({
           ))}
         </Stack>
       </StyledErrorDetails>
-      <StyledCloseButton id="api-token-close-button" variant="outlined" onClick={handleCloseDialog}>
-        Close
+      <StyledCloseButton id="error-dialog-close-button" variant="outlined" onClick={handleCloseDialog}>
+        {closeText}
       </StyledCloseButton>
     </StyledDialog>
   );
