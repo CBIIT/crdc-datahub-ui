@@ -338,15 +338,15 @@ const ListingView: FC = () => {
 
       <StyledContainer maxWidth="xl">
         <StyledFilterContainer>
-          <StyledInlineLabel>Organization</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
           <StyledFormControl>
-            <StyledTextField {...register("organization")} placeholder="Enter a Organization" required />
+            <StyledTextField {...register("organization")} placeholder="Enter a Organization" id="organization-filter" required />
           </StyledFormControl>
-          <StyledInlineLabel>Study</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
           <StyledFormControl>
-            <StyledTextField {...register("study")} placeholder="Enter a Study" required />
+            <StyledTextField {...register("study")} placeholder="Enter a Study" id="study-filter" required />
           </StyledFormControl>
-          <StyledInlineLabel>Status</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="status"
@@ -357,6 +357,7 @@ const ListingView: FC = () => {
                   defaultValue="All"
                   value={field.value || "All"}
                   MenuProps={{ disablePortal: true }}
+                  inputProps={{ id: "status-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Active">Active</MenuItem>

@@ -293,7 +293,7 @@ const ListingView: FC = () => {
         )}
 
         <StyledFilterContainer>
-          <StyledInlineLabel>Organization</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="organization"
@@ -305,6 +305,7 @@ const ListingView: FC = () => {
                   defaultValue="All"
                   value={field.value || "All"}
                   MenuProps={{ disablePortal: true }}
+                  inputProps={{ id: "organization-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {orgData?.map((org: Organization) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
@@ -312,7 +313,7 @@ const ListingView: FC = () => {
               )}
             />
           </StyledFormControl>
-          <StyledInlineLabel>Role</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="role-filter">Role</StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="role"
@@ -323,6 +324,7 @@ const ListingView: FC = () => {
                   defaultValue="All"
                   value={field.value || "All"}
                   MenuProps={{ disablePortal: true }}
+                  inputProps={{ id: "role-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
@@ -330,7 +332,7 @@ const ListingView: FC = () => {
               )}
             />
           </StyledFormControl>
-          <StyledInlineLabel>Status</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="status"
@@ -341,6 +343,7 @@ const ListingView: FC = () => {
                   defaultValue="All"
                   value={field.value || "All"}
                   MenuProps={{ disablePortal: true }}
+                  inputProps={{ id: "status-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Active">Active</MenuItem>
