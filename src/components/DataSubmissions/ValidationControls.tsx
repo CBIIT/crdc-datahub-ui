@@ -62,7 +62,7 @@ const StyledValidateButton = styled(LoadingButton)({
 
 const StyledFileValidationSection = styled("div")({
   borderRadius: 0,
-  minHeight: "125px",
+  minHeight: "147px",
   padding: "21px 40px 0",
   borderTop: "solid 1.5px #6CACDA",
   background: "#F0FBFD",
@@ -71,12 +71,13 @@ const StyledFileValidationSection = styled("div")({
   display: "grid",
   ".headerText": {
     fontFamily: "Nunito",
+    color: "#083A50",
     fontSize: "16px",
     fontWeight: "700",
     lineHeight: "20px",
     letterSpacing: "0em",
     textAlign: "left",
-    minWidth: "200px;"
+    minWidth: "270px"
   },
   ".fileValidationLeftSide": {
     display: "flex",
@@ -85,15 +86,15 @@ const StyledFileValidationSection = styled("div")({
   ".fileValidationLeftSideTopRow": {
     display: "grid",
     gridTemplateColumns: "1fr 3fr",
-    height: "45px",
+    height: "50px",
     alignItems: "center",
     borderBottom: "1px solid #0B7F99",
-    width: "710px",
+    width: "800px",
   },
   ".fileValidationLeftSideBottomRow": {
     display: "grid",
     gridTemplateColumns: "1fr 3fr",
-    height: "45px",
+    height: "50px",
     alignItems: "center",
     width: "800px",
   },
