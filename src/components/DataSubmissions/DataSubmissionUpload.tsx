@@ -128,6 +128,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   const uploadMetatadataInputRef = useRef<HTMLInputElement>(null);
   const isSubmissionOwner = submitterID === user?._id;
   const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
+  const acceptedExtensions = [".tsv", ".txt"];
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
     context: { clientName: 'backend' },
@@ -170,8 +171,8 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       return;
     }
 
-    // Filter out any file that is not tsv
-    const filteredFiles = Array.from(files)?.filter((file: File) => file.name?.toLowerCase()?.endsWith(".tsv"));
+    // Filter out any file that is not an accepted file extension
+    const filteredFiles = Array.from(files)?.filter((file: File) => acceptedExtensions.some((ext) => file.name?.toLowerCase()?.endsWith(ext)));
     if (!filteredFiles?.length) {
       setSelectedFiles(null);
       return;
@@ -312,7 +313,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         <VisuallyHiddenInput
           ref={uploadMetatadataInputRef}
           type="file"
-          accept="text/tab-separated-values"
+          accept={acceptedExtensions.toString()}
           onChange={handleChooseFiles}
           readOnly={readOnly}
           multiple

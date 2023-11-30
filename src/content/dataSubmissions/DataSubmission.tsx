@@ -203,7 +203,7 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
 const columns: Column<Batch>[] = [
   {
     label: "Upload Type",
-    value: (data) => data?.metadataIntention,
+    value: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
     field: "metadataIntention",
   },
   {
