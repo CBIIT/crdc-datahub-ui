@@ -1,8 +1,7 @@
 import React, { ElementType, FC, useEffect, useMemo, useState } from "react";
 import {
-  Alert, Box, Button, CircularProgress,
-  Container, FormControl, MenuItem,
-  OutlinedInput,
+  Alert, Box, Button,
+  Container, FormControl, MenuItem, OutlinedInput,
   Select, Stack, Table, TableBody, TableCell,
   TableContainer, TableHead, TablePagination, TableRow,
   TableSortLabel, Typography, styled,
@@ -12,6 +11,7 @@ import { Controller, useForm } from 'react-hook-form';
 import PageBanner from "../../components/PageBanner";
 import Tooltip from '../../components/Tooltip';
 import { useOrganizationListContext, Status } from '../../components/Contexts/OrganizationListContext';
+import SuspenseLoader from '../../components/SuspenseLoader';
 
 type T = Partial<Organization>;
 
@@ -392,22 +392,7 @@ const ListingView: FC = () => {
               {status === Status.LOADING && (
                 <TableRow>
                   <TableCell>
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        background: "#fff",
-                        left: 0,
-                        top: 0,
-                        width: "100%",
-                        height: "100%",
-                        zIndex: "9999",
-                      }}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <CircularProgress size={64} disableShrink thickness={3} />
-                    </Box>
+                    <SuspenseLoader fullscreen={false} />
                   </TableCell>
                 </TableRow>
               )}

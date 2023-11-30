@@ -5,7 +5,7 @@ import {
   Table, TableBody, TableCell,
   TableContainer, TableHead,
   TablePagination, TableRow,
-  TableSortLabel, Typography, Box, CircularProgress,
+  TableSortLabel, Typography,
   Dialog, DialogTitle
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
@@ -22,6 +22,7 @@ import SelectInput from "../../components/Questionnaire/SelectInput";
 import TextInput from "../../components/Questionnaire/TextInput";
 import GenericAlert from '../../components/GenericAlert';
 import { DataCommons } from '../../config/DataCommons';
+import SuspenseLoader from '../../components/SuspenseLoader';
 
 type T = Submission;
 
@@ -459,22 +460,7 @@ const ListingView: FC = () => {
               {loading && (
                 <TableRow>
                   <TableCell>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        background: "#fff",
-                        left: 0,
-                        top: 0,
-                        width: '100%',
-                        height: '100%',
-                        zIndex: "9999",
-                      }}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <CircularProgress size={64} disableShrink thickness={3} />
-                    </Box>
+                    <SuspenseLoader fullscreen={false} />
                   </TableCell>
                 </TableRow>
               )}

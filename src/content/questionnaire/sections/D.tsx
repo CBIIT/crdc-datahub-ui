@@ -503,6 +503,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                           startIcon={<RemoveCircleIcon />}
                           iconColor="#E74040"
                           disabled={readOnlyInputs || status === FormStatus.SAVING}
+                          aria-label="Remove File Type"
                           sx={{ minWidth: "0px !important" }}
                         />
                       </div>

@@ -4,7 +4,6 @@ import {
   Alert,
   Box,
   Button,
-  CircularProgress,
   Container,
   FormControl,
   MenuItem,
@@ -22,6 +21,7 @@ import { Roles } from '../../config/AuthRoles';
 import { LIST_USERS, ListUsersResp } from '../../graphql';
 import { formatIDP } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
+import SuspenseLoader from '../../components/SuspenseLoader';
 
 type T = User;
 
@@ -378,22 +378,7 @@ const ListingView: FC = () => {
               {loading && (
                 <TableRow>
                   <TableCell>
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        background: "#fff",
-                        left: 0,
-                        top: 0,
-                        width: "100%",
-                        height: "100%",
-                        zIndex: "9999",
-                      }}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <CircularProgress size={64} disableShrink thickness={3} />
-                    </Box>
+                    <SuspenseLoader fullscreen={false} />
                   </TableCell>
                 </TableRow>
               )}

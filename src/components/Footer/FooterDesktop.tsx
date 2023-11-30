@@ -222,11 +222,6 @@ const BottomFooter = styled.div`
   }
 `;
 
-const StyledAsterisk = styled("span")(() => ({
-  color: "#D54309",
-  marginLeft: "2px",
-}));
-
 const FooterDesktop = () => {
   const [emailContent, setEmailContent] = useState("");
   const emailForm = useRef<HTMLFormElement>(null);
@@ -288,7 +283,6 @@ const FooterDesktop = () => {
             <div className="enterTitle">
               <label htmlFor="email">
                 Sign up for the newsletter
-                <StyledAsterisk>*</StyledAsterisk>
                 <input ref={emailInput} id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
               </label>
             </div>
