@@ -21,32 +21,34 @@ const StyledDialog = styled(Dialog)({
 
 const StyledHeader = styled(Typography)({
   color: "#0B7F99",
-  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
-  fontSize: "35px",
+  fontFamily: "'Nunito Sans', 'Rubik', sans-serif !important",
+  fontSize: "35px !important",
   fontStyle: "normal",
-  fontWeight: 900,
-  lineHeight: "30px",
-  marginBottom: "50px"
+  fontWeight: "900 !important",
+  lineHeight: "30px !important",
+  marginBottom: "50px !important",
 });
 
 const StyledTitle = styled(Typography)({
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif !important",
+  fontSize: "16px !important",
   fontStyle: "normal",
-  fontWeight: 400,
-  lineHeight: "19.6px",
-  marginBottom: "58px"
+  fontWeight: "400 !important",
+  lineHeight: "19.6px !important",
+  marginBottom: "58px !important",
+  letterSpacing: "unset !important",
 });
 
 const StyledExplanationText = styled(Typography)({
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  color: "#083A50",
+  fontFamily: "'Nunito', 'Rubik', sans-serif !important",
+  color: "#083A50 !important",
   textAlign: "center",
-  fontSize: "16px",
+  fontSize: "16px !important",
   fontStyle: "italic",
-  fontWeight: 400,
-  lineHeight: "19.6px",
-  marginTop: "20px"
+  fontWeight: "400 !important",
+  lineHeight: "19.6px !important",
+  letterSpacing: "unset !important",
+  marginTop: "20px !important",
 });
 
 const StyledTokenInput = styled(OutlinedInput)({
@@ -74,38 +76,36 @@ const StyledTokenInput = styled(OutlinedInput)({
 });
 
 const StyledGenerateButton = styled(Button)({
-  display: "flex",
   width: "128px",
   height: "42px",
-  padding: "12px 7px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  border: "1px solid #000",
-  background: "#1D91AB",
+  padding: "12px 7px !important",
+  borderRadius: "8px !important",
+  border: "1px solid #000 !important",
+  background: "#1D91AB !important",
   color: "#FFFFFF",
   textAlign: "center",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif !important",
+  fontSize: "16px !important",
   fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "24px",
-  letterSpacing: "0.32px",
-  textTransform: "none",
+  fontWeight: "700 !important",
+  lineHeight: "24px !important",
+  letterSpacing: "0.32px !important",
+  textTransform: "none !important" as 'none',
   "&:hover": {
-    background: "#1D91AB",
+    background: "#1D91AB !important",
   },
 });
 
 const StyledCopyTokenButton = styled(IconButton)(() => ({
-  color: "#000000",
+  color: "#000000 !important",
+  padding: "8px !important",
   "&.MuiIconButton-root.Mui-disabled": {
-    color: "#B0B0B0"
+    color: "#B0B0B0 !important"
   }
 }));
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
-  position: 'absolute',
+  position: 'absolute !important' as 'absolute',
   right: "21px",
   top: "11px",
   padding: "10px",
@@ -115,28 +115,24 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledCloseButton = styled(Button)({
-  display: "flex",
   width: "128px",
   height: "42px",
-  padding: "12px 60px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  border: "1px solid #000",
-  color: "#000",
+  padding: "12px 60px !important",
+  borderRadius: "8px !important",
+  border: "1px solid #000 !important",
+  color: "#000 !important",
   textAlign: "center",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif !important",
+  fontSize: "16px !important",
   fontStyle: "normal",
-  fontWeight: "700",
-  lineHeight: "24px",
+  fontWeight: "700 !important",
+  lineHeight: "24px !important",
   letterSpacing: "0.32px",
-  textTransform: "none",
+  textTransform: "none !important" as 'none',
   alignSelf: "center",
-  marginTop: "45px",
+  marginTop: "45px !important",
   "&:hover": {
-    background: "transparent",
-    border: "1px solid #000",
+    background: "transparent !important",
   }
 });
 
@@ -252,7 +248,7 @@ const APITokenDialog: FC<Props> = ({
         the previous token will be invalidated. A token expires 60 days after its creation.
       </StyledTitle>
       <Stack direction={{ xs: "column", md: "row" }} spacing={1.875} justifyContent="center" alignItems="center">
-        <StyledGenerateButton id="api-token-create-token-button" onClick={handleCreateToken}>
+        <StyledGenerateButton id="api-token-create-token-button" onClick={handleCreateToken} variant="contained">
           Create Token
         </StyledGenerateButton>
         <StyledTokenInput id="api-token-input" value={tokens?.length ? "*************************************" : ""} readOnly />

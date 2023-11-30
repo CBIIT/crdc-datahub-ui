@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@mui/material';
 import styled from 'styled-components';
 import { useAuthContext } from '../../Contexts/AuthContext';
 import GenericAlert from '../../GenericAlert';
 import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
 import APITokenDialog from '../../../content/users/APITokenDialog';
+import UploaderToolDialog from '../../../content/users/UploaderToolDialog';
 
 const Nav = styled.div`
     top: 0;
@@ -368,14 +369,18 @@ const useOutsideAlerter = (ref1, ref2) => {
 const NavBar = () => {
   const [clickedTitle, setClickedTitle] = useState("");
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
+  const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
   const dropdownSelection = useRef(null);
   const nameDropdownSelection = useRef(null);
   const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
   const clickableTitle = clickableObject.map((item) => item.name);
   const navigate = useNavigate();
   const authData = useAuthContext();
+  const location = useLocation();
   const displayName = authData?.user?.firstName?.toUpperCase() || "N/A";
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
+  const [restorePath, setRestorePath] = useState<string>(null);
+
   clickableTitle.push(displayName);
 
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
@@ -430,6 +435,16 @@ const NavBar = () => {
   useEffect(() => {
     setClickedTitle("");
   }, []);
+
+  useEffect(() => {
+    if (!location?.pathname || location?.pathname === "/") {
+      setRestorePath(null);
+      return;
+    }
+
+    setRestorePath(location?.pathname);
+  }, [location]);
+
   return (
     <Nav>
       <GenericAlert open={showLogoutAlert}>
@@ -497,9 +512,8 @@ const NavBar = () => {
                   </div>
                 </div>
               </LiSection>
-            )
-            : (
-              <StyledLoginLink id="header-navbar-login-button" to="/login">
+            ) : (
+              <StyledLoginLink id="header-navbar-login-button" to="/login" state={{ redirectURLOnLoginSuccess: restorePath }}>
                 Login
               </StyledLoginLink>
             )}
@@ -533,6 +547,11 @@ const NavBar = () => {
               <Link id="navbar-dropdown-item-name-user-profile" to={`/profile/${authData?.user?._id}`} className="dropdownItem" onClick={() => setClickedTitle("")}>
                 User Profile
               </Link>
+            </span>
+            <span className="dropdownItem">
+              <Button id="navbar-dropdown-item-name-uploader-tool" className="dropdownItem dropdownItemButton" onClick={() => setUploaderToolOpen(true)}>
+                Uploader CLI Tool
+              </Button>
             </span>
             {(authData?.user?.role === "Admin" || authData?.user?.role === "Organization Owner") && (
               <span className="dropdownItem">
@@ -574,6 +593,7 @@ const NavBar = () => {
         </NameDropdownContainer>
       </NameDropdown>
       <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
+      <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
     </Nav>
   );
 };
