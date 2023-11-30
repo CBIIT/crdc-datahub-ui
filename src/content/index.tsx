@@ -176,9 +176,9 @@ const Home: FC = () => {
             )
           : (
             <div className="loginPageTextContainer">
-              <div className="loginPageTextTitle">
+              <h1 className="loginPageTextTitle">
                 Login to CRDC Submission Portal
-              </div>
+              </h1>
               <div className="loginPageText">
                 Please login with a Login.gov account to make a data submission request or to upload data for approved submissions
               </div>

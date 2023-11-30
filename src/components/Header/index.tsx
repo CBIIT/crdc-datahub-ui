@@ -1,35 +1,17 @@
 import { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import { useMediaQuery } from '@mui/material';
 import HeaderDesktop from './HeaderDesktop';
 import HeaderTabletAndMobile from './HeaderTabletAndMobile';
 import USABanner from './USABanner';
 import GenericAlert from '../GenericAlert';
 import { useAuthContext } from '../Contexts/AuthContext';
 
-const HeaderContainer = styled.header`
- @media (min-width: 1024px) {
-    .desktop {
-      display: block;
-    }
-    .tabletAndMobile {
-      display: none;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    .desktop {
-      display: none;
-    }
-    .tabletAndMobile {
-      display: block;
-    }
-  }
-
-`;
-
 const Header = () => {
+  const tabletAndMobile = useMediaQuery("(max-width: 1024px)");
+
   const [showLoginError, setShowLoginError] = useState<boolean>(false);
   const authContext = useAuthContext();
+
   useEffect(() => {
     if (authContext.error !== undefined) {
       setShowLoginError(true);
@@ -42,15 +24,10 @@ const Header = () => {
       <GenericAlert severity="error" open={showLoginError}>
         {authContext.error}
       </GenericAlert>
-      <HeaderContainer>
+      <header>
         <USABanner />
-        <div className="desktop">
-          <HeaderDesktop />
-        </div>
-        <div className="tabletAndMobile">
-          <HeaderTabletAndMobile />
-        </div>
-      </HeaderContainer>
+        {tabletAndMobile ? <HeaderTabletAndMobile /> : <HeaderDesktop />}
+      </header>
     </>
   );
 };
