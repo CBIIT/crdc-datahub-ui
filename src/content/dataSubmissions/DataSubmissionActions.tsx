@@ -119,6 +119,7 @@ type UserRole = User["role"];
 type ActionConfig = {
   roles: UserRole[];
   statuses: SubmissionStatus[];
+  bypassRoles?: UserRole[];
 };
 
 type ActionKey = "Submit" | "Release" | "Withdraw" | "SubmittedReject" | "ReleasedReject" | "Complete" | "Cancel" | "Archive";
@@ -127,6 +128,7 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
     statuses: ["In Progress", "Withdrawn"],
+    bypassRoles: ["Admin"]
   },
   Release: {
     roles: ["Data Curator", "Admin"],
@@ -160,10 +162,11 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
 
 type Props = {
   submission: Submission;
+  disableSubmit?: boolean;
   onAction: (action: SubmissionAction) => Promise<void>;
 };
 
-const DataSubmissionActions = ({ submission, onAction }: Props) => {
+const DataSubmissionActions = ({ submission, disableSubmit, onAction }: Props) => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
@@ -219,7 +222,10 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
           variant="contained"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
-          disabled={action && action !== "Submit"} /* TODO: Post MVP2-M2 - Will be disabled if fails validation check */
+          disabled={
+            (disableSubmit && !actionConfig["Submit"]?.bypassRoles?.includes(user.role))
+            || (action && action !== "Submit")
+          } /* TODO: Post MVP2-M2 - Will be disabled if fails validation check */
           disableElevation
           disableRipple
           disableTouchRipple

@@ -442,6 +442,7 @@ const DataSubmission = () => {
             <DataSubmissionActions
               submission={dataSubmission}
               onAction={updateSubmissionAction}
+              disableSubmit={batchFiles?.some((file) => file.errors?.length > 0)}
             />
           </StyledCardActions>
         </StyledCard>
