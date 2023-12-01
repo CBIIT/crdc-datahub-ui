@@ -164,7 +164,7 @@ const APITokenDialog: FC<Props> = ({
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
 
   const [grantToken] = useMutation<GrantTokenResp>(GRANT_TOKEN, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
