@@ -134,7 +134,7 @@ const ErrorDialog = ({
       </StyledTitle>
       <StyledErrorDetails direction="column" spacing={2.5}>
         <StyledSubtitle variant="body2">
-          {`${errors?.length || 0} COUNTS ON ${FormatDate(uploadedDate, "M/D/YYYY", "N/A")}:`}
+          {`${errors?.length || 0} ${errors?.length === 1 ? "COUNT" : "COUNTS"} ON ${FormatDate(uploadedDate, "M/D/YYYY", "N/A")}:`}
         </StyledSubtitle>
         <Stack direction="column" spacing={2.75}>
           {errors?.map((error: ErrorMessage, idx: number) => (

@@ -16,7 +16,7 @@ const StyledErrorDetailsButton = styled(Button)({
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 600,
-  lineHeight: "19.6px",
+  lineHeight: "19px",
   padding: 0,
   textDecorationLine: "underline",
   textTransform: "none",
@@ -32,8 +32,8 @@ const testData: QCResults[] = [
     submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
     nodeType: "Participant",
     batchID: "123a5678-8adf-41e9-9432-864b2108191d",
-    nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
-    CRDC_ID: "123a5678-8adf-41e9-9432-864b2108191d",
+    nodeID: "103a5678-8adf-41e9-9432-864b2108191d",
+    CRDC_ID: "113a5678-8adf-41e9-9432-864b2108191d",
     severity: "Error",
     description: [
       {
@@ -55,9 +55,9 @@ const testData: QCResults[] = [
     _id: "2",
     submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
     nodeType: "Participant",
-    batchID: "123a5678-8adf-41e9-9432-864b2108191d",
-    nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
-    CRDC_ID: "123a5678-8adf-41e9-9432-864b2108191d",
+    batchID: "456a5678-8adf-41e9-9432-864b2108191d",
+    nodeID: "406a5678-8adf-41e9-9432-864b2108191d",
+    CRDC_ID: "416a5678-8adf-41e9-9432-864b2108191d",
     severity: "Error",
     description: [
       {
@@ -71,9 +71,9 @@ const testData: QCResults[] = [
     _id: "3",
     submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
     nodeType: "Participant",
-    batchID: "123a5678-8adf-41e9-9432-864b2108191d",
-    nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
-    CRDC_ID: "123a5678-8adf-41e9-9432-864b2108191d",
+    batchID: "789a5678-8adf-41e9-9432-864b2108191d",
+    nodeID: "709a5678-8adf-41e9-9432-864b2108191d",
+    CRDC_ID: "719a5678-8adf-41e9-9432-864b2108191d",
     severity: "Error",
     description: [
       {
@@ -122,7 +122,7 @@ const columns: Column<QCResults>[] = [
     default: true
   },
   {
-    label: "Description",
+    label: "Reasons",
     renderValue: (data) => data?.description?.length > 0 && (
       <QCResultsContext.Consumer>
         {({ handleOpenErrorDialog }) => (
@@ -132,6 +132,9 @@ const columns: Column<QCResults>[] = [
             <StyledErrorDetailsButton
               onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data?._id)}
               variant="text"
+              disableRipple
+              disableTouchRipple
+              disableFocusRipple
             >
               See details
             </StyledErrorDetailsButton>
@@ -226,7 +229,7 @@ const QualityControl = () => {
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header="Data Submission"
-        title="Error Count"
+        title="Reasons"
         errors={selectedData?.description}
         uploadedDate={selectedData?.uploadedDate}
       />
