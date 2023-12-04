@@ -73,7 +73,7 @@ const StyledAsterisk = styled("span")(() => ({
 
 const StyledRadio = styled(Radio)((props) => ({
   "& input": {
-    cursor: props.readOnly ? "not-allowed" : "initial",
+    cursor: props.readOnly ? "not-allowed" : "pointer",
   },
   "& .radio-icon": {
     backgroundColor: props.readOnly ? "#D2DFE9 !important" : "initial",
@@ -172,6 +172,10 @@ const RadioYesNoInput: FC<Props> = ({
       radioGroupInputRef.current?.removeEventListener("invalid", invalid);
     };
   }, [radioGroupInputRef]);
+
+  useEffect(() => {
+    setVal(value?.toString() ?? null);
+  }, [value]);
 
   return (
     <GridStyled md={gridWidth || 6} xs={12} item $containerWidth={containerWidth}>
