@@ -299,7 +299,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         label="Upload Type"
         value={metadataIntention}
         onChange={(_event, value: MetadataIntention) => setMetadataIntention(value)}
-        options={[{ label: "New", value: "New" }, { label: "Update", value: "Update" }]}
+        options={[{ label: "New", value: "New", disabled: !canUpload }, { label: "Update", value: "Update", disabled: !canUpload }]}
         gridWidth={4}
         readOnly={readOnly}
         inline
