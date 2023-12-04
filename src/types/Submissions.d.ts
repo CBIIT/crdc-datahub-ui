@@ -89,7 +89,7 @@ type Batch = {
   fileCount: number; // calculated by BE
   files: BatchFileInfo[];
   status: BatchStatus; // [New, Uploaded, Upload Failed, Loaded, Rejected] Loaded and Rejected are for metadata batch only
-  errors: string[];
+  errors: ErrorMessage[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };

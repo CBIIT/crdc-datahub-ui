@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Alert,
   AlertColor,
   Box,
+  Button,
   Card,
   CardActions,
   CardActionsProps,
@@ -36,6 +37,8 @@ import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
+import ErrorDialog from "./ErrorDialog";
+import BatchTableContext from "./Contexts/BatchTableContext";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -197,6 +200,56 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
   }
 }));
 
+const StyledErrorDetailsButton = styled(Button)(() => ({
+  color: "#0D78C5",
+  fontFamily: "Inter",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "19px",
+  textDecorationLine: "underline",
+  textTransform: "none",
+  padding: 0,
+  justifyContent: "flex-start",
+  "&:hover": {
+    background: "transparent",
+    textDecorationLine: "underline",
+  },
+}));
+
+const testData: ErrorMessage[][] = [
+  [
+    {
+      title: "Incorrect control vocabulary.",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eget duis at tellus at urna condimentum mattis. Eget nunc scelerisque viverra mauris in aliquam sem.",
+    },
+    {
+      title: "Missing required field.",
+      description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
+    },
+    {
+      title: "Value not in the range.",
+      description: "Consectetur adipiscing elit pellentesque habitant morbi tristique senectus. Nec ullamcorper sit amet risus. Faucibus in ornare quam viverra orci sagittis. Venenatis urna cursus eget nunc.",
+    },
+  ],
+  [
+    {
+      title: "Missing required field.",
+      description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
+    },
+  ],
+  [
+    {
+      title: "Value not in the range.",
+      description: "Consectetur adipiscing elit pellentesque habitant morbi tristique senectus. Nec ullamcorper sit amet risus. Faucibus in ornare quam viverra orci sagittis. Venenatis urna cursus eget nunc.",
+    },
+    {
+      title: "Incorrect control vocabulary.",
+      description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
+    },
+  ]
+];
+
 const columns: Column<Batch>[] = [
   {
     label: "Upload Type",
@@ -225,7 +278,25 @@ const columns: Column<Batch>[] = [
     default: true,
     minWidth: "240px"
   },
-  /* TODO: Error Count removed for MVP2-M2. Will be re-added in the future */
+  {
+    label: "Error Count",
+    renderValue: (data) => data?.errors?.length > 0 && (
+      <BatchTableContext.Consumer>
+        {({ handleOpenErrorDialog }) => (
+          <StyledErrorDetailsButton
+            onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data?._id)}
+            variant="text"
+            disableRipple
+            disableTouchRipple
+            disableFocusRipple
+          >
+            {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
+          </StyledErrorDetailsButton>
+        )}
+      </BatchTableContext.Consumer>
+    ),
+    field: "errors",
+  },
 ];
 
 const URLTabs = {
@@ -245,8 +316,11 @@ const DataSubmission = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
+  const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<string>(null);
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
+  const selectedData = batchFiles?.find((item) => item._id === selectedRow);
 
   const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
     variables: { id: submissionId },
@@ -293,7 +367,10 @@ const DataSubmission = () => {
         setError("Unable to retrieve batch data.");
         return;
       }
-      setBatchFiles(newBatchFiles.listBatches.batches);
+      /* TODO: REMOVE - TESTING PURPOSES ONLY */
+      const dummyBatches: Batch[] = newBatchFiles.listBatches.batches.map((batch, idx) => (testData[idx] ? ({ ...batch, status: "Upload Failed", errors: testData[idx] }) : { ...batch, status: "Uploaded" }));
+      /* =============== */
+      setBatchFiles(dummyBatches);
       setTotalBatchFiles(newBatchFiles.listBatches.total);
     } catch (err) {
       setError("Unable to retrieve batch data.");
@@ -372,6 +449,15 @@ const DataSubmission = () => {
     navigator.clipboard.writeText(submissionId);
   };
 
+  const handleOpenErrorDialog = (id: string) => {
+    setOpenErrorDialog(true);
+    setSelectedRow(id);
+  };
+
+  const providerValue = useMemo(() => ({
+    handleOpenErrorDialog
+  }), [handleOpenErrorDialog]);
+
   return (
     <StyledWrapper>
       <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
@@ -419,20 +505,24 @@ const DataSubmission = () => {
             </StyledTabs>
 
             <StyledMainContentArea>
-              <DataSubmissionUpload
-                submitterID={dataSubmission?.submitterID}
-                readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
-                onUpload={handleOnUpload}
-              />
               {tab === URLTabs.DATA_UPLOAD ? (
-                <GenericTable
-                  ref={tableRef}
-                  columns={columns}
-                  data={batchFiles || []}
-                  total={totalBatchFiles || 0}
-                  loading={loading}
-                  onFetchData={handleFetchBatchFiles}
-                />
+                <BatchTableContext.Provider value={providerValue}>
+                  <>
+                    <DataSubmissionUpload
+                      submitterID={dataSubmission?.submitterID}
+                      readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
+                      onUpload={handleOnUpload}
+                    />
+                    <GenericTable
+                      ref={tableRef}
+                      columns={columns}
+                      data={batchFiles || []}
+                      total={totalBatchFiles || 0}
+                      loading={loading}
+                      onFetchData={handleFetchBatchFiles}
+                    />
+                  </>
+                </BatchTableContext.Provider>
               ) : <QualityControl />}
             </StyledMainContentArea>
           </StyledCardContent>
@@ -444,6 +534,14 @@ const DataSubmission = () => {
           </StyledCardActions>
         </StyledCard>
       </StyledBannerContentContainer>
+      <ErrorDialog
+        open={openErrorDialog}
+        onClose={() => setOpenErrorDialog(false)}
+        header="Data Submission"
+        title="Error Count"
+        errors={selectedData?.errors}
+        uploadedDate={dataSubmission?.createdAt}
+      />
     </StyledWrapper>
   );
 };
