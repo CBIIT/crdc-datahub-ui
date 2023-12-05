@@ -137,21 +137,13 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
   const handleValidateFiles = async () => {
     setIsValidating(true);
 
-    // TODO: Remove
-    // eslint-disable-next-line no-console
-    console.log("Validating Files with these params: ", validationType, uploadType);
-
-    const d = await validateSubmission({
+    await validateSubmission({
       variables: {
         _id: dataSubmission?._id,
         types: getTypes(validationType),
         scope: uploadType === "New" ? "New" : "All",
       }
     });
-
-    // TODO: Remove
-    // eslint-disable-next-line no-console
-    console.log(d);
 
     // Reset form to default values
     setValidationType("Metadata");
@@ -174,7 +166,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
     <StyledFileValidationSection>
       <div className="fileValidationLeftSide">
         <div className="fileValidationLeftSideTopRow">
-          <div className="headerText">Choose validation type:</div>
+          <div className="headerText">Validation Type:</div>
           <div className="fileValidationRadioButtonGroup">
             <RadioGroup value={validationType} onChange={(event, val: ValidationType) => setValidationType(val)} row>
               <FormControlLabel
@@ -205,7 +197,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
           </div>
         </div>
         <div className="fileValidationLeftSideBottomRow">
-          <div className="headerText">Choose validation target:</div>
+          <div className="headerText">Validation Target:</div>
           <div className="fileValidationRadioButtonGroup">
             <RadioGroup value={uploadType} onChange={(event, val: UploadType) => setUploadType(val)} row>
               <FormControlLabel
