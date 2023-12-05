@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createStore, applyMiddleware, combineReducers, Store } from 'redux';
-import { ddgraph, moduleReducers as submission, versionInfo, getModelExploreData } from 'crdc-datahub-model-navigator';
+import { ddgraph, moduleReducers as submission, versionInfo, getModelExploreData } from 'data-model-navigator';
 import ReduxThunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from '../../../config/ModelNavigator';

@@ -19,7 +19,7 @@
     "@types/jest": "^27.5.2",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
-    "crdc-datahub-model-navigator": "github:amattu2/crdc-datahub-model-navigator#1.1.22",
+    "data-model-navigator": "github:CBIIT/Data-Model-Navigator#CRDC-DH",
     "dayjs": "^1.11.8",
     "graphql": "^16.7.1",
     "lodash": "^4.17.21",
