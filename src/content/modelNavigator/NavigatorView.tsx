@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { Box } from '@mui/material';
 import { Provider } from 'react-redux';
-import { ReduxDataDictionary } from 'data-model-navigator';
+import { ReduxDataDictionary } from 'crdc-datahub-model-navigator';
 import SuspenseLoader from '../../components/SuspenseLoader';
 import { Status, useDataCommonContext } from '../../components/Contexts/DataCommonContext';
 import useBuildReduxStore from './hooks/useBuildReduxStore';
