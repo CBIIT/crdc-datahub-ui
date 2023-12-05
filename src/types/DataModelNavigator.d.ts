@@ -5,6 +5,16 @@
  */
 type ModelNavigatorConfig = {
   /**
+   * The title of the Data Model Navigator page
+   *
+   * e.g. "CRDC Data Model Navigator"
+   */
+  pageTitle: string,
+  /**
+   * The icon to display in the title of the Data Model Navigator page
+   */
+  titleIconSrc?: string,
+  /**
    * Provides a title to the README modal popup
    *
    * @default "Understanding the Data Model"

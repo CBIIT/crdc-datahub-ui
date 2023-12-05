@@ -19,6 +19,8 @@ export const DataCommons: DataCommon[] = [
     name: "CDS",
     assets: null,
     configuration: {
+      pageTitle: "CDS Data Model",
+      titleIconSrc: "https://api.placeholder.app/image/85x85",
       pdfConfig: {
         fileType: 'pdf',
         prefix: 'CDS_',
@@ -122,6 +124,7 @@ export const DataCommons: DataCommon[] = [
     name: "ICDC",
     assets: null,
     configuration: {
+      pageTitle: "ICDC Data Model",
       pdfConfig: {
         fileType: 'pdf',
         prefix: 'ICDC_',

@@ -83,6 +83,10 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
           filterSections: datacommon.configuration.facetFilterSearchData.map((s) => s?.datafield),
           filterOptions: buildFilterOptionsList(datacommon),
         },
+        pageConfig: {
+          title: datacommon.configuration.pageTitle,
+          iconSrc: datacommon.configuration?.titleIconSrc,
+        },
         readMeConfig: {
           readMeUrl: assets.readme,
           readMeTitle: datacommon.configuration?.readMeTitle || defaultReadMeTitle,
