@@ -419,20 +419,22 @@ const DataSubmission = () => {
             </StyledTabs>
 
             <StyledMainContentArea>
-              <DataSubmissionUpload
-                submitterID={dataSubmission?.submitterID}
-                readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
-                onUpload={handleOnUpload}
-              />
               {tab === URLTabs.DATA_UPLOAD ? (
-                <GenericTable
-                  ref={tableRef}
-                  columns={columns}
-                  data={batchFiles || []}
-                  total={totalBatchFiles || 0}
-                  loading={loading}
-                  onFetchData={handleFetchBatchFiles}
-                />
+                <>
+                  <DataSubmissionUpload
+                    submitterID={dataSubmission?.submitterID}
+                    readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
+                    onUpload={handleOnUpload}
+                  />
+                  <GenericTable
+                    ref={tableRef}
+                    columns={columns}
+                    data={batchFiles || []}
+                    total={totalBatchFiles || 0}
+                    loading={loading}
+                    onFetchData={handleFetchBatchFiles}
+                  />
+                </>
               ) : <QualityControl />}
             </StyledMainContentArea>
           </StyledCardContent>
