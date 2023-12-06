@@ -225,7 +225,7 @@ const ListingView: FC = () => {
   const statusFilter = watch("status");
 
   const { data, loading, error } = useQuery<ListUsersResp>(LIST_USERS, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
 
