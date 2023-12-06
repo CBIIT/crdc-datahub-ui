@@ -138,6 +138,7 @@ type Props<T> = {
   total: number;
   loading?: boolean;
   noContentText?: string;
+  setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
   onOrderByChange?: (orderBy: Column<T>) => void;
@@ -150,6 +151,7 @@ const DataSubmissionBatchTable = <T,>({
   total = 0,
   loading,
   noContentText,
+  setItemKey,
   onFetchData,
   onOrderChange,
   onOrderByChange,
@@ -241,15 +243,18 @@ const DataSubmissionBatchTable = <T,>({
               <TableCell colSpan={columns.length} />
             </StyledTableRow>
           )) : (
-            data?.map((d: T) => (
-              <TableRow tabIndex={-1} hover key={d["_id"]}>
-                {columns.map((col: Column<T>) => (
-                  <StyledTableCell key={`${d["_id"]}_${col.label}`}>
-                    {col.renderValue(d, user)}
-                  </StyledTableCell>
-                ))}
-              </TableRow>
-            ))
+            data?.map((d: T, idx: number) => {
+              const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
+              return (
+                <TableRow tabIndex={-1} hover key={itemKey}>
+                  {columns.map((col: Column<T>) => (
+                    <StyledTableCell key={`${itemKey}_${col.label}`}>
+                      {col.renderValue(d, user)}
+                    </StyledTableCell>
+                  ))}
+                </TableRow>
+              );
+            })
           )}
 
           {!loading && emptyRows > 0 && (

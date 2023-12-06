@@ -24,9 +24,8 @@ const StyledErrorDetailsButton = styled(Button)({
   },
 });
 
-const testData: QCResults[] = [
+const testData: QCResult[] = [
   {
-    _id: "1",
     submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
     nodeType: "Participant",
     batchID: "123a5678-8adf-41e9-9432-864b2108191d",
@@ -50,7 +49,6 @@ const testData: QCResults[] = [
     uploadedDate: "2023-11-08T19:39:15.469Z",
   },
   {
-    _id: "2",
     submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
     nodeType: "Participant",
     batchID: "123a5678-8adf-41e9-9432-864b2108191d",
@@ -66,7 +64,6 @@ const testData: QCResults[] = [
     uploadedDate: "2023-11-08T19:39:15.469Z",
   },
   {
-    _id: "3",
     submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
     nodeType: "Participant",
     batchID: "123a5678-8adf-41e9-9432-864b2108191d",
@@ -87,14 +84,67 @@ const testData: QCResults[] = [
   },
 ];
 
+const columns: Column<QCResult>[] = [
+  {
+    label: "Type",
+    renderValue: (data) => data?.nodeType,
+    field: "nodeType",
+  },
+  {
+    label: "Batch ID",
+    renderValue: (data) => data?.batchID,
+    field: "batchID",
+  },
+  {
+    label: "Node ID",
+    renderValue: (data) => data?.nodeID,
+    field: "nodeID",
+  },
+  {
+    label: "CRDC ID",
+    renderValue: (data) => data?.CRDC_ID,
+    field: "CRDC_ID",
+  },
+  {
+    label: "Severity",
+    renderValue: (data) => <Box color={data?.severity === "Error" ? "#E25C22" : "#8D5809"} minHeight={76.5}>{data?.severity}</Box>,
+    field: "severity",
+  },
+  {
+    label: "Submitted Date",
+    renderValue: (data) => (data?.uploadedDate ? `${FormatDate(data.uploadedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    field: "uploadedDate",
+    default: true
+  },
+  {
+    label: "Description",
+    renderValue: (data) => data?.description?.length > 0 && (
+      <>
+        <span>{data?.description[0].title}</span>
+        {" "}
+        <StyledErrorDetailsButton
+          onClick={() => {}}
+          variant="text"
+          disableRipple
+          disableTouchRipple
+          disableFocusRipple
+        >
+          See details
+        </StyledErrorDetailsButton>
+      </>
+    ),
+    field: "description",
+  },
+];
+
 const QualityControl = () => {
   const { submissionId } = useParams();
 
   const [loading, setLoading] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string>(null);
-  const [data, setData] = useState<QCResults[]>(testData);
-  const [prevData, setPrevData] = useState<FetchListing<QCResults>>(null);
+  const [data, setData] = useState<QCResult[]>(testData);
+  const [prevData, setPrevData] = useState<FetchListing<QCResult>>(null);
   const [totalData, setTotalData] = useState(testData.length);
   const tableRef = useRef<TableMethods>(null);
 
@@ -104,7 +154,7 @@ const QualityControl = () => {
     fetchPolicy: 'no-cache'
   });
 
-  const handleFetchQCResults = async (fetchListing: FetchListing<QCResults>, force: boolean) => {
+  const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
       setError("Invalid submission ID provided.");
@@ -133,7 +183,7 @@ const QualityControl = () => {
         throw new Error("Unable to retrieve submission quality control results.");
         return;
       }
-      setData(d.submissionQCResults.qcResults);
+      setData(d.submissionQCResults.results);
       setTotalData(d.submissionQCResults.total);
     } catch (err) {
       setError(err?.toString());
@@ -141,59 +191,6 @@ const QualityControl = () => {
       setLoading(false);
     }
   };
-
-  const columns: Column<QCResults>[] = [
-    {
-      label: "Type",
-      renderValue: (data) => data?.nodeType,
-      field: "nodeType",
-    },
-    {
-      label: "Batch ID",
-      renderValue: (data) => data?.batchID,
-      field: "batchID",
-    },
-    {
-      label: "Node ID",
-      renderValue: (data) => data?.nodeID,
-      field: "nodeID",
-    },
-    {
-      label: "CRDC ID",
-      renderValue: (data) => data?.CRDC_ID,
-      field: "CRDC_ID",
-    },
-    {
-      label: "Severity",
-      renderValue: (data) => <Box color={data?.severity === "Error" ? "#E25C22" : "#8D5809"}>{data?.severity}</Box>,
-      field: "severity",
-    },
-    {
-      label: "Submitted Date",
-      renderValue: (data) => (data?.uploadedDate ? `${FormatDate(data.uploadedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
-      field: "uploadedDate",
-      default: true
-    },
-    {
-      label: "Description",
-      renderValue: (data) => data?.description?.length > 0 && (
-        <>
-          <span>{data?.description[0].title}</span>
-          {" "}
-          <StyledErrorDetailsButton
-            onClick={() => {}}
-            variant="text"
-            disableRipple
-            disableTouchRipple
-            disableFocusRipple
-          >
-            See details
-          </StyledErrorDetailsButton>
-        </>
-      ),
-      field: "description",
-    },
-  ];
 
   return (
     <>
@@ -203,6 +200,7 @@ const QualityControl = () => {
         data={data || []}
         total={totalData || 0}
         loading={loading}
+        setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.nodeID}`}
         onFetchData={handleFetchQCResults}
       />
       {/* Error Dialog */}
