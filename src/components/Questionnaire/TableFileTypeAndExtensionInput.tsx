@@ -199,8 +199,8 @@ const TableAutocompleteInput: FC<Props> = ({
                 variant="standard"
                 inputRef={fileTypeRef}
                 InputProps={{ ...p.InputProps, disableUnderline: true }}
-              // eslint-disable-next-line react/jsx-no-duplicate-props
-                inputProps={{ ...p.inputProps, maxLength: 30 }}
+                // eslint-disable-next-line react/jsx-no-duplicate-props
+                inputProps={{ ...p.inputProps, maxLength: 30, "aria-label": "File type" }}
               />
             </StyledTooltip>
         )}
@@ -267,7 +267,7 @@ const TableAutocompleteInput: FC<Props> = ({
                 inputRef={fileExtensionRef}
                 InputProps={{ ...p.InputProps, disableUnderline: true }}
               // eslint-disable-next-line react/jsx-no-duplicate-props
-                inputProps={{ ...p.inputProps, maxLength: 10 }}
+                inputProps={{ ...p.inputProps, maxLength: 10, "aria-label": "File extension" }}
               />
             </StyledTooltip>
           )}

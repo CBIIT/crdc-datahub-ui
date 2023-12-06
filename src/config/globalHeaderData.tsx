@@ -24,13 +24,13 @@ export const navMobileList = [
   {
     name: 'Submission Requests',
     link: '/submissions',
-    id: 'navbar-dropdown-join-crdc-data-hub',
+    id: 'navbar-dropdown-submission-requests',
     className: 'navMobileItem',
   },
   {
     name: 'Data Submissions',
     link: '/data-submissions',
-    id: 'navbar-dropdown-join-crdc-data-hub',
+    id: 'navbar-dropdown-data-submissions',
     className: 'navMobileItem',
   },
   {

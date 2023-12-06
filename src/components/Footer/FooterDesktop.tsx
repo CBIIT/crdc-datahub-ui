@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import FooterData from '../../config/globalFooterData';
 
-const FooterStyled = styled.footer`
+const FooterStyled = styled.div`
   background-color: #1B496E;
   border-top: 1px solid #6C727B;
   bottom: 0;
@@ -15,7 +15,7 @@ const FooterContainer = styled.div`
   padding: 2rem 2rem 2rem 2rem;
   max-width: 1400px;
   margin-left: auto;
-  margin-right: auto;  
+  margin-right: auto;
   display: flex;
   justify-content: space-between;
 
@@ -215,17 +215,12 @@ const BottomFooter = styled.div`
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: 400;
-    font-size: 14px;    
+    font-size: 14px;
     line-height: 1.6;
     text-align: right;
     color: #FFFFFF;
   }
 `;
-
-const StyledAsterisk = styled("span")(() => ({
-  color: "#D54309",
-  marginLeft: "2px",
-}));
 
 const FooterDesktop = () => {
   const [emailContent, setEmailContent] = useState("");
@@ -288,7 +283,6 @@ const FooterDesktop = () => {
             <div className="enterTitle">
               <label htmlFor="email">
                 Sign up for the newsletter
-                <StyledAsterisk>*</StyledAsterisk>
                 <input ref={emailInput} id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
               </label>
             </div>

@@ -9,7 +9,7 @@ import ScrollButton from '../components/ScrollButton/ScrollButtonView';
 import OverlayWindow from '../components/SystemUseWarningOverlay/OverlayWindow';
 import InactivityDialog from '../components/InactivityDialog/InactivityDialog';
 
-const StyledWrapper = styled("div")(() => ({
+const StyledWrapper = styled("main")(() => ({
   minHeight: "400px",
 }));
 
@@ -41,9 +41,9 @@ const Layout: FC<LayoutProps> = ({ children }) => (
     <OverlayWindow />
     <StyledWrapper>
       {children || <Outlet />}
+      <ScrollButton />
     </StyledWrapper>
     <Footer />
-    <ScrollButton />
     <InactivityDialog />
   </>
 );

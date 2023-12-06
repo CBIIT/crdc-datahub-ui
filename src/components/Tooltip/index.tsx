@@ -67,7 +67,7 @@ const Tooltip = ({ classes, icon, children, title, ...rest }: Props) => {
       {...rest}
     >
       {children ?? (
-        <TooltipButton onClick={toggleTooltip} disableRipple>
+        <TooltipButton onClick={toggleTooltip} aria-label="Toggle Tooltip" disableRipple>
           {icon ?? <TooltipIcon />}
         </TooltipButton>
       )}

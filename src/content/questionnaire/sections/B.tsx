@@ -333,6 +333,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="program[notApplicable]"
           type="checkbox"
           data-type="boolean"
+          aria-labelledby="section-b-program"
           checked
           readOnly={readOnlyProgram}
         />
@@ -343,6 +344,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="program[isCustom]"
           type="checkbox"
           data-type="boolean"
+          aria-labelledby="section-b-program"
           checked
           readOnly={readOnlyProgram}
         />

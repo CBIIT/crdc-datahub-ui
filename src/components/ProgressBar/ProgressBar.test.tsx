@@ -1,7 +1,10 @@
-import React, { FC, useMemo } from 'react';
+import '@testing-library/jest-dom';
+import 'jest-axe/extend-expect';
+
+import { FC, useMemo } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { axe } from 'jest-axe';
 import config from '../../config/SectionConfig';
 import ProgressBar from './ProgressBar';
 import {
@@ -43,6 +46,58 @@ const BaseComponent: FC<Props> = ({ section, data = {} } : Props) => {
   );
 };
 
+describe("ProgressBar Accessibility Tests", () => {
+  const keys = Object.keys(config);
+
+  it("has no base accessibility violations", async () => {
+    const { container } = render(<BaseComponent section={keys[0]} data={{}} />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+
+  it("has no accessibility violations when all sections are completed", async () => {
+    const data = {
+      questionnaireData: {
+        sections: keys.map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { container } = render(<BaseComponent section={keys[0]} data={data} />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+
+  it("has no accessibility violations when the review section is accessible", async () => {
+    const data = {
+      status: "Approved",
+      questionnaireData: {
+        sections: keys.map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { container } = render(<BaseComponent section={keys[0]} data={data} />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+
+  it("has no accessibility violations when the review section is inaccessible", async () => {
+    const data = {
+      status: "New",
+      questionnaireData: {
+        sections: keys.map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { container } = render(<BaseComponent section={keys[0]} data={data} />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+});
+
 describe("ProgressBar General Tests", () => {
   const keys = Object.keys(config);
   const sections = Object.values(config);
@@ -62,7 +117,7 @@ describe("ProgressBar General Tests", () => {
 
   it("renders the currently active section as highlighted", () => {
     const { container, getByTestId } = render(<BaseComponent section={keys[1]} data={{}} />);
-    const activeLinks = container.querySelectorAll("a[aria-selected='true']");
+    const activeLinks = container.querySelectorAll("a[data-selected='true']");
 
     expect(activeLinks.length).toBe(1);
     expect(activeLinks[0]).toBe(getByTestId("progress-bar-section-1"));
