@@ -150,14 +150,12 @@ type ParentNode = {
   parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
 };
 
-// TODO: Confirm type, based on assumption
-type ListQCResults = {
+type QCResults = {
   total: number;
-  qcResults: QCResults[]
+  results: QCResult[];
 };
 
-type QCResults = {
-  _id: string;
+type QCResult = {
   submissionID: string;
   nodeType: string;
   batchID: string;
@@ -191,4 +189,5 @@ type DataRecord = {
   // relationshipProps: [RelationshipProperty] # for future use
   // rawData: RawData
   s3FileInfo: S3FileInfo; // only for "file" types, should be null for other nodes
+  CRDC_ID: string;
 };
