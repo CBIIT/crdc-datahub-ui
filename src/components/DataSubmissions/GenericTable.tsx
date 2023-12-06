@@ -1,7 +1,5 @@
 /* eslint-disable react/no-array-index-key */
 import {
-  Box,
-  CircularProgress,
   Table,
   TableBody,
   TableCell,
@@ -17,6 +15,7 @@ import {
 import { ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useAuthContext } from "../Contexts/AuthContext";
 import PaginationActions from "./PaginationActions";
+import SuspenseLoader from '../SuspenseLoader';
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
@@ -215,23 +214,7 @@ const DataSubmissionBatchTable = <T,>({
 
   return (
     <StyledTableContainer>
-      {loading && (
-        <Box
-          sx={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: "9999",
-          }}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <CircularProgress size={64} disableShrink thickness={3} />
-        </Box>
-      )}
+      {loading && (<SuspenseLoader fullscreen={false} />)}
       <Table>
         <StyledTableHead>
           <TableRow>
@@ -309,7 +292,8 @@ const DataSubmissionBatchTable = <T,>({
               || total <= (page + 1) * perPage
               || emptyRows > 0
               || loading
-          }}
+        }}
+        SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
         backIconButtonProps={{ disabled: page === 0 || loading }}
         ActionsComponent={PaginationActions}
       />

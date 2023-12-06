@@ -15,12 +15,12 @@ const HeaderContainer = styled.div`
 `;
 
 const Header = () => (
-  <HeaderBanner role="banner">
+  <HeaderBanner>
     <HeaderContainer>
       <Logo />
     </HeaderContainer>
     <div className="navbarContainer"><NavBar /></div>
   </HeaderBanner>
-  );
+);
 
 export default Header;

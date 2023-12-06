@@ -4,7 +4,6 @@ import {
   Alert,
   Box,
   Button,
-  CircularProgress,
   Container,
   FormControl,
   MenuItem,
@@ -22,6 +21,7 @@ import { Roles } from '../../config/AuthRoles';
 import { LIST_USERS, ListUsersResp } from '../../graphql';
 import { formatIDP } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
+import SuspenseLoader from '../../components/SuspenseLoader';
 
 type T = User;
 
@@ -293,7 +293,7 @@ const ListingView: FC = () => {
         )}
 
         <StyledFilterContainer>
-          <StyledInlineLabel>Organization</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="organization"
@@ -305,6 +305,7 @@ const ListingView: FC = () => {
                   defaultValue="All"
                   value={field.value || "All"}
                   MenuProps={{ disablePortal: true }}
+                  inputProps={{ id: "organization-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {orgData?.map((org: Organization) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
@@ -312,7 +313,7 @@ const ListingView: FC = () => {
               )}
             />
           </StyledFormControl>
-          <StyledInlineLabel>Role</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="role-filter">Role</StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="role"
@@ -323,6 +324,7 @@ const ListingView: FC = () => {
                   defaultValue="All"
                   value={field.value || "All"}
                   MenuProps={{ disablePortal: true }}
+                  inputProps={{ id: "role-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
@@ -330,7 +332,7 @@ const ListingView: FC = () => {
               )}
             />
           </StyledFormControl>
-          <StyledInlineLabel>Status</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="status"
@@ -341,6 +343,7 @@ const ListingView: FC = () => {
                   defaultValue="All"
                   value={field.value || "All"}
                   MenuProps={{ disablePortal: true }}
+                  inputProps={{ id: "status-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Active">Active</MenuItem>
@@ -375,22 +378,7 @@ const ListingView: FC = () => {
               {loading && (
                 <TableRow>
                   <TableCell>
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        background: "#fff",
-                        left: 0,
-                        top: 0,
-                        width: "100%",
-                        height: "100%",
-                        zIndex: "9999",
-                      }}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <CircularProgress size={64} disableShrink thickness={3} />
-                    </Box>
+                    <SuspenseLoader fullscreen={false} />
                   </TableCell>
                 </TableRow>
               )}
@@ -445,6 +433,7 @@ const ListingView: FC = () => {
                 || emptyRows > 0
                 || loading,
             }}
+            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>
