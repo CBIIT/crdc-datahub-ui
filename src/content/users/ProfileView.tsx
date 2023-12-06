@@ -178,17 +178,17 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const fieldset = useMemo(() => getEditableFields(currentUser, user, viewType), [user?._id, _id, currentUser?.role, viewType]);
 
   const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
   const [updateMyUser] = useMutation<UpdateMyUserResp, { userInfo: UserInput }>(UPDATE_MY_USER, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
   const [editUser] = useMutation<EditUserResp>(EDIT_USER, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 

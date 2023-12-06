@@ -342,7 +342,7 @@ const ListingView: FC = () => {
   const { data: allOrganizations } = useQuery<listOrganizationsResponse>(listOrganizationsQuery, {
     variables: {
     },
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
 

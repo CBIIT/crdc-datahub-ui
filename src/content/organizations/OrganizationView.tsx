@@ -165,7 +165,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   ];
 
   const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
 
@@ -175,17 +175,17 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   });
 
   const [getOrganization] = useLazyQuery<GetOrgResp>(GET_ORG, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
   const [editOrganization] = useMutation<EditOrgResp>(EDIT_ORG, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
   const [createOrganization] = useMutation<CreateOrgResp>(CREATE_ORG, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
