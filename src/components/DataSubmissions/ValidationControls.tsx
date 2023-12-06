@@ -101,14 +101,22 @@ const StyledFileValidationSection = styled("div")({
   ".fileValidationRadioButtonGroup": {
     marginLeft: "20px",
   },
-  "& .MuiFormControlLabel-label": {
-    fontFamily: "Nunito",
-    fontSize: "16px",
-    fontWeight: "500",
-    lineHeight: "20px",
-    letterSpacing: "0em",
-    textAlign: "left",
-  }
+});
+
+const StyledRadioControl = styled(FormControlLabel)({
+  fontFamily: "Nunito",
+  fontSize: "16px",
+  fontWeight: "500",
+  lineHeight: "20px",
+  letterSpacing: "0em",
+  textAlign: "left",
+  color: "#083A50",
+  minWidth: "200px",
+  marginRight: "20px",
+  "&:last-child": {
+    marginRight: "0px",
+    minWidth: "unset",
+  },
 });
 
 const ValidateRoles: User["role"][] = ["Submitter", "Data Curator", "Organization Owner", "Admin"];
@@ -169,26 +177,20 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
           <div className="headerText">Validation Type:</div>
           <div className="fileValidationRadioButtonGroup">
             <RadioGroup value={validationType} onChange={(event, val: ValidationType) => setValidationType(val)} row>
-              <FormControlLabel
-                sx={{ minWidth: "200px", marginRight: "20px", }}
+              <StyledRadioControl
                 value="Metadata"
-                color="#1D91AB"
                 control={<StyledRadioButton readOnly={false} />}
                 label="Validate Metadata"
                 disabled={!canValidateData}
               />
-              <FormControlLabel
-                sx={{ minWidth: "200px", marginRight: "20px", }}
+              <StyledRadioControl
                 value="Files"
-                color="#1D91AB"
                 control={<StyledRadioButton readOnly={false} />}
                 label="Validate Data Files"
                 disabled={!canValidateData}
               />
-              <FormControlLabel
-                sx={{ marginRight: "0px", }}
+              <StyledRadioControl
                 value="All"
-                color="#1D91AB"
                 control={<StyledRadioButton readOnly={false} />}
                 label="Both"
                 disabled={!canValidateData}
@@ -200,18 +202,14 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
           <div className="headerText">Validation Target:</div>
           <div className="fileValidationRadioButtonGroup">
             <RadioGroup value={uploadType} onChange={(event, val: UploadType) => setUploadType(val)} row>
-              <FormControlLabel
-                sx={{ minWidth: "200px", marginRight: "20px", }}
+              <StyledRadioControl
                 value="New"
-                color="#1D91AB"
                 control={<StyledRadioButton readOnly={false} />}
                 label="New Uploaded Data"
                 disabled={!canValidateData}
               />
-              <FormControlLabel
-                sx={{ minWidth: "200px", marginRight: "20px", }}
+              <StyledRadioControl
                 value="All"
-                color="#1D91AB"
                 control={<StyledRadioButton readOnly={false} />}
                 label="All Uploaded Data"
                 disabled={!canValidateData}
