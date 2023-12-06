@@ -127,7 +127,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
   const [state, setState] = useState<ContextState>(cachedState || initialState);
 
   const [getMyUser] = useLazyQuery<GetUserResp>(GET_USER, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache',
   });
 
@@ -156,7 +156,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
 
   useEffect(() => {
     (async () => {
-      // User had an active session, reverify with AuthZ
+      // User had an active session, reverify with BE
       if (cachedState) {
         const { data, error } = await getMyUser();
         if (error || !data?.getMyUser) {

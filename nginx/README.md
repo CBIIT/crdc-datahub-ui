@@ -61,7 +61,6 @@ flowchart TD
     id1["Nginx – port:4010"]
     id2["FE – port:3010"]
     id3["DEV Backend"]
-    id4["DEV AuthZ"]
     id5["DEV AuthN"]
 
     id0 <--"https://localhost:4010"--> id1
@@ -71,8 +70,8 @@ flowchart TD
         end
         subgraph be["DEV/DEV2 Hosted Backend Services"]
           id1 --"/api/graphql"---> id3
-          id1 --"/api/authn/"---> id4
-          id1 --"/api/authz/"---> id5
+          id1 --"/api/authz/"---> id3
+          id1 --"/api/authn/"---> id5
         end
         subgraph fe["Frontend Services"]
           id2
@@ -87,7 +86,6 @@ An overview of the local deployment architecture is shown below using the follow
 
 - Frontend – <https://github.com/CBIIT/crdc-datahub-ui>
 - Backend – <https://github.com/CBIIT/crdc-datahub-backend>
-- AuthZ – <https://github.com/CBIIT/crdc-datahub-authz>
 - AuthN – <https://github.com/CBIIT/crdc-datahub-authn>
 - MongoDB
 
@@ -102,7 +100,6 @@ flowchart TD
     id1["Nginx – port:4010"]
     id2["FE – port:3010"]
     id3["BE – port:4020"]
-    id4["AuthZ – port:4030"]
     id5["AuthN – port:4040"]
     id6["MongoDB"]
 
@@ -117,13 +114,11 @@ flowchart TD
         subgraph be["Backend Services"]
         direction RL
           id3
-          id4
           id5
           subgraph misc["Misc. Dependencies"]
             id6
           end
           id3-->misc
-          id4-->misc
           id5-->misc
         end
         subgraph fe["Frontend Services"]

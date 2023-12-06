@@ -90,7 +90,7 @@ describe("AuthContext > AuthProvider Tests", () => {
     expect(screen.getByTestId("last-name").textContent).toEqual(userData.lastName);
   });
 
-  it("should successfully verify the cached user with the AuthZ service", async () => {
+  it("should successfully verify the cached user with the BE service", async () => {
     const userData = {
       _id: "123-random-id-456",
       firstName: "Random",
@@ -151,7 +151,7 @@ describe("AuthContext > AuthProvider Tests", () => {
     expect(cachedUser.firstName).toEqual("The API updated my first name");
   });
 
-  it("should logout the user if the AuthZ API call fails", async () => {
+  it("should logout the user if the BE API call fails", async () => {
     const userData = {
       _id: "GGGG-1393-AAA-9101",
       firstName: "Random",
