@@ -7,7 +7,7 @@ import {
 
 const StyledRadio = styled(Radio)((props) => ({
     "& input": {
-      cursor: props.readOnly ? "not-allowed" : "initial",
+      cursor: props.readOnly ? "not-allowed" : "pointer",
     },
     "& .radio-icon": {
       background: (props.readOnly || props.disabled) ? "#EEEEEE !important" : "#ffffff",

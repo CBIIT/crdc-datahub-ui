@@ -127,6 +127,10 @@ const RadioYesNoInput: FC<Props> = ({
     };
   }, [radioGroupInputRef]);
 
+  useEffect(() => {
+    setVal(value?.toString() ?? null);
+  }, [value]);
+
   return (
     <GridStyled md={gridWidth || 6} xs={12} item $containerWidth={containerWidth}>
       <FormControl className="formControl" error={error}>
