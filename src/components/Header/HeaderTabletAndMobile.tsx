@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from "./components/LogoMobile";
 import menuClearIcon from '../../assets/header/Menu_Cancel_Icon.svg';
@@ -9,6 +9,7 @@ import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
 import { useAuthContext } from '../Contexts/AuthContext';
 import GenericAlert from '../GenericAlert';
 import APITokenDialog from '../../content/users/APITokenDialog';
+import UploaderToolDialog from '../../content/users/UploaderToolDialog';
 
 const HeaderBanner = styled.div`
   width: 100%;
@@ -148,7 +149,7 @@ const MenuArea = styled.div`
     .clickable {
         cursor: pointer;
     }
-    
+
     .action {
         cursor: pointer;
     }
@@ -165,14 +166,17 @@ type NavbarMobileList = {
 const Header = () => {
   const [navMobileDisplay, setNavMobileDisplay] = useState('none');
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
+  const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
   const navMobileListHookResult = useState(navMobileList);
   const navbarMobileList: NavbarMobileList = navMobileListHookResult[0];
   const setNavbarMobileList = navMobileListHookResult[1];
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
+  const [restorePath, setRestorePath] = useState<string>(null);
 
   const authData = useAuthContext();
   const displayName = authData?.user?.firstName || "N/A";
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     const logoutStatus = await authData.logout();
@@ -189,6 +193,12 @@ const Header = () => {
       link: `/profile/${authData?.user?._id}`,
       id: 'navbar-dropdown-item-user-profile',
       className: 'navMobileSubItem',
+    },
+    {
+      name: 'Uploader CLI Tool',
+      onClick: () => setUploaderToolOpen(true),
+      id: 'navbar-dropdown-item-uploader-tool',
+      className: 'navMobileSubItem action',
     },
     {
       name: 'Logout',
@@ -227,6 +237,15 @@ const Header = () => {
     const clickTitle = e.target.innerText;
     setNavbarMobileList(navbarSublists[clickTitle]);
   };
+
+  useEffect(() => {
+    if (!location?.pathname || location?.pathname === "/") {
+      setRestorePath(null);
+      return;
+    }
+
+    setRestorePath(location?.pathname);
+  }, [location]);
 
   return (
     <>
@@ -393,15 +412,13 @@ const Header = () => {
                   >
                     {displayName}
                   </div>
-                )
-                  : (
-                    <Link id="navbar-link-login" to="/login">
-                      <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
-                        Login
-                      </div>
-                    </Link>
-
-                  )) : null}
+                ) : (
+                  <Link id="navbar-link-login" to="/login" state={{ redirectURLOnLoginSuccess: restorePath }}>
+                    <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
+                      Login
+                    </div>
+                  </Link>
+                )) : null}
             </div>
           </div>
           <div
@@ -419,6 +436,7 @@ const Header = () => {
           />
         </MenuArea>
         <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
+        <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
       </NavMobileContainer>
     </>
   );

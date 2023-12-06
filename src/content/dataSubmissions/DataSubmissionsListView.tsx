@@ -294,7 +294,7 @@ const ListingView: FC = () => {
   const { data: allOrganizations } = useQuery<listOrganizationsResponse>(listOrganizationsQuery, {
     variables: {
     },
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
 
@@ -582,7 +582,6 @@ const ListingView: FC = () => {
               value={dbgapid}
               parentStateSetter={(newVal) => setDbgapid(newVal)}
               maxLength={50}
-              required
               label="dbGaP ID"
               placeholder="Input dbGaP ID"
             />
