@@ -175,7 +175,7 @@ type DataRecord = {
   _id: string;
   submissionID: string;
   batchIDs: string[]; // all batch IDs, each time this record is reloaded in a new batch, append batchID here
-  status: string; // [New, Passed, Error, Warning], Loaded is the initial state each time it's loaded
+  status: "New" | "Passed" | "Error" | "Warning"; // [New, Passed, Error, Warning], Loaded is the initial state each time it's loaded
   errors: ErrorMessage[];
   warnings: ErrorMessage[];
   createdAt: string;
