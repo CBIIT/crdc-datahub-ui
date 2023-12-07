@@ -254,7 +254,7 @@ const Header = () => {
           You have been logged out.
         </span>
       </GenericAlert>
-      <HeaderBanner role="banner">
+      <HeaderBanner>
         <HeaderContainer>
           <Logo />
           <div className="headerLowerContainer">

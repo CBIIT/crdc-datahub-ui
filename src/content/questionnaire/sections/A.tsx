@@ -220,6 +220,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             name="piAsPrimaryContact"
             data-type="boolean"
             value={piAsPrimaryContact?.toString()}
+            aria-label="Same as Principal Investigator"
             checked
             readOnly
           />

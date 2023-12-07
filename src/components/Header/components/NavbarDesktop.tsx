@@ -64,6 +64,8 @@ const UlContainer = styled.ul`
   margin: 0;
   padding-top: 17px;
   padding-left: 11px;
+  display: flex;
+  width: 100%;
 `;
 
 const LiSection = styled.li`
@@ -82,10 +84,18 @@ const LiSection = styled.li`
   .displayName {
     color: #007BBD;
     font-size: 14px;
-    line-height: 21px;
+    line-height: 20px;
     padding: 10px 0px;
     text-align: right;
     width: fit-content;
+  }
+
+  &.name-dropdown-li {
+    margin-left: auto;
+  }
+
+  &.login-button {
+    line-height: 48px;
   }
 
   .navTitle {
@@ -332,7 +342,7 @@ const NameDropdown = styled.div`
 `;
 
 const StyledLoginLink = styled(Link)`
-  color: #007BBD;
+  color: #007BBD !important;
   text-align: right;
   font-size: 14px;
   font-family: Poppins;
@@ -496,27 +506,26 @@ const NavBar = () => {
                 );
               })
             }
-        </UlContainer>
-        {authData.isLoggedIn
-            ? (
-              <LiSection>
-                <div id="navbar-dropdown-name-container" className={(clickedTitle === displayName ? 'navTitleClicked' : 'navTitle')}>
-                  <div
-                    id="navbar-dropdown-name"
-                    onKeyDown={onKeyPressHandler}
-                    role="button"
-                    tabIndex={0} className={clickedTitle === displayName ? 'navText displayName clicked' : 'navText displayName'}
-                    onClick={handleMenuClick}
-                  >
-                    {displayName}
-                  </div>
+          <LiSection className={`name-dropdown-li${authData?.isLoggedIn ? "" : " login-button"}`}>
+            {authData.isLoggedIn ? (
+              <div id="navbar-dropdown-name-container" className={(clickedTitle === displayName ? 'navTitleClicked' : 'navTitle')}>
+                <div
+                  id="navbar-dropdown-name"
+                  onKeyDown={onKeyPressHandler}
+                  role="button"
+                  tabIndex={0} className={clickedTitle === displayName ? 'navText displayName clicked' : 'navText displayName'}
+                  onClick={handleMenuClick}
+                >
+                  {displayName}
                 </div>
-              </LiSection>
+              </div>
             ) : (
               <StyledLoginLink id="header-navbar-login-button" to="/login" state={{ redirectURLOnLoginSuccess: restorePath }}>
                 Login
               </StyledLoginLink>
             )}
+          </LiSection>
+        </UlContainer>
       </NavContainer>
       <Dropdown ref={dropdownSelection} className={(clickedTitle === '') ? "invisible" : ""}>
         <NameDropdownContainer>

@@ -1,8 +1,11 @@
-import React, { FC, useMemo } from 'react';
+import '@testing-library/jest-dom';
+import 'jest-axe/extend-expect';
+
+import { FC, useMemo } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
-import '@testing-library/jest-dom';
+import { axe } from 'jest-axe';
 import {
   ContextState,
   Context as FormCtx,
@@ -37,6 +40,41 @@ const BaseComponent: FC<Props> = ({ data = {} } : Props) => {
     </BrowserRouter>
   );
 };
+
+describe("StatusBar Accessibility Tests", () => {
+  it("has no base accessibility violations", async () => {
+    const { container } = render(<BaseComponent data={{}} />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+
+  it("has no accessibility violations when there are no review comments", async () => {
+    const data = {
+      history: [{
+        reviewComment: "",
+      }],
+    };
+
+    const { container } = render(<BaseComponent data={data} />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+
+  it("has no accessibility violations when there are review comments", async () => {
+    const data = {
+      history: [{
+        reviewComment: "This is a review comment",
+      }],
+    };
+
+    const { container } = render(<BaseComponent data={data} />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+});
 
 describe("StatusBar > General Tests", () => {
   it("renders the base elements", () => {
