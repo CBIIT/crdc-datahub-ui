@@ -1,25 +1,27 @@
-import React from 'react';
-import styled from 'styled-components';
-import Logo from './components/LogoDesktop';
-import NavBar from './components/NavbarDesktop';
+import React from "react";
+import { styled } from "@mui/material";
+import Logo from "./components/LogoDesktop";
+import NavBar from "./components/NavbarDesktop";
 
-const HeaderBanner = styled.div`
-  width: 100%;
-`;
+const HeaderBanner = styled("div")({
+  width: "100%",
+});
 
-const HeaderContainer = styled.div`
-    margin: 0 auto;
-    padding-left: 32px;
-    max-width: 1400px;
-    display: flex;
-`;
+const HeaderContainer = styled("div")({
+  margin: "0 auto",
+  paddingLeft: "32px",
+  maxWidth: "1400px",
+  display: "flex",
+});
 
 const Header = () => (
   <HeaderBanner>
     <HeaderContainer>
       <Logo />
     </HeaderContainer>
-    <div className="navbarContainer"><NavBar /></div>
+    <div className="navbarContainer">
+      <NavBar />
+    </div>
   </HeaderBanner>
 );
 
