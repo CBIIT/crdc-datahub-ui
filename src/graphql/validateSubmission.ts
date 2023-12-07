@@ -7,5 +7,11 @@ export const mutation = gql`
 `;
 
 export type Response = {
+  /**
+   * The boolean result of the validation
+   *
+   * If the validation is successful, the result will be "true"
+   * If the validation is unsuccessful, the result will be "false"
+   */
   validateSubmission: string;
 };

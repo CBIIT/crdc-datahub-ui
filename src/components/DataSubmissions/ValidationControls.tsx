@@ -5,6 +5,7 @@ import { LoadingButton } from '@mui/lab';
 import { useAuthContext } from '../Contexts/AuthContext';
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
 import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from '../../graphql';
+import GenericAlert, { AlertState } from '../GenericAlert';
 
 type Props = {
   /**
@@ -133,6 +134,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
   const [validationType, setValidationType] = useState<ValidationType>("Metadata");
   const [uploadType, setUploadType] = useState<UploadType>("New");
   const [isValidating, setIsValidating] = useState<boolean>(false);
+  const [validationAlert, setValidationAlert] = useState<AlertState>(null);
 
   const canValidateData: boolean = useMemo(() => ValidateRoles.includes(user?.role), [user?.role]);
   const validateButtonEnabled: boolean = useMemo(() => ValidateStatuses.includes(dataSubmission?.status), [dataSubmission?.status]);
@@ -145,7 +147,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
   const handleValidateFiles = async () => {
     setIsValidating(true);
 
-    await validateSubmission({
+    const { data, errors } = await validateSubmission({
       variables: {
         _id: dataSubmission?._id,
         types: getTypes(validationType),
@@ -153,10 +155,17 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
       }
     });
 
+    if (errors || !data?.validateSubmission || data.validateSubmission === "false") {
+      setValidationAlert({ message: "TODO: Failed", severity: "error" });
+    } else {
+      setValidationAlert({ message: "TODO: Success", severity: "success" });
+    }
+
     // Reset form to default values
     setValidationType("Metadata");
     setUploadType("New");
     setIsValidating(false);
+    setTimeout(() => setValidationAlert(null), 10000);
   };
 
   const getTypes = (validationType: ValidationType): string[] => {
@@ -172,6 +181,9 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
 
   return (
     <StyledFileValidationSection>
+      <GenericAlert open={!!validationAlert} severity={validationAlert?.severity} key="data-validation-alert">
+        {validationAlert?.message}
+      </GenericAlert>
       <div className="fileValidationLeftSide">
         <div className="fileValidationLeftSideTopRow">
           <div className="headerText">Validation Type:</div>
