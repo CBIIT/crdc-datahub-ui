@@ -35,7 +35,7 @@ const TableContainer = styled.div`
     overflow: hidden;
     .readOnly {
       background-color: #E5EEF4;
-      color: "#083A50";
+      color: #083A50;
       cursor: not-allowed;
     }
     .MuiTableContainer-root {

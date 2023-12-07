@@ -5,13 +5,100 @@ import {
   Grid,
   OutlinedInput,
   OutlinedInputProps,
+  styled,
 } from "@mui/material";
-import { WithStyles, withStyles } from "@mui/styles";
 import { updateInputValidity } from "../../utils";
 import Tooltip from "../Tooltip";
 
+const StyledGridWrapper = styled(Grid)(({ theme }) => ({
+  "& .MuiFormHelperText-root": {
+    color: "#083A50",
+    marginLeft: "0",
+    [theme.breakpoints.up("lg")]: {
+      whiteSpace: "nowrap",
+    },
+  },
+  "& .MuiFormHelperText-root.Mui-error": {
+    color: "#D54309 !important",
+  },
+}));
+
+const StyledFormControl = styled(FormControl)(() => ({
+  height: "100%",
+  justifyContent: "end",
+}));
+
+const StyledLabel = styled("label")(() => ({
+  fontWeight: 700,
+  fontSize: "16px",
+  lineHeight: "19.6px",
+  minHeight: "20px",
+  color: "#083A50",
+  marginBottom: "4px",
+}));
+
+const StyledAsterisk = styled("span")(() => ({
+  color: "#D54309",
+  marginLeft: "2px",
+}));
+
+const StyledHelperText = styled(FormHelperText)(() => ({
+  marginTop: "4px",
+  minHeight: "20px",
+}));
+
+const StyledOutlinedInput = styled(OutlinedInput)(() => ({
+  borderRadius: "8px",
+  backgroundColor: "#fff",
+  color: "#083A50",
+  "& .MuiInputBase-input": {
+    fontWeight: 400,
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    lineHeight: "19.6px",
+    padding: "12px",
+    height: "20px",
+  },
+  "&.MuiInputBase-multiline": {
+    padding: "12px",
+  },
+  "&.MuiInputBase-multiline .MuiInputBase-input": {
+    lineHeight: "25px",
+    padding: 0,
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#6B7294",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    border: "1px solid #209D7D",
+    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#87878C",
+    fontWeight: 400,
+    opacity: 1
+  },
+  // Override the input error border color
+  "&.Mui-error fieldset": {
+    borderColor: "#D54309 !important",
+  },
+  // Target readOnly <textarea> inputs
+  "&.MuiInputBase-multiline.Mui-readOnly": {
+    backgroundColor: "#E5EEF4",
+    color: "#083A50",
+    cursor: "not-allowed",
+    borderRadius: "8px",
+  },
+  // Target readOnly <input> inputs
+  "& .MuiOutlinedInput-input:read-only": {
+    backgroundColor: "#E5EEF4",
+    color: "#083A50",
+    cursor: "not-allowed",
+    borderRadius: "8px",
+  },
+}));
+
 type Props = {
-  classes: WithStyles<typeof styles>["classes"];
   label?: string;
   infoText?: string;
   errorText?: string;
@@ -104,18 +191,17 @@ const TextInput: FC<Props> = ({
   }, [value]);
 
   return (
-    <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
-      <FormControl className={classes.formControl} fullWidth error={error}>
+    <StyledGridWrapper md={gridWidth || 6} xs={12} item>
+      <StyledFormControl fullWidth error={error}>
         {label && (
-          <label htmlFor={id} className={classes.label}>
+          <StyledLabel htmlFor={id}>
             {label}
-            {required && label ? <span className={classes.asterisk}>*</span> : ""}
+            {required && label ? <StyledAsterisk>*</StyledAsterisk> : ""}
             {tooltipText && <Tooltip placement="right" title={tooltipText} />}
-          </label>
+          </StyledLabel>
         )}
-        <OutlinedInput
+        <StyledOutlinedInput
           inputRef={inputRef}
-          classes={{ root: classes.input }}
           type={type || "text"}
           size="small"
           value={val ?? ""}
@@ -125,97 +211,12 @@ const TextInput: FC<Props> = ({
           {...rest}
           id={id}
         />
-        <FormHelperText className={classes.helperText}>
+        <StyledHelperText>
           {(!hideValidation && !readOnly && error ? errorMsg : infoText) || " "}
-        </FormHelperText>
-      </FormControl>
-    </Grid>
+        </StyledHelperText>
+      </StyledFormControl>
+    </StyledGridWrapper>
   );
 };
 
-const styles = (theme) => ({
-  root: {
-    "& .MuiFormHelperText-root": {
-      color: "#083A50",
-      marginLeft: "0",
-      [theme.breakpoints.up("lg")]: {
-        whiteSpace: "nowrap",
-      },
-    },
-    "& .MuiFormHelperText-root.Mui-error": {
-      color: "#D54309 !important",
-    },
-  },
-  formControl: {
-    height: "100%",
-    justifyContent: "end",
-  },
-  label: {
-    fontWeight: 700,
-    fontSize: "16px",
-    lineHeight: "19.6px",
-    minHeight: "20px",
-    color: "#083A50",
-    marginBottom: "4px",
-  },
-  asterisk: {
-    color: "#D54309",
-    marginLeft: "2px",
-  },
-  input: {
-    borderRadius: "8px",
-    backgroundColor: "#fff",
-    color: "#083A50",
-    "& .MuiInputBase-input": {
-      fontWeight: 400,
-      fontSize: "16px",
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      lineHeight: "19.6px",
-      padding: "12px",
-      height: "20px",
-    },
-    "&.MuiInputBase-multiline": {
-      padding: "12px",
-    },
-    "&.MuiInputBase-multiline .MuiInputBase-input": {
-      lineHeight: "25px",
-      padding: 0,
-    },
-    "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: "#6B7294",
-    },
-    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      border: "1px solid #209D7D",
-      boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-    },
-    "& ::placeholder": {
-      color: "#87878C",
-      fontWeight: 400,
-      opacity: 1
-    },
-    // Override the input error border color
-    "&.Mui-error fieldset": {
-      borderColor: "#D54309 !important",
-    },
-    // Target readOnly <textarea> inputs
-    "&.MuiInputBase-multiline.Mui-readOnly": {
-      backgroundColor: "#E5EEF4",
-      color: "#083A50",
-      cursor: "not-allowed",
-      borderRadius: "8px",
-    },
-    // Target readOnly <input> inputs
-    "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: "#E5EEF4",
-      color: "#083A50",
-      cursor: "not-allowed",
-      borderRadius: "8px",
-    },
-  },
-  helperText: {
-    marginTop: "4px",
-    minHeight: "20px",
-  },
-});
-
-export default withStyles(styles, { withTheme: true })(TextInput);
+export default TextInput;

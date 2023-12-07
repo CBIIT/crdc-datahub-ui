@@ -6,7 +6,6 @@ import {
   TooltipProps,
   styled,
 } from "@mui/material";
-import { WithStyles, withStyles } from "@mui/styles";
 import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
 import { updateInputValidity } from '../../utils';
 /*
@@ -17,7 +16,6 @@ type Props = {
   patternValidityMessage?: string;
   maxLength?: number;
   filter?: (input: string) => string;
-  classes: WithStyles<typeof styles>["classes"];
 } & InputProps;
 
 const StyledTooltip = styled((props: TooltipProps) => (
@@ -32,6 +30,32 @@ const StyledTooltip = styled((props: TooltipProps) => (
     color: "#2B528B",
   },
 }));
+
+const StyledInput = styled(Input)(() => ({
+  "&.MuiInputBase-root": {
+    "& .MuiInputBase-input": {
+      padding: "0px",
+      color: "#083A50",
+      fontWeight: 400,
+      fontSize: "16px",
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+      height: "20px",
+      width: "100%"
+    },
+    "& ::placeholder": {
+      color: "#87878C",
+      fontWeight: 400,
+      opacity: 1,
+      height: "20px",
+    },
+    "& .MuiInputBase-input:read-only": {
+      backgroundColor: "#E5EEF4",
+      color: "#083A50",
+      cursor: "not-allowed",
+    },
+  }
+}));
+
 /**
  * Generates a generic text input with a label and help text
  *
@@ -99,10 +123,9 @@ const TableTextInput: FC<Props> = ({
       disableTouchListener
       open={showError}
     >
-      <Input
+      <StyledInput
         inputRef={inputRef}
         sx={{ width: "100%", display: "flex", alignItems: "center" }}
-        classes={{ input: classes.input }}
         id={id}
         size="small"
         value={val}
@@ -116,29 +139,4 @@ const TableTextInput: FC<Props> = ({
   );
 };
 
-const styles = () => ({
-  input: {
-    "&.MuiInputBase-input": {
-      padding: "0px",
-      color: "#083A50",
-      fontWeight: 400,
-      fontSize: "16px",
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      height: "20px",
-      width: "100%"
-    },
-    "&::placeholder": {
-      color: "#87878C",
-      fontWeight: 400,
-      opacity: 1,
-      height: "20px",
-    },
-    "&.MuiInputBase-input:read-only": {
-      backgroundColor: "#E5EEF4",
-      color: "#083A50",
-      cursor: "not-allowed",
-    },
-  },
-});
-
-export default withStyles(styles, { withTheme: true })(TableTextInput);
+export default TableTextInput;
