@@ -157,7 +157,7 @@ const CustomSwitch: FC<Props> = ({
   sx,
   ...rest
 }) => {
-  const id = useId();
+  const id = rest.id || useId();
 
   const [val, setVal] = useState<boolean | null>(value);
   const [touched, setTouched] = useState(value?.toString()?.length > 0);
@@ -213,7 +213,11 @@ const CustomSwitch: FC<Props> = ({
     <GridStyled md={gridWidth || 6} xs={12} item sx={sx}>
       <Container $containerWidth={containerWidth}>
         <div className="labelContainer">
-          {label}
+          {label && (
+            <label htmlFor={id} id={`${id}-label`}>
+              {label}
+            </label>
+          )}
           {required ? <span className="asterisk">*</span> : ""}
           {tooltipText && <Tooltip placement="right" className="tooltip" title={tooltipText} />}
         </div>
@@ -224,7 +228,6 @@ const CustomSwitch: FC<Props> = ({
               inputRef={inputRef}
               inputProps={{ datatype: "boolean" }}
               focusVisibleClassName="focusVisible"
-              id={id}
               checked={val || false}
               onChange={onChangeWrapper}
               readOnly={readOnly}
@@ -238,6 +241,7 @@ const CustomSwitch: FC<Props> = ({
                 checked: "checked",
               }}
               {...rest}
+              id={id}
             />
             {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
             <input
@@ -247,6 +251,7 @@ const CustomSwitch: FC<Props> = ({
               type="checkbox"
               data-type={isBoolean ? "boolean" : "auto"}
               value={proxyValue}
+              aria-labelledby={`${id}-label`}
               checked
             />
             <div className={val ? "textChecked" : "text"}>Yes</div>

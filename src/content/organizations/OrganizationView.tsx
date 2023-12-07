@@ -308,7 +308,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
             spacing={2}
           >
             <StyledTitleBox>
-              <StyledPageTitle variant="h4">
+              <StyledPageTitle variant="h1">
                 {_id !== "new" ? "Edit" : "Add"}
                 {" "}
                 Organization
@@ -323,11 +323,16 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               )}
 
               <StyledField>
-                <StyledLabel>{_id !== "new" ? "Organization" : "Name"}</StyledLabel>
-                <StyledTextField {...register("name", { required: true })} size="small" required />
+                <StyledLabel id="organizationName">{_id !== "new" ? "Organization" : "Name"}</StyledLabel>
+                <StyledTextField
+                  {...register("name", { required: true })}
+                  size="small"
+                  required
+                  inputProps={{ "aria-labelledby": "organizationName" }}
+                />
               </StyledField>
               <StyledField>
-                <StyledLabel>Primary Contact</StyledLabel>
+                <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
                 <Stack direction="column" justifyContent="flex-start" alignItems="flex-start" spacing={1}>
                   <Controller
                     name="conciergeID"
@@ -338,6 +343,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                         {...field}
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
+                        inputProps={{ "aria-labelledby": "primaryContactLabel" }}
                       >
                         <MenuItem value={null}>{"<Not Set>"}</MenuItem>
                         {activeCurators?.listActiveCurators?.map(({ userID, firstName, lastName }) => (
@@ -349,7 +355,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 </Stack>
               </StyledField>
               <StyledField>
-                <StyledLabel>Studies</StyledLabel>
+                <StyledLabel id="studiesLabel">Studies</StyledLabel>
                 <Controller
                   name="studies"
                   control={control}
@@ -359,6 +365,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       {...field}
                       value={field.value || []}
                       MenuProps={{ disablePortal: true }}
+                      inputProps={{ "aria-labelledby": "studiesLabel" }}
                       multiple
                     >
                       {approvedStudies?.listApprovedStudies?.map(({ studyName, studyAbbreviation }) => (
@@ -374,7 +381,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 />
               </StyledField>
               <StyledField>
-                <StyledLabel>Status</StyledLabel>
+                <StyledLabel id="statusLabel">Status</StyledLabel>
                 <Controller
                   name="status"
                   control={control}
@@ -385,6 +392,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       value={field.value || ""}
                       disabled={_id === "new"}
                       MenuProps={{ disablePortal: true }}
+                      inputProps={{ "aria-labelledby": "statusLabel" }}
                     >
                       <MenuItem value="Active">Active</MenuItem>
                       <MenuItem value="Inactive">Inactive</MenuItem>

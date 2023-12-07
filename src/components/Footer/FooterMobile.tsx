@@ -74,7 +74,7 @@ const FooterLinksContainer = styled.div`
   display: flex;
   flex-direction: column;
   .footItem {
-    width: 253px; 
+    width: 253px;
   }
 
   .footItemTitle {
@@ -151,7 +151,7 @@ const FooterLinksContainer = styled.div`
     margin-right: 0.25rem;
   }
   .rotate{
-    transform: rotate(90deg); 
+    transform: rotate(90deg);
   }
 `;
 
@@ -283,11 +283,6 @@ const BottomFooter = styled.div`
   }
 `;
 
-const StyledAsterisk = styled("span")(() => ({
-  color: "#D54309",
-  marginLeft: "2px",
-}));
-
 const FooterMobile = () => {
   const [emailContent, setEmailContent] = useState("");
   const emailForm = useRef<HTMLFormElement>(null);
@@ -358,7 +353,6 @@ const FooterMobile = () => {
             <div className="enterTitle">
               <label htmlFor="email">
                 Sign up for the newsletter
-                <StyledAsterisk>*</StyledAsterisk>
                 <input ref={emailInput} id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
               </label>
             </div>

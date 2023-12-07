@@ -54,7 +54,7 @@ const TextInput: FC<Props> = ({
   parentStateSetter,
   ...rest
 }) => {
-  const id = useId();
+  const id = rest.id || useId();
 
   const [val, setVal] = useState(value);
   const [error, setError] = useState(false);
@@ -106,22 +106,24 @@ const TextInput: FC<Props> = ({
   return (
     <Grid className={classes.root} md={gridWidth || 6} xs={12} item>
       <FormControl className={classes.formControl} fullWidth error={error}>
-        <label htmlFor={id} className={classes.label}>
-          {label}
-          {required && label ? <span className={classes.asterisk}>*</span> : ""}
-          {tooltipText && <Tooltip placement="right" title={tooltipText} />}
-        </label>
+        {label && (
+          <label htmlFor={id} className={classes.label}>
+            {label}
+            {required && label ? <span className={classes.asterisk}>*</span> : ""}
+            {tooltipText && <Tooltip placement="right" title={tooltipText} />}
+          </label>
+        )}
         <OutlinedInput
           inputRef={inputRef}
           classes={{ root: classes.input }}
           type={type || "text"}
-          id={id}
           size="small"
           value={val ?? ""}
           onChange={onChangeWrapper}
           required={required}
           readOnly={readOnly}
           {...rest}
+          id={id}
         />
         <FormHelperText className={classes.helperText}>
           {(!hideValidation && !readOnly && error ? errorMsg : infoText) || " "}

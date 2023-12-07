@@ -5,8 +5,9 @@ import {
   Table, TableBody, TableCell,
   TableContainer, TableHead,
   TablePagination, TableRow,
-  TableSortLabel, Typography, Box, CircularProgress,
-  Dialog, DialogTitle
+  TableSortLabel, Typography,
+  Dialog, DialogTitle, FormControl,
+  Select, MenuItem,
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { useMutation, useQuery } from '@apollo/client';
@@ -22,6 +23,7 @@ import SelectInput from "../../components/Questionnaire/SelectInput";
 import TextInput from "../../components/Questionnaire/TextInput";
 import GenericAlert from '../../components/GenericAlert';
 import { DataCommons } from '../../config/DataCommons';
+import SuspenseLoader from '../../components/SuspenseLoader';
 
 type T = Submission;
 
@@ -71,15 +73,10 @@ const StyledTableContainer = styled(TableContainer)({
 
 const OrganizationStatusContainer = styled('div')({
   height: "45px",
-  fontFamily: "Nunito",
-  fontSize: "16px",
-  fontWeight: "700",
-  lineHeight: "20px",
-  letterSpacing: "0em",
-  textAlign: "left",
   display: "flex",
   alignItems: "center",
-  paddingLeft: "16px",
+  justifyContent: "flex-start",
+  paddingLeft: "6px",
 });
 
 const StyledHeaderCell = styled(TableCell)({
@@ -109,6 +106,57 @@ const StyledTableCell = styled(TableCell)({
     paddingRight: "4px",
   },
 });
+
+const StyledInlineLabel = styled('label')({
+  paddingLeft: "10px",
+  fontWeight: "700",
+  fontSize: "16px",
+});
+
+const StyledFormControl = styled(FormControl)({
+  margin: "10px 0",
+  minWidth: "0",
+});
+
+const baseTextFieldStyles = {
+  borderRadius: "8px",
+  minWidth: "300px",
+  "& .MuiInputBase-input": {
+    fontWeight: 400,
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    padding: "10px",
+    height: "20px",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#6B7294",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    border: "1px solid #209D7D",
+    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+  },
+  "& .Mui-disabled": {
+    cursor: "not-allowed",
+  },
+  "& .Mui-readOnly.MuiOutlinedInput-input:read-only": {
+    backgroundColor: "#E5EEF4",
+    color: "#083A50",
+    cursor: "not-allowed",
+    borderRadius: "8px",
+  },
+  "& .MuiList-root": {
+    padding: "0 !important",
+  },
+  "& .MuiMenuItem-root.Mui-selected": {
+    background: "#3E7E6D !important",
+    color: "#FFFFFF !important",
+  },
+  "& .MuiMenuItem-root:hover": {
+    background: "#D5EDE5",
+  },
+};
+
+const StyledSelect = styled(Select)(baseTextFieldStyles);
 
 const columns: Column[] = [
   {
@@ -412,28 +460,31 @@ const ListingView: FC = () => {
               <TableRow>
                 <TableCell colSpan={12}>
                   <OrganizationStatusContainer>
-                    Organization
-                    <SelectInput
-                      sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
-                      id="data-submissions-table-organization"
-                      label=""
-                      options={organizationNames || []}
-                      value={organizationFilter}
-                      placeholder="Select an organization"
-                      readOnly={orgOwnerOrSubmitter || user?.role === "User"}
-                      onChange={(newOrganization) => setOrganizationFilter(newOrganization)}
-                    />
-                    Status
-                    <SelectInput
-                      sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
-                      id="data-submissions-table-status"
-                      label=""
-                      options={statusOptionArray}
-                      value={statusFilter}
-                      placeholder="Select a status"
-                      readOnly={false}
-                      onChange={(newStatus) => setStatusFilter(newStatus)}
-                    />
+                    <StyledInlineLabel htmlFor="data-submissions-table-organization">Organization</StyledInlineLabel>
+                    <StyledFormControl>
+                      <StyledSelect
+                        sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
+                        value={organizationFilter}
+                        MenuProps={{ disablePortal: true }}
+                        inputProps={{ id: "data-submissions-table-organization" }}
+                        readOnly={orgOwnerOrSubmitter || user?.role === "User"}
+                        onChange={(e) => setOrganizationFilter(e.target.value as unknown as string)}
+                      >
+                        {organizationNames?.map(({ value, label }) => (<MenuItem key={value} value={value}>{label}</MenuItem>))}
+                      </StyledSelect>
+                    </StyledFormControl>
+                    <StyledInlineLabel htmlFor="data-submissions-table-status">Status</StyledInlineLabel>
+                    <StyledFormControl>
+                      <StyledSelect
+                        sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
+                        value={statusFilter}
+                        MenuProps={{ disablePortal: true }}
+                        inputProps={{ id: "data-submissions-table-status" }}
+                        onChange={(e) => setStatusFilter(e.target.value as unknown as string)}
+                      >
+                        {statusOptionArray.map(({ value, label }) => (<MenuItem key={value} value={value}>{label}</MenuItem>))}
+                      </StyledSelect>
+                    </StyledFormControl>
                   </OrganizationStatusContainer>
                 </TableCell>
               </TableRow>
@@ -459,22 +510,7 @@ const ListingView: FC = () => {
               {loading && (
                 <TableRow>
                   <TableCell>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        background: "#fff",
-                        left: 0,
-                        top: 0,
-                        width: '100%',
-                        height: '100%',
-                        zIndex: "9999",
-                      }}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <CircularProgress size={64} disableShrink thickness={3} />
-                    </Box>
+                    <SuspenseLoader fullscreen={false} />
                   </TableCell>
                 </TableRow>
               )}
@@ -528,6 +564,7 @@ const ListingView: FC = () => {
                 || emptyRows > 0
                 || loading
             }}
+            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>

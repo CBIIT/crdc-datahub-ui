@@ -15,7 +15,7 @@ const FooterContainer = styled.div`
   padding: 2rem 1rem 0 1rem;
   max-width: 1420px;
   margin-left: auto;
-  margin-right: auto;  
+  margin-right: auto;
   display: flex;
   justify-content: space-between;
 
@@ -237,11 +237,6 @@ const BottomFooter = styled.div`
   }
 `;
 
-const StyledAsterisk = styled("span")(() => ({
-  color: "#D54309",
-  marginLeft: "2px",
-}));
-
 const FooterTablet = () => {
   const [emailContent, setEmailContent] = useState("");
   const emailForm = useRef<HTMLFormElement>(null);
@@ -304,7 +299,6 @@ const FooterTablet = () => {
             <div className="enterTitle">
               <label htmlFor="email">
                 Sign up for the newsletter
-                <StyledAsterisk>*</StyledAsterisk>
                 <input ref={emailInput} id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
               </label>
             </div>

@@ -312,6 +312,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
           ref={uploadMetatadataInputRef}
           type="file"
           accept={acceptedExtensions.toString()}
+          aria-label="Upload metadata files"
           onChange={handleChooseFiles}
           readOnly={readOnly}
           multiple
