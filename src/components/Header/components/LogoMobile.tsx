@@ -6,7 +6,7 @@ const LogoArea = styled("div")({
   display: "flex",
 
   "& .logoContainer": {
-    marginTop: "35px",
+    marginTop: "32px",
   },
 });
 
