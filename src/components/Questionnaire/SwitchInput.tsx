@@ -1,126 +1,136 @@
 import React, {
-  FC, ReactElement, useEffect,
-  useId, useMemo, useRef, useState
-} from 'react';
-import { SwitchProps, Grid, Switch, FormHelperText } from '@mui/material';
-import styled from "styled-components";
+  FC,
+  HTMLProps,
+  ReactElement,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  SwitchProps,
+  Grid,
+  Switch,
+  FormHelperText,
+  styled,
+} from "@mui/material";
 import Tooltip from "../Tooltip";
-import { updateInputValidity } from '../../utils';
+import { updateInputValidity } from "../../utils";
 
-const GridStyled = styled(Grid)`
-  margin-bottom: 20px;
-  // Customize the root class
-  .switchRoot {
-    width: 65px;
-    height: 35px;
-    padding: 0;
-  }
-  // Customize the switchBase class
-  .switchBase {
-    padding-top: 5px;
-    padding-left: 7px;
-   }
-  // Customize the thumb class
-  .thumb {
-    color: #1D91AB;
-    width: 25px;
-    height: 25px;
-    box-shadow: none;
-  }
-  .MuiSwitch-switchBase.Mui-checked{
-    transform: translateX(26px);
-  }
-  // Customize the track class
-  .track {
-    border-radius: 60px;
-    background-color: #FFFFFF;
-    border: 1px solid #DBDBDB;
-    opacity: 1;
-  }
-  .MuiSwitch-track{
-    background-color: white !important;
-  }
-  .readOnly .MuiSwitch-track {
-    background-color: #E5EEF4 !important;
-  }
-  .readOnly .MuiSwitch-input {
-    cursor: not-allowed;
-  }
-  .text {
-    display: inline;
-    font-family: Lato;
-    font-style: normal;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 22px;
-    color: #89A2A7;
-    margin-left: 6px;
-    margin-right: 6px;
-  }
-  .textChecked {
-    display: inline;
-    font-family: Lato;
-    font-style: normal;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 22px;
-    color: #4E5F63;
-    margin-left: 6px;
-    margin-right: 6px;
-  }
-  .input {
-    display: none;
-  }
+const GridStyled = styled(Grid)({
+  "& .switchRoot": {
+    width: "65px",
+    height: "35px",
+    padding: 0,
+  },
+  "& .switchBase": {
+    paddingTop: "5px",
+    paddingLeft: "7px",
+  },
+  "& .thumb": {
+    color: "#1D91AB",
+    width: "25px",
+    height: "25px",
+    boxShadow: "none",
+  },
+  "& .MuiSwitch-switchBase.Mui-checked": {
+    transform: "translateX(26px)",
+  },
+  "& .track": {
+    borderRadius: "60px",
+    backgroundColor: "#FFFFFF",
+    border: "1px solid #DBDBDB",
+    opacity: 1,
+  },
+  "& .MuiSwitch-track": {
+    backgroundColor: "white !important",
+  },
+  "& .readOnly .MuiSwitch-track": {
+    backgroundColor: "#E5EEF4 !important",
+  },
+  "& .readOnly .MuiSwitch-input": {
+    cursor: "not-allowed",
+  },
+  "& .text": {
+    display: "inline",
+    fontFamily: "Lato",
+    fontStyle: "normal",
+    fontWeight: 600,
+    fontSize: "16px",
+    lineHeight: "22px",
+    color: "#89A2A7",
+    marginLeft: "6px",
+    marginRight: "6px",
+  },
+  "& .textChecked": {
+    display: "inline",
+    fontFamily: "Lato",
+    fontStyle: "normal",
+    fontWeight: 600,
+    fontSize: "16px",
+    lineHeight: "22px",
+    color: "#4E5F63",
+    marginLeft: "6px",
+    marginRight: "6px",
+  },
+  "& .input": {
+    display: "none",
+  },
+  "& .asterisk": {
+    color: "#D54309",
+    marginLeft: "2px",
+  },
+  "& .labelContainer": {
+    color: "#083A50",
+    display: "flex",
+    alignItems: "center",
+    height: "20px",
+  },
+  "& .switchYesNoContainer": {
+    display: "flex",
+    alignItems: "center",
+    marginRight: "72px",
+    minHeight: "50px",
+  },
+  "& .tooltip": {
+    alignSelf: "start",
+    marginLeft: "6px",
+  },
+  "& .errorMessage": {
+    color: "#D54309 !important",
+    marginTop: "44px",
+    marginLeft: "8px",
+    minHeight: "20px",
+    width: "fit-content",
+    position: "absolute",
+  },
+  "& .switchErrorContainer": {
+    display: "flex",
+    flexDirection: "column",
+  },
+});
 
-  .asterisk {
-    color: #D54309;
-    margin-left: 2px;
-  }
-  .labelContainer {
-    color: #083A50;
-    display: flex;
-    align-items: center;
-    height: 20px;
-  }
-  .switchYesNoContainer {
-    display: flex;
-    align-items: center;
-    margin-right: 72px;
-    min-height: 50px;
-  }
-  .tooltip {
-    align-self: start;
-    margin-left: 6px;
-  }
-  .errorMessage {
-    color: #D54309 !important;
-    margin-top: 44px;
-    margin-left: 8px;
-    min-height: 20px;
-    width: fit-content;
-    position: absolute;
-  }
-  .switchErrorContainer {
-    display: flex;
-    flex-direction: column;
-  }
-`;
-const Container = styled.div<{ $containerWidth?: string; }>`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 16px;
-  font-family: Nunito;
-  font-weight: 700;
-  line-height: 19.6px;
-  min-height: 50px;
-  flex-wrap: wrap;
-  width: ${(props) => props.$containerWidth};
-`;
+const Container = styled("div", {
+  shouldForwardProp: (prop) => prop !== "containerWidth",
+})<HTMLProps<HTMLDivElement> & { containerWidth?: string }>(
+  ({ containerWidth }) => ({
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    fontWeight: 700,
+    lineHeight: "19.6px",
+    minHeight: "50px",
+    flexWrap: "wrap",
+    width: containerWidth,
+  })
+);
 
 const HideContentWrapper = styled("div")({
-  display: "none !important"
+  display: "none !important",
 });
 
 type Props = {
@@ -211,7 +221,7 @@ const CustomSwitch: FC<Props> = ({
 
   return (
     <GridStyled md={gridWidth || 6} xs={12} item sx={sx}>
-      <Container $containerWidth={containerWidth}>
+      <Container containerWidth={containerWidth}>
         <div className="labelContainer">
           {label && (
             <label htmlFor={id} id={`${id}-label`}>

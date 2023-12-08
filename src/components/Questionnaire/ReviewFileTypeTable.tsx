@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import {
   Table,
   TableBody,
@@ -7,6 +6,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  styled,
 } from "@mui/material";
 import { addSpace } from "../../utils";
 
@@ -46,7 +46,7 @@ const StyledTableHeaderCell = styled(TableCell)(() => ({
     height: "100%",
     color: "#083A50",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
-    fontSize: '16px',
+    fontSize: "16px",
     fontStyle: "normal",
     fontWeight: 700,
     lineHeight: "19.6px",
