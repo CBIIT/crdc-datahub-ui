@@ -17,6 +17,7 @@ type Props = {
 };
 
 type ValidationType = "Metadata" | "Files" | "All";
+
 type UploadType = "New" | "All";
 
 const StyledValidateButton = styled(LoadingButton)({
@@ -133,6 +134,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
   const { user } = useAuthContext();
   const [validationType, setValidationType] = useState<ValidationType>("Metadata");
   const [uploadType, setUploadType] = useState<UploadType>("New");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(false);
   const [validationAlert, setValidationAlert] = useState<AlertState>(null);
 
@@ -145,7 +147,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
   });
 
   const handleValidateFiles = async () => {
-    setIsValidating(true);
+    setIsLoading(true);
 
     const { data, errors } = await validateSubmission({
       variables: {
@@ -155,16 +157,18 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
       }
     });
 
-    if (errors || !data?.validateSubmission || data.validateSubmission === "false") {
-      setValidationAlert({ message: "TODO: Failed", severity: "error" });
+    if (errors || !data?.validateSubmission?.success) {
+      setValidationAlert({ message: "Unable to initiate validation process.", severity: "error" });
+      setIsValidating(false);
     } else {
-      setValidationAlert({ message: "TODO: Success", severity: "success" });
+      setValidationAlert({ message: "Validation process is starting; this may take some time. Please wait before initiating another validation.", severity: "success" });
+      setIsValidating(true);
     }
 
     // Reset form to default values
     setValidationType("Metadata");
     setUploadType("New");
-    setIsValidating(false);
+    setIsLoading(false);
     setTimeout(() => setValidationAlert(null), 10000);
   };
 
@@ -233,11 +237,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
       <StyledValidateButton
         variant="contained"
         disableElevation
-        disabled={!canValidateData || !validateButtonEnabled}
-        loading={isValidating}
+        disabled={!canValidateData || !validateButtonEnabled || isValidating}
+        loading={isLoading}
         onClick={handleValidateFiles}
       >
-        Validate
+        {isValidating ? "Validating..." : "Validate"}
       </StyledValidateButton>
     </StyledFileValidationSection>
   );
