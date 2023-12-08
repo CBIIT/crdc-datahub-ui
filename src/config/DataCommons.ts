@@ -1,4 +1,5 @@
 import logo from "../assets/modelNavigator/Logo.jpg";
+import CDSLogo from "../assets/modelNavigator/CDS_Logo.png";
 
 /**
  * The URL of the Data Commons Model Repo
@@ -19,6 +20,8 @@ export const DataCommons: DataCommon[] = [
     name: "CDS",
     assets: null,
     configuration: {
+      pageTitle: "CDS Data Model",
+      titleIconSrc: CDSLogo,
       pdfConfig: {
         fileType: 'pdf',
         prefix: 'CDS_',
@@ -122,6 +125,7 @@ export const DataCommons: DataCommon[] = [
     name: "ICDC",
     assets: null,
     configuration: {
+      pageTitle: "ICDC Data Model",
       pdfConfig: {
         fileType: 'pdf',
         prefix: 'ICDC_',
