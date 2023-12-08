@@ -36,7 +36,7 @@ import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
-import DataSubmissionStatistics from '../../components/DataSubmissions/DataSubmissionStatistics';
+import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -333,7 +333,7 @@ const DataSubmission = () => {
         throw new Error("Unable to retrieve Data Submission.");
       }
       setDataSubmission(newDataSubmission.getSubmission);
-      setSubmissionStats(newDataSubmission.submissionStats);
+      setSubmissionStats(newDataSubmission.submissionStats?.stats || []);
     } catch (err) {
       setError(err?.toString());
     }

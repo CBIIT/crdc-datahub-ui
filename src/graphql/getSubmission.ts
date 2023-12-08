@@ -45,5 +45,7 @@ export const query = gql`
 
 export type Response = {
   getSubmission: Submission;
-  submissionStats: SubmissionStatistic[];
+  submissionStats: {
+    stats: SubmissionStatistic[];
+  };
 };

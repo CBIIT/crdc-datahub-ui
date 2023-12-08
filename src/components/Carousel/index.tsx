@@ -24,8 +24,8 @@ const sizing = {
 
 const StyledWrapper = styled('div')({
   maxWidth: "700px",
+  minWidth: "464px", // NOTE: Without a min-width, the carousel collapses to 0px wide
   margin: "0 auto",
-  flexGrow: 1,
   "& .react-multi-carousel-list": {
     height: "206px",
   },
