@@ -1,6 +1,5 @@
 import React, { HTMLProps, MutableRefObject, forwardRef, useId } from 'react';
 import { Button, ButtonProps, Typography, styled } from '@mui/material';
-import { WithStyles, withStyles } from '@mui/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import useFormMode from '../../content/questionnaire/sections/hooks/useFormMode';
@@ -37,8 +36,29 @@ const StyledFormContainer = styled("div", {
   scrollMarginTop: "0px",
 }));
 
+const StyledForm = styled("form")(() => ({
+  fontWeight: 400,
+  fontSize: '16px',
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+}));
+
+const StyledTitleGroup = styled("div")(() => ({
+  background: "transparent",
+  color: "#337E90",
+  paddingBottom: "40px",
+  borderRadius: "8px 8px 0 0",
+  display: "flex",
+  alignItems: "center",
+}));
+
+const StyledSectionTitle = styled(Typography)(() => ({
+  fontWeight: 700,
+  fontSize: "24px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  lineHeight: "32.74px",
+}));
+
 type Props = {
-  classes: WithStyles<typeof styles>['classes'];
   description: string;
   hideReturnToSubmissions?: boolean;
   children: React.ReactNode;
@@ -53,7 +73,6 @@ type Props = {
  */
 const FormContainer = forwardRef<HTMLDivElement, Props>(({
   description,
-  classes,
   children,
   formRef,
   hideReturnToSubmissions = true,
@@ -76,66 +95,20 @@ const FormContainer = forwardRef<HTMLDivElement, Props>(({
         <ArrowBackIcon fontSize="small" />
         Return to all Submissions
       </StyledButton>
-      <div className={classes.titleGroup}>
-        <Typography className={classes.sectionTitle} variant="h2">
+      <StyledTitleGroup>
+        <StyledSectionTitle variant="h2">
           {description}
-        </Typography>
-      </div>
-      <form
+        </StyledSectionTitle>
+      </StyledTitleGroup>
+      <StyledForm
         id={id}
         ref={formRef}
-        className={classes.form}
         onSubmit={(e) => e.preventDefault()}
       >
         {children}
-      </form>
+      </StyledForm>
     </StyledFormContainer>
   );
 });
 
-const styles = () => ({
-  formContainer: {
-    background: "transparent",
-    borderRadius: "8px",
-    paddingBottom: "25px",
-    marginTop: "0px !important",
-    scrollMarginTop: "30px"
-  },
-  form: {
-    fontWeight: 400,
-    fontSize: '16px',
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-  },
-  titleGroup: {
-    background: "transparent",
-    color: "#337E90",
-    paddingBottom: "40px",
-    borderRadius: "8px 8px 0 0",
-    display: "flex",
-    alignItems: "center",
-  },
-  sectionTitle: {
-    fontWeight: 700,
-    fontSize: "24px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    lineHeight: "32.74px",
-  },
-  returnToSubmissions: {
-    fontWeight: 700,
-    fontSize: "14px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    lineHeight: "19.6px",
-    color: "#2E5481",
-    padding: 0,
-    marginBottom: "16px",
-    display: "flex",
-    alignItems: "center",
-    verticalAlign: "middle",
-    textTranform: "initial",
-    "& svg": {
-      marginRight: "8px"
-    }
-  },
-});
-
-export default withStyles(styles, { withTheme: true })(FormContainer);
+export default FormContainer;

@@ -1,226 +1,198 @@
-import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
-import FooterData from '../../config/globalFooterData';
+import React, { useState, useRef } from "react";
+import { styled } from "@mui/material";
+import FooterData from "../../config/globalFooterData";
 
-const FooterStyled = styled.div`
-  background-color: #1B496E;
-  border-top: 1px solid #6C727B;
-  bottom: 0;
-  width: 100%;
-  z-index: 10;
-  position: relative;
-`;
+const FooterStyled = styled("div")({
+  backgroundColor: "#1B496E",
+  borderTop: "1px solid #6C727B",
+  bottom: 0,
+  width: "100%",
+  zIndex: 10,
+  position: "relative",
+});
 
-const FooterContainer = styled.div`
-  padding: 2rem 2rem 2rem 2rem;
-  max-width: 1400px;
-  margin-left: auto;
-  margin-right: auto;
-  display: flex;
-  justify-content: space-between;
+const FooterContainer = styled("div")({
+  padding: "2rem",
+  maxWidth: "1400px",
+  marginLeft: "auto",
+  marginRight: "auto",
+  display: "flex",
+  justifyContent: "space-between",
+});
 
-`;
+const FooterEmailSignupContainer = styled("form")({
+  width: "33.3%",
+  "& .signUpTitle": {
+    fontFamily: "poppins",
+    fontWeight: 700,
+    fontSize: "22.88px",
+    lineHeight: "34px",
+    color: "#FFFFFF",
+    marginBottom: "1rem",
+  },
+  "& .enterTitle": {
+    fontFamily: "Open Sans",
+    fontWeight: 400,
+    fontSize: "16px",
+    lineHeight: "22px",
+    color: "#FFFFFF",
+    marginBottom: "10px",
+  },
+  "& .signUpInputBox": {
+    width: "100%",
+    height: "47px",
+    fontSize: "25px",
+    paddingLeft: "8px",
+    marginTop: "4px",
+    "&:focus": {
+      outline: "0.25rem solid #2491ff",
+    },
+  },
+  "& .signUpButton": {
+    background: "#FACE00",
+    borderRadius: "8px",
+    border: 0,
+    padding: "9px 16px",
+    fontFamily: "Open Sans",
+    fontWeight: 700,
+    fontSize: "16px",
+    lineHeight: "22px",
+    color: "#14315C",
+    marginTop: "18px",
+    "&:hover": {
+      cursor: "pointer",
+    },
+  },
+});
 
-const FooterEmailSignupContainer = styled.form`
-  width: 33.3%;
-  .signUpTitle {
-    font-family: poppins;
-    font-weight: 700;
-    font-size: 22.88px;
-    line-height: 34px;
-    color: #FFFFFF;
-    margin-bottom: 1rem;
-  }
+const FooterLinksContainer = styled("div")({
+  width: "66.7%",
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 33%)",
+  "& .footItem": {
+    marginBottom: "24px",
+  },
+  "& .footItemTitle": {
+    fontFamily: "Open Sans",
+    color: "#FFFFFF",
+    fontWeight: 700,
+    fontSize: "16px",
+    lineHeight: "22px",
+    marginBottom: "10px",
+  },
+  "& .footItemSubtitle": {
+    marginBottom: "10px",
+    maxWidth: "290px",
+  },
+  "& .footItemLink": {
+    fontFamily: "Open Sans",
+    color: "#FFFFFF",
+    fontWeight: 400,
+    fontSize: "16px",
+    lineHeight: "22px",
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
+});
 
-  .enterTitle {
-    font-family: Open Sans;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 22px;
-    color: #FFFFFF;
-    margin-bottom: 10px;
-  }
-
-  .signUpInputBox {
-    width: 100%;
-    height: 47px;
-    font-size: 25px;
-    padding-left: 8px;
-    margin-top: 4px;
-  }
-
-  .signUpInputBox:focus {
-    outline: 0.25rem solid #2491ff;
-  }
-
-  .signUpButton {
-    background: #FACE00;
-    border-radius: 8px;
-    border: 0;
-    padding: 9px 16px;
-    font-family: Open Sans;
-    font-weight: 700;
-    font-size: 16px;
-    line-height: 22px;
-    color: #14315C;
-    margin-top: 18px;
-  }
-
-  .signUpButton:hover {
-    cursor: pointer;
-  }
-
-`;
-
-const FooterLinksContainer = styled.div`
-  width: 66.7%;
-  display: flex;
-  display: grid;
-  grid-template-columns: 33% 33% 33%;
-
-  .footItem {
-    /* padding: 0 16px 32px 16px; */
-    margin-bottom: 24px;
-  }
-
-  .footItemTitle {
-    font-family: Open Sans;
-    color: #FFFFFF;
-    font-weight: 700;
-    font-size: 16px;
-    line-height: 22px;
-    margin-bottom: 10px;
-  }
-
-  .footItemSubtitle {
-    margin-bottom: 10px;
-    max-width: 290px;
-  }
-
-  .footItemLink {
-    font-family: Open Sans;
-    color: #FFFFFF;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 22px;
-    text-decoration: none;
-  }
-
-  .footItemLink:hover {
-    text-decoration: underline;
-  }
-`;
-
-const BottomFooter = styled.div`
- background: #14315C;
-
-  span {
-    display: block;
-  }
-
-  .bottom-footer-container {
-    display: flex;
-    flex-flow: wrap;
-    justify-content: space-between;
-    max-width: 1400px;
-    margin-left: auto;
-    margin-right: auto;
-    height: fit-content;
-    padding-top: 1.25rem;
-    padding-bottom: 1.25rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-
-  .break {
-    order: 2;
-    width: 100%;
-    flex-basis: 100%;
-    height: 2rem;
-    margin: 0;
-    border: 0;
-  }
-
-  .logoText {
-    text-decoration: none;
-  }
-
-  .logoUpperText {
-    font-family: poppins;
-    font-weight: 700;
-    font-size: 24.96px;
-    line-height: 37px;
-    color: #FFFFFF;
-  }
-
-  .logoLowerText {
-    font-family: poppins;
-    font-weight: 400;
-    font-size: 18.72px;
-    color: #FFFFFF;
-  }
-
-  #bottom-footer-contact-us {
-    font-family: 'Poppins';
-    font-style: normal;
-    font-weight: 700;
-    font-size: 22.88px;
-    line-height: 34px;
-    text-align: right;
-    color: #FFFFFF;
-    order: 1;
-  }
-
-  #bottom-footer-contact-links {
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 22px;
-    color: #FFFFFF;
-    margin-top: 0.25rem;
-  }
-
-  #bottom-footer-contact-links a {
-    text-decoration: none;
-    color: #FFFFFF;
-    margin-left: 1rem;
-  }
-
-  #bottom-footer-follow-us {
-    font-family: 'Poppins';
-    font-style: normal;
-    font-weight: 700;
-    font-size: 22.88px;
-    line-height: 34px;
-    color: #FFFFFF;
-    order: 3;
-  }
-
-  #bottom-footer-follow-us-links {
-    margin-top: 1rem;
-  }
-
-  .bottom-footer-social-media-imgs {
-    margin-left: 10px;
-  }
-
-  #bottom-footer-gov-links {
-    order: 4;
-  }
-
-  #bottom-footer-gov-links a {
-    text-decoration: none;
-    display: block;
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 1.6;
-    text-align: right;
-    color: #FFFFFF;
-  }
-`;
+const BottomFooter = styled("div")({
+  background: "#14315C",
+  "& span": {
+    display: "block",
+  },
+  "& .bottom-footer-container": {
+    display: "flex",
+    flexFlow: "wrap",
+    justifyContent: "space-between",
+    maxWidth: "1400px",
+    marginLeft: "auto",
+    marginRight: "auto",
+    height: "fit-content",
+    paddingTop: "1.25rem",
+    paddingBottom: "1.25rem",
+    paddingLeft: "2rem",
+    paddingRight: "2rem",
+  },
+  "& .break": {
+    order: 2,
+    width: "100%",
+    flexBasis: "100%",
+    height: "2rem",
+    margin: 0,
+    border: 0,
+  },
+  "& .logoText": {
+    textDecoration: "none",
+  },
+  "& .logoUpperText": {
+    fontFamily: "poppins",
+    fontWeight: 700,
+    fontSize: "24.96px",
+    lineHeight: "37px",
+    color: "#FFFFFF",
+  },
+  "& .logoLowerText": {
+    fontFamily: "poppins",
+    fontWeight: 400,
+    fontSize: "18.72px",
+    color: "#FFFFFF",
+  },
+  "& #bottom-footer-contact-us": {
+    fontFamily: "Poppins",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "22.88px",
+    lineHeight: "34px",
+    textAlign: "right",
+    color: "#FFFFFF",
+    order: 1,
+  },
+  "& #bottom-footer-contact-links": {
+    fontFamily: "Open Sans",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "16px",
+    lineHeight: "22px",
+    color: "#FFFFFF",
+    marginTop: "0.25rem",
+    "& a": {
+      textDecoration: "none",
+      color: "#FFFFFF",
+      marginLeft: "1rem",
+    },
+  },
+  "& #bottom-footer-follow-us": {
+    fontFamily: "Poppins",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "22.88px",
+    lineHeight: "34px",
+    color: "#FFFFFF",
+    order: 3,
+  },
+  "& #bottom-footer-follow-us-links": {
+    marginTop: "1rem",
+  },
+  "& .bottom-footer-social-media-imgs": {
+    marginLeft: "10px",
+  },
+  "& #bottom-footer-gov-links": {
+    order: 4,
+  },
+  "& #bottom-footer-gov-links a": {
+    textDecoration: "none",
+    display: "block",
+    fontFamily: "Open Sans",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "14px",
+    lineHeight: "1.6",
+    textAlign: "right",
+    color: "#FFFFFF",
+  },
+});
 
 const FooterDesktop = () => {
   const [emailContent, setEmailContent] = useState("");
