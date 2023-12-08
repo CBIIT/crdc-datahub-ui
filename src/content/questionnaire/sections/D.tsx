@@ -2,11 +2,20 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
-import styled from 'styled-components';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  styled,
+} from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
+import {
+  Status as FormStatus,
+  useFormContext,
+} from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
@@ -25,110 +34,109 @@ export type KeyedFileTypeData = {
   key: string;
 } & FileInfo;
 
-const TableContainer = styled.div`
-    margin-left: 12px;
-    margin-bottom: 24px;
-    display: flex;
-    width: 100%;
-    border: 1px solid #6B7294;
-    border-radius: 10px;
-    overflow: hidden;
-    .readOnly {
-      background-color: #E5EEF4;
-      color: "#083A50";
-      cursor: not-allowed;
-    }
-    .MuiTableContainer-root {
-      width: 100%;
-      margin-left: 12px;
-      overflow-y: visible;
-      height: 200px;
-    }
-    th {
-      color: #083A50;
-      font-size: 16px;
-      font-family: Nunito;
-      font-weight: 700;
-      line-height: 19.6px;
-    }
-    table {
-      overflow-y: visible;
-    }
+const TableContainer = styled("div")({
+  marginLeft: "12px",
+  marginBottom: "24px",
+  display: "flex",
+  width: "100%",
+  border: "1px solid #6B7294",
+  borderRadius: "10px",
+  overflow: "hidden",
+  "& .readOnly": {
+    backgroundColor: "#E5EEF4",
+    color: "#083A50",
+    cursor: "not-allowed",
+  },
+  "& .MuiTableContainer-root": {
+    width: "100%",
+    marginLeft: "12px",
+    overflowY: "visible",
+    height: "200px",
+  },
+  "& th": {
+    color: "#083A50",
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    fontWeight: 700,
+    lineHeight: "19.6px",
+  },
+  "& table": {
+    overflowY: "visible",
+  },
+  "& .noBorder": {
+    border: "none",
+  },
+  "& .topRowLast": {
+    border: "none",
+    padding: "10px 8px",
+    textAlign: "center",
+  },
+  "& .fileTypeTableCell": {
+    borderTop: "none",
+    borderRight: "1px solid #6B7294",
+    borderBottom: "none",
+    borderLeft: "none",
+    padding: "10px 20px",
+    textAlign: "center",
+  },
+  "& .tableTopRowMiddle": {
+    borderTop: "none",
+    borderRight: "1px solid #6B7294",
+    borderBottom: "none",
+    borderLeft: "none",
+    padding: "10px 10px",
+    textAlign: "center",
+  },
+  "& .bottomRowMiddle": {
+    borderTop: "1px solid #6B7294",
+    borderRight: "1px solid #6B7294",
+    borderBottom: "none",
+    borderLeft: "none",
+    padding: "10px 10px",
+  },
+  "& .bottomRowLast": {
+    borderTop: "1px solid #6B7294",
+    borderRight: "none",
+    borderBottom: "none",
+    borderLeft: "none",
+    textAlign: "center",
+    padding: "10px",
+    width: "20px",
+    minWidth: "0",
+  },
+  "& .autoComplete": {
+    borderTop: "1px solid #6B7294 !important",
+    borderRight: "1px solid #6B7294 !important",
+    borderBottom: "none !important",
+    borderLeft: "none !important",
+    padding: "10px 12px 10px 15px",
+    "& .MuiStack-root": {
+      width: "auto",
+    },
+  },
+  "& .removeButtonContainer": {
+    margin: "auto",
+    width: "23px",
+    "& .MuiStack-root": {
+      width: "auto",
+    },
+  },
+  "& .asterisk": {
+    color: "#D54309",
+    marginLeft: "2px",
+  },
+  "& .MuiButton-startIcon": {
+    margin: "0 !important",
+  },
+});
 
-    .noBorder {
-      border: none;
-    }
-    .topRowLast {
-      border: none;
-      padding: 10px 8px 10px 8px;
-      text-align: center;
-    }
-    .fileTypeTableCell{
-      border-top: none;
-      border-right: 1px solid #6B7294;
-      border-bottom: none;
-      border-left: none;
-      padding: 10px 20px 10px 20px;
-      text-align:center;
-    }
-    .tableTopRowMiddle {
-      border-top: none;
-      border-right: 1px solid #6B7294;
-      border-bottom: none;
-      border-left: none;
-      padding: 10px 10px 10px 10px;
-      text-align: center;
-    }
-    .bottomRowMiddle {
-      border-top: 1px solid #6B7294;
-      border-right: 1px solid #6B7294;
-      border-bottom: none;
-      border-left: none;
-      padding: 10px 10px 10px 10px;
-    }
-    .bottomRowLast {
-      border-top: 1px solid #6B7294;
-      border-right: none;
-      border-bottom: none;
-      border-left: none;
-      text-align: center;
-      padding: 10px;
-      width: 20px;
-      min-width: 0;
-    }
-    .autoComplete {
-      border-top: 1px solid #6B7294 !important;
-      border-right: 1px solid #6B7294 !important;
-      border-bottom: none !important;
-      border-left: none !important;
-      padding: 10px 12px 10px 15px;
-      .MuiStack-root {
-        width: auto;
-      }
-    }
-    .removeButtonContainer {
-      margin: auto;
-      width: 23px;
-      .MuiStack-root {
-        width: auto;
-      }
-    }
-    .asterisk {
-      color: #D54309;
-      margin-left: 2px;
-    }
-    .MuiButton-startIcon {
-      margin: 0 !important;
-    }
-`;
-
-const InvisibleInput = styled.input`
-  height: 0;
-  width: 0;
-  padding: 0;
-  border: 0;
-  display: block;
-`;
+const InvisibleInput = styled("input")({
+  height: 0,
+  width: 0,
+  padding: 0,
+  border: 0,
+  display: "block",
+});
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const { status, data: { questionnaireData: data } } = useFormContext();
@@ -252,7 +260,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         required
         error={dataTypesErrorMsg}
       >
-        <InvisibleInput ref={dataTypesInputRef} />
+        <InvisibleInput ref={dataTypesInputRef} aria-label={SectionDMetadata.sections.DATA_TYPES.title} />
         <SwitchInput
           id="section-d-clinical-trial"
           label="Clinical Trial"
@@ -474,6 +482,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       name={`files[${idx}][count]`}
                       value={fileData.count ?? ""}
                       placeholder="Enter file count"
+                      inputProps={{ "aria-label": "File count" }}
                       pattern="^[1-9]\d*$"
                       filter={filterPositiveIntegerString}
                       patternValidityMessage="Please enter a whole number greater than 0"
@@ -487,6 +496,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                       name={`files[${idx}][amount]`}
                       value={fileData.amount}
                       placeholder="E.g. 500 GB"
+                      inputProps={{ "aria-label": "File size" }}
                       maxLength={50}
                       required
                     />
@@ -501,6 +511,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                           startIcon={<RemoveCircleIcon />}
                           iconColor="#E74040"
                           disabled={readOnlyInputs || status === FormStatus.SAVING}
+                          aria-label="Remove File Type"
                           sx={{ minWidth: "0px !important" }}
                         />
                       </div>
@@ -519,7 +530,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         description={SectionDMetadata.sections.ADDITIONAL_COMMENTS.description}
       >
         <TextInput
-          label=""
           name="submitterComment"
           value={data.submitterComment}
           gridWidth={12}
@@ -527,8 +537,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="500 characters allowed"
           minRows={5}
           multiline
-          sx={{ marginTop: "-20px" }}
           readOnly={readOnlyInputs}
+          inputProps={{
+            "aria-label": SectionDMetadata.sections.ADDITIONAL_COMMENTS.title
+          }}
         />
       </SectionGroup>
     </FormContainer>

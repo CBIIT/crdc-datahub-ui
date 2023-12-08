@@ -1,8 +1,7 @@
 import React, { ElementType, FC, useEffect, useMemo, useState } from "react";
 import {
-  Alert, Box, Button, CircularProgress,
-  Container, FormControl, MenuItem,
-  OutlinedInput,
+  Alert, Box, Button,
+  Container, FormControl, MenuItem, OutlinedInput,
   Select, Stack, Table, TableBody, TableCell,
   TableContainer, TableHead, TablePagination, TableRow,
   TableSortLabel, Typography, styled,
@@ -12,6 +11,7 @@ import { Controller, useForm } from 'react-hook-form';
 import PageBanner from "../../components/PageBanner";
 import Tooltip from '../../components/Tooltip';
 import { useOrganizationListContext, Status } from '../../components/Contexts/OrganizationListContext';
+import SuspenseLoader from '../../components/SuspenseLoader';
 
 type T = Partial<Organization>;
 
@@ -338,15 +338,15 @@ const ListingView: FC = () => {
 
       <StyledContainer maxWidth="xl">
         <StyledFilterContainer>
-          <StyledInlineLabel>Organization</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
           <StyledFormControl>
-            <StyledTextField {...register("organization")} placeholder="Enter a Organization" required />
+            <StyledTextField {...register("organization")} placeholder="Enter a Organization" id="organization-filter" required />
           </StyledFormControl>
-          <StyledInlineLabel>Study</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
           <StyledFormControl>
-            <StyledTextField {...register("study")} placeholder="Enter a Study" required />
+            <StyledTextField {...register("study")} placeholder="Enter a Study" id="study-filter" required />
           </StyledFormControl>
-          <StyledInlineLabel>Status</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="status"
@@ -357,6 +357,7 @@ const ListingView: FC = () => {
                   defaultValue="All"
                   value={field.value || "All"}
                   MenuProps={{ disablePortal: true }}
+                  inputProps={{ id: "status-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Active">Active</MenuItem>
@@ -391,22 +392,7 @@ const ListingView: FC = () => {
               {status === Status.LOADING && (
                 <TableRow>
                   <TableCell>
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        background: "#fff",
-                        left: 0,
-                        top: 0,
-                        width: "100%",
-                        height: "100%",
-                        zIndex: "9999",
-                      }}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <CircularProgress size={64} disableShrink thickness={3} />
-                    </Box>
+                    <SuspenseLoader fullscreen={false} />
                   </TableCell>
                 </TableRow>
               )}
@@ -461,6 +447,7 @@ const ListingView: FC = () => {
                 || emptyRows > 0
                 || status === Status.LOADING,
             }}
+            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
             backIconButtonProps={{ disabled: page === 0 || status === Status.LOADING }}
           />
         </StyledTableContainer>

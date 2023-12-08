@@ -150,14 +150,12 @@ type ParentNode = {
   parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
 };
 
-// TODO: Confirm type, based on assumption
-type ListQCResults = {
+type QCResults = {
   total: number;
-  qcResults: QCResults[]
+  results: QCResult[];
 };
 
-type QCResults = {
-  _id: string;
+type QCResult = {
   submissionID: string;
   nodeType: string;
   batchID: string;
@@ -177,7 +175,7 @@ type DataRecord = {
   _id: string;
   submissionID: string;
   batchIDs: string[]; // all batch IDs, each time this record is reloaded in a new batch, append batchID here
-  status: string; // [New, Passed, Error, Warning], Loaded is the initial state each time it's loaded
+  status: "New" | "Passed" | "Error" | "Warning"; // [New, Passed, Error, Warning], Loaded is the initial state each time it's loaded
   errors: ErrorMessage[];
   warnings: ErrorMessage[];
   createdAt: string;
@@ -191,4 +189,5 @@ type DataRecord = {
   // relationshipProps: [RelationshipProperty] # for future use
   // rawData: RawData
   s3FileInfo: S3FileInfo; // only for "file" types, should be null for other nodes
+  CRDC_ID: string;
 };

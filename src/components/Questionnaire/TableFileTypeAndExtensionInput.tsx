@@ -5,9 +5,9 @@ import {
   TableCell,
   Tooltip,
   TooltipProps,
-  styled
+  styled,
+  Paper
 } from "@mui/material";
-import { WithStyles, withStyles } from "@mui/styles";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 import { fileTypeExtensions } from "../../config/FileTypeConfig";
 import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
@@ -22,7 +22,6 @@ const DropdownArrowsIcon = styled("div")(() => ({
 
 type Props = {
   inputID: string;
-  classes: WithStyles<typeof styles>["classes"];
   typeValue: string;
   extensionValue: string;
   options: string[];
@@ -48,6 +47,75 @@ const StyledTooltip = styled((props: TooltipProps) => (
   },
 }));
 
+const StyledTableCell = styled(TableCell)(() => ({
+  borderTop: "1px solid #6B7294 !important",
+  borderRight: "1px solid #6B7294 !important",
+  borderBottom: "none!important",
+  borderLeft: "none!important",
+  padding: "0",
+  "& .MuiStack-root": {
+    width: "auto",
+  }
+}));
+
+const StyledPaper = styled(Paper)(() => ({
+  borderRadius: "8px",
+  border: "1px solid #6B7294",
+  marginTop: "2px",
+  "& .MuiAutocomplete-listbox": {
+    padding: 0
+  },
+  "& .MuiAutocomplete-option[aria-selected='true']": {
+    color: "#083A50",
+    background: "#FFFFFF"
+  },
+  "& .MuiAutocomplete-option": {
+    padding: "0 10px",
+    height: "35px",
+    color: "#083A50",
+    background: "#FFFFFF"
+  },
+  "& .MuiAutocomplete-option:hover": {
+    backgroundColor: "#3E7E6D",
+    color: "#FFFFFF"
+  },
+  "& .MuiAutocomplete-option.Mui-focused": {
+    backgroundColor: "#3E7E6D !important",
+    color: "#FFFFFF"
+  },
+}));
+
+const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : boolean }) => ({
+  "& .MuiInputBase-root": {
+    backgroundColor: readOnly ? "#E5EEF4" : "#FFFFFF",
+    "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
+      display: 'flex',
+      alignItems: 'center',
+      padding: 0,
+    },
+    "& .MuiInputBase-input": {
+      fontWeight: 400,
+      fontSize: "16px",
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+      padding: "10px 12px 10px 12px !important",
+      color: readOnly ? "#083A50" : "initial",
+      cursor: readOnly ? "not-allowed !important" : "initial",
+    },
+    "& ::placeholder": {
+      color: "#87878C",
+      fontWeight: 400,
+      opacity: 1
+    },
+    "& .MuiAutocomplete-endAdornment": {
+      right: "8px",
+    },
+    "&.Mui-focused": {
+      boxShadow:
+        "2px 2px 2px 1px rgba(38, 184, 147, 0.10), -2px -2px 2px 1px rgba(38, 184, 147, 0.20)",
+    },
+  },
+}));
+
 /**
  * Generates a generic autocomplete select box with a label and help text
  *
@@ -56,7 +124,6 @@ const StyledTooltip = styled((props: TooltipProps) => (
  */
 const TableAutocompleteInput: FC<Props> = ({
   inputID,
-  classes,
   typeValue,
   extensionValue,
   name,
@@ -137,9 +204,10 @@ const TableAutocompleteInput: FC<Props> = ({
   useEffect(() => {
     onExtensionValChangeWrapper(null, extensionValue, null);
   }, [extensionValue]);
+
   return (
     <>
-      <TableCell className={classes.autocomplete}>
+      <StyledTableCell>
         <StyledAutocomplete
           sx={{
           "& .MuiInputBase-input": {
@@ -153,15 +221,12 @@ const TableAutocompleteInput: FC<Props> = ({
           id={inputID.concat("-type")}
           size="small"
           value={typeVal || ""}
-          classes={{ root: classes.inputInTable }}
           onChange={onTypeValChangeWrapper}
           popupIcon={<DropdownArrowsIcon />}
           readOnly={readOnlyInputs}
           freeSolo
+          PaperComponent={StyledPaper}
           slotProps={{
-          paper: {
-            className: classes.paper
-          },
           popper: {
             disablePortal: true,
             sx: {
@@ -199,15 +264,15 @@ const TableAutocompleteInput: FC<Props> = ({
                 variant="standard"
                 inputRef={fileTypeRef}
                 InputProps={{ ...p.InputProps, disableUnderline: true }}
-              // eslint-disable-next-line react/jsx-no-duplicate-props
-                inputProps={{ ...p.inputProps, maxLength: 30 }}
+                // eslint-disable-next-line react/jsx-no-duplicate-props
+                inputProps={{ ...p.inputProps, maxLength: 30, "aria-label": "File type" }}
               />
             </StyledTooltip>
         )}
           {...rest}
         />
-      </TableCell>
-      <TableCell className={classes.autocomplete}>
+      </StyledTableCell>
+      <StyledTableCell>
         <StyledAutocomplete
           sx={{
             "& .MuiInputBase-input": {
@@ -221,15 +286,12 @@ const TableAutocompleteInput: FC<Props> = ({
           id={inputID.concat("-extension")}
           size="small"
           value={extensionVal || ""}
-          classes={{ root: classes.inputInTable }}
           onChange={onExtensionValChangeWrapper}
           popupIcon={<DropdownArrowsIcon />}
           readOnly={readOnlyInputs}
           freeSolo
+          PaperComponent={StyledPaper}
           slotProps={{
-            paper: {
-              className: classes.paper
-            },
             popper: {
               disablePortal: true,
               sx: {
@@ -267,95 +329,15 @@ const TableAutocompleteInput: FC<Props> = ({
                 inputRef={fileExtensionRef}
                 InputProps={{ ...p.InputProps, disableUnderline: true }}
               // eslint-disable-next-line react/jsx-no-duplicate-props
-                inputProps={{ ...p.inputProps, maxLength: 10 }}
+                inputProps={{ ...p.inputProps, maxLength: 10, "aria-label": "File extension" }}
               />
             </StyledTooltip>
           )}
           options={fileTypeExtensions[typeVal] || []}
         />
-      </TableCell>
+      </StyledTableCell>
     </>
   );
 };
 
-const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : boolean }) => ({
-  "& .MuiInputBase-root": {
-    backgroundColor: readOnly ? "#D9DEE4" : "#FFFFFF",
-    "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
-      display: 'flex',
-      alignItems: 'center',
-      padding: 0,
-    },
-    "& .MuiInputBase-input": {
-      fontWeight: 400,
-      fontSize: "16px",
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      padding: "10px 12px 10px 12px !important",
-      cursor: readOnly ? "not-allowed !important" : "initial",
-    },
-    "& .MuiAutocomplete-endAdornment": {
-      right: "8px",
-    },
-    "&.Mui-focused": {
-      boxShadow:
-        "2px 2px 2px 1px rgba(38, 184, 147, 0.10), -2px -2px 2px 1px rgba(38, 184, 147, 0.20)",
-    },
-  },
-}));
-
-const styles = () => ({
-  paper: {
-    borderRadius: "8px",
-    border: "1px solid #6B7294",
-    marginTop: "2px",
-    "& .MuiAutocomplete-listbox": {
-      padding: 0
-    },
-    "& .MuiAutocomplete-option[aria-selected='true']": {
-      color: "#083A50",
-      background: "#FFFFFF"
-    },
-    "& .MuiAutocomplete-option": {
-      padding: "0 10px",
-      height: "35px",
-      color: "#083A50",
-      background: "#FFFFFF"
-    },
-    "& .MuiAutocomplete-option:hover": {
-      backgroundColor: "#3E7E6D",
-      color: "#FFFFFF"
-    },
-    "& .MuiAutocomplete-option.Mui-focused": {
-      backgroundColor: "#3E7E6D !important",
-      color: "#FFFFFF"
-    },
-  },
-  inputInTable: {
-    backgroundColor: "#fff",
-    "& .MuiAutocomplete-inputRoot.MuiInputBase-root": {
-      padding: 0,
-    },
-    "& ::placeholder": {
-      color: "#87878C",
-      fontWeight: 400,
-      opacity: 1
-    },
-    "& .MuiAutocomplete-input:read-only": {
-      backgroundColor: "#E5EEF4",
-      color: "#083A50",
-      cursor: "not-allowed",
-    },
-  },
-  autocomplete: {
-    borderTop: "1px solid #6B7294 !important",
-    borderRight: "1px solid #6B7294 !important",
-    borderBottom: "none!important",
-    borderLeft: "none!important",
-    padding: "0",
-    "& .MuiStack-root": {
-      width: "auto",
-    }
-  }
-});
-
-export default withStyles(styles, { withTheme: true })(TableAutocompleteInput);
+export default TableAutocompleteInput;

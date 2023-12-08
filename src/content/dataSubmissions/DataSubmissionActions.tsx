@@ -126,7 +126,7 @@ type ActionKey = "Submit" | "Release" | "Withdraw" | "SubmittedReject" | "Releas
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
-    statuses: ["In Progress"],
+    statuses: ["In Progress", "Withdrawn"],
   },
   Release: {
     roles: ["Data Curator", "Admin"],
@@ -230,7 +230,7 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
       {canShowAction("Release") ? (
         <StyledReleaseButton
           variant="contained"
-          onClick={() => handleOnAction("Release")}
+          onClick={() => onOpenDialog("Release")}
           loading={action === "Release"}
           disabled={action && action !== "Release"}
           disableElevation

@@ -1,6 +1,5 @@
 import { Grid, Stack, styled } from "@mui/material";
-import { CSSProperties } from "@mui/styles";
-import { FC, useMemo, useState } from "react";
+import { CSSProperties, FC, useMemo, useState } from "react";
 
 export const StyledLabel = styled("span")(() => ({
   color: "#000000",

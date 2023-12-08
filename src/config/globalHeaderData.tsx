@@ -24,13 +24,13 @@ export const navMobileList = [
   {
     name: 'Submission Requests',
     link: '/submissions',
-    id: 'navbar-dropdown-join-crdc-data-hub',
+    id: 'navbar-dropdown-submission-requests',
     className: 'navMobileItem',
   },
   {
     name: 'Data Submissions',
     link: '/data-submissions',
-    id: 'navbar-dropdown-join-crdc-data-hub',
+    id: 'navbar-dropdown-data-submissions',
     className: 'navMobileItem',
   },
   {
@@ -51,10 +51,12 @@ export const navbarSublists = {
   //     className: 'navMobileSubTitle',
   //   },
   // ],
+  //
+  // To make it a link, the className has to be navMobileSubItem
   "Model Navigator": DataCommons.map((dc) => ({
     name: `${dc.name} Model`,
     link: `/model-navigator/${dc.name}`,
     text: '',
-    className: 'navMobileSubTitle',
+    className: 'navMobileSubItem',
   })),
 };

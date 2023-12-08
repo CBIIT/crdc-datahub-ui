@@ -1,8 +1,20 @@
 import gql from "graphql-tag";
 
 export const query = gql`
-  query submissionQCResults($id: ID!) {
-    submissionQCResults(_id: $id) {
+  query submissionQCResults(
+    $id: ID!
+    $first: Int
+    $offset: Int
+    $orderBy: String
+    $sortDirection: String
+  ) {
+    submissionQCResults(
+      _id: $id
+      first: $first
+      offset: $offset
+      orderBy: $orderBy
+      sortDirection: $sortDirection
+    ) {
       submissionID
       nodeType
       batchID
@@ -19,5 +31,5 @@ export const query = gql`
 `;
 
 export type Response = {
-  submissionQCResults: ListQCResults;
+  submissionQCResults: QCResults;
 };

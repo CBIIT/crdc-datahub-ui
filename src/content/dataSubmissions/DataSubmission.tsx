@@ -200,7 +200,7 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
 const columns: Column<Batch>[] = [
   {
     label: "Upload Type",
-    renderValue: (data) => data?.metadataIntention,
+    renderValue: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
     field: "metadataIntention",
   },
   {
@@ -385,7 +385,7 @@ const DataSubmission = () => {
           <StyledCopyLabel id="data-submission-id-label" variant="body1">SUBMISSION ID:</StyledCopyLabel>
           <StyledCopyValue id="data-submission-id-value" variant="body1">{submissionId}</StyledCopyValue>
           {submissionId && (
-            <StyledCopyIDButton id="data-submission-copy-id-button" onClick={handleCopyID}>
+            <StyledCopyIDButton id="data-submission-copy-id-button" onClick={handleCopyID} aria-label="Copy ID">
               <CopyIconSvg />
             </StyledCopyIDButton>
           )}
@@ -419,20 +419,22 @@ const DataSubmission = () => {
             </StyledTabs>
 
             <StyledMainContentArea>
-              <DataSubmissionUpload
-                submitterID={dataSubmission?.submitterID}
-                readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
-                onUpload={handleOnUpload}
-              />
               {tab === URLTabs.DATA_UPLOAD ? (
-                <GenericTable
-                  ref={tableRef}
-                  columns={columns}
-                  data={batchFiles || []}
-                  total={totalBatchFiles || 0}
-                  loading={loading}
-                  onFetchData={handleFetchBatchFiles}
-                />
+                <>
+                  <DataSubmissionUpload
+                    submitterID={dataSubmission?.submitterID}
+                    readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
+                    onUpload={handleOnUpload}
+                  />
+                  <GenericTable
+                    ref={tableRef}
+                    columns={columns}
+                    data={batchFiles || []}
+                    total={totalBatchFiles || 0}
+                    loading={loading}
+                    onFetchData={handleFetchBatchFiles}
+                  />
+                </>
               ) : <QualityControl />}
             </StyledMainContentArea>
           </StyledCardContent>
