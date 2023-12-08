@@ -10,7 +10,6 @@
     "@mui/icons-material": "^5.11.16",
     "@mui/lab": "^5.0.0-alpha.130",
     "@mui/material": "^5.13.1",
-    "@mui/styles": "^5.13.1",
     "@mui/x-charts": "^6.0.0-alpha.12",
     "@mui/x-date-pickers": "^6.8.0",
     "@testing-library/jest-dom": "^5.16.5",
@@ -29,7 +28,6 @@
     "redux": "^4.2.1",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.4.2",
-    "styled-components": "^6.0.0-rc.3",
     "web-vitals": "^2.1.4"
   },
   "overrides": {

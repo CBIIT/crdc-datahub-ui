@@ -1,122 +1,118 @@
-import React, { FC, useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Dialog } from "@mui/material";
-import { Link, useLocation } from 'react-router-dom';
-import background from '../assets/loginPage/background.png';
-import { useAuthContext } from '../components/Contexts/AuthContext';
+import React, { FC, useState, useEffect } from "react";
+import { Dialog, styled } from "@mui/material";
+import { Link, useLocation } from "react-router-dom";
+import background from "../assets/loginPage/background.png";
+import { useAuthContext } from "../components/Contexts/AuthContext";
 
-const LoginDialog = styled(Dialog)`
-  .MuiDialog-paper {
-    width: 550px;
-    height: 218px;
-    border-radius: 8px;
-    border: 2px solid var(--secondary-one, #0B7F99);
-    background: linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B;
-    box-shadow: 0px 4px 45px 0px rgba(0, 0, 0, 0.40);
-  }
-  .buttonContainer {
-    display: flex;
-    justify-content: center;
-  }
-  .loginDialogText {
-    margin-top: 57px;
-    /* Body */
-    font-family: Nunito;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 19.6px; /* 122.5% */
-    text-align: center;
-  }
-  .loginDialogButton{
-    display: flex;
-    width: 128px;
-    height: 42px;
-    justify-content: center;
-    align-items: center;
-    border-radius: 8px;
-    border: 1px solid #000;
-    margin-top: 39px;
-    text-decoration: none;
-    color: rgba(0, 0, 0, 0.87);
-    margin-left: 7px;
-    margin-right: 7px;
-  }
-  .loginDialogButton:hover {
-    cursor: pointer;
-  }
-  #loginDialogLinkToLogin{
-    color:black;
-  }
-`;
+const LoginDialog = styled(Dialog)({
+  "& .MuiDialog-paper": {
+    width: "550px",
+    height: "218px",
+    borderRadius: "8px",
+    border: "2px solid var(--secondary-one, #0B7F99)",
+    background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
+    boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
+  },
+  "& .buttonContainer": {
+    display: "flex",
+    justifyContent: "center",
+  },
+  "& .loginDialogText": {
+    marginTop: "57px",
+    fontFamily: "Nunito",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 400,
+    lineHeight: "19.6px",
+    textAlign: "center",
+  },
+  "& .loginDialogButton": {
+    display: "flex",
+    width: "128px",
+    height: "42px",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: "8px",
+    border: "1px solid #000",
+    marginTop: "39px",
+    textDecoration: "none",
+    color: "rgba(0, 0, 0, 0.87)",
+    marginLeft: "7px",
+    marginRight: "7px",
+    "&:hover": {
+      cursor: "pointer",
+    },
+  },
+  "& #loginDialogLinkToLogin": {
+    color: "black",
+  },
+});
 
-const PageContentContainer = styled.div`
-  width: 100%;
-  height: 633px;
-  margin: auto;
-  background-image: url(${background});
-  background-blend-mode: luminosity, normal;
-  background-size: cover;
-  background-repeat: no-repeat;
-  display: flex;
-  justify-content: center;
-
-  .loginPageTextContainer {
-    width: 775px;
-    height: 265px;
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
-    align-self: center;
-    justify-content: center;
-
-
-    border-radius: 5px;
-    border: 2px solid #C8E3FC;
-    background: #091a1961;
-    background-blend-mode: multiply;
-    box-shadow: -1px -1px 6px 0px rgba(62, 102, 125, 0.25), -1px -1px 6px 0px rgba(76, 121, 147, 0.25);
-  }
-  .loginPageTextTitle {
-    font-family: Nunito Sans;
-    font-size: 40px;
-    font-weight: 800;
-    line-height: 40px;
-    letter-spacing: -1.5px;
-    text-align: center;
-    color: #FFFFFF;
-    margin: 0;
-  }
-  .loginPageText{
-    font-family: Inter;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 22px;
-    letter-spacing: 0em;
-    text-align: center;
-    margin-top: 30px;
-    color: #86E2F6;
-    margin-left: 30px;
-    margin-right: 30px;
-  }
-  .loginPageLoginButton{
-    display: flex;
-    width: 128px;
-    height: 51px;
-    justify-content: center;
-    align-items: center;
-    border-radius: 8px;
-    border: 2px solid #005EA2;
-    margin-top: 30px;
-    text-decoration: none;
-    color: #3F53B2;
-    background: #FFFFFF;
-  }
-  .loginPageLoginButton:hover {
-    cursor: pointer;
-  }
-`;
+const PageContentContainer = styled("div")({
+  width: "100%",
+  height: "633px",
+  margin: "auto",
+  backgroundImage: `url(${background})`,
+  backgroundBlendMode: "luminosity, normal",
+  backgroundSize: "cover",
+  backgroundRepeat: "no-repeat",
+  display: "flex",
+  justifyContent: "center",
+  "& .loginPageTextContainer": {
+    width: "775px",
+    height: "265px",
+    display: "flex",
+    flexDirection: "column",
+    textAlign: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    justifyContent: "center",
+    borderRadius: "5px",
+    border: "2px solid #C8E3FC",
+    background: "#091a1961",
+    backgroundBlendMode: "multiply",
+    boxShadow:
+      "-1px -1px 6px 0px rgba(62, 102, 125, 0.25), -1px -1px 6px 0px rgba(76, 121, 147, 0.25)",
+  },
+  "& .loginPageTextTitle": {
+    fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+    fontSize: "40px",
+    fontWeight: 800,
+    lineHeight: "40px",
+    letterSpacing: "-1.5px",
+    textAlign: "center",
+    color: "#FFFFFF",
+    margin: 0,
+  },
+  "& .loginPageText": {
+    fontFamily: "'Inter', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontWeight: 400,
+    lineHeight: "22px",
+    letterSpacing: "0em",
+    textAlign: "center",
+    marginTop: "30px",
+    color: "#86E2F6",
+    marginLeft: "30px",
+    marginRight: "30px",
+  },
+  "& .loginPageLoginButton": {
+    display: "flex",
+    width: "128px",
+    height: "51px",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: "8px",
+    border: "2px solid #005EA2",
+    marginTop: "30px",
+    textDecoration: "none",
+    color: "#3F53B2",
+    background: "#FFFFFF",
+    "&:hover": {
+      cursor: "pointer",
+    },
+  },
+});
 
 const Home: FC = () => {
     const [showRedirectDialog, setShowRedirectDialog] = useState(false);

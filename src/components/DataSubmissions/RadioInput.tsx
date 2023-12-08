@@ -1,7 +1,15 @@
-import React, { FC, useState, useRef, useEffect } from 'react';
-import { Grid, FormControl, FormControlLabel, RadioGroup, RadioGroupProps, FormHelperText, Stack } from '@mui/material';
-import styled from "styled-components";
-import { updateInputValidity } from '../../utils';
+import React, { FC, useState, useRef, useEffect } from "react";
+import {
+  Grid,
+  FormControl,
+  FormControlLabel,
+  RadioGroup,
+  RadioGroupProps,
+  FormHelperText,
+  Stack,
+  styled,
+} from "@mui/material";
+import { updateInputValidity } from "../../utils";
 import StyledRadioButton from '../Questionnaire/StyledRadioButton';
 
 const GridStyled = styled(Grid)<{ $containerWidth?: string; }>`
@@ -51,7 +59,7 @@ const StyledAsterisk = styled("span")(() => ({
 const StyledFormControlLabel = styled(FormControlLabel)(() => ({
   "&.MuiFormControlLabel-root": {
     paddingRight: "10px",
-    marginRight: "2px"
+    marginRight: "2px",
   },
   "& .MuiFormControlLabel-label": {
     color: "#083A50",
@@ -60,7 +68,7 @@ const StyledFormControlLabel = styled(FormControlLabel)(() => ({
     fontStyle: "normal",
     fontWeight: 500,
     lineHeight: "19.6px",
-  }
+  },
 }));
 
 type Option = {
@@ -97,7 +105,11 @@ const RadioYesNoInput: FC<Props> = ({
   readOnly,
   ...rest
 }) => {
-  const [val, setVal] = useState<string>((value?.toString() === "" || value?.toString() === undefined) ? null : value?.toString());
+  const [val, setVal] = useState<string>(
+    value?.toString() === "" || value?.toString() === undefined
+      ? null
+      : value?.toString()
+  );
   const [error, setError] = useState(false);
   const radioGroupInputRef = useRef<HTMLInputElement>(null);
 
@@ -132,9 +144,17 @@ const RadioYesNoInput: FC<Props> = ({
   }, [value]);
 
   return (
-    <GridStyled md={gridWidth || 6} xs={12} item $containerWidth={containerWidth}>
+    <GridStyled
+      md={gridWidth || 6}
+      xs={12}
+      item
+      $containerWidth={containerWidth}
+    >
       <FormControl className="formControl" error={error}>
-        <Stack direction={inline ? "row" : "column"} alignItems={inline ? "center" : "initial"}>
+        <Stack
+          direction={inline ? "row" : "column"}
+          alignItems={inline ? "center" : "initial"}
+        >
           <StyledFormLabel>
             {label}
             {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
