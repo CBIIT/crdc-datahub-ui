@@ -1,5 +1,6 @@
 import { FC, useCallback, useState } from 'react';
 import { PieChart, Pie, Label, Cell } from 'recharts';
+import { Box, styled } from '@mui/material';
 import PieChartCenter from './PieChartCenter';
 import ActiveArc from './ActiveArc';
 
@@ -16,6 +17,16 @@ type Props = {
   data: PieSectorDataItem[];
 };
 
+const StyledChartContainer = styled(Box)({
+  overflow: "visible",
+  "& div": {
+    margin: "0 auto",
+  },
+  "& svg *:focus": {
+    outline: "none",
+  },
+});
+
 /**
  * Builds a summary of node states (passed, new, ...) chart for the node statistics
  *
@@ -29,33 +40,35 @@ const NodeTotalChart: FC<Props> = ({ data }) => {
   const onMouseLeave = useCallback(() => setActiveIndex(null), []);
 
   return (
-    <PieChart width={391} height={391}>
-      <Pie
-        data={data}
-        dataKey="value"
-        cx="50%"
-        cy="50%"
-        labelLine={false}
-        outerRadius={391 / 2}
-        innerRadius={115}
-        onMouseOver={onMouseOver}
-        onMouseLeave={onMouseLeave}
-        activeShape={ActiveArc}
-        activeIndex={activeIndex}
-      >
-        {data.map(({ label, color }) => (<Cell key={label} fill={color} />))}
-        <Label
-          position="center"
-          content={(
-            <PieChartCenter
-              title="Total"
-              subtitle={data?.[activeIndex]?.label}
-              value={data?.[activeIndex]?.value}
-            />
-          )}
-        />
-      </Pie>
-    </PieChart>
+    <StyledChartContainer>
+      <PieChart width={391} height={391}>
+        <Pie
+          data={data}
+          dataKey="value"
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          outerRadius={391 / 2}
+          innerRadius={115}
+          onMouseOver={onMouseOver}
+          onMouseLeave={onMouseLeave}
+          activeShape={ActiveArc}
+          activeIndex={activeIndex}
+        >
+          {data.map(({ label, color }) => (<Cell key={label} fill={color} />))}
+          <Label
+            position="center"
+            content={(
+              <PieChartCenter
+                title="Total"
+                subtitle={data?.[activeIndex]?.label}
+                value={data?.[activeIndex]?.value}
+              />
+            )}
+          />
+        </Pie>
+      </PieChart>
+    </StyledChartContainer>
   );
 };
 
