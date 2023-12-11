@@ -26,70 +26,21 @@ const StyledErrorDetailsButton = styled(Button)({
   },
 });
 
-const testData: QCResult[] = [
-  {
-    submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
-    nodeType: "Participant",
-    batchID: "123a5678-8adf-41e9-9432-864b2108191d",
-    nodeID: "103a5678-8adf-41e9-9432-864b2108191d",
-    CRDC_ID: "113a5678-8adf-41e9-9432-864b2108191d",
-    severity: "Error",
-    description: [
-      {
-        title: "Incorrect control vocabulary.",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eget duis at tellus at urna condimentum mattis. Eget nunc scelerisque viverra mauris in aliquam sem.",
-      },
-      {
-        title: "Missing required field.",
-        description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
-      },
-      {
-        title: "Value not in the range.",
-        description: "Consectetur adipiscing elit pellentesque habitant morbi tristique senectus. Nec ullamcorper sit amet risus. Faucibus in ornare quam viverra orci sagittis. Venenatis urna cursus eget nunc.",
-      },
-    ],
-    uploadedDate: "2023-11-08T19:39:15.469Z",
-  },
-  {
-    submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
-    nodeType: "Participant",
-    batchID: "456a5678-8adf-41e9-9432-864b2108191d",
-    nodeID: "406a5678-8adf-41e9-9432-864b2108191d",
-    CRDC_ID: "416a5678-8adf-41e9-9432-864b2108191d",
-    severity: "Error",
-    description: [
-      {
-        title: "Missing required field.",
-        description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
-      },
-    ],
-    uploadedDate: "2023-11-08T19:39:15.469Z",
-  },
-  {
-    submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
-    nodeType: "Participant",
-    batchID: "789a5678-8adf-41e9-9432-864b2108191d",
-    nodeID: "709a5678-8adf-41e9-9432-864b2108191d",
-    CRDC_ID: "719a5678-8adf-41e9-9432-864b2108191d",
-    severity: "Error",
-    description: [
-      {
-        title: "Value not in the range.",
-        description: "Consectetur adipiscing elit pellentesque habitant morbi tristique senectus. Nec ullamcorper sit amet risus. Faucibus in ornare quam viverra orci sagittis. Venenatis urna cursus eget nunc.",
-      },
-      {
-        title: "Incorrect control vocabulary.",
-        description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
-      },
-    ],
-    uploadedDate: "2023-11-08T19:39:15.469Z",
-  },
-];
+const StyledNodeType = styled(Box)({
+  display: "flex",
+  alignItems: "center",
+});
+
+const StyledSeverity = styled(Box)({
+  minHeight: 76.5,
+  display: "flex",
+  alignItems: "center",
+});
 
 const columns: Column<QCResult>[] = [
   {
     label: "Type",
-    renderValue: (data) => data?.nodeType,
+    renderValue: (data) => <StyledNodeType alignItems="center" textTransform="capitalize">{data?.nodeType}</StyledNodeType>,
     field: "nodeType",
   },
   {
@@ -109,11 +60,11 @@ const columns: Column<QCResult>[] = [
   },
   {
     label: "Severity",
-    renderValue: (data) => <Box color={data?.severity === "Error" ? "#E25C22" : "#8D5809"} minHeight={76.5}>{data?.severity}</Box>,
+    renderValue: (data) => <StyledSeverity color={data?.severity === "Error" ? "#E25C22" : "#8D5809"}>{data?.severity}</StyledSeverity>,
     field: "severity",
   },
   {
-    label: "Submitted Date",
+    label: "Uploaded Date",
     renderValue: (data) => (data?.uploadedDate ? `${FormatDate(data.uploadedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
     field: "uploadedDate",
     default: true
@@ -124,10 +75,10 @@ const columns: Column<QCResult>[] = [
       <QCResultsContext.Consumer>
         {({ handleOpenErrorDialog }) => (
           <>
-            <span>{data.description[0].title}</span>
+            <span>{data.description[0]?.title}</span>
             {" "}
             <StyledErrorDetailsButton
-              onClick={() => {} /* handleOpenErrorDialog && handleOpenErrorDialog(data?.nodeID) */}
+              onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
               variant="text"
               disableRipple
               disableTouchRipple
@@ -140,6 +91,10 @@ const columns: Column<QCResult>[] = [
       </QCResultsContext.Consumer>
     ),
     field: "description",
+    sortDisabled: true,
+    sx: {
+      minWidth: "260px",
+    }
   },
 ];
 
@@ -149,13 +104,12 @@ const QualityControl = () => {
   const [loading, setLoading] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string>(null);
-  const [data, setData] = useState<QCResult[]>(testData);
+  const [data, setData] = useState<QCResult[]>([]);
   const [prevData, setPrevData] = useState<FetchListing<QCResult>>(null);
-  const [totalData, setTotalData] = useState(testData.length);
+  const [totalData, setTotalData] = useState(0);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
-  const [selectedRow, setSelectedRow] = useState<string>(null);
+  const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
   const tableRef = useRef<TableMethods>(null);
-  const selectedData = null; // data?.find((item) => item._id === selectedRow);
 
   const [submissionQCResults] = useLazyQuery<submissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
     variables: { id: submissionId },
@@ -201,9 +155,9 @@ const QualityControl = () => {
     }
   };
 
-  const handleOpenErrorDialog = (id: string) => {
+  const handleOpenErrorDialog = (data: QCResult) => {
     setOpenErrorDialog(true);
-    setSelectedRow(id);
+    setSelectedRow(data);
   };
 
   const providerValue = useMemo(() => ({
@@ -219,6 +173,7 @@ const QualityControl = () => {
           data={data || []}
           total={totalData || 0}
           loading={loading}
+          defaultRowsPerPage={20}
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.nodeID}`}
           onFetchData={handleFetchQCResults}
         />
@@ -228,8 +183,8 @@ const QualityControl = () => {
         onClose={() => setOpenErrorDialog(false)}
         header="Data Submission"
         title="Reasons"
-        errors={selectedData?.description}
-        uploadedDate={selectedData?.uploadedDate}
+        errors={selectedRow?.description}
+        uploadedDate={selectedRow?.uploadedDate}
       />
     </>
   );
