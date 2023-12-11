@@ -1,7 +1,8 @@
 import { FC } from 'react';
 import { Box, Stack, Typography, styled } from '@mui/material';
 import ContentCarousel from '../Carousel';
-import PieChart from '../PieChart';
+import NodeTotalChart from '../NodeTotalChart';
+import MiniPieChart from '../NodeChart';
 import { buildMiniChartSeries, buildPrimaryChartSeries } from '../../utils/statisticUtils';
 import StatisticLegend from './StatisticLegend';
 
@@ -20,6 +21,30 @@ const StyledChartArea = styled(Stack)({
   width: "100%",
   position: "relative",
   boxShadow: "0px 4px 20px 0px #00000059",
+  // "&::before": {
+  //   position: "absolute",
+  //   content: '""',
+  //   height: "100%",
+  //   background: "#FFFFFF",
+  //   zIndex: 1,
+  //   left: "-1000px",
+  //   right: "100%",
+  //   top: "0",
+  //   bottom: "0",
+  //   boxShadow: "-21px 4px 20px 0px #00000059",
+  // },
+  // "&::after": {
+  //   position: "absolute",
+  //   content: '""',
+  //   height: "100%",
+  //   background: "#FFFFFF",
+  //   zIndex: 1,
+  //   left: "100%",
+  //   right: "-1000px",
+  //   top: "0",
+  //   bottom: "0",
+  //   boxShadow: "21px 4px 20px 0px #00000059",
+  // },
 });
 
 const StyledPrimaryChart = styled(Box)({
@@ -90,6 +115,7 @@ const StyledSecondaryTitle = styled(Typography)({
  * @returns {React.FC<Props>}
  */
 const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Props) => {
+  // If there is no data submission or no items uploaded, do not render
   if (!dataSubmission || !statistics?.some((s) => s.total > 0)) {
     return null;
   }
@@ -98,39 +124,13 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
     <StyledChartArea direction="row">
       <StyledPrimaryChart>
         <StyledPrimaryTitle variant="h6">Node Totals</StyledPrimaryTitle>
-        {/* TODO: migrate this chart to recharts */}
-        <PieChart
-          label=""
-          series={[
-            {
-              ...buildPrimaryChartSeries(statistics),
-              highlightScope: {
-                highlighted: "item",
-              },
-              highlighted: {
-                innerRadius: 100
-              }
-            }
-          ]}
-          width={391}
-          height={391}
-          // TODO: Hovering over the chart slice should show the node name and total
-          centerCount={100}
-          margin={{
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-          }}
-          slotProps={{ legend: { hidden: true } }}
-          tooltip={{ trigger: 'none' }}
-        />
+        <NodeTotalChart data={buildPrimaryChartSeries(statistics)} />
       </StyledPrimaryChart>
       <StyledSecondaryStack direction="column" alignItems="center" flex={1}>
         <StyledSecondaryTitle variant="h6">Node Count Breakdown</StyledSecondaryTitle>
-        <ContentCarousel>
+        <ContentCarousel focusOnSelect={statistics.length > 2}>
           {statistics.map((stat) => (
-            <PieChart
+            <MiniPieChart
               label={stat.nodeName}
               key={stat.nodeName}
               centerCount={stat.total}

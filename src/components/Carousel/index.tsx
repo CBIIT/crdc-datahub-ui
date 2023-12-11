@@ -1,33 +1,33 @@
 import { FC } from 'react';
 import { styled } from '@mui/material';
-import Carousel from 'react-multi-carousel';
+import Carousel, { CarouselProps } from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 
 type Props = {
   children: React.ReactNode;
-};
+} & Partial<CarouselProps>;
 
 const sizing = {
   desktop: {
-    breakpoint: { max: 3000, min: 1024 },
-    items: 3
+    breakpoint: { max: 5000, min: 0 },
+    items: 3,
+    partialVisibilityGutter: 40
   },
-  tablet: {
-    breakpoint: { max: 1024, min: 464 },
-    items: 3
-  },
-  mobile: {
-    breakpoint: { max: 464, min: 0 },
-    items: 3
-  }
 };
 
 const StyledWrapper = styled('div')({
   maxWidth: "700px",
   minWidth: "464px", // NOTE: Without a min-width, the carousel collapses to 0px wide
+  width: "100%",
   margin: "0 auto",
   "& .react-multi-carousel-list": {
     height: "206px",
+  },
+  "& .react-multi-carousel-track": {
+    margin: "0 auto", // NOTE: This centers the carousel when there are fewer than 2 items
+  },
+  "& .react-multi-carousel-item": {
+    width: "200px !important",
   },
   "& .react-multi-carousel-list::after": {
     content: "''",
@@ -58,7 +58,7 @@ const StyledWrapper = styled('div')({
  * @param Props
  * @returns {JSX.Element}
  */
-const ContentCarousel: FC<Props> = ({ children }: Props) => (
+const ContentCarousel: FC<Props> = ({ children, ...props }: Props) => (
   <StyledWrapper>
     <Carousel
       responsive={sizing}
@@ -66,6 +66,9 @@ const ContentCarousel: FC<Props> = ({ children }: Props) => (
       draggable
       infinite
       centerMode
+      arrows
+      focusOnSelect
+      {...props}
     >
       {children}
     </Carousel>
