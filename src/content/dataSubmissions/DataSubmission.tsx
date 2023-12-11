@@ -405,7 +405,8 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
-            <DataSubmissionStatistics dataSubmission={dataSubmission} statistics={submissionStats} />            <ValidationControls dataSubmission={dataSubmission} />
+            <DataSubmissionStatistics dataSubmission={dataSubmission} statistics={submissionStats} />
+            <ValidationControls dataSubmission={dataSubmission} />
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
                 value={URLTabs.DATA_UPLOAD}
