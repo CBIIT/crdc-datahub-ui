@@ -255,7 +255,7 @@ const DataSubmission = () => {
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const disableSubmit = useMemo(
-    () => !submissionStats?.length || submissionStats?.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
+    () => !submissionStats?.length || submissionStats.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
     [submissionStats, user]
   );
 
