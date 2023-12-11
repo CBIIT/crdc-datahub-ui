@@ -39,7 +39,7 @@ jobs:
             ${{ runner.os }}-modules-
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Run Typecheck
         run: npm run check:ci
