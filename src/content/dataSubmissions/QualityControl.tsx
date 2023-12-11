@@ -29,6 +29,7 @@ const StyledErrorDetailsButton = styled(Button)({
 const StyledNodeType = styled(Box)({
   display: "flex",
   alignItems: "center",
+  textTransform: "capitalize"
 });
 
 const StyledSeverity = styled(Box)({
@@ -40,7 +41,7 @@ const StyledSeverity = styled(Box)({
 const columns: Column<QCResult>[] = [
   {
     label: "Type",
-    renderValue: (data) => <StyledNodeType alignItems="center" textTransform="capitalize">{data?.nodeType}</StyledNodeType>,
+    renderValue: (data) => <StyledNodeType>{data?.nodeType}</StyledNodeType>,
     field: "nodeType",
   },
   {
