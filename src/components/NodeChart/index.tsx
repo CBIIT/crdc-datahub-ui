@@ -1,8 +1,13 @@
 import { FC } from 'react';
 import { Box, Typography, styled } from "@mui/material";
-import { PieChartProps } from "@mui/x-charts/PieChart/PieChart";
-import { PieChart } from "@mui/x-charts";
+import { PieChart, Pie, Label, Cell } from 'recharts';
 import PieChartCenter from './PieChartCenter';
+
+export type PieSectorDataItem = {
+  label: string;
+  value: number;
+  color: string;
+};
 
 type Props = {
   /**
@@ -12,8 +17,12 @@ type Props = {
   /**
    * Node count to display in the center of the chart
    */
-  centerCount?: number;
-} & PieChartProps;
+  centerCount: number;
+  /**
+   * The data to display in the pie chart
+   */
+  data: PieSectorDataItem[];
+};
 
 const StyledPieChartLabel = styled(Typography)({
   color: "#3D4551",
@@ -32,27 +41,39 @@ const StyledChartContainer = styled(Box)({
   "& div": {
     margin: "0 auto",
   },
+  "& svg *:focus": {
+    outline: "none",
+  },
 });
 
 /**
- * Builds a Pie Chart with an optional center "Total Count" display
+ * Builds a Pie Chart with a center "Total Count" display
  *
  * @param {string} label Top label for the chart
  * @param {number} centerCount Node count to display in the center of the chart
  * @returns {React.FC<Props>}
  */
-const CustomPieChart: FC<Props> = ({ label, centerCount, ...rest }: Props) => {
-  const seriesDimensions = rest.series.map((s) => s.innerRadius);
-  const smallestInnerRadius = Math.min(...seriesDimensions) || 40;
+const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => (
+  <StyledChartContainer>
+    {label && <StyledPieChartLabel>{label}</StyledPieChartLabel>}
+    <PieChart width={150} height={150}>
+      <Pie
+        data={data}
+        dataKey="value"
+        cx="50%"
+        cy="50%"
+        labelLine={false}
+        outerRadius={75}
+        innerRadius={40}
+      >
+        {data.map(({ label, color }) => (<Cell key={label} fill={color} />))}
+        <Label
+          position="center"
+          content={(<PieChartCenter title="Total" count={centerCount} />)}
+        />
+      </Pie>
+    </PieChart>
+  </StyledChartContainer>
+);
 
-  return (
-    <StyledChartContainer>
-      {label && <StyledPieChartLabel>{label}</StyledPieChartLabel>}
-      <PieChart {...rest}>
-        {centerCount && <PieChartCenter title="Total" count={centerCount} innerRadius={smallestInnerRadius} />}
-      </PieChart>
-    </StyledChartContainer>
-  );
-};
-
-export default CustomPieChart;
+export default NodeChart;

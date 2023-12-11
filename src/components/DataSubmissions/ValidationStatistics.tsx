@@ -121,16 +121,10 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
         <ContentCarousel focusOnSelect={statistics.length > 2}>
           {statistics.map((stat) => (
             <MiniPieChart
-              label={stat.nodeName}
               key={stat.nodeName}
+              label={stat.nodeName}
               centerCount={stat.total}
-              series={[buildMiniChartSeries(stat)]}
-              margin={{ right: 5 }}
-              width={150}
-              height={150}
-              slotProps={{ legend: { hidden: true } }}
-              tooltip={{ trigger: 'none' }}
-              skipAnimation
+              data={buildMiniChartSeries(stat)}
             />
           ))}
         </ContentCarousel>

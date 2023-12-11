@@ -1,6 +1,5 @@
 import { FC } from 'react';
 import { styled } from "@mui/material";
-import { useDrawingArea } from "@mui/x-charts";
 
 const StyledCircle = styled('circle')(({ theme }) => ({
   fill: theme.palette.background.paper,
@@ -32,14 +31,12 @@ type PieChartCenterProps = {
   title: string;
   /**
    * The count to display in the center of the chart
-   *
-   * @TODO format this number with commas
    */
   count: number;
-  /**
-   * The smallest series inner radius to use for the center circle
-   */
-  innerRadius: number;
+  viewBox?: {
+    cx: number;
+    cy: number;
+  };
 };
 
 /**
@@ -51,17 +48,15 @@ type PieChartCenterProps = {
  * @param {Props} props
  * @returns {React.FC<PieChartCenterProps>}
  */
-const PieChartCenter: FC<PieChartCenterProps> = ({ title, count, innerRadius }: PieChartCenterProps) => {
-  const { width, height, left, top } = useDrawingArea();
-  const centerX = left + width / 2;
-  const centerY = top + height / 2;
+const PieChartCenter: FC<PieChartCenterProps> = ({ title, count, viewBox }: PieChartCenterProps) => {
+  const { cx, cy } = viewBox;
 
   return (
     <g>
-      <StyledCircle cx={centerX} cy={centerY} r={innerRadius} />
-      <StyledTextContainer x={centerX} y={centerY - 10}>
+      <StyledCircle cx={cx} cy={cy} r={40} />
+      <StyledTextContainer x={cx} y={cy - 10}>
         <StyledCenterTitle>{title}</StyledCenterTitle>
-        <StyledCenterCount x={centerX} dy={20}>
+        <StyledCenterCount x={cx} dy={20}>
           {count}
         </StyledCenterCount>
       </StyledTextContainer>
