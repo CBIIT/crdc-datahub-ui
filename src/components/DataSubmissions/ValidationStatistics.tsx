@@ -20,31 +20,21 @@ const StyledChartArea = styled(Stack)({
   background: "#FFFFFF",
   width: "100%",
   position: "relative",
-  boxShadow: "0px 4px 20px 0px #00000059",
-  // "&::before": {
-  //   position: "absolute",
-  //   content: '""',
-  //   height: "100%",
-  //   background: "#FFFFFF",
-  //   zIndex: 1,
-  //   left: "-1000px",
-  //   right: "100%",
-  //   top: "0",
-  //   bottom: "0",
-  //   boxShadow: "-21px 4px 20px 0px #00000059",
-  // },
-  // "&::after": {
-  //   position: "absolute",
-  //   content: '""',
-  //   height: "100%",
-  //   background: "#FFFFFF",
-  //   zIndex: 1,
-  //   left: "100%",
-  //   right: "-1000px",
-  //   top: "0",
-  //   bottom: "0",
-  //   boxShadow: "21px 4px 20px 0px #00000059",
-  // },
+  "& > *": {
+    zIndex: 10
+  },
+  "&::after": {
+    position: "absolute",
+    content: '""',
+    height: "100%",
+    background: "#FFFFFF",
+    left: "-100%",
+    right: "-100%",
+    top: "0",
+    bottom: "0",
+    boxShadow: "0px 4px 20px 0px #00000059",
+    zIndex: 1,
+  },
 });
 
 const StyledPrimaryChart = styled(Box)({

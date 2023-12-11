@@ -86,6 +86,7 @@ const StyledCard = styled(Card)(() => ({
     border: "1px solid #6CACDA",
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
+    overflow: "visible",
   },
   "&::after": {
     content: '""',
