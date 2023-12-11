@@ -200,3 +200,14 @@ type SubmissionStatistic = {
   warning: number;
   error: number;
 };
+
+type DataValidationResult = {
+  /**
+   * Whether the validation action was successfully queued.
+   */
+  success: boolean;
+  /**
+   * The message returned by the validation.
+   */
+  message: string;
+};

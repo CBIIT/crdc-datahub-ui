@@ -16,6 +16,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+
 import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
@@ -37,6 +38,7 @@ import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
 import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
+import ValidationControls from '../../components/DataSubmissions/ValidationControls';
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -115,6 +117,7 @@ const StyledCardActions = styled(CardActions, {
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
+  background: "#F0FBFD",
   position: 'relative',
   "& .MuiTabs-flexContainer": {
     justifyContent: "center"
@@ -239,7 +242,6 @@ const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "
 
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
-
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
   const [submissionStats, setSubmissionStats] = useState<SubmissionStatistic[]>(null);
   const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
@@ -403,7 +405,7 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
-            <DataSubmissionStatistics dataSubmission={dataSubmission} statistics={submissionStats} />
+            <DataSubmissionStatistics dataSubmission={dataSubmission} statistics={submissionStats} />            <ValidationControls dataSubmission={dataSubmission} />
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
                 value={URLTabs.DATA_UPLOAD}
