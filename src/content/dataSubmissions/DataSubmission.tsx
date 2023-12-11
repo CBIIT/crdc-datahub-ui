@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import {
@@ -39,6 +39,7 @@ import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
 import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
 import ValidationControls from '../../components/DataSubmissions/ValidationControls';
+import { useAuthContext } from "../../components/Contexts/AuthContext";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -242,6 +243,7 @@ const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "
 
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
+  const { user } = useAuthContext();
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
   const [submissionStats, setSubmissionStats] = useState<SubmissionStatistic[]>(null);
   const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
@@ -252,6 +254,10 @@ const DataSubmission = () => {
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
+  const disableSubmit = useMemo(
+    () => !submissionStats?.length || submissionStats?.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
+    [submissionStats, user]
+  );
 
   const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
     variables: { id: submissionId },
@@ -446,7 +452,7 @@ const DataSubmission = () => {
             <DataSubmissionActions
               submission={dataSubmission}
               onAction={updateSubmissionAction}
-              disableSubmit={batchFiles?.some((file) => file.errors?.length > 0)}
+              disableSubmit={disableSubmit}
             />
           </StyledCardActions>
         </StyledCard>

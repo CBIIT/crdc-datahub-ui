@@ -222,10 +222,7 @@ const DataSubmissionActions = ({ submission, disableSubmit, onAction }: Props) =
           variant="contained"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
-          disabled={
-            (disableSubmit && !actionConfig["Submit"]?.bypassRoles?.includes(user.role))
-            || (action && action !== "Submit")
-          } /* TODO: Post MVP2-M2 - Will be disabled if fails validation check */
+          disabled={disableSubmit || (action && action !== "Submit")}
           disableElevation
           disableRipple
           disableTouchRipple
