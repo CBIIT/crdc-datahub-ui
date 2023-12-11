@@ -16,6 +16,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+
 import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
@@ -36,6 +37,8 @@ import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
+import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
+import ValidationControls from '../../components/DataSubmissions/ValidationControls';
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -85,6 +88,7 @@ const StyledCard = styled(Card)(() => ({
     border: "1px solid #6CACDA",
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
+    overflow: "visible",
   },
   "&::after": {
     content: '""',
@@ -113,6 +117,7 @@ const StyledCardActions = styled(CardActions, {
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
+  background: "#F0FBFD",
   position: 'relative',
   "& .MuiTabs-flexContainer": {
     justifyContent: "center"
@@ -239,8 +244,8 @@ const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "
 
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
-
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
+  const [submissionStats, setSubmissionStats] = useState<SubmissionStatistic[]>(null);
   const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
   const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
@@ -331,9 +336,9 @@ const DataSubmission = () => {
       const { data: newDataSubmission, error } = await getSubmission();
       if (error || !newDataSubmission?.getSubmission) {
         throw new Error("Unable to retrieve Data Submission.");
-        return;
       }
       setDataSubmission(newDataSubmission.getSubmission);
+      setSubmissionStats(newDataSubmission.submissionStats?.stats || []);
     } catch (err) {
       setError(err?.toString());
     }
@@ -402,9 +407,8 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
-
-            {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
-
+            <DataSubmissionStatistics dataSubmission={dataSubmission} statistics={submissionStats} />
+            <ValidationControls dataSubmission={dataSubmission} />
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
                 value={URLTabs.DATA_UPLOAD}
