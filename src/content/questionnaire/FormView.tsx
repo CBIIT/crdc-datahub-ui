@@ -123,7 +123,7 @@ const StyledControls = styled(Stack)({
 const StyledBaseLoadingButton = styled(LoadingButton)({
   "&.MuiButton-root": {
     display: "flex",
-    width: "128px",
+    minWidth: "128px",
     height: "50.593px",
     padding: "11px",
     justifyContent: "center",
