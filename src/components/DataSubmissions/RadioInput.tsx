@@ -3,9 +3,7 @@ import {
   Grid,
   FormControl,
   FormControlLabel,
-  Radio,
   RadioGroup,
-  RadioProps,
   RadioGroupProps,
   FormHelperText,
   Stack,
@@ -13,6 +11,7 @@ import {
   GridProps,
 } from "@mui/material";
 import { updateInputValidity } from "../../utils";
+import StyledRadioButton from '../Questionnaire/StyledRadioButton';
 
 const GridStyled = styled(Grid, {
   shouldForwardProp: (prop) => prop !== "containerWidth",
@@ -47,31 +46,6 @@ const GridStyled = styled(Grid, {
   },
 }));
 
-const BpIcon = styled("span")(() => ({
-  borderRadius: "50%",
-  width: 24,
-  height: 24,
-  outline: "6px auto #1D91AB",
-  "input:hover ~ &": {
-    outlineOffset: "2px",
-  },
-}));
-
-const BpCheckedIcon = styled(BpIcon)({
-  backgroundImage:
-    "linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))",
-  "&:before": {
-    borderRadius: "50%",
-    display: "block",
-    marginTop: "4px",
-    marginLeft: "4px",
-    width: 16,
-    height: 16,
-    backgroundImage: "radial-gradient(#1D91AB, #1D91AB)",
-    content: '""',
-  },
-});
-
 const StyledFormLabel = styled("label")(() => ({
   fontWeight: 700,
   fontSize: "16px",
@@ -83,15 +57,6 @@ const StyledFormLabel = styled("label")(() => ({
 const StyledAsterisk = styled("span")(() => ({
   marginRight: "2px",
   color: "#D54309",
-}));
-
-const StyledRadio = styled(Radio)((props) => ({
-  "& input": {
-    cursor: props.readOnly ? "not-allowed" : "pointer",
-  },
-  "& .radio-icon": {
-    backgroundColor: props.readOnly ? "#D2DFE9 !important" : "initial",
-  },
 }));
 
 const StyledFormControlLabel = styled(FormControlLabel)(() => ({
@@ -108,22 +73,6 @@ const StyledFormControlLabel = styled(FormControlLabel)(() => ({
     lineHeight: "19.6px",
   },
 }));
-
-// Inspired by blueprintjs
-const BpRadio = (props: RadioProps) => (
-  <StyledRadio
-    disableRipple
-    color="default"
-    checkedIcon={<BpCheckedIcon className="radio-icon" />}
-    icon={<BpIcon className="radio-icon" />}
-    inputProps={
-      {
-        "data-type": "auto",
-      } as unknown
-    }
-    {...props}
-  />
-);
 
 type Option = {
   label: string;
@@ -231,7 +180,7 @@ const RadioYesNoInput: FC<Props> = ({
                   label={option.label}
                   color="#1D91AB"
                   control={(
-                    <BpRadio
+                    <StyledRadioButton
                       id={id.concat(`-${option.label}-radio-button`)}
                       readOnly={readOnly || option.disabled}
                       disabled={option.disabled}
