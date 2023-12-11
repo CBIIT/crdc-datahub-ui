@@ -1,7 +1,5 @@
 /* eslint-disable react/no-array-index-key */
 import {
-  Box,
-  CircularProgress,
   Table,
   TableBody,
   TableCell,
@@ -17,6 +15,7 @@ import {
 import { ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useAuthContext } from "../Contexts/AuthContext";
 import PaginationActions from "./PaginationActions";
+import SuspenseLoader from '../SuspenseLoader';
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
@@ -49,12 +48,12 @@ const StyledHeaderCell = styled(TableCell)({
   lineHeight: "16px",
   color: "#fff !important",
   padding: "22px 53px 22px 16px",
+  verticalAlign: "top",
   "&.MuiTableCell-root:first-of-type": {
     paddingTop: "22px",
     paddingRight: "16px",
     paddingBottom: "22px",
     color: "#fff !important",
-    verticalAlign: "top",
   },
   "& .MuiSvgIcon-root, & .MuiButtonBase-root": {
     color: "#fff !important",
@@ -116,7 +115,7 @@ export type Order = "asc" | "desc";
 
 export type Column<T> = {
   label: string | React.ReactNode;
-  value: (a: T, user: User) => string | boolean | number | React.ReactNode;
+  renderValue: (a: T, user: User) => string | boolean | number | React.ReactNode;
   field?: keyof T;
   default?: true;
   minWidth?: string;
@@ -139,6 +138,7 @@ type Props<T> = {
   total: number;
   loading?: boolean;
   noContentText?: string;
+  setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
   onOrderByChange?: (orderBy: Column<T>) => void;
@@ -151,6 +151,7 @@ const DataSubmissionBatchTable = <T,>({
   total = 0,
   loading,
   noContentText,
+  setItemKey,
   onFetchData,
   onOrderChange,
   onOrderByChange,
@@ -215,23 +216,7 @@ const DataSubmissionBatchTable = <T,>({
 
   return (
     <StyledTableContainer>
-      {loading && (
-        <Box
-          sx={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: "9999",
-          }}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <CircularProgress size={64} disableShrink thickness={3} />
-        </Box>
-      )}
+      {loading && (<SuspenseLoader fullscreen={false} />)}
       <Table>
         <StyledTableHead>
           <TableRow>
@@ -258,15 +243,18 @@ const DataSubmissionBatchTable = <T,>({
               <TableCell colSpan={columns.length} />
             </StyledTableRow>
           )) : (
-            data?.map((d: T) => (
-              <TableRow tabIndex={-1} hover key={d["_id"]}>
-                {columns.map((col: Column<T>) => (
-                  <StyledTableCell key={`${d["_id"]}_${col.label}`}>
-                    {col.value(d, user)}
-                  </StyledTableCell>
-                ))}
-              </TableRow>
-            ))
+            data?.map((d: T, idx: number) => {
+              const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
+              return (
+                <TableRow tabIndex={-1} hover key={itemKey}>
+                  {columns.map((col: Column<T>) => (
+                    <StyledTableCell key={`${itemKey}_${col.label}`}>
+                      {col.renderValue(d, user)}
+                    </StyledTableCell>
+                  ))}
+                </TableRow>
+              );
+            })
           )}
 
           {!loading && emptyRows > 0 && (
@@ -309,7 +297,8 @@ const DataSubmissionBatchTable = <T,>({
               || total <= (page + 1) * perPage
               || emptyRows > 0
               || loading
-          }}
+        }}
+        SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
         backIconButtonProps={{ disabled: page === 0 || loading }}
         ActionsComponent={PaginationActions}
       />

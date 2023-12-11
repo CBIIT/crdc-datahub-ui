@@ -16,6 +16,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+
 import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
@@ -31,11 +32,13 @@ import {
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
-import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
+import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
+import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
+import ValidationControls from '../../components/DataSubmissions/ValidationControls';
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -85,6 +88,7 @@ const StyledCard = styled(Card)(() => ({
     border: "1px solid #6CACDA",
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
+    overflow: "visible",
   },
   "&::after": {
     content: '""',
@@ -113,6 +117,7 @@ const StyledCardActions = styled(CardActions, {
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
+  background: "#F0FBFD",
   position: 'relative',
   "& .MuiTabs-flexContainer": {
     justifyContent: "center"
@@ -200,27 +205,27 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
 const columns: Column<Batch>[] = [
   {
     label: "Upload Type",
-    value: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
+    renderValue: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
     field: "metadataIntention",
   },
   {
     label: "Batch Type",
-    value: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
+    renderValue: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
     field: "type",
   },
   {
     label: "File Count",
-    value: (data) => Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data?.fileCount || 0),
+    renderValue: (data) => Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data?.fileCount || 0),
     field: "fileCount",
   },
   {
     label: "Status",
-    value: (data) => (data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status),
+    renderValue: (data) => (data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status),
     field: "status",
   },
   {
     label: "Uploaded Date",
-    value: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    renderValue: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
     field: "createdAt",
     default: true,
     minWidth: "240px"
@@ -237,8 +242,8 @@ const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "
 
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
-
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
+  const [submissionStats, setSubmissionStats] = useState<SubmissionStatistic[]>(null);
   const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
   const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
@@ -329,9 +334,9 @@ const DataSubmission = () => {
       const { data: newDataSubmission, error } = await getSubmission();
       if (error || !newDataSubmission?.getSubmission) {
         throw new Error("Unable to retrieve Data Submission.");
-        return;
       }
       setDataSubmission(newDataSubmission.getSubmission);
+      setSubmissionStats(newDataSubmission.submissionStats?.stats || []);
     } catch (err) {
       setError(err?.toString());
     }
@@ -385,7 +390,7 @@ const DataSubmission = () => {
           <StyledCopyLabel id="data-submission-id-label" variant="body1">SUBMISSION ID:</StyledCopyLabel>
           <StyledCopyValue id="data-submission-id-value" variant="body1">{submissionId}</StyledCopyValue>
           {submissionId && (
-            <StyledCopyIDButton id="data-submission-copy-id-button" onClick={handleCopyID}>
+            <StyledCopyIDButton id="data-submission-copy-id-button" onClick={handleCopyID} aria-label="Copy ID">
               <CopyIconSvg />
             </StyledCopyIDButton>
           )}
@@ -400,9 +405,8 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
-
-            {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
-
+            <DataSubmissionStatistics dataSubmission={dataSubmission} statistics={submissionStats} />
+            <ValidationControls dataSubmission={dataSubmission} />
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
                 value={URLTabs.DATA_UPLOAD}
@@ -420,13 +424,13 @@ const DataSubmission = () => {
 
             <StyledMainContentArea>
               {tab === URLTabs.DATA_UPLOAD ? (
-                <Stack direction="column" justifyContent="center">
+                <>
                   <DataSubmissionUpload
                     submitterID={dataSubmission?.submitterID}
                     readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
                     onUpload={handleOnUpload}
                   />
-                  <DataSubmissionBatchTable
+                  <GenericTable
                     ref={tableRef}
                     columns={columns}
                     data={batchFiles || []}
@@ -434,8 +438,8 @@ const DataSubmission = () => {
                     loading={loading}
                     onFetchData={handleFetchBatchFiles}
                   />
-                </Stack>
-              ) : <QualityControl submitterID={dataSubmission?.submitterID} />}
+                </>
+              ) : <QualityControl />}
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>

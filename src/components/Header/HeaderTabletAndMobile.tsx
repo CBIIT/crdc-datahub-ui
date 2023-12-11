@@ -1,159 +1,128 @@
-import React, { useEffect, useState } from 'react';
-import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { HTMLProps, useEffect, useState } from "react";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
+import { styled } from "@mui/material";
 import Logo from "./components/LogoMobile";
-import menuClearIcon from '../../assets/header/Menu_Cancel_Icon.svg';
-import rightArrowIcon from '../../assets/header/Right_Arrow.svg';
-import leftArrowIcon from '../../assets/header/Left_Arrow.svg';
-import { navMobileList, navbarSublists } from '../../config/globalHeaderData';
-import { useAuthContext } from '../Contexts/AuthContext';
-import GenericAlert from '../GenericAlert';
-import APITokenDialog from '../../content/users/APITokenDialog';
-import UploaderToolDialog from '../../content/users/UploaderToolDialog';
+import menuClearIcon from "../../assets/header/Menu_Cancel_Icon.svg";
+import rightArrowIcon from "../../assets/header/Right_Arrow.svg";
+import leftArrowIcon from "../../assets/header/Left_Arrow.svg";
+import { navMobileList, navbarSublists } from "../../config/globalHeaderData";
+import { useAuthContext } from "../Contexts/AuthContext";
+import GenericAlert from "../GenericAlert";
+import APITokenDialog from "../../content/users/APITokenDialog";
+import UploaderToolDialog from "../../content/users/UploaderToolDialog";
 
-const HeaderBanner = styled.div`
-  width: 100%;
-`;
+const HeaderBanner = styled("div")({
+  width: "100%",
+});
 
-const HeaderContainer = styled.div`
-    margin: 0 auto;
-    padding-left: 16px;
-    box-shadow: -0.1px 6px 9px -6px rgba(0, 0, 0, 0.5);
+const HeaderContainer = styled("div")({
+  margin: "0 auto",
+  paddingLeft: "16px",
+  boxShadow: "-0.1px 6px 9px -6px rgba(0, 0, 0, 0.5)",
+  "& .headerLowerContainer": {
+    display: "flex",
+    margin: "16px 0 4px 0",
+    height: "51px",
+  },
+  "& .menuButton": {
+    width: "89px",
+    height: "45px",
+    background: "#1F4671",
+    borderRadius: "5px",
+    fontFamily: "Open Sans",
+    fontWeight: 700,
+    fontSize: "20px",
+    lineHeight: "45px",
+    color: "#FFFFFF",
+    textAlign: "center",
+    "&:hover": {
+      cursor: "pointer",
+    },
+  },
+});
 
-    .headerLowerContainer {
-        display: flex;
-        margin: 16px 0 4px 0;
-        height: 51px;
-    }
+const NavMobileContainer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "display",
+})<HTMLProps<HTMLDivElement> & { display: string }>(({ display }) => ({
+  display,
+  position: "absolute",
+  left: 0,
+  top: 0,
+  height: "100%",
+  width: "100%",
+  zIndex: 1200,
+}));
 
-    .menuButton {
-        width: 89px;
-        height: 45px;
-        background: #1F4671;
-        border-radius: 5px;
-        font-family: 'Open Sans';
-        font-weight: 700;
-        font-size: 20px;
-        line-height: 45px;
-        color: #FFFFFF;
-        text-align: center;
-    }
+const MenuArea = styled("div")({
+  height: "100%",
+  width: "100%",
+  display: "flex",
+  "& .menuContainer": {
+    background: "#ffffff",
+    width: "300px",
+    height: "100%",
+    padding: "21px 16px",
+  },
+  "& .greyContainer": {
+    width: "100%",
+    height: "100%",
+    background: "rgba(0,0,0,.2)",
+  },
+  "& .closeIcon": {
+    height: "14px",
+    marginBottom: "29px",
+  },
+  "& .closeIconImg": {
+    float: "right",
+    "&:hover": {
+      cursor: "pointer",
+    },
+  },
+  "& .backButton": {
+    fontFamily: "Open Sans",
+    fontWeight: 600,
+    fontSize: "16px",
+    lineHeight: "16px",
+    color: "#007BBD",
+    paddingLeft: "16px",
+    background: `url(${leftArrowIcon}) left no-repeat`,
+    "&:hover": {
+      cursor: "pointer",
+    },
+  },
+  "& .navMobileContainer": {
+    padding: "24px 0 0 0",
+    "& a": {
+      textDecoration: "none",
+      color: "#3D4551",
+    },
+  },
+  "& .navMobileItem": {
+    width: "268px",
+    padding: "8px 24px 8px 16px",
+    fontFamily: "Open Sans",
+    fontWeight: 400,
+    fontSize: "16px",
+    lineHeight: "16px",
+    borderTop: "1px solid #F0F0F0",
+    borderBottom: "1px solid #F0F0F0",
+    color: "#3D4551",
+    "&:hover": {
+      backgroundColor: "#f9f9f7",
+    },
+  },
+  "& .SubItem": {
+    paddingLeft: "24px",
+  },
+  "& .clickable": {
+    background: `url(${rightArrowIcon}) 90% no-repeat`,
+    cursor: "pointer",
+  },
+  "& .action": {
+    cursor: "pointer",
+  },
+});
 
-    .menuButton:hover {
-        cursor: pointer;
-    }
-
-    // .menuButton:active {
-    //     outline: 0.25rem solid #2491ff;
-    //     outline-offset: 0.25rem
-    // }
-`;
-
-const NavMobileContainer = styled.div<{ $display?: string; }>`
-    display: ${(props) => props.$display};
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 100%;
-    z-index: 1200;
-`;
-
-const MenuArea = styled.div`
-    height: 100%;
-    width: 100%;
-    display: flex;
-
-    .menuContainer {
-        background: #ffffff;
-        width: 300px;
-        height: 100%;
-        padding: 21px 16px;
-    }
-
-    .greyContainer {
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,.2);
-    }
-
-    .closeIcon {
-        height: 14px;
-        margin-bottom: 29px;
-    }
-
-    .closeIconImg {
-        float: right;
-    }
-
-    .closeIconImg:hover {
-        cursor: pointer;
-    }
-
-    .backButton {
-        font-family: Open Sans;
-        font-weight: 600;
-        font-size: 16px;
-        line-height: 16px;
-        color: #007BBD;
-        padding-left: 16px;
-        background: url(${leftArrowIcon}) left no-repeat;
-    }
-
-    .backButton:hover {
-        cursor: pointer;
-    }
-
-    // .backButton:active {
-    //     outline: 0.25rem solid #2491ff;
-    //     outline-offset: 0.5rem;
-    // }
-
-    .navMobileContainer {
-        padding: 24px 0 0 0;
-
-        a {
-            text-decoration: none;
-            color: #3D4551;
-        }
-    }
-
-    .navMobileItem {
-        width: 268px;
-        padding: 8px 24px 8px 16px;
-        font-family: Open Sans;
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 16px;
-        border-top: 1px solid #F0F0F0;
-        border-bottom: 1px solid #F0F0F0;
-        color: #3D4551;
-    }
-
-    .navMobileItem:hover {
-        background-color: #f9f9f7;
-    }
-
-    // .navMobileItem:active {
-    //     outline: 0.25rem solid #2491ff;
-    // }
-
-    .SubItem {
-        padding-left: 24px;
-    }
-
-    .clickable {
-        background: url(${rightArrowIcon}) 90% no-repeat;
-    }
-
-    .clickable {
-        cursor: pointer;
-    }
-
-    .action {
-        cursor: pointer;
-    }
-`;
 type NavbarMobileList = {
   name: string;
   link: string;
@@ -254,7 +223,7 @@ const Header = () => {
           You have been logged out.
         </span>
       </GenericAlert>
-      <HeaderBanner role="banner">
+      <HeaderBanner>
         <HeaderContainer>
           <Logo />
           <div className="headerLowerContainer">
@@ -275,7 +244,7 @@ const Header = () => {
           </div>
         </HeaderContainer>
       </HeaderBanner>
-      <NavMobileContainer $display={navMobileDisplay}>
+      <NavMobileContainer display={navMobileDisplay}>
         <MenuArea>
           <div className="menuContainer">
             <div

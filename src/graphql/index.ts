@@ -48,6 +48,12 @@ export type { Response as ListBatchesResp } from "./listBatches";
 export { query as LIST_LOGS } from "./listLogs";
 export type { Response as ListLogsResp } from "./listLogs";
 
+export { query as SUBMISSION_QC_RESULTS } from "./submissionQCResults";
+export type { Response as submissionQCResultsResp } from "./submissionQCResults";
+
+export { mutation as VALIDATE_SUBMISSION } from "./validateSubmission";
+export type { Response as ValidateSubmissionResp } from "./validateSubmission";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";

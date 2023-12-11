@@ -1,292 +1,248 @@
-import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
-import FooterData from '../../config/globalFooterData';
+import React, { useState, useRef } from "react";
+import { styled } from "@mui/material";
+import FooterData from "../../config/globalFooterData";
 
-const FooterStyled = styled.footer`
-  background-color: #1B496E;
-  bottom: 0;
-  width: 100%;
-  z-index: 10;
-  position: relative;
-`;
+const FooterStyled = styled("footer")({
+  backgroundColor: "#1B496E",
+  bottom: 0,
+  width: "100%",
+  zIndex: 10,
+  position: "relative",
+});
 
-const FooterContainer = styled.div`
-  max-width: 1420px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-`;
+const FooterContainer = styled("div")({
+  maxWidth: "1420px",
+  margin: "0 auto",
+  display: "flex",
+  justifyContent: "space-between",
+  flexDirection: "column",
+});
 
-const FooterEmailSignupContainer = styled.form`
-  padding: 1rem 1rem 2rem 1rem;
-  .signUpTitle {
-    font-family: poppins;
-    font-weight: 700;
-    font-size: 22.88px;
-    line-height: 34px;
-    color: #FFFFFF;
-    margin-bottom: 1rem;
-  }
+const FooterEmailSignupContainer = styled("form")({
+  padding: "1rem 1rem 2rem 1rem",
+  "& .signUpTitle": {
+    fontFamily: "poppins",
+    fontWeight: 700,
+    fontSize: "22.88px",
+    lineHeight: "34px",
+    color: "#FFFFFF",
+    marginBottom: "1rem",
+  },
+  "& .enterTitle": {
+    fontFamily: "Open Sans",
+    fontWeight: 400,
+    fontSize: "16px",
+    lineHeight: "22px",
+    color: "#FFFFFF",
+    marginBottom: "10px",
+  },
+  "& .signUpInputBox": {
+    width: "100%",
+    height: "47px",
+    fontSize: "25px",
+    paddingLeft: "8px",
+    marginTop: "4px",
+    "&:focus": {
+      outline: "0.25rem solid #2491ff",
+    },
+  },
+  "& .signUpButton": {
+    width: "100%",
+    background: "#FACE00",
+    borderRadius: "8px",
+    border: 0,
+    padding: "9px 16px",
+    fontFamily: "Open Sans",
+    fontWeight: 700,
+    fontSize: "16px",
+    lineHeight: "22px",
+    color: "#14315C",
+    marginTop: "18px",
+    "&:hover": {
+      cursor: "pointer",
+    },
+  },
+});
 
-  .enterTitle {
-    font-family: Open Sans;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 22px;
-    color: #FFFFFF;
-    margin-bottom: 10px;
-  }
+const FooterLinksContainer = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  "& .footItem": {
+    width: "253px",
+  },
+  "& .footItemTitle": {
+    fontFamily: "Open Sans",
+    color: "#FFFFFF",
+    fontWeight: 700,
+    fontSize: "16px",
+    lineHeight: "22px",
+    marginBottom: "10px",
+  },
+  "& .footItemSubtitle": {
+    marginBottom: "10px",
+    maxWidth: "290px",
+  },
+  "& .footItemLink": {
+    fontFamily: "Open Sans",
+    color: "#FFFFFF",
+    fontWeight: 400,
+    fontSize: "16px",
+    lineHeight: "22px",
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
+  "& .dropbtn": {
+    display: "flex",
+    flexDirection: "row",
+    verticalAlign: "middle",
+    textAlign: "left",
+    backgroundColor: "#1B496E",
+    width: "100%",
+    fontFamily: "Open Sans",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "16px",
+    lineHeight: "20px",
+    color: "#FFFFFF",
+    padding: "1rem 0.5rem",
+    border: "none",
+    cursor: "pointer",
+  },
+  "& .dropdown": {
+    position: "relative",
+    display: "inline-block",
+    borderBottom: "1px solid black",
+  },
+  "& .dropdown-content": {
+    display: "none",
+    zIndex: 1,
+  },
+  "& .dropdown-content a": {
+    color: "white",
+    padding: "0 0 1rem 1rem",
+    textDecoration: "none",
+    display: "block",
+    width: "fit-content",
+  },
+  "& .show": {
+    display: "block",
+  },
+  "& .arrow": {
+    marginRight: "0.25rem",
+  },
+  "& .rotate": {
+    transform: "rotate(90deg)",
+  },
+});
 
-  .signUpInputBox {
-    width: 100%;
-    height: 47px;
-    font-size: 25px;
-    padding-left: 8px;
-    margin-top: 4px;
-  }
-
-  .signUpInputBox:focus {
-    outline: 0.25rem solid #2491ff;
-  }
-
-  .signUpButton {
-    width:100%;
-    background: #FACE00;
-    border-radius: 8px;
-    border: 0;
-    padding: 9px 16px;
-    font-family: Open Sans;
-    font-weight: 700;
-    font-size: 16px;
-    line-height: 22px;
-    color: #14315C;
-    margin-top: 18px;
-  }
-
-  .signUpButton:hover {
-    cursor: pointer;
-  }
-
-`;
-
-const FooterLinksContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  .footItem {
-    width: 253px; 
-  }
-
-  .footItemTitle {
-    font-family: Open Sans;
-    color: #FFFFFF;
-    font-weight: 700;
-    font-size: 16px;
-    line-height: 22px;
-    margin-bottom: 10px;
-  }
-
-  .footItemSubtitle {
-    margin-bottom: 10px;
-    max-width: 290px;
-  }
-
-  .footItemLink {
-    font-family: Open Sans;
-    color: #FFFFFF;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 22px;
-    text-decoration: none;
-  }
-
-  .footItemLink:hover {
-    text-decoration: underline;
-  }
-
-  .dropbtn {
-    display:flex;
-    flex-direction: row;
-    vertical-align: middle;
-    text-align: left;
-    background-color: #1B496E;
-    width: 100%;
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 700;
-    font-size: 16px;
-    line-height: 20px;
-    color: #FFFFFF;
-    padding: 1rem 0.5rem 1rem 0.5rem;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-  }
-
-  .dropdown {
-    position: relative;
-    display: inline-block;
-    border-bottom: 1px solid black;
-  }
-
-  .dropdown-content {
-    display: none;
-    z-index: 1;
-  }
-
-  .dropdown-content a {
-    color: white;
-    padding: 0 0 1rem 1rem;
-    text-decoration: none;
-    display: block;
-    width: fit-content;
-  }
-
-
-  .show {
-    display:block;
-  }
-
-  .arrow {
-    margin-right: 0.25rem;
-  }
-  .rotate{
-    transform: rotate(90deg); 
-  }
-`;
-
-const BottomFooter = styled.div`
- background: #14315C;
-
-  span {
-    display: block;
-  }
-
-  .bottom-footer-container {
-    display: flex;
-    flex-flow: wrap;
-    flex-direction: column;
-    justify-content: space-between;
-    max-width: 1420px;
-    margin-left: auto;
-    margin-right: auto;
-    height: fit-content;
-    padding-top: 1.25rem;
-    padding-bottom: 1.25rem;
-    padding-left: 1rem;
-  }
-
-  .break {
-    order: 2;
-    width: 100%;
-    flex-basis: 100%;
-    height: 2rem;
-    margin: 0;
-    border: 0;
-    display: none;
-  }
-
-  .logoText {
-    text-decoration: none;
-    white-space: nowrap;
-  }
-
-  .logoUpperText {
-    font-family: poppins;
-    font-weight: 700;
-    font-size: 24.96px;
-    line-height: 37px;
-    color: #FFFFFF;
-  }
-
-  .logoLowerText {
-    font-family: poppins;
-    font-weight: 400;
-    font-size: 18.72px;
-    color: #FFFFFF;
-  }
-
-  #bottom-footer-contact-us {
-    font-family: 'Poppins';
-    font-style: normal;
-    font-weight: 700;
-    font-size: 22.88px;
-    line-height: 34px;
-    text-align: left;
-    color: #FFFFFF;
-    order: 1;
-    margin-top: 1.5rem;
-  }
-
-  #bottom-footer-contact-links {
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #FFFFFF;
-    margin-top: 0.25rem;
-  }
-
-  #bottom-footer-contact-links a {
-    text-decoration: none;
-    color: #FFFFFF;
-    display: block;
-    margin-left: 0px;
-    margin-right: 10px;
-    line-break: anywhere;
-  }
-
-
-  #bottom-footer-follow-us {
-    font-family: 'Poppins';
-    font-style: normal;
-    font-weight: 700;
-    font-size: 22.88px;
-    line-height: 34px;
-    color: #FFFFFF;
-    order: 3;
-    margin-top: 1rem;
-  }
-
-  #bottom-footer-follow-us-links {
-    margin-top: 1rem;
-  }
-
-  .bottom-footer-social-media-imgs {
-    margin-left: 10px;
-  }
-
-  #bottom-footer-gov-links {
-    order: 4;
-  }
-
-  #bottom-footer-gov-links a {
-    text-decoration: none;
-    display: block;
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 1.6;
-    text-align: left;
-    color: #FFFFFF;
-  }
-
-  #bottom-footer-follow-us-links {
-        margin-top: 0.75rem;
-  }
-
-  #bottom-footer-gov-links {
-      margin-right: 0px;
-      margin-top: 0.75rem;
-  }
-`;
-
-const StyledAsterisk = styled("span")(() => ({
-  color: "#D54309",
-  marginLeft: "2px",
-}));
+const BottomFooter = styled("div")({
+  background: "#14315C",
+  "& span": {
+    display: "block",
+  },
+  "& .bottom-footer-container": {
+    display: "flex",
+    flexFlow: "wrap",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    maxWidth: "1420px",
+    marginLeft: "auto",
+    marginRight: "auto",
+    height: "fit-content",
+    paddingTop: "1.25rem",
+    paddingBottom: "1.25rem",
+    paddingLeft: "1rem",
+    paddingRight: "1rem",
+  },
+  "& .break": {
+    order: 2,
+    width: "100%",
+    flexBasis: "100%",
+    height: "2rem",
+    margin: 0,
+    border: 0,
+    display: "none",
+  },
+  "& .logoText": {
+    textDecoration: "none",
+    whiteSpace: "nowrap",
+  },
+  "& .logoUpperText": {
+    fontFamily: "poppins",
+    fontWeight: 700,
+    fontSize: "24.96px",
+    lineHeight: "37px",
+    color: "#FFFFFF",
+  },
+  "& .logoLowerText": {
+    fontFamily: "poppins",
+    fontWeight: 400,
+    fontSize: "18.72px",
+    color: "#FFFFFF",
+  },
+  "& #bottom-footer-contact-us": {
+    fontFamily: "Poppins",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "22.88px",
+    lineHeight: "34px",
+    textAlign: "left",
+    color: "#FFFFFF",
+    order: 1,
+    marginTop: "1.5rem",
+  },
+  "& #bottom-footer-contact-links": {
+    fontFamily: "Open Sans",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "16px",
+    lineHeight: "1.6",
+    color: "#FFFFFF",
+    marginTop: "0.25rem",
+    "& a": {
+      textDecoration: "none",
+      color: "#FFFFFF",
+      display: "block",
+      marginLeft: "0px",
+      marginRight: "10px",
+      lineBreak: "anywhere",
+    },
+  },
+  "& #bottom-footer-follow-us": {
+    fontFamily: "Poppins",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "22.88px",
+    lineHeight: "34px",
+    color: "#FFFFFF",
+    order: 3,
+    marginTop: "1rem",
+  },
+  "& #bottom-footer-follow-us-links": {
+    marginTop: "0.75rem",
+  },
+  "& .bottom-footer-social-media-imgs": {
+    marginLeft: "10px",
+  },
+  "& #bottom-footer-gov-links": {
+    order: 4,
+    marginRight: "0px",
+    marginTop: "0.75rem",
+    "& a": {
+      textDecoration: "none",
+      display: "block",
+      fontFamily: "Open Sans",
+      fontStyle: "normal",
+      fontWeight: 400,
+      fontSize: "14px",
+      lineHeight: "1.6",
+      textAlign: "left",
+      color: "#FFFFFF",
+    },
+  },
+});
 
 const FooterMobile = () => {
   const [emailContent, setEmailContent] = useState("");
@@ -358,7 +314,6 @@ const FooterMobile = () => {
             <div className="enterTitle">
               <label htmlFor="email">
                 Sign up for the newsletter
-                <StyledAsterisk>*</StyledAsterisk>
                 <input ref={emailInput} id="email" type="email" name="email" className="signUpInputBox" value={emailContent} onChange={(e) => handleChange(e)} />
               </label>
             </div>
