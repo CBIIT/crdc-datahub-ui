@@ -34,7 +34,7 @@ const StatisticLegend: FC = () => (
       <LegendItem color="#4D90D3" label="New Counts" />
       <LegendItem color="#32E69A" label="Passed Counts" />
       <LegendItem color="#D65219" label="Failed Counts" />
-      <LegendItem color="#FFD700" label="Warning Counts" last />
+      <LegendItem color="#FFD700" label="Warning Counts" />
     </Stack>
   </StyledContainer>
 );

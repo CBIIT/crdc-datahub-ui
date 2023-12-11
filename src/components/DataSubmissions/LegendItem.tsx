@@ -4,12 +4,14 @@ import { Box, Stack, Typography, styled } from '@mui/material';
 type Props = {
   color: string;
   label: string;
-  last?: boolean;
 };
 
-const StyledStack = styled(Stack, { shouldForwardProp: (p) => p !== "last" })<{ last?: boolean }>(({ last }) => ({
-  marginRight: last ? 0 : "25px",
-}));
+const StyledStack = styled(Stack)({
+  marginRight: "20px",
+  "&:last-child": {
+    marginRight: "0",
+  },
+});
 
 const StyledLabel = styled(Typography)({
   color: "#383838",
@@ -34,8 +36,8 @@ const StyledColorBox = styled(Box, { shouldForwardProp: (p) => p !== "color" })<
  * @param {Props} props
  * @returns {React.FC<Props>}
  */
-const LegendItem: FC<Props> = ({ color, label, last }: Props) => (
-  <StyledStack direction="row" alignItems="center" last={last}>
+const LegendItem: FC<Props> = ({ color, label }: Props) => (
+  <StyledStack direction="row" alignItems="center">
     <StyledColorBox color={color} />
     <StyledLabel>{label}</StyledLabel>
   </StyledStack>
