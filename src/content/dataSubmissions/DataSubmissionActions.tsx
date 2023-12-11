@@ -119,7 +119,6 @@ type UserRole = User["role"];
 type ActionConfig = {
   roles: UserRole[];
   statuses: SubmissionStatus[];
-  bypassRoles?: UserRole[];
 };
 
 type ActionKey = "Submit" | "Release" | "Withdraw" | "SubmittedReject" | "ReleasedReject" | "Complete" | "Cancel" | "Archive";
@@ -128,7 +127,6 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
     statuses: ["In Progress", "Withdrawn"],
-    bypassRoles: ["Admin"]
   },
   Release: {
     roles: ["Data Curator", "Admin"],
