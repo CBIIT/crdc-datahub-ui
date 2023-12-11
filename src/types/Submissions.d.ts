@@ -191,3 +191,14 @@ type DataRecord = {
   s3FileInfo: S3FileInfo; // only for "file" types, should be null for other nodes
   CRDC_ID: string;
 };
+
+type DataValidationResult = {
+  /**
+   * Whether the validation action was successfully queued.
+   */
+  success: boolean;
+  /**
+   * The message returned by the validation.
+   */
+  message: string;
+};
