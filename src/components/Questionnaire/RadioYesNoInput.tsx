@@ -7,40 +7,42 @@ import {
   RadioGroupProps,
   FormHelperText,
   styled,
+  GridProps,
 } from "@mui/material";
 import { updateInputValidity } from "../../utils";
 import StyledRadioButton from './StyledRadioButton';
 
-const GridStyled = styled(Grid)<{ $containerWidth?: string; }>`
-  width: ${(props) => props.$containerWidth};
-  .formControl{
-    margin-top: 8px;
-    margin-bottom: 4px;
-  }
-  .css-hsm3ra-MuiFormLabel-root {
-    color: rgba(0, 0, 0, 0.6) !important;
-  }
-  .MuiRadio-root{
-    color: #1D91AB !important;
-    margin-left: 10px;
-  }
-
-  #invisibleRadioInput {
-    height: 0;
-    border: none;
-    width: 0;
-  }
-  .MuiFormHelperText-root {
-    color: #083A50;
-    margin-left: 0;
-  }
-  .MuiFormHelperText-root.Mui-error {
-    color: #D54309 !important;
-  }
-  .displayNone {
-    display: none !important;
-  }
-`;
+const GridStyled = styled(Grid, {
+  shouldForwardProp: (prop) => prop !== "containerWidth",
+})<GridProps & { containerWidth?: string }>(({ containerWidth }) => ({
+  width: containerWidth,
+  "& .formControl": {
+    marginTop: "8px",
+    marginBottom: "4px",
+  },
+  "& .css-hsm3ra-MuiFormLabel-root": {
+    color: "rgba(0, 0, 0, 0.6) !important",
+  },
+  "& .MuiRadio-root": {
+    color: "#1D91AB !important",
+    marginLeft: "10px",
+  },
+  "& #invisibleRadioInput": {
+    height: 0,
+    border: "none",
+    width: 0,
+  },
+  "& .MuiFormHelperText-root": {
+    color: "#083A50",
+    marginLeft: 0,
+  },
+  "& .MuiFormHelperText-root.Mui-error": {
+    color: "#D54309 !important",
+  },
+  "& .displayNone": {
+    display: "none !important",
+  },
+}));
 
 const StyledFormLabel = styled("label")(() => ({
   fontWeight: 700,
@@ -111,7 +113,7 @@ const RadioYesNoInput: FC<Props> = ({
   }, [radioGroupInputRef]);
 
   return (
-    <GridStyled md={gridWidth || 6} xs={12} item $containerWidth={containerWidth}>
+    <GridStyled md={gridWidth || 6} xs={12} item containerWidth={containerWidth}>
       <FormControl className="formControl" error={error}>
         <StyledFormLabel>
           {label}
