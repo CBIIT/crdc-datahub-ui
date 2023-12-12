@@ -43,6 +43,8 @@
     "lint": "eslint . --ignore-path .gitignore",
     "lint:fix": "eslint --fix . --ignore-path .gitignore",
     "lint:ci": "eslint . --ignore-path .gitignore --max-warnings 0",
+    "format:check": "prettier --ignore-path .gitignore --check \"**/*.{js,jsx,ts,tsx}\"",
+    "format:fix": "prettier --ignore-path .gitignore --write \"**/*.{js,jsx,ts,tsx}\"",
     "check:ci": "tsc --noEmit"
   },
   "eslintConfig": {
@@ -81,8 +83,10 @@
     "eslint": "^8.40.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "jest-axe": "^8.0.0",
+    "prettier": "^3.1.1",
     "typescript": "^5.0.4"
   }
 }

@@ -6,6 +6,7 @@ module.exports = {
     "plugin:jsx-a11y/recommended",
     'airbnb',
     'airbnb-typescript',
+    'prettier',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -27,6 +28,7 @@ module.exports = {
   root: true,
   ignorePatterns: ["public/injectEnv.js", "public/js/session.js"],
   rules: {
+    "indent": "warn",
     "import/prefer-default-export": "off",
     "jsx-a11y/anchor-is-valid": "off",
     "no-empty-function": "warn",

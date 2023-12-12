@@ -49,3 +49,6 @@ jobs:
 
       - name: Run Linter
         run: npm run lint:ci
+
+      - name: Run Prettier Check
+        run: npm run prettier:check
