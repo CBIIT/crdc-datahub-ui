@@ -101,6 +101,11 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
       },
     });
 
+    // MVP-2 M2 NOTE: This resets the search history to prevent the data models
+    // from overlapping on searches. A future improvement would be to isolate
+    // the localStorage history key to the data model based on a config option.
+    store.dispatch({ type: 'SEARCH_CLEAR_HISTORY' });
+
     setStatus("success");
   };
 
