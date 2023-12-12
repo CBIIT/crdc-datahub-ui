@@ -160,10 +160,11 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
 
 type Props = {
   submission: Submission;
+  disableSubmit?: boolean;
   onAction: (action: SubmissionAction) => Promise<void>;
 };
 
-const DataSubmissionActions = ({ submission, onAction }: Props) => {
+const DataSubmissionActions = ({ submission, disableSubmit, onAction }: Props) => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
@@ -219,7 +220,7 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
           variant="contained"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
-          disabled={action && action !== "Submit"} /* TODO: Post MVP2-M2 - Will be disabled if fails validation check */
+          disabled={disableSubmit || (action && action !== "Submit")}
           disableElevation
           disableRipple
           disableTouchRipple
