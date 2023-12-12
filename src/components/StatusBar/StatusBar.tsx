@@ -13,7 +13,7 @@ const StyledStack = styled(Stack)({
   marginBottom: "1px",
 });
 
-const StyledH1 = styled(Typography)({
+const StyledTitle = styled(Typography)({
   fontWeight: "700",
   fontSize: "19px",
   color: "#282828",
@@ -29,11 +29,11 @@ const StyledH1 = styled(Typography)({
 const StatusBar: FC = () => (
   <StyledStack direction="row" justifyContent="space-between">
     <Stack direction="row" spacing={2} alignItems="center">
-      <StyledH1 variant="h6">Status:</StyledH1>
+      <StyledTitle variant="body1">Status:</StyledTitle>
       <StatusSection />
     </Stack>
     <Stack direction="row" spacing={2} alignItems="center">
-      <StyledH1 variant="h6">Last updated:</StyledH1>
+      <StyledTitle variant="body1">Last updated:</StyledTitle>
       <HistorySection />
     </Stack>
   </StyledStack>

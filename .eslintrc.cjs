@@ -3,6 +3,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
+    "plugin:jsx-a11y/recommended",
     'airbnb',
     'airbnb-typescript',
   ],
@@ -15,7 +16,7 @@ module.exports = {
     project: "./tsconfig.json",
     sourceType: "module"
   },
-  plugins: ["react", "@typescript-eslint"],
+  plugins: ["react", "@typescript-eslint", "jsx-a11y"],
   settings: {
     react: {
       pragma: "React",

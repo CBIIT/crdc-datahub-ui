@@ -251,8 +251,13 @@ const APITokenDialog: FC<Props> = ({
         <StyledGenerateButton id="api-token-create-token-button" onClick={handleCreateToken} variant="contained">
           Create Token
         </StyledGenerateButton>
-        <StyledTokenInput id="api-token-input" value={tokens?.length ? "*************************************" : ""} readOnly />
-        <StyledCopyTokenButton id="api-token-copy-token-button" disabled={!tokens?.length} onClick={handleCopyToken}>
+        <StyledTokenInput
+          id="api-token-input"
+          value={tokens?.length ? "*************************************" : ""}
+          inputProps={{ "aria-label": "API Token" }}
+          readOnly
+        />
+        <StyledCopyTokenButton id="api-token-copy-token-button" disabled={!tokens?.length} onClick={handleCopyToken} aria-label="Copy Token">
           <CopyIconSvg />
         </StyledCopyTokenButton>
       </Stack>

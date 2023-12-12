@@ -1,46 +1,53 @@
-import React, { FC, createRef, useEffect, useRef, useState } from 'react';
+import React, { FC, createRef, useEffect, useRef, useState } from "react";
 import {
   useNavigate,
-  unstable_useBlocker as useBlocker, unstable_Blocker as Blocker, Navigate
-} from 'react-router-dom';
-import { isEqual, cloneDeep } from 'lodash';
-import { Alert, AlertColor, Button, Container, Divider, Stack, styled } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { WithStyles, withStyles } from "@mui/styles";
-import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
-import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
-import { Status as FormStatus, useFormContext } from '../../components/Contexts/FormContext';
-import SuspenseLoader from '../../components/SuspenseLoader';
-import StatusBar from '../../components/StatusBar/StatusBar';
-import ProgressBar from '../../components/ProgressBar/ProgressBar';
-import Section from './sections';
-import map, { InitialSections } from '../../config/SectionConfig';
-import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
-import SubmitFormDialog from '../../components/Questionnaire/SubmitFormDialog';
-import useFormMode from './sections/hooks/useFormMode';
-import InquireFormDialog from '../../components/Questionnaire/InquireFormDialog';
-import RejectFormDialog from '../../components/Questionnaire/RejectFormDialog';
-import ApproveFormDialog from '../../components/Questionnaire/ApproveFormDialog';
-import PageBanner from '../../components/PageBanner';
+  unstable_useBlocker as useBlocker,
+  unstable_Blocker as Blocker,
+  Navigate,
+} from "react-router-dom";
+import { isEqual, cloneDeep } from "lodash";
+import {
+  Alert,
+  AlertColor,
+  Container,
+  Divider,
+  Stack,
+  styled,
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import ForwardArrowIcon from "@mui/icons-material/ArrowForwardIos";
+import BackwardArrowIcon from "@mui/icons-material/ArrowBackIos";
+import {
+  Status as FormStatus,
+  useFormContext,
+} from "../../components/Contexts/FormContext";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import StatusBar from "../../components/StatusBar/StatusBar";
+import ProgressBar from "../../components/ProgressBar/ProgressBar";
+import Section from "./sections";
+import map, { InitialSections } from "../../config/SectionConfig";
+import UnsavedChangesDialog from "../../components/Questionnaire/UnsavedChangesDialog";
+import SubmitFormDialog from "../../components/Questionnaire/SubmitFormDialog";
+import useFormMode from "./sections/hooks/useFormMode";
+import InquireFormDialog from "../../components/Questionnaire/InquireFormDialog";
+import RejectFormDialog from "../../components/Questionnaire/RejectFormDialog";
+import ApproveFormDialog from "../../components/Questionnaire/ApproveFormDialog";
+import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
-import GenericAlert from '../../components/GenericAlert';
-import { Status as AuthStatus, useAuthContext } from '../../components/Contexts/AuthContext';
-import ErrorCodes from '../../config/ErrorCodes';
+import GenericAlert from "../../components/GenericAlert";
+import {
+  Status as AuthStatus,
+  useAuthContext,
+} from "../../components/Contexts/AuthContext";
+import ErrorCodes from "../../config/ErrorCodes";
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
     padding: 0,
     minHeight: "300px",
     scrollMarginTop: "-60px",
-  }
+  },
 }));
-
-type Props = {
-  section?: string;
-  classes: WithStyles<typeof styles>['classes'];
-};
-
-const validateSection = (section: string) => typeof map[section] !== 'undefined';
 
 const StyledSidebar = styled(Stack)({
   position: "sticky",
@@ -64,8 +71,124 @@ const StyledAlert = styled(Alert)({
   fontWeight: 400,
   fontSize: "16px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
-  scrollMarginTop: "64px"
+  scrollMarginTop: "64px",
 });
+
+const StyledContent = styled(Stack)({
+  width: "100%",
+  maxWidth: "980px",
+  marginLeft: "41px",
+});
+
+const StyledControls = styled(Stack)({
+  color: "#FFFFFF",
+  marginTop: "15px !important",
+  "& button": {
+    margin: "0 6px",
+    padding: "14px 11px",
+    minWidth: "128px",
+    fontWeight: 700,
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    letterSpacing: "0.32px",
+    lineHeight: "20.14px",
+    borderRadius: "8px",
+    borderColor: "#828282",
+    background: "#737373",
+    color: "inherit",
+    textTransform: "none",
+  },
+  "& button:disabled": {
+    backgroundColor: "#CDCDCD",
+  },
+  "& button:hover:not([disabled])": {
+    color: "#fff",
+    background: "#5E5E5E",
+  },
+  "& a": {
+    color: "inherit",
+    textDecoration: "none",
+  },
+  "& .MuiButton-startIcon": {
+    marginRight: "20px",
+  },
+  "& .MuiButton-endIcon": {
+    marginLeft: "20px",
+  },
+  "& .MuiSvgIcon-root": {
+    fontSize: "20px",
+  },
+});
+
+const StyledBaseLoadingButton = styled(LoadingButton)({
+  "&.MuiButton-root": {
+    display: "flex",
+    minWidth: "128px",
+    height: "50.593px",
+    padding: "11px",
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 0,
+    borderRadius: "8px",
+    textAlign: "center",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: "16px",
+    letterSpacing: "0.32px",
+    "& .MuiSvgIcon-root": {
+      fontSize: "20px",
+    },
+  },
+});
+
+const StyledBackButton = styled(StyledBaseLoadingButton)({
+  "&.MuiButton-root": {
+    justifyContent: "flex-start",
+  },
+});
+
+const StyledSaveLoadingButton = styled(StyledBaseLoadingButton)({
+  "&.MuiButton-root": {
+    borderColor: "#26B893",
+    background: "#22A584",
+  },
+});
+
+const StyledSubmitLoadingButton = styled(StyledBaseLoadingButton)({
+  "&.MuiButton-root": {
+    border: "1px solid #828282",
+    background: "#0B7F99",
+  },
+});
+
+const StyledApproveLoadingButton = styled(StyledBaseLoadingButton)({
+  "&.MuiButton-root": {
+    borderColor: "#26B893",
+    background: "#22A584",
+  },
+});
+const StyledInquireLoadingButton = styled(StyledBaseLoadingButton)({
+  "&.MuiButton-root": {
+    borderColor: "#26B893",
+    background: "#D54309",
+  },
+});
+const StyledRejectLoadingButton = styled(StyledBaseLoadingButton)({
+  "&.MuiButton-root": {
+    borderColor: "#26B893",
+    background: "#D54309",
+  },
+});
+const StyledNextButton = styled(StyledBaseLoadingButton)({
+  "&.MuiButton-root": {
+    display: "flex",
+    justifyContent: "flex-end",
+  },
+});
+
+const validateSection = (section: string) => typeof map[section] !== "undefined";
 
 export type SaveForm =
   | { status: "success"; id: string }
@@ -76,13 +199,17 @@ type AlertState = {
   severity: AlertColor;
 };
 
+type Props = {
+  section?: string;
+};
+
 /**
  * Intake Form View Component
  *
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const FormView: FC<Props> = ({ section, classes } : Props) => {
+const FormView: FC<Props> = ({ section } : Props) => {
   const navigate = useNavigate();
   const { status, data, setData, submitData, approveForm, inquireForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
   const { user, status: authStatus } = useAuthContext();
@@ -627,23 +754,21 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
             <StyledDivider orientation="vertical" />
           </StyledSidebar>
 
-          <Stack className={classes.content} direction="column" spacing={5}>
+          <StyledContent direction="column" spacing={5}>
             <StatusBar />
 
             {hasError && <StyledAlert ref={errorAlertRef} severity="error">Oops! An error occurred. Please refresh the page or try again later.</StyledAlert>}
 
             <Section section={activeSection} refs={refs} />
 
-            <Stack
-              className={classes.controls}
+            <StyledControls
               direction="row"
               justifyContent="center"
               alignItems="center"
               spacing={2}
             >
-              <Button
+              <StyledBackButton
                 id="submission-form-back-button"
-                className={classes.backButton}
                 variant="outlined"
                 type="button"
                 disabled={status === FormStatus.SAVING || !prevSection}
@@ -652,10 +777,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 startIcon={<BackwardArrowIcon />}
               >
                 Back
-              </Button>
-              <LoadingButton
+              </StyledBackButton>
+              <StyledSaveLoadingButton
                 id="submission-form-save-button"
-                className={classes.saveButton}
                 variant="outlined"
                 type="button"
                 ref={refs.saveFormRef}
@@ -665,10 +789,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
               >
                 Save
-              </LoadingButton>
-              <LoadingButton
+              </StyledSaveLoadingButton>
+              <StyledSubmitLoadingButton
                 id="submission-form-submit-button"
-                className={classes.submitButton}
                 variant="outlined"
                 type="submit"
                 ref={refs.submitFormRef}
@@ -677,40 +800,36 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
               >
                 Submit
-              </LoadingButton>
-              <LoadingButton
+              </StyledSubmitLoadingButton>
+              <StyledApproveLoadingButton
                 id="submission-form-approve-button"
-                className={classes.approveButton}
                 variant="outlined"
                 ref={refs.approveFormRef}
                 size="large"
                 onClick={handleApproveForm}
               >
                 Approve
-              </LoadingButton>
-              <LoadingButton
+              </StyledApproveLoadingButton>
+              <StyledInquireLoadingButton
                 id="submission-form-inquire-button"
-                className={classes.inquireButton}
                 variant="outlined"
                 ref={refs.inquireFormRef}
                 size="large"
                 onClick={handleInquireForm}
               >
                 Request Additional Information
-              </LoadingButton>
-              <LoadingButton
+              </StyledInquireLoadingButton>
+              <StyledRejectLoadingButton
                 id="submission-form-reject-button"
-                className={classes.rejectButton}
                 variant="outlined"
                 ref={refs.rejectFormRef}
                 size="large"
                 onClick={handleRejectForm}
               >
                 Reject
-              </LoadingButton>
-              <Button
+              </StyledRejectLoadingButton>
+              <StyledNextButton
                 id="submission-form-next-button"
-                className={classes.nextButton}
                 variant="outlined"
                 type="button"
                 ref={refs.nextButtonRef}
@@ -720,9 +839,9 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
                 endIcon={<ForwardArrowIcon />}
               >
                 Next
-              </Button>
-            </Stack>
-          </Stack>
+              </StyledNextButton>
+            </StyledControls>
+          </StyledContent>
         </StyledContentWrapper>
       </StyledContainer>
 
@@ -758,106 +877,4 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   );
 };
 
-const styles = () => ({
-  header: {
-    width: "100%",
-    height: "300px",
-    background: "#F2F4F8",
-  },
-  content: {
-    width: "100%",
-    maxWidth: "980px",
-    marginLeft: '41px',
-  },
-  controls: {
-    color: "#FFFFFF",
-    marginTop: "15px !important",
-    "& button": {
-      margin: "0 6px",
-      padding: "14px 11px",
-      minWidth: "128px",
-      fontWeight: 700,
-      fontSize: '16px',
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      letterSpacing: "0.32px",
-      lineHeight: "20.14px",
-      borderRadius: "8px",
-      borderColor: "#828282",
-      background: "#737373",
-      color: "inherit",
-      textTransform: "none",
-    },
-    "& button:disabled": {
-      backgroundColor: "#CDCDCD",
-    },
-    "& button:hover:not([disabled])": {
-      color: "#fff",
-      background: "#5E5E5E",
-    },
-    "& a": {
-      color: "inherit",
-      textDecoration: "none",
-    },
-    "& .MuiButton-startIcon": {
-      marginRight: "20px",
-    },
-    "& .MuiButton-endIcon": {
-      marginLeft: "20px"
-    },
-    "& .MuiSvgIcon-root": {
-      fontSize: "20px"
-    }
-  },
-  backButton: {
-    "&.MuiButton-root": {
-      display: "flex",
-      justifyContent: "flex-start"
-    }
-  },
-  nextButton: {
-    "&.MuiButton-root": {
-      display: "flex",
-      justifyContent: "flex-end"
-    }
-  },
-  saveButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#22A584"
-    }
-  },
-  approveButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#22A584"
-    }
-  },
-  inquireButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#D54309"
-    }
-  },
-  rejectButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#D54309"
-    }
-  },
-  submitButton: {
-    "&.MuiButton-root": {
-      display: "flex",
-      width: "128px",
-      height: "50.593px",
-      padding: "11px",
-      justifyContent: "center",
-      alignItems: "center",
-      flexShrink: 0,
-      borderRadius: "8px",
-      border: "1px solid #828282",
-      background: "#0B7F99",
-    }
-  },
-});
-
-export default withStyles(styles)(FormView);
+export default FormView;

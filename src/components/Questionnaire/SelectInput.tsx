@@ -162,7 +162,7 @@ const SelectInput: FC<Props> = ({
   readOnly,
   ...rest
 }) => {
-  const id = useId();
+  const id = rest.id || useId();
 
   const [val, setVal] = useState(multiple ? [] : "");
   const [error, setError] = useState(false);
@@ -215,7 +215,7 @@ const SelectInput: FC<Props> = ({
   return (
     <GridItem md={gridWidth || 6} xs={12} item>
       <FormControl fullWidth error={error}>
-        <StyledFormLabel htmlFor={id}>
+        <StyledFormLabel htmlFor={id} id={`${id}-label`}>
           {label}
           {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
           {tooltipText && <Tooltip placement="right" title={tooltipText} />}
@@ -233,6 +233,7 @@ const SelectInput: FC<Props> = ({
           readOnly={readOnly}
           inputRef={inputRef}
           {...rest}
+          id={id}
         >
           {options.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -247,6 +248,7 @@ const SelectInput: FC<Props> = ({
           value={val}
           onChange={() => {}}
           multiple={multiple}
+          aria-labelledby={`${id}-label`}
           hidden
         >
           {options.map((option) => (
