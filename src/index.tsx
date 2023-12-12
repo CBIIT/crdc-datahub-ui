@@ -19,13 +19,15 @@ const root = ReactDOM.createRoot(
 );
 
 root.render(
-  <ApolloProvider client={client}>
-    <HelmetProvider>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </HelmetProvider>
-  </ApolloProvider>,
+  <React.StrictMode>
+    <ApolloProvider client={client}>
+      <HelmetProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </HelmetProvider>
+    </ApolloProvider>
+  </React.StrictMode>,
 );
 
 reportWebVitals();

@@ -11,7 +11,7 @@ To run the CRDC Data Hub project locally, follow these steps:
 
 1. Clone the repository
 2. Navigate to the project directory
-3. Install the dependencies: `npm install --legacy-peer-deps`
+3. Install the dependencies: `npm ci`
 4. Start the development server: `npm start`
 5. Open your browser and visit `http://localhost:3000` to access the application.
 
