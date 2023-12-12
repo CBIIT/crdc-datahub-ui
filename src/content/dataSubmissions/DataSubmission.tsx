@@ -229,7 +229,9 @@ const columns: Column<Batch>[] = [
     renderValue: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
     field: "createdAt",
     default: true,
-    minWidth: "240px"
+    sx: {
+      minWidth: "240px"
+    }
   },
   /* TODO: Error Count removed for MVP2-M2. Will be re-added in the future */
 ];

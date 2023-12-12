@@ -15,16 +15,19 @@ export const query = gql`
       orderBy: $orderBy
       sortDirection: $sortDirection
     ) {
-      submissionID
-      nodeType
-      batchID
-      nodeID
-      CRDC_ID
-      severity
-      uploadedDate
-      description {
-        title
-        description
+      total
+      results {
+        submissionID
+        nodeType
+        batchID
+        nodeID
+        CRDC_ID
+        severity
+        uploadedDate
+        description {
+          title
+          description
+        }
       }
     }
   }

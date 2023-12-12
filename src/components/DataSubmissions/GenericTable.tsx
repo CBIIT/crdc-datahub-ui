@@ -3,6 +3,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableCellProps,
   TableContainer,
   TableHead,
   TablePagination,
@@ -118,7 +119,8 @@ export type Column<T> = {
   renderValue: (a: T, user: User) => string | boolean | number | React.ReactNode;
   field?: keyof T;
   default?: true;
-  minWidth?: string;
+  sortDisabled?: boolean;
+  sx?: TableCellProps["sx"];
 };
 
 export type FetchListing<T> = {
@@ -138,6 +140,7 @@ type Props<T> = {
   total: number;
   loading?: boolean;
   noContentText?: string;
+  defaultRowsPerPage?: number;
   setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
@@ -151,6 +154,7 @@ const DataSubmissionBatchTable = <T,>({
   total = 0,
   loading,
   noContentText,
+  defaultRowsPerPage = 10,
   setItemKey,
   onFetchData,
   onOrderChange,
@@ -163,7 +167,7 @@ const DataSubmissionBatchTable = <T,>({
     columns.find((c) => c.default) || columns.find((c) => c.field)
   );
   const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(10);
+  const [perPage, setPerPage] = useState<number>(defaultRowsPerPage);
 
   useEffect(() => {
     fetchData();
@@ -221,8 +225,8 @@ const DataSubmissionBatchTable = <T,>({
         <StyledTableHead>
           <TableRow>
             {columns.map((col: Column<T>) => (
-              <StyledHeaderCell key={col.label.toString()} sx={{ minWidth: col.minWidth ?? "fit-content" }}>
-                {col.field ? (
+              <StyledHeaderCell key={col.label.toString()} sx={col.sx}>
+                {col.field && !col.sortDisabled ? (
                   <TableSortLabel
                     active={orderBy === col}
                     direction={orderBy === col ? order : "asc"}

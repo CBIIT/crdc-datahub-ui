@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
@@ -6,6 +6,8 @@ import { Box, Button, styled } from "@mui/material";
 import { SUBMISSION_QC_RESULTS, submissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
+import ErrorDialog from "./ErrorDialog";
+import QCResultsContext from "./Contexts/QCResultsContext";
 
 const StyledErrorDetailsButton = styled(Button)({
   display: "inline",
@@ -14,7 +16,7 @@ const StyledErrorDetailsButton = styled(Button)({
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 600,
-  lineHeight: "19.6px",
+  lineHeight: "19px",
   padding: 0,
   textDecorationLine: "underline",
   textTransform: "none",
@@ -24,70 +26,22 @@ const StyledErrorDetailsButton = styled(Button)({
   },
 });
 
-const testData: QCResult[] = [
-  {
-    submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
-    nodeType: "Participant",
-    batchID: "123a5678-8adf-41e9-9432-864b2108191d",
-    nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
-    CRDC_ID: "123a5678-8adf-41e9-9432-864b2108191d",
-    severity: "Error",
-    description: [
-      {
-        title: "Incorrect control vocabulary.",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eget duis at tellus at urna condimentum mattis. Eget nunc scelerisque viverra mauris in aliquam sem.",
-      },
-      {
-        title: "Missing required field.",
-        description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
-      },
-      {
-        title: "Value not in the range.",
-        description: "Consectetur adipiscing elit pellentesque habitant morbi tristique senectus. Nec ullamcorper sit amet risus. Faucibus in ornare quam viverra orci sagittis. Venenatis urna cursus eget nunc.",
-      },
-    ],
-    uploadedDate: "2023-11-08T19:39:15.469Z",
-  },
-  {
-    submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
-    nodeType: "Participant",
-    batchID: "123a5678-8adf-41e9-9432-864b2108191d",
-    nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
-    CRDC_ID: "123a5678-8adf-41e9-9432-864b2108191d",
-    severity: "Error",
-    description: [
-      {
-        title: "Missing required field.",
-        description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
-      },
-    ],
-    uploadedDate: "2023-11-08T19:39:15.469Z",
-  },
-  {
-    submissionID: "c4366aab-8adf-41e9-9432-864b2101231d",
-    nodeType: "Participant",
-    batchID: "123a5678-8adf-41e9-9432-864b2108191d",
-    nodeID: "123a5678-8adf-41e9-9432-864b2108191d",
-    CRDC_ID: "123a5678-8adf-41e9-9432-864b2108191d",
-    severity: "Error",
-    description: [
-      {
-        title: "Value not in the range.",
-        description: "Consectetur adipiscing elit pellentesque habitant morbi tristique senectus. Nec ullamcorper sit amet risus. Faucibus in ornare quam viverra orci sagittis. Venenatis urna cursus eget nunc.",
-      },
-      {
-        title: "Incorrect control vocabulary.",
-        description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
-      },
-    ],
-    uploadedDate: "2023-11-08T19:39:15.469Z",
-  },
-];
+const StyledNodeType = styled(Box)({
+  display: "flex",
+  alignItems: "center",
+  textTransform: "capitalize"
+});
+
+const StyledSeverity = styled(Box)({
+  minHeight: 76.5,
+  display: "flex",
+  alignItems: "center",
+});
 
 const columns: Column<QCResult>[] = [
   {
     label: "Type",
-    renderValue: (data) => data?.nodeType,
+    renderValue: (data) => <StyledNodeType>{data?.nodeType}</StyledNodeType>,
     field: "nodeType",
   },
   {
@@ -107,33 +61,41 @@ const columns: Column<QCResult>[] = [
   },
   {
     label: "Severity",
-    renderValue: (data) => <Box color={data?.severity === "Error" ? "#E25C22" : "#8D5809"} minHeight={76.5}>{data?.severity}</Box>,
+    renderValue: (data) => <StyledSeverity color={data?.severity === "Error" ? "#E25C22" : "#8D5809"}>{data?.severity}</StyledSeverity>,
     field: "severity",
   },
   {
-    label: "Submitted Date",
+    label: "Uploaded Date",
     renderValue: (data) => (data?.uploadedDate ? `${FormatDate(data.uploadedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
     field: "uploadedDate",
     default: true
   },
   {
-    label: "Description",
+    label: "Reasons",
     renderValue: (data) => data?.description?.length > 0 && (
-      <>
-        <span>{data?.description[0].title}</span>
-        {" "}
-        <StyledErrorDetailsButton
-          onClick={() => {}}
-          variant="text"
-          disableRipple
-          disableTouchRipple
-          disableFocusRipple
-        >
-          See details
-        </StyledErrorDetailsButton>
-      </>
+      <QCResultsContext.Consumer>
+        {({ handleOpenErrorDialog }) => (
+          <>
+            <span>{data.description[0]?.title}</span>
+            {" "}
+            <StyledErrorDetailsButton
+              onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
+              variant="text"
+              disableRipple
+              disableTouchRipple
+              disableFocusRipple
+            >
+              See details
+            </StyledErrorDetailsButton>
+          </>
+        )}
+      </QCResultsContext.Consumer>
     ),
     field: "description",
+    sortDisabled: true,
+    sx: {
+      minWidth: "260px",
+    }
   },
 ];
 
@@ -143,9 +105,11 @@ const QualityControl = () => {
   const [loading, setLoading] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string>(null);
-  const [data, setData] = useState<QCResult[]>(testData);
+  const [data, setData] = useState<QCResult[]>([]);
   const [prevData, setPrevData] = useState<FetchListing<QCResult>>(null);
-  const [totalData, setTotalData] = useState(testData.length);
+  const [totalData, setTotalData] = useState(0);
+  const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
   const tableRef = useRef<TableMethods>(null);
 
   const [submissionQCResults] = useLazyQuery<submissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
@@ -192,18 +156,37 @@ const QualityControl = () => {
     }
   };
 
+  const handleOpenErrorDialog = (data: QCResult) => {
+    setOpenErrorDialog(true);
+    setSelectedRow(data);
+  };
+
+  const providerValue = useMemo(() => ({
+    handleOpenErrorDialog
+  }), [handleOpenErrorDialog]);
+
   return (
     <>
-      <GenericTable
-        ref={tableRef}
-        columns={columns}
-        data={data || []}
-        total={totalData || 0}
-        loading={loading}
-        setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.nodeID}`}
-        onFetchData={handleFetchQCResults}
+      <QCResultsContext.Provider value={providerValue}>
+        <GenericTable
+          ref={tableRef}
+          columns={columns}
+          data={data || []}
+          total={totalData || 0}
+          loading={loading}
+          defaultRowsPerPage={20}
+          setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.nodeID}`}
+          onFetchData={handleFetchQCResults}
+        />
+      </QCResultsContext.Provider>
+      <ErrorDialog
+        open={openErrorDialog}
+        onClose={() => setOpenErrorDialog(false)}
+        header="Data Submission"
+        title="Reasons"
+        errors={selectedRow?.description}
+        uploadedDate={selectedRow?.uploadedDate}
       />
-      {/* Error Dialog */}
     </>
   );
 };
