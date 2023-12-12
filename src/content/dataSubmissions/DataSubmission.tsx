@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import {
@@ -37,7 +37,9 @@ import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
+import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
 import ValidationControls from '../../components/DataSubmissions/ValidationControls';
+import { useAuthContext } from "../../components/Contexts/AuthContext";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -87,6 +89,7 @@ const StyledCard = styled(Card)(() => ({
     border: "1px solid #6CACDA",
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
+    overflow: "visible",
   },
   "&::after": {
     content: '""',
@@ -226,7 +229,9 @@ const columns: Column<Batch>[] = [
     renderValue: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
     field: "createdAt",
     default: true,
-    minWidth: "240px"
+    sx: {
+      minWidth: "240px"
+    }
   },
   /* TODO: Error Count removed for MVP2-M2. Will be re-added in the future */
 ];
@@ -240,7 +245,9 @@ const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "
 
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
+  const { user } = useAuthContext();
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
+  const [submissionStats, setSubmissionStats] = useState<SubmissionStatistic[]>(null);
   const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
   const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
@@ -249,6 +256,10 @@ const DataSubmission = () => {
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
+  const disableSubmit = useMemo(
+    () => !submissionStats?.length || submissionStats.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
+    [submissionStats, user]
+  );
 
   const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
     variables: { id: submissionId },
@@ -331,9 +342,9 @@ const DataSubmission = () => {
       const { data: newDataSubmission, error } = await getSubmission();
       if (error || !newDataSubmission?.getSubmission) {
         throw new Error("Unable to retrieve Data Submission.");
-        return;
       }
       setDataSubmission(newDataSubmission.getSubmission);
+      setSubmissionStats(newDataSubmission.submissionStats?.stats || []);
     } catch (err) {
       setError(err?.toString());
     }
@@ -402,8 +413,7 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
-
-            {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
+            <DataSubmissionStatistics dataSubmission={dataSubmission} statistics={submissionStats} />
             <ValidationControls dataSubmission={dataSubmission} />
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
@@ -444,6 +454,7 @@ const DataSubmission = () => {
             <DataSubmissionActions
               submission={dataSubmission}
               onAction={updateSubmissionAction}
+              disableSubmit={disableSubmit}
             />
           </StyledCardActions>
         </StyledCard>

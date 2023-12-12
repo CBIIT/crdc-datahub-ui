@@ -9,9 +9,10 @@ import ScrollButton from '../components/ScrollButton/ScrollButtonView';
 import OverlayWindow from '../components/SystemUseWarningOverlay/OverlayWindow';
 import InactivityDialog from '../components/InactivityDialog/InactivityDialog';
 
-const StyledWrapper = styled("main")(() => ({
+const StyledWrapper = styled("main")({
   minHeight: "400px",
-}));
+  overflowX: "hidden",
+});
 
 interface LayoutProps {
   children?: ReactNode;

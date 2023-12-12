@@ -192,6 +192,15 @@ type DataRecord = {
   CRDC_ID: string;
 };
 
+type SubmissionStatistic = {
+  nodeName: string;
+  total: number;
+  new: number;
+  passed: number;
+  warning: number;
+  error: number;
+};
+
 type DataValidationResult = {
   /**
    * Whether the validation action was successfully queued.
