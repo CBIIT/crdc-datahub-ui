@@ -50,7 +50,8 @@ const theme = createTheme({
                 root: {
                     color: '#000045',
                     '& p': {
-                    fontSize: '14px',
+                      fontSize: '14px',
+                      margin: '0px 0px 10px !important',
                     },
                     padding: '20px 0px 0px 0px !important',
                     '& ul': {
@@ -65,11 +66,12 @@ const theme = createTheme({
                 root: {
                     width: '133px',
                     height: '35px',
-                    backgroundColor: '#337ab7',
+                    backgroundColor: '#337ab7 !important',
                     color: '#fff',
-                    textTransform: 'none',
+                    textTransform: 'capitalize !important' as 'capitalize',
+                    boxShadow: 'none !important',
                     '&:hover': {
-                    backgroundColor: '#2e6da4',
+                      backgroundColor: '#2e6da4 !important',
                     },
                 },
             },
@@ -198,7 +200,7 @@ const OverlayWindow = () => {
         </DialogContent>
         <Divider />
         <DialogActions>
-          <Button onClick={handleClose}>
+          <Button onClick={handleClose} variant="contained">
             Continue
           </Button>
         </DialogActions>

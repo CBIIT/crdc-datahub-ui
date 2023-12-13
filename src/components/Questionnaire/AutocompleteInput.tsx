@@ -158,7 +158,7 @@ const AutocompleteInput = <T,>({
   readOnly,
   ...rest
 }: Props<T>) => {
-  const id = useId();
+  const id = rest.id || useId();
 
   const [val, setVal] = useState<T>(value);
   const [error, setError] = useState<boolean>(false);
@@ -249,6 +249,7 @@ const AutocompleteInput = <T,>({
               name={name}
               required={required}
               placeholder={placeholder}
+              id={id}
             />
           )}
           {...rest}

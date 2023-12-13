@@ -126,7 +126,7 @@ type ActionKey = "Submit" | "Release" | "Withdraw" | "SubmittedReject" | "Releas
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
-    statuses: ["In Progress"],
+    statuses: ["In Progress", "Withdrawn"],
   },
   Release: {
     roles: ["Data Curator", "Admin"],
@@ -160,10 +160,11 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
 
 type Props = {
   submission: Submission;
+  disableSubmit?: boolean;
   onAction: (action: SubmissionAction) => Promise<void>;
 };
 
-const DataSubmissionActions = ({ submission, onAction }: Props) => {
+const DataSubmissionActions = ({ submission, disableSubmit, onAction }: Props) => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
@@ -219,7 +220,7 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
           variant="contained"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
-          disabled={action && action !== "Submit"} /* TODO: Post MVP2-M2 - Will be disabled if fails validation check */
+          disabled={disableSubmit || (action && action !== "Submit")}
           disableElevation
           disableRipple
           disableTouchRipple
@@ -230,7 +231,7 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
       {canShowAction("Release") ? (
         <StyledReleaseButton
           variant="contained"
-          onClick={() => handleOnAction("Release")}
+          onClick={() => onOpenDialog("Release")}
           loading={action === "Release"}
           disabled={action && action !== "Release"}
           disableElevation

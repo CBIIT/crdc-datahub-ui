@@ -1,22 +1,19 @@
-import React from 'react';
-import styled from 'styled-components';
-import { headerData } from '../../../config/globalHeaderData';
+import React from "react";
+import { styled } from "@mui/material";
+import { headerData } from "../../../config/globalHeaderData";
 
-const LogoArea = styled.div`
-    display: flex;
-
-    img {
-      width: fit-content;
-      height: 56px;
-      max-width: 100%
-    }
-
-    .logoContainer {
-      margin-top: 35px;
-      max-width: 440px;
-    }
-
-`;
+const LogoArea = styled("div")({
+  display: "flex",
+  "& img": {
+    width: "fit-content",
+    height: "56px",
+    maxWidth: "100%",
+  },
+  "& .logoContainer": {
+    marginTop: "35px",
+    maxWidth: "440px",
+  },
+});
 
 const Logo = () => (
   <LogoArea>

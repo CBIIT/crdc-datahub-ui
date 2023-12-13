@@ -1,115 +1,114 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Dialog, DialogTitle } from '@mui/material';
-import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import GenericAlert from '../GenericAlert';
+import React, { useState, useEffect } from "react";
+import { Button, Dialog, DialogTitle, styled } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import GenericAlert from "../GenericAlert";
 
 // import env from '../../utils/env';
 
-import { useAuthContext } from '../Contexts/AuthContext';
+import { useAuthContext } from "../Contexts/AuthContext";
 
-const InacivityWarningDialog = styled(Dialog)`
-  .MuiDialog-paper {
-    width: 550px;
-    height: 320px;
-    border-radius: 8px;
-    border: 2px solid var(--secondary-one, #0B7F99);
-    background: linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B;
-    box-shadow: 0px 4px 45px 0px rgba(0, 0, 0, 0.40);
-  }
-  #customized-dialog-title {
-    margin: 0;
-    padding-left: 30px;
-    background-color: #6D89A2;
-    color: #FFFFFF;
-    font-family: Lato;
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 0;
-  }
-`;
+const InactivityWarningDialog = styled(Dialog)({
+  "& .MuiDialog-paper": {
+    width: "550px",
+    height: "320px",
+    borderRadius: "8px",
+    border: "2px solid var(--secondary-one, #0B7F99)",
+    background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
+    boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
+  },
+  "& #customized-dialog-title": {
+    margin: 0,
+    paddingLeft: "30px",
+    backgroundColor: "#6D89A2",
+    color: "#FFFFFF",
+    fontFamily: "Lato",
+    fontSize: "20px",
+    fontWeight: 600,
+    letterSpacing: 0,
+  },
+});
 
-const InacivityWarningContent = styled.div`
-    margin: 50px auto;
-    color: #000000;
-    font-family: Nunito;
-    font-size: 17px;
-    font-weight: 300;
-    letter-spacing: 0;
-    line-height: 24px;
-    .alignCenter {
-      text-align: center;
-    }
-    .buttonGroup {
-      color: #FFFFFF;
-      font-family: Lato;
-      font-size: 11px;
-      line-height: 22px;
-      width: 150px;
-      border: 1px solid #626262;
-      margin-top: 30px;
-    }
-    .extendButton {
-      background-color: #566672 !important;
-    }
-    .logOutButton{
-      margin-left: 20px;
-      background-color: #437BBE !important;
-    }
-`;
+const InactivityWarningContent = styled("div")({
+  margin: "50px auto",
+  color: "#000000",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "17px",
+  fontWeight: 300,
+  letterSpacing: 0,
+  lineHeight: "24px",
+  "& .alignCenter": {
+    textAlign: "center",
+  },
+  "& .buttonGroup": {
+    color: "#FFFFFF",
+    fontFamily: "Lato",
+    fontSize: "11px",
+    lineHeight: "22px",
+    width: "150px",
+    border: "1px solid #626262",
+    marginTop: "30px",
+  },
+  "& .extendButton": {
+    backgroundColor: "#566672 !important",
+  },
+  "& .logOutButton": {
+    marginLeft: "20px",
+    backgroundColor: "#437BBE !important",
+  },
+});
 
-const SessionTimeoutDialog = styled(Dialog)`
-  .MuiDialog-paper {
-    width: 550px;
-    height: 320px;
-    border-radius: 8px;
-    border: 2px solid var(--secondary-one, #0B7F99);
-    background: linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B;
-    box-shadow: 0px 4px 45px 0px rgba(0, 0, 0, 0.40);
-  }
-  .closeIcon {
-    cursor: pointer;
-    text-align: end;
-  }
-`;
+const SessionTimeoutDialog = styled(Dialog)({
+  "& .MuiDialog-paper": {
+    width: "550px",
+    height: "320px",
+    borderRadius: "8px",
+    border: "2px solid var(--secondary-one, #0B7F99)",
+    background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
+    boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
+  },
+  "& .closeIcon": {
+    cursor: "pointer",
+    textAlign: "end",
+  },
+});
 
-const SessionTimeoutContent = styled.div`
-  justify-content: space-between;
-  padding-right: 33px;
-  padding-left: 33px;
-  padding-top: 10px;
-  font-family: lato;
-  text-align: center;
-  .sessionTimeoutTitle {
-    font-size: 25px;
-    font-weight: bold;
-    padding-bottom: 12px;
-    color: #566672;
-  }
-  .sessionTimeoutMessage {
-    font-size: 17px;
-    padding-bottom: 14px;
-  }
-  .alignCenter {
-      text-align: center;
-    }
-    .buttonGroup {
-      color: #FFFFFF;
-      font-family: Lato;
-      font-size: 11px;
-      line-height: 22px;
-      width: 90px;
-      border: 1px solid #626262;
-      margin-top: 30px;
-    }
-    .closeButton {
-      background-color: #566672 !important;
-    }
-    .loginButton{
-      margin-left: 20px;
-      background-color: #437BBE !important;
-    }
-`;
+const SessionTimeoutContent = styled("div")({
+  justifyContent: "space-between",
+  paddingRight: "33px",
+  paddingLeft: "33px",
+  paddingTop: "10px",
+  fontFamily: "lato",
+  textAlign: "center",
+  "& .sessionTimeoutTitle": {
+    fontSize: "25px",
+    fontWeight: "bold",
+    paddingBottom: "12px",
+    color: "#566672",
+  },
+  "& .sessionTimeoutMessage": {
+    fontSize: "17px",
+    paddingBottom: "14px",
+  },
+  "& .alignCenter": {
+    textAlign: "center",
+  },
+  "& .buttonGroup": {
+    color: "#FFFFFF",
+    fontFamily: "Lato",
+    fontSize: "11px",
+    lineHeight: "22px",
+    width: "90px",
+    border: "1px solid #626262",
+    marginTop: "30px",
+  },
+  "& .closeButton": {
+    backgroundColor: "#566672 !important",
+  },
+  "& .loginButton": {
+    marginLeft: "20px",
+    backgroundColor: "#437BBE !important",
+  },
+});
 
 const secondsToMinuteString = (seconds) => new Date(seconds * 1000).toISOString().substring(14, 19);
 
@@ -202,9 +201,9 @@ const InactivityDialog = () => {
           You have been logged out.
         </span>
       </GenericAlert>
-      <InacivityWarningDialog open={warning}>
+      <InactivityWarningDialog open={warning}>
         <DialogTitle id="customized-dialog-title"> Session Timeout Warning</DialogTitle>
-        <InacivityWarningContent>
+        <InactivityWarningContent>
           This session is about to expire due to inactivity.
           <br />
           You will be logged out in
@@ -228,8 +227,8 @@ const InactivityDialog = () => {
               LOGOUT
             </Button>
           </div>
-        </InacivityWarningContent>
-      </InacivityWarningDialog>
+        </InactivityWarningContent>
+      </InactivityWarningDialog>
       <SessionTimeoutDialog open={timedOut}>
         <DialogTitle>
           <div

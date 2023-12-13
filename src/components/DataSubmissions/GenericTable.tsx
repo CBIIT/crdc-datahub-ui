@@ -1,10 +1,9 @@
 /* eslint-disable react/no-array-index-key */
 import {
-  Box,
-  CircularProgress,
   Table,
   TableBody,
   TableCell,
+  TableCellProps,
   TableContainer,
   TableHead,
   TablePagination,
@@ -17,6 +16,7 @@ import {
 import { ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useAuthContext } from "../Contexts/AuthContext";
 import PaginationActions from "./PaginationActions";
+import SuspenseLoader from '../SuspenseLoader';
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
@@ -119,7 +119,8 @@ export type Column<T> = {
   renderValue: (a: T, user: User) => string | boolean | number | React.ReactNode;
   field?: keyof T;
   default?: true;
-  minWidth?: string;
+  sortDisabled?: boolean;
+  sx?: TableCellProps["sx"];
 };
 
 export type FetchListing<T> = {
@@ -139,6 +140,8 @@ type Props<T> = {
   total: number;
   loading?: boolean;
   noContentText?: string;
+  defaultRowsPerPage?: number;
+  setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
   onOrderByChange?: (orderBy: Column<T>) => void;
@@ -151,6 +154,8 @@ const DataSubmissionBatchTable = <T,>({
   total = 0,
   loading,
   noContentText,
+  defaultRowsPerPage = 10,
+  setItemKey,
   onFetchData,
   onOrderChange,
   onOrderByChange,
@@ -162,7 +167,7 @@ const DataSubmissionBatchTable = <T,>({
     columns.find((c) => c.default) || columns.find((c) => c.field)
   );
   const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(10);
+  const [perPage, setPerPage] = useState<number>(defaultRowsPerPage);
 
   useEffect(() => {
     fetchData();
@@ -215,29 +220,13 @@ const DataSubmissionBatchTable = <T,>({
 
   return (
     <StyledTableContainer>
-      {loading && (
-        <Box
-          sx={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: "9999",
-          }}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <CircularProgress size={64} disableShrink thickness={3} />
-        </Box>
-      )}
+      {loading && (<SuspenseLoader fullscreen={false} />)}
       <Table>
         <StyledTableHead>
           <TableRow>
             {columns.map((col: Column<T>) => (
-              <StyledHeaderCell key={col.label.toString()} sx={{ minWidth: col.minWidth ?? "fit-content" }}>
-                {col.field ? (
+              <StyledHeaderCell key={col.label.toString()} sx={col.sx}>
+                {col.field && !col.sortDisabled ? (
                   <TableSortLabel
                     active={orderBy === col}
                     direction={orderBy === col ? order : "asc"}
@@ -258,15 +247,18 @@ const DataSubmissionBatchTable = <T,>({
               <TableCell colSpan={columns.length} />
             </StyledTableRow>
           )) : (
-            data?.map((d: T) => (
-              <TableRow tabIndex={-1} hover key={d["_id"]}>
-                {columns.map((col: Column<T>) => (
-                  <StyledTableCell key={`${d["_id"]}_${col.label}`}>
-                    {col.renderValue(d, user)}
-                  </StyledTableCell>
-                ))}
-              </TableRow>
-            ))
+            data?.map((d: T, idx: number) => {
+              const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
+              return (
+                <TableRow tabIndex={-1} hover key={itemKey}>
+                  {columns.map((col: Column<T>) => (
+                    <StyledTableCell key={`${itemKey}_${col.label}`}>
+                      {col.renderValue(d, user)}
+                    </StyledTableCell>
+                  ))}
+                </TableRow>
+              );
+            })
           )}
 
           {!loading && emptyRows > 0 && (
@@ -309,7 +301,8 @@ const DataSubmissionBatchTable = <T,>({
               || total <= (page + 1) * perPage
               || emptyRows > 0
               || loading
-          }}
+        }}
+        SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
         backIconButtonProps={{ disabled: page === 0 || loading }}
         ActionsComponent={PaginationActions}
       />

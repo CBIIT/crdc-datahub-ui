@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN NODE_OPTIONS="--max-old-space-size=4096" npm install --legacy-peer-deps
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm ci
 
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 

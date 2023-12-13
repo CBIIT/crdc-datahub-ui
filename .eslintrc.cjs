@@ -3,6 +3,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
+    "plugin:jsx-a11y/recommended",
     'airbnb',
     'airbnb-typescript',
   ],
@@ -15,7 +16,7 @@ module.exports = {
     project: "./tsconfig.json",
     sourceType: "module"
   },
-  plugins: ["react", "@typescript-eslint"],
+  plugins: ["react", "@typescript-eslint", "jsx-a11y"],
   settings: {
     react: {
       pragma: "React",
@@ -24,9 +25,8 @@ module.exports = {
     }
   },
   root: true,
-  ignorePatterns: ["injectEnv.js"],
+  ignorePatterns: ["public/injectEnv.js", "public/js/session.js"],
   rules: {
-    // Note: you must disable the base rule as it can report incorrect errors
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx", ".ts"] }],
     "no-empty-function": "warn",
     "@typescript-eslint/no-empty-function": "error",
@@ -36,7 +36,6 @@ module.exports = {
     "react/display-name": "off",
     "@typescript-eslint/comma-dangle": "off",
     "import/prefer-default-export": "off",
-    "jsx-a11y/anchor-is-valid": "off",
     "comma-dangle": "off",
     "max-len": "off",
     "no-console": "warn",

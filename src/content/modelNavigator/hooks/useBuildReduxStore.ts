@@ -63,12 +63,14 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
     }
 
     store.dispatch({ type: 'RECEIVE_VERSION_INFO', data: response.version });
+
     store.dispatch({
       type: 'REACT_FLOW_GRAPH_DICTIONARY',
       dictionary: response.data,
       pdfDownloadConfig: datacommon.configuration.pdfConfig,
       graphViewConfig
     });
+
     store.dispatch({
       type: 'RECEIVE_DICTIONARY',
       payload: {

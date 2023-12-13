@@ -30,7 +30,7 @@ const StyledMetadataText = styled(StyledUploadTypeText)(() => ({
 const StyledUploadFilesButton = styled(LoadingButton)(() => ({
   display: "flex",
   flexDirection: "column",
-  padding: "12px 22px",
+  padding: "12px 20px",
   justifyContent: "center",
   alignItems: "center",
   borderRadius: "8px",
@@ -46,7 +46,8 @@ const StyledUploadFilesButton = styled(LoadingButton)(() => ({
   textTransform: "none",
   "&.MuiButtonBase-root": {
     marginLeft: "auto",
-    marginRight: "21.5px"
+    marginRight: "21.5px",
+    minWidth: "137px",
   }
 }));
 
@@ -109,8 +110,6 @@ const VisuallyHiddenInput = styled("input")(() => ({
 
 const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
 
-type UploadType = "New" | "Update";
-
 type Props = {
   submitterID: string;
   readOnly?: boolean;
@@ -121,12 +120,13 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
-  const [uploadType, setUploadType] = useState<UploadType>("New");
+  const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("New");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetatadataInputRef = useRef<HTMLInputElement>(null);
   const isSubmissionOwner = submitterID === user?._id;
   const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
+  const acceptedExtensions = [".tsv", ".txt"];
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
     context: { clientName: 'backend' },
@@ -169,8 +169,8 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       return;
     }
 
-    // Filter out any file that is not tsv
-    const filteredFiles = Array.from(files)?.filter((file: File) => file.name?.toLowerCase()?.endsWith(".tsv"));
+    // Filter out any file that is not an accepted file extension
+    const filteredFiles = Array.from(files)?.filter((file: File) => acceptedExtensions.some((ext) => file.name?.toLowerCase()?.endsWith(ext)));
     if (!filteredFiles?.length) {
       setSelectedFiles(null);
       return;
@@ -194,7 +194,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         variables: {
           submissionID: submissionId,
           type: "metadata",
-          metadataIntention: "New",
+          metadataIntention,
           files: formattedFiles,
         }
       });
@@ -298,9 +298,9 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       <RadioInput
         id="data-submission-dashboard-upload-type"
         label="Upload Type"
-        value={uploadType}
-        onChange={(event, value: UploadType) => setUploadType(value)}
-        options={[{ label: "New", value: "New" }, { label: "Update", value: "Update", disabled: true }]}
+        value={metadataIntention}
+        onChange={(_event, value: MetadataIntention) => setMetadataIntention(value)}
+        options={[{ label: "New", value: "New", disabled: !canUpload }, { label: "Update", value: "Update", disabled: !canUpload }]}
         gridWidth={4}
         readOnly={readOnly}
         inline
@@ -311,7 +311,8 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         <VisuallyHiddenInput
           ref={uploadMetatadataInputRef}
           type="file"
-          accept="text/tab-separated-values"
+          accept={acceptedExtensions.toString()}
+          aria-label="Upload metadata files"
           onChange={handleChooseFiles}
           readOnly={readOnly}
           multiple
@@ -336,7 +337,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         disableRipple
         disableTouchRipple
       >
-        Upload Files
+        Upload
       </StyledUploadFilesButton>
     </StyledUploadWrapper>
   );

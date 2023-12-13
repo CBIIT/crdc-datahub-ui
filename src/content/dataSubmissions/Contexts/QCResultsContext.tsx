@@ -1,7 +1,7 @@
 import React from 'react';
 
 const QCResultsContext = React.createContext<{
-    handleOpenErrorDialog?:(id: string) => void;
+    handleOpenErrorDialog?:(data: QCResult) => void;
 }>({});
 
 export default QCResultsContext;

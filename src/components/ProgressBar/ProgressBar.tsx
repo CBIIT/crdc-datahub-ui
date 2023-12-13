@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  List, ListItemText, ListItemButton,
+  List, ListItem, ListItemText, ListItemButton,
   Stack, ListItemAvatar, styled
 } from '@mui/material';
 import config from '../../config/SectionConfig';
@@ -25,12 +25,7 @@ type ProgressSection = {
 const StyledList = styled(List)({
   marginTop: "22px",
   width: '250px',
-  "& a": {
-    color: "inherit",
-    textDecoration: "none",
-    cursor: "unset",
-  },
-  "& a:not(:first-of-type) .MuiStack-root": {
+  "& li:not(:first-of-type) .MuiStack-root": {
     marginTop: "24px",
   },
   "& .MuiListItemText-root": {
@@ -42,6 +37,16 @@ const StyledList = styled(List)({
   },
   "& .Mui-selected .MuiListItemText-primary": {
     color: "#156071",
+  },
+});
+
+const StyledListItem = styled(ListItem)({
+  padding: 0,
+  "& a": {
+    width: "100%",
+    color: "inherit",
+    textDecoration: "none",
+    cursor: "unset",
   },
 });
 
@@ -117,24 +122,25 @@ const ProgressBar: FC<Props> = ({ section }) => {
   return (
     <StyledList>
       {sections.map(({ url, id, icon, title, disabled, selected }, idx) => (
-        <Link
-          id={`progress-bar-section-${id}`}
-          key={title}
-          to={url}
-          style={{ pointerEvents: !disabled ? "initial" : "none" }}
-          data-testid={`progress-bar-section-${idx}`}
-          aria-disabled={disabled || false}
-          aria-selected={selected}
-        >
-          <Stack direction="row" alignItems="center" justifyContent="center">
-            <StyledAvatar>
-              <StatusAdornment icon={icon} />
-            </StyledAvatar>
-            <StyledButton selected={selected} disabled={disabled}>
-              <ListItemText primary={title} />
-            </StyledButton>
-          </Stack>
-        </Link>
+        <StyledListItem key={title}>
+          <Link
+            id={`progress-bar-section-${id}`}
+            to={url}
+            style={{ pointerEvents: !disabled ? "initial" : "none" }}
+            data-testid={`progress-bar-section-${idx}`}
+            aria-disabled={disabled || false}
+            data-selected={selected || false}
+          >
+            <Stack direction="row" alignItems="center" justifyContent="center">
+              <StyledAvatar>
+                <StatusAdornment icon={icon} />
+              </StyledAvatar>
+              <StyledButton selected={selected} disabled={disabled}>
+                <ListItemText primary={title} />
+              </StyledButton>
+            </Stack>
+          </Link>
+        </StyledListItem>
       ))}
     </StyledList>
   );
