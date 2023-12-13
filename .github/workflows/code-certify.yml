@@ -42,13 +42,13 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Run Typecheck
-        run: npm run check:ci
+        run: npm run typecheck
 
-      - name: Run Jest
-        run: npm run test:ci
+      - name: Run Format Check
+        run: npm run format
 
       - name: Run Linter
         run: npm run lint:ci
 
-      - name: Run Prettier Check
-        run: npm run prettier:check
+      - name: Run Tests
+        run: npm run test:ci
