@@ -223,39 +223,6 @@ const StyledErrorDetailsButton = styled(Button)(() => ({
   },
 }));
 
-const testData: ErrorMessage[][] = [
-  [
-    {
-      title: "Incorrect control vocabulary.",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eget duis at tellus at urna condimentum mattis. Eget nunc scelerisque viverra mauris in aliquam sem.",
-    },
-    {
-      title: "Missing required field.",
-      description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
-    },
-    {
-      title: "Value not in the range.",
-      description: "Consectetur adipiscing elit pellentesque habitant morbi tristique senectus. Nec ullamcorper sit amet risus. Faucibus in ornare quam viverra orci sagittis. Venenatis urna cursus eget nunc.",
-    },
-  ],
-  [
-    {
-      title: "Missing required field.",
-      description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
-    },
-  ],
-  [
-    {
-      title: "Value not in the range.",
-      description: "Consectetur adipiscing elit pellentesque habitant morbi tristique senectus. Nec ullamcorper sit amet risus. Faucibus in ornare quam viverra orci sagittis. Venenatis urna cursus eget nunc.",
-    },
-    {
-      title: "Incorrect control vocabulary.",
-      description: "Elit eget gravida cum sociis natoque. Risus quis varius quam quisque id diam vel quam. Senectus et netus et malesuada fames ac turpis egestas. Scelerisque eu ultrices vitae auctor eu augue ut.",
-    },
-  ]
-];
-
 const columns: Column<Batch>[] = [
   {
     label: "Upload Type",
@@ -288,19 +255,27 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Error Count",
-    renderValue: (data) => data?.errors?.length > 0 && (
+    renderValue: (data) => (
       <BatchTableContext.Consumer>
-        {({ handleOpenErrorDialog }) => (
-          <StyledErrorDetailsButton
-            onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data?._id)}
-            variant="text"
-            disableRipple
-            disableTouchRipple
-            disableFocusRipple
-          >
-            {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
-          </StyledErrorDetailsButton>
-        )}
+        {({ handleOpenErrorDialog }) => {
+          const errors = data?.files?.flatMap((file) => file.errors);
+
+          if (errors?.length === 0) {
+            return null;
+          }
+
+          return (
+            <StyledErrorDetailsButton
+              onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
+              variant="text"
+              disableRipple
+              disableTouchRipple
+              disableFocusRipple
+            >
+              {errors?.length > 0 ? `${errors.length} ${errors.length === 1 ? "Error" : "Errors"}` : ""}
+            </StyledErrorDetailsButton>
+          );
+        }}
       </BatchTableContext.Consumer>
     ),
     field: "errors",
@@ -326,7 +301,7 @@ const DataSubmission = () => {
   const [loading, setLoading] = useState(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
-  const [selectedRow, setSelectedRow] = useState<string>(null);
+  const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const disableSubmit = useMemo(
@@ -379,10 +354,7 @@ const DataSubmission = () => {
         setError("Unable to retrieve batch data.");
         return;
       }
-      /* TODO: REMOVE - TESTING PURPOSES ONLY */
-      const dummyBatches: Batch[] = newBatchFiles.listBatches.batches.map((batch, idx) => (testData[idx] ? ({ ...batch, status: "Upload Failed", errors: testData[idx] }) : { ...batch, status: "Uploaded" }));
-      /* =============== */
-      setBatchFiles(dummyBatches);
+      setBatchFiles(newBatchFiles.listBatches.batches);
       setTotalBatchFiles(newBatchFiles.listBatches.total);
     } catch (err) {
       setError("Unable to retrieve batch data.");
@@ -461,9 +433,9 @@ const DataSubmission = () => {
     navigator.clipboard.writeText(submissionId);
   };
 
-  const handleOpenErrorDialog = (id: string) => {
+  const handleOpenErrorDialog = (data: Batch) => {
     setOpenErrorDialog(true);
-    setSelectedRow(id);
+    setSelectedRow(data);
   };
 
   const providerValue = useMemo(() => ({
@@ -546,14 +518,14 @@ const DataSubmission = () => {
           </StyledCardActions>
         </StyledCard>
       </StyledBannerContentContainer>
-      {/* <ErrorDialog
+      <ErrorDialog
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header="Data Submission"
         title="Error Count"
-        errors={selectedData?.errors}
+        errors={selectedRow?.files?.flatMap((file) => file.errors)}
         uploadedDate={dataSubmission?.createdAt}
-      /> */}
+      />
     </StyledWrapper>
   );
 };

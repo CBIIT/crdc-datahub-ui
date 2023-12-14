@@ -184,7 +184,7 @@ const QualityControl = () => {
         onClose={() => setOpenErrorDialog(false)}
         header="Data Submission"
         title="Reasons"
-        errors={selectedRow?.description}
+        errors={selectedRow?.description?.map((error) => error.description)}
         uploadedDate={selectedRow?.uploadedDate}
       />
     </>
