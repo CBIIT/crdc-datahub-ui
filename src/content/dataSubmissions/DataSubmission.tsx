@@ -500,6 +500,7 @@ const DataSubmission = () => {
                       data={batchFiles || []}
                       total={totalBatchFiles || 0}
                       loading={loading}
+                      defaultRowsPerPage={20}
                       onFetchData={handleFetchBatchFiles}
                     />
                   </>
