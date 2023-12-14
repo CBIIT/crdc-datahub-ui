@@ -235,7 +235,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
           }
         });
         if (!res.ok) {
-          throw new Error(`Upload Failed: We couldn't upload '${file.fileName}'. Please wait a moment and try again.`);
+          throw new Error("Unexpected network error");
         }
         uploadResult.push({ fileName: file.fileName, succeeded: true, errors: null });
       } catch (err) {
