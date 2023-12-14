@@ -258,9 +258,7 @@ const columns: Column<Batch>[] = [
     renderValue: (data) => (
       <BatchTableContext.Consumer>
         {({ handleOpenErrorDialog }) => {
-          const errors = data?.files?.flatMap((file) => file.errors);
-
-          if (errors?.length === 0) {
+          if (data?.errors?.length === 0) {
             return null;
           }
 
@@ -272,7 +270,7 @@ const columns: Column<Batch>[] = [
               disableTouchRipple
               disableFocusRipple
             >
-              {errors?.length > 0 ? `${errors.length} ${errors.length === 1 ? "Error" : "Errors"}` : ""}
+              {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
             </StyledErrorDetailsButton>
           );
         }}
@@ -523,7 +521,7 @@ const DataSubmission = () => {
         onClose={() => setOpenErrorDialog(false)}
         header="Data Submission"
         title="Error Count"
-        errors={selectedRow?.files?.flatMap((file) => file.errors)}
+        errors={selectedRow?.errors}
         uploadedDate={dataSubmission?.createdAt}
       />
     </StyledWrapper>
