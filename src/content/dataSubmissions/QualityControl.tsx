@@ -65,7 +65,7 @@ const columns: Column<QCResult>[] = [
     field: "severity",
   },
   {
-    label: "Uploaded Date",
+    label: "Validated Date",
     renderValue: (data) => (data?.uploadedDate ? `${FormatDate(data.uploadedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
     field: "uploadedDate",
     default: true
