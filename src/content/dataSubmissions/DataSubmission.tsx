@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Alert,
   AlertColor,
   Box,
+  Button,
   Card,
   CardActions,
   CardActionsProps,
@@ -16,6 +17,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+
 import { isEqual } from "lodash";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
@@ -31,11 +33,16 @@ import {
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
-import DataSubmissionBatchTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/DataSubmissionBatchTable";
+import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
+import ErrorDialog from "./ErrorDialog";
+import BatchTableContext from "./Contexts/BatchTableContext";
+import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
+import ValidationControls from '../../components/DataSubmissions/ValidationControls';
+import { useAuthContext } from "../../components/Contexts/AuthContext";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -85,6 +92,7 @@ const StyledCard = styled(Card)(() => ({
     border: "1px solid #6CACDA",
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
+    overflow: "visible",
   },
   "&::after": {
     content: '""',
@@ -113,6 +121,7 @@ const StyledCardActions = styled(CardActions, {
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
+  background: "#F0FBFD",
   position: 'relative',
   "& .MuiTabs-flexContainer": {
     justifyContent: "center"
@@ -197,35 +206,79 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
   }
 }));
 
+const StyledErrorDetailsButton = styled(Button)(() => ({
+  color: "#0D78C5",
+  fontFamily: "Inter",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "19px",
+  textDecorationLine: "underline",
+  textTransform: "none",
+  padding: 0,
+  justifyContent: "flex-start",
+  "&:hover": {
+    background: "transparent",
+    textDecorationLine: "underline",
+  },
+}));
+
 const columns: Column<Batch>[] = [
   {
     label: "Upload Type",
-    value: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
+    renderValue: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
     field: "metadataIntention",
   },
   {
     label: "Batch Type",
-    value: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
+    renderValue: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
     field: "type",
   },
   {
     label: "File Count",
-    value: (data) => Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data?.fileCount || 0),
+    renderValue: (data) => Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data?.fileCount || 0),
     field: "fileCount",
   },
   {
     label: "Status",
-    value: (data) => (data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status),
+    renderValue: (data) => (data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status),
     field: "status",
   },
   {
     label: "Uploaded Date",
-    value: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    renderValue: (data) => (data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : ""),
     field: "createdAt",
     default: true,
-    minWidth: "240px"
+    sx: {
+      minWidth: "240px"
+    }
   },
-  /* TODO: Error Count removed for MVP2-M2. Will be re-added in the future */
+  {
+    label: "Errors",
+    renderValue: (data) => (
+      <BatchTableContext.Consumer>
+        {({ handleOpenErrorDialog }) => {
+          if (data?.errors?.length === 0) {
+            return null;
+          }
+
+          return (
+            <StyledErrorDetailsButton
+              onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
+              variant="text"
+              disableRipple
+              disableTouchRipple
+              disableFocusRipple
+            >
+              {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
+            </StyledErrorDetailsButton>
+          );
+        }}
+      </BatchTableContext.Consumer>
+    ),
+    field: "errors",
+    sortDisabled: true
+  },
 ];
 
 const URLTabs = {
@@ -237,16 +290,23 @@ const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "
 
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
-
+  const { user } = useAuthContext();
   const [dataSubmission, setDataSubmission] = useState<Submission>(null);
+  const [submissionStats, setSubmissionStats] = useState<SubmissionStatistic[]>(null);
   const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
   const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
+  const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
+  const disableSubmit = useMemo(
+    () => !submissionStats?.length || submissionStats.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
+    [submissionStats, user]
+  );
 
   const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
     variables: { id: submissionId },
@@ -329,9 +389,9 @@ const DataSubmission = () => {
       const { data: newDataSubmission, error } = await getSubmission();
       if (error || !newDataSubmission?.getSubmission) {
         throw new Error("Unable to retrieve Data Submission.");
-        return;
       }
       setDataSubmission(newDataSubmission.getSubmission);
+      setSubmissionStats(newDataSubmission.submissionStats?.stats || []);
     } catch (err) {
       setError(err?.toString());
     }
@@ -372,6 +432,15 @@ const DataSubmission = () => {
     navigator.clipboard.writeText(submissionId);
   };
 
+  const handleOpenErrorDialog = (data: Batch) => {
+    setOpenErrorDialog(true);
+    setSelectedRow(data);
+  };
+
+  const providerValue = useMemo(() => ({
+    handleOpenErrorDialog
+  }), [handleOpenErrorDialog]);
+
   return (
     <StyledWrapper>
       <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
@@ -385,7 +454,7 @@ const DataSubmission = () => {
           <StyledCopyLabel id="data-submission-id-label" variant="body1">SUBMISSION ID:</StyledCopyLabel>
           <StyledCopyValue id="data-submission-id-value" variant="body1">{submissionId}</StyledCopyValue>
           {submissionId && (
-            <StyledCopyIDButton id="data-submission-copy-id-button" onClick={handleCopyID}>
+            <StyledCopyIDButton id="data-submission-copy-id-button" onClick={handleCopyID} aria-label="Copy ID">
               <CopyIconSvg />
             </StyledCopyIDButton>
           )}
@@ -400,9 +469,8 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={dataSubmission} />
-
-            {/* TODO: Widgets removed for MVP2-M2. Will be re-added in the future */}
-
+            <DataSubmissionStatistics dataSubmission={dataSubmission} statistics={submissionStats} />
+            <ValidationControls dataSubmission={dataSubmission} />
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
                 value={URLTabs.DATA_UPLOAD}
@@ -420,32 +488,42 @@ const DataSubmission = () => {
 
             <StyledMainContentArea>
               {tab === URLTabs.DATA_UPLOAD ? (
-                <Stack direction="column" justifyContent="center">
+                <BatchTableContext.Provider value={providerValue}>
                   <DataSubmissionUpload
                     submitterID={dataSubmission?.submitterID}
                     readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
                     onUpload={handleOnUpload}
                   />
-                  <DataSubmissionBatchTable
+                  <GenericTable
                     ref={tableRef}
                     columns={columns}
                     data={batchFiles || []}
                     total={totalBatchFiles || 0}
                     loading={loading}
+                    defaultRowsPerPage={20}
                     onFetchData={handleFetchBatchFiles}
                   />
-                </Stack>
-              ) : <QualityControl submitterID={dataSubmission?.submitterID} />}
+                </BatchTableContext.Provider>
+              ) : <QualityControl />}
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
             <DataSubmissionActions
               submission={dataSubmission}
               onAction={updateSubmissionAction}
+              disableSubmit={disableSubmit}
             />
           </StyledCardActions>
         </StyledCard>
       </StyledBannerContentContainer>
+      <ErrorDialog
+        open={openErrorDialog}
+        onClose={() => setOpenErrorDialog(false)}
+        header="Data Submission"
+        title="Error Count"
+        errors={selectedRow?.errors}
+        uploadedDate={dataSubmission?.createdAt}
+      />
     </StyledWrapper>
   );
 };

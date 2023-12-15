@@ -110,8 +110,6 @@ const VisuallyHiddenInput = styled("input")(() => ({
 
 const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
 
-type UploadType = "New" | "Update";
-
 type Props = {
   submitterID: string;
   readOnly?: boolean;
@@ -122,7 +120,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
-  const [uploadType, setUploadType] = useState<UploadType>("New");
+  const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("New");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetatadataInputRef = useRef<HTMLInputElement>(null);
@@ -196,7 +194,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         variables: {
           submissionID: submissionId,
           type: "metadata",
-          metadataIntention: "New",
+          metadataIntention,
           files: formattedFiles,
         }
       });
@@ -300,9 +298,9 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       <RadioInput
         id="data-submission-dashboard-upload-type"
         label="Upload Type"
-        value={uploadType}
-        onChange={(event, value: UploadType) => setUploadType(value)}
-        options={[{ label: "New", value: "New" }, { label: "Update", value: "Update", disabled: true }]}
+        value={metadataIntention}
+        onChange={(_event, value: MetadataIntention) => setMetadataIntention(value)}
+        options={[{ label: "New", value: "New", disabled: !canUpload }, { label: "Update", value: "Update", disabled: !canUpload }]}
         gridWidth={4}
         readOnly={readOnly}
         inline
@@ -314,6 +312,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
           ref={uploadMetatadataInputRef}
           type="file"
           accept={acceptedExtensions.toString()}
+          aria-label="Upload metadata files"
           onChange={handleChooseFiles}
           readOnly={readOnly}
           multiple

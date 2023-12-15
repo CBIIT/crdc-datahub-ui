@@ -139,7 +139,7 @@ const DatePickerInput: FC<Props> = ({
   readOnly,
   ...rest
 }) => {
-  const id = useId();
+  const id = inputID || useId();
 
   const [val, setVal] = useState<Dayjs>(dayjs(initialValue || null));
   const [error, setError] = useState(false);
@@ -205,7 +205,7 @@ const DatePickerInput: FC<Props> = ({
           slots={{ openPickerIcon: CalendarIcon }}
           slotProps={{
             textField: {
-              id: inputID,
+              id,
               name,
               required,
               error,

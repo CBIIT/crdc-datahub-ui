@@ -29,9 +29,23 @@ export const query = gql`
       createdAt
       updatedAt
     }
+
+    submissionStats(_id: $id) {
+      stats {
+        nodeName
+        total
+        new
+        passed
+        warning
+        error
+      }
+    }
   }
 `;
 
 export type Response = {
   getSubmission: Submission;
+  submissionStats: {
+    stats: SubmissionStatistic[];
+  };
 };

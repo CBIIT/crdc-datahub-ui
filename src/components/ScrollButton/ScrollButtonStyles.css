@@ -17,7 +17,7 @@
     text-decoration: none;
     line-height: 1.2;
     transition: all 0.25s ease-out;
-    z-index:10;
+    z-index:999;
 }
 
 #stt:active {
