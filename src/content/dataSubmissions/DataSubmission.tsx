@@ -254,7 +254,7 @@ const columns: Column<Batch>[] = [
     }
   },
   {
-    label: "Error Count",
+    label: "Errors",
     renderValue: (data) => (
       <BatchTableContext.Consumer>
         {({ handleOpenErrorDialog }) => {
@@ -277,6 +277,7 @@ const columns: Column<Batch>[] = [
       </BatchTableContext.Consumer>
     ),
     field: "errors",
+    sortDisabled: true
   },
 ];
 
@@ -488,22 +489,20 @@ const DataSubmission = () => {
             <StyledMainContentArea>
               {tab === URLTabs.DATA_UPLOAD ? (
                 <BatchTableContext.Provider value={providerValue}>
-                  <>
-                    <DataSubmissionUpload
-                      submitterID={dataSubmission?.submitterID}
-                      readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
-                      onUpload={handleOnUpload}
-                    />
-                    <GenericTable
-                      ref={tableRef}
-                      columns={columns}
-                      data={batchFiles || []}
-                      total={totalBatchFiles || 0}
-                      loading={loading}
-                      defaultRowsPerPage={20}
-                      onFetchData={handleFetchBatchFiles}
-                    />
-                  </>
+                  <DataSubmissionUpload
+                    submitterID={dataSubmission?.submitterID}
+                    readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
+                    onUpload={handleOnUpload}
+                  />
+                  <GenericTable
+                    ref={tableRef}
+                    columns={columns}
+                    data={batchFiles || []}
+                    total={totalBatchFiles || 0}
+                    loading={loading}
+                    defaultRowsPerPage={20}
+                    onFetchData={handleFetchBatchFiles}
+                  />
                 </BatchTableContext.Provider>
               ) : <QualityControl />}
             </StyledMainContentArea>
