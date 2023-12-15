@@ -83,6 +83,10 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
           filterSections: datacommon.configuration.facetFilterSearchData.map((s) => s?.datafield),
           filterOptions: buildFilterOptionsList(datacommon),
         },
+        pageConfig: {
+          title: datacommon.configuration.pageTitle,
+          iconSrc: datacommon.configuration?.titleIconSrc,
+        },
         readMeConfig: {
           readMeUrl: assets.readme,
           readMeTitle: datacommon.configuration?.readMeTitle || defaultReadMeTitle,
@@ -96,6 +100,11 @@ const useBuildReduxStore = (): [{ status: Status, store: Store }, () => void, (a
         graphViewConfig,
       },
     });
+
+    // MVP-2 M2 NOTE: This resets the search history to prevent the data models
+    // from overlapping on searches. A future improvement would be to isolate
+    // the localStorage history key to the data model based on a config option.
+    store.dispatch({ type: 'SEARCH_CLEAR_HISTORY' });
 
     setStatus("success");
   };

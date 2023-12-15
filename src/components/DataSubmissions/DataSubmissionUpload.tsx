@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import {
   AlertColor,
+  Button,
   Stack,
   Typography,
   styled,
@@ -27,7 +28,7 @@ const StyledMetadataText = styled(StyledUploadTypeText)(() => ({
   },
 }));
 
-const StyledUploadFilesButton = styled(LoadingButton)(() => ({
+const StyledUploadFilesButton = styled(Button)(() => ({
   display: "flex",
   flexDirection: "column",
   padding: "12px 20px",
@@ -50,7 +51,6 @@ const StyledUploadFilesButton = styled(LoadingButton)(() => ({
     minWidth: "137px",
   }
 }));
-
 const StyledChooseFilesButton = styled(LoadingButton)(() => ({
   display: "flex",
   flexDirection: "column",
@@ -331,13 +331,12 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       <StyledUploadFilesButton
         variant="contained"
         onClick={handleUploadFiles}
-        loading={isUploading}
-        disabled={readOnly || !selectedFiles?.length || !canUpload}
+        disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
         disableElevation
         disableRipple
         disableTouchRipple
       >
-        Upload
+        {isUploading ? "Uploading..." : "Upload"}
       </StyledUploadFilesButton>
     </StyledUploadWrapper>
   );
