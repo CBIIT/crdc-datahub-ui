@@ -5,6 +5,7 @@ import {
   Alert,
   AlertColor,
   Box,
+  Button,
   Card,
   CardActions,
   CardActionsProps,
@@ -37,6 +38,8 @@ import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
+import ErrorDialog from "./ErrorDialog";
+import BatchTableContext from "./Contexts/BatchTableContext";
 import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
 import ValidationControls from '../../components/DataSubmissions/ValidationControls';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
@@ -203,6 +206,23 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
   }
 }));
 
+const StyledErrorDetailsButton = styled(Button)(() => ({
+  color: "#0D78C5",
+  fontFamily: "Inter",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "19px",
+  textDecorationLine: "underline",
+  textTransform: "none",
+  padding: 0,
+  justifyContent: "flex-start",
+  "&:hover": {
+    background: "transparent",
+    textDecorationLine: "underline",
+  },
+}));
+
 const columns: Column<Batch>[] = [
   {
     label: "Upload Type",
@@ -233,7 +253,32 @@ const columns: Column<Batch>[] = [
       minWidth: "240px"
     }
   },
-  /* TODO: Error Count removed for MVP2-M2. Will be re-added in the future */
+  {
+    label: "Errors",
+    renderValue: (data) => (
+      <BatchTableContext.Consumer>
+        {({ handleOpenErrorDialog }) => {
+          if (data?.errors?.length === 0) {
+            return null;
+          }
+
+          return (
+            <StyledErrorDetailsButton
+              onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
+              variant="text"
+              disableRipple
+              disableTouchRipple
+              disableFocusRipple
+            >
+              {data.errors?.length > 0 ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}` : ""}
+            </StyledErrorDetailsButton>
+          );
+        }}
+      </BatchTableContext.Consumer>
+    ),
+    field: "errors",
+    sortDisabled: true
+  },
 ];
 
 const URLTabs = {
@@ -254,6 +299,8 @@ const DataSubmission = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
+  const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const disableSubmit = useMemo(
@@ -385,6 +432,15 @@ const DataSubmission = () => {
     navigator.clipboard.writeText(submissionId);
   };
 
+  const handleOpenErrorDialog = (data: Batch) => {
+    setOpenErrorDialog(true);
+    setSelectedRow(data);
+  };
+
+  const providerValue = useMemo(() => ({
+    handleOpenErrorDialog
+  }), [handleOpenErrorDialog]);
+
   return (
     <StyledWrapper>
       <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
@@ -432,7 +488,7 @@ const DataSubmission = () => {
 
             <StyledMainContentArea>
               {tab === URLTabs.DATA_UPLOAD ? (
-                <>
+                <BatchTableContext.Provider value={providerValue}>
                   <DataSubmissionUpload
                     submitterID={dataSubmission?.submitterID}
                     readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
@@ -444,9 +500,10 @@ const DataSubmission = () => {
                     data={batchFiles || []}
                     total={totalBatchFiles || 0}
                     loading={loading}
+                    defaultRowsPerPage={20}
                     onFetchData={handleFetchBatchFiles}
                   />
-                </>
+                </BatchTableContext.Provider>
               ) : <QualityControl />}
             </StyledMainContentArea>
           </StyledCardContent>
@@ -459,6 +516,14 @@ const DataSubmission = () => {
           </StyledCardActions>
         </StyledCard>
       </StyledBannerContentContainer>
+      <ErrorDialog
+        open={openErrorDialog}
+        onClose={() => setOpenErrorDialog(false)}
+        header="Data Submission"
+        title="Error Count"
+        errors={selectedRow?.errors}
+        uploadedDate={dataSubmission?.createdAt}
+      />
     </StyledWrapper>
   );
 };

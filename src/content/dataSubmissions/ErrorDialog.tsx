@@ -94,13 +94,15 @@ const StyledErrorItem = styled(Typography)({
 
 const StyledErrorDetails = styled(Stack)({
   padding: "10px",
+  overflowY: "auto",
+  maxHeight: "290px"
 });
 
 type Props = {
   header?: string;
   title?: string;
   closeText?: string;
-  errors: ErrorMessage[];
+  errors: string[];
   uploadedDate: string;
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
@@ -137,10 +139,10 @@ const ErrorDialog = ({
           {`${errors?.length || 0} ${errors?.length === 1 ? "COUNT" : "COUNTS"} ON ${FormatDate(uploadedDate, "M/D/YYYY", "N/A")}:`}
         </StyledSubtitle>
         <Stack direction="column" spacing={2.75}>
-          {errors?.map((error: ErrorMessage, idx: number) => (
+          {errors?.map((error: string, idx: number) => (
             // eslint-disable-next-line react/no-array-index-key
-            <StyledErrorItem key={`${idx}_${error.title}_${error.description}`}>
-              {`${idx + 1}. ${error.description}`}
+            <StyledErrorItem key={`${idx}_${error}`}>
+              {`${idx + 1}. ${error}`}
             </StyledErrorItem>
           ))}
         </Stack>
