@@ -291,8 +291,7 @@ const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
   const { user } = useAuthContext();
-  const [dataSubmission, setDataSubmission] = useState<Submission>(null);
-  const [submissionStats, setSubmissionStats] = useState<SubmissionStatistic[]>(null);
+
   const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
   const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
@@ -301,18 +300,19 @@ const DataSubmission = () => {
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
+
+  const [getSubmission, { data, startPolling, stopPolling }] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
+    variables: { id: submissionId },
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache',
+  });
+
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const disableSubmit = useMemo(
-    () => !submissionStats?.length || submissionStats.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
-    [submissionStats, user]
+    () => !data?.submissionStats?.stats?.length || data?.submissionStats?.stats.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
+    [data?.submissionStats, user]
   );
-
-  const [getSubmission] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
-    variables: { id: submissionId },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  });
 
   const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
     context: { clientName: 'backend' },
@@ -378,36 +378,11 @@ const DataSubmission = () => {
         throw new Error(`Error occurred while performing '${action}' submission action.`);
         return;
       }
-      setDataSubmission((prevSubmission) => ({ ...prevSubmission, ...d.submissionAction }));
+      await getSubmission();
     } catch (err) {
       setError(err?.toString());
     }
   };
-
-  const getDataSubmission = async () => {
-    try {
-      const { data: newDataSubmission, error } = await getSubmission();
-      if (error || !newDataSubmission?.getSubmission) {
-        throw new Error("Unable to retrieve Data Submission.");
-      }
-      setDataSubmission(newDataSubmission.getSubmission);
-      setSubmissionStats(newDataSubmission.submissionStats?.stats || []);
-    } catch (err) {
-      setError(err?.toString());
-    }
-  };
-
-  useEffect(() => {
-    if (!submissionId) {
-      setError("Invalid submission ID provided.");
-      return;
-    }
-    (async () => {
-      if (!dataSubmission?._id) {
-        await getDataSubmission();
-      }
-    })();
-  }, [submissionId]);
 
   const refreshBatchTable = () => {
     tableRef.current?.refresh();
@@ -420,8 +395,8 @@ const DataSubmission = () => {
 
     const preInProgressStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected"];
     // createBatch will update the status to 'In Progress'
-    if (preInProgressStatuses.includes(dataSubmission?.status)) {
-      await getDataSubmission();
+    if (preInProgressStatuses.includes(data?.getSubmission?.status)) {
+      await getSubmission();
     }
   };
 
@@ -437,9 +412,39 @@ const DataSubmission = () => {
     setSelectedRow(data);
   };
 
+  const handleOnValidate = (status: boolean) => {
+    if (!status) {
+      return;
+    }
+
+    startPolling(60000);
+  };
+
   const providerValue = useMemo(() => ({
     handleOpenErrorDialog
   }), [handleOpenErrorDialog]);
+
+  useEffect(() => {
+    if (!submissionId) {
+      setError("Invalid submission ID provided.");
+      return;
+    }
+
+    (async () => {
+      const { data: d, error } = await getSubmission();
+      if (error || !d?.getSubmission?._id) {
+        setError("Unable to retrieve submission data.");
+      }
+    })();
+  }, [submissionId]);
+
+  useEffect(() => {
+    if (data?.getSubmission?.fileValidationStatus !== "Validating" && data?.getSubmission?.metadataValidationStatus !== "Validating") {
+      stopPolling();
+    } else {
+      startPolling(60000);
+    }
+  }, [data?.getSubmission?.fileValidationStatus, data?.getSubmission?.metadataValidationStatus]);
 
   return (
     <StyledWrapper>
@@ -468,9 +473,9 @@ const DataSubmission = () => {
                 {error}
               </StyledAlert>
             )}
-            <DataSubmissionSummary dataSubmission={dataSubmission} />
-            <DataSubmissionStatistics dataSubmission={dataSubmission} statistics={submissionStats} />
-            <ValidationControls dataSubmission={dataSubmission} />
+            <DataSubmissionSummary dataSubmission={data?.getSubmission} />
+            <DataSubmissionStatistics dataSubmission={data?.getSubmission} statistics={data?.submissionStats?.stats} />
+            <ValidationControls dataSubmission={data?.getSubmission} onValidate={handleOnValidate} />
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
               <LinkTab
                 value={URLTabs.DATA_UPLOAD}
@@ -490,8 +495,8 @@ const DataSubmission = () => {
               {tab === URLTabs.DATA_UPLOAD ? (
                 <BatchTableContext.Provider value={providerValue}>
                   <DataSubmissionUpload
-                    submitterID={dataSubmission?.submitterID}
-                    readOnly={submissionLockedStatuses.includes(dataSubmission?.status)}
+                    submitterID={data?.getSubmission?.submitterID}
+                    readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
                     onUpload={handleOnUpload}
                   />
                   <GenericTable
@@ -509,7 +514,7 @@ const DataSubmission = () => {
           </StyledCardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
             <DataSubmissionActions
-              submission={dataSubmission}
+              submission={data?.getSubmission}
               onAction={updateSubmissionAction}
               disableSubmit={disableSubmit}
             />
@@ -522,7 +527,7 @@ const DataSubmission = () => {
         header="Data Submission"
         title="Error Count"
         errors={selectedRow?.errors}
-        uploadedDate={dataSubmission?.createdAt}
+        uploadedDate={data?.getSubmission?.createdAt}
       />
     </StyledWrapper>
   );
