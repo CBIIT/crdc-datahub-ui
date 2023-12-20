@@ -258,7 +258,7 @@ const columns: Column<Batch>[] = [
     renderValue: (data) => (
       <BatchTableContext.Consumer>
         {({ handleOpenErrorDialog }) => {
-          if (data?.errors?.length === 0) {
+          if (!data?.errors?.length) {
             return null;
           }
 
