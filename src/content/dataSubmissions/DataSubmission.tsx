@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   Alert,
   AlertColor,
@@ -301,7 +301,10 @@ const DataSubmission = () => {
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
 
-  const [getSubmission, { data, startPolling, stopPolling }] = useLazyQuery<GetSubmissionResp>(GET_SUBMISSION, {
+  const {
+    data, error: submissionError,
+    startPolling, stopPolling, refetch: getSubmission,
+  } = useQuery<GetSubmissionResp>(GET_SUBMISSION, {
     variables: { id: submissionId },
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache',
@@ -427,16 +430,10 @@ const DataSubmission = () => {
   useEffect(() => {
     if (!submissionId) {
       setError("Invalid submission ID provided.");
-      return;
+    } else if (submissionError) {
+      setError("Unable to retrieve submission data.");
     }
-
-    (async () => {
-      const { data: d, error } = await getSubmission();
-      if (error || !d?.getSubmission?._id) {
-        setError("Unable to retrieve submission data.");
-      }
-    })();
-  }, [submissionId]);
+  }, [submissionError]);
 
   useEffect(() => {
     if (data?.getSubmission?.fileValidationStatus !== "Validating" && data?.getSubmission?.metadataValidationStatus !== "Validating") {
