@@ -1,10 +1,10 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Box, Stack, Typography, styled } from '@mui/material';
 import ContentCarousel from '../Carousel';
 import NodeTotalChart from '../NodeTotalChart';
 import MiniPieChart from '../NodeChart';
 import { buildMiniChartSeries, buildPrimaryChartSeries } from '../../utils/statisticUtils';
-import StatisticLegend from './StatisticLegend';
+import StatisticLegend, { LegendFilter } from './StatisticLegend';
 
 type Props = {
   dataSubmission: Submission;
@@ -98,6 +98,13 @@ const StyledSecondaryTitle = styled(Typography)({
   color: "#1D91AB",
 });
 
+const defaultFilters: LegendFilter[] = [
+  { label: "New", color: "#4D90D3", disabled: false },
+  { label: "Passed", color: "#32E69A", disabled: false },
+  { label: "Failed", color: "#D65219", disabled: false },
+  { label: "Warning", color: "#FFD700", disabled: false },
+];
+
 /**
  * The primary chart container with secondary detail charts
  *
@@ -105,16 +112,37 @@ const StyledSecondaryTitle = styled(Typography)({
  * @returns {React.FC<Props>}
  */
 const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Props) => {
+  const [filters, setFilters] = useState<LegendFilter[]>(defaultFilters);
+  const disabledSeries: string[] = filters.filter((f) => f.disabled).map((f) => f.label);
+
+  const handleFilterChange = (filter: LegendFilter) => {
+    const newFilters = filters.map((f) => {
+      if (f.label === filter.label) { return { ...f, disabled: !f.disabled }; }
+      return f;
+    });
+
+    // If all filters are disabled, do not allow disabling the last one
+    if (newFilters.every((f) => f.disabled)) {
+      return;
+    }
+
+    setFilters(newFilters);
+  };
+
   // If there is no data submission or no items uploaded, do not render
   if (!dataSubmission || !statistics?.some((s) => s.total > 0)) {
     return null;
   }
 
+  // TODO: How do we want to handle the case where there are no statistics matching the filters?
+  // i.e. If we deselect everything but "Warning" and there's no nodes with warnings, it just renders
+  // an empty chart. this also happens for the primary donut chart
+
   return (
     <StyledChartArea direction="row">
       <StyledPrimaryChart>
         <StyledPrimaryTitle variant="h6">Summary</StyledPrimaryTitle>
-        <NodeTotalChart data={buildPrimaryChartSeries(statistics)} />
+        <NodeTotalChart data={buildPrimaryChartSeries(statistics, disabledSeries)} />
       </StyledPrimaryChart>
       <StyledSecondaryStack direction="column" alignItems="center" flex={1}>
         <StyledSecondaryTitle variant="h6">
@@ -128,11 +156,11 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
               key={stat.nodeName}
               label={stat.nodeName}
               centerCount={stat.total}
-              data={buildMiniChartSeries(stat)}
+              data={buildMiniChartSeries(stat, disabledSeries)}
             />
           ))}
         </ContentCarousel>
-        <StatisticLegend />
+        <StatisticLegend filters={filters} onClick={handleFilterChange} />
       </StyledSecondaryStack>
     </StyledChartArea>
   );

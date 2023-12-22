@@ -6,12 +6,12 @@ import { PieSectorDataItem } from '../components/NodeTotalChart';
  * @param stat
  * @returns PieChartSeries
  */
-export const buildMiniChartSeries = (stat: SubmissionStatistic) => ([
+export const buildMiniChartSeries = (stat: SubmissionStatistic, omitSeries: string[]) => ([
   { label: 'New', value: stat.new, color: "#4D90D3" },
   { label: 'Passed', value: stat.passed, color: "#32E69A" },
   { label: 'Error', value: stat.error, color: "#D65219" },
   { label: 'Warning', value: stat.warning, color: "#FFC700" },
-]);
+].filter((series) => !omitSeries.includes(series.label)));
 
 /**
  * Builds the dataset ingested by the primary chart
@@ -19,7 +19,7 @@ export const buildMiniChartSeries = (stat: SubmissionStatistic) => ([
  * @param stats Data Submissions statistics
  * @returns The series mutated for the primary chart
  */
-export const buildPrimaryChartSeries = (stats: SubmissionStatistic[]): PieSectorDataItem[] => {
+export const buildPrimaryChartSeries = (stats: SubmissionStatistic[], omitSeries: string[]): PieSectorDataItem[] => {
   const newCount = stats.reduce((acc, stat) => acc + stat.new, 0);
   const passedCount = stats.reduce((acc, stat) => acc + stat.passed, 0);
   const errorCount = stats.reduce((acc, stat) => acc + stat.error, 0);
@@ -30,5 +30,5 @@ export const buildPrimaryChartSeries = (stats: SubmissionStatistic[]): PieSector
     { label: 'Passed', value: passedCount, color: "#32E69A" },
     { label: 'Error', value: errorCount, color: "#D65219" },
     { label: 'Warning', value: warningCount, color: "#FFC700" },
-  ];
+  ].filter((series) => !omitSeries.includes(series.label));
 };

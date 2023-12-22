@@ -2,6 +2,17 @@ import { FC } from 'react';
 import { Stack, styled } from '@mui/material';
 import LegendItem from './LegendItem';
 
+export type Props = {
+  filters: LegendFilter[];
+  onClick?: (filter: LegendFilter) => void;
+};
+
+export type LegendFilter = {
+  label: string;
+  color: string;
+  disabled?: boolean;
+};
+
 const StyledContainer = styled(Stack)({
   borderRadius: "8px",
   background: "#F5F8F9",
@@ -16,12 +27,17 @@ const StyledContainer = styled(Stack)({
  *
  * @returns {React.FC}
  */
-const StatisticLegend: FC = () => (
+const StatisticLegend: FC<Props> = ({ filters, onClick }) => (
   <StyledContainer direction="row" justifyContent="center" alignItems="center">
-    <LegendItem color="#4D90D3" label="New" />
-    <LegendItem color="#32E69A" label="Passed" />
-    <LegendItem color="#D65219" label="Failed" />
-    <LegendItem color="#FFD700" label="Warning" />
+    {filters.map((filter) => (
+      <LegendItem
+        key={filter.label}
+        color={filter.color}
+        label={filter.label}
+        disabled={filter.disabled}
+        onClick={() => onClick?.(filter)}
+      />
+    ))}
   </StyledContainer>
 );
 
