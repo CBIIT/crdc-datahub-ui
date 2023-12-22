@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { Box, Typography, styled } from "@mui/material";
 import { PieChart, Pie, Label, Cell } from 'recharts';
 import PieChartCenter from './PieChartCenter';
@@ -53,27 +53,41 @@ const StyledChartContainer = styled(Box)({
  * @param {number} centerCount Node count to display in the center of the chart
  * @returns {React.FC<Props>}
  */
-const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => (
-  <StyledChartContainer>
-    {label && <StyledPieChartLabel>{label}</StyledPieChartLabel>}
-    <PieChart width={150} height={150}>
-      <Pie
-        data={data}
-        dataKey="value"
-        cx="50%"
-        cy="50%"
-        labelLine={false}
-        outerRadius={75}
-        innerRadius={40}
-      >
-        {data.map(({ label, color }) => (<Cell key={label} fill={color} />))}
-        <Label
-          position="center"
-          content={(<PieChartCenter title="Total" count={centerCount} />)}
-        />
-      </Pie>
-    </PieChart>
-  </StyledChartContainer>
-);
+const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
+  const [hoveredSlice, setHoveredSlice] = useState<PieSectorDataItem>(null);
+
+  const onMouseOver = useCallback((data) => setHoveredSlice(data), []);
+  const onMouseLeave = useCallback(() => setHoveredSlice(null), []);
+
+  return (
+    <StyledChartContainer>
+      {label && <StyledPieChartLabel>{label}</StyledPieChartLabel>}
+      <PieChart width={150} height={150}>
+        <Pie
+          data={data}
+          dataKey="value"
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          outerRadius={75}
+          innerRadius={40}
+          onMouseOver={onMouseOver}
+          onMouseLeave={onMouseLeave}
+        >
+          {data.map(({ label, color }) => (<Cell key={label} fill={color} />))}
+          <Label
+            position="center"
+            content={(
+              <PieChartCenter
+                title={hoveredSlice ? hoveredSlice.label : "Total"}
+                value={hoveredSlice ? hoveredSlice.value : centerCount}
+              />
+            )}
+          />
+        </Pie>
+      </PieChart>
+    </StyledChartContainer>
+  );
+};
 
 export default NodeChart;

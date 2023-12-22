@@ -32,7 +32,7 @@ type PieChartCenterProps = {
   /**
    * The count to display in the center of the chart
    */
-  count: number;
+  value: number;
   viewBox?: {
     cx: number;
     cy: number;
@@ -48,7 +48,7 @@ type PieChartCenterProps = {
  * @param {Props} props
  * @returns {React.FC<PieChartCenterProps>}
  */
-const PieChartCenter: FC<PieChartCenterProps> = ({ title, count, viewBox }: PieChartCenterProps) => {
+const PieChartCenter: FC<PieChartCenterProps> = ({ title, value, viewBox }: PieChartCenterProps) => {
   const { cx, cy } = viewBox;
 
   return (
@@ -57,7 +57,7 @@ const PieChartCenter: FC<PieChartCenterProps> = ({ title, count, viewBox }: PieC
       <StyledTextContainer x={cx} y={cy - 10}>
         <StyledCenterTitle>{title}</StyledCenterTitle>
         <StyledCenterCount x={cx} dy={20}>
-          {count}
+          {value}
         </StyledCenterCount>
       </StyledTextContainer>
     </g>

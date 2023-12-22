@@ -113,11 +113,15 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   return (
     <StyledChartArea direction="row">
       <StyledPrimaryChart>
-        <StyledPrimaryTitle variant="h6">Node Totals</StyledPrimaryTitle>
+        <StyledPrimaryTitle variant="h6">Summary</StyledPrimaryTitle>
         <NodeTotalChart data={buildPrimaryChartSeries(statistics)} />
       </StyledPrimaryChart>
       <StyledSecondaryStack direction="column" alignItems="center" flex={1}>
-        <StyledSecondaryTitle variant="h6">Node Count Breakdown</StyledSecondaryTitle>
+        <StyledSecondaryTitle variant="h6">
+          Individual Node Types
+          {" "}
+          {`(${statistics.length})`}
+        </StyledSecondaryTitle>
         <ContentCarousel focusOnSelect={statistics.length > 2}>
           {statistics.map((stat) => (
             <MiniPieChart

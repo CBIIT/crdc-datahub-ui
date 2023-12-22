@@ -39,6 +39,8 @@ const NodeTotalChart: FC<Props> = ({ data }) => {
   const onMouseOver = useCallback((data, index) => setActiveIndex(index), []);
   const onMouseLeave = useCallback(() => setActiveIndex(null), []);
 
+  const total = data.reduce((acc, { value }) => acc + value, 0);
+
   return (
     <StyledChartContainer>
       <PieChart width={391} height={391}>
@@ -60,9 +62,8 @@ const NodeTotalChart: FC<Props> = ({ data }) => {
             position="center"
             content={(
               <PieChartCenter
-                title="Total"
-                subtitle={data?.[activeIndex]?.label}
-                value={data?.[activeIndex]?.value}
+                title={activeIndex !== null ? data?.[activeIndex]?.label : "Total"}
+                value={activeIndex !== null ? data?.[activeIndex]?.value : total}
               />
             )}
           />

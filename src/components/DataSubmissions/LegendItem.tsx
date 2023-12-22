@@ -7,7 +7,7 @@ type Props = {
 };
 
 const StyledStack = styled(Stack)({
-  marginRight: "20px",
+  marginRight: "35px",
   "&:last-child": {
     marginRight: "0",
   },
