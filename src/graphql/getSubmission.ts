@@ -18,6 +18,8 @@ export const query = gql`
       bucketName
       rootPath
       status
+      metadataValidationStatus
+      fileValidationStatus
       history {
           status
           reviewComment

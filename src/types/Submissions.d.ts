@@ -11,12 +11,16 @@ type Submission = {
   bucketName: string; // # populated from organization
   rootPath: string; // # a submission folder will be created under this path, default is / or "" meaning root folder
   status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
+  metadataValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
+  fileValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
+
+type ValidationStatus = "New" | "Validating" | "Passed" | "Error" | "Warning";
 
 type SubmissionStatus =
   | "New"
