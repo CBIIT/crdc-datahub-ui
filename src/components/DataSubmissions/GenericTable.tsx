@@ -23,6 +23,7 @@ const StyledTableContainer = styled(TableContainer)({
   border: 0,
   marginBottom: "25px",
   position: "relative",
+  overflowX: "initial",
   "& .MuiTableRow-root:nth-of-type(2n)": {
     background: "#E3EEF9",
   },
