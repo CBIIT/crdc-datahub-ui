@@ -43,6 +43,7 @@ import BatchTableContext from "./Contexts/BatchTableContext";
 import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
 import ValidationControls from '../../components/DataSubmissions/ValidationControls';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
+import FileListDialog from "./FileListDialog";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -223,6 +224,23 @@ const StyledErrorDetailsButton = styled(Button)(() => ({
   },
 }));
 
+const StyledFileCountButton = styled(Button)(() => ({
+  color: "#0D78C5",
+  fontFamily: "Inter",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "19px",
+  textDecorationLine: "underline",
+  textTransform: "none",
+  padding: 0,
+  justifyContent: "flex-start",
+  "&:hover": {
+    background: "transparent",
+    textDecorationLine: "underline",
+  },
+}));
+
 const columns: Column<Batch>[] = [
   {
     label: "Upload Type",
@@ -236,7 +254,23 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "File Count",
-    renderValue: (data) => Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data?.fileCount || 0),
+    renderValue: (data) => (
+      <BatchTableContext.Consumer>
+        {({ handleOpenFileListDialog }) => (
+          <StyledFileCountButton
+            onClick={() => handleOpenFileListDialog && handleOpenFileListDialog(data)}
+            variant="text"
+            disableRipple
+            disableTouchRipple
+            disableFocusRipple
+          >
+            {Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
+              data?.fileCount || 0
+            )}
+          </StyledFileCountButton>
+        )}
+      </BatchTableContext.Consumer>
+    ),
     field: "fileCount",
   },
   {
@@ -300,6 +334,7 @@ const DataSubmission = () => {
   const [loading, setLoading] = useState(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
+  const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
@@ -437,8 +472,14 @@ const DataSubmission = () => {
     setSelectedRow(data);
   };
 
+  const handleOpenFileListDialog = (data: Batch) => {
+    setOpenFileListDialog(true);
+    setSelectedRow(data);
+  };
+
   const providerValue = useMemo(() => ({
-    handleOpenErrorDialog
+    handleOpenErrorDialog,
+    handleOpenFileListDialog
   }), [handleOpenErrorDialog]);
 
   return (
@@ -523,6 +564,11 @@ const DataSubmission = () => {
         title="Error Count"
         errors={selectedRow?.errors}
         uploadedDate={dataSubmission?.createdAt}
+      />
+      <FileListDialog
+        open={openFileListDialog}
+        batch={selectedRow}
+        onClose={() => setOpenFileListDialog(false)}
       />
     </StyledWrapper>
   );
