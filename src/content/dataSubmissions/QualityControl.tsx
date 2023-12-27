@@ -3,7 +3,7 @@ import { useLazyQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
 import { Box, Button, styled } from "@mui/material";
-import { SUBMISSION_QC_RESULTS, submissionQCResultsResp } from "../../graphql";
+import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
@@ -112,7 +112,7 @@ const QualityControl = () => {
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
   const tableRef = useRef<TableMethods>(null);
 
-  const [submissionQCResults] = useLazyQuery<submissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
+  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
     variables: { id: submissionId },
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
