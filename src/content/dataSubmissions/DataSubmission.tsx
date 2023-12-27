@@ -311,6 +311,7 @@ const DataSubmission = () => {
   });
 
   const tableRef = useRef<TableMethods>(null);
+  const alertTimeoutRef = useRef(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const disableSubmit = useMemo(
     () => !data?.submissionStats?.stats?.length || data?.submissionStats?.stats.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
@@ -393,8 +394,7 @@ const DataSubmission = () => {
 
   const handleOnUpload = async (message: string, severity: AlertColor) => {
     refreshBatchTable();
-    setChangesAlert({ message, severity });
-    setTimeout(() => setChangesAlert(null), 10000);
+    onAlert({ message, severity });
 
     const preInProgressStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected"];
     // createBatch will update the status to 'In Progress'
@@ -408,6 +408,15 @@ const DataSubmission = () => {
       return;
     }
     navigator.clipboard.writeText(submissionId);
+  };
+
+  const onAlert = (alertState: AlertState) => {
+    setChangesAlert(alertState);
+
+    if (alertTimeoutRef.current) {
+      clearTimeout(alertTimeoutRef.current);
+    }
+    alertTimeoutRef.current = setTimeout(() => setChangesAlert(null), 10000);
   };
 
   const handleOpenErrorDialog = (data: Batch) => {
@@ -512,8 +521,9 @@ const DataSubmission = () => {
           <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
             <DataSubmissionActions
               submission={data?.getSubmission}
-              onAction={updateSubmissionAction}
               disableSubmit={disableSubmit}
+              onAction={updateSubmissionAction}
+              onError={(message: string) => onAlert({ severity: "error", message })}
             />
           </StyledCardActions>
         </StyledCard>
