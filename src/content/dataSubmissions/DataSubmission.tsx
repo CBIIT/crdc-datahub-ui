@@ -506,7 +506,7 @@ const DataSubmission = () => {
                     onFetchData={handleFetchBatchFiles}
                   />
                 </BatchTableContext.Provider>
-              ) : <QualityControl />}
+              ) : <QualityControl batchCount={totalBatchFiles} />}
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>

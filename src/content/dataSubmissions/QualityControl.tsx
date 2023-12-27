@@ -1,14 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useLazyQuery } from "@apollo/client";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
 import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
 import { Controller, useForm } from 'react-hook-form';
-import { SUBMISSION_QC_RESULTS, submissionQCResultsResp } from "../../graphql";
+import { LIST_BATCHES, ListBatchesResp, SUBMISSION_QC_RESULTS, submissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
+
+type Props = {
+  batchCount: number;
+};
 
 type FilterForm = {
   nodeType: string | "All";
@@ -158,7 +162,7 @@ const columns: Column<QCResult>[] = [
   },
 ];
 
-const QualityControl = () => {
+const QualityControl: FC<Props> = ({ batchCount }) => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>();
 
@@ -176,6 +180,15 @@ const QualityControl = () => {
     variables: { id: submissionId },
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
+  });
+
+  const { data: batches } = useQuery<ListBatchesResp>(LIST_BATCHES, {
+    variables: {
+      submissionID: submissionId,
+      first: batchCount + 1,
+      offset: 0,
+    },
+    context: { clientName: 'backend' },
   });
 
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
@@ -268,7 +281,12 @@ const QualityControl = () => {
                 inputProps={{ id: "batchID-filter" }}
               >
                 <MenuItem value="All">All</MenuItem>
-                {/* TODO: Need to use Batch listing API */}
+                {batches?.listBatches?.batches?.map((batch) => (
+                  <MenuItem key={batch._id} value={batch._id}>
+                    {batch._id}
+                    {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
+                  </MenuItem>
+                ))}
               </StyledSelect>
             )}
           />
