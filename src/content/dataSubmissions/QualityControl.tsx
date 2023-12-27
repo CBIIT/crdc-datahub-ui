@@ -46,8 +46,8 @@ const columns: Column<QCResult>[] = [
   },
   {
     label: "Batch ID",
-    renderValue: (data) => data?.batchID,
-    field: "batchID",
+    renderValue: (data) => data?.displayID,
+    field: "displayID",
   },
   {
     label: "Node ID",
