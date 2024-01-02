@@ -246,7 +246,7 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Status",
-    renderValue: (data) => (data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status),
+    renderValue: (data) => <Box textTransform="capitalize">{data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status}</Box>,
     field: "status",
   },
   {
