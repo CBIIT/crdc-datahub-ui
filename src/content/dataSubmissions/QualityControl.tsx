@@ -38,6 +38,10 @@ const StyledSeverity = styled(Box)({
   alignItems: "center",
 });
 
+const StyledBreakAll = styled(Box)({
+  wordBreak: "break-all"
+});
+
 const columns: Column<QCResult>[] = [
   {
     label: "Type",
@@ -46,17 +50,17 @@ const columns: Column<QCResult>[] = [
   },
   {
     label: "Batch ID",
-    renderValue: (data) => data?.displayID,
+    renderValue: (data) => <StyledBreakAll>{data?.displayID}</StyledBreakAll>,
     field: "displayID",
   },
   {
     label: "Node ID",
-    renderValue: (data) => data?.nodeID,
+    renderValue: (data) => <StyledBreakAll>{data?.nodeID}</StyledBreakAll>,
     field: "nodeID",
   },
   {
     label: "CRDC ID",
-    renderValue: (data) => data?.CRDC_ID,
+    renderValue: (data) => <StyledBreakAll>{data?.CRDC_ID}</StyledBreakAll>,
     field: "CRDC_ID",
   },
   {
