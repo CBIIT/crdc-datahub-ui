@@ -361,7 +361,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       </StyledUploadActionWrapper>
       <StyledUploadFilesButton
         variant="contained"
-        onClick={handleUploadFiles}
+        onClick={() => (metadataIntention === "Delete" ? setOpenDeleteDialog(true) : handleUploadFiles())}
         disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
         disableElevation
         disableRipple
