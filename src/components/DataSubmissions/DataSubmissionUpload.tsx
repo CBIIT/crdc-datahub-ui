@@ -238,11 +238,6 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       return;
     }
 
-    if (metadataIntention === "Delete") {
-      setOpenDeleteDialog(true);
-      return;
-    }
-
     setIsUploading(true);
     const newBatch: NewBatch = await createNewBatch();
     if (!newBatch) {
@@ -299,7 +294,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         return;
       }
       // Batch upload completed successfully
-      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully uploaded`, "success");
+      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${metadataIntention === "Delete" ? "deleted" : "uploaded"}`, "success");
       setIsUploading(false);
       setSelectedFiles(null);
       if (uploadMetatadataInputRef.current) {
@@ -312,7 +307,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   };
 
   const onUploadFail = (fileCount = 0) => {
-    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to upload`, "error");
+    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${metadataIntention === "Delete" ? "delete" : "upload"}`, "error");
     setSelectedFiles(null);
     setIsUploading(false);
     if (uploadMetatadataInputRef.current) {
@@ -326,6 +321,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
 
   const onDeleteUpload = () => {
     setOpenDeleteDialog(false);
+    handleUploadFiles();
   };
 
   return (
@@ -377,7 +373,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       <StyledDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}
-        title="Delete Metadata or Files"
+        title="Delete Data"
         actions={(
           <>
             <Button onClick={onCloseDeleteDialog} disabled={false}>Cancel</Button>
