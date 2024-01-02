@@ -93,9 +93,6 @@ const columns: Column<QCResult>[] = [
     ),
     field: "description",
     sortDisabled: true,
-    sx: {
-      minWidth: "260px",
-    }
   },
 ];
 
