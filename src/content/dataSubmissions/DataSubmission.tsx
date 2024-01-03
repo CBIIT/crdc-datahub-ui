@@ -527,7 +527,7 @@ const DataSubmission = () => {
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header="Data Submission"
-        title="Error Count"
+        title={`Batch ${selectedRow?.displayID || ""} Upload Errors`}
         errors={selectedRow?.errors}
         uploadedDate={data?.getSubmission?.createdAt}
       />
