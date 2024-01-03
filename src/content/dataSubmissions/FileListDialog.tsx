@@ -216,8 +216,13 @@ const FileListDialog = ({
         <CloseIconSvg />
       </StyledCloseDialogButton>
       <StyledHeader variant="h3">Data Submission</StyledHeader>
-      {/* TODO: Replace with batch.displayID */}
-      <StyledTitle variant="h6">Batch 15 File List</StyledTitle>
+      <StyledTitle variant="h6">
+        Batch
+        {" "}
+        {batch?.displayID}
+        {" "}
+        File List
+      </StyledTitle>
       <StyledSubtitle variant="body1">
         Uploaded on
         {" "}
