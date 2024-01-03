@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { FormControlLabel, RadioGroup, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -14,6 +14,12 @@ type Props = {
    * NOTE: Initially null during the loading state.
    */
   dataSubmission?: Submission;
+  /**
+   * Callback function called when the validating is initiated.
+   *
+   * @param success whether the validation was successfully initiated
+   */
+  onValidate: (success: boolean) => void;
 };
 
 type ValidationType = "Metadata" | "Files" | "All";
@@ -129,12 +135,13 @@ const ValidateStatuses: Submission["status"][] = ["In Progress", "Withdrawn", "R
  * @param {Props}
  * @returns {React.FC<Props>}
  */
-const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
+const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) => {
   const { user } = useAuthContext();
   const [validationType, setValidationType] = useState<ValidationType>("Metadata");
   const [uploadType, setUploadType] = useState<UploadType>("New");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isValidating, setIsValidating] = useState<boolean>(false);
+  const [isValidating, setIsValidating] = useState<boolean>(dataSubmission?.fileValidationStatus === "Validating"
+    || dataSubmission?.metadataValidationStatus === "Validating");
   const [validationAlert, setValidationAlert] = useState<AlertState>(null);
 
   const canValidateData: boolean = useMemo(() => ValidateRoles.includes(user?.role), [user?.role]);
@@ -146,6 +153,10 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
   });
 
   const handleValidateFiles = async () => {
+    if (isValidating) {
+      return;
+    }
+
     setIsLoading(true);
 
     const { data, errors } = await validateSubmission({
@@ -159,9 +170,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
     if (errors || !data?.validateSubmission?.success) {
       setValidationAlert({ message: "Unable to initiate validation process.", severity: "error" });
       setIsValidating(false);
+      onValidate?.(false);
     } else {
       setValidationAlert({ message: "Validation process is starting; this may take some time. Please wait before initiating another validation.", severity: "success" });
       setIsValidating(true);
+      onValidate?.(true);
     }
 
     // Reset form to default values
@@ -181,6 +194,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
         return ["metadata", "file"];
     }
   };
+
+  useEffect(() => {
+    setIsValidating(dataSubmission?.fileValidationStatus === "Validating"
+      || dataSubmission?.metadataValidationStatus === "Validating");
+  }, [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]);
 
   return (
     <StyledFileValidationSection>
