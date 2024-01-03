@@ -51,6 +51,9 @@ export type { Response as ListLogsResp } from "./listLogs";
 export { query as SUBMISSION_QC_RESULTS } from "./submissionQCResults";
 export type { Response as submissionQCResultsResp } from "./submissionQCResults";
 
+export { query as LIST_BATCH_FILES } from "./listBatchFiles";
+export type { Response as listBatchFilesResp } from "./listBatchFiles";
+
 export { mutation as VALIDATE_SUBMISSION } from "./validateSubmission";
 export type { Response as ValidateSubmissionResp } from "./validateSubmission";
 

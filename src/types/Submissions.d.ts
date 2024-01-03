@@ -118,6 +118,17 @@ type ListBatches = {
   batches: Batch[];
 };
 
+type ListBatchFiles = {
+  total: number;
+  batchFiles: BatchFile[];
+};
+
+type BatchFile = {
+  batchID: string;
+  nodeType: string;
+  fileName: string;
+};
+
 type TempCredentials = {
   accessKeyId: string;
   secretAccessKey: string;
