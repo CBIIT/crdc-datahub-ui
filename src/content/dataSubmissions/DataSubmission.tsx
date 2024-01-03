@@ -326,8 +326,8 @@ const DataSubmission = () => {
   const { submissionId, tab } = useParams();
   const { user } = useAuthContext();
 
-  const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
-  const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [totalBatches, setTotalBatches] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -362,13 +362,13 @@ const DataSubmission = () => {
     fetchPolicy: 'no-cache'
   });
 
-  const handleFetchBatchFiles = async (fetchListing: FetchListing<Batch>, force: boolean) => {
+  const handleFetchBatches = async (fetchListing: FetchListing<Batch>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
       setError("Invalid submission ID provided.");
       return;
     }
-    if (!force && batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
+    if (!force && batches?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
       return;
     }
 
@@ -391,8 +391,8 @@ const DataSubmission = () => {
         setError("Unable to retrieve batch data.");
         return;
       }
-      setBatchFiles(newBatchFiles.listBatches.batches);
-      setTotalBatchFiles(newBatchFiles.listBatches.total);
+      setBatches(newBatchFiles.listBatches.batches);
+      setTotalBatches(newBatchFiles.listBatches.total);
     } catch (err) {
       setError("Unable to retrieve batch data.");
     } finally {
@@ -540,11 +540,11 @@ const DataSubmission = () => {
                   <GenericTable
                     ref={tableRef}
                     columns={columns}
-                    data={batchFiles || []}
-                    total={totalBatchFiles || 0}
+                    data={batches || []}
+                    total={totalBatches || 0}
                     loading={loading}
                     defaultRowsPerPage={20}
-                    onFetchData={handleFetchBatchFiles}
+                    onFetchData={handleFetchBatches}
                   />
                 </BatchTableContext.Provider>
               ) : <QualityControl />}
