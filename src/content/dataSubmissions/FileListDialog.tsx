@@ -1,7 +1,11 @@
-import { useMemo } from "react";
-import { Box, Button, Dialog, DialogProps, Grid, IconButton, Stack, Typography, styled } from "@mui/material";
+import { useMemo, useState } from "react";
+import { Box, Button, Dialog, DialogProps, IconButton, Typography, styled } from "@mui/material";
+import { useLazyQuery } from "@apollo/client";
+import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column, FetchListing } from "../../components/DataSubmissions/GenericTable";
+import { LIST_BATCH_FILES, listBatchFilesResp } from "../../graphql";
+import { FormatDate } from "../../utils";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -70,39 +74,29 @@ const StyledTitle = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "900",
   lineHeight: "30px",
-  marginBottom: "60px"
 });
 
-const StyledSummaryProperty = styled(Typography)({
-  color: "#000",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
+const StyledSubtitle = styled(Typography)({
+  color: "#595959",
+  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: "400",
+  lineHeight: "19.6px",
+  marginTop: "8px",
+  marginBottom: "40px"
+});
+
+const StyledNumberOfFiles = styled(Typography)({
+  color: "#453D3D",
+  fontFamily: "'Public Sans', sans-serif",
   fontSize: "13px",
   fontStyle: "normal",
   fontWeight: "700",
   lineHeight: "19.6px",
   letterSpacing: "0.52px",
   textTransform: "uppercase",
-});
-
-const StyledSummaryPropertySubtitle = styled(Typography)({
-  color: "#000",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "10px",
-  fontStyle: "normal",
-  fontWeight: "700",
-  lineHeight: "15px",
-  letterSpacing: "0.4px",
-  textTransform: "uppercase",
-});
-
-const StyledSummaryValue = styled(Typography)({
-  color: "#595959",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: "400",
-  lineHeight: "19.6px",
-  textTransform: "capitalize",
+  marginBottom: "21px"
 });
 
 const StyledFileName = styled(Typography)({
@@ -118,17 +112,20 @@ const StyledFileName = styled(Typography)({
   justifyContent: "flex-start",
 });
 
-const columns: Column<BatchFileInfo>[] = [
+const columns: Column<BatchFile>[] = [
   {
     label: "Node Type",
-    renderValue: (data) => <Box textTransform="capitalize">Participant</Box>, // TODO: FIX
-    field: "fileName",
+    renderValue: (data) => <Box textTransform="capitalize">{data?.nodeType}</Box>,
+    field: "nodeType",
     default: true
   },
   {
     label: "Filename",
     renderValue: (data) => <StyledFileName>{data?.fileName}</StyledFileName>,
     field: "fileName",
+    sx: {
+      width: "70%"
+    }
   },
 ];
 
@@ -143,7 +140,23 @@ const FileListDialog = ({
   open,
   ...rest
 }: Props) => {
+  const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
+  const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
+  const [prevBatchFilesFetch, setPrevBatchFilesFetch] = useState<FetchListing<BatchFile>>(null);
+  const [error, setError] = useState<string>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [listBatchFiles] = useLazyQuery<listBatchFilesResp>(LIST_BATCH_FILES, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
   const handleCloseDialog = () => {
+    setBatchFiles([]);
+    setTotalBatchFiles(0);
+    setPrevBatchFilesFetch(null);
+    setError(null);
+    setLoading(false);
     if (typeof onClose === "function") {
       onClose();
     }
@@ -156,63 +169,74 @@ const FileListDialog = ({
     if (batch.type === "metadata") {
       return `${batch.metadataIntention} ${batch.type}`;
     }
-    return "Data Files"; // TODO: Add "Delete Files"
+    return "Data Files";
   }, [batch]);
+
+  const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFile>, force: boolean) => {
+    const { first, offset, sortDirection, orderBy } = fetchListing || {};
+    if (!batch?._id || !batch?.submissionID) {
+      setError("Invalid submission ID provided.");
+      return;
+    }
+    if (!force && batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFilesFetch)) {
+      return;
+    }
+
+    setPrevBatchFilesFetch(fetchListing);
+
+    try {
+      setLoading(true);
+      const { data: newBatchFiles, error: batchFilesError } = await listBatchFiles({
+        variables: {
+          submissionID: batch.submissionID,
+          batchID: batch._id,
+          first,
+          offset,
+          sortDirection,
+          orderBy
+        },
+        context: { clientName: 'backend' },
+        fetchPolicy: 'no-cache'
+      });
+      if (batchFilesError || !newBatchFiles?.listBatchFiles) {
+        throw Error();
+      }
+      setBatchFiles(newBatchFiles.listBatchFiles.batchFiles);
+      setTotalBatchFiles(newBatchFiles.listBatchFiles.total);
+    } catch (err) {
+      setError("Unable to retrieve batch file data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <StyledDialog open={open} onClose={handleCloseDialog} title="" {...rest}>
       <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      <StyledHeader variant="h3">Data Upload</StyledHeader>
-      <StyledTitle variant="h6">Batch Details</StyledTitle>
+      <StyledHeader variant="h3">Data Submission</StyledHeader>
+      {/* TODO: Replace with batch.displayID */}
+      <StyledTitle variant="h6">Batch 15 File List</StyledTitle>
+      <StyledSubtitle variant="body1">
+        Uploaded on
+        {" "}
+        {FormatDate(batch?.createdAt, "M/D/YYYY")}
+      </StyledSubtitle>
 
-      <Grid container rowSpacing={2.625} marginBottom={7.125}>
-        <Grid md={3} xs={12} item>
-          <StyledSummaryProperty>
-            Batch Type
-          </StyledSummaryProperty>
-        </Grid>
-        <Grid md={9} xs={12} item>
-          <StyledSummaryValue>
-            {batchType}
-          </StyledSummaryValue>
-        </Grid>
-        <Grid md={3} xs={12} item>
-          <Stack direction="column">
-            <StyledSummaryProperty>
-              Total File Count
-            </StyledSummaryProperty>
-            <StyledSummaryPropertySubtitle>
-              Included in batch
-            </StyledSummaryPropertySubtitle>
-          </Stack>
-        </Grid>
-        <Grid md={9} xs={12} item>
-          <StyledSummaryValue>
-            {batch?.files?.length || 0}
-          </StyledSummaryValue>
-        </Grid>
-        <Grid md={3} xs={12} item>
-          <StyledSummaryProperty>
-            Status
-          </StyledSummaryProperty>
-        </Grid>
-        <Grid md={9} xs={12} item>
-          <StyledSummaryValue>
-            {batch?.status}
-          </StyledSummaryValue>
-        </Grid>
-      </Grid>
+      <StyledNumberOfFiles>
+        {`${totalBatchFiles} FILES`}
+      </StyledNumberOfFiles>
 
       <GenericTable
         columns={columns}
-        data={batch?.files || []}
-        total={batch?.fileCount || 0}
-        loading={false}
+        data={batchFiles}
+        total={totalBatchFiles}
+        loading={loading}
+        defaultOrder="asc"
         defaultRowsPerPage={20}
-        onFetchData={() => {}}
-        setItemKey={(item, idx) => `${idx}_${item.size}_${item.fileName}`}
+        onFetchData={handleFetchBatchFiles}
+        setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.fileName}`}
       />
 
       <StyledCloseButton
