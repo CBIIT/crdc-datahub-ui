@@ -187,6 +187,7 @@ const QualityControl: FC<Props> = ({ batchCount }) => {
       submissionID: submissionId,
       first: batchCount + 1,
       offset: 0,
+      partial: true,
     },
     context: { clientName: 'backend' },
   });
