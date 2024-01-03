@@ -18,6 +18,7 @@ export const query = gql`
       total
       batches {
         _id
+        displayID
         submissionID
         type
         metadataIntention

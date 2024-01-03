@@ -243,6 +243,11 @@ const StyledFileCountButton = styled(Button)(() => ({
 
 const columns: Column<Batch>[] = [
   {
+    label: "Batch ID",
+    renderValue: (data) => data.displayID,
+    field: "displayID",
+  },
+  {
     label: "Upload Type",
     renderValue: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
     field: "metadataIntention",

@@ -87,6 +87,7 @@ type UploadType = "metadata" | "file";
 
 type Batch = {
   _id: string;
+  displayID: number;
   submissionID: string; // parent
   type: UploadType; // [metadata, file]
   metadataIntention: MetadataIntention; // [New, Update, Delete], Update is meant for "Update or insert", metadata only! file batches are always treated as Update
@@ -174,6 +175,7 @@ type QCResult = {
   submissionID: string;
   nodeType: string;
   batchID: string;
+  displayID: number;
   nodeID: string;
   CRDC_ID: string;
   severity: "Error" | "Warning"; // [Error, Warning]
