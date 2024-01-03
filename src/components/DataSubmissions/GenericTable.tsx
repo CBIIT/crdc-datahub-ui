@@ -141,6 +141,7 @@ type Props<T> = {
   total: number;
   loading?: boolean;
   noContentText?: string;
+  defaultOrder?: Order;
   defaultRowsPerPage?: number;
   setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
@@ -155,6 +156,7 @@ const DataSubmissionBatchTable = <T,>({
   total = 0,
   loading,
   noContentText,
+  defaultOrder = "desc",
   defaultRowsPerPage = 10,
   setItemKey,
   onFetchData,
@@ -163,7 +165,7 @@ const DataSubmissionBatchTable = <T,>({
   onPerPageChange,
 }: Props<T>, ref: React.Ref<TableMethods>) => {
   const { user } = useAuthContext();
-  const [order, setOrder] = useState<Order>("desc");
+  const [order, setOrder] = useState<Order>(defaultOrder);
   const [orderBy, setOrderBy] = useState<Column<T>>(
     columns.find((c) => c.default) || columns.find((c) => c.field)
   );
@@ -243,7 +245,7 @@ const DataSubmissionBatchTable = <T,>({
           </TableRow>
         </StyledTableHead>
         <TableBody>
-          {loading ? Array.from(Array(perPage).keys())?.map((_, idx) => (
+          {loading ? Array.from(Array(total > 0 && total < perPage ? data.length : perPage).keys())?.map((_, idx) => (
             <StyledTableRow key={`loading_row_${idx}`}>
               <TableCell colSpan={columns.length} />
             </StyledTableRow>
