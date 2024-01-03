@@ -1,6 +1,7 @@
-import { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 import { Box, Typography, styled } from "@mui/material";
 import { PieChart, Pie, Label, Cell } from 'recharts';
+import { isEqual } from 'lodash';
 import PieChartCenter from './PieChartCenter';
 
 export type PieSectorDataItem = {
@@ -90,4 +91,4 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
   );
 };
 
-export default NodeChart;
+export default React.memo<Props>(NodeChart, (prevProps, nextProps) => isEqual(prevProps, nextProps));

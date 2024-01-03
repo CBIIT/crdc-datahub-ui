@@ -32,3 +32,13 @@ export const buildPrimaryChartSeries = (stats: SubmissionStatistic[], omitSeries
     { label: 'Warning', value: warningCount, color: "#FFC700" },
   ].filter((series) => !omitSeries.includes(series.label));
 };
+
+/**
+ * A utility function to sort the node statistics by the node name
+ * This utility is required because the API does not guarantee the order of the nodes,
+ * and changing the order of the nodes causes re-animation of the charts.
+ *
+ * @param stats Data Submissions statistics
+ * @returns The sorted statistics
+ */
+export const compareNodeStats = (a: SubmissionStatistic, b: SubmissionStatistic) => a.nodeName.localeCompare(b.nodeName);

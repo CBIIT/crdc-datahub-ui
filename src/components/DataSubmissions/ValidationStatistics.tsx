@@ -1,9 +1,10 @@
-import { FC, useState } from 'react';
+import React, { FC, useState } from 'react';
+import { isEqual } from 'lodash';
 import { Box, Stack, Typography, styled } from '@mui/material';
 import ContentCarousel from '../Carousel';
 import NodeTotalChart from '../NodeTotalChart';
 import MiniPieChart from '../NodeChart';
-import { buildMiniChartSeries, buildPrimaryChartSeries } from '../../utils/statisticUtils';
+import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from '../../utils/statisticUtils';
 import StatisticLegend, { LegendFilter } from './StatisticLegend';
 
 type Props = {
@@ -151,7 +152,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
           {`(${statistics.length})`}
         </StyledSecondaryTitle>
         <ContentCarousel focusOnSelect={statistics.length > 2}>
-          {statistics.map((stat) => (
+          {statistics?.sort(compareNodeStats).map((stat) => (
             <MiniPieChart
               key={stat.nodeName}
               label={stat.nodeName}
@@ -166,4 +167,4 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   );
 };
 
-export default DataSubmissionStatistics;
+export default React.memo<Props>(DataSubmissionStatistics, (prevProps, nextProps) => isEqual(prevProps, nextProps));
