@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Box, Button, Dialog, DialogProps, IconButton, Typography, styled } from "@mui/material";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
@@ -143,6 +143,7 @@ const FileListDialog = ({
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
   const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
   const [prevBatchFilesFetch, setPrevBatchFilesFetch] = useState<FetchListing<BatchFile>>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -161,16 +162,6 @@ const FileListDialog = ({
       onClose();
     }
   };
-
-  const batchType = useMemo(() => {
-    if (!batch) {
-      return "";
-    }
-    if (batch.type === "metadata") {
-      return `${batch.metadataIntention} ${batch.type}`;
-    }
-    return "Data Files";
-  }, [batch]);
 
   const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFile>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
@@ -226,7 +217,7 @@ const FileListDialog = ({
       <StyledSubtitle variant="body1">
         Uploaded on
         {" "}
-        {FormatDate(batch?.createdAt, "M/D/YYYY")}
+        {FormatDate(batch?.createdAt, "M/D/YYYY [at] hh:mm A")}
       </StyledSubtitle>
 
       <StyledNumberOfFiles>
