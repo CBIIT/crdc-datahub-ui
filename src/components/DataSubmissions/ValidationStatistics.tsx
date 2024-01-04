@@ -102,7 +102,7 @@ const StyledSecondaryTitle = styled(Typography)({
 const defaultFilters: LegendFilter[] = [
   { label: "New", color: "#4D90D3", disabled: false },
   { label: "Passed", color: "#32E69A", disabled: false },
-  { label: "Failed", color: "#D65219", disabled: false },
+  { label: "Error", color: "#D65219", disabled: false },
   { label: "Warning", color: "#FFD700", disabled: false },
 ];
 
