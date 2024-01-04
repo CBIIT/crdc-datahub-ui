@@ -9,12 +9,14 @@ type Props = {
 };
 
 const StyledStack = styled(Stack, { shouldForwardProp: (p) => p !== "disabled" })<{ disabled: boolean }>(({ disabled }) => ({
-  opacity: disabled ? 0.5 : 1, // TODO: this is just an example of how to use the disabled prop
+  opacity: disabled ? 0.4 : 1,
+  textDecoration: disabled ? "line-through" : "none",
   marginRight: "35px",
   "&:last-child": {
     marginRight: "0",
   },
   cursor: "pointer",
+  userSelect: "none",
 }));
 
 const StyledLabel = styled(Typography)({

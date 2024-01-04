@@ -46,6 +46,16 @@ const NodeTotalChart: FC<Props> = ({ data }) => {
     <StyledChartContainer>
       <PieChart width={391} height={391}>
         <Pie
+          data={[{ value: 100 }]}
+          dataKey="value"
+          innerRadius={115}
+          outerRadius={391 / 2}
+          fill="#f2f2f2"
+          isAnimationActive={false}
+        >
+          {(dataset.length === 0 && activeIndex === null) && <Label position="center" content={(<PieChartCenter title="Total" value={0} />)} />}
+        </Pie>
+        <Pie
           data={dataset}
           dataKey="value"
           cx="50%"

@@ -135,10 +135,6 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
     return null;
   }
 
-  // TODO: How do we want to handle the case where there are no statistics matching the filters?
-  // i.e. If we deselect everything but "Warning" and there's no nodes with warnings, it just renders
-  // an empty chart. this also happens for the primary donut chart
-
   return (
     <StyledChartArea direction="row">
       <StyledPrimaryChart>

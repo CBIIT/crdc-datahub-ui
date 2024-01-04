@@ -66,6 +66,16 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
       {label && <StyledPieChartLabel>{label}</StyledPieChartLabel>}
       <PieChart width={150} height={150}>
         <Pie
+          data={[{ value: 100 }]}
+          dataKey="value"
+          outerRadius={75}
+          innerRadius={40}
+          fill="#f2f2f2"
+          isAnimationActive={false}
+        >
+          {(dataset.length === 0 && hoveredSlice === null) && <Label position="center" content={(<PieChartCenter title="Total" value={0} />)} />}
+        </Pie>
+        <Pie
           data={dataset}
           dataKey="value"
           cx="50%"
