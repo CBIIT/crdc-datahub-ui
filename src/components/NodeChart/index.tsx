@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 import { Box, Typography, styled } from "@mui/material";
 import { PieChart, Pie, Label, Cell } from 'recharts';
 import { isEqual } from 'lodash';
@@ -57,6 +57,7 @@ const StyledChartContainer = styled(Box)({
 const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
   const [hoveredSlice, setHoveredSlice] = useState<PieSectorDataItem>(null);
 
+  const dataset: PieSectorDataItem[] = useMemo(() => data.filter(({ value }) => value > 0), [data]);
   const onMouseOver = useCallback((data) => setHoveredSlice(data), []);
   const onMouseLeave = useCallback(() => setHoveredSlice(null), []);
 
@@ -65,7 +66,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
       {label && <StyledPieChartLabel>{label}</StyledPieChartLabel>}
       <PieChart width={150} height={150}>
         <Pie
-          data={data}
+          data={dataset}
           dataKey="value"
           cx="50%"
           cy="50%"
@@ -75,7 +76,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
           onMouseOver={onMouseOver}
           onMouseLeave={onMouseLeave}
         >
-          {data.map(({ label, color }) => (<Cell key={label} fill={color} />))}
+          {dataset.map(({ label, color }) => (<Cell key={label} fill={color} />))}
           <Label
             position="center"
             content={(

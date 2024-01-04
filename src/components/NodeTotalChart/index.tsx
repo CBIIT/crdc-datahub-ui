@@ -1,4 +1,4 @@
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { PieChart, Pie, Label, Cell } from 'recharts';
 import { Box, styled } from '@mui/material';
 import PieChartCenter from './PieChartCenter';
@@ -39,13 +39,14 @@ const NodeTotalChart: FC<Props> = ({ data }) => {
   const onMouseOver = useCallback((data, index) => setActiveIndex(index), []);
   const onMouseLeave = useCallback(() => setActiveIndex(null), []);
 
-  const total = data.reduce((acc, { value }) => acc + value, 0);
+  const dataset: PieSectorDataItem[] = useMemo(() => data.filter(({ value }) => value > 0), [data]);
+  const total = dataset.reduce((acc, { value }) => acc + value, 0);
 
   return (
     <StyledChartContainer>
       <PieChart width={391} height={391}>
         <Pie
-          data={data}
+          data={dataset}
           dataKey="value"
           cx="50%"
           cy="50%"
@@ -57,13 +58,13 @@ const NodeTotalChart: FC<Props> = ({ data }) => {
           activeShape={ActiveArc}
           activeIndex={activeIndex}
         >
-          {data.map(({ label, color }) => (<Cell key={label} fill={color} />))}
+          {dataset.map(({ label, color }) => (<Cell key={label} fill={color} />))}
           <Label
             position="center"
             content={(
               <PieChartCenter
-                title={activeIndex !== null ? data?.[activeIndex]?.label : "Total"}
-                value={activeIndex !== null ? data?.[activeIndex]?.value : total}
+                title={activeIndex !== null ? dataset?.[activeIndex]?.label : "Total"}
+                value={activeIndex !== null ? dataset?.[activeIndex]?.value : total}
               />
             )}
           />
