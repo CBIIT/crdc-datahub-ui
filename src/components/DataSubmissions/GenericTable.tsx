@@ -20,10 +20,11 @@ import SuspenseLoader from '../SuspenseLoader';
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
-  border: 0,
+  border: "1px solid #6CACDA",
   marginBottom: "25px",
   position: "relative",
-  overflowX: "initial",
+  overflowX: "auto",
+  overflowY: "hidden",
   "& .MuiTableRow-root:nth-of-type(2n)": {
     background: "#E3EEF9",
   },
@@ -150,7 +151,7 @@ type Props<T> = {
   onPerPageChange?: (perPage: number) => void;
 };
 
-const DataSubmissionBatchTable = <T,>({
+const GenericTable = <T,>({
   columns,
   data,
   total = 0,
@@ -171,6 +172,7 @@ const DataSubmissionBatchTable = <T,>({
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(defaultRowsPerPage);
+  const numRowsNoContent = 10;
 
   useEffect(() => {
     fetchData();
@@ -245,7 +247,7 @@ const DataSubmissionBatchTable = <T,>({
           </TableRow>
         </StyledTableHead>
         <TableBody>
-          {loading ? Array.from(Array(total > 0 && total < perPage ? data.length : perPage).keys())?.map((_, idx) => (
+          {loading && total === 0 ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
             <StyledTableRow key={`loading_row_${idx}`}>
               <TableCell colSpan={columns.length} />
             </StyledTableRow>
@@ -274,7 +276,7 @@ const DataSubmissionBatchTable = <T,>({
 
           {/* No content message */}
           {!loading && (!total || total === 0) && (
-            <TableRow style={{ height: 46 * 10 }}>
+            <TableRow style={{ height: 46 * numRowsNoContent }}>
               <TableCell colSpan={columns.length}>
                 <Typography
                   variant="h6"
@@ -313,6 +315,6 @@ const DataSubmissionBatchTable = <T,>({
   );
 };
 
-const BatchTableWithRef = forwardRef(DataSubmissionBatchTable) as <T>(props: Props<T> & { ref?: React.Ref<TableMethods> }) => ReturnType<typeof DataSubmissionBatchTable>;
+const TableWithRef = forwardRef(GenericTable) as <T>(props: Props<T> & { ref?: React.Ref<TableMethods> }) => ReturnType<typeof GenericTable>;
 
-export default BatchTableWithRef;
+export default TableWithRef;
