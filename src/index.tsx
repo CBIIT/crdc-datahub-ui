@@ -6,8 +6,8 @@ import axe from '@axe-core/react';
 import App from './App';
 import client from './client';
 import * as serviceWorker from './serviceWorker';
-import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './components/Contexts/AuthContext';
+import { AnalyticsProvider } from './components/Contexts/AnalyticsContext';
 import env from './env';
 
 if (env.REACT_APP_DEV_TIER === "dev" || env.REACT_APP_DEV_TIER === "dev2") {
@@ -20,16 +20,17 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <ApolloProvider client={client}>
-      <HelmetProvider>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </HelmetProvider>
-    </ApolloProvider>
+    {/* TODO: Use env for measurement ID */}
+    <AnalyticsProvider GA_MEASUREMENT_ID="G-Q3J513LR16">
+      <ApolloProvider client={client}>
+        <HelmetProvider>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </HelmetProvider>
+      </ApolloProvider>
+    </AnalyticsProvider>
   </React.StrictMode>,
 );
-
-reportWebVitals();
 
 serviceWorker.unregister();
