@@ -318,8 +318,16 @@ const DataSubmission = () => {
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const disableSubmit = useMemo(
-    () => !data?.submissionStats?.stats?.length || data?.submissionStats?.stats.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
-    [data?.submissionStats, user]
+    () => {
+      if (!data?.getSubmission?._id) {
+        return true;
+      }
+      const isValidating = data.getSubmission.metadataValidationStatus === "Validating" || data.getSubmission.fileValidationStatus === "Validating";
+      const hasNew = data.getSubmission.metadataValidationStatus === "New" || data.getSubmission.fileValidationStatus === "New";
+      const hasError = data.getSubmission.metadataValidationStatus === "Error" || data.getSubmission.fileValidationStatus === "Error";
+      return isValidating || hasNew || (user?.role !== "Admin" && hasError);
+    },
+    [data?.getSubmission, user]
   );
 
   const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
