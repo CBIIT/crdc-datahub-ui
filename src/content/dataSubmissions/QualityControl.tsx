@@ -10,10 +10,6 @@ import { FormatDate } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 
-type Props = {
-  batchCount: number;
-};
-
 type FilterForm = {
   nodeType: string | "All";
   batchID: number | "All";
@@ -163,7 +159,7 @@ const columns: Column<QCResult>[] = [
   },
 ];
 
-const QualityControl: FC<Props> = ({ batchCount }) => {
+const QualityControl: FC = () => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>();
 
@@ -183,12 +179,14 @@ const QualityControl: FC<Props> = ({ batchCount }) => {
     fetchPolicy: 'no-cache'
   });
 
-  const { data: batches } = useQuery<ListBatchesResp>(LIST_BATCHES, {
+  const { data: batchData } = useQuery<ListBatchesResp>(LIST_BATCHES, {
     variables: {
       submissionID: submissionId,
-      first: batchCount + 1,
+      first: 999, // TODO: need to support -1 for all batches
       offset: 0,
       partial: true,
+      orderBy: "displayID",
+      sortDirection: "asc",
     },
     context: { clientName: 'backend' },
   });
@@ -283,7 +281,7 @@ const QualityControl: FC<Props> = ({ batchCount }) => {
                 inputProps={{ id: "batchID-filter" }}
               >
                 <MenuItem value="All">All</MenuItem>
-                {batches?.listBatches?.batches?.map((batch) => (
+                {batchData?.listBatches?.batches?.map((batch) => (
                   <MenuItem key={batch._id} value={batch._id}>
                     {batch.displayID}
                     {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
