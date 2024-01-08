@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
 import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
 import { Controller, useForm } from 'react-hook-form';
-import { LIST_BATCHES, ListBatchesResp, SUBMISSION_QC_RESULTS, submissionQCResultsResp } from "../../graphql";
+import { LIST_BATCHES, LIST_NODE_TYPES, ListBatchesResp, ListNodeTypesResp, SUBMISSION_QC_RESULTS, submissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
@@ -182,12 +182,17 @@ const QualityControl: FC = () => {
   const { data: batchData } = useQuery<ListBatchesResp>(LIST_BATCHES, {
     variables: {
       submissionID: submissionId,
-      first: 999, // TODO: need to support -1 for all batches
+      first: 9999, // TODO: need to support -1 for all batches
       offset: 0,
       partial: true,
       orderBy: "displayID",
       sortDirection: "asc",
     },
+    context: { clientName: 'backend' },
+  });
+
+  const { data: nodeTypes } = useQuery<ListNodeTypesResp>(LIST_NODE_TYPES, {
+    variables: { submissionID: submissionId, },
     context: { clientName: 'backend' },
   });
 
@@ -262,7 +267,9 @@ const QualityControl: FC = () => {
                 inputProps={{ id: "nodeType-filter" }}
               >
                 <MenuItem value="All">All</MenuItem>
-                {/* TODO: Need to implement listSubmissionNodeTypes */}
+                {nodeTypes?.listSubmissionNodeTypes?.listNodeTypes?.map((nodeType) => (
+                  <MenuItem key={nodeType} value={nodeType}>{nodeType}</MenuItem>
+                ))}
               </StyledSelect>
             )}
           />
