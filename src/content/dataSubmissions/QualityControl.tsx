@@ -189,11 +189,13 @@ const QualityControl: FC = () => {
       sortDirection: "asc",
     },
     context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache',
   });
 
   const { data: nodeTypes } = useQuery<ListNodeTypesResp>(LIST_NODE_TYPES, {
     variables: { submissionID: submissionId, },
     context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache',
   });
 
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
