@@ -225,6 +225,11 @@ const StyledErrorDetailsButton = styled(Button)(() => ({
 
 const columns: Column<Batch>[] = [
   {
+    label: "Batch ID",
+    renderValue: (data) => data.displayID,
+    field: "displayID",
+  },
+  {
     label: "Upload Type",
     renderValue: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
     field: "metadataIntention",
@@ -241,7 +246,7 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Status",
-    renderValue: (data) => (data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status),
+    renderValue: (data) => <Box textTransform="capitalize">{data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status}</Box>,
     field: "status",
   },
   {
@@ -522,7 +527,7 @@ const DataSubmission = () => {
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header="Data Submission"
-        title="Error Count"
+        title={`Batch ${selectedRow?.displayID || ""} Upload Errors`}
         errors={selectedRow?.errors}
         uploadedDate={data?.getSubmission?.createdAt}
       />

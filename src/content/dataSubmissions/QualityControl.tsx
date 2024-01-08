@@ -49,6 +49,10 @@ const StyledSeverity = styled(Box)({
   alignItems: "center",
 });
 
+const StyledBreakAll = styled(Box)({
+  wordBreak: "break-all"
+});
+
 const StyledFilterContainer = styled(Box)({
   display: "flex",
   alignItems: "center",
@@ -109,17 +113,17 @@ const columns: Column<QCResult>[] = [
   },
   {
     label: "Batch ID",
-    renderValue: (data) => data?.batchID,
-    field: "batchID",
+    renderValue: (data) => <StyledBreakAll>{data?.displayID}</StyledBreakAll>,
+    field: "displayID",
   },
   {
     label: "Node ID",
-    renderValue: (data) => data?.nodeID,
+    renderValue: (data) => <StyledBreakAll>{data?.nodeID}</StyledBreakAll>,
     field: "nodeID",
   },
   {
     label: "CRDC ID",
-    renderValue: (data) => data?.CRDC_ID,
+    renderValue: (data) => <StyledBreakAll>{data?.CRDC_ID}</StyledBreakAll>,
     field: "CRDC_ID",
   },
   {
@@ -156,9 +160,6 @@ const columns: Column<QCResult>[] = [
     ),
     field: "description",
     sortDisabled: true,
-    sx: {
-      minWidth: "260px",
-    }
   },
 ];
 
@@ -284,7 +285,7 @@ const QualityControl: FC<Props> = ({ batchCount }) => {
                 <MenuItem value="All">All</MenuItem>
                 {batches?.listBatches?.batches?.map((batch) => (
                   <MenuItem key={batch._id} value={batch._id}>
-                    {batch._id}
+                    {batch.displayID}
                     {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
                   </MenuItem>
                 ))}

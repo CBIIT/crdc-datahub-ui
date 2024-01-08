@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 const BaseBatchFragment = gql`
   fragment BaseBatchFragment on Batch {
     _id
-    # TODO: Need to add numeric ID here too
+    displayID
     createdAt
     updatedAt
   }
