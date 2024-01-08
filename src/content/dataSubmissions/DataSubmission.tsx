@@ -317,7 +317,7 @@ const DataSubmission = () => {
 
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
-  const disableSubmitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(
+  const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(
     () => {
       if (!data?.getSubmission?._id) {
         return { disable: true, isAdminOverride: false };
@@ -528,8 +528,10 @@ const DataSubmission = () => {
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}
-              disableSubmit={disableSubmitInfo.disable}
-              isAdminOverride={disableSubmitInfo.isAdminOverride}
+              submitActionButton={{
+                disable: submitInfo?.disable,
+                label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
+              }}
             />
           </StyledCardActions>
         </StyledCard>
