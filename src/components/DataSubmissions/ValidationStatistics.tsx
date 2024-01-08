@@ -1,10 +1,11 @@
-import { FC } from 'react';
+import React, { FC, useState } from 'react';
+import { isEqual } from 'lodash';
 import { Box, Stack, Typography, styled } from '@mui/material';
 import ContentCarousel from '../Carousel';
 import NodeTotalChart from '../NodeTotalChart';
 import MiniPieChart from '../NodeChart';
-import { buildMiniChartSeries, buildPrimaryChartSeries } from '../../utils/statisticUtils';
-import StatisticLegend from './StatisticLegend';
+import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from '../../utils/statisticUtils';
+import StatisticLegend, { LegendFilter } from './StatisticLegend';
 
 type Props = {
   dataSubmission: Submission;
@@ -98,6 +99,13 @@ const StyledSecondaryTitle = styled(Typography)({
   color: "#1D91AB",
 });
 
+const defaultFilters: LegendFilter[] = [
+  { label: "New", color: "#4D90D3", disabled: false },
+  { label: "Passed", color: "#32E69A", disabled: false },
+  { label: "Error", color: "#D65219", disabled: false },
+  { label: "Warning", color: "#FFD700", disabled: false },
+];
+
 /**
  * The primary chart container with secondary detail charts
  *
@@ -105,6 +113,23 @@ const StyledSecondaryTitle = styled(Typography)({
  * @returns {React.FC<Props>}
  */
 const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Props) => {
+  const [filters, setFilters] = useState<LegendFilter[]>(defaultFilters);
+  const disabledSeries: string[] = filters.filter((f) => f.disabled).map((f) => f.label);
+
+  const handleFilterChange = (filter: LegendFilter) => {
+    const newFilters = filters.map((f) => {
+      if (f.label === filter.label) { return { ...f, disabled: !f.disabled }; }
+      return f;
+    });
+
+    // If all filters are disabled, do not allow disabling the last one
+    if (newFilters.every((f) => f.disabled)) {
+      return;
+    }
+
+    setFilters(newFilters);
+  };
+
   // If there is no data submission or no items uploaded, do not render
   if (!dataSubmission || !statistics?.some((s) => s.total > 0)) {
     return null;
@@ -113,25 +138,29 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   return (
     <StyledChartArea direction="row">
       <StyledPrimaryChart>
-        <StyledPrimaryTitle variant="h6">Node Totals</StyledPrimaryTitle>
-        <NodeTotalChart data={buildPrimaryChartSeries(statistics)} />
+        <StyledPrimaryTitle variant="h6">Summary</StyledPrimaryTitle>
+        <NodeTotalChart data={buildPrimaryChartSeries(statistics, disabledSeries)} />
       </StyledPrimaryChart>
       <StyledSecondaryStack direction="column" alignItems="center" flex={1}>
-        <StyledSecondaryTitle variant="h6">Node Count Breakdown</StyledSecondaryTitle>
+        <StyledSecondaryTitle variant="h6">
+          Individual Node Types
+          {" "}
+          {`(${statistics.length})`}
+        </StyledSecondaryTitle>
         <ContentCarousel focusOnSelect={statistics.length > 2}>
-          {statistics.map((stat) => (
+          {statistics?.sort(compareNodeStats).map((stat) => (
             <MiniPieChart
               key={stat.nodeName}
               label={stat.nodeName}
               centerCount={stat.total}
-              data={buildMiniChartSeries(stat)}
+              data={buildMiniChartSeries(stat, disabledSeries)}
             />
           ))}
         </ContentCarousel>
-        <StatisticLegend />
+        <StatisticLegend filters={filters} onClick={handleFilterChange} />
       </StyledSecondaryStack>
     </StyledChartArea>
   );
 };
 
-export default DataSubmissionStatistics;
+export default React.memo<Props>(DataSubmissionStatistics, (prevProps, nextProps) => isEqual(prevProps, nextProps));
