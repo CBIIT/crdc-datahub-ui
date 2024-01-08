@@ -35,6 +35,8 @@ const StyledButtonBase = styled(LoadingButton)(() => ({
 const StyledSubmitButton = styled(StyledButtonBase)(() => ({
   background: "#1D91AB",
   color: "#FFF",
+  width: "fit-content",
+  minWidth: "128px",
   "&:hover": {
     background: "#1A7B90",
   },
