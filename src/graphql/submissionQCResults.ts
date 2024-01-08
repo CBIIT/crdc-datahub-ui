@@ -20,6 +20,7 @@ export const query = gql`
         submissionID
         nodeType
         batchID
+        displayID
         nodeID
         CRDC_ID
         severity
