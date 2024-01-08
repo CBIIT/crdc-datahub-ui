@@ -317,15 +317,17 @@ const DataSubmission = () => {
 
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
-  const disableSubmit = useMemo(
+  const disableSubmitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(
     () => {
       if (!data?.getSubmission?._id) {
-        return true;
+        return { disable: true, isAdminOverride: false };
       }
       const isValidating = data.getSubmission.metadataValidationStatus === "Validating" || data.getSubmission.fileValidationStatus === "Validating";
       const hasNew = data.getSubmission.metadataValidationStatus === "New" || data.getSubmission.fileValidationStatus === "New";
       const hasError = data.getSubmission.metadataValidationStatus === "Error" || data.getSubmission.fileValidationStatus === "Error";
-      return isValidating || hasNew || (user?.role !== "Admin" && hasError);
+      const isAdminOverride = user?.role === "Admin" && !isValidating && !hasNew && hasError;
+      const disable = isValidating || hasNew || (user?.role !== "Admin" && hasError);
+      return { disable, isAdminOverride };
     },
     [data?.getSubmission, user]
   );
@@ -526,7 +528,8 @@ const DataSubmission = () => {
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}
-              disableSubmit={disableSubmit}
+              disableSubmit={disableSubmitInfo.disable}
+              isAdminOverride={disableSubmitInfo.isAdminOverride}
             />
           </StyledCardActions>
         </StyledCard>

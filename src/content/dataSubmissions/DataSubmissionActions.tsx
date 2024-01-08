@@ -161,10 +161,11 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
 type Props = {
   submission: Submission;
   disableSubmit?: boolean;
+  isAdminOverride?: boolean;
   onAction: (action: SubmissionAction) => Promise<void>;
 };
 
-const DataSubmissionActions = ({ submission, disableSubmit, onAction }: Props) => {
+const DataSubmissionActions = ({ submission, disableSubmit, isAdminOverride, onAction }: Props) => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
@@ -225,7 +226,7 @@ const DataSubmissionActions = ({ submission, disableSubmit, onAction }: Props) =
           disableRipple
           disableTouchRipple
         >
-          Submit
+          {isAdminOverride ? "Admin Submit" : "Submit"}
         </StyledSubmitButton>
       ) : null}
       {canShowAction("Release") ? (
