@@ -176,7 +176,7 @@ const QualityControl: FC = () => {
   const [submissionQCResults] = useLazyQuery<submissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
     variables: { id: submissionId },
     context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    fetchPolicy: 'cache-and-network',
   });
 
   const { data: batchData } = useQuery<ListBatchesResp>(LIST_BATCHES, {
@@ -189,13 +189,13 @@ const QualityControl: FC = () => {
       sortDirection: "asc",
     },
     context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache',
+    fetchPolicy: 'cache-and-network',
   });
 
   const { data: nodeTypes } = useQuery<ListNodeTypesResp>(LIST_NODE_TYPES, {
     variables: { submissionID: submissionId, },
     context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache',
+    fetchPolicy: 'cache-and-network',
   });
 
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
