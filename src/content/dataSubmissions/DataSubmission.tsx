@@ -319,15 +319,20 @@ const DataSubmission = () => {
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(
     () => {
-      if (!data?.getSubmission?._id) {
+      const canSubmitRoles: User["role"][] = ["Submitter", "Organization Owner", "Data Curator", "Admin"];
+      if (!data?.getSubmission?._id || !canSubmitRoles.includes(user?.role)) {
         return { disable: true, isAdminOverride: false };
       }
+
       const isMissingMetadata = !data.getSubmission.metadataValidationStatus;
+      const isMissingDataFiles = !data.getSubmission.fileValidationStatus;
       const isValidating = data.getSubmission.metadataValidationStatus === "Validating" || data.getSubmission.fileValidationStatus === "Validating";
       const hasNew = data.getSubmission.metadataValidationStatus === "New" || data.getSubmission.fileValidationStatus === "New";
       const hasError = data.getSubmission.metadataValidationStatus === "Error" || data.getSubmission.fileValidationStatus === "Error";
-      const isAdminOverride = user?.role === "Admin" && !isValidating && !hasNew && hasError;
-      const disable = isValidating || isMissingMetadata || hasNew || (user?.role !== "Admin" && hasError);
+
+      const isAdminOverride = user?.role === "Admin" && !isValidating && !hasNew && (hasError || isMissingDataFiles);
+      const disable = isValidating || isMissingMetadata || hasNew || (user?.role !== "Admin" && (hasError || isMissingDataFiles));
+
       return { disable, isAdminOverride };
     },
     [data?.getSubmission, user]
