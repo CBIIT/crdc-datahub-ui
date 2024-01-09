@@ -317,10 +317,11 @@ const DataSubmission = () => {
       if (!data?.getSubmission?._id) {
         return true;
       }
+      const isMissingMetadata = !data.getSubmission.metadataValidationStatus;
       const isValidating = data.getSubmission.metadataValidationStatus === "Validating" || data.getSubmission.fileValidationStatus === "Validating";
       const hasNew = data.getSubmission.metadataValidationStatus === "New" || data.getSubmission.fileValidationStatus === "New";
       const hasError = data.getSubmission.metadataValidationStatus === "Error" || data.getSubmission.fileValidationStatus === "Error";
-      return isValidating || hasNew || (user?.role !== "Admin" && hasError);
+      return isValidating || isMissingMetadata || hasNew || (user?.role !== "Admin" && hasError);
     },
     [data?.getSubmission, user]
   );
@@ -404,9 +405,8 @@ const DataSubmission = () => {
     setChangesAlert({ message, severity });
     setTimeout(() => setChangesAlert(null), 10000);
 
-    const preInProgressStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected"];
-    // createBatch will update the status to 'In Progress'
-    if (preInProgressStatuses.includes(data?.getSubmission?.status)) {
+    const refreshStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected", "In Progress"];
+    if (refreshStatuses.includes(data?.getSubmission?.status)) {
       await getSubmission();
     }
   };
