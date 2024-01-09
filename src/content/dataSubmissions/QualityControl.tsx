@@ -193,7 +193,7 @@ const QualityControl: FC = () => {
   });
 
   const { data: nodeTypes } = useQuery<ListNodeTypesResp>(LIST_NODE_TYPES, {
-    variables: { submissionID: submissionId, },
+    variables: { _id: submissionId, },
     context: { clientName: 'backend' },
     fetchPolicy: 'cache-and-network',
   });
@@ -269,7 +269,7 @@ const QualityControl: FC = () => {
                 inputProps={{ id: "nodeType-filter" }}
               >
                 <MenuItem value="All">All</MenuItem>
-                {nodeTypes?.listSubmissionNodeTypes?.listNodeTypes?.map((nodeType) => (
+                {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
                   <MenuItem key={nodeType} value={nodeType}>{nodeType}</MenuItem>
                 ))}
               </StyledSelect>
