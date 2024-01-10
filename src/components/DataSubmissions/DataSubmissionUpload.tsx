@@ -114,10 +114,11 @@ const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission ow
 type Props = {
   submitterID: string;
   readOnly?: boolean;
+  onCreateBatch: () => void;
   onUpload: (message: string, severity: AlertColor) => void;
 };
 
-const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
+const DataSubmissionUpload = ({ submitterID, readOnly, onCreateBatch, onUpload }: Props) => {
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
@@ -228,6 +229,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
     if (!newBatch) {
       return;
     }
+    onCreateBatch();
 
     const uploadResult: UploadResult[] = [];
 

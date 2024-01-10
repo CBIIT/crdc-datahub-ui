@@ -499,6 +499,7 @@ const DataSubmission = () => {
                   <DataSubmissionUpload
                     submitterID={data?.getSubmission?.submitterID}
                     readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
+                    onCreateBatch={refreshBatchTable}
                     onUpload={handleOnUpload}
                   />
                   <GenericTable
