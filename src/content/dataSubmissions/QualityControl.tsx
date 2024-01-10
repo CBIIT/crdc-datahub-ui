@@ -44,7 +44,7 @@ const StyledBreakAll = styled(Box)({
 
 const columns: Column<QCResult>[] = [
   {
-    label: "Type",
+    label: "Node Type",
     renderValue: (data) => <StyledNodeType>{data?.nodeType}</StyledNodeType>,
     field: "nodeType",
   },
@@ -75,7 +75,7 @@ const columns: Column<QCResult>[] = [
     default: true
   },
   {
-    label: "Reasons",
+    label: "Validation Issues",
     renderValue: (data) => data?.description?.length > 0 && (
       <QCResultsContext.Consumer>
         {({ handleOpenErrorDialog }) => (

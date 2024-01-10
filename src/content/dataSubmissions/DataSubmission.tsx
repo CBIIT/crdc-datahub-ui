@@ -259,7 +259,7 @@ const columns: Column<Batch>[] = [
     }
   },
   {
-    label: "Errors",
+    label: "Upload Errors",
     renderValue: (data) => (
       <BatchTableContext.Consumer>
         {({ handleOpenErrorDialog }) => {
