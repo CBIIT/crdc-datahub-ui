@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { Box, Button, Dialog, DialogProps, IconButton, Typography, styled } from "@mui/material";
-import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import GenericTable, { Column, FetchListing } from "../../components/DataSubmissions/GenericTable";
-import { LIST_BATCH_FILES, listBatchFilesResp } from "../../graphql";
-import { FormatDate } from "../../utils";
+import { FormatDate, paginateAndSort } from "../../utils";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -112,7 +110,7 @@ const StyledFileName = styled(Typography)({
   justifyContent: "flex-start",
 });
 
-const columns: Column<BatchFile>[] = [
+const columns: Column<BatchFileInfo>[] = [
   {
     label: "Node Type",
     renderValue: (data) => <Box textTransform="capitalize">{data?.nodeType}</Box>,
@@ -140,21 +138,14 @@ const FileListDialog = ({
   open,
   ...rest
 }: Props) => {
-  const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
-  const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
-  const [prevBatchFilesFetch, setPrevBatchFilesFetch] = useState<FetchListing<BatchFile>>(null);
+  const [batchFiles, setBatchFiles] = useState<BatchFileInfo[]>([]);
+  const [prevBatchFilesFetch, setPrevBatchFilesFetch] = useState<FetchListing<BatchFileInfo>>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [listBatchFiles] = useLazyQuery<listBatchFilesResp>(LIST_BATCH_FILES, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  });
-
   const handleCloseDialog = () => {
     setBatchFiles([]);
-    setTotalBatchFiles(0);
     setPrevBatchFilesFetch(null);
     setError(null);
     setLoading(false);
@@ -163,8 +154,7 @@ const FileListDialog = ({
     }
   };
 
-  const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFile>, force: boolean) => {
-    const { first, offset, sortDirection, orderBy } = fetchListing || {};
+  const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFileInfo>, force: boolean) => {
     if (!batch?._id || !batch?.submissionID) {
       setError("Invalid submission ID provided.");
       return;
@@ -175,30 +165,8 @@ const FileListDialog = ({
 
     setPrevBatchFilesFetch(fetchListing);
 
-    try {
-      setLoading(true);
-      const { data: newBatchFiles, error: batchFilesError } = await listBatchFiles({
-        variables: {
-          submissionID: batch.submissionID,
-          batchID: batch._id,
-          first,
-          offset,
-          sortDirection,
-          orderBy
-        },
-        context: { clientName: 'backend' },
-        fetchPolicy: 'no-cache'
-      });
-      if (batchFilesError || !newBatchFiles?.listBatchFiles) {
-        throw Error();
-      }
-      setBatchFiles(newBatchFiles.listBatchFiles.batchFiles);
-      setTotalBatchFiles(newBatchFiles.listBatchFiles.total);
-    } catch (err) {
-      setError("Unable to retrieve batch file data.");
-    } finally {
-      setLoading(false);
-    }
+    const newData = paginateAndSort(batch?.files, fetchListing);
+    setBatchFiles(newData);
   };
 
   return (
@@ -221,18 +189,18 @@ const FileListDialog = ({
       </StyledSubtitle>
 
       <StyledNumberOfFiles>
-        {`${totalBatchFiles} FILES`}
+        {`${batch?.fileCount || 0} FILES`}
       </StyledNumberOfFiles>
 
       <GenericTable
         columns={columns}
         data={batchFiles}
-        total={totalBatchFiles}
+        total={batch?.fileCount || 0}
         loading={loading}
         defaultOrder="asc"
         defaultRowsPerPage={20}
         onFetchData={handleFetchBatchFiles}
-        setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.fileName}`}
+        setItemKey={(item, idx) => `${idx}_${item.fileName}_${item.createdAt}`}
       />
 
       <StyledCloseButton
