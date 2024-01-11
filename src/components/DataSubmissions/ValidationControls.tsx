@@ -6,6 +6,7 @@ import { useSnackbar } from 'notistack';
 import { useAuthContext } from '../Contexts/AuthContext';
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
 import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from '../../graphql';
+import { getDefaultValidationType, getValidationTypes } from '../../utils';
 
 type Props = {
   /**
@@ -21,10 +22,6 @@ type Props = {
    */
   onValidate: (success: boolean) => void;
 };
-
-type ValidationType = "Metadata" | "Files" | "All";
-
-type UploadType = "New" | "All";
 
 const StyledValidateButton = styled(LoadingButton)({
   alignSelf: "center",
@@ -129,17 +126,6 @@ const StyledRadioControl = styled(FormControlLabel)({
 const ValidateRoles: User["role"][] = ["Submitter", "Data Curator", "Organization Owner", "Admin"];
 const ValidateStatuses: Submission["status"][] = ["In Progress", "Withdrawn", "Rejected"];
 
-const getTypes = (validationType: ValidationType): string[] => {
-  switch (validationType) {
-    case "Metadata":
-      return ["metadata"];
-    case "Files":
-      return ["file"];
-    default:
-      return ["metadata", "file"];
-  }
-};
-
 /**
  * Provides the UI for validating a data submission's assets.
  *
@@ -151,7 +137,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   const { enqueueSnackbar } = useSnackbar();
 
   const [validationType, setValidationType] = useState<ValidationType>(null);
-  const [uploadType, setUploadType] = useState<UploadType>(null);
+  const [uploadType, setUploadType] = useState<ValidationTarget>("New");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(dataSubmission?.fileValidationStatus === "Validating"
     || dataSubmission?.metadataValidationStatus === "Validating");
@@ -199,7 +185,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     const { data, errors } = await validateSubmission({
       variables: {
         _id: dataSubmission?._id,
-        types: getTypes(validationType),
+        types: getValidationTypes(validationType),
         scope: uploadType === "New" ? "New" : "All",
       }
     });
@@ -214,8 +200,8 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       onValidate?.(true);
     }
 
-    setValidationType(null);
-    setUploadType(null);
+    setValidationType(getDefaultValidationType(dataSubmission));
+    setUploadType("New");
     setIsLoading(false);
   };
 
@@ -223,6 +209,17 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     setIsValidating(dataSubmission?.fileValidationStatus === "Validating"
       || dataSubmission?.metadataValidationStatus === "Validating");
   }, [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]);
+
+  useEffect(() => {
+    if (validationType !== null) {
+      return;
+    }
+    if (typeof dataSubmission === "undefined") {
+      return;
+    }
+
+    setValidationType(getDefaultValidationType(dataSubmission));
+  }, [dataSubmission]);
 
   return (
     <StyledFileValidationSection>
@@ -255,7 +252,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         <div className="fileValidationLeftSideBottomRow">
           <div className="headerText">Validation Target:</div>
           <div className="fileValidationRadioButtonGroup">
-            <RadioGroup value={uploadType} onChange={(event, val: UploadType) => setUploadType(val)} row>
+            <RadioGroup value={uploadType} onChange={(event, val: ValidationTarget) => setUploadType(val)} row>
               <StyledRadioControl
                 value="New"
                 control={<StyledRadioButton readOnly={false} />}

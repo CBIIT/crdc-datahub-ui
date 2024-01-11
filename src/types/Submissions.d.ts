@@ -223,3 +223,13 @@ type DataValidationResult = {
    */
   message: string;
 };
+
+/**
+ * The type of Data Validation to perform.
+ */
+type ValidationType = "Metadata" | "Files" | "All";
+
+/**
+ * The target of Data Validation action.
+ */
+type ValidationTarget = "New" | "All";
