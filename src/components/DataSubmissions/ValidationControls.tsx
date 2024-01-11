@@ -2,10 +2,10 @@ import { FC, useEffect, useMemo, useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { FormControlLabel, RadioGroup, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { useSnackbar } from 'notistack';
 import { useAuthContext } from '../Contexts/AuthContext';
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
 import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from '../../graphql';
-import GenericAlert, { AlertState } from '../GenericAlert';
 
 type Props = {
   /**
@@ -137,15 +137,35 @@ const ValidateStatuses: Submission["status"][] = ["In Progress", "Withdrawn", "R
  */
 const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) => {
   const { user } = useAuthContext();
-  const [validationType, setValidationType] = useState<ValidationType>("Metadata");
-  const [uploadType, setUploadType] = useState<UploadType>("New");
+  const { enqueueSnackbar } = useSnackbar();
+
+  const [validationType, setValidationType] = useState<ValidationType>(null);
+  const [uploadType, setUploadType] = useState<UploadType>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(dataSubmission?.fileValidationStatus === "Validating"
     || dataSubmission?.metadataValidationStatus === "Validating");
-  const [validationAlert, setValidationAlert] = useState<AlertState>(null);
 
-  const canValidateData: boolean = useMemo(() => ValidateRoles.includes(user?.role), [user?.role]);
-  const validateButtonEnabled: boolean = useMemo(() => ValidateStatuses.includes(dataSubmission?.status), [dataSubmission?.status]);
+  const canValidateMetadata: boolean = useMemo(() => {
+    if (!user?.role || ValidateRoles.includes(user?.role) === false) {
+      return false;
+    }
+    if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
+      return false;
+    }
+
+    return dataSubmission?.metadataValidationStatus !== null;
+  }, [user?.role, dataSubmission?.metadataValidationStatus]);
+
+  const canValidateFiles: boolean = useMemo(() => {
+    if (!user?.role || ValidateRoles.includes(user?.role) === false) {
+      return false;
+    }
+    if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
+      return false;
+    }
+
+    return dataSubmission?.fileValidationStatus !== null;
+  }, [user?.role, dataSubmission?.fileValidationStatus]);
 
   const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
     context: { clientName: 'backend' },
@@ -168,20 +188,18 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     });
 
     if (errors || !data?.validateSubmission?.success) {
-      setValidationAlert({ message: "Unable to initiate validation process.", severity: "error" });
+      enqueueSnackbar("Unable to initiate validation process.", { variant: "error" });
       setIsValidating(false);
       onValidate?.(false);
     } else {
-      setValidationAlert({ message: "Validation process is starting; this may take some time. Please wait before initiating another validation.", severity: "success" });
+      enqueueSnackbar("Validation process is starting; this may take some time. Please wait before initiating another validation.", { variant: "success" });
       setIsValidating(true);
       onValidate?.(true);
     }
 
-    // Reset form to default values
-    setValidationType("Metadata");
-    setUploadType("New");
+    setValidationType(null);
+    setUploadType(null);
     setIsLoading(false);
-    setTimeout(() => setValidationAlert(null), 10000);
   };
 
   const getTypes = (validationType: ValidationType): string[] => {
@@ -202,31 +220,28 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
 
   return (
     <StyledFileValidationSection>
-      <GenericAlert open={!!validationAlert} severity={validationAlert?.severity} key="data-validation-alert">
-        {validationAlert?.message}
-      </GenericAlert>
       <div className="fileValidationLeftSide">
         <div className="fileValidationLeftSideTopRow">
           <div className="headerText">Validation Type:</div>
           <div className="fileValidationRadioButtonGroup">
-            <RadioGroup value={validationType} onChange={(event, val: ValidationType) => setValidationType(val)} row>
+            <RadioGroup value={validationType} onChange={(e, val: ValidationType) => setValidationType(val)} row>
               <StyledRadioControl
                 value="Metadata"
                 control={<StyledRadioButton readOnly={false} />}
                 label="Validate Metadata"
-                disabled={!canValidateData}
+                disabled={!canValidateMetadata}
               />
               <StyledRadioControl
                 value="Files"
                 control={<StyledRadioButton readOnly={false} />}
                 label="Validate Data Files"
-                disabled={!canValidateData}
+                disabled={!canValidateFiles}
               />
               <StyledRadioControl
                 value="All"
                 control={<StyledRadioButton readOnly={false} />}
                 label="Both"
-                disabled={!canValidateData}
+                disabled={!canValidateFiles || !canValidateMetadata}
               />
             </RadioGroup>
           </div>
@@ -239,13 +254,13 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
                 value="New"
                 control={<StyledRadioButton readOnly={false} />}
                 label="New Uploaded Data"
-                disabled={!canValidateData}
+                disabled={!canValidateFiles && !canValidateMetadata}
               />
               <StyledRadioControl
                 value="All"
                 control={<StyledRadioButton readOnly={false} />}
                 label="All Uploaded Data"
-                disabled={!canValidateData}
+                disabled={!canValidateFiles && !canValidateMetadata}
               />
             </RadioGroup>
           </div>
@@ -254,7 +269,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       <StyledValidateButton
         variant="contained"
         disableElevation
-        disabled={!canValidateData || !validateButtonEnabled || isValidating}
+        disabled={!canValidateFiles && !canValidateMetadata}
         loading={isLoading}
         onClick={handleValidateFiles}
       >
