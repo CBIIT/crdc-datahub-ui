@@ -43,6 +43,7 @@ import BatchTableContext from "./Contexts/BatchTableContext";
 import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
 import ValidationControls from '../../components/DataSubmissions/ValidationControls';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
+import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -324,16 +325,11 @@ const DataSubmission = () => {
         return { disable: true, isAdminOverride: false };
       }
 
-      const isMissingMetadata = !data.getSubmission.metadataValidationStatus;
-      const isMissingDataFiles = !data.getSubmission.fileValidationStatus;
-      const isValidating = data.getSubmission.metadataValidationStatus === "Validating" || data.getSubmission.fileValidationStatus === "Validating";
-      const hasNew = data.getSubmission.metadataValidationStatus === "New" || data.getSubmission.fileValidationStatus === "New";
-      const hasError = data.getSubmission.metadataValidationStatus === "Error" || data.getSubmission.fileValidationStatus === "Error";
-
-      const isAdminOverride = user?.role === "Admin" && !isValidating && !hasNew && (hasError || isMissingDataFiles);
-      const disable = isValidating || isMissingMetadata || hasNew || (user?.role !== "Admin" && (hasError || isMissingDataFiles));
-
-      return { disable, isAdminOverride };
+      return shouldDisableSubmit(
+        data.getSubmission.metadataValidationStatus,
+        data.getSubmission.fileValidationStatus,
+        user?.role
+      );
     },
     [data?.getSubmission, user]
   );
