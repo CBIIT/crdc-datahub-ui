@@ -53,6 +53,7 @@ function App() {
           error: StyledNotistackAlerts,
           success: StyledNotistackAlerts,
         }}
+        hideIconVariant
         preventDuplicate
       >
         <LocalizationProvider dateAdapter={AdapterDayjs}>
