@@ -35,6 +35,8 @@ const StyledButtonBase = styled(LoadingButton)(() => ({
 const StyledSubmitButton = styled(StyledButtonBase)(() => ({
   background: "#1D91AB",
   color: "#FFF",
+  width: "fit-content",
+  minWidth: "128px",
   "&:hover": {
     background: "#1A7B90",
   },
@@ -158,13 +160,18 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
 };
 
+type SubmitActionButton = {
+  label: string;
+  disable: boolean;
+};
+
 type Props = {
   submission: Submission;
-  disableSubmit?: boolean;
+  submitActionButton: SubmitActionButton;
   onAction: (action: SubmissionAction) => Promise<void>;
 };
 
-const DataSubmissionActions = ({ submission, disableSubmit, onAction }: Props) => {
+const DataSubmissionActions = ({ submission, submitActionButton, onAction }: Props) => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
@@ -220,12 +227,12 @@ const DataSubmissionActions = ({ submission, disableSubmit, onAction }: Props) =
           variant="contained"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
-          disabled={disableSubmit || (action && action !== "Submit")}
+          disabled={submitActionButton?.disable || (action && action !== "Submit")}
           disableElevation
           disableRipple
           disableTouchRipple
         >
-          Submit
+          {submitActionButton?.label || "Submit"}
         </StyledSubmitButton>
       ) : null}
       {canShowAction("Release") ? (

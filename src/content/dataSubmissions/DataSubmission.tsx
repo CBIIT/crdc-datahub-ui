@@ -44,6 +44,7 @@ import DataSubmissionStatistics from '../../components/DataSubmissions/Validatio
 import ValidationControls from '../../components/DataSubmissions/ValidationControls';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import FileListDialog from "./FileListDialog";
+import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -352,9 +353,20 @@ const DataSubmission = () => {
 
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
-  const disableSubmit = useMemo(
-    () => !data?.submissionStats?.stats?.length || data?.submissionStats?.stats.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
-    [data?.submissionStats, user]
+  const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(
+    () => {
+      const canSubmitRoles: User["role"][] = ["Submitter", "Organization Owner", "Data Curator", "Admin"];
+      if (!data?.getSubmission?._id || !canSubmitRoles.includes(user?.role)) {
+        return { disable: true, isAdminOverride: false };
+      }
+
+      return shouldDisableSubmit(
+        data.getSubmission.metadataValidationStatus,
+        data.getSubmission.fileValidationStatus,
+        user?.role
+      );
+    },
+    [data?.getSubmission, user]
   );
 
   const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
@@ -436,9 +448,8 @@ const DataSubmission = () => {
     setChangesAlert({ message, severity });
     setTimeout(() => setChangesAlert(null), 10000);
 
-    const preInProgressStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected"];
-    // createBatch will update the status to 'In Progress'
-    if (preInProgressStatuses.includes(data?.getSubmission?.status)) {
+    const refreshStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected", "In Progress"];
+    if (refreshStatuses.includes(data?.getSubmission?.status)) {
       await getSubmission();
     }
   };
@@ -559,7 +570,10 @@ const DataSubmission = () => {
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}
-              disableSubmit={disableSubmit}
+              submitActionButton={{
+                disable: submitInfo?.disable,
+                label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
+              }}
             />
           </StyledCardActions>
         </StyledCard>
@@ -568,7 +582,7 @@ const DataSubmission = () => {
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header="Data Submission"
-        title="Error Count"
+        title={`Batch ${selectedRow?.displayID || ""} Upload Errors`}
         errors={selectedRow?.errors}
         uploadedDate={data?.getSubmission?.createdAt}
       />
