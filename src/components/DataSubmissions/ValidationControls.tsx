@@ -129,6 +129,17 @@ const StyledRadioControl = styled(FormControlLabel)({
 const ValidateRoles: User["role"][] = ["Submitter", "Data Curator", "Organization Owner", "Admin"];
 const ValidateStatuses: Submission["status"][] = ["In Progress", "Withdrawn", "Rejected"];
 
+const getTypes = (validationType: ValidationType): string[] => {
+  switch (validationType) {
+    case "Metadata":
+      return ["metadata"];
+    case "Files":
+      return ["file"];
+    default:
+      return ["metadata", "file"];
+  }
+};
+
 /**
  * Provides the UI for validating a data submission's assets.
  *
@@ -202,17 +213,6 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     setIsLoading(false);
   };
 
-  const getTypes = (validationType: ValidationType): string[] => {
-    switch (validationType) {
-      case "Metadata":
-        return ["metadata"];
-      case "Files":
-        return ["file"];
-      default:
-        return ["metadata", "file"];
-    }
-  };
-
   useEffect(() => {
     setIsValidating(dataSubmission?.fileValidationStatus === "Validating"
       || dataSubmission?.metadataValidationStatus === "Validating");
@@ -269,7 +269,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       <StyledValidateButton
         variant="contained"
         disableElevation
-        disabled={!canValidateFiles && !canValidateMetadata}
+        disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
         loading={isLoading}
         onClick={handleValidateFiles}
       >
