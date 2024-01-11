@@ -5,6 +5,7 @@ import {
   TableCell,
   TableCellProps,
   TableContainer,
+  TableContainerProps,
   TableHead,
   TablePagination,
   TablePaginationProps,
@@ -28,7 +29,7 @@ const StyledTableContainer = styled(TableContainer)({
   "& .MuiTableRow-root:nth-of-type(2n)": {
     background: "#E3EEF9",
   },
-  " .MuiTableCell-root:first-of-type": {
+  "& .MuiTableCell-root:first-of-type": {
     paddingLeft: "40.44px",
   },
   "& .MuiTableCell-root:last-of-type": {
@@ -144,6 +145,7 @@ type Props<T> = {
   noContentText?: string;
   defaultOrder?: Order;
   defaultRowsPerPage?: number;
+  containerProps?: TableContainerProps;
   setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
@@ -159,6 +161,7 @@ const GenericTable = <T,>({
   noContentText,
   defaultOrder = "desc",
   defaultRowsPerPage = 10,
+  containerProps,
   setItemKey,
   onFetchData,
   onOrderChange,
@@ -224,7 +227,7 @@ const GenericTable = <T,>({
   };
 
   return (
-    <StyledTableContainer>
+    <StyledTableContainer {...containerProps}>
       {loading && (<SuspenseLoader fullscreen={false} />)}
       <Table>
         <StyledTableHead>

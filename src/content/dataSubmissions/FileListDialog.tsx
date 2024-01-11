@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Button, Dialog, DialogProps, IconButton, Typography, styled } from "@mui/material";
+import { Button, Dialog, DialogProps, IconButton, TableContainerProps, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import GenericTable, { Column, FetchListing } from "../../components/DataSubmissions/GenericTable";
@@ -97,23 +97,57 @@ const StyledNumberOfFiles = styled(Typography)({
   marginBottom: "21px"
 });
 
-const StyledFileName = styled(Typography)({
-  color: "#0D78C5",
-  fontFamily: "Inter",
+const StyledNodeType = styled(Typography)({
+  color: "#083A50",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
-  fontWeight: 600,
-  lineHeight: "19px",
-  textDecorationLine: "underline",
+  fontWeight: 400,
+  lineHeight: "20px",
+  textTransform: "capitalize",
+  wordBreak: "break-all",
+});
+
+const StyledFileName = styled(Typography)({
+  color: "#083A50",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 400,
+  lineHeight: "20px",
   textTransform: "none",
   padding: 0,
   justifyContent: "flex-start",
+  wordBreak: "break-all"
 });
+
+const tableContainerSx: TableContainerProps["sx"] = {
+  "& .MuiTableHead-root .MuiTableCell-root:first-of-type": {
+    paddingLeft: "26px",
+    paddingY: "16px",
+  },
+  "& .MuiTableHead-root .MuiTableCell-root:last-of-type": {
+    paddingRight: "26px",
+    paddingY: "16px",
+  },
+  "& .MuiTableBody-root .MuiTableCell-root:first-of-type": {
+    paddingLeft: "26px",
+  },
+  "& .MuiTableBody-root .MuiTableCell-root:last-of-type": {
+    paddingRight: "26px",
+  },
+  "& .MuiTableBody-root .MuiTableCell-root": {
+    paddingY: "7px",
+  },
+  "& .MuiTableBody-root .MuiTableRow-root": {
+    height: "35px",
+  },
+};
 
 const columns: Column<BatchFileInfo>[] = [
   {
     label: "Node Type",
-    renderValue: (data) => <Box textTransform="capitalize">{data?.nodeType}</Box>,
+    renderValue: (data) => <StyledNodeType>{data?.nodeType}</StyledNodeType>,
     field: "nodeType",
     default: true
   },
@@ -201,6 +235,7 @@ const FileListDialog = ({
         defaultRowsPerPage={20}
         onFetchData={handleFetchBatchFiles}
         setItemKey={(item, idx) => `${idx}_${item.fileName}_${item.createdAt}`}
+        containerProps={{ sx: tableContainerSx }}
       />
 
       <StyledCloseButton
