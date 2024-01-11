@@ -14,7 +14,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import { CSSProperties, ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useAuthContext } from "../Contexts/AuthContext";
 import PaginationActions from "./PaginationActions";
 import SuspenseLoader from '../SuspenseLoader';
@@ -77,11 +77,11 @@ const StyledTableCell = styled(TableCell)({
   },
 });
 
-const StyledTablePagination = styled(TablePagination)<
-  TablePaginationProps & { component: ElementType }
->({
-  "& .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel, & .MuiTablePagination-select":
-    {
+const StyledTablePagination = styled(TablePagination, {
+  shouldForwardProp: (prop) => prop !== "placement"
+})<TablePaginationProps & { component: ElementType; placement: CSSProperties["justifyContent"]; }>(
+  ({ placement }) => ({
+    "& .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
       height: "27px",
       display: "flex",
       alignItems: "center",
@@ -96,24 +96,31 @@ const StyledTablePagination = styled(TablePagination)<
       lineHeight: "14.913px",
       letterSpacing: "0.14px",
     },
-  "& .MuiToolbar-root .MuiInputBase-root": {
-    height: "27px",
-    marginLeft: 0,
-    marginRight: "16px",
-  },
-  "& .MuiToolbar-root p": {
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  "& .MuiToolbar-root": {
-    minHeight: "45px",
-    height: "fit-content",
-    paddingTop: "7px",
-    paddingBottom: "6px",
-    borderTop: "2px solid #083A50",
-    background: "#F5F7F8",
-  },
-});
+    "& .MuiToolbar-root .MuiInputBase-root": {
+      height: "27px",
+      marginLeft: 0,
+      marginRight: "16px",
+    },
+    "& .MuiToolbar-root p": {
+      marginTop: 0,
+      marginBottom: 0,
+    },
+    "& .MuiToolbar-root": {
+      minHeight: "45px",
+      height: "fit-content",
+      paddingTop: "7px",
+      paddingBottom: "6px",
+      borderTop: "2px solid #083A50",
+      background: "#F5F7F8",
+      ...(placement && {
+        justifyContent: placement,
+        "& .MuiTablePagination-spacer": {
+          display: "none"
+        }
+      })
+    },
+  })
+);
 
 export type Order = "asc" | "desc";
 
@@ -145,6 +152,7 @@ type Props<T> = {
   noContentText?: string;
   defaultOrder?: Order;
   defaultRowsPerPage?: number;
+  paginationPlacement?: CSSProperties["justifyContent"];
   containerProps?: TableContainerProps;
   setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
@@ -161,6 +169,7 @@ const GenericTable = <T,>({
   noContentText,
   defaultOrder = "desc",
   defaultRowsPerPage = 10,
+  paginationPlacement,
   containerProps,
   setItemKey,
   onFetchData,
@@ -302,6 +311,7 @@ const GenericTable = <T,>({
         page={page}
         onPageChange={(e, newPage) => setPage(newPage - 1)}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        placement={paginationPlacement}
         nextIconButtonProps={{
             disabled: perPage === -1
               || !data

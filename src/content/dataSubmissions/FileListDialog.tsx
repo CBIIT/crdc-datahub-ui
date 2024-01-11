@@ -233,6 +233,7 @@ const FileListDialog = ({
         loading={loading}
         defaultOrder="asc"
         defaultRowsPerPage={20}
+        paginationPlacement="center"
         onFetchData={handleFetchBatchFiles}
         setItemKey={(item, idx) => `${idx}_${item.fileName}_${item.createdAt}`}
         containerProps={{ sx: tableContainerSx }}
