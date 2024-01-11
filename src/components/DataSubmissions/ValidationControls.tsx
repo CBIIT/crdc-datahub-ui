@@ -184,7 +184,13 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   });
 
   const handleValidateFiles = async () => {
-    if (isValidating) {
+    if (isValidating || !validationType || !uploadType) {
+      return;
+    }
+    if (!canValidateFiles && validationType === "Files") {
+      return;
+    }
+    if (!canValidateMetadata && validationType === "Metadata") {
       return;
     }
 
