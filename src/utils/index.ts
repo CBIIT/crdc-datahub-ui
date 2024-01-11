@@ -6,3 +6,5 @@ export * from './formModeUtils';
 export * from './profileUtils';
 export * from './historyUtils';
 export * from './dataModelUtils';
+export * from './dataSubmissionUtils';
+export * from './tableUtils';
