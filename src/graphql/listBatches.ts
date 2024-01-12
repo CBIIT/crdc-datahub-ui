@@ -24,6 +24,7 @@ export const query = gql`
         metadataIntention
         fileCount
         files {
+          nodeType
           filePrefix
           fileName
           size
