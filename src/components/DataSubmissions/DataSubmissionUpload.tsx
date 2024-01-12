@@ -12,7 +12,7 @@ import {
 import RadioInput from "./RadioInput";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
-import CustomDialog from "../Shared/Dialog";
+import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -108,21 +108,6 @@ const StyledUploadActionWrapper = styled(Stack)(() => ({
 const VisuallyHiddenInput = styled("input")(() => ({
   display: "none !important",
 }));
-
-const StyledDialog = styled(CustomDialog)({
-  "& .MuiDialog-paper": {
-    maxWidth: "none",
-    borderRadius: "8px",
-    width: "567px !important",
-  },
-});
-
-const StyledDialogText = styled(Typography)({
-  fontWeight: 400,
-  fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  lineHeight: "19.6px",
-});
 
 const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
 
@@ -370,29 +355,11 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         {isUploading ? "Uploading..." : "Upload"}
       </StyledUploadFilesButton>
 
-      <StyledDialog
+      <DeleteDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}
-        title="Delete Data"
-        actions={(
-          <>
-            <Button onClick={onCloseDeleteDialog} disabled={false}>Cancel</Button>
-            <LoadingButton
-              onClick={() => onDeleteUpload()}
-              color="error"
-              autoFocus
-            >
-              Delete
-            </LoadingButton>
-          </>
-        )}
-      >
-        <StyledDialogText variant="body2">
-          The metadata or files specified in the selected files, along with
-          their associated child nodes, will be deleted permanently, and this
-          action is irreversible. Are you sure you want to proceed?
-        </StyledDialogText>
-      </StyledDialog>
+        onConfirm={onDeleteUpload}
+      />
     </StyledUploadWrapper>
   );
 };

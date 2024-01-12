@@ -73,6 +73,7 @@ type BatchFileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;
   size: number;
+  nodeType: string
   status: string; // [New, Uploaded, Failed]
   errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z

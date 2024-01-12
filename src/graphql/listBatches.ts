@@ -18,6 +18,7 @@ const FullBatchFragment = gql`
     metadataIntention
     fileCount
     files {
+      nodeType
       filePrefix
       fileName
       size

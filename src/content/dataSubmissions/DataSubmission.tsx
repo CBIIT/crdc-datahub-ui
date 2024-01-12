@@ -43,6 +43,8 @@ import BatchTableContext from "./Contexts/BatchTableContext";
 import DataSubmissionStatistics from '../../components/DataSubmissions/ValidationStatistics';
 import ValidationControls from '../../components/DataSubmissions/ValidationControls';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
+import FileListDialog from "./FileListDialog";
+import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -223,6 +225,23 @@ const StyledErrorDetailsButton = styled(Button)(() => ({
   },
 }));
 
+const StyledFileCountButton = styled(Button)(() => ({
+  color: "#0D78C5",
+  fontFamily: "Inter",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "19px",
+  textDecorationLine: "underline",
+  textTransform: "none",
+  padding: 0,
+  justifyContent: "flex-start",
+  "&:hover": {
+    background: "transparent",
+    textDecorationLine: "underline",
+  },
+}));
+
 const columns: Column<Batch>[] = [
   {
     label: "Batch ID",
@@ -241,7 +260,23 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "File Count",
-    renderValue: (data) => Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data?.fileCount || 0),
+    renderValue: (data) => (
+      <BatchTableContext.Consumer>
+        {({ handleOpenFileListDialog }) => (
+          <StyledFileCountButton
+            onClick={() => handleOpenFileListDialog && handleOpenFileListDialog(data)}
+            variant="text"
+            disableRipple
+            disableTouchRipple
+            disableFocusRipple
+          >
+            {Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
+              data?.fileCount || 0
+            )}
+          </StyledFileCountButton>
+        )}
+      </BatchTableContext.Consumer>
+    ),
     field: "fileCount",
   },
   {
@@ -297,13 +332,14 @@ const DataSubmission = () => {
   const { submissionId, tab } = useParams();
   const { user } = useAuthContext();
 
-  const [batchFiles, setBatchFiles] = useState<Batch[]>([]);
-  const [totalBatchFiles, setTotalBatchFiles] = useState<number>(0);
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [totalBatches, setTotalBatches] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
+  const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
 
   const {
@@ -317,9 +353,20 @@ const DataSubmission = () => {
 
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
-  const disableSubmit = useMemo(
-    () => !data?.submissionStats?.stats?.length || data?.submissionStats?.stats.some((stat) => stat.new > 0 || (user.role !== "Admin" && stat.error > 0)),
-    [data?.submissionStats, user]
+  const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(
+    () => {
+      const canSubmitRoles: User["role"][] = ["Submitter", "Organization Owner", "Data Curator", "Admin"];
+      if (!data?.getSubmission?._id || !canSubmitRoles.includes(user?.role)) {
+        return { disable: true, isAdminOverride: false };
+      }
+
+      return shouldDisableSubmit(
+        data.getSubmission.metadataValidationStatus,
+        data.getSubmission.fileValidationStatus,
+        user?.role
+      );
+    },
+    [data?.getSubmission, user]
   );
 
   const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
@@ -332,13 +379,13 @@ const DataSubmission = () => {
     fetchPolicy: 'no-cache'
   });
 
-  const handleFetchBatchFiles = async (fetchListing: FetchListing<Batch>, force: boolean) => {
+  const handleFetchBatches = async (fetchListing: FetchListing<Batch>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
       setError("Invalid submission ID provided.");
       return;
     }
-    if (!force && batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
+    if (!force && batches?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
       return;
     }
 
@@ -361,8 +408,8 @@ const DataSubmission = () => {
         setError("Unable to retrieve batch data.");
         return;
       }
-      setBatchFiles(newBatchFiles.listBatches.batches);
-      setTotalBatchFiles(newBatchFiles.listBatches.total);
+      setBatches(newBatchFiles.listBatches.batches);
+      setTotalBatches(newBatchFiles.listBatches.total);
     } catch (err) {
       setError("Unable to retrieve batch data.");
     } finally {
@@ -401,9 +448,8 @@ const DataSubmission = () => {
     setChangesAlert({ message, severity });
     setTimeout(() => setChangesAlert(null), 10000);
 
-    const preInProgressStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected"];
-    // createBatch will update the status to 'In Progress'
-    if (preInProgressStatuses.includes(data?.getSubmission?.status)) {
+    const refreshStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected", "In Progress"];
+    if (refreshStatuses.includes(data?.getSubmission?.status)) {
       await getSubmission();
     }
   };
@@ -420,6 +466,11 @@ const DataSubmission = () => {
     setSelectedRow(data);
   };
 
+  const handleOpenFileListDialog = (data: Batch) => {
+    setOpenFileListDialog(true);
+    setSelectedRow(data);
+  };
+
   const handleOnValidate = (status: boolean) => {
     if (!status) {
       return;
@@ -429,7 +480,8 @@ const DataSubmission = () => {
   };
 
   const providerValue = useMemo(() => ({
-    handleOpenErrorDialog
+    handleOpenErrorDialog,
+    handleOpenFileListDialog
   }), [handleOpenErrorDialog]);
 
   useEffect(() => {
@@ -504,11 +556,11 @@ const DataSubmission = () => {
                   <GenericTable
                     ref={tableRef}
                     columns={columns}
-                    data={batchFiles || []}
-                    total={totalBatchFiles || 0}
+                    data={batches || []}
+                    total={totalBatches || 0}
                     loading={loading}
                     defaultRowsPerPage={20}
-                    onFetchData={handleFetchBatchFiles}
+                    onFetchData={handleFetchBatches}
                   />
                 </BatchTableContext.Provider>
               ) : <QualityControl />}
@@ -518,7 +570,10 @@ const DataSubmission = () => {
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}
-              disableSubmit={disableSubmit}
+              submitActionButton={{
+                disable: submitInfo?.disable,
+                label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
+              }}
             />
           </StyledCardActions>
         </StyledCard>
@@ -530,6 +585,11 @@ const DataSubmission = () => {
         title={`Batch ${selectedRow?.displayID || ""} Upload Errors`}
         errors={selectedRow?.errors}
         uploadedDate={data?.getSubmission?.createdAt}
+      />
+      <FileListDialog
+        open={openFileListDialog}
+        batch={selectedRow}
+        onClose={() => setOpenFileListDialog(false)}
       />
     </StyledWrapper>
   );

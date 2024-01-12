@@ -72,7 +72,6 @@ const StyledFileValidationSection = styled("div")({
   borderRadius: 0,
   minHeight: "147px",
   padding: "21px 40px 0",
-  borderTop: "solid 1.5px #6CACDA",
   background: "#F0FBFD",
   gridAutoFlow: "row",
   gridTemplateColumns: "2.5fr 0.5fr",
