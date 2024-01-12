@@ -8,7 +8,6 @@ import { FormatDate, paginateAndSort } from "../../utils";
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
     maxWidth: "none",
-    maxHeight: "none",
     width: "731px !important",
     padding: "38px 42px 52px",
     borderRadius: "8px",
@@ -47,6 +46,7 @@ const StyledCloseButton = styled(Button)({
   letterSpacing: "0.32px",
   textTransform: "none",
   alignSelf: "center",
+  margin: "0 auto",
   marginTop: "45px",
   "&:hover": {
     background: "transparent",
