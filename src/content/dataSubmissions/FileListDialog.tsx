@@ -205,7 +205,7 @@ const FileListDialog = ({
   };
 
   return (
-    <StyledDialog open={open} onClose={handleCloseDialog} title="" {...rest}>
+    <StyledDialog open={open} onClose={handleCloseDialog} title="" {...rest} scroll="body">
       <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
         <CloseIconSvg />
       </StyledCloseDialogButton>
