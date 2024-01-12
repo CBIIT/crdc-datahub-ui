@@ -182,7 +182,7 @@ const QualityControl: FC = () => {
   const { data: batchData } = useQuery<ListBatchesResp>(LIST_BATCHES, {
     variables: {
       submissionID: submissionId,
-      first: 9999, // TODO: need to support -1 for all batches
+      first: -1,
       offset: 0,
       partial: true,
       orderBy: "displayID",
@@ -212,6 +212,9 @@ const QualityControl: FC = () => {
 
     try {
       setLoading(true);
+
+      const nodeType = watch("nodeType");
+      const batchID = watch("batchID");
       const { data: d, error } = await submissionQCResults({
         variables: {
           submissionID: submissionId,
@@ -219,9 +222,9 @@ const QualityControl: FC = () => {
           offset,
           sortDirection,
           orderBy,
-          nodeTypes: watch("nodeType") === "All" ? null : [watch("nodeType")],
-          batchID: watch("batchID") === "All" ? null : [watch("batchID")],
-          severity: watch("severity"),
+          nodeTypes: !nodeType || nodeType === "All" ? undefined : [watch("nodeType")],
+          batchIDs: !batchID || batchID === "All" ? undefined : [watch("batchID")],
+          severities: watch("severity") || "All",
         },
         context: { clientName: 'backend' },
         fetchPolicy: 'no-cache'
