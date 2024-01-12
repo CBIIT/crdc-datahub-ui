@@ -1,25 +1,25 @@
 import { FC } from 'react';
-import { Box, Stack, Typography, styled } from '@mui/material';
+import { Stack, styled } from '@mui/material';
 import LegendItem from './LegendItem';
 
-const StyledContainer = styled(Box)({
+export type Props = {
+  filters: LegendFilter[];
+  onClick?: (filter: LegendFilter) => void;
+};
+
+export type LegendFilter = {
+  label: string;
+  color: string;
+  disabled?: boolean;
+};
+
+const StyledContainer = styled(Stack)({
   borderRadius: "8px",
   background: "#F5F8F9",
   border: "1px solid #939393",
   width: "600px",
-  paddingLeft: "18px",
-  paddingRight: "18px",
-  paddingTop: "3px",
-  paddingBottom: "7px",
+  padding: "8px 0",
   marginTop: "20px",
-});
-
-const StyledLegendTitle = styled(Typography)({
-  color: "#005EA2",
-  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
-  fontSize: "14px",
-  fontWeight: 600,
-  lineHeight: "27px",
 });
 
 /**
@@ -27,15 +27,17 @@ const StyledLegendTitle = styled(Typography)({
  *
  * @returns {React.FC}
  */
-const StatisticLegend: FC = () => (
-  <StyledContainer>
-    <StyledLegendTitle>Color Key</StyledLegendTitle>
-    <Stack direction="row" justifyItems="center" alignItems="center">
-      <LegendItem color="#4D90D3" label="New Counts" />
-      <LegendItem color="#32E69A" label="Passed Counts" />
-      <LegendItem color="#D65219" label="Failed Counts" />
-      <LegendItem color="#FFD700" label="Warning Counts" />
-    </Stack>
+const StatisticLegend: FC<Props> = ({ filters, onClick }) => (
+  <StyledContainer direction="row" justifyContent="center" alignItems="center">
+    {filters.map((filter) => (
+      <LegendItem
+        key={filter.label}
+        color={filter.color}
+        label={filter.label}
+        disabled={filter.disabled}
+        onClick={() => onClick?.(filter)}
+      />
+    ))}
   </StyledContainer>
 );
 
