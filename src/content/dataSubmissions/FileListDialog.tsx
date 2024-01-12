@@ -8,6 +8,7 @@ import { FormatDate, paginateAndSort } from "../../utils";
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
     maxWidth: "none",
+    maxHeight: "none",
     width: "731px !important",
     padding: "38px 42px 52px",
     borderRadius: "8px",
