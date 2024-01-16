@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import {
   AlertColor,
+  Button,
   Stack,
   Typography,
   styled,
@@ -11,6 +12,7 @@ import {
 import RadioInput from "./RadioInput";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
+import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -27,7 +29,7 @@ const StyledMetadataText = styled(StyledUploadTypeText)(() => ({
   },
 }));
 
-const StyledUploadFilesButton = styled(LoadingButton)(() => ({
+const StyledUploadFilesButton = styled(Button)(() => ({
   display: "flex",
   flexDirection: "column",
   padding: "12px 20px",
@@ -50,7 +52,6 @@ const StyledUploadFilesButton = styled(LoadingButton)(() => ({
     minWidth: "137px",
   }
 }));
-
 const StyledChooseFilesButton = styled(LoadingButton)(() => ({
   display: "flex",
   flexDirection: "column",
@@ -123,10 +124,16 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("New");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const uploadMetatadataInputRef = useRef<HTMLInputElement>(null);
   const isSubmissionOwner = submitterID === user?._id;
   const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
   const acceptedExtensions = [".tsv", ".txt"];
+  const metadataIntentionOptions = [
+    { label: "New", value: "New", disabled: !canUpload },
+    { label: "Update", value: "Update", disabled: !canUpload },
+    { label: "Delete", value: "Delete", disabled: !canUpload },
+  ];
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
     context: { clientName: 'backend' },
@@ -272,7 +279,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         return;
       }
       // Batch upload completed successfully
-      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully uploaded`, "success");
+      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${metadataIntention === "Delete" ? "deleted" : "uploaded"}`, "success");
       setIsUploading(false);
       setSelectedFiles(null);
       if (uploadMetatadataInputRef.current) {
@@ -285,12 +292,21 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   };
 
   const onUploadFail = (fileCount = 0) => {
-    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to upload`, "error");
+    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${metadataIntention === "Delete" ? "delete" : "upload"}`, "error");
     setSelectedFiles(null);
     setIsUploading(false);
     if (uploadMetatadataInputRef.current) {
       uploadMetatadataInputRef.current.value = "";
     }
+  };
+
+  const onCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+  };
+
+  const onDeleteUpload = () => {
+    setOpenDeleteDialog(false);
+    handleUploadFiles();
   };
 
   return (
@@ -300,7 +316,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         label="Upload Type"
         value={metadataIntention}
         onChange={(_event, value: MetadataIntention) => setMetadataIntention(value)}
-        options={[{ label: "New", value: "New", disabled: !canUpload }, { label: "Update", value: "Update", disabled: !canUpload }]}
+        options={metadataIntentionOptions}
         gridWidth={4}
         readOnly={readOnly}
         inline
@@ -330,15 +346,20 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
       </StyledUploadActionWrapper>
       <StyledUploadFilesButton
         variant="contained"
-        onClick={handleUploadFiles}
-        loading={isUploading}
-        disabled={readOnly || !selectedFiles?.length || !canUpload}
+        onClick={() => (metadataIntention === "Delete" ? setOpenDeleteDialog(true) : handleUploadFiles())}
+        disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
         disableElevation
         disableRipple
         disableTouchRipple
       >
-        Upload
+        {isUploading ? "Uploading..." : "Upload"}
       </StyledUploadFilesButton>
+
+      <DeleteDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onDeleteUpload}
+      />
     </StyledUploadWrapper>
   );
 };

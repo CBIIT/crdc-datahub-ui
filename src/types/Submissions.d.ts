@@ -11,12 +11,16 @@ type Submission = {
   bucketName: string; // # populated from organization
   rootPath: string; // # a submission folder will be created under this path, default is / or "" meaning root folder
   status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
+  metadataValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
+  fileValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
+
+type ValidationStatus = "New" | "Validating" | "Passed" | "Error" | "Warning";
 
 type SubmissionStatus =
   | "New"
@@ -69,6 +73,7 @@ type BatchFileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;
   size: number;
+  nodeType: string
   status: string; // [New, Uploaded, Failed]
   errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
@@ -83,6 +88,7 @@ type UploadType = "metadata" | "file";
 
 type Batch = {
   _id: string;
+  displayID: number;
   submissionID: string; // parent
   type: UploadType; // [metadata, file]
   metadataIntention: MetadataIntention; // [New, Update, Delete], Update is meant for "Update or insert", metadata only! file batches are always treated as Update
@@ -159,6 +165,7 @@ type QCResult = {
   submissionID: string;
   nodeType: string;
   batchID: string;
+  displayID: number;
   nodeID: string;
   CRDC_ID: string;
   severity: "Error" | "Warning"; // [Error, Warning]

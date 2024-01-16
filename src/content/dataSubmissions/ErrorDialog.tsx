@@ -69,7 +69,17 @@ const StyledTitle = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "900",
   lineHeight: "30px",
-  marginBottom: "60px"
+});
+
+const StyledUploadedDate = styled(Typography)({
+  color: "#595959",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 400,
+  lineHeight: "19.6px",
+  marginTop: "8px",
+  marginBottom: "35px"
 });
 
 const StyledSubtitle = styled(Typography)({
@@ -85,7 +95,7 @@ const StyledSubtitle = styled(Typography)({
 
 const StyledErrorItem = styled(Typography)({
   color: "#131313",
-  fontFamily: "'Public Sans', sans-serif",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 400,
@@ -94,13 +104,15 @@ const StyledErrorItem = styled(Typography)({
 
 const StyledErrorDetails = styled(Stack)({
   padding: "10px",
+  overflowY: "auto",
+  maxHeight: "290px"
 });
 
 type Props = {
   header?: string;
   title?: string;
   closeText?: string;
-  errors: ErrorMessage[];
+  errors: string[];
   uploadedDate: string;
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
@@ -132,15 +144,20 @@ const ErrorDialog = ({
       <StyledTitle variant="h6">
         {title}
       </StyledTitle>
+      <StyledUploadedDate>
+        Uploaded on
+        {" "}
+        {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
+      </StyledUploadedDate>
       <StyledErrorDetails direction="column" spacing={2.5}>
         <StyledSubtitle variant="body2">
-          {`${errors?.length || 0} ${errors?.length === 1 ? "COUNT" : "COUNTS"} ON ${FormatDate(uploadedDate, "M/D/YYYY", "N/A")}:`}
+          {`${errors?.length || 0} ${errors?.length === 1 ? "ERROR" : "ERRORS"}`}
         </StyledSubtitle>
-        <Stack direction="column" spacing={2.75}>
-          {errors?.map((error: ErrorMessage, idx: number) => (
+        <Stack direction="column" spacing={2.75} padding={1.25}>
+          {errors?.map((error: string, idx: number) => (
             // eslint-disable-next-line react/no-array-index-key
-            <StyledErrorItem key={`${idx}_${error.title}_${error.description}`}>
-              {`${idx + 1}. ${error.description}`}
+            <StyledErrorItem key={`${idx}_${error}`}>
+              {`${idx + 1}. ${error}`}
             </StyledErrorItem>
           ))}
         </Stack>

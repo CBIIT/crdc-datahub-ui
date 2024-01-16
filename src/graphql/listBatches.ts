@@ -18,11 +18,13 @@ export const query = gql`
       total
       batches {
         _id
+        displayID
         submissionID
         type
         metadataIntention
         fileCount
         files {
+          nodeType
           filePrefix
           fileName
           size
