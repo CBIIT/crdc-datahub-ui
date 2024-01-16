@@ -253,6 +253,7 @@ const QualityControl: FC = () => {
 
   useEffect(() => {
     handleFetchQCResults(null, true);
+    tableRef.current?.setPage(0);
   }, [watch("nodeType"), watch("batchID"), watch("severity")]);
 
   return (
