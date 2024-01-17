@@ -252,8 +252,7 @@ const QualityControl: FC = () => {
   }), [handleOpenErrorDialog]);
 
   useEffect(() => {
-    tableRef.current?.refresh();
-    tableRef.current?.setPage(0);
+    tableRef.current?.setPage(0, true);
   }, [watch("nodeType"), watch("batchID"), watch("severity")]);
 
   return (
