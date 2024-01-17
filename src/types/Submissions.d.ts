@@ -20,7 +20,13 @@ type Submission = {
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
-type ValidationStatus = "New" | "Validating" | "Passed" | "Error" | "Warning";
+/**
+ * The status of a Metadata or Files in a submission.
+ *
+ * @note `null` indicates that the type has not been uploaded yet.
+ * @note `New` indicates that the type has been uploaded but not validated yet.
+ */
+type ValidationStatus = null | "New" | "Validating" | "Passed" | "Error" | "Warning";
 
 type SubmissionStatus =
   | "New"
@@ -218,3 +224,13 @@ type DataValidationResult = {
    */
   message: string;
 };
+
+/**
+ * The type of Data Validation to perform.
+ */
+type ValidationType = "Metadata" | "Files" | "All";
+
+/**
+ * The target of Data Validation action.
+ */
+type ValidationTarget = "New" | "All";
