@@ -1,10 +1,11 @@
 import { FC } from "react";
 import {
-  Button, Dialog, DialogContent, DialogProps,
+  Button, Dialog, DialogActions, DialogContent, DialogProps,
   IconButton, Typography, styled,
 } from "@mui/material";
-import { Link } from 'react-router-dom';
+import { Link, LinkProps } from 'react-router-dom';
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import env from '../../env';
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -52,7 +53,16 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
   }
 }));
 
-const StyledCloseButton = styled(Button)({
+const StyledDialogActions = styled(DialogActions)({
+  padding: "0 !important",
+  justifyContent: "center",
+});
+
+const StyledButton = styled(Button)<{
+  component?: React.ComponentType,
+  to?: LinkProps["to"],
+  target?: LinkProps["target"],
+}>({
   width: "128px",
   height: "42px",
   padding: "12px 60px !important",
@@ -68,6 +78,7 @@ const StyledCloseButton = styled(Button)({
   letterSpacing: "0.32px",
   textTransform: "none !important" as 'none',
   alignSelf: "center",
+  margin: "0 15px !important",
   marginTop: "45px !important",
   "&:hover": {
     background: "transparent !important",
@@ -102,13 +113,27 @@ const UploaderToolDialog: FC<Props> = ({
     <StyledDialogContent>
       <StyledBodyText id="uploader-cli-body" variant="h6">
         The Uploader CLI is a command-line interface tool provided for directly uploading data submission files from your workstation to the Data Hub cloud storage.
-        To download the tool and accompanying instructions, click on the Download link.
+        To download the tool and accompanying instructions, click on the Download button below.
       </StyledBodyText>
-      <Link to="https://github.com/CBIIT/crdc-datahub-cli-uploader/releases" target="_blank">https://github.com/CBIIT/crdc-datahub-cli-uploader/releases</Link>
     </StyledDialogContent>
-    <StyledCloseButton id="uploader-cli-close-button" variant="outlined" onClick={onClose}>
-      Close
-    </StyledCloseButton>
+    <StyledDialogActions>
+      <StyledButton
+        component={Link}
+        id="uploader-cli-download-button"
+        variant="outlined"
+        target="_blank"
+        to={env?.REACT_APP_UPLOADER_CLI}
+      >
+        Download
+      </StyledButton>
+      <StyledButton
+        id="uploader-cli-close-button"
+        variant="outlined"
+        onClick={onClose}
+      >
+        Close
+      </StyledButton>
+    </StyledDialogActions>
   </StyledDialog>
 );
 
