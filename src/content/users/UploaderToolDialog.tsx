@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 import { Link, LinkProps } from 'react-router-dom';
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import env from '../../env';
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -121,8 +122,7 @@ const UploaderToolDialog: FC<Props> = ({
         id="uploader-cli-download-button"
         variant="outlined"
         target="_blank"
-        // TODO: Add link from environment variable here
-        to="https://github.com/DYNAMIC-LINK-HERE"
+        to={env?.REACT_APP_UPLOADER_CLI}
       >
         Download
       </StyledButton>
