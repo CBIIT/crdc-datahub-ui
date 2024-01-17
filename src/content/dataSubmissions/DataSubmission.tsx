@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   Alert,
-  AlertColor,
   Box,
   Button,
   Card,
@@ -19,6 +18,7 @@ import {
 } from "@mui/material";
 
 import { isEqual } from "lodash";
+import { useSnackbar, VariantType } from 'notistack';
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
@@ -32,7 +32,6 @@ import {
   SubmissionActionResp,
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
-import GenericAlert, { AlertState } from "../../components/GenericAlert";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
@@ -331,13 +330,13 @@ const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
   const { user } = useAuthContext();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [totalBatches, setTotalBatches] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
@@ -352,7 +351,6 @@ const DataSubmission = () => {
   });
 
   const tableRef = useRef<TableMethods>(null);
-  const alertTimeoutRef = useRef(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(
     () => {
@@ -444,9 +442,9 @@ const DataSubmission = () => {
     tableRef.current?.refresh();
   };
 
-  const handleOnUpload = async (message: string, severity: AlertColor) => {
+  const handleOnUpload = async (message: string, variant: VariantType) => {
     refreshBatchTable();
-    onAlert({ message, severity });
+    enqueueSnackbar(message, { variant });
 
     const refreshStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected", "In Progress"];
     if (refreshStatuses.includes(data?.getSubmission?.status)) {
@@ -459,15 +457,6 @@ const DataSubmission = () => {
       return;
     }
     navigator.clipboard.writeText(submissionId);
-  };
-
-  const onAlert = (alertState: AlertState) => {
-    setChangesAlert(alertState);
-
-    if (alertTimeoutRef.current) {
-      clearTimeout(alertTimeoutRef.current);
-    }
-    alertTimeoutRef.current = setTimeout(() => setChangesAlert(null), 10000);
   };
 
   const handleOpenErrorDialog = (data: Batch) => {
@@ -511,11 +500,6 @@ const DataSubmission = () => {
 
   return (
     <StyledWrapper>
-      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
-        <span>
-          {changesAlert?.message}
-        </span>
-      </GenericAlert>
       <StyledBanner bannerSrc={bannerSvg} />
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCopyWrapper direction="row" spacing={1.625} alignItems="center">
@@ -583,7 +567,7 @@ const DataSubmission = () => {
                 disable: submitInfo?.disable,
                 label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
               }}
-              onError={(message: string) => onAlert({ severity: "error", message })}
+              onError={(message: string) => enqueueSnackbar(message, { variant: "error" })}
             />
           </StyledCardActions>
         </StyledCard>

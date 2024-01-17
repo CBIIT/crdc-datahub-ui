@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
+import { VariantType } from "notistack";
 import {
-  AlertColor,
   Button,
   Stack,
   Typography,
@@ -114,7 +114,7 @@ const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission ow
 type Props = {
   submitterID: string;
   readOnly?: boolean;
-  onUpload: (message: string, severity: AlertColor) => void;
+  onUpload: (message: string, severity: VariantType) => void;
 };
 
 const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {

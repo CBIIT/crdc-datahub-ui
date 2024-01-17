@@ -198,11 +198,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         }
       });
       if (errors || !d?.exportSubmission?.success) {
-        throw new Error(`Unable to export submission.`);
+        throw new Error();
       }
       return d.exportSubmission.success;
     } catch (err) {
-      onError(err?.toString());
+      onError("Unable to export submission.");
     }
 
     return false;
