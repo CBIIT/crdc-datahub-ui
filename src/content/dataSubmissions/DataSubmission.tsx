@@ -281,7 +281,7 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Status",
-    renderValue: (data) => <Box textTransform="capitalize">{data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status}</Box>,
+    renderValue: (data) => <Box textTransform="capitalize">{data.status === "Failed" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status}</Box>,
     field: "status",
   },
   {
@@ -335,8 +335,9 @@ const DataSubmission = () => {
   const [batches, setBatches] = useState<Batch[]>([]);
   const [totalBatches, setTotalBatches] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [batchRefreshTimeout, setBatchRefreshTimeout] = useState<NodeJS.Timeout>(null);
+  const [error, setError] = useState<string>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
@@ -446,6 +447,7 @@ const DataSubmission = () => {
   const handleOnUpload = async (message: string, severity: AlertColor) => {
     refreshBatchTable();
     setChangesAlert({ message, severity });
+    setBatchRefreshTimeout(setInterval(refreshBatchTable, 60000));
     setTimeout(() => setChangesAlert(null), 10000);
 
     const refreshStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected", "In Progress"];
@@ -499,6 +501,18 @@ const DataSubmission = () => {
       startPolling(60000);
     }
   }, [data?.getSubmission?.fileValidationStatus, data?.getSubmission?.metadataValidationStatus]);
+
+  useEffect(() => {
+    if (!batchRefreshTimeout) {
+      return;
+    }
+    // TODO: this breaks if you paginate to another page with no "Uploading" batches
+    // We can poll getBatch for the specific batch uploaded, or just accept this flaw
+    // with getBatch, we would lose track of which batch was just uploaded after reloading the page
+    if (!batches?.some((b) => b.status === "Uploading")) {
+      clearInterval(batchRefreshTimeout);
+    }
+  }, [batches]);
 
   return (
     <StyledWrapper>
