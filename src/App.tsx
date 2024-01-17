@@ -1,8 +1,10 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { SnackbarProvider } from 'notistack';
 import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import routeConfig from "./router";
+import StyledNotistackAlerts from './components/StyledNotistackAlerts';
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
@@ -42,10 +44,23 @@ const router = createBrowserRouter(routeConfig);
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <CssBaseline />
-        <RouterProvider router={router} />
-      </LocalizationProvider>
+      <SnackbarProvider
+        maxSnack={3}
+        autoHideDuration={10000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        Components={{
+          default: StyledNotistackAlerts,
+          error: StyledNotistackAlerts,
+          success: StyledNotistackAlerts,
+        }}
+        hideIconVariant
+        preventDuplicate
+      >
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <CssBaseline />
+          <RouterProvider router={router} />
+        </LocalizationProvider>
+      </SnackbarProvider>
     </ThemeProvider>
   );
 }
