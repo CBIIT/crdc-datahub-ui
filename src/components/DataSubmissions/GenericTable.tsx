@@ -5,6 +5,7 @@ import {
   TableCell,
   TableCellProps,
   TableContainer,
+  TableContainerProps,
   TableHead,
   TablePagination,
   TablePaginationProps,
@@ -13,20 +14,22 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import { CSSProperties, ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useAuthContext } from "../Contexts/AuthContext";
 import PaginationActions from "./PaginationActions";
 import SuspenseLoader from '../SuspenseLoader';
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
-  border: 0,
+  border: "1px solid #6CACDA",
   marginBottom: "25px",
   position: "relative",
+  overflowX: "auto",
+  overflowY: "hidden",
   "& .MuiTableRow-root:nth-of-type(2n)": {
     background: "#E3EEF9",
   },
-  " .MuiTableCell-root:first-of-type": {
+  "& .MuiTableCell-root:first-of-type": {
     paddingLeft: "40.44px",
   },
   "& .MuiTableCell-root:last-of-type": {
@@ -74,11 +77,11 @@ const StyledTableCell = styled(TableCell)({
   },
 });
 
-const StyledTablePagination = styled(TablePagination)<
-  TablePaginationProps & { component: ElementType }
->({
-  "& .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel, & .MuiTablePagination-select":
-    {
+const StyledTablePagination = styled(TablePagination, {
+  shouldForwardProp: (prop) => prop !== "placement"
+})<TablePaginationProps & { component: ElementType; placement: CSSProperties["justifyContent"]; }>(
+  ({ placement }) => ({
+    "& .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
       height: "27px",
       display: "flex",
       alignItems: "center",
@@ -93,24 +96,31 @@ const StyledTablePagination = styled(TablePagination)<
       lineHeight: "14.913px",
       letterSpacing: "0.14px",
     },
-  "& .MuiToolbar-root .MuiInputBase-root": {
-    height: "27px",
-    marginLeft: 0,
-    marginRight: "16px",
-  },
-  "& .MuiToolbar-root p": {
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  "& .MuiToolbar-root": {
-    minHeight: "45px",
-    height: "fit-content",
-    paddingTop: "7px",
-    paddingBottom: "6px",
-    borderTop: "2px solid #083A50",
-    background: "#F5F7F8",
-  },
-});
+    "& .MuiToolbar-root .MuiInputBase-root": {
+      height: "27px",
+      marginLeft: 0,
+      marginRight: "16px",
+    },
+    "& .MuiToolbar-root p": {
+      marginTop: 0,
+      marginBottom: 0,
+    },
+    "& .MuiToolbar-root": {
+      minHeight: "45px",
+      height: "fit-content",
+      paddingTop: "7px",
+      paddingBottom: "6px",
+      borderTop: "2px solid #083A50",
+      background: "#F5F7F8",
+      ...(placement && {
+        justifyContent: placement,
+        "& .MuiTablePagination-spacer": {
+          display: "none"
+        }
+      })
+    },
+  })
+);
 
 export type Order = "asc" | "desc";
 
@@ -140,7 +150,10 @@ type Props<T> = {
   total: number;
   loading?: boolean;
   noContentText?: string;
+  defaultOrder?: Order;
   defaultRowsPerPage?: number;
+  paginationPlacement?: CSSProperties["justifyContent"];
+  containerProps?: TableContainerProps;
   setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
@@ -148,13 +161,16 @@ type Props<T> = {
   onPerPageChange?: (perPage: number) => void;
 };
 
-const DataSubmissionBatchTable = <T,>({
+const GenericTable = <T,>({
   columns,
   data,
   total = 0,
   loading,
   noContentText,
+  defaultOrder = "desc",
   defaultRowsPerPage = 10,
+  paginationPlacement,
+  containerProps,
   setItemKey,
   onFetchData,
   onOrderChange,
@@ -162,12 +178,13 @@ const DataSubmissionBatchTable = <T,>({
   onPerPageChange,
 }: Props<T>, ref: React.Ref<TableMethods>) => {
   const { user } = useAuthContext();
-  const [order, setOrder] = useState<Order>("desc");
+  const [order, setOrder] = useState<Order>(defaultOrder);
   const [orderBy, setOrderBy] = useState<Column<T>>(
     columns.find((c) => c.default) || columns.find((c) => c.field)
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(defaultRowsPerPage);
+  const numRowsNoContent = 10;
 
   useEffect(() => {
     fetchData();
@@ -219,7 +236,7 @@ const DataSubmissionBatchTable = <T,>({
   };
 
   return (
-    <StyledTableContainer>
+    <StyledTableContainer {...containerProps}>
       {loading && (<SuspenseLoader fullscreen={false} />)}
       <Table>
         <StyledTableHead>
@@ -242,7 +259,7 @@ const DataSubmissionBatchTable = <T,>({
           </TableRow>
         </StyledTableHead>
         <TableBody>
-          {loading ? Array.from(Array(perPage).keys())?.map((_, idx) => (
+          {loading && total === 0 ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
             <StyledTableRow key={`loading_row_${idx}`}>
               <TableCell colSpan={columns.length} />
             </StyledTableRow>
@@ -271,7 +288,7 @@ const DataSubmissionBatchTable = <T,>({
 
           {/* No content message */}
           {!loading && (!total || total === 0) && (
-            <TableRow style={{ height: 46 * 10 }}>
+            <TableRow style={{ height: 46 * numRowsNoContent }}>
               <TableCell colSpan={columns.length}>
                 <Typography
                   variant="h6"
@@ -294,6 +311,7 @@ const DataSubmissionBatchTable = <T,>({
         page={page}
         onPageChange={(e, newPage) => setPage(newPage - 1)}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        placement={paginationPlacement}
         nextIconButtonProps={{
             disabled: perPage === -1
               || !data
@@ -310,6 +328,6 @@ const DataSubmissionBatchTable = <T,>({
   );
 };
 
-const BatchTableWithRef = forwardRef(DataSubmissionBatchTable) as <T>(props: Props<T> & { ref?: React.Ref<TableMethods> }) => ReturnType<typeof DataSubmissionBatchTable>;
+const TableWithRef = forwardRef(GenericTable) as <T>(props: Props<T> & { ref?: React.Ref<TableMethods> }) => ReturnType<typeof GenericTable>;
 
-export default BatchTableWithRef;
+export default TableWithRef;
