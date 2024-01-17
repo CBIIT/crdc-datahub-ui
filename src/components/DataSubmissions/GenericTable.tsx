@@ -142,6 +142,7 @@ export type FetchListing<T> = {
 
 export type TableMethods = {
   refresh: () => void;
+  setPage: (page: number, forceRefetch?: boolean) => void;
 };
 
 type Props<T> = {
@@ -193,6 +194,12 @@ const GenericTable = <T,>({
   useImperativeHandle(ref, () => ({
     refresh: () => {
       fetchData(true);
+    },
+    setPage: (newPage: number, forceRefetch = false) => {
+      setPage(newPage);
+      if (forceRefetch) {
+        fetchData(true);
+      }
     }
   }));
 
