@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
 import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
 import { Controller, useForm } from 'react-hook-form';
-import { LIST_BATCHES, LIST_NODE_TYPES, ListBatchesResp, ListNodeTypesResp, SUBMISSION_QC_RESULTS, submissionQCResultsResp } from "../../graphql";
+import { LIST_BATCHES, LIST_NODE_TYPES, ListBatchesResp, ListNodeTypesResp, SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
@@ -173,7 +173,7 @@ const QualityControl: FC = () => {
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
   const tableRef = useRef<TableMethods>(null);
 
-  const [submissionQCResults] = useLazyQuery<submissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
+  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
     variables: { id: submissionId },
     context: { clientName: 'backend' },
     fetchPolicy: 'cache-and-network',

@@ -225,6 +225,11 @@ type DataValidationResult = {
   message: string;
 };
 
+type AsyncProcessResult = {
+  success: boolean;
+  message: string;
+};
+
 /**
  * The type of Data Validation to perform.
  */
