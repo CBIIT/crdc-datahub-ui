@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { CSSProperties, FC, useState } from "react";
 import {
   Avatar,
   Button,
@@ -12,6 +12,32 @@ import { useFormContext } from "../../Contexts/FormContext";
 import { StatusIconMap } from "../../../assets/history/submissionRequest";
 import { FormatDate, SortHistory } from "../../../utils";
 
+/**
+ * Returns the styling for a component based on the Questionnaire Status
+ *
+ * @param status The current Questionnaire's status
+ * @returns Color scheme to match the status
+ */
+const getColorScheme = (status: ApplicationStatus): CSSProperties => {
+  switch (status) {
+    case "Approved":
+      return {
+        color: "#0D6E87 !important",
+        background: "#CDEAF0 !important",
+      };
+    case "Rejected":
+      return {
+        color: "#E25C22 !important",
+        background: "#FFDBCB !important",
+      };
+    default:
+      return {
+        color: "#2E5481 !important",
+        background: "#C0DAF3 !important",
+      };
+  }
+};
+
 const StyledAvatar = styled(Avatar)({
   background: "transparent",
   marginRight: "8px",
@@ -20,48 +46,38 @@ const StyledAvatar = styled(Avatar)({
   height: "39px",
 });
 
-const StyledStatus = styled("span")<{ status: ApplicationStatus, leftGap: boolean }>(
-  ({ theme, status, leftGap }) => ({
-    fontWeight: "600",
-    fontSize: "16px",
-    fontFamily: "Public Sans",
-    textTransform: "uppercase",
-    marginLeft: !leftGap ? "6px !important" : null,
-    marginRight: "10px !important",
-    letterSpacing: "0.32px",
-    color: theme.palette?.[status]?.main || "#2E5481",
-  })
-);
+const StyledStatus = styled("span")<{ status: ApplicationStatus, leftGap: boolean }>(({ status, leftGap }) => ({
+  fontWeight: "600",
+  fontSize: "16px",
+  fontFamily: "Public Sans",
+  textTransform: "uppercase",
+  marginLeft: !leftGap ? "6px !important" : null,
+  marginRight: "10px !important",
+  letterSpacing: "0.32px",
+  color: getColorScheme(status).color
+}));
 
-const StyledButton = styled(Button)<{ status: ApplicationStatus }>(
-  ({ theme, status }) => ({
-    color: theme.palette?.[status]?.main || "#2E5481",
-    background: theme.palette?.[status]?.contrastText || "#C0DAF3",
-    fontWeight: "700",
+const StyledButton = styled(Button)<{ status: ApplicationStatus }>(({ status }) => ({
+  ...getColorScheme(status),
+  fontWeight: "700",
+  borderRadius: "8px",
+  textTransform: "none",
+  width: "165px",
+  lineHeight: "19px",
+  padding: "10px 20px 10px 20px",
+}));
+
+const StyledDialog = styled(Dialog)<{ status: ApplicationStatus }>(({ status }) => ({
+  "& .MuiDialog-paper": {
     borderRadius: "8px",
-    textTransform: "none",
-    width: "165px",
-    lineHeight: "19px",
-    padding: "10px 20px 10px 20px",
-    "&:hover": {
-      background: theme.palette?.[status]?.contrastText || "#C0DAF3",
-    },
-  })
-);
-
-const StyledDialog = styled(Dialog)<{ status: ApplicationStatus }>(
-  ({ theme, status }) => ({
-    "& .MuiDialog-paper": {
-      borderRadius: "8px",
-      border: "2px solid",
-      borderColor: theme.palette?.[status]?.main || "#C0DAF3",
-      background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
-      boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
-      padding: "28px 24px",
-      width: "730px",
-    },
-  })
-);
+    border: "2px solid",
+    borderColor: getColorScheme(status).color,
+    background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
+    boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
+    padding: "28px 24px",
+    width: "730px",
+  },
+}));
 
 const StyledDialogTitle = styled(DialogTitle)({
   paddingBottom: "0",
@@ -77,16 +93,14 @@ const StyledPreTitle = styled("p")({
   margin: "0",
 });
 
-const StyledTitle = styled("p")<{ status: ApplicationStatus }>(
-  ({ theme, status }) => ({
-    color: theme.palette?.[status]?.main || "#2E5481",
-    fontSize: "35px",
-    fontFamily: "Nunito Sans",
-    fontWeight: "900",
-    lineHeight: "30px",
-    margin: "0",
-  })
-);
+const StyledTitle = styled("p")<{ status: ApplicationStatus }>(({ status }) => ({
+  color: getColorScheme(status).color,
+  fontSize: "35px",
+  fontFamily: "Nunito Sans",
+  fontWeight: "900",
+  lineHeight: "30px",
+  margin: "0",
+}));
 
 const StyledDialogContent = styled(DialogContent)({
   marginBottom: "22px",

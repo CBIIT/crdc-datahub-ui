@@ -37,7 +37,7 @@ const StyledButton = styled(LoadingButton)({
   color: "#fff",
   textTransform: "none",
   borderColor: "#26B893 !important",
-  background: "#22A584 !important",
+  background: "#1B8369 !important",
   marginRight: "25px",
 });
 
@@ -158,7 +158,7 @@ const columns: Column[] = [
 
       return (
         <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-          <StyledActionButton bg="#74D9E7" text="#156071" border="#84B4BE">View</StyledActionButton>
+          <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">View</StyledActionButton>
         </Link>
       );
     },
