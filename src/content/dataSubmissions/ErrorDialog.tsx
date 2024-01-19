@@ -69,6 +69,7 @@ const StyledTitle = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "900",
   lineHeight: "30px",
+  paddingBottom: "8px"
 });
 
 const StyledUploadedDate = styled(Typography)({
@@ -78,8 +79,6 @@ const StyledUploadedDate = styled(Typography)({
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "19.6px",
-  marginTop: "8px",
-  marginBottom: "35px"
 });
 
 const StyledSubtitle = styled(Typography)({
@@ -91,6 +90,7 @@ const StyledSubtitle = styled(Typography)({
   lineHeight: "20px",
   letterSpacing: "0.14px",
   textTransform: "uppercase",
+  marginTop: "35px"
 });
 
 const StyledErrorItem = styled(Typography)({
@@ -113,7 +113,8 @@ type Props = {
   title?: string;
   closeText?: string;
   errors: string[];
-  uploadedDate: string;
+  errorCount?: string;
+  uploadedDate?: string;
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
 
@@ -122,6 +123,7 @@ const ErrorDialog = ({
   title,
   closeText = "Close",
   errors,
+  errorCount,
   uploadedDate,
   onClose,
   open,
@@ -144,14 +146,16 @@ const ErrorDialog = ({
       <StyledTitle variant="h6">
         {title}
       </StyledTitle>
-      <StyledUploadedDate>
-        Uploaded on
-        {" "}
-        {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
-      </StyledUploadedDate>
+      {uploadedDate && (
+        <StyledUploadedDate>
+          Uploaded on
+          {" "}
+          {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
+        </StyledUploadedDate>
+      )}
       <StyledErrorDetails direction="column" spacing={2.5}>
         <StyledSubtitle variant="body2">
-          {`${errors?.length || 0} ${errors?.length === 1 ? "ERROR" : "ERRORS"}`}
+          {errorCount || `${errors?.length || 0} ${errors?.length === 1 ? "ERROR" : "ERRORS"}`}
         </StyledSubtitle>
         <Stack direction="column" spacing={2.75} padding={1.25}>
           {errors?.map((error: string, idx: number) => (
