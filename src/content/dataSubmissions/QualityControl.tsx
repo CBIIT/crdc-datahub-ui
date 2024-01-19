@@ -108,9 +108,15 @@ const columns: Column<QCResult>[] = [
     field: "nodeType",
   },
   {
+    label: "Validation Type",
+    renderValue: (data) => <StyledNodeType>{data?.validationType}</StyledNodeType>,
+    field: "validationType",
+  },
+  {
     label: "Batch ID",
     renderValue: (data) => <StyledBreakAll>{data?.displayID}</StyledBreakAll>,
     field: "displayID",
+    default: true
   },
   {
     label: "Node ID",
@@ -128,18 +134,17 @@ const columns: Column<QCResult>[] = [
     field: "severity",
   },
   {
-    label: "Uploaded Date",
-    renderValue: (data) => (data?.uploadedDate ? `${FormatDate(data.uploadedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
-    field: "uploadedDate",
-    default: true
+    label: "Validated Date",
+    renderValue: (data) => (data?.validatedDate ? `${FormatDate(data?.validatedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    field: "validatedDate",
   },
   {
-    label: "Validation Issues",
-    renderValue: (data) => data?.description?.length > 0 && (
+    label: "Issues",
+    renderValue: (data) => (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
       <QCResultsContext.Consumer>
         {({ handleOpenErrorDialog }) => (
           <>
-            <span>{data.description[0]?.title}</span>
+            <span>{data.errors?.length > 0 ? data.errors[0].title : data.warnings[0]?.title }</span>
             {" "}
             <StyledErrorDetailsButton
               onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
@@ -154,7 +159,6 @@ const columns: Column<QCResult>[] = [
         )}
       </QCResultsContext.Consumer>
     ),
-    field: "description",
     sortDisabled: true,
   },
 ];
@@ -172,6 +176,10 @@ const QualityControl: FC = () => {
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
   const tableRef = useRef<TableMethods>(null);
+
+  const errorDescriptions = selectedRow?.errors?.map((error) => `(Error) ${error.description}`) ?? [];
+  const warningDescriptions = selectedRow?.warnings?.map((warning) => `(Warning) ${warning.description}`) ?? [];
+  const allDescriptions = [...errorDescriptions, ...warningDescriptions];
 
   const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
     variables: { id: submissionId },
@@ -332,6 +340,7 @@ const QualityControl: FC = () => {
           total={totalData || 0}
           loading={loading}
           defaultRowsPerPage={20}
+          defaultOrder="desc"
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.nodeID}`}
           onFetchData={handleFetchQCResults}
         />
@@ -340,9 +349,9 @@ const QualityControl: FC = () => {
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header="Data Submission"
-        title="Reasons"
-        errors={selectedRow?.description?.map((error) => error.description)}
-        uploadedDate={selectedRow?.uploadedDate}
+        title={`Validation Issues for ${selectedRow?.nodeType} Node ID ${selectedRow?.nodeID}.`}
+        errors={allDescriptions}
+        errorCount={`${allDescriptions?.length || 0} ${allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"}`}
       />
     </>
   );
