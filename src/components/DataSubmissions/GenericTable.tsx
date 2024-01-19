@@ -38,7 +38,7 @@ const StyledTableContainer = styled(TableContainer)({
 });
 
 const StyledTableHead = styled(TableHead)({
-  background: "#5C8FA7",
+  background: "#4D7C8F",
 });
 
 const StyledTableRow = styled(TableRow)({

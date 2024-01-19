@@ -59,7 +59,7 @@ const GridStyled = styled(Grid)({
     fontWeight: 600,
     fontSize: "16px",
     lineHeight: "22px",
-    color: "#89A2A7",
+    color: "#5D7B7E",
     marginLeft: "6px",
     marginRight: "6px",
   },

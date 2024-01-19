@@ -472,7 +472,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 spacing={1}
               >
                 {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">Save</StyledButton>}
-                {viewType === "users" && <StyledButton type="button" onClick={() => navigate("/users")} txt="#949494" border="#828282">Cancel</StyledButton>}
+                {viewType === "users" && <StyledButton type="button" onClick={() => navigate("/users")} txt="#666666" border="#828282">Cancel</StyledButton>}
               </StyledButtonStack>
             </form>
           </StyledContentStack>
