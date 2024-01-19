@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -18,8 +18,9 @@ import {
   EDIT_ORG, EditOrgResp,
   GET_ORG, GetOrgResp,
   LIST_APPROVED_STUDIES, ListApprovedStudiesResp,
-  LIST_CURATORS, ListCuratorsResp
+  LIST_CURATORS, ListCuratorsResp,
 } from '../../graphql';
+import ConfirmDialog from '../../components/Organizations/ConfirmDialog';
 
 type Props = {
   _id: Organization["_id"] | "new";
@@ -143,6 +144,11 @@ const StyledTitleBox = styled(Box)({
 });
 
 /**
+ * Data Submission statuses that reflect an inactive submission
+ */
+const inactiveSubmissionStatus: SubmissionStatus[] = ["Completed", "Archived"];
+
+/**
  * Edit/Create Organization View Component
  *
  * @param {Props} props
@@ -152,9 +158,24 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const navigate = useNavigate();
 
   const [organization, setOrganization] = useState<Organization | null>(null);
+  const [dataSubmissions, setDataSubmissions] = useState<Partial<Submission>[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
+  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<string>("");
+
+  const assignedStudies: string[] = useMemo(() => {
+    const activeStudies = {};
+    const activeSubs = dataSubmissions?.filter((ds) => !inactiveSubmissionStatus.includes(ds?.status));
+
+    organization?.studies?.forEach((s) => {
+      if (activeSubs?.some((ds) => ds?.studyAbbreviation === s?.studyAbbreviation)) {
+        activeStudies[s?.studyAbbreviation] = true;
+      }
+    });
+
+    return Object.keys(activeStudies) || [];
+  }, [organization, dataSubmissions]);
 
   const { handleSubmit, register, reset, control } = useForm<FormInput>();
   const editableFields: (keyof FormInput)[] = [
@@ -166,12 +187,12 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
   const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
     context: { clientName: 'backend' },
-    fetchPolicy: "no-cache",
+    fetchPolicy: "cache-and-network",
   });
 
   const { data: approvedStudies } = useQuery<ListApprovedStudiesResp>(LIST_APPROVED_STUDIES, {
     context: { clientName: 'backend' },
-    fetchPolicy: "no-cache",
+    fetchPolicy: "cache-and-network",
   });
 
   const [getOrganization] = useLazyQuery<GetOrgResp>(GET_ORG, {
@@ -188,6 +209,29 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
+
+  const handleBypassWarning = () => {
+    setConfirmOpen(false);
+    handleSubmit(onSubmit)();
+  };
+
+  const handlePreSubmit = (data: FormInput) => {
+    if (_id !== "new") {
+      const previousStudies = organization?.studies?.map((s) => s?.studyAbbreviation) || [];
+      const removedActiveStudies = previousStudies
+        .filter((s) => !data.studies?.includes(s))
+        .filter((s) => assignedStudies.includes(s))
+        .length;
+
+      // If there are active submissions for a study being removed, show a warning
+      if (removedActiveStudies) {
+        setConfirmOpen(true);
+        return;
+      }
+    }
+
+    onSubmit(data);
+  };
 
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
@@ -213,6 +257,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       }
 
       setOrganization(null);
+      setDataSubmissions(null);
       setChangesAlert("This organization has been successfully added.");
       reset();
     } else {
@@ -253,6 +298,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
     if (_id === "new") {
       setOrganization(null);
+      setDataSubmissions(null);
       setFormValues({
         name: "",
         conciergeID: "",
@@ -263,7 +309,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     }
 
     (async () => {
-      const { data, error } = await getOrganization({ variables: { orgID: _id } });
+      const { data, error } = await getOrganization({ variables: { orgID: _id, organization: _id } });
 
       if (error || !data?.getOrganization) {
         navigate("/organizations", { state: { error: "Unable to fetch organization" } });
@@ -271,6 +317,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       }
 
       setOrganization(data?.getOrganization);
+      setDataSubmissions(data?.listSubmissions?.submissions);
       setFormValues({
         ...data?.getOrganization,
         studies: data?.getOrganization?.studies?.filter((s) => !!s?.studyName && !!s?.studyAbbreviation).map(({ studyAbbreviation }) => studyAbbreviation) || [],
@@ -315,7 +362,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               </StyledPageTitle>
             </StyledTitleBox>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(handlePreSubmit)}>
               {error && (
                 <Alert sx={{ mb: 2, p: 2, width: "100%" }} severity="error">
                   {error || "An unknown API error occurred."}
@@ -414,6 +461,11 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
           </StyledContentStack>
         </Stack>
       </StyledContainer>
+      <ConfirmDialog
+        open={confirmOpen}
+        onSubmit={handleBypassWarning}
+        onClose={() => setConfirmOpen(false)}
+      />
     </>
   );
 };
