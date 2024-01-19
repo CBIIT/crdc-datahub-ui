@@ -322,7 +322,7 @@ const columns: Column<Batch>[] = [
 
 const URLTabs = {
   DATA_UPLOAD: "data-upload",
-  QUALITY_CONTROL: "quality-control"
+  VALIDATION_RESULTS: "validation-results"
 };
 
 const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
@@ -531,10 +531,10 @@ const DataSubmission = () => {
                 selected={tab === URLTabs.DATA_UPLOAD}
               />
               <LinkTab
-                value={URLTabs.QUALITY_CONTROL}
-                label="Quality Control"
-                to={`/data-submission/${submissionId}/${URLTabs.QUALITY_CONTROL}`}
-                selected={tab === URLTabs.QUALITY_CONTROL}
+                value={URLTabs.VALIDATION_RESULTS}
+                label="Validation Results"
+                to={`/data-submission/${submissionId}/${URLTabs.VALIDATION_RESULTS}`}
+                selected={tab === URLTabs.VALIDATION_RESULTS}
               />
             </StyledTabs>
 
