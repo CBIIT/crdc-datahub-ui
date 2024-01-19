@@ -36,7 +36,7 @@ const StyledDialogTitle = styled(DialogTitle)({
 });
 
 const StyledPreTitle = styled("p")({
-  color: "#A7B2CD",
+  color: "#D5DAE7",
   fontSize: "13px",
   fontFamily: "Nunito Sans",
   lineHeight: "27px",
