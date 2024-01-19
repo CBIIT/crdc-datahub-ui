@@ -7,6 +7,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
+import StyledButton from "../../components/Shared/StyledButton";
+import StyledLoadingButton from "../../components/Shared/StyledLoadingButton";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -15,20 +17,21 @@ const StyledActionWrapper = styled(Stack)(() => ({
 
 const StyledButtonBase = styled(LoadingButton)(() => ({
   display: "flex",
-  width: "128px",
-  height: "51px",
-  flexDirection: "column",
+  width: "137px",
+  height: "44px",
+  padding: "10px 34px",
   justifyContent: "center",
   alignItems: "center",
-  gap: "10px",
-  flexShrink: 0,
+  borderWidth: "1.5px",
+  borderStyle: "solid",
+  color: "#FFF",
   borderRadius: "8px",
   textAlign: "center",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 700,
-  lineHeight: "16px",
+  lineHeight: "24px",
   letterSpacing: "0.32px",
   textTransform: "initial",
   zIndex: 3,
@@ -247,108 +250,116 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
   return (
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Return to Data Submission List Button */}
-      <StyledReturnButton
+      <StyledButton
         variant="contained"
         onClick={returnToSubmissionList}
         startIcon={<ArrowBackIcon fontSize="small" />}
         disabled={!!action}
-        disableElevation
-        disableRipple
-        disableTouchRipple
+        mode="neutral"
+        horizontalSize="large"
+        verticalSize="medium"
+        textColor="black"
       >
         Back
-      </StyledReturnButton>
+      </StyledButton>
       {/* Action Buttons */}
       {canShowAction("Submit") ? (
-        <StyledSubmitButton
+        <StyledLoadingButton
           variant="contained"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
           disabled={submitActionButton?.disable || (action && action !== "Submit")}
-          disableElevation
-          disableRipple
-          disableTouchRipple
+          mode="positive"
+          horizontalSize="large"
+          verticalSize="medium"
+          textColor="white"
         >
           {submitActionButton?.label || "Submit"}
-        </StyledSubmitButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("Release") ? (
-        <StyledReleaseButton
+        <StyledLoadingButton
           variant="contained"
           onClick={() => onOpenDialog("Release")}
           loading={action === "Release"}
           disabled={action && action !== "Release"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
+          mode="positive"
+          horizontalSize="large"
+          verticalSize="medium"
+          textColor="white"
         >
           Release
-        </StyledReleaseButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("Complete") ? (
-        <StyledCompleteButton
+        <StyledLoadingButton
           variant="contained"
           onClick={() => onOpenDialog("Complete")}
           loading={action === "Complete"}
           disabled={action && action !== "Complete"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
+          mode="positive"
+          horizontalSize="large"
+          verticalSize="medium"
+          textColor="white"
         >
           Complete
-        </StyledCompleteButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("Archive") ? (
-        <StyledArchiveButton
+        <StyledLoadingButton
           variant="contained"
           onClick={() => handleOnAction("Archive")}
           loading={action === "Archive"}
           disabled={action && action !== "Archive"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
+          mode="positive"
+          horizontalSize="large"
+          verticalSize="medium"
+          textColor="white"
         >
           Archive
-        </StyledArchiveButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("Withdraw") ? (
-        <StyledWithdrawButton
+        <StyledLoadingButton
           variant="contained"
           onClick={() => onOpenDialog("Withdraw")}
           loading={action === "Withdraw"}
           disabled={action && action !== "Withdraw"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
+          mode="negative"
+          horizontalSize="large"
+          verticalSize="medium"
+          textColor="white"
         >
           Withdraw
-        </StyledWithdrawButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("SubmittedReject") || canShowAction("ReleasedReject") ? (
-        <StyledRejectButton
+        <StyledLoadingButton
           variant="contained"
           onClick={() => onOpenDialog("Reject")}
           loading={action === "Reject"}
           disabled={action && action !== "Reject"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
+          mode="negative"
+          horizontalSize="large"
+          verticalSize="medium"
+          textColor="white"
         >
           Reject
-        </StyledRejectButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("Cancel") ? (
-        <StyledCancelButton
+        <StyledLoadingButton
           variant="contained"
           onClick={() => onOpenDialog("Cancel")}
           loading={action === "Cancel"}
           disabled={action && action !== "Cancel"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
+          mode="negative"
+          horizontalSize="large"
+          verticalSize="medium"
+          textColor="white"
         >
           Cancel
-        </StyledCancelButton>
+        </StyledLoadingButton>
       ) : null}
 
       {/* Submit Dialog */}
