@@ -15,6 +15,7 @@ export const query = gql`
         dataCommons
         studyAbbreviation
         dbGaPID
+        modelVersion
         status
         conciergeName
         createdAt
