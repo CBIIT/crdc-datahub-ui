@@ -334,6 +334,7 @@ const DataSubmission = () => {
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [totalBatches, setTotalBatches] = useState<number>(0);
+  const [hasUploadingBatches, setHasUploadingBatches] = useState<boolean>(false);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
   const [batchRefreshTimeout, setBatchRefreshTimeout] = useState<NodeJS.Timeout>(null);
   const [error, setError] = useState<string>(null);
@@ -411,6 +412,7 @@ const DataSubmission = () => {
       }
       setBatches(newBatchFiles.listBatches.batches);
       setTotalBatches(newBatchFiles.listBatches.total);
+      setHasUploadingBatches(newBatchFiles.fullStatusList.batches.some((b) => b.status === "Uploading"));
     } catch (err) {
       setError("Unable to retrieve batch data.");
     } finally {
@@ -447,7 +449,6 @@ const DataSubmission = () => {
   const handleOnUpload = async (message: string, severity: AlertColor) => {
     refreshBatchTable();
     setChangesAlert({ message, severity });
-    setBatchRefreshTimeout(setInterval(refreshBatchTable, 60000));
     setTimeout(() => setChangesAlert(null), 10000);
 
     const refreshStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected", "In Progress"];
@@ -503,16 +504,19 @@ const DataSubmission = () => {
   }, [data?.getSubmission?.fileValidationStatus, data?.getSubmission?.metadataValidationStatus]);
 
   useEffect(() => {
-    if (!batchRefreshTimeout) {
-      return;
-    }
-    // TODO: this breaks if you paginate to another page with no "Uploading" batches
-    // We can poll getBatch for the specific batch uploaded, or just accept this flaw
-    // with getBatch, we would lose track of which batch was just uploaded after reloading the page
-    if (!batches?.some((b) => b.status === "Uploading")) {
+    if (!hasUploadingBatches) {
+      console.log("Has no uploading batches. Clearing batch refresh timeout.");
       clearInterval(batchRefreshTimeout);
+    } else if (!batchRefreshTimeout) {
+      console.warn("Has uploading batches. Setting batch refresh timeout.");
+      // TODO: increase interval to 60 seconds
+      setBatchRefreshTimeout(setInterval(refreshBatchTable, 10000));
     }
-  }, [batches]);
+
+    return () => {
+      clearInterval(batchRefreshTimeout);
+    };
+  }, [hasUploadingBatches]);
 
   return (
     <StyledWrapper>

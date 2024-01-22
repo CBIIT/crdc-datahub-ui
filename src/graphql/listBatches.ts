@@ -39,9 +39,17 @@ export const query = gql`
         updatedAt
       }
     }
+    fullStatusList: listBatches(submissionID: $submissionID, first: -1) {
+      batches {
+        status
+      }
+    }
   }
 `;
 
 export type Response = {
   listBatches: ListBatches;
+  fullStatusList: {
+    batches: Pick<Batch, 'status'>[];
+  };
 };
