@@ -270,7 +270,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
         return;
       }
 
-      enqueueSnackbar("All changes have been saved.", { variant: "default" });
+      enqueueSnackbar("All changes have been saved", { variant: "default" });
       setFormValues(data);
       setOrganization((prev: Organization) => ({ ...prev, studies: d.editOrganization.studies }));
     }
