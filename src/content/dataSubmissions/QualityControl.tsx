@@ -103,6 +103,12 @@ const StyledSelect = styled(Select)(baseTextFieldStyles);
 
 const columns: Column<QCResult>[] = [
   {
+    label: "Batch ID",
+    renderValue: (data) => <StyledBreakAll>{data?.displayID}</StyledBreakAll>,
+    field: "displayID",
+    default: true
+  },
+  {
     label: "Node Type",
     renderValue: (data) => <StyledNodeType>{data?.nodeType}</StyledNodeType>,
     field: "nodeType",
@@ -111,12 +117,6 @@ const columns: Column<QCResult>[] = [
     label: "Validation Type",
     renderValue: (data) => <StyledNodeType>{data?.validationType}</StyledNodeType>,
     field: "validationType",
-  },
-  {
-    label: "Batch ID",
-    renderValue: (data) => <StyledBreakAll>{data?.displayID}</StyledBreakAll>,
-    field: "displayID",
-    default: true
   },
   {
     label: "Node ID",
