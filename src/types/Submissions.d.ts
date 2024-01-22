@@ -73,6 +73,11 @@ type UploadResult = {
   fileName: string;
   succeeded: boolean;
   errors: string[];
+  /**
+   * Applies to Data File uploads only. Indicates whether the file was skipped
+   * intentionally during the upload process.
+   */
+  skipped?: boolean;
 };
 
 type BatchFileInfo = {
