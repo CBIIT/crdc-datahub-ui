@@ -140,9 +140,11 @@ const ErrorDialog = ({
       <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      <StyledHeader variant="h3">
-        {header}
-      </StyledHeader>
+      {header && (
+        <StyledHeader variant="h3">
+          {header}
+        </StyledHeader>
+      )}
       <StyledTitle variant="h6">
         {title}
       </StyledTitle>

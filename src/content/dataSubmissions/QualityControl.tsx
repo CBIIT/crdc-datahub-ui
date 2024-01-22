@@ -348,7 +348,7 @@ const QualityControl: FC = () => {
       <ErrorDialog
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
-        header="Data Submission"
+        header={null}
         title={`Validation Issues for ${capitalizeFirstLetter(selectedRow?.nodeType)} Node ID ${selectedRow?.nodeID}.`}
         errors={allDescriptions}
         errorCount={`${allDescriptions?.length || 0} ${allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"}`}
