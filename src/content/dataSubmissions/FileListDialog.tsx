@@ -122,6 +122,16 @@ const StyledFileName = styled(Typography)({
   wordBreak: "break-all"
 });
 
+const StyledNoFiles = styled(Typography)({
+  color: "#595959",
+  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: "400",
+  marginTop: "8px",
+  marginBottom: "40px"
+});
+
 const tableContainerSx: TableContainerProps["sx"] = {
   "& .MuiTableHead-root .MuiTableCell-root:first-of-type": {
     paddingLeft: "26px",
@@ -227,18 +237,22 @@ const FileListDialog = ({
         {`${batch?.fileCount || 0} FILES`}
       </StyledNumberOfFiles>
 
-      <GenericTable
-        columns={columns}
-        data={batchFiles}
-        total={batch?.fileCount || 0}
-        loading={loading}
-        defaultOrder="asc"
-        defaultRowsPerPage={20}
-        paginationPlacement="center"
-        onFetchData={handleFetchBatchFiles}
-        setItemKey={(item, idx) => `${idx}_${item.fileName}_${item.createdAt}`}
-        containerProps={{ sx: tableContainerSx }}
-      />
+      {batch?.fileCount === 0 ? (
+        <StyledNoFiles variant="body1">No files were uploaded.</StyledNoFiles>
+      ) : (
+        <GenericTable
+          columns={columns}
+          data={batchFiles}
+          total={batch?.fileCount || 0}
+          loading={loading}
+          defaultOrder="asc"
+          defaultRowsPerPage={20}
+          paginationPlacement="center"
+          onFetchData={handleFetchBatchFiles}
+          setItemKey={(item, idx) => `${idx}_${item.fileName}_${item.createdAt}`}
+          containerProps={{ sx: tableContainerSx }}
+        />
+      )}
 
       <StyledCloseButton
         id="file-list-dialog-close-button"
