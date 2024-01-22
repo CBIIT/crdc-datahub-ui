@@ -78,7 +78,7 @@ const GridStyled = styled(Grid)({
     display: "none",
   },
   "& .asterisk": {
-    color: "#D54309",
+    color: "#C93F08",
     marginLeft: "2px",
   },
   "& .labelContainer": {

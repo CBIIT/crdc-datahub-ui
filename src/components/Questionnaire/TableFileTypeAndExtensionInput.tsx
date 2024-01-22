@@ -38,7 +38,7 @@ const StyledTooltip = styled((props: TooltipProps) => (
 ))(() => ({
   "& .MuiTooltip-tooltip": {
     marginTop: "4px !important",
-    color: "#D54309",
+    color: "#C93F08",
     background: "#FFFFFF",
     border: "1px solid #2B528B",
   },
