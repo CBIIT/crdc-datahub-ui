@@ -190,6 +190,11 @@ const columns: Column[] = [
     field: "dbGaPID",
   },
   {
+    label: "Data Model Versison",
+    value: (a) => a.modelVersion,
+    field: "modelVersion",
+  },
+  {
     label: "Status",
     value: (a) => a.status,
     field: "status",
