@@ -288,7 +288,7 @@ const CreateSubmissionDialog = styled(Dialog)`
     cursor: pointer;
   }
   .createSubmissionError {
-    color: #D54309;
+    color: #C93F08;
     text-align: center;
     margin-bottom: 30px;
     margin-top: -20px;
@@ -539,7 +539,7 @@ const ListingView: FC = () => {
                       variant="h6"
                       align="center"
                       fontSize={18}
-                      color="#AAA"
+                      color="#757575"
                     >
                       There are no data submissions associated with your account
                     </Typography>

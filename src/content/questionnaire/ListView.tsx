@@ -326,7 +326,7 @@ const ListingView: FC = () => {
                       variant="h6"
                       align="center"
                       fontSize={18}
-                      color="#AAA"
+                      color="#757575"
                     >
                       There are no submission requests associated with your account
                     </Typography>
