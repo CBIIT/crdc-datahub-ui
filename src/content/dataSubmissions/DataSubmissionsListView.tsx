@@ -175,6 +175,11 @@ const columns: Column[] = [
     field: "dataCommons",
   },
   {
+    label: "DM Versison",
+    value: (a) => a.modelVersion,
+    field: "modelVersion",
+  },
+  {
     label: "Organization",
     value: (a) => a.organization.name,
     field: "organization.name",
@@ -188,11 +193,6 @@ const columns: Column[] = [
     label: "dbGaP ID",
     value: (a) => a.dbGaPID,
     field: "dbGaPID",
-  },
-  {
-    label: "Data Model Versison",
-    value: (a) => a.modelVersion,
-    field: "modelVersion",
   },
   {
     label: "Status",
