@@ -235,6 +235,8 @@ const FileListDialog = ({
         defaultOrder="asc"
         defaultRowsPerPage={20}
         paginationPlacement="center"
+        noContentText="No files were uploaded."
+        numRowsNoContent={5}
         onFetchData={handleFetchBatchFiles}
         setItemKey={(item, idx) => `${idx}_${item.fileName}_${item.createdAt}`}
         containerProps={{ sx: tableContainerSx }}

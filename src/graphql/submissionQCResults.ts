@@ -25,13 +25,19 @@ export const query = gql`
       results {
         submissionID
         nodeType
+        validationType
         batchID
         displayID
         nodeID
         CRDC_ID
         severity
         uploadedDate
-        description {
+        validatedDate
+        errors {
+          title
+          description
+        }
+        warnings {
           title
           description
         }
