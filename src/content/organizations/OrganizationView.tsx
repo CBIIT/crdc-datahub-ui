@@ -6,12 +6,12 @@ import {
   OutlinedInput, Select, Stack, Typography,
   styled,
 } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import { cloneDeep } from 'lodash';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import bannerSvg from '../../assets/banner/profile_banner.png';
 import profileIcon from '../../assets/icons/organization.svg';
-import GenericAlert from '../../components/GenericAlert';
 import SuspenseLoader from '../../components/SuspenseLoader';
 import {
   CREATE_ORG, CreateOrgResp,
@@ -156,13 +156,13 @@ const inactiveSubmissionStatus: SubmissionStatus[] = ["Completed", "Archived"];
  */
 const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [dataSubmissions, setDataSubmissions] = useState<Partial<Submission>[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
-  const [changesAlert, setChangesAlert] = useState<string>("");
 
   const assignedStudies: string[] = useMemo(() => {
     const activeStudies = {};
@@ -258,7 +258,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
       setOrganization(null);
       setDataSubmissions(null);
-      setChangesAlert("This organization has been successfully added.");
+      enqueueSnackbar("This organization has been successfully added.", { variant: "default" });
       reset();
     } else {
       const { data: d, errors } = await editOrganization({ variables: { orgID: organization._id, ...variables, } })
@@ -270,12 +270,12 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
         return;
       }
 
-      setChangesAlert("All changes have been saved");
+      enqueueSnackbar("All changes have been saved", { variant: "default" });
       setFormValues(data);
+      setOrganization((prev: Organization) => ({ ...prev, studies: d.editOrganization.studies }));
     }
 
     setError(null);
-    setTimeout(() => setChangesAlert(""), 10000);
   };
 
   /**
@@ -331,11 +331,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
   return (
     <>
-      <GenericAlert open={!!changesAlert} key="organization-changes-alert">
-        <span>
-          {changesAlert}
-        </span>
-      </GenericAlert>
       <StyledBanner />
       <StyledContainer maxWidth="lg">
         <Stack
