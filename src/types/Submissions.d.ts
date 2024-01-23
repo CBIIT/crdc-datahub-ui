@@ -175,13 +175,16 @@ type QCResults = {
 type QCResult = {
   submissionID: string;
   nodeType: string;
+  validationType: "metadata" | "file"; // [metadata, file]
   batchID: string;
   displayID: number;
   nodeID: string;
   CRDC_ID: string;
   severity: "Error" | "Warning"; // [Error, Warning]
-  uploadedDate: string // batch.updatedAt
-  description: ErrorMessage[];
+  uploadedDate: string; // batch.updatedAt
+  validatedDate: string;
+  errors: ErrorMessage[];
+  warnings: ErrorMessage[];
 };
 
 type ErrorMessage = {
