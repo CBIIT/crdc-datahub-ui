@@ -31,16 +31,24 @@ const StyledDate = styled("span")({
 });
 
 const StyledButton = styled(Button)({
-  fontWeight: "700",
-  borderRadius: "8px",
-  textTransform: "none",
-  letterSpacing: "0.32px",
-  background: "#C0DAF3",
-  color: "#2E5481",
-  width: "165px",
-  "&:hover": {
-    background: "#C0DAF3",
-  },
+  "&.MuiButton-root": {
+    minWidth: "192px",
+    padding: "10px 20px",
+    border: "1px solid #004A80",
+    color: "#004A80",
+    fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: "17px",
+    letterSpacing: "0.32px",
+    textTransform: "none",
+    "&:hover": {
+      backgroundColor: "#1A5874",
+      borderColor: "#DDE6EF",
+      color: "#DDE6EF",
+    },
+  }
 });
 
 const StyledDialog = styled(Dialog)({
@@ -221,9 +229,9 @@ const HistorySection: FC = () => {
           <StyledButton
             id="status-bar-full-history-button"
             variant="contained"
+            color="info"
             onClick={() => setOpen(true)}
             aria-label="Full History"
-            color="primary"
             disableElevation
           >
             Full History

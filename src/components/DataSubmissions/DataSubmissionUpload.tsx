@@ -30,55 +30,36 @@ const StyledMetadataText = styled(StyledUploadTypeText)(() => ({
 }));
 
 const StyledUploadFilesButton = styled(Button)(() => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: "12px 20px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  background: "#005EA2",
+  minWidth: "137px",
+  minHeight: "44px",
+  padding: "10px",
   color: "#FFF",
-  textAlign: "center",
   fontFamily: "'Nunito'",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 700,
-  lineHeight: "16px",
+  lineHeight: "24px",
   letterSpacing: "0.32px",
   textTransform: "none",
   "&.MuiButtonBase-root": {
     marginLeft: "auto",
     marginRight: "21.5px",
-    minWidth: "137px",
   }
 }));
 const StyledChooseFilesButton = styled(LoadingButton)(() => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: "12px 22px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  border: "1px solid #6B7294",
-  background: "#FFFFFF",
-  textAlign: "center",
-  color: "#000000",
+  minWidth: "137px",
+  minHeight: "44px",
+  padding: "10px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 500,
-  lineHeight: "19.6px",
+  lineHeight: "24px",
   textTransform: "initial",
-  height: "44px",
-  boxShadow: "none",
   marginLeft: "12px",
   marginRight: "12px",
   "&.MuiButtonBase-root": {
     marginLeft: "15px",
-  },
-  "&:hover": {
-    cursor: "pointer",
-    background: "#C0DAF3"
   },
 }));
 
@@ -336,7 +317,8 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onCreateBatch, onUpload }
           multiple
         />
         <StyledChooseFilesButton
-          variant="outlined"
+          variant="contained"
+          color="info"
           onClick={handleChooseFilesClick}
           disabled={readOnly || isUploading || !canUpload}
         >
@@ -348,6 +330,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onCreateBatch, onUpload }
       </StyledUploadActionWrapper>
       <StyledUploadFilesButton
         variant="contained"
+        color="info"
         onClick={() => (metadataIntention === "Delete" ? setOpenDeleteDialog(true) : handleUploadFiles())}
         disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
         disableElevation

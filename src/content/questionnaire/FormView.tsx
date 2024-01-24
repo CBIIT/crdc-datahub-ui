@@ -15,8 +15,8 @@ import {
   styled,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import ForwardArrowIcon from "@mui/icons-material/ArrowForwardIos";
-import BackwardArrowIcon from "@mui/icons-material/ArrowBackIos";
+import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
+import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
 import {
   Status as FormStatus,
   useFormContext,
@@ -85,25 +85,14 @@ const StyledControls = styled(Stack)({
   marginTop: "15px !important",
   "& button": {
     margin: "0 6px",
-    padding: "14px 11px",
+    padding: "10px",
     minWidth: "128px",
-    fontWeight: 700,
     fontSize: "16px",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     letterSpacing: "0.32px",
-    lineHeight: "20.14px",
+    lineHeight: "24px",
     borderRadius: "8px",
-    borderColor: "#828282",
-    background: "#737373",
-    color: "inherit",
     textTransform: "none",
-  },
-  "& button:disabled": {
-    backgroundColor: "#CDCDCD",
-  },
-  "& button:hover:not([disabled])": {
-    color: "#fff",
-    background: "#5E5E5E",
   },
   "& a": {
     color: "inherit",
@@ -120,71 +109,18 @@ const StyledControls = styled(Stack)({
   },
 });
 
-const StyledBaseLoadingButton = styled(LoadingButton)({
+const StyledLoadingButton = styled(LoadingButton)({
   "&.MuiButton-root": {
-    display: "flex",
     minWidth: "128px",
-    height: "50.593px",
-    padding: "11px",
-    justifyContent: "center",
-    alignItems: "center",
-    flexShrink: 0,
-    borderRadius: "8px",
-    textAlign: "center",
+    padding: "10px",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
-    fontWeight: 700,
-    lineHeight: "16px",
+    lineHeight: "24px",
     letterSpacing: "0.32px",
     "& .MuiSvgIcon-root": {
       fontSize: "20px",
     },
-  },
-});
-
-const StyledBackButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    justifyContent: "flex-start",
-  },
-});
-
-const StyledSaveLoadingButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    borderColor: "#26B893",
-    background: "#22A584",
-  },
-});
-
-const StyledSubmitLoadingButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    border: "1px solid #828282",
-    background: "#0B7F99",
-  },
-});
-
-const StyledApproveLoadingButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    borderColor: "#26B893",
-    background: "#22A584",
-  },
-});
-const StyledInquireLoadingButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    borderColor: "#26B893",
-    background: "#D54309",
-  },
-});
-const StyledRejectLoadingButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    borderColor: "#26B893",
-    background: "#D54309",
-  },
-});
-const StyledNextButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    display: "flex",
-    justifyContent: "flex-end",
   },
 });
 
@@ -767,20 +703,22 @@ const FormView: FC<Props> = ({ section } : Props) => {
               alignItems="center"
               spacing={2}
             >
-              <StyledBackButton
+              <StyledLoadingButton
                 id="submission-form-back-button"
-                variant="outlined"
+                variant="contained"
+                color="info"
                 type="button"
                 disabled={status === FormStatus.SAVING || !prevSection}
                 onClick={handleBackClick}
                 size="large"
-                startIcon={<BackwardArrowIcon />}
+                startIcon={<ChevronLeft />}
               >
                 Back
-              </StyledBackButton>
-              <StyledSaveLoadingButton
+              </StyledLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-save-button"
-                variant="outlined"
+                variant="contained"
+                color="success"
                 type="button"
                 ref={refs.saveFormRef}
                 size="large"
@@ -789,10 +727,11 @@ const FormView: FC<Props> = ({ section } : Props) => {
                 sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
               >
                 Save
-              </StyledSaveLoadingButton>
-              <StyledSubmitLoadingButton
+              </StyledLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-submit-button"
-                variant="outlined"
+                variant="contained"
+                color="primary"
                 type="submit"
                 ref={refs.submitFormRef}
                 size="large"
@@ -800,46 +739,50 @@ const FormView: FC<Props> = ({ section } : Props) => {
                 sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
               >
                 Submit
-              </StyledSubmitLoadingButton>
-              <StyledApproveLoadingButton
+              </StyledLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-approve-button"
-                variant="outlined"
+                variant="contained"
+                color="primary"
                 ref={refs.approveFormRef}
                 size="large"
                 onClick={handleApproveForm}
               >
                 Approve
-              </StyledApproveLoadingButton>
-              <StyledInquireLoadingButton
+              </StyledLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-inquire-button"
-                variant="outlined"
+                variant="contained"
+                color="error"
                 ref={refs.inquireFormRef}
                 size="large"
                 onClick={handleInquireForm}
               >
                 Request Additional Information
-              </StyledInquireLoadingButton>
-              <StyledRejectLoadingButton
+              </StyledLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-reject-button"
-                variant="outlined"
+                variant="contained"
+                color="error"
                 ref={refs.rejectFormRef}
                 size="large"
                 onClick={handleRejectForm}
               >
                 Reject
-              </StyledRejectLoadingButton>
-              <StyledNextButton
+              </StyledLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-next-button"
-                variant="outlined"
+                variant="contained"
+                color="info"
                 type="button"
                 ref={refs.nextButtonRef}
                 onClick={handleNextClick}
                 disabled={status === FormStatus.SAVING || !nextSection || (isSectionD && !allSectionsComplete)}
                 size="large"
-                endIcon={<ForwardArrowIcon />}
+                endIcon={<ChevronRight />}
               >
                 Next
-              </StyledNextButton>
+              </StyledLoadingButton>
             </StyledControls>
           </StyledContent>
         </StyledContentWrapper>

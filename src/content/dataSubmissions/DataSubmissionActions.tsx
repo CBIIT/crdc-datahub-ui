@@ -3,106 +3,48 @@ import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Button, Stack, Typography, styled } from "@mui/material";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
-import StyledButton from "../../components/Shared/StyledButton";
-import StyledLoadingButton from "../../components/Shared/StyledLoadingButton";
+import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
   alignItems: "center",
 }));
 
-const StyledButtonBase = styled(LoadingButton)(() => ({
-  display: "flex",
-  width: "137px",
-  height: "44px",
-  padding: "10px 34px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderWidth: "1.5px",
-  borderStyle: "solid",
-  color: "#FFF",
+const StyledButton = styled(Button)(() => ({
+  minWidth: "137px",
+  width: "fit-content",
+  padding: "10px",
   borderRadius: "8px",
   textAlign: "center",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
-  fontWeight: 700,
   lineHeight: "24px",
   letterSpacing: "0.32px",
   textTransform: "initial",
   zIndex: 3,
 }));
 
-const StyledSubmitButton = styled(StyledButtonBase)(() => ({
-  background: "#1D91AB",
-  color: "#FFF",
+const StyledLoadingButton = styled(LoadingButton)(() => ({
+  minWidth: "137px",
   width: "fit-content",
+  padding: "10px",
+  borderRadius: "8px",
+  textAlign: "center",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  lineHeight: "24px",
+  letterSpacing: "0.32px",
+  textTransform: "initial",
+  zIndex: 3,
+}));
+
+const StyledBackButton = styled(StyledButton)(() => ({
   minWidth: "128px",
-  "&:hover": {
-    background: "#1A7B90",
-  },
-}));
-
-const StyledReleaseButton = styled(StyledButtonBase)(() => ({
-  background: "#8DC63F",
-  color: "#FFF",
-  "&:hover": {
-    background: "#7AB32E",
-  },
-}));
-
-const StyledWithdrawButton = styled(StyledButtonBase)(() => ({
-  background: "#DAA520",
-  color: "#FFF",
-  "&:hover": {
-    background: "#C8941A",
-  },
-}));
-
-const StyledRejectButton = styled(StyledButtonBase)(() => ({
-  background: "#D54309",
-  color: "#FFF",
-  "&:hover": {
-    background: "#B83A07",
-  },
-}));
-
-const StyledCompleteButton = styled(StyledButtonBase)(() => ({
-  background: "#4CAF50",
-  color: "#FFF",
-  "&:hover": {
-    background: "#418E46",
-  },
-}));
-
-const StyledCancelButton = styled(StyledButtonBase)(() => ({
-  border: "1px solid #AEAEAE",
-  background: "#757D88",
-  color: "#FFF",
-  "&:hover": {
-    background: "#5B6169",
-  },
-}));
-
-const StyledArchiveButton = styled(StyledButtonBase)(() => ({
-  background: "#6A5ACD",
-  color: "#FFF",
-  "&:hover": {
-    background: "#594ABF",
-  },
-}));
-
-const StyledReturnButton = styled(StyledButtonBase)(() => ({
-  background: "#6A5ACD",
-  color: "#FFF",
-  flexDirection: "row",
-  "&:hover": {
-    background: "#594ABF",
-  },
 }));
 
 const StyledDialog = styled(CustomDialog)({
@@ -250,29 +192,23 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
   return (
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Return to Data Submission List Button */}
-      <StyledButton
+      <StyledBackButton
         variant="contained"
+        color="info"
         onClick={returnToSubmissionList}
-        startIcon={<ArrowBackIcon fontSize="small" />}
+        startIcon={<ChevronLeft />}
         disabled={!!action}
-        mode="neutral"
-        horizontalSize="large"
-        verticalSize="medium"
-        textColor="black"
       >
         Back
-      </StyledButton>
+      </StyledBackButton>
       {/* Action Buttons */}
       {canShowAction("Submit") ? (
         <StyledLoadingButton
           variant="contained"
+          color="primary"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
           disabled={submitActionButton?.disable || (action && action !== "Submit")}
-          mode="positive"
-          horizontalSize="large"
-          verticalSize="medium"
-          textColor="white"
         >
           {submitActionButton?.label || "Submit"}
         </StyledLoadingButton>
@@ -280,13 +216,10 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       {canShowAction("Release") ? (
         <StyledLoadingButton
           variant="contained"
+          color="primary"
           onClick={() => onOpenDialog("Release")}
           loading={action === "Release"}
           disabled={action && action !== "Release"}
-          mode="positive"
-          horizontalSize="large"
-          verticalSize="medium"
-          textColor="white"
         >
           Release
         </StyledLoadingButton>
@@ -294,13 +227,10 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       {canShowAction("Complete") ? (
         <StyledLoadingButton
           variant="contained"
+          color="primary"
           onClick={() => onOpenDialog("Complete")}
           loading={action === "Complete"}
           disabled={action && action !== "Complete"}
-          mode="positive"
-          horizontalSize="large"
-          verticalSize="medium"
-          textColor="white"
         >
           Complete
         </StyledLoadingButton>
@@ -308,13 +238,10 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       {canShowAction("Archive") ? (
         <StyledLoadingButton
           variant="contained"
+          color="primary"
           onClick={() => handleOnAction("Archive")}
           loading={action === "Archive"}
           disabled={action && action !== "Archive"}
-          mode="positive"
-          horizontalSize="large"
-          verticalSize="medium"
-          textColor="white"
         >
           Archive
         </StyledLoadingButton>
@@ -322,13 +249,10 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       {canShowAction("Withdraw") ? (
         <StyledLoadingButton
           variant="contained"
+          color="error"
           onClick={() => onOpenDialog("Withdraw")}
           loading={action === "Withdraw"}
           disabled={action && action !== "Withdraw"}
-          mode="negative"
-          horizontalSize="large"
-          verticalSize="medium"
-          textColor="white"
         >
           Withdraw
         </StyledLoadingButton>
@@ -336,13 +260,10 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       {canShowAction("SubmittedReject") || canShowAction("ReleasedReject") ? (
         <StyledLoadingButton
           variant="contained"
+          color="error"
           onClick={() => onOpenDialog("Reject")}
           loading={action === "Reject"}
           disabled={action && action !== "Reject"}
-          mode="negative"
-          horizontalSize="large"
-          verticalSize="medium"
-          textColor="white"
         >
           Reject
         </StyledLoadingButton>
@@ -350,13 +271,10 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       {canShowAction("Cancel") ? (
         <StyledLoadingButton
           variant="contained"
+          color="error"
           onClick={() => onOpenDialog("Cancel")}
           loading={action === "Cancel"}
           disabled={action && action !== "Cancel"}
-          mode="negative"
-          horizontalSize="large"
-          verticalSize="medium"
-          textColor="white"
         >
           Cancel
         </StyledLoadingButton>

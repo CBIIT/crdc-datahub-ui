@@ -24,26 +24,18 @@ type Props = {
 };
 
 const StyledValidateButton = styled(LoadingButton)({
-  alignSelf: "center",
-  display: "flex",
-  flexDirection: "column",
-  padding: "12px 20px",
-  justifyContent: "center",
-  alignItems: "center",
+alignSelf: "center",
+  padding: "10px",
   borderRadius: "8px",
-  background: "#1A7B90",
-  color: "#FFF",
   textAlign: "center",
-  fontFamily: "'Nunito'",
   fontSize: "16px",
   fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "16px",
+  lineHeight: "24px",
   letterSpacing: "0.32px",
   textTransform: "none",
-  border: "1.5px solid #136071",
   "&.MuiButtonBase-root": {
     height: "fit-content",
+    minHeight: "44px",
     marginLeft: "auto",
     marginRight: "21.5px",
     minWidth: "137px",
@@ -53,16 +45,7 @@ const StyledValidateButton = styled(LoadingButton)({
     marginLeft: "auto",
     marginRight: "21.5px",
     minWidth: "137px",
-    background: "#949494",
-    color: "#CBCBCB",
   },
-  "&.MuiButtonBase-root:hover": {
-    background: "#496065",
-    height: "fit-content",
-    marginLeft: "auto",
-    marginRight: "21.5px",
-    minWidth: "137px",
-  }
 });
 
 const StyledFileValidationSection = styled("div")({
@@ -271,7 +254,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       </div>
       <StyledValidateButton
         variant="contained"
-        disableElevation
+        color="info"
         disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
         loading={isLoading}
         onClick={handleValidateFiles}
