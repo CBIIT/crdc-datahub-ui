@@ -504,18 +504,20 @@ const DataSubmission = () => {
   }, [data?.getSubmission?.fileValidationStatus, data?.getSubmission?.metadataValidationStatus]);
 
   useEffect(() => {
+    if (user?.role !== "Submitter" || data?.getSubmission?.submitterID !== user?._id) {
+      console.warn("Non-submitter user or non-owner. Ignoring batch refresh timeout.");
+      return () => {};
+    }
     if (!hasUploadingBatches) {
-      console.log("Has no uploading batches. Clearing batch refresh timeout.");
+      console.log("Has no uploading batches, clearing batch refresh timeout.");
       clearInterval(batchRefreshTimeout);
     } else if (!batchRefreshTimeout) {
-      console.warn("Has uploading batches. Setting batch refresh timeout.");
+      console.warn("Has uploading batches, setting the batch refresh timeout.");
       // TODO: increase interval to 60 seconds
       setBatchRefreshTimeout(setInterval(refreshBatchTable, 10000));
     }
 
-    return () => {
-      clearInterval(batchRefreshTimeout);
-    };
+    return () => clearInterval(batchRefreshTimeout);
   }, [hasUploadingBatches]);
 
   return (
