@@ -502,7 +502,7 @@ const DataSubmission = () => {
   }, [data?.getSubmission?.fileValidationStatus, data?.getSubmission?.metadataValidationStatus]);
 
   useEffect(() => {
-    if (user?.role !== "Submitter" || data?.getSubmission?.submitterID !== user?._id) {
+    if (user?.role !== "Submitter") {
       console.warn("Non-submitter user or non-owner. Ignoring batch refresh timeout.");
       return () => {};
     }
