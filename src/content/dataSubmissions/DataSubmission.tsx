@@ -503,16 +503,14 @@ const DataSubmission = () => {
 
   useEffect(() => {
     if (user?.role !== "Submitter") {
-      console.warn("Non-submitter user or non-owner. Ignoring batch refresh timeout.");
       return () => {};
     }
-    if (!hasUploadingBatches) {
-      console.log("Has no uploading batches, clearing batch refresh timeout.");
+    if (!hasUploadingBatches && batchRefreshTimeout) {
       clearInterval(batchRefreshTimeout);
-    } else if (!batchRefreshTimeout) {
-      console.warn("Has uploading batches, setting the batch refresh timeout.");
-      // TODO: increase interval to 60 seconds
-      setBatchRefreshTimeout(setInterval(refreshBatchTable, 10000));
+      setBatchRefreshTimeout(null);
+      getSubmission();
+    } else if (!batchRefreshTimeout && hasUploadingBatches) {
+      setBatchRefreshTimeout(setInterval(refreshBatchTable, 60000));
     }
 
     return () => clearInterval(batchRefreshTimeout);
