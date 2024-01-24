@@ -20,7 +20,13 @@ type Submission = {
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
-type ValidationStatus = "New" | "Validating" | "Passed" | "Error" | "Warning";
+/**
+ * The status of a Metadata or Files in a submission.
+ *
+ * @note `null` indicates that the type has not been uploaded yet.
+ * @note `New` indicates that the type has been uploaded but not validated yet.
+ */
+type ValidationStatus = null | "New" | "Validating" | "Passed" | "Error" | "Warning";
 
 type SubmissionStatus =
   | "New"
@@ -67,6 +73,11 @@ type UploadResult = {
   fileName: string;
   succeeded: boolean;
   errors: string[];
+  /**
+   * Applies to Data File uploads only. Indicates whether the file was skipped
+   * intentionally during the upload process.
+   */
+  skipped?: boolean;
 };
 
 type BatchFileInfo = {
@@ -164,13 +175,16 @@ type QCResults = {
 type QCResult = {
   submissionID: string;
   nodeType: string;
+  validationType: "metadata" | "file"; // [metadata, file]
   batchID: string;
   displayID: number;
   nodeID: string;
   CRDC_ID: string;
   severity: "Error" | "Warning"; // [Error, Warning]
-  uploadedDate: string // batch.updatedAt
-  description: ErrorMessage[];
+  uploadedDate: string; // batch.updatedAt
+  validatedDate: string;
+  errors: ErrorMessage[];
+  warnings: ErrorMessage[];
 };
 
 type ErrorMessage = {
@@ -218,3 +232,18 @@ type DataValidationResult = {
    */
   message: string;
 };
+
+type AsyncProcessResult = {
+  success: boolean;
+  message: string;
+};
+
+/**
+ * The type of Data Validation to perform.
+ */
+type ValidationType = "Metadata" | "Files" | "All";
+
+/**
+ * The target of Data Validation action.
+ */
+type ValidationTarget = "New" | "All";

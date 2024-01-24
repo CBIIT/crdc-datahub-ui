@@ -12,6 +12,8 @@ export const query = gql`
         studyName
         studyAbbreviation
       }
+      createdAt
+      updateAt
     }
     listSubmissions(first: -1, offset: 0, orderBy: "updatedAt", sortDirection: "ASC", organization: $organization, status: "All") {
       submissions {

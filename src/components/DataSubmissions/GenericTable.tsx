@@ -142,6 +142,7 @@ export type FetchListing<T> = {
 
 export type TableMethods = {
   refresh: () => void;
+  setPage: (page: number, forceRefetch?: boolean) => void;
 };
 
 type Props<T> = {
@@ -154,6 +155,7 @@ type Props<T> = {
   defaultRowsPerPage?: number;
   paginationPlacement?: CSSProperties["justifyContent"];
   containerProps?: TableContainerProps;
+  numRowsNoContent?: number;
   setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
@@ -171,6 +173,7 @@ const GenericTable = <T,>({
   defaultRowsPerPage = 10,
   paginationPlacement,
   containerProps,
+  numRowsNoContent = 10,
   setItemKey,
   onFetchData,
   onOrderChange,
@@ -184,7 +187,6 @@ const GenericTable = <T,>({
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(defaultRowsPerPage);
-  const numRowsNoContent = 10;
 
   useEffect(() => {
     fetchData();
@@ -193,6 +195,12 @@ const GenericTable = <T,>({
   useImperativeHandle(ref, () => ({
     refresh: () => {
       fetchData(true);
+    },
+    setPage: (newPage: number, forceRefetch = false) => {
+      setPage(newPage);
+      if (forceRefetch) {
+        fetchData(true);
+      }
     }
   }));
 
