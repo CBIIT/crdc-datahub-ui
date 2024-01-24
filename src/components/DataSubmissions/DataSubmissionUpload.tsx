@@ -37,7 +37,6 @@ const StyledUploadFilesButton = styled(Button)(() => ({
   fontFamily: "'Nunito'",
   fontSize: "16px",
   fontStyle: "normal",
-  fontWeight: 700,
   lineHeight: "24px",
   letterSpacing: "0.32px",
   textTransform: "none",
