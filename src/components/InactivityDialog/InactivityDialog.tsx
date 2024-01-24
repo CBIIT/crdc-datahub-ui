@@ -36,7 +36,10 @@ const InactivityWarningContent = styled("div")({
   fontWeight: 300,
   letterSpacing: 0,
   lineHeight: "24px",
-  "& .alignCenter": {
+  "& .buttonWrapper": {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     textAlign: "center",
   },
   "& .buttonGroup": {
@@ -89,7 +92,10 @@ const SessionTimeoutContent = styled("div")({
     fontSize: "17px",
     paddingBottom: "14px",
   },
-  "& .alignCenter": {
+  "& .buttonWrapper": {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     textAlign: "center",
   },
   "& .buttonGroup": {
@@ -211,7 +217,7 @@ const InactivityDialog = () => {
           minutes.
           <br />
           Please elect to extend this session or logout.
-          <div className="alignCenter">
+          <div className="buttonWrapper">
             <Button
               variant="contained"
               className="buttonGroup extendButton"
@@ -249,7 +255,7 @@ const InactivityDialog = () => {
           <div className="sessionTimeoutTitle">Your session has expired.</div>
           <br />
           <div className="sessionTimeoutMessage">Please login again to continue working.</div>
-          <div className="alignCenter">
+          <div className="buttonWrapper">
             <Button
               variant="contained"
               className="buttonGroup closeButton"
