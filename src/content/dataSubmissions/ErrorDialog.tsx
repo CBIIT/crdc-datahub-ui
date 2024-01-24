@@ -25,29 +25,17 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledCloseButton = styled(Button)({
-  display: "flex",
-  width: "128px",
-  height: "42px",
-  padding: "12px 60px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  border: "1px solid #000",
-  color: "#000",
-  textAlign: "center",
+  minWidth: "137px",
+  padding: "10px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
-  fontWeight: "700",
+  fontWeight: 700,
   lineHeight: "24px",
   letterSpacing: "0.32px",
   textTransform: "none",
   alignSelf: "center",
   marginTop: "45px",
-  "&:hover": {
-    background: "transparent",
-    border: "1px solid #000",
-  }
 });
 
 const StyledHeader = styled(Typography)({
@@ -168,7 +156,12 @@ const ErrorDialog = ({
           ))}
         </Stack>
       </StyledErrorDetails>
-      <StyledCloseButton id="error-dialog-close-button" variant="outlined" onClick={handleCloseDialog}>
+      <StyledCloseButton
+        id="error-dialog-close-button"
+        variant="contained"
+        color="info"
+        onClick={handleCloseDialog}
+      >
         {closeText}
       </StyledCloseButton>
     </StyledDialog>
