@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import { Button, Stack, Typography, styled } from "@mui/material";
+import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
@@ -11,6 +11,57 @@ import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
   alignItems: "center",
+}));
+
+const StyledOutlinedInput = styled(OutlinedInput)(() => ({
+  borderRadius: "8px",
+  backgroundColor: "#fff",
+  color: "#083A50",
+  "& .MuiInputBase-input": {
+    fontWeight: 400,
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    lineHeight: "19.6px",
+    padding: "12px",
+    height: "20px",
+  },
+  "&.MuiInputBase-multiline": {
+    padding: "12px",
+  },
+  "&.MuiInputBase-multiline .MuiInputBase-input": {
+    lineHeight: "25px",
+    padding: 0,
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#6B7294",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    border: "1px solid #209D7D",
+    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#87878C",
+    fontWeight: 400,
+    opacity: 1
+  },
+  // Override the input error border color
+  "&.Mui-error fieldset": {
+    borderColor: "#D54309 !important",
+  },
+  // Target readOnly <textarea> inputs
+  "&.MuiInputBase-multiline.Mui-readOnly": {
+    backgroundColor: "#E5EEF4",
+    color: "#083A50",
+    cursor: "not-allowed",
+    borderRadius: "8px",
+  },
+  // Target readOnly <input> inputs
+  "& .MuiOutlinedInput-input:read-only": {
+    backgroundColor: "#E5EEF4",
+    color: "#083A50",
+    cursor: "not-allowed",
+    borderRadius: "8px",
+  },
 }));
 
 const StyledButtonBase = styled(LoadingButton)(() => ({
@@ -170,7 +221,7 @@ type SubmitActionButton = {
 type Props = {
   submission: Submission;
   submitActionButton: SubmitActionButton;
-  onAction: (action: SubmissionAction) => Promise<void>;
+  onAction: (action: SubmissionAction, reviewComment?: string) => Promise<void>;
   onError: (message: string) => void;
 };
 
@@ -180,6 +231,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
+  const [reviewComment, setReviewComment] = useState("");
 
   const [exportSubmission] = useMutation<ExportSubmissionResp>(EXPORT_SUBMISSION, {
     context: { clientName: 'backend' },
@@ -221,7 +273,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       }
     }
     if (typeof onAction === "function") {
-      await onAction(action);
+      await onAction(action, reviewComment || null);
     }
     setAction(null);
   };
@@ -242,6 +294,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
   const canShowAction = (actionKey: ActionKey) => {
     const config = actionConfig[actionKey];
     return config?.statuses?.includes(submission?.status) && config?.roles?.includes(user?.role);
+  };
+
+  const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const val = event?.target?.value || "";
+    setReviewComment(val);
   };
 
   return (
@@ -455,25 +512,33 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       <StyledDialog
         open={currentDialog === "Reject"}
         onClose={onCloseDialog}
-        title="Reject Data Submission"
+        title="Reject Data Submission *"
         actions={(
-          <>
-            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+          <Stack direction="row" marginTop="24px">
+            <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
             <LoadingButton
               onClick={() => handleOnAction("Reject")}
               loading={!!action}
+              disabled={reviewComment?.length <= 0}
               color="error"
               autoFocus
             >
-              Yes
+              Confirm to Reject
             </LoadingButton>
-          </>
+          </Stack>
         )}
       >
-        <StyledDialogText variant="body2">
-          This action will reject the submission and return control to the submitter.
-          Are you sure you want to proceed?
-        </StyledDialogText>
+        <StyledOutlinedInput
+          value={reviewComment}
+          onChange={handleCommentChange}
+          placeholder="500 characters allowed"
+          minRows={2}
+          maxRows={2}
+          slotProps={{ input: { minLength: 1, maxLength: 500 } }}
+          multiline
+          fullWidth
+          required
+        />
       </StyledDialog>
 
       {/* Complete Dialog */}
