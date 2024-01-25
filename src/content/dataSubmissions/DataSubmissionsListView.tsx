@@ -175,7 +175,7 @@ const columns: Column[] = [
     field: "dataCommons",
   },
   {
-    label: "DM Versison",
+    label: "DM Version",
     value: (a) => a.modelVersion,
     field: "modelVersion",
   },
