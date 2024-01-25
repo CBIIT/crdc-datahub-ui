@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   Alert,
-  AlertColor,
   Box,
   Button,
   Card,
@@ -19,6 +18,7 @@ import {
 } from "@mui/material";
 
 import { isEqual } from "lodash";
+import { useSnackbar, VariantType } from 'notistack';
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
@@ -32,7 +32,6 @@ import {
   SubmissionActionResp,
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
-import GenericAlert, { AlertState } from "../../components/GenericAlert";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
@@ -294,7 +293,7 @@ const columns: Column<Batch>[] = [
     }
   },
   {
-    label: "Errors",
+    label: "Upload Errors",
     renderValue: (data) => (
       <BatchTableContext.Consumer>
         {({ handleOpenErrorDialog }) => {
@@ -323,7 +322,7 @@ const columns: Column<Batch>[] = [
 
 const URLTabs = {
   DATA_UPLOAD: "data-upload",
-  QUALITY_CONTROL: "quality-control"
+  VALIDATION_RESULTS: "validation-results"
 };
 
 const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
@@ -331,13 +330,13 @@ const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "
 const DataSubmission = () => {
   const { submissionId, tab } = useParams();
   const { user } = useAuthContext();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [totalBatches, setTotalBatches] = useState<number>(0);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
@@ -443,10 +442,9 @@ const DataSubmission = () => {
     tableRef.current?.refresh();
   };
 
-  const handleOnUpload = async (message: string, severity: AlertColor) => {
+  const handleOnUpload = async (message: string, variant: VariantType) => {
     refreshBatchTable();
-    setChangesAlert({ message, severity });
-    setTimeout(() => setChangesAlert(null), 10000);
+    enqueueSnackbar(message, { variant });
 
     const refreshStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected", "In Progress"];
     if (refreshStatuses.includes(data?.getSubmission?.status)) {
@@ -502,11 +500,6 @@ const DataSubmission = () => {
 
   return (
     <StyledWrapper>
-      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
-        <span>
-          {changesAlert?.message}
-        </span>
-      </GenericAlert>
       <StyledBanner bannerSrc={bannerSvg} />
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCopyWrapper direction="row" spacing={1.625} alignItems="center">
@@ -538,10 +531,10 @@ const DataSubmission = () => {
                 selected={tab === URLTabs.DATA_UPLOAD}
               />
               <LinkTab
-                value={URLTabs.QUALITY_CONTROL}
-                label="Quality Control"
-                to={`/data-submission/${submissionId}/${URLTabs.QUALITY_CONTROL}`}
-                selected={tab === URLTabs.QUALITY_CONTROL}
+                value={URLTabs.VALIDATION_RESULTS}
+                label="Validation Results"
+                to={`/data-submission/${submissionId}/${URLTabs.VALIDATION_RESULTS}`}
+                selected={tab === URLTabs.VALIDATION_RESULTS}
               />
             </StyledTabs>
 
@@ -551,6 +544,7 @@ const DataSubmission = () => {
                   <DataSubmissionUpload
                     submitterID={data?.getSubmission?.submitterID}
                     readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
+                    onCreateBatch={refreshBatchTable}
                     onUpload={handleOnUpload}
                   />
                   <GenericTable
@@ -574,6 +568,7 @@ const DataSubmission = () => {
                 disable: submitInfo?.disable,
                 label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
               }}
+              onError={(message: string) => enqueueSnackbar(message, { variant: "error" })}
             />
           </StyledCardActions>
         </StyledCard>

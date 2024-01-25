@@ -4,9 +4,9 @@ import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
 import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
 import { Controller, useForm } from 'react-hook-form';
-import { LIST_BATCHES, LIST_NODE_TYPES, ListBatchesResp, ListNodeTypesResp, SUBMISSION_QC_RESULTS, submissionQCResultsResp } from "../../graphql";
+import { LIST_BATCHES, LIST_NODE_TYPES, ListBatchesResp, ListNodeTypesResp, SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
-import { FormatDate } from "../../utils";
+import { FormatDate, capitalizeFirstLetter } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 
@@ -103,14 +103,20 @@ const StyledSelect = styled(Select)(baseTextFieldStyles);
 
 const columns: Column<QCResult>[] = [
   {
-    label: "Type",
+    label: "Batch ID",
+    renderValue: (data) => <StyledBreakAll>{data?.displayID}</StyledBreakAll>,
+    field: "displayID",
+    default: true
+  },
+  {
+    label: "Node Type",
     renderValue: (data) => <StyledNodeType>{data?.nodeType}</StyledNodeType>,
     field: "nodeType",
   },
   {
-    label: "Batch ID",
-    renderValue: (data) => <StyledBreakAll>{data?.displayID}</StyledBreakAll>,
-    field: "displayID",
+    label: "Validation Type",
+    renderValue: (data) => <StyledNodeType>{data?.validationType}</StyledNodeType>,
+    field: "validationType",
   },
   {
     label: "Node ID",
@@ -128,18 +134,17 @@ const columns: Column<QCResult>[] = [
     field: "severity",
   },
   {
-    label: "Uploaded Date",
-    renderValue: (data) => (data?.uploadedDate ? `${FormatDate(data.uploadedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
-    field: "uploadedDate",
-    default: true
+    label: "Validated Date",
+    renderValue: (data) => (data?.validatedDate ? `${FormatDate(data?.validatedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    field: "validatedDate",
   },
   {
-    label: "Reasons",
-    renderValue: (data) => data?.description?.length > 0 && (
+    label: "Issues",
+    renderValue: (data) => (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
       <QCResultsContext.Consumer>
         {({ handleOpenErrorDialog }) => (
           <>
-            <span>{data.description[0]?.title}</span>
+            <span>{data.errors?.length > 0 ? data.errors[0].title : data.warnings[0]?.title }</span>
             {" "}
             <StyledErrorDetailsButton
               onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
@@ -154,7 +159,6 @@ const columns: Column<QCResult>[] = [
         )}
       </QCResultsContext.Consumer>
     ),
-    field: "description",
     sortDisabled: true,
   },
 ];
@@ -173,7 +177,11 @@ const QualityControl: FC = () => {
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
   const tableRef = useRef<TableMethods>(null);
 
-  const [submissionQCResults] = useLazyQuery<submissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
+  const errorDescriptions = selectedRow?.errors?.map((error) => `(Error) ${error.description}`) ?? [];
+  const warningDescriptions = selectedRow?.warnings?.map((warning) => `(Warning) ${warning.description}`) ?? [];
+  const allDescriptions = [...errorDescriptions, ...warningDescriptions];
+
+  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
     variables: { id: submissionId },
     context: { clientName: 'backend' },
     fetchPolicy: 'cache-and-network',
@@ -332,6 +340,7 @@ const QualityControl: FC = () => {
           total={totalData || 0}
           loading={loading}
           defaultRowsPerPage={20}
+          defaultOrder="desc"
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.nodeID}`}
           onFetchData={handleFetchQCResults}
         />
@@ -339,10 +348,10 @@ const QualityControl: FC = () => {
       <ErrorDialog
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
-        header="Data Submission"
-        title="Reasons"
-        errors={selectedRow?.description?.map((error) => error.description)}
-        uploadedDate={selectedRow?.uploadedDate}
+        header={null}
+        title={`Validation Issues for ${capitalizeFirstLetter(selectedRow?.nodeType)} Node ID ${selectedRow?.nodeID}.`}
+        errors={allDescriptions}
+        errorCount={`${allDescriptions?.length || 0} ${allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"}`}
       />
     </>
   );
