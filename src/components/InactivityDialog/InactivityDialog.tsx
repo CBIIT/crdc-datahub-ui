@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Dialog, DialogTitle, styled } from "@mui/material";
+import { Button, Dialog, DialogTitle, Stack, styled } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import GenericAlert from "../GenericAlert";
 
@@ -99,21 +99,39 @@ const SessionTimeoutContent = styled("div")({
     textAlign: "center",
   },
   "& .buttonGroup": {
-    color: "#FFFFFF",
-    fontFamily: "Lato",
-    fontSize: "11px",
-    lineHeight: "22px",
-    width: "90px",
-    border: "1px solid #626262",
+    fontSize: "16px",
+    lineHeight: "24px",
+    minWidth: "90px",
     marginTop: "30px",
-  },
-  "& .closeButton": {
-    backgroundColor: "#566672 !important",
   },
   "& .loginButton": {
     marginLeft: "20px",
     backgroundColor: "#437BBE !important",
   },
+});
+
+const StyledLoginButton = styled(Button)({
+  minWidth: "137px",
+  padding: "10px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  lineHeight: "24px",
+  letterSpacing: "0.32px",
+  textTransform: "none",
+  alignSelf: "center",
+});
+
+const StyledCloseButton = styled(Button)({
+  minWidth: "137px",
+  padding: "10px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  lineHeight: "24px",
+  letterSpacing: "0.32px",
+  textTransform: "none",
+  alignSelf: "center",
 });
 
 const secondsToMinuteString = (seconds) => new Date(seconds * 1000).toISOString().substring(14, 19);
@@ -255,22 +273,28 @@ const InactivityDialog = () => {
           <div className="sessionTimeoutTitle">Your session has expired.</div>
           <br />
           <div className="sessionTimeoutMessage">Please login again to continue working.</div>
-          <div className="buttonWrapper">
-            <Button
+          <Stack
+            direction="row"
+            spacing={2.5}
+            justifyContent="center"
+            alignItems="center"
+            marginTop="45px"
+          >
+            <StyledCloseButton
               variant="contained"
-              className="buttonGroup closeButton"
+              color="info"
               onClick={() => setTimedOut(false)}
             >
-              CLOSE
-            </Button>
-            <Button
+              Close
+            </StyledCloseButton>
+            <StyledLoginButton
               variant="contained"
-              className="buttonGroup loginButton"
+              color="primary"
               onClick={() => { setTimedOut(false); navigate("login"); }}
             >
-              LOGIN
-            </Button>
-          </div>
+              Login
+            </StyledLoginButton>
+          </Stack>
         </SessionTimeoutContent>
       </SessionTimeoutDialog>
     </>
