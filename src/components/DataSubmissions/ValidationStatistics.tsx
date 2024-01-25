@@ -82,7 +82,7 @@ const StyledPrimaryTitle = styled(Typography)({
   fontSize: "13px",
   fontWeight: 600,
   textTransform: "uppercase",
-  color: "#1D91AB",
+  color: "#187A90",
 });
 
 const StyledSecondaryStack = styled(Stack)({
@@ -96,7 +96,7 @@ const StyledSecondaryTitle = styled(Typography)({
   fontSize: "13px",
   fontWeight: 600,
   textTransform: "uppercase",
-  color: "#1D91AB",
+  color: "#187A90",
 });
 
 const defaultFilters: LegendFilter[] = [

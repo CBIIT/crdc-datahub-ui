@@ -38,7 +38,7 @@ const StyledTableContainer = styled(TableContainer)({
 });
 
 const StyledTableHead = styled(TableHead)({
-  background: "#5C8FA7",
+  background: "#4D7C8F",
 });
 
 const StyledTableRow = styled(TableRow)({
@@ -302,7 +302,7 @@ const GenericTable = <T,>({
                   variant="h6"
                   align="center"
                   fontSize={18}
-                  color="#AAA"
+                  color="#757575"
                 >
                   {noContentText || "No existing data was found"}
                 </Typography>

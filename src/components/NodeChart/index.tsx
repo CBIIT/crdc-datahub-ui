@@ -72,6 +72,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
           innerRadius={40}
           fill="#f2f2f2"
           isAnimationActive={false}
+          aria-label={`${label} chart background`}
         >
           {(dataset.length === 0 && hoveredSlice === null) && <Label position="center" content={(<PieChartCenter title="Total" value={0} />)} />}
         </Pie>
@@ -85,6 +86,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
           innerRadius={40}
           onMouseOver={onMouseOver}
           onMouseLeave={onMouseLeave}
+          aria-label={`${label} chart`}
         >
           {dataset.map(({ label, color }) => (<Cell key={label} fill={color} />))}
           <Label

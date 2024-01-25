@@ -208,7 +208,7 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
 }));
 
 const StyledErrorDetailsButton = styled(Button)(() => ({
-  color: "#0D78C5",
+  color: "#0B6CB1",
   fontFamily: "Inter",
   fontSize: "16px",
   fontStyle: "normal",
@@ -225,7 +225,7 @@ const StyledErrorDetailsButton = styled(Button)(() => ({
 }));
 
 const StyledFileCountButton = styled(Button)(() => ({
-  color: "#0D78C5",
+  color: "#0B6CB1",
   fontFamily: "Inter",
   fontSize: "16px",
   fontStyle: "normal",
