@@ -69,7 +69,8 @@ const StyledTitle = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "900",
   lineHeight: "30px",
-  paddingBottom: "8px"
+  paddingBottom: "8px",
+  wordBreak: "break-all"
 });
 
 const StyledUploadedDate = styled(Typography)({
