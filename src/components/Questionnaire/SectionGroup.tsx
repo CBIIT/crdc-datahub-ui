@@ -57,11 +57,11 @@ const StyledBeginAdornment = styled(Box)({
 });
 
 const StyledAsterisk = styled('span')({
-    color: "#D54309",
+    color: "#C93F08",
     marginLeft: "2px",
 });
 const StyledError = styled('div')({
-  color: "#D54309",
+  color: "#C93F08",
   textTransform: "none",
   fontFamily: 'Nunito',
   fontWeight: '400',

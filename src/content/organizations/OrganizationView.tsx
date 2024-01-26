@@ -450,7 +450,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 spacing={1}
               >
                 <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">Save</StyledButton>
-                <StyledButton type="button" onClick={() => navigate("/organizations")} txt="#949494" border="#828282">Cancel</StyledButton>
+                <StyledButton type="button" onClick={() => navigate("/organizations")} txt="#666666" border="#828282">Cancel</StyledButton>
               </StyledButtonStack>
             </form>
           </StyledContentStack>
