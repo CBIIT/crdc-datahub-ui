@@ -20,8 +20,7 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    {/* TODO: Use env for measurement ID */}
-    <AnalyticsProvider GA_MEASUREMENT_ID="G-Q3J513LR16">
+    <AnalyticsProvider GA_MEASUREMENT_ID={env.REACT_APP_GA_TRACKING_ID}>
       <ApolloProvider client={client}>
         <HelmetProvider>
           <AuthProvider>

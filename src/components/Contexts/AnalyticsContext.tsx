@@ -56,8 +56,9 @@ export const AnalyticsProvider: FC<ProviderProps> = ({ GA_MEASUREMENT_ID, childr
     if (ReactGA.isInitialized) {
       ReactGA.reset();
     }
-
-    ReactGA.initialize(GA_MEASUREMENT_ID);
+    if (GA_MEASUREMENT_ID) {
+      ReactGA.initialize(GA_MEASUREMENT_ID);
+    }
 
     return { ReactGA };
   }, [GA_MEASUREMENT_ID]);
