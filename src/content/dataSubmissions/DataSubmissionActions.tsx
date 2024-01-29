@@ -519,7 +519,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
             <LoadingButton
               onClick={() => handleOnAction("Reject")}
               loading={!!action}
-              disabled={reviewComment?.length <= 0}
+              disabled={reviewComment?.trim()?.length <= 0}
               color="error"
               autoFocus
             >
