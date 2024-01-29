@@ -44,7 +44,7 @@ const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   color: "#fff",
   textTransform: "none",
   borderColor: "#26B893 !important",
-  background: "#22A584 !important",
+  background: "#1B8369 !important",
   marginRight: "25px",
 });
 
@@ -421,7 +421,7 @@ const ListingView: FC = () => {
                       variant="h6"
                       align="center"
                       fontSize={18}
-                      color="#AAA"
+                      color="#757575"
                     >
                       No organizations found.
                     </Typography>

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
+import { VariantType } from "notistack";
 import {
-  AlertColor,
   Button,
   Stack,
   Typography,
@@ -12,7 +12,7 @@ import {
 import RadioInput from "./RadioInput";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
-import CustomDialog from "../Shared/Dialog";
+import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -109,30 +109,16 @@ const VisuallyHiddenInput = styled("input")(() => ({
   display: "none !important",
 }));
 
-const StyledDialog = styled(CustomDialog)({
-  "& .MuiDialog-paper": {
-    maxWidth: "none",
-    borderRadius: "8px",
-    width: "567px !important",
-  },
-});
-
-const StyledDialogText = styled(Typography)({
-  fontWeight: 400,
-  fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  lineHeight: "19.6px",
-});
-
 const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
 
 type Props = {
   submitterID: string;
   readOnly?: boolean;
-  onUpload: (message: string, severity: AlertColor) => void;
+  onCreateBatch: () => void;
+  onUpload: (message: string, severity: VariantType) => void;
 };
 
-const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
+const DataSubmissionUpload = ({ submitterID, readOnly, onCreateBatch, onUpload }: Props) => {
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
@@ -243,6 +229,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
     if (!newBatch) {
       return;
     }
+    onCreateBatch();
 
     const uploadResult: UploadResult[] = [];
 
@@ -330,7 +317,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         id="data-submission-dashboard-upload-type"
         label="Upload Type"
         value={metadataIntention}
-        onChange={(_event, value: MetadataIntention) => setMetadataIntention(value)}
+        onChange={(_event, value: MetadataIntention) => !readOnly && setMetadataIntention(value)}
         options={metadataIntentionOptions}
         gridWidth={4}
         readOnly={readOnly}
@@ -370,29 +357,11 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         {isUploading ? "Uploading..." : "Upload"}
       </StyledUploadFilesButton>
 
-      <StyledDialog
+      <DeleteDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}
-        title="Delete Data"
-        actions={(
-          <>
-            <Button onClick={onCloseDeleteDialog} disabled={false}>Cancel</Button>
-            <LoadingButton
-              onClick={() => onDeleteUpload()}
-              color="error"
-              autoFocus
-            >
-              Delete
-            </LoadingButton>
-          </>
-        )}
-      >
-        <StyledDialogText variant="body2">
-          The metadata or files specified in the selected files, along with
-          their associated child nodes, will be deleted permanently, and this
-          action is irreversible. Are you sure you want to proceed?
-        </StyledDialogText>
-      </StyledDialog>
+        onConfirm={onDeleteUpload}
+      />
     </StyledUploadWrapper>
   );
 };

@@ -1,15 +1,10 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { SnackbarProvider } from 'notistack';
 import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import routeConfig from "./router";
-
-declare module '@mui/material/styles' {
-  interface PaletteOptions {
-    Rejected: PaletteOptions['primary'];
-    Approved: PaletteOptions['primary'] & PaletteOptions['secondary'];
-  }
-}
+import StyledNotistackAlerts from './components/StyledNotistackAlerts';
 
 const theme = createTheme({
   typography: {
@@ -24,17 +19,6 @@ const theme = createTheme({
       xl: 1440,
     }
   },
-  palette: {
-    Rejected: {
-      main: "#E25C22",
-      contrastText: "#FFDBCB",
-    },
-    Approved: {
-      main: "#0B7F99",
-      contrastText: "#CDEAF0",
-      light: "#10EBA9",
-    }
-  },
 });
 
 const router = createBrowserRouter(routeConfig);
@@ -42,10 +26,23 @@ const router = createBrowserRouter(routeConfig);
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <CssBaseline />
-        <RouterProvider router={router} />
-      </LocalizationProvider>
+      <SnackbarProvider
+        maxSnack={3}
+        autoHideDuration={10000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        Components={{
+          default: StyledNotistackAlerts,
+          error: StyledNotistackAlerts,
+          success: StyledNotistackAlerts,
+        }}
+        hideIconVariant
+        preventDuplicate
+      >
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <CssBaseline />
+          <RouterProvider router={router} />
+        </LocalizationProvider>
+      </SnackbarProvider>
     </ThemeProvider>
   );
 }

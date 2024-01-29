@@ -10,10 +10,6 @@ const StyledTextContainer = styled('text')({
 
 const StyledCenterTitle = styled('tspan')({
   fontSize: 26,
-});
-
-const StyledCenterSubtitle = styled('tspan')({
-  fontSize: 26,
   fontWeight: 600,
 });
 
@@ -28,38 +24,24 @@ type Props = {
     cy: number;
   };
   title: string | number;
-  subtitle: string | number;
   value: string | number;
 };
 
 /**
  * Builds the center of the pie chart with the title, subtitle, and value.
  *
- * Will not render if the subtitle or value are not provided.
- *
  * @param {Props} props
  * @returns {React.FC<Props>}
  */
-const PieChartCenter: FC<Props> = ({ viewBox, title, subtitle, value }) => {
-  const { cx, cy } = viewBox;
-
-  if (!subtitle || !value) {
-    return null;
-  }
-
-  return (
-    <g>
-      <StyledTextContainer x={cx} y={cy - 40}>
-        <StyledCenterTitle>{title}</StyledCenterTitle>
-        <StyledCenterSubtitle x={cx} dy={35}>
-          {subtitle}
-        </StyledCenterSubtitle>
-        <StyledCenterValue x={cx} dy={35}>
-          {value}
-        </StyledCenterValue>
-      </StyledTextContainer>
-    </g>
-  );
-};
+const PieChartCenter: FC<Props> = ({ viewBox: { cx, cy }, title, value }) => (
+  <g>
+    <StyledTextContainer x={cx} y={cy - 25}>
+      <StyledCenterTitle>{title}</StyledCenterTitle>
+      <StyledCenterValue x={cx} dy={35}>
+        {value}
+      </StyledCenterValue>
+    </StyledTextContainer>
+  </g>
+);
 
 export default PieChartCenter;

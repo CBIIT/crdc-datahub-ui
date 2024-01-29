@@ -51,6 +51,11 @@ const StyledWrapper = styled('div')({
   },
 });
 
+const removeAriaHidden = () => {
+  const elements = document.querySelectorAll(".react-multi-carousel-item");
+  elements.forEach((e) => e.removeAttribute("aria-hidden"));
+};
+
 /**
  * Provides a general carousel component for displaying multiple items
  * at the same time.
@@ -68,6 +73,7 @@ const ContentCarousel: FC<Props> = ({ children, ...props }: Props) => (
       centerMode
       arrows
       focusOnSelect
+      afterChange={removeAriaHidden}
       {...props}
     >
       {children}

@@ -31,6 +31,11 @@ type Props = {
   children: React.ReactNode;
 };
 
+/**
+ * Basic alert component that can be used to display a message to the user.
+ *
+ * @deprecated DO NOT USE. Replaced by `enqueueSnackbar` from Notistack.
+ */
 const GenericAlert : FC<Props> = ({
   open,
   children,

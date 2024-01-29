@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Button, Stack, Typography, styled } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
+import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -35,6 +37,8 @@ const StyledButtonBase = styled(LoadingButton)(() => ({
 const StyledSubmitButton = styled(StyledButtonBase)(() => ({
   background: "#1D91AB",
   color: "#FFF",
+  width: "fit-content",
+  minWidth: "128px",
   "&:hover": {
     background: "#1A7B90",
   },
@@ -158,24 +162,64 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
 };
 
-type Props = {
-  submission: Submission;
-  disableSubmit?: boolean;
-  onAction: (action: SubmissionAction) => Promise<void>;
+type SubmitActionButton = {
+  label: string;
+  disable: boolean;
 };
 
-const DataSubmissionActions = ({ submission, disableSubmit, onAction }: Props) => {
+type Props = {
+  submission: Submission;
+  submitActionButton: SubmitActionButton;
+  onAction: (action: SubmissionAction) => Promise<void>;
+  onError: (message: string) => void;
+};
+
+const DataSubmissionActions = ({ submission, submitActionButton, onAction, onError }: Props) => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
 
+  const [exportSubmission] = useMutation<ExportSubmissionResp>(EXPORT_SUBMISSION, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const handleExportSubmission = async (): Promise<boolean> => {
+    if (!submission?._id) {
+      return false;
+    }
+
+    try {
+      const { data: d, errors } = await exportSubmission({
+        variables: {
+          _id: submission._id,
+        }
+      });
+      if (errors || !d?.exportSubmission?.success) {
+        throw new Error();
+      }
+      return d.exportSubmission.success;
+    } catch (err) {
+      onError("Unable to export submission.");
+    }
+
+    return false;
+  };
+
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
       setCurrentDialog(null);
     }
     setAction(action);
+    if (action === "Release") {
+      const isExported = await handleExportSubmission();
+      if (!isExported) {
+        setAction(null);
+        return;
+      }
+    }
     if (typeof onAction === "function") {
       await onAction(action);
     }
@@ -220,12 +264,12 @@ const DataSubmissionActions = ({ submission, disableSubmit, onAction }: Props) =
           variant="contained"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
-          disabled={disableSubmit || (action && action !== "Submit")}
+          disabled={submitActionButton?.disable || (action && action !== "Submit")}
           disableElevation
           disableRipple
           disableTouchRipple
         >
-          Submit
+          {submitActionButton?.label || "Submit"}
         </StyledSubmitButton>
       ) : null}
       {canShowAction("Release") ? (
