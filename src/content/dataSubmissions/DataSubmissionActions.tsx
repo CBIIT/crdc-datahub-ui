@@ -44,24 +44,6 @@ const StyledOutlinedInput = styled(OutlinedInput)(() => ({
     fontWeight: 400,
     opacity: 1
   },
-  // Override the input error border color
-  "&.Mui-error fieldset": {
-    borderColor: "#D54309 !important",
-  },
-  // Target readOnly <textarea> inputs
-  "&.MuiInputBase-multiline.Mui-readOnly": {
-    backgroundColor: "#E5EEF4",
-    color: "#083A50",
-    cursor: "not-allowed",
-    borderRadius: "8px",
-  },
-  // Target readOnly <input> inputs
-  "& .MuiOutlinedInput-input:read-only": {
-    backgroundColor: "#E5EEF4",
-    color: "#083A50",
-    cursor: "not-allowed",
-    borderRadius: "8px",
-  },
 }));
 
 const StyledButtonBase = styled(LoadingButton)(() => ({
