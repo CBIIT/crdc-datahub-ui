@@ -28,7 +28,7 @@ import Section from "./sections";
 import map, { InitialSections } from "../../config/SectionConfig";
 import UnsavedChangesDialog from "../../components/Questionnaire/UnsavedChangesDialog";
 import SubmitFormDialog from "../../components/Questionnaire/SubmitFormDialog";
-import useFormMode from "./sections/hooks/useFormMode";
+import useFormMode from "../../hooks/useFormMode";
 import InquireFormDialog from "../../components/Questionnaire/InquireFormDialog";
 import RejectFormDialog from "../../components/Questionnaire/RejectFormDialog";
 import ApproveFormDialog from "../../components/Questionnaire/ApproveFormDialog";
@@ -40,6 +40,7 @@ import {
   useAuthContext,
 } from "../../components/Contexts/AuthContext";
 import ErrorCodes from "../../config/ErrorCodes";
+import usePageTitle from '../../hooks/usePageTitle';
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -210,6 +211,8 @@ type Props = {
  * @returns {JSX.Element}
  */
 const FormView: FC<Props> = ({ section } : Props) => {
+  usePageTitle("Submission Request Form");
+
   const navigate = useNavigate();
   const { status, data, setData, submitData, approveForm, inquireForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
   const { user, status: authStatus } = useAuthContext();

@@ -27,7 +27,7 @@ import { fileTypeOptions } from "../../../config/FileTypeConfig";
 import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
-import useFormMode from "./hooks/useFormMode";
+import useFormMode from "../../../hooks/useFormMode";
 import SectionMetadata from "../../../config/SectionMetadata";
 
 export type KeyedFileTypeData = {

@@ -24,6 +24,7 @@ import TextInput from "../../components/Questionnaire/TextInput";
 import GenericAlert from '../../components/GenericAlert';
 import { DataCommons } from '../../config/DataCommons';
 import SuspenseLoader from '../../components/SuspenseLoader';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type T = Submission;
 
@@ -310,6 +311,8 @@ const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, v
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  usePageTitle("Data Submission List");
+
   const { state } = useLocation();
   const { user } = useAuthContext();
 

@@ -32,7 +32,7 @@ const withAnalytics = (Component: FC) => (props) => {
         nonInteraction: true
       });
     });
-  }, [location]);
+  }, [document.title]);
 
   return <Component {...props} />;
 };

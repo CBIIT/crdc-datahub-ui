@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import env from '../../env';
+import usePageTitle from '../../hooks/usePageTitle';
 
 /**
  * Redirects to NIH login to get an authorization code
@@ -7,6 +8,8 @@ import env from '../../env';
  * @returns null
  */
 const loginController = () => {
+  usePageTitle("Login");
+
   const NIH_AUTHORIZE_URL = env.REACT_APP_NIH_AUTHORIZE_URL || env.NIH_AUTHORIZE_URL;
   const NIH_CLIENT_ID = env.REACT_APP_NIH_CLIENT_ID || env.NIH_CLIENT_ID;
   const NIH_REDIRECT_URL = env.REACT_APP_NIH_REDIRECT_URL || env.NIH_REDIRECT_URL;

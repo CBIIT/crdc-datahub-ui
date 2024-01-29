@@ -22,6 +22,7 @@ import { LIST_USERS, ListUsersResp } from '../../graphql';
 import { formatIDP } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import SuspenseLoader from '../../components/SuspenseLoader';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type T = User;
 
@@ -208,6 +209,8 @@ const columns: Column[] = [
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  usePageTitle("Manage Users");
+
   const { user } = useAuthContext();
   const { state } = useLocation();
   const { data: orgData } = useOrganizationListContext();

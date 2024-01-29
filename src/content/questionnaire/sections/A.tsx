@@ -16,7 +16,7 @@ import TransitionGroupWrapper from "../../../components/Questionnaire/Transition
 import institutionConfig from "../../../config/InstitutionConfig";
 import { InitialQuestionnaire } from '../../../config/InitialValues';
 import SectionMetadata from "../../../config/SectionMetadata";
-import useFormMode from "./hooks/useFormMode";
+import useFormMode from "../../../hooks/useFormMode";
 
 export type KeyedContact = {
   key: string;

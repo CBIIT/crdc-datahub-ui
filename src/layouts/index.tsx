@@ -20,8 +20,7 @@ interface LayoutProps {
 
 const Layout: FC<LayoutProps> = ({ children }) => (
   <>
-    <Helmet>
-      <title>CRDC DataHub</title>
+    <Helmet defaultTitle="CRDC DataHub">
       <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
       <link
         href={"https://fonts.googleapis.com/css2?"
