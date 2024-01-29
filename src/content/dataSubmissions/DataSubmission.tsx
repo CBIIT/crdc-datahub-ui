@@ -416,7 +416,7 @@ const DataSubmission = () => {
     }
   };
 
-  const updateSubmissionAction = async (action: SubmissionAction) => {
+  const updateSubmissionAction = async (action: SubmissionAction, reviewComment?: string) => {
     if (!submissionId) {
       return;
     }
@@ -425,7 +425,8 @@ const DataSubmission = () => {
       const { data: d, errors } = await submissionAction({
         variables: {
           submissionID: submissionId,
-          action
+          action,
+          comment: reviewComment,
         }
       });
       if (errors || !d?.submissionAction?._id) {
