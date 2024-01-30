@@ -267,6 +267,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
 
   const onCloseDialog = () => {
     setCurrentDialog(null);
+    setReviewComment("");
   };
 
   const returnToSubmissionList = () => {
