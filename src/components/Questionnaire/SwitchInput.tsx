@@ -59,7 +59,7 @@ const GridStyled = styled(Grid)({
     fontWeight: 600,
     fontSize: "16px",
     lineHeight: "22px",
-    color: "#89A2A7",
+    color: "#5D7B7E",
     marginLeft: "6px",
     marginRight: "6px",
   },
@@ -78,7 +78,7 @@ const GridStyled = styled(Grid)({
     display: "none",
   },
   "& .asterisk": {
-    color: "#D54309",
+    color: "#C93F08",
     marginLeft: "2px",
   },
   "& .labelContainer": {

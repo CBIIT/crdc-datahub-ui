@@ -52,6 +52,7 @@ const NodeTotalChart: FC<Props> = ({ data }) => {
           outerRadius={391 / 2}
           fill="#f2f2f2"
           isAnimationActive={false}
+          aria-label="Node Total background"
         >
           {(dataset.length === 0 && activeIndex === null) && <Label position="center" content={(<PieChartCenter title="Total" value={0} />)} />}
         </Pie>
@@ -67,6 +68,7 @@ const NodeTotalChart: FC<Props> = ({ data }) => {
           onMouseLeave={onMouseLeave}
           activeShape={ActiveArc}
           activeIndex={activeIndex}
+          aria-label="Node Total chart"
         >
           {dataset.map(({ label, color }) => (<Cell key={label} fill={color} />))}
           <Label

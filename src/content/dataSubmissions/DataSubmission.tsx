@@ -208,7 +208,7 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
 }));
 
 const StyledErrorDetailsButton = styled(Button)(() => ({
-  color: "#0D78C5",
+  color: "#0B6CB1",
   fontFamily: "Inter",
   fontSize: "16px",
   fontStyle: "normal",
@@ -225,7 +225,7 @@ const StyledErrorDetailsButton = styled(Button)(() => ({
 }));
 
 const StyledFileCountButton = styled(Button)(() => ({
-  color: "#0D78C5",
+  color: "#0B6CB1",
   fontFamily: "Inter",
   fontSize: "16px",
   fontStyle: "normal",
@@ -419,7 +419,7 @@ const DataSubmission = () => {
     }
   };
 
-  const updateSubmissionAction = async (action: SubmissionAction) => {
+  const updateSubmissionAction = async (action: SubmissionAction, reviewComment?: string) => {
     if (!submissionId) {
       return;
     }
@@ -428,7 +428,8 @@ const DataSubmission = () => {
       const { data: d, errors } = await submissionAction({
         variables: {
           submissionID: submissionId,
-          action
+          action,
+          comment: reviewComment,
         }
       });
       if (errors || !d?.submissionAction?._id) {

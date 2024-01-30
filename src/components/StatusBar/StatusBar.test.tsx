@@ -94,7 +94,7 @@ describe("StatusBar > General Tests", () => {
   });
 
   // NOTE: We aren't using the root level reviewComment attribute, only the history level ones
-  // So we're testing against it's usage here
+  // So we're testing AGAINST it's usage here
   it("does not render the comments button for the Application.reviewComment attribute", () => {
     const data = {
       reviewComment: "This is a review comment",

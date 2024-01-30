@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import { CSSProperties, FC, useMemo, useState } from "react";
 import {
   Avatar,
   Button,
@@ -20,6 +20,23 @@ import { styled } from "@mui/material/styles";
 import { useFormContext } from "../../Contexts/FormContext";
 import { HistoryIconMap } from "../../../assets/history/submissionRequest";
 import { FormatDate, SortHistory } from "../../../utils";
+
+/**
+ * Determines the text color for a History event based
+ *
+ * @param status The current Questionnaire's status
+ * @returns Color scheme to match the status
+ */
+const getStatusColor = (status: ApplicationStatus): CSSProperties["color"] => {
+  switch (status) {
+    case "Approved":
+      return "#10EBA9";
+    case "Rejected":
+      return "#E25C22";
+    default:
+      return "#fff";
+  }
+};
 
 const StyledDate = styled("span")({
   fontWeight: "600",
@@ -59,7 +76,7 @@ const StyledDialogTitle = styled(DialogTitle)({
 });
 
 const StyledPreTitle = styled("p")({
-  color: "#98A7C6",
+  color: "#D5DAE7",
   fontSize: "13px",
   fontFamily: "Nunito Sans",
   lineHeight: "27px",
@@ -168,17 +185,12 @@ const StyledTimelineContent = styled(TimelineContent)({
   color: "#fff",
 });
 
-const StyledTypography = styled(Typography)<{ status?: ApplicationStatus }>(
-  ({ theme, status }) => ({
-    lineHeight: "2.5",
-    minWidth: "100px",
-    textAlign: "left",
-    color:
-      (status
-        ? theme.palette?.[status]?.light || theme.palette?.[status]?.main
-        : "#fff") || "#fff",
-  })
-);
+const StyledTypography = styled(Typography)<{ status?: ApplicationStatus }>(({ status }) => ({
+  lineHeight: "2.5",
+  minWidth: "100px",
+  textAlign: "left",
+  color: getStatusColor(status),
+}));
 
 const StyledAvatar = styled(Avatar)({
   background: "transparent",

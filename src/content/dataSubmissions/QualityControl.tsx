@@ -18,7 +18,7 @@ type FilterForm = {
 
 const StyledErrorDetailsButton = styled(Button)({
   display: "inline",
-  color: "#0D78C5",
+  color: "#0B6CB1",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",

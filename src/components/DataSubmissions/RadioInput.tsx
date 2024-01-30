@@ -56,7 +56,7 @@ const StyledFormLabel = styled("label")(() => ({
 
 const StyledAsterisk = styled("span")(() => ({
   marginRight: "2px",
-  color: "#D54309",
+  color: "#C93F08",
 }));
 
 const StyledFormControlLabel = styled(FormControlLabel)(() => ({
