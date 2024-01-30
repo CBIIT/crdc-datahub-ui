@@ -4,19 +4,10 @@ export const mutation = gql`
   mutation submissionAction($submissionID: ID!, $action: String!, $comment: String) {
     submissionAction(submissionID: $submissionID, action: $action, comment: $comment) {
       _id
-      status
-      history {
-        status
-        reviewComment
-        dateTime
-        userID
-      }
-      createdAt
-      updatedAt
     }
   }
 `;
 
 export type Response = {
-  submissionAction: Submission;
+  submissionAction: Pick<Submission, "_id">;
 };
