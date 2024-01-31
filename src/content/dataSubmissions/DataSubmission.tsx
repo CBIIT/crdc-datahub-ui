@@ -249,7 +249,7 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Upload Type",
-    renderValue: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
+    renderValue: (data) => (data?.type === "data file" ? "-" : data?.metadataIntention),
     field: "metadataIntention",
   },
   {
