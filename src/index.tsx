@@ -20,15 +20,15 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <AnalyticsProvider GA_MEASUREMENT_ID={env.REACT_APP_GA_TRACKING_ID}>
-      <ApolloProvider client={client}>
-        <HelmetProvider>
-          <AuthProvider>
+    <ApolloProvider client={client}>
+      <HelmetProvider>
+        <AuthProvider>
+          <AnalyticsProvider GA_MEASUREMENT_ID={env.REACT_APP_GA_TRACKING_ID}>
             <App />
-          </AuthProvider>
-        </HelmetProvider>
-      </ApolloProvider>
-    </AnalyticsProvider>
+          </AnalyticsProvider>
+        </AuthProvider>
+      </HelmetProvider>
+    </ApolloProvider>
   </React.StrictMode>,
 );
 

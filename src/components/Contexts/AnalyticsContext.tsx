@@ -2,9 +2,11 @@ import React, {
   FC,
   createContext,
   useContext,
+  useEffect,
   useMemo,
 } from "react";
 import ReactGA from "react-ga4";
+import { useAuthContext } from './AuthContext';
 
 export type ContextState = {
   ReactGA: typeof ReactGA;
@@ -52,7 +54,9 @@ type ProviderProps = {
  * @returns {JSX.Element}
  */
 export const AnalyticsProvider: FC<ProviderProps> = ({ GA_MEASUREMENT_ID, children } : ProviderProps) => {
-  const value = useMemo(() => {
+  const { isLoggedIn, user } = useAuthContext();
+
+  const value: ContextState = useMemo(() => {
     if (ReactGA.isInitialized) {
       ReactGA.reset();
     }
@@ -62,6 +66,14 @@ export const AnalyticsProvider: FC<ProviderProps> = ({ GA_MEASUREMENT_ID, childr
 
     return { ReactGA };
   }, [GA_MEASUREMENT_ID]);
+
+  useEffect(() => {
+    ReactGA.gtag("set", "user_properties", {
+      authenticated: isLoggedIn,
+      role: user?.role || "N/A",
+      IDP: user?.IDP || "N/A",
+    });
+  }, [isLoggedIn, user?.role, user?.IDP]);
 
   return (
     <Context.Provider value={value}>
