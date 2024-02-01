@@ -62,7 +62,12 @@ export const AnalyticsProvider: FC<ProviderProps> = ({ GA_MEASUREMENT_ID, childr
       ReactGA.reset();
     }
     if (GA_MEASUREMENT_ID) {
-      ReactGA.initialize(GA_MEASUREMENT_ID);
+      ReactGA.initialize(GA_MEASUREMENT_ID, {
+        gaOptions: {
+          DEV_TIER: env?.REACT_APP_DEV_TIER || "N/A",
+          FE_VERSION: env?.REACT_APP_FE_VERSION || "N/A",
+        },
+      });
     }
 
     return { ReactGA };
@@ -73,7 +78,6 @@ export const AnalyticsProvider: FC<ProviderProps> = ({ GA_MEASUREMENT_ID, childr
       authenticated: isLoggedIn,
       role: user?.role || "N/A",
       IDP: user?.IDP || "N/A",
-      FE_VERSION: env?.REACT_APP_FE_VERSION || "N/A",
     });
   }, [isLoggedIn, user?.role, user?.IDP]);
 
