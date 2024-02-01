@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import ReactGA from "react-ga4";
 import { useAuthContext } from './AuthContext';
+import env from '../../env';
 
 export type ContextState = {
   ReactGA: typeof ReactGA;
@@ -72,6 +73,7 @@ export const AnalyticsProvider: FC<ProviderProps> = ({ GA_MEASUREMENT_ID, childr
       authenticated: isLoggedIn,
       role: user?.role || "N/A",
       IDP: user?.IDP || "N/A",
+      FE_VERSION: env?.REACT_APP_FE_VERSION || "N/A",
     });
   }, [isLoggedIn, user?.role, user?.IDP]);
 
