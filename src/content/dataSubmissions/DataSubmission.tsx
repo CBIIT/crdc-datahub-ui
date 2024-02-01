@@ -280,7 +280,7 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Status",
-    renderValue: (data) => <Box textTransform="capitalize">{data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status}</Box>,
+    renderValue: (data) => <Box textTransform="capitalize">{data.status === "Failed" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status}</Box>,
     field: "status",
   },
   {
@@ -340,9 +340,11 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [totalBatches, setTotalBatches] = useState<number>(0);
+  const [hasUploadingBatches, setHasUploadingBatches] = useState<boolean>(false);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [batchRefreshTimeout, setBatchRefreshTimeout] = useState<NodeJS.Timeout>(null);
+  const [error, setError] = useState<string>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
@@ -415,6 +417,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
       }
       setBatches(newBatchFiles.listBatches.batches);
       setTotalBatches(newBatchFiles.listBatches.total);
+      setHasUploadingBatches(newBatchFiles.fullStatusList.batches.some((b) => b.status === "Uploading"));
     } catch (err) {
       setError("Unable to retrieve batch data.");
     } finally {
@@ -422,7 +425,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
     }
   };
 
-  const updateSubmissionAction = async (action: SubmissionAction) => {
+  const updateSubmissionAction = async (action: SubmissionAction, reviewComment?: string) => {
     if (!submissionId) {
       return;
     }
@@ -431,7 +434,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
       const { data: d, errors } = await submissionAction({
         variables: {
           submissionID: submissionId,
-          action
+          action,
+          comment: reviewComment,
         }
       });
       if (errors || !d?.submissionAction?._id) {
@@ -503,6 +507,21 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
       startPolling(60000);
     }
   }, [data?.getSubmission?.fileValidationStatus, data?.getSubmission?.metadataValidationStatus]);
+
+  useEffect(() => {
+    if (user?.role !== "Submitter") {
+      return () => {};
+    }
+    if (!hasUploadingBatches && batchRefreshTimeout) {
+      clearInterval(batchRefreshTimeout);
+      setBatchRefreshTimeout(null);
+      getSubmission();
+    } else if (!batchRefreshTimeout && hasUploadingBatches) {
+      setBatchRefreshTimeout(setInterval(refreshBatchTable, 60000));
+    }
+
+    return () => clearInterval(batchRefreshTimeout);
+  }, [hasUploadingBatches]);
 
   return (
     <StyledWrapper>
