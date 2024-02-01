@@ -196,7 +196,7 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
 };
 
 type SubmitActionButton = {
-  label: string;
+  label: "Submit" | "Admin Submit";
   disable: boolean;
 };
 
@@ -258,6 +258,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       await onAction(action, reviewComment || null);
     }
     setAction(null);
+    setReviewComment("");
   };
 
   const onOpenDialog = (dialog: ActiveDialog) => {
@@ -266,6 +267,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
 
   const onCloseDialog = () => {
     setCurrentDialog(null);
+    setReviewComment("");
   };
 
   const returnToSubmissionList = () => {
@@ -392,7 +394,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
 
       {/* Submit Dialog */}
       <StyledDialog
-        open={currentDialog === "Submit"}
+        open={currentDialog === "Submit" && submitActionButton.label === "Submit"}
         onClose={onCloseDialog}
         title="Submit Data Submission"
         actions={(
@@ -413,6 +415,39 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
           This action will lock your submission and it will no longer accept updates
           to the data. Are you sure you want to proceed?
         </StyledDialogText>
+      </StyledDialog>
+
+      {/* Admin Submit Dialog */}
+      <StyledDialog
+        open={currentDialog === "Submit" && submitActionButton.label === "Admin Submit"}
+        onClose={onCloseDialog}
+        title="Admin Submit Data Submission"
+        actions={(
+          <Stack direction="row" marginTop="24px">
+            <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
+            <LoadingButton
+              onClick={() => handleOnAction("Submit")}
+              loading={!!action}
+              disabled={reviewComment?.trim()?.length <= 0}
+              autoFocus
+            >
+              Confirm to Submit
+            </LoadingButton>
+          </Stack>
+        )}
+      >
+        <StyledOutlinedInput
+          value={reviewComment}
+          onChange={handleCommentChange}
+          placeholder="Enter comments here. Max of 500 characters"
+          inputProps={{ "aria-label": "Admin override justification" }}
+          slotProps={{ input: { minLength: 1, maxLength: 500 } }}
+          minRows={4}
+          maxRows={4}
+          multiline
+          fullWidth
+          required
+        />
       </StyledDialog>
 
       {/* Release Dialog */}
@@ -494,7 +529,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       <StyledDialog
         open={currentDialog === "Reject"}
         onClose={onCloseDialog}
-        title="Reject Data Submission *"
+        title="Reject Data Submission"
         actions={(
           <Stack direction="row" marginTop="24px">
             <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
@@ -513,10 +548,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         <StyledOutlinedInput
           value={reviewComment}
           onChange={handleCommentChange}
-          placeholder="500 characters allowed"
-          minRows={2}
-          maxRows={2}
+          placeholder="Enter comments here. Max of 500 characters"
+          inputProps={{ "aria-label": "Reject justification" }}
           slotProps={{ input: { minLength: 1, maxLength: 500 } }}
+          minRows={4}
+          maxRows={4}
           multiline
           fullWidth
           required
