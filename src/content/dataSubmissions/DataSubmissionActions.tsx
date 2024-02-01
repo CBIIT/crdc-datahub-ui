@@ -424,7 +424,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         title="Admin Submit Data Submission"
         actions={(
           <Stack direction="row" marginTop="24px">
-            <Button onClick={onCloseDialog} disabled={!!action} color="error">Cancel</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
             <LoadingButton
               onClick={() => handleOnAction("Submit")}
               loading={!!action}
@@ -439,11 +439,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         <StyledOutlinedInput
           value={reviewComment}
           onChange={handleCommentChange}
-          placeholder="500 characters allowed*"
+          placeholder="Enter comments here. Max of 500 characters"
           inputProps={{ "aria-label": "Admin override justification" }}
           slotProps={{ input: { minLength: 1, maxLength: 500 } }}
-          minRows={2}
-          maxRows={2}
+          minRows={4}
+          maxRows={4}
           multiline
           fullWidth
           required
@@ -529,7 +529,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       <StyledDialog
         open={currentDialog === "Reject"}
         onClose={onCloseDialog}
-        title="Reject Data Submission *"
+        title="Reject Data Submission"
         actions={(
           <Stack direction="row" marginTop="24px">
             <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
@@ -548,10 +548,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         <StyledOutlinedInput
           value={reviewComment}
           onChange={handleCommentChange}
-          placeholder="500 characters allowed"
-          minRows={2}
-          maxRows={2}
+          placeholder="Enter comments here. Max of 500 characters"
+          inputProps={{ "aria-label": "Reject justification" }}
           slotProps={{ input: { minLength: 1, maxLength: 500 } }}
+          minRows={4}
+          maxRows={4}
           multiline
           fullWidth
           required
