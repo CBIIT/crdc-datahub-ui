@@ -52,6 +52,7 @@ const StyledFormLabel = styled("label")(() => ({
   lineHeight: "19.6px",
   minHeight: "20px",
   color: "#083A50",
+  marginRight: "10px",
 }));
 
 const StyledAsterisk = styled("span")(() => ({

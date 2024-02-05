@@ -13,10 +13,10 @@ const StyledBox = styled(Box, {
 })<Pick<Props, "borderColor" | "hoverColor">>(({ borderColor, hoverColor }) => ({
   border: `2px solid ${borderColor}`,
   borderRadius: "8px",
-  paddingLeft: "34px",
-  paddingTop: "18px",
+  paddingLeft: "35px",
+  paddingTop: "24px",
   paddingRight: "26px",
-  paddingBottom: "29px",
+  paddingBottom: "26px",
   margin: "31px",
   "&:hover": {
     borderColor: hoverColor,
