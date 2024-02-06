@@ -161,7 +161,7 @@ const StyledSelect = styled(Select)(baseTextFieldStyles);
 const columns: Column[] = [
   {
     label: "Submission Name",
-    value: (a) => <Link to={`/data-submission/${a._id}/data-upload`}>{a.name}</Link>,
+    value: (a) => <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>,
     field: "name",
   },
   {
