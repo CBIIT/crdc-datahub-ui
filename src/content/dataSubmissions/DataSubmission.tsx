@@ -543,7 +543,7 @@ const DataSubmission = () => {
               statistics={data?.submissionStats?.stats}
             />
             <DataSubmissionUpload
-              submitterID={data?.getSubmission?.submitterID}
+              submission={data?.getSubmission}
               readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
               onCreateBatch={refreshBatchTable}
               onUpload={handleOnUpload}

@@ -107,13 +107,13 @@ const VisuallyHiddenInput = styled("input")(() => ({
 const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
 
 type Props = {
-  submitterID: string;
+  submission: Submission;
   readOnly?: boolean;
   onCreateBatch: () => void;
   onUpload: (message: string, severity: VariantType) => void;
 };
 
-const DataSubmissionUpload = ({ submitterID, readOnly, onCreateBatch, onUpload }: Props) => {
+const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
@@ -122,13 +122,14 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onCreateBatch, onUpload }
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
-  const isSubmissionOwner = submitterID === user?._id;
+  const isSubmissionOwner = submission?.submitterID === user?._id;
   const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
+  const isNewSubmission = !submission?.metadataValidationStatus && !submission?.fileValidationStatus;
   const acceptedExtensions = [".tsv", ".txt"];
   const metadataIntentionOptions = [
     { label: "New", value: "New", disabled: !canUpload },
-    { label: "Update", value: "Update", disabled: !canUpload },
-    { label: "Delete", value: "Delete", disabled: !canUpload },
+    { label: "Update", value: "Update", disabled: !canUpload || isNewSubmission },
+    { label: "Delete", value: "Delete", disabled: !canUpload || isNewSubmission },
   ];
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
