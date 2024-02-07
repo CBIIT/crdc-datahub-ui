@@ -122,7 +122,6 @@ const StyledCardActions = styled(CardActions, {
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
-  background: "#F0FBFD",
   position: 'relative',
   "& .MuiTabs-flexContainer": {
     justifyContent: "center"
@@ -130,7 +129,6 @@ const StyledTabs = styled(Tabs)(() => ({
   "& .MuiTabs-indicator": {
     display: "none !important"
   },
-
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -321,7 +319,7 @@ const columns: Column<Batch>[] = [
 ];
 
 const URLTabs = {
-  DATA_UPLOAD: "data-upload",
+  DATA_ACTIVITY: "data-activity",
   VALIDATION_RESULTS: "validation-results"
 };
 
@@ -546,14 +544,26 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={data?.getSubmission} />
-            <DataSubmissionStatistics dataSubmission={data?.getSubmission} statistics={data?.submissionStats?.stats} />
-            <ValidationControls dataSubmission={data?.getSubmission} onValidate={handleOnValidate} />
-            <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
+            <DataSubmissionStatistics
+              dataSubmission={data?.getSubmission}
+              statistics={data?.submissionStats?.stats}
+            />
+            <DataSubmissionUpload
+              submission={data?.getSubmission}
+              readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
+              onCreateBatch={refreshBatchTable}
+              onUpload={handleOnUpload}
+            />
+            <ValidationControls
+              dataSubmission={data?.getSubmission}
+              onValidate={handleOnValidate}
+            />
+            <StyledTabs value={isValidTab ? tab : URLTabs.DATA_ACTIVITY}>
               <LinkTab
-                value={URLTabs.DATA_UPLOAD}
-                label="Data Upload"
-                to={`/data-submission/${submissionId}/${URLTabs.DATA_UPLOAD}`}
-                selected={tab === URLTabs.DATA_UPLOAD}
+                value={URLTabs.DATA_ACTIVITY}
+                label="Data Activity"
+                to={`/data-submission/${submissionId}/${URLTabs.DATA_ACTIVITY}`}
+                selected={tab === URLTabs.DATA_ACTIVITY}
               />
               <LinkTab
                 value={URLTabs.VALIDATION_RESULTS}
@@ -564,14 +574,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
             </StyledTabs>
 
             <StyledMainContentArea>
-              {tab === URLTabs.DATA_UPLOAD ? (
+              {tab === URLTabs.DATA_ACTIVITY ? (
                 <BatchTableContext.Provider value={providerValue}>
-                  <DataSubmissionUpload
-                    submitterID={data?.getSubmission?.submitterID}
-                    readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
-                    onCreateBatch={refreshBatchTable}
-                    onUpload={handleOnUpload}
-                  />
                   <GenericTable
                     ref={tableRef}
                     columns={columns}
@@ -585,7 +589,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
               ) : <QualityControl />}
             </StyledMainContentArea>
           </StyledCardContent>
-          <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
+          <StyledCardActions isVisible={tab === URLTabs.DATA_ACTIVITY}>
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}

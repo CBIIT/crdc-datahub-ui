@@ -70,7 +70,7 @@ const StyledTitle = styled(Typography)({
   fontWeight: "900",
   lineHeight: "30px",
   paddingBottom: "8px",
-  wordBreak: "break-all"
+  wordBreak: "break-word"
 });
 
 const StyledUploadedDate = styled(Typography)({
@@ -103,9 +103,12 @@ const StyledErrorItem = styled(Typography)({
   lineHeight: "22px",
 });
 
+const StyledErrors = styled(Stack)({
+  overflowY: "auto"
+});
+
 const StyledErrorDetails = styled(Stack)({
   padding: "10px",
-  overflowY: "auto",
   maxHeight: "290px"
 });
 
@@ -160,14 +163,14 @@ const ErrorDialog = ({
         <StyledSubtitle variant="body2">
           {errorCount || `${errors?.length || 0} ${errors?.length === 1 ? "ERROR" : "ERRORS"}`}
         </StyledSubtitle>
-        <Stack direction="column" spacing={2.75} padding={1.25}>
+        <StyledErrors direction="column" spacing={2.75} padding={1.25}>
           {errors?.map((error: string, idx: number) => (
             // eslint-disable-next-line react/no-array-index-key
             <StyledErrorItem key={`${idx}_${error}`}>
               {`${idx + 1}. ${error}`}
             </StyledErrorItem>
           ))}
-        </Stack>
+        </StyledErrors>
       </StyledErrorDetails>
       <StyledCloseButton id="error-dialog-close-button" variant="outlined" onClick={handleCloseDialog}>
         {closeText}
