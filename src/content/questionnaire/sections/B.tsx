@@ -17,7 +17,7 @@ import PlannedPublication from "../../../components/Questionnaire/PlannedPublica
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
-import useFormMode from "./hooks/useFormMode";
+import useFormMode from "../../../hooks/useFormMode";
 import FundingAgency from "../../../components/Questionnaire/FundingAgency";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
 import SectionMetadata from "../../../config/SectionMetadata";

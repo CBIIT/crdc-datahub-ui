@@ -21,6 +21,7 @@ import {
   LIST_CURATORS, ListCuratorsResp,
 } from '../../graphql';
 import ConfirmDialog from '../../components/Organizations/ConfirmDialog';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type Props = {
   _id: Organization["_id"] | "new";
@@ -155,6 +156,8 @@ const inactiveSubmissionStatus: SubmissionStatus[] = ["Completed", "Archived"];
  * @returns {JSX.Element}
  */
 const OrganizationView: FC<Props> = ({ _id }: Props) => {
+  usePageTitle(`Organization ${!!_id && _id !== "new" ? _id : "Add"}`);
+
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 

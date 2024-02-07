@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   Alert,
@@ -44,6 +43,7 @@ import ValidationControls from '../../components/DataSubmissions/ValidationContr
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import FileListDialog from "./FileListDialog";
 import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
+import usePageTitle from '../../hooks/usePageTitle';
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -325,8 +325,14 @@ const URLTabs = {
 
 const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
 
-const DataSubmission = () => {
-  const { submissionId, tab } = useParams();
+type Props = {
+  submissionId: string;
+  tab: string;
+};
+
+const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
+  usePageTitle(`Data Submission ${submissionId || ""}`);
+
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
 

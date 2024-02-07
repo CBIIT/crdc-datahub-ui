@@ -16,6 +16,7 @@ import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
 import SuspenseLoader from '../../components/SuspenseLoader';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type T = Omit<Application, "questionnaireData">;
 
@@ -171,6 +172,8 @@ const columns: Column[] = [
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  usePageTitle("Submission Request List");
+
   const navigate = useNavigate();
   const { state } = useLocation();
   const { user } = useAuthContext();

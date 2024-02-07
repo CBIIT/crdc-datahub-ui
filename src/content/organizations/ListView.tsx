@@ -12,6 +12,7 @@ import PageBanner from "../../components/PageBanner";
 import Tooltip from '../../components/Tooltip';
 import { useOrganizationListContext, Status } from '../../components/Contexts/OrganizationListContext';
 import SuspenseLoader from '../../components/SuspenseLoader';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type T = Partial<Organization>;
 
@@ -246,6 +247,8 @@ const StudyContent: FC<{ _id: Organization["_id"], studies: Organization["studie
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  usePageTitle("Manage Organizations");
+
   const { state } = useLocation();
   const { status, data } = useOrganizationListContext();
 

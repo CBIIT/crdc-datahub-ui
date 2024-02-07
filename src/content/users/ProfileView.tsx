@@ -19,6 +19,7 @@ import { OrgAssignmentMap, OrgRequiredRoles, Roles } from '../../config/AuthRole
 import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { formatIDP, getEditableFields } from '../../utils';
 import { DataCommons } from '../../config/DataCommons';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type Props = {
   _id: User["_id"];
@@ -158,6 +159,8 @@ const StyledTitleBox = styled(Box)({
  * @returns {JSX.Element}
  */
 const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
+  usePageTitle(viewType === "profile" ? "User Profile" : `Edit User ${_id}`);
+
   const navigate = useNavigate();
   const { data: orgData } = useOrganizationListContext();
   const { user: currentUser, setData, logout } = useAuthContext();

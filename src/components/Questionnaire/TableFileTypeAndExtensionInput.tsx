@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 import { fileTypeExtensions } from "../../config/FileTypeConfig";
-import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
+import useFormMode from "../../hooks/useFormMode";
 
 const DropdownArrowsIcon = styled("div")(() => ({
   backgroundImage: `url(${dropdownArrowsIcon})`,

@@ -6,7 +6,7 @@ import {
   TooltipProps,
   styled,
 } from "@mui/material";
-import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
+import useFormMode from "../../hooks/useFormMode";
 import { updateInputValidity } from '../../utils';
 /*
 *Pass in a regex pattern if you want this field to have custom validation checking

@@ -7,7 +7,7 @@ import {
 import config from '../../config/SectionConfig';
 import { Status, useFormContext } from '../Contexts/FormContext';
 import StatusAdornment from './StatusAdornment';
-import useFormMode from '../../content/questionnaire/sections/hooks/useFormMode';
+import useFormMode from '../../hooks/useFormMode';
 
 type Props = {
   section: string;
