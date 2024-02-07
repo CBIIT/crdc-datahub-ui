@@ -211,8 +211,6 @@ type Props = {
  * @returns {JSX.Element}
  */
 const FormView: FC<Props> = ({ section } : Props) => {
-  usePageTitle("Submission Request Form");
-
   const navigate = useNavigate();
   const { status, data, setData, submitData, approveForm, inquireForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
   const { user, status: authStatus } = useAuthContext();
@@ -248,6 +246,8 @@ const FormView: FC<Props> = ({ section } : Props) => {
     rejectFormRef: createRef<HTMLButtonElement>(),
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
+
+  usePageTitle(`Submission Request ${data?._id || ""}`);
 
   useEffect(() => {
     const formLoaded = status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
