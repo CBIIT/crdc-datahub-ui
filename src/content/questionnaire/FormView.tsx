@@ -114,6 +114,9 @@ const StyledControls = styled(Stack)({
 
 const StyledLoadingButton = styled(LoadingButton)({
   "&.MuiButton-root": {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     minWidth: "128px",
     padding: "10px",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
@@ -730,12 +733,10 @@ const FormView: FC<Props> = ({ section } : Props) => {
                 id="submission-form-save-button"
                 variant="contained"
                 color="success"
-                type="button"
                 ref={refs.saveFormRef}
-                size="large"
                 loading={status === FormStatus.SAVING}
                 onClick={() => saveForm()}
-                sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
+                sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
               >
                 Save
               </StyledLoadingButton>
@@ -747,7 +748,7 @@ const FormView: FC<Props> = ({ section } : Props) => {
                 ref={refs.submitFormRef}
                 size="large"
                 onClick={handleSubmitForm}
-                sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
+                sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
               >
                 Submit
               </StyledExtendedLoadingButton>

@@ -44,7 +44,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "initial";
+    saveFormRef.current.style.display = "flex";
     submitFormRef.current.style.display = "none";
     approveFormRef.current.style.display = "none";
     inquireFormRef.current.style.display = "none";

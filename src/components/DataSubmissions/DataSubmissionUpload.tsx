@@ -43,7 +43,6 @@ const StyledUploadFilesButton = styled(Button)(() => ({
   textTransform: "none",
   "&.MuiButtonBase-root": {
     marginLeft: "auto",
-    marginRight: "21.5px",
     minWidth: "137px",
   }
 }));

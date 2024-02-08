@@ -190,7 +190,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
 
   return (
     <FlowWrapper title="Validate Data" borderColor="#8E9AD5" hoverColor="#869AFF">
-      <StyledFileValidationSection direction="row">
+      <StyledFileValidationSection direction="row" alignItems="center">
         <div className="fileValidationLeftSide">
           <div className="fileValidationLeftSideTopRow">
             <div className="headerText">Validation Type:</div>
