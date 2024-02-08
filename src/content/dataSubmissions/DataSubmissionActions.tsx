@@ -1,23 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
-import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
   alignItems: "center",
-}));
-
-const StyledButton = styled(Button)(() => ({
-  minWidth: "137px",
-  width: "fit-content",
-  padding: "10px",
 }));
 
 const StyledOutlinedInput = styled(OutlinedInput)(() => ({
@@ -53,26 +44,6 @@ const StyledOutlinedInput = styled(OutlinedInput)(() => ({
   },
 }));
 
-const StyledButtonBase = styled(LoadingButton)(() => ({
-  display: "flex",
-  width: "128px",
-  height: "51px",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "10px",
-  flexShrink: 0,
-  borderRadius: "8px",
-  textAlign: "center",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  lineHeight: "24px",
-  letterSpacing: "0.32px",
-  textTransform: "initial",
-  zIndex: 3,
-}));
-
 const StyledLoadingButton = styled(LoadingButton)(() => ({
   minWidth: "137px",
   width: "fit-content",
@@ -86,10 +57,6 @@ const StyledLoadingButton = styled(LoadingButton)(() => ({
   letterSpacing: "0.32px",
   textTransform: "initial",
   zIndex: 3,
-}));
-
-const StyledBackButton = styled(StyledButton)(() => ({
-  minWidth: "128px",
 }));
 
 const StyledDialog = styled(CustomDialog)({
@@ -166,7 +133,6 @@ type Props = {
 
 const DataSubmissionActions = ({ submission, submitActionButton, onAction, onError }: Props) => {
   const { user } = useAuthContext();
-  const navigate = useNavigate();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
@@ -227,11 +193,6 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
     setReviewComment("");
   };
 
-  const returnToSubmissionList = () => {
-    navigate("/data-submissions");
-    window.scrollTo(0, 0);
-  };
-
   const canShowAction = (actionKey: ActionKey) => {
     const config = actionConfig[actionKey];
     return config?.statuses?.includes(submission?.status) && config?.roles?.includes(user?.role);
@@ -244,16 +205,6 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
 
   return (
     <StyledActionWrapper direction="row" spacing={2}>
-      {/* Return to Data Submission List Button */}
-      <StyledBackButton
-        variant="contained"
-        color="info"
-        onClick={returnToSubmissionList}
-        startIcon={<ChevronLeft />}
-        disabled={!!action}
-      >
-        Back
-      </StyledBackButton>
       {/* Action Buttons */}
       {canShowAction("Submit") ? (
         <StyledLoadingButton

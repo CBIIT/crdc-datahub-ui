@@ -44,6 +44,7 @@ import { useAuthContext } from "../../components/Contexts/AuthContext";
 import FileListDialog from "./FileListDialog";
 import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
 import usePageTitle from '../../hooks/usePageTitle';
+import BackButton from "../../components/DataSubmissions/BackButton";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -118,7 +119,10 @@ const StyledMainContentArea = styled("div")(() => ({
 const StyledCardActions = styled(CardActions, {
   shouldForwardProp: (prop) => prop !== "isVisible"
 })<CardActionsProps & { isVisible: boolean; }>(({ isVisible }) => ({
-  visibility: isVisible ? "visible" : "hidden"
+  "&.MuiCardActions-root": {
+    visibility: isVisible ? "visible" : "hidden",
+    paddingTop: 0,
+  }
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
@@ -584,9 +588,12 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
                     loading={loading}
                     defaultRowsPerPage={20}
                     onFetchData={handleFetchBatches}
+                    containerProps={{ sx: { marginBottom: "8px" } }}
                   />
                 </BatchTableContext.Provider>
               ) : <QualityControl />}
+              {/* Return to Data Submission List Button */}
+              <BackButton navigateTo="/data-submissions" text="Back to Data Submissions" />
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_ACTIVITY}>
