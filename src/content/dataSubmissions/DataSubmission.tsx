@@ -100,18 +100,19 @@ const StyledCard = styled(Card)(() => ({
     content: '""',
     position: "absolute",
     zIndex: 1,
-    bottom: 48,
+    bottom: 120,
     left: 0,
     pointerEvents: "none",
     backgroundImage: "linear-gradient(to bottom, rgba(255,255,255,0), rgba(251,253,255, 1) 20%)",
     width: "100%",
-    height: "218px",
+    height: "360px",
   },
 }));
 
 const StyledMainContentArea = styled("div")(() => ({
+  position: "relative",
+  zIndex: 2,
   borderRadius: 0,
-  background: "#FFFFFF",
   minHeight: "300px",
   padding: "21px 40px 0",
 }));
@@ -592,6 +593,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
                   />
                 </BatchTableContext.Provider>
               ) : <QualityControl />}
+
               {/* Return to Data Submission List Button */}
               <BackButton navigateTo="/data-submissions" text="Back to Data Submissions" />
             </StyledMainContentArea>

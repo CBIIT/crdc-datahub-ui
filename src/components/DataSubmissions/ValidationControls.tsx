@@ -25,24 +25,17 @@ type Props = {
 };
 
 const StyledValidateButton = styled(LoadingButton)({
-alignSelf: "center",
   padding: "10px",
-  borderRadius: "8px",
-  textAlign: "center",
   fontSize: "16px",
   fontStyle: "normal",
   lineHeight: "24px",
   letterSpacing: "0.32px",
-  textTransform: "none",
   "&.MuiButtonBase-root": {
     height: "fit-content",
     minHeight: "44px",
     marginLeft: "auto",
     minWidth: "137px",
   },
-  "&.MuiButtonBase-root:hover": {
-    background: "#496065",
-  }
 });
 
 const StyledFileValidationSection = styled(Stack)({

@@ -84,9 +84,9 @@ const StyledContent = styled(Stack)({
 const StyledControls = styled(Stack)({
   color: "#FFFFFF",
   marginTop: "15px !important",
-  "& button": {
+  "& .MuiButton-root": {
     margin: "0 6px",
-    padding: "10px",
+    padding: "10px 28px 10px !important",
     minWidth: "128px",
     fontSize: "16px",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
@@ -101,8 +101,10 @@ const StyledControls = styled(Stack)({
   },
   "& .MuiButton-startIcon": {
     marginRight: "20px",
+    marginLeft: 0,
   },
   "& .MuiButton-endIcon": {
+    marginRight: 0,
     marginLeft: "20px",
   },
   "& .MuiSvgIcon-root": {
@@ -122,6 +124,12 @@ const StyledLoadingButton = styled(LoadingButton)({
     "& .MuiSvgIcon-root": {
       fontSize: "20px",
     },
+  },
+});
+
+const StyledExtendedLoadingButton = styled(StyledLoadingButton)({
+  "&.MuiButton-root": {
+    minWidth: "137px",
   },
 });
 
@@ -731,7 +739,7 @@ const FormView: FC<Props> = ({ section } : Props) => {
               >
                 Save
               </StyledLoadingButton>
-              <StyledLoadingButton
+              <StyledExtendedLoadingButton
                 id="submission-form-submit-button"
                 variant="contained"
                 color="primary"
@@ -742,8 +750,8 @@ const FormView: FC<Props> = ({ section } : Props) => {
                 sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
               >
                 Submit
-              </StyledLoadingButton>
-              <StyledLoadingButton
+              </StyledExtendedLoadingButton>
+              <StyledExtendedLoadingButton
                 id="submission-form-approve-button"
                 variant="contained"
                 color="primary"
@@ -752,7 +760,7 @@ const FormView: FC<Props> = ({ section } : Props) => {
                 onClick={handleApproveForm}
               >
                 Approve
-              </StyledLoadingButton>
+              </StyledExtendedLoadingButton>
               <StyledLoadingButton
                 id="submission-form-inquire-button"
                 variant="contained"
@@ -763,7 +771,7 @@ const FormView: FC<Props> = ({ section } : Props) => {
               >
                 Request Additional Information
               </StyledLoadingButton>
-              <StyledLoadingButton
+              <StyledExtendedLoadingButton
                 id="submission-form-reject-button"
                 variant="contained"
                 color="error"
@@ -772,7 +780,7 @@ const FormView: FC<Props> = ({ section } : Props) => {
                 onClick={handleRejectForm}
               >
                 Reject
-              </StyledLoadingButton>
+              </StyledExtendedLoadingButton>
               <StyledLoadingButton
                 id="submission-form-next-button"
                 variant="contained"

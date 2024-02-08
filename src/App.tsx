@@ -36,13 +36,25 @@ const theme = createTheme({
           textAlign: "center",
           zIndex: 3,
           "&.Mui-disabled": {
-            background: "#B1B1B1",
-            color: "#EDEDED",
-            fontWeight: 700,
-            border: "1.5px solid #6B7294",
+            "&.MuiButton-containedPrimary": {
+              fontWeight: 700,
+              color: "#FFF",
+              border: "1.5px solid #08596C",
+              background: "#1A8199",
+              opacity: 0.4,
+            },
+            "&.MuiButton-containedError": {
+              fontWeight: 700,
+              color: "#FFF",
+              border: "1.5px solid #6C2110",
+              background: "#B34C36",
+              opacity: 0.4,
+            },
             "&.MuiButton-containedInfo": {
+              fontWeight: 500,
               color: "#EDEDED",
-              fontWeight: 500
+              background: "#B1B1B1",
+              border: "1.5px solid #6B7294",
             },
             "& .MuiButton-startIcon, & .MuiButton-endIcon": {
               color: "#EDEDED",
@@ -94,7 +106,7 @@ const theme = createTheme({
           fontWeight: 500,
           "&:hover": {
             border: "1.5px solid #6B7294",
-            // background: "#C0DAF3",
+            background: "#C0DAF3",
           },
         },
       }
