@@ -93,7 +93,7 @@ const DeleteDialog = ({
   header = "Delete Data",
   description,
   closeText = "Cancel",
-  confirmText = "Delete",
+  confirmText = "Confirm to Delete",
   onClose,
   onConfirm,
   open,
