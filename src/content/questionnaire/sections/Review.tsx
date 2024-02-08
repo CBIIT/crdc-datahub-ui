@@ -12,7 +12,7 @@ import ReviewDataListing from "../../../components/Questionnaire/ReviewDataListi
 import ReviewDataListingProperty, { StyledValue } from "../../../components/Questionnaire/ReviewDataListingProperty";
 import ReviewFileTypeTable from "../../../components/Questionnaire/ReviewFileTypeTable";
 import { mapObjectWithKey, formatPhoneNumber, findProgram } from "../../../utils";
-import useFormMode from "./hooks/useFormMode";
+import useFormMode from "../../../hooks/useFormMode";
 import DataTypes from "../../../config/DataTypesConfig";
 import SectionMetadata from "../../../config/SectionMetadata";
 import { repositoryDataTypesOptions } from "../../../components/Questionnaire/Repository";

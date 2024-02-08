@@ -27,7 +27,7 @@ import { fileTypeOptions } from "../../../config/FileTypeConfig";
 import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
-import useFormMode from "./hooks/useFormMode";
+import useFormMode from "../../../hooks/useFormMode";
 import SectionMetadata from "../../../config/SectionMetadata";
 
 export type KeyedFileTypeData = {
@@ -122,7 +122,7 @@ const TableContainer = styled("div")({
     },
   },
   "& .asterisk": {
-    color: "#D54309",
+    color: "#C93F08",
     marginLeft: "2px",
   },
   "& .MuiButton-startIcon": {

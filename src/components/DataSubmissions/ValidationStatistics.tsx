@@ -82,7 +82,7 @@ const StyledPrimaryTitle = styled(Typography)({
   fontSize: "13px",
   fontWeight: 600,
   textTransform: "uppercase",
-  color: "#1D91AB",
+  color: "#187A90",
 });
 
 const StyledSecondaryStack = styled(Stack)({
@@ -96,7 +96,14 @@ const StyledSecondaryTitle = styled(Typography)({
   fontSize: "13px",
   fontWeight: 600,
   textTransform: "uppercase",
-  color: "#1D91AB",
+  color: "#187A90",
+});
+
+const StyledNoData = styled(Typography)({
+  fontSize: "13px",
+  fontWeight: 600,
+  textTransform: "uppercase",
+  color: "#083A50",
 });
 
 const defaultFilters: LegendFilter[] = [
@@ -131,8 +138,13 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   };
 
   // If there is no data submission or no items uploaded, do not render
+  // NOTE: This does not conform to CRDCDH-538 requirements currently
   if (!dataSubmission || !statistics?.some((s) => s.total > 0)) {
-    return null;
+    return (
+      <StyledChartArea direction="row">
+        <StyledNoData variant="h6">New Data Submission. No data has been uploaded yet.</StyledNoData>
+      </StyledChartArea>
+    );
   }
 
   return (

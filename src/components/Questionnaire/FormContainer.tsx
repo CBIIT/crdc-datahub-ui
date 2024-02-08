@@ -2,7 +2,7 @@ import React, { HTMLProps, MutableRefObject, forwardRef, useId } from 'react';
 import { Button, ButtonProps, Typography, styled } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
-import useFormMode from '../../content/questionnaire/sections/hooks/useFormMode';
+import useFormMode from '../../hooks/useFormMode';
 
 const StyledButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== "isVisible"

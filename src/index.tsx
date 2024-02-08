@@ -6,8 +6,8 @@ import axe from '@axe-core/react';
 import App from './App';
 import client from './client';
 import * as serviceWorker from './serviceWorker';
-import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './components/Contexts/AuthContext';
+import { AnalyticsProvider } from './components/Contexts/AnalyticsContext';
 import env from './env';
 
 if (env.REACT_APP_DEV_TIER === "dev" || env.REACT_APP_DEV_TIER === "dev2") {
@@ -23,13 +23,13 @@ root.render(
     <ApolloProvider client={client}>
       <HelmetProvider>
         <AuthProvider>
-          <App />
+          <AnalyticsProvider GA_MEASUREMENT_ID={env.REACT_APP_GA_TRACKING_ID}>
+            <App />
+          </AnalyticsProvider>
         </AuthProvider>
       </HelmetProvider>
     </ApolloProvider>
   </React.StrictMode>,
 );
-
-reportWebVitals();
 
 serviceWorker.unregister();

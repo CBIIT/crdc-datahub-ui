@@ -22,7 +22,7 @@ const StyledSummaryWrapper = styled("div")(() => ({
 }));
 
 const StyledSubmissionTitle = styled(Typography)(() => ({
-  color: "#1D91AB",
+  color: "#187A90",
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   fontSize: "13px",
   fontStyle: "normal",

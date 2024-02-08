@@ -1,6 +1,5 @@
 import React, { FC } from "react";
 import { Container, styled } from '@mui/material';
-import { Helmet } from "react-helmet-async";
 
 const StyledBanner = styled("div")(({ bannerSrc } : { bannerSrc: string }) => ({
   background: bannerSrc ? `url(${bannerSrc})` : "transparent",
@@ -68,19 +67,13 @@ export type Props = {
 const PageBanner: FC<Props> = ({
   title, subTitle, padding, body, bannerSrc
 } : Props) => (
-  <>
-    <Helmet>
-      <title>{title}</title>
-    </Helmet>
-
-    <StyledBanner bannerSrc={bannerSrc}>
-      <StyledBannerContentContainer maxWidth="xl" padding={padding}>
-        <StyledBannerTitle>{title}</StyledBannerTitle>
-        {subTitle && (<StyledBannerSubtitle>{subTitle}</StyledBannerSubtitle>)}
-        {body}
-      </StyledBannerContentContainer>
-    </StyledBanner>
-  </>
+  <StyledBanner bannerSrc={bannerSrc}>
+    <StyledBannerContentContainer maxWidth="xl" padding={padding}>
+      <StyledBannerTitle>{title}</StyledBannerTitle>
+      {subTitle && (<StyledBannerSubtitle>{subTitle}</StyledBannerSubtitle>)}
+      {body}
+    </StyledBannerContentContainer>
+  </StyledBanner>
 );
 
 export default PageBanner;

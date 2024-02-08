@@ -24,6 +24,7 @@ import TextInput from "../../components/Questionnaire/TextInput";
 import GenericAlert from '../../components/GenericAlert';
 import { DataCommons } from '../../config/DataCommons';
 import SuspenseLoader from '../../components/SuspenseLoader';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type T = Submission;
 
@@ -161,7 +162,7 @@ const StyledSelect = styled(Select)(baseTextFieldStyles);
 const columns: Column[] = [
   {
     label: "Submission Name",
-    value: (a) => <Link to={`/data-submission/${a._id}/data-upload`}>{a.name}</Link>,
+    value: (a) => <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>,
     field: "name",
   },
   {
@@ -175,7 +176,7 @@ const columns: Column[] = [
     field: "dataCommons",
   },
   {
-    label: "DM Versison",
+    label: "DM Version",
     value: (a) => a.modelVersion,
     field: "modelVersion",
   },
@@ -293,7 +294,7 @@ const CreateSubmissionDialog = styled(Dialog)`
     cursor: pointer;
   }
   .createSubmissionError {
-    color: #D54309;
+    color: #C93F08;
     text-align: center;
     margin-bottom: 30px;
     margin-top: -20px;
@@ -310,6 +311,8 @@ const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, v
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  usePageTitle("Data Submission List");
+
   const { state } = useLocation();
   const { user } = useAuthContext();
 
@@ -544,7 +547,7 @@ const ListingView: FC = () => {
                       variant="h6"
                       align="center"
                       fontSize={18}
-                      color="#AAA"
+                      color="#757575"
                     >
                       There are no data submissions associated with your account
                     </Typography>

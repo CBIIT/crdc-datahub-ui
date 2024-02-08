@@ -12,6 +12,7 @@ import PageBanner from "../../components/PageBanner";
 import Tooltip from '../../components/Tooltip';
 import { useOrganizationListContext, Status } from '../../components/Contexts/OrganizationListContext';
 import SuspenseLoader from '../../components/SuspenseLoader';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type T = Partial<Organization>;
 
@@ -44,7 +45,7 @@ const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   color: "#fff",
   textTransform: "none",
   borderColor: "#26B893 !important",
-  background: "#22A584 !important",
+  background: "#1B8369 !important",
   marginRight: "25px",
 });
 
@@ -246,6 +247,8 @@ const StudyContent: FC<{ _id: Organization["_id"], studies: Organization["studie
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  usePageTitle("Manage Organizations");
+
   const { state } = useLocation();
   const { status, data } = useOrganizationListContext();
 
@@ -421,7 +424,7 @@ const ListingView: FC = () => {
                       variant="h6"
                       align="center"
                       fontSize={18}
-                      color="#AAA"
+                      color="#757575"
                     >
                       No organizations found.
                     </Typography>

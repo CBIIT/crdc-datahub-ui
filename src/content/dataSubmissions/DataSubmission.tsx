@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   Alert,
@@ -44,6 +43,7 @@ import ValidationControls from '../../components/DataSubmissions/ValidationContr
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import FileListDialog from "./FileListDialog";
 import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
+import usePageTitle from '../../hooks/usePageTitle';
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -122,7 +122,6 @@ const StyledCardActions = styled(CardActions, {
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
-  background: "#F0FBFD",
   position: 'relative',
   "& .MuiTabs-flexContainer": {
     justifyContent: "center"
@@ -130,7 +129,6 @@ const StyledTabs = styled(Tabs)(() => ({
   "& .MuiTabs-indicator": {
     display: "none !important"
   },
-
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -208,7 +206,7 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
 }));
 
 const StyledErrorDetailsButton = styled(Button)(() => ({
-  color: "#0D78C5",
+  color: "#0B6CB1",
   fontFamily: "Inter",
   fontSize: "16px",
   fontStyle: "normal",
@@ -225,7 +223,7 @@ const StyledErrorDetailsButton = styled(Button)(() => ({
 }));
 
 const StyledFileCountButton = styled(Button)(() => ({
-  color: "#0D78C5",
+  color: "#0B6CB1",
   fontFamily: "Inter",
   fontSize: "16px",
   fontStyle: "normal",
@@ -249,7 +247,7 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Upload Type",
-    renderValue: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
+    renderValue: (data) => (data?.type !== "metadata" ? "-" : data?.metadataIntention),
     field: "metadataIntention",
   },
   {
@@ -280,7 +278,7 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Status",
-    renderValue: (data) => <Box textTransform="capitalize">{data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status}</Box>,
+    renderValue: (data) => <Box textTransform="capitalize">{data.status === "Failed" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status}</Box>,
     field: "status",
   },
   {
@@ -321,22 +319,30 @@ const columns: Column<Batch>[] = [
 ];
 
 const URLTabs = {
-  DATA_UPLOAD: "data-upload",
+  DATA_ACTIVITY: "data-activity",
   VALIDATION_RESULTS: "validation-results"
 };
 
 const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
 
-const DataSubmission = () => {
-  const { submissionId, tab } = useParams();
+type Props = {
+  submissionId: string;
+  tab: string;
+};
+
+const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
+  usePageTitle(`Data Submission ${submissionId || ""}`);
+
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [totalBatches, setTotalBatches] = useState<number>(0);
+  const [hasUploadingBatches, setHasUploadingBatches] = useState<boolean>(false);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [batchRefreshTimeout, setBatchRefreshTimeout] = useState<NodeJS.Timeout>(null);
+  const [error, setError] = useState<string>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
@@ -409,6 +415,7 @@ const DataSubmission = () => {
       }
       setBatches(newBatchFiles.listBatches.batches);
       setTotalBatches(newBatchFiles.listBatches.total);
+      setHasUploadingBatches(newBatchFiles.fullStatusList.batches.some((b) => b.status === "Uploading"));
     } catch (err) {
       setError("Unable to retrieve batch data.");
     } finally {
@@ -416,7 +423,7 @@ const DataSubmission = () => {
     }
   };
 
-  const updateSubmissionAction = async (action: SubmissionAction) => {
+  const updateSubmissionAction = async (action: SubmissionAction, reviewComment?: string) => {
     if (!submissionId) {
       return;
     }
@@ -425,7 +432,8 @@ const DataSubmission = () => {
       const { data: d, errors } = await submissionAction({
         variables: {
           submissionID: submissionId,
-          action
+          action,
+          comment: reviewComment,
         }
       });
       if (errors || !d?.submissionAction?._id) {
@@ -498,6 +506,21 @@ const DataSubmission = () => {
     }
   }, [data?.getSubmission?.fileValidationStatus, data?.getSubmission?.metadataValidationStatus]);
 
+  useEffect(() => {
+    if (user?.role !== "Submitter") {
+      return () => {};
+    }
+    if (!hasUploadingBatches && batchRefreshTimeout) {
+      clearInterval(batchRefreshTimeout);
+      setBatchRefreshTimeout(null);
+      getSubmission();
+    } else if (!batchRefreshTimeout && hasUploadingBatches) {
+      setBatchRefreshTimeout(setInterval(refreshBatchTable, 60000));
+    }
+
+    return () => clearInterval(batchRefreshTimeout);
+  }, [hasUploadingBatches]);
+
   return (
     <StyledWrapper>
       <StyledBanner bannerSrc={bannerSvg} />
@@ -521,14 +544,26 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={data?.getSubmission} />
-            <DataSubmissionStatistics dataSubmission={data?.getSubmission} statistics={data?.submissionStats?.stats} />
-            <ValidationControls dataSubmission={data?.getSubmission} onValidate={handleOnValidate} />
-            <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
+            <DataSubmissionStatistics
+              dataSubmission={data?.getSubmission}
+              statistics={data?.submissionStats?.stats}
+            />
+            <DataSubmissionUpload
+              submission={data?.getSubmission}
+              readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
+              onCreateBatch={refreshBatchTable}
+              onUpload={handleOnUpload}
+            />
+            <ValidationControls
+              dataSubmission={data?.getSubmission}
+              onValidate={handleOnValidate}
+            />
+            <StyledTabs value={isValidTab ? tab : URLTabs.DATA_ACTIVITY}>
               <LinkTab
-                value={URLTabs.DATA_UPLOAD}
-                label="Data Upload"
-                to={`/data-submission/${submissionId}/${URLTabs.DATA_UPLOAD}`}
-                selected={tab === URLTabs.DATA_UPLOAD}
+                value={URLTabs.DATA_ACTIVITY}
+                label="Data Activity"
+                to={`/data-submission/${submissionId}/${URLTabs.DATA_ACTIVITY}`}
+                selected={tab === URLTabs.DATA_ACTIVITY}
               />
               <LinkTab
                 value={URLTabs.VALIDATION_RESULTS}
@@ -539,14 +574,8 @@ const DataSubmission = () => {
             </StyledTabs>
 
             <StyledMainContentArea>
-              {tab === URLTabs.DATA_UPLOAD ? (
+              {tab === URLTabs.DATA_ACTIVITY ? (
                 <BatchTableContext.Provider value={providerValue}>
-                  <DataSubmissionUpload
-                    submitterID={data?.getSubmission?.submitterID}
-                    readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
-                    onCreateBatch={refreshBatchTable}
-                    onUpload={handleOnUpload}
-                  />
                   <GenericTable
                     ref={tableRef}
                     columns={columns}
@@ -560,7 +589,7 @@ const DataSubmission = () => {
               ) : <QualityControl />}
             </StyledMainContentArea>
           </StyledCardContent>
-          <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
+          <StyledCardActions isVisible={tab === URLTabs.DATA_ACTIVITY}>
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}

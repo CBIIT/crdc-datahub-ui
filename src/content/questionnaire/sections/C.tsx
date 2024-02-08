@@ -14,7 +14,7 @@ import preCancerTypeOptions from "../../../config/PreCancerTypesConfig";
 import speciesOptions from "../../../config/SpeciesConfig";
 import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
 import { reshapeCheckboxGroupOptions, isValidInRange, filterPositiveIntegerString } from "../../../utils";
-import useFormMode from "./hooks/useFormMode";
+import useFormMode from "../../../hooks/useFormMode";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 import SectionMetadata from "../../../config/SectionMetadata";
 

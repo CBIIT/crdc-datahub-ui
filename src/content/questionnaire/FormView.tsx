@@ -28,7 +28,7 @@ import Section from "./sections";
 import map, { InitialSections } from "../../config/SectionConfig";
 import UnsavedChangesDialog from "../../components/Questionnaire/UnsavedChangesDialog";
 import SubmitFormDialog from "../../components/Questionnaire/SubmitFormDialog";
-import useFormMode from "./sections/hooks/useFormMode";
+import useFormMode from "../../hooks/useFormMode";
 import InquireFormDialog from "../../components/Questionnaire/InquireFormDialog";
 import RejectFormDialog from "../../components/Questionnaire/RejectFormDialog";
 import ApproveFormDialog from "../../components/Questionnaire/ApproveFormDialog";
@@ -40,6 +40,7 @@ import {
   useAuthContext,
 } from "../../components/Contexts/AuthContext";
 import ErrorCodes from "../../config/ErrorCodes";
+import usePageTitle from '../../hooks/usePageTitle';
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -181,6 +182,8 @@ const FormView: FC<Props> = ({ section } : Props) => {
     rejectFormRef: createRef<HTMLButtonElement>(),
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
+
+  usePageTitle(`Submission Request ${data?._id || ""}`);
 
   useEffect(() => {
     const formLoaded = status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;

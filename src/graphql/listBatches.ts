@@ -54,6 +54,11 @@ export const query = gql`
         ...BatchFragment @skip(if: $partial)
       }
     }
+    fullStatusList: listBatches(submissionID: $submissionID, first: -1) {
+      batches {
+        status
+      }
+    }
   }
   ${FullBatchFragment}
   ${BaseBatchFragment}
@@ -61,4 +66,7 @@ export const query = gql`
 
 export type Response = {
   listBatches: ListBatches;
+  fullStatusList: {
+    batches: Pick<Batch, 'status'>[];
+  };
 };

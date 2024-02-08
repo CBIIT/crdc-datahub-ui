@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 import { fileTypeExtensions } from "../../config/FileTypeConfig";
-import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
+import useFormMode from "../../hooks/useFormMode";
 
 const DropdownArrowsIcon = styled("div")(() => ({
   backgroundImage: `url(${dropdownArrowsIcon})`,
@@ -38,7 +38,7 @@ const StyledTooltip = styled((props: TooltipProps) => (
 ))(() => ({
   "& .MuiTooltip-tooltip": {
     marginTop: "4px !important",
-    color: "#D54309",
+    color: "#C93F08",
     background: "#FFFFFF",
     border: "1px solid #2B528B",
   },

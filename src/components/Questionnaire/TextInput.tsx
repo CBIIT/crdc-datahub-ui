@@ -38,7 +38,7 @@ const StyledLabel = styled("label")(() => ({
 }));
 
 const StyledAsterisk = styled("span")(() => ({
-  color: "#D54309",
+  color: "#C93F08",
   marginLeft: "2px",
 }));
 
