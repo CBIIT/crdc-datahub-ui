@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Dialog, DialogTitle, Stack, styled } from "@mui/material";
+import { Button, Dialog, DialogTitle, styled } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import GenericAlert from "../GenericAlert";
 
@@ -50,6 +50,8 @@ const InactivityWarningContent = styled("div")({
     width: "150px",
     border: "1px solid #626262",
     marginTop: "30px",
+    borderRadius: "4px",
+    fontWeight: 500
   },
   "& .extendButton": {
     backgroundColor: "#566672 !important",
@@ -99,39 +101,23 @@ const SessionTimeoutContent = styled("div")({
     textAlign: "center",
   },
   "& .buttonGroup": {
-    fontSize: "16px",
-    lineHeight: "24px",
-    minWidth: "90px",
+    color: "#FFFFFF",
+    fontFamily: "Lato",
+    fontSize: "11px",
+    lineHeight: "22px",
+    width: "90px",
+    border: "1px solid #626262",
     marginTop: "30px",
+    borderRadius: "4px",
+    fontWeight: 500
+  },
+  "& .closeButton": {
+    backgroundColor: "#566672 !important",
   },
   "& .loginButton": {
     marginLeft: "20px",
     backgroundColor: "#437BBE !important",
   },
-});
-
-const StyledLoginButton = styled(Button)({
-  minWidth: "137px",
-  padding: "10px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  lineHeight: "24px",
-  letterSpacing: "0.32px",
-  textTransform: "none",
-  alignSelf: "center",
-});
-
-const StyledCloseButton = styled(Button)({
-  minWidth: "137px",
-  padding: "10px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  lineHeight: "24px",
-  letterSpacing: "0.32px",
-  textTransform: "none",
-  alignSelf: "center",
 });
 
 const secondsToMinuteString = (seconds) => new Date(seconds * 1000).toISOString().substring(14, 19);
@@ -240,6 +226,7 @@ const InactivityDialog = () => {
               variant="contained"
               className="buttonGroup extendButton"
               onClick={handleExtendSession}
+              disableElevation={false}
             >
               EXTEND SESSION
             </Button>
@@ -247,6 +234,7 @@ const InactivityDialog = () => {
               variant="contained"
               className="buttonGroup logOutButton"
               onClick={handleSignOut}
+              disableElevation={false}
             >
               LOGOUT
             </Button>
@@ -273,28 +261,24 @@ const InactivityDialog = () => {
           <div className="sessionTimeoutTitle">Your session has expired.</div>
           <br />
           <div className="sessionTimeoutMessage">Please login again to continue working.</div>
-          <Stack
-            direction="row"
-            spacing={2.5}
-            justifyContent="center"
-            alignItems="center"
-            marginTop="45px"
-          >
-            <StyledCloseButton
+          <div className="buttonWrapper">
+            <Button
               variant="contained"
-              color="info"
+              className="buttonGroup closeButton"
               onClick={() => setTimedOut(false)}
+              disableElevation={false}
             >
-              Close
-            </StyledCloseButton>
-            <StyledLoginButton
+              CLOSE
+            </Button>
+            <Button
               variant="contained"
-              color="primary"
+              className="buttonGroup loginButton"
               onClick={() => { setTimedOut(false); navigate("login"); }}
+              disableElevation={false}
             >
-              Login
-            </StyledLoginButton>
-          </Stack>
+              LOGIN
+            </Button>
+          </div>
         </SessionTimeoutContent>
       </SessionTimeoutDialog>
     </>

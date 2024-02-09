@@ -13,7 +13,6 @@ const components: Components = {
         color: "#FFF",
         borderRadius: "8px",
         textTransform: "none",
-        boxShadow: "none",
         textAlign: "center",
         zIndex: 3,
         "&.Mui-disabled": {
