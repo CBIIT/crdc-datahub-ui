@@ -57,7 +57,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
 
   return (
     <StyledChartContainer>
-      {label && <StyledPieChartLabel>{label}</StyledPieChartLabel>}
+      {label && <StyledPieChartLabel>{label.replace(/_/g, " ")}</StyledPieChartLabel>}
       <PieChart width={150} height={150}>
         <Pie
           data={[{ value: 100 }]}

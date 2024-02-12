@@ -11,6 +11,7 @@ import {
 import { Box, styled } from "@mui/material";
 import NodeTooltip from "./Tooltip";
 import { formatTick } from '../../utils';
+import CustomTick from './CustomTick';
 
 type Props = {
   /**
@@ -46,29 +47,25 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => (
         barCategoryGap="8px"
         barGap="8px"
         aria-label="Node Total background"
+        {...{ overflow: "visible" }}
       >
         <CartesianGrid stroke="#E1E1E1" strokeWidth="0.6px" vertical={false} />
         <Tooltip content={<NodeTooltip normalized={normalize} />} cursor={{ fill: "transparent" }} />
-        {/* TODO: Need Reqs. for the Y Axis domain and interval */}
         <YAxis
           type="number"
           axisLine={false}
           tickFormatter={(tick) => formatTick(tick, normalize)}
-          domain={normalize ? [0, "dataMax"] : [0, "dataMax + 100"]}
+          domain={normalize ? [0, "dataMax"] : [0, "dataMax"]}
+          interval={0}
+          tickMargin={4}
         />
         <XAxis
           type="category"
           dataKey="label"
-          stroke="#474747"
-          fontSize="11"
-          fontWeight={400}
-          fontFamily="Roboto"
-          textAnchor="center"
           axisLine={false}
           tickLine={false}
+          tick={<CustomTick />}
           interval={0}
-          style={{ textAnchor: "middle", textTransform: "capitalize" }}
-          tickFormatter={(tick) => tick.replace(/_/g, " ")}
           allowDataOverflow
           allowDuplicatedCategory
         />
