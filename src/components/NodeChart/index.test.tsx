@@ -6,9 +6,9 @@ import NodeChart from './index';
 
 it('should not have any accessibility violations', async () => {
   const data = [
-    { label: 'Test1', value: 50, color: '#000000' },
-    { label: 'Test2', value: 25, color: '#ffffff' },
-    { label: 'Test3', value: 25, color: '#3b3b3b' },
+    { label: 'New' as SeriesLabel, value: 50, color: '#000000' },
+    { label: 'Passed' as SeriesLabel, value: 25, color: '#ffffff' },
+    { label: 'Error' as SeriesLabel, value: 25, color: '#3b3b3b' },
   ];
   const { container } = render(<NodeChart label="Test Chart" centerCount={3} data={data} />);
 

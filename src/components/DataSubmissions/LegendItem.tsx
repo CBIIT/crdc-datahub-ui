@@ -21,9 +21,9 @@ const StyledStack = styled(Stack, { shouldForwardProp: (p) => p !== "disabled" }
 
 const StyledLabel = styled(Typography)({
   color: "#383838",
-  fontSize: "13px",
-  fontWeight: 300,
-  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+  fontSize: "11px",
+  fontWeight: 600,
+  fontFamily: "'Nunito Sans'",
 });
 
 const StyledColorBox = styled(Box, { shouldForwardProp: (p) => p !== "color" })<{ color: string }>(({ color }) => ({

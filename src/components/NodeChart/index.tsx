@@ -4,12 +4,6 @@ import { PieChart, Pie, Label, Cell } from 'recharts';
 import { isEqual } from 'lodash';
 import PieChartCenter from './PieChartCenter';
 
-export type PieSectorDataItem = {
-  label: string;
-  value: number;
-  color: string;
-};
-
 type Props = {
   /**
    * Top label for the chart
