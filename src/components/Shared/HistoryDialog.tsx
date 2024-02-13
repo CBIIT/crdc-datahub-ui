@@ -162,13 +162,15 @@ const StyledAvatar = styled(Avatar)({
 });
 
 const StyledCloseButton = styled(Button)({
+  minWidth: "137px",
   fontWeight: "700",
   borderRadius: "8px",
   textTransform: "none",
   color: "#fff",
   borderColor: "#fff",
   margin: "0 auto",
-  minWidth: "128px",
+  padding: "10px",
+  lineHeight: "24px",
   "&:hover": {
     borderColor: "#fff",
   },

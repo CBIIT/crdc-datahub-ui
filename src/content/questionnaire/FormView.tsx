@@ -15,8 +15,8 @@ import {
   styled,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import ForwardArrowIcon from "@mui/icons-material/ArrowForwardIos";
-import BackwardArrowIcon from "@mui/icons-material/ArrowBackIos";
+import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
+import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
 import {
   Status as FormStatus,
   useFormContext,
@@ -84,27 +84,16 @@ const StyledContent = styled(Stack)({
 const StyledControls = styled(Stack)({
   color: "#FFFFFF",
   marginTop: "15px !important",
-  "& button": {
+  "& .MuiButton-root": {
     margin: "0 6px",
-    padding: "14px 11px",
+    padding: "10px 28px 10px !important",
     minWidth: "128px",
-    fontWeight: 700,
     fontSize: "16px",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     letterSpacing: "0.32px",
-    lineHeight: "20.14px",
+    lineHeight: "24px",
     borderRadius: "8px",
-    borderColor: "#828282",
-    background: "#737373",
-    color: "inherit",
     textTransform: "none",
-  },
-  "& button:disabled": {
-    backgroundColor: "#CDCDCD",
-  },
-  "& button:hover:not([disabled])": {
-    color: "#fff",
-    background: "#5E5E5E",
   },
   "& a": {
     color: "inherit",
@@ -112,8 +101,10 @@ const StyledControls = styled(Stack)({
   },
   "& .MuiButton-startIcon": {
     marginRight: "20px",
+    marginLeft: 0,
   },
   "& .MuiButton-endIcon": {
+    marginRight: 0,
     marginLeft: "20px",
   },
   "& .MuiSvgIcon-root": {
@@ -121,22 +112,17 @@ const StyledControls = styled(Stack)({
   },
 });
 
-const StyledBaseLoadingButton = styled(LoadingButton)({
+const StyledLoadingButton = styled(LoadingButton)({
   "&.MuiButton-root": {
     display: "flex",
-    minWidth: "128px",
-    height: "50.593px",
-    padding: "11px",
     justifyContent: "center",
     alignItems: "center",
-    flexShrink: 0,
-    borderRadius: "8px",
-    textAlign: "center",
+    minWidth: "128px",
+    padding: "10px",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
-    fontWeight: 700,
-    lineHeight: "16px",
+    lineHeight: "24px",
     letterSpacing: "0.32px",
     "& .MuiSvgIcon-root": {
       fontSize: "20px",
@@ -144,48 +130,9 @@ const StyledBaseLoadingButton = styled(LoadingButton)({
   },
 });
 
-const StyledBackButton = styled(StyledBaseLoadingButton)({
+const StyledExtendedLoadingButton = styled(StyledLoadingButton)({
   "&.MuiButton-root": {
-    justifyContent: "flex-start",
-  },
-});
-
-const StyledSaveLoadingButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    borderColor: "#26B893",
-    background: "#22A584",
-  },
-});
-
-const StyledSubmitLoadingButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    border: "1px solid #828282",
-    background: "#0B7F99",
-  },
-});
-
-const StyledApproveLoadingButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    borderColor: "#26B893",
-    background: "#22A584",
-  },
-});
-const StyledInquireLoadingButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    borderColor: "#26B893",
-    background: "#D54309",
-  },
-});
-const StyledRejectLoadingButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    borderColor: "#26B893",
-    background: "#D54309",
-  },
-});
-const StyledNextButton = styled(StyledBaseLoadingButton)({
-  "&.MuiButton-root": {
-    display: "flex",
-    justifyContent: "flex-end",
+    minWidth: "137px",
   },
 });
 
@@ -770,79 +717,84 @@ const FormView: FC<Props> = ({ section } : Props) => {
               alignItems="center"
               spacing={2}
             >
-              <StyledBackButton
+              <StyledLoadingButton
                 id="submission-form-back-button"
-                variant="outlined"
+                variant="contained"
+                color="info"
                 type="button"
                 disabled={status === FormStatus.SAVING || !prevSection}
                 onClick={handleBackClick}
                 size="large"
-                startIcon={<BackwardArrowIcon />}
+                startIcon={<ChevronLeft />}
               >
                 Back
-              </StyledBackButton>
-              <StyledSaveLoadingButton
+              </StyledLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-save-button"
-                variant="outlined"
-                type="button"
+                variant="contained"
+                color="success"
                 ref={refs.saveFormRef}
-                size="large"
                 loading={status === FormStatus.SAVING}
                 onClick={() => saveForm()}
-                sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
+                sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
               >
                 Save
-              </StyledSaveLoadingButton>
-              <StyledSubmitLoadingButton
+              </StyledLoadingButton>
+              <StyledExtendedLoadingButton
                 id="submission-form-submit-button"
-                variant="outlined"
+                variant="contained"
+                color="primary"
                 type="submit"
                 ref={refs.submitFormRef}
                 size="large"
                 onClick={handleSubmitForm}
-                sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
+                sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
               >
                 Submit
-              </StyledSubmitLoadingButton>
-              <StyledApproveLoadingButton
+              </StyledExtendedLoadingButton>
+              <StyledExtendedLoadingButton
                 id="submission-form-approve-button"
-                variant="outlined"
+                variant="contained"
+                color="primary"
                 ref={refs.approveFormRef}
                 size="large"
                 onClick={handleApproveForm}
               >
                 Approve
-              </StyledApproveLoadingButton>
-              <StyledInquireLoadingButton
+              </StyledExtendedLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-inquire-button"
-                variant="outlined"
+                variant="contained"
+                color="error"
                 ref={refs.inquireFormRef}
                 size="large"
                 onClick={handleInquireForm}
               >
                 Request Additional Information
-              </StyledInquireLoadingButton>
-              <StyledRejectLoadingButton
+              </StyledLoadingButton>
+              <StyledExtendedLoadingButton
                 id="submission-form-reject-button"
-                variant="outlined"
+                variant="contained"
+                color="error"
                 ref={refs.rejectFormRef}
                 size="large"
                 onClick={handleRejectForm}
               >
                 Reject
-              </StyledRejectLoadingButton>
-              <StyledNextButton
+              </StyledExtendedLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-next-button"
-                variant="outlined"
+                variant="contained"
+                color="info"
                 type="button"
                 ref={refs.nextButtonRef}
                 onClick={handleNextClick}
                 disabled={status === FormStatus.SAVING || !nextSection || (isSectionD && !allSectionsComplete)}
                 size="large"
-                endIcon={<ForwardArrowIcon />}
+                endIcon={<ChevronRight />}
               >
                 Next
-              </StyledNextButton>
+              </StyledLoadingButton>
             </StyledControls>
           </StyledContent>
         </StyledContentWrapper>

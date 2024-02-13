@@ -76,15 +76,15 @@ const FormSectionReview: FC<FormSectionProps> = ({
     nextButtonRef.current.style.display = "none";
 
     if (formMode === "Review") {
-      approveFormRef.current.style.display = "initial";
-      inquireFormRef.current.style.display = "initial";
-      rejectFormRef.current.style.display = "initial";
+      approveFormRef.current.style.display = "flex";
+      inquireFormRef.current.style.display = "flex";
+      rejectFormRef.current.style.display = "flex";
       submitFormRef.current.style.display = "none";
     } else {
       approveFormRef.current.style.display = "none";
       inquireFormRef.current.style.display = "none";
       rejectFormRef.current.style.display = "none";
-      submitFormRef.current.style.display = "initial";
+      submitFormRef.current.style.display = "flex";
     }
 
     getFormObjectRef.current = getFormObject;

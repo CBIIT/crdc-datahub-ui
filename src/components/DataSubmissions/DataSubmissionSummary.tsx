@@ -43,28 +43,25 @@ const StyledSubmissionStatus = styled(Typography)(() => ({
 }));
 
 const StyledHistoryButton = styled(Button)(() => ({
-  marginTop: "16px",
-  marginBottom: "10px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  padding: "10px 20px",
-  borderRadius: "8px",
-  border: "1px solid #B3B3B3",
-  color: "#004A80",
-  textAlign: "center",
-  fontFamily: "'Nunito'",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "17px",
-  letterSpacing: "0.32px",
-  textTransform: "none",
-  "&:hover": {
-    backgroundColor: "#1A5874",
-    borderColor: "#DDE6EF",
-    color: "#DDE6EF",
-  },
+  "&.MuiButton-root": {
+    marginTop: "16px",
+    marginBottom: "10px",
+    padding: "10px 20px",
+    border: "1px solid #004A80",
+    color: "#004A80",
+    fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: "17px",
+    letterSpacing: "0.32px",
+    textTransform: "none",
+    "&:hover": {
+      backgroundColor: "#1A5874",
+      borderColor: "#DDE6EF",
+      color: "#DDE6EF",
+    },
+  }
 }));
 
 const StyledSectionDivider = styled(Divider)(() => ({
@@ -179,7 +176,9 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             {dataSubmission?.status}
           </StyledSubmissionStatus>
           <StyledHistoryButton
-            variant="outlined"
+            variant="contained"
+            color="info"
+            fullWidth
             onClick={handleOnHistoryDialogOpen}
           >
             Full History

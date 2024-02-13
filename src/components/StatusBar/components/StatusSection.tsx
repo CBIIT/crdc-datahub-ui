@@ -61,6 +61,7 @@ const StyledButton = styled(Button)<{ status: ApplicationStatus }>(({ status }) 
   ...getColorScheme(status),
   fontWeight: "700",
   borderRadius: "8px",
+  border: "0 !important",
   textTransform: "none",
   width: "165px",
   lineHeight: "19px",
@@ -177,7 +178,6 @@ const StatusSection: FC = () => {
             onClick={() => setOpen(true)}
             aria-label="Review Comments"
             status={status}
-            disableElevation
           >
             Review Comments
           </StyledButton>
