@@ -49,5 +49,5 @@ export const compareNodeStats = (a: SubmissionStatistic, b: SubmissionStatistic)
  */
 export const formatTick = (tick: number, normalized = false) => (normalized
   ? `${tick * 100}%`
-  : Math.round(tick).toString()
+  : (new Intl.NumberFormat("en-US", { style: "decimal", minimumFractionDigits: 0 })).format(tick)
 );

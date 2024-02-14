@@ -59,10 +59,14 @@ const Tooltip: FC<Props> = ({ active, payload, label, normalized }: Props) => {
     return null;
   }
 
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: normalized ? "percent" : "decimal",
+    minimumFractionDigits: normalized ? 2 : 0,
+  });
   const total: number = useMemo(() => payload.reduce((acc, item) => acc + item.value, 0), [payload]);
   const normalizedPayload: Props["payload"] = useMemo(() => payload.map((item) => ({
     ...item,
-    value: normalized && total > 0 ? (item.value / total) * 100 : item.value
+    value: normalized && total > 0 ? item.value / total : item.value
   })), [payload, normalized, total]);
 
   return (
@@ -73,8 +77,7 @@ const Tooltip: FC<Props> = ({ active, payload, label, normalized }: Props) => {
           <StyledColorCode background={item.color} />
           <StyledName>{item.name}</StyledName>
           <StyledValue>
-            {item.value}
-            {normalized ? "%" : ""}
+            {formatter.format(item.value || 0)}
           </StyledValue>
         </StyledKeyStack>
       ))}
