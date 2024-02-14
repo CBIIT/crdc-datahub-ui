@@ -18,7 +18,7 @@ import DataSubmissionIconMap from "./DataSubmissionIconMap";
 const StyledSummaryWrapper = styled("div")(() => ({
   borderRadius: "8px 8px 0px 0px",
   textWrap: "nowrap",
-  padding: "25px 21px 59px 48px",
+  padding: "21px 21px 31px 48px",
 }));
 
 const StyledSubmissionTitle = styled(Typography)(() => ({
@@ -42,35 +42,63 @@ const StyledSubmissionStatus = styled(Typography)(() => ({
   minHeight: "30px",
 }));
 
-const StyledHistoryButton = styled(Button)(() => ({
+const StyledReviewCommentsButton = styled(Button)(() => ({
   "&.MuiButton-root": {
+    minWidth: "168px",
     marginTop: "16px",
-    marginBottom: "10px",
-    padding: "10px 20px",
-    border: "1px solid #004A80",
-    color: "#004A80",
-    fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+    padding: "11px 10px",
+    border: "1px solid #B3B3B3",
+    color: "#BE4511",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
     fontWeight: 700,
     lineHeight: "17px",
     letterSpacing: "0.32px",
-    textTransform: "none",
     "&:hover": {
-      backgroundColor: "#1A5874",
-      borderColor: "#DDE6EF",
-      color: "#DDE6EF",
+      backgroundColor: "#FFF",
+      borderColor: "#B3B3B3",
+      color: "#BE4511",
+    },
+    "&:disabled": {
+      backgroundColor: "#FFF",
+      borderColor: "#B3B3B3",
+      color: "#B1B1B1",
+      fontWeight: 700
+    }
+  }
+}));
+
+const StyledHistoryButton = styled(Button)(() => ({
+  "&.MuiButton-root": {
+    minWidth: "168px",
+    marginBottom: "10px",
+    padding: "11px 20px",
+    border: "1px solid #004A80",
+    color: "#004A80",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: "17px",
+    letterSpacing: "0.32px",
+    "&:hover": {
+      backgroundColor: "#FFF",
+      borderColor: "#004A80",
+      color: "#004A80",
     },
   }
 }));
 
 const StyledSectionDivider = styled(Divider)(() => ({
   "&.MuiDivider-root": {
+    display: "flex",
+    alignSelf: "flex-start",
     width: "2px",
-    height: "114px",
+    height: "159px",
     background: "#6CACDA",
     marginLeft: "44px",
-    marginTop: "8px",
+    marginTop: "9px",
     alignSelft: "flex-end"
   },
 }));
@@ -146,6 +174,14 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
     setHistoryDialogOpen(false);
   };
 
+  const handleOnReviewCommentsDialogOpen = () => {
+    setHistoryDialogOpen(true);
+  };
+
+  const handleOnReviewCommentsDialogClose = () => {
+    setHistoryDialogOpen(false);
+  };
+
   const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
     let color: string;
     switch (status) {
@@ -175,14 +211,22 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           <StyledSubmissionStatus variant="h5">
             {dataSubmission?.status}
           </StyledSubmissionStatus>
-          <StyledHistoryButton
-            variant="contained"
-            color="info"
-            fullWidth
-            onClick={handleOnHistoryDialogOpen}
-          >
-            Full History
-          </StyledHistoryButton>
+          <Stack direction="column" spacing="9px" justifyContent="center" alignItems="center">
+            <StyledReviewCommentsButton
+              variant="contained"
+              color="info"
+              onClick={handleOnReviewCommentsDialogOpen}
+            >
+              Review Comments
+            </StyledReviewCommentsButton>
+            <StyledHistoryButton
+              variant="contained"
+              color="info"
+              onClick={handleOnHistoryDialogOpen}
+            >
+              Full History
+            </StyledHistoryButton>
+          </Stack>
         </Stack>
 
         <StyledSectionDivider orientation="vertical" />
