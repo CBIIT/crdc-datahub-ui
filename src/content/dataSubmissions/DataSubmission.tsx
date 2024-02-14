@@ -165,7 +165,7 @@ const StyledCardContent = styled(CardContent)({
 });
 
 const StyledRejectedStatus = styled("div")(() => ({
-  color: "#E25C22",
+  color: "#B54717",
   fontWeight: 600
 }));
 

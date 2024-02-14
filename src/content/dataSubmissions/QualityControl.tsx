@@ -130,7 +130,7 @@ const columns: Column<QCResult>[] = [
   },
   {
     label: "Severity",
-    renderValue: (data) => <StyledSeverity color={data?.severity === "Error" ? "#E25C22" : "#8D5809"}>{data?.severity}</StyledSeverity>,
+    renderValue: (data) => <StyledSeverity color={data?.severity === "Error" ? "#B54717" : "#8D5809"}>{data?.severity}</StyledSeverity>,
     field: "severity",
   },
   {
