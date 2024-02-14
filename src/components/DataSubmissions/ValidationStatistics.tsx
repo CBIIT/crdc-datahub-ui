@@ -102,11 +102,6 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
       return f;
     });
 
-    // If all filters are disabled, do not allow disabling the last one
-    if (newFilters.every((f) => f.disabled)) {
-      return;
-    }
-
     setFilters(newFilters);
   };
 
