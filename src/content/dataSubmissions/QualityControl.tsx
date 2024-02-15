@@ -114,12 +114,7 @@ const columns: Column<QCResult>[] = [
     field: "nodeType",
   },
   {
-    label: "Validation Type",
-    renderValue: (data) => <StyledNodeType>{data?.validationType}</StyledNodeType>,
-    field: "validationType",
-  },
-  {
-    label: "Node ID",
+    label: "Submitted Identifier",
     renderValue: (data) => <StyledBreakAll>{data?.nodeID}</StyledBreakAll>,
     field: "nodeID",
   },
