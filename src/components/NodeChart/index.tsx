@@ -82,7 +82,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
           onMouseLeave={onMouseLeave}
           aria-label={`${label} chart`}
         >
-          {dataset.map(({ label, color }) => (<Cell key={label} fill={color} />))}
+          {dataset.map(({ label, color }) => (<Cell key={label} fill={color} cursor="pointer" />))}
           <Label
             position="center"
             content={(

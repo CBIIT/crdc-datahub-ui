@@ -10,14 +10,15 @@ import {
 } from "recharts";
 import { Box, styled } from "@mui/material";
 import NodeTooltip from "./Tooltip";
-import { formatTick } from '../../utils';
 import CustomTick from './CustomTick';
+import ActiveBar from './ActiveBar';
+import { formatTick } from '../../utils';
 
 type Props = {
   /**
    * The data to display in the pie chart
    */
-  data: BarChartDataItem[];
+  data: BarChartDataset[];
   /**
    * If true, the data bars will be normalized to 100%
    */
@@ -47,10 +48,11 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => (
         barCategoryGap="8px"
         barGap="8px"
         aria-label="Node Total background"
-        {...{ overflow: "visible" }}
+        // @ts-ignore - `overflow` is not in the type definition for BarChart
+        overflow="visible"
       >
         <CartesianGrid stroke="#E1E1E1" strokeWidth="0.6px" vertical={false} />
-        <Tooltip content={<NodeTooltip normalized={normalize} />} cursor={{ fill: "transparent" }} />
+        <Tooltip content={<NodeTooltip normalized={normalize} />} cursor={false} />
         <YAxis
           type="number"
           axisLine={false}
@@ -69,10 +71,10 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => (
           allowDataOverflow
           allowDuplicatedCategory
         />
-        <Bar dataKey="New" fill="#4D90D3" stackId="primary" />
-        <Bar dataKey="Passed" fill="#32E69A" stackId="primary" />
-        <Bar dataKey="Error" fill="#D65219" stackId="primary" />
-        <Bar dataKey="Warning" fill="#FFC700" stackId="primary" />
+        <Bar dataKey="New" fill="#4D90D3" stackId="primary" activeBar={ActiveBar} />
+        <Bar dataKey="Passed" fill="#32E69A" stackId="primary" activeBar={ActiveBar} />
+        <Bar dataKey="Error" fill="#D65219" stackId="primary" activeBar={ActiveBar} />
+        <Bar dataKey="Warning" fill="#FFC700" stackId="primary" activeBar={ActiveBar} />
       </BarChart>
     </ResponsiveContainer>
   </StyledChartContainer>

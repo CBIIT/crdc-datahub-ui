@@ -6,8 +6,7 @@ type LegendFilter = {
   disabled?: boolean;
 };
 
-type BarChartDataItem = {
-  label: string;
+type BarChartDataset = {
   New: number;
   Passed: number;
   Error: number;

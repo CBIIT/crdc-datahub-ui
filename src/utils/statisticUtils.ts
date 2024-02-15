@@ -21,7 +21,7 @@ export const buildMiniChartSeries = (stat: SubmissionStatistic, omitSeries: Seri
  * @param stats Data Submissions statistics
  * @returns The series mutated for the primary chart
  */
-export const buildPrimaryChartSeries = (stats: SubmissionStatistic[], omitSeries: SeriesLabel[]): BarChartDataItem[] => [...stats]
+export const buildPrimaryChartSeries = (stats: SubmissionStatistic[], omitSeries: SeriesLabel[]): BarChartDataset[] => [...stats]
   .map((stat) => ({
     label: stat.nodeName,
     New: omitSeries.includes("New") ? 0 : stat.new,
