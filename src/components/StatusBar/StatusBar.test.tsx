@@ -14,13 +14,8 @@ import {
 import StatusBar from './StatusBar';
 import StatusApproved from '../../assets/history/submissionRequest/StatusApproved.svg';
 import StatusRejected from '../../assets/history/submissionRequest/StatusRejected.svg';
-import New from '../../assets/history/submissionRequest/SubmissionRequestNew.svg';
-import Approved from '../../assets/history/submissionRequest/Approved.svg';
-import Rejected from '../../assets/history/submissionRequest/Rejected.svg';
-import Submitted from '../../assets/history/submissionRequest/SubmissionRequestSubmitted.svg';
-import UnderReview from '../../assets/history/submissionRequest/UnderReview.svg';
-import InProgress from '../../assets/history/submissionRequest/InProgress.svg';
 import { FormatDate } from "../../utils";
+import { HistoryIconMap } from '../../assets/history/submissionRequest';
 
 type Props = {
   data: object;
@@ -367,8 +362,7 @@ describe("StatusBar > History Modal Tests", () => {
     expect(() => getByTestId("status-bar-history-item-1-icon")).toThrow();
   });
 
-  const statusesWithIcons = [["New", New], ["Submitted", Submitted], ["Approved", Approved], ["Rejected", Rejected], ["In Review", UnderReview], ["In Progress", InProgress]];
-  it.each(statusesWithIcons)("renders the correct icon for the status %s", (status, svg) => {
+  it.each(Object.entries(HistoryIconMap))("renders the correct icon for the status %s", (status, svg) => {
     const data = {
       history: [{ dateTime: "2023-11-24T01:25:45Z", status }],
     };
