@@ -6,7 +6,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import SubmissionHeaderProperty, {
   StyledValue,
 } from "./SubmissionHeaderProperty";
@@ -14,6 +14,8 @@ import Tooltip from "./Tooltip";
 import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
 import HistoryDialog from "../Shared/HistoryDialog";
 import DataSubmissionIconMap from "./DataSubmissionIconMap";
+import ReviewCommentsDialog from "../Shared/ReviewCommentsDialog";
+import { SortHistory } from "../../utils";
 
 const StyledSummaryWrapper = styled("div")(() => ({
   borderRadius: "8px 8px 0px 0px",
@@ -150,7 +152,14 @@ type Props = {
 
 const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const [historyDialogOpen, setHistoryDialogOpen] = useState<boolean>(false);
+  const [reviewCommentsDialogOpen, setReviewCommentsDialogOpen] = useState<boolean>(false);
   const [hasEllipsis, setHasEllipsis] = useState(false);
+  const lastReview = useMemo(
+    () => SortHistory(dataSubmission?.history).find(
+        (h: HistoryBase<SubmissionStatus>) => h.status === "Rejected" && h.reviewComment?.length > 0
+    ),
+    [dataSubmission]
+  );
   const textRef = useRef<HTMLParagraphElement | null>(null);
 
   useEffect(() => {
@@ -175,11 +184,11 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   };
 
   const handleOnReviewCommentsDialogOpen = () => {
-    setHistoryDialogOpen(true);
+    setReviewCommentsDialogOpen(true);
   };
 
   const handleOnReviewCommentsDialogClose = () => {
-    setHistoryDialogOpen(false);
+    setReviewCommentsDialogOpen(false);
   };
 
   const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
@@ -216,6 +225,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
               variant="contained"
               color="info"
               onClick={handleOnReviewCommentsDialogOpen}
+              disabled={!lastReview}
             >
               Review Comments
             </StyledReviewCommentsButton>
@@ -302,6 +312,12 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         history={dataSubmission?.history}
         iconMap={DataSubmissionIconMap}
         getTextColor={getHistoryTextColorFromStatus}
+      />
+      <ReviewCommentsDialog
+        open={reviewCommentsDialogOpen}
+        onClose={handleOnReviewCommentsDialogClose}
+        title="Data Submission"
+        lastReview={lastReview}
       />
     </StyledSummaryWrapper>
   );
