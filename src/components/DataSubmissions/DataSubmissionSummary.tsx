@@ -217,7 +217,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
       >
         <Stack direction="column" minWidth="192px">
           <StyledSubmissionTitle variant="h6">STATUS</StyledSubmissionTitle>
-          <StyledSubmissionStatus variant="h5">
+          <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
             {dataSubmission?.status}
           </StyledSubmissionStatus>
           <Stack direction="column" spacing="9px" justifyContent="center" alignItems="center">
