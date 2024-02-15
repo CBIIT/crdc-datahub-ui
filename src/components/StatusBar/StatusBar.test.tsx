@@ -200,7 +200,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
   });
 
   it("renders the most recent comment by date", async () => {
@@ -218,7 +218,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 11\/30\/2019:/i)).toBeVisible();
     expect(getByText(data.history[2].reviewComment)).toBeVisible();
   });
@@ -239,7 +239,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 12\/30\/2023:/i)).toBeVisible();
     expect(getByText(data.history[1].reviewComment)).toBeVisible();
   });
@@ -260,7 +260,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 11\/26\/2023:/i)).toBeVisible();
     expect(getByText(data.history[1].reviewComment)).toBeVisible();
   });
@@ -290,13 +290,13 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(queryByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(queryByTestId("review-comments-dialog")).toBeVisible();
 
     act(() => {
-      fireEvent.click(queryByTestId("status-bar-dialog-close"));
+      fireEvent.click(queryByTestId("review-comments-dialog-close"));
     });
 
-    await waitFor(() => expect(queryByTestId("status-bar-review-dialog")).toBeNull());
+    await waitFor(() => expect(queryByTestId("review-comments-dialog")).toBeNull());
   });
 });
 
