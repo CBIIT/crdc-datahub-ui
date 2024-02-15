@@ -12,7 +12,7 @@ import { Box, styled } from "@mui/material";
 import NodeTooltip from "./Tooltip";
 import CustomTick from './CustomTick';
 import ActiveBar from './ActiveBar';
-import { formatTick } from '../../utils';
+import { calculateMaxDomain, formatTick } from '../../utils';
 
 type Props = {
   /**
@@ -57,7 +57,7 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => (
           type="number"
           axisLine={false}
           tickFormatter={(tick) => formatTick(tick, normalize)}
-          domain={normalize ? [0, "dataMax"] : [0, "dataMax"]}
+          domain={normalize ? [0, "dataMax"] : [0, calculateMaxDomain]}
           interval={0}
           tickMargin={4}
         />

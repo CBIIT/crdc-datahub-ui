@@ -51,3 +51,27 @@ export const formatTick = (tick: number, normalized = false) => (normalized
   ? `${tick * 100}%`
   : (new Intl.NumberFormat("en-US", { style: "decimal", minimumFractionDigits: 0 })).format(tick)
 );
+
+/**
+ * Determine the maximum positive domain for the Y-Axis
+ *
+ * - If the dataMax is greater than 1000, the domain will be the next multiple of 1000
+ * - If the dataMax is greater than 100, the domain will be the next multiple of 100
+ * - If the dataMax is less than 100, the domain will be the next multiple of 10
+ *
+ * @param dataMax The maximum value in the dataset
+ * @returns The calculated maximum domain
+ */
+export const calculateMaxDomain = (dataMax: number) => {
+  if (dataMax <= 0 || Number.isNaN(dataMax)) {
+    return 1;
+  }
+  if (dataMax > 1000) {
+    return Math.ceil(dataMax / 1000) * 1000;
+  }
+  if (dataMax > 100) {
+    return Math.ceil(dataMax / 100) * 100;
+  }
+
+  return Math.ceil(dataMax / 10) * 10;
+};
