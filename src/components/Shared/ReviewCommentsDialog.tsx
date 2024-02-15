@@ -123,8 +123,9 @@ const ReviewCommentsDialog = <T, H>({
     data-testid="review-comments-dialog"
   >
     <StyledCloseDialogButton
-      aria-label="Close dialog icon button"
       onClick={onClose}
+      aria-label="Close dialog icon button"
+      data-testid="review-comments-dialog-close-icon-button"
     >
       <CloseIconSvg />
     </StyledCloseDialogButton>
