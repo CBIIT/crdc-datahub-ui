@@ -140,7 +140,7 @@ const tableContainerSx: TableContainerProps["sx"] = {
 const columns: Column<BatchFileInfo>[] = [
   {
     label: "Type",
-    renderValue: (data) => <StyledNodeType>{data?.nodeType}</StyledNodeType>,
+    renderValue: (data) => <StyledNodeType>{data?.nodeType || "N/A"}</StyledNodeType>,
     field: "nodeType",
     default: true
   },
