@@ -61,9 +61,9 @@ const StyledButton = styled(Button)({
     letterSpacing: "0.32px",
     textTransform: "none",
     "&:hover": {
-      backgroundColor: "#1A5874",
-      borderColor: "#DDE6EF",
-      color: "#DDE6EF",
+      backgroundColor: "#FFF",
+      borderColor: "#004A80",
+      color: "#004A80",
     },
   }
 });
