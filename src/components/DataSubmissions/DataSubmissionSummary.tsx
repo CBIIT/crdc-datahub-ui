@@ -44,6 +44,14 @@ const StyledSubmissionStatus = styled(Typography)(() => ({
   minHeight: "30px",
 }));
 
+const StyledButtonWrapper = styled(Stack)(() => ({
+  flexDirection: "column",
+  justifyContent: "flex-start",
+  alignItems: "flex-start",
+  gap: "9px",
+  paddingLeft: "5px",
+}));
+
 const StyledReviewCommentsButton = styled(Button)(() => ({
   "&.MuiButton-root": {
     minWidth: "168px",
@@ -76,7 +84,7 @@ const StyledHistoryButton = styled(Button)(() => ({
     minWidth: "168px",
     marginBottom: "10px",
     padding: "11px 20px",
-    border: "1px solid #004A80",
+    border: "1px solid #B3B3B3",
     color: "#004A80",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
@@ -86,7 +94,7 @@ const StyledHistoryButton = styled(Button)(() => ({
     letterSpacing: "0.32px",
     "&:hover": {
       backgroundColor: "#FFF",
-      borderColor: "#004A80",
+      borderColor: "#B3B3B3",
       color: "#004A80",
     },
   }
@@ -220,7 +228,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
             {dataSubmission?.status}
           </StyledSubmissionStatus>
-          <Stack direction="column" spacing="9px" justifyContent="center" alignItems="center">
+          <StyledButtonWrapper>
             <StyledReviewCommentsButton
               variant="contained"
               color="info"
@@ -236,7 +244,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             >
               Full History
             </StyledHistoryButton>
-          </Stack>
+          </StyledButtonWrapper>
         </Stack>
 
         <StyledSectionDivider orientation="vertical" />
