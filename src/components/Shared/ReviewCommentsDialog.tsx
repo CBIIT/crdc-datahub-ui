@@ -11,7 +11,9 @@ import { CSSProperties } from "react";
 import { FormatDate } from "../../utils";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
-const StyledDialog = styled(Dialog)<{
+const StyledDialog = styled(Dialog, {
+  shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme"
+})<{
   status: unknown;
   getColorScheme:(status: unknown) => CSSProperties;
 }>(({ status, getColorScheme }) => ({
@@ -51,7 +53,9 @@ const StyledPreTitle = styled("p")({
   margin: "0",
 });
 
-const StyledTitle = styled("p")<{
+const StyledTitle = styled("p", {
+  shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme"
+})<{
   status: unknown;
   getColorScheme:(status: unknown) => CSSProperties;
 }>(({ status, getColorScheme }) => ({
