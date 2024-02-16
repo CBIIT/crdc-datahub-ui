@@ -114,12 +114,7 @@ const columns: Column<QCResult>[] = [
     field: "nodeType",
   },
   {
-    label: "Validation Type",
-    renderValue: (data) => <StyledNodeType>{data?.validationType}</StyledNodeType>,
-    field: "validationType",
-  },
-  {
-    label: "Node ID",
+    label: "Submitted Identifier",
     renderValue: (data) => <StyledBreakAll>{data?.nodeID}</StyledBreakAll>,
     field: "nodeID",
   },
@@ -130,7 +125,7 @@ const columns: Column<QCResult>[] = [
   },
   {
     label: "Severity",
-    renderValue: (data) => <StyledSeverity color={data?.severity === "Error" ? "#E25C22" : "#8D5809"}>{data?.severity}</StyledSeverity>,
+    renderValue: (data) => <StyledSeverity color={data?.severity === "Error" ? "#B54717" : "#8D5809"}>{data?.severity}</StyledSeverity>,
     field: "severity",
   },
   {

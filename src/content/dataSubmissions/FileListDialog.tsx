@@ -28,26 +28,18 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledCloseButton = styled(Button)({
-  display: "flex",
-  width: "128px",
-  height: "42px",
-  padding: "12px 60px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
+  minWidth: "137px",
+  padding: "10px",
   border: "1px solid #000",
   color: "#000",
-  textAlign: "center",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: "700",
   lineHeight: "24px",
   letterSpacing: "0.32px",
-  textTransform: "none",
-  alignSelf: "center",
   margin: "0 auto",
-  marginTop: "45px",
+  marginTop: "62px",
   "&:hover": {
     background: "transparent",
     border: "1px solid #000",
@@ -148,7 +140,7 @@ const tableContainerSx: TableContainerProps["sx"] = {
 const columns: Column<BatchFileInfo>[] = [
   {
     label: "Type",
-    renderValue: (data) => <StyledNodeType>{data?.nodeType}</StyledNodeType>,
+    renderValue: (data) => <StyledNodeType>{data?.nodeType || "N/A"}</StyledNodeType>,
     field: "nodeType",
     default: true
   },
@@ -244,7 +236,8 @@ const FileListDialog = ({
 
       <StyledCloseButton
         id="file-list-dialog-close-button"
-        variant="outlined"
+        variant="contained"
+        color="info"
         onClick={handleCloseDialog}
       >
         Close

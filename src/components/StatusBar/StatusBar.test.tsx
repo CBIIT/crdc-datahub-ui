@@ -14,13 +14,8 @@ import {
 import StatusBar from './StatusBar';
 import StatusApproved from '../../assets/history/submissionRequest/StatusApproved.svg';
 import StatusRejected from '../../assets/history/submissionRequest/StatusRejected.svg';
-import New from '../../assets/history/submissionRequest/SubmissionRequestNew.svg';
-import Approved from '../../assets/history/submissionRequest/Approved.svg';
-import Rejected from '../../assets/history/submissionRequest/Rejected.svg';
-import Submitted from '../../assets/history/submissionRequest/SubmissionRequestSubmitted.svg';
-import UnderReview from '../../assets/history/submissionRequest/UnderReview.svg';
-import InProgress from '../../assets/history/submissionRequest/InProgress.svg';
 import { FormatDate } from "../../utils";
+import { HistoryIconMap } from '../../assets/history/submissionRequest';
 
 type Props = {
   data: object;
@@ -200,7 +195,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
   });
 
   it("renders the most recent comment by date", async () => {
@@ -218,7 +213,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 11\/30\/2019:/i)).toBeVisible();
     expect(getByText(data.history[2].reviewComment)).toBeVisible();
   });
@@ -239,7 +234,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 12\/30\/2023:/i)).toBeVisible();
     expect(getByText(data.history[1].reviewComment)).toBeVisible();
   });
@@ -260,7 +255,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 11\/26\/2023:/i)).toBeVisible();
     expect(getByText(data.history[1].reviewComment)).toBeVisible();
   });
@@ -290,13 +285,13 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(queryByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(queryByTestId("review-comments-dialog")).toBeVisible();
 
     act(() => {
-      fireEvent.click(queryByTestId("status-bar-dialog-close"));
+      fireEvent.click(queryByTestId("review-comments-dialog-close"));
     });
 
-    await waitFor(() => expect(queryByTestId("status-bar-review-dialog")).toBeNull());
+    await waitFor(() => expect(queryByTestId("review-comments-dialog")).toBeNull());
   });
 });
 
@@ -367,8 +362,7 @@ describe("StatusBar > History Modal Tests", () => {
     expect(() => getByTestId("status-bar-history-item-1-icon")).toThrow();
   });
 
-  const statusesWithIcons = [["New", New], ["Submitted", Submitted], ["Approved", Approved], ["Rejected", Rejected], ["In Review", UnderReview], ["In Progress", InProgress]];
-  it.each(statusesWithIcons)("renders the correct icon for the status %s", (status, svg) => {
+  it.each(Object.entries(HistoryIconMap))("renders the correct icon for the status %s", (status, svg) => {
     const data = {
       history: [{ dateTime: "2023-11-24T01:25:45Z", status }],
     };

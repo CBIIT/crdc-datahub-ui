@@ -1,25 +1,11 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { SnackbarProvider } from 'notistack';
-import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
+import { ThemeProvider, CssBaseline } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import routeConfig from "./router";
 import StyledNotistackAlerts from './components/StyledNotistackAlerts';
-
-const theme = createTheme({
-  typography: {
-    fontFamily: "'Nunito', sans-serif",
-  },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 900,
-      lg: 1200,
-      xl: 1440,
-    }
-  },
-});
+import theme from "./theme";
 
 const router = createBrowserRouter(routeConfig);
 

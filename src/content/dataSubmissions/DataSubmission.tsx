@@ -44,6 +44,7 @@ import { useAuthContext } from "../../components/Contexts/AuthContext";
 import FileListDialog from "./FileListDialog";
 import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
 import usePageTitle from '../../hooks/usePageTitle';
+import BackButton from "../../components/DataSubmissions/BackButton";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -99,18 +100,19 @@ const StyledCard = styled(Card)(() => ({
     content: '""',
     position: "absolute",
     zIndex: 1,
-    bottom: 48,
+    bottom: 120,
     left: 0,
     pointerEvents: "none",
     backgroundImage: "linear-gradient(to bottom, rgba(255,255,255,0), rgba(251,253,255, 1) 20%)",
     width: "100%",
-    height: "218px",
+    height: "360px",
   },
 }));
 
 const StyledMainContentArea = styled("div")(() => ({
+  position: "relative",
+  zIndex: 2,
   borderRadius: 0,
-  background: "#FFFFFF",
   minHeight: "300px",
   padding: "21px 40px 0",
 }));
@@ -118,7 +120,10 @@ const StyledMainContentArea = styled("div")(() => ({
 const StyledCardActions = styled(CardActions, {
   shouldForwardProp: (prop) => prop !== "isVisible"
 })<CardActionsProps & { isVisible: boolean; }>(({ isVisible }) => ({
-  visibility: isVisible ? "visible" : "hidden"
+  "&.MuiCardActions-root": {
+    visibility: isVisible ? "visible" : "hidden",
+    paddingTop: 0,
+  }
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
@@ -160,7 +165,7 @@ const StyledCardContent = styled(CardContent)({
 });
 
 const StyledRejectedStatus = styled("div")(() => ({
-  color: "#E25C22",
+  color: "#B54717",
   fontWeight: 600
 }));
 
@@ -584,9 +589,13 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
                     loading={loading}
                     defaultRowsPerPage={20}
                     onFetchData={handleFetchBatches}
+                    containerProps={{ sx: { marginBottom: "8px" } }}
                   />
                 </BatchTableContext.Provider>
               ) : <QualityControl />}
+
+              {/* Return to Data Submission List Button */}
+              <BackButton navigateTo="/data-submissions" text="Back to Data Submissions" />
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions isVisible={tab === URLTabs.DATA_ACTIVITY}>
