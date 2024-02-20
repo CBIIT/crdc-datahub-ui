@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { isEqual } from 'lodash';
-import { Stack, Tab, Tabs, Typography, styled } from '@mui/material';
+import { Box, Stack, Tab, Tabs, Typography, styled } from '@mui/material';
 import ContentCarousel from '../Carousel';
 import NodeTotalChart from '../NodeTotalChart';
 import MiniPieChart from '../NodeChart';
@@ -78,6 +78,10 @@ const StyledTab = styled(Tab)({
   },
 });
 
+const PaddingBox = styled(Box)({
+  width: "175px",
+});
+
 const defaultFilters: LegendFilter[] = [
   { label: "New", color: "#4D90D3", disabled: false },
   { label: "Passed", color: "#32E69A", disabled: false },
@@ -139,7 +143,8 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
           {" "}
           {`(${statistics.length})`}
         </StyledSectionTitle>
-        <ContentCarousel focusOnSelect={statistics.length > 2}>
+        <ContentCarousel partialVisible={false}>
+          <PaddingBox />
           {statistics?.sort(compareNodeStats).map((stat) => (
             <MiniPieChart
               key={stat.nodeName}

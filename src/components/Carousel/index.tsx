@@ -11,7 +11,6 @@ const sizing = {
   desktop: {
     breakpoint: { max: 5000, min: 0 },
     items: 3,
-    partialVisibilityGutter: 40
   },
 };
 
@@ -23,11 +22,9 @@ const StyledWrapper = styled('div')({
   "& .react-multi-carousel-list": {
     height: "206px",
   },
-  "& .react-multi-carousel-track": {
-    margin: "0 auto", // NOTE: This centers the carousel when there are fewer than 2 items
-  },
-  "& .react-multi-carousel-item": {
-    width: "200px !important",
+  "& .custom-carousel-item": {
+    maxWidth: "200px",
+    minWidth: "200px",
   },
   "& .react-multi-carousel-list::after": {
     content: "''",
@@ -69,11 +66,9 @@ const ContentCarousel: FC<Props> = ({ children, ...props }: Props) => (
       responsive={sizing}
       swipeable
       draggable
-      infinite
-      centerMode
       arrows
-      focusOnSelect
       afterChange={removeAriaHidden}
+      itemClass="custom-carousel-item"
       {...props}
     >
       {children}
