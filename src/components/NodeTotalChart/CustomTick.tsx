@@ -7,6 +7,7 @@ const StyledLabel = styled('tspan')({
   color: "#474747",
   textTransform: "capitalize",
   overflow: "hidden",
+  userSelect: "none",
 });
 
 const CustomTick = (props) => {

@@ -29,6 +29,7 @@ const StyledPieChartLabel = styled(Typography)({
   marginBottom: "12px",
   textAlign: "center",
   alignSelf: "center",
+  userSelect: "none",
 });
 
 const StyledChartContainer = styled(Box)({

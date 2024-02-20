@@ -13,6 +13,7 @@ const StyledTextContainer = styled('text')({
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   textAnchor: 'middle',
   dominantBaseline: 'central',
+  userSelect: "none",
 });
 
 const StyledCenterTitle = styled('tspan')({
