@@ -32,6 +32,7 @@ const Layout: FC<LayoutProps> = ({ children }) => (
           + "family=Nunito:wght@300;400;500;600;700;800;900&"
           + "family=Public+Sans:wght@300;400;500;600;700&"
           + "family=Rubik:wght@300;400;500;600;700&"
+          + "family=Roboto:wght@400&"
           + "display=swap"}
         rel="stylesheet"
       />
