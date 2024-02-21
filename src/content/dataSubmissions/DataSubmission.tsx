@@ -512,9 +512,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
   }, [data?.getSubmission?.fileValidationStatus, data?.getSubmission?.metadataValidationStatus]);
 
   useEffect(() => {
-    if (user?.role !== "Submitter") {
-      return () => {};
-    }
     if (!hasUploadingBatches && batchRefreshTimeout) {
       clearInterval(batchRefreshTimeout);
       setBatchRefreshTimeout(null);
