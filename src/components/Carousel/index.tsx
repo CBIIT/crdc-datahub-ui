@@ -2,6 +2,8 @@ import { FC } from 'react';
 import { styled } from '@mui/material';
 import Carousel, { CarouselProps } from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
+import CustomLeftArrow from './CustomLeftArrow';
+import CustomRightArrow from './CustomRightArrow';
 
 type Props = {
   children: React.ReactNode;
@@ -69,6 +71,8 @@ const ContentCarousel: FC<Props> = ({ children, ...props }: Props) => (
       arrows
       afterChange={removeAriaHidden}
       itemClass="custom-carousel-item"
+      customLeftArrow={<CustomLeftArrow />}
+      customRightArrow={<CustomRightArrow />}
       {...props}
     >
       {children}
