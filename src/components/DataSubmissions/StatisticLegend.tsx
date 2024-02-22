@@ -1,16 +1,10 @@
 import { FC } from 'react';
-import { Stack, styled } from '@mui/material';
+import { Stack, Typography, styled } from '@mui/material';
 import LegendItem from './LegendItem';
 
 export type Props = {
   filters: LegendFilter[];
   onClick?: (filter: LegendFilter) => void;
-};
-
-export type LegendFilter = {
-  label: string;
-  color: string;
-  disabled?: boolean;
 };
 
 const StyledContainer = styled(Stack)({
@@ -22,6 +16,15 @@ const StyledContainer = styled(Stack)({
   marginTop: "20px",
 });
 
+const StyledLegendTitle = styled(Typography)({
+  fontFamily: "Nunito",
+  fontSize: "13px",
+  fontWeight: 600,
+  color: "#156071",
+  marginLeft: "-48px",
+  marginRight: "30px",
+});
+
 /**
  * A color code legend for the Data Submissions statistics chart(s)
  *
@@ -29,6 +32,7 @@ const StyledContainer = styled(Stack)({
  */
 const StatisticLegend: FC<Props> = ({ filters, onClick }) => (
   <StyledContainer direction="row" justifyContent="center" alignItems="center">
+    <StyledLegendTitle>Validation Status</StyledLegendTitle>
     {filters.map((filter) => (
       <LegendItem
         key={filter.label}
