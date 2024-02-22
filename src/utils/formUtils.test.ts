@@ -189,3 +189,37 @@ describe("programToSelectOption cases", () => {
     expect(selectOption.value).toEqual("");
   });
 });
+
+describe('formatFullStudyName cases', () => {
+  it('should return the study name with abbreviation if abbreviation is provided', () => {
+    const studyName = 'Study Name';
+    const studyAbbreviation = 'SN';
+    const result = utils.formatFullStudyName(studyName, studyAbbreviation);
+    expect(result).toBe('Study Name (SN)');
+  });
+
+  it('should return the study name without abbreviation if abbreviation is not provided', () => {
+    const studyName = 'Study Name';
+    const result = utils.formatFullStudyName(studyName, '');
+    expect(result).toBe('Study Name');
+  });
+
+  it('should return the study name without abbreviation if abbreviation is undefined', () => {
+    const studyName = 'Study Name';
+    const result = utils.formatFullStudyName(studyName, undefined);
+    expect(result).toBe('Study Name');
+  });
+
+  it('should remove extra spaces from the study name', () => {
+    const studyName = '   Study Name   ';
+    const result = utils.formatFullStudyName(studyName, '');
+    expect(result).toBe('Study Name');
+  });
+
+  it('should remove extra spaces from the study abbreviation', () => {
+    const studyName = 'Study Name';
+    const studyAbbreviation = '   SN   ';
+    const result = utils.formatFullStudyName(studyName, studyAbbreviation);
+    expect(result).toBe('Study Name (SN)');
+  });
+});
