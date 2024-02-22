@@ -263,20 +263,11 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <InvisibleInput ref={dataTypesInputRef} aria-label={SectionDMetadata.sections.DATA_TYPES.title} />
         <SwitchInput
           id="section-d-clinical-trial"
-          label="Clinical Trial"
+          label="Clinical"
           name="dataTypes[]"
           graphQLValue="clinicalTrial"
           value={dataTypes.includes("clinicalTrial")}
           tooltipText="A research study in which one or more subjects are prospectively assigned to one or more interventions (which may include placebo or other control) to evaluate the effects of those interventions on health-related biomedical outcomes."
-          readOnly={readOnlyInputs}
-        />
-        <SwitchInput
-          id="section-d-immunology"
-          label="Immunology"
-          name="dataTypes[]"
-          graphQLValue="immunology"
-          value={dataTypes.includes("immunology")}
-          tooltipText="Data from experiments studying the function of a body's immune system.  Experiments that focus primarily on genomic or imaging approaches should be classified in those areas as well."
           readOnly={readOnlyInputs}
         />
         <SwitchInput
@@ -320,15 +311,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
           readOnly={readOnlyInputs}
           sx={{ paddingBottom: "8px" }}
-        />
-        <SwitchInput
-          id="section-d-epidemiologic-or-cohort"
-          label="Epidemiologic or Cohort"
-          graphQLValue="epidemiologicOrCohort"
-          name="dataTypes[]"
-          value={dataTypes.includes("epidemiologicOrCohort")}
-          tooltipText="Data related to the incidence and distribution of disease across populations."
-          readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-d-other-data-types"

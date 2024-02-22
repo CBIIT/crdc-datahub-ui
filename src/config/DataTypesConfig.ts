@@ -5,7 +5,7 @@
 const DataTypes = {
   clinicalTrial: {
     name: "clinicalTrial",
-    label: "Clinical Trial"
+    label: "Clinical"
   },
   immunology: {
     name: "immunology",
