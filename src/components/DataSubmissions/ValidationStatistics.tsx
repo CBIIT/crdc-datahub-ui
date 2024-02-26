@@ -147,7 +147,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
           {`(${dataset.length})`}
         </StyledSectionTitle>
         <ContentCarousel partialVisible={false}>
-          <PaddingBox />
+          {dataset.length > 2 && <PaddingBox />}
           {dataset?.map((stat) => (
             <MiniPieChart
               key={stat.nodeName}
