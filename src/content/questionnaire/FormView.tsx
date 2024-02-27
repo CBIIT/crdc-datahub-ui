@@ -242,21 +242,37 @@ const FormView: FC<Props> = ({ section } : Props) => {
     if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
       return false;
     }
-    if (!readOnlyInputs && isDirty()) {
-      setBlockedNavigate(true);
-      return true;
+    if (!isDirty() || readOnlyInputs) {
+      return false;
     }
 
-    return false;
+    // If there are no validation errors, save form data without a prompt
+    const { ref } = refs.getFormObjectRef.current?.() || {};
+    if (ref?.current?.checkValidity() === true) {
+      saveForm();
+      return false;
+    }
+
+    setBlockedNavigate(true);
+    return true;
   });
 
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
     const unloadHandler = (event: BeforeUnloadEvent) => {
-      if (isDirty()) {
-        event.preventDefault();
-        event.returnValue = 'You have unsaved form changes. Are you sure you want to leave?';
+      if (!isDirty()) {
+        return;
       }
+
+      // If there are no validation errors, save form data without a prompt
+      const { ref } = refs.getFormObjectRef.current?.() || {};
+      if (ref?.current?.checkValidity() === true) {
+        saveForm();
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue = 'You have unsaved form changes. Are you sure you want to leave?';
     };
 
     window.addEventListener('beforeunload', unloadHandler);
