@@ -8,13 +8,13 @@ import {
 import { isEqual, cloneDeep } from "lodash";
 import {
   Alert,
-  AlertColor,
   Container,
   Divider,
   Stack,
   styled,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { useSnackbar } from 'notistack';
 import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
 import {
@@ -34,7 +34,6 @@ import RejectFormDialog from "../../components/Questionnaire/RejectFormDialog";
 import ApproveFormDialog from "../../components/Questionnaire/ApproveFormDialog";
 import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
-import GenericAlert from "../../components/GenericAlert";
 import {
   Status as AuthStatus,
   useAuthContext,
@@ -142,11 +141,6 @@ export type SaveForm =
   | { status: "success"; id: string }
   | { status: "failed"; errorMessage: string };
 
-type AlertState = {
-  message: string;
-  severity: AlertColor;
-};
-
 type Props = {
   section?: string;
 };
@@ -159,6 +153,7 @@ type Props = {
  */
 const FormView: FC<Props> = ({ section } : Props) => {
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const { status, data, setData, submitData, approveForm, inquireForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
   const { user, status: authStatus } = useAuthContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
@@ -169,7 +164,6 @@ const FormView: FC<Props> = ({ section } : Props) => {
   const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const { formMode, readOnlyInputs } = useFormMode();
-  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const [allSectionsComplete, setAllSectionsComplete] = useState<boolean>(false);
 
   const sectionKeys = Object.keys(map);
@@ -182,7 +176,6 @@ const FormView: FC<Props> = ({ section } : Props) => {
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
   const hasUpdatedReviewStatusRef = useRef(false);
-  const alertTimeoutRef = useRef(null);
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -523,15 +516,10 @@ const FormView: FC<Props> = ({ section } : Props) => {
     if (!isEqual(data.questionnaireData, newData) || error === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
       const res = await setData(newData);
       if (res?.status === "failed" && res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
-        setChangesAlert({ severity: "error", message: `The Study Abbreviation already existed in the system. Your changes were unable to be saved.` });
+        enqueueSnackbar("The Study Abbreviation already existed in the system. Your changes were unable to be saved.", { variant: 'error' });
       } else {
-        setChangesAlert({ severity: "success", message: `Your changes for the ${map[activeSection].title} section have been successfully saved.` });
+        enqueueSnackbar(`Your changes for the ${map[activeSection].title} section have been successfully saved.`, { variant: 'success' });
       }
-
-      if (alertTimeoutRef.current) {
-        clearTimeout(alertTimeoutRef.current);
-      }
-      alertTimeoutRef.current = setTimeout(() => setChangesAlert(null), 10000);
 
       if (!blockedNavigate && res?.status === "success" && data["_id"] === "new" && res.id !== data?.['_id']) {
         // NOTE: This currently triggers a form data refetch, which is not ideal
@@ -697,12 +685,6 @@ const FormView: FC<Props> = ({ section } : Props) => {
 
   return (
     <>
-      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="formview-changes-alert">
-        <span>
-          {changesAlert?.message}
-        </span>
-      </GenericAlert>
-
       <PageBanner
         title="Submission Request Form"
         subTitle="The following set of high-level questions are intended to provide insight to the CRDC, related to data storage, access, secondary sharing needs and other requirements of data submitters."
