@@ -4,12 +4,6 @@ import { PieChart, Pie, Label, Cell } from 'recharts';
 import { isEqual } from 'lodash';
 import PieChartCenter from './PieChartCenter';
 
-export type PieSectorDataItem = {
-  label: string;
-  value: number;
-  color: string;
-};
-
 type Props = {
   /**
    * Top label for the chart
@@ -35,6 +29,7 @@ const StyledPieChartLabel = styled(Typography)({
   marginBottom: "12px",
   textAlign: "center",
   alignSelf: "center",
+  userSelect: "none",
 });
 
 const StyledChartContainer = styled(Box)({
@@ -60,10 +55,12 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
   const dataset: PieSectorDataItem[] = useMemo(() => data.filter(({ value }) => value > 0), [data]);
   const onMouseOver = useCallback((data) => setHoveredSlice(data), []);
   const onMouseLeave = useCallback(() => setHoveredSlice(null), []);
+  const showDefaultCenter: boolean = useMemo(() => (dataset.length === 0 && hoveredSlice === null)
+    || hoveredSlice?.value === 0, [dataset, hoveredSlice]);
 
   return (
     <StyledChartContainer>
-      {label && <StyledPieChartLabel>{label}</StyledPieChartLabel>}
+      {label && <StyledPieChartLabel>{label.replace(/_/g, " ")}</StyledPieChartLabel>}
       <PieChart width={150} height={150}>
         <Pie
           data={[{ value: 100 }]}
@@ -74,7 +71,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
           isAnimationActive={false}
           aria-label={`${label} chart background`}
         >
-          {(dataset.length === 0 && hoveredSlice === null) && <Label position="center" content={(<PieChartCenter title="Total" value={0} />)} />}
+          {showDefaultCenter ? <Label position="center" content={(<PieChartCenter title="Total" value={0} />)} /> : null}
         </Pie>
         <Pie
           data={dataset}
@@ -88,7 +85,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
           onMouseLeave={onMouseLeave}
           aria-label={`${label} chart`}
         >
-          {dataset.map(({ label, color }) => (<Cell key={label} fill={color} />))}
+          {dataset.map(({ label, color }) => (<Cell key={label} fill={color} cursor="pointer" />))}
           <Label
             position="center"
             content={(
