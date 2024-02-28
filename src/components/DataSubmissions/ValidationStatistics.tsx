@@ -125,7 +125,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   if (!dataset?.some((s) => s.total > 0)) {
     return (
       <StyledChartArea direction="row">
-        <StyledNoData variant="h6">No data has been successfully uploaded at this time.</StyledNoData>
+        <StyledNoData variant="h6">No data has been successfully uploaded yet.</StyledNoData>
       </StyledChartArea>
     );
   }
