@@ -18,6 +18,7 @@ import SuspenseLoader from '../../components/SuspenseLoader';
 import { OrgAssignmentMap, OrgRequiredRoles, Roles } from '../../config/AuthRoles';
 import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { formatIDP, getEditableFields } from '../../utils';
+import { DataCommons } from '../../config/DataCommons';
 
 type Props = {
   _id: User["_id"];
@@ -49,7 +50,7 @@ const StyledPageTitle = styled(Typography)({
 
 const StyledProfileIcon = styled("div")({
   position: "relative",
-  transform: "translate(-219px, -75px)",
+  transform: "translate(-218px, -75px)",
   "& img": {
     position: "absolute",
   },
@@ -140,10 +141,13 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, bord
   padding: "6px 8px",
 }));
 
+const StyledContentStack = styled(Stack)({
+  marginLeft: "2px !important",
+});
+
 const StyledTitleBox = styled(Box)({
   marginTop: "-86px",
   marginBottom: "88px",
-  marginRight: "40px",
   width: "100%",
 });
 
@@ -169,6 +173,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
   const role = watch("role");
   const orgFieldDisabled = useMemo(() => !OrgRequiredRoles.includes(role) && role !== "User", [role]);
+  const dcFieldDisabled = useMemo(() => role !== "Data Commons POC", [role]);
+  const displayDataCommons = (viewType === "profile" && user?.role === "Data Commons POC") || (viewType === "users" && !dcFieldDisabled);
   const fieldset = useMemo(() => getEditableFields(currentUser, user, viewType), [user?._id, _id, currentUser?.role, viewType]);
 
   const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
@@ -215,6 +221,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
           organization: data.organization.orgID,
           role: data.role,
           status: data.userStatus,
+          dataCommons: data.dataCommons,
         }
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
@@ -281,7 +288,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       return;
     }
 
-    const expectedOrg = orgData?.find((org) => org.orgName === OrgAssignmentMap[role])?.orgID;
+    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[role])?._id;
     setValue("organization.orgID", expectedOrg || "");
   }, [orgFieldDisabled, role, user, orgData]);
 
@@ -314,7 +321,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
             <img src={profileIcon} alt="profile icon" />
           </StyledProfileIcon>
 
-          <Stack
+          <StyledContentStack
             direction="column"
             justifyContent="center"
             alignItems="center"
@@ -415,11 +422,33 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         disabled={orgFieldDisabled}
                       >
                         <MenuItem value="">{"<Not Set>"}</MenuItem>
-                        {orgData?.map((org) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
+                        {orgData?.map((org) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
                       </StyledSelect>
                     )}
                   />
                 ) : user?.organization?.orgName}
+              </StyledField>
+              <StyledField sx={{ display: displayDataCommons ? "block" : "none" }}>
+                <StyledLabel>Data Commons</StyledLabel>
+                {fieldset.includes("dataCommons") ? (
+                  <Controller
+                    name="dataCommons"
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        size="small"
+                        value={field.value || []}
+                        disabled={dcFieldDisabled}
+                        MenuProps={{ disablePortal: true }}
+                        multiple
+                      >
+                        {DataCommons.map((dc) => <MenuItem key={dc.name} value={dc.name}>{dc.name}</MenuItem>)}
+                      </StyledSelect>
+                    )}
+                  />
+                ) : user.dataCommons?.join(", ")}
               </StyledField>
 
               <StyledButtonStack
@@ -428,11 +457,11 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#22A584" border="#26B893">Save</StyledButton>}
+                {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">Save</StyledButton>}
                 {viewType === "users" && <StyledButton type="button" onClick={() => navigate("/users")} txt="#949494" border="#828282">Cancel</StyledButton>}
               </StyledButtonStack>
             </form>
-          </Stack>
+          </StyledContentStack>
         </Stack>
       </StyledContainer>
     </>

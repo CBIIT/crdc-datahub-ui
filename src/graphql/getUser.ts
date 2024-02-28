@@ -12,6 +12,7 @@ export const query = gql`
       email
       createdAt
       updateAt
+      dataCommons
       organization {
         orgID
         orgName

@@ -8,7 +8,7 @@ type Application = {
   history: HistoryEvent[];
   // Applicant Details
   applicant: Applicant;
-  organization: Organization;
+  organization: Pick<Organization, "_id" | "name">;
   // Sort Fields
   programName: Program["name"];
   studyAbbreviation: Study["abbreviation"];
@@ -52,7 +52,7 @@ type QuestionnaireData = {
   submitterComment: string;
 };
 
-type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected";
+type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected" | "Inquired";
 
 type Section = {
   name: string;
@@ -142,20 +142,10 @@ type Funding = {
   nciGPA: string;
 };
 
-type HistoryEvent = {
-  status: ApplicationStatus;
-  reviewComment?: string;
-  dateTime: string; // YYYY-MM-DDTHH:MM:SSZ format
-  userID: number;
-};
+type HistoryEvent = HistoryBase<ApplicationStatus>;
 
 type Applicant = {
   applicantID: string;
   applicantName: string;
   applicantEmail: string;
-};
-
-type Organization = {
-  _id: string;
-  name: string;
 };

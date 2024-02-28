@@ -16,9 +16,17 @@ type User = {
   IDP: "nih" | "login.gov";
   email: string;
   organization: OrgInfo | null;
-  curatedOrganizations: OrgInfo[];
+  dataCommons: string[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
+};
+
+type UserInfo = {
+  userID: User["_id"];
+  firstName: User["firstName"];
+  lastName: User["lastName"];
+  createdAt: User["createdAt"];
+  updateAt: User["updateAt"];
 };
 
 type UserInput = {
@@ -39,5 +47,30 @@ type EditUserInput = {
   organization: {
     orgID: OrgInfo['orgID'];
   };
+  dataCommons: User['dataCommons'];
   role: User['role'];
+};
+
+type Organization = {
+  _id: string;
+  name: string;
+  status: "Active" | "Inactive";
+  conciergeID: string | null;
+  conciergeName: string | null;
+  conciergeEmail: string | null;
+  studies: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">[];
+  createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
+  updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
+};
+
+type EditOrganizationInput = {
+  name: Organization["name"];
+  conciergeID: User["_id"];
+  studies: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">[];
+  status: Organization["status"];
+};
+
+type Tokens = {
+  tokens: string[];
+  message: string;
 };

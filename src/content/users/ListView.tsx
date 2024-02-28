@@ -252,7 +252,7 @@ const ListingView: FC = () => {
       return;
     }
 
-    const orgID = orgData?.find((org: OrgInfo) => org.orgName === user.organization?.orgName)?.orgID;
+    const orgID = orgData?.find((org: Organization) => org._id === user.organization?.orgID)?._id;
     setValue("organization", orgID || "All");
   }, [user, orgData]);
 
@@ -307,7 +307,7 @@ const ListingView: FC = () => {
                   MenuProps={{ disablePortal: true }}
                 >
                   <MenuItem value="All">All</MenuItem>
-                  {orgData?.map((org: OrgInfo) => <MenuItem key={org.orgID} value={org.orgID}>{org.orgName}</MenuItem>)}
+                  {orgData?.map((org: Organization) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
                 </StyledSelect>
               )}
             />

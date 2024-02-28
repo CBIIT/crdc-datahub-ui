@@ -67,7 +67,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const {
-    nextButtonRef, saveFormRef, submitFormRef, approveFormRef, rejectFormRef, getFormObjectRef,
+    nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef,
   } = refs;
 
   useEffect(() => {
@@ -77,8 +77,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     saveFormRef.current.style.display = "initial";
     submitFormRef.current.style.display = "none";
     approveFormRef.current.style.display = "none";
+    inquireFormRef.current.style.display = "none";
     rejectFormRef.current.style.display = "none";
-
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
@@ -303,6 +303,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="program[abbreviation]"
           value={predefinedProgram ? programOption?.abbreviation : program?.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
+          onChange={(e) => { e.target.value = e.target.value.toUpperCase(); }}
           maxLength={20}
           placeholder="20 characters allowed"
           hideValidation={readOnlyProgram}
@@ -370,6 +371,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="study[abbreviation]"
           value={study.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
+          onChange={(e) => { e.target.value = e.target.value.toUpperCase(); }}
           maxLength={20}
           placeholder="20 characters allowed"
           readOnly={readOnlyInputs}

@@ -10,13 +10,8 @@ export const query = gql`
       role
       IDP
       email
+      dataCommons
       organization {
-        orgID
-        orgName
-        createdAt
-        updateAt
-      }
-      curatedOrganizations {
         orgID
         orgName
         createdAt

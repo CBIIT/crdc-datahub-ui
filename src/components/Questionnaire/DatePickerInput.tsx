@@ -8,7 +8,9 @@ import {
 } from "@mui/material";
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
-import Tooltip from "./Tooltip";
+import timezone from 'dayjs/plugin/timezone';
+
+import Tooltip from "../Tooltip";
 import calendarIcon from "../../assets/icons/calendar.svg";
 import { updateInputValidity } from '../../utils';
 
@@ -143,10 +145,12 @@ const DatePickerInput: FC<Props> = ({
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string>(errorText || (required ? "This field is required" : null));
   const inputRef = useRef<HTMLInputElement>(null);
+  dayjs.extend(timezone);
+  dayjs.tz.setDefault("America/New_York");
 
   const processValue = (inputVal: Dayjs) => {
     const isInvalidDay = !inputVal?.isValid();
-    const isPastDate = inputVal?.isBefore(dayjs(new Date()).startOf("day"));
+    const isPastDate = inputVal?.isBefore(dayjs(new Date()).tz().startOf("day"));
 
     let newErrorMsg = "";
     if (required && !inputVal) {
@@ -173,7 +177,6 @@ const DatePickerInput: FC<Props> = ({
 
   useEffect(() => {
     const invalid = () => setError(true);
-
     inputRef.current?.addEventListener("invalid", invalid);
     return () => {
       inputRef.current?.removeEventListener("invalid", invalid);
@@ -194,7 +197,7 @@ const DatePickerInput: FC<Props> = ({
         </StyledFormLabel>
         <StyledDatePicker
           value={val}
-          onChange={(value: Dayjs) => onChangeWrapper(value)}
+          onChange={(value: Dayjs) => { onChangeWrapper(value.tz()); }}
           inputRef={inputRef}
           disablePast={disablePast}
           format={format}

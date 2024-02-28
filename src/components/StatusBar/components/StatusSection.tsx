@@ -9,9 +9,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useFormContext } from "../../Contexts/FormContext";
-import { SortHistory } from "../utils";
-import { StatusIconMap } from "../icons";
-import { FormatDate } from "../../../utils";
+import { StatusIconMap } from "../../../assets/history/submissionRequest";
+import { FormatDate, SortHistory } from "../../../utils";
 
 const StyledAvatar = styled(Avatar)({
   background: "transparent",

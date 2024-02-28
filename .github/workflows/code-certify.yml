@@ -1,0 +1,51 @@
+name: Certify Changes
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: "*"
+    paths:
+      - "src/**"
+      - "public/**"
+      - "*.json"
+      - "*.js"
+      - "*.jsx"
+      - "*.ts"
+      - "*.tsx"
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    name: Certify Build Changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+          cache: "npm"
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-modules-
+
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run Typecheck
+        run: npm run check:ci
+
+      - name: Run Jest
+        run: npm run test:ci
+
+      - name: Run Linter
+        run: npm run lint:ci

@@ -1,6 +1,6 @@
 export type FormMode = "Unauthorized" | "Edit" | "View Only" | "Review";
 
-export const EditStatuses = ["New", "In Progress", "Rejected"];
+export const EditStatuses = ["New", "In Progress", "Inquired"];
 export const ReviewStatuses = ["Submitted", "In Review"];
 export const FormModes = {
   UNAUTHORIZED: "Unauthorized",
@@ -24,7 +24,7 @@ const _getFormModeForUser = (
 ): FormMode => {
   const { status: formStatus } = data || {};
   const formBelongsToUser = data?.applicant?.applicantID === user?.["_id"];
-  const isStatusViewOnlyForUser = ["Submitted", "In Review", "Approved"].includes(formStatus);
+  const isStatusViewOnlyForUser = ["Submitted", "In Review", "Approved", "Rejected"].includes(formStatus);
 
   if (formStatus !== "New" && !formBelongsToUser) {
     return FormModes.UNAUTHORIZED;

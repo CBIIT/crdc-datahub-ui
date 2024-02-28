@@ -1,6 +1,6 @@
-/* eslint-disable */
 window.injectedEnv = {
-  NIH_AUTHORIZE_URL: 'https://link.to/nihlogin',
-  NIH_CLIENT_ID: 'Sample Id',
-  NIH_REDIRECT_URL: 'http://link.back/toHost',
+  NIH_AUTHORIZE_URL: '',
+  NIH_CLIENT_ID: '',
+  NIH_REDIRECT_URL: '',
+  REACT_APP_DEV_TIER: ''
 };

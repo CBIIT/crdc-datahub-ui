@@ -1,10 +1,11 @@
-import New from "./New.svg";
-import Submitted from "./Submitted.svg";
+import New from "./SubmissionRequestNew.svg";
+import Submitted from "./SubmissionRequestSubmitted.svg";
 import Rejected from "./Rejected.svg";
 import Approved from "./Approved.svg";
 import UnderReview from "./UnderReview.svg";
 import StatusApproved from "./StatusApproved.svg";
 import StatusRejected from "./StatusRejected.svg";
+import InProgress from "./InProgress.svg";
 
 export type IconType = {
   [key: string]: string;
@@ -21,6 +22,7 @@ export const HistoryIconMap : IconType = {
   Rejected,
   Approved,
   "In Review": UnderReview,
+  "In Progress": InProgress,
 };
 
 /**
