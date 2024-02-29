@@ -246,7 +246,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           inputID="section-d-expected-publication-date"
           label="Expected Publication Date"
           name="targetedReleaseDate"
-          tooltipText="The date that submitters would like their data to be released to the public."
+          tooltipText="The date that submitters expect any paper using this data will be published."
           initialValue={data.targetedReleaseDate}
           gridWidth={6}
           disablePast
