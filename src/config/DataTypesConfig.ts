@@ -7,10 +7,6 @@ const DataTypes = {
     name: "clinicalTrial",
     label: "Clinical"
   },
-  immunology: {
-    name: "immunology",
-    label: "Immunology"
-  },
   genomics: {
     name: "genomics",
     label: "Genomics"
@@ -22,10 +18,6 @@ const DataTypes = {
   imaging: {
     name: "imaging",
     label: "Imaging"
-  },
-  epidemiologicOrCohort: {
-    name: "epidemiologicOrCohort",
-    label: "Epidemiologic or Cohort"
   },
   demographicData: {
     name: "demographicData",
