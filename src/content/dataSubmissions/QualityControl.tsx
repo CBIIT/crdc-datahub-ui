@@ -119,11 +119,6 @@ const columns: Column<QCResult>[] = [
     field: "nodeID",
   },
   {
-    label: "CRDC ID",
-    renderValue: (data) => <StyledBreakAll>{data?.CRDC_ID}</StyledBreakAll>,
-    field: "CRDC_ID",
-  },
-  {
     label: "Severity",
     renderValue: (data) => <StyledSeverity color={data?.severity === "Error" ? "#B54717" : "#8D5809"}>{data?.severity}</StyledSeverity>,
     field: "severity",
