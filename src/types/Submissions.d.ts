@@ -179,7 +179,6 @@ type QCResult = {
   batchID: string;
   displayID: number;
   nodeID: string;
-  CRDC_ID: string;
   severity: "Error" | "Warning"; // [Error, Warning]
   uploadedDate: string; // batch.updatedAt
   validatedDate: string;
@@ -210,7 +209,6 @@ type DataRecord = {
   // relationshipProps: [RelationshipProperty] # for future use
   // rawData: RawData
   s3FileInfo: S3FileInfo; // only for "file" types, should be null for other nodes
-  CRDC_ID: string;
 };
 
 type SubmissionStatistic = {
