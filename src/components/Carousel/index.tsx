@@ -24,6 +24,9 @@ const StyledWrapper = styled('div')({
   "& .react-multi-carousel-list": {
     height: "206px",
   },
+  "& .react-multi-carousel-track": {
+    margin: "0 auto", // NOTE: This centers the carousel when there are fewer than 2 items
+  },
   "& .custom-carousel-item": {
     maxWidth: "200px",
     minWidth: "200px",
