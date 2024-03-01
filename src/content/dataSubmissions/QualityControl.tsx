@@ -110,7 +110,7 @@ const columns: Column<QCResult>[] = [
   },
   {
     label: "Node Type",
-    renderValue: (data) => <StyledNodeType>{data?.nodeType}</StyledNodeType>,
+    renderValue: (data) => <StyledNodeType>{data.validationType === "metadata" ? data?.nodeType : "Data File"}</StyledNodeType>,
     field: "nodeType",
   },
   {
