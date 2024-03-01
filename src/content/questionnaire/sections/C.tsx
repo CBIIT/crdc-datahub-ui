@@ -33,8 +33,10 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef } = refs;
   const { C: SectionCMetadata } = SectionMetadata;
 
-  const [cancerTypes, setCancerTypes] = useState<string[]>(data.cancerTypes ?? []);
-  const [species, setSpecies] = useState<string[]>(data.species ?? []);
+  const [cancerTypes, setCancerTypes] = useState<string[]>(data.cancerTypes || []);
+  const [otherCancerTypes, setOtherCancerTypes] = useState<string>(data.otherCancerTypes);
+  const [species, setSpecies] = useState<string[]>(data.species || []);
+  const [otherSpecies, setOtherSpecies] = useState<string>(data.otherSpeciesOfSubjects);
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -49,6 +51,21 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     rejectFormRef.current.style.display = "none";
     getFormObjectRef.current = getFormObject;
   }, [refs]);
+
+  useEffect(() => {
+    if (otherCancerTypes?.length > 0 && cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
+      setOtherCancerTypes("");
+    }
+    if (otherCancerTypes?.length > 0 && !cancerTypes.includes(CUSTOM_CANCER_TYPES.OTHER)) {
+      setOtherCancerTypes("");
+    }
+  }, [cancerTypes]);
+
+  useEffect(() => {
+    if (otherSpecies?.length > 0 && !species.includes(CUSTOM_SPECIES.OTHER)) {
+      setOtherSpecies("");
+    }
+  }, [species]);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -129,10 +146,12 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-c-other-cancer-types"
+          key={`other_cancer_types_${cancerTypes?.toString()}`}
           label="Other cancer type(s)"
           name="otherCancerTypes"
           placeholder="Specify other cancer type(s)"
-          value={data.otherCancerTypes}
+          value={otherCancerTypes}
+          onChange={(e) => setOtherCancerTypes(e.target.value || "")}
           maxLength={1000}
           required={cancerTypes?.includes(CUSTOM_CANCER_TYPES.OTHER)}
           readOnly={!cancerTypes?.includes(CUSTOM_CANCER_TYPES.OTHER) || readOnlyInputs}
@@ -167,10 +186,12 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-c-other-species-of-subjects"
-          label="Enter in all species involved"
+          key={`other_species_involved_${otherSpecies?.toString()}`}
+          label="Other species involved"
           name="otherSpeciesOfSubjects"
-          placeholder="Enter all species"
-          value={data.otherSpeciesOfSubjects}
+          placeholder="Enter other species"
+          value={otherSpecies}
+          onChange={(e) => setOtherSpecies(e.target.value || "")}
           maxLength={500}
           required={species?.includes(CUSTOM_SPECIES.OTHER)}
           readOnly={!species?.includes(CUSTOM_SPECIES.OTHER) || readOnlyInputs}
