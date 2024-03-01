@@ -138,7 +138,8 @@ type Props = {
   helpText?: string;
   tooltipText?: string | ReactNode;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
-  onChange?: (value: string) => void;
+  onChange?: (value: string | string[]) => void;
+  filter?: (input: string | string[]) => string | string[];
 } & Omit<SelectProps, "onChange">;
 
 /**
@@ -157,6 +158,7 @@ const SelectInput: FC<Props> = ({
   tooltipText,
   gridWidth,
   onChange,
+  filter,
   multiple,
   placeholder,
   readOnly,
@@ -191,11 +193,15 @@ const SelectInput: FC<Props> = ({
   };
 
   const onChangeWrapper = (newVal) => {
+    let filteredVal = newVal;
+    if (typeof filter === "function") {
+      filteredVal = filter(newVal);
+    }
     if (typeof onChange === "function") {
-      onChange(newVal);
+      onChange(filteredVal);
     }
 
-    processValue(newVal);
+    processValue(filteredVal);
     setError(false);
   };
 
