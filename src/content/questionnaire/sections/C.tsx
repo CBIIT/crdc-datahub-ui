@@ -9,13 +9,10 @@ import TextInput from "../../../components/Questionnaire/TextInput";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
 import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
 import accessTypesOptions from "../../../config/AccessTypesConfig";
-import cancerTypeOptions from "../../../config/CancerTypesConfig";
-import preCancerTypeOptions from "../../../config/PreCancerTypesConfig";
-import speciesOptions from "../../../config/SpeciesConfig";
-import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
-import { reshapeCheckboxGroupOptions, isValidInRange, filterPositiveIntegerString } from "../../../utils";
+import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "../../../config/CancerTypesConfig";
+import speciesOptions, { CUSTOM_SPECIES } from "../../../config/SpeciesConfig";
+import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
 import useFormMode from "../../../hooks/useFormMode";
-import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 import SectionMetadata from "../../../config/SectionMetadata";
 
 const AccessTypesDescription = styled("span")(() => ({
@@ -36,7 +33,8 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef } = refs;
   const { C: SectionCMetadata } = SectionMetadata;
 
-  const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
+  const [cancerTypes, setCancerTypes] = useState<string[]>(data.cancerTypes ?? []);
+  const [species, setSpecies] = useState<string[]>(data.species ?? []);
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -63,6 +61,20 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
 
     return { ref: formRef, data: combinedData };
+  };
+
+  const filterCancerTypes = (val: string[]) => {
+    // if N/A already previously selected, then unselect N/A
+    if (cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
+      return val.filter((option) => option !== CUSTOM_CANCER_TYPES.NOT_APPLICABLE);
+    }
+
+    // if N/A is being selected, then unselect other options
+    if (val.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
+      return [CUSTOM_CANCER_TYPES.NOT_APPLICABLE];
+    }
+
+    return val;
   };
 
   useEffect(() => {
@@ -110,8 +122,9 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           options={cancerTypeOptions.map((option) => ({ label: option, value: option }))}
           placeholder="Select types"
           value={data.cancerTypes}
+          onChange={(val: string[]) => setCancerTypes(val)}
+          filter={filterCancerTypes}
           multiple
-          required
           readOnly={readOnlyInputs}
         />
         <TextInput
@@ -121,26 +134,17 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="Specify other cancer type(s)"
           value={data.otherCancerTypes}
           maxLength={1000}
-          readOnly={readOnlyInputs}
+          required={cancerTypes?.includes(CUSTOM_CANCER_TYPES.OTHER)}
+          readOnly={!cancerTypes?.includes(CUSTOM_CANCER_TYPES.OTHER) || readOnlyInputs}
         />
 
-        <SelectInput
-          id="section-c-pre-cancer-types"
-          label="Pre-Cancer types (select all that apply)"
-          name="preCancerTypes"
-          options={preCancerTypeOptions.map((option) => ({ label: option, value: option }))}
-          placeholder="Select types"
-          value={data.preCancerTypes}
-          multiple
-          readOnly={readOnlyInputs}
-        />
         <TextInput
-          id="section-c-other-pre-cancer-types"
-          label="Other pre-cancer type(s)"
-          name="otherPreCancerTypes"
-          placeholder="Specify other pre-cancer type(s)"
-          value={data.otherPreCancerTypes}
-          maxLength={1000}
+          id="section-c-pre-cancer-types"
+          label="Pre-Cancer types (provide all that apply)"
+          name="preCancerTypes"
+          placeholder="Provide pre-cancer types"
+          value={data.preCancerTypes}
+          maxLength={500}
           readOnly={readOnlyInputs}
         />
       </SectionGroup>
@@ -155,10 +159,21 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="species"
           options={speciesOptions.map((option) => ({ label: option, value: option }))}
           placeholder="Select species"
-          value={data.species}
+          value={species}
+          onChange={(val: string[]) => setSpecies(val)}
           multiple
           required
           readOnly={readOnlyInputs}
+        />
+        <TextInput
+          id="section-c-other-species-of-subjects"
+          label="Enter in all species involved"
+          name="otherSpeciesOfSubjects"
+          placeholder="Enter all species"
+          value={data.otherSpeciesOfSubjects}
+          maxLength={500}
+          required={species?.includes(CUSTOM_SPECIES.OTHER)}
+          readOnly={!species?.includes(CUSTOM_SPECIES.OTHER) || readOnlyInputs}
         />
         <TextInput
           id="section-c-number-of-subjects-included-in-the-submission"
@@ -173,26 +188,6 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           inputProps={{
             "data-type": "number"
           } as unknown}
-          required
-          readOnly={readOnlyInputs}
-        />
-        <FormGroupCheckbox
-          idPrefix="section-c-"
-          label="Cell lines, model systems (select all that apply or neither)"
-          options={cellLineModelSystemOptions}
-          value={cellLineModelSystemCheckboxes}
-          onChange={(val: string[]) => setCellLineModelSystemCheckboxes(val)}
-          orientation="horizontal"
-          gridWidth={12}
-          readOnly={readOnlyInputs}
-        />
-        <RadioYesNoInput
-          id="section-c-data-de-identified"
-          name="dataDeIdentified"
-          label="Confirm the data you plan to submit are de-identified"
-          value={data.dataDeIdentified}
-          gridWidth={12}
-          row
           required
           readOnly={readOnlyInputs}
         />
