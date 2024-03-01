@@ -37,10 +37,10 @@ type QuestionnaireData = {
   timeConstraints: TimeConstraint[];
   cancerTypes: string[];
   otherCancerTypes: string;
-  preCancerTypes: string[];
-  otherPreCancerTypes: string;
+  preCancerTypes: string;
   numberOfParticipants: number;
   species: string[];
+  otherSpeciesOfSubjects: string;
   cellLines: boolean;
   modelSystems: boolean;
   imagingDataDeIdentified: boolean;
