@@ -281,7 +281,6 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <ReviewDataListingProperty idPrefix="review-cancer-types-cancer-types" label="Cancer types" value={data.cancerTypes} valuePlacement="bottom" isList />
           <ReviewDataListingProperty idPrefix="review-cancer-types-other-cancer-types" label="Other cancer type(s)" value={data.otherCancerTypes?.split(",")} valuePlacement="bottom" isList />
           <ReviewDataListingProperty idPrefix="review-cancer-types-pre-cancer-types" label="Pre-cancer types" value={data.preCancerTypes} valuePlacement="bottom" isList />
-          <ReviewDataListingProperty idPrefix="review-cancer-types-other-pre-cancer-types" label="Other pre-cancer type(s)" value={data.otherPreCancerTypes?.split(",")} valuePlacement="bottom" isList />
         </ReviewDataListing>
 
         <ReviewDataListing
@@ -289,10 +288,8 @@ const FormSectionReview: FC<FormSectionProps> = ({
           title={SectionMetadata.C.sections.SUBJECTS.title}
         >
           <ReviewDataListingProperty idPrefix="review-subjects-species" label="Species of subjects" value={data.species} valuePlacement="bottom" isList />
+          <ReviewDataListingProperty idPrefix="review-subjects-species" label="Other species involved" value={data.otherSpeciesOfSubjects} valuePlacement="bottom" isList />
           <ReviewDataListingProperty idPrefix="review-subjects-number-of-subjects-included-in-the-submission" label="Number of subjects included in the submission" value={data.numberOfParticipants?.toString()} valuePlacement="bottom" />
-          <ReviewDataListingProperty idPrefix="review-subjects-cell-lines" label="Cell lines" value={data.cellLines ? "Yes" : "No"} />
-          <ReviewDataListingProperty idPrefix="review-subjects-model-systems" label="Model systems" value={data.modelSystems ? "Yes" : "No"} />
-          <ReviewDataListingProperty idPrefix="review-subjects-data-de-identified" label="Data de-identified" value={data.dataDeIdentified ? "Yes" : "No"} />
         </ReviewDataListing>
       </ReviewSection>
 
@@ -354,6 +351,9 @@ const FormSectionReview: FC<FormSectionProps> = ({
           description={SectionMetadata.D.sections.ADDITIONAL_COMMENTS.description}
         >
           <ReviewDataListingProperty idPrefix="review-additional-comments-submitter-comment" gridWidth={12} value={data.submitterComment} valuePlacement="bottom" />
+          <ReviewDataListingProperty idPrefix="review-subjects-cell-lines" label="Cell lines" value={data.cellLines ? "Yes" : "No"} />
+          <ReviewDataListingProperty idPrefix="review-subjects-model-systems" label="Model systems" value={data.modelSystems ? "Yes" : "No"} />
+          <ReviewDataListingProperty idPrefix="review-subjects-data-de-identified" label="Data de-identified" value={data.dataDeIdentified ? "Yes" : "No"} />
         </ReviewDataListing>
       </ReviewSection>
 
