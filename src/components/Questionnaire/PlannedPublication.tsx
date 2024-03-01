@@ -45,8 +45,8 @@ const PlannedPublication: FC<Props> = ({
           label="Publication Title"
           name={`study[plannedPublications][${index}][title]`}
           value={title}
-          placeholder="Enter title"
-          maxLength={100}
+          placeholder="500 characters allowed."
+          maxLength={500}
           gridWidth={12}
           required
           readOnly={readOnly}
