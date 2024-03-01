@@ -44,7 +44,7 @@ const Publication: FC<Props> = ({
           label="Publication Title"
           name={`study[publications][${index}][title]`}
           value={title}
-          placeholder="500 characters allowed."
+          placeholder="500 characters allowed"
           maxLength={500}
           gridWidth={12}
           required
