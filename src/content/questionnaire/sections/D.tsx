@@ -31,6 +31,7 @@ import useFormMode from "../../../hooks/useFormMode";
 import SectionMetadata from "../../../config/SectionMetadata";
 import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
 import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
+import { InitialQuestionnaire } from "../../../config/InitialValues";
 
 export type KeyedFileTypeData = {
   key: string;
@@ -146,6 +147,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { D: SectionDMetadata } = SectionMetadata;
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
+  const [isClinical, setIsClinical] = useState<boolean>(dataTypes?.includes("clinicalTrial"));
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const [dataTypesErrorMsg, setDataTypesErrorMsg] = useState<string>("");
@@ -186,7 +188,12 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       dataTypesInputRef.current.setCustomValidity("At least one data type is required");
     }
 
-    combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter((str) => str !== "");
+    if (!combinedData.dataTypes.includes("clinicalTrial")) {
+      combinedData.clinicalData = InitialQuestionnaire.clinicalData;
+    } else {
+      combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter((str) => str !== "");
+    }
+
     combinedData.targetedReleaseDate = dayjs(formObject.targetedReleaseDate).isValid() ? formObject.targetedReleaseDate : "";
     combinedData.targetedSubmissionDate = dayjs(formObject.targetedSubmissionDate).isValid() ? formObject.targetedSubmissionDate : "";
     if (formObject.imagingDataDeIdentified === "true") {
@@ -249,7 +256,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           inputID="section-d-expected-publication-date"
           label="Expected Publication Date"
           name="targetedReleaseDate"
-          tooltipText="The date that submitters would like their data to be released to the public."
+          tooltipText="The date that submitters expect any paper using this data will be published."
           initialValue={data.targetedReleaseDate}
           gridWidth={6}
           disablePast
@@ -266,20 +273,12 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <InvisibleInput ref={dataTypesInputRef} aria-label={SectionDMetadata.sections.DATA_TYPES.title} />
         <SwitchInput
           id="section-d-clinical-trial"
-          label="Clinical Trial"
+          label="Clinical"
           name="dataTypes[]"
           graphQLValue="clinicalTrial"
           value={dataTypes.includes("clinicalTrial")}
+          onChange={(e, val) => setIsClinical(val)}
           tooltipText="A research study in which one or more subjects are prospectively assigned to one or more interventions (which may include placebo or other control) to evaluate the effects of those interventions on health-related biomedical outcomes."
-          readOnly={readOnlyInputs}
-        />
-        <SwitchInput
-          id="section-d-immunology"
-          label="Immunology"
-          name="dataTypes[]"
-          graphQLValue="immunology"
-          value={dataTypes.includes("immunology")}
-          tooltipText="Data from experiments studying the function of a body's immune system.  Experiments that focus primarily on genomic or imaging approaches should be classified in those areas as well."
           readOnly={readOnlyInputs}
         />
         <SwitchInput
@@ -324,15 +323,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           readOnly={readOnlyInputs}
           sx={{ paddingBottom: "8px" }}
         />
-        <SwitchInput
-          id="section-d-epidemiologic-or-cohort"
-          label="Epidemiologic or Cohort"
-          graphQLValue="epidemiologicOrCohort"
-          name="dataTypes[]"
-          value={dataTypes.includes("epidemiologicOrCohort")}
-          tooltipText="Data related to the incidence and distribution of disease across populations."
-          readOnly={readOnlyInputs}
-        />
         <TextInput
           id="section-d-other-data-types"
           label="Other Data Type(s)"
@@ -347,87 +337,89 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       </SectionGroup>
 
       {/* Clinical Data Types Section */}
-      <SectionGroup
-        title={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title}
-        description={SectionDMetadata.sections.CLINICAL_DATA_TYPES.description}
-      >
-        <SwitchInput
-          id="section-d-demographic-data"
-          label="Demographic Data"
-          name="clinicalData[dataTypes][]"
-          graphQLValue="demographicData"
-          value={data.clinicalData.dataTypes.includes("demographicData")}
-          tooltipText="Indicate whether demographics information is available for the study (such as age or gender)."
-          readOnly={readOnlyInputs}
-        />
-        <SwitchInput
-          id="section-d-relapse-recurrence-data"
-          label="Relapse/Recurrence Data"
-          name="clinicalData[dataTypes][]"
-          graphQLValue="relapseRecurrenceData"
-          value={data.clinicalData.dataTypes.includes("relapseRecurrenceData")}
-          tooltipText="Relapse/recurrence data refers to information associated with the return of a disease after a period of remission. Indicate whether relapse/recurrence data is available for the study."
-          readOnly={readOnlyInputs}
-        />
-        <SwitchInput
-          id="section-d-diagnosis-data"
-          label="Diagnosis Data"
-          name="clinicalData[dataTypes][]"
-          graphQLValue="diagnosisData"
-          value={data.clinicalData.dataTypes.includes("diagnosisData")}
-          tooltipText="Indicate whether diagnosis information is available for the study."
-          readOnly={readOnlyInputs}
-        />
-        <SwitchInput
-          id="section-d-outcome-data"
-          label="Outcome Data"
-          name="clinicalData[dataTypes][]"
-          graphQLValue="outcomeData"
-          value={data.clinicalData.dataTypes.includes("outcomeData")}
-          tooltipText="Outcome data refers to information on a specific result or effect that can be measured. Examples of outcomes include decreased pain, reduced tumor size, and improvement of disease. Indicate whether outcome data is available for the study."
-          readOnly={readOnlyInputs}
-        />
-        <SwitchInput
-          id="section-d-treatment-data"
-          label="Treatment Data"
-          name="clinicalData[dataTypes][]"
-          graphQLValue="treatmentData"
-          value={data.clinicalData.dataTypes.includes("treatmentData")}
-          tooltipText="Treatment data refers to information on the action or administration of therapeutic agents to produce an effect that is intended to alter the course of a pathological process. Indicate whether treatment data is available for the study."
-          readOnly={readOnlyInputs}
-          sx={{ paddingBottom: "8px" }}
-        />
-        <SwitchInput
-          id="section-d-biospecimen-data"
-          label="Biospecimen Data"
-          name="clinicalData[dataTypes][]"
-          graphQLValue="biospecimenData"
-          value={data.clinicalData.dataTypes.includes("biospecimenData")}
-          tooltipText="Biospecimen data refers to information associated with the biological sample, portion, analyte, or aliquot. Indicate whether biospecimen data is available for the study."
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-d-clinical-data-other-data-types"
-          label="Other Clinical Data Types"
-          name="clinicalData[otherDataTypes]"
-          value={data.clinicalData.otherDataTypes}
-          placeholder="Other clinical data types (Specify)"
-          gridWidth={12}
-          tooltipText="If there are any additional types of data included with the study not already specified above, describe here."
-          readOnly={readOnlyInputs}
-          maxLength={200}
-        />
-        <SwitchInput
-          id="section-d-additional-data-in-future"
-          label="Additional Data Types with a future submission?"
-          name="clinicalData[futureDataTypes]"
-          value={data.clinicalData.futureDataTypes}
-          gridWidth={8}
-          isBoolean
-          readOnly={readOnlyInputs}
-          tooltipText="Indicate if there will be additional types of data included with a future submission."
-        />
-      </SectionGroup>
+      {isClinical && (
+        <SectionGroup
+          title={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title}
+          description={SectionDMetadata.sections.CLINICAL_DATA_TYPES.description}
+        >
+          <SwitchInput
+            id="section-d-demographic-data"
+            label="Demographic Data"
+            name="clinicalData[dataTypes][]"
+            graphQLValue="demographicData"
+            value={data.clinicalData.dataTypes.includes("demographicData")}
+            tooltipText="Indicate whether demographics information is available for the study (such as age or gender)."
+            readOnly={readOnlyInputs}
+          />
+          <SwitchInput
+            id="section-d-relapse-recurrence-data"
+            label="Relapse/Recurrence Data"
+            name="clinicalData[dataTypes][]"
+            graphQLValue="relapseRecurrenceData"
+            value={data.clinicalData.dataTypes.includes("relapseRecurrenceData")}
+            tooltipText="Relapse/recurrence data refers to information associated with the return of a disease after a period of remission. Indicate whether relapse/recurrence data is available for the study."
+            readOnly={readOnlyInputs}
+          />
+          <SwitchInput
+            id="section-d-diagnosis-data"
+            label="Diagnosis Data"
+            name="clinicalData[dataTypes][]"
+            graphQLValue="diagnosisData"
+            value={data.clinicalData.dataTypes.includes("diagnosisData")}
+            tooltipText="Indicate whether diagnosis information is available for the study."
+            readOnly={readOnlyInputs}
+          />
+          <SwitchInput
+            id="section-d-outcome-data"
+            label="Outcome Data"
+            name="clinicalData[dataTypes][]"
+            graphQLValue="outcomeData"
+            value={data.clinicalData.dataTypes.includes("outcomeData")}
+            tooltipText="Outcome data refers to information on a specific result or effect that can be measured. Examples of outcomes include decreased pain, reduced tumor size, and improvement of disease. Indicate whether outcome data is available for the study."
+            readOnly={readOnlyInputs}
+          />
+          <SwitchInput
+            id="section-d-treatment-data"
+            label="Treatment Data"
+            name="clinicalData[dataTypes][]"
+            graphQLValue="treatmentData"
+            value={data.clinicalData.dataTypes.includes("treatmentData")}
+            tooltipText="Treatment data refers to information on the action or administration of therapeutic agents to produce an effect that is intended to alter the course of a pathological process. Indicate whether treatment data is available for the study."
+            readOnly={readOnlyInputs}
+            sx={{ paddingBottom: "8px" }}
+          />
+          <SwitchInput
+            id="section-d-biospecimen-data"
+            label="Biospecimen Data"
+            name="clinicalData[dataTypes][]"
+            graphQLValue="biospecimenData"
+            value={data.clinicalData.dataTypes.includes("biospecimenData")}
+            tooltipText="Biospecimen data refers to information associated with the biological sample, portion, analyte, or aliquot. Indicate whether biospecimen data is available for the study."
+            readOnly={readOnlyInputs}
+          />
+          <TextInput
+            id="section-d-clinical-data-other-data-types"
+            label="Other Clinical Data Types"
+            name="clinicalData[otherDataTypes]"
+            value={data.clinicalData.otherDataTypes}
+            placeholder="Other clinical data types (Specify)"
+            gridWidth={12}
+            tooltipText="If there are any additional types of data included with the study not already specified above, describe here."
+            readOnly={readOnlyInputs}
+            maxLength={200}
+          />
+          <SwitchInput
+            id="section-d-additional-data-in-future"
+            label="Additional Data Types with a future submission?"
+            name="clinicalData[futureDataTypes]"
+            value={data.clinicalData.futureDataTypes}
+            gridWidth={8}
+            isBoolean
+            readOnly={readOnlyInputs}
+            tooltipText="Indicate if there will be additional types of data included with a future submission."
+          />
+        </SectionGroup>
+      )}
 
       {/* File Types Section */}
       <SectionGroup
