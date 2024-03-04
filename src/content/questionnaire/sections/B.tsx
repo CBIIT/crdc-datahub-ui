@@ -304,8 +304,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={predefinedProgram ? programOption?.abbreviation : program?.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
           onChange={(e) => { e.target.value = e.target.value.toUpperCase(); }}
-          maxLength={20}
-          placeholder="20 characters allowed"
+          maxLength={100}
+          placeholder="100 characters allowed"
           hideValidation={readOnlyProgram}
           required
           readOnly={readOnlyProgram}
@@ -444,12 +444,12 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-b-if-yes-provide-dbgap-phs-number"
-          label="If yes, provide dbGaP PHS number"
+          label="If yes, provide dbGaP PHS number with the version number"
           name="study[dbGaPPPHSNumber]"
           value={dbGaPPPHSNumber}
           onChange={(e) => setDbGaPPPHSNumber(e.target.value || "")}
           maxLength={50}
-          placeholder="50 characters allowed"
+          placeholder={"Ex/ \"phs002529.v1.p1\". 50 characters allowed"}
           gridWidth={12}
           readOnly={readOnlyInputs || !isDbGapRegistered}
           required={isDbGapRegistered}
