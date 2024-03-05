@@ -304,8 +304,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={predefinedProgram ? programOption?.abbreviation : program?.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
           onChange={(e) => { e.target.value = e.target.value.toUpperCase(); }}
-          maxLength={20}
-          placeholder="20 characters allowed"
+          maxLength={100}
+          placeholder="100 characters allowed"
           hideValidation={readOnlyProgram}
           required
           readOnly={readOnlyProgram}
@@ -364,7 +364,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           placeholder="100 characters allowed"
           readOnly={readOnlyInputs}
           hideValidation={readOnlyInputs}
-          tooltipText="The title should provide a snapshot of the study; it should include a broad goal or conclusion of the project. It must use title case. For example, the manuscript title."
+          tooltipText="A descriptive name that will be used to identify the study."
           required
         />
         <TextInput
@@ -395,17 +395,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           hideValidation={readOnlyInputs}
           required
           multiline
-          tooltipText={(
-            <>
-              Describe your study and the data being submitted. Include objectives of the study and convey information about the experimental approach.
-              <br />
-              <br />
-              Provide a brief description of the scientific value of the data for submission. For example, how can other researchers benefit from the value of these data.
-              <br />
-              <br />
-              If the description is taken verbatim from a published or soon to be published article, please submit copyright permission from the Journal. Summaries with copyrighted material must include the following within the description: “Reprinted from [Article Citation], with permission from [Publisher]."
-            </>
-          )}
+          tooltipText="Describe your study and the data being submitted. Include objectives of the study and provide a brief description of the scientific value of the study."
         />
       </SectionGroup>
 
@@ -454,12 +444,12 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-b-if-yes-provide-dbgap-phs-number"
-          label="If yes, provide dbGaP PHS number"
+          label="If yes, provide dbGaP PHS number with the version number"
           name="study[dbGaPPPHSNumber]"
           value={dbGaPPPHSNumber}
           onChange={(e) => setDbGaPPPHSNumber(e.target.value || "")}
           maxLength={50}
-          placeholder="50 characters allowed"
+          placeholder={"Ex/ \"phs002529.v1.p1\". 50 characters allowed"}
           gridWidth={12}
           readOnly={readOnlyInputs || !isDbGapRegistered}
           required={isDbGapRegistered}

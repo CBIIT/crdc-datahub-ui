@@ -127,20 +127,22 @@ const StyledCardActions = styled(CardActions, {
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
-  position: 'relative',
+  position: "relative",
+  display: "flex",
+  alignItems: "flex-end",
   "& .MuiTabs-flexContainer": {
-    justifyContent: "center"
+    justifyContent: "center",
   },
   "& .MuiTabs-indicator": {
-    display: "none !important"
+    display: "none !important",
   },
-  '&::before': {
+  "&::before": {
     content: '""',
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    borderBottom: '1.25px solid #6CACDA',
+    borderBottom: "1.25px solid #6CACDA",
     zIndex: 1,
   },
 }));

@@ -99,6 +99,7 @@ const UploaderToolDialog: FC<Props> = ({
   <StyledDialog
     open={open}
     onClose={() => onClose?.()}
+    aria-labelledby="uploader-cli-header"
     {...rest}
   >
     <StyledCloseDialogButton
@@ -107,11 +108,11 @@ const UploaderToolDialog: FC<Props> = ({
     >
       <CloseIconSvg />
     </StyledCloseDialogButton>
-    <StyledHeader id="uploader-cli-header" variant="h3">
+    <StyledHeader id="uploader-cli-header" variant="h1">
       Uploader CLI Tool
     </StyledHeader>
     <StyledDialogContent>
-      <StyledBodyText id="uploader-cli-body" variant="h6">
+      <StyledBodyText id="uploader-cli-body" variant="body1">
         The Uploader CLI is a command-line interface tool provided for directly uploading data submission files from your workstation to the Data Hub cloud storage.
         To download the tool and accompanying instructions, click on the Download button below.
       </StyledBodyText>
