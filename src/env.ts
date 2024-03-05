@@ -1,8 +1,13 @@
-const processEnv = process.env ?? {};
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const injectedEnv = (window as { injectedEnv?: any }).injectedEnv || {};
+declare global {
+  interface Window {
+    injectedEnv: AppEnv;
+  }
+}
 
-const env = {
+const processEnv = process.env ?? {};
+const { injectedEnv } = window ?? {};
+
+const env: AppEnv = {
   ...injectedEnv,
   ...processEnv,
 };
