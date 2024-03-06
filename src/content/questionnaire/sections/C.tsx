@@ -186,7 +186,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-c-other-species-of-subjects"
-          key={`other_species_involved_${otherSpecies?.toString()}`}
+          key={`other_species_involved_${speciesOptions?.toString()}`}
           label="Other species involved"
           name="otherSpeciesOfSubjects"
           placeholder="Enter other species"
