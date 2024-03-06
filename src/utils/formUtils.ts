@@ -113,7 +113,7 @@ export const programToSelectOption = (program: ProgramOption): SelectOption => (
 
 /**
  * Formats an Approved Study Name and Abbreviation into a single string.
- * If the abbreviation is provided, it will be enclosed in parentheses.
+ * If the abbreviation is provided and not equal to the name, it will be included in parentheses.
  *
  * @example Alphabetic Study (AS)
  * @example Alphabetic Study
@@ -122,6 +122,9 @@ export const programToSelectOption = (program: ProgramOption): SelectOption => (
  * @returns The formatted study name
  */
 export const formatFullStudyName = (studyName: string, studyAbbreviation: string): string => {
+  if (studyAbbreviation === studyName) {
+    return studyName.trim();
+  }
   if (studyAbbreviation && studyAbbreviation.length > 0) {
     return `${studyName.trim()} (${studyAbbreviation.trim()})`;
   }

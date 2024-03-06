@@ -222,4 +222,11 @@ describe('formatFullStudyName cases', () => {
     const result = utils.formatFullStudyName(studyName, studyAbbreviation);
     expect(result).toBe('Study Name (SN)');
   });
+
+  it("should ignore the abbreviation if its equal to the study name", () => {
+    const studyName = 'Study Name';
+    const studyAbbreviation = 'Study Name';
+    const result = utils.formatFullStudyName(studyName, studyAbbreviation);
+    expect(result).toBe('Study Name');
+  });
 });
