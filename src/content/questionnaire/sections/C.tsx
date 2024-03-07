@@ -10,7 +10,7 @@ import SelectInput from "../../../components/Questionnaire/SelectInput";
 import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
 import accessTypesOptions from "../../../config/AccessTypesConfig";
 import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "../../../config/CancerTypesConfig";
-import speciesOptions, { CUSTOM_SPECIES } from "../../../config/SpeciesConfig";
+import speciesOptions from "../../../config/SpeciesConfig";
 import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
 import useFormMode from "../../../hooks/useFormMode";
 import SectionMetadata from "../../../config/SectionMetadata";
@@ -36,9 +36,10 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
   const [cancerTypes, setCancerTypes] = useState<string[]>(data.cancerTypes || []);
   const [otherCancerTypes, setOtherCancerTypes] = useState<string>(data.otherCancerTypes);
+  const [otherCancerTypesEnabled, setOtherCancerTypesEnabled] = useState<boolean>(data.otherCancerTypesEnabled);
   const [species, setSpecies] = useState<string[]>(data.species || []);
   const [otherSpecies, setOtherSpecies] = useState<string>(data.otherSpeciesOfSubjects);
-  const [otherCancerTypesEnabled, setOtherCancerTypesEnabled] = useState<boolean>(data.otherCancerTypesEnabled);
+  const [otherSpeciesEnabled, setOtherSpeciesEnabled] = useState<boolean>(data.otherSpeciesEnabled);
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -197,8 +198,8 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={otherSpecies}
           onChange={(e) => setOtherSpecies(e.target.value || "")}
           maxLength={500}
-          required={species?.includes(CUSTOM_SPECIES.OTHER)}
-          readOnly={!species?.includes(CUSTOM_SPECIES.OTHER) || readOnlyInputs}
+          required={otherSpeciesEnabled}
+          readOnly={!otherSpeciesEnabled || readOnlyInputs}
         />
         <TextInput
           id="section-c-number-of-subjects-included-in-the-submission"

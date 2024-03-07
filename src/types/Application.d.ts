@@ -41,6 +41,7 @@ type QuestionnaireData = {
   preCancerTypes: string;
   numberOfParticipants: number;
   species: string[];
+  otherSpeciesEnabled: boolean;
   otherSpeciesOfSubjects: string;
   cellLines: boolean;
   modelSystems: boolean;

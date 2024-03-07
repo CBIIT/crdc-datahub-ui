@@ -66,6 +66,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
   preCancerTypes: "",
   numberOfParticipants: null,
   species: [],
+  otherSpeciesEnabled: false,
   otherSpeciesOfSubjects: "",
   cellLines: false,
   modelSystems: false,
