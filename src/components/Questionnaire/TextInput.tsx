@@ -28,7 +28,7 @@ const StyledFormControl = styled(FormControl)(() => ({
   justifyContent: "end",
 }));
 
-const StyledLabel = styled("label")(() => ({
+export const StyledLabel = styled("label")(() => ({
   fontWeight: 700,
   fontSize: "16px",
   lineHeight: "19.6px",
@@ -99,7 +99,7 @@ const StyledOutlinedInput = styled(OutlinedInput)(() => ({
 }));
 
 type Props = {
-  label?: string;
+  label?: string | ReactNode;
   infoText?: string;
   errorText?: string;
   tooltipText?: string | ReactNode;
