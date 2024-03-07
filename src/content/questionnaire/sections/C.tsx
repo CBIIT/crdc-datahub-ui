@@ -14,6 +14,7 @@ import speciesOptions, { CUSTOM_SPECIES } from "../../../config/SpeciesConfig";
 import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
 import useFormMode from "../../../hooks/useFormMode";
 import SectionMetadata from "../../../config/SectionMetadata";
+import LabelCheckbox from "../../../components/Questionnaire/LabelCheckbox";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400
@@ -37,6 +38,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [otherCancerTypes, setOtherCancerTypes] = useState<string>(data.otherCancerTypes);
   const [species, setSpecies] = useState<string[]>(data.species || []);
   const [otherSpecies, setOtherSpecies] = useState<string>(data.otherSpeciesOfSubjects);
+  const [otherCancerTypesEnabled, setOtherCancerTypesEnabled] = useState<boolean>(data.otherCancerTypesEnabled);
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -52,21 +54,6 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
-  useEffect(() => {
-    if (otherCancerTypes?.length > 0 && cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
-      setOtherCancerTypes("");
-    }
-    if (otherCancerTypes?.length > 0 && !cancerTypes.includes(CUSTOM_CANCER_TYPES.OTHER)) {
-      setOtherCancerTypes("");
-    }
-  }, [cancerTypes]);
-
-  useEffect(() => {
-    if (otherSpecies?.length > 0 && !species.includes(CUSTOM_SPECIES.OTHER)) {
-      setOtherSpecies("");
-    }
-  }, [species]);
-
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
       return null;
@@ -76,6 +63,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const combinedData = { ...cloneDeep(data), ...formObject };
 
     combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
+    console.log(combinedData);
 
     return { ref: formRef, data: combinedData };
   };
@@ -92,6 +80,14 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     return val;
+  };
+
+  const handleOtherCancerTypesCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    if (!checked) {
+      setOtherCancerTypes("");
+    }
+
+    setOtherCancerTypesEnabled(checked);
   };
 
   useEffect(() => {
@@ -147,14 +143,22 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-c-other-cancer-types"
           key={`other_cancer_types_${cancerTypes?.toString()}`}
-          label="Other cancer type(s)"
+          label={(
+            <LabelCheckbox
+              idPrefix="section-c-other-cancer-types-enabled"
+              name="otherCancerTypesEnabled"
+              label="Other cancer type(s)"
+              checked={otherCancerTypesEnabled}
+              onChange={handleOtherCancerTypesCheckboxChange}
+            />
+          )}
           name="otherCancerTypes"
           placeholder="Specify other cancer type(s)"
           value={otherCancerTypes}
           onChange={(e) => setOtherCancerTypes(e.target.value || "")}
           maxLength={1000}
-          required={cancerTypes?.includes(CUSTOM_CANCER_TYPES.OTHER)}
-          readOnly={!cancerTypes?.includes(CUSTOM_CANCER_TYPES.OTHER) || readOnlyInputs}
+          required={otherCancerTypesEnabled}
+          readOnly={!otherCancerTypesEnabled || readOnlyInputs}
         />
 
         <TextInput

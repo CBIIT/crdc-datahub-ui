@@ -62,6 +62,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
   timeConstraints: [],
   cancerTypes: [],
   otherCancerTypes: "",
+  otherCancerTypesEnabled: false,
   preCancerTypes: "",
   numberOfParticipants: null,
   species: [],

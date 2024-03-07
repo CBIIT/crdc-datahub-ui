@@ -37,6 +37,7 @@ type QuestionnaireData = {
   timeConstraints: TimeConstraint[];
   cancerTypes: string[];
   otherCancerTypes: string;
+  otherCancerTypesEnabled: boolean;
   preCancerTypes: string;
   numberOfParticipants: number;
   species: string[];
