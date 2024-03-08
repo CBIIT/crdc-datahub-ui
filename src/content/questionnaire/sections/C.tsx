@@ -64,7 +64,6 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const combinedData = { ...cloneDeep(data), ...formObject };
 
     combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
-    console.log(combinedData);
 
     return { ref: formRef, data: combinedData };
   };
@@ -89,6 +88,13 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     setOtherCancerTypesEnabled(checked);
+  };
+  const handleOtherSpeciesCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    if (!checked) {
+      setOtherSpecies("");
+    }
+
+    setOtherSpeciesEnabled(checked);
   };
 
   useEffect(() => {
@@ -144,11 +150,11 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-c-other-cancer-types"
           key={`other_cancer_types_${cancerTypes?.toString()}`}
-          label={(
+          label="Other cancer type(s)"
+          labelStartAddornment={(
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherCancerTypesEnabled"
-              label="Other cancer type(s)"
               checked={otherCancerTypesEnabled}
               onChange={handleOtherCancerTypesCheckboxChange}
             />
@@ -191,10 +197,17 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <TextInput
           id="section-c-other-species-of-subjects"
-          key={`other_species_involved_${speciesOptions?.toString()}`}
-          label="Other species involved"
+          label="Other Specie(s) invloved"
+          labelStartAddornment={(
+            <LabelCheckbox
+              idPrefix="section-c-other-cancer-types-enabled"
+              name="otherSpeciesEnabled"
+              checked={otherSpeciesEnabled}
+              onChange={handleOtherSpeciesCheckboxChange}
+            />
+          )}
           name="otherSpeciesOfSubjects"
-          placeholder="Enter other species"
+          placeholder="Specify all other species (max of 500 characters)"
           value={otherSpecies}
           onChange={(e) => setOtherSpecies(e.target.value || "")}
           maxLength={500}
