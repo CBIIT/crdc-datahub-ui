@@ -129,6 +129,11 @@ const StyledSelect = styled(Select, {
   },
 }));
 
+const StyledHelperText = styled(FormHelperText)(() => ({
+  marginTop: "4px",
+  minHeight: "20px",
+}));
+
 type Props = {
   value: string | string[];
   options: SelectOption[];
@@ -261,7 +266,7 @@ const SelectInput: FC<Props> = ({
             <option key={option.value} value={option.value} aria-label={`${option.value}`} />
           ))}
         </ProxySelect>
-        <FormHelperText>{!readOnly && error ? helperText : " "}</FormHelperText>
+        <StyledHelperText>{!readOnly && error ? helperText : " "}</StyledHelperText>
       </FormControl>
     </GridItem>
   );
