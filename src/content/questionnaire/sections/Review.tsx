@@ -288,7 +288,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
           title={SectionMetadata.C.sections.SUBJECTS.title}
         >
           <ReviewDataListingProperty idPrefix="review-subjects-species" label="Species of subjects" value={data.species} valuePlacement="bottom" isList />
-          <ReviewDataListingProperty idPrefix="review-subjects-species" label="Other species involved" value={data.otherSpeciesOfSubjects} valuePlacement="bottom" isList />
+          <ReviewDataListingProperty idPrefix="review-subjects-other-species" label="Other Specie(s) involved" value={data.otherSpeciesOfSubjects} valuePlacement="bottom" isList />
           <ReviewDataListingProperty idPrefix="review-subjects-number-of-subjects-included-in-the-submission" label="Number of subjects included in the submission" value={data.numberOfParticipants?.toString()} valuePlacement="bottom" />
         </ReviewDataListing>
       </ReviewSection>
