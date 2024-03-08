@@ -29,12 +29,15 @@ const StyledCheckboxUncheckedIcon = styled("div")<{ readOnly?: boolean }>(
   })
 );
 
-const StyledCheckbox = styled(Checkbox)(() => ({
-  paddingTop: 0,
-  paddingBottom: 0,
-  paddingLeft: 0,
-  paddingRight: "8px",
-}));
+const StyledCheckbox = styled(Checkbox)<{ readOnly?: boolean }>(
+  ({ readOnly }) => ({
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    paddingRight: "8px",
+    cursor: readOnly ? "not-allowed" : "pointer",
+  })
+);
 
 export const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(
   ({ readOnly }) => ({
@@ -67,7 +70,7 @@ const LabelCheckbox: FC<Props> = ({
     <StyledCheckbox
       id={idPrefix?.concat(`-label-checkbox`)}
       checked={checked}
-      onChange={onChange}
+      onChange={(e, checked) => !readOnly && onChange(e, checked)}
       readOnly={readOnly}
       icon={<StyledCheckboxUncheckedIcon readOnly={readOnly} />}
       checkedIcon={<StyledCheckboxCheckedIcon readOnly={readOnly} />}

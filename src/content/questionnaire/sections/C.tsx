@@ -37,7 +37,6 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [cancerTypes, setCancerTypes] = useState<string[]>(data.cancerTypes || []);
   const [otherCancerTypes, setOtherCancerTypes] = useState<string>(data.otherCancerTypes);
   const [otherCancerTypesEnabled, setOtherCancerTypesEnabled] = useState<boolean>(data.otherCancerTypesEnabled);
-  const [species, setSpecies] = useState<string[]>(data.species || []);
   const [otherSpecies, setOtherSpecies] = useState<string>(data.otherSpeciesOfSubjects);
   const [otherSpeciesEnabled, setOtherSpeciesEnabled] = useState<boolean>(data.otherSpeciesEnabled);
 
@@ -64,6 +63,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const combinedData = { ...cloneDeep(data), ...formObject };
 
     combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
+    console.log(combinedData);
 
     return { ref: formRef, data: combinedData };
   };
@@ -157,6 +157,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               name="otherCancerTypesEnabled"
               checked={otherCancerTypesEnabled}
               onChange={handleOtherCancerTypesCheckboxChange}
+              readOnly={readOnlyInputs}
             />
           )}
           name="otherCancerTypes"
@@ -189,21 +190,21 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="species"
           options={speciesOptions.map((option) => ({ label: option, value: option }))}
           placeholder="Select species"
-          value={species}
-          onChange={(val: string[]) => setSpecies(val)}
+          value={data.species}
           multiple
           required
           readOnly={readOnlyInputs}
         />
         <TextInput
           id="section-c-other-species-of-subjects"
-          label="Other Specie(s) invloved"
+          label="Other Specie(s) involved"
           labelStartAddornment={(
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherSpeciesEnabled"
               checked={otherSpeciesEnabled}
               onChange={handleOtherSpeciesCheckboxChange}
+              readOnly={readOnlyInputs}
             />
           )}
           name="otherSpeciesOfSubjects"
