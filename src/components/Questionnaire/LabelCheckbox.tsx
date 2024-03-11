@@ -31,10 +31,7 @@ const StyledCheckboxUncheckedIcon = styled("div")<{ readOnly?: boolean }>(
 
 const StyledCheckbox = styled(Checkbox)<{ readOnly?: boolean }>(
   ({ readOnly }) => ({
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingLeft: 0,
-    paddingRight: "8px",
+    padding: "2px 8px 2px 0",
     cursor: readOnly ? "not-allowed" : "pointer",
   })
 );
