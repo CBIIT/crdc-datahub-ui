@@ -63,7 +63,6 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const combinedData = { ...cloneDeep(data), ...formObject };
 
     combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
-    console.log(combinedData);
 
     return { ref: formRef, data: combinedData };
   };
