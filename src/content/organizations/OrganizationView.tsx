@@ -22,6 +22,7 @@ import {
 } from '../../graphql';
 import ConfirmDialog from '../../components/Organizations/ConfirmDialog';
 import usePageTitle from '../../hooks/usePageTitle';
+import { formatFullStudyName } from '../../utils';
 
 type Props = {
   _id: Organization["_id"] | "new";
@@ -415,10 +416,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     >
                       {approvedStudies?.listApprovedStudies?.map(({ studyName, studyAbbreviation }) => (
                         <MenuItem key={studyAbbreviation} value={studyAbbreviation}>
-                          {studyName}
-                          {" ("}
-                          {studyAbbreviation}
-                          {") "}
+                          {formatFullStudyName(studyName, studyAbbreviation)}
                         </MenuItem>
                       ))}
                     </StyledSelect>
