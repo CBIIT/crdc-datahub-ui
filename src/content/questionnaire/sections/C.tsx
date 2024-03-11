@@ -82,6 +82,15 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     return val;
   };
 
+  const handleCancerTypesChange = (val: string[]) => {
+    if (val?.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
+      setOtherCancerTypes("");
+      setOtherCancerTypesEnabled(false);
+    }
+
+    setCancerTypes(val);
+  };
+
   const handleOtherCancerTypesCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     if (!checked) {
       setOtherCancerTypes("");
@@ -142,7 +151,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           options={cancerTypeOptions.map((option) => ({ label: option, value: option }))}
           placeholder="Select types"
           value={data.cancerTypes}
-          onChange={(val: string[]) => setCancerTypes(val)}
+          onChange={handleCancerTypesChange}
           filter={filterCancerTypes}
           multiple
           readOnly={readOnlyInputs}
@@ -157,7 +166,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               name="otherCancerTypesEnabled"
               checked={otherCancerTypesEnabled}
               onChange={handleOtherCancerTypesCheckboxChange}
-              readOnly={readOnlyInputs}
+              readOnly={cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE) || readOnlyInputs}
             />
           )}
           name="otherCancerTypes"
