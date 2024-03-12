@@ -131,3 +131,22 @@ export const formatFullStudyName = (studyName: string, studyAbbreviation: string
 
   return studyName.trim();
 };
+
+/**
+ * Attempts to map a study name + abbreviation combination to an approved study ID.
+ *
+ * - Will return the first match found
+ * - If no match is found, an empty string is returned
+ *
+ * @param Study information from Organization object
+ * @param studies List of approved studies
+ * @returns The ID of the study if found, otherwise an empty string
+ */
+export const mapOrganizationStudyToId = (
+  orgStudy: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">,
+  studies: Pick<ApprovedStudy, "_id" | "studyName" | "studyAbbreviation">[]
+): ApprovedStudy["_id"] => {
+  const { studyName, studyAbbreviation } = orgStudy || {};
+
+  return studies?.find((study) => study?.studyName === studyName && study?.studyAbbreviation === studyAbbreviation)?._id || "";
+};
