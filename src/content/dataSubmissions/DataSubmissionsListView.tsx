@@ -207,7 +207,7 @@ const columns: Column[] = [
   },
   {
     label: "Created Date",
-    value: (a) => (a.createdAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
+    value: (a) => (a.createdAt ? FormatDate(a.createdAt, "M/D/YYYY h:mm A") : ""),
     field: "createdAt",
   },
   {
