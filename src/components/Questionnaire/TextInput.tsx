@@ -28,13 +28,21 @@ const StyledFormControl = styled(FormControl)(() => ({
   justifyContent: "end",
 }));
 
-const StyledLabel = styled("label")(() => ({
+export const StyledLabelWrapper = styled("div")(() => ({
+  display: "flex",
+  justifyContent: "flex-start",
+  alignItems: "center",
+  minHeight: "20px",
+  color: "#083A50",
+  marginBottom: "4px",
+}));
+
+export const StyledLabel = styled("label")(() => ({
   fontWeight: 700,
   fontSize: "16px",
   lineHeight: "19.6px",
   minHeight: "20px",
   color: "#083A50",
-  marginBottom: "4px",
 }));
 
 const StyledAsterisk = styled("span")(() => ({
@@ -99,7 +107,8 @@ const StyledOutlinedInput = styled(OutlinedInput)(() => ({
 }));
 
 type Props = {
-  label?: string;
+  label?: string | ReactNode;
+  labelStartAddornment?: ReactNode;
   infoText?: string;
   errorText?: string;
   tooltipText?: string | ReactNode;
@@ -126,6 +135,7 @@ const TextInput: FC<Props> = ({
   classes,
   value,
   label,
+  labelStartAddornment,
   required = false,
   gridWidth,
   maxLength,
@@ -193,13 +203,16 @@ const TextInput: FC<Props> = ({
   return (
     <StyledGridWrapper md={gridWidth || 6} xs={12} item>
       <StyledFormControl fullWidth error={error}>
-        {label && (
-          <StyledLabel htmlFor={id}>
-            {label}
-            {required && label ? <StyledAsterisk>*</StyledAsterisk> : ""}
-            {tooltipText && <Tooltip placement="right" title={tooltipText} />}
-          </StyledLabel>
-        )}
+        <StyledLabelWrapper>
+          {labelStartAddornment}
+          {label && (
+            <StyledLabel htmlFor={id}>
+              {label}
+              {required && label ? <StyledAsterisk>*</StyledAsterisk> : ""}
+              {tooltipText && <Tooltip placement="right" title={tooltipText} />}
+            </StyledLabel>
+          )}
+        </StyledLabelWrapper>
         <StyledOutlinedInput
           inputRef={inputRef}
           type={type || "text"}
