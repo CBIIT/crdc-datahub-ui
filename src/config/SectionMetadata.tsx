@@ -121,7 +121,7 @@ const sectionMetadata = {
         ),
       },
       ADDITIONAL_COMMENTS: {
-        title: "ADDITIONAL COMMENTS",
+        title: "ADDITIONAL INFORMATION",
         description: "Additional Comments or Information about this submission.",
       },
     }

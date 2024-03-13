@@ -611,14 +611,14 @@ const ListingView: FC = () => {
               label="Data Commons"
               required
               value={dataCommons}
-              onChange={(value) => setDataCommons(value)}
+              onChange={(value: string) => setDataCommons(value)}
             />
             <SelectInput
               options={approvedStudiesAbbrvList}
               label="Study"
               required
               value={study}
-              onChange={(value) => {
+              onChange={(value: string) => {
                 setStudy(value);
                 setDbgapid(approvedStudiesMapToDbGaPID[value]);
               }}
