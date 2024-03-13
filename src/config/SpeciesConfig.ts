@@ -3,10 +3,10 @@
  *
  */
 const options: string[] = [
-    "Homo sapiens",
-    "Mus musculus",
-    "Canis lupus familiaris",
-    "Rattus norvegicus",
-  ];
+  "Homo sapiens",
+  "Mus musculus",
+  "Canis lupus familiaris",
+  "Rattus norvegicus",
+];
 
-  export default options;
+export default options;

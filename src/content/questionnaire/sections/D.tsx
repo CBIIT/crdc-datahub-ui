@@ -20,7 +20,7 @@ import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import { mapObjectWithKey, filterPositiveIntegerString } from "../../../utils";
+import { mapObjectWithKey, filterPositiveIntegerString, reshapeCheckboxGroupOptions } from "../../../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
 import { fileTypeOptions } from "../../../config/FileTypeConfig";
@@ -29,6 +29,8 @@ import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 import useFormMode from "../../../hooks/useFormMode";
 import SectionMetadata from "../../../config/SectionMetadata";
+import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
+import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 
 export type KeyedFileTypeData = {
@@ -152,6 +154,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const dataTypesInputRef = useRef<HTMLInputElement>(null);
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
+  const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -516,7 +519,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         </TableContainer>
       </SectionGroup>
 
-      {/* Additional Comments Section */}
+      {/* Additional Information Section */}
       <SectionGroup
         title={SectionDMetadata.sections.ADDITIONAL_COMMENTS.title}
         description={SectionDMetadata.sections.ADDITIONAL_COMMENTS.description}
@@ -533,6 +536,26 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           inputProps={{
             "aria-label": SectionDMetadata.sections.ADDITIONAL_COMMENTS.title
           }}
+        />
+        <FormGroupCheckbox
+          idPrefix="section-c-"
+          label="Cell lines, model systems (select all that apply or neither)"
+          options={cellLineModelSystemOptions}
+          value={cellLineModelSystemCheckboxes}
+          onChange={(val: string[]) => setCellLineModelSystemCheckboxes(val)}
+          orientation="horizontal"
+          gridWidth={12}
+          readOnly={readOnlyInputs}
+        />
+        <RadioYesNoInput
+          id="section-c-data-de-identified"
+          name="dataDeIdentified"
+          label="Confirm the data you plan to submit are de-identified"
+          value={data.dataDeIdentified}
+          gridWidth={12}
+          row
+          required
+          readOnly={readOnlyInputs}
         />
       </SectionGroup>
     </FormContainer>
