@@ -12,13 +12,13 @@ export type SubmitInfo = {
  * @returns {SubmitInfo} Info indicating whether or not to disable submit, as well as if it is due to an admin override
  */
 export const shouldDisableSubmit = (
-  metadataValidationStatus: ValidationStatus,
-  fileValidationStatus: ValidationStatus,
+  submission: Submission,
   userRole: User["role"],
 ): SubmitInfo => {
   if (!userRole) {
     return { disable: true, isAdminOverride: false };
   }
+  const { metadataValidationStatus, fileValidationStatus, fileErrors } = submission;
 
   const isAdmin = userRole === "Admin";
   const isMissingBoth = !metadataValidationStatus && !fileValidationStatus;
@@ -26,15 +26,18 @@ export const shouldDisableSubmit = (
   const isValidating = metadataValidationStatus === "Validating" || fileValidationStatus === "Validating";
   const hasNew = metadataValidationStatus === "New" || fileValidationStatus === "New";
   const hasError = metadataValidationStatus === "Error" || fileValidationStatus === "Error";
+  const hasSubmissionLevelErrors = fileErrors?.length > 0;
 
   const isAdminOverride = isAdmin
     && !isValidating
     && !isMissingBoth
     && !hasNew
+    && !hasSubmissionLevelErrors
     && (hasError || isMissingOne);
   const disable = isValidating
     || isMissingBoth
     || hasNew
+    || hasSubmissionLevelErrors
     || (userRole !== "Admin" && (hasError || isMissingOne));
 
   return { disable, isAdminOverride };
