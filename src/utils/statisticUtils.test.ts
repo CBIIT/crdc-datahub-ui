@@ -18,18 +18,18 @@ describe("compareNodeStats cases", () => {
 
     expect(sortedStats).toEqual([node1A, node1B, node3A, node3B]);
   });
-  it("should return 1 when a.total is greater than b.total", () => {
-    const a = { total: 2, nodeName: "Node 1" } as SubmissionStatistic;
+  it("should return >1 when a.total is greater than b.total", () => {
+    const a = { total: 5, nodeName: "Node 1" } as SubmissionStatistic;
     const b = { total: 1, nodeName: "Node 2" } as SubmissionStatistic;
 
-    expect(utils.compareNodeStats(a, b)).toEqual(1);
+    expect(utils.compareNodeStats(a, b)).toBeGreaterThan(0);
   });
 
-  it("should return 1 when a.nodeName comes after b.nodeName", () => {
+  it("should return >0 when a.nodeName comes after b.nodeName", () => {
     const a = { total: 1, nodeName: "Node 2" } as SubmissionStatistic;
     const b = { total: 1, nodeName: "Node 1" } as SubmissionStatistic;
 
-    expect(utils.compareNodeStats(a, b)).toEqual(1);
+    expect(utils.compareNodeStats(a, b)).toBeGreaterThan(0);
   });
 
   it("should return 0 when both nodes are equal 1/2", () => {
@@ -46,18 +46,18 @@ describe("compareNodeStats cases", () => {
     expect(utils.compareNodeStats(a, b)).toEqual(0);
   });
 
-  it("should return -1 when a.total is less than b.total", () => {
+  it("should return 0< when a.total is less than b.total", () => {
     const a = { total: 1, nodeName: "Node 1" } as SubmissionStatistic;
-    const b = { total: 2, nodeName: "Node 2" } as SubmissionStatistic;
+    const b = { total: 4, nodeName: "Node 2" } as SubmissionStatistic;
 
-    expect(utils.compareNodeStats(a, b)).toEqual(-1);
+    expect(utils.compareNodeStats(a, b)).toBeLessThan(0);
   });
 
-  it("should return -1 when a.nodeName comes before b.nodeName", () => {
+  it("should return 0< when a.nodeName comes before b.nodeName", () => {
     const a = { total: 1, nodeName: "Node 1" } as SubmissionStatistic;
     const b = { total: 1, nodeName: "Node 2" } as SubmissionStatistic;
 
-    expect(utils.compareNodeStats(a, b)).toEqual(-1);
+    expect(utils.compareNodeStats(a, b)).toBeLessThan(0);
   });
 });
 
