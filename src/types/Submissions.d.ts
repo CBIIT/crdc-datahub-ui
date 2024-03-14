@@ -13,6 +13,7 @@ type Submission = {
   status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
   metadataValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
   fileValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
+  fileErrors: ErrorMessage[]; // holds submission level file errors, e.g., extra files in S3 folder
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
@@ -174,11 +175,11 @@ type QCResults = {
 
 type QCResult = {
   submissionID: string;
-  nodeType: string;
+  type: string;
   validationType: UploadType;
   batchID: string;
   displayID: number;
-  nodeID: string;
+  submittedID: string;
   severity: "Error" | "Warning"; // [Error, Warning]
   uploadedDate: string; // batch.updatedAt
   validatedDate: string;
