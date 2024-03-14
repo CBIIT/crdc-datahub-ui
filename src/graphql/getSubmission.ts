@@ -20,11 +20,15 @@ export const query = gql`
       status
       metadataValidationStatus
       fileValidationStatus
+      fileErrors {
+        title
+        description
+      }
       history {
-          status
-          reviewComment
-          dateTime
-          userID
+        status
+        reviewComment
+        dateTime
+        userID
       }
       conciergeName
       conciergeEmail
