@@ -6,7 +6,7 @@ import {
   TooltipProps,
   styled,
 } from "@mui/material";
-import useFormMode from "../../content/questionnaire/sections/hooks/useFormMode";
+import useFormMode from "../../hooks/useFormMode";
 import { updateInputValidity } from '../../utils';
 /*
 *Pass in a regex pattern if you want this field to have custom validation checking
@@ -22,7 +22,7 @@ const StyledTooltip = styled((props: TooltipProps) => (
   <Tooltip classes={{ popper: props.className }} {...props} />
 ))(() => ({
   "& .MuiTooltip-tooltip": {
-    color: "#D54309",
+    color: "#C93F08",
     background: "#FFFFFF",
     border: "1px solid #2B528B",
   },

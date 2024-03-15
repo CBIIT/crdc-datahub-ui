@@ -13,6 +13,7 @@ const StyledTextContainer = styled('text')({
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   textAnchor: 'middle',
   dominantBaseline: 'central',
+  userSelect: "none",
 });
 
 const StyledCenterTitle = styled('tspan')({
@@ -50,6 +51,7 @@ type PieChartCenterProps = {
  */
 const PieChartCenter: FC<PieChartCenterProps> = ({ title, value, viewBox }: PieChartCenterProps) => {
   const { cx, cy } = viewBox;
+  const formatter = new Intl.NumberFormat("en-US", { style: "decimal", minimumFractionDigits: 0 });
 
   return (
     <g>
@@ -57,7 +59,7 @@ const PieChartCenter: FC<PieChartCenterProps> = ({ title, value, viewBox }: PieC
       <StyledTextContainer x={cx} y={cy - 10}>
         <StyledCenterTitle>{title}</StyledCenterTitle>
         <StyledCenterCount x={cx} dy={20}>
-          {value}
+          {formatter.format(value || 0)}
         </StyledCenterCount>
       </StyledTextContainer>
     </g>

@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   Alert,
-  AlertColor,
   Box,
   Button,
   Card,
@@ -19,6 +17,7 @@ import {
 } from "@mui/material";
 
 import { isEqual } from "lodash";
+import { useSnackbar, VariantType } from 'notistack';
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
@@ -32,7 +31,6 @@ import {
   SubmissionActionResp,
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
-import GenericAlert, { AlertState } from "../../components/GenericAlert";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
@@ -45,6 +43,8 @@ import ValidationControls from '../../components/DataSubmissions/ValidationContr
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import FileListDialog from "./FileListDialog";
 import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
+import usePageTitle from '../../hooks/usePageTitle';
+import BackButton from "../../components/DataSubmissions/BackButton";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -100,18 +100,19 @@ const StyledCard = styled(Card)(() => ({
     content: '""',
     position: "absolute",
     zIndex: 1,
-    bottom: 48,
+    bottom: 120,
     left: 0,
     pointerEvents: "none",
     backgroundImage: "linear-gradient(to bottom, rgba(255,255,255,0), rgba(251,253,255, 1) 20%)",
     width: "100%",
-    height: "218px",
+    height: "360px",
   },
 }));
 
 const StyledMainContentArea = styled("div")(() => ({
+  position: "relative",
+  zIndex: 2,
   borderRadius: 0,
-  background: "#FFFFFF",
   minHeight: "300px",
   padding: "21px 40px 0",
 }));
@@ -119,26 +120,29 @@ const StyledMainContentArea = styled("div")(() => ({
 const StyledCardActions = styled(CardActions, {
   shouldForwardProp: (prop) => prop !== "isVisible"
 })<CardActionsProps & { isVisible: boolean; }>(({ isVisible }) => ({
-  visibility: isVisible ? "visible" : "hidden"
+  "&.MuiCardActions-root": {
+    visibility: isVisible ? "visible" : "hidden",
+    paddingTop: 0,
+  }
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
-  background: "#F0FBFD",
-  position: 'relative',
+  position: "relative",
+  display: "flex",
+  alignItems: "flex-end",
   "& .MuiTabs-flexContainer": {
-    justifyContent: "center"
+    justifyContent: "center",
   },
   "& .MuiTabs-indicator": {
-    display: "none !important"
+    display: "none !important",
   },
-
-  '&::before': {
+  "&::before": {
     content: '""',
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    borderBottom: '1.25px solid #6CACDA',
+    borderBottom: "1.25px solid #6CACDA",
     zIndex: 1,
   },
 }));
@@ -163,7 +167,7 @@ const StyledCardContent = styled(CardContent)({
 });
 
 const StyledRejectedStatus = styled("div")(() => ({
-  color: "#E25C22",
+  color: "#B54717",
   fontWeight: 600
 }));
 
@@ -209,7 +213,7 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
 }));
 
 const StyledErrorDetailsButton = styled(Button)(() => ({
-  color: "#0D78C5",
+  color: "#0B6CB1",
   fontFamily: "Inter",
   fontSize: "16px",
   fontStyle: "normal",
@@ -226,7 +230,7 @@ const StyledErrorDetailsButton = styled(Button)(() => ({
 }));
 
 const StyledFileCountButton = styled(Button)(() => ({
-  color: "#0D78C5",
+  color: "#0B6CB1",
   fontFamily: "Inter",
   fontSize: "16px",
   fontStyle: "normal",
@@ -250,7 +254,7 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Upload Type",
-    renderValue: (data) => (data?.type === "file" ? "-" : data?.metadataIntention),
+    renderValue: (data) => (data?.type !== "metadata" ? "-" : data?.metadataIntention),
     field: "metadataIntention",
   },
   {
@@ -281,7 +285,7 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Status",
-    renderValue: (data) => <Box textTransform="capitalize">{data.status === "Rejected" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status}</Box>,
+    renderValue: (data) => <Box textTransform="capitalize">{data.status === "Failed" ? <StyledRejectedStatus>{data.status}</StyledRejectedStatus> : data.status}</Box>,
     field: "status",
   },
   {
@@ -294,7 +298,7 @@ const columns: Column<Batch>[] = [
     }
   },
   {
-    label: "Errors",
+    label: "Upload Errors",
     renderValue: (data) => (
       <BatchTableContext.Consumer>
         {({ handleOpenErrorDialog }) => {
@@ -322,22 +326,30 @@ const columns: Column<Batch>[] = [
 ];
 
 const URLTabs = {
-  DATA_UPLOAD: "data-upload",
-  QUALITY_CONTROL: "quality-control"
+  DATA_ACTIVITY: "data-activity",
+  VALIDATION_RESULTS: "validation-results"
 };
 
 const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
 
-const DataSubmission = () => {
-  const { submissionId, tab } = useParams();
+type Props = {
+  submissionId: string;
+  tab: string;
+};
+
+const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
+  usePageTitle(`Data Submission ${submissionId || ""}`);
+
   const { user } = useAuthContext();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [totalBatches, setTotalBatches] = useState<number>(0);
+  const [hasUploadingBatches, setHasUploadingBatches] = useState<boolean>(false);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
+  const [batchRefreshTimeout, setBatchRefreshTimeout] = useState<NodeJS.Timeout>(null);
+  const [error, setError] = useState<string>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
@@ -410,6 +422,7 @@ const DataSubmission = () => {
       }
       setBatches(newBatchFiles.listBatches.batches);
       setTotalBatches(newBatchFiles.listBatches.total);
+      setHasUploadingBatches(newBatchFiles.fullStatusList.batches.some((b) => b.status === "Uploading"));
     } catch (err) {
       setError("Unable to retrieve batch data.");
     } finally {
@@ -417,7 +430,7 @@ const DataSubmission = () => {
     }
   };
 
-  const updateSubmissionAction = async (action: SubmissionAction) => {
+  const updateSubmissionAction = async (action: SubmissionAction, reviewComment?: string) => {
     if (!submissionId) {
       return;
     }
@@ -426,7 +439,8 @@ const DataSubmission = () => {
       const { data: d, errors } = await submissionAction({
         variables: {
           submissionID: submissionId,
-          action
+          action,
+          comment: reviewComment,
         }
       });
       if (errors || !d?.submissionAction?._id) {
@@ -443,10 +457,9 @@ const DataSubmission = () => {
     tableRef.current?.refresh();
   };
 
-  const handleOnUpload = async (message: string, severity: AlertColor) => {
+  const handleOnUpload = async (message: string, variant: VariantType) => {
     refreshBatchTable();
-    setChangesAlert({ message, severity });
-    setTimeout(() => setChangesAlert(null), 10000);
+    enqueueSnackbar(message, { variant });
 
     const refreshStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected", "In Progress"];
     if (refreshStatuses.includes(data?.getSubmission?.status)) {
@@ -500,13 +513,20 @@ const DataSubmission = () => {
     }
   }, [data?.getSubmission?.fileValidationStatus, data?.getSubmission?.metadataValidationStatus]);
 
+  useEffect(() => {
+    if (!hasUploadingBatches && batchRefreshTimeout) {
+      clearInterval(batchRefreshTimeout);
+      setBatchRefreshTimeout(null);
+      getSubmission();
+    } else if (!batchRefreshTimeout && hasUploadingBatches) {
+      setBatchRefreshTimeout(setInterval(refreshBatchTable, 60000));
+    }
+
+    return () => clearInterval(batchRefreshTimeout);
+  }, [hasUploadingBatches]);
+
   return (
     <StyledWrapper>
-      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="data-submission-alert">
-        <span>
-          {changesAlert?.message}
-        </span>
-      </GenericAlert>
       <StyledBanner bannerSrc={bannerSvg} />
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCopyWrapper direction="row" spacing={1.625} alignItems="center">
@@ -528,31 +548,38 @@ const DataSubmission = () => {
               </StyledAlert>
             )}
             <DataSubmissionSummary dataSubmission={data?.getSubmission} />
-            <DataSubmissionStatistics dataSubmission={data?.getSubmission} statistics={data?.submissionStats?.stats} />
-            <ValidationControls dataSubmission={data?.getSubmission} onValidate={handleOnValidate} />
-            <StyledTabs value={isValidTab ? tab : URLTabs.DATA_UPLOAD}>
+            <DataSubmissionStatistics
+              dataSubmission={data?.getSubmission}
+              statistics={data?.submissionStats?.stats}
+            />
+            <DataSubmissionUpload
+              submission={data?.getSubmission}
+              readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
+              onCreateBatch={refreshBatchTable}
+              onUpload={handleOnUpload}
+            />
+            <ValidationControls
+              dataSubmission={data?.getSubmission}
+              onValidate={handleOnValidate}
+            />
+            <StyledTabs value={isValidTab ? tab : URLTabs.DATA_ACTIVITY}>
               <LinkTab
-                value={URLTabs.DATA_UPLOAD}
-                label="Data Upload"
-                to={`/data-submission/${submissionId}/${URLTabs.DATA_UPLOAD}`}
-                selected={tab === URLTabs.DATA_UPLOAD}
+                value={URLTabs.DATA_ACTIVITY}
+                label="Data Activity"
+                to={`/data-submission/${submissionId}/${URLTabs.DATA_ACTIVITY}`}
+                selected={tab === URLTabs.DATA_ACTIVITY}
               />
               <LinkTab
-                value={URLTabs.QUALITY_CONTROL}
-                label="Quality Control"
-                to={`/data-submission/${submissionId}/${URLTabs.QUALITY_CONTROL}`}
-                selected={tab === URLTabs.QUALITY_CONTROL}
+                value={URLTabs.VALIDATION_RESULTS}
+                label="Validation Results"
+                to={`/data-submission/${submissionId}/${URLTabs.VALIDATION_RESULTS}`}
+                selected={tab === URLTabs.VALIDATION_RESULTS}
               />
             </StyledTabs>
 
             <StyledMainContentArea>
-              {tab === URLTabs.DATA_UPLOAD ? (
+              {tab === URLTabs.DATA_ACTIVITY ? (
                 <BatchTableContext.Provider value={providerValue}>
-                  <DataSubmissionUpload
-                    submitterID={data?.getSubmission?.submitterID}
-                    readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
-                    onUpload={handleOnUpload}
-                  />
                   <GenericTable
                     ref={tableRef}
                     columns={columns}
@@ -561,12 +588,16 @@ const DataSubmission = () => {
                     loading={loading}
                     defaultRowsPerPage={20}
                     onFetchData={handleFetchBatches}
+                    containerProps={{ sx: { marginBottom: "8px" } }}
                   />
                 </BatchTableContext.Provider>
               ) : <QualityControl />}
+
+              {/* Return to Data Submission List Button */}
+              <BackButton navigateTo="/data-submissions" text="Back to Data Submissions" />
             </StyledMainContentArea>
           </StyledCardContent>
-          <StyledCardActions isVisible={tab === URLTabs.DATA_UPLOAD}>
+          <StyledCardActions isVisible={tab === URLTabs.DATA_ACTIVITY}>
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}
@@ -574,6 +605,7 @@ const DataSubmission = () => {
                 disable: submitInfo?.disable,
                 label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
               }}
+              onError={(message: string) => enqueueSnackbar(message, { variant: "error" })}
             />
           </StyledCardActions>
         </StyledCard>

@@ -26,6 +26,9 @@ const ActionButton = styled(Button, {
       font-size: 23px;
     }
   }
+  &:hover {
+    background: none
+  }
 `;
 
 type Props = ButtonProps & {

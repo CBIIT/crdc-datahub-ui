@@ -3,6 +3,9 @@ import gql from "graphql-tag";
 export const query = gql`
   query submissionQCResults(
     $id: ID!
+    $nodeTypes: [String]
+    $batchIDs: [ID]
+    $severities: String
     $first: Int
     $offset: Int
     $orderBy: String
@@ -10,6 +13,9 @@ export const query = gql`
   ) {
     submissionQCResults(
       _id: $id
+      nodeTypes: $nodeTypes
+      batchIDs: $batchIDs
+      severities: $severities
       first: $first
       offset: $offset
       orderBy: $orderBy
@@ -19,13 +25,18 @@ export const query = gql`
       results {
         submissionID
         nodeType
+        validationType
         batchID
         displayID
         nodeID
-        CRDC_ID
         severity
         uploadedDate
-        description {
+        validatedDate
+        errors {
+          title
+          description
+        }
+        warnings {
           title
           description
         }

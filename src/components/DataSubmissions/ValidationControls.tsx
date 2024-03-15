@@ -1,11 +1,13 @@
 import { FC, useEffect, useMemo, useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { FormControlLabel, RadioGroup, styled } from '@mui/material';
+import { FormControlLabel, RadioGroup, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { useSnackbar } from 'notistack';
 import { useAuthContext } from '../Contexts/AuthContext';
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
 import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from '../../graphql';
-import GenericAlert, { AlertState } from '../GenericAlert';
+import { getDefaultValidationType, getValidationTypes } from '../../utils';
+import FlowWrapper from './FlowWrapper';
 
 type Props = {
   /**
@@ -22,60 +24,22 @@ type Props = {
   onValidate: (success: boolean) => void;
 };
 
-type ValidationType = "Metadata" | "Files" | "All";
-
-type UploadType = "New" | "All";
-
 const StyledValidateButton = styled(LoadingButton)({
-  alignSelf: "center",
-  display: "flex",
-  flexDirection: "column",
-  padding: "12px 20px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  background: "#1A7B90",
-  color: "#FFF",
-  textAlign: "center",
-  fontFamily: "'Nunito'",
+  padding: "10px",
   fontSize: "16px",
   fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "16px",
+  lineHeight: "24px",
   letterSpacing: "0.32px",
-  textTransform: "none",
-  border: "1.5px solid #136071",
   "&.MuiButtonBase-root": {
     height: "fit-content",
+    minHeight: "44px",
     marginLeft: "auto",
-    marginRight: "21.5px",
     minWidth: "137px",
   },
-  "&.MuiButtonBase-root:disabled": {
-    height: "fit-content",
-    marginLeft: "auto",
-    marginRight: "21.5px",
-    minWidth: "137px",
-    background: "#949494",
-    color: "#CBCBCB",
-  },
-  "&.MuiButtonBase-root:hover": {
-    background: "#496065",
-    height: "fit-content",
-    marginLeft: "auto",
-    marginRight: "21.5px",
-    minWidth: "137px",
-  }
 });
 
-const StyledFileValidationSection = styled("div")({
-  borderRadius: 0,
-  minHeight: "147px",
-  padding: "21px 40px 0",
-  background: "#F0FBFD",
-  gridAutoFlow: "row",
-  gridTemplateColumns: "2.5fr 0.5fr",
-  display: "grid",
+const StyledFileValidationSection = styled(Stack)({
+  marginTop: "5px",
   ".headerText": {
     fontFamily: "Nunito",
     color: "#083A50",
@@ -137,15 +101,35 @@ const ValidateStatuses: Submission["status"][] = ["In Progress", "Withdrawn", "R
  */
 const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) => {
   const { user } = useAuthContext();
-  const [validationType, setValidationType] = useState<ValidationType>("Metadata");
-  const [uploadType, setUploadType] = useState<UploadType>("New");
+  const { enqueueSnackbar } = useSnackbar();
+
+  const [validationType, setValidationType] = useState<ValidationType>(null);
+  const [uploadType, setUploadType] = useState<ValidationTarget>("New");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(dataSubmission?.fileValidationStatus === "Validating"
     || dataSubmission?.metadataValidationStatus === "Validating");
-  const [validationAlert, setValidationAlert] = useState<AlertState>(null);
 
-  const canValidateData: boolean = useMemo(() => ValidateRoles.includes(user?.role), [user?.role]);
-  const validateButtonEnabled: boolean = useMemo(() => ValidateStatuses.includes(dataSubmission?.status), [dataSubmission?.status]);
+  const canValidateMetadata: boolean = useMemo(() => {
+    if (!user?.role || ValidateRoles.includes(user?.role) === false) {
+      return false;
+    }
+    if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
+      return false;
+    }
+
+    return dataSubmission?.metadataValidationStatus !== null;
+  }, [user?.role, dataSubmission?.metadataValidationStatus]);
+
+  const canValidateFiles: boolean = useMemo(() => {
+    if (!user?.role || ValidateRoles.includes(user?.role) === false) {
+      return false;
+    }
+    if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
+      return false;
+    }
+
+    return dataSubmission?.fileValidationStatus !== null;
+  }, [user?.role, dataSubmission?.fileValidationStatus]);
 
   const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
     context: { clientName: 'backend' },
@@ -153,7 +137,13 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   });
 
   const handleValidateFiles = async () => {
-    if (isValidating) {
+    if (isValidating || !validationType || !uploadType) {
+      return;
+    }
+    if (!canValidateFiles && validationType === "Files") {
+      return;
+    }
+    if (!canValidateMetadata && validationType === "Metadata") {
       return;
     }
 
@@ -162,37 +152,24 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     const { data, errors } = await validateSubmission({
       variables: {
         _id: dataSubmission?._id,
-        types: getTypes(validationType),
+        types: getValidationTypes(validationType),
         scope: uploadType === "New" ? "New" : "All",
       }
     });
 
     if (errors || !data?.validateSubmission?.success) {
-      setValidationAlert({ message: "Unable to initiate validation process.", severity: "error" });
+      enqueueSnackbar("Unable to initiate validation process.", { variant: "error" });
       setIsValidating(false);
       onValidate?.(false);
     } else {
-      setValidationAlert({ message: "Validation process is starting; this may take some time. Please wait before initiating another validation.", severity: "success" });
+      enqueueSnackbar("Validation process is starting; this may take some time. Please wait before initiating another validation.", { variant: "success" });
       setIsValidating(true);
       onValidate?.(true);
     }
 
-    // Reset form to default values
-    setValidationType("Metadata");
+    setValidationType(getDefaultValidationType(dataSubmission));
     setUploadType("New");
     setIsLoading(false);
-    setTimeout(() => setValidationAlert(null), 10000);
-  };
-
-  const getTypes = (validationType: ValidationType): string[] => {
-    switch (validationType) {
-      case "Metadata":
-        return ["metadata"];
-      case "Files":
-        return ["file"];
-      default:
-        return ["metadata", "file"];
-    }
   };
 
   useEffect(() => {
@@ -200,67 +177,77 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       || dataSubmission?.metadataValidationStatus === "Validating");
   }, [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]);
 
+  useEffect(() => {
+    if (validationType !== null) {
+      return;
+    }
+    if (typeof dataSubmission === "undefined") {
+      return;
+    }
+
+    setValidationType(getDefaultValidationType(dataSubmission));
+  }, [dataSubmission]);
+
   return (
-    <StyledFileValidationSection>
-      <GenericAlert open={!!validationAlert} severity={validationAlert?.severity} key="data-validation-alert">
-        {validationAlert?.message}
-      </GenericAlert>
-      <div className="fileValidationLeftSide">
-        <div className="fileValidationLeftSideTopRow">
-          <div className="headerText">Validation Type:</div>
-          <div className="fileValidationRadioButtonGroup">
-            <RadioGroup value={validationType} onChange={(event, val: ValidationType) => setValidationType(val)} row>
-              <StyledRadioControl
-                value="Metadata"
-                control={<StyledRadioButton readOnly={false} />}
-                label="Validate Metadata"
-                disabled={!canValidateData}
-              />
-              <StyledRadioControl
-                value="Files"
-                control={<StyledRadioButton readOnly={false} />}
-                label="Validate Data Files"
-                disabled={!canValidateData}
-              />
-              <StyledRadioControl
-                value="All"
-                control={<StyledRadioButton readOnly={false} />}
-                label="Both"
-                disabled={!canValidateData}
-              />
-            </RadioGroup>
+    <FlowWrapper title="Validate Data" borderColor="#8E9AD5" hoverColor="#869AFF">
+      <StyledFileValidationSection direction="row" alignItems="center">
+        <div className="fileValidationLeftSide">
+          <div className="fileValidationLeftSideTopRow">
+            <div className="headerText">Validation Type:</div>
+            <div className="fileValidationRadioButtonGroup">
+              <RadioGroup value={validationType} onChange={(e, val: ValidationType) => setValidationType(val)} row>
+                <StyledRadioControl
+                  value="Metadata"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="Validate Metadata"
+                  disabled={!canValidateMetadata}
+                />
+                <StyledRadioControl
+                  value="Files"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="Validate Data Files"
+                  disabled={!canValidateFiles}
+                />
+                <StyledRadioControl
+                  value="All"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="Both"
+                  disabled={!canValidateFiles || !canValidateMetadata}
+                />
+              </RadioGroup>
+            </div>
+          </div>
+          <div className="fileValidationLeftSideBottomRow">
+            <div className="headerText">Validation Target:</div>
+            <div className="fileValidationRadioButtonGroup">
+              <RadioGroup value={uploadType} onChange={(event, val: ValidationTarget) => setUploadType(val)} row>
+                <StyledRadioControl
+                  value="New"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="New Uploaded Data"
+                  disabled={!canValidateFiles && !canValidateMetadata}
+                />
+                <StyledRadioControl
+                  value="All"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="All Uploaded Data"
+                  disabled={!canValidateFiles && !canValidateMetadata}
+                />
+              </RadioGroup>
+            </div>
           </div>
         </div>
-        <div className="fileValidationLeftSideBottomRow">
-          <div className="headerText">Validation Target:</div>
-          <div className="fileValidationRadioButtonGroup">
-            <RadioGroup value={uploadType} onChange={(event, val: UploadType) => setUploadType(val)} row>
-              <StyledRadioControl
-                value="New"
-                control={<StyledRadioButton readOnly={false} />}
-                label="New Uploaded Data"
-                disabled={!canValidateData}
-              />
-              <StyledRadioControl
-                value="All"
-                control={<StyledRadioButton readOnly={false} />}
-                label="All Uploaded Data"
-                disabled={!canValidateData}
-              />
-            </RadioGroup>
-          </div>
-        </div>
-      </div>
-      <StyledValidateButton
-        variant="contained"
-        disableElevation
-        disabled={!canValidateData || !validateButtonEnabled || isValidating}
-        loading={isLoading}
-        onClick={handleValidateFiles}
-      >
-        {isValidating ? "Validating..." : "Validate"}
-      </StyledValidateButton>
-    </StyledFileValidationSection>
+        <StyledValidateButton
+          variant="contained"
+          color="info"
+          disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
+          loading={isLoading}
+          onClick={handleValidateFiles}
+        >
+          {isValidating ? "Validating..." : "Validate"}
+        </StyledValidateButton>
+      </StyledFileValidationSection>
+    </FlowWrapper>
   );
 };
 

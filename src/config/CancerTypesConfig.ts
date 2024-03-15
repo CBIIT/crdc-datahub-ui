@@ -1,8 +1,17 @@
 /**
+ * Custom Cancer Type options for Questionnaire Section C Cancer Types dropdown
+ *
+ */
+export const CUSTOM_CANCER_TYPES = {
+  NOT_APPLICABLE: "Not Applicable"
+};
+
+/**
  * Configuration for Questionnaire Section C Cancer Types
  *
  */
 const options: string[] = [
+  ...Object.values(CUSTOM_CANCER_TYPES),
   "Adrenal Gland, Adrenocortical Carcinoma",
   "Adrenal Gland, Pheochromocytoma",
   "Bile Duct, Cholangiocarcinoma",

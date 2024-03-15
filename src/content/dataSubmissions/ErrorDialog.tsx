@@ -25,29 +25,16 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledCloseButton = styled(Button)({
-  display: "flex",
-  width: "128px",
-  height: "42px",
-  padding: "12px 60px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  border: "1px solid #000",
-  color: "#000",
-  textAlign: "center",
+  minWidth: "137px",
+  padding: "10px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
-  fontWeight: "700",
   lineHeight: "24px",
   letterSpacing: "0.32px",
   textTransform: "none",
   alignSelf: "center",
   marginTop: "45px",
-  "&:hover": {
-    background: "transparent",
-    border: "1px solid #000",
-  }
 });
 
 const StyledHeader = styled(Typography)({
@@ -69,6 +56,8 @@ const StyledTitle = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "900",
   lineHeight: "30px",
+  paddingBottom: "8px",
+  wordBreak: "break-word"
 });
 
 const StyledUploadedDate = styled(Typography)({
@@ -78,8 +67,6 @@ const StyledUploadedDate = styled(Typography)({
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "19.6px",
-  marginTop: "8px",
-  marginBottom: "35px"
 });
 
 const StyledSubtitle = styled(Typography)({
@@ -91,6 +78,7 @@ const StyledSubtitle = styled(Typography)({
   lineHeight: "20px",
   letterSpacing: "0.14px",
   textTransform: "uppercase",
+  marginTop: "35px"
 });
 
 const StyledErrorItem = styled(Typography)({
@@ -102,9 +90,12 @@ const StyledErrorItem = styled(Typography)({
   lineHeight: "22px",
 });
 
+const StyledErrors = styled(Stack)({
+  overflowY: "auto"
+});
+
 const StyledErrorDetails = styled(Stack)({
   padding: "10px",
-  overflowY: "auto",
   maxHeight: "290px"
 });
 
@@ -113,7 +104,8 @@ type Props = {
   title?: string;
   closeText?: string;
   errors: string[];
-  uploadedDate: string;
+  errorCount?: string;
+  uploadedDate?: string;
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
 
@@ -122,6 +114,7 @@ const ErrorDialog = ({
   title,
   closeText = "Close",
   errors,
+  errorCount,
   uploadedDate,
   onClose,
   open,
@@ -138,31 +131,40 @@ const ErrorDialog = ({
       <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      <StyledHeader variant="h3">
-        {header}
-      </StyledHeader>
+      {header && (
+        <StyledHeader variant="h3">
+          {header}
+        </StyledHeader>
+      )}
       <StyledTitle variant="h6">
         {title}
       </StyledTitle>
-      <StyledUploadedDate>
-        Uploaded on
-        {" "}
-        {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
-      </StyledUploadedDate>
+      {uploadedDate && (
+        <StyledUploadedDate>
+          Uploaded on
+          {" "}
+          {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
+        </StyledUploadedDate>
+      )}
       <StyledErrorDetails direction="column" spacing={2.5}>
         <StyledSubtitle variant="body2">
-          {`${errors?.length || 0} ${errors?.length === 1 ? "ERROR" : "ERRORS"}`}
+          {errorCount || `${errors?.length || 0} ${errors?.length === 1 ? "ERROR" : "ERRORS"}`}
         </StyledSubtitle>
-        <Stack direction="column" spacing={2.75} padding={1.25}>
+        <StyledErrors direction="column" spacing={2.75} padding={1.25}>
           {errors?.map((error: string, idx: number) => (
             // eslint-disable-next-line react/no-array-index-key
             <StyledErrorItem key={`${idx}_${error}`}>
               {`${idx + 1}. ${error}`}
             </StyledErrorItem>
           ))}
-        </Stack>
+        </StyledErrors>
       </StyledErrorDetails>
-      <StyledCloseButton id="error-dialog-close-button" variant="outlined" onClick={handleCloseDialog}>
+      <StyledCloseButton
+        id="error-dialog-close-button"
+        variant="contained"
+        color="info"
+        onClick={handleCloseDialog}
+      >
         {closeText}
       </StyledCloseButton>
     </StyledDialog>

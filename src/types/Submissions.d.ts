@@ -20,7 +20,13 @@ type Submission = {
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
-type ValidationStatus = "New" | "Validating" | "Passed" | "Error" | "Warning";
+/**
+ * The status of a Metadata or Files in a submission.
+ *
+ * @note `null` indicates that the type has not been uploaded yet.
+ * @note `New` indicates that the type has been uploaded but not validated yet.
+ */
+type ValidationStatus = null | "New" | "Validating" | "Passed" | "Error" | "Warning";
 
 type SubmissionStatus =
   | "New"
@@ -67,6 +73,11 @@ type UploadResult = {
   fileName: string;
   succeeded: boolean;
   errors: string[];
+  /**
+   * Applies to Data File uploads only. Indicates whether the file was skipped
+   * intentionally during the upload process.
+   */
+  skipped?: boolean;
 };
 
 type BatchFileInfo = {
@@ -80,21 +91,21 @@ type BatchFileInfo = {
   updatedAt: string // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
-type BatchStatus = "New" | "Uploaded" | "Upload Failed" | "Loaded" | "Rejected";
+type BatchStatus = "Uploading" | "Uploaded" | "Failed";
 
 type MetadataIntention = "New" | "Update" | "Delete";
 
-type UploadType = "metadata" | "file";
+type UploadType = "metadata" | "data file";
 
 type Batch = {
   _id: string;
   displayID: number;
   submissionID: string; // parent
-  type: UploadType; // [metadata, file]
+  type: UploadType;
   metadataIntention: MetadataIntention; // [New, Update, Delete], Update is meant for "Update or insert", metadata only! file batches are always treated as Update
   fileCount: number; // calculated by BE
   files: BatchFileInfo[];
-  status: BatchStatus; // [New, Uploaded, Upload Failed, Loaded, Rejected] Loaded and Rejected are for metadata batch only
+  status: BatchStatus;
   errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
@@ -105,7 +116,7 @@ type NewBatch = {
   submissionID: string; // parent
   bucketName?: string; // S3 bucket of the submission, for file batch / CLI use
   filePrefix?: string; // prefix/path within S3 bucket, for file batch / CLI use
-  type: string; // [metadata, file]
+  type: UploadType;
   metadataIntention: MetadataIntention; // [New, Update, Delete], Update is meant for "Update or insert", metadata only! file batches are always treated as Update
   fileCount: number; // calculated by BE
   files: FileURL[];
@@ -134,7 +145,7 @@ type ListLogFiles = {
 
 type LogFile = {
   fileName: string;
-  uploadType: UploadType; // [metadata, file]
+  uploadType: UploadType;
   downloadUrl: string; // s3 presigned download url of the file
   fileSize: number // size in byte
 };
@@ -164,13 +175,15 @@ type QCResults = {
 type QCResult = {
   submissionID: string;
   nodeType: string;
+  validationType: UploadType;
   batchID: string;
   displayID: number;
   nodeID: string;
-  CRDC_ID: string;
   severity: "Error" | "Warning"; // [Error, Warning]
-  uploadedDate: string // batch.updatedAt
-  description: ErrorMessage[];
+  uploadedDate: string; // batch.updatedAt
+  validatedDate: string;
+  errors: ErrorMessage[];
+  warnings: ErrorMessage[];
 };
 
 type ErrorMessage = {
@@ -196,7 +209,6 @@ type DataRecord = {
   // relationshipProps: [RelationshipProperty] # for future use
   // rawData: RawData
   s3FileInfo: S3FileInfo; // only for "file" types, should be null for other nodes
-  CRDC_ID: string;
 };
 
 type SubmissionStatistic = {
@@ -218,3 +230,18 @@ type DataValidationResult = {
    */
   message: string;
 };
+
+type AsyncProcessResult = {
+  success: boolean;
+  message: string;
+};
+
+/**
+ * The type of Data Validation to perform.
+ */
+type ValidationType = "Metadata" | "Files" | "All";
+
+/**
+ * The target of Data Validation action.
+ */
+type ValidationTarget = "New" | "All";

@@ -36,7 +36,10 @@ const InactivityWarningContent = styled("div")({
   fontWeight: 300,
   letterSpacing: 0,
   lineHeight: "24px",
-  "& .alignCenter": {
+  "& .buttonWrapper": {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     textAlign: "center",
   },
   "& .buttonGroup": {
@@ -47,6 +50,8 @@ const InactivityWarningContent = styled("div")({
     width: "150px",
     border: "1px solid #626262",
     marginTop: "30px",
+    borderRadius: "4px",
+    fontWeight: 500
   },
   "& .extendButton": {
     backgroundColor: "#566672 !important",
@@ -89,7 +94,10 @@ const SessionTimeoutContent = styled("div")({
     fontSize: "17px",
     paddingBottom: "14px",
   },
-  "& .alignCenter": {
+  "& .buttonWrapper": {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     textAlign: "center",
   },
   "& .buttonGroup": {
@@ -100,6 +108,8 @@ const SessionTimeoutContent = styled("div")({
     width: "90px",
     border: "1px solid #626262",
     marginTop: "30px",
+    borderRadius: "4px",
+    fontWeight: 500
   },
   "& .closeButton": {
     backgroundColor: "#566672 !important",
@@ -211,11 +221,12 @@ const InactivityDialog = () => {
           minutes.
           <br />
           Please elect to extend this session or logout.
-          <div className="alignCenter">
+          <div className="buttonWrapper">
             <Button
               variant="contained"
               className="buttonGroup extendButton"
               onClick={handleExtendSession}
+              disableElevation={false}
             >
               EXTEND SESSION
             </Button>
@@ -223,6 +234,7 @@ const InactivityDialog = () => {
               variant="contained"
               className="buttonGroup logOutButton"
               onClick={handleSignOut}
+              disableElevation={false}
             >
               LOGOUT
             </Button>
@@ -249,11 +261,12 @@ const InactivityDialog = () => {
           <div className="sessionTimeoutTitle">Your session has expired.</div>
           <br />
           <div className="sessionTimeoutMessage">Please login again to continue working.</div>
-          <div className="alignCenter">
+          <div className="buttonWrapper">
             <Button
               variant="contained"
               className="buttonGroup closeButton"
               onClick={() => setTimedOut(false)}
+              disableElevation={false}
             >
               CLOSE
             </Button>
@@ -261,6 +274,7 @@ const InactivityDialog = () => {
               variant="contained"
               className="buttonGroup loginButton"
               onClick={() => { setTimedOut(false); navigate("login"); }}
+              disableElevation={false}
             >
               LOGIN
             </Button>

@@ -31,7 +31,7 @@ const UnsavedChangesDialog: FC<Props> = ({
     title={title || "Unsaved Changes"}
     message={
       message
-      || "You have unsaved changes. Your changes will be lost if you leave this section without saving. Do you want to save your data?"
+      || "Validation errors have been detected. Do you wish to save your changes or discard them before leaving this page?"
     }
     actions={(
       <>

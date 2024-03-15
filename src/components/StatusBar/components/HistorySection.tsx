@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import { CSSProperties, FC, useMemo, useState } from "react";
 import {
   Avatar,
   Button,
@@ -21,6 +21,23 @@ import { useFormContext } from "../../Contexts/FormContext";
 import { HistoryIconMap } from "../../../assets/history/submissionRequest";
 import { FormatDate, SortHistory } from "../../../utils";
 
+/**
+ * Determines the text color for a History event based
+ *
+ * @param status The current Questionnaire's status
+ * @returns Color scheme to match the status
+ */
+const getStatusColor = (status: ApplicationStatus): CSSProperties["color"] => {
+  switch (status) {
+    case "Approved":
+      return "#10EBA9";
+    case "Rejected":
+      return "#E25C22";
+    default:
+      return "#fff";
+  }
+};
+
 const StyledDate = styled("span")({
   fontWeight: "600",
   fontSize: "16px",
@@ -31,16 +48,24 @@ const StyledDate = styled("span")({
 });
 
 const StyledButton = styled(Button)({
-  fontWeight: "700",
-  borderRadius: "8px",
-  textTransform: "none",
-  letterSpacing: "0.32px",
-  background: "#C0DAF3",
-  color: "#2E5481",
-  width: "165px",
-  "&:hover": {
-    background: "#C0DAF3",
-  },
+  "&.MuiButton-root": {
+    minWidth: "192px",
+    padding: "10px 20px",
+    border: "1px solid #004A80",
+    color: "#004A80",
+    fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: "17px",
+    letterSpacing: "0.32px",
+    textTransform: "none",
+    "&:hover": {
+      backgroundColor: "#FFF",
+      borderColor: "#004A80",
+      color: "#004A80",
+    },
+  }
 });
 
 const StyledDialog = styled(Dialog)({
@@ -59,7 +84,7 @@ const StyledDialogTitle = styled(DialogTitle)({
 });
 
 const StyledPreTitle = styled("p")({
-  color: "#98A7C6",
+  color: "#D5DAE7",
   fontSize: "13px",
   fontFamily: "Nunito Sans",
   lineHeight: "27px",
@@ -168,17 +193,12 @@ const StyledTimelineContent = styled(TimelineContent)({
   color: "#fff",
 });
 
-const StyledTypography = styled(Typography)<{ status?: ApplicationStatus }>(
-  ({ theme, status }) => ({
-    lineHeight: "2.5",
-    minWidth: "100px",
-    textAlign: "left",
-    color:
-      (status
-        ? theme.palette?.[status]?.light || theme.palette?.[status]?.main
-        : "#fff") || "#fff",
-  })
-);
+const StyledTypography = styled(Typography)<{ status?: ApplicationStatus }>(({ status }) => ({
+  lineHeight: "2.5",
+  minWidth: "100px",
+  textAlign: "left",
+  color: getStatusColor(status),
+}));
 
 const StyledAvatar = styled(Avatar)({
   background: "transparent",
@@ -186,13 +206,15 @@ const StyledAvatar = styled(Avatar)({
 });
 
 const StyledCloseButton = styled(Button)({
+  minWidth: "137px",
   fontWeight: "700",
   borderRadius: "8px",
   textTransform: "none",
   color: "#fff",
   borderColor: "#fff",
   margin: "0 auto",
-  minWidth: "128px",
+  padding: "10px",
+  lineHeight: "24px",
   "&:hover": {
     borderColor: "#fff",
   },
@@ -221,9 +243,9 @@ const HistorySection: FC = () => {
           <StyledButton
             id="status-bar-full-history-button"
             variant="contained"
+            color="info"
             onClick={() => setOpen(true)}
             aria-label="Full History"
-            color="primary"
             disableElevation
           >
             Full History

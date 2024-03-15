@@ -2,6 +2,8 @@ import { FC } from 'react';
 import { styled } from '@mui/material';
 import Carousel, { CarouselProps } from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
+import CustomLeftArrow from './CustomLeftArrow';
+import CustomRightArrow from './CustomRightArrow';
 
 type Props = {
   children: React.ReactNode;
@@ -11,7 +13,6 @@ const sizing = {
   desktop: {
     breakpoint: { max: 5000, min: 0 },
     items: 3,
-    partialVisibilityGutter: 40
   },
 };
 
@@ -26,8 +27,9 @@ const StyledWrapper = styled('div')({
   "& .react-multi-carousel-track": {
     margin: "0 auto", // NOTE: This centers the carousel when there are fewer than 2 items
   },
-  "& .react-multi-carousel-item": {
-    width: "200px !important",
+  "& .custom-carousel-item": {
+    maxWidth: "200px",
+    minWidth: "200px",
   },
   "& .react-multi-carousel-list::after": {
     content: "''",
@@ -51,6 +53,11 @@ const StyledWrapper = styled('div')({
   },
 });
 
+const removeAriaHidden = () => {
+  const elements = document.querySelectorAll(".react-multi-carousel-item");
+  elements.forEach((e) => e.removeAttribute("aria-hidden"));
+};
+
 /**
  * Provides a general carousel component for displaying multiple items
  * at the same time.
@@ -64,10 +71,11 @@ const ContentCarousel: FC<Props> = ({ children, ...props }: Props) => (
       responsive={sizing}
       swipeable
       draggable
-      infinite
-      centerMode
       arrows
-      focusOnSelect
+      afterChange={removeAriaHidden}
+      itemClass="custom-carousel-item"
+      customLeftArrow={<CustomLeftArrow />}
+      customRightArrow={<CustomRightArrow />}
       {...props}
     >
       {children}

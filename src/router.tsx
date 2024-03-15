@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from './layouts';
 import SuspenseLoader from './components/SuspenseLoader';
 import { useAuthContext } from './components/Contexts/AuthContext';
+import withTracking from './components/Hocs/withTracking';
 
 const Loader = (Component) => (props) => (
   <Suspense fallback={<SuspenseLoader />}>
@@ -32,6 +33,9 @@ const RequireAuth: FC<RequireAuthProps> = ({ component, redirectPath, redirectNa
   return null;
 };
 
+// Layouts
+const MainLayout = withTracking(Layout);
+
 // Pages
 const Home = Loader(lazy(() => import('./content')));
 const Login = Loader(lazy(() => import('./content/login/Controller')));
@@ -47,7 +51,7 @@ const Status404 = Loader(lazy(() => import('./content/status/Page404')));
 const routes: RouteObject[] = [
   {
     path: '',
-    element: <Layout />,
+    element: <MainLayout />,
     children: [
       {
         path: '/:redirect?',

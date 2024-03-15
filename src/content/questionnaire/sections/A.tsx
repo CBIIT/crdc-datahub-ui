@@ -16,7 +16,7 @@ import TransitionGroupWrapper from "../../../components/Questionnaire/Transition
 import institutionConfig from "../../../config/InstitutionConfig";
 import { InitialQuestionnaire } from '../../../config/InitialValues';
 import SectionMetadata from "../../../config/SectionMetadata";
-import useFormMode from "./hooks/useFormMode";
+import useFormMode from "../../../hooks/useFormMode";
 
 export type KeyedContact = {
   key: string;
@@ -61,7 +61,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (!saveFormRef.current || !submitFormRef.current) { return; }
 
     nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "initial";
+    saveFormRef.current.style.display = "flex";
     submitFormRef.current.style.display = "none";
     approveFormRef.current.style.display = "none";
     inquireFormRef.current.style.display = "none";

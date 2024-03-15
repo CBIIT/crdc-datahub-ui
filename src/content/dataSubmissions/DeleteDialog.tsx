@@ -32,56 +32,34 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledCloseButton = styled(Button)({
-  display: "flex",
-  width: "128px",
-  height: "51px",
-  padding: "18px 38px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  border: "1px solid #AEAEAE",
-  color: "#6E7681",
-  textAlign: "center",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: "700",
-  lineHeight: "16px",
-  letterSpacing: "0.32px",
-  textTransform: "none",
-  alignSelf: "center",
-  "&:hover": {
-    color: "#6E7681",
-    background: "transparent",
-    border: "1px solid #AEAEAE",
-  },
+  "&.MuiButton-root": {
+    minWidth: "101px",
+    padding: "10px",
+    color: "#949494",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 500,
+    lineHeight: "24px",
+    letterSpacing: "0.32px",
+    textTransform: "none",
+    alignSelf: "center",
+  }
 });
 
 const StyledConfirmButton = styled(Button)({
-  display: "flex",
-  width: "128px",
-  height: "51px",
-  padding: "18px 38px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  border: "1px solid #AEAEAE",
-  color: "#FFF",
-  background: "#B34C36",
-  textAlign: "center",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: "700",
-  lineHeight: "16px",
-  letterSpacing: "0.32px",
-  textTransform: "none",
-  alignSelf: "center",
-  "&:hover": {
-    color: "#FFF",
-    background: "#B34C36",
-    border: "1px solid #AEAEAE",
-  },
+  "&.MuiButton-root": {
+    minWidth: "137px",
+    padding: "10px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: "24px",
+    letterSpacing: "0.32px",
+    textTransform: "none",
+    alignSelf: "center",
+  }
 });
 
 const StyledHeader = styled(Typography)({
@@ -115,7 +93,7 @@ const DeleteDialog = ({
   header = "Delete Data",
   description,
   closeText = "Cancel",
-  confirmText = "Delete",
+  confirmText = "Confirm to Delete",
   onClose,
   onConfirm,
   open,
@@ -147,14 +125,16 @@ const DeleteDialog = ({
     >
       <StyledCloseButton
         id="error-dialog-close-button"
-        variant="outlined"
+        variant="contained"
+        color="info"
         onClick={onClose}
       >
         {closeText}
       </StyledCloseButton>
       <StyledConfirmButton
         id="error-dialog-delete-button"
-        variant="outlined"
+        variant="contained"
+        color="error"
         onClick={onConfirm}
       >
         {confirmText}

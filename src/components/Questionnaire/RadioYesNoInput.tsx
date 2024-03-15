@@ -55,7 +55,7 @@ const StyledFormLabel = styled("label")(() => ({
 
 const StyledAsterisk = styled("span")(() => ({
   marginLeft: "2px",
-  color: "#D54309",
+  color: "#C93F08",
 }));
 
 type Props = {

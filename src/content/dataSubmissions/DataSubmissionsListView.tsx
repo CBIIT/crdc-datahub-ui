@@ -24,6 +24,7 @@ import TextInput from "../../components/Questionnaire/TextInput";
 import GenericAlert from '../../components/GenericAlert';
 import { DataCommons } from '../../config/DataCommons';
 import SuspenseLoader from '../../components/SuspenseLoader';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type T = Submission;
 
@@ -161,7 +162,7 @@ const StyledSelect = styled(Select)(baseTextFieldStyles);
 const columns: Column[] = [
   {
     label: "Submission Name",
-    value: (a) => <Link to={`/data-submission/${a._id}/data-upload`}>{a.name}</Link>,
+    value: (a) => <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>,
     field: "name",
   },
   {
@@ -173,6 +174,11 @@ const columns: Column[] = [
     label: "Data Commons",
     value: (a) => a.dataCommons,
     field: "dataCommons",
+  },
+  {
+    label: "DM Version",
+    value: (a) => a.modelVersion,
+    field: "modelVersion",
   },
   {
     label: "Organization",
@@ -201,7 +207,7 @@ const columns: Column[] = [
   },
   {
     label: "Created Date",
-    value: (a) => (a.createdAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
+    value: (a) => (a.createdAt ? FormatDate(a.createdAt, "M/D/YYYY h:mm A") : ""),
     field: "createdAt",
   },
   {
@@ -288,7 +294,7 @@ const CreateSubmissionDialog = styled(Dialog)`
     cursor: pointer;
   }
   .createSubmissionError {
-    color: #D54309;
+    color: #C93F08;
     text-align: center;
     margin-bottom: 30px;
     margin-top: -20px;
@@ -305,6 +311,8 @@ const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, v
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  usePageTitle("Data Submission List");
+
   const { state } = useLocation();
   const { user } = useAuthContext();
 
@@ -539,7 +547,7 @@ const ListingView: FC = () => {
                       variant="h6"
                       align="center"
                       fontSize={18}
-                      color="#AAA"
+                      color="#757575"
                     >
                       There are no data submissions associated with your account
                     </Typography>
@@ -603,14 +611,14 @@ const ListingView: FC = () => {
               label="Data Commons"
               required
               value={dataCommons}
-              onChange={(value) => setDataCommons(value)}
+              onChange={(value: string) => setDataCommons(value)}
             />
             <SelectInput
               options={approvedStudiesAbbrvList}
               label="Study"
               required
               value={study}
-              onChange={(value) => {
+              onChange={(value: string) => {
                 setStudy(value);
                 setDbgapid(approvedStudiesMapToDbGaPID[value]);
               }}
