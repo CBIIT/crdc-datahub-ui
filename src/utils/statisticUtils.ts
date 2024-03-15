@@ -31,14 +31,25 @@ export const buildPrimaryChartSeries = (stats: SubmissionStatistic[], omitSeries
   }));
 
 /**
- * A utility function to sort the node statistics by the node name
+ * A utility function to sort the node statistics in ascending order by:
+ *
+ * - SubmissionStatistic.total (primary)
+ * - SubmissionStatistic.nodeName (secondary)
+ *
  * This utility is required because the API does not guarantee the order of the nodes,
  * and changing the order of the nodes causes re-animation of the charts.
  *
- * @param stats Data Submissions statistics
- * @returns The sorted statistics
+ * @param a The first SubmissionStatistic
+ * @param b The second SubmissionStatistic
+ * @returns The comparison result
  */
-export const compareNodeStats = (a: SubmissionStatistic, b: SubmissionStatistic) => a.nodeName.localeCompare(b.nodeName);
+export const compareNodeStats = (a: SubmissionStatistic, b: SubmissionStatistic): number => {
+  if (a.total === b.total) {
+    return a.nodeName.localeCompare(b.nodeName);
+  }
+
+  return a.total - b.total;
+};
 
 /**
  * Format a Y-Axis tick label
@@ -62,8 +73,8 @@ export const formatTick = (tick: number, normalized = false) => (normalized
  * @param dataMax The maximum value in the dataset
  * @returns The calculated maximum domain
  */
-export const calculateMaxDomain = (dataMax: number) => {
-  if (dataMax <= 0 || Number.isNaN(dataMax)) {
+export const calculateMaxDomain = (dataMax: number): number => {
+  if (dataMax <= 0 || Number.isNaN(dataMax) || !Number.isFinite(dataMax)) {
     return 1;
   }
   if (dataMax > 1000) {
