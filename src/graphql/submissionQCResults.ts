@@ -24,11 +24,11 @@ export const query = gql`
       total
       results {
         submissionID
-        nodeType
+        type
         validationType
         batchID
         displayID
-        nodeID
+        submittedID
         severity
         uploadedDate
         validatedDate
