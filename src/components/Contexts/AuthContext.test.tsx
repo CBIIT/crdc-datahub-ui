@@ -145,10 +145,11 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     const screen = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() => expect(screen.getByTestId("first-name").textContent).toEqual("The API updated my first name"));
-
-    const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
-    expect(cachedUser.firstName).toEqual("The API updated my first name");
+    await waitFor(() => expect(screen.getByTestId("first-name").textContent).toEqual(mocks[0].result.data.getMyUser.firstName));
+    await waitFor(() => {
+      const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
+      expect(cachedUser.firstName).toEqual(mocks[0].result.data.getMyUser.firstName);
+    }, { timeout: 1000 });
   });
 
   it("should logout the user if the BE API call fails", async () => {
