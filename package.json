@@ -45,7 +45,7 @@
     "lint": "eslint . --ignore-path .gitignore",
     "lint:ci": "eslint . --ignore-path .gitignore --max-warnings 0",
     "lint:fix": "eslint --fix . --ignore-path .gitignore",
-    "format": "prettier --ignore-path .gitignore --check \"**/*.{js,jsx,ts,tsx}\"",
+    "format:check": "prettier --ignore-path .gitignore --check \"**/*.{js,jsx,ts,tsx}\"",
     "format:fix": "prettier --ignore-path .gitignore --write \"**/*.{js,jsx,ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "prepare": "husky install"
