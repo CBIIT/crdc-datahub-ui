@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 jobs:
-  certify:
+  test:
     name: Test Changes
     runs-on: ubuntu-latest
     steps:
@@ -43,3 +43,6 @@ jobs:
 
       - name: Run Jest
         run: npm run test:ci
+
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v2.2.3
