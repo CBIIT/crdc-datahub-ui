@@ -2,11 +2,14 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
+import { LoadingButton } from '@mui/lab';
 import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
 import { Controller, useForm } from 'react-hook-form';
+import { useSnackbar } from 'notistack';
+import { unparse } from 'papaparse';
 import { LIST_BATCHES, LIST_NODE_TYPES, ListBatchesResp, ListNodeTypesResp, SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
-import { FormatDate, capitalizeFirstLetter } from "../../utils";
+import { FormatDate, capitalizeFirstLetter, downloadBlob, unpackQCResultSeverities } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 
@@ -156,15 +159,15 @@ const columns: Column<QCResult>[] = [
 const QualityControl: FC = () => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [loading, setLoading] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [error, setError] = useState<string>(null);
   const [data, setData] = useState<QCResult[]>([]);
   const [prevData, setPrevData] = useState<FetchListing<QCResult>>(null);
   const [totalData, setTotalData] = useState(0);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
+  const [buildingResults, setBuildingResults] = useState<boolean>(false);
   const tableRef = useRef<TableMethods>(null);
 
   const errorDescriptions = selectedRow?.errors?.map((error) => `(Error) ${error.description}`) ?? [];
@@ -199,7 +202,7 @@ const QualityControl: FC = () => {
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
-      setError("Invalid submission ID provided.");
+      enqueueSnackbar("Invalid submission ID provided.", { variant: "error" });
       return;
     }
     if (!force && data?.length > 0 && isEqual(fetchListing, prevData)) {
@@ -234,7 +237,7 @@ const QualityControl: FC = () => {
       setData(d.submissionQCResults.results);
       setTotalData(d.submissionQCResults.total);
     } catch (err) {
-      setError(err?.toString());
+      enqueueSnackbar(err?.toString(), { variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -243,6 +246,46 @@ const QualityControl: FC = () => {
   const handleOpenErrorDialog = (data: QCResult) => {
     setOpenErrorDialog(true);
     setSelectedRow(data);
+  };
+
+  const downloadQCResults = async () => {
+    setBuildingResults(true);
+
+    const { data: d, error } = await submissionQCResults({
+      variables: {
+        // TODO: sorting and filters?
+        submissionID: submissionId,
+        first: 10000, // TODO: change to -1
+        offset: 0,
+      },
+      context: { clientName: 'backend' },
+      fetchPolicy: 'no-cache'
+    });
+
+    if (error || !d?.submissionQCResults?.results) {
+      enqueueSnackbar("Unable to retrieve submission quality control results.", { variant: "error" });
+      setBuildingResults(false);
+      return;
+    }
+
+    try {
+      const unpacked = unpackQCResultSeverities(d.submissionQCResults.results);
+      const csvArray = unpacked.map((result) => ({
+        "Batch ID": result.displayID,
+        "Node Type": result.type,
+        "Submitted Identifier": result.submittedID,
+        Severity: result.severity,
+        "Validated Date": result.validatedDate, // TODO: formatted?
+        Issues: result.errors?.length > 0 ? result.errors[0].description : result.warnings[0]?.description,
+      }));
+
+      // TODO: File name?
+      downloadBlob(unparse(csvArray), "validation-results.csv", "text/csv");
+    } catch (err) {
+      enqueueSnackbar("Unable to export validation results.", { variant: "error" });
+    }
+
+    setBuildingResults(false);
   };
 
   const providerValue = useMemo(() => ({
@@ -255,6 +298,15 @@ const QualityControl: FC = () => {
 
   return (
     <>
+      {/* NOTE: This is just temporary */}
+      <LoadingButton
+        loading={buildingResults}
+        onClick={downloadQCResults}
+        variant="contained"
+        color="primary"
+      >
+        Download QC Results
+      </LoadingButton>
       <StyledFilterContainer>
         <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
         <StyledFormControl>

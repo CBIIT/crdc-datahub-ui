@@ -39,3 +39,57 @@ export const shouldDisableSubmit = (
 
   return { disable, isAdminOverride };
 };
+
+/**
+ * Unpacks the Warning and Error severities from the original QCResult into duplicates of the original QCResult
+ *
+ * @example
+ *  - Original QCResult: { severity: "error", errors: [error1, error2], warnings: [warning1, warning2] }
+ *  - Unpacked QCResults: [{ severity: "error", errors: [error1] }, { severity: "error", errors: [error2] }, ...
+ * @param results - The QC results to unpack
+ * @returns A new array of QCResults
+ */
+export const unpackQCResultSeverities = (results: QCResult[]): QCResult[] => {
+  const unpackedResults: QCResult[] = [];
+
+  // Iterate through each result and push the errors and warnings into separate results
+  results.forEach((result) => {
+    result.errors.slice(0).forEach((error) => {
+      unpackedResults.push({
+        ...result,
+        severity: "Error",
+        errors: [error],
+        warnings: [],
+      });
+    });
+    result.warnings.slice(0).forEach((warning) => {
+      unpackedResults.push({
+        ...result,
+        severity: "Warning",
+        errors: [],
+        warnings: [warning],
+      });
+    });
+  });
+
+  return unpackedResults;
+};
+
+/**
+ * Build a file with data and download it
+ *
+ * @param content file content
+ * @param filename file name
+ * @param contentType the content type
+ * @returns void
+ */
+export const downloadBlob = (content: string, filename: string, contentType: string): void => {
+  const blob = new Blob([content], { type: contentType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.setAttribute('download', filename);
+  link.click();
+  link.remove();
+};
