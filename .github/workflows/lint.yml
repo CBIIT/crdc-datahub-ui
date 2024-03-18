@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 jobs:
-  certify:
+  lint:
     name: Lint Changes
     runs-on: ubuntu-latest
     steps:
