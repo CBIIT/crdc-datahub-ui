@@ -266,8 +266,60 @@ describe('unpackQCResultSeverities cases', () => {
     expect(utils.unpackQCResultSeverities([])).toEqual([]);
   });
 
-  it('returns an empty array when there are no errors or warnings', () => {
+  it('should return an empty array when there are no errors or warnings', () => {
     const results = [{ ...baseResult, errors: [], warnings: [] }];
     expect(utils.unpackQCResultSeverities(results)).toEqual([]);
+  });
+});
+
+describe('downloadBlob cases', () => {
+  const mockSetAttribute = jest.fn();
+  const mockClick = jest.fn();
+  const mockRemove = jest.fn();
+
+  beforeEach(() => {
+    URL.createObjectURL = jest.fn().mockReturnValue('blob-url');
+
+    // Spy on document.createElement calls and override the return value
+    jest.spyOn(document, 'createElement').mockReturnValue({
+      ...document.createElement('a'),
+      setAttribute: mockSetAttribute,
+      click: mockClick,
+      remove: mockRemove,
+    }) as jest.MockedFunction<typeof document.createElement>;
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('should create a ObjectURL with the file content blob', () => {
+    const content = 'test,csv,content\n1,2,3';
+    const contentType = 'text/csv';
+
+    utils.downloadBlob(content, "blob.csv", contentType);
+
+    expect(URL.createObjectURL).toHaveBeenCalledWith(new Blob([content], { type: contentType }));
+  });
+
+  it('should create a anchor with the href and download properties', () => {
+    const filename = 'test.txt';
+
+    utils.downloadBlob("test content", filename, "text/plain");
+
+    expect(document.createElement).toHaveBeenCalledWith('a');
+    expect(mockSetAttribute).toHaveBeenCalledWith('href', 'blob-url');
+    expect(mockSetAttribute).toHaveBeenCalledWith('download', filename);
+  });
+
+  it('should open the download link and remove itself from the DOM', () => {
+    utils.downloadBlob("test,content,csv", "test-file.csv", "text/csv");
+
+    expect(mockClick).toHaveBeenCalled();
+    expect(mockRemove).toHaveBeenCalled();
   });
 });
