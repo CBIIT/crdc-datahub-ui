@@ -2,16 +2,15 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
-import { LoadingButton } from '@mui/lab';
 import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
 import { Controller, useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
-import { unparse } from 'papaparse';
 import { LIST_BATCHES, LIST_NODE_TYPES, ListBatchesResp, ListNodeTypesResp, SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
-import { FormatDate, capitalizeFirstLetter, downloadBlob, unpackQCResultSeverities } from "../../utils";
+import { FormatDate, capitalizeFirstLetter } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
+import { ExportValidationButton } from '../../components/DataSubmissions/ExportValidationButton';
 
 type FilterForm = {
   nodeType: string | "All";
@@ -156,6 +155,16 @@ const columns: Column<QCResult>[] = [
   },
 ];
 
+// TODO: Use `columns` instead of duplicating the fields here.
+const csvColumns = {
+  "Batch ID": (d: QCResult) => d.displayID,
+  "Node Type": (d: QCResult) => d.type,
+  "Submitted Identifier": (d: QCResult) => d.submittedID,
+  Severity: (d: QCResult) => d.severity,
+  "Validated Date": (d: QCResult) => d.validatedDate,
+  Issues: (d: QCResult) => (d.errors?.length > 0 ? d.errors[0].description : d.warnings[0]?.description),
+};
+
 const QualityControl: FC = () => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>();
@@ -167,7 +176,6 @@ const QualityControl: FC = () => {
   const [totalData, setTotalData] = useState(0);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
-  const [buildingResults, setBuildingResults] = useState<boolean>(false);
   const tableRef = useRef<TableMethods>(null);
 
   const errorDescriptions = selectedRow?.errors?.map((error) => `(Error) ${error.description}`) ?? [];
@@ -248,46 +256,6 @@ const QualityControl: FC = () => {
     setSelectedRow(data);
   };
 
-  const downloadQCResults = async () => {
-    setBuildingResults(true);
-
-    const { data: d, error } = await submissionQCResults({
-      variables: {
-        // TODO: sorting and filters?
-        submissionID: submissionId,
-        first: 10000, // TODO: change to -1
-        offset: 0,
-      },
-      context: { clientName: 'backend' },
-      fetchPolicy: 'no-cache'
-    });
-
-    if (error || !d?.submissionQCResults?.results) {
-      enqueueSnackbar("Unable to retrieve submission quality control results.", { variant: "error" });
-      setBuildingResults(false);
-      return;
-    }
-
-    try {
-      const unpacked = unpackQCResultSeverities(d.submissionQCResults.results);
-      const csvArray = unpacked.map((result) => ({
-        "Batch ID": result.displayID,
-        "Node Type": result.type,
-        "Submitted Identifier": result.submittedID,
-        Severity: result.severity,
-        "Validated Date": result.validatedDate, // TODO: formatted?
-        Issues: result.errors?.length > 0 ? result.errors[0].description : result.warnings[0]?.description,
-      }));
-
-      // TODO: File name?
-      downloadBlob(unparse(csvArray), "validation-results.csv", "text/csv");
-    } catch (err) {
-      enqueueSnackbar("Unable to export validation results.", { variant: "error" });
-    }
-
-    setBuildingResults(false);
-  };
-
   const providerValue = useMemo(() => ({
     handleOpenErrorDialog
   }), [handleOpenErrorDialog]);
@@ -298,15 +266,7 @@ const QualityControl: FC = () => {
 
   return (
     <>
-      {/* NOTE: This is just temporary */}
-      <LoadingButton
-        loading={buildingResults}
-        onClick={downloadQCResults}
-        variant="contained"
-        color="primary"
-      >
-        Download QC Results
-      </LoadingButton>
+      <ExportValidationButton submissionId={submissionId} fields={csvColumns} disabled={totalData <= 1} />
       <StyledFilterContainer>
         <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
         <StyledFormControl>
