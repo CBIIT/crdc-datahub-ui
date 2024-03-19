@@ -85,10 +85,7 @@ describe('ExportValidationButton cases', () => {
         data: {
           submissionQCResults: {
             total: 1,
-            results: [{
-              ...baseQCResult,
-              submissionID
-            }]
+            results: [{ ...baseQCResult, submissionID }]
           },
         },
       },
@@ -102,6 +99,67 @@ describe('ExportValidationButton cases', () => {
 
     act(() => {
       fireEvent.click(getByText('Download QC Results'));
+    });
+  });
+
+  it('should call the field value callback function for each field', async () => {
+    const submissionID = "formatter-callback-sub-id";
+
+    const qcErrors = [
+      { title: "Error 01", description: "Error 01 description" },
+      { title: "Error 02", description: "Error 02 description" },
+    ];
+    const qcWarnings = [
+      { title: "Warning 01", description: "Warning 01 description" },
+      { title: "Warning 02", description: "Warning 02 description" },
+    ];
+
+    const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+        variables: {
+          id: submissionID,
+          sortDirection: "asc",
+          orderBy: "displayID",
+          first: 10000, // TODO: change to -1
+          offset: 0,
+        },
+      },
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 3,
+            results: [
+              { ...baseQCResult, errors: qcErrors, warnings: qcWarnings, submissionID, displayID: 1 },
+              { ...baseQCResult, errors: qcErrors, warnings: qcWarnings, submissionID, displayID: 2 },
+              { ...baseQCResult, errors: qcErrors, warnings: qcWarnings, submissionID, displayID: 3 },
+            ]
+          },
+        },
+      },
+    }];
+
+    const fields = {
+      DisplayID: jest.fn().mockImplementation((result: QCResult) => result.displayID),
+      ValidationType: jest.fn().mockImplementation((result: QCResult) => result.validationType),
+      // Testing the fallback of falsy values
+      NullValueField: jest.fn().mockImplementation(() => null),
+    };
+
+    const { getByText } = render(
+      <TestParent mocks={mocks}>
+        <ExportValidationButton submissionId={submissionID} fields={fields} />
+      </TestParent>
+    );
+
+    act(() => {
+      fireEvent.click(getByText('Download QC Results'));
+    });
+
+    await waitFor(() => {
+      // NOTE: The results are unpacked, 3 QCResults with 2 errors and 2 warnings each = 12 calls
+      expect(fields.DisplayID).toHaveBeenCalledTimes(12);
+      expect(fields.ValidationType).toHaveBeenCalledTimes(12);
     });
   });
 
