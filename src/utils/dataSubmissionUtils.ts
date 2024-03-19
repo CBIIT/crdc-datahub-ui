@@ -53,8 +53,8 @@ export const unpackQCResultSeverities = (results: QCResult[]): QCResult[] => {
   const unpackedResults: QCResult[] = [];
 
   // Iterate through each result and push the errors and warnings into separate results
-  results.forEach((result) => {
-    result.errors.slice(0).forEach((error) => {
+  results.forEach(({ errors, warnings, ...result }) => {
+    errors.slice(0).forEach((error) => {
       unpackedResults.push({
         ...result,
         severity: "Error",
@@ -62,7 +62,7 @@ export const unpackQCResultSeverities = (results: QCResult[]): QCResult[] => {
         warnings: [],
       });
     });
-    result.warnings.slice(0).forEach((warning) => {
+    warnings.slice(0).forEach((warning) => {
       unpackedResults.push({
         ...result,
         severity: "Warning",
@@ -89,7 +89,7 @@ export const downloadBlob = (content: string, filename: string, contentType: str
   const link = document.createElement('a');
 
   link.href = url;
-  link.setAttribute('download', filename);
+  link.download = filename;
   link.click();
   link.remove();
 };
