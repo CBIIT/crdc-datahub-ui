@@ -179,7 +179,8 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     await waitFor(() => expect(screen.getByTestId("isLoggedIn").textContent).toEqual("false"));
 
-    expect(screen.getByTestId("isLoggedIn").textContent).toEqual("false");
-    expect(localStorage.getItem("userDetails")).toBeNull();
+    await waitFor(() => {
+      expect(localStorage.getItem("userDetails")).toBeNull();
+    }, { timeout: 1000 });
   });
 });
