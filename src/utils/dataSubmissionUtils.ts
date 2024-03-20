@@ -6,8 +6,7 @@ export type SubmitInfo = {
 /**
  * Determines whether submit for a submission should be disabled based on its validation statuses and user role
  *
- * @param {ValidationStatus} metadataValidationStatus - The metadata validation status of the submission
- * @param {ValidationStatus} fileValidationStatus - The file validation status of the submission
+ * @param {Submission} submission - The Data Submission
  * @param {User["role"]} userRole - The role of the user
  * @returns {SubmitInfo} Info indicating whether or not to disable submit, as well as if it is due to an admin override
  */
