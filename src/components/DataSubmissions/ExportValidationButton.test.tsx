@@ -1,6 +1,3 @@
-import 'jest-axe/extend-expect';
-import '@testing-library/jest-dom';
-
 import { FC } from 'react';
 import { render, fireEvent, act, waitFor } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
@@ -8,20 +5,12 @@ import { GraphQLError } from 'graphql';
 import { axe } from 'jest-axe';
 import { ExportValidationButton } from './ExportValidationButton';
 import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from '../../graphql';
+import { mockEnqueue } from '../../setupTests';
 
 type ParentProps = {
   mocks?: MockedResponse[];
   children: React.ReactNode;
 };
-
-// NOTE: Need to migrate to setupTests.ts to avoid duplication
-const mockEnqueue = jest.fn();
-jest.mock('notistack', () => ({
-  ...jest.requireActual('notistack'),
-  useSnackbar: () => ({
-    enqueueSnackbar: mockEnqueue
-  })
-}));
 
 const TestParent: FC<ParentProps> = ({ mocks, children } : ParentProps) => (
   <MockedProvider mocks={mocks} showWarnings>

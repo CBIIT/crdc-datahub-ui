@@ -173,7 +173,8 @@ describe('unpackQCResultSeverities cases', () => {
     batchID: "",
     type: '',
     validationType: '' as QCResult["validationType"],
-    // NOTE: This is intentionally incorrect and should break the tests if used
+    // NOTE: This is intentionally invalid and should break the tests if used
+    // by the unpackQCResultSeverities function
     severity: "SHOULD NOT BE USED" as QCResult["severity"],
     displayID: 0,
     submittedID: '',
@@ -256,7 +257,7 @@ describe('unpackQCResultSeverities cases', () => {
 
     const unpackedResults = utils.unpackQCResultSeverities(results);
 
-    // 15 errors and 5 warnings per result, 150000 total
+    // 10 errors and 5 warnings per result with 10K results, 150K total
     expect(unpackedResults.length).toEqual(150000);
     expect(unpackedResults.filter((result) => result.severity === "Error").length).toEqual(100000);
     expect(unpackedResults.filter((result) => result.severity === "Warning").length).toEqual(50000);
