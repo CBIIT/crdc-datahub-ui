@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   CardActions,
-  CardActionsProps,
   CardContent,
   Container,
   IconButton,
@@ -117,13 +116,10 @@ const StyledMainContentArea = styled("div")(() => ({
   padding: "21px 40px 0",
 }));
 
-const StyledCardActions = styled(CardActions, {
-  shouldForwardProp: (prop) => prop !== "isVisible"
-})<CardActionsProps & { isVisible: boolean; }>(({ isVisible }) => ({
+const StyledCardActions = styled(CardActions)(() => ({
   "&.MuiCardActions-root": {
-    visibility: isVisible ? "visible" : "hidden",
     paddingTop: 0,
-  }
+  },
 }));
 
 const StyledTabs = styled(Tabs)(() => ({
@@ -337,7 +333,7 @@ type Props = {
   tab: string;
 };
 
-const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
+const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }) => {
   usePageTitle(`Data Submission ${submissionId || ""}`);
 
   const { user } = useAuthContext();
@@ -593,7 +589,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab }) => {
               <BackButton navigateTo="/data-submissions" text="Back to Data Submissions" />
             </StyledMainContentArea>
           </StyledCardContent>
-          <StyledCardActions isVisible={tab === URLTabs.DATA_ACTIVITY}>
+          <StyledCardActions>
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}

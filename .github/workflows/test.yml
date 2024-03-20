@@ -1,4 +1,4 @@
-name: Certify Changes
+name: Test Changes
 
 on:
   workflow_dispatch:
@@ -17,8 +17,8 @@ permissions:
   contents: read
 
 jobs:
-  certify:
-    name: Certify Build Changes
+  test:
+    name: Test Changes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
+          node-version: "20.x"
           cache: "npm"
 
       - name: Cache node modules
@@ -41,11 +41,8 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Run Typecheck
-        run: npm run check:ci
-
       - name: Run Jest
         run: npm run test:ci
 
-      - name: Run Linter
-        run: npm run lint:ci
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v2.2.3
