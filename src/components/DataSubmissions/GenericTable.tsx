@@ -15,7 +15,6 @@ import {
   styled,
 } from "@mui/material";
 import { CSSProperties, ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
-import { useAuthContext } from "../Contexts/AuthContext";
 import PaginationActions from "./PaginationActions";
 import SuspenseLoader from '../SuspenseLoader';
 
@@ -126,7 +125,7 @@ export type Order = "asc" | "desc";
 
 export type Column<T> = {
   label: string | React.ReactNode;
-  renderValue: (a: T, user: User) => string | boolean | number | React.ReactNode;
+  renderValue: (a: T) => string | boolean | number | React.ReactNode;
   field?: keyof T;
   default?: true;
   sortDisabled?: boolean;
@@ -180,7 +179,6 @@ const GenericTable = <T,>({
   onOrderByChange,
   onPerPageChange,
 }: Props<T>, ref: React.Ref<TableMethods>) => {
-  const { user } = useAuthContext();
   const [order, setOrder] = useState<Order>(defaultOrder);
   const [orderBy, setOrderBy] = useState<Column<T>>(
     columns.find((c) => c.default) || columns.find((c) => c.field)
@@ -278,7 +276,7 @@ const GenericTable = <T,>({
                 <TableRow tabIndex={-1} hover key={itemKey}>
                   {columns.map((col: Column<T>) => (
                     <StyledTableCell key={`${itemKey}_${col.label}`}>
-                      {col.renderValue(d, user)}
+                      {col.renderValue(d)}
                     </StyledTableCell>
                   ))}
                 </TableRow>

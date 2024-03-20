@@ -60,6 +60,9 @@ export type { Response as ValidateSubmissionResp } from "./validateSubmission";
 export { query as LIST_NODE_TYPES } from "./listSubmissionNodeTypes";
 export type { Response as ListNodeTypesResp } from "./listSubmissionNodeTypes";
 
+export { query as GET_SUBMISSION_NODES } from "./getSubmissionNodes";
+export type { Response as GetSubmissionNodesResp } from "./getSubmissionNodes";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";

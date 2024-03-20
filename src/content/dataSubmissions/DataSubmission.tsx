@@ -44,6 +44,7 @@ import FileListDialog from "./FileListDialog";
 import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
 import usePageTitle from '../../hooks/usePageTitle';
 import BackButton from "../../components/DataSubmissions/BackButton";
+import DataContent from './DataContent';
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -323,7 +324,8 @@ const columns: Column<Batch>[] = [
 
 const URLTabs = {
   DATA_ACTIVITY: "data-activity",
-  VALIDATION_RESULTS: "validation-results"
+  VALIDATION_RESULTS: "validation-results",
+  DATA_CONTENT: "data-content",
 };
 
 const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
@@ -571,10 +573,17 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                 to={`/data-submission/${submissionId}/${URLTabs.VALIDATION_RESULTS}`}
                 selected={tab === URLTabs.VALIDATION_RESULTS}
               />
+              <LinkTab
+                value={URLTabs.DATA_CONTENT}
+                label="Data Content"
+                to={`/data-submission/${submissionId}/${URLTabs.DATA_CONTENT}`}
+                selected={tab === URLTabs.DATA_CONTENT}
+              />
             </StyledTabs>
 
             <StyledMainContentArea>
-              {tab === URLTabs.DATA_ACTIVITY ? (
+              {/* Primary Tab Content */}
+              {tab === URLTabs.DATA_ACTIVITY && (
                 <BatchTableContext.Provider value={providerValue}>
                   <GenericTable
                     ref={tableRef}
@@ -587,7 +596,13 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                     containerProps={{ sx: { marginBottom: "8px" } }}
                   />
                 </BatchTableContext.Provider>
-              ) : <QualityControl />}
+              )}
+              {tab === URLTabs.VALIDATION_RESULTS && (
+                <QualityControl />
+              )}
+              {tab === URLTabs.DATA_CONTENT && (
+                <DataContent submissionId={submissionId} statistics={data?.submissionStats?.stats} />
+              )}
 
               {/* Return to Data Submission List Button */}
               <BackButton navigateTo="/data-submissions" text="Back to Data Submissions" />
