@@ -376,4 +376,28 @@ describe("Admin Submit", () => {
     expect(result.disable).toBe(false);
     expect(result.isAdminOverride).toBe(true);
   });
+
+  it('should not allow submit with isAdminOverride when Submission level errors exist', () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      metadataValidationStatus: null,
+      fileValidationStatus: "Error",
+      fileErrors: [{ title: "", description: "" }]
+    };
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
+    expect(result.disable).toBe(true);
+    expect(result.isAdminOverride).toBe(false);
+  });
+
+  it('should not allow submitter to submit when Submission level errors exist', () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      metadataValidationStatus: "Passed",
+      fileValidationStatus: "Passed",
+      fileErrors: [{ title: "", description: "" }]
+    };
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
+    expect(result.disable).toBe(true);
+    expect(result.isAdminOverride).toBe(false);
+  });
 });
