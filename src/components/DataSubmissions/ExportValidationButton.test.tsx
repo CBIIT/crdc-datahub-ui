@@ -7,7 +7,6 @@ import dayjs from 'dayjs';
 import { ExportValidationButton } from './ExportValidationButton';
 import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from '../../graphql';
 import { mockEnqueue } from '../../setupTests';
-import { filterAlphaNumeric } from '../../utils';
 
 type ParentProps = {
   mocks?: MockedResponse[];
