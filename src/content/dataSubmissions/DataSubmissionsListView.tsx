@@ -9,6 +9,7 @@ import {
   Dialog, DialogTitle, FormControl,
   Select, MenuItem,
 } from "@mui/material";
+import { useSnackbar } from "notistack";
 import { LoadingButton } from '@mui/lab';
 import { useMutation, useQuery } from '@apollo/client';
 import { query, Response } from '../../graphql/listSubmissions';
@@ -21,7 +22,6 @@ import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { mutation as CREATE_SUBMISSION, Response as CreateSubmissionResp } from '../../graphql/createSubmission';
 import SelectInput from "../../components/Questionnaire/SelectInput";
 import TextInput from "../../components/Questionnaire/TextInput";
-import GenericAlert from '../../components/GenericAlert';
 import { DataCommons } from '../../config/DataCommons';
 import SuspenseLoader from '../../components/SuspenseLoader';
 import usePageTitle from '../../hooks/usePageTitle';
@@ -315,6 +315,7 @@ const ListingView: FC = () => {
 
   const { state } = useLocation();
   const { user } = useAuthContext();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<Column>(
@@ -337,7 +338,6 @@ const ListingView: FC = () => {
   const [organizationFilter, setOrganizationFilter] = useState<string>(shouldHaveAllFilter ? "All" : (hasOrganizationAssigned ? user.organization?.orgName : "All"));
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [submissionName, setSubmissionName] = useState<string>(null);
-  const [submissionCreatedSuccessfullyAlert, setSubmissionCreatedSuccessfullyAlert] = useState<boolean>(false);
   const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
 
   const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
@@ -410,8 +410,7 @@ const ListingView: FC = () => {
       }
     }).then(() => {
       refetch();
-      setSubmissionCreatedSuccessfullyAlert(true);
-      setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
+      enqueueSnackbar("Data Submission Created Successfully", { variant: "success" });
       setCreatingSubmission(false);
       setCreateSubmissionError(false);
     })
@@ -427,11 +426,6 @@ const ListingView: FC = () => {
   approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
   return (
     <>
-      <GenericAlert open={submissionCreatedSuccessfullyAlert}>
-        <span>
-          Data Submission Created Successfully
-        </span>
-      </GenericAlert>
       <PageBanner
         title="Data Submission List"
         subTitle="Below is a list of data submissions that are associated with your account. Please click on any of the data submissions to review or continue work."
