@@ -41,6 +41,7 @@ module.exports = {
     "arrow-body-style": ["warn"],
     "eol-last": ["warn"],
     "no-unreachable": ["warn"],
+    "react/prop-types": "off",
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx", ".ts"] }],
     "react/jsx-props-no-spreading": "off",
     "react/react-in-jsx-scope": "off",
