@@ -18,6 +18,12 @@ const TestParent: FC<ParentProps> = ({ mocks, children } : ParentProps) => (
   </MockedProvider>
 );
 
+const mockDownloadBlob = jest.fn();
+jest.mock('../../utils', () => ({
+  ...jest.requireActual('../../utils'),
+  downloadBlob: (...args) => mockDownloadBlob(...args),
+}));
+
 describe('ExportValidationButton cases', () => {
   const baseSubmission: Submission = {
     _id: '',
@@ -56,7 +62,7 @@ describe('ExportValidationButton cases', () => {
   };
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('should not have accessibility violations', async () => {
@@ -115,12 +121,53 @@ describe('ExportValidationButton cases', () => {
   });
 
   it.each<Submission>([
-    { ...baseSubmission, _id: "example-sub-id" },
-    { ...baseSubmission, _id: "example-sub-id-2" },
-    { ...baseSubmission, _id: "example-sub-id-3" },
-  ])("should name the export file as [TODO]", async (submission) => {
-  // TODO: Implement per requirements
-    expect(false).toBeTruthy();
+    { ...baseSubmission, _id: "1", name: "A B C 1 2 3" },
+    { ...baseSubmission, _id: "2", name: "long name".repeat(100) },
+    { ...baseSubmission, _id: "3", name: "" },
+  ])("should name the CSV export file dynamically using submission name and export date", async (submission) => {
+    const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+        variables: {
+          id: submission._id,
+          sortDirection: "asc",
+          orderBy: "displayID",
+          first: 10000, // TODO: change to -1
+          offset: 0,
+        },
+      },
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 1,
+            results: [{
+              ...baseQCResult,
+              submissionID: submission._id,
+              errors: [{ title: "Error 01", description: "Error 01 description" }],
+            }]
+          },
+        },
+      },
+    }];
+
+    const fields = {
+      ID: jest.fn().mockImplementation((result: QCResult) => result.submissionID),
+    };
+
+    const { getByText } = render(
+      <TestParent mocks={mocks}>
+        <ExportValidationButton submission={submission} fields={fields} />
+      </TestParent>
+    );
+
+    act(() => {
+      fireEvent.click(getByText('Download QC Results'));
+    });
+
+    await waitFor(() => {
+      // TODO: Waiting for requirement to assert the file name
+      expect(mockDownloadBlob).toHaveBeenCalledWith(expect.any(String), "validation-results.csv", expect.any(String));
+    });
   });
 
   it('should alert the user if there are no QC Results to export', async () => {
