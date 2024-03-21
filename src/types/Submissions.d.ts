@@ -13,7 +13,7 @@ type Submission = {
   status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
   metadataValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
   fileValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
-  fileErrors: ErrorMessage[]; // holds submission level file errors, e.g., extra files in S3 folder
+  fileErrors: QCResult[]; // holds submission level file errors, e.g., extra files in S3 folder
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email

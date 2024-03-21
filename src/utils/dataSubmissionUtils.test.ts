@@ -382,7 +382,21 @@ describe("Admin Submit", () => {
       ...baseSubmission,
       metadataValidationStatus: null,
       fileValidationStatus: "Error",
-      fileErrors: [{ title: "", description: "" }]
+      fileErrors: [
+        {
+          submissionID: "123",
+          type: "",
+          validationType: "data file",
+          uploadedDate: "",
+          batchID: "",
+          displayID: 1,
+          errors: [],
+          warnings: [],
+          severity: "Error",
+          submittedID: "123",
+          validatedDate: "",
+        },
+      ],
     };
     const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
     expect(result.disable).toBe(true);
@@ -394,7 +408,21 @@ describe("Admin Submit", () => {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
-      fileErrors: [{ title: "", description: "" }]
+      fileErrors: [
+        {
+          submissionID: "123",
+          type: "",
+          validationType: "data file",
+          uploadedDate: "",
+          batchID: "",
+          displayID: 1,
+          errors: [],
+          warnings: [],
+          severity: "Error",
+          submittedID: "123",
+          validatedDate: "",
+        },
+      ],
     };
     const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);

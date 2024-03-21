@@ -21,8 +21,23 @@ export const query = gql`
       metadataValidationStatus
       fileValidationStatus
       fileErrors {
-        title
-        description
+        submissionID
+        type
+        validationType
+        batchID
+        displayID
+        submittedID
+        severity
+        uploadedDate
+        validatedDate
+        errors {
+          title
+          description
+        }
+        warnings {
+          title
+          description
+        }
       }
       history {
         status
