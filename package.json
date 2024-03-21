@@ -41,7 +41,7 @@
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "test": "TZ=UTC react-scripts test",
-    "test:ci": "TZ=UTC CI=true react-scripts test --passWithNoTests",
+    "test:ci": "TZ=UTC CI=true react-scripts test --passWithNoTests --coverage",
     "lint": "eslint . --ignore-path .gitignore",
     "lint:ci": "eslint . --ignore-path .gitignore --max-warnings 0",
     "lint:fix": "eslint --fix . --ignore-path .gitignore",

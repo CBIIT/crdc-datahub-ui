@@ -88,6 +88,7 @@ const StyledErrorItem = styled(Typography)({
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "22px",
+  wordBreak: "break-word"
 });
 
 const StyledErrors = styled(Stack)({
