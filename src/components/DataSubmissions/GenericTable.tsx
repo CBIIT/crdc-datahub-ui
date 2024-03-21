@@ -248,7 +248,11 @@ const GenericTable = <T,>({
         <StyledTableHead>
           <TableRow>
             {columns.map((col: Column<T>) => (
-              <StyledHeaderCell key={col.label.toString()} sx={col.sx}>
+              <StyledHeaderCell
+                key={col.label.toString()}
+                sx={col.sx}
+                data-testid={`generic-table-header-${col.label.toString()}`}
+              >
                 {col.field && !col.sortDisabled ? (
                   <TableSortLabel
                     active={orderBy === col}
@@ -326,7 +330,13 @@ const GenericTable = <T,>({
               || emptyRows > 0
               || loading
         }}
-        SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
+        SelectProps={{
+          inputProps: {
+            "aria-label": "rows per page",
+            "data-testid": "generic-table-rows-per-page"
+          },
+          native: true,
+        }}
         backIconButtonProps={{ disabled: page === 0 || loading }}
         ActionsComponent={PaginationActions}
       />

@@ -2,25 +2,19 @@ import { FC, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from 'notistack';
-import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
+import { GET_SUBMISSION_NODES, GetSubmissionNodesResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { DataContentFilters, FilterForm } from '../../components/DataSubmissions/DataContentFilters';
+import { safeParse } from '../../utils';
 
-type TODO = QCResult; // TODO: Type this when the real type is known
+type T = Pick<SubmissionNode, "nodeType" | "nodeID"> & {
+  props: Record<string, string>;
+};
 
 type Props = {
   submissionId: string;
   statistics: SubmissionStatistic[];
 };
-
-const columns: Column<TODO>[] = [
-  {
-    label: "TBD",
-    renderValue: () => "TBD",
-    field: "displayID",
-    default: true
-  },
-];
 
 const DataContent: FC<Props> = ({ submissionId, statistics }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -29,16 +23,17 @@ const DataContent: FC<Props> = ({ submissionId, statistics }) => {
   const filterRef = useRef<FilterForm>({ nodeType: "" });
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [data, setData] = useState<TODO[]>([]);
-  const [prevListing, setPrevListing] = useState<FetchListing<TODO>>(null);
+  const [columns, setColumns] = useState<Column<T>[]>([]);
+  const [data, setData] = useState<T[]>([]);
+  const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
   const [totalData, setTotalData] = useState<number>(0);
-  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
-    variables: { id: submissionId },
+
+  const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp>(GET_SUBMISSION_NODES, {
     context: { clientName: 'backend' },
     fetchPolicy: 'cache-and-network',
   });
 
-  const handleFetchData = async (fetchListing: FetchListing<TODO>, force: boolean) => {
+  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
       enqueueSnackbar("Cannot fetch results. Submission ID is invalid or missing.", { variant: "error" });
@@ -56,8 +51,9 @@ const DataContent: FC<Props> = ({ submissionId, statistics }) => {
     setPrevListing(fetchListing);
     setLoading(true);
 
-    const { data: d, error } = await submissionQCResults({
+    const { data: d, error } = await getSubmissionNodes({
       variables: {
+        _id: submissionId,
         first,
         offset,
         sortDirection,
@@ -68,14 +64,24 @@ const DataContent: FC<Props> = ({ submissionId, statistics }) => {
       fetchPolicy: 'no-cache'
     });
 
-    if (error || !d?.submissionQCResults) {
+    if (error || !d?.getSubmissionNodes || !d?.getSubmissionNodes?.properties) {
       enqueueSnackbar("Unable to retrieve node data.", { variant: "error" });
       setLoading(false);
       return;
     }
 
-    setData(d.submissionQCResults.results);
-    setTotalData(d.submissionQCResults.total);
+    setTotalData(d.getSubmissionNodes.total);
+    setData(d.getSubmissionNodes.nodes.map((node) => ({
+      nodeType: node.nodeType,
+      nodeID: node.nodeID,
+      props: safeParse(node.props),
+    })));
+    setColumns(d.getSubmissionNodes.properties.map((prop) => ({
+      label: prop,
+      renderValue: (d) => d?.[prop] || "",
+      field: prop as keyof T, // TODO: fix this hack
+      default: true
+    })));
     setLoading(false);
   };
 
@@ -95,7 +101,7 @@ const DataContent: FC<Props> = ({ submissionId, statistics }) => {
         loading={loading}
         defaultRowsPerPage={20}
         defaultOrder="desc"
-        setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
+        setItemKey={(item, idx) => `${idx}_${item.nodeID}_${item.nodeID}`}
         onFetchData={handleFetchData}
       />
     </>

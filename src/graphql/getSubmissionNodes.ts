@@ -6,18 +6,9 @@ export const query = gql`
       total
       properties
       nodes {
-        _id
         nodeType
-        name
-        description
-        status
-        createdAt
-        updatedAt
-        createdBy
-        updatedBy
-        parentID
-        parentType
-        properties
+        nodeID
+        props
       }
     }
   }
@@ -35,7 +26,9 @@ export type Response = {
     properties: string[];
     /**
      * An array of nodes matching the queried node type
+     *
+     * @note Unused values are omitted from the query. See the type definition for additional fields.
      */
-    nodes: SubmissionNode[];
+    nodes: Pick<SubmissionNode, "nodeType" | "nodeID" | "props">[];
   };
 };
