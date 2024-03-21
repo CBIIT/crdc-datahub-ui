@@ -5,6 +5,7 @@ import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material"
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
+import { ExportValidationButton, Props as ExportButtonProps } from '../../components/DataSubmissions/ExportValidationButton';
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -124,14 +125,23 @@ type SubmitActionButton = {
   disable: boolean;
 };
 
+type ExportActionButton = {
+  disabled: boolean;
+  visible: boolean;
+  fields: ExportButtonProps["fields"];
+};
+
 type Props = {
   submission: Submission;
   submitActionButton: SubmitActionButton;
+  exportActionButton: ExportActionButton;
   onAction: (action: SubmissionAction, reviewComment?: string) => Promise<void>;
   onError: (message: string) => void;
 };
 
-const DataSubmissionActions = ({ submission, submitActionButton, onAction, onError }: Props) => {
+const DataSubmissionActions = ({
+  submission, submitActionButton, exportActionButton, onAction, onError,
+}: Props) => {
   const { user } = useAuthContext();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
@@ -283,6 +293,15 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
           Cancel
         </StyledLoadingButton>
       ) : null}
+
+      {/* Validation Result Export Button */}
+      {exportActionButton.visible && (
+        <ExportValidationButton
+          submission={submission}
+          fields={exportActionButton.fields}
+          disabled={exportActionButton.disabled}
+        />
+      )}
 
       {/* Submit Dialog */}
       <StyledDialog

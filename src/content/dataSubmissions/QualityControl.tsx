@@ -10,7 +10,6 @@ import GenericTable, { Column, FetchListing, TableMethods } from "../../componen
 import { FormatDate, capitalizeFirstLetter } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
-import { ExportValidationButton } from '../../components/DataSubmissions/ExportValidationButton';
 
 type FilterForm = {
   nodeType: string | "All";
@@ -155,13 +154,13 @@ const columns: Column<QCResult>[] = [
   },
 ];
 
-// TODO: Use `columns` instead of duplicating the fields here.
-const csvColumns = {
+// CSV columns used for exporting table data
+export const csvColumns = {
   "Batch ID": (d: QCResult) => d.displayID,
   "Node Type": (d: QCResult) => d.type,
   "Submitted Identifier": (d: QCResult) => d.submittedID,
   Severity: (d: QCResult) => d.severity,
-  "Validated Date": (d: QCResult) => d.validatedDate,
+  "Validated Date": (d: QCResult) => FormatDate(d?.validatedDate, "MM-DD-YYYY [at] hh:mm A", ""),
   Issues: (d: QCResult) => (d.errors?.length > 0 ? d.errors[0].description : d.warnings[0]?.description),
 };
 
@@ -266,7 +265,6 @@ const QualityControl: FC = () => {
 
   return (
     <>
-      <ExportValidationButton submissionId={submissionId} fields={csvColumns} disabled={totalData <= 1} />
       <StyledFilterContainer>
         <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
         <StyledFormControl>

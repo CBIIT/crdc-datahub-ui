@@ -4,7 +4,7 @@ import 'jest-axe/extend-expect';
 /**
  * Mocks the enqueueSnackbar function from notistack for testing
  *
- * @note You must clear all mocks after each test to avoid unexpected behavior
+ * @note You must RESET all mocks after each test to avoid unexpected behavior
  * @example expect(mockEnqueue).toHaveBeenCalledWith('message', { variant: 'error' });
  * @see notistack documentation: https://notistack.com/getting-started
  */

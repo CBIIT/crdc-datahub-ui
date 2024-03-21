@@ -33,7 +33,7 @@ import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissi
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
-import QualityControl from "./QualityControl";
+import QualityControl, { csvColumns } from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
 import ErrorDialog from "./ErrorDialog";
 import BatchTableContext from "./Contexts/BatchTableContext";
@@ -370,11 +370,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
         return { disable: true, isAdminOverride: false };
       }
 
-      return shouldDisableSubmit(
-        data.getSubmission.metadataValidationStatus,
-        data.getSubmission.fileValidationStatus,
-        user?.role
-      );
+      return shouldDisableSubmit(data.getSubmission, user?.role);
     },
     [data?.getSubmission, user]
   );
@@ -615,6 +611,11 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
               submitActionButton={{
                 disable: submitInfo?.disable,
                 label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
+              }}
+              exportActionButton={{
+                fields: csvColumns,
+                disabled: !data?.totalQCResults?.total,
+                visible: tab === URLTabs.VALIDATION_RESULTS,
               }}
               onError={(message: string) => enqueueSnackbar(message, { variant: "error" })}
             />

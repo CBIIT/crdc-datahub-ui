@@ -9,11 +9,9 @@ import { downloadBlob, unpackQCResultSeverities } from '../../utils';
 
 export type Props = {
   /**
-   * The `_id` (uuid) of the submission to build the QC Results for
-   *
-   * @example 9f9c5d6b-5ddb-4a02-8bd6-7bf0c15a169a
+   * The full Data Submission object to export validation results for
    */
-  submissionId: Submission["_id"];
+  submission: Submission;
   /**
    * The K:V pair of the fields that should be exported where
    * `key` is the column header and `value` is a function
@@ -27,15 +25,13 @@ export type Props = {
 /**
  * Provides the button and supporting functionality to export the validation results of a submission.
  *
- * @param submissionId The ID of the submission to export validation results for.
  * @returns {React.FC} The export validation button.
  */
-export const ExportValidationButton: React.FC<Props> = ({ submissionId, fields, ...buttonProps }: Props) => {
+export const ExportValidationButton: React.FC<Props> = ({ submission, fields, ...buttonProps }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
 
   const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
-    variables: { id: submissionId },
     context: { clientName: 'backend' },
     fetchPolicy: 'cache-and-network',
   });
@@ -45,7 +41,7 @@ export const ExportValidationButton: React.FC<Props> = ({ submissionId, fields, 
 
     const { data: d, error } = await submissionQCResults({
       variables: {
-        id: submissionId,
+        id: submission?._id,
         sortDirection: "asc",
         orderBy: "displayID",
         first: 10000, // TODO: change to -1
@@ -57,6 +53,12 @@ export const ExportValidationButton: React.FC<Props> = ({ submissionId, fields, 
 
     if (error || !d?.submissionQCResults?.results) {
       enqueueSnackbar("Unable to retrieve submission quality control results.", { variant: "error" });
+      setLoading(false);
+      return;
+    }
+
+    if (!d?.submissionQCResults?.results.length) {
+      enqueueSnackbar("There are no validation results to export.", { variant: "error" });
       setLoading(false);
       return;
     }
