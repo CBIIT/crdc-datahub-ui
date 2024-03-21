@@ -368,11 +368,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
         return { disable: true, isAdminOverride: false };
       }
 
-      return shouldDisableSubmit(
-        data.getSubmission.metadataValidationStatus,
-        data.getSubmission.fileValidationStatus,
-        user?.role
-      );
+      return shouldDisableSubmit(data.getSubmission, user?.role);
     },
     [data?.getSubmission, user]
   );
