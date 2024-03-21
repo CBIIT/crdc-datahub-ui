@@ -3,9 +3,11 @@ import { render, fireEvent, act, waitFor } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { GraphQLError } from 'graphql';
 import { axe } from 'jest-axe';
+import dayjs from 'dayjs';
 import { ExportValidationButton } from './ExportValidationButton';
 import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from '../../graphql';
 import { mockEnqueue } from '../../setupTests';
+import { filterAlphaNumeric } from '../../utils';
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -120,16 +122,21 @@ describe('ExportValidationButton cases', () => {
     });
   });
 
-  it.each<Submission>([
-    { ...baseSubmission, _id: "1", name: "A B C 1 2 3" },
-    { ...baseSubmission, _id: "2", name: "long name".repeat(100) },
-    { ...baseSubmission, _id: "3", name: "" },
-  ])("should name the CSV export file dynamically using submission name and export date", async (submission) => {
+  it.each<{ original: string, expected: string }>([
+    { original: "A B C 1 2 3", expected: "ABC123" },
+    { original: "long name".repeat(100), expected: "longname".repeat(100) },
+    { original: "", expected: "" },
+    { original: `non $alpha name $@!819`, expected: "nonalphaname819" },
+    { original: "  ", expected: "" },
+    { original: `_-"a-b+c=d`, expected: "abcd" },
+  ])("should safely name the CSV export file dynamically using submission name and export date", async ({ original, expected }) => {
+    jest.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00Z'));
+
     const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
       request: {
         query: SUBMISSION_QC_RESULTS,
         variables: {
-          id: submission._id,
+          id: "example-dynamic-filename-id",
           sortDirection: "asc",
           orderBy: "displayID",
           first: 10000, // TODO: change to -1
@@ -142,7 +149,7 @@ describe('ExportValidationButton cases', () => {
             total: 1,
             results: [{
               ...baseQCResult,
-              submissionID: submission._id,
+              submissionID: "example-dynamic-filename-id",
               errors: [{ title: "Error 01", description: "Error 01 description" }],
             }]
           },
@@ -156,7 +163,7 @@ describe('ExportValidationButton cases', () => {
 
     const { getByText } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={submission} fields={fields} />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: "example-dynamic-filename-id", name: original }} fields={fields} />
       </TestParent>
     );
 
@@ -165,9 +172,11 @@ describe('ExportValidationButton cases', () => {
     });
 
     await waitFor(() => {
-      // TODO: Waiting for requirement to assert the file name
-      expect(mockDownloadBlob).toHaveBeenCalledWith(expect.any(String), "validation-results.csv", expect.any(String));
+      const filename = `${expected}-${dayjs().format("YYYY-MM-DDTHHmmss")}.csv`;
+      expect(mockDownloadBlob).toHaveBeenCalledWith(expect.any(String), filename, expect.any(String));
     });
+
+    jest.useRealTimers();
   });
 
   it('should alert the user if there are no QC Results to export', async () => {

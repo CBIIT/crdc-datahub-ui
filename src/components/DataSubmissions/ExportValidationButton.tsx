@@ -3,9 +3,10 @@ import { useLazyQuery } from '@apollo/client';
 import { LoadingButton } from '@mui/lab';
 import { ButtonProps } from '@mui/material';
 import { useSnackbar } from 'notistack';
+import dayjs from 'dayjs';
 import { unparse } from 'papaparse';
 import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from '../../graphql';
-import { downloadBlob, unpackQCResultSeverities } from '../../utils';
+import { downloadBlob, filterAlphaNumeric, unpackQCResultSeverities } from '../../utils';
 
 export type Props = {
   /**
@@ -64,6 +65,7 @@ export const ExportValidationButton: React.FC<Props> = ({ submission, fields, ..
     }
 
     try {
+      const filename = `${filterAlphaNumeric(submission.name)}-${dayjs().format("YYYY-MM-DDTHHmmss")}.csv`;
       const unpacked = unpackQCResultSeverities(d.submissionQCResults.results);
       const csvArray = [];
 
@@ -78,8 +80,7 @@ export const ExportValidationButton: React.FC<Props> = ({ submission, fields, ..
         csvArray.push(csvRow);
       });
 
-      // TODO: File name?
-      downloadBlob(unparse(csvArray), "validation-results.csv", "text/csv");
+      downloadBlob(unparse(csvArray), filename, "text/csv");
     } catch (err) {
       enqueueSnackbar("Unable to export validation results.", { variant: "error" });
     }
