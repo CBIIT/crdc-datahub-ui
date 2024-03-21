@@ -19,6 +19,29 @@ const TestParent: FC<ParentProps> = ({ mocks, children } : ParentProps) => (
 );
 
 describe('ExportValidationButton cases', () => {
+  const baseSubmission: Submission = {
+    _id: '',
+    name: '',
+    submitterID: '',
+    submitterName: '',
+    organization: null,
+    dataCommons: '',
+    modelVersion: '',
+    studyAbbreviation: '',
+    dbGaPID: '',
+    bucketName: '',
+    rootPath: '',
+    status: 'New',
+    metadataValidationStatus: 'Error',
+    fileValidationStatus: 'Error',
+    fileErrors: [],
+    history: [],
+    conciergeName: '',
+    conciergeEmail: '',
+    createdAt: '',
+    updatedAt: ''
+  };
+
   const baseQCResult: Omit<QCResult, "submissionID"> = {
     batchID: "",
     type: '',
@@ -39,7 +62,7 @@ describe('ExportValidationButton cases', () => {
   it('should not have accessibility violations', async () => {
     const { container } = render(
       <TestParent mocks={[]}>
-        <ExportValidationButton submissionId="example-sub-id" fields={{}} />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: "example-sub-id" }} fields={{}} />
       </TestParent>
     );
 
@@ -49,7 +72,7 @@ describe('ExportValidationButton cases', () => {
   it('should render without crashing', () => {
     const { getByText } = render(
       <TestParent mocks={[]}>
-        <ExportValidationButton submissionId="example-sub-id" fields={{}} />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: "test-rendering-id" }} fields={{}} />
       </TestParent>
     );
 
@@ -82,12 +105,60 @@ describe('ExportValidationButton cases', () => {
 
     const { getByText } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submissionId={submissionID} fields={{}} />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
     act(() => {
       fireEvent.click(getByText('Download QC Results'));
+    });
+  });
+
+  it.each<Submission>([
+    { ...baseSubmission, _id: "example-sub-id" },
+    { ...baseSubmission, _id: "example-sub-id-2" },
+    { ...baseSubmission, _id: "example-sub-id-3" },
+  ])("should name the export file as [TODO]", async (submission) => {
+  // TODO: Implement per requirements
+    expect(false).toBeTruthy();
+  });
+
+  it('should alert the user if there are no QC Results to export', async () => {
+    const submissionID = "example-no-results-to-export-id";
+
+    const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+        variables: {
+          id: submissionID,
+          sortDirection: "asc",
+          orderBy: "displayID",
+          first: 10000, // TODO: change to -1
+          offset: 0,
+        },
+      },
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 0,
+            results: []
+          },
+        },
+      },
+    }];
+
+    const { getByText } = render(
+      <TestParent mocks={mocks}>
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+      </TestParent>
+    );
+
+    act(() => {
+      fireEvent.click(getByText('Download QC Results'));
+    });
+
+    await waitFor(() => {
+      expect(mockEnqueue).toHaveBeenCalledWith("There are no validation results to export.", { variant: "error" });
     });
   });
 
@@ -137,7 +208,7 @@ describe('ExportValidationButton cases', () => {
 
     const { getByText } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submissionId={submissionID} fields={fields} />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={fields} />
       </TestParent>
     );
 
@@ -171,7 +242,7 @@ describe('ExportValidationButton cases', () => {
 
     const { getByText } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submissionId={submissionID} fields={{}} />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
@@ -205,7 +276,7 @@ describe('ExportValidationButton cases', () => {
 
     const { getByText } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submissionId={submissionID} fields={{}} />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
@@ -248,7 +319,7 @@ describe('ExportValidationButton cases', () => {
 
     const { getByText } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submissionId={submissionID} fields={{}} />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
