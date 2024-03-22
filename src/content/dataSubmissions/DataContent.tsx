@@ -78,7 +78,7 @@ const DataContent: FC<Props> = ({ submissionId, statistics }) => {
     })));
     setColumns(d.getSubmissionNodes.properties.map((prop) => ({
       label: prop,
-      renderValue: (d) => d?.[prop] || "",
+      renderValue: (d) => d?.props?.[prop] || "",
       field: prop as keyof T, // TODO: fix this hack
       default: true
     })));

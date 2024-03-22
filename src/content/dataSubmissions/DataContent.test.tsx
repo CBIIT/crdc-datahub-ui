@@ -202,7 +202,7 @@ describe("DataContent > Table", () => {
 
     const stats: SubmissionStatistic[] = [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }];
 
-    const { getByTestId } = render(
+    const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
         <DataContent submissionId={submissionID} statistics={stats} />
       </TestParent>
@@ -212,6 +212,9 @@ describe("DataContent > Table", () => {
       expect(getByTestId("generic-table-header-col.1")).toBeInTheDocument();
       expect(getByTestId("generic-table-header-col.2")).toBeInTheDocument();
       expect(getByTestId("generic-table-header-col.3")).toBeInTheDocument();
+      expect(getByText("value-1")).toBeInTheDocument();
+      expect(getByText("value-2")).toBeInTheDocument();
+      expect(getByText("value-3")).toBeInTheDocument();
     });
   });
 
@@ -250,7 +253,7 @@ describe("DataContent > Table", () => {
 
     const stats: SubmissionStatistic[] = [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }];
 
-    const { getByTestId } = render(
+    const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
         <DataContent submissionId={submissionID} statistics={stats} />
       </TestParent>
@@ -258,10 +261,11 @@ describe("DataContent > Table", () => {
 
     await waitFor(() => {
       expect(() => getByTestId("generic-table-header-bad-column")).toThrow();
+      expect(() => getByText("bad-column")).toThrow();
     });
   });
 
-  it("should have a default pagination count of 25 rows per page", async () => {
+  it("should have a default pagination count of 20 rows per page", async () => {
     const submissionID = "example-pagination-default-test-id";
 
     const mocks: MockedResponse<GetSubmissionNodesResp>[] = [{
@@ -295,9 +299,7 @@ describe("DataContent > Table", () => {
     );
 
     await waitFor(() => {
-      // TODO: this matches current requirements but it should be 20
-      // if the reqs of 25 is correct, need to update the test queries above
-      expect(getByTestId("generic-table-rows-per-page")).toHaveValue("25");
+      expect(getByTestId("generic-table-rows-per-page")).toHaveValue("20");
     });
   });
 });
