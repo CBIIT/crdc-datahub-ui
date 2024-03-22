@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { render, fireEvent, act, waitFor } from '@testing-library/react';
+import UserEvent from '@testing-library/user-event';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { GraphQLError } from 'graphql';
 import { axe } from 'jest-axe';
@@ -89,6 +90,7 @@ describe('ExportValidationButton cases', () => {
   it('should execute the SUBMISSION_QC_RESULTS query onClick', async () => {
     const submissionID = "example-sub-id";
 
+    let called = false;
     const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
       request: {
         query: SUBMISSION_QC_RESULTS,
@@ -100,13 +102,17 @@ describe('ExportValidationButton cases', () => {
           offset: 0,
         },
       },
-      result: {
-        data: {
-          submissionQCResults: {
-            total: 1,
-            results: [{ ...baseQCResult, submissionID }]
+      result: () => {
+        called = true;
+
+        return {
+          data: {
+            submissionQCResults: {
+              total: 1,
+              results: [{ ...baseQCResult, submissionID }]
+            },
           },
-        },
+        };
       },
     }];
 
@@ -116,8 +122,10 @@ describe('ExportValidationButton cases', () => {
       </TestParent>
     );
 
-    act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+    expect(called).toBe(false);
+    await waitFor(() => {
+      UserEvent.click(getByText('Download QC Results'));
+      expect(called).toBe(true);
     });
   });
 
