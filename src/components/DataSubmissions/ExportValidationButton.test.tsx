@@ -96,7 +96,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -138,7 +138,7 @@ describe('ExportValidationButton cases', () => {
           id: "example-dynamic-filename-id",
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -188,7 +188,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -236,7 +236,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -288,7 +288,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -320,7 +320,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -354,7 +354,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },

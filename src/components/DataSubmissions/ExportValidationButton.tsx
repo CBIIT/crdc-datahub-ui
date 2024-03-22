@@ -45,7 +45,7 @@ export const ExportValidationButton: React.FC<Props> = ({ submission, fields, ..
         id: submission?._id,
         sortDirection: "asc",
         orderBy: "displayID",
-        first: 10000, // TODO: change to -1
+        first: -1,
         offset: 0,
       },
       context: { clientName: 'backend' },
