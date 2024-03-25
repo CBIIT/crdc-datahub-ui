@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState, useRef } from "react";
+import React, { FC, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Alert, Container, Stack, styled,
@@ -6,25 +6,20 @@ import {
   TableContainer, TableHead,
   TablePagination, TableRow,
   TableSortLabel, Typography,
-  Dialog, DialogTitle, FormControl,
+  FormControl,
   Select, MenuItem,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { LoadingButton } from '@mui/lab';
-import { useMutation, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { query, Response } from '../../graphql/listSubmissions';
-import { query as approvedStudiesQuery, Response as approvedStudiesRespone } from "../../graphql/listApprovedStudiesOfMyOrganization";
 import { query as listOrganizationsQuery, Response as listOrganizationsResponse } from "../../graphql/listOrganizations";
 import bannerSvg from "../../assets/banner/data_submissions_banner.png";
 import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
-import { mutation as CREATE_SUBMISSION, Response as CreateSubmissionResp } from '../../graphql/createSubmission';
-import SelectInput from "../../components/Questionnaire/SelectInput";
-import TextInput from "../../components/Questionnaire/TextInput";
-import { DataCommons } from '../../config/DataCommons';
 import SuspenseLoader from '../../components/SuspenseLoader';
 import usePageTitle from '../../hooks/usePageTitle';
+import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
 
 type T = Submission;
 
@@ -34,28 +29,6 @@ type Column = {
   field?: string;
   default?: true;
 };
-
-const StyledButton = styled(LoadingButton)({
-  height: "51px",
-  width: "261px",
-  padding: "14px 20px",
-  fontWeight: 700,
-  fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  letterSpacing: "2%",
-  lineHeight: "20.14px",
-  borderRadius: "8px",
-  color: "#fff",
-  textTransform: "none",
-  borderColor: "#005EA2 !important",
-  background: "#005EA2 !important",
-  marginRight: "25px",
-
-  "&.Mui-disabled": {
-    cursor: "not-allowed",
-    pointerEvents: "all",
-  },
-});
 
 const StyledBannerBody = styled(Stack)({
   marginTop: "-20px",
@@ -218,91 +191,6 @@ const columns: Column[] = [
   },
 ];
 
-const CreateSubmissionDialog = styled(Dialog)`
-  .MuiDialog-paper {
-    width: 725px;
-    height: fit-content;
-    border-radius: 8px;
-    border: 2px solid #5AB8FF;
-    background: #F2F6FA;
-    max-width: none;
-    max-height: none;
-    overflow: hidden;
-  }
-  .closeIcon {
-    cursor: pointer;
-    text-align: end;
-    width: fit-content;
-    float: right;
-  }
-  .create-a-submission-header-container {
-    left: 75px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-  }
-  #create-a-submission-title {
-    font-family: Nunito Sans;
-    font-size: 45px;
-    font-weight: 800;
-    line-height: 40px;
-    letter-spacing: -1.5px;
-    text-align: left;
-    color: #1873BD;
-    position: relative;
-  }
-  .optional-helper-text {
-    padding-top: 20px;
-    font-family: Inter;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 22px;
-    letter-spacing: 0em;
-    text-align: left;
-    width: 445px;
-  }
-  .inputs-container{
-    align-self: center;
-    width: 485px;
-    height: 450px;
-    margin-top: 25px;
-    font-family: Nunito;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 20px;
-    letter-spacing: 0em;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-  }
-  .dialogButton{
-    display: flex;
-    width: 128px;
-    height: 50.59000015258789px;
-    padding: 12px 36.5px 14.59000015258789px 36.5px;
-    justify-content: center;
-    align-items: center;
-    border-radius: 8px;
-    border: 1px solid #000;
-    text-decoration: none;
-    color: rgba(0, 0, 0, 0.87);
-    margin-top: 50px;
-    margin-left: 7px;
-    margin-right: 7px;
-    margin-bottom: 40px;
-    align-self: center;
-    cursor: pointer;
-  }
-  .createSubmissionError {
-    color: #C93F08;
-    text-align: center;
-    margin-bottom: 30px;
-    margin-top: -20px;
-  }
-  .invisible{
-    display: none;
-  }
-`;
 const statusValues: string[] = ["All", "New", "In Progress", "Submitted", "Released", "Withdrawn", "Rejected", "Completed", "Archived", "Canceled"];
 const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, value: v }));
 /**
@@ -329,23 +217,9 @@ const ListingView: FC = () => {
   const shouldHaveAllFilter = (user?.role === "Admin" || user?.role === "Federal Lead" || user?.role === "Data Curator" || user?.role === "Data Commons POC");
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
-  const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
-  const [dataCommons, setDataCommons] = useState<string>("CDS");
-  const [study, setStudy] = useState<string>("All");
-  const [dbgapid, setDbgapid] = useState<string>(null);
-  const [createSubmissionError, setCreateSubmissionError] = useState<boolean>(false);
   // eslint-disable-next-line no-nested-ternary
   const [organizationFilter, setOrganizationFilter] = useState<string>(shouldHaveAllFilter ? "All" : (hasOrganizationAssigned ? user.organization?.orgName : "All"));
   const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [submissionName, setSubmissionName] = useState<string>(null);
-  const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
-
-  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
-    variables: {
-    },
-    context: { clientName: 'backend' },
-    fetchPolicy: "no-cache",
-  });
 
   const { data: allOrganizations } = useQuery<listOrganizationsResponse>(listOrganizationsQuery, {
     variables: {
@@ -366,10 +240,6 @@ const ListingView: FC = () => {
     context: { clientName: 'backend' },
     fetchPolicy: "no-cache",
   });
-  const [createDataSubmission] = useMutation<CreateSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGaPID: string }>(CREATE_SUBMISSION, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  });
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
@@ -387,43 +257,15 @@ const ListingView: FC = () => {
     setPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-  const onCreateSubmissionButtonClick = async () => {
-    setCreatingSubmission(true);
-    setDataCommons("CDS");
-    setStudy(null);
-    setSubmissionName(null);
-    setDbgapid(null);
-  };
-  const onDialogCreate = async () => {
-    const valid = createSubmissionDialogFormRef.current.checkValidity();
-    if (valid) {
-      createSubmission();
-    }
-  };
-  const createSubmission = async () => {
-    await createDataSubmission({
-      variables: {
-        studyAbbreviation: study,
-        dataCommons,
-        name: submissionName,
-        dbGaPID: dbgapid,
-      }
-    }).then(() => {
-      refetch();
-      enqueueSnackbar("Data Submission Created Successfully", { variant: "success" });
-      setCreatingSubmission(false);
-      setCreateSubmissionError(false);
-    })
-    .catch(() => {
-      setCreateSubmissionError(true);
-    });
+
+  const handleOnCreateSubmission = () => {
+    refetch();
+    enqueueSnackbar("Data Submission Created Successfully", { variant: "success" });
   };
 
   const organizationNames: SelectOption[] = allOrganizations?.listOrganizations?.map((org) => ({ label: org.name, value: org.name }));
   organizationNames?.unshift({ label: "All", value: "All" });
-  const approvedStudiesAbbrvList = approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
-  const approvedStudiesMapToDbGaPID = {};
-  approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
+
   return (
     <>
       <PageBanner
@@ -434,17 +276,10 @@ const ListingView: FC = () => {
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}
             {/* Create a submission only available to org owners and submitters that have organizations assigned */}
-            {orgOwnerOrSubmitter && (
-              <StyledButton
-                type="button"
-                onClick={onCreateSubmissionButtonClick}
-                loading={creatingSubmission}
-                sx={{ bottom: "30px", right: "50px" }}
-                disabled={!hasOrganizationAssigned}
-              >
-                Create a Data Submission
-              </StyledButton>
-            )}
+            <CreateDataSubmissionDialog
+              organizations={allOrganizations?.listOrganizations}
+              onCreate={handleOnCreateSubmission}
+            />
           </StyledBannerBody>
         )}
         bannerSrc={bannerSvg}
@@ -571,94 +406,6 @@ const ListingView: FC = () => {
           />
         </StyledTableContainer>
       </StyledContainer>
-      <CreateSubmissionDialog open={creatingSubmission}>
-        <DialogTitle>
-          <div
-            role="button"
-            className="closeIcon"
-            onClick={() => {
-              setCreatingSubmission(false);
-              setCreateSubmissionError(false);
-            }}
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setCreatingSubmission(false);
-                setCreateSubmissionError(false);
-              }
-            }}
-          >
-            <img style={{ height: 10, marginBottom: 2 }} src="https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/LocalFindCaseDeleteIcon.svg" alt="close icon" />
-          </div>
-        </DialogTitle>
-        <div className="create-a-submission-header-container">
-          <div id="create-a-submission-title"> Create a Data Submission</div>
-          <div className="optional-helper-text">
-            Please fill out the form below to start your data submission
-          </div>
-        </div>
-        <div className="inputs-container">
-          <form ref={createSubmissionDialogFormRef}>
-            <TextInput value={user.organization?.orgName} label="Organization" readOnly />
-            <SelectInput
-              options={DataCommons.map((dc) => ({ label: dc.name, value: dc.name }))}
-              label="Data Commons"
-              required
-              value={dataCommons}
-              onChange={(value: string) => setDataCommons(value)}
-            />
-            <SelectInput
-              options={approvedStudiesAbbrvList}
-              label="Study"
-              required
-              value={study}
-              onChange={(value: string) => {
-                setStudy(value);
-                setDbgapid(approvedStudiesMapToDbGaPID[value]);
-              }}
-            />
-            <TextInput
-              value={dbgapid}
-              parentStateSetter={(newVal) => setDbgapid(newVal)}
-              maxLength={50}
-              label="dbGaP ID"
-              placeholder="Input dbGaP ID"
-            />
-            <TextInput
-              value={submissionName}
-              parentStateSetter={(newVal) => setSubmissionName(newVal)}
-              maxLength={25}
-              multiline
-              rows={2}
-              required
-              label="Submission Name"
-              placeholder="25 characters allowed"
-            />
-          </form>
-
-        </div>
-        <div
-          role="button"
-          tabIndex={0}
-          id="createSubmissionDialogCreateButton"
-          className="dialogButton"
-          onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      onDialogCreate();
-                    }
-                }}
-          onClick={() => onDialogCreate()}
-        >
-          <strong>Create</strong>
-        </div>
-        <div className={createSubmissionError ? "createSubmissionError" : "invisible"}>
-          Unable to create this data submission. If the problem persists please contact
-          <br />
-          <a href="mailto:ncicrdchelpdesk@mail.nih.gov">
-            ncicrdchelpdesk@mail.nih.gov
-          </a>
-        </div>
-      </CreateSubmissionDialog>
     </>
   );
 };
