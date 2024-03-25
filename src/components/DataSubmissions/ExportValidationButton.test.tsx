@@ -4,7 +4,6 @@ import UserEvent from '@testing-library/user-event';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { GraphQLError } from 'graphql';
 import { axe } from 'jest-axe';
-import dayjs from 'dayjs';
 import { ExportValidationButton } from './ExportValidationButton';
 import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from '../../graphql';
 import { mockEnqueue } from '../../setupTests';
@@ -77,18 +76,8 @@ describe('ExportValidationButton cases', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it('should render without crashing', () => {
-    const { getByText } = render(
-      <TestParent mocks={[]}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: "test-rendering-id" }} fields={{}} />
-      </TestParent>
-    );
-
-    expect(getByText('Download QC Results')).toBeInTheDocument();
-  });
-
   it('should execute the SUBMISSION_QC_RESULTS query onClick', async () => {
-    const submissionID = "example-sub-id";
+    const submissionID = "example-execute-test-sub-id";
 
     let called = false;
     const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
@@ -123,8 +112,10 @@ describe('ExportValidationButton cases', () => {
     );
 
     expect(called).toBe(false);
+
+    // NOTE: This must be separate from the expect below to ensure its not called multiple times
+    await waitFor(() => UserEvent.click(getByText('Download QC Results')));
     await waitFor(() => {
-      UserEvent.click(getByText('Download QC Results'));
       expect(called).toBe(true);
     });
   });
@@ -137,7 +128,7 @@ describe('ExportValidationButton cases', () => {
     { original: "  ", expected: "" },
     { original: `_-"a-b+c=d`, expected: "abcd" },
   ])("should safely name the CSV export file dynamically using submission name and export date", async ({ original, expected }) => {
-    jest.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00Z'));
+    jest.useFakeTimers().setSystemTime(new Date('2021-01-19T14:54:01Z'));
 
     const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
       request: {
@@ -179,10 +170,11 @@ describe('ExportValidationButton cases', () => {
     });
 
     await waitFor(() => {
-      const filename = `${expected}-${dayjs().format("YYYY-MM-DDTHHmmss")}.csv`;
+      const filename = `${expected}-2021-01-19T145401.csv`;
       expect(mockDownloadBlob).toHaveBeenCalledWith(expect.any(String), filename, expect.any(String));
     });
 
+    jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
 

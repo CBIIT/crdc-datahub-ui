@@ -56,7 +56,7 @@ export const unpackQCResultSeverities = (results: QCResult[]): QCResult[] => {
 
   // Iterate through each result and push the errors and warnings into separate results
   results.forEach(({ errors, warnings, ...result }) => {
-    errors.slice(0).forEach((error) => {
+    errors.forEach((error) => {
       unpackedResults.push({
         ...result,
         severity: "Error",
@@ -64,7 +64,7 @@ export const unpackQCResultSeverities = (results: QCResult[]): QCResult[] => {
         warnings: [],
       });
     });
-    warnings.slice(0).forEach((warning) => {
+    warnings.forEach((warning) => {
       unpackedResults.push({
         ...result,
         severity: "Warning",

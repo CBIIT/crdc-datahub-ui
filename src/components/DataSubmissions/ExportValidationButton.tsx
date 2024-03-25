@@ -67,11 +67,11 @@ export const ExportValidationButton: React.FC<Props> = ({ submission, fields, ..
     try {
       const filename = `${filterAlphaNumeric(submission.name)}-${dayjs().format("YYYY-MM-DDTHHmmss")}.csv`;
       const unpacked = unpackQCResultSeverities(d.submissionQCResults.results);
+      const fieldset = Object.entries(fields);
       const csvArray = [];
 
       unpacked.forEach((row) => {
         const csvRow = {};
-        const fieldset = Object.entries(fields);
 
         fieldset.forEach(([field, value]) => {
           csvRow[field] = value(row) || "";
