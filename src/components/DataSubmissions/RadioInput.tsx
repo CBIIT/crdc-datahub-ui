@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useEffect } from "react";
+import React, { FC, useState, useRef, useEffect, useId } from "react";
 import {
   Grid,
   FormControl,
@@ -56,6 +56,7 @@ const StyledFormLabel = styled("label")(() => ({
 }));
 
 const StyledAsterisk = styled("span")(() => ({
+  marginLeft: "2px",
   marginRight: "2px",
   color: "#C93F08",
 }));
@@ -109,6 +110,7 @@ const RadioYesNoInput: FC<Props> = ({
   readOnly,
   ...rest
 }) => {
+  const radioId = id || useId();
   const [val, setVal] = useState<string>(
     value?.toString() === "" || value?.toString() === undefined
       ? null
@@ -159,7 +161,7 @@ const RadioYesNoInput: FC<Props> = ({
           direction={inline ? "row" : "column"}
           alignItems={inline ? "center" : "initial"}
         >
-          <StyledFormLabel>
+          <StyledFormLabel className="radio-label" htmlFor={radioId}>
             {label}
             {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
           </StyledFormLabel>
@@ -167,7 +169,7 @@ const RadioYesNoInput: FC<Props> = ({
             name={name}
             value={val}
             onChange={onChangeWrapper}
-            id={id}
+            id={radioId}
             data-type="string"
             {...rest}
           >
