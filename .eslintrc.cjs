@@ -1,14 +1,14 @@
 /* eslint-env node */
 module.exports = {
   extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
     "plugin:jsx-a11y/recommended",
-    'airbnb',
-    'airbnb-typescript',
-    'prettier',
+    "airbnb",
+    "airbnb-typescript",
+    "prettier",
   ],
-  parser: '@typescript-eslint/parser',
+  parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaFeatures: {
       jsx: true
@@ -28,6 +28,7 @@ module.exports = {
   root: true,
   ignorePatterns: ["public/injectEnv.js", "public/js/session.js"],
   rules: {
+    "quotes": "off",
     "indent": "warn",
     "import/prefer-default-export": "off",
     "jsx-a11y/anchor-is-valid": "off",
@@ -49,12 +50,11 @@ module.exports = {
     "react/jsx-max-props-per-line": [1, { maximum: 1, when: "multiline" }],
     "react/function-component-definition": ["off"],
     "@typescript-eslint/no-empty-function": "error",
-    "@typescript-eslint/comma-dangle": "off",
     "@typescript-eslint/no-use-before-define": ["off"],
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-shadow": ["off"],
     "@typescript-eslint/dot-notation": ["off"],
-    "@typescript-eslint/quotes": ["off"],
+    "@typescript-eslint/quotes": ["warn", "double"],
     "@typescript-eslint/naming-convention": ["off"],
     "@typescript-eslint/ban-ts-comment": ["off"],
   }
