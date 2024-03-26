@@ -3,7 +3,7 @@ import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { GraphQLError } from 'graphql';
 import { axe } from 'jest-axe';
 import { render, waitFor } from '@testing-library/react';
-import DataContent from './DataContent';
+import SubmittedData from './SubmittedData';
 import { mockEnqueue } from '../../setupTests';
 import { GET_SUBMISSION_NODES, GetSubmissionNodesResp } from '../../graphql';
 
@@ -18,7 +18,7 @@ const TestParent: FC<ParentProps> = ({ mocks, children } : ParentProps) => (
   </MockedProvider>
 );
 
-describe("DataContent > General", () => {
+describe("SubmittedData > General", () => {
   const baseSubmissionStatistic: SubmissionStatistic = {
     nodeName: '',
     total: 0,
@@ -35,7 +35,7 @@ describe("DataContent > General", () => {
   it("should not have any high level accessibility violations", async () => {
     const { container } = render(
       <TestParent mocks={[]}>
-        <DataContent submissionId="example-sub-id" statistics={[]} />
+        <SubmittedData submissionId="example-sub-id" statistics={[]} />
       </TestParent>
     );
 
@@ -45,7 +45,7 @@ describe("DataContent > General", () => {
   it("should show an error message when no submission ID is provided", async () => {
     render(
       <TestParent mocks={[]}>
-        <DataContent submissionId={undefined} statistics={[]} />
+        <SubmittedData submissionId={undefined} statistics={[]} />
       </TestParent>
     );
 
@@ -75,7 +75,7 @@ describe("DataContent > General", () => {
 
     render(
       <TestParent mocks={mocks}>
-        <DataContent submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} statistics={stats} />
       </TestParent>
     );
 
@@ -107,7 +107,7 @@ describe("DataContent > General", () => {
 
     render(
       <TestParent mocks={mocks}>
-        <DataContent submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} statistics={stats} />
       </TestParent>
     );
 
@@ -117,7 +117,7 @@ describe("DataContent > General", () => {
   });
 });
 
-describe("DataContent > Table", () => {
+describe("SubmittedData > Table", () => {
   const baseSubmissionStatistic: SubmissionStatistic = {
     nodeName: '',
     total: 0,
@@ -160,7 +160,7 @@ describe("DataContent > Table", () => {
 
     const { getByText } = render(
       <TestParent mocks={mocks}>
-        <DataContent submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} statistics={stats} />
       </TestParent>
     );
 
@@ -204,7 +204,7 @@ describe("DataContent > Table", () => {
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <DataContent submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} statistics={stats} />
       </TestParent>
     );
 
@@ -255,7 +255,7 @@ describe("DataContent > Table", () => {
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <DataContent submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} statistics={stats} />
       </TestParent>
     );
 
@@ -294,7 +294,7 @@ describe("DataContent > Table", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <DataContent submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} statistics={stats} />
       </TestParent>
     );
 

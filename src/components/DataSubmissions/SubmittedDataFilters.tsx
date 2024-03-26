@@ -4,7 +4,7 @@ import { cloneDeep } from 'lodash';
 import { Box, FormControl, MenuItem, Select, styled } from '@mui/material';
 import { compareNodeStats } from '../../utils';
 
-export type DataContentFiltersProps = {
+export type SubmittedDataFiltersProps = {
   statistics: SubmissionStatistic[];
   onChange?: (data: FilterForm) => void;
 };
@@ -65,7 +65,7 @@ const baseTextFieldStyles = {
 
 const StyledSelect = styled(Select)(baseTextFieldStyles);
 
-export const DataContentFilters: FC<DataContentFiltersProps> = ({ statistics, onChange }: DataContentFiltersProps) => {
+export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({ statistics, onChange }: SubmittedDataFiltersProps) => {
   const { watch, setValue, getValues, control } = useForm<FilterForm>();
 
   const nodeTypes = useMemo(() => cloneDeep(statistics)

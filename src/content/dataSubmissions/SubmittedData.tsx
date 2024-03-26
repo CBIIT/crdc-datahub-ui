@@ -4,7 +4,7 @@ import { isEqual } from "lodash";
 import { useSnackbar } from 'notistack';
 import { GET_SUBMISSION_NODES, GetSubmissionNodesResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
-import { DataContentFilters, FilterForm } from '../../components/DataSubmissions/DataContentFilters';
+import { SubmittedDataFilters, FilterForm } from '../../components/DataSubmissions/SubmittedDataFilters';
 import { safeParse } from '../../utils';
 
 type T = Pick<SubmissionNode, "nodeType" | "nodeID"> & {
@@ -16,13 +16,13 @@ type Props = {
   statistics: SubmissionStatistic[];
 };
 
-const DataContent: FC<Props> = ({ submissionId, statistics }) => {
+const SubmittedData: FC<Props> = ({ submissionId, statistics }) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const tableRef = useRef<TableMethods>(null);
   const filterRef = useRef<FilterForm>({ nodeType: "" });
 
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [columns, setColumns] = useState<Column<T>[]>([]);
   const [data, setData] = useState<T[]>([]);
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
@@ -92,7 +92,7 @@ const DataContent: FC<Props> = ({ submissionId, statistics }) => {
 
   return (
     <>
-      <DataContentFilters statistics={statistics} onChange={handleFilterChange} />
+      <SubmittedDataFilters statistics={statistics} onChange={handleFilterChange} />
       <GenericTable
         ref={tableRef}
         columns={columns}
@@ -108,4 +108,4 @@ const DataContent: FC<Props> = ({ submissionId, statistics }) => {
   );
 };
 
-export default DataContent;
+export default SubmittedData;

@@ -44,7 +44,7 @@ import FileListDialog from "./FileListDialog";
 import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
 import usePageTitle from '../../hooks/usePageTitle';
 import BackButton from "../../components/DataSubmissions/BackButton";
-import DataContent from './DataContent';
+import SubmittedData from './SubmittedData';
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -325,7 +325,7 @@ const columns: Column<Batch>[] = [
 const URLTabs = {
   DATA_ACTIVITY: "data-activity",
   VALIDATION_RESULTS: "validation-results",
-  DATA_CONTENT: "data-content",
+  SUBMITTED_DATA: "submitted-data",
 };
 
 const submissionLockedStatuses: SubmissionStatus[] = ["Submitted", "Released", "Completed", "Canceled", "Archived"];
@@ -570,10 +570,10 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                 selected={tab === URLTabs.VALIDATION_RESULTS}
               />
               <LinkTab
-                value={URLTabs.DATA_CONTENT}
-                label="Data Content"
-                to={`/data-submission/${submissionId}/${URLTabs.DATA_CONTENT}`}
-                selected={tab === URLTabs.DATA_CONTENT}
+                value={URLTabs.SUBMITTED_DATA}
+                label="Submitted Data"
+                to={`/data-submission/${submissionId}/${URLTabs.SUBMITTED_DATA}`}
+                selected={tab === URLTabs.SUBMITTED_DATA}
               />
             </StyledTabs>
 
@@ -596,8 +596,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
               {tab === URLTabs.VALIDATION_RESULTS && (
                 <QualityControl />
               )}
-              {tab === URLTabs.DATA_CONTENT && (
-                <DataContent submissionId={submissionId} statistics={data?.submissionStats?.stats} />
+              {tab === URLTabs.SUBMITTED_DATA && (
+                <SubmittedData submissionId={submissionId} statistics={data?.submissionStats?.stats} />
               )}
 
               {/* Return to Data Submission List Button */}
