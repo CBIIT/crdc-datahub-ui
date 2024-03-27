@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { render, fireEvent, act, waitFor } from '@testing-library/react';
+import UserEvent from '@testing-library/user-event';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { GraphQLError } from 'graphql';
 import { axe } from 'jest-axe';
@@ -75,19 +76,10 @@ describe('ExportValidationButton cases', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it('should render without crashing', () => {
-    const { getByText } = render(
-      <TestParent mocks={[]}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: "test-rendering-id" }} fields={{}} />
-      </TestParent>
-    );
-
-    expect(getByText('Download QC Results')).toBeInTheDocument();
-  });
-
   it('should execute the SUBMISSION_QC_RESULTS query onClick', async () => {
-    const submissionID = "example-sub-id";
+    const submissionID = "example-execute-test-sub-id";
 
+    let called = false;
     const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
       request: {
         query: SUBMISSION_QC_RESULTS,
@@ -95,17 +87,21 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
-      result: {
-        data: {
-          submissionQCResults: {
-            total: 1,
-            results: [{ ...baseQCResult, submissionID }]
+      result: () => {
+        called = true;
+
+        return {
+          data: {
+            submissionQCResults: {
+              total: 1,
+              results: [{ ...baseQCResult, submissionID }]
+            },
           },
-        },
+        };
       },
     }];
 
@@ -115,24 +111,33 @@ describe('ExportValidationButton cases', () => {
       </TestParent>
     );
 
-    act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+    expect(called).toBe(false);
+
+    // NOTE: This must be separate from the expect below to ensure its not called multiple times
+    await waitFor(() => UserEvent.click(getByText('Download QC Results')));
+    await waitFor(() => {
+      expect(called).toBe(true);
     });
   });
 
-  it.each<Submission>([
-    { ...baseSubmission, _id: "1", name: "A B C 1 2 3" },
-    { ...baseSubmission, _id: "2", name: "long name".repeat(100) },
-    { ...baseSubmission, _id: "3", name: "" },
-  ])("should name the CSV export file dynamically using submission name and export date", async (submission) => {
+  it.each<{ original: string, expected: string }>([
+    { original: "A B C 1 2 3", expected: "ABC123" },
+    { original: "long name".repeat(100), expected: "longname".repeat(100) },
+    { original: "", expected: "" },
+    { original: `non $alpha name $@!819`, expected: "nonalphaname819" },
+    { original: "  ", expected: "" },
+    { original: `_-"a-b+c=d`, expected: "abcd" },
+  ])("should safely name the CSV export file dynamically using submission name and export date", async ({ original, expected }) => {
+    jest.useFakeTimers().setSystemTime(new Date('2021-01-19T14:54:01Z'));
+
     const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
       request: {
         query: SUBMISSION_QC_RESULTS,
         variables: {
-          id: submission._id,
+          id: "example-dynamic-filename-id",
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -142,7 +147,7 @@ describe('ExportValidationButton cases', () => {
             total: 1,
             results: [{
               ...baseQCResult,
-              submissionID: submission._id,
+              submissionID: "example-dynamic-filename-id",
               errors: [{ title: "Error 01", description: "Error 01 description" }],
             }]
           },
@@ -156,7 +161,7 @@ describe('ExportValidationButton cases', () => {
 
     const { getByText } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={submission} fields={fields} />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: "example-dynamic-filename-id", name: original }} fields={fields} />
       </TestParent>
     );
 
@@ -165,9 +170,12 @@ describe('ExportValidationButton cases', () => {
     });
 
     await waitFor(() => {
-      // TODO: Waiting for requirement to assert the file name
-      expect(mockDownloadBlob).toHaveBeenCalledWith(expect.any(String), "validation-results.csv", expect.any(String));
+      const filename = `${expected}-2021-01-19T145401.csv`;
+      expect(mockDownloadBlob).toHaveBeenCalledWith(expect.any(String), filename, expect.any(String));
     });
+
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
   });
 
   it('should alert the user if there are no QC Results to export', async () => {
@@ -180,7 +188,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -228,7 +236,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -280,7 +288,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -312,7 +320,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
@@ -346,7 +354,7 @@ describe('ExportValidationButton cases', () => {
           id: submissionID,
           sortDirection: "asc",
           orderBy: "displayID",
-          first: 10000, // TODO: change to -1
+          first: -1,
           offset: 0,
         },
       },
