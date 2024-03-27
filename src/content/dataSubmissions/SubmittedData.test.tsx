@@ -5,7 +5,7 @@ import { axe } from 'jest-axe';
 import { render, waitFor } from '@testing-library/react';
 import SubmittedData from './SubmittedData';
 import { mockEnqueue } from '../../setupTests';
-import { GET_SUBMISSION_NODES, GetSubmissionNodesResp } from '../../graphql';
+import { GET_SUBMISSION_NODES, SUBMISSION_STATS } from '../../graphql';
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -28,6 +28,20 @@ describe("SubmittedData > General", () => {
     error: 0
   };
 
+  const mockSubmissionQuery = {
+    request: {
+      query: SUBMISSION_STATS,
+    },
+    variableMatcher: () => true,
+    result: {
+      data: {
+        submissionStats: {
+          stats: [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }],
+        },
+      },
+    },
+  };
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -35,7 +49,7 @@ describe("SubmittedData > General", () => {
   it("should not have any high level accessibility violations", async () => {
     const { container } = render(
       <TestParent mocks={[]}>
-        <SubmittedData submissionId="example-sub-id" statistics={[]} />
+        <SubmittedData submissionId={undefined} />
       </TestParent>
     );
 
@@ -45,7 +59,7 @@ describe("SubmittedData > General", () => {
   it("should show an error message when no submission ID is provided", async () => {
     render(
       <TestParent mocks={[]}>
-        <SubmittedData submissionId={undefined} statistics={[]} />
+        <SubmittedData submissionId={undefined} />
       </TestParent>
     );
 
@@ -57,25 +71,26 @@ describe("SubmittedData > General", () => {
   it("should show an error message when the nodes cannot be fetched (network)", async () => {
     const submissionID = "example-sub-id-1";
 
-    const mocks: MockedResponse<GetSubmissionNodesResp>[] = [{
-      request: {
-        query: GET_SUBMISSION_NODES,
-        variables: {
-          _id: submissionID,
-          sortDirection: "desc",
-          first: 20,
-          offset: 0,
-          nodeTypes: ["example-node"],
+    const mocks: MockedResponse[] = [
+      mockSubmissionQuery,
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+          variables: {
+            _id: submissionID,
+            sortDirection: "desc",
+            first: 20,
+            offset: 0,
+            nodeType: "example-node",
+          },
         },
-      },
-      error: new Error('Simulated network error'),
-    }];
-
-    const stats: SubmissionStatistic[] = [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }];
+        error: new Error('Simulated network error'),
+      }
+    ];
 
     render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} />
       </TestParent>
     );
 
@@ -87,27 +102,28 @@ describe("SubmittedData > General", () => {
   it("should show an error message when the nodes cannot be fetched (GraphQL)", async () => {
     const submissionID = "example-sub-id-2";
 
-    const mocks: MockedResponse<GetSubmissionNodesResp>[] = [{
-      request: {
-        query: GET_SUBMISSION_NODES,
-        variables: {
-          _id: submissionID,
-          sortDirection: "desc",
-          first: 20,
-          offset: 0,
-          nodeTypes: ["example-node"],
+    const mocks: MockedResponse[] = [
+      mockSubmissionQuery,
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+          variables: {
+            _id: submissionID,
+            sortDirection: "desc",
+            first: 20,
+            offset: 0,
+            nodeType: "example-node",
+          },
         },
-      },
-      result: {
-        errors: [new GraphQLError('Simulated GraphQL error')],
-      },
-    }];
-
-    const stats: SubmissionStatistic[] = [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }];
+        result: {
+          errors: [new GraphQLError('Simulated GraphQL error')],
+        },
+      }
+    ];
 
     render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} />
       </TestParent>
     );
 
@@ -127,6 +143,20 @@ describe("SubmittedData > Table", () => {
     error: 0
   };
 
+  const mockSubmissionQuery = {
+    request: {
+      query: SUBMISSION_STATS,
+    },
+    variableMatcher: () => true,
+    result: {
+      data: {
+        submissionStats: {
+          stats: [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }],
+        },
+      },
+    },
+  };
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -134,33 +164,34 @@ describe("SubmittedData > Table", () => {
   it("should render the placeholder text when no data is available", async () => {
     const submissionID = "example-placeholder-test-id";
 
-    const mocks: MockedResponse<GetSubmissionNodesResp>[] = [{
-      request: {
-        query: GET_SUBMISSION_NODES,
-        variables: {
-          _id: submissionID,
-          sortDirection: "desc",
-          first: 20,
-          offset: 0,
-          nodeTypes: ["example-node"],
-        },
-      },
-      result: {
-        data: {
-          getSubmissionNodes: {
-            total: 0,
-            properties: [],
-            nodes: [],
+    const mocks: MockedResponse[] = [
+      mockSubmissionQuery,
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+          variables: {
+            _id: submissionID,
+            sortDirection: "desc",
+            first: 20,
+            offset: 0,
+            nodeType: "example-node",
           },
         },
-      },
-    }];
-
-    const stats: SubmissionStatistic[] = [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }];
+        result: {
+          data: {
+            getSubmissionNodes: {
+              total: 0,
+              properties: [],
+              nodes: [],
+            },
+          },
+        },
+      }
+    ];
 
     const { getByText } = render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} />
       </TestParent>
     );
 
@@ -172,39 +203,40 @@ describe("SubmittedData > Table", () => {
   it("should render dynamic columns based on the selected node properties", async () => {
     const submissionID = "example-dynamic-columns-id";
 
-    const mocks: MockedResponse<GetSubmissionNodesResp>[] = [{
-      request: {
-        query: GET_SUBMISSION_NODES,
-        variables: {
-          _id: submissionID,
-          sortDirection: "desc",
-          first: 20,
-          offset: 0,
-          nodeTypes: ["example-node"],
-        },
-      },
-      result: {
-        data: {
-          getSubmissionNodes: {
-            total: 2,
-            properties: ["col.1", "col.2", "col.3"],
-            nodes: [
-              {
-                nodeType: "example-node",
-                nodeID: "example-node-id",
-                props: JSON.stringify({ "col.1": "value-1", "col.2": "value-2", "col.3": "value-3" }),
-              },
-            ],
+    const mocks: MockedResponse[] = [
+      mockSubmissionQuery,
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+          variables: {
+            _id: submissionID,
+            sortDirection: "desc",
+            first: 20,
+            offset: 0,
+            nodeType: "example-node",
           },
         },
-      },
-    }];
-
-    const stats: SubmissionStatistic[] = [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }];
+        result: {
+          data: {
+            getSubmissionNodes: {
+              total: 2,
+              properties: ["col.1", "col.2", "col.3"],
+              nodes: [
+                {
+                  nodeType: "example-node",
+                  nodeID: "example-node-id",
+                  props: JSON.stringify({ "col.1": "value-1", "col.2": "value-2", "col.3": "value-3" }),
+                },
+              ],
+            },
+          },
+        },
+      }
+    ];
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} />
       </TestParent>
     );
 
@@ -223,39 +255,40 @@ describe("SubmittedData > Table", () => {
   it("should NOT build the columns based off of the nodes.[X].props JSON object", async () => {
     const submissionID = "example-using-properties-dynamic-columns-id";
 
-    const mocks: MockedResponse<GetSubmissionNodesResp>[] = [{
-      request: {
-        query: GET_SUBMISSION_NODES,
-        variables: {
-          _id: submissionID,
-          sortDirection: "desc",
-          first: 20,
-          offset: 0,
-          nodeTypes: ["example-node"],
-        },
-      },
-      result: {
-        data: {
-          getSubmissionNodes: {
-            total: 2,
-            properties: ["good-col-1", "good-col-2"],
-            nodes: [
-              {
-                nodeType: "example-node",
-                nodeID: "example-node-id",
-                props: JSON.stringify({ "good-col-1": "ok", "good-col-2": "ok", "bad-column": "bad" }),
-              },
-            ],
+    const mocks: MockedResponse[] = [
+      mockSubmissionQuery,
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+          variables: {
+            _id: submissionID,
+            sortDirection: "desc",
+            first: 20,
+            offset: 0,
+            nodeType: "example-node",
           },
         },
-      },
-    }];
-
-    const stats: SubmissionStatistic[] = [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }];
+        result: {
+          data: {
+            getSubmissionNodes: {
+              total: 2,
+              properties: ["good-col-1", "good-col-2"],
+              nodes: [
+                {
+                  nodeType: "example-node",
+                  nodeID: "example-node-id",
+                  props: JSON.stringify({ "good-col-1": "ok", "good-col-2": "ok", "bad-column": "bad" }),
+                },
+              ],
+            },
+          },
+        },
+      }
+    ];
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} />
       </TestParent>
     );
 
@@ -268,33 +301,34 @@ describe("SubmittedData > Table", () => {
   it("should have a default pagination count of 20 rows per page", async () => {
     const submissionID = "example-pagination-default-test-id";
 
-    const mocks: MockedResponse<GetSubmissionNodesResp>[] = [{
-      request: {
-        query: GET_SUBMISSION_NODES,
-        variables: {
-          _id: submissionID,
-          sortDirection: "desc",
-          first: 20,
-          offset: 0,
-          nodeTypes: ["example-node"],
-        },
-      },
-      result: {
-        data: {
-          getSubmissionNodes: {
-            total: 0,
-            properties: [],
-            nodes: [],
+    const mocks: MockedResponse[] = [
+      mockSubmissionQuery,
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+          variables: {
+            _id: submissionID,
+            sortDirection: "desc",
+            first: 20,
+            offset: 0,
+            nodeType: "example-node",
           },
         },
-      },
-    }];
-
-    const stats: SubmissionStatistic[] = [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }];
+        result: {
+          data: {
+            getSubmissionNodes: {
+              total: 0,
+              properties: [],
+              nodes: [],
+            },
+          },
+        },
+      }
+    ];
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} statistics={stats} />
+        <SubmittedData submissionId={submissionID} />
       </TestParent>
     );
 

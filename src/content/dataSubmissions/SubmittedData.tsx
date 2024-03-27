@@ -13,10 +13,9 @@ type T = Pick<SubmissionNode, "nodeType" | "nodeID"> & {
 
 type Props = {
   submissionId: string;
-  statistics: SubmissionStatistic[];
 };
 
-const SubmittedData: FC<Props> = ({ submissionId, statistics }) => {
+const SubmittedData: FC<Props> = ({ submissionId }) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const tableRef = useRef<TableMethods>(null);
@@ -58,7 +57,7 @@ const SubmittedData: FC<Props> = ({ submissionId, statistics }) => {
         offset,
         sortDirection,
         orderBy,
-        nodeTypes: [filterRef.current.nodeType],
+        nodeType: filterRef.current.nodeType,
       },
       context: { clientName: 'backend' },
       fetchPolicy: 'no-cache'
@@ -92,7 +91,7 @@ const SubmittedData: FC<Props> = ({ submissionId, statistics }) => {
 
   return (
     <>
-      <SubmittedDataFilters statistics={statistics} onChange={handleFilterChange} />
+      <SubmittedDataFilters submissionId={submissionId} onChange={handleFilterChange} />
       <GenericTable
         ref={tableRef}
         columns={columns}

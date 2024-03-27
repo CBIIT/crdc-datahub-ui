@@ -63,6 +63,9 @@ export type { Response as ListNodeTypesResp } from "./listSubmissionNodeTypes";
 export { query as GET_SUBMISSION_NODES } from "./getSubmissionNodes";
 export type { Response as GetSubmissionNodesResp } from "./getSubmissionNodes";
 
+export { query as SUBMISSION_STATS } from "./submissionStats";
+export type { Response as SubmissionStatsResp } from "./submissionStats";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";

@@ -1,11 +1,18 @@
-import { FC, useEffect, useMemo } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { cloneDeep } from 'lodash';
-import { Box, FormControl, MenuItem, Select, styled } from '@mui/material';
-import { compareNodeStats } from '../../utils';
+import { FC, useEffect, useMemo } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { cloneDeep } from "lodash";
+import { Box, FormControl, MenuItem, Select, styled } from "@mui/material";
+import { useQuery } from "@apollo/client";
+import { compareNodeStats } from "../../utils";
+import { SUBMISSION_STATS, SubmissionStatsResp } from "../../graphql";
 
 export type SubmittedDataFiltersProps = {
-  statistics: SubmissionStatistic[];
+  /**
+   * The `_id` of the Data Submission
+   *
+   * @note The filters will not be fetched if this is not valid
+   */
+  submissionId: string;
   onChange?: (data: FilterForm) => void;
 };
 
@@ -27,7 +34,7 @@ const StyledFormControl = styled(FormControl)({
   minWidth: "250px",
 });
 
-const StyledInlineLabel = styled('label')({
+const StyledInlineLabel = styled("label")({
   padding: "0 10px",
   fontWeight: "700"
 });
@@ -65,13 +72,20 @@ const baseTextFieldStyles = {
 
 const StyledSelect = styled(Select)(baseTextFieldStyles);
 
-export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({ statistics, onChange }: SubmittedDataFiltersProps) => {
+export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({ submissionId, onChange }: SubmittedDataFiltersProps) => {
   const { watch, setValue, getValues, control } = useForm<FilterForm>();
 
-  const nodeTypes = useMemo(() => cloneDeep(statistics)
+  const { data } = useQuery<SubmissionStatsResp>(SUBMISSION_STATS, {
+    variables: { id: submissionId, },
+    context: { clientName: "backend" },
+    skip: !submissionId,
+    fetchPolicy: "cache-and-network"
+  });
+
+  const nodeTypes = useMemo(() => cloneDeep(data?.submissionStats?.stats)
     ?.sort(compareNodeStats)
     ?.reverse()
-    ?.map((stat) => stat.nodeName), [statistics]);
+    ?.map((stat) => stat.nodeName), [data?.submissionStats?.stats]);
 
   useEffect(() => {
     if (!!watch("nodeType") || !nodeTypes?.length) {
@@ -102,7 +116,13 @@ export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({ statistics
               data-testid="data-content-node-filter"
             >
               {nodeTypes?.map((nodeType) => (
-                <MenuItem key={nodeType} value={nodeType} data-testid={`nodeType-${nodeType}`}>{nodeType}</MenuItem>
+                <MenuItem
+                  key={nodeType}
+                  value={nodeType}
+                  data-testid={`nodeType-${nodeType}`}
+                >
+                  {nodeType}
+                </MenuItem>
               ))}
             </StyledSelect>
           )}

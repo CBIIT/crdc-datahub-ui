@@ -597,7 +597,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                 <QualityControl />
               )}
               {tab === URLTabs.SUBMITTED_DATA && (
-                <SubmittedData submissionId={submissionId} statistics={data?.submissionStats?.stats} />
+                <SubmittedData submissionId={submissionId} />
               )}
 
               {/* Return to Data Submission List Button */}
