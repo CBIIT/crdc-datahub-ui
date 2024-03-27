@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import {
   Box,
@@ -10,6 +10,7 @@ import {
   Grid,
   IconButton,
   MenuItem,
+  SelectChangeEvent,
   Stack,
   Typography,
   styled,
@@ -224,7 +225,16 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     reset,
     control,
     formState: { errors },
-  } = useForm<CreateSubmissionParams>();
+    setValue
+  } = useForm<CreateSubmissionParams>({
+    defaultValues: {
+      dataCommons: "CDS",
+      studyAbbreviation: "",
+      intention: "New",
+      dbGaPID: "",
+      name: "",
+    }
+  });
 
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
@@ -258,10 +268,14 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     value: org.name,
   }));
   organizationNames?.unshift({ label: "All", value: "All" });
-  const approvedStudiesMapToDbGaPID = {};
-  approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map(
-    (v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID)
-  );
+  const approvedStudiesMapToDbGaPID = useMemo(() => {
+    const result = {};
+    approvedStudiesData?.listApprovedStudiesOfMyOrganization?.forEach(
+      (study) => result[study.studyAbbreviation] = study.dbGaPID
+    );
+    return result;
+  }, [approvedStudiesData]);
+
   const submissionTypeOptions = [
     { label: "New", value: "New", disabled: false },
     { label: "Update", value: "Update", disabled: false },
@@ -342,6 +356,15 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
       .catch(() => {
         setError(true);
       });
+  };
+
+  const handleStudyChange = (e: SelectChangeEvent<unknown>) => {
+    const value = e?.target?.value as string;
+    if (!value || !approvedStudiesMapToDbGaPID || !approvedStudiesMapToDbGaPID[value]) {
+      setValue("dbGaPID", "");
+      return;
+    }
+    setValue("dbGaPID", approvedStudiesMapToDbGaPID[value]);
   };
 
   return (
@@ -429,6 +452,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                       <StyledSelect
                         {...field}
                         value={field.value || ""}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          handleStudyChange(e);
+                        }}
                         IconComponent={DropdownArrowsIcon}
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-study-abbreviation-helper-text"
