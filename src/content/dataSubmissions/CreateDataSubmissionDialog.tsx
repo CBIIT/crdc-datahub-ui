@@ -395,7 +395,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                   <Controller
                     name="dataCommons"
                     control={control}
-                    rules={{ required: true }}
+                    rules={{ required: "This field is required" }}
                     render={({ field }) => (
                       <StyledSelect
                         {...field}
@@ -454,6 +454,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                   <StyledLabel id="dbGaPID">dbGaP ID</StyledLabel>
                   <StyledOutlinedInput
                     {...register("dbGaPID", { required: false, maxLength: 50 })}
+                    inputProps={{ maxLength: 50 }}
                     placeholder="Input dbGaP ID"
                     aria-describedby="submission-dbGaPID-helper-text"
                   />
@@ -474,6 +475,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                     multiline
                     rows={3}
                     placeholder="25 characters allowed"
+                    inputProps={{ maxLength: 25 }}
                     aria-describedby="submission-name-helper-text"
                   />
                   <StyledHelperText id="submission-name-helper-text">
@@ -494,6 +496,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                           value={field.value || ""}
                           options={submissionTypeOptions}
                           gridWidth={12}
+                          required
                           row
                           aria-describedby="submission-intention-helper-text"
                         />
