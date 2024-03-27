@@ -20,6 +20,7 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
 
   const tableRef = useRef<TableMethods>(null);
   const filterRef = useRef<FilterForm>({ nodeType: "" });
+  const prevFilterRef = useRef<FilterForm>({ nodeType: "" });
 
   const [loading, setLoading] = useState<boolean>(false);
   const [columns, setColumns] = useState<Column<T>[]>([]);
@@ -69,17 +70,24 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
       return;
     }
 
-    setTotalData(d.getSubmissionNodes.total);
+    // Only update columns if the nodeType has changed
+    if (prevFilterRef.current.nodeType !== filterRef.current.nodeType) {
+      setTotalData(d.getSubmissionNodes.total);
+      setColumns(d.getSubmissionNodes.properties.map((prop: string, index: number) => ({
+        label: prop,
+        renderValue: (d) => d?.props?.[prop] || "",
+        // NOTE: prop is not actually a keyof T, but it's a value of prop.props
+        field: prop as unknown as keyof T,
+        default: index === 0 ? true : undefined,
+      })));
+
+      prevFilterRef.current = filterRef.current;
+    }
+
     setData(d.getSubmissionNodes.nodes.map((node) => ({
       nodeType: node.nodeType,
       nodeID: node.nodeID,
       props: safeParse(node.props),
-    })));
-    setColumns(d.getSubmissionNodes.properties.map((prop) => ({
-      label: prop,
-      renderValue: (d) => d?.props?.[prop] || "",
-      field: prop as keyof T, // TODO: fix this hack
-      default: true
     })));
     setLoading(false);
   };
