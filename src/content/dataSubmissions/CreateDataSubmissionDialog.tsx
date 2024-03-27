@@ -1,15 +1,40 @@
-import { FC, useRef, useState } from "react";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, Stack, Typography, styled } from "@mui/material";
+import { FC, useEffect, useRef, useState } from "react";
+import { cloneDeep } from "lodash";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  MenuItem,
+  Stack,
+  Typography,
+  styled,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
-import { query as approvedStudiesQuery, Response as approvedStudiesRespone } from "../../graphql/listApprovedStudiesOfMyOrganization";
-import { mutation as CREATE_SUBMISSION, Response as CreateSubmissionResp } from '../../graphql/createSubmission';
-import TextInput from "../../components/Questionnaire/TextInput";
-import SelectInput from "../../components/Questionnaire/SelectInput";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import {
+  query as approvedStudiesQuery,
+  Response as approvedStudiesRespone,
+} from "../../graphql/listApprovedStudiesOfMyOrganization";
+import {
+  mutation as CREATE_SUBMISSION,
+  Response as CreateSubmissionResp,
+} from "../../graphql/createSubmission";
 import RadioInput from "../../components/DataSubmissions/RadioInput";
 import { DataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
+import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
+import StyledOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import StyledAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import StyledLabel from "../../components/StyledFormComponents/StyledLabel";
+import BaseStyledHelperText from "../../components/StyledFormComponents/StyledHelperText";
 
 const CreateSubmissionDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -21,12 +46,12 @@ const CreateSubmissionDialog = styled(Dialog)({
     maxWidth: "none",
     maxHeight: "none",
     overflow: "hidden",
-  }
+  },
 });
 
 const StyledDialogTitle = styled(DialogTitle)({
   paddingTop: "39px",
-  paddingLeft: "74px"
+  paddingLeft: "74px",
 });
 
 const StyledHeader = styled(Typography)({
@@ -56,7 +81,7 @@ const StyledDialogContent = styled(DialogContent)({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  paddingBottom: "26px"
+  paddingBottom: "1px",
 });
 
 const StyledButton = styled(LoadingButton)({
@@ -87,7 +112,6 @@ const StyledDialogActions = styled(DialogActions)({
   justifyContent: "center",
   alignItems: "center",
   paddingBottom: "65px",
-  gap: "20px"
 });
 
 const StyledDialogError = styled(Typography)({
@@ -121,8 +145,8 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
   top: "11px",
   padding: "10px",
   "& svg": {
-    color: "#44627C"
-  }
+    color: "#44627C",
+  },
 }));
 
 const StyledFormWrapper = styled(Box)(() => ({
@@ -138,9 +162,6 @@ const StyledFormWrapper = styled(Box)(() => ({
   textAlign: "left",
   display: "flex",
   flexDirection: "column",
-}));
-
-const StyledGridContainer = styled(Grid)(() => ({
   "& .formControl": {
     marginTop: "0 !important",
     marginBottom: "0 !important",
@@ -154,8 +175,35 @@ const StyledRadioInput = styled(RadioInput)(() => ({
     padding: "4px 7px 4px 4px",
   },
   "& .MuiFormControlLabel-root": {
-    marginRight: "0 !important"
-  }
+    marginRight: "0 !important",
+  },
+}));
+
+const StyledField = styled("div")({
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "center",
+  flexDirection: "column",
+});
+
+const StyledOrganizationField = styled(StyledField)({
+  marginBottom: "25px",
+});
+
+const StyledHelperText = styled(BaseStyledHelperText)({
+  marginTop: "5px",
+});
+
+const StyledOutlinedInputMultiline = styled(StyledOutlinedInput)({
+  height: "96px"
+});
+
+const DropdownArrowsIcon = styled("div")(() => ({
+  backgroundImage: `url(${dropdownArrowsIcon})`,
+  backgroundSize: "contain",
+  backgroundRepeat: "no-repeat",
+  width: "10px",
+  height: "18px",
 }));
 
 type CreateSubmissionParams = Pick<
@@ -170,92 +218,135 @@ type Props = {
 
 const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
   const { user } = useAuthContext();
+  const {
+    handleSubmit,
+    register,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm<CreateSubmissionParams>();
+
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
-  const [dataCommons, setDataCommons] = useState<string>("CDS");
-  const [studyAbbreviation, setStudyAbbreviation] = useState<string>("All");
-  const [dbGaPID, setdbGaPID] = useState<string>(null);
-  const [name, setName] = useState<string>(null);
-  const [intention, setIntention] = useState<SubmissionIntention>("New");
   const [error, setError] = useState<boolean>(false);
   const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
-  const [createDataSubmission] = useMutation<CreateSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGaPID: string, intention: SubmissionIntention }>(CREATE_SUBMISSION, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  });
-  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
-    variables: {
-    },
-    context: { clientName: 'backend' },
+  const [createDataSubmission] = useMutation<
+    CreateSubmissionResp,
+    {
+      studyAbbreviation: string;
+      dataCommons: string;
+      name: string;
+      dbGaPID: string;
+      intention: SubmissionIntention;
+    }
+  >(CREATE_SUBMISSION, {
+    context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
+  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(
+    approvedStudiesQuery,
+    {
+      variables: {},
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
-  const orgOwnerOrSubmitter = (user?.role === "Organization Owner" || user?.role === "Submitter");
-  const hasOrganizationAssigned = (user?.organization !== null && user?.organization?.orgID !== null);
-  const organizationNames: SelectOption[] = organizations?.map((org) => ({ label: org.name, value: org.name }));
+  const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
+  const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
+  const organizationNames: SelectOption[] = organizations?.map((org) => ({
+    label: org.name,
+    value: org.name,
+  }));
   organizationNames?.unshift({ label: "All", value: "All" });
-  const approvedStudiesAbbrvList = approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
   const approvedStudiesMapToDbGaPID = {};
-  approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
+  approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map(
+    (v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID)
+  );
   const submissionTypeOptions = [
     { label: "New", value: "New", disabled: false },
     { label: "Update", value: "Update", disabled: false },
     { label: "Delete", value: "Delete", disabled: false },
   ];
 
-  const initializeValues = () => {
-    setDataCommons("CDS");
-    setStudyAbbreviation("");
-    setName("");
-    setdbGaPID("");
-    setIntention("New");
+  /**
+   * Updates the default form values after save or initial fetch
+   *
+   * @param data FormInput
+   */
+  const setFormValues = (
+    data: CreateSubmissionParams,
+    fields: (keyof CreateSubmissionParams)[] = [
+      "name",
+      "dataCommons",
+      "dbGaPID",
+      "intention",
+      "studyAbbreviation",
+    ]
+  ) => {
+    const resetData = {};
+
+    fields.forEach((field) => {
+      resetData[field] = cloneDeep(data[field]);
+    });
+
+    reset(resetData);
   };
+
+  useEffect(() => {
+    setFormValues({
+      dataCommons: "CDS",
+      studyAbbreviation: "",
+      intention: "New",
+      dbGaPID: "",
+      name: "",
+    });
+  }, []);
 
   const handleOpenDialog = () => {
     setCreatingSubmission(true);
-    initializeValues();
   };
 
-  const handleOnCreate = () => {
-    const valid = createSubmissionDialogFormRef.current.checkValidity();
-    if (!valid) {
-      return;
-    }
-
-    const params: CreateSubmissionParams = {
-      studyAbbreviation,
-      dataCommons,
-      name,
-      dbGaPID,
-      intention,
-    };
-
-    createSubmission(params);
+  const onSubmit: SubmitHandler<CreateSubmissionParams> = (data) => {
+    createSubmission(data);
   };
 
-  const createSubmission = async ({ studyAbbreviation, dataCommons, name, dbGaPID, intention }) => {
+  const createSubmission = async ({
+    studyAbbreviation,
+    dataCommons,
+    name,
+    dbGaPID,
+    intention,
+  }: CreateSubmissionParams) => {
     await createDataSubmission({
       variables: {
         studyAbbreviation,
         dataCommons,
         name,
         dbGaPID,
-        intention
-      }
-    }).then(() => {
-      setCreatingSubmission(false);
-      setError(false);
-      if (onCreate) {
-        onCreate({ studyAbbreviation, dataCommons, name, dbGaPID, intention });
-      }
+        intention,
+      },
     })
-    .catch(() => {
-      setError(true);
-    });
+      .then(() => {
+        setCreatingSubmission(false);
+        setError(false);
+        if (onCreate) {
+          onCreate({
+            studyAbbreviation,
+            dataCommons,
+            name,
+            dbGaPID,
+            intention,
+          });
+        }
+      })
+      .catch(() => {
+        setError(true);
+      });
   };
 
   return (
     <>
-      <CreateSubmissionDialog open={creatingSubmission}>
+      <CreateSubmissionDialog open={creatingSubmission} scroll="body">
         <StyledDialogTitle>
           <StyledCloseDialogButton
             aria-label="close"
@@ -268,8 +359,14 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
           >
             <CloseIconSvg />
           </StyledCloseDialogButton>
-          <Stack direction="column" justifyContent="center" alignItems="flex-start">
-            <StyledHeader variant="h3" id="create-a-submission-title">Create a Data Submission</StyledHeader>
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="flex-start"
+          >
+            <StyledHeader variant="h3" id="create-a-submission-title">
+              Create a Data Submission
+            </StyledHeader>
             <StyledSubHeader>
               Please fill out the form below to start your data submission
             </StyledSubHeader>
@@ -277,94 +374,159 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
         </StyledDialogTitle>
         <StyledDialogContent>
           <StyledFormWrapper>
-            <form ref={createSubmissionDialogFormRef}>
-              <StyledGridContainer container rowSpacing={0} columnSpacing={1.5}>
-                <TextInput
-                  value={user.organization?.orgName}
-                  label="Organization"
-                  gridWidth={12}
-                  readOnly
-                />
-                <SelectInput
-                  options={DataCommons.map((dc) => ({
-                    label: dc.name,
-                    value: dc.name,
-                  }))}
-                  label="Data Commons"
-                  required
-                  value={dataCommons}
-                  onChange={(value: string) => setDataCommons(value)}
-                  gridWidth={12}
-                />
-                <SelectInput
-                  options={approvedStudiesAbbrvList}
-                  label="Study"
-                  required
-                  value={studyAbbreviation}
-                  onChange={(value: string) => {
-                    setStudyAbbreviation(value);
-                    setdbGaPID(approvedStudiesMapToDbGaPID[value]);
-                  }}
-                  gridWidth={12}
-                />
-                <TextInput
-                  value={dbGaPID}
-                  parentStateSetter={(newVal) => setdbGaPID(newVal)}
-                  maxLength={50}
-                  label="dbGaP ID"
-                  placeholder="Input dbGaP ID"
-                  gridWidth={12}
-                />
-                <TextInput
-                  value={name}
-                  parentStateSetter={(newVal) => setName(newVal)}
-                  maxLength={25}
-                  multiline
-                  rows={3}
-                  required
-                  label="Submission Name"
-                  placeholder="25 characters allowed"
-                  gridWidth={12}
-                />
-                <StyledRadioInput
-                  id="create-data-submission-dialog-submission-type"
-                  label="Submission Type"
-                  value={intention}
-                  onChange={(_event, value: MetadataIntention) => setIntention(value)}
-                  options={submissionTypeOptions}
-                  gridWidth={12}
-                  row
-                  required
-                />
-              </StyledGridContainer>
+            <form
+              id="create-submission-dialog-form"
+              ref={createSubmissionDialogFormRef}
+              onSubmit={handleSubmit(onSubmit)}
+            >
+              <Stack direction="column">
+                <StyledOrganizationField>
+                  <StyledLabel id="organization">Organization</StyledLabel>
+                  <StyledOutlinedInput
+                    value={user.organization?.orgName}
+                    readOnly
+                  />
+                </StyledOrganizationField>
+                <StyledField>
+                  <StyledLabel id="dataCommons">
+                    Data Commons
+                    <StyledAsterisk />
+                  </StyledLabel>
+                  <Controller
+                    name="dataCommons"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        value={field.value || ""}
+                        IconComponent={DropdownArrowsIcon}
+                        MenuProps={{ disablePortal: true }}
+                        aria-describedby="submission-data-commons-helper-text"
+                      >
+                        {DataCommons.map((dc) => (
+                          <MenuItem key={dc.name} value={dc.name}>
+                            {dc.name}
+                          </MenuItem>
+                        ))}
+                      </StyledSelect>
+                    )}
+                  />
+                  <StyledHelperText id="submission-data-commons-helper-text">
+                    {errors?.dataCommons?.message}
+                  </StyledHelperText>
+                </StyledField>
+                <StyledField>
+                  <StyledLabel id="study">
+                    Study
+                    <StyledAsterisk />
+                  </StyledLabel>
+                  <Controller
+                    name="studyAbbreviation"
+                    control={control}
+                    rules={{ required: "This field is required" }}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        value={field.value || ""}
+                        IconComponent={DropdownArrowsIcon}
+                        MenuProps={{ disablePortal: true }}
+                        aria-describedby="submission-study-abbreviation-helper-text"
+                      >
+                        {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map(
+                          (abbr) => (
+                            <MenuItem
+                              key={abbr.studyAbbreviation}
+                              value={abbr.studyAbbreviation}
+                            >
+                              {abbr.studyAbbreviation}
+                            </MenuItem>
+                          )
+                        )}
+                      </StyledSelect>
+                    )}
+                  />
+                  <StyledHelperText id="submission-study-abbreviation-helper-text">
+                    {errors?.studyAbbreviation?.message}
+                  </StyledHelperText>
+                </StyledField>
+                <StyledField>
+                  <StyledLabel id="dbGaPID">dbGaP ID</StyledLabel>
+                  <StyledOutlinedInput
+                    {...register("dbGaPID", { required: false, maxLength: 50 })}
+                    placeholder="Input dbGaP ID"
+                    aria-describedby="submission-dbGaPID-helper-text"
+                  />
+                  <StyledHelperText id="submission-dbGaPID-helper-text">
+                    {errors?.dbGaPID?.message}
+                  </StyledHelperText>
+                </StyledField>
+                <StyledField>
+                  <StyledLabel id="submissionName">
+                    Submission Name
+                    <StyledAsterisk />
+                  </StyledLabel>
+                  <StyledOutlinedInputMultiline
+                    {...register("name", {
+                      required: "This field is required",
+                      maxLength: 25,
+                    })}
+                    multiline
+                    rows={3}
+                    placeholder="25 characters allowed"
+                    aria-describedby="submission-name-helper-text"
+                  />
+                  <StyledHelperText id="submission-name-helper-text">
+                    {errors?.name?.message}
+                  </StyledHelperText>
+                </StyledField>
+                <StyledField>
+                  <Controller
+                    name="intention"
+                    control={control}
+                    rules={{ required: "This field is required" }}
+                    render={({ field }) => (
+                      <Grid container>
+                        <StyledRadioInput
+                          {...field}
+                          id="create-data-submission-dialog-submission-type"
+                          label="Submission Type"
+                          value={field.value || ""}
+                          options={submissionTypeOptions}
+                          gridWidth={12}
+                          row
+                          aria-describedby="submission-intention-helper-text"
+                        />
+                      </Grid>
+                    )}
+                  />
+                  <StyledHelperText id="submission-intention-helper-text">
+                    {errors?.intention?.message}
+                  </StyledHelperText>
+                </StyledField>
+              </Stack>
             </form>
           </StyledFormWrapper>
         </StyledDialogContent>
         <StyledDialogActions>
           <StyledDialogButton
-            role="button"
+            type="submit"
             tabIndex={0}
             id="createSubmissionDialogCreateButton"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleOnCreate();
-              }
-            }}
-            onClick={() => handleOnCreate()}
+            form="create-submission-dialog-form"
           >
             Create
           </StyledDialogButton>
           {error && (
             <StyledDialogError variant="body1">
-              Unable to create this data submission. If the problem persists please
-              contact
+              Unable to create this data submission. If the problem persists
+              please contact
               <br />
               <a href="mailto:ncicrdchelpdesk@mail.nih.gov">
                 ncicrdchelpdesk@mail.nih.gov
               </a>
             </StyledDialogError>
           )}
-
         </StyledDialogActions>
       </CreateSubmissionDialog>
 
