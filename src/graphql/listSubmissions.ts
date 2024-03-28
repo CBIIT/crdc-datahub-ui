@@ -20,6 +20,7 @@ export const query = gql`
         conciergeName
         createdAt
         updatedAt
+        intention
       }
     }
   }

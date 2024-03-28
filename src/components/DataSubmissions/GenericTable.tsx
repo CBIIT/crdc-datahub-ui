@@ -301,9 +301,10 @@ const GenericTable = <T,>({
             <TableRow style={{ height: 46 * numRowsNoContent }}>
               <TableCell colSpan={columns.length}>
                 <Typography
-                  variant="h6"
+                  variant="body1"
                   align="center"
                   fontSize={18}
+                  fontWeight={500}
                   color="#757575"
                 >
                   {noContentText || "No existing data was found"}

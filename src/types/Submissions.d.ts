@@ -17,6 +17,7 @@ type Submission = {
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
+  intention: SubmissionIntention; // [Update, New, Delete]
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
@@ -50,12 +51,17 @@ type SubmissionAction =
   | "Cancel"
   | "Archive";
 
+type SubmissionIntention =
+  | "New"
+  | "Update"
+  | "Delete";
+
 type FileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;
   size: number;
   status: string; // [New, Uploaded, Failed]
-  errors: [string];
+  errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
