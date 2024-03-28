@@ -2,7 +2,6 @@ import { FC, ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
 import { styled } from '@mui/material';
-import PropTypes from 'prop-types';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import ScrollButton from '../components/ScrollButton/ScrollButtonView';
@@ -47,9 +46,5 @@ const Layout: FC<LayoutProps> = ({ children }) => (
     <InactivityDialog />
   </>
 );
-
-Layout.propTypes = {
-  children: PropTypes.node
-};
 
 export default Layout;
