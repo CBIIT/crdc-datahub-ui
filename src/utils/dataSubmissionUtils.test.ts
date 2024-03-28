@@ -209,21 +209,6 @@ describe("General Submit", () => {
     expect(result.isAdminOverride).toBe(false);
   });
 
-  it("should allow submit with isAdminOverride when metadata validation is 'Error', file validation is null, and intention is 'Delete'", () => {
-    const submission: Submission = {
-      ...baseSubmission,
-      metadataValidationStatus: "Error",
-      fileValidationStatus: null,
-      intention: "Delete"
-    };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Admin"
-    );
-    expect(result.disable).toBe(false);
-    expect(result.isAdminOverride).toBe(true);
-  });
-
   it("should disable submit when both metadata validation and file validation are null", () => {
     const submission: Submission = {
       ...baseSubmission,
@@ -502,6 +487,36 @@ describe("Admin Submit", () => {
     };
     const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
+    expect(result.isAdminOverride).toBe(false);
+  });
+
+  it("should allow submit with isAdminOverride when metadata validation is 'Error', file validation is null, and intention is 'Delete'", () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      metadataValidationStatus: "Error",
+      fileValidationStatus: null,
+      intention: "Delete"
+    };
+    const result: SubmitInfo = utils.shouldDisableSubmit(
+      submission,
+      "Admin"
+    );
+    expect(result.disable).toBe(false);
+    expect(result.isAdminOverride).toBe(true);
+  });
+
+  it("should allow submit without isAdminOverride when metadata validation is 'Passed', file validation is null, and intention is 'Delete'", () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      metadataValidationStatus: "Passed",
+      fileValidationStatus: null,
+      intention: "Delete"
+    };
+    const result: SubmitInfo = utils.shouldDisableSubmit(
+      submission,
+      "Admin"
+    );
+    expect(result.disable).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 });
