@@ -6,7 +6,6 @@ import { GraphQLError } from 'graphql';
 import { axe } from 'jest-axe';
 import { ExportValidationButton } from './ExportValidationButton';
 import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from '../../graphql';
-import { mockEnqueue } from '../../setupTests';
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -216,7 +215,7 @@ describe('ExportValidationButton cases', () => {
     });
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("There are no validation results to export.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("There are no validation results to export.", { variant: "error" });
     });
   });
 
@@ -309,7 +308,7 @@ describe('ExportValidationButton cases', () => {
     });
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("Unable to retrieve submission quality control results.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve submission quality control results.", { variant: "error" });
     });
   });
 
@@ -343,7 +342,7 @@ describe('ExportValidationButton cases', () => {
     });
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("Unable to retrieve submission quality control results.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve submission quality control results.", { variant: "error" });
     });
   });
 
@@ -386,7 +385,7 @@ describe('ExportValidationButton cases', () => {
     });
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("Unable to export validation results.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to export validation results.", { variant: "error" });
     });
   });
 });
