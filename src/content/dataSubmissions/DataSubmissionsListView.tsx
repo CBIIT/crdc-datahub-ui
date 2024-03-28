@@ -149,6 +149,11 @@ const columns: Column[] = [
     field: "dataCommons",
   },
   {
+    label: "Type",
+    value: (a) => a.intention,
+    field: "intention",
+  },
+  {
     label: "DM Version",
     value: (a) => a.modelVersion,
     field: "modelVersion",
