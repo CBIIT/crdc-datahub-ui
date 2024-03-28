@@ -46,7 +46,8 @@ describe('ExportValidationButton cases', () => {
     conciergeName: '',
     conciergeEmail: '',
     createdAt: '',
-    updatedAt: ''
+    updatedAt: '',
+    intention: 'New'
   };
 
   const baseQCResult: Omit<QCResult, "submissionID"> = {
@@ -121,13 +122,15 @@ describe('ExportValidationButton cases', () => {
   });
 
   it.each<{ original: string, expected: string }>([
-    { original: "A B C 1 2 3", expected: "ABC123" },
-    { original: "long name".repeat(100), expected: "longname".repeat(100) },
+    { original: "A B C 1 2 3", expected: "A-B-C-1-2-3" },
+    { original: "long name".repeat(100), expected: "long-name".repeat(100) },
     { original: "", expected: "" },
-    { original: `non $alpha name $@!819`, expected: "nonalphaname819" },
+    { original: `non $alpha name $@!819`, expected: "non-alpha-name-819" },
     { original: "  ", expected: "" },
-    { original: `_-"a-b+c=d`, expected: "abcd" },
-  ])("should safely name the CSV export file dynamically using submission name and export date", async ({ original, expected }) => {
+    { original: `_-"a-b+c=d`, expected: "-a-bcd" },
+    { original: "CRDCDH-1234", expected: "CRDCDH-1234" },
+    { original: "SPACE-AT-END ", expected: "SPACE-AT-END" },
+  ])("should safely create the CSV filename using submission name and export date", async ({ original, expected }) => {
     jest.useFakeTimers().setSystemTime(new Date('2021-01-19T14:54:01Z'));
 
     const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
