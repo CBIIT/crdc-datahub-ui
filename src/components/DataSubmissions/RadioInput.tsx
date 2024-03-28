@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useEffect, useId } from "react";
+import React, { useState, useRef, useEffect, useId, forwardRef } from "react";
 import {
   Grid,
   FormControl,
@@ -96,7 +96,7 @@ type Props = {
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
 } & RadioGroupProps;
 
-const RadioYesNoInput: FC<Props> = ({
+const RadioInput = forwardRef<HTMLDivElement, Props>(({
   label,
   name,
   gridWidth,
@@ -109,7 +109,7 @@ const RadioYesNoInput: FC<Props> = ({
   required,
   readOnly,
   ...rest
-}) => {
+}, ref) => {
   const radioId = id || useId();
   const [val, setVal] = useState<string>(
     value?.toString() === "" || value?.toString() === undefined
@@ -166,6 +166,7 @@ const RadioYesNoInput: FC<Props> = ({
             {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
           </StyledFormLabel>
           <RadioGroup
+            ref={ref}
             name={name}
             value={val}
             onChange={onChangeWrapper}
@@ -201,6 +202,6 @@ const RadioYesNoInput: FC<Props> = ({
       </FormControl>
     </GridStyled>
   );
-};
+});
 
-export default RadioYesNoInput;
+export default RadioInput;
