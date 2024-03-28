@@ -49,6 +49,7 @@ export const query = gql`
       conciergeEmail
       createdAt
       updatedAt
+      intention
     }
 
     submissionStats(_id: $id) {
