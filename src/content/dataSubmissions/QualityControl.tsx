@@ -10,6 +10,7 @@ import GenericTable, { Column, FetchListing, TableMethods } from "../../componen
 import { FormatDate, capitalizeFirstLetter } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
+import { ExportValidationButton } from '../../components/DataSubmissions/ExportValidationButton';
 
 type FilterForm = {
   nodeType: string | "All";
@@ -164,7 +165,11 @@ export const csvColumns = {
   Issues: (d: QCResult) => (d.errors?.length > 0 ? d.errors[0].description : d.warnings[0]?.description),
 };
 
-const QualityControl: FC = () => {
+type Props = {
+  submission: Submission;
+};
+
+const QualityControl: FC<Props> = ({ submission }: Props) => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>();
   const { enqueueSnackbar } = useSnackbar();
@@ -343,6 +348,13 @@ const QualityControl: FC = () => {
           defaultOrder="desc"
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
+          AdditionalActions={(
+            <ExportValidationButton
+              submission={submission}
+              fields={csvColumns}
+              disabled={totalData <= 0}
+            />
+          )}
         />
       </QCResultsContext.Provider>
       <ErrorDialog

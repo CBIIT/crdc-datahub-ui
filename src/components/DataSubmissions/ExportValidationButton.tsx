@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLazyQuery } from '@apollo/client';
-import { LoadingButton } from '@mui/lab';
-import { ButtonProps } from '@mui/material';
+import { IconButtonProps, IconButton, styled } from '@mui/material';
+import { CloudDownload } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import dayjs from 'dayjs';
 import { unparse } from 'papaparse';
@@ -21,14 +21,19 @@ export type Props = {
    * @example { "Batch ID": (d) => d.displayID }
    */
   fields: Record<string, (row: QCResult) => string | number>;
-} & ButtonProps;
+} & IconButtonProps;
+
+const StyledIconButton = styled(IconButton)({
+  color: "#606060",
+  marginRight: "38px",
+});
 
 /**
  * Provides the button and supporting functionality to export the validation results of a submission.
  *
  * @returns {React.FC} The export validation button.
  */
-export const ExportValidationButton: React.FC<Props> = ({ submission, fields, ...buttonProps }: Props) => {
+export const ExportValidationButton: React.FC<Props> = ({ submission, fields, disabled, ...buttonProps }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -89,14 +94,14 @@ export const ExportValidationButton: React.FC<Props> = ({ submission, fields, ..
   };
 
   return (
-    <LoadingButton
-      loading={loading}
+    <StyledIconButton
       onClick={handleClick}
-      variant="contained"
-      color="primary"
+      disabled={loading || disabled}
+      data-testid="export-validation-button"
+      aria-label="Export validation results"
       {...buttonProps}
     >
-      Download QC Results
-    </LoadingButton>
+      <CloudDownload />
+    </StyledIconButton>
   );
 };

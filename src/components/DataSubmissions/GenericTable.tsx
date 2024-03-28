@@ -156,6 +156,7 @@ type Props<T> = {
   paginationPlacement?: CSSProperties["justifyContent"];
   containerProps?: TableContainerProps;
   numRowsNoContent?: number;
+  AdditionalActions?: React.ReactNode;
   setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
@@ -174,6 +175,7 @@ const GenericTable = <T,>({
   paginationPlacement,
   containerProps,
   numRowsNoContent = 10,
+  AdditionalActions,
   setItemKey,
   onFetchData,
   onOrderChange,
@@ -330,7 +332,8 @@ const GenericTable = <T,>({
         }}
         SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
         backIconButtonProps={{ disabled: page === 0 || loading }}
-        ActionsComponent={PaginationActions}
+        // eslint-disable-next-line react/no-unstable-nested-components
+        ActionsComponent={(props) => <PaginationActions {...props} AdditionalActions={AdditionalActions} />}
       />
     </StyledTableContainer>
   );

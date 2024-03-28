@@ -105,7 +105,7 @@ describe('ExportValidationButton cases', () => {
       },
     }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
@@ -114,7 +114,7 @@ describe('ExportValidationButton cases', () => {
     expect(called).toBe(false);
 
     // NOTE: This must be separate from the expect below to ensure its not called multiple times
-    await waitFor(() => UserEvent.click(getByText('Download QC Results')));
+    await waitFor(() => UserEvent.click(getByTestId('export-validation-button')));
     await waitFor(() => {
       expect(called).toBe(true);
     });
@@ -159,14 +159,14 @@ describe('ExportValidationButton cases', () => {
       ID: jest.fn().mockImplementation((result: QCResult) => result.submissionID),
     };
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: "example-dynamic-filename-id", name: original }} fields={fields} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
@@ -202,14 +202,14 @@ describe('ExportValidationButton cases', () => {
       },
     }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
@@ -261,14 +261,14 @@ describe('ExportValidationButton cases', () => {
       NullValueField: jest.fn().mockImplementation(() => null),
     };
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={fields} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
@@ -295,14 +295,14 @@ describe('ExportValidationButton cases', () => {
       error: new Error('Simulated network error'),
     }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
@@ -329,14 +329,14 @@ describe('ExportValidationButton cases', () => {
       },
     }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
@@ -372,14 +372,14 @@ describe('ExportValidationButton cases', () => {
       },
     }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
