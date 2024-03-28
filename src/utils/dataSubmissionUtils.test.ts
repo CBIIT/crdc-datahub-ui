@@ -430,3 +430,162 @@ describe("Admin Submit", () => {
     expect(result.isAdminOverride).toBe(false);
   });
 });
+
+describe('unpackQCResultSeverities cases', () => {
+  // Base QCResult, unused props are empty
+  const baseResult: Omit<QCResult, "errors" | "warnings"> = {
+    submissionID: "",
+    batchID: "",
+    type: '',
+    validationType: '' as QCResult["validationType"],
+    // NOTE: This is intentionally invalid and should break the tests if used
+    // by the unpackQCResultSeverities function
+    severity: "SHOULD NOT BE USED" as QCResult["severity"],
+    displayID: 0,
+    submittedID: '',
+    uploadedDate: '',
+    validatedDate: ''
+  };
+
+  // Base ErrorMessage
+  const baseError: ErrorMessage = {
+    title: "",
+    description: "unused description",
+  };
+
+  it('should unpack errors and warnings into separate results', () => {
+    const errors: ErrorMessage[] = [
+      { ...baseError, title: "error1" },
+      { ...baseError, title: "error2" },
+    ];
+    const warnings: ErrorMessage[] = [
+      { ...baseError, title: "warning1" },
+      { ...baseError, title: "warning2" },
+    ];
+    const results: QCResult[] = [{ ...baseResult, errors, warnings }];
+
+    const unpackedResults = utils.unpackQCResultSeverities(results);
+
+    expect(unpackedResults.length).toEqual(4);
+    expect(unpackedResults).toEqual([
+      { ...baseResult, severity: "Error", errors: [errors[0]], warnings: [] },
+      { ...baseResult, severity: "Error", errors: [errors[1]], warnings: [] },
+      { ...baseResult, severity: "Warning", errors: [], warnings: [warnings[0]] },
+      { ...baseResult, severity: "Warning", errors: [], warnings: [warnings[1]] },
+    ]);
+  });
+
+  it('should return an array with the same length as errors.length + warnings.length', () => {
+    const errors: ErrorMessage[] = new Array(999).fill({ ...baseError, title: "error1" });
+    const warnings: ErrorMessage[] = new Array(999).fill({ ...baseError, title: "warning1" });
+    const results: QCResult[] = [{ ...baseResult, errors, warnings }];
+
+    expect(utils.unpackQCResultSeverities(results).length).toEqual(1998);
+  });
+
+  it('should unpack an array of only warnings', () => {
+    const warnings: ErrorMessage[] = [
+      { ...baseError, title: "warning1" },
+      { ...baseError, title: "warning2" },
+    ];
+    const results: QCResult[] = [{ ...baseResult, errors: [], warnings }];
+
+    const unpackedResults = utils.unpackQCResultSeverities(results);
+
+    expect(unpackedResults.length).toEqual(2);
+    expect(unpackedResults).toEqual([
+      { ...baseResult, severity: "Warning", errors: [], warnings: [warnings[0]] },
+      { ...baseResult, severity: "Warning", errors: [], warnings: [warnings[1]] },
+    ]);
+  });
+
+  it('should unpack an array of only errors', () => {
+    const errors: ErrorMessage[] = [
+      { ...baseError, title: "error1" },
+      { ...baseError, title: "error2" },
+    ];
+    const results: QCResult[] = [{ ...baseResult, errors, warnings: [] }];
+
+    const unpackedResults = utils.unpackQCResultSeverities(results);
+
+    expect(unpackedResults.length).toEqual(2);
+    expect(unpackedResults).toEqual([
+      { ...baseResult, severity: "Error", errors: [errors[0]], warnings: [] },
+      { ...baseResult, severity: "Error", errors: [errors[1]], warnings: [] },
+    ]);
+  });
+
+  it('should handle a large array of QCResults', () => {
+    const errors: ErrorMessage[] = new Array(10).fill({ ...baseError, title: "error1" });
+    const warnings: ErrorMessage[] = new Array(5).fill({ ...baseError, title: "warning1" });
+    const results: QCResult[] = new Array(10000).fill({ ...baseResult, errors, warnings });
+
+    const unpackedResults = utils.unpackQCResultSeverities(results);
+
+    // 10 errors and 5 warnings per result with 10K results, 150K total
+    expect(unpackedResults.length).toEqual(150000);
+    expect(unpackedResults.filter((result) => result.severity === "Error").length).toEqual(100000);
+    expect(unpackedResults.filter((result) => result.severity === "Warning").length).toEqual(50000);
+  });
+
+  it('should return an empty array when given an empty array', () => {
+    expect(utils.unpackQCResultSeverities([])).toEqual([]);
+  });
+
+  it('should return an empty array when there are no errors or warnings', () => {
+    const results = [{ ...baseResult, errors: [], warnings: [] }];
+    expect(utils.unpackQCResultSeverities(results)).toEqual([]);
+  });
+});
+
+describe('downloadBlob cases', () => {
+  const mockSetAttribute = jest.fn();
+  const mockClick = jest.fn();
+  const mockRemove = jest.fn();
+
+  beforeEach(() => {
+    URL.createObjectURL = jest.fn().mockReturnValue('blob-url');
+
+    // Spy on document.createElement calls and override the return value
+    jest.spyOn(document, 'createElement').mockReturnValue({
+      ...document.createElement('a'),
+      setAttribute: mockSetAttribute,
+      click: mockClick,
+      remove: mockRemove,
+    }) as jest.MockedFunction<typeof document.createElement>;
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('should create a ObjectURL with the file content blob', () => {
+    const content = 'test,csv,content\n1,2,3';
+    const contentType = 'text/csv';
+
+    utils.downloadBlob(content, "blob.csv", contentType);
+
+    expect(URL.createObjectURL).toHaveBeenCalledWith(new Blob([content], { type: contentType }));
+  });
+
+  it('should create a anchor with the href and download properties', () => {
+    const filename = 'test.txt';
+
+    utils.downloadBlob("test content", filename, "text/plain");
+
+    expect(document.createElement).toHaveBeenCalledWith('a');
+    expect(mockSetAttribute).toHaveBeenCalledWith('href', 'blob-url');
+    expect(mockSetAttribute).toHaveBeenCalledWith('download', filename);
+  });
+
+  it('should open the download link and remove itself from the DOM', () => {
+    utils.downloadBlob("test,content,csv", "test-file.csv", "text/csv");
+
+    expect(mockClick).toHaveBeenCalled();
+    expect(mockRemove).toHaveBeenCalled();
+  });
+});

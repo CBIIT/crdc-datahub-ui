@@ -1,3 +1,4 @@
+import { FC } from 'react';
 import {
   Pagination,
   PaginationItem,
@@ -6,7 +7,7 @@ import {
   styled,
 } from "@mui/material";
 
-const StyledPagination = styled(Pagination)(() => ({
+const StyledPagination = styled(Pagination)({
   marginLeft: "23px",
   marginRight: "30.59px",
   "& .MuiPagination-ul": {
@@ -38,7 +39,8 @@ const StyledPagination = styled(Pagination)(() => ({
   "& .MuiPagination-ul li:nth-last-of-type(2) .MuiPaginationItem-page": {
     borderRight: "1px solid #415B88",
   },
-}));
+});
+
 const StyledPaginationItem = styled(PaginationItem)(({ selected }) => ({
   color: selected ? "#004187" : "#415B88",
   fontWeight: selected ? 700 : 400,
@@ -47,23 +49,33 @@ const StyledPaginationItem = styled(PaginationItem)(({ selected }) => ({
   },
 }));
 
-const PaginationActions = ({
+export type CustomPaginationActionsProps = {
+  /**
+   * An optional prop to render additional action components.
+   */
+  AdditionalActions?: React.ReactNode;
+} & TablePaginationProps;
+
+const PaginationActions: FC<CustomPaginationActionsProps> = ({
   count,
   page,
-  // onChange,
   rowsPerPage,
+  AdditionalActions,
   onPageChange,
-}: TablePaginationProps) => (
-  <StyledPagination
-    count={Math.ceil(count / rowsPerPage)}
-    page={page + 1}
-    onChange={onPageChange}
-    variant="outlined"
-    shape="rounded"
-    renderItem={(params: PaginationRenderItemParams) => (
-      <StyledPaginationItem {...params} />
-    )}
-  />
+}: CustomPaginationActionsProps) => (
+  <>
+    <StyledPagination
+      count={Math.ceil(count / rowsPerPage)}
+      page={page + 1}
+      onChange={onPageChange}
+      variant="outlined"
+      shape="rounded"
+      renderItem={(params: PaginationRenderItemParams) => (
+        <StyledPaginationItem {...params} />
+      )}
+    />
+    {AdditionalActions}
+  </>
 );
 
 export default PaginationActions;

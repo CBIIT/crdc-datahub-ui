@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-import '@testing-library/jest-dom';
 import { GraphQLError } from 'graphql';
 import { render, waitFor } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';

@@ -1,5 +1,3 @@
-import 'jest-axe/extend-expect';
-
 import { axe } from 'jest-axe';
 import { render } from '@testing-library/react';
 import Page from './Page404';
