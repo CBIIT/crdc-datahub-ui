@@ -127,7 +127,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
       return false;
     }
-    if (dataSubmission?.intention === "Delete") {
+    if (dataSubmission.intention === "Delete") {
       return false;
     }
 
