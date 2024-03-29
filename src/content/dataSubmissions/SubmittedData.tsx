@@ -21,6 +21,7 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
   const tableRef = useRef<TableMethods>(null);
   const filterRef = useRef<FilterForm>({ nodeType: "" });
   const prevFilterRef = useRef<FilterForm>({ nodeType: "" });
+  const abortControllerRef = useRef<AbortController>(new AbortController());
 
   const [loading, setLoading] = useState<boolean>(false);
   const [columns, setColumns] = useState<Column<T>[]>([]);
@@ -47,9 +48,15 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
       setTotalData(0);
       return;
     }
+    if (abortControllerRef.current && prevListing) {
+      abortControllerRef.current.abort();
+    }
 
     setPrevListing(fetchListing);
     setLoading(true);
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
 
     const { data: d, error } = await getSubmissionNodes({
       variables: {
@@ -60,11 +67,14 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
         orderBy,
         nodeType: filterRef.current.nodeType,
       },
-      context: { clientName: 'backend' },
-      fetchPolicy: 'no-cache'
+      context: { fetchOptions: { signal: abortController.signal } },
     });
 
-    if (error || !d?.getSubmissionNodes || !d?.getSubmissionNodes?.properties) {
+    if (abortController.signal.aborted) {
+      return;
+    }
+
+    if (error || !d?.getSubmissionNodes || !d?.getSubmissionNodes?.properties?.length) {
       enqueueSnackbar("Unable to retrieve node data.", { variant: "error" });
       setLoading(false);
       return;
