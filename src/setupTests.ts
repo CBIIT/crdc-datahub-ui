@@ -5,11 +5,11 @@ import 'jest-axe/extend-expect';
  * Mocks the enqueueSnackbar function from notistack for testing
  *
  * @note You must RESET all mocks after each test to avoid unexpected behavior
- * @example expect(mockEnqueue).toHaveBeenCalledWith('message', { variant: 'error' });
+ * @example expect(global.mockEnqueue).toHaveBeenCalledWith('message', { variant: 'error' });
  * @see notistack documentation: https://notistack.com/getting-started
  */
-export const mockEnqueue = jest.fn();
+global.mockEnqueue = jest.fn();
 jest.mock('notistack', () => ({
   ...jest.requireActual('notistack'),
-  useSnackbar: () => ({ enqueueSnackbar: mockEnqueue })
+  useSnackbar: () => ({ enqueueSnackbar: global.mockEnqueue })
 }));

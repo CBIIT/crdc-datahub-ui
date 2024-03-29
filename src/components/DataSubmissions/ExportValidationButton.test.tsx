@@ -6,7 +6,6 @@ import { GraphQLError } from 'graphql';
 import { axe } from 'jest-axe';
 import { ExportValidationButton } from './ExportValidationButton';
 import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from '../../graphql';
-import { mockEnqueue } from '../../setupTests';
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -46,7 +45,8 @@ describe('ExportValidationButton cases', () => {
     conciergeName: '',
     conciergeEmail: '',
     createdAt: '',
-    updatedAt: ''
+    updatedAt: '',
+    intention: 'New'
   };
 
   const baseQCResult: Omit<QCResult, "submissionID"> = {
@@ -105,7 +105,7 @@ describe('ExportValidationButton cases', () => {
       },
     }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
@@ -114,20 +114,22 @@ describe('ExportValidationButton cases', () => {
     expect(called).toBe(false);
 
     // NOTE: This must be separate from the expect below to ensure its not called multiple times
-    await waitFor(() => UserEvent.click(getByText('Download QC Results')));
+    await waitFor(() => UserEvent.click(getByTestId('export-validation-button')));
     await waitFor(() => {
       expect(called).toBe(true);
     });
   });
 
   it.each<{ original: string, expected: string }>([
-    { original: "A B C 1 2 3", expected: "ABC123" },
-    { original: "long name".repeat(100), expected: "longname".repeat(100) },
+    { original: "A B C 1 2 3", expected: "A-B-C-1-2-3" },
+    { original: "long name".repeat(100), expected: "long-name".repeat(100) },
     { original: "", expected: "" },
-    { original: `non $alpha name $@!819`, expected: "nonalphaname819" },
+    { original: `non $alpha name $@!819`, expected: "non-alpha-name-819" },
     { original: "  ", expected: "" },
-    { original: `_-"a-b+c=d`, expected: "abcd" },
-  ])("should safely name the CSV export file dynamically using submission name and export date", async ({ original, expected }) => {
+    { original: `_-"a-b+c=d`, expected: "-a-bcd" },
+    { original: "CRDCDH-1234", expected: "CRDCDH-1234" },
+    { original: "SPACE-AT-END ", expected: "SPACE-AT-END" },
+  ])("should safely create the CSV filename using submission name and export date", async ({ original, expected }) => {
     jest.useFakeTimers().setSystemTime(new Date('2021-01-19T14:54:01Z'));
 
     const mocks: MockedResponse<SubmissionQCResultsResp>[] = [{
@@ -159,14 +161,14 @@ describe('ExportValidationButton cases', () => {
       ID: jest.fn().mockImplementation((result: QCResult) => result.submissionID),
     };
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: "example-dynamic-filename-id", name: original }} fields={fields} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
@@ -202,18 +204,18 @@ describe('ExportValidationButton cases', () => {
       },
     }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("There are no validation results to export.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("There are no validation results to export.", { variant: "error" });
     });
   });
 
@@ -261,14 +263,14 @@ describe('ExportValidationButton cases', () => {
       NullValueField: jest.fn().mockImplementation(() => null),
     };
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={fields} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
@@ -295,18 +297,18 @@ describe('ExportValidationButton cases', () => {
       error: new Error('Simulated network error'),
     }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("Unable to retrieve submission quality control results.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve submission quality control results.", { variant: "error" });
     });
   });
 
@@ -329,18 +331,18 @@ describe('ExportValidationButton cases', () => {
       },
     }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("Unable to retrieve submission quality control results.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve submission quality control results.", { variant: "error" });
     });
   });
 
@@ -372,18 +374,18 @@ describe('ExportValidationButton cases', () => {
       },
     }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
     act(() => {
-      fireEvent.click(getByText('Download QC Results'));
+      fireEvent.click(getByTestId('export-validation-button'));
     });
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("Unable to export validation results.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to export validation results.", { variant: "error" });
     });
   });
 });

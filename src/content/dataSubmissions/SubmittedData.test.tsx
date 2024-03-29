@@ -4,7 +4,6 @@ import { GraphQLError } from 'graphql';
 import { axe } from 'jest-axe';
 import { render, waitFor } from '@testing-library/react';
 import SubmittedData from './SubmittedData';
-import { mockEnqueue } from '../../setupTests';
 import { GET_SUBMISSION_NODES, SUBMISSION_STATS } from '../../graphql';
 
 type ParentProps = {
@@ -64,7 +63,7 @@ describe("SubmittedData > General", () => {
     );
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("Cannot fetch results. Submission ID is invalid or missing.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Cannot fetch results. Submission ID is invalid or missing.", { variant: "error" });
     });
   });
 
@@ -95,7 +94,7 @@ describe("SubmittedData > General", () => {
     );
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("Unable to retrieve node data.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve node data.", { variant: "error" });
     });
   });
 
@@ -128,7 +127,7 @@ describe("SubmittedData > General", () => {
     );
 
     await waitFor(() => {
-      expect(mockEnqueue).toHaveBeenCalledWith("Unable to retrieve node data.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve node data.", { variant: "error" });
     });
   });
 });

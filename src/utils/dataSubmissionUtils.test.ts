@@ -20,6 +20,7 @@ const baseSubmission: Submission = {
   history: [],
   conciergeName: "",
   conciergeEmail: "",
+  intention: "New",
   createdAt: "",
   updatedAt: "",
 };

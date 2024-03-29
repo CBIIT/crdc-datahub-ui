@@ -28,8 +28,8 @@ const StyledSubmissionTitle = styled(Typography)(() => ({
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   fontSize: "13px",
   fontStyle: "normal",
-  fontWeight: 400,
-  lineHeight: "27px",
+  fontWeight: 600,
+  lineHeight: "26px",
   letterSpacing: "0.5px",
   textTransform: "uppercase",
 }));
@@ -224,7 +224,11 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         spacing={7.125}
       >
         <Stack direction="column" minWidth="192px">
-          <StyledSubmissionTitle variant="h6">STATUS</StyledSubmissionTitle>
+          <StyledSubmissionTitle variant="h6">
+            SUBMISSION TYPE:
+            {" "}
+            {dataSubmission?.intention}
+          </StyledSubmissionTitle>
           <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
             {dataSubmission?.status}
           </StyledSubmissionStatus>
