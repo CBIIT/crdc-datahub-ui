@@ -1,9 +1,3 @@
-declare global {
-  interface Window {
-    injectedEnv: AppEnv;
-  }
-}
-
 const processEnv = process.env ?? {};
 const { injectedEnv } = window ?? {};
 
