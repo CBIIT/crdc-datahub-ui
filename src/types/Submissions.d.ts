@@ -13,9 +13,11 @@ type Submission = {
   status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
   metadataValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
   fileValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
+  fileErrors: QCResult[]; // holds submission level file errors, e.g., extra files in S3 folder
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
+  intention: SubmissionIntention; // [Update, New, Delete]
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
@@ -49,12 +51,17 @@ type SubmissionAction =
   | "Cancel"
   | "Archive";
 
+type SubmissionIntention =
+  | "New"
+  | "Update"
+  | "Delete";
+
 type FileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;
   size: number;
   status: string; // [New, Uploaded, Failed]
-  errors: [string];
+  errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
@@ -174,11 +181,11 @@ type QCResults = {
 
 type QCResult = {
   submissionID: string;
-  nodeType: string;
+  type: string;
   validationType: UploadType;
   batchID: string;
   displayID: number;
-  nodeID: string;
+  submittedID: string;
   severity: "Error" | "Warning"; // [Error, Warning]
   uploadedDate: string; // batch.updatedAt
   validatedDate: string;

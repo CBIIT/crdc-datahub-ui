@@ -111,7 +111,7 @@ export const DataCommons: DataCommon[] = [
           isExpanded: true,
         },
         'Filter By Property': {
-          color: '#94C0EC',
+          color: '#0D71A3',
           checkBoxColorsOne: '#E3F4FD',
           checkBoxColorsTwo: '#f0f8ff',
           checkBoxBorderColor: '#0D71A3',

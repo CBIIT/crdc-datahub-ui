@@ -110,13 +110,13 @@ const columns: Column<QCResult>[] = [
   },
   {
     label: "Node Type",
-    renderValue: (data) => <StyledNodeType>{data?.nodeType}</StyledNodeType>,
-    field: "nodeType",
+    renderValue: (data) => <StyledNodeType>{data?.type}</StyledNodeType>,
+    field: "type",
   },
   {
     label: "Submitted Identifier",
-    renderValue: (data) => <StyledBreakAll>{data?.nodeID}</StyledBreakAll>,
-    field: "nodeID",
+    renderValue: (data) => <StyledBreakAll>{data?.submittedID}</StyledBreakAll>,
+    field: "submittedID",
   },
   {
     label: "Severity",
@@ -331,7 +331,7 @@ const QualityControl: FC = () => {
           loading={loading}
           defaultRowsPerPage={20}
           defaultOrder="desc"
-          setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.nodeID}`}
+          setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
         />
       </QCResultsContext.Provider>
@@ -339,7 +339,7 @@ const QualityControl: FC = () => {
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header={null}
-        title={`Validation Issues for ${capitalizeFirstLetter(selectedRow?.nodeType)} Node ID ${selectedRow?.nodeID}.`}
+        title={`Validation Issues for ${capitalizeFirstLetter(selectedRow?.type)} Node ID ${selectedRow?.submittedID}.`}
         errors={allDescriptions}
         errorCount={`${allDescriptions?.length || 0} ${allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"}`}
       />
