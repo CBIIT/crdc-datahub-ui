@@ -118,6 +118,7 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
         loading={loading}
         defaultRowsPerPage={20}
         defaultOrder="desc"
+        horizontalScroll
         setItemKey={(item, idx) => `${idx}_${item.nodeID}_${item.nodeID}`}
         onFetchData={handleFetchData}
       />

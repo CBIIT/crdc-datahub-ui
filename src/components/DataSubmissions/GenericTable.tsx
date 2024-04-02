@@ -23,8 +23,7 @@ const StyledTableContainer = styled(TableContainer)({
   border: "1px solid #6CACDA",
   marginBottom: "25px",
   position: "relative",
-  overflowX: "auto",
-  overflowY: "hidden",
+  overflow: "hidden",
   "& .MuiTableRow-root:nth-of-type(2n)": {
     background: "#E3EEF9",
   },
@@ -35,6 +34,12 @@ const StyledTableContainer = styled(TableContainer)({
     paddingRight: "40.44px",
   },
 });
+
+const StyledTable = styled(Table, { shouldForwardProp: (p) => p !== "horizontalScroll" })<{ horizontalScroll: boolean }>(({ horizontalScroll }) => ({
+  whiteSpace: horizontalScroll ? "nowrap" : "initial",
+  display: horizontalScroll ? "block" : "table",
+  overflowX: horizontalScroll ? "auto" : "initial",
+}));
 
 const StyledTableHead = styled(TableHead)({
   background: "#4D7C8F",
@@ -149,6 +154,7 @@ type Props<T> = {
   data: T[];
   total: number;
   loading?: boolean;
+  horizontalScroll?: boolean;
   noContentText?: string;
   defaultOrder?: Order;
   defaultRowsPerPage?: number;
@@ -168,6 +174,7 @@ const GenericTable = <T,>({
   data,
   total = 0,
   loading,
+  horizontalScroll = false,
   noContentText,
   defaultOrder = "desc",
   defaultRowsPerPage = 10,
@@ -246,7 +253,7 @@ const GenericTable = <T,>({
   return (
     <StyledTableContainer {...containerProps}>
       {loading && (<SuspenseLoader fullscreen={false} />)}
-      <Table>
+      <StyledTable horizontalScroll={horizontalScroll}>
         <StyledTableHead>
           <TableRow>
             {columns.map((col: Column<T>) => (
@@ -315,7 +322,7 @@ const GenericTable = <T,>({
             </TableRow>
           )}
         </TableBody>
-      </Table>
+      </StyledTable>
       <StyledTablePagination
         rowsPerPageOptions={[5, 10, 20, 50]}
         component="div"
