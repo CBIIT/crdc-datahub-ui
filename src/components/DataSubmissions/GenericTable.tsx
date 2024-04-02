@@ -253,7 +253,7 @@ const GenericTable = <T,>({
   return (
     <StyledTableContainer {...containerProps}>
       {loading && (<SuspenseLoader fullscreen={false} />)}
-      <StyledTable horizontalScroll={horizontalScroll}>
+      <StyledTable horizontalScroll={horizontalScroll && total > 0}>
         <StyledTableHead>
           <TableRow>
             {columns.map((col: Column<T>) => (
