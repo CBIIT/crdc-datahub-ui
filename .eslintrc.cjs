@@ -26,7 +26,7 @@ module.exports = {
     }
   },
   root: true,
-  ignorePatterns: ["public/injectEnv.js", "public/js/session.js"],
+  ignorePatterns: ["public/js/*.js"],
   rules: {
     "quotes": "off",
     "indent": "off",

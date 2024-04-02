@@ -13,10 +13,11 @@ type Submission = {
   status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
   metadataValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
   fileValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
-  fileErrors: ErrorMessage[]; // holds submission level file errors, e.g., extra files in S3 folder
+  fileErrors: QCResult[]; // holds submission level file errors, e.g., extra files in S3 folder
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
+  intention: SubmissionIntention; // [Update, New, Delete]
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
@@ -50,12 +51,17 @@ type SubmissionAction =
   | "Cancel"
   | "Archive";
 
+type SubmissionIntention =
+  | "New"
+  | "Update"
+  | "Delete";
+
 type FileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;
   size: number;
   status: string; // [New, Uploaded, Failed]
-  errors: [string];
+  errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
@@ -246,3 +252,25 @@ type ValidationType = "Metadata" | "Files" | "All";
  * The target of Data Validation action.
  */
 type ValidationTarget = "New" | "All";
+
+/**
+ * Represents a node returned from the getSubmissionNodes API
+ *
+ * @note Not the same thing as `SubmissionStatistic`
+ */
+type SubmissionNode = {
+  submissionID: string;
+  nodeType: string;
+  nodeID: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  validatedAt: string;
+  lineNumber: number;
+  /**
+   * The node properties as a JSON string.
+   *
+   * @see JSON.parse
+   */
+  props: string;
+};

@@ -1,6 +1,3 @@
-import "@testing-library/jest-dom";
-import "jest-axe/extend-expect";
-
 import { ThemeProvider } from "@mui/material";
 import { CSSProperties } from "react";
 import { BrowserRouter } from "react-router-dom";

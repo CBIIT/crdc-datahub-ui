@@ -21,8 +21,23 @@ export const query = gql`
       metadataValidationStatus
       fileValidationStatus
       fileErrors {
-        title
-        description
+        submissionID
+        type
+        validationType
+        batchID
+        displayID
+        submittedID
+        severity
+        uploadedDate
+        validatedDate
+        errors {
+          title
+          description
+        }
+        warnings {
+          title
+          description
+        }
       }
       history {
         status
@@ -34,6 +49,7 @@ export const query = gql`
       conciergeEmail
       createdAt
       updatedAt
+      intention
     }
 
     submissionStats(_id: $id) {
@@ -46,12 +62,28 @@ export const query = gql`
         error
       }
     }
+
+    totalQCResults: submissionQCResults(_id: $id, first: 1) {
+      total
+    }
   }
 `;
 
 export type Response = {
+  /**
+   * The submission object
+   */
   getSubmission: Submission;
+  /**
+   * The node statistics for the submission
+   */
   submissionStats: {
     stats: SubmissionStatistic[];
+  };
+  /**
+   * The total number of QC results for the submission
+   */
+  totalQCResults: {
+    total: number;
   };
 };
