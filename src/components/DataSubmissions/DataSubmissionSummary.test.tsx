@@ -1,5 +1,3 @@
-import "@testing-library/jest-dom";
-import "jest-axe/extend-expect";
 import { render, fireEvent, waitFor } from "@testing-library/react";
 import { act } from 'react-dom/test-utils';
 import { BrowserRouter } from "react-router-dom";

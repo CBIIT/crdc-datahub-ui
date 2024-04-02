@@ -4,11 +4,13 @@ import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
 import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
 import { Controller, useForm } from 'react-hook-form';
+import { useSnackbar } from 'notistack';
 import { LIST_BATCHES, LIST_NODE_TYPES, ListBatchesResp, ListNodeTypesResp, SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate, capitalizeFirstLetter } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
+import { ExportValidationButton } from '../../components/DataSubmissions/ExportValidationButton';
 
 type FilterForm = {
   nodeType: string | "All";
@@ -153,13 +155,32 @@ const columns: Column<QCResult>[] = [
   },
 ];
 
-const QualityControl: FC = () => {
+// CSV columns used for exporting table data
+export const csvColumns = {
+  "Batch ID": (d: QCResult) => d.displayID,
+  "Node Type": (d: QCResult) => d.type,
+  "Submitted Identifier": (d: QCResult) => d.submittedID,
+  Severity: (d: QCResult) => d.severity,
+  "Validated Date": (d: QCResult) => FormatDate(d?.validatedDate, "MM-DD-YYYY [at] hh:mm A", ""),
+  Issues: (d: QCResult) => {
+    const value = d.errors[0].description ?? d.warnings[0]?.description;
+
+    // NOTE: The ErrorMessage descriptions contain non-standard double quotes
+    // that don't render correctly in Excel. This replaces them with standard double quotes.
+    return value.replaceAll(/[“”‟〞＂]/g, `"`);
+  },
+};
+
+type Props = {
+  submission: Submission;
+};
+
+const QualityControl: FC<Props> = ({ submission }: Props) => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [loading, setLoading] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [error, setError] = useState<string>(null);
   const [data, setData] = useState<QCResult[]>([]);
   const [prevData, setPrevData] = useState<FetchListing<QCResult>>(null);
   const [totalData, setTotalData] = useState(0);
@@ -199,7 +220,7 @@ const QualityControl: FC = () => {
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
-      setError("Invalid submission ID provided.");
+      enqueueSnackbar("Invalid submission ID provided.", { variant: "error" });
       return;
     }
     if (!force && data?.length > 0 && isEqual(fetchListing, prevData)) {
@@ -234,7 +255,7 @@ const QualityControl: FC = () => {
       setData(d.submissionQCResults.results);
       setTotalData(d.submissionQCResults.total);
     } catch (err) {
-      setError(err?.toString());
+      enqueueSnackbar(err?.toString(), { variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -333,6 +354,13 @@ const QualityControl: FC = () => {
           defaultOrder="desc"
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
+          AdditionalActions={(
+            <ExportValidationButton
+              submission={submission}
+              fields={csvColumns}
+              disabled={totalData <= 0}
+            />
+          )}
         />
       </QCResultsContext.Provider>
       <ErrorDialog

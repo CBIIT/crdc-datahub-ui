@@ -1,5 +1,3 @@
-import 'jest-axe/extend-expect';
-
 import { FC, useMemo } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { axe } from 'jest-axe';
