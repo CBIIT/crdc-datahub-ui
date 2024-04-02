@@ -1,5 +1,8 @@
 /* eslint-env node */
-module.exports = {
+/**
+ * @type {import("eslint").Linter.Config}
+ */
+const config = {
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -28,19 +31,26 @@ module.exports = {
   root: true,
   ignorePatterns: ["public/js/*.js"],
   rules: {
-    "quotes": "off",
-    "indent": "off",
     "import/prefer-default-export": "off",
-    "no-empty-function": "warn",
     "max-len": "off",
     "no-console": "warn",
     "no-param-reassign": "off",
     "object-curly-newline": "off",
     "no-underscore-dangle": ["off"],
-    "no-use-before-define": "off",
     "arrow-body-style": ["warn"],
     "eol-last": ["warn"],
     "no-unreachable": ["warn"],
+    
+    /* typescript-eslint overwritten rules */
+    "quotes": "off",
+    "indent": "off",
+    "no-use-before-define": "off",
+    "no-unused-vars": "off",
+    "no-loss-of-precision": "off",
+    "no-shadow": "off",
+    "no-empty-function": "off",
+
+    /* react rules */
     "react/prop-types": "off",
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx", ".ts"] }],
     "react/jsx-props-no-spreading": "off",
@@ -54,10 +64,24 @@ module.exports = {
         unnamedComponents: "arrow-function"
       }
     ],
+    "react/jsx-key": [
+      "error",
+      {
+        checkFragmentShorthand: true,
+        checkKeyMustBeforeSpread: true,
+        warnOnDuplicates: true
+      }
+    ],
+    "react/destructuring-assignment": ["error", "always", { destructureInSignature: "always" }],
+
+    /* typescript-eslint rules */
     "@typescript-eslint/indent": "warn",
     "@typescript-eslint/no-empty-function": "error",
-    "@typescript-eslint/no-use-before-define": ["off"],
+    "@typescript-eslint/no-use-before-define": ["error"],
     "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-loss-of-precision": "error",
+    "@typescript-eslint/no-redundant-type-constituents": "error",
+    "@typescript-eslint/no-non-null-asserted-optional-chain": "error",
     "@typescript-eslint/no-shadow": ["off"],
     "@typescript-eslint/dot-notation": ["off"],
     "@typescript-eslint/quotes": ["warn", "double"],
@@ -72,3 +96,5 @@ module.exports = {
     "@typescript-eslint/ban-ts-comment": ["off"],
   }
 };
+
+module.exports = config;
