@@ -14,23 +14,26 @@ const config = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaFeatures: {
-      jsx: true
+      jsx: true,
     },
     ecmaVersion: 11,
     project: "./tsconfig.json",
-    sourceType: "module"
+    sourceType: "module",
   },
-  plugins: ["react", "@typescript-eslint", "jsx-a11y"],
+  plugins: ["react", "@typescript-eslint", "jsx-a11y", "prettier"],
   settings: {
     react: {
       pragma: "React",
       fragment: "Fragment",
-      version: "detect"
-    }
+      version: "detect",
+    },
   },
   root: true,
   ignorePatterns: ["public/js/*.js"],
   rules: {
+    /* base prettier rule */
+    "prettier/prettier": "error",
+
     "import/prefer-default-export": "off",
     "max-len": "off",
     "no-console": "warn",
@@ -40,10 +43,8 @@ const config = {
     "arrow-body-style": ["warn"],
     "eol-last": ["warn"],
     "no-unreachable": ["warn"],
-    
+
     /* typescript-eslint overwritten rules */
-    "quotes": "off",
-    "indent": "off",
     "no-use-before-define": "off",
     "no-unused-vars": "off",
     "no-loss-of-precision": "off",
@@ -52,7 +53,10 @@ const config = {
 
     /* react rules */
     "react/prop-types": "off",
-    "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx", ".ts"] }],
+    "react/jsx-filename-extension": [
+      1,
+      { extensions: [".js", ".jsx", ".tsx", ".ts"] },
+    ],
     "react/jsx-props-no-spreading": "off",
     "react/react-in-jsx-scope": "off",
     "react/require-default-props": "off",
@@ -61,21 +65,24 @@ const config = {
       "error",
       {
         namedComponents: "arrow-function",
-        unnamedComponents: "arrow-function"
-      }
+        unnamedComponents: "arrow-function",
+      },
     ],
     "react/jsx-key": [
       "error",
       {
         checkFragmentShorthand: true,
         checkKeyMustBeforeSpread: true,
-        warnOnDuplicates: true
-      }
+        warnOnDuplicates: true,
+      },
     ],
-    "react/destructuring-assignment": ["error", "always", { destructureInSignature: "always" }],
+    "react/destructuring-assignment": [
+      "error",
+      "always",
+      { destructureInSignature: "always" },
+    ],
 
     /* typescript-eslint rules */
-    "@typescript-eslint/indent": "warn",
     "@typescript-eslint/no-empty-function": "error",
     "@typescript-eslint/no-use-before-define": ["error"],
     "@typescript-eslint/no-unused-vars": "warn",
@@ -84,17 +91,16 @@ const config = {
     "@typescript-eslint/no-non-null-asserted-optional-chain": "error",
     "@typescript-eslint/no-shadow": ["off"],
     "@typescript-eslint/dot-notation": ["off"],
-    "@typescript-eslint/quotes": ["warn", "double"],
     "@typescript-eslint/naming-convention": [
       "error",
       {
-        "selector": "variable",
-        "format": ["camelCase", "PascalCase", "UPPER_CASE"],
-        "leadingUnderscore": "allow"
+        selector: "variable",
+        format: ["camelCase", "PascalCase", "UPPER_CASE"],
+        leadingUnderscore: "allow",
       },
     ],
     "@typescript-eslint/ban-ts-comment": ["off"],
-  }
+  },
 };
 
 module.exports = config;

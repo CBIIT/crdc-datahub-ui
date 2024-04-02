@@ -46,6 +46,3 @@ jobs:
 
       - name: Run Linter
         run: npm run lint:ci
-
-      - name: Run Format Check
-        run: npm run format:check
