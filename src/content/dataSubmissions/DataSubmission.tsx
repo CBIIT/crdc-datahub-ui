@@ -481,6 +481,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
       return;
     }
 
+    // NOTE: Immediately update submission object to get "Validating" status
+    getSubmission();
     startPolling(60000);
   };
 
@@ -583,7 +585,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                     containerProps={{ sx: { marginBottom: "8px" } }}
                   />
                 </BatchTableContext.Provider>
-              ) : <QualityControl />}
+              ) : <QualityControl submission={data?.getSubmission} />}
 
               {/* Return to Data Submission List Button */}
               <BackButton navigateTo="/data-submissions" text="Back to Data Submissions" />
