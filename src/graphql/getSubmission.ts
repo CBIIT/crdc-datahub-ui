@@ -62,12 +62,28 @@ export const query = gql`
         error
       }
     }
+
+    totalQCResults: submissionQCResults(_id: $id, first: 1) {
+      total
+    }
   }
 `;
 
 export type Response = {
+  /**
+   * The submission object
+   */
   getSubmission: Submission;
+  /**
+   * The node statistics for the submission
+   */
   submissionStats: {
     stats: SubmissionStatistic[];
+  };
+  /**
+   * The total number of QC results for the submission
+   */
+  totalQCResults: {
+    total: number;
   };
 };

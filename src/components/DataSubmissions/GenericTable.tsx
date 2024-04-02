@@ -15,7 +15,6 @@ import {
   styled,
 } from "@mui/material";
 import { CSSProperties, ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
-import { useAuthContext } from "../Contexts/AuthContext";
 import PaginationActions from "./PaginationActions";
 import SuspenseLoader from '../SuspenseLoader';
 
@@ -24,8 +23,7 @@ const StyledTableContainer = styled(TableContainer)({
   border: "1px solid #6CACDA",
   marginBottom: "25px",
   position: "relative",
-  overflowX: "auto",
-  overflowY: "hidden",
+  overflow: "hidden",
   "& .MuiTableRow-root:nth-of-type(2n)": {
     background: "#E3EEF9",
   },
@@ -36,6 +34,12 @@ const StyledTableContainer = styled(TableContainer)({
     paddingRight: "40.44px",
   },
 });
+
+const StyledTable = styled(Table, { shouldForwardProp: (p) => p !== "horizontalScroll" })<{ horizontalScroll: boolean }>(({ horizontalScroll }) => ({
+  whiteSpace: horizontalScroll ? "nowrap" : "initial",
+  display: horizontalScroll ? "block" : "table",
+  overflowX: horizontalScroll ? "auto" : "initial",
+}));
 
 const StyledTableHead = styled(TableHead)({
   background: "#4D7C8F",
@@ -126,7 +130,7 @@ export type Order = "asc" | "desc";
 
 export type Column<T> = {
   label: string | React.ReactNode;
-  renderValue: (a: T, user: User) => string | boolean | number | React.ReactNode;
+  renderValue: (a: T) => string | boolean | number | React.ReactNode;
   field?: keyof T;
   default?: true;
   sortDisabled?: boolean;
@@ -150,12 +154,14 @@ type Props<T> = {
   data: T[];
   total: number;
   loading?: boolean;
+  horizontalScroll?: boolean;
   noContentText?: string;
   defaultOrder?: Order;
   defaultRowsPerPage?: number;
   paginationPlacement?: CSSProperties["justifyContent"];
   containerProps?: TableContainerProps;
   numRowsNoContent?: number;
+  AdditionalActions?: React.ReactNode;
   setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
@@ -168,19 +174,20 @@ const GenericTable = <T,>({
   data,
   total = 0,
   loading,
+  horizontalScroll = false,
   noContentText,
   defaultOrder = "desc",
   defaultRowsPerPage = 10,
   paginationPlacement,
   containerProps,
   numRowsNoContent = 10,
+  AdditionalActions,
   setItemKey,
   onFetchData,
   onOrderChange,
   onOrderByChange,
   onPerPageChange,
 }: Props<T>, ref: React.Ref<TableMethods>) => {
-  const { user } = useAuthContext();
   const [order, setOrder] = useState<Order>(defaultOrder);
   const [orderBy, setOrderBy] = useState<Column<T>>(
     columns.find((c) => c.default) || columns.find((c) => c.field)
@@ -246,11 +253,15 @@ const GenericTable = <T,>({
   return (
     <StyledTableContainer {...containerProps}>
       {loading && (<SuspenseLoader fullscreen={false} />)}
-      <Table>
+      <StyledTable horizontalScroll={horizontalScroll && total > 0}>
         <StyledTableHead>
           <TableRow>
             {columns.map((col: Column<T>) => (
-              <StyledHeaderCell key={col.label.toString()} sx={col.sx}>
+              <StyledHeaderCell
+                key={col.label.toString()}
+                sx={col.sx}
+                data-testid={`generic-table-header-${col.label.toString()}`}
+              >
                 {col.field && !col.sortDisabled ? (
                   <TableSortLabel
                     active={orderBy === col}
@@ -278,7 +289,7 @@ const GenericTable = <T,>({
                 <TableRow tabIndex={-1} hover key={itemKey}>
                   {columns.map((col: Column<T>) => (
                     <StyledTableCell key={`${itemKey}_${col.label}`}>
-                      {col.renderValue(d, user)}
+                      {col.renderValue(d)}
                     </StyledTableCell>
                   ))}
                 </TableRow>
@@ -311,7 +322,7 @@ const GenericTable = <T,>({
             </TableRow>
           )}
         </TableBody>
-      </Table>
+      </StyledTable>
       <StyledTablePagination
         rowsPerPageOptions={[5, 10, 20, 50]}
         component="div"
@@ -329,9 +340,16 @@ const GenericTable = <T,>({
               || emptyRows > 0
               || loading
         }}
-        SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
+        SelectProps={{
+          inputProps: {
+            "aria-label": "rows per page",
+            "data-testid": "generic-table-rows-per-page"
+          },
+          native: true,
+        }}
         backIconButtonProps={{ disabled: page === 0 || loading }}
-        ActionsComponent={PaginationActions}
+        // eslint-disable-next-line react/no-unstable-nested-components
+        ActionsComponent={(props) => <PaginationActions {...props} AdditionalActions={AdditionalActions} />}
       />
     </StyledTableContainer>
   );

@@ -1,4 +1,3 @@
-import env from '../env';
 import instagramIcon from '../assets/footer/Instgram_Logo.svg';
 import twitterIcon from '../assets/footer/Twitter_Logo.svg';
 import facebookIcon from '../assets/footer/Facebook_Logo.svg';
@@ -11,8 +10,6 @@ export default {
   footerLogoAltText: 'Footer Logo',
   footerLogoHyperlink: 'https://www.cancer.gov/',
   footerStaticText: 'NIH … Turning Discovery Into Health®',
-  version: env.REACT_APP_FE_VERSION,
-  BEversion: env.REACT_APP_BE_VERSION,
   // A maximum of 3 Subsections (link_sections) are allowed
   // A maximum of 4 Subsection Links ('items' under link_sections) are allowed
   // A maximum of 4 Anchor Links (global_footer_links) are allowed

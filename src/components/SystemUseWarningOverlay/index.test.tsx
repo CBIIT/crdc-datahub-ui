@@ -1,5 +1,3 @@
-import 'jest-axe/extend-expect';
-
 import { axe } from 'jest-axe';
 import { render, waitFor } from '@testing-library/react';
 import OverlayWindow from './OverlayWindow';

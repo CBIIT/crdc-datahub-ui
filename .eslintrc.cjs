@@ -25,7 +25,7 @@ module.exports = {
     }
   },
   root: true,
-  ignorePatterns: ["public/injectEnv.js", "public/js/session.js"],
+  ignorePatterns: ["public/js/*.js"],
   rules: {
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx", ".ts"] }],
     "no-empty-function": "warn",
