@@ -29,9 +29,8 @@ module.exports = {
   ignorePatterns: ["public/injectEnv.js", "public/js/session.js"],
   rules: {
     "quotes": "off",
-    "indent": "warn",
+    "indent": "off",
     "import/prefer-default-export": "off",
-    "jsx-a11y/anchor-is-valid": "off",
     "no-empty-function": "warn",
     "max-len": "off",
     "no-console": "warn",
@@ -48,14 +47,28 @@ module.exports = {
     "react/react-in-jsx-scope": "off",
     "react/require-default-props": "off",
     "react/jsx-max-props-per-line": [1, { maximum: 1, when: "multiline" }],
-    "react/function-component-definition": ["off"],
+    "react/function-component-definition": [
+      "error",
+      {
+        namedComponents: "arrow-function",
+        unnamedComponents: "arrow-function"
+      }
+    ],
+    "@typescript-eslint/indent": "warn",
     "@typescript-eslint/no-empty-function": "error",
     "@typescript-eslint/no-use-before-define": ["off"],
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-shadow": ["off"],
     "@typescript-eslint/dot-notation": ["off"],
     "@typescript-eslint/quotes": ["warn", "double"],
-    "@typescript-eslint/naming-convention": ["off"],
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "variable",
+        "format": ["camelCase", "PascalCase", "UPPER_CASE"],
+        "leadingUnderscore": "allow"
+      },
+    ],
     "@typescript-eslint/ban-ts-comment": ["off"],
   }
 };
