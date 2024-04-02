@@ -252,3 +252,25 @@ type ValidationType = "Metadata" | "Files" | "All";
  * The target of Data Validation action.
  */
 type ValidationTarget = "New" | "All";
+
+/**
+ * Represents a node returned from the getSubmissionNodes API
+ *
+ * @note Not the same thing as `SubmissionStatistic`
+ */
+type SubmissionNode = {
+  submissionID: string;
+  nodeType: string;
+  nodeID: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  validatedAt: string;
+  lineNumber: number;
+  /**
+   * The node properties as a JSON string.
+   *
+   * @see JSON.parse
+   */
+  props: string;
+};
