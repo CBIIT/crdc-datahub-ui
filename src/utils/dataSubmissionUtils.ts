@@ -17,12 +17,13 @@ export const shouldDisableSubmit = (
   if (!userRole) {
     return { disable: true, isAdminOverride: false };
   }
-  const { metadataValidationStatus, fileValidationStatus, fileErrors } = submission;
+  const { metadataValidationStatus, fileValidationStatus, fileErrors, intention } = submission;
 
   const isAdmin = userRole === "Admin";
   const isMissingBoth = !metadataValidationStatus && !fileValidationStatus;
   const isMissingOne = !metadataValidationStatus || !fileValidationStatus;
   const isValidating = metadataValidationStatus === "Validating" || fileValidationStatus === "Validating";
+  const isDeleteIntention = intention === "Delete";
   const hasNew = metadataValidationStatus === "New" || fileValidationStatus === "New";
   const hasError = metadataValidationStatus === "Error" || fileValidationStatus === "Error";
   const hasSubmissionLevelErrors = fileErrors?.length > 0;
@@ -32,12 +33,13 @@ export const shouldDisableSubmit = (
     && !isMissingBoth
     && !hasNew
     && !hasSubmissionLevelErrors
-    && (hasError || isMissingOne);
+    && (hasError || (isMissingOne && !isDeleteIntention));
   const disable = isValidating
     || isMissingBoth
     || hasNew
     || hasSubmissionLevelErrors
-    || (userRole !== "Admin" && (hasError || isMissingOne));
+    || (isDeleteIntention && !metadataValidationStatus)
+    || (userRole !== "Admin" && (hasError || (isMissingOne && !isDeleteIntention)));
 
   return { disable, isAdminOverride };
 };
