@@ -318,20 +318,22 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <ReviewDataListingProperty idPrefix="review-data-types-other-data-types" gridWidth={12} label="Other Data types" value={data.otherDataTypes} valuePlacement="bottom" isList />
         </ReviewDataListing>
 
-        <ReviewDataListing
-          idPrefix="review-clinical-data-types"
-          title={SectionMetadata.D.sections.CLINICAL_DATA_TYPES.title}
-          description={SectionMetadata.D.sections.CLINICAL_DATA_TYPES.description}
-        >
-          <ReviewDataListingProperty idPrefix="review-clinical-data-types-demographic-data" label={DataTypes.demographicData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.demographicData.name) ? "Yes" : "No"} />
-          <ReviewDataListingProperty idPrefix="review-clinical-data-types-relapse-recurrence-data" label={DataTypes.relapseRecurrenceData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.relapseRecurrenceData.name) ? "Yes" : "No"} />
-          <ReviewDataListingProperty idPrefix="review-clinical-data-types-diagnosis-data" label={DataTypes.diagnosisData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.diagnosisData.name) ? "Yes" : "No"} />
-          <ReviewDataListingProperty idPrefix="review-clinical-data-types-outcome-data" label={DataTypes.outcomeData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.outcomeData.name) ? "Yes" : "No"} />
-          <ReviewDataListingProperty idPrefix="review-clinical-data-types-treatment-data" label={DataTypes.treatmentData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.treatmentData.name) ? "Yes" : "No"} />
-          <ReviewDataListingProperty idPrefix="review-clinical-data-types-biospecimen-data" label={DataTypes.biospecimenData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.biospecimenData.name) ? "Yes" : "No"} />
-          <ReviewDataListingProperty idPrefix="review-clinical-data-types-other-clinical-data-types" gridWidth={12} label="Other Clinical Data types" value={data.clinicalData?.otherDataTypes?.split(",")} valuePlacement="bottom" isList />
-          <ReviewDataListingProperty idPrefix="review-clinical-data-types-additional-data-in-future" label="Additional Data in future" value={data.clinicalData?.futureDataTypes ? "Yes" : "No"} />
-        </ReviewDataListing>
+        {data.dataTypes?.includes(DataTypes.clinicalTrial.name) && (
+          <ReviewDataListing
+            idPrefix="review-clinical-data-types"
+            title={SectionMetadata.D.sections.CLINICAL_DATA_TYPES.title}
+            description={SectionMetadata.D.sections.CLINICAL_DATA_TYPES.description}
+          >
+            <ReviewDataListingProperty idPrefix="review-clinical-data-types-demographic-data" label={DataTypes.demographicData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.demographicData.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty idPrefix="review-clinical-data-types-relapse-recurrence-data" label={DataTypes.relapseRecurrenceData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.relapseRecurrenceData.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty idPrefix="review-clinical-data-types-diagnosis-data" label={DataTypes.diagnosisData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.diagnosisData.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty idPrefix="review-clinical-data-types-outcome-data" label={DataTypes.outcomeData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.outcomeData.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty idPrefix="review-clinical-data-types-treatment-data" label={DataTypes.treatmentData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.treatmentData.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty idPrefix="review-clinical-data-types-biospecimen-data" label={DataTypes.biospecimenData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.biospecimenData.name) ? "Yes" : "No"} />
+            <ReviewDataListingProperty idPrefix="review-clinical-data-types-other-clinical-data-types" gridWidth={12} label="Other Clinical Data types" value={data.clinicalData?.otherDataTypes?.split(",")} valuePlacement="bottom" isList />
+            <ReviewDataListingProperty idPrefix="review-clinical-data-types-additional-data-in-future" label="Additional Data in future" value={data.clinicalData?.futureDataTypes ? "Yes" : "No"} />
+          </ReviewDataListing>
+        )}
 
         <ReviewDataListing
           idPrefix="review-file-types"
