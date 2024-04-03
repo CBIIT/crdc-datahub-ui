@@ -274,6 +274,10 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
     tableRef.current?.setPage(0, true);
   }, [watch("nodeType"), watch("batchID"), watch("severity")]);
 
+  useEffect(() => {
+    tableRef.current?.refresh();
+  }, [submission?.metadataValidationStatus, submission?.fileValidationStatus]);
+
   return (
     <>
       <StyledFilterContainer>
