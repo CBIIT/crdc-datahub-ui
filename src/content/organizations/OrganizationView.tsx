@@ -36,7 +36,10 @@ import usePageTitle from "../../hooks/usePageTitle";
 import { formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
 
 type Props = {
-  _id: Organization["_id"] | "new";
+  /**
+   * @see Organization["_id"] | "new"
+   */
+  _id: string;
 };
 
 type FormInput = Omit<EditOrganizationInput, "studies"> & {

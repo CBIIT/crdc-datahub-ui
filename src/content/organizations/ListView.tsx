@@ -35,7 +35,7 @@ type T = Partial<Organization>;
 
 type Column = {
   label: string;
-  value: (a: T) => string | boolean | number | React.ReactNode;
+  value: (a: T) => React.ReactNode;
   default?: true;
   comparator?: (a: T, b: T) => number;
 };

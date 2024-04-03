@@ -34,7 +34,7 @@ type T = Omit<Application, "questionnaireData">;
 
 type Column = {
   label: string;
-  value: (a: T, user: User) => string | boolean | number | React.ReactNode;
+  value: (a: T, user: User) => React.ReactNode;
   field?: string;
   default?: true;
 };

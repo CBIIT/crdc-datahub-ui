@@ -144,7 +144,7 @@ export type Order = "asc" | "desc";
 
 export type Column<T> = {
   label: string | React.ReactNode;
-  renderValue: (a: T) => string | boolean | number | React.ReactNode;
+  renderValue: (a: T) => React.ReactNode;
   field?: keyof T;
   default?: true;
   sortDisabled?: boolean;

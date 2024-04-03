@@ -34,13 +34,16 @@ type T = User;
 
 type Column = {
   label: string;
-  value: (a: T) => string | boolean | number | React.ReactNode;
+  value: (a: T) => React.ReactNode;
   default?: true;
   comparator?: (a: T, b: T) => number;
 };
 
 type FilterForm = {
-  organization: OrgInfo["orgID"] | "All";
+  /**
+   * @see Organization["_id"] | "All"
+   */
+  organization: string;
   role: User["role"] | "All";
   status: User["userStatus"] | "All";
 };

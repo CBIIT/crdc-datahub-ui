@@ -31,7 +31,12 @@ import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
 
 type FilterForm = {
-  nodeType: string | "All";
+  /**
+   * The node type to filter by.
+   *
+   * @default "All"
+   */
+  nodeType: string;
   batchID: number | "All";
   severity: QCResult["severity"] | "All";
 };
