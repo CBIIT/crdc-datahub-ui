@@ -324,10 +324,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     setCreatingSubmission(true);
   };
 
-  const onSubmit: SubmitHandler<CreateSubmissionParams> = (data) => {
-    createSubmission(data);
-  };
-
   const createSubmission = async ({
     studyAbbreviation,
     dataCommons,
@@ -360,6 +356,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
       .catch(() => {
         setError(true);
       });
+  };
+
+  const onSubmit: SubmitHandler<CreateSubmissionParams> = (data) => {
+    createSubmission(data);
   };
 
   const handleStudyChange = (e: SelectChangeEvent<unknown>) => {

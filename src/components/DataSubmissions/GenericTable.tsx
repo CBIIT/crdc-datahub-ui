@@ -212,22 +212,6 @@ const GenericTable = <T,>(
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(defaultRowsPerPage);
 
-  useEffect(() => {
-    fetchData();
-  }, [page, perPage, order, orderBy]);
-
-  useImperativeHandle(ref, () => ({
-    refresh: () => {
-      fetchData(true);
-    },
-    setPage: (newPage: number, forceRefetch = false) => {
-      setPage(newPage);
-      if (forceRefetch) {
-        fetchData(true);
-      }
-    },
-  }));
-
   const fetchData = (force = false) => {
     if (!onFetchData) {
       return;
@@ -271,6 +255,22 @@ const GenericTable = <T,>(
     setPerPage(newPerPage);
     setPage(0);
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [page, perPage, order, orderBy]);
+
+  useImperativeHandle(ref, () => ({
+    refresh: () => {
+      fetchData(true);
+    },
+    setPage: (newPage: number, forceRefetch = false) => {
+      setPage(newPage);
+      if (forceRefetch) {
+        fetchData(true);
+      }
+    },
+  }));
 
   return (
     <StyledTableContainer {...containerProps}>

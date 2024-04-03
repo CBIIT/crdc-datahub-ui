@@ -229,6 +229,21 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     fetchPolicy: "no-cache",
   });
 
+  /**
+   * Updates the default form values after save or initial fetch
+   *
+   * @param data FormInput
+   */
+  const setFormValues = (data: FormInput, fields = fieldset) => {
+    const resetData = {};
+
+    fields.forEach((field) => {
+      resetData[field] = cloneDeep(data[field]);
+    });
+
+    reset(resetData);
+  };
+
   const onSubmit = async (data) => {
     setSaving(true);
 
@@ -280,21 +295,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     setChangesAlert("All changes have been saved");
     setTimeout(() => setChangesAlert(""), 10000);
     setFormValues(data);
-  };
-
-  /**
-   * Updates the default form values after save or initial fetch
-   *
-   * @param data FormInput
-   */
-  const setFormValues = (data: FormInput, fields = fieldset) => {
-    const resetData = {};
-
-    fields.forEach((field) => {
-      resetData[field] = cloneDeep(data[field]);
-    });
-
-    reset(resetData);
   };
 
   useEffect(() => {

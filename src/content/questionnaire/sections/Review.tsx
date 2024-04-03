@@ -101,6 +101,18 @@ const FormSectionReview: FC<FormSectionProps> = ({
     programOption && !programOption.editable && !programOption.notApplicable;
   const showReviewTitle = formMode === "View Only" || formMode === "Review";
 
+  const getFormObject = (): FormObject | null => {
+    if (!formRef.current) {
+      return null;
+    }
+
+    // TODO – Check if this is necessary? we should be able to reuse the data from the context
+    const formObject = parseForm(formRef.current, { nullify: false });
+    const combinedData = { ...cloneDeep(data), ...formObject };
+
+    return { ref: formRef, data: combinedData };
+  };
+
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
       return;
@@ -123,17 +135,6 @@ const FormSectionReview: FC<FormSectionProps> = ({
 
     getFormObjectRef.current = getFormObject;
   }, [refs, formMode]);
-
-  const getFormObject = (): FormObject | null => {
-    if (!formRef.current) {
-      return null;
-    }
-
-    const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData = { ...cloneDeep(data), ...formObject };
-
-    return { ref: formRef, data: combinedData };
-  };
 
   useEffect(() => {
     formContainerRef.current?.scrollIntoView({ block: "start" });

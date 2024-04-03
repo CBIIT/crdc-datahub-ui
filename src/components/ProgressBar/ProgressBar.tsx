@@ -114,13 +114,11 @@ const ProgressBar: FC<Props> = ({ section }) => {
     const reviewUnlocked = completedSections === sectionKeys.length - 1;
     if (reviewSection) {
       const showReviewTitle = formMode === "View Only" || formMode === "Review";
-      // eslint-disable-next-line no-nested-ternary
+      const reviewIcon = reviewUnlocked ? "Review" : "ReviewDisabled";
       reviewSection.icon =
         ["Approved"].includes(status) && reviewUnlocked
           ? "Completed"
-          : reviewUnlocked
-            ? "Review"
-            : "ReviewDisabled";
+          : reviewIcon;
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
       reviewSection.title = showReviewTitle ? "Review" : reviewSection.title;
     }

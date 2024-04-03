@@ -107,20 +107,6 @@ const FormSectionB: FC<FormSectionProps> = ({
     getFormObjectRef,
   } = refs;
 
-  useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) {
-      return;
-    }
-
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    getFormObjectRef.current = getFormObject;
-  }, [refs]);
-
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
       return null;
@@ -328,6 +314,20 @@ const FormSectionB: FC<FormSectionProps> = ({
   const removeFunding = (key: string) => {
     setFundings(fundings.filter((f) => f.key !== key));
   };
+
+  useEffect(() => {
+    if (!saveFormRef.current || !submitFormRef.current) {
+      return;
+    }
+
+    nextButtonRef.current.style.display = "flex";
+    saveFormRef.current.style.display = "flex";
+    submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    inquireFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
+    getFormObjectRef.current = getFormObject;
+  }, [refs]);
 
   useEffect(() => {
     formContainerRef.current?.scrollIntoView({ block: "start" });

@@ -186,6 +186,20 @@ const DataSubmissionUpload = ({
     setSelectedFiles(dataTransfer?.files);
   };
 
+  const onUploadFail = (fileCount = 0) => {
+    onUpload(
+      `${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${
+        metadataIntention === "Delete" ? "delete" : "upload"
+      }`,
+      "error"
+    );
+    setSelectedFiles(null);
+    setIsUploading(false);
+    if (uploadMetadataInputRef.current) {
+      uploadMetadataInputRef.current.value = "";
+    }
+  };
+
   const createNewBatch = async (): Promise<NewBatch> => {
     if (!selectedFiles?.length) {
       return null;
@@ -216,6 +230,49 @@ const DataSubmissionUpload = ({
       // Unable to initiate upload process so all failed
       onUploadFail(selectedFiles?.length);
       return null;
+    }
+  };
+
+  const onBucketUpload = async (batchID: string, files: UploadResult[]) => {
+    let failedFilesCount = 0;
+    files?.forEach((file) => {
+      if (!file.succeeded) {
+        failedFilesCount += 1;
+      }
+    });
+
+    try {
+      const { errors } = await updateBatch({
+        variables: {
+          batchID,
+          files,
+        },
+      });
+
+      if (errors) {
+        throw new Error("Unexpected network error");
+      }
+      if (failedFilesCount > 0) {
+        onUploadFail(failedFilesCount);
+        return;
+      }
+      // Batch upload completed successfully
+      onUpload(
+        `${selectedFiles.length} ${
+          selectedFiles.length > 1 ? "Files" : "File"
+        } successfully ${
+          metadataIntention === "Delete" ? "deleted" : "uploaded"
+        }`,
+        "success"
+      );
+      setIsUploading(false);
+      setSelectedFiles(null);
+      if (uploadMetadataInputRef.current) {
+        uploadMetadataInputRef.current.value = "";
+      }
+    } catch (err) {
+      // Unable to let BE know of upload result so all fail
+      onUploadFail(selectedFiles?.length);
     }
   };
 
@@ -265,63 +322,6 @@ const DataSubmissionUpload = ({
     // Wait for all uploads to finish
     await Promise.allSettled(uploadPromises);
     onBucketUpload(newBatch._id, uploadResult);
-  };
-
-  const onBucketUpload = async (batchID: string, files: UploadResult[]) => {
-    let failedFilesCount = 0;
-    files?.forEach((file) => {
-      if (!file.succeeded) {
-        failedFilesCount += 1;
-      }
-    });
-
-    try {
-      const { errors } = await updateBatch({
-        variables: {
-          batchID,
-          files,
-        },
-      });
-
-      if (errors) {
-        throw new Error("Unexpected network error");
-      }
-      if (failedFilesCount > 0) {
-        onUploadFail(failedFilesCount);
-        return;
-      }
-      // Batch upload completed successfully
-      onUpload(
-        `${selectedFiles.length} ${
-          selectedFiles.length > 1 ? "Files" : "File"
-        } successfully ${
-          metadataIntention === "Delete" ? "deleted" : "uploaded"
-        }`,
-        "success"
-      );
-      setIsUploading(false);
-      setSelectedFiles(null);
-      if (uploadMetadataInputRef.current) {
-        uploadMetadataInputRef.current.value = "";
-      }
-    } catch (err) {
-      // Unable to let BE know of upload result so all fail
-      onUploadFail(selectedFiles?.length);
-    }
-  };
-
-  const onUploadFail = (fileCount = 0) => {
-    onUpload(
-      `${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${
-        metadataIntention === "Delete" ? "delete" : "upload"
-      }`,
-      "error"
-    );
-    setSelectedFiles(null);
-    setIsUploading(false);
-    if (uploadMetadataInputRef.current) {
-      uploadMetadataInputRef.current.value = "";
-    }
   };
 
   const onCloseDeleteDialog = () => {

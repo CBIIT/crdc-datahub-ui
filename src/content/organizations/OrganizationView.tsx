@@ -236,27 +236,19 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     fetchPolicy: "no-cache",
   });
 
-  const handleBypassWarning = () => {
-    setConfirmOpen(false);
-    handleSubmit(onSubmit)();
-  };
+  /**
+   * Updates the default form values after save or initial fetch
+   *
+   * @param data FormInput
+   */
+  const setFormValues = (data: FormInput, fields = editableFields) => {
+    const resetData = {};
 
-  const handlePreSubmit = (data: FormInput) => {
-    if (_id !== "new") {
-      const previousStudies =
-        organization?.studies?.map((s) => s?.studyAbbreviation) || [];
-      const removedActiveStudies = previousStudies
-        .filter((s) => !data.studies?.includes(s))
-        .filter((s) => assignedStudies.includes(s)).length;
+    fields.forEach((field) => {
+      resetData[field] = cloneDeep(data[field]);
+    });
 
-      // If there are active submissions for a study being removed, show a warning
-      if (removedActiveStudies) {
-        setConfirmOpen(true);
-        return;
-      }
-    }
-
-    onSubmit(data);
+    reset(resetData);
   };
 
   const onSubmit = async (data: FormInput) => {
@@ -321,19 +313,27 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     setError(null);
   };
 
-  /**
-   * Updates the default form values after save or initial fetch
-   *
-   * @param data FormInput
-   */
-  const setFormValues = (data: FormInput, fields = editableFields) => {
-    const resetData = {};
+  const handleBypassWarning = () => {
+    setConfirmOpen(false);
+    handleSubmit(onSubmit)();
+  };
 
-    fields.forEach((field) => {
-      resetData[field] = cloneDeep(data[field]);
-    });
+  const handlePreSubmit = (data: FormInput) => {
+    if (_id !== "new") {
+      const previousStudies =
+        organization?.studies?.map((s) => s?.studyAbbreviation) || [];
+      const removedActiveStudies = previousStudies
+        .filter((s) => !data.studies?.includes(s))
+        .filter((s) => assignedStudies.includes(s)).length;
 
-    reset(resetData);
+      // If there are active submissions for a study being removed, show a warning
+      if (removedActiveStudies) {
+        setConfirmOpen(true);
+        return;
+      }
+    }
+
+    onSubmit(data);
   };
 
   useEffect(() => {

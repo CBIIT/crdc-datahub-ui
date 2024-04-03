@@ -202,109 +202,16 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
   usePageTitle(`Submission Request ${data?._id || ""}`);
 
-  useEffect(() => {
-    const formLoaded =
-      status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
-    const invalidFormAuth =
-      formMode === "Unauthorized" || authStatus === AuthStatus.ERROR || !user;
+  /**
+   * Determines if the form has unsaved changes.
+   *
+   * @returns {boolean} true if the form has unsaved changes, false otherwise
+   */
+  const isDirty = (): boolean => {
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
-    if (formLoaded && invalidFormAuth) {
-      navigate("/");
-    }
-  }, [formMode, navigate, status, authStatus, user, data]);
-
-  useEffect(() => {
-    const isComplete = isAllSectionsComplete();
-    setAllSectionsComplete(isComplete);
-  }, [status, data]);
-
-  useEffect(() => {
-    if (hasError && errorAlertRef?.current) {
-      errorAlertRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [hasError, errorAlertRef]);
-
-  useEffect(() => {
-    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
-      return;
-    }
-    if (
-      !hasReopenedFormRef.current &&
-      data?.status === "Inquired" &&
-      formMode === "Edit"
-    ) {
-      handleReopenForm();
-      hasReopenedFormRef.current = true;
-    }
-  }, [status, authStatus, formMode, data?.status]);
-
-  useEffect(() => {
-    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
-      return;
-    }
-    if (
-      !hasUpdatedReviewStatusRef.current &&
-      data?.status === "Submitted" &&
-      formMode === "Review"
-    ) {
-      handleReviewForm();
-      hasUpdatedReviewStatusRef.current = true;
-    }
-  }, [status, authStatus, formMode, data?.status]);
-
-  // Intercept React Router navigation actions with unsaved changes
-  const blocker: Blocker = useBlocker(() => {
-    // if unauthorized, skip blocker and redirect away
-    if (
-      formMode === "Unauthorized" &&
-      status === FormStatus.LOADED &&
-      authStatus === AuthStatus.LOADED
-    ) {
-      return false;
-    }
-    if (!isDirty() || readOnlyInputs) {
-      return false;
-    }
-
-    // If there are no validation errors, save form data without a prompt
-    const { ref } = refs.getFormObjectRef.current?.() || {};
-    if (ref?.current?.checkValidity() === true) {
-      saveForm();
-      return false;
-    }
-
-    setBlockedNavigate(true);
-    return true;
-  });
-
-  // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
-  useEffect(() => {
-    const unloadHandler = (event: BeforeUnloadEvent) => {
-      if (!isDirty()) {
-        return;
-      }
-
-      // If there are no validation errors, save form data without a prompt
-      const { ref } = refs.getFormObjectRef.current?.() || {};
-      if (ref?.current?.checkValidity() === true) {
-        saveForm();
-        return;
-      }
-
-      event.preventDefault();
-      event.returnValue =
-        "You have unsaved form changes. Are you sure you want to leave?";
-    };
-
-    window.addEventListener("beforeunload", unloadHandler);
-
-    return () => {
-      window.removeEventListener("beforeunload", unloadHandler);
-    };
-  });
+    return ref && (!data || !isEqual(data.questionnaireData, newData));
+  };
 
   useEffect(() => {
     const newSection = validateSection(section) ? section : "A";
@@ -328,17 +235,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
     return data?.questionnaireData?.sections?.every(
       (section) => section.status === "Completed"
     );
-  };
-
-  /**
-   * Determines if the form has unsaved changes.
-   *
-   * @returns {boolean} true if the form has unsaved changes, false otherwise
-   */
-  const isDirty = (): boolean => {
-    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
-
-    return ref && (!data || !isEqual(data.questionnaireData, newData));
   };
 
   /**
@@ -610,6 +506,31 @@ const FormView: FC<Props> = ({ section }: Props) => {
     };
   };
 
+  // Intercept React Router navigation actions with unsaved changes
+  const blocker: Blocker = useBlocker(() => {
+    // if unauthorized, skip blocker and redirect away
+    if (
+      formMode === "Unauthorized" &&
+      status === FormStatus.LOADED &&
+      authStatus === AuthStatus.LOADED
+    ) {
+      return false;
+    }
+    if (!isDirty() || readOnlyInputs) {
+      return false;
+    }
+
+    // If there are no validation errors, save form data without a prompt
+    const { ref } = refs.getFormObjectRef.current?.() || {};
+    if (ref?.current?.checkValidity() === true) {
+      saveForm();
+      return false;
+    }
+
+    setBlockedNavigate(true);
+    return true;
+  });
+
   const areSectionsValid = (): boolean => {
     if (status === FormStatus.LOADING) {
       return false;
@@ -747,6 +668,85 @@ const FormView: FC<Props> = ({ section }: Props) => {
     }
     navigate(nextSection);
   };
+
+  // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
+  useEffect(() => {
+    const unloadHandler = (event: BeforeUnloadEvent) => {
+      if (!isDirty()) {
+        return;
+      }
+
+      // If there are no validation errors, save form data without a prompt
+      const { ref } = refs.getFormObjectRef.current?.() || {};
+      if (ref?.current?.checkValidity() === true) {
+        saveForm();
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue =
+        "You have unsaved form changes. Are you sure you want to leave?";
+    };
+
+    window.addEventListener("beforeunload", unloadHandler);
+
+    return () => {
+      window.removeEventListener("beforeunload", unloadHandler);
+    };
+  });
+
+  useEffect(() => {
+    const formLoaded =
+      status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
+    const invalidFormAuth =
+      formMode === "Unauthorized" || authStatus === AuthStatus.ERROR || !user;
+
+    if (formLoaded && invalidFormAuth) {
+      navigate("/");
+    }
+  }, [formMode, navigate, status, authStatus, user, data]);
+
+  useEffect(() => {
+    const isComplete = isAllSectionsComplete();
+    setAllSectionsComplete(isComplete);
+  }, [status, data]);
+
+  useEffect(() => {
+    if (hasError && errorAlertRef?.current) {
+      errorAlertRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [hasError, errorAlertRef]);
+
+  useEffect(() => {
+    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
+      return;
+    }
+    if (
+      !hasReopenedFormRef.current &&
+      data?.status === "Inquired" &&
+      formMode === "Edit"
+    ) {
+      handleReopenForm();
+      hasReopenedFormRef.current = true;
+    }
+  }, [status, authStatus, formMode, data?.status]);
+
+  useEffect(() => {
+    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
+      return;
+    }
+    if (
+      !hasUpdatedReviewStatusRef.current &&
+      data?.status === "Submitted" &&
+      formMode === "Review"
+    ) {
+      handleReviewForm();
+      hasUpdatedReviewStatusRef.current = true;
+    }
+  }, [status, authStatus, formMode, data?.status]);
 
   if (status === FormStatus.LOADING || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;

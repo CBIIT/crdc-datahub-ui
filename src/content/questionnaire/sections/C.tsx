@@ -64,20 +64,6 @@ const FormSectionC: FC<FormSectionProps> = ({
     data.otherSpeciesEnabled
   );
 
-  useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) {
-      return;
-    }
-
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    getFormObjectRef.current = getFormObject;
-  }, [refs]);
-
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
       return null;
@@ -127,6 +113,7 @@ const FormSectionC: FC<FormSectionProps> = ({
 
     setOtherCancerTypesEnabled(checked);
   };
+
   const handleOtherSpeciesCheckboxChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     checked: boolean
@@ -137,6 +124,20 @@ const FormSectionC: FC<FormSectionProps> = ({
 
     setOtherSpeciesEnabled(checked);
   };
+
+  useEffect(() => {
+    if (!saveFormRef.current || !submitFormRef.current) {
+      return;
+    }
+
+    nextButtonRef.current.style.display = "flex";
+    saveFormRef.current.style.display = "flex";
+    submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    inquireFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
+    getFormObjectRef.current = getFormObject;
+  }, [refs]);
 
   useEffect(() => {
     formContainerRef.current?.scrollIntoView({ block: "start" });

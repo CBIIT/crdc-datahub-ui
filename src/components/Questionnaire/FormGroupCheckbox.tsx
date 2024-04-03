@@ -76,6 +76,14 @@ const FormGroupCheckbox: FC<Props> = ({
       : " ");
   const firstCheckboxInputRef = useRef<HTMLInputElement>(null);
 
+  const onChangeWrapper = (newVal: string[]) => {
+    if (typeof onChange === "function") {
+      onChange(newVal);
+    }
+
+    setVal(newVal);
+  };
+
   const handleChange = (selectedValue: string, checked: boolean) => {
     const currentVal = val || [];
     const updatedValues = checked
@@ -83,14 +91,6 @@ const FormGroupCheckbox: FC<Props> = ({
       : currentVal?.filter((v) => v !== selectedValue);
 
     onChangeWrapper(updatedValues);
-  };
-
-  const onChangeWrapper = (newVal: string[]) => {
-    if (typeof onChange === "function") {
-      onChange(newVal);
-    }
-
-    setVal(newVal);
   };
 
   useEffect(() => {

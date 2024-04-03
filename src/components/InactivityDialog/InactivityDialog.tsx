@@ -155,6 +155,28 @@ const InactivityDialog = () => {
     }
   };
 
+  const handleExtendSession = () => {
+    extendSession();
+  };
+
+  const handleSignOutNoBanner = async () => {
+    const logoutStatus = await authData.logout();
+    if (logoutStatus) {
+      navigate("/");
+      setWarning(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    const logoutStatus = await authData.logout();
+    if (logoutStatus) {
+      navigate("/");
+      setWarning(false);
+      setShowLogoutAlert(true);
+      setTimeout(() => setShowLogoutAlert(false), 10000);
+    }
+  };
+
   const loadData = async () => {
     try {
       const SESSION_TTL_API = `${window.origin}/api/authn/session-ttl`;
@@ -178,33 +200,13 @@ const InactivityDialog = () => {
   useEffect(() => {
     if (isLoggedIn) {
       // NOTE: 1000 milliseconds = 1 second, PING_INTERVAL * 1000 = PING_INTERVAL milliseconds;
-      const ID = setInterval(loadData, 5 * 1000);
+      const ID = setInterval(loadData, 10 * 1000);
       setIntervalID(ID);
     } else {
       clearInterval(intervalID);
     }
     return () => clearInterval(intervalID);
   }, [isLoggedIn]);
-
-  const handleExtendSession = () => {
-    extendSession();
-  };
-  const handleSignOutNoBanner = async () => {
-    const logoutStatus = await authData.logout();
-    if (logoutStatus) {
-      navigate("/");
-      setWarning(false);
-    }
-  };
-  const handleSignOut = async () => {
-    const logoutStatus = await authData.logout();
-    if (logoutStatus) {
-      navigate("/");
-      setWarning(false);
-      setShowLogoutAlert(true);
-      setTimeout(() => setShowLogoutAlert(false), 10000);
-    }
-  };
 
   return (
     <>

@@ -184,20 +184,6 @@ const FormSectionD: FC<FormSectionProps> = ({
       reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)
     );
 
-  useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) {
-      return;
-    }
-
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    getFormObjectRef.current = getFormObject;
-  }, [refs]);
-
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
       return null;
@@ -296,6 +282,20 @@ const FormSectionD: FC<FormSectionProps> = ({
 
     setDataTypes(updatedDataTypes);
   };
+
+  useEffect(() => {
+    if (!saveFormRef.current || !submitFormRef.current) {
+      return;
+    }
+
+    nextButtonRef.current.style.display = "flex";
+    saveFormRef.current.style.display = "flex";
+    submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    inquireFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
+    getFormObjectRef.current = getFormObject;
+  }, [refs]);
 
   useEffect(() => {
     formContainerRef.current?.scrollIntoView({ block: "start" });

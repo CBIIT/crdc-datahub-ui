@@ -81,20 +81,6 @@ const FormSectionA: FC<FormSectionProps> = ({
     getFormObjectRef,
   } = refs;
 
-  useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) {
-      return;
-    }
-
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    getFormObjectRef.current = getFormObject;
-  }, [refs]);
-
   const togglePrimaryPI = () => {
     setPiAsPrimaryContact(!piAsPrimaryContact);
     setPrimaryContact(cloneDeep(InitialQuestionnaire.primaryContact));
@@ -141,9 +127,24 @@ const FormSectionA: FC<FormSectionProps> = ({
   };
 
   useEffect(() => {
+    if (!saveFormRef.current || !submitFormRef.current) {
+      return;
+    }
+
+    nextButtonRef.current.style.display = "flex";
+    saveFormRef.current.style.display = "flex";
+    submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    inquireFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
+    getFormObjectRef.current = getFormObject;
+  }, [refs]);
+
+  useEffect(() => {
     if (location?.state?.from === "/submissions") {
       return;
     }
+
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, [location]);
 
