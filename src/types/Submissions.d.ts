@@ -56,16 +56,6 @@ type SubmissionIntention =
   | "Update"
   | "Delete";
 
-type FileInfo = {
-  filePrefix: string; // prefix/path within S3 bucket
-  fileName: string;
-  size: number;
-  status: string; // [New, Uploaded, Failed]
-  errors: string[];
-  createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-  updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-};
-
 type FileInput = {
   fileName: string;
   size: number;
@@ -168,7 +158,7 @@ type S3FileInfo = {
   updatedAt: string;
 };
 
-type ParentNode = {
+type RecordParentNode = {
   parentType: string; // node type of the parent node, e.g. "study"
   parentIDPropName: string; // ID property name can be used to identify parent node, e.g., "study_id"
   parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
@@ -212,7 +202,7 @@ type DataRecord = {
   nodeType: string; // type of the node, in "type" column of the file
   nodeID: string; // ID of the node, for example: "cds-case-99907"
   // props: Properties; // properties of the node
-  parents: ParentNode[];
+  parents: RecordParentNode[];
   // relationshipProps: [RelationshipProperty] # for future use
   // rawData: RawData
   s3FileInfo: S3FileInfo; // only for "file" types, should be null for other nodes
