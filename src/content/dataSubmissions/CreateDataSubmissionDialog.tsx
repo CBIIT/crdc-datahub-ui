@@ -273,7 +273,9 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
   const approvedStudiesMapToDbGaPID = useMemo(() => {
     const result = {};
     approvedStudiesData?.listApprovedStudiesOfMyOrganization?.forEach(
-      (study) => (result[study.studyAbbreviation] = study.dbGaPID)
+      (study) => {
+        result[study.studyAbbreviation] = study.dbGaPID;
+      }
     );
     return result;
   }, [approvedStudiesData]);

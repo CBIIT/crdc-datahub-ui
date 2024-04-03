@@ -258,8 +258,8 @@ const ListingView: FC = () => {
     user?.role === "Data Commons POC";
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
-  // eslint-disable-next-line no-nested-ternary
   const [organizationFilter, setOrganizationFilter] = useState<string>(
+    // eslint-disable-next-line no-nested-ternary
     shouldHaveAllFilter
       ? "All"
       : hasOrganizationAssigned
