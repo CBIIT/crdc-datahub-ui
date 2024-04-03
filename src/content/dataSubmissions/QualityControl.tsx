@@ -304,7 +304,6 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
         throw new Error(
           "Unable to retrieve submission quality control results."
         );
-        return;
       }
       setData(d.submissionQCResults.results);
       setTotalData(d.submissionQCResults.total);

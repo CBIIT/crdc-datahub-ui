@@ -503,7 +503,6 @@ const DataSubmission: FC<Props> = ({
         throw new Error(
           `Error occurred while performing '${action}' submission action.`
         );
-        return;
       }
       await getSubmission();
     } catch (err) {
