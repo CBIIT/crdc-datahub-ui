@@ -253,8 +253,8 @@ const APITokenDialog: FC<Props> = ({
         uploads.
         <br />
         <br />
-        Each time you click the 'Create Token' button, a new token will be
-        generated, and
+        Each time you click the &#39;Create Token&#39; button, a new token will
+        be generated, and
         <br />
         the previous token will be invalidated. A token expires 60 days after
         its creation.
