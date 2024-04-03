@@ -35,7 +35,7 @@
     "web-vitals": "^2.1.4"
   },
   "overrides": {
-    "typescript": "^5.0.4"
+    "typescript": "^5.4.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -87,6 +87,6 @@
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "jest-axe": "^8.0.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.4.3"
   }
 }
