@@ -1,5 +1,6 @@
 import React, { FC } from "react";
 import { Box } from "@mui/material";
+// eslint-disable-next-line import/no-extraneous-dependencies -- Required to use legacy version from DMN
 import { Provider } from "react-redux";
 import { ReduxDataDictionary } from "data-model-navigator";
 import SuspenseLoader from "../../components/SuspenseLoader";

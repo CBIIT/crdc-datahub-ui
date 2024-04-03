@@ -69,7 +69,7 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => (
           dataKey="label"
           axisLine={false}
           tickLine={false}
-          tick={<CustomTick />}
+          tick={CustomTick}
           interval={0}
           allowDataOverflow
           allowDuplicatedCategory

@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
-import { styled } from "@mui/system";
 import {
+  styled,
   Dialog,
   DialogTitle,
   DialogContent,

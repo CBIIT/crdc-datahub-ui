@@ -1,6 +1,5 @@
 import { Suspense, lazy, FC, ReactElement, useEffect } from "react";
-import { RouteObject } from "react-router";
-import { useNavigate } from "react-router-dom";
+import { RouteObject, useNavigate } from "react-router-dom";
 import Layout from "./layouts";
 import SuspenseLoader from "./components/SuspenseLoader";
 import { useAuthContext } from "./components/Contexts/AuthContext";
