@@ -151,7 +151,9 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const [dataTypesErrorMsg, setDataTypesErrorMsg] = useState<string>("");
+  const [clinicalDataTypesErrorMsg, setClinicalDataTypesErrorMsg] = useState<string>("");
   const dataTypesInputRef = useRef<HTMLInputElement>(null);
+  const clinicalDataTypesInputRef = useRef<HTMLInputElement>(null);
   const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
   const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
@@ -192,6 +194,15 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.clinicalData = InitialQuestionnaire.clinicalData;
     } else {
       combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter((str) => str !== "");
+    }
+
+    // Handle validity for at clinical data types section
+    if (combinedData.dataTypes.includes("clinicalTrial") && (combinedData.clinicalData?.dataTypes?.length !== 0 || combinedData.clinicalData?.otherDataTypes !== "")) {
+      setClinicalDataTypesErrorMsg("");
+      clinicalDataTypesInputRef.current.setCustomValidity("");
+    } else if (combinedData.dataTypes.includes("clinicalTrial")) {
+      setClinicalDataTypesErrorMsg("At least one clinical data type is required");
+      clinicalDataTypesInputRef.current?.setCustomValidity("At least one clinical data type is required");
     }
 
     combinedData.targetedReleaseDate = dayjs(formObject.targetedReleaseDate).isValid() ? formObject.targetedReleaseDate : "";
@@ -341,7 +352,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <SectionGroup
           title={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title}
           description={SectionDMetadata.sections.CLINICAL_DATA_TYPES.description}
+          required
+          error={clinicalDataTypesErrorMsg}
         >
+          <InvisibleInput ref={clinicalDataTypesInputRef} aria-label={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title} />
           <SwitchInput
             id="section-d-demographic-data"
             label="Demographic Data"
