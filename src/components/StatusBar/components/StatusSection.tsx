@@ -79,9 +79,10 @@ const StatusSection: FC = () => {
 
   const [open, setOpen] = useState<boolean>(false);
   const lastReview = useMemo(
-    () => SortHistory(history).find(
+    () =>
+      SortHistory(history).find(
         (h: HistoryEvent) => h.reviewComment?.length > 0
-    ),
+      ),
     [history]
   );
 

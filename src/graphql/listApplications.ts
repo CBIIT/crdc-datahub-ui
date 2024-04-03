@@ -1,8 +1,18 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const query = gql`
-  query listApplications($first: Int, $offset: Int, $orderBy: String, $sortDirection: String) {
-    listApplications(first: $first, offset: $offset, orderBy: $orderBy, sortDirection: $sortDirection) {
+  query listApplications(
+    $first: Int
+    $offset: Int
+    $orderBy: String
+    $sortDirection: String
+  ) {
+    listApplications(
+      first: $first
+      offset: $offset
+      orderBy: $orderBy
+      sortDirection: $sortDirection
+    ) {
       total
       applications {
         _id

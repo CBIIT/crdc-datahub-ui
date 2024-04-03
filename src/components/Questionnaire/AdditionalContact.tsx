@@ -6,7 +6,7 @@ import institutionConfig from "../../config/InstitutionConfig";
 import TextInput from "./TextInput";
 import AddRemoveButton from "./AddRemoveButton";
 import AutocompleteInput from "./AutocompleteInput";
-import { filterForNumbers, validateEmail } from '../../utils';
+import { filterForNumbers, validateEmail } from "../../utils";
 
 const GridContainer = styled(Grid)({
   border: "0.5px solid #DCDCDC !important",
@@ -28,12 +28,15 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly, onDelete }: Props) => {
+const AdditionalContact: FC<Props> = ({
+  idPrefix = "",
+  index,
+  contact,
+  readOnly,
+  onDelete,
+}: Props) => {
   const { status } = useFormContext();
-  const {
-    firstName, lastName, email,
-    phone, position, institution,
-  } = contact;
+  const { firstName, lastName, email, phone, position, institution } = contact;
 
   return (
     <GridContainer container>
@@ -107,7 +110,9 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly,
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
-          id={idPrefix.concat(`additionalContacts-${index}-remove-contact-button`)}
+          id={idPrefix.concat(
+            `additionalContacts-${index}-remove-contact-button`
+          )}
           label="Remove Contact"
           placement="start"
           onClick={onDelete}

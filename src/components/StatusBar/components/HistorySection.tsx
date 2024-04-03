@@ -65,7 +65,7 @@ const StyledButton = styled(Button)({
       borderColor: "#004A80",
       color: "#004A80",
     },
-  }
+  },
 });
 
 const StyledDialog = styled(Dialog)({
@@ -193,12 +193,14 @@ const StyledTimelineContent = styled(TimelineContent)({
   color: "#fff",
 });
 
-const StyledTypography = styled(Typography)<{ status?: ApplicationStatus }>(({ status }) => ({
-  lineHeight: "2.5",
-  minWidth: "100px",
-  textAlign: "left",
-  color: getStatusColor(status),
-}));
+const StyledTypography = styled(Typography)<{ status?: ApplicationStatus }>(
+  ({ status }) => ({
+    lineHeight: "2.5",
+    minWidth: "100px",
+    textAlign: "left",
+    color: getStatusColor(status),
+  })
+);
 
 const StyledAvatar = styled(Avatar)({
   background: "transparent",

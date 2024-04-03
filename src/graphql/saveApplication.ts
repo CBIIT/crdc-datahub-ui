@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const mutation = gql`
   mutation saveApplication($application: AppInput!) {
-    saveApplication(application : $application) {
+    saveApplication(application: $application) {
       _id
       status
       createdAt
@@ -27,5 +27,8 @@ export const mutation = gql`
 `;
 
 export type Response = {
-  saveApplication: Omit<Application, "programName" | "studyAbbreviation" | "questionnaireData">;
+  saveApplication: Omit<
+    Application,
+    "programName" | "studyAbbreviation" | "questionnaireData"
+  >;
 };

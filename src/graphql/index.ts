@@ -36,11 +36,11 @@ export type { Response as GetSubmissionResp } from "./getSubmission";
 export { mutation as SUBMISSION_ACTION } from "./submissionAction";
 export type { Response as SubmissionActionResp } from "./submissionAction";
 
-export { mutation as CREATE_BATCH } from './createBatch';
-export type { Response as CreateBatchResp } from './createBatch';
+export { mutation as CREATE_BATCH } from "./createBatch";
+export type { Response as CreateBatchResp } from "./createBatch";
 
-export { mutation as UPDATE_BATCH } from './updateBatch';
-export type { Response as UpdateBatchResp } from './updateBatch';
+export { mutation as UPDATE_BATCH } from "./updateBatch";
+export type { Response as UpdateBatchResp } from "./updateBatch";
 
 export { query as LIST_BATCHES } from "./listBatches";
 export type { Response as ListBatchesResp } from "./listBatches";
@@ -77,24 +77,24 @@ export { mutation as EDIT_USER } from "./editUser";
 export type { Response as EditUserResp } from "./editUser";
 
 // Organizations
-export { query as LIST_ORGS } from './listOrganizations';
-export type { Response as ListOrgsResp } from './listOrganizations';
+export { query as LIST_ORGS } from "./listOrganizations";
+export type { Response as ListOrgsResp } from "./listOrganizations";
 
-export { query as GET_ORG } from './getOrganization';
-export type { Response as GetOrgResp } from './getOrganization';
+export { query as GET_ORG } from "./getOrganization";
+export type { Response as GetOrgResp } from "./getOrganization";
 
-export { mutation as EDIT_ORG } from './editOrganization';
-export type { Response as EditOrgResp } from './editOrganization';
+export { mutation as EDIT_ORG } from "./editOrganization";
+export type { Response as EditOrgResp } from "./editOrganization";
 
-export { query as LIST_CURATORS } from './listActiveCurators';
-export type { Response as ListCuratorsResp } from './listActiveCurators';
+export { query as LIST_CURATORS } from "./listActiveCurators";
+export type { Response as ListCuratorsResp } from "./listActiveCurators";
 
-export { query as LIST_APPROVED_STUDIES } from './listApprovedStudies';
-export type { Response as ListApprovedStudiesResp } from './listApprovedStudies';
+export { query as LIST_APPROVED_STUDIES } from "./listApprovedStudies";
+export type { Response as ListApprovedStudiesResp } from "./listApprovedStudies";
 
-export { mutation as CREATE_ORG } from './createOrganization';
-export type { Response as CreateOrgResp } from './createOrganization';
+export { mutation as CREATE_ORG } from "./createOrganization";
+export type { Response as CreateOrgResp } from "./createOrganization";
 
 // Misc.
-export { mutation as GRANT_TOKEN } from './grantToken';
-export type { Response as GrantTokenResp } from './grantToken';
+export { mutation as GRANT_TOKEN } from "./grantToken";
+export type { Response as GrantTokenResp } from "./grantToken";

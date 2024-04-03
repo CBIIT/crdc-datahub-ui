@@ -12,10 +12,10 @@ import { FormatDate } from "../../utils";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
 const StyledDialog = styled(Dialog, {
-  shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme"
+  shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme",
 })<{
   status: unknown;
-  getColorScheme:(status: unknown) => CSSProperties;
+  getColorScheme: (status: unknown) => CSSProperties;
 }>(({ status, getColorScheme }) => ({
   "& .MuiDialog-paper": {
     borderRadius: "8px",
@@ -54,10 +54,10 @@ const StyledPreTitle = styled("p")({
 });
 
 const StyledTitle = styled("p", {
-  shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme"
+  shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme",
 })<{
   status: unknown;
-  getColorScheme:(status: unknown) => CSSProperties;
+  getColorScheme: (status: unknown) => CSSProperties;
 }>(({ status, getColorScheme }) => ({
   color: getColorScheme && status ? getColorScheme(status).color : "#E25C22",
   fontSize: "35px",

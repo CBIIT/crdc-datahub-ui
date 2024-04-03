@@ -1,5 +1,5 @@
-import { Box, CircularProgress, styled } from '@mui/material';
-import { FC } from 'react';
+import { Box, CircularProgress, styled } from "@mui/material";
+import { FC } from "react";
 
 type Props = {
   /**
@@ -10,13 +10,15 @@ type Props = {
   fullscreen?: boolean;
 };
 
-const StyledBox = styled(Box, { shouldForwardProp: (p) => p !== "fullscreen" })<Props>(({ fullscreen }) => ({
-  position: fullscreen ? 'fixed' : 'absolute',
-  background: '#fff',
+const StyledBox = styled(Box, {
+  shouldForwardProp: (p) => p !== "fullscreen",
+})<Props>(({ fullscreen }) => ({
+  position: fullscreen ? "fixed" : "absolute",
+  background: "#fff",
   left: 0,
   top: 0,
-  width: '100%',
-  height: '100%',
+  width: "100%",
+  height: "100%",
   zIndex: "9999",
 }));
 

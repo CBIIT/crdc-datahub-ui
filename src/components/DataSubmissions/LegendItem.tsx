@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { Box, Stack, Typography, styled } from '@mui/material';
+import { FC } from "react";
+import { Box, Stack, Typography, styled } from "@mui/material";
 
 type Props = {
   color: string;
@@ -8,7 +8,9 @@ type Props = {
   onClick?: () => void;
 };
 
-const StyledStack = styled(Stack, { shouldForwardProp: (p) => p !== "disabled" })<{ disabled: boolean }>(({ disabled }) => ({
+const StyledStack = styled(Stack, {
+  shouldForwardProp: (p) => p !== "disabled",
+})<{ disabled: boolean }>(({ disabled }) => ({
   opacity: disabled ? 0.4 : 1,
   textDecoration: disabled ? "line-through" : "none",
   marginRight: "35px",
@@ -26,7 +28,9 @@ const StyledLabel = styled(Typography)({
   fontFamily: "'Nunito Sans'",
 });
 
-const StyledColorBox = styled(Box, { shouldForwardProp: (p) => p !== "color" })<{ color: string }>(({ color }) => ({
+const StyledColorBox = styled(Box, {
+  shouldForwardProp: (p) => p !== "color",
+})<{ color: string }>(({ color }) => ({
   width: "22px",
   height: "9px",
   background: color,

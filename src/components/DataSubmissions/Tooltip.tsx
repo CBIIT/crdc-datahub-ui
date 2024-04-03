@@ -55,7 +55,7 @@ const StyledBodyWrapper = styled("div")(() => ({
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "19.6px",
-  textWrap: "initial"
+  textWrap: "initial",
 }));
 
 type Props = TooltipProps & {
@@ -106,21 +106,23 @@ const Tooltip = ({
           {...rest}
           PopperProps={{
             disablePortal: true,
-            ...rest.PopperProps
+            ...rest.PopperProps,
           }}
           open={open}
           onClose={handleTooltipClose}
-          title={(
+          title={
             <>
               {title && <StyledTitle variant="h5">{title}</StyledTitle>}
-              {subtitle && <StyledSubtitle variant="h6">{subtitle}</StyledSubtitle>}
+              {subtitle && (
+                <StyledSubtitle variant="h6">{subtitle}</StyledSubtitle>
+              )}
               {body && <StyledBodyWrapper>{body}</StyledBodyWrapper>}
             </>
-          )}
+          }
           placement={placement || "bottom"}
         >
           {cloneElement(children, {
-            onClick: disableHoverListener ? toggleTooltip : handleTooltipOpen
+            onClick: disableHoverListener ? toggleTooltip : handleTooltipOpen,
           })}
         </StyledTooltip>
       </Box>

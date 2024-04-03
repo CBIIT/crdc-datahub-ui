@@ -2,7 +2,7 @@ import { Collapse, Grid, styled } from "@mui/material";
 import { TransitionGroup } from "react-transition-group";
 
 const StyledGridWrapper = styled(Grid)(() => ({
-  marginBottom: "24px"
+  marginBottom: "24px",
 }));
 
 type WithKey = { key: string };

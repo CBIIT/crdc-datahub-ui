@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 // The base Batch model used for all listBatches queries
 const BaseBatchFragment = gql`
@@ -67,6 +67,6 @@ export const query = gql`
 export type Response = {
   listBatches: ListBatches;
   fullStatusList: {
-    batches: Pick<Batch, 'status'>[];
+    batches: Pick<Batch, "status">[];
   };
 };

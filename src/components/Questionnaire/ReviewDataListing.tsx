@@ -35,10 +35,17 @@ const ReviewDataListing = ({
     {title || description ? (
       <StyledGridHeader xs={12} item>
         {title && (
-          <StyledTitle id={idPrefix.concat(`-section-title`)} variant="h5">{!hideTitle ? title : null}</StyledTitle>
+          <StyledTitle id={idPrefix.concat(`-section-title`)} variant="h5">
+            {!hideTitle ? title : null}
+          </StyledTitle>
         )}
         {description && (
-          <StyledDescription id={idPrefix.concat(`-section-description`)} variant="body1">{description}</StyledDescription>
+          <StyledDescription
+            id={idPrefix.concat(`-section-description`)}
+            variant="body1"
+          >
+            {description}
+          </StyledDescription>
         )}
       </StyledGridHeader>
     ) : null}

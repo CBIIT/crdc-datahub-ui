@@ -8,7 +8,7 @@ import {
 import { FC, useEffect, useId, useRef, useState } from "react";
 import Tooltip from "../Tooltip";
 import CheckboxInput from "./CheckboxInput";
-import { updateInputValidity } from '../../utils';
+import { updateInputValidity } from "../../utils";
 
 const StyledFormLabel = styled("label")(({ theme }) => ({
   fontWeight: 700,
@@ -68,9 +68,10 @@ const FormGroupCheckbox: FC<Props> = ({
 
   const [val, setVal] = useState(value ?? []);
   const [error, setError] = useState(false);
-  const helperText = helpText
-    || (required && !val?.length && "This field is required")
-    || (!allowMultipleChecked && val?.length > 1
+  const helperText =
+    helpText ||
+    (required && !val?.length && "This field is required") ||
+    (!allowMultipleChecked && val?.length > 1
       ? "Please select only one option"
       : " ");
   const firstCheckboxInputRef = useRef<HTMLInputElement>(null);
@@ -103,12 +104,18 @@ const FormGroupCheckbox: FC<Props> = ({
     const multipleChecked = val?.length > 1;
 
     if (notSelectedAndRequired) {
-      updateInputValidity(firstCheckboxInputRef, "Please select at least one option");
+      updateInputValidity(
+        firstCheckboxInputRef,
+        "Please select at least one option"
+      );
       return;
     }
 
     if (!allowMultipleChecked && multipleChecked) {
-      updateInputValidity(firstCheckboxInputRef, "Please select only one option");
+      updateInputValidity(
+        firstCheckboxInputRef,
+        "Please select only one option"
+      );
       return;
     }
 
@@ -140,7 +147,9 @@ const FormGroupCheckbox: FC<Props> = ({
             const isChecked = val?.includes(option.value);
             return (
               <CheckboxInput
-                id={idPrefix.concat(`-${option.label.toLowerCase().replace(" ", "-")}-checkbox`)}
+                id={idPrefix.concat(
+                  `-${option.label.toLowerCase().replace(" ", "-")}-checkbox`
+                )}
                 aria-labelledby={`${id}-label`}
                 key={option.value}
                 name={name}
@@ -164,22 +173,23 @@ const FormGroupCheckbox: FC<Props> = ({
         {/* NOTE: This is a proxy element for form parsing purposes.
           Also, if parent has shared name then it will use string[] as value,
           otherwise value will be of type boolean for the form parser */}
-        {!name && options.map((option) => {
-          const isChecked = val?.includes(option.value);
-          return (
-            <input
-              key={option.value}
-              name={option.name}
-              type="checkbox"
-              data-type="boolean"
-              value={isChecked ? "true" : "false"}
-              onChange={() => { }}
-              aria-labelledby={`${id}-label`}
-              checked
-              hidden
-            />
-          );
-        })}
+        {!name &&
+          options.map((option) => {
+            const isChecked = val?.includes(option.value);
+            return (
+              <input
+                key={option.value}
+                name={option.name}
+                type="checkbox"
+                data-type="boolean"
+                value={isChecked ? "true" : "false"}
+                onChange={() => {}}
+                aria-labelledby={`${id}-label`}
+                checked
+                hidden
+              />
+            );
+          })}
         <StyledFormHelperText>{error ? helperText : " "}</StyledFormHelperText>
       </FormControl>
     </Grid>

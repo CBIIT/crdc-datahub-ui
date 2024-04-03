@@ -10,9 +10,9 @@ import {
 } from "recharts";
 import { Box, styled } from "@mui/material";
 import NodeTooltip from "./Tooltip";
-import CustomTick from './CustomTick';
-import ActiveBar from './ActiveBar';
-import { calculateMaxDomain, formatTick } from '../../utils';
+import CustomTick from "./CustomTick";
+import ActiveBar from "./ActiveBar";
+import { calculateMaxDomain, formatTick } from "../../utils";
 
 type Props = {
   /**
@@ -52,7 +52,10 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => (
         overflow="visible"
       >
         <CartesianGrid stroke="#E1E1E1" strokeWidth="0.6px" vertical={false} />
-        <Tooltip content={<NodeTooltip normalized={normalize} />} cursor={false} />
+        <Tooltip
+          content={<NodeTooltip normalized={normalize} />}
+          cursor={false}
+        />
         <YAxis
           type="number"
           axisLine={false}
@@ -71,10 +74,30 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => (
           allowDataOverflow
           allowDuplicatedCategory
         />
-        <Bar dataKey="New" fill="#4D90D3" stackId="primary" activeBar={ActiveBar} />
-        <Bar dataKey="Passed" fill="#32E69A" stackId="primary" activeBar={ActiveBar} />
-        <Bar dataKey="Error" fill="#D65219" stackId="primary" activeBar={ActiveBar} />
-        <Bar dataKey="Warning" fill="#FFC700" stackId="primary" activeBar={ActiveBar} />
+        <Bar
+          dataKey="New"
+          fill="#4D90D3"
+          stackId="primary"
+          activeBar={ActiveBar}
+        />
+        <Bar
+          dataKey="Passed"
+          fill="#32E69A"
+          stackId="primary"
+          activeBar={ActiveBar}
+        />
+        <Bar
+          dataKey="Error"
+          fill="#D65219"
+          stackId="primary"
+          activeBar={ActiveBar}
+        />
+        <Bar
+          dataKey="Warning"
+          fill="#FFC700"
+          stackId="primary"
+          activeBar={ActiveBar}
+        />
       </BarChart>
     </ResponsiveContainer>
   </StyledChartContainer>

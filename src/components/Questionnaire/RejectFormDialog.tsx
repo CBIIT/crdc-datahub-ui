@@ -51,7 +51,7 @@ const RejectFormDialog: FC<Props> = ({
       open={open}
       onClose={onClose}
       title={title || "Reject Submission Request"}
-      actions={(
+      actions={
         <>
           <Button onClick={handleOnCancel} disabled={disableActions}>
             Cancel
@@ -65,7 +65,7 @@ const RejectFormDialog: FC<Props> = ({
             Confirm to Reject
           </LoadingButton>
         </>
-      )}
+      }
       {...rest}
     >
       <TextInput

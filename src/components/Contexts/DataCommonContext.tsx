@@ -5,8 +5,8 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { DataCommons } from '../../config/DataCommons';
-import { fetchManifest } from '../../utils';
+import { DataCommons } from "../../config/DataCommons";
+import { fetchManifest } from "../../utils";
 
 type LoadingState = {
   status: Status.LOADING;
@@ -34,7 +34,11 @@ export enum Status {
   ERROR = "ERROR",
 }
 
-const initialState: ContextState = { status: Status.LOADING, DataCommon: null, error: null };
+const initialState: ContextState = {
+  status: Status.LOADING,
+  DataCommon: null,
+  error: null,
+};
 
 /**
  * Data Common Context Provider
@@ -64,7 +68,9 @@ export const useDataCommonContext = (): ContextState => {
   const context = useContext<ContextState>(Context);
 
   if (!context) {
-    throw new Error("useDataCommonContext cannot be used outside of the DataCommonProvider component");
+    throw new Error(
+      "useDataCommonContext cannot be used outside of the DataCommonProvider component"
+    );
   }
 
   return context;
@@ -82,11 +88,17 @@ type ProviderProps = {
  * @param {ProviderProps} props
  * @returns {JSX.Element} Context provider
  */
-export const DataCommonProvider: FC<ProviderProps> = ({ DataCommon, children } : ProviderProps) => {
+export const DataCommonProvider: FC<ProviderProps> = ({
+  DataCommon,
+  children,
+}: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
   useEffect(() => {
-    if (!DataCommon || DataCommons.find((dc) => dc.name === DataCommon) === undefined) {
+    if (
+      !DataCommon ||
+      DataCommons.find((dc) => dc.name === DataCommon) === undefined
+    ) {
       setState({
         status: Status.ERROR,
         DataCommon: null,
@@ -119,9 +131,5 @@ export const DataCommonProvider: FC<ProviderProps> = ({ DataCommon, children } :
     })();
   }, [DataCommon]);
 
-  return (
-    <Context.Provider value={state}>
-      {children}
-    </Context.Provider>
-  );
+  return <Context.Provider value={state}>{children}</Context.Provider>;
 };

@@ -1,4 +1,11 @@
-import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
+import React, {
+  FC,
+  ReactNode,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import {
   FormControl,
   FormHelperText,
@@ -79,12 +86,13 @@ const StyledOutlinedInput = styled(OutlinedInput)(() => ({
   },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   "& .MuiInputBase-input::placeholder": {
     color: "#87878C",
     fontWeight: 400,
-    opacity: 1
+    opacity: 1,
   },
   // Override the input error border color
   "&.Mui-error fieldset": {
@@ -177,7 +185,9 @@ const TextInput: FC<Props> = ({
     setVal(newVal);
   };
 
-  const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const onChangeWrapper = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     if (typeof onChange === "function") {
       onChange(event);
     }

@@ -1,4 +1,12 @@
-import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogProps,
+  IconButton,
+  Stack,
+  Typography,
+  styled,
+} from "@mui/material";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { FormatDate } from "../../utils";
 
@@ -15,13 +23,13 @@ const StyledDialog = styled(Dialog)({
 });
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
-  position: 'absolute',
+  position: "absolute",
   right: "21px",
   top: "11px",
   padding: "10px",
   "& svg": {
-    color: "#44627C"
-  }
+    color: "#44627C",
+  },
 }));
 
 const StyledCloseButton = styled(Button)({
@@ -46,7 +54,7 @@ const StyledHeader = styled(Typography)({
   lineHeight: "27px",
   letterSpacing: "0.5px",
   textTransform: "uppercase",
-  marginBottom: "2px"
+  marginBottom: "2px",
 });
 
 const StyledTitle = styled(Typography)({
@@ -57,7 +65,7 @@ const StyledTitle = styled(Typography)({
   fontWeight: "900",
   lineHeight: "30px",
   paddingBottom: "8px",
-  wordBreak: "break-word"
+  wordBreak: "break-word",
 });
 
 const StyledUploadedDate = styled(Typography)({
@@ -78,7 +86,7 @@ const StyledSubtitle = styled(Typography)({
   lineHeight: "20px",
   letterSpacing: "0.14px",
   textTransform: "uppercase",
-  marginTop: "35px"
+  marginTop: "35px",
 });
 
 const StyledErrorItem = styled(Typography)({
@@ -88,16 +96,16 @@ const StyledErrorItem = styled(Typography)({
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "22px",
-  wordBreak: "break-word"
+  wordBreak: "break-word",
 });
 
 const StyledErrors = styled(Stack)({
-  overflowY: "auto"
+  overflowY: "auto",
 });
 
 const StyledErrorDetails = styled(Stack)({
   padding: "10px",
-  maxHeight: "290px"
+  maxHeight: "290px",
 });
 
 type Props = {
@@ -132,31 +140,26 @@ const ErrorDialog = ({
       <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      {header && (
-        <StyledHeader variant="h3">
-          {header}
-        </StyledHeader>
-      )}
-      <StyledTitle variant="h6">
-        {title}
-      </StyledTitle>
+      {header && <StyledHeader variant="h3">{header}</StyledHeader>}
+      <StyledTitle variant="h6">{title}</StyledTitle>
       {uploadedDate && (
         <StyledUploadedDate>
-          Uploaded on
-          {" "}
-          {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
+          Uploaded on {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
         </StyledUploadedDate>
       )}
       <StyledErrorDetails direction="column" spacing={2.5}>
         <StyledSubtitle variant="body2">
-          {errorCount || `${errors?.length || 0} ${errors?.length === 1 ? "ERROR" : "ERRORS"}`}
+          {errorCount ||
+            `${errors?.length || 0} ${
+              errors?.length === 1 ? "ERROR" : "ERRORS"
+            }`}
         </StyledSubtitle>
         <StyledErrors direction="column" spacing={2.75} padding={1.25}>
           {errors?.map((error: string, idx: number) => (
             // eslint-disable-next-line react/no-array-index-key
-            <StyledErrorItem key={`${idx}_${error}`}>
-              {`${idx + 1}. ${error}`}
-            </StyledErrorItem>
+            <StyledErrorItem key={`${idx}_${error}`}>{`${
+              idx + 1
+            }. ${error}`}</StyledErrorItem>
           ))}
         </StyledErrors>
       </StyledErrorDetails>

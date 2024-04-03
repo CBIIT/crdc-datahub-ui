@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useMediaQuery } from '@mui/material';
-import HeaderDesktop from './HeaderDesktop';
-import HeaderTabletAndMobile from './HeaderTabletAndMobile';
-import USABanner from './USABanner';
-import GenericAlert from '../GenericAlert';
-import { useAuthContext } from '../Contexts/AuthContext';
+import { useState, useEffect } from "react";
+import { useMediaQuery } from "@mui/material";
+import HeaderDesktop from "./HeaderDesktop";
+import HeaderTabletAndMobile from "./HeaderTabletAndMobile";
+import USABanner from "./USABanner";
+import GenericAlert from "../GenericAlert";
+import { useAuthContext } from "../Contexts/AuthContext";
 
 const Header = () => {
   const tabletAndMobile = useMediaQuery("(max-width: 1024px)");

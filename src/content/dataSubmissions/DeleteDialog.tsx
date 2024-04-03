@@ -44,7 +44,7 @@ const StyledCloseButton = styled(Button)({
     letterSpacing: "0.32px",
     textTransform: "none",
     alignSelf: "center",
-  }
+  },
 });
 
 const StyledConfirmButton = styled(Button)({
@@ -59,7 +59,7 @@ const StyledConfirmButton = styled(Button)({
     letterSpacing: "0.32px",
     textTransform: "none",
     alignSelf: "center",
-  }
+  },
 });
 
 const StyledHeader = styled(Typography)({

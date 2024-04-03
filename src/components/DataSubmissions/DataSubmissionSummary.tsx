@@ -74,9 +74,9 @@ const StyledReviewCommentsButton = styled(Button)(() => ({
       backgroundColor: "#FFF",
       borderColor: "#B3B3B3",
       color: "#B1B1B1",
-      fontWeight: 700
-    }
-  }
+      fontWeight: 700,
+    },
+  },
 }));
 
 const StyledHistoryButton = styled(Button)(() => ({
@@ -97,7 +97,7 @@ const StyledHistoryButton = styled(Button)(() => ({
       borderColor: "#B3B3B3",
       color: "#004A80",
     },
-  }
+  },
 }));
 
 const StyledSectionDivider = styled(Divider)(() => ({
@@ -109,7 +109,7 @@ const StyledSectionDivider = styled(Divider)(() => ({
     background: "#6CACDA",
     marginLeft: "44px",
     marginTop: "9px",
-    alignSelft: "flex-end"
+    alignSelft: "flex-end",
   },
 }));
 
@@ -119,13 +119,13 @@ const StyledSubmitterName = styled(StyledValue)(() => ({
   textOverflow: "ellipsis",
   maxWidth: "100%",
   lineHeight: "19.6px",
-  flexShrink: 1
+  flexShrink: 1,
 }));
 
 const StyledConciergeName = styled(StyledValue)(() => ({
   maxWidth: "100%",
   lineHeight: "19.6px",
-  flexShrink: 1
+  flexShrink: 1,
 }));
 
 const StyledTooltipSubmitterName = styled(StyledValue)(() => ({
@@ -142,7 +142,7 @@ const StyledGridContainer = styled(Grid)(({ theme }) => ({
   "&.MuiGrid-container": {
     marginLeft: "45px",
     width: "100%",
-    overflow: "hidden"
+    overflow: "hidden",
   },
   "& .MuiGrid-item:nth-of-type(2n + 1)": {
     paddingLeft: 0,
@@ -151,7 +151,7 @@ const StyledGridContainer = styled(Grid)(({ theme }) => ({
     "& .MuiGrid-item": {
       paddingLeft: 0,
     },
-  }
+  },
 }));
 
 type Props = {
@@ -160,12 +160,15 @@ type Props = {
 
 const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const [historyDialogOpen, setHistoryDialogOpen] = useState<boolean>(false);
-  const [reviewCommentsDialogOpen, setReviewCommentsDialogOpen] = useState<boolean>(false);
+  const [reviewCommentsDialogOpen, setReviewCommentsDialogOpen] =
+    useState<boolean>(false);
   const [hasEllipsis, setHasEllipsis] = useState(false);
   const lastReview = useMemo(
-    () => SortHistory(dataSubmission?.history).find(
-        (h: HistoryBase<SubmissionStatus>) => h.status === "Rejected" && h.reviewComment?.length > 0
-    ),
+    () =>
+      SortHistory(dataSubmission?.history).find(
+        (h: HistoryBase<SubmissionStatus>) =>
+          h.status === "Rejected" && h.reviewComment?.length > 0
+      ),
     [dataSubmission]
   );
   const textRef = useRef<HTMLParagraphElement | null>(null);
@@ -173,7 +176,9 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   useEffect(() => {
     const checkEllipsis = () => {
       if (textRef.current) {
-        setHasEllipsis(textRef.current.offsetWidth < textRef.current.scrollWidth);
+        setHasEllipsis(
+          textRef.current.offsetWidth < textRef.current.scrollWidth
+        );
       }
     };
 
@@ -225,11 +230,12 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
       >
         <Stack direction="column" minWidth="192px">
           <StyledSubmissionTitle variant="h6">
-            SUBMISSION TYPE:
-            {" "}
-            {dataSubmission?.intention}
+            SUBMISSION TYPE: {dataSubmission?.intention}
           </StyledSubmissionTitle>
-          <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
+          <StyledSubmissionStatus
+            variant="h5"
+            aria-label="Data Submission status"
+          >
             {dataSubmission?.status}
           </StyledSubmissionStatus>
           <StyledButtonWrapper>
@@ -253,19 +259,28 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
 
         <StyledSectionDivider orientation="vertical" />
 
-        <StyledGridContainer container flexDirection={{ xs: "column", lg: "row" }} rowSpacing={2} columnSpacing={{ xs: 0, lg: 8.25 }}>
+        <StyledGridContainer
+          container
+          flexDirection={{ xs: "column", lg: "row" }}
+          rowSpacing={2}
+          columnSpacing={{ xs: 0, lg: 8.25 }}
+        >
           <SubmissionHeaderProperty
             label="Submission Name"
-            value={(
-              <Stack direction="row" alignItems="center" sx={{ minWidth: 0, flexWrap: "nowrap" }}>
+            value={
+              <Stack
+                direction="row"
+                alignItems="center"
+                sx={{ minWidth: 0, flexWrap: "nowrap" }}
+              >
                 {hasEllipsis ? (
                   <Tooltip
                     title="Submission Name"
-                    body={(
+                    body={
                       <StyledTooltipSubmitterName variant="body2">
                         {dataSubmission?.name}
                       </StyledTooltipSubmitterName>
-                    )}
+                    }
                     disableHoverListener
                   >
                     <StyledSubmitterName ref={textRef}>
@@ -278,7 +293,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
                   </StyledSubmitterName>
                 )}
               </Stack>
-            )}
+            }
           />
           <SubmissionHeaderProperty
             label="Submitter"
@@ -298,21 +313,22 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           />
           <SubmissionHeaderProperty
             label="Primary Contact"
-            value={(
+            value={
               <Stack direction="row" alignItems="center" spacing={1.375}>
                 <StyledConciergeName>
                   {dataSubmission?.conciergeName}
                 </StyledConciergeName>
-                {dataSubmission?.conciergeName && dataSubmission?.conciergeEmail && (
-                  <a
-                    href={`mailto:${dataSubmission?.conciergeEmail}`}
-                    aria-label="Email Primary Contact"
-                  >
-                    <EmailIconSvg />
-                  </a>
-                )}
+                {dataSubmission?.conciergeName &&
+                  dataSubmission?.conciergeEmail && (
+                    <a
+                      href={`mailto:${dataSubmission?.conciergeEmail}`}
+                      aria-label="Email Primary Contact"
+                    >
+                      <EmailIconSvg />
+                    </a>
+                  )}
               </Stack>
-            )}
+            }
           />
         </StyledGridContainer>
       </Stack>

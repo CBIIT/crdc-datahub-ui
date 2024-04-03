@@ -1,5 +1,14 @@
 import { FC, useState } from "react";
-import { Button, Dialog, DialogProps, IconButton, OutlinedInput, Stack, Typography, styled } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogProps,
+  IconButton,
+  OutlinedInput,
+  Stack,
+  Typography,
+  styled,
+} from "@mui/material";
 import { useMutation } from "@apollo/client";
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
 import GenericAlert, { AlertState } from "../../components/GenericAlert";
@@ -71,7 +80,7 @@ const StyledTokenInput = styled(OutlinedInput)({
   "& .MuiOutlinedInput-notchedOutline": {
     borderRadius: "8px",
     border: "1px solid #6B7294 !important",
-  }
+  },
 });
 
 const StyledGenerateButton = styled(Button)({
@@ -88,25 +97,25 @@ const StyledGenerateButton = styled(Button)({
   fontWeight: "700 !important",
   lineHeight: "24px !important",
   letterSpacing: "0.32px !important",
-  textTransform: "none !important" as 'none',
+  textTransform: "none !important" as "none",
 });
 
 const StyledCopyTokenButton = styled(IconButton)(() => ({
   color: "#000000 !important",
   padding: "8px !important",
   "&.MuiIconButton-root.Mui-disabled": {
-    color: "#B0B0B0 !important"
-  }
+    color: "#B0B0B0 !important",
+  },
 }));
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
-  position: 'absolute !important' as 'absolute',
+  position: "absolute !important" as "absolute",
   right: "21px",
   top: "11px",
   padding: "10px",
   "& svg": {
-    color: "#44627C"
-  }
+    color: "#44627C",
+  },
 }));
 
 const StyledCloseButton = styled(Button)({
@@ -123,15 +132,18 @@ const StyledCloseButton = styled(Button)({
   fontWeight: "700 !important",
   lineHeight: "24px !important",
   letterSpacing: "0.32px",
-  textTransform: "none !important" as 'none',
+  textTransform: "none !important" as "none",
   alignSelf: "center",
   marginTop: "45px !important",
   "&:hover": {
     background: "transparent !important",
-  }
+  },
 });
 
-const canGenerateTokenRoles: User["role"][] = ["Submitter", "Organization Owner"];
+const canGenerateTokenRoles: User["role"][] = [
+  "Submitter",
+  "Organization Owner",
+];
 
 type Props = {
   title?: string;
@@ -159,12 +171,15 @@ const APITokenDialog: FC<Props> = ({
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
 
   const [grantToken] = useMutation<GrantTokenResp>(GRANT_TOKEN, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const onGenerateTokenError = () => {
-    setChangesAlert({ severity: "error", message: `Token was unable to be created.` });
+    setChangesAlert({
+      severity: "error",
+      message: `Token was unable to be created.`,
+    });
     setTimeout(() => setChangesAlert(null), 10000);
   };
 
@@ -220,30 +235,41 @@ const APITokenDialog: FC<Props> = ({
       aria-labelledby="api-token-header"
       {...rest}
     >
-      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="api-token-dialog-changes-alert">
-        <span>
-          {changesAlert?.message}
-        </span>
-      </GenericAlert>
-      <StyledCloseDialogButton
-        aria-label="close"
-        onClick={handleCloseDialog}
+      <GenericAlert
+        open={!!changesAlert}
+        severity={changesAlert?.severity}
+        key="api-token-dialog-changes-alert"
       >
+        <span>{changesAlert?.message}</span>
+      </GenericAlert>
+      <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
         <CloseIconSvg />
       </StyledCloseDialogButton>
       <StyledHeader id="api-token-header" variant="h1">
         API Token
       </StyledHeader>
       <StyledTitle id="api-token-title" variant="body1">
-        An API Token is required to utilize the Uploader CLI tool for file uploads.
+        An API Token is required to utilize the Uploader CLI tool for file
+        uploads.
         <br />
         <br />
-        Each time you click the 'Create Token' button, a new token will be generated, and
+        Each time you click the 'Create Token' button, a new token will be
+        generated, and
         <br />
-        the previous token will be invalidated. A token expires 60 days after its creation.
+        the previous token will be invalidated. A token expires 60 days after
+        its creation.
       </StyledTitle>
-      <Stack direction={{ xs: "column", md: "row" }} spacing={1.875} justifyContent="center" alignItems="center">
-        <StyledGenerateButton id="api-token-create-token-button" onClick={handleCreateToken} variant="contained">
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={1.875}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <StyledGenerateButton
+          id="api-token-create-token-button"
+          onClick={handleCreateToken}
+          variant="contained"
+        >
           Create Token
         </StyledGenerateButton>
         <StyledTokenInput
@@ -252,16 +278,28 @@ const APITokenDialog: FC<Props> = ({
           inputProps={{ "aria-label": "API Token" }}
           readOnly
         />
-        <StyledCopyTokenButton id="api-token-copy-token-button" disabled={!tokens?.length} onClick={handleCopyToken} aria-label="Copy Token">
+        <StyledCopyTokenButton
+          id="api-token-copy-token-button"
+          disabled={!tokens?.length}
+          onClick={handleCopyToken}
+          aria-label="Copy Token"
+        >
           <CopyIconSvg />
         </StyledCopyTokenButton>
       </Stack>
-      <StyledExplanationText id="api-token-explanation" sx={{ visibility: tokens?.length ? "visible" : "hidden" }}>
+      <StyledExplanationText
+        id="api-token-explanation"
+        sx={{ visibility: tokens?.length ? "visible" : "hidden" }}
+      >
         Copy your token to the clipboard,
         <br />
         as this will be the only time you can see this token
       </StyledExplanationText>
-      <StyledCloseButton id="api-token-close-button" variant="outlined" onClick={handleCloseDialog}>
+      <StyledCloseButton
+        id="api-token-close-button"
+        variant="outlined"
+        onClick={handleCloseDialog}
+      >
         Close
       </StyledCloseButton>
     </StyledDialog>

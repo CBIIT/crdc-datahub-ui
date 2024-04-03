@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
+import {
+  Button,
+  OutlinedInput,
+  Stack,
+  Typography,
+  styled,
+} from "@mui/material";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
@@ -35,12 +41,13 @@ const StyledOutlinedInput = styled(OutlinedInput)(() => ({
   },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   "& .MuiInputBase-input::placeholder": {
     color: "#87878C",
     fontWeight: 400,
-    opacity: 1
+    opacity: 1,
   },
 }));
 
@@ -74,7 +81,13 @@ const StyledDialogText = styled(Typography)({
   lineHeight: "19.6px",
 });
 
-export type ActiveDialog = "Submit" | "Release" | "Withdraw" | "Reject" | "Complete" | "Cancel";
+export type ActiveDialog =
+  | "Submit"
+  | "Release"
+  | "Withdraw"
+  | "Reject"
+  | "Complete"
+  | "Cancel";
 type UserRole = User["role"];
 
 type ActionConfig = {
@@ -82,7 +95,15 @@ type ActionConfig = {
   statuses: SubmissionStatus[];
 };
 
-type ActionKey = "Submit" | "Release" | "Withdraw" | "SubmittedReject" | "ReleasedReject" | "Complete" | "Cancel" | "Archive";
+type ActionKey =
+  | "Submit"
+  | "Release"
+  | "Withdraw"
+  | "SubmittedReject"
+  | "ReleasedReject"
+  | "Complete"
+  | "Cancel"
+  | "Archive";
 
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
@@ -131,17 +152,25 @@ type Props = {
   onError: (message: string) => void;
 };
 
-const DataSubmissionActions = ({ submission, submitActionButton, onAction, onError }: Props) => {
+const DataSubmissionActions = ({
+  submission,
+  submitActionButton,
+  onAction,
+  onError,
+}: Props) => {
   const { user } = useAuthContext();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
   const [reviewComment, setReviewComment] = useState("");
 
-  const [exportSubmission] = useMutation<ExportSubmissionResp>(EXPORT_SUBMISSION, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  });
+  const [exportSubmission] = useMutation<ExportSubmissionResp>(
+    EXPORT_SUBMISSION,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const handleExportSubmission = async (): Promise<boolean> => {
     if (!submission?._id) {
@@ -152,7 +181,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
       const { data: d, errors } = await exportSubmission({
         variables: {
           _id: submission._id,
-        }
+        },
       });
       if (errors || !d?.exportSubmission?.success) {
         throw new Error();
@@ -195,7 +224,10 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
 
   const canShowAction = (actionKey: ActionKey) => {
     const config = actionConfig[actionKey];
-    return config?.statuses?.includes(submission?.status) && config?.roles?.includes(user?.role);
+    return (
+      config?.statuses?.includes(submission?.status) &&
+      config?.roles?.includes(user?.role)
+    );
   };
 
   const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -212,7 +244,9 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
           color="primary"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
-          disabled={submitActionButton?.disable || (action && action !== "Submit")}
+          disabled={
+            submitActionButton?.disable || (action && action !== "Submit")
+          }
         >
           {submitActionButton?.label || "Submit"}
         </StyledLoadingButton>
@@ -286,12 +320,16 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
 
       {/* Submit Dialog */}
       <StyledDialog
-        open={currentDialog === "Submit" && submitActionButton.label === "Submit"}
+        open={
+          currentDialog === "Submit" && submitActionButton.label === "Submit"
+        }
         onClose={onCloseDialog}
         title="Submit Data Submission"
-        actions={(
+        actions={
           <>
-            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>
+              No
+            </Button>
             <LoadingButton
               onClick={() => handleOnAction("Submit")}
               loading={!!action}
@@ -301,22 +339,27 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
               Yes
             </LoadingButton>
           </>
-        )}
+        }
       >
         <StyledDialogText variant="body2">
-          This action will lock your submission and it will no longer accept updates
-          to the data. Are you sure you want to proceed?
+          This action will lock your submission and it will no longer accept
+          updates to the data. Are you sure you want to proceed?
         </StyledDialogText>
       </StyledDialog>
 
       {/* Admin Submit Dialog */}
       <StyledDialog
-        open={currentDialog === "Submit" && submitActionButton.label === "Admin Submit"}
+        open={
+          currentDialog === "Submit" &&
+          submitActionButton.label === "Admin Submit"
+        }
         onClose={onCloseDialog}
         title="Admin Submit Data Submission"
-        actions={(
+        actions={
           <Stack direction="row" marginTop="24px">
-            <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>
+              Cancel
+            </Button>
             <LoadingButton
               onClick={() => handleOnAction("Submit")}
               loading={!!action}
@@ -326,7 +369,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
               Confirm to Submit
             </LoadingButton>
           </Stack>
-        )}
+        }
       >
         <StyledOutlinedInput
           value={reviewComment}
@@ -347,9 +390,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         open={currentDialog === "Release"}
         onClose={onCloseDialog}
         title="Release Data Submission"
-        actions={(
+        actions={
           <>
-            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>
+              No
+            </Button>
             <LoadingButton
               onClick={() => handleOnAction("Release")}
               loading={!!action}
@@ -359,11 +404,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
               Yes
             </LoadingButton>
           </>
-        )}
+        }
       >
         <StyledDialogText variant="body2">
           This action will release this submission to data commons and it can no
-          longer accept changes to the data.  Are you sure you want to proceed?
+          longer accept changes to the data. Are you sure you want to proceed?
         </StyledDialogText>
       </StyledDialog>
 
@@ -372,9 +417,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         open={currentDialog === "Cancel"}
         onClose={onCloseDialog}
         title="Cancel Data Submission"
-        actions={(
+        actions={
           <>
-            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>
+              No
+            </Button>
             <LoadingButton
               onClick={() => handleOnAction("Cancel")}
               loading={!!action}
@@ -384,7 +431,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
               Yes
             </LoadingButton>
           </>
-        )}
+        }
       >
         <StyledDialogText variant="body2">
           This action will remove this submission and it will no longer be
@@ -397,9 +444,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         open={currentDialog === "Withdraw"}
         onClose={onCloseDialog}
         title="Withdraw Data Submission"
-        actions={(
+        actions={
           <>
-            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>
+              No
+            </Button>
             <LoadingButton
               onClick={() => handleOnAction("Withdraw")}
               loading={!!action}
@@ -409,11 +458,12 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
               Yes
             </LoadingButton>
           </>
-        )}
+        }
       >
         <StyledDialogText variant="body2">
-          This action will halt the data curation process and give control back to you
-          if you wish to update the data within the submission. Are you certain you want to proceed?
+          This action will halt the data curation process and give control back
+          to you if you wish to update the data within the submission. Are you
+          certain you want to proceed?
         </StyledDialogText>
       </StyledDialog>
 
@@ -422,9 +472,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         open={currentDialog === "Reject"}
         onClose={onCloseDialog}
         title="Reject Data Submission"
-        actions={(
+        actions={
           <Stack direction="row" marginTop="24px">
-            <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>
+              Cancel
+            </Button>
             <LoadingButton
               onClick={() => handleOnAction("Reject")}
               loading={!!action}
@@ -435,7 +487,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
               Confirm to Reject
             </LoadingButton>
           </Stack>
-        )}
+        }
       >
         <StyledOutlinedInput
           value={reviewComment}
@@ -456,9 +508,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         open={currentDialog === "Complete"}
         onClose={onCloseDialog}
         title="Complete Data Submission"
-        actions={(
+        actions={
           <>
-            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+            <Button onClick={onCloseDialog} disabled={!!action}>
+              No
+            </Button>
             <LoadingButton
               onClick={() => handleOnAction("Complete")}
               loading={!!action}
@@ -468,11 +522,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
               Yes
             </LoadingButton>
           </>
-        )}
+        }
       >
         <StyledDialogText variant="body2">
-          This action will close out the submission and start close out activities.
-          Are you sure you want to proceed?
+          This action will close out the submission and start close out
+          activities. Are you sure you want to proceed?
         </StyledDialogText>
       </StyledDialog>
     </StyledActionWrapper>

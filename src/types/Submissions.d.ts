@@ -28,7 +28,13 @@ type Submission = {
  * @note `null` indicates that the type has not been uploaded yet.
  * @note `New` indicates that the type has been uploaded but not validated yet.
  */
-type ValidationStatus = null | "New" | "Validating" | "Passed" | "Error" | "Warning";
+type ValidationStatus =
+  | null
+  | "New"
+  | "Validating"
+  | "Passed"
+  | "Error"
+  | "Warning";
 
 type SubmissionStatus =
   | "New"
@@ -51,10 +57,7 @@ type SubmissionAction =
   | "Cancel"
   | "Archive";
 
-type SubmissionIntention =
-  | "New"
-  | "Update"
-  | "Delete";
+type SubmissionIntention = "New" | "Update" | "Delete";
 
 type FileInput = {
   fileName: string;
@@ -81,11 +84,11 @@ type BatchFileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;
   size: number;
-  nodeType: string
+  nodeType: string;
   status: string; // [New, Uploaded, Failed]
   errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-  updatedAt: string // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+  updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
 type BatchStatus = "Uploading" | "Uploaded" | "Failed";
@@ -137,14 +140,14 @@ type TempCredentials = {
 type SubmissionHistoryEvent = HistoryBase<SubmissionStatus>;
 
 type ListLogFiles = {
-  logFiles: LogFile[]
+  logFiles: LogFile[];
 };
 
 type LogFile = {
   fileName: string;
   uploadType: UploadType;
   downloadUrl: string; // s3 presigned download url of the file
-  fileSize: number // size in byte
+  fileSize: number; // size in byte
 };
 
 type S3FileInfo = {

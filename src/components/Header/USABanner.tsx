@@ -43,6 +43,6 @@ const USABanner = () => (
       </div>
     </BannerContainer>
   </BannerArea>
-  );
+);
 
 export default USABanner;

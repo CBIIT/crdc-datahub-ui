@@ -51,7 +51,7 @@ const InactivityWarningContent = styled("div")({
     border: "1px solid #626262",
     marginTop: "30px",
     borderRadius: "4px",
-    fontWeight: 500
+    fontWeight: 500,
   },
   "& .extendButton": {
     backgroundColor: "#566672 !important",
@@ -109,7 +109,7 @@ const SessionTimeoutContent = styled("div")({
     border: "1px solid #626262",
     marginTop: "30px",
     borderRadius: "4px",
-    fontWeight: 500
+    fontWeight: 500,
   },
   "& .closeButton": {
     backgroundColor: "#566672 !important",
@@ -120,7 +120,8 @@ const SessionTimeoutContent = styled("div")({
   },
 });
 
-const secondsToMinuteString = (seconds) => new Date(seconds * 1000).toISOString().substring(14, 19);
+const secondsToMinuteString = (seconds) =>
+  new Date(seconds * 1000).toISOString().substring(14, 19);
 
 const InactivityDialog = () => {
   const authData = useAuthContext();
@@ -137,13 +138,14 @@ const InactivityDialog = () => {
     const AUTH_API = `${window.origin}/api/authn/authenticated`;
     try {
       const res = await fetch(AUTH_API, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
-      }).then((response) => response.json()).catch(() => {
-      });
+      })
+        .then((response) => response.json())
+        .catch(() => {});
 
       if (res.status) {
         setWarning(false);
@@ -207,12 +209,12 @@ const InactivityDialog = () => {
   return (
     <>
       <GenericAlert open={showLogoutAlert}>
-        <span>
-          You have been logged out.
-        </span>
+        <span>You have been logged out.</span>
       </GenericAlert>
       <InactivityWarningDialog open={warning}>
-        <DialogTitle id="customized-dialog-title"> Session Timeout Warning</DialogTitle>
+        <DialogTitle id="customized-dialog-title">
+          Session Timeout Warning
+        </DialogTitle>
         <InactivityWarningContent>
           This session is about to expire due to inactivity.
           <br />
@@ -254,13 +256,19 @@ const InactivityDialog = () => {
               }
             }}
           >
-            <img style={{ height: 10, marginBottom: 2 }} src="https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/LocalFindCaseDeleteIcon.svg" alt="close icon" />
+            <img
+              style={{ height: 10, marginBottom: 2 }}
+              src="https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/LocalFindCaseDeleteIcon.svg"
+              alt="close icon"
+            />
           </div>
         </DialogTitle>
         <SessionTimeoutContent>
           <div className="sessionTimeoutTitle">Your session has expired.</div>
           <br />
-          <div className="sessionTimeoutMessage">Please login again to continue working.</div>
+          <div className="sessionTimeoutMessage">
+            Please login again to continue working.
+          </div>
           <div className="buttonWrapper">
             <Button
               variant="contained"
@@ -273,7 +281,10 @@ const InactivityDialog = () => {
             <Button
               variant="contained"
               className="buttonGroup loginButton"
-              onClick={() => { setTimedOut(false); navigate("login"); }}
+              onClick={() => {
+                setTimedOut(false);
+                navigate("login");
+              }}
               disableElevation={false}
             >
               LOGIN

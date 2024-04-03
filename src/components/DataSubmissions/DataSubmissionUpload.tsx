@@ -3,17 +3,17 @@ import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import { VariantType } from "notistack";
-import {
-  Button,
-  Stack,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Button, Stack, Typography, styled } from "@mui/material";
 import RadioInput from "./RadioInput";
-import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
+import {
+  CREATE_BATCH,
+  CreateBatchResp,
+  UPDATE_BATCH,
+  UpdateBatchResp,
+} from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
 import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
-import FlowWrapper from './FlowWrapper';
+import FlowWrapper from "./FlowWrapper";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -44,7 +44,7 @@ const StyledUploadFilesButton = styled(Button)(() => ({
   "&.MuiButtonBase-root": {
     marginLeft: "auto",
     minWidth: "137px",
-  }
+  },
 }));
 const StyledChooseFilesButton = styled(LoadingButton)(() => ({
   minWidth: "137px",
@@ -77,8 +77,8 @@ const StyledUploadActionWrapper = styled(Stack)(() => ({
   "&.MuiStack-root": {
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: "48px"
-  }
+    marginLeft: "48px",
+  },
 }));
 
 const VisuallyHiddenInput = styled("input")(() => ({
@@ -94,33 +94,48 @@ type Props = {
   onUpload: (message: string, severity: VariantType) => void;
 };
 
-const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
+const DataSubmissionUpload = ({
+  submission,
+  readOnly,
+  onCreateBatch,
+  onUpload,
+}: Props) => {
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
-  const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("New");
+  const [metadataIntention, setMetadataIntention] =
+    useState<MetadataIntention>("New");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
   const isSubmissionOwner = submission?.submitterID === user?._id;
   const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
-  const isNewSubmission = !submission?.metadataValidationStatus && !submission?.fileValidationStatus;
+  const isNewSubmission =
+    !submission?.metadataValidationStatus && !submission?.fileValidationStatus;
   const acceptedExtensions = [".tsv", ".txt"];
   const metadataIntentionOptions = [
     { label: "New", value: "New", disabled: !canUpload },
-    { label: "Update", value: "Update", disabled: !canUpload || isNewSubmission },
-    { label: "Delete", value: "Delete", disabled: !canUpload || isNewSubmission },
+    {
+      label: "Update",
+      value: "Update",
+      disabled: !canUpload || isNewSubmission,
+    },
+    {
+      label: "Delete",
+      value: "Delete",
+      disabled: !canUpload || isNewSubmission,
+    },
   ];
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [updateBatch] = useMutation<UpdateBatchResp>(UPDATE_BATCH, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
@@ -128,14 +143,15 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
     const unloadHandler = (event: BeforeUnloadEvent) => {
       if (selectedFiles?.length > 0) {
         event.preventDefault();
-        event.returnValue = 'You have unsaved form changes. Are you sure you want to leave?';
+        event.returnValue =
+          "You have unsaved form changes. Are you sure you want to leave?";
       }
     };
 
-    window.addEventListener('beforeunload', unloadHandler);
+    window.addEventListener("beforeunload", unloadHandler);
 
     return () => {
-      window.removeEventListener('beforeunload', unloadHandler);
+      window.removeEventListener("beforeunload", unloadHandler);
     };
   });
 
@@ -155,7 +171,9 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
     }
 
     // Filter out any file that is not an accepted file extension
-    const filteredFiles = Array.from(files)?.filter((file: File) => acceptedExtensions.some((ext) => file.name?.toLowerCase()?.endsWith(ext)));
+    const filteredFiles = Array.from(files)?.filter((file: File) =>
+      acceptedExtensions.some((ext) => file.name?.toLowerCase()?.endsWith(ext))
+    );
     if (!filteredFiles?.length) {
       setSelectedFiles(null);
       return;
@@ -174,14 +192,19 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
     }
 
     try {
-      const formattedFiles: FileInput[] = Array.from(selectedFiles)?.map((file) => ({ fileName: file.name, size: file.size }));
+      const formattedFiles: FileInput[] = Array.from(selectedFiles)?.map(
+        (file) => ({
+          fileName: file.name,
+          size: file.size,
+        })
+      );
       const { data: batch, errors } = await createBatch({
         variables: {
           submissionID: submissionId,
           type: "metadata",
           metadataIntention,
           files: formattedFiles,
-        }
+        },
       });
 
       if (errors) {
@@ -211,21 +234,31 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
     const uploadResult: UploadResult[] = [];
 
     const uploadPromises = newBatch.files?.map(async (file: FileURL) => {
-      const selectedFile: File = Array.from(selectedFiles).find((f) => f.name === file.fileName);
+      const selectedFile: File = Array.from(selectedFiles).find(
+        (f) => f.name === file.fileName
+      );
       try {
         const res = await fetch(file.signedURL, {
           method: "PUT",
           body: selectedFile,
           headers: {
-            'Content-Type': 'text/tab-separated-values',
-          }
+            "Content-Type": "text/tab-separated-values",
+          },
         });
         if (!res.ok) {
           throw new Error("Unexpected network error");
         }
-        uploadResult.push({ fileName: file.fileName, succeeded: true, errors: null });
+        uploadResult.push({
+          fileName: file.fileName,
+          succeeded: true,
+          errors: null,
+        });
       } catch (err) {
-        uploadResult.push({ fileName: file.fileName, succeeded: false, errors: err?.toString() });
+        uploadResult.push({
+          fileName: file.fileName,
+          succeeded: false,
+          errors: err?.toString(),
+        });
       }
     });
 
@@ -246,8 +279,8 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
       const { errors } = await updateBatch({
         variables: {
           batchID,
-          files
-        }
+          files,
+        },
       });
 
       if (errors) {
@@ -258,7 +291,14 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
         return;
       }
       // Batch upload completed successfully
-      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${metadataIntention === "Delete" ? "deleted" : "uploaded"}`, "success");
+      onUpload(
+        `${selectedFiles.length} ${
+          selectedFiles.length > 1 ? "Files" : "File"
+        } successfully ${
+          metadataIntention === "Delete" ? "deleted" : "uploaded"
+        }`,
+        "success"
+      );
       setIsUploading(false);
       setSelectedFiles(null);
       if (uploadMetadataInputRef.current) {
@@ -271,7 +311,12 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
   };
 
   const onUploadFail = (fileCount = 0) => {
-    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${metadataIntention === "Delete" ? "delete" : "upload"}`, "error");
+    onUpload(
+      `${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${
+        metadataIntention === "Delete" ? "delete" : "upload"
+      }`,
+      "error"
+    );
     setSelectedFiles(null);
     setIsUploading(false);
     if (uploadMetadataInputRef.current) {
@@ -295,7 +340,9 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
           id="data-submission-dashboard-upload-type"
           label="Upload Type:"
           value={metadataIntention}
-          onChange={(_event, value: MetadataIntention) => !readOnly && setMetadataIntention(value)}
+          onChange={(_event, value: MetadataIntention) =>
+            !readOnly && setMetadataIntention(value)
+          }
           options={metadataIntentionOptions}
           gridWidth={4}
           readOnly={readOnly}
@@ -303,7 +350,9 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
           row
         />
         <StyledUploadActionWrapper direction="row">
-          <StyledMetadataText variant="body2">Metadata Files</StyledMetadataText>
+          <StyledMetadataText variant="body2">
+            Metadata Files
+          </StyledMetadataText>
           <VisuallyHiddenInput
             ref={uploadMetadataInputRef}
             type="file"
@@ -322,14 +371,24 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
             Choose Files
           </StyledChooseFilesButton>
           <StyledFilesSelected variant="body1">
-            {selectedFiles?.length ? `${selectedFiles.length} ${selectedFiles.length > 1 ? "files" : "file"} selected` : "No files selected"}
+            {selectedFiles?.length
+              ? `${selectedFiles.length} ${
+                  selectedFiles.length > 1 ? "files" : "file"
+                } selected`
+              : "No files selected"}
           </StyledFilesSelected>
         </StyledUploadActionWrapper>
         <StyledUploadFilesButton
           variant="contained"
           color="info"
-          onClick={() => (metadataIntention === "Delete" ? setOpenDeleteDialog(true) : handleUploadFiles())}
-          disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
+          onClick={() =>
+            metadataIntention === "Delete"
+              ? setOpenDeleteDialog(true)
+              : handleUploadFiles()
+          }
+          disabled={
+            readOnly || !selectedFiles?.length || !canUpload || isUploading
+          }
           disableElevation
           disableRipple
           disableTouchRipple

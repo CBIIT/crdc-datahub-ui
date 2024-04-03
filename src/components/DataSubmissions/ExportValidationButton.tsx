@@ -1,12 +1,16 @@
-import { useState } from 'react';
-import { useLazyQuery } from '@apollo/client';
-import { IconButtonProps, IconButton, styled } from '@mui/material';
-import { CloudDownload } from '@mui/icons-material';
-import { useSnackbar } from 'notistack';
-import dayjs from 'dayjs';
-import { unparse } from 'papaparse';
-import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from '../../graphql';
-import { downloadBlob, filterAlphaNumeric, unpackQCResultSeverities } from '../../utils';
+import { useState } from "react";
+import { useLazyQuery } from "@apollo/client";
+import { IconButtonProps, IconButton, styled } from "@mui/material";
+import { CloudDownload } from "@mui/icons-material";
+import { useSnackbar } from "notistack";
+import dayjs from "dayjs";
+import { unparse } from "papaparse";
+import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
+import {
+  downloadBlob,
+  filterAlphaNumeric,
+  unpackQCResultSeverities,
+} from "../../utils";
 
 export type Props = {
   /**
@@ -33,14 +37,22 @@ const StyledIconButton = styled(IconButton)({
  *
  * @returns {React.FC} The export validation button.
  */
-export const ExportValidationButton: React.FC<Props> = ({ submission, fields, disabled, ...buttonProps }: Props) => {
+export const ExportValidationButton: React.FC<Props> = ({
+  submission,
+  fields,
+  disabled,
+  ...buttonProps
+}: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'cache-and-network',
-  });
+  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(
+    SUBMISSION_QC_RESULTS,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const handleClick = async () => {
     setLoading(true);
@@ -53,25 +65,35 @@ export const ExportValidationButton: React.FC<Props> = ({ submission, fields, di
         first: -1,
         offset: 0,
       },
-      context: { clientName: 'backend' },
-      fetchPolicy: 'no-cache'
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
     });
 
     if (error || !d?.submissionQCResults?.results) {
-      enqueueSnackbar("Unable to retrieve submission quality control results.", { variant: "error" });
+      enqueueSnackbar(
+        "Unable to retrieve submission quality control results.",
+        { variant: "error" }
+      );
       setLoading(false);
       return;
     }
 
     if (!d?.submissionQCResults?.results.length) {
-      enqueueSnackbar("There are no validation results to export.", { variant: "error" });
+      enqueueSnackbar("There are no validation results to export.", {
+        variant: "error",
+      });
       setLoading(false);
       return;
     }
 
     try {
-      const filteredName = filterAlphaNumeric(submission.name?.trim()?.replaceAll(" ", "-"), "-");
-      const filename = `${filteredName}-${dayjs().format("YYYY-MM-DDTHHmmss")}.csv`;
+      const filteredName = filterAlphaNumeric(
+        submission.name?.trim()?.replaceAll(" ", "-"),
+        "-"
+      );
+      const filename = `${filteredName}-${dayjs().format(
+        "YYYY-MM-DDTHHmmss"
+      )}.csv`;
       const unpacked = unpackQCResultSeverities(d.submissionQCResults.results);
       const fieldset = Object.entries(fields);
       const csvArray = [];
@@ -88,7 +110,9 @@ export const ExportValidationButton: React.FC<Props> = ({ submission, fields, di
 
       downloadBlob(unparse(csvArray), filename, "text/csv");
     } catch (err) {
-      enqueueSnackbar("Unable to export validation results.", { variant: "error" });
+      enqueueSnackbar("Unable to export validation results.", {
+        variant: "error",
+      });
     }
 
     setLoading(false);

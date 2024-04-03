@@ -30,10 +30,10 @@ const UnsavedChangesDialog: FC<Props> = ({
     onClose={onClose}
     title={title || "Unsaved Changes"}
     message={
-      message
-      || "Validation errors have been detected. Do you wish to save your changes or discard them before leaving this page?"
+      message ||
+      "Validation errors have been detected. Do you wish to save your changes or discard them before leaving this page?"
     }
-    actions={(
+    actions={
       <>
         <Button onClick={onCancel} disabled={disableActions}>
           Cancel
@@ -50,7 +50,7 @@ const UnsavedChangesDialog: FC<Props> = ({
           Discard
         </Button>
       </>
-    )}
+    }
     {...rest}
   />
 );

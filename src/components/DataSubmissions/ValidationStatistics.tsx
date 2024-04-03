@@ -1,12 +1,16 @@
-import React, { FC, useMemo, useState } from 'react';
-import { cloneDeep, isEqual } from 'lodash';
-import { Box, Stack, Tab, Tabs, Typography, styled } from '@mui/material';
-import ContentCarousel from '../Carousel';
-import NodeTotalChart from '../NodeTotalChart';
-import MiniPieChart from '../NodeChart';
-import SuspenseLoader from '../SuspenseLoader';
-import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from '../../utils';
-import StatisticLegend from './StatisticLegend';
+import React, { FC, useMemo, useState } from "react";
+import { cloneDeep, isEqual } from "lodash";
+import { Box, Stack, Tab, Tabs, Typography, styled } from "@mui/material";
+import ContentCarousel from "../Carousel";
+import NodeTotalChart from "../NodeTotalChart";
+import MiniPieChart from "../NodeChart";
+import SuspenseLoader from "../SuspenseLoader";
+import {
+  buildMiniChartSeries,
+  buildPrimaryChartSeries,
+  compareNodeStats,
+} from "../../utils";
+import StatisticLegend from "./StatisticLegend";
 
 type Props = {
   dataSubmission: Submission;
@@ -23,7 +27,7 @@ const StyledChartArea = styled(Stack)({
   width: "100%",
   position: "relative",
   "& > *": {
-    zIndex: 10
+    zIndex: 10,
   },
   "&::after": {
     position: "absolute",
@@ -95,24 +99,40 @@ const defaultFilters: LegendFilter[] = [
  * @param {Props} props
  * @returns {React.FC<Props>}
  */
-const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Props) => {
+const DataSubmissionStatistics: FC<Props> = ({
+  dataSubmission,
+  statistics,
+}: Props) => {
   const [filters, setFilters] = useState<LegendFilter[]>(defaultFilters);
   const [tabValue, setTabValue] = useState<"count" | "percentage">("count");
 
-  const disabledSeries: SeriesLabel[] = filters.filter((f) => f.disabled).map((f) => f.label);
-  const dataset: SubmissionStatistic[] = useMemo(() => cloneDeep(statistics || []).sort(compareNodeStats), [statistics]);
-  const primaryChartSeries: BarChartDataset[] = useMemo(() => buildPrimaryChartSeries(dataset, disabledSeries), [dataset, disabledSeries]);
+  const disabledSeries: SeriesLabel[] = filters
+    .filter((f) => f.disabled)
+    .map((f) => f.label);
+  const dataset: SubmissionStatistic[] = useMemo(
+    () => cloneDeep(statistics || []).sort(compareNodeStats),
+    [statistics]
+  );
+  const primaryChartSeries: BarChartDataset[] = useMemo(
+    () => buildPrimaryChartSeries(dataset, disabledSeries),
+    [dataset, disabledSeries]
+  );
 
   const handleFilterChange = (filter: LegendFilter) => {
     const newFilters = filters.map((f) => {
-      if (f.label === filter.label) { return { ...f, disabled: !f.disabled }; }
+      if (f.label === filter.label) {
+        return { ...f, disabled: !f.disabled };
+      }
       return f;
     });
 
     setFilters(newFilters);
   };
 
-  const handleViewByChange = (_: React.SyntheticEvent, newValue: "count" | "percentage") => setTabValue(newValue);
+  const handleViewByChange = (
+    _: React.SyntheticEvent,
+    newValue: "count" | "percentage"
+  ) => setTabValue(newValue);
 
   if (!dataSubmission || !dataset) {
     return (
@@ -125,7 +145,9 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   if (!dataset?.some((s) => s.total > 0)) {
     return (
       <StyledChartArea direction="row">
-        <StyledNoData variant="h6">No data has been successfully uploaded yet.</StyledNoData>
+        <StyledNoData variant="h6">
+          No data has been successfully uploaded yet.
+        </StyledNoData>
       </StyledChartArea>
     );
   }
@@ -134,17 +156,23 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
     <StyledChartArea direction="row">
       <Stack direction="column" alignItems="center" flex={1}>
         <StyledSectionTitle variant="h6">Summary Total</StyledSectionTitle>
-        <NodeTotalChart data={primaryChartSeries} normalize={tabValue === "percentage"} />
-        <Tabs value={tabValue} onChange={handleViewByChange} aria-label="View chart by" centered>
+        <NodeTotalChart
+          data={primaryChartSeries}
+          normalize={tabValue === "percentage"}
+        />
+        <Tabs
+          value={tabValue}
+          onChange={handleViewByChange}
+          aria-label="View chart by"
+          centered
+        >
           <StyledTab label="View By Count" value="count" />
           <StyledTab label="View By Percentage" value="percentage" />
         </Tabs>
       </Stack>
       <Stack direction="column" alignItems="center" flex={1} height={344}>
         <StyledSectionTitle variant="h6">
-          Individual Node Types
-          {" "}
-          {`(${dataset.length})`}
+          Individual Node Types {`(${dataset.length})`}
         </StyledSectionTitle>
         <ContentCarousel partialVisible={false}>
           {dataset.length > 2 && <PaddingBox />}
@@ -163,4 +191,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   );
 };
 
-export default React.memo<Props>(DataSubmissionStatistics, (prevProps, nextProps) => isEqual(prevProps, nextProps));
+export default React.memo<Props>(
+  DataSubmissionStatistics,
+  (prevProps, nextProps) => isEqual(prevProps, nextProps)
+);

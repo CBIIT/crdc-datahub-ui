@@ -154,7 +154,7 @@ describe("General Submit", () => {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
-      intention: "Delete"
+      intention: "Delete",
     };
     const result: SubmitInfo = utils.shouldDisableSubmit(
       submission,
@@ -169,7 +169,7 @@ describe("General Submit", () => {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
-      intention: "Update"
+      intention: "Update",
     };
     const result: SubmitInfo = utils.shouldDisableSubmit(
       submission,
@@ -184,7 +184,7 @@ describe("General Submit", () => {
       ...baseSubmission,
       metadataValidationStatus: null,
       fileValidationStatus: "Passed",
-      intention: "Delete"
+      intention: "Delete",
     };
     const result: SubmitInfo = utils.shouldDisableSubmit(
       submission,
@@ -199,7 +199,7 @@ describe("General Submit", () => {
       ...baseSubmission,
       metadataValidationStatus: null,
       fileValidationStatus: "Error",
-      intention: "Delete"
+      intention: "Delete",
     };
     const result: SubmitInfo = utils.shouldDisableSubmit(
       submission,
@@ -438,7 +438,7 @@ describe("Admin Submit", () => {
     expect(result.isAdminOverride).toBe(true);
   });
 
-  it('should not allow submit with isAdminOverride when Submission level errors exist', () => {
+  it("should not allow submit with isAdminOverride when Submission level errors exist", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: null,
@@ -464,7 +464,7 @@ describe("Admin Submit", () => {
     expect(result.isAdminOverride).toBe(false);
   });
 
-  it('should not allow submitter to submit when Submission level errors exist', () => {
+  it("should not allow submitter to submit when Submission level errors exist", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
@@ -485,7 +485,10 @@ describe("Admin Submit", () => {
         },
       ],
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
+    const result: SubmitInfo = utils.shouldDisableSubmit(
+      submission,
+      "Submitter"
+    );
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -495,12 +498,9 @@ describe("Admin Submit", () => {
       ...baseSubmission,
       metadataValidationStatus: "Error",
       fileValidationStatus: null,
-      intention: "Delete"
+      intention: "Delete",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Admin"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
     expect(result.disable).toBe(false);
     expect(result.isAdminOverride).toBe(true);
   });
@@ -510,12 +510,9 @@ describe("Admin Submit", () => {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
-      intention: "Delete"
+      intention: "Delete",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Admin"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
     expect(result.disable).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -537,20 +534,20 @@ describe("Submit > Submission Type/Intention", () => {
   });
 });
 
-describe('unpackQCResultSeverities cases', () => {
+describe("unpackQCResultSeverities cases", () => {
   // Base QCResult, unused props are empty
   const baseResult: Omit<QCResult, "errors" | "warnings"> = {
     submissionID: "",
     batchID: "",
-    type: '',
-    validationType: '' as QCResult["validationType"],
+    type: "",
+    validationType: "" as QCResult["validationType"],
     // NOTE: This is intentionally invalid and should break the tests if used
     // by the unpackQCResultSeverities function
     severity: "SHOULD NOT BE USED" as QCResult["severity"],
     displayID: 0,
-    submittedID: '',
-    uploadedDate: '',
-    validatedDate: ''
+    submittedID: "",
+    uploadedDate: "",
+    validatedDate: "",
   };
 
   // Base ErrorMessage
@@ -559,7 +556,7 @@ describe('unpackQCResultSeverities cases', () => {
     description: "unused description",
   };
 
-  it('should unpack errors and warnings into separate results', () => {
+  it("should unpack errors and warnings into separate results", () => {
     const errors: ErrorMessage[] = [
       { ...baseError, title: "error1" },
       { ...baseError, title: "error2" },
@@ -576,20 +573,36 @@ describe('unpackQCResultSeverities cases', () => {
     expect(unpackedResults).toEqual([
       { ...baseResult, severity: "Error", errors: [errors[0]], warnings: [] },
       { ...baseResult, severity: "Error", errors: [errors[1]], warnings: [] },
-      { ...baseResult, severity: "Warning", errors: [], warnings: [warnings[0]] },
-      { ...baseResult, severity: "Warning", errors: [], warnings: [warnings[1]] },
+      {
+        ...baseResult,
+        severity: "Warning",
+        errors: [],
+        warnings: [warnings[0]],
+      },
+      {
+        ...baseResult,
+        severity: "Warning",
+        errors: [],
+        warnings: [warnings[1]],
+      },
     ]);
   });
 
-  it('should return an array with the same length as errors.length + warnings.length', () => {
-    const errors: ErrorMessage[] = new Array(999).fill({ ...baseError, title: "error1" });
-    const warnings: ErrorMessage[] = new Array(999).fill({ ...baseError, title: "warning1" });
+  it("should return an array with the same length as errors.length + warnings.length", () => {
+    const errors: ErrorMessage[] = new Array(999).fill({
+      ...baseError,
+      title: "error1",
+    });
+    const warnings: ErrorMessage[] = new Array(999).fill({
+      ...baseError,
+      title: "warning1",
+    });
     const results: QCResult[] = [{ ...baseResult, errors, warnings }];
 
     expect(utils.unpackQCResultSeverities(results).length).toEqual(1998);
   });
 
-  it('should unpack an array of only warnings', () => {
+  it("should unpack an array of only warnings", () => {
     const warnings: ErrorMessage[] = [
       { ...baseError, title: "warning1" },
       { ...baseError, title: "warning2" },
@@ -600,12 +613,22 @@ describe('unpackQCResultSeverities cases', () => {
 
     expect(unpackedResults.length).toEqual(2);
     expect(unpackedResults).toEqual([
-      { ...baseResult, severity: "Warning", errors: [], warnings: [warnings[0]] },
-      { ...baseResult, severity: "Warning", errors: [], warnings: [warnings[1]] },
+      {
+        ...baseResult,
+        severity: "Warning",
+        errors: [],
+        warnings: [warnings[0]],
+      },
+      {
+        ...baseResult,
+        severity: "Warning",
+        errors: [],
+        warnings: [warnings[1]],
+      },
     ]);
   });
 
-  it('should unpack an array of only errors', () => {
+  it("should unpack an array of only errors", () => {
     const errors: ErrorMessage[] = [
       { ...baseError, title: "error1" },
       { ...baseError, title: "error2" },
@@ -621,40 +644,54 @@ describe('unpackQCResultSeverities cases', () => {
     ]);
   });
 
-  it('should handle a large array of QCResults', () => {
-    const errors: ErrorMessage[] = new Array(10).fill({ ...baseError, title: "error1" });
-    const warnings: ErrorMessage[] = new Array(5).fill({ ...baseError, title: "warning1" });
-    const results: QCResult[] = new Array(10000).fill({ ...baseResult, errors, warnings });
+  it("should handle a large array of QCResults", () => {
+    const errors: ErrorMessage[] = new Array(10).fill({
+      ...baseError,
+      title: "error1",
+    });
+    const warnings: ErrorMessage[] = new Array(5).fill({
+      ...baseError,
+      title: "warning1",
+    });
+    const results: QCResult[] = new Array(10000).fill({
+      ...baseResult,
+      errors,
+      warnings,
+    });
 
     const unpackedResults = utils.unpackQCResultSeverities(results);
 
     // 10 errors and 5 warnings per result with 10K results, 150K total
     expect(unpackedResults.length).toEqual(150000);
-    expect(unpackedResults.filter((result) => result.severity === "Error").length).toEqual(100000);
-    expect(unpackedResults.filter((result) => result.severity === "Warning").length).toEqual(50000);
+    expect(
+      unpackedResults.filter((result) => result.severity === "Error").length
+    ).toEqual(100000);
+    expect(
+      unpackedResults.filter((result) => result.severity === "Warning").length
+    ).toEqual(50000);
   });
 
-  it('should return an empty array when given an empty array', () => {
+  it("should return an empty array when given an empty array", () => {
     expect(utils.unpackQCResultSeverities([])).toEqual([]);
   });
 
-  it('should return an empty array when there are no errors or warnings', () => {
+  it("should return an empty array when there are no errors or warnings", () => {
     const results = [{ ...baseResult, errors: [], warnings: [] }];
     expect(utils.unpackQCResultSeverities(results)).toEqual([]);
   });
 });
 
-describe('downloadBlob cases', () => {
+describe("downloadBlob cases", () => {
   const mockSetAttribute = jest.fn();
   const mockClick = jest.fn();
   const mockRemove = jest.fn();
 
   beforeEach(() => {
-    URL.createObjectURL = jest.fn().mockReturnValue('blob-url');
+    URL.createObjectURL = jest.fn().mockReturnValue("blob-url");
 
     // Spy on document.createElement calls and override the return value
-    jest.spyOn(document, 'createElement').mockReturnValue({
-      ...document.createElement('a'),
+    jest.spyOn(document, "createElement").mockReturnValue({
+      ...document.createElement("a"),
       setAttribute: mockSetAttribute,
       click: mockClick,
       remove: mockRemove,
@@ -669,26 +706,28 @@ describe('downloadBlob cases', () => {
     jest.restoreAllMocks();
   });
 
-  it('should create a ObjectURL with the file content blob', () => {
-    const content = 'test,csv,content\n1,2,3';
-    const contentType = 'text/csv';
+  it("should create a ObjectURL with the file content blob", () => {
+    const content = "test,csv,content\n1,2,3";
+    const contentType = "text/csv";
 
     utils.downloadBlob(content, "blob.csv", contentType);
 
-    expect(URL.createObjectURL).toHaveBeenCalledWith(new Blob([content], { type: contentType }));
+    expect(URL.createObjectURL).toHaveBeenCalledWith(
+      new Blob([content], { type: contentType })
+    );
   });
 
-  it('should create a anchor with the href and download properties', () => {
-    const filename = 'test.txt';
+  it("should create a anchor with the href and download properties", () => {
+    const filename = "test.txt";
 
     utils.downloadBlob("test content", filename, "text/plain");
 
-    expect(document.createElement).toHaveBeenCalledWith('a');
-    expect(mockSetAttribute).toHaveBeenCalledWith('href', 'blob-url');
-    expect(mockSetAttribute).toHaveBeenCalledWith('download', filename);
+    expect(document.createElement).toHaveBeenCalledWith("a");
+    expect(mockSetAttribute).toHaveBeenCalledWith("href", "blob-url");
+    expect(mockSetAttribute).toHaveBeenCalledWith("download", filename);
   });
 
-  it('should open the download link and remove itself from the DOM', () => {
+  it("should open the download link and remove itself from the DOM", () => {
     utils.downloadBlob("test,content,csv", "test-file.csv", "text/csv");
 
     expect(mockClick).toHaveBeenCalled();

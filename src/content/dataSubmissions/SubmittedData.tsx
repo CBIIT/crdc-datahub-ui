@@ -1,11 +1,18 @@
 import { FC, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
-import { useSnackbar } from 'notistack';
+import { useSnackbar } from "notistack";
 import { GET_SUBMISSION_NODES, GetSubmissionNodesResp } from "../../graphql";
-import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
-import { SubmittedDataFilters, FilterForm } from '../../components/DataSubmissions/SubmittedDataFilters';
-import { safeParse } from '../../utils';
+import GenericTable, {
+  Column,
+  FetchListing,
+  TableMethods,
+} from "../../components/DataSubmissions/GenericTable";
+import {
+  SubmittedDataFilters,
+  FilterForm,
+} from "../../components/DataSubmissions/SubmittedDataFilters";
+import { safeParse } from "../../utils";
 
 type T = Pick<SubmissionNode, "nodeType" | "nodeID"> & {
   props: Record<string, string>;
@@ -29,15 +36,24 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
   const [totalData, setTotalData] = useState<number>(0);
 
-  const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp>(GET_SUBMISSION_NODES, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'cache-and-network',
-  });
+  const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp>(
+    GET_SUBMISSION_NODES,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
-  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
+  const handleFetchData = async (
+    fetchListing: FetchListing<T>,
+    force: boolean
+  ) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
-      enqueueSnackbar("Cannot fetch results. Submission ID is invalid or missing.", { variant: "error" });
+      enqueueSnackbar(
+        "Cannot fetch results. Submission ID is invalid or missing.",
+        { variant: "error" }
+      );
       return;
     }
     if (!force && data?.length > 0 && isEqual(fetchListing, prevListing)) {
@@ -74,7 +90,11 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
       return;
     }
 
-    if (error || !d?.getSubmissionNodes || !d?.getSubmissionNodes?.properties?.length) {
+    if (
+      error ||
+      !d?.getSubmissionNodes ||
+      !d?.getSubmissionNodes?.properties?.length
+    ) {
       enqueueSnackbar("Unable to retrieve node data.", { variant: "error" });
       setLoading(false);
       return;
@@ -83,22 +103,26 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
     // Only update columns if the nodeType has changed
     if (prevFilterRef.current.nodeType !== filterRef.current.nodeType) {
       setTotalData(d.getSubmissionNodes.total);
-      setColumns(d.getSubmissionNodes.properties.map((prop: string, index: number) => ({
-        label: prop,
-        renderValue: (d) => d?.props?.[prop] || "",
-        // NOTE: prop is not actually a keyof T, but it's a value of prop.props
-        field: prop as unknown as keyof T,
-        default: index === 0 ? true : undefined,
-      })));
+      setColumns(
+        d.getSubmissionNodes.properties.map((prop: string, index: number) => ({
+          label: prop,
+          renderValue: (d) => d?.props?.[prop] || "",
+          // NOTE: prop is not actually a keyof T, but it's a value of prop.props
+          field: prop as unknown as keyof T,
+          default: index === 0 ? true : undefined,
+        }))
+      );
 
       prevFilterRef.current = filterRef.current;
     }
 
-    setData(d.getSubmissionNodes.nodes.map((node) => ({
-      nodeType: node.nodeType,
-      nodeID: node.nodeID,
-      props: safeParse(node.props),
-    })));
+    setData(
+      d.getSubmissionNodes.nodes.map((node) => ({
+        nodeType: node.nodeType,
+        nodeID: node.nodeID,
+        props: safeParse(node.props),
+      }))
+    );
     setLoading(false);
   };
 
@@ -109,7 +133,10 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
 
   return (
     <>
-      <SubmittedDataFilters submissionId={submissionId} onChange={handleFilterChange} />
+      <SubmittedDataFilters
+        submissionId={submissionId}
+        onChange={handleFilterChange}
+      />
       <GenericTable
         ref={tableRef}
         columns={columns}

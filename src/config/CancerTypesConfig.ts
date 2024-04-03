@@ -3,7 +3,7 @@
  *
  */
 export const CUSTOM_CANCER_TYPES = {
-  NOT_APPLICABLE: "Not Applicable"
+  NOT_APPLICABLE: "Not Applicable",
 };
 
 /**

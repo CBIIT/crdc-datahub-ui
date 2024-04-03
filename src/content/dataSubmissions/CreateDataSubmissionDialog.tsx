@@ -196,7 +196,7 @@ const StyledHelperText = styled(BaseStyledHelperText)({
 });
 
 const StyledOutlinedInputMultiline = styled(StyledOutlinedInput)({
-  height: "96px"
+  height: "96px",
 });
 
 const DropdownArrowsIcon = styled("div")(() => ({
@@ -225,7 +225,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     reset,
     control,
     formState: { errors },
-    setValue
+    setValue,
   } = useForm<CreateSubmissionParams>({
     defaultValues: {
       dataCommons: "CDS",
@@ -233,7 +233,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
       intention: "New",
       dbGaPID: "",
       name: "",
-    }
+    },
   });
 
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
@@ -261,8 +261,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     }
   );
 
-  const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
-  const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
+  const orgOwnerOrSubmitter =
+    user?.role === "Organization Owner" || user?.role === "Submitter";
+  const hasOrganizationAssigned =
+    user?.organization !== null && user?.organization?.orgID !== null;
   const organizationNames: SelectOption[] = organizations?.map((org) => ({
     label: org.name,
     value: org.name,
@@ -271,7 +273,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
   const approvedStudiesMapToDbGaPID = useMemo(() => {
     const result = {};
     approvedStudiesData?.listApprovedStudiesOfMyOrganization?.forEach(
-      (study) => result[study.studyAbbreviation] = study.dbGaPID
+      (study) => (result[study.studyAbbreviation] = study.dbGaPID)
     );
     return result;
   }, [approvedStudiesData]);
@@ -360,7 +362,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
 
   const handleStudyChange = (e: SelectChangeEvent<unknown>) => {
     const value = e?.target?.value as string;
-    if (!value || !approvedStudiesMapToDbGaPID || !approvedStudiesMapToDbGaPID[value]) {
+    if (
+      !value ||
+      !approvedStudiesMapToDbGaPID ||
+      !approvedStudiesMapToDbGaPID[value]
+    ) {
       setValue("dbGaPID", "");
       return;
     }

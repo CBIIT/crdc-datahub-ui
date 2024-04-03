@@ -4,12 +4,15 @@
  * @param stat
  * @returns PieChartSeries
  */
-export const buildMiniChartSeries = (stat: SubmissionStatistic, omitSeries: SeriesLabel[]): PieSectorDataItem[] => {
+export const buildMiniChartSeries = (
+  stat: SubmissionStatistic,
+  omitSeries: SeriesLabel[]
+): PieSectorDataItem[] => {
   const series = [
-    { label: 'New', value: stat.new, color: "#4D90D3" },
-    { label: 'Passed', value: stat.passed, color: "#32E69A" },
-    { label: 'Error', value: stat.error, color: "#D65219" },
-    { label: 'Warning', value: stat.warning, color: "#FFC700" },
+    { label: "New", value: stat.new, color: "#4D90D3" },
+    { label: "Passed", value: stat.passed, color: "#32E69A" },
+    { label: "Error", value: stat.error, color: "#D65219" },
+    { label: "Warning", value: stat.warning, color: "#FFC700" },
   ].filter(({ label }) => !omitSeries.includes(label as SeriesLabel));
 
   return series as PieSectorDataItem[];
@@ -21,8 +24,11 @@ export const buildMiniChartSeries = (stat: SubmissionStatistic, omitSeries: Seri
  * @param stats Data Submissions statistics
  * @returns The series mutated for the primary chart
  */
-export const buildPrimaryChartSeries = (stats: SubmissionStatistic[], omitSeries: SeriesLabel[]): BarChartDataset[] => [...stats]
-  .map((stat) => ({
+export const buildPrimaryChartSeries = (
+  stats: SubmissionStatistic[],
+  omitSeries: SeriesLabel[]
+): BarChartDataset[] =>
+  [...stats].map((stat) => ({
     label: stat.nodeName,
     New: omitSeries.includes("New") ? 0 : stat.new,
     Passed: omitSeries.includes("Passed") ? 0 : stat.passed,
@@ -43,7 +49,10 @@ export const buildPrimaryChartSeries = (stats: SubmissionStatistic[], omitSeries
  * @param b The second SubmissionStatistic
  * @returns The comparison result
  */
-export const compareNodeStats = (a: SubmissionStatistic, b: SubmissionStatistic): number => {
+export const compareNodeStats = (
+  a: SubmissionStatistic,
+  b: SubmissionStatistic
+): number => {
   if (a.total === b.total) {
     return a.nodeName.localeCompare(b.nodeName);
   }
@@ -58,10 +67,13 @@ export const compareNodeStats = (a: SubmissionStatistic, b: SubmissionStatistic)
  * @param normalized Whether the tick is normalized
  * @returns The formatted tick label
  */
-export const formatTick = (tick: number, normalized = false) => (normalized
-  ? `${tick * 100}%`
-  : (new Intl.NumberFormat("en-US", { style: "decimal", minimumFractionDigits: 0 })).format(tick)
-);
+export const formatTick = (tick: number, normalized = false) =>
+  normalized
+    ? `${tick * 100}%`
+    : new Intl.NumberFormat("en-US", {
+        style: "decimal",
+        minimumFractionDigits: 0,
+      }).format(tick);
 
 /**
  * Determine the maximum positive domain for the Y-Axis

@@ -28,7 +28,13 @@ type Props = {
 
 const SubmissionHeaderProperty: FC<Props> = ({ label, value }) => (
   <Grid lg={6} xs={12} item>
-    <Stack direction="row" alignItems="center" width="100%" maxWidth="100%" spacing={2.75}>
+    <Stack
+      direction="row"
+      alignItems="center"
+      width="100%"
+      maxWidth="100%"
+      spacing={2.75}
+    >
       <StyledLabel variant="body1">{label}</StyledLabel>
       <Box flexGrow={1} overflow="hidden">
         {typeof value === "string" ? (

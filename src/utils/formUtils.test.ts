@@ -1,5 +1,8 @@
 import { InitialQuestionnaire } from "../config/InitialValues";
-import programOptions, { NotApplicableProgram, OptionalProgram } from "../config/ProgramConfig";
+import programOptions, {
+  NotApplicableProgram,
+  OptionalProgram,
+} from "../config/ProgramConfig";
 import * as utils from "./formUtils";
 
 describe("filterNonNumeric cases", () => {
@@ -17,20 +20,20 @@ describe("filterNonNumeric cases", () => {
 });
 
 describe("filterForNumbers cases", () => {
-  it('should return empty string when given an empty string', () => {
-    expect(utils.filterForNumbers('')).toBe('');
+  it("should return empty string when given an empty string", () => {
+    expect(utils.filterForNumbers("")).toBe("");
   });
 
-  it('should return only numbers when given a string with numbers and other characters', () => {
-    expect(utils.filterForNumbers('abc123def456')).toBe('123456');
+  it("should return only numbers when given a string with numbers and other characters", () => {
+    expect(utils.filterForNumbers("abc123def456")).toBe("123456");
   });
 
-  it('should return only numbers and dashes when given a string with numbers, dashes, and other characters', () => {
-    expect(utils.filterForNumbers('abc123-def456')).toBe('123-456');
+  it("should return only numbers and dashes when given a string with numbers, dashes, and other characters", () => {
+    expect(utils.filterForNumbers("abc123-def456")).toBe("123-456");
   });
 
-  it('should return the original string when given a string with numbers and spaces', () => {
-    expect(utils.filterForNumbers('123 456')).toBe('123 456');
+  it("should return the original string when given a string with numbers and spaces", () => {
+    expect(utils.filterForNumbers("123 456")).toBe("123 456");
   });
 
   it("should filter special characters", () => {
@@ -57,28 +60,28 @@ describe("validateEmail cases", () => {
     expect(utils.validateEmail("test-email@example")).toEqual(false);
   });
 
-  it('should return false for invalid email', () => {
-    expect(utils.validateEmail('testexample.com')).toBe(false);
+  it("should return false for invalid email", () => {
+    expect(utils.validateEmail("testexample.com")).toBe(false);
   });
 
-  it('should return false for email with spaces', () => {
-    expect(utils.validateEmail('test example@example.com')).toBe(false);
+  it("should return false for email with spaces", () => {
+    expect(utils.validateEmail("test example@example.com")).toBe(false);
   });
 
-  it('should return false for email with special characters', () => {
-    expect(utils.validateEmail('test!example@example.com')).toBe(false);
+  it("should return false for email with special characters", () => {
+    expect(utils.validateEmail("test!example@example.com")).toBe(false);
   });
 
-  it('should return false for email with multiple @ symbols', () => {
-    expect(utils.validateEmail('test@example@com')).toBe(false);
+  it("should return false for email with multiple @ symbols", () => {
+    expect(utils.validateEmail("test@example@com")).toBe(false);
   });
 
   it("should allow periods", () => {
     expect(utils.validateEmail("abc.123@example.com")).toEqual(true);
   });
 
-  it('should return true for valid email', () => {
-    expect(utils.validateEmail('test@example.com')).toBe(true);
+  it("should return true for valid email", () => {
+    expect(utils.validateEmail("test@example.com")).toBe(true);
   });
 
   it("should allow valid NIH emails", () => {
@@ -91,11 +94,7 @@ describe("validateEmail cases", () => {
 });
 
 describe("mapObjectWithKey cases", () => {
-  const object = [
-    { name: "test1" },
-    { name: "test2" },
-    { name: "test3" }
-  ];
+  const object = [{ name: "test1" }, { name: "test2" }, { name: "test3" }];
 
   it("should not modify the original object", () => {
     expect(object.map(utils.mapObjectWithKey)).not.toBe(object);
@@ -161,7 +160,7 @@ describe("programToSelectOption cases", () => {
   it("should correctly format a program with abbreviation", () => {
     const program = {
       name: "Test Program",
-      abbreviation: "TP"
+      abbreviation: "TP",
     };
     const selectOption = utils.programToSelectOption(program);
 
@@ -190,98 +189,100 @@ describe("programToSelectOption cases", () => {
   });
 });
 
-describe('formatFullStudyName cases', () => {
-  it('should return the study name with abbreviation if abbreviation is provided', () => {
-    const studyName = 'Study Name';
-    const studyAbbreviation = 'SN';
+describe("formatFullStudyName cases", () => {
+  it("should return the study name with abbreviation if abbreviation is provided", () => {
+    const studyName = "Study Name";
+    const studyAbbreviation = "SN";
     const result = utils.formatFullStudyName(studyName, studyAbbreviation);
-    expect(result).toBe('Study Name (SN)');
+    expect(result).toBe("Study Name (SN)");
   });
 
-  it('should return the study name without abbreviation if abbreviation is not provided', () => {
-    const studyName = 'Study Name';
-    const result = utils.formatFullStudyName(studyName, '');
-    expect(result).toBe('Study Name');
+  it("should return the study name without abbreviation if abbreviation is not provided", () => {
+    const studyName = "Study Name";
+    const result = utils.formatFullStudyName(studyName, "");
+    expect(result).toBe("Study Name");
   });
 
-  it('should return the study name without abbreviation if abbreviation is undefined', () => {
-    const studyName = 'Study Name';
+  it("should return the study name without abbreviation if abbreviation is undefined", () => {
+    const studyName = "Study Name";
     const result = utils.formatFullStudyName(studyName, undefined);
-    expect(result).toBe('Study Name');
+    expect(result).toBe("Study Name");
   });
 
-  it('should remove extra spaces from the study name', () => {
-    const studyName = '   Study Name   ';
-    const result = utils.formatFullStudyName(studyName, '');
-    expect(result).toBe('Study Name');
+  it("should remove extra spaces from the study name", () => {
+    const studyName = "   Study Name   ";
+    const result = utils.formatFullStudyName(studyName, "");
+    expect(result).toBe("Study Name");
   });
 
-  it('should remove extra spaces from the study abbreviation', () => {
-    const studyName = 'Study Name';
-    const studyAbbreviation = '   SN   ';
+  it("should remove extra spaces from the study abbreviation", () => {
+    const studyName = "Study Name";
+    const studyAbbreviation = "   SN   ";
     const result = utils.formatFullStudyName(studyName, studyAbbreviation);
-    expect(result).toBe('Study Name (SN)');
+    expect(result).toBe("Study Name (SN)");
   });
 
   it("should ignore the abbreviation if its equal to the study name", () => {
-    const studyName = 'Study Name';
-    const studyAbbreviation = 'Study Name';
+    const studyName = "Study Name";
+    const studyAbbreviation = "Study Name";
     const result = utils.formatFullStudyName(studyName, studyAbbreviation);
-    expect(result).toBe('Study Name');
+    expect(result).toBe("Study Name");
   });
 });
 
-describe('mapOrganizationStudyToId cases', () => {
-  it('should return the id of the matching study', () => {
+describe("mapOrganizationStudyToId cases", () => {
+  it("should return the id of the matching study", () => {
     const studies = [
-      { _id: '1', studyName: 'Study 1', studyAbbreviation: 'S1' },
-      { _id: '2', studyName: 'Study 2', studyAbbreviation: 'S2' },
+      { _id: "1", studyName: "Study 1", studyAbbreviation: "S1" },
+      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
     ] as ApprovedStudy[];
 
-    const study = { studyName: 'Study 1', studyAbbreviation: 'S1' };
+    const study = { studyName: "Study 1", studyAbbreviation: "S1" };
     const result = utils.mapOrganizationStudyToId(study, studies);
 
-    expect(result).toBe('1');
+    expect(result).toBe("1");
   });
 
   it("should return the first matching study's id", () => {
     const studies = [
-      { _id: '1', studyName: 'MATCH', studyAbbreviation: 'MA' },
-      { _id: '2', studyName: 'Study 2', studyAbbreviation: 'S2' },
-      { _id: '3', studyName: 'MATCH', studyAbbreviation: 'MA' },
+      { _id: "1", studyName: "MATCH", studyAbbreviation: "MA" },
+      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
+      { _id: "3", studyName: "MATCH", studyAbbreviation: "MA" },
     ] as ApprovedStudy[];
 
-    const study = { studyName: 'MATCH', studyAbbreviation: 'MA' };
+    const study = { studyName: "MATCH", studyAbbreviation: "MA" };
     const result = utils.mapOrganizationStudyToId(study, studies);
 
-    expect(result).toBe('1');
+    expect(result).toBe("1");
   });
 
-  it('should return an empty string if no matching study is found', () => {
+  it("should return an empty string if no matching study is found", () => {
     const studies = [
-      { _id: '1', studyName: 'Study 1', studyAbbreviation: 'S1' },
-      { _id: '2', studyName: 'Study 2', studyAbbreviation: 'S2' },
+      { _id: "1", studyName: "Study 1", studyAbbreviation: "S1" },
+      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
     ] as ApprovedStudy[];
 
-    const study = { studyName: 'Study 3', studyAbbreviation: 'S3' };
+    const study = { studyName: "Study 3", studyAbbreviation: "S3" };
     const result = utils.mapOrganizationStudyToId(study, studies);
 
-    expect(result).toBe('');
+    expect(result).toBe("");
   });
 
   it("should not throw an exception if the study is undefined", () => {
     const studies = [
-      { _id: '1', studyName: 'Study 1', studyAbbreviation: 'S1' },
-      { _id: '2', studyName: 'Study 2', studyAbbreviation: 'S2' },
+      { _id: "1", studyName: "Study 1", studyAbbreviation: "S1" },
+      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
     ] as ApprovedStudy[];
 
-    expect(() => utils.mapOrganizationStudyToId(undefined, studies)).not.toThrow();
+    expect(() =>
+      utils.mapOrganizationStudyToId(undefined, studies)
+    ).not.toThrow();
   });
 
   it("should not throw an exception if the study is null", () => {
     const studies = [
-      { _id: '1', studyName: 'Study 1', studyAbbreviation: 'S1' },
-      { _id: '2', studyName: 'Study 2', studyAbbreviation: 'S2' },
+      { _id: "1", studyName: "Study 1", studyAbbreviation: "S1" },
+      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
     ] as ApprovedStudy[];
 
     expect(() => utils.mapOrganizationStudyToId(null, studies)).not.toThrow();
@@ -294,14 +295,16 @@ describe('mapOrganizationStudyToId cases', () => {
       { AAAA: undefined },
     ] as unknown as ApprovedStudy[];
 
-    const study = { studyName: 'Study 1', studyAbbreviation: 'S1' };
+    const study = { studyName: "Study 1", studyAbbreviation: "S1" };
 
     expect(() => utils.mapOrganizationStudyToId(study, studies)).not.toThrow();
   });
 
   it("should not throw an exception if the approved studies are undefined", () => {
-    const study = { studyName: 'Study 1', studyAbbreviation: 'S1' };
+    const study = { studyName: "Study 1", studyAbbreviation: "S1" };
 
-    expect(() => utils.mapOrganizationStudyToId(study, undefined)).not.toThrow();
+    expect(() =>
+      utils.mapOrganizationStudyToId(study, undefined)
+    ).not.toThrow();
   });
 });

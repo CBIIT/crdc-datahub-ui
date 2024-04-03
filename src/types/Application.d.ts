@@ -54,7 +54,14 @@ type QuestionnaireData = {
   submitterComment: string;
 };
 
-type ApplicationStatus = "New" | "In Progress" | "Submitted" | "In Review" | "Approved" | "Rejected" | "Inquired";
+type ApplicationStatus =
+  | "New"
+  | "In Progress"
+  | "Submitted"
+  | "In Review"
+  | "Approved"
+  | "Rejected"
+  | "Inquired";
 
 type Section = {
   name: string;

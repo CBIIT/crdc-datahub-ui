@@ -4,7 +4,9 @@
  * @param validationType The validation type selected.
  * @returns The array of types to validate.
  */
-export const getValidationTypes = (validationType: ValidationType): string[] => {
+export const getValidationTypes = (
+  validationType: ValidationType
+): string[] => {
   switch (validationType) {
     case "Metadata":
       return ["metadata"];
@@ -21,8 +23,11 @@ export const getValidationTypes = (validationType: ValidationType): string[] => 
  * @param dataSubmission The data submission to get the default validation type for.
  * @returns The default validation type for the given data submission.
  */
-export const getDefaultValidationType = (dataSubmission: Submission): ValidationType => {
-  const { metadataValidationStatus, fileValidationStatus } = dataSubmission || {};
+export const getDefaultValidationType = (
+  dataSubmission: Submission
+): ValidationType => {
+  const { metadataValidationStatus, fileValidationStatus } =
+    dataSubmission || {};
 
   if (metadataValidationStatus !== null) {
     return "Metadata";

@@ -115,82 +115,89 @@ const PageContentContainer = styled("div")({
 });
 
 const Home: FC = () => {
-    const [showRedirectDialog, setShowRedirectDialog] = useState(false);
-    const { state } = useLocation();
-    const authData = useAuthContext();
-    let dialogRedirectPath = state?.path ?? "";
-    let dialogLinkName = state?.name ?? "";
-    useEffect(() => {
-        if (state !== null) {
-            dialogRedirectPath = state.path;
-            dialogLinkName = state.name;
-            setShowRedirectDialog(true);
-        }
-      }, []);
-    return (
-      <>
-        <LoginDialog open={showRedirectDialog}>
-          <pre className="loginDialogText">
-            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            Please <Link id="loginDialogLinkToLogin" to="/login" state={{ redirectURLOnLoginSuccess: dialogRedirectPath }} onClick={() => setShowRedirectDialog(false)}><strong>log in</strong></Link> to access {dialogLinkName}.
-          </pre>
-          <div className="buttonContainer">
-            <div
-              role="button"
-              tabIndex={0}
-              id="loginDialogCloseButton"
-              className="loginDialogButton"
-              onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                        setShowRedirectDialog(false);
-                    }
-                }}
-              onClick={() => setShowRedirectDialog(false)}
-            >
-              <strong>Close</strong>
+  const [showRedirectDialog, setShowRedirectDialog] = useState(false);
+  const { state } = useLocation();
+  const authData = useAuthContext();
+  let dialogRedirectPath = state?.path ?? "";
+  let dialogLinkName = state?.name ?? "";
+  useEffect(() => {
+    if (state !== null) {
+      dialogRedirectPath = state.path;
+      dialogLinkName = state.name;
+      setShowRedirectDialog(true);
+    }
+  }, []);
+  return (
+    <>
+      <LoginDialog open={showRedirectDialog}>
+        <pre className="loginDialogText">
+          Please{" "}
+          <Link
+            id="loginDialogLinkToLogin"
+            to="/login"
+            state={{ redirectURLOnLoginSuccess: dialogRedirectPath }}
+            onClick={() => setShowRedirectDialog(false)}
+          >
+            <strong>log in</strong>
+          </Link>{" "}
+          to access {dialogLinkName}.
+        </pre>
+        <div className="buttonContainer">
+          <div
+            role="button"
+            tabIndex={0}
+            id="loginDialogCloseButton"
+            className="loginDialogButton"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setShowRedirectDialog(false);
+              }
+            }}
+            onClick={() => setShowRedirectDialog(false)}
+          >
+            <strong>Close</strong>
+          </div>
+          <Link
+            id="loginDialogLoginButton"
+            className="loginDialogButton"
+            to="/login"
+            state={{ redirectURLOnLoginSuccess: dialogRedirectPath }}
+            onClick={() => setShowRedirectDialog(false)}
+          >
+            <strong>Log In</strong>
+          </Link>
+        </div>
+      </LoginDialog>
+      <PageContentContainer>
+        {authData.isLoggedIn ? (
+          <div className="loginPageTextContainer">
+            <h1 className="loginPageTextTitle">
+              Welcome to CRDC Submission Portal
+            </h1>
+            <div className="loginPageText">You are logged in.</div>
+          </div>
+        ) : (
+          <div className="loginPageTextContainer">
+            <h1 className="loginPageTextTitle">
+              Login to CRDC Submission Portal
+            </h1>
+            <div className="loginPageText">
+              Please login with a Login.gov account to make a data submission
+              request or to upload data for approved submissions
             </div>
             <Link
-              id="loginDialogLoginButton" className="loginDialogButton"
-              to="/login" state={{ redirectURLOnLoginSuccess: dialogRedirectPath }}
-              onClick={() => setShowRedirectDialog(false)}
+              id="loginPageLoginButton"
+              className="loginPageLoginButton"
+              to="/login"
+              state={{ redirectURLOnLoginSuccess: "/submissions" }}
             >
               <strong>Log In</strong>
             </Link>
           </div>
-
-        </LoginDialog>
-        <PageContentContainer>
-          {authData.isLoggedIn ? (
-            <div className="loginPageTextContainer">
-              <h1 className="loginPageTextTitle">
-                Welcome to CRDC Submission Portal
-              </h1>
-              <div className="loginPageText">
-                You are logged in.
-              </div>
-            </div>
-            )
-          : (
-            <div className="loginPageTextContainer">
-              <h1 className="loginPageTextTitle">
-                Login to CRDC Submission Portal
-              </h1>
-              <div className="loginPageText">
-                Please login with a Login.gov account to make a data submission request or to upload data for approved submissions
-              </div>
-              <Link
-                id="loginPageLoginButton"
-                className="loginPageLoginButton"
-                to="/login"
-                state={{ redirectURLOnLoginSuccess: "/submissions" }}
-              >
-                <strong>Log In</strong>
-              </Link>
-            </div>
-            )}
-        </PageContentContainer>
-      </>
-);
+        )}
+      </PageContentContainer>
+    </>
+  );
 };
 
 export default Home;

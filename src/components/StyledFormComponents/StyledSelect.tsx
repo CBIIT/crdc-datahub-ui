@@ -1,15 +1,15 @@
 import { Select, SelectProps, styled } from "@mui/material";
 
 const StyledSelect = styled(Select, {
-  shouldForwardProp: (prop) => prop !== "placeholderText"
-})<SelectProps & { placeholderText?: string; }>((props) => ({
+  shouldForwardProp: (prop) => prop !== "placeholderText",
+})<SelectProps & { placeholderText?: string }>((props) => ({
   width: "100%",
   // Placeholder
   "& .MuiSelect-select .notranslate::after": {
     content: `'${props?.placeholderText ?? "Select"}'`,
     color: "#87878C",
     fontWeight: 400,
-    opacity: 1
+    opacity: 1,
   },
   // Dropdown
   "& .MuiPaper-root": {
@@ -19,13 +19,13 @@ const StyledSelect = styled(Select, {
     "& .MuiList-root": {
       padding: 0,
       overflow: "auto",
-      maxHeight: "40vh"
+      maxHeight: "40vh",
     },
     "& .MuiMenuItem-root": {
       padding: "0 10px",
       height: "35px",
       color: "#083A50",
-      background: "#FFFFFF"
+      background: "#FFFFFF",
     },
     "& .MuiMenuItem-root.Mui-selected": {
       backgroundColor: "#3E7E6D",
@@ -33,11 +33,11 @@ const StyledSelect = styled(Select, {
     },
     "& .MuiMenuItem-root:hover": {
       background: "#3E7E6D",
-      color: "#FFFFFF"
+      color: "#FFFFFF",
     },
     "& .MuiMenuItem-root.Mui-focused": {
       backgroundColor: "#3E7E6D !important",
-      color: "#FFFFFF"
+      color: "#FFFFFF",
     },
   },
   // Input
@@ -53,7 +53,7 @@ const StyledSelect = styled(Select, {
     "&::placeholder": {
       color: "#87878C",
       fontWeight: 400,
-      opacity: 1
+      opacity: 1,
     },
   },
   // Target readOnly <input> inputs
@@ -68,12 +68,13 @@ const StyledSelect = styled(Select, {
   "& .MuiOutlinedInput-notchedOutline": {
     borderRadius: "8px",
     borderColor: "#6B7294",
-    padding: "0 12px"
+    padding: "0 12px",
   },
   // Border focused
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D !important",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   // Border error
   "&.Mui-error fieldset": {
@@ -81,10 +82,10 @@ const StyledSelect = styled(Select, {
   },
   // Icon
   "& .MuiSelect-icon": {
-    right: "12px"
+    right: "12px",
   },
   "& .MuiSelect-iconOpen": {
-    transform: "none"
+    transform: "none",
   },
 }));
 

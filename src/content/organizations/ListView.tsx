@@ -1,18 +1,35 @@
 import React, { ElementType, FC, useEffect, useMemo, useState } from "react";
 import {
-  Alert, Box, Button,
-  Container, FormControl, MenuItem, OutlinedInput,
-  Select, Stack, Table, TableBody, TableCell,
-  TableContainer, TableHead, TablePagination, TableRow,
-  TableSortLabel, Typography, styled,
+  Alert,
+  Box,
+  Button,
+  Container,
+  FormControl,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+  Typography,
+  styled,
 } from "@mui/material";
 import { Link, LinkProps, useLocation } from "react-router-dom";
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm } from "react-hook-form";
 import PageBanner from "../../components/PageBanner";
-import { useOrganizationListContext, Status } from '../../components/Contexts/OrganizationListContext';
-import SuspenseLoader from '../../components/SuspenseLoader';
-import usePageTitle from '../../hooks/usePageTitle';
-import StudyTooltip from '../../components/Organizations/StudyTooltip';
+import {
+  useOrganizationListContext,
+  Status,
+} from "../../components/Contexts/OrganizationListContext";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import usePageTitle from "../../hooks/usePageTitle";
+import StudyTooltip from "../../components/Organizations/StudyTooltip";
 
 type T = Partial<Organization>;
 
@@ -77,9 +94,9 @@ const StyledFormControl = styled(FormControl)({
   minWidth: "250px",
 });
 
-const StyledInlineLabel = styled('label')({
+const StyledInlineLabel = styled("label")({
   padding: "0 10px",
-  fontWeight: "700"
+  fontWeight: "700",
 });
 
 const baseTextFieldStyles = {
@@ -96,7 +113,8 @@ const baseTextFieldStyles = {
   },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   "& .Mui-disabled": {
     cursor: "not-allowed",
@@ -157,7 +175,9 @@ const StyledActionButton = styled(Button)(
   })
 );
 
-const StyledTablePagination = styled(TablePagination)<{ component: React.ElementType }>({
+const StyledTablePagination = styled(TablePagination)<{
+  component: React.ElementType;
+}>({
   borderTop: "2px solid #083A50",
   background: "#F5F7F8",
 });
@@ -171,7 +191,8 @@ const columns: Column[] = [
   {
     label: "Primary Contact",
     value: (a) => a.conciergeName,
-    comparator: (a, b) => (a?.conciergeName || "").localeCompare(b?.conciergeName || ""),
+    comparator: (a, b) =>
+      (a?.conciergeName || "").localeCompare(b?.conciergeName || ""),
   },
   {
     label: "Studies",
@@ -184,7 +205,7 @@ const columns: Column[] = [
         <>
           {studies[0].studyAbbreviation || studies[0].studyName}
           {studies.length > 1 && " and "}
-          {studies.length > 1 && (<StudyTooltip _id={_id} studies={studies} />)}
+          {studies.length > 1 && <StudyTooltip _id={_id} studies={studies} />}
         </>
       );
     },
@@ -218,7 +239,9 @@ const ListingView: FC = () => {
   const { status, data } = useOrganizationListContext();
 
   const [order, setOrder] = useState<"asc" | "desc">("asc");
-  const [orderBy, setOrderBy] = useState<Column>(columns.find((c) => c.default) || columns.find((c) => !!c.comparator));
+  const [orderBy, setOrderBy] = useState<Column>(
+    columns.find((c) => c.default) || columns.find((c) => !!c.comparator)
+  );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(20);
   const [dataset, setDataset] = useState<T[]>([]);
@@ -231,9 +254,7 @@ const ListingView: FC = () => {
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
-    return page > 0 && count
-      ? Math.max(0, page * perPage - count)
-      : 0;
+    return page > 0 && count ? Math.max(0, page * perPage - count) : 0;
   }, [count, perPage, page]);
 
   const handleRequestSort = (column: Column) => {
@@ -255,17 +276,33 @@ const ListingView: FC = () => {
     }
 
     const sorted = data
-      .filter((u: T) => (orgFilter && orgFilter.length > 0 ? u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1 : true))
-      .filter((u: T) => (statusFilter && statusFilter !== "All" ? u.status === statusFilter : true))
+      .filter((u: T) =>
+        orgFilter && orgFilter.length > 0
+          ? u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1
+          : true
+      )
+      .filter((u: T) =>
+        statusFilter && statusFilter !== "All"
+          ? u.status === statusFilter
+          : true
+      )
       .filter((u: T) => {
-          if (!studyFilter || studyFilter.trim().length < 1) {
-            return true;
-          }
+        if (!studyFilter || studyFilter.trim().length < 1) {
+          return true;
+        }
 
-          const nameMatch = u?.studies?.some((s) => s.studyName.toLowerCase().indexOf(studyFilter.toLowerCase()) !== -1);
-          const abbrMatch = u?.studies?.some((s) => s.studyAbbreviation.toLowerCase().indexOf(studyFilter.toLowerCase()) !== -1);
+        const nameMatch = u?.studies?.some(
+          (s) =>
+            s.studyName.toLowerCase().indexOf(studyFilter.toLowerCase()) !== -1
+        );
+        const abbrMatch = u?.studies?.some(
+          (s) =>
+            s.studyAbbreviation
+              .toLowerCase()
+              .indexOf(studyFilter.toLowerCase()) !== -1
+        );
 
-          return nameMatch || abbrMatch;
+        return nameMatch || abbrMatch;
       })
       .sort((a, b) => orderBy?.comparator(a, b) || 0);
 
@@ -274,8 +311,17 @@ const ListingView: FC = () => {
     }
 
     setCount(sorted.length);
-    setDataset(sorted.slice(page * perPage, (page * perPage) + perPage));
-  }, [data, perPage, page, orderBy, order, studyFilter, orgFilter, statusFilter]);
+    setDataset(sorted.slice(page * perPage, page * perPage + perPage));
+  }, [
+    data,
+    perPage,
+    page,
+    orderBy,
+    order,
+    studyFilter,
+    orgFilter,
+    statusFilter,
+  ]);
 
   useEffect(() => {
     setPage(0);
@@ -295,24 +341,40 @@ const ListingView: FC = () => {
         title="Manage Organizations"
         subTitle=""
         padding="38px 0 0 25px"
-        body={(
-          <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
+        body={
+          <StyledBannerBody
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-end"
+          >
             <StyledButton component={Link} to="/organizations/new">
               Add Organization
             </StyledButton>
           </StyledBannerBody>
-        )}
+        }
       />
 
       <StyledContainer maxWidth="xl">
         <StyledFilterContainer>
-          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="organization-filter">
+            Organization
+          </StyledInlineLabel>
           <StyledFormControl>
-            <StyledTextField {...register("organization")} placeholder="Enter a Organization" id="organization-filter" required />
+            <StyledTextField
+              {...register("organization")}
+              placeholder="Enter a Organization"
+              id="organization-filter"
+              required
+            />
           </StyledFormControl>
           <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
           <StyledFormControl>
-            <StyledTextField {...register("study")} placeholder="Enter a Study" id="study-filter" required />
+            <StyledTextField
+              {...register("study")}
+              placeholder="Enter a Study"
+              id="study-filter"
+              required
+            />
           </StyledFormControl>
           <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
           <StyledFormControl>
@@ -408,15 +470,20 @@ const ListingView: FC = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
             nextIconButtonProps={{
               disabled:
-                perPage === -1
-                || !dataset
-                || dataset.length === 0
-                || count <= (page + 1) * perPage
-                || emptyRows > 0
-                || status === Status.LOADING,
+                perPage === -1 ||
+                !dataset ||
+                dataset.length === 0 ||
+                count <= (page + 1) * perPage ||
+                emptyRows > 0 ||
+                status === Status.LOADING,
             }}
-            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
-            backIconButtonProps={{ disabled: page === 0 || status === Status.LOADING }}
+            SelectProps={{
+              inputProps: { "aria-label": "rows per page" },
+              native: true,
+            }}
+            backIconButtonProps={{
+              disabled: page === 0 || status === Status.LOADING,
+            }}
           />
         </StyledTableContainer>
       </StyledContainer>

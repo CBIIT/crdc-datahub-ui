@@ -1,13 +1,13 @@
-import { FC, useEffect, useMemo, useState } from 'react';
-import { useMutation } from '@apollo/client';
-import { FormControlLabel, RadioGroup, Stack, styled } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { useSnackbar } from 'notistack';
-import { useAuthContext } from '../Contexts/AuthContext';
+import { FC, useEffect, useMemo, useState } from "react";
+import { useMutation } from "@apollo/client";
+import { FormControlLabel, RadioGroup, Stack, styled } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { useSnackbar } from "notistack";
+import { useAuthContext } from "../Contexts/AuthContext";
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
-import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from '../../graphql';
-import { getDefaultValidationType, getValidationTypes } from '../../utils';
-import FlowWrapper from './FlowWrapper';
+import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import { getDefaultValidationType, getValidationTypes } from "../../utils";
+import FlowWrapper from "./FlowWrapper";
 
 type Props = {
   /**
@@ -48,7 +48,7 @@ const StyledFileValidationSection = styled(Stack)({
     lineHeight: "20px",
     letterSpacing: "0em",
     textAlign: "left",
-    minWidth: "270px"
+    minWidth: "270px",
   },
   ".fileValidationLeftSide": {
     display: "flex",
@@ -90,8 +90,17 @@ const StyledRadioControl = styled(FormControlLabel)({
   },
 });
 
-const ValidateRoles: User["role"][] = ["Submitter", "Data Curator", "Organization Owner", "Admin"];
-const ValidateStatuses: Submission["status"][] = ["In Progress", "Withdrawn", "Rejected"];
+const ValidateRoles: User["role"][] = [
+  "Submitter",
+  "Data Curator",
+  "Organization Owner",
+  "Admin",
+];
+const ValidateStatuses: Submission["status"][] = [
+  "In Progress",
+  "Withdrawn",
+  "Rejected",
+];
 
 /**
  * Provides the UI for validating a data submission's assets.
@@ -99,21 +108,29 @@ const ValidateStatuses: Submission["status"][] = ["In Progress", "Withdrawn", "R
  * @param {Props}
  * @returns {React.FC<Props>}
  */
-const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) => {
+const ValidationControls: FC<Props> = ({
+  dataSubmission,
+  onValidate,
+}: Props) => {
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
 
   const [validationType, setValidationType] = useState<ValidationType>(null);
   const [uploadType, setUploadType] = useState<ValidationTarget>("New");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isValidating, setIsValidating] = useState<boolean>(dataSubmission?.fileValidationStatus === "Validating"
-    || dataSubmission?.metadataValidationStatus === "Validating");
+  const [isValidating, setIsValidating] = useState<boolean>(
+    dataSubmission?.fileValidationStatus === "Validating" ||
+      dataSubmission?.metadataValidationStatus === "Validating"
+  );
 
   const canValidateMetadata: boolean = useMemo(() => {
     if (!user?.role || ValidateRoles.includes(user?.role) === false) {
       return false;
     }
-    if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
+    if (
+      !dataSubmission?.status ||
+      ValidateStatuses.includes(dataSubmission?.status) === false
+    ) {
       return false;
     }
 
@@ -124,7 +141,10 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     if (!user?.role || ValidateRoles.includes(user?.role) === false) {
       return false;
     }
-    if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
+    if (
+      !dataSubmission?.status ||
+      ValidateStatuses.includes(dataSubmission?.status) === false
+    ) {
       return false;
     }
     if (dataSubmission.intention === "Delete") {
@@ -134,10 +154,13 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     return dataSubmission?.fileValidationStatus !== null;
   }, [user?.role, dataSubmission?.fileValidationStatus]);
 
-  const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  });
+  const [validateSubmission] = useMutation<ValidateSubmissionResp>(
+    VALIDATE_SUBMISSION,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const handleValidateFiles = async () => {
     if (isValidating || !validationType || !uploadType) {
@@ -157,15 +180,20 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         _id: dataSubmission?._id,
         types: getValidationTypes(validationType),
         scope: uploadType === "New" ? "New" : "All",
-      }
+      },
     });
 
     if (errors || !data?.validateSubmission?.success) {
-      enqueueSnackbar("Unable to initiate validation process.", { variant: "error" });
+      enqueueSnackbar("Unable to initiate validation process.", {
+        variant: "error",
+      });
       setIsValidating(false);
       onValidate?.(false);
     } else {
-      enqueueSnackbar("Validation process is starting; this may take some time. Please wait before initiating another validation.", { variant: "success" });
+      enqueueSnackbar(
+        "Validation process is starting; this may take some time. Please wait before initiating another validation.",
+        { variant: "success" }
+      );
       setIsValidating(true);
       onValidate?.(true);
     }
@@ -176,9 +204,14 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   };
 
   useEffect(() => {
-    setIsValidating(dataSubmission?.fileValidationStatus === "Validating"
-      || dataSubmission?.metadataValidationStatus === "Validating");
-  }, [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]);
+    setIsValidating(
+      dataSubmission?.fileValidationStatus === "Validating" ||
+        dataSubmission?.metadataValidationStatus === "Validating"
+    );
+  }, [
+    dataSubmission?.fileValidationStatus,
+    dataSubmission?.metadataValidationStatus,
+  ]);
 
   useEffect(() => {
     if (validationType !== null) {
@@ -192,13 +225,21 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   }, [dataSubmission]);
 
   return (
-    <FlowWrapper title="Validate Data" borderColor="#8E9AD5" hoverColor="#869AFF">
+    <FlowWrapper
+      title="Validate Data"
+      borderColor="#8E9AD5"
+      hoverColor="#869AFF"
+    >
       <StyledFileValidationSection direction="row" alignItems="center">
         <div className="fileValidationLeftSide">
           <div className="fileValidationLeftSideTopRow">
             <div className="headerText">Validation Type:</div>
             <div className="fileValidationRadioButtonGroup">
-              <RadioGroup value={validationType} onChange={(e, val: ValidationType) => setValidationType(val)} row>
+              <RadioGroup
+                value={validationType}
+                onChange={(e, val: ValidationType) => setValidationType(val)}
+                row
+              >
                 <StyledRadioControl
                   value="Metadata"
                   control={<StyledRadioButton readOnly={false} />}
@@ -223,7 +264,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
           <div className="fileValidationLeftSideBottomRow">
             <div className="headerText">Validation Target:</div>
             <div className="fileValidationRadioButtonGroup">
-              <RadioGroup value={uploadType} onChange={(event, val: ValidationTarget) => setUploadType(val)} row>
+              <RadioGroup
+                value={uploadType}
+                onChange={(event, val: ValidationTarget) => setUploadType(val)}
+                row
+              >
                 <StyledRadioControl
                   value="New"
                   control={<StyledRadioButton readOnly={false} />}

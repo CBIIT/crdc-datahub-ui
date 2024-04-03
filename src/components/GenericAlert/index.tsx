@@ -1,24 +1,24 @@
-import React, { FC, useEffect, useState } from 'react';
-import { Alert, AlertColor, AlertProps, styled } from '@mui/material';
+import React, { FC, useEffect, useState } from "react";
+import { Alert, AlertColor, AlertProps, styled } from "@mui/material";
 
 const StyledAlert = styled(Alert, {
-  shouldForwardProp: (prop) => prop !== "bgColor"
-})((({ bgColor } : { bgColor?: string }) => ({
-  color: '#ffffff',
-  backgroundColor: bgColor || '#5D53F6',
-  width: '535px',
-  boxSizing: 'border-box',
-  minHeight: '50px',
-  borderColor: bgColor || 'none',
-  boxShadow: '-4px 8px 27px 4px rgba(27,28,28,0.09)',
-  justifyContent: 'center',
-  zIndex: '1200',
-  position: 'fixed',
-  top: '20px',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  userSelect: 'none',
-})));
+  shouldForwardProp: (prop) => prop !== "bgColor",
+})(({ bgColor }: { bgColor?: string }) => ({
+  color: "#ffffff",
+  backgroundColor: bgColor || "#5D53F6",
+  width: "535px",
+  boxSizing: "border-box",
+  minHeight: "50px",
+  borderColor: bgColor || "none",
+  boxShadow: "-4px 8px 27px 4px rgba(27,28,28,0.09)",
+  justifyContent: "center",
+  zIndex: "1200",
+  position: "fixed",
+  top: "20px",
+  left: "50%",
+  transform: "translateX(-50%)",
+  userSelect: "none",
+}));
 
 export type AlertState = {
   message: string;
@@ -27,7 +27,7 @@ export type AlertState = {
 
 type Props = {
   open: boolean;
-  severity?: AlertProps["severity"],
+  severity?: AlertProps["severity"];
   children: React.ReactNode;
 };
 
@@ -36,11 +36,11 @@ type Props = {
  *
  * @deprecated DO NOT USE. Replaced by `enqueueSnackbar` from Notistack.
  */
-const GenericAlert : FC<Props> = ({
+const GenericAlert: FC<Props> = ({
   open,
   children,
-  severity = "success"
-} : Props) => {
+  severity = "success",
+}: Props) => {
   const [bgColor, setBgColor] = useState<string>(null);
 
   useEffect(() => {

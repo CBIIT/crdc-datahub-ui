@@ -14,7 +14,9 @@ describe("compareNodeStats cases", () => {
   });
 
   it("should correctly sort in ascending order by node.nodeName when node.total is equal", () => {
-    const sortedStats = [node3B, node1A, node3A, node1B].sort(utils.compareNodeStats);
+    const sortedStats = [node3B, node1A, node3A, node1B].sort(
+      utils.compareNodeStats
+    );
 
     expect(sortedStats).toEqual([node1A, node1B, node3A, node3B]);
   });
@@ -61,25 +63,28 @@ describe("compareNodeStats cases", () => {
   });
 });
 
-describe('calculateMaxDomain cases', () => {
-  it.each([-1, NaN, undefined, 0, Infinity, -Infinity])('should default to 1 when dataMax is invalid (%s)', (dataMax) => {
-    expect(utils.calculateMaxDomain(dataMax)).toBe(1);
-  });
+describe("calculateMaxDomain cases", () => {
+  it.each([-1, NaN, undefined, 0, Infinity, -Infinity])(
+    "should default to 1 when dataMax is invalid (%s)",
+    (dataMax) => {
+      expect(utils.calculateMaxDomain(dataMax)).toBe(1);
+    }
+  );
 
-  it('should round up to the nearest 1,000 when dataMax above 1,000', () => {
+  it("should round up to the nearest 1,000 when dataMax above 1,000", () => {
     expect(utils.calculateMaxDomain(1001)).toBe(2000);
     expect(utils.calculateMaxDomain(2500)).toBe(3000);
     expect(utils.calculateMaxDomain(10000)).toBe(10000);
     expect(utils.calculateMaxDomain(23949)).toBe(24000);
   });
 
-  it('should round up to the nearest 100 when dataMax is between 100 and 1,000', () => {
+  it("should round up to the nearest 100 when dataMax is between 100 and 1,000", () => {
     expect(utils.calculateMaxDomain(101)).toBe(200);
     expect(utils.calculateMaxDomain(550)).toBe(600);
     expect(utils.calculateMaxDomain(1000)).toBe(1000);
   });
 
-  it('should round up to the nearest 10 when dataMax is between 10 and 100', () => {
+  it("should round up to the nearest 10 when dataMax is between 10 and 100", () => {
     expect(utils.calculateMaxDomain(11)).toBe(20);
     expect(utils.calculateMaxDomain(55)).toBe(60);
     expect(utils.calculateMaxDomain(99)).toBe(100);

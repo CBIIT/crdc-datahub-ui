@@ -1,4 +1,11 @@
-import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
+import React, {
+  FC,
+  ReactNode,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import {
   FormControl,
   FormHelperText,
@@ -10,7 +17,7 @@ import {
 } from "@mui/material";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 import Tooltip from "../Tooltip";
-import { updateInputValidity } from '../../utils';
+import { updateInputValidity } from "../../utils";
 
 const DropdownArrowsIcon = styled("div")(() => ({
   backgroundImage: `url(${dropdownArrowsIcon})`,
@@ -23,25 +30,26 @@ const DropdownArrowsIcon = styled("div")(() => ({
 const GridItem = styled(Grid)(() => ({
   "& .MuiFormHelperText-root.Mui-error": {
     color: "#D54309 !important",
-    marginLeft: "0px"
+    marginLeft: "0px",
   },
   "& .MuiOutlinedInput-notchedOutline": {
     borderRadius: "8px",
     borderColor: "#6B7294",
-    padding: "0 12px"
+    padding: "0 12px",
   },
   "&.Mui-error fieldset": {
     borderColor: "#D54309 !important",
   },
   "& .MuiSelect-icon": {
-    right: "12px"
+    right: "12px",
   },
   "& .MuiSelect-iconOpen": {
-    transform: "none"
+    transform: "none",
   },
   "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D !important",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
 }));
 
@@ -63,18 +71,18 @@ const StyledFormLabel = styled("label")(({ theme }) => ({
 }));
 
 const ProxySelect = styled("select")(() => ({
-  display: "none"
+  display: "none",
 }));
 
 const StyledSelect = styled(Select, {
-  shouldForwardProp: (prop) => prop !== "placeholderText"
-})<SelectProps & { placeholderText: string; }>((props) => ({
+  shouldForwardProp: (prop) => prop !== "placeholderText",
+})<SelectProps & { placeholderText: string }>((props) => ({
   "& .MuiSelect-select .notranslate::after": {
     // content: `'${(props) => props.placeholderText || "none"}'`,
     content: `'${props.placeholderText ?? "Select"}'`,
     color: "#87878C",
     fontWeight: 400,
-    opacity: 1
+    opacity: 1,
   },
   "& .MuiPaper-root": {
     borderRadius: "8px",
@@ -83,13 +91,13 @@ const StyledSelect = styled(Select, {
     "& .MuiList-root": {
       padding: 0,
       overflow: "auto",
-      maxHeight: "40vh"
+      maxHeight: "40vh",
     },
     "& .MuiMenuItem-root": {
       padding: "0 10px",
       height: "35px",
       color: "#083A50",
-      background: "#FFFFFF"
+      background: "#FFFFFF",
     },
     "& .MuiMenuItem-root.Mui-selected": {
       backgroundColor: "#3E7E6D",
@@ -97,11 +105,11 @@ const StyledSelect = styled(Select, {
     },
     "& .MuiMenuItem-root:hover": {
       background: "#3E7E6D",
-      color: "#FFFFFF"
+      color: "#FFFFFF",
     },
     "& .MuiMenuItem-root.Mui-focused": {
       backgroundColor: "#3E7E6D !important",
-      color: "#FFFFFF"
+      color: "#FFFFFF",
     },
   },
   "& .MuiInputBase-input": {
@@ -117,7 +125,7 @@ const StyledSelect = styled(Select, {
     "&::placeholder": {
       color: "#87878C",
       fontWeight: 400,
-      opacity: 1
+      opacity: 1,
     },
   },
   // Target readOnly <input> inputs
@@ -181,9 +189,17 @@ const SelectInput: FC<Props> = ({
     if (multiple && !inputIsArray) {
       updateInputValidity(inputRef, "Please select at least one option");
     } else if (inputIsArray) {
-      const containsOnlyValidOptions = newValue.every((value: string) => !!options.find((option) => option.value === value));
-      updateInputValidity(inputRef, containsOnlyValidOptions ? "" : "Please select only valid options");
-    } else if (required && !options.findIndex((option) => option.value === newValue)) {
+      const containsOnlyValidOptions = newValue.every(
+        (value: string) => !!options.find((option) => option.value === value)
+      );
+      updateInputValidity(
+        inputRef,
+        containsOnlyValidOptions ? "" : "Please select only valid options"
+      );
+    } else if (
+      required &&
+      !options.findIndex((option) => option.value === newValue)
+    ) {
       updateInputValidity(inputRef, "Please select an entry from the list");
     } else {
       updateInputValidity(inputRef, "");
@@ -263,10 +279,16 @@ const SelectInput: FC<Props> = ({
           hidden
         >
           {options.map((option) => (
-            <option key={option.value} value={option.value} aria-label={`${option.value}`} />
+            <option
+              key={option.value}
+              value={option.value}
+              aria-label={`${option.value}`}
+            />
           ))}
         </ProxySelect>
-        <StyledHelperText>{!readOnly && error ? helperText : " "}</StyledHelperText>
+        <StyledHelperText>
+          {!readOnly && error ? helperText : " "}
+        </StyledHelperText>
       </FormControl>
     </GridItem>
   );

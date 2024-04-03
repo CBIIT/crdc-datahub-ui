@@ -1,8 +1,22 @@
 import gql from "graphql-tag";
 
 export const query = gql`
-  query getSubmissionNodes($_id: String!, $nodeType: String!, $first: Int, $offset: Int, $orderBy: String, $sortDirection: String) {
-    getSubmissionNodes(submissionID: $_id, nodeType: $nodeType, first: $first, offset: $offset, orderBy: $orderBy, sortDirection: $sortDirection) {
+  query getSubmissionNodes(
+    $_id: String!
+    $nodeType: String!
+    $first: Int
+    $offset: Int
+    $orderBy: String
+    $sortDirection: String
+  ) {
+    getSubmissionNodes(
+      submissionID: $_id
+      nodeType: $nodeType
+      first: $first
+      offset: $offset
+      orderBy: $orderBy
+      sortDirection: $sortDirection
+    ) {
       total
       properties
       nodes {

@@ -1,7 +1,7 @@
-import React, { FC } from 'react';
-import { Avatar, styled } from '@mui/material';
-import CheckIcon from '@mui/icons-material/Check';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import React, { FC } from "react";
+import { Avatar, styled } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 
 type Props = {
   icon: SectionStatus | "Review" | "ReviewDisabled";
@@ -13,7 +13,7 @@ const BaseAvatar = styled(Avatar)({
   backgroundColor: "transparent",
   "& > *": {
     width: "20px",
-  }
+  },
 });
 
 const CompleteAvatar = styled(BaseAvatar)({
@@ -56,11 +56,7 @@ const StatusAdornment: FC<Props> = ({ icon }) => {
         </CompleteAvatar>
       );
     case "In Progress":
-      return (
-        <InProgressAvatar>
-          {" "}
-        </InProgressAvatar>
-      );
+      return <InProgressAvatar> </InProgressAvatar>;
     case "Review":
       return (
         <CompleteAvatar>
@@ -74,11 +70,7 @@ const StatusAdornment: FC<Props> = ({ icon }) => {
         </ReviewAvatar>
       );
     default:
-      return (
-        <NotStartedAvatar>
-          {" "}
-        </NotStartedAvatar>
-      );
+      return <NotStartedAvatar> </NotStartedAvatar>;
   }
 };
 

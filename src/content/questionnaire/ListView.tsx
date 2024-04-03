@@ -1,22 +1,34 @@
 import React, { FC, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  Alert, Container, Button, Stack, styled,
-  Table, TableBody, TableCell,
-  TableContainer, TableHead,
-  TablePagination, TableRow,
-  TableSortLabel, Typography,
+  Alert,
+  Container,
+  Button,
+  Stack,
+  styled,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+  Typography,
 } from "@mui/material";
-import { LoadingButton } from '@mui/lab';
-import { useMutation, useQuery } from '@apollo/client';
-import { query, Response } from '../../graphql/listApplications';
+import { LoadingButton } from "@mui/lab";
+import { useMutation, useQuery } from "@apollo/client";
+import { query, Response } from "../../graphql/listApplications";
 import bannerSvg from "../../assets/banner/list_banner.svg";
-import PageBanner from '../../components/PageBanner';
-import { FormatDate } from '../../utils';
-import { useAuthContext } from '../../components/Contexts/AuthContext';
-import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
-import SuspenseLoader from '../../components/SuspenseLoader';
-import usePageTitle from '../../hooks/usePageTitle';
+import PageBanner from "../../components/PageBanner";
+import { FormatDate } from "../../utils";
+import { useAuthContext } from "../../components/Contexts/AuthContext";
+import {
+  mutation as SAVE_APP,
+  Response as SaveAppResp,
+} from "../../graphql/saveApplication";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import usePageTitle from "../../hooks/usePageTitle";
 
 type T = Omit<Application, "questionnaireData">;
 
@@ -88,17 +100,19 @@ const StyledTableCell = styled(TableCell)({
   },
 });
 
-const StyledActionButton = styled(Button)(({ bg, text, border } : { bg: string, text: string, border: string }) => ({
-  background: `${bg} !important`,
-  borderRadius: "8px",
-  border: `2px solid ${border}`,
-  color: `${text} !important`,
-  width: "100px",
-  height: "30px",
-  textTransform: "none",
-  fontWeight: 700,
-  fontSize: "16px",
-}));
+const StyledActionButton = styled(Button)(
+  ({ bg, text, border }: { bg: string; text: string; border: string }) => ({
+    background: `${bg} !important`,
+    borderRadius: "8px",
+    border: `2px solid ${border}`,
+    color: `${text} !important`,
+    width: "100px",
+    height: "30px",
+    textTransform: "none",
+    fontWeight: 700,
+    fontSize: "16px",
+  })
+);
 
 const columns: Column[] = [
   {
@@ -128,13 +142,15 @@ const columns: Column[] = [
   },
   {
     label: "Submitted Date",
-    value: (a) => (a.submittedDate ? FormatDate(a.submittedDate, "M/D/YYYY h:mm A") : ""),
+    value: (a) =>
+      a.submittedDate ? FormatDate(a.submittedDate, "M/D/YYYY h:mm A") : "",
     field: "submittedDate",
     default: true,
   },
   {
     label: "Last Updated Date",
-    value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
+    value: (a) =>
+      a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : "",
     field: "updatedAt",
   },
   {
@@ -142,24 +158,45 @@ const columns: Column[] = [
     value: (a, user) => {
       const role = user?.role;
 
-      if (((role === "User" || role === "Submitter" || role === "Organization Owner") && a.applicant?.applicantID === user._id) && ["New", "In Progress", "Inquired"].includes(a.status)) {
+      if (
+        (role === "User" ||
+          role === "Submitter" ||
+          role === "Organization Owner") &&
+        a.applicant?.applicantID === user._id &&
+        ["New", "In Progress", "Inquired"].includes(a.status)
+      ) {
         return (
-          <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-            <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">Resume</StyledActionButton>
+          <Link
+            to={`/submission/${a?.["_id"]}`}
+            state={{ from: "/submissions" }}
+          >
+            <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
+              Resume
+            </StyledActionButton>
           </Link>
         );
       }
-      if (role === "Federal Lead" && ["Submitted", "In Review"].includes(a.status)) {
+      if (
+        role === "Federal Lead" &&
+        ["Submitted", "In Review"].includes(a.status)
+      ) {
         return (
-          <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-            <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">Review</StyledActionButton>
+          <Link
+            to={`/submission/${a?.["_id"]}`}
+            state={{ from: "/submissions" }}
+          >
+            <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">
+              Review
+            </StyledActionButton>
           </Link>
         );
       }
 
       return (
         <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-          <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">View</StyledActionButton>
+          <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
+            View
+          </StyledActionButton>
         </Link>
       );
     },
@@ -180,12 +217,12 @@ const ListingView: FC = () => {
 
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<Column>(
-    columns.find((c) => c.default)
-    || columns.find((c) => c.field)
+    columns.find((c) => c.default) || columns.find((c) => c.field)
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
-  const [creatingApplication, setCreatingApplication] = useState<boolean>(false);
+  const [creatingApplication, setCreatingApplication] =
+    useState<boolean>(false);
 
   const { data, loading, error } = useQuery<Response>(query, {
     variables: {
@@ -194,17 +231,20 @@ const ListingView: FC = () => {
       sortDirection: order.toUpperCase(),
       orderBy: orderBy.field,
     },
-    context: { clientName: 'backend' },
+    context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
-  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  });
+  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(
+    SAVE_APP,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
-    return (page > 0 && data?.listApplications?.total)
+    return page > 0 && data?.listApplications?.total
       ? Math.max(0, (1 + page) * perPage - (data?.listApplications?.total || 0))
       : 0;
   }, [data]);
@@ -228,8 +268,8 @@ const ListingView: FC = () => {
           programName: "",
           studyAbbreviation: "",
           questionnaireData: "{}",
-        }
-      }
+        },
+      },
     });
 
     setCreatingApplication(false);
@@ -237,13 +277,16 @@ const ListingView: FC = () => {
     if (errors) {
       navigate("", {
         state: {
-          error: "Unable to create a submission request. Please try again later"
-        }
+          error:
+            "Unable to create a submission request. Please try again later",
+        },
       });
       return;
     }
 
-    navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`, { state: { from: "/submissions" } });
+    navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`, {
+      state: { from: "/submissions" },
+    });
   };
 
   return (
@@ -252,9 +295,15 @@ const ListingView: FC = () => {
         title="Submission Request List"
         subTitle="Below is a list of submission requests that are associated with your account. Please click on any of the submission requests to review or continue work."
         padding="57px 0 0 25px"
-        body={(
-          <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
-            {(user?.role === "User" || user?.role === "Submitter" || user?.role === "Organization Owner") && (
+        body={
+          <StyledBannerBody
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-end"
+          >
+            {(user?.role === "User" ||
+              user?.role === "Submitter" ||
+              user?.role === "Organization Owner") && (
               <StyledButton
                 type="button"
                 onClick={createApp}
@@ -264,7 +313,7 @@ const ListingView: FC = () => {
               </StyledButton>
             )}
           </StyledBannerBody>
-        )}
+        }
         bannerSrc={bannerSvg}
       />
 
@@ -322,7 +371,8 @@ const ListingView: FC = () => {
               )}
 
               {/* No content message */}
-              {(!data?.listApplications?.total || data?.listApplications?.total === 0) && (
+              {(!data?.listApplications?.total ||
+                data?.listApplications?.total === 0) && (
                 <TableRow style={{ height: 53 * 10 }}>
                   <TableCell colSpan={columns.length}>
                     <Typography
@@ -331,7 +381,8 @@ const ListingView: FC = () => {
                       fontSize={18}
                       color="#757575"
                     >
-                      There are no submission requests associated with your account
+                      There are no submission requests associated with your
+                      account
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -347,14 +398,18 @@ const ListingView: FC = () => {
             onPageChange={(e, newPage) => setPage(newPage)}
             onRowsPerPageChange={handleChangeRowsPerPage}
             nextIconButtonProps={{
-              disabled: perPage === -1
-                || !data?.listApplications
-                || data?.listApplications?.total === 0
-                || data?.listApplications?.total <= (page + 1) * perPage
-                || emptyRows > 0
-                || loading
+              disabled:
+                perPage === -1 ||
+                !data?.listApplications ||
+                data?.listApplications?.total === 0 ||
+                data?.listApplications?.total <= (page + 1) * perPage ||
+                emptyRows > 0 ||
+                loading,
             }}
-            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
+            SelectProps={{
+              inputProps: { "aria-label": "rows per page" },
+              native: true,
+            }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>

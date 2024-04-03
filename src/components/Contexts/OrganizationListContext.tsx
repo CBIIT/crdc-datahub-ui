@@ -5,8 +5,8 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { useQuery } from '@apollo/client';
-import { LIST_ORGS, ListOrgsResp } from '../../graphql';
+import { useQuery } from "@apollo/client";
+import { LIST_ORGS, ListOrgsResp } from "../../graphql";
 
 export type ContextState = {
   status: Status;
@@ -47,7 +47,9 @@ export const useOrganizationListContext = (): ContextState => {
   const context = useContext<ContextState>(Context);
 
   if (!context) {
-    throw new Error("OrganizationListContext cannot be used outside of the OrganizationProvider component");
+    throw new Error(
+      "OrganizationListContext cannot be used outside of the OrganizationProvider component"
+    );
   }
 
   return context;
@@ -66,13 +68,19 @@ type ProviderProps = {
  * @param {ProviderProps} props
  * @returns {JSX.Element} Context provider
  */
-export const OrganizationProvider: FC<ProviderProps> = ({ preload, filterInactive, children } : ProviderProps) => {
+export const OrganizationProvider: FC<ProviderProps> = ({
+  preload,
+  filterInactive,
+  children,
+}: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
-  const { data, loading, error } = preload ? useQuery<ListOrgsResp>(LIST_ORGS, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  }) : { data: null, loading: false, error: null };
+  const { data, loading, error } = preload
+    ? useQuery<ListOrgsResp>(LIST_ORGS, {
+        context: { clientName: "backend" },
+        fetchPolicy: "no-cache",
+      })
+    : { data: null, loading: false, error: null };
 
   useEffect(() => {
     if (loading) {
@@ -86,13 +94,12 @@ export const OrganizationProvider: FC<ProviderProps> = ({ preload, filterInactiv
 
     setState({
       status: Status.LOADED,
-      data: data?.listOrganizations?.filter((org: Organization) => (filterInactive ? org.status === 'Active' : true)) || [],
+      data:
+        data?.listOrganizations?.filter((org: Organization) =>
+          filterInactive ? org.status === "Active" : true
+        ) || [],
     });
   }, [loading, error, data]);
 
-  return (
-    <Context.Provider value={state}>
-      {children}
-    </Context.Provider>
-  );
+  return <Context.Provider value={state}>{children}</Context.Provider>;
 };

@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useMemo, useState } from "react";
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@apollo/client";
 import {
   Alert,
   Box,
@@ -8,21 +8,27 @@ import {
   FormControl,
   MenuItem,
   Select,
-  Table, TableBody, TableCell,
-  TableContainer, TableHead, TablePagination, TableRow,
-  TableSortLabel, Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+  Typography,
   styled,
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
-import { Controller, useForm } from 'react-hook-form';
-import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
+import { Controller, useForm } from "react-hook-form";
+import { useOrganizationListContext } from "../../components/Contexts/OrganizationListContext";
 import PageBanner from "../../components/PageBanner";
-import { Roles } from '../../config/AuthRoles';
-import { LIST_USERS, ListUsersResp } from '../../graphql';
-import { formatIDP } from '../../utils';
-import { useAuthContext } from '../../components/Contexts/AuthContext';
-import SuspenseLoader from '../../components/SuspenseLoader';
-import usePageTitle from '../../hooks/usePageTitle';
+import { Roles } from "../../config/AuthRoles";
+import { LIST_USERS, ListUsersResp } from "../../graphql";
+import { formatIDP } from "../../utils";
+import { useAuthContext } from "../../components/Contexts/AuthContext";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import usePageTitle from "../../hooks/usePageTitle";
 
 type T = User;
 
@@ -68,9 +74,9 @@ const StyledFormControl = styled(FormControl)({
   minWidth: "250px",
 });
 
-const StyledInlineLabel = styled('label')({
+const StyledInlineLabel = styled("label")({
   padding: "0 10px",
-  fontWeight: "700"
+  fontWeight: "700",
 });
 
 const StyledSelect = styled(Select)({
@@ -87,7 +93,8 @@ const StyledSelect = styled(Select)({
   },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   "& .Mui-disabled": {
     cursor: "not-allowed",
@@ -145,7 +152,9 @@ const StyledActionButton = styled(Button)(
   })
 );
 
-const StyledTablePagination = styled(TablePagination)<{ component: React.ElementType }>({
+const StyledTablePagination = styled(TablePagination)<{
+  component: React.ElementType;
+}>({
   borderTop: "2px solid #083A50",
   background: "#F5F7F8",
 });
@@ -155,11 +164,15 @@ const columns: Column[] = [
     label: "Name",
     value: (a) => `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`,
     comparator: (a, b) => {
-      const aName = `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`;
-      const bName = `${b.lastName ? `${b.lastName}, ` : ""}${b.firstName || ""}`;
+      const aName = `${a.lastName ? `${a.lastName}, ` : ""}${
+        a.firstName || ""
+      }`;
+      const bName = `${b.lastName ? `${b.lastName}, ` : ""}${
+        b.firstName || ""
+      }`;
 
       return aName.localeCompare(bName);
-    }
+    },
   },
   {
     label: "Account Type",
@@ -179,7 +192,7 @@ const columns: Column[] = [
       const bOrg = b.organization?.orgName || "";
 
       return aOrg.localeCompare(bOrg);
-    }
+    },
   },
   {
     label: "Status",
@@ -216,7 +229,9 @@ const ListingView: FC = () => {
   const { data: orgData } = useOrganizationListContext();
 
   const [order, setOrder] = useState<"asc" | "desc">("asc");
-  const [orderBy, setOrderBy] = useState<Column>(columns.find((c) => c.default) || columns.find((c) => !!c.comparator));
+  const [orderBy, setOrderBy] = useState<Column>(
+    columns.find((c) => c.default) || columns.find((c) => !!c.comparator)
+  );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(20);
   const [dataset, setDataset] = useState<T[]>([]);
@@ -228,15 +243,13 @@ const ListingView: FC = () => {
   const statusFilter = watch("status");
 
   const { data, loading, error } = useQuery<ListUsersResp>(LIST_USERS, {
-    context: { clientName: 'backend' },
+    context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
-    return page > 0 && count
-      ? Math.max(0, page * perPage - count)
-      : 0;
+    return page > 0 && count ? Math.max(0, page * perPage - count) : 0;
   }, [count, perPage, page]);
 
   const handleRequestSort = (column: Column) => {
@@ -255,7 +268,9 @@ const ListingView: FC = () => {
       return;
     }
 
-    const orgID = orgData?.find((org: Organization) => org._id === user.organization?.orgID)?._id;
+    const orgID = orgData?.find(
+      (org: Organization) => org._id === user.organization?.orgID
+    )?._id;
     setValue("organization", orgID || "All");
   }, [user, orgData]);
 
@@ -267,9 +282,19 @@ const ListingView: FC = () => {
     }
 
     const sorted = data.listUsers
-      .filter((u: T) => (orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true))
-      .filter((u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true))
-      .filter((u: T) => (statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true))
+      .filter((u: T) =>
+        orgFilter && orgFilter !== "All"
+          ? u.organization?.orgID === orgFilter
+          : true
+      )
+      .filter((u: T) =>
+        roleFilter && roleFilter !== "All" ? u.role === roleFilter : true
+      )
+      .filter((u: T) =>
+        statusFilter && statusFilter !== "All"
+          ? u.userStatus === statusFilter
+          : true
+      )
       .sort((a, b) => orderBy?.comparator(a, b) || 0);
 
     if (order === "desc") {
@@ -277,8 +302,17 @@ const ListingView: FC = () => {
     }
 
     setCount(sorted.length);
-    setDataset(sorted.slice(page * perPage, (page * perPage) + perPage));
-  }, [data, perPage, page, orderBy, order, roleFilter, orgFilter, statusFilter]);
+    setDataset(sorted.slice(page * perPage, page * perPage + perPage));
+  }, [
+    data,
+    perPage,
+    page,
+    orderBy,
+    order,
+    roleFilter,
+    orgFilter,
+    statusFilter,
+  ]);
 
   useEffect(() => {
     setPage(0);
@@ -296,7 +330,9 @@ const ListingView: FC = () => {
         )}
 
         <StyledFilterContainer>
-          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="organization-filter">
+            Organization
+          </StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="organization"
@@ -311,7 +347,11 @@ const ListingView: FC = () => {
                   inputProps={{ id: "organization-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
-                  {orgData?.map((org: Organization) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
+                  {orgData?.map((org: Organization) => (
+                    <MenuItem key={org._id} value={org._id}>
+                      {org.name}
+                    </MenuItem>
+                  ))}
                 </StyledSelect>
               )}
             />
@@ -330,7 +370,11 @@ const ListingView: FC = () => {
                   inputProps={{ id: "role-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
-                  {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
+                  {Roles.map((role) => (
+                    <MenuItem key={role} value={role}>
+                      {role}
+                    </MenuItem>
+                  ))}
                 </StyledSelect>
               )}
             />
@@ -429,14 +473,17 @@ const ListingView: FC = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
             nextIconButtonProps={{
               disabled:
-                perPage === -1
-                || !dataset
-                || dataset.length === 0
-                || count <= (page + 1) * perPage
-                || emptyRows > 0
-                || loading,
+                perPage === -1 ||
+                !dataset ||
+                dataset.length === 0 ||
+                count <= (page + 1) * perPage ||
+                emptyRows > 0 ||
+                loading,
             }}
-            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
+            SelectProps={{
+              inputProps: { "aria-label": "rows per page" },
+              native: true,
+            }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>

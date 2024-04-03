@@ -20,7 +20,11 @@ import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import { mapObjectWithKey, filterPositiveIntegerString, reshapeCheckboxGroupOptions } from "../../../utils";
+import {
+  mapObjectWithKey,
+  filterPositiveIntegerString,
+  reshapeCheckboxGroupOptions,
+} from "../../../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
 import { fileTypeOptions } from "../../../config/FileTypeConfig";
@@ -141,22 +145,44 @@ const InvisibleInput = styled("input")({
   display: "block",
 });
 
-const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data: { questionnaireData: data } } = useFormContext();
+const FormSectionD: FC<FormSectionProps> = ({
+  SectionOption,
+  refs,
+}: FormSectionProps) => {
+  const {
+    status,
+    data: { questionnaireData: data },
+  } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const { D: SectionDMetadata } = SectionMetadata;
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
-  const [isClinical, setIsClinical] = useState<boolean>(dataTypes?.includes("clinicalTrial"));
+  const [isClinical, setIsClinical] = useState<boolean>(
+    dataTypes?.includes("clinicalTrial")
+  );
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const [dataTypesErrorMsg, setDataTypesErrorMsg] = useState<string>("");
-  const [clinicalDataTypesErrorMsg, setClinicalDataTypesErrorMsg] = useState<string>("");
+  const [clinicalDataTypesErrorMsg, setClinicalDataTypesErrorMsg] =
+    useState<string>("");
   const dataTypesInputRef = useRef<HTMLInputElement>(null);
   const clinicalDataTypesInputRef = useRef<HTMLInputElement>(null);
-  const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef } = refs;
-  const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
-  const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
+  const {
+    nextButtonRef,
+    saveFormRef,
+    submitFormRef,
+    approveFormRef,
+    inquireFormRef,
+    rejectFormRef,
+    getFormObjectRef,
+  } = refs;
+  const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(
+    data.files?.map(mapObjectWithKey) || []
+  );
+  const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] =
+    useState<string[]>(
+      reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)
+    );
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -182,31 +208,53 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     // Remove empty strings from dataType arrays
     combinedData.dataTypes = combinedData.dataTypes.filter((str) => str !== "");
     // Handle validity for at dataTypes section
-    if (combinedData.dataTypes.length !== 0 || combinedData.otherDataTypes !== "") {
+    if (
+      combinedData.dataTypes.length !== 0 ||
+      combinedData.otherDataTypes !== ""
+    ) {
       setDataTypesErrorMsg("");
       dataTypesInputRef.current.setCustomValidity("");
     } else {
       setDataTypesErrorMsg("At least one data type is required");
-      dataTypesInputRef.current.setCustomValidity("At least one data type is required");
+      dataTypesInputRef.current.setCustomValidity(
+        "At least one data type is required"
+      );
     }
 
     if (!combinedData.dataTypes.includes("clinicalTrial")) {
       combinedData.clinicalData = InitialQuestionnaire.clinicalData;
     } else {
-      combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter((str) => str !== "");
+      combinedData.clinicalData.dataTypes =
+        combinedData.clinicalData.dataTypes.filter((str) => str !== "");
     }
 
     // Handle validity for at clinical data types section
-    if (combinedData.dataTypes.includes("clinicalTrial") && (combinedData.clinicalData?.dataTypes?.length !== 0 || combinedData.clinicalData?.otherDataTypes !== "")) {
+    if (
+      combinedData.dataTypes.includes("clinicalTrial") &&
+      (combinedData.clinicalData?.dataTypes?.length !== 0 ||
+        combinedData.clinicalData?.otherDataTypes !== "")
+    ) {
       setClinicalDataTypesErrorMsg("");
       clinicalDataTypesInputRef.current.setCustomValidity("");
     } else if (combinedData.dataTypes.includes("clinicalTrial")) {
-      setClinicalDataTypesErrorMsg("At least one clinical data type is required");
-      clinicalDataTypesInputRef.current?.setCustomValidity("At least one clinical data type is required");
+      setClinicalDataTypesErrorMsg(
+        "At least one clinical data type is required"
+      );
+      clinicalDataTypesInputRef.current?.setCustomValidity(
+        "At least one clinical data type is required"
+      );
     }
 
-    combinedData.targetedReleaseDate = dayjs(formObject.targetedReleaseDate).isValid() ? formObject.targetedReleaseDate : "";
-    combinedData.targetedSubmissionDate = dayjs(formObject.targetedSubmissionDate).isValid() ? formObject.targetedSubmissionDate : "";
+    combinedData.targetedReleaseDate = dayjs(
+      formObject.targetedReleaseDate
+    ).isValid()
+      ? formObject.targetedReleaseDate
+      : "";
+    combinedData.targetedSubmissionDate = dayjs(
+      formObject.targetedSubmissionDate
+    ).isValid()
+      ? formObject.targetedSubmissionDate
+      : "";
     if (formObject.imagingDataDeIdentified === "true") {
       combinedData.imagingDataDeIdentified = true;
     } else if (formObject.imagingDataDeIdentified === "false") {
@@ -215,7 +263,9 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     // Override empty file array
     combinedData.files = formObject.files;
     // Overwrite number type. If empty string, convert to null.
-    combinedData.files.map((file) => file.count = parseInt(file.count.toString(), 10) || null);
+    combinedData.files.map(
+      (file) => (file.count = parseInt(file.count.toString(), 10) || null)
+    );
 
     return { ref: formRef, data: combinedData };
   };
@@ -223,7 +273,13 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addFileDataType = () => {
     setFileTypeData([
       ...fileTypeData,
-      { key: `${fileTypeData.length}_${new Date().getTime()}`, type: ``, count: null, amount: "", extension: "" },
+      {
+        key: `${fileTypeData.length}_${new Date().getTime()}`,
+        type: ``,
+        count: null,
+        amount: "",
+        extension: "",
+      },
     ]);
   };
 
@@ -281,7 +337,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         required
         error={dataTypesErrorMsg}
       >
-        <InvisibleInput ref={dataTypesInputRef} aria-label={SectionDMetadata.sections.DATA_TYPES.title} />
+        <InvisibleInput
+          ref={dataTypesInputRef}
+          aria-label={SectionDMetadata.sections.DATA_TYPES.title}
+        />
         <SwitchInput
           id="section-d-clinical-trial"
           label="Clinical"
@@ -317,7 +376,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="imaging"
           value={dataTypes.includes("imaging")}
           onChange={(e, checked) => handleDataTypesChange(checked, "imaging")}
-          toggleContent={(
+          toggleContent={
             <RadioYesNoInput
               id="section-d-imaging-de-identified"
               value={data.imagingDataDeIdentified}
@@ -329,7 +388,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               required={dataTypes.includes("imaging")}
               readOnly={readOnlyInputs}
             />
-          )}
+          }
           tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
           readOnly={readOnlyInputs}
           sx={{ paddingBottom: "8px" }}
@@ -351,11 +410,16 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       {isClinical && (
         <SectionGroup
           title={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title}
-          description={SectionDMetadata.sections.CLINICAL_DATA_TYPES.description}
+          description={
+            SectionDMetadata.sections.CLINICAL_DATA_TYPES.description
+          }
           required
           error={clinicalDataTypesErrorMsg}
         >
-          <InvisibleInput ref={clinicalDataTypesInputRef} aria-label={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title} />
+          <InvisibleInput
+            ref={clinicalDataTypesInputRef}
+            aria-label={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title}
+          />
           <SwitchInput
             id="section-d-demographic-data"
             label="Demographic Data"
@@ -370,7 +434,9 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             label="Relapse/Recurrence Data"
             name="clinicalData[dataTypes][]"
             graphQLValue="relapseRecurrenceData"
-            value={data.clinicalData.dataTypes.includes("relapseRecurrenceData")}
+            value={data.clinicalData.dataTypes.includes(
+              "relapseRecurrenceData"
+            )}
             tooltipText="Relapse/recurrence data refers to information associated with the return of a disease after a period of remission. Indicate whether relapse/recurrence data is available for the study."
             readOnly={readOnlyInputs}
           />
@@ -439,7 +505,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       <SectionGroup
         title={SectionDMetadata.sections.FILE_TYPES.title}
         description={SectionDMetadata.sections.FILE_TYPES.description}
-        beginButton={(
+        beginButton={
           <AddRemoveButton
             id="section-d-add-file-type-button"
             label="Add File Type"
@@ -447,7 +513,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             onClick={addFileDataType}
             disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
-        )}
+        }
       >
         <TableContainer>
           <Table className="noBorder">
@@ -469,7 +535,9 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                   Estimated data size
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="5%" className="topRowLast">Remove</TableCell>
+                <TableCell width="5%" className="topRowLast">
+                  Remove
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -519,7 +587,9 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                           onClick={() => removeFileDataType(fileData.key)}
                           startIcon={<RemoveCircleIcon />}
                           iconColor="#E74040"
-                          disabled={readOnlyInputs || status === FormStatus.SAVING}
+                          disabled={
+                            readOnlyInputs || status === FormStatus.SAVING
+                          }
                           aria-label="Remove File Type"
                           sx={{ minWidth: "0px !important" }}
                         />
@@ -548,7 +618,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           multiline
           readOnly={readOnlyInputs}
           inputProps={{
-            "aria-label": SectionDMetadata.sections.ADDITIONAL_COMMENTS.title
+            "aria-label": SectionDMetadata.sections.ADDITIONAL_COMMENTS.title,
           }}
         />
         <FormGroupCheckbox

@@ -55,19 +55,21 @@ const FundingAgency: FC<Props> = ({
           readOnly={readOnly}
         />
         <TextInput
-          id={idPrefix.concat(`funding-agency-${index}-grant-or-contract-numbers`)}
+          id={idPrefix.concat(
+            `funding-agency-${index}-grant-or-contract-numbers`
+          )}
           label="Grant or Contract Number(s)"
           name={`study[funding][${index}][grantNumbers]`}
           value={grantNumbers}
           maxLength={50}
           placeholder="Enter Grant or Contract Number(s)"
-          tooltipText={(
+          tooltipText={
             <>
               For US federally funded studies, include:
               <br />
               Grant or Contract number(s), for example, R01CAXXXX.
             </>
-          )}
+          }
           required
           readOnly={readOnly}
         />
@@ -81,7 +83,9 @@ const FundingAgency: FC<Props> = ({
           readOnly={readOnly}
         />
         <TextInput
-          id={idPrefix.concat(`funding-agency-${index}-nci-genomic-program-administrator`)}
+          id={idPrefix.concat(
+            `funding-agency-${index}-nci-genomic-program-administrator`
+          )}
           label="NCI Genomic Program Administrator"
           name={`study[funding][${index}][nciGPA]`}
           value={nciGPA}

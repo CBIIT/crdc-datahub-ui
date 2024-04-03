@@ -1,25 +1,42 @@
-import { FC, useEffect, useMemo, useState } from 'react';
-import { useLazyQuery, useMutation } from '@apollo/client';
-import { LoadingButton } from '@mui/lab';
+import { FC, useEffect, useMemo, useState } from "react";
+import { useLazyQuery, useMutation } from "@apollo/client";
+import { LoadingButton } from "@mui/lab";
 import {
-  Alert, Box, Container, MenuItem,
-  OutlinedInput, Select, Stack, Typography,
+  Alert,
+  Box,
+  Container,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  Stack,
+  Typography,
   styled,
-} from '@mui/material';
-import { cloneDeep } from 'lodash';
-import { Controller, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import bannerSvg from '../../assets/banner/profile_banner.png';
-import profileIcon from '../../assets/icons/profile_icon.svg';
-import { useAuthContext } from '../../components/Contexts/AuthContext';
-import { useOrganizationListContext } from '../../components/Contexts/OrganizationListContext';
-import GenericAlert from '../../components/GenericAlert';
-import SuspenseLoader from '../../components/SuspenseLoader';
-import { OrgAssignmentMap, OrgRequiredRoles, Roles } from '../../config/AuthRoles';
-import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
-import { formatIDP, getEditableFields } from '../../utils';
-import { DataCommons } from '../../config/DataCommons';
-import usePageTitle from '../../hooks/usePageTitle';
+} from "@mui/material";
+import { cloneDeep } from "lodash";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import bannerSvg from "../../assets/banner/profile_banner.png";
+import profileIcon from "../../assets/icons/profile_icon.svg";
+import { useAuthContext } from "../../components/Contexts/AuthContext";
+import { useOrganizationListContext } from "../../components/Contexts/OrganizationListContext";
+import GenericAlert from "../../components/GenericAlert";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import {
+  OrgAssignmentMap,
+  OrgRequiredRoles,
+  Roles,
+} from "../../config/AuthRoles";
+import {
+  EDIT_USER,
+  EditUserResp,
+  GET_USER,
+  GetUserResp,
+  UPDATE_MY_USER,
+  UpdateMyUserResp,
+} from "../../graphql";
+import { formatIDP, getEditableFields } from "../../utils";
+import { DataCommons } from "../../config/DataCommons";
+import usePageTitle from "../../hooks/usePageTitle";
 
 type Props = {
   _id: User["_id"];
@@ -72,23 +89,23 @@ const StyledHeaderText = styled(Typography)({
   fontSize: "26px",
   lineHeight: "35px",
   color: "#083A50",
-  fontWeight: 700
+  fontWeight: 700,
 });
 
-const StyledField = styled('div')({
-  marginBottom: '10px',
-  minHeight: '41px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-start',
-  fontSize: '18px',
+const StyledField = styled("div")({
+  marginBottom: "10px",
+  minHeight: "41px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  fontSize: "18px",
 });
 
-const StyledLabel = styled('span')({
-  color: '#356AAD',
-  fontWeight: '700',
-  marginRight: '40px',
-  minWidth: '127px',
+const StyledLabel = styled("span")({
+  color: "#356AAD",
+  fontWeight: "700",
+  marginRight: "40px",
+  minWidth: "127px",
 });
 
 const BaseInputStyling = {
@@ -108,7 +125,8 @@ const BaseInputStyling = {
   },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   "& .MuiList-root": {
     padding: 0,
@@ -130,17 +148,19 @@ const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
 });
 
-const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, border: string }) => ({
-  borderRadius: "8px",
-  border: `2px solid ${border}`,
-  color: `${txt} !important`,
-  width: "101px",
-  height: "51px",
-  textTransform: "none",
-  fontWeight: 700,
-  fontSize: "17px",
-  padding: "6px 8px",
-}));
+const StyledButton = styled(LoadingButton)(
+  ({ txt, border }: { txt: string; border: string }) => ({
+    borderRadius: "8px",
+    border: `2px solid ${border}`,
+    color: `${txt} !important`,
+    width: "101px",
+    height: "51px",
+    textTransform: "none",
+    fontWeight: 700,
+    fontSize: "17px",
+    padding: "6px 8px",
+  })
+);
 
 const StyledContentStack = styled(Stack)({
   marginLeft: "2px !important",
@@ -167,32 +187,46 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
   const isSelf = _id === currentUser._id;
 
-  const [user, setUser] = useState<User | null>(isSelf && viewType === "profile" ? { ...currentUser } : null);
+  const [user, setUser] = useState<User | null>(
+    isSelf && viewType === "profile" ? { ...currentUser } : null
+  );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<string>("");
 
-  const { handleSubmit, register, reset, watch, setValue, control, formState } = useForm<FormInput>();
+  const { handleSubmit, register, reset, watch, setValue, control, formState } =
+    useForm<FormInput>();
 
   const role = watch("role");
-  const orgFieldDisabled = useMemo(() => !OrgRequiredRoles.includes(role) && role !== "User", [role]);
+  const orgFieldDisabled = useMemo(
+    () => !OrgRequiredRoles.includes(role) && role !== "User",
+    [role]
+  );
   const dcFieldDisabled = useMemo(() => role !== "Data Commons POC", [role]);
-  const displayDataCommons = (viewType === "profile" && user?.role === "Data Commons POC") || (viewType === "users" && !dcFieldDisabled);
-  const fieldset = useMemo(() => getEditableFields(currentUser, user, viewType), [user?._id, _id, currentUser?.role, viewType]);
+  const displayDataCommons =
+    (viewType === "profile" && user?.role === "Data Commons POC") ||
+    (viewType === "users" && !dcFieldDisabled);
+  const fieldset = useMemo(
+    () => getEditableFields(currentUser, user, viewType),
+    [user?._id, _id, currentUser?.role, viewType]
+  );
 
   const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
-  const [updateMyUser] = useMutation<UpdateMyUserResp, { userInfo: UserInput }>(UPDATE_MY_USER, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  });
+  const [updateMyUser] = useMutation<UpdateMyUserResp, { userInfo: UserInput }>(
+    UPDATE_MY_USER,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const [editUser] = useMutation<EditUserResp>(EDIT_USER, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const onSubmit = async (data) => {
@@ -205,8 +239,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
           userInfo: {
             firstName: data.firstName,
             lastName: data.lastName,
-          }
-        }
+          },
+        },
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 
@@ -216,7 +250,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       }
 
       setData(d.updateMyUser);
-    // Save user changes
+      // Save user changes
     } else {
       const { data: d, errors } = await editUser({
         variables: {
@@ -225,7 +259,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
           role: data.role,
           status: data.userStatus,
           dataCommons: data.dataCommons,
-        }
+        },
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 
@@ -269,7 +303,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     // No action needed if viewing own profile, using cached data
     if (isSelf && viewType === "profile") {
       setUser({ ...currentUser });
-      setFormValues(currentUser, getEditableFields(currentUser, currentUser, viewType));
+      setFormValues(
+        currentUser,
+        getEditableFields(currentUser, currentUser, viewType)
+      );
       return;
     }
 
@@ -291,7 +328,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       return;
     }
 
-    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[role])?._id;
+    const expectedOrg = orgData?.find(
+      (org) => org.name === OrgAssignmentMap[role]
+    )?._id;
     setValue("organization.orgID", expectedOrg || "");
   }, [orgFieldDisabled, role, user, orgData]);
 
@@ -308,9 +347,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   return (
     <>
       <GenericAlert open={!!changesAlert} key="profile-changes-alert">
-        <span>
-          {changesAlert}
-        </span>
+        <span>{changesAlert}</span>
       </GenericAlert>
       <StyledBanner />
       <StyledContainer maxWidth="lg">
@@ -336,9 +373,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledPageTitle>
             </StyledTitleBox>
             <StyledHeader>
-              <StyledHeaderText variant="h2">
-                {user.email}
-              </StyledHeaderText>
+              <StyledHeaderText variant="h2">{user.email}</StyledHeaderText>
             </StyledHeader>
 
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -365,7 +400,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     inputProps={{ "aria-labelledby": "firstNameLabel" }}
                     required
                   />
-                ) : user.firstName}
+                ) : (
+                  user.firstName
+                )}
               </StyledField>
               <StyledField>
                 <StyledLabel id="lastNameLabel">Last name</StyledLabel>
@@ -376,12 +413,19 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     required
                     inputProps={{ "aria-labelledby": "lastNameLabel" }}
                   />
-                ) : user.lastName}
+                ) : (
+                  user.lastName
+                )}
               </StyledField>
               <StyledField>
                 <StyledLabel id="userRoleLabel">Role</StyledLabel>
                 {fieldset.includes("role") ? (
-                  <Stack direction="column" justifyContent="flex-start" alignItems="flex-start" spacing={1}>
+                  <Stack
+                    direction="column"
+                    justifyContent="flex-start"
+                    alignItems="flex-start"
+                    spacing={1}
+                  >
                     <Controller
                       name="role"
                       control={control}
@@ -393,12 +437,18 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                           MenuProps={{ disablePortal: true }}
                           inputProps={{ "aria-labelledby": "userRoleLabel" }}
                         >
-                          {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
+                          {Roles.map((role) => (
+                            <MenuItem key={role} value={role}>
+                              {role}
+                            </MenuItem>
+                          ))}
                         </StyledSelect>
                       )}
                     />
                   </Stack>
-                ) : user?.role}
+                ) : (
+                  user?.role
+                )}
               </StyledField>
               <StyledField>
                 <StyledLabel id="userStatusLabel">Account Status</StyledLabel>
@@ -420,10 +470,14 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                       </StyledSelect>
                     )}
                   />
-                ) : user.userStatus}
+                ) : (
+                  user.userStatus
+                )}
               </StyledField>
               <StyledField>
-                <StyledLabel id="userOrganizationLabel">Organization</StyledLabel>
+                <StyledLabel id="userOrganizationLabel">
+                  Organization
+                </StyledLabel>
                 {fieldset.includes("organization") ? (
                   <Controller
                     name="organization.orgID"
@@ -435,16 +489,26 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                         disabled={orgFieldDisabled}
-                        inputProps={{ "aria-labelledby": "userOrganizationLabel" }}
+                        inputProps={{
+                          "aria-labelledby": "userOrganizationLabel",
+                        }}
                       >
                         <MenuItem value="">{"<Not Set>"}</MenuItem>
-                        {orgData?.map((org) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
+                        {orgData?.map((org) => (
+                          <MenuItem key={org._id} value={org._id}>
+                            {org.name}
+                          </MenuItem>
+                        ))}
                       </StyledSelect>
                     )}
                   />
-                ) : user?.organization?.orgName}
+                ) : (
+                  user?.organization?.orgName
+                )}
               </StyledField>
-              <StyledField sx={{ display: displayDataCommons ? "block" : "none" }}>
+              <StyledField
+                sx={{ display: displayDataCommons ? "block" : "none" }}
+              >
                 <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
                 {fieldset.includes("dataCommons") ? (
                   <Controller
@@ -461,11 +525,17 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         inputProps={{ "aria-labelledby": "userDataCommons" }}
                         multiple
                       >
-                        {DataCommons.map((dc) => <MenuItem key={dc.name} value={dc.name}>{dc.name}</MenuItem>)}
+                        {DataCommons.map((dc) => (
+                          <MenuItem key={dc.name} value={dc.name}>
+                            {dc.name}
+                          </MenuItem>
+                        ))}
                       </StyledSelect>
                     )}
                   />
-                ) : user.dataCommons?.join(", ")}
+                ) : (
+                  user.dataCommons?.join(", ")
+                )}
               </StyledField>
 
               <StyledButtonStack
@@ -474,8 +544,26 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">Save</StyledButton>}
-                {viewType === "users" && <StyledButton type="button" onClick={() => navigate("/users")} txt="#666666" border="#828282">Cancel</StyledButton>}
+                {fieldset?.length > 0 && (
+                  <StyledButton
+                    type="submit"
+                    loading={saving}
+                    txt="#14634F"
+                    border="#26B893"
+                  >
+                    Save
+                  </StyledButton>
+                )}
+                {viewType === "users" && (
+                  <StyledButton
+                    type="button"
+                    onClick={() => navigate("/users")}
+                    txt="#666666"
+                    border="#828282"
+                  >
+                    Cancel
+                  </StyledButton>
+                )}
               </StyledButtonStack>
             </form>
           </StyledContentStack>

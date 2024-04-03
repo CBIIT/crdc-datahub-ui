@@ -1,6 +1,6 @@
-import { styled } from '@mui/material';
+import { styled } from "@mui/material";
 
-const StyledLabel = styled('tspan')({
+const StyledLabel = styled("tspan")({
   fontFamily: "Roboto",
   fontSize: "11px",
   fontWeight: 400,
@@ -10,8 +10,7 @@ const StyledLabel = styled('tspan')({
   userSelect: "none",
 });
 
-const CustomTick = (props) => {
-  const { x, y, payload } = props;
+const CustomTick = ({ x, y, payload }) => {
   const textLines = payload.value?.replace(/_/g, " ").split(" ");
 
   return (

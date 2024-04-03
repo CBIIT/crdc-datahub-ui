@@ -1,11 +1,17 @@
 import { FC } from "react";
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogProps,
-  IconButton, Typography, styled,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogProps,
+  IconButton,
+  Typography,
+  styled,
 } from "@mui/material";
-import { Link, LinkProps } from 'react-router-dom';
+import { Link, LinkProps } from "react-router-dom";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import env from '../../env';
+import env from "../../env";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -44,13 +50,13 @@ const StyledBodyText = styled(Typography)({
 });
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
-  position: 'absolute !important' as 'absolute',
+  position: "absolute !important" as "absolute",
   right: "21px",
   top: "11px",
   padding: "10px",
   "& svg": {
-    color: "#44627C"
-  }
+    color: "#44627C",
+  },
 }));
 
 const StyledDialogActions = styled(DialogActions)({
@@ -59,9 +65,9 @@ const StyledDialogActions = styled(DialogActions)({
 });
 
 const StyledButton = styled(Button)<{
-  component?: React.ComponentType,
-  to?: LinkProps["to"],
-  target?: LinkProps["target"],
+  component?: React.ComponentType;
+  to?: LinkProps["to"];
+  target?: LinkProps["target"];
 }>({
   width: "128px",
   height: "42px",
@@ -76,13 +82,13 @@ const StyledButton = styled(Button)<{
   fontWeight: "700 !important",
   lineHeight: "24px !important",
   letterSpacing: "0.32px",
-  textTransform: "none !important" as 'none',
+  textTransform: "none !important" as "none",
   alignSelf: "center",
   margin: "0 15px !important",
   marginTop: "45px !important",
   "&:hover": {
     background: "transparent !important",
-  }
+  },
 });
 
 type Props = {
@@ -102,10 +108,7 @@ const UploaderToolDialog: FC<Props> = ({
     aria-labelledby="uploader-cli-header"
     {...rest}
   >
-    <StyledCloseDialogButton
-      aria-label="close"
-      onClick={() => onClose?.()}
-    >
+    <StyledCloseDialogButton aria-label="close" onClick={() => onClose?.()}>
       <CloseIconSvg />
     </StyledCloseDialogButton>
     <StyledHeader id="uploader-cli-header" variant="h1">
@@ -113,8 +116,10 @@ const UploaderToolDialog: FC<Props> = ({
     </StyledHeader>
     <StyledDialogContent>
       <StyledBodyText id="uploader-cli-body" variant="body1">
-        The Uploader CLI is a command-line interface tool provided for directly uploading data submission files from your workstation to the Data Hub cloud storage.
-        To download the tool and accompanying instructions, click on the Download button below.
+        The Uploader CLI is a command-line interface tool provided for directly
+        uploading data submission files from your workstation to the Data Hub
+        cloud storage. To download the tool and accompanying instructions, click
+        on the Download button below.
       </StyledBodyText>
     </StyledDialogContent>
     <StyledDialogActions>

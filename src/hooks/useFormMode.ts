@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
-import { Status as AuthStatus, useAuthContext } from "../components/Contexts/AuthContext";
-import { Status as FormStatus, useFormContext } from "../components/Contexts/FormContext";
+import {
+  Status as AuthStatus,
+  useAuthContext,
+} from "../components/Contexts/AuthContext";
+import {
+  Status as FormStatus,
+  useFormContext,
+} from "../components/Contexts/FormContext";
 import { FormMode, FormModes, getFormMode } from "../utils";
 
 const useFormMode = () => {
@@ -16,7 +22,10 @@ const useFormMode = () => {
 
     const updatedFormMode: FormMode = getFormMode(user, data);
     setFormMode(updatedFormMode);
-    setReadOnlyInputs(updatedFormMode === FormModes.VIEW_ONLY || updatedFormMode === FormModes.REVIEW);
+    setReadOnlyInputs(
+      updatedFormMode === FormModes.VIEW_ONLY ||
+        updatedFormMode === FormModes.REVIEW
+    );
   }, [user, data]);
 
   return { formMode, readOnlyInputs };

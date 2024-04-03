@@ -146,19 +146,21 @@ const StyledTimelineContent = styled(TimelineContent)({
   color: "#fff",
 });
 
-const StyledTypography = styled(Typography)<{ color: CSSProperties["color"] }>(({ color }) => ({
-  lineHeight: "2.5",
-  minWidth: "100px",
-  textAlign: "left",
-  color
-}));
+const StyledTypography = styled(Typography)<{ color: CSSProperties["color"] }>(
+  ({ color }) => ({
+    lineHeight: "2.5",
+    minWidth: "100px",
+    textAlign: "left",
+    color,
+  })
+);
 
 const StyledAvatar = styled(Avatar)({
   background: "transparent",
   marginRight: "8px",
   "&.MuiAvatar-root": {
-    marginLeft: "auto"
-  }
+    marginLeft: "auto",
+  },
 });
 
 const StyledCloseButton = styled(Button)({
@@ -183,7 +185,7 @@ type Props<T extends string> = {
   title: string;
   history: HistoryBase<T>[];
   iconMap: IconType<T>;
-  getTextColor: (status: T) => CSSProperties["color"]
+  getTextColor: (status: T) => CSSProperties["color"];
   onClose: () => void;
 } & DialogProps;
 
@@ -228,13 +230,18 @@ const HistoryDialog = <T extends string>({
                 <StyledTimelineVerticalLine />
               </StyledTimelineSeparator>
               <StyledTimelineContent>
-                <Stack direction="row" alignContent="center" spacing={1} paddingRight={0}>
+                <Stack
+                  direction="row"
+                  alignContent="center"
+                  spacing={1}
+                  paddingRight={0}
+                >
                   <StyledTypography
                     title={dateTime}
                     color={
-                    typeof getTextColor === "function"
-                      ? getTextColor(status)
-                      : "#FFF"
+                      typeof getTextColor === "function"
+                        ? getTextColor(status)
+                        : "#FFF"
                     }
                     data-testid="history-item-date"
                   >

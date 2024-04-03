@@ -6,8 +6,8 @@ import React, {
   useMemo,
 } from "react";
 import ReactGA from "react-ga4";
-import { useAuthContext } from './AuthContext';
-import env from '../../env';
+import { useAuthContext } from "./AuthContext";
+import env from "../../env";
 
 export type ContextState = {
   ReactGA: typeof ReactGA;
@@ -23,7 +23,7 @@ export type ContextState = {
  * @see useAnalytics
  */
 export const Context = createContext<ContextState>(null);
-Context.displayName = 'AnalyticsContext';
+Context.displayName = "AnalyticsContext";
 
 /**
  * Auth Context Hook
@@ -36,7 +36,9 @@ export const useAnalytics = (): ContextState => {
   const context = useContext<ContextState>(Context);
 
   if (!context) {
-    throw new Error("AnalyticsContext cannot be used outside of the AnalyticsProvider component");
+    throw new Error(
+      "AnalyticsContext cannot be used outside of the AnalyticsProvider component"
+    );
   }
 
   return context;
@@ -54,7 +56,10 @@ type ProviderProps = {
  * @param {ProviderProps} props
  * @returns {JSX.Element}
  */
-export const AnalyticsProvider: FC<ProviderProps> = ({ GA_MEASUREMENT_ID, children } : ProviderProps) => {
+export const AnalyticsProvider: FC<ProviderProps> = ({
+  GA_MEASUREMENT_ID,
+  children,
+}: ProviderProps) => {
   const { isLoggedIn, user } = useAuthContext();
 
   const value: ContextState = useMemo(() => {
@@ -81,9 +86,5 @@ export const AnalyticsProvider: FC<ProviderProps> = ({ GA_MEASUREMENT_ID, childr
     });
   }, [isLoggedIn, user?.role, user?.IDP]);
 
-  return (
-    <Context.Provider value={value}>
-      {children}
-    </Context.Provider>
-  );
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };

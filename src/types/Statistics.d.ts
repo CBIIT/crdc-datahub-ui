@@ -1,4 +1,4 @@
-type SeriesLabel = 'New' | 'Passed' | 'Error' | 'Warning';
+type SeriesLabel = "New" | "Passed" | "Error" | "Warning";
 
 type LegendFilter = {
   label: SeriesLabel;

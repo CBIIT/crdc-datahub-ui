@@ -104,10 +104,30 @@ const ReviewFileTypeTable: React.FC<ReviewFileTypeTableProps> = ({ files }) => (
     <Table>
       <TableHead>
         <StyledTableHeaderRow>
-          <StyledTableHeaderCell id="review-file-type-table-file-type" width="auto">File Type</StyledTableHeaderCell>
-          <StyledTableHeaderCell id="review-file-type-table-file-extension" width="25%">File Extension</StyledTableHeaderCell>
-          <StyledTableHeaderCell id="review-file-type-table-number-of-files" width="17%">Number of files</StyledTableHeaderCell>
-          <StyledTableHeaderCell id="review-file-type-table-estimated-data-size" width="25%">Estimated data size</StyledTableHeaderCell>
+          <StyledTableHeaderCell
+            id="review-file-type-table-file-type"
+            width="auto"
+          >
+            File Type
+          </StyledTableHeaderCell>
+          <StyledTableHeaderCell
+            id="review-file-type-table-file-extension"
+            width="25%"
+          >
+            File Extension
+          </StyledTableHeaderCell>
+          <StyledTableHeaderCell
+            id="review-file-type-table-number-of-files"
+            width="17%"
+          >
+            Number of files
+          </StyledTableHeaderCell>
+          <StyledTableHeaderCell
+            id="review-file-type-table-estimated-data-size"
+            width="25%"
+          >
+            Estimated data size
+          </StyledTableHeaderCell>
         </StyledTableHeaderRow>
       </TableHead>
       <TableBody>

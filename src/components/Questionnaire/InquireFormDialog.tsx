@@ -51,7 +51,7 @@ const InquireFormDialog: FC<Props> = ({
       open={open}
       onClose={onClose}
       title={title || "Request Additional Changes"}
-      actions={(
+      actions={
         <>
           <Button onClick={handleOnCancel} disabled={disableActions}>
             Cancel
@@ -65,7 +65,7 @@ const InquireFormDialog: FC<Props> = ({
             Confirm to move to Inquired
           </LoadingButton>
         </>
-      )}
+      }
       {...rest}
     >
       <TextInput

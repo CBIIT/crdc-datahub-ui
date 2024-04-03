@@ -36,7 +36,7 @@ const StyledFormControl = styled(FormControl)({
 
 const StyledInlineLabel = styled("label")({
   padding: "0 10px",
-  fontWeight: "700"
+  fontWeight: "700",
 });
 
 const baseTextFieldStyles = {
@@ -53,7 +53,8 @@ const baseTextFieldStyles = {
   },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   "& .Mui-disabled": {
     cursor: "not-allowed",
@@ -72,20 +73,27 @@ const baseTextFieldStyles = {
 
 const StyledSelect = styled(Select)(baseTextFieldStyles);
 
-export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({ submissionId, onChange }: SubmittedDataFiltersProps) => {
+export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
+  submissionId,
+  onChange,
+}: SubmittedDataFiltersProps) => {
   const { watch, setValue, getValues, control } = useForm<FilterForm>();
 
   const { data } = useQuery<SubmissionStatsResp>(SUBMISSION_STATS, {
-    variables: { id: submissionId, },
+    variables: { id: submissionId },
     context: { clientName: "backend" },
     skip: !submissionId,
-    fetchPolicy: "cache-and-network"
+    fetchPolicy: "cache-and-network",
   });
 
-  const nodeTypes = useMemo(() => cloneDeep(data?.submissionStats?.stats)
-    ?.sort(compareNodeStats)
-    ?.reverse()
-    ?.map((stat) => stat.nodeName), [data?.submissionStats?.stats]);
+  const nodeTypes = useMemo(
+    () =>
+      cloneDeep(data?.submissionStats?.stats)
+        ?.sort(compareNodeStats)
+        ?.reverse()
+        ?.map((stat) => stat.nodeName),
+    [data?.submissionStats?.stats]
+  );
 
   useEffect(() => {
     if (!!watch("nodeType") || !nodeTypes?.length) {

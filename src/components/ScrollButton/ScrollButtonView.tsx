@@ -34,12 +34,12 @@ const ScrollButton = () => {
           ? {
               opacity: 0,
               visibility: "hidden",
-              cursor: "pointer"
+              cursor: "pointer",
             }
           : {
               visibility: "visible",
               opacity: 1,
-              cursor: "pointer"
+              cursor: "pointer",
             }
       }
     >

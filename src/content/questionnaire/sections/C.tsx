@@ -9,7 +9,9 @@ import TextInput from "../../../components/Questionnaire/TextInput";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
 import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
 import accessTypesOptions from "../../../config/AccessTypesConfig";
-import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "../../../config/CancerTypesConfig";
+import cancerTypeOptions, {
+  CUSTOM_CANCER_TYPES,
+} from "../../../config/CancerTypesConfig";
 import speciesOptions from "../../../config/SpeciesConfig";
 import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
 import useFormMode from "../../../hooks/useFormMode";
@@ -17,7 +19,7 @@ import SectionMetadata from "../../../config/SectionMetadata";
 import LabelCheckbox from "../../../components/Questionnaire/LabelCheckbox";
 
 const AccessTypesDescription = styled("span")(() => ({
-  fontWeight: 400
+  fontWeight: 400,
 }));
 
 /**
@@ -26,19 +28,41 @@ const AccessTypesDescription = styled("span")(() => ({
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
-const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { data: { questionnaireData: data } } = useFormContext();
+const FormSectionC: FC<FormSectionProps> = ({
+  SectionOption,
+  refs,
+}: FormSectionProps) => {
+  const {
+    data: { questionnaireData: data },
+  } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
-  const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef } = refs;
+  const {
+    nextButtonRef,
+    saveFormRef,
+    submitFormRef,
+    approveFormRef,
+    inquireFormRef,
+    rejectFormRef,
+    getFormObjectRef,
+  } = refs;
   const { C: SectionCMetadata } = SectionMetadata;
 
-  const [cancerTypes, setCancerTypes] = useState<string[]>(data.cancerTypes || []);
-  const [otherCancerTypes, setOtherCancerTypes] = useState<string>(data.otherCancerTypes);
-  const [otherCancerTypesEnabled, setOtherCancerTypesEnabled] = useState<boolean>(data.otherCancerTypesEnabled);
-  const [otherSpecies, setOtherSpecies] = useState<string>(data.otherSpeciesOfSubjects);
-  const [otherSpeciesEnabled, setOtherSpeciesEnabled] = useState<boolean>(data.otherSpeciesEnabled);
+  const [cancerTypes, setCancerTypes] = useState<string[]>(
+    data.cancerTypes || []
+  );
+  const [otherCancerTypes, setOtherCancerTypes] = useState<string>(
+    data.otherCancerTypes
+  );
+  const [otherCancerTypesEnabled, setOtherCancerTypesEnabled] =
+    useState<boolean>(data.otherCancerTypesEnabled);
+  const [otherSpecies, setOtherSpecies] = useState<string>(
+    data.otherSpeciesOfSubjects
+  );
+  const [otherSpeciesEnabled, setOtherSpeciesEnabled] = useState<boolean>(
+    data.otherSpeciesEnabled
+  );
 
   useEffect(() => {
     if (!saveFormRef.current || !submitFormRef.current) {
@@ -62,7 +86,8 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
-    combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
+    combinedData.numberOfParticipants =
+      parseInt(formObject.numberOfParticipants, 10) || null;
 
     return { ref: formRef, data: combinedData };
   };
@@ -70,7 +95,9 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const filterCancerTypes = (val: string[]) => {
     // if N/A already previously selected, then unselect N/A
     if (cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
-      return val.filter((option) => option !== CUSTOM_CANCER_TYPES.NOT_APPLICABLE);
+      return val.filter(
+        (option) => option !== CUSTOM_CANCER_TYPES.NOT_APPLICABLE
+      );
     }
 
     // if N/A is being selected, then unselect other options
@@ -90,14 +117,20 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setCancerTypes(val);
   };
 
-  const handleOtherCancerTypesCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+  const handleOtherCancerTypesCheckboxChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean
+  ) => {
     if (!checked) {
       setOtherCancerTypes("");
     }
 
     setOtherCancerTypesEnabled(checked);
   };
-  const handleOtherSpeciesCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+  const handleOtherSpeciesCheckboxChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean
+  ) => {
     if (!checked) {
       setOtherSpecies("");
     }
@@ -122,13 +155,14 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       >
         <FormGroupCheckbox
           idPrefix="section-c-access-types"
-          label={(
+          label={
             <>
-              Access Types
-              {' '}
-              <AccessTypesDescription>(Select all that apply):</AccessTypesDescription>
+              Access Types{" "}
+              <AccessTypesDescription>
+                (Select all that apply):
+              </AccessTypesDescription>
             </>
-          )}
+          }
           name="accessTypes"
           options={accessTypesOptions}
           value={data.accessTypes}
@@ -147,7 +181,10 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-c-cancer-types"
           label="Cancer types (select all that apply)"
           name="cancerTypes"
-          options={cancerTypeOptions.map((option) => ({ label: option, value: option }))}
+          options={cancerTypeOptions.map((option) => ({
+            label: option,
+            value: option,
+          }))}
           placeholder="Select types"
           value={data.cancerTypes}
           onChange={handleCancerTypesChange}
@@ -159,15 +196,18 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-c-other-cancer-types"
           key={`other_cancer_types_${cancerTypes?.toString()}`}
           label="Other cancer type(s)"
-          labelStartAddornment={(
+          labelStartAddornment={
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherCancerTypesEnabled"
               checked={otherCancerTypesEnabled}
               onChange={handleOtherCancerTypesCheckboxChange}
-              readOnly={cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE) || readOnlyInputs}
+              readOnly={
+                cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE) ||
+                readOnlyInputs
+              }
             />
-          )}
+          }
           name="otherCancerTypes"
           placeholder="Specify other cancer type(s)"
           value={otherCancerTypes}
@@ -189,14 +229,15 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       </SectionGroup>
 
       {/* Subjects/Species Section */}
-      <SectionGroup
-        title={SectionCMetadata.sections.SUBJECTS.title}
-      >
+      <SectionGroup title={SectionCMetadata.sections.SUBJECTS.title}>
         <SelectInput
           id="section-c-species-of-subjects"
           label="Species of subjects (choose all that apply)"
           name="species"
-          options={speciesOptions.map((option) => ({ label: option, value: option }))}
+          options={speciesOptions.map((option) => ({
+            label: option,
+            value: option,
+          }))}
           placeholder="Select species"
           value={data.species}
           multiple
@@ -206,7 +247,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-c-other-species-of-subjects"
           label="Other Specie(s) involved"
-          labelStartAddornment={(
+          labelStartAddornment={
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherSpeciesEnabled"
@@ -214,7 +255,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               onChange={handleOtherSpeciesCheckboxChange}
               readOnly={readOnlyInputs}
             />
-          )}
+          }
           name="otherSpeciesOfSubjects"
           placeholder="Specify all other species (max of 500 characters)"
           value={otherSpecies}
@@ -233,9 +274,11 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           filter={filterPositiveIntegerString}
           validate={(input: string) => isValidInRange(input, 1)} // greater than 0
           errorText="Value must be greater than 0."
-          inputProps={{
-            "data-type": "number"
-          } as unknown}
+          inputProps={
+            {
+              "data-type": "number",
+            } as unknown
+          }
           required
           readOnly={readOnlyInputs}
         />

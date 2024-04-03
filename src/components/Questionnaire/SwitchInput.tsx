@@ -134,8 +134,8 @@ const HideContentWrapper = styled("div")({
 });
 
 type Props = {
-  label: string,
-  name: string,
+  label: string;
+  name: string;
   tooltipText?: string;
   required?: boolean;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
@@ -195,7 +195,10 @@ const CustomSwitch: FC<Props> = ({
     updateInputValidity(inputRef);
   }, [touched, touchRequired]);
 
-  const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+  const onChangeWrapper = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean
+  ) => {
     if (readOnly) {
       return;
     }
@@ -229,7 +232,13 @@ const CustomSwitch: FC<Props> = ({
             </label>
           )}
           {required ? <span className="asterisk">*</span> : ""}
-          {tooltipText && <Tooltip placement="right" className="tooltip" title={tooltipText} />}
+          {tooltipText && (
+            <Tooltip
+              placement="right"
+              className="tooltip"
+              title={tooltipText}
+            />
+          )}
         </div>
         <div className="switchErrorContainer">
           <div className="switchYesNoContainer">
@@ -255,7 +264,7 @@ const CustomSwitch: FC<Props> = ({
             />
             {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
             <input
-              onChange={() => { }}
+              onChange={() => {}}
               className="input"
               name={name}
               type="checkbox"
@@ -266,7 +275,9 @@ const CustomSwitch: FC<Props> = ({
             />
             <div className={val ? "textChecked" : "text"}>Yes</div>
           </div>
-          <FormHelperText className="errorMessage">{!readOnly && error ? errorMsg : " "}</FormHelperText>
+          <FormHelperText className="errorMessage">
+            {!readOnly && error ? errorMsg : " "}
+          </FormHelperText>
         </div>
       </Container>
       {val ? (

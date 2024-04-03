@@ -23,7 +23,7 @@ export default ({ section, ...rest }: Props) => {
   if (typeof sectionConfig !== "undefined" && sectionConfig.component) {
     return createElement(sectionConfig.component, {
       SectionOption: sectionConfig,
-      ...rest
+      ...rest,
     });
   }
 
