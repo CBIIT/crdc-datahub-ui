@@ -153,7 +153,11 @@ const columns: Column<QCResult>[] = [
   },
 ];
 
-const QualityControl: FC = () => {
+type Props = {
+  submission: Submission;
+};
+
+const QualityControl: FC<Props> = ({ submission }: Props) => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>();
 
@@ -252,6 +256,10 @@ const QualityControl: FC = () => {
   useEffect(() => {
     tableRef.current?.setPage(0, true);
   }, [watch("nodeType"), watch("batchID"), watch("severity")]);
+
+  useEffect(() => {
+    tableRef.current?.refresh();
+  }, [submission?.metadataValidationStatus, submission?.fileValidationStatus]);
 
   return (
     <>
