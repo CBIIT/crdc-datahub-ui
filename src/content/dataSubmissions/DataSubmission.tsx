@@ -483,6 +483,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
       return;
     }
 
+    // NOTE: Immediately update submission object to get "Validating" status
+    getSubmission();
     startPolling(60000);
   };
 

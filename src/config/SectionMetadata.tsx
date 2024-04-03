@@ -1,14 +1,7 @@
-import { Link } from "react-router-dom";
-import { styled } from "@mui/material";
-
-const StyledLink = styled(Link)(() => ({
-  textDecoration: "none",
-  color: "inherit"
-}));
+import { Link } from 'react-router-dom';
 
 /**
  * Metadata for Questionnaire Sections
- *
  *
  * @see SectionConfig
  */
@@ -75,14 +68,14 @@ const sectionMetadata = {
           <>
             Informed consent is the basis for institutions submitting data to determine the appropriateness of submitting human data to open or controlled-access NIH/NCI data repositories. This refers to how CRDC data repositories distribute scientific data to the public. The controlled-access studies are required to submit an Institutional Certification to NIH. Learn about this at
             {" "}
-            <StyledLink
+            <Link
               to="https://sharing.nih.gov/genomic-data-sharing-policy/institutional-certifications"
               target="_blank"
             >
               https://sharing.nih.gov/
               <wbr />
               genomic-data-sharing-policy/institutional-certifications
-            </StyledLink>
+            </Link>
           </>
         ),
       },
