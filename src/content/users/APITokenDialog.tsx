@@ -209,7 +209,7 @@ const APITokenDialog: FC<Props> = ({
       generateToken();
       return;
     }
-    setTokenIdx((idx) => idx++);
+    setTokenIdx((idx) => idx + 1);
   };
 
   const handleCopyToken = () => {

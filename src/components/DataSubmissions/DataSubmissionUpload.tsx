@@ -271,7 +271,7 @@ const DataSubmissionUpload = ({
     let failedFilesCount = 0;
     files?.forEach((file) => {
       if (!file.succeeded) {
-        failedFilesCount++;
+        failedFilesCount += 1;
       }
     });
 
