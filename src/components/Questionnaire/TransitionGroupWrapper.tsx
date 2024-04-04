@@ -23,10 +23,7 @@ type Props<T extends WithKey> = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const TransitionGroupWrapper = <T extends WithKey>({
-  items,
-  renderItem,
-}: Props<T>) => {
+const TransitionGroupWrapper = <T extends WithKey>({ items, renderItem }: Props<T>) => {
   if (!items?.length) {
     return null;
   }

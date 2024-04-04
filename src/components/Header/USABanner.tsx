@@ -38,9 +38,7 @@ const USABanner = () => (
   <BannerArea>
     <BannerContainer>
       <img src={headerData.usaFlagSmall} alt={headerData.usaFlagSmallAltText} />
-      <div className="text">
-        An official website of the United States government
-      </div>
+      <div className="text">An official website of the United States government</div>
     </BannerContainer>
   </BannerArea>
 );

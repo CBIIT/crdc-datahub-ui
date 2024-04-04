@@ -38,12 +38,7 @@ const UnsavedChangesDialog: FC<Props> = ({
         <Button onClick={onCancel} disabled={disableActions}>
           Cancel
         </Button>
-        <LoadingButton
-          onClick={onSave}
-          loading={loading}
-          disabled={disableActions}
-          autoFocus
-        >
+        <LoadingButton onClick={onSave} loading={loading} disabled={disableActions} autoFocus>
           Save
         </LoadingButton>
         <Button onClick={onDiscard} disabled={disableActions} color="error">

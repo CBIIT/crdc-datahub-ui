@@ -11,10 +11,7 @@ import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
-import {
-  Status as FormStatus,
-  useFormContext,
-} from "../../components/Contexts/FormContext";
+import { Status as FormStatus, useFormContext } from "../../components/Contexts/FormContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import StatusBar from "../../components/StatusBar/StatusBar";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
@@ -28,10 +25,7 @@ import RejectFormDialog from "../../components/Questionnaire/RejectFormDialog";
 import ApproveFormDialog from "../../components/Questionnaire/ApproveFormDialog";
 import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
-import {
-  Status as AuthStatus,
-  useAuthContext,
-} from "../../components/Contexts/AuthContext";
+import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import ErrorCodes from "../../config/ErrorCodes";
 import usePageTitle from "../../hooks/usePageTitle";
 
@@ -129,8 +123,7 @@ const StyledExtendedLoadingButton = styled(StyledLoadingButton)({
   },
 });
 
-const validateSection = (section: string) =>
-  typeof map[section] !== "undefined";
+const validateSection = (section: string) => typeof map[section] !== "undefined";
 
 export type SaveForm =
   | { status: "success"; id: string }
@@ -172,8 +165,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const { formMode, readOnlyInputs } = useFormMode();
-  const [allSectionsComplete, setAllSectionsComplete] =
-    useState<boolean>(false);
+  const [allSectionsComplete, setAllSectionsComplete] = useState<boolean>(false);
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
@@ -232,9 +224,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    return data?.questionnaireData?.sections?.every(
-      (section) => section.status === "Completed"
-    );
+    return data?.questionnaireData?.sections?.every((section) => section.status === "Completed");
   };
 
   /**
@@ -270,9 +260,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
    *
    * @returns {Promise<boolean>} true if the approval submission was successful, false otherwise
    */
-  const submitApproveForm = async (
-    reviewComment
-  ): Promise<string | boolean> => {
+  const submitApproveForm = async (reviewComment): Promise<string | boolean> => {
     if (formMode !== "Review") {
       return false;
     }
@@ -303,9 +291,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
    *
    * @returns {Promise<boolean>} true if the inquire submission was successful, false otherwise
    */
-  const submitInquireForm = async (
-    reviewComment: string
-  ): Promise<string | boolean> => {
+  const submitInquireForm = async (reviewComment: string): Promise<string | boolean> => {
     if (formMode !== "Review") {
       return false;
     }
@@ -334,9 +320,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
    *
    * @returns {Promise<boolean>} true if the reject submission was successful, false otherwise
    */
-  const submitRejectForm = async (
-    reviewComment: string
-  ): Promise<string | boolean> => {
+  const submitRejectForm = async (reviewComment: string): Promise<string | boolean> => {
     if (formMode !== "Review") {
       return false;
     }
@@ -444,9 +428,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
       newData.sections = cloneDeep(InitialSections);
     }
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
-    const currentSection: Section = newData.sections.find(
-      (s) => s.name === activeSection
-    );
+    const currentSection: Section = newData.sections.find((s) => s.name === activeSection);
     if (currentSection) {
       currentSection.status = newStatus;
     } else {
@@ -549,9 +531,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     }
 
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
-    const currentSection: Section = sectionsClone.find(
-      (s) => s.name === activeSection
-    );
+    const currentSection: Section = sectionsClone.find((s) => s.name === activeSection);
     if (currentSection) {
       currentSection.status = newStatus;
     } else {
@@ -572,8 +552,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     // Wait for the save handler to complete
     const res = await saveForm();
     const reviewSectionUrl = `/submission/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
-    const isNavigatingToReviewSection =
-      blocker?.location?.pathname === reviewSectionUrl;
+    const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 
     setBlockedNavigate(false);
 
@@ -585,10 +564,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return;
     }
     // if duplicate study error, then block navigation
-    if (
-      res?.status === "failed" &&
-      res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION
-    ) {
+    if (res?.status === "failed" && res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
       return;
     }
 
@@ -684,8 +660,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
       }
 
       event.preventDefault();
-      event.returnValue =
-        "You have unsaved form changes. Are you sure you want to leave?";
+      event.returnValue = "You have unsaved form changes. Are you sure you want to leave?";
     };
 
     window.addEventListener("beforeunload", unloadHandler);
@@ -696,10 +671,8 @@ const FormView: FC<Props> = ({ section }: Props) => {
   });
 
   useEffect(() => {
-    const formLoaded =
-      status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
-    const invalidFormAuth =
-      formMode === "Unauthorized" || authStatus === AuthStatus.ERROR || !user;
+    const formLoaded = status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
+    const invalidFormAuth = formMode === "Unauthorized" || authStatus === AuthStatus.ERROR || !user;
 
     if (formLoaded && invalidFormAuth) {
       navigate("/");
@@ -724,11 +697,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
       return;
     }
-    if (
-      !hasReopenedFormRef.current &&
-      data?.status === "Inquired" &&
-      formMode === "Edit"
-    ) {
+    if (!hasReopenedFormRef.current && data?.status === "Inquired" && formMode === "Edit") {
       handleReopenForm();
       hasReopenedFormRef.current = true;
     }
@@ -757,14 +726,8 @@ const FormView: FC<Props> = ({ section }: Props) => {
     return null;
   }
 
-  if (
-    (status === FormStatus.ERROR &&
-      error !== ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) ||
-    !data
-  ) {
-    return (
-      <Navigate to="/submissions" state={{ error: error || "Unknown error" }} />
-    );
+  if ((status === FormStatus.ERROR && error !== ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) || !data) {
+    return <Navigate to="/submissions" state={{ error: error || "Unknown error" }} />;
   }
 
   return (
@@ -777,11 +740,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
       <StyledContainer ref={formContentRef} maxWidth="xl">
         <StyledContentWrapper direction="row" justifyContent="center">
-          <StyledSidebar
-            direction="row"
-            justifyContent="center"
-            alignSelf="flex-start"
-          >
+          <StyledSidebar direction="row" justifyContent="center" alignSelf="flex-start">
             <ProgressBar section={activeSection} />
             <StyledDivider orientation="vertical" />
           </StyledSidebar>
@@ -791,19 +750,13 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
             {hasError && (
               <StyledAlert ref={errorAlertRef} severity="error">
-                Oops! An error occurred. Please refresh the page or try again
-                later.
+                Oops! An error occurred. Please refresh the page or try again later.
               </StyledAlert>
             )}
 
             <Section section={activeSection} refs={refs} />
 
-            <StyledControls
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-              spacing={2}
-            >
+            <StyledControls direction="row" justifyContent="center" alignItems="center" spacing={2}>
               <StyledLoadingButton
                 id="submission-form-back-button"
                 variant="contained"

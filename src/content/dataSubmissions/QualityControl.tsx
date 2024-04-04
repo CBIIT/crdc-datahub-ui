@@ -2,14 +2,7 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
-import {
-  Box,
-  Button,
-  FormControl,
-  MenuItem,
-  Select,
-  styled,
-} from "@mui/material";
+import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useSnackbar } from "notistack";
 import {
@@ -147,9 +140,7 @@ const columns: Column<QCResult>[] = [
   {
     label: "Severity",
     renderValue: (data) => (
-      <StyledSeverity
-        color={data?.severity === "Error" ? "#B54717" : "#8D5809"}
-      >
+      <StyledSeverity color={data?.severity === "Error" ? "#B54717" : "#8D5809"}>
         {data?.severity}
       </StyledSeverity>
     ),
@@ -158,9 +149,7 @@ const columns: Column<QCResult>[] = [
   {
     label: "Validated Date",
     renderValue: (data) =>
-      data?.validatedDate
-        ? `${FormatDate(data?.validatedDate, "MM-DD-YYYY [at] hh:mm A")}`
-        : "",
+      data?.validatedDate ? `${FormatDate(data?.validatedDate, "MM-DD-YYYY [at] hh:mm A")}` : "",
     field: "validatedDate",
   },
   {
@@ -171,14 +160,10 @@ const columns: Column<QCResult>[] = [
           {({ handleOpenErrorDialog }) => (
             <>
               <span>
-                {data.errors?.length > 0
-                  ? data.errors[0].title
-                  : data.warnings[0]?.title}
+                {data.errors?.length > 0 ? data.errors[0].title : data.warnings[0]?.title}
               </span>{" "}
               <StyledErrorDetailsButton
-                onClick={() =>
-                  handleOpenErrorDialog && handleOpenErrorDialog(data)
-                }
+                onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
                 variant="text"
                 disableRipple
                 disableTouchRipple
@@ -200,8 +185,7 @@ export const csvColumns = {
   "Node Type": (d: QCResult) => d.type,
   "Submitted Identifier": (d: QCResult) => d.submittedID,
   Severity: (d: QCResult) => d.severity,
-  "Validated Date": (d: QCResult) =>
-    FormatDate(d?.validatedDate, "MM-DD-YYYY [at] hh:mm A", ""),
+  "Validated Date": (d: QCResult) => FormatDate(d?.validatedDate, "MM-DD-YYYY [at] hh:mm A", ""),
   Issues: (d: QCResult) => {
     const value = d.errors[0].description ?? d.warnings[0]?.description;
 
@@ -231,19 +215,14 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
   const errorDescriptions =
     selectedRow?.errors?.map((error) => `(Error) ${error.description}`) ?? [];
   const warningDescriptions =
-    selectedRow?.warnings?.map(
-      (warning) => `(Warning) ${warning.description}`
-    ) ?? [];
+    selectedRow?.warnings?.map((warning) => `(Warning) ${warning.description}`) ?? [];
   const allDescriptions = [...errorDescriptions, ...warningDescriptions];
 
-  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(
-    SUBMISSION_QC_RESULTS,
-    {
-      variables: { id: submissionId },
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-    }
-  );
+  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
+    variables: { id: submissionId },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+  });
 
   const { data: batchData } = useQuery<ListBatchesResp>(LIST_BATCHES, {
     variables: {
@@ -264,10 +243,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
     fetchPolicy: "cache-and-network",
   });
 
-  const handleFetchQCResults = async (
-    fetchListing: FetchListing<QCResult>,
-    force: boolean
-  ) => {
+  const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
       enqueueSnackbar("Invalid submission ID provided.", { variant: "error" });
@@ -291,19 +267,15 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
           offset,
           sortDirection,
           orderBy,
-          nodeTypes:
-            !nodeType || nodeType === "All" ? undefined : [watch("nodeType")],
-          batchIDs:
-            !batchID || batchID === "All" ? undefined : [watch("batchID")],
+          nodeTypes: !nodeType || nodeType === "All" ? undefined : [watch("nodeType")],
+          batchIDs: !batchID || batchID === "All" ? undefined : [watch("batchID")],
           severities: watch("severity") || "All",
         },
         context: { clientName: "backend" },
         fetchPolicy: "no-cache",
       });
       if (error || !d?.submissionQCResults) {
-        throw new Error(
-          "Unable to retrieve submission quality control results."
-        );
+        throw new Error("Unable to retrieve submission quality control results.");
       }
       setData(d.submissionQCResults.results);
       setTotalData(d.submissionQCResults.total);
@@ -337,9 +309,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
   return (
     <>
       <StyledFilterContainer>
-        <StyledInlineLabel htmlFor="nodeType-filter">
-          Node Type
-        </StyledInlineLabel>
+        <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
         <StyledFormControl>
           <Controller
             name="nodeType"
@@ -386,9 +356,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
             )}
           />
         </StyledFormControl>
-        <StyledInlineLabel htmlFor="severity-filter">
-          Severity
-        </StyledInlineLabel>
+        <StyledInlineLabel htmlFor="severity-filter">Severity</StyledInlineLabel>
         <StyledFormControl>
           <Controller
             name="severity"
@@ -418,9 +386,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
           loading={loading}
           defaultRowsPerPage={20}
           defaultOrder="desc"
-          setItemKey={(item, idx) =>
-            `${idx}_${item.batchID}_${item.submittedID}`
-          }
+          setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
           AdditionalActions={
             <ExportValidationButton

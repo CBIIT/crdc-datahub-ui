@@ -87,10 +87,7 @@ const ReviewDataListingProperty: FC<Props> = ({
             alignItems="center"
             sx={{ marginBottom: valuePlacement === "bottom" ? "3px" : 0 }}
           >
-            <StyledLabel
-              id={idPrefix.concat(`-property-label`)}
-              sx={{ textTransform }}
-            >
+            <StyledLabel id={idPrefix.concat(`-property-label`)} sx={{ textTransform }}>
               {!hideLabel && label}
             </StyledLabel>
           </StyledLabelWrapper>
@@ -113,9 +110,7 @@ const ReviewDataListingProperty: FC<Props> = ({
               </StyledValue>
             ))
           ) : (
-            <StyledValue id={idPrefix.concat(`-property-value`)}>
-              {value}
-            </StyledValue>
+            <StyledValue id={idPrefix.concat(`-property-value`)}>{value}</StyledValue>
           )}
         </Stack>
       </Stack>

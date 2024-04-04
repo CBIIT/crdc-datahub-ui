@@ -1,10 +1,4 @@
-import React, {
-  FC,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { FC, createContext, useContext, useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { LIST_ORGS, ListOrgsResp } from "../../graphql";
 

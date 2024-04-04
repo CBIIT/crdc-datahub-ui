@@ -95,16 +95,14 @@ describe("SubmittedDataFilters cases", () => {
       </TestParent>
     );
 
-    const muiSelectBox = within(
-      getByTestId("data-content-node-filter")
-    ).getByRole("button");
+    const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
 
     await waitFor(() => {
       UserEvent.click(muiSelectBox);
 
-      const muiSelectList = within(
-        getByTestId("data-content-node-filter")
-      ).getByRole("listbox", { hidden: true });
+      const muiSelectList = within(getByTestId("data-content-node-filter")).getByRole("listbox", {
+        hidden: true,
+      });
 
       // The order of the nodes should be N-1 < N-2 < N-3
       expect(muiSelectList).toBeInTheDocument();
@@ -147,9 +145,7 @@ describe("SubmittedDataFilters cases", () => {
       </TestParent>
     );
 
-    const muiSelectBox = within(
-      getByTestId("data-content-node-filter")
-    ).getByRole("button");
+    const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
 
     await waitFor(() => expect(muiSelectBox).toHaveTextContent("FIRST"));
   });

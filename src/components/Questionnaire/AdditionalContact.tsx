@@ -110,9 +110,7 @@ const AdditionalContact: FC<Props> = ({
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
-          id={idPrefix.concat(
-            `additionalContacts-${index}-remove-contact-button`
-          )}
+          id={idPrefix.concat(`additionalContacts-${index}-remove-contact-button`)}
           label="Remove Contact"
           placement="start"
           onClick={onDelete}

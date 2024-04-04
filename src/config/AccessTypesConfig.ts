@@ -6,8 +6,7 @@ const options: FormGroupCheckboxOption[] = [
   {
     label: "Open Access",
     value: "Open Access",
-    tooltipText:
-      "Data made publicly available to everyone without access restrictions",
+    tooltipText: "Data made publicly available to everyone without access restrictions",
   },
   {
     label: "Controlled Access",

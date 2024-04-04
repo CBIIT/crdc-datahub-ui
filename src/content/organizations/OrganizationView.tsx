@@ -135,19 +135,17 @@ const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
 });
 
-const StyledButton = styled(LoadingButton)(
-  ({ txt, border }: { txt: string; border: string }) => ({
-    borderRadius: "8px",
-    border: `2px solid ${border}`,
-    color: `${txt} !important`,
-    width: "101px",
-    height: "51px",
-    textTransform: "none",
-    fontWeight: 700,
-    fontSize: "17px",
-    padding: "6px 8px",
-  })
-);
+const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string; border: string }) => ({
+  borderRadius: "8px",
+  border: `2px solid ${border}`,
+  color: `${txt} !important`,
+  width: "101px",
+  height: "51px",
+  textTransform: "none",
+  fontWeight: 700,
+  fontSize: "17px",
+  padding: "6px 8px",
+}));
 
 const StyledContentStack = styled(Stack)({
   marginLeft: "-2px !important",
@@ -177,9 +175,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const [organization, setOrganization] = useState<Organization | null>(null);
-  const [dataSubmissions, setDataSubmissions] = useState<
-    Partial<Submission>[] | null
-  >(null);
+  const [dataSubmissions, setDataSubmissions] = useState<Partial<Submission>[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
@@ -192,9 +188,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
     organization?.studies?.forEach((s) => {
       // NOTE: The `Submission` type only has `studyAbbreviation`, we cannot compare IDs
-      if (
-        activeSubs?.some((ds) => ds?.studyAbbreviation === s?.studyAbbreviation)
-      ) {
+      if (activeSubs?.some((ds) => ds?.studyAbbreviation === s?.studyAbbreviation)) {
         activeStudies[s?.studyAbbreviation] = true;
       }
     });
@@ -203,23 +197,20 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   }, [organization, dataSubmissions]);
 
   const { handleSubmit, register, reset, control } = useForm<FormInput>();
-  const editableFields: (keyof FormInput)[] = [
-    "name",
-    "conciergeID",
-    "studies",
-    "status",
-  ];
+  const editableFields: (keyof FormInput)[] = ["name", "conciergeID", "studies", "status"];
 
   const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: approvedStudies, refetch: refetchStudies } =
-    useQuery<ListApprovedStudiesResp>(LIST_APPROVED_STUDIES, {
+  const { data: approvedStudies, refetch: refetchStudies } = useQuery<ListApprovedStudiesResp>(
+    LIST_APPROVED_STUDIES,
+    {
       context: { clientName: "backend" },
       fetchPolicy: "cache-and-network",
-    });
+    }
+  );
 
   const [getOrganization] = useLazyQuery<GetOrgResp>(GET_ORG, {
     context: { clientName: "backend" },
@@ -257,27 +248,20 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     const studyMap: {
       [_id: string]: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">;
     } = {};
-    approvedStudies?.listApprovedStudies?.forEach(
-      ({ _id, studyName, studyAbbreviation }) => {
-        studyMap[_id] = { studyName, studyAbbreviation };
-      }
-    );
+    approvedStudies?.listApprovedStudies?.forEach(({ _id, studyName, studyAbbreviation }) => {
+      studyMap[_id] = { studyName, studyAbbreviation };
+    });
 
     const variables = {
       ...data,
-      studies:
-        data.studies
-          .map((_id) => studyMap[_id])
-          ?.filter((s) => !!s?.studyName) || [],
+      studies: data.studies.map((_id) => studyMap[_id])?.filter((s) => !!s?.studyName) || [],
     };
 
     if (_id === "new" && !organization?._id) {
-      const { data: d, errors } = await createOrganization({ variables }).catch(
-        (e) => ({
-          errors: e?.message,
-          data: null,
-        })
-      );
+      const { data: d, errors } = await createOrganization({ variables }).catch((e) => ({
+        errors: e?.message,
+        data: null,
+      }));
       setSaving(false);
 
       if (errors || !d?.createOrganization?._id) {
@@ -320,8 +304,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
   const handlePreSubmit = (data: FormInput) => {
     if (_id !== "new") {
-      const previousStudies =
-        organization?.studies?.map((s) => s?.studyAbbreviation) || [];
+      const previousStudies = organization?.studies?.map((s) => s?.studyAbbreviation) || [];
       const removedActiveStudies = previousStudies
         .filter((s) => !data.studies?.includes(s))
         .filter((s) => assignedStudies.includes(s)).length;
@@ -392,12 +375,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     <>
       <StyledBanner />
       <StyledContainer maxWidth="lg">
-        <Stack
-          direction="row"
-          justifyContent="center"
-          alignItems="flex-start"
-          spacing={2}
-        >
+        <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
           <StyledProfileIcon>
             <img src={profileIcon} alt="organization icon" />
           </StyledProfileIcon>
@@ -433,9 +411,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 />
               </StyledField>
               <StyledField>
-                <StyledLabel id="primaryContactLabel">
-                  Primary Contact
-                </StyledLabel>
+                <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
                 <Stack
                   direction="column"
                   justifyContent="flex-start"
@@ -520,12 +496,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                <StyledButton
-                  type="submit"
-                  loading={saving}
-                  txt="#14634F"
-                  border="#26B893"
-                >
+                <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
                   Save
                 </StyledButton>
                 <StyledButton

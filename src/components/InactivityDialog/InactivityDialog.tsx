@@ -120,8 +120,7 @@ const SessionTimeoutContent = styled("div")({
   },
 });
 
-const secondsToMinuteString = (seconds) =>
-  new Date(seconds * 1000).toISOString().substring(14, 19);
+const secondsToMinuteString = (seconds) => new Date(seconds * 1000).toISOString().substring(14, 19);
 
 const InactivityDialog = () => {
   const authData = useAuthContext();
@@ -214,9 +213,7 @@ const InactivityDialog = () => {
         <span>You have been logged out.</span>
       </GenericAlert>
       <InactivityWarningDialog open={warning}>
-        <DialogTitle id="customized-dialog-title">
-          Session Timeout Warning
-        </DialogTitle>
+        <DialogTitle id="customized-dialog-title">Session Timeout Warning</DialogTitle>
         <InactivityWarningContent>
           This session is about to expire due to inactivity.
           <br />
@@ -268,9 +265,7 @@ const InactivityDialog = () => {
         <SessionTimeoutContent>
           <div className="sessionTimeoutTitle">Your session has expired.</div>
           <br />
-          <div className="sessionTimeoutMessage">
-            Please login again to continue working.
-          </div>
+          <div className="sessionTimeoutMessage">Please login again to continue working.</div>
           <div className="buttonWrapper">
             <Button
               variant="contained"

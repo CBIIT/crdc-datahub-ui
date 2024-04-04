@@ -23,18 +23,8 @@ const StyledBox = styled(Box, {
 }));
 
 const SuspenseLoader: FC<Props> = ({ fullscreen = true }: Props) => (
-  <StyledBox
-    display="flex"
-    alignItems="center"
-    justifyContent="center"
-    fullscreen={fullscreen}
-  >
-    <CircularProgress
-      size={64}
-      disableShrink
-      thickness={3}
-      aria-label="Content Loader"
-    />
+  <StyledBox display="flex" alignItems="center" justifyContent="center" fullscreen={fullscreen}>
+    <CircularProgress size={64} disableShrink thickness={3} aria-label="Content Loader" />
   </StyledBox>
 );
 

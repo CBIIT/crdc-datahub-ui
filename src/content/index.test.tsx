@@ -4,11 +4,7 @@ import { axe } from "jest-axe";
 import { render } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 import HomePage from "./index";
-import {
-  ContextState,
-  Context,
-  Status,
-} from "../components/Contexts/AuthContext";
+import { ContextState, Context, Status } from "../components/Contexts/AuthContext";
 
 const Parent: FC<{ children: React.ReactElement; loggedIn: boolean }> = ({
   children,

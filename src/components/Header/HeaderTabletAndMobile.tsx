@@ -177,10 +177,7 @@ const Header = () => {
     },
   ];
 
-  if (
-    authData?.user?.role === "Admin" ||
-    authData?.user?.role === "Organization Owner"
-  ) {
+  if (authData?.user?.role === "Admin" || authData?.user?.role === "Organization Owner") {
     navbarSublists[displayName].splice(1, 0, {
       name: "Manage Users",
       link: "/users",
@@ -196,10 +193,7 @@ const Header = () => {
       className: "navMobileSubItem",
     });
   }
-  if (
-    authData?.user?.role === "Submitter" ||
-    authData?.user?.role === "Organization Owner"
-  ) {
+  if (authData?.user?.role === "Submitter" || authData?.user?.role === "Organization Owner") {
     navbarSublists[displayName].splice(1, 0, {
       name: "API Token",
       onClick: () => setOpenAPITokenDialog(true),
@@ -263,11 +257,7 @@ const Header = () => {
               }}
               onClick={() => setNavMobileDisplay("none")}
             >
-              <img
-                className="closeIconImg"
-                src={menuClearIcon}
-                alt="menuClearButton"
-              />
+              <img className="closeIconImg" src={menuClearIcon} alt="menuClearButton" />
             </div>
             {navbarMobileList !== navMobileList && (
               <div
@@ -294,16 +284,10 @@ const Header = () => {
                       <NavLink
                         id={navMobileItem.id}
                         to={navMobileItem.link}
-                        target={
-                          navMobileItem.link.startsWith("https://")
-                            ? "_blank"
-                            : "_self"
-                        }
+                        target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
                         onClick={() => setNavMobileDisplay("none")}
                       >
-                        <div className="navMobileItem">
-                          {navMobileItem.name}
-                        </div>
+                        <div className="navMobileItem">{navMobileItem.name}</div>
                       </NavLink>
                     )}
                     {navMobileItem.className === "navMobileItem clickable" && (
@@ -343,11 +327,7 @@ const Header = () => {
                       <Link
                         id={navMobileItem.id}
                         to={navMobileItem.link}
-                        target={
-                          navMobileItem.link.startsWith("https://")
-                            ? "_blank"
-                            : "_self"
-                        }
+                        target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
                       >
                         <div
                           role="button"
@@ -439,14 +419,8 @@ const Header = () => {
             aria-label="greyContainer"
           />
         </MenuArea>
-        <APITokenDialog
-          open={openAPITokenDialog}
-          onClose={() => setOpenAPITokenDialog(false)}
-        />
-        <UploaderToolDialog
-          open={uploaderToolOpen}
-          onClose={() => setUploaderToolOpen(false)}
-        />
+        <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
+        <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
       </NavMobileContainer>
     </>
   );

@@ -1,16 +1,6 @@
-import React, {
-  FC,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
-import {
-  query as GET_USER,
-  Response as GetUserResp,
-} from "../../graphql/getMyUser";
+import { query as GET_USER, Response as GetUserResp } from "../../graphql/getMyUser";
 import env from "../../env";
 
 const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
@@ -23,9 +13,7 @@ const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
  * @returns Promise that resolves to true if logged in, false if not
  */
 const userLogout = async (): Promise<boolean> => {
-  const d = await fetch(`${AUTH_SERVICE_URL}/logout`, { method: "POST" }).catch(
-    () => null
-  );
+  const d = await fetch(`${AUTH_SERVICE_URL}/logout`, { method: "POST" }).catch(() => null);
   const { status } = await d.json().catch(() => null);
 
   return status || false;
@@ -104,9 +92,7 @@ export const useAuthContext = (): ContextState => {
   const context = useContext<ContextState>(Context);
 
   if (!context) {
-    throw new Error(
-      "AuthContext cannot be used outside of the AuthProvider component"
-    );
+    throw new Error("AuthContext cannot be used outside of the AuthProvider component");
   }
 
   return context;
@@ -124,9 +110,7 @@ type ProviderProps = {
  * @returns {JSX.Element} - Auth context provider
  */
 
-export const AuthProvider: FC<ProviderProps> = ({
-  children,
-}: ProviderProps) => {
+export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => {
   const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
   const cachedState = cachedUser
     ? {
@@ -197,11 +181,7 @@ export const AuthProvider: FC<ProviderProps> = ({
             return;
           }
 
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-          );
+          window.history.replaceState({}, document.title, window.location.pathname);
           setState({
             isLoggedIn: true,
             status: Status.LOADED,

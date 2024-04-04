@@ -210,8 +210,7 @@ const FooterTablet = () => {
   const emailInput = useRef<HTMLInputElement>(null);
 
   function validateEmail(email) {
-    const reg =
-      /^[A-Za-z0-9]+([_.-][A-Za-z0-9]+)*@([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}$/;
+    const reg = /^[A-Za-z0-9]+([_.-][A-Za-z0-9]+)*@([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}$/;
     return reg.test(email);
   }
 
@@ -273,12 +272,7 @@ const FooterTablet = () => {
             id="signup"
             noValidate
           >
-            <input
-              type="hidden"
-              name="topic_id"
-              id="topic_id"
-              value="USNIHNCI_223"
-            />
+            <input type="hidden" name="topic_id" id="topic_id" value="USNIHNCI_223" />
             <div className="signUpTitle">Sign up for email updates</div>
             <div className="enterTitle">
               <label htmlFor="email">
@@ -310,9 +304,7 @@ const FooterTablet = () => {
               rel="noopener noreferrer"
             >
               <div className="logoUpperText">National Cancer Institute</div>
-              <div className="logoLowerText">
-                at the National Institutes of Health
-              </div>
+              <div className="logoLowerText">at the National Institutes of Health</div>
             </a>
           </div>
           <div id="bottom-footer-contact-us">
@@ -346,9 +338,7 @@ const FooterTablet = () => {
                 return (
                   <a
                     key={followkey}
-                    className={
-                      followidx !== 0 ? "bottom-footer-social-media-imgs" : ""
-                    }
+                    className={followidx !== 0 ? "bottom-footer-social-media-imgs" : ""}
                     href={followItem.link}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -363,12 +353,7 @@ const FooterTablet = () => {
             {FooterData.global_footer_links.map((linkItem, idx) => {
               const linkitemkey = `linkitem_${idx}`;
               return (
-                <a
-                  key={linkitemkey}
-                  href={linkItem.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a key={linkitemkey} href={linkItem.link} target="_blank" rel="noopener noreferrer">
                   {linkItem.text}
                 </a>
               );

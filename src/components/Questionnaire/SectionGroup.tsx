@@ -99,30 +99,13 @@ const SectionGroup: FC<Props> = ({
         {title && (
           <StyledTitle variant="h5">
             {title}
-            {required ? (
-              <StyledAsterisk className="asterisk">*</StyledAsterisk>
-            ) : (
-              ""
-            )}
-            {error ? (
-              <StyledError className="asterisk">{error}</StyledError>
-            ) : (
-              ""
-            )}
+            {required ? <StyledAsterisk className="asterisk">*</StyledAsterisk> : ""}
+            {error ? <StyledError className="asterisk">{error}</StyledError> : ""}
           </StyledTitle>
         )}
-        <Stack
-          direction="row"
-          alignItems="flex-start"
-          justifyContent="space-between"
-          width="100%"
-        >
-          {description && (
-            <StyledDescription variant="body1">{description}</StyledDescription>
-          )}
-          {beginButton && (
-            <StyledBeginAdornment>{beginButton}</StyledBeginAdornment>
-          )}
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" width="100%">
+          {description && <StyledDescription variant="body1">{description}</StyledDescription>}
+          {beginButton && <StyledBeginAdornment>{beginButton}</StyledBeginAdornment>}
         </Stack>
       </Stack>
     </StyledHeader>

@@ -1,8 +1,5 @@
 import { InitialQuestionnaire } from "../config/InitialValues";
-import programOptions, {
-  NotApplicableProgram,
-  OptionalProgram,
-} from "../config/ProgramConfig";
+import programOptions, { NotApplicableProgram, OptionalProgram } from "../config/ProgramConfig";
 
 /**
  * Generic Email Validator
@@ -35,10 +32,7 @@ export const reshapeCheckboxGroupOptions = (
   options: FormGroupCheckboxOption[],
   data: QuestionnaireData
 ): string[] =>
-  options.reduce(
-    (acc, option) => (data[option.name] ? [...acc, option.value] : acc),
-    []
-  );
+  options.reduce((acc, option) => (data[option.name] ? [...acc, option.value] : acc), []);
 
 /**
  * Generic Non-Numeric Character Filter
@@ -46,8 +40,7 @@ export const reshapeCheckboxGroupOptions = (
  * @param {string} value The value to filter
  * @returns {string} The filtered value
  */
-export const filterNonNumeric = (value: string): string =>
-  value.replace(/[^0-9]/g, "");
+export const filterNonNumeric = (value: string): string => value.replace(/[^0-9]/g, "");
 
 /**
  * Filters input fields for Phone Numbers (numeric and dashes)
@@ -55,8 +48,7 @@ export const filterNonNumeric = (value: string): string =>
  * @param {string} value The value to filter
  * @returns {string} The filtered value
  */
-export const filterForNumbers = (value: string): string =>
-  value?.replace(/[^0-9- ]+/g, "");
+export const filterForNumbers = (value: string): string => value?.replace(/[^0-9- ]+/g, "");
 
 /**
  * Adds a semi-stable key to the object
@@ -99,14 +91,10 @@ export const findProgram = (program: Program): ProgramOption => {
   if (program.isCustom) {
     return OptionalProgram;
   }
-  const newProgram: ProgramOption = programOptions.find(
-    (option) => option.name === program.name
-  );
+  const newProgram: ProgramOption = programOptions.find((option) => option.name === program.name);
   if (
     !newProgram &&
-    (program.name?.length ||
-      program.abbreviation?.length ||
-      program.description?.length)
+    (program.name?.length || program.abbreviation?.length || program.description?.length)
   ) {
     return OptionalProgram;
   }
@@ -123,12 +111,8 @@ export const findProgram = (program: Program): ProgramOption => {
  * @param {ProgramOption} program - The program option to convert.
  * @returns {SelectOption} - Returns an object suitable for use in a select dropdown.
  */
-export const programToSelectOption = (
-  program: ProgramOption
-): SelectOption => ({
-  label: `${program.name || ""}${
-    program.abbreviation ? ` (${program.abbreviation})` : ""
-  }`?.trim(),
+export const programToSelectOption = (program: ProgramOption): SelectOption => ({
+  label: `${program.name || ""}${program.abbreviation ? ` (${program.abbreviation})` : ""}`?.trim(),
   value: program.name || "",
 });
 
@@ -142,10 +126,7 @@ export const programToSelectOption = (
  * @param studyAbbreviation The abbreviation of the study
  * @returns The formatted study name
  */
-export const formatFullStudyName = (
-  studyName: string,
-  studyAbbreviation: string
-): string => {
+export const formatFullStudyName = (studyName: string, studyAbbreviation: string): string => {
   if (studyAbbreviation === studyName) {
     return studyName.trim();
   }
@@ -174,9 +155,7 @@ export const mapOrganizationStudyToId = (
 
   return (
     studies?.find(
-      (study) =>
-        study?.studyName === studyName &&
-        study?.studyAbbreviation === studyAbbreviation
+      (study) => study?.studyName === studyName && study?.studyAbbreviation === studyAbbreviation
     )?._id || ""
   );
 };

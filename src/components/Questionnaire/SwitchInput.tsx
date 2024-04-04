@@ -8,13 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  SwitchProps,
-  Grid,
-  Switch,
-  FormHelperText,
-  styled,
-} from "@mui/material";
+import { SwitchProps, Grid, Switch, FormHelperText, styled } from "@mui/material";
 import Tooltip from "../Tooltip";
 import { updateInputValidity } from "../../utils";
 
@@ -113,21 +107,19 @@ const GridStyled = styled(Grid)({
 
 const Container = styled("div", {
   shouldForwardProp: (prop) => prop !== "containerWidth",
-})<HTMLProps<HTMLDivElement> & { containerWidth?: string }>(
-  ({ containerWidth }) => ({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    fontSize: "16px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    fontWeight: 700,
-    lineHeight: "19.6px",
-    minHeight: "50px",
-    flexWrap: "wrap",
-    width: containerWidth,
-  })
-);
+})<HTMLProps<HTMLDivElement> & { containerWidth?: string }>(({ containerWidth }) => ({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  fontSize: "16px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontWeight: 700,
+  lineHeight: "19.6px",
+  minHeight: "50px",
+  flexWrap: "wrap",
+  width: containerWidth,
+}));
 
 const HideContentWrapper = styled("div")({
   display: "none !important",
@@ -195,10 +187,7 @@ const CustomSwitch: FC<Props> = ({
     updateInputValidity(inputRef);
   }, [touched, touchRequired]);
 
-  const onChangeWrapper = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    checked: boolean
-  ) => {
+  const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     if (readOnly) {
       return;
     }
@@ -232,13 +221,7 @@ const CustomSwitch: FC<Props> = ({
             </label>
           )}
           {required ? <span className="asterisk">*</span> : ""}
-          {tooltipText && (
-            <Tooltip
-              placement="right"
-              className="tooltip"
-              title={tooltipText}
-            />
-          )}
+          {tooltipText && <Tooltip placement="right" className="tooltip" title={tooltipText} />}
         </div>
         <div className="switchErrorContainer">
           <div className="switchYesNoContainer">
@@ -280,11 +263,7 @@ const CustomSwitch: FC<Props> = ({
           </FormHelperText>
         </div>
       </Container>
-      {val ? (
-        toggleContent
-      ) : (
-        <HideContentWrapper>{toggleContent}</HideContentWrapper>
-      )}
+      {val ? toggleContent : <HideContentWrapper>{toggleContent}</HideContentWrapper>}
     </GridStyled>
   );
 };

@@ -140,10 +140,7 @@ const StyledCloseButton = styled(Button)({
   },
 });
 
-const canGenerateTokenRoles: User["role"][] = [
-  "Submitter",
-  "Organization Owner",
-];
+const canGenerateTokenRoles: User["role"][] = ["Submitter", "Organization Owner"];
 
 type Props = {
   title?: string;
@@ -249,15 +246,12 @@ const APITokenDialog: FC<Props> = ({
         API Token
       </StyledHeader>
       <StyledTitle id="api-token-title" variant="body1">
-        An API Token is required to utilize the Uploader CLI tool for file
-        uploads.
+        An API Token is required to utilize the Uploader CLI tool for file uploads.
         <br />
         <br />
-        Each time you click the &#39;Create Token&#39; button, a new token will
-        be generated, and
+        Each time you click the &#39;Create Token&#39; button, a new token will be generated, and
         <br />
-        the previous token will be invalidated. A token expires 60 days after
-        its creation.
+        the previous token will be invalidated. A token expires 60 days after its creation.
       </StyledTitle>
       <Stack
         direction={{ xs: "column", md: "row" }}
@@ -295,11 +289,7 @@ const APITokenDialog: FC<Props> = ({
         <br />
         as this will be the only time you can see this token
       </StyledExplanationText>
-      <StyledCloseButton
-        id="api-token-close-button"
-        variant="outlined"
-        onClick={handleCloseDialog}
-      >
+      <StyledCloseButton id="api-token-close-button" variant="outlined" onClick={handleCloseDialog}>
         Close
       </StyledCloseButton>
     </StyledDialog>

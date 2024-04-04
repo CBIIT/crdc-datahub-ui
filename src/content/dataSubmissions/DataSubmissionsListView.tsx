@@ -148,9 +148,7 @@ const StyledSelect = styled(Select)(baseTextFieldStyles);
 const columns: Column[] = [
   {
     label: "Submission Name",
-    value: (a) => (
-      <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>
-    ),
+    value: (a) => <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>,
     field: "name",
   },
   {
@@ -200,14 +198,12 @@ const columns: Column[] = [
   },
   {
     label: "Created Date",
-    value: (a) =>
-      a.createdAt ? FormatDate(a.createdAt, "M/D/YYYY h:mm A") : "",
+    value: (a) => (a.createdAt ? FormatDate(a.createdAt, "M/D/YYYY h:mm A") : ""),
     field: "createdAt",
   },
   {
     label: "Last Updated",
-    value: (a) =>
-      a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : "",
+    value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
     field: "updatedAt",
     default: true,
   },
@@ -247,10 +243,8 @@ const ListingView: FC = () => {
   );
 
   // Only org owners/submitters with organizations assigned can create data submissions
-  const orgOwnerOrSubmitter =
-    user?.role === "Organization Owner" || user?.role === "Submitter";
-  const hasOrganizationAssigned =
-    user?.organization !== null && user?.organization?.orgID !== null;
+  const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
+  const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
   const shouldHaveAllFilter =
     user?.role === "Admin" ||
     user?.role === "Federal Lead" ||
@@ -260,22 +254,15 @@ const ListingView: FC = () => {
   const [perPage, setPerPage] = useState<number>(10);
   const [organizationFilter, setOrganizationFilter] = useState<string>(
     // eslint-disable-next-line no-nested-ternary
-    shouldHaveAllFilter
-      ? "All"
-      : hasOrganizationAssigned
-        ? user.organization?.orgName
-        : "All"
+    shouldHaveAllFilter ? "All" : hasOrganizationAssigned ? user.organization?.orgName : "All"
   );
   const [statusFilter, setStatusFilter] = useState<string>("All");
 
-  const { data: allOrganizations } = useQuery<listOrganizationsResponse>(
-    listOrganizationsQuery,
-    {
-      variables: {},
-      context: { clientName: "backend" },
-      fetchPolicy: "no-cache",
-    }
-  );
+  const { data: allOrganizations } = useQuery<listOrganizationsResponse>(listOrganizationsQuery, {
+    variables: {},
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
 
   const { data, loading, error, refetch } = useQuery<Response>(query, {
     variables: {
@@ -285,9 +272,7 @@ const ListingView: FC = () => {
       orderBy: orderBy.field,
       organization:
         organizationFilter !== "All"
-          ? allOrganizations?.listOrganizations?.find(
-              (org) => org.name === organizationFilter
-            )?._id
+          ? allOrganizations?.listOrganizations?.find((org) => org.name === organizationFilter)?._id
           : "All",
       status: statusFilter,
     },
@@ -319,11 +304,10 @@ const ListingView: FC = () => {
     });
   };
 
-  const organizationNames: SelectOption[] =
-    allOrganizations?.listOrganizations?.map((org) => ({
-      label: org.name,
-      value: org.name,
-    }));
+  const organizationNames: SelectOption[] = allOrganizations?.listOrganizations?.map((org) => ({
+    label: org.name,
+    value: org.name,
+  }));
   organizationNames?.unshift({ label: "All", value: "All" });
 
   return (
@@ -333,11 +317,7 @@ const ListingView: FC = () => {
         subTitle="Below is a list of data submissions that are associated with your account. Please click on any of the data submissions to review or continue work."
         padding="57px 0 0 25px"
         body={
-          <StyledBannerBody
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-end"
-          >
+          <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}
             {/* Create a submission only available to org owners and submitters that have organizations assigned */}
             <CreateDataSubmissionDialog
@@ -377,11 +357,7 @@ const ListingView: FC = () => {
                           id: "data-submissions-table-organization",
                         }}
                         readOnly={orgOwnerOrSubmitter || user?.role === "User"}
-                        onChange={(e) =>
-                          setOrganizationFilter(
-                            e.target.value as unknown as string
-                          )
-                        }
+                        onChange={(e) => setOrganizationFilter(e.target.value as unknown as string)}
                       >
                         {organizationNames?.map(({ value, label }) => (
                           <MenuItem key={value} value={value}>
@@ -403,9 +379,7 @@ const ListingView: FC = () => {
                         value={statusFilter}
                         MenuProps={{ disablePortal: true }}
                         inputProps={{ id: "data-submissions-table-status" }}
-                        onChange={(e) =>
-                          setStatusFilter(e.target.value as unknown as string)
-                        }
+                        onChange={(e) => setStatusFilter(e.target.value as unknown as string)}
                       >
                         {statusOptionArray.map(({ value, label }) => (
                           <MenuItem key={value} value={value}>
@@ -472,16 +446,10 @@ const ListingView: FC = () => {
               )}
 
               {/* No content message */}
-              {(!data?.listSubmissions?.total ||
-                data?.listSubmissions?.total === 0) && (
+              {(!data?.listSubmissions?.total || data?.listSubmissions?.total === 0) && (
                 <TableRow style={{ height: 53 * 10 }}>
                   <TableCell colSpan={columns.length}>
-                    <Typography
-                      variant="h6"
-                      align="center"
-                      fontSize={18}
-                      color="#757575"
-                    >
+                    <Typography variant="h6" align="center" fontSize={18} color="#757575">
                       There are no data submissions associated with your account
                     </Typography>
                   </TableCell>

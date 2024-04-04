@@ -95,13 +95,7 @@ type Props = {
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
 
-const UploaderToolDialog: FC<Props> = ({
-  title,
-  onClose,
-  onSubmit,
-  open,
-  ...rest
-}) => (
+const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest }) => (
   <StyledDialog
     open={open}
     onClose={() => onClose?.()}
@@ -116,10 +110,9 @@ const UploaderToolDialog: FC<Props> = ({
     </StyledHeader>
     <StyledDialogContent>
       <StyledBodyText id="uploader-cli-body" variant="body1">
-        The Uploader CLI is a command-line interface tool provided for directly
-        uploading data submission files from your workstation to the Data Hub
-        cloud storage. To download the tool and accompanying instructions, click
-        on the Download button below.
+        The Uploader CLI is a command-line interface tool provided for directly uploading data
+        submission files from your workstation to the Data Hub cloud storage. To download the tool
+        and accompanying instructions, click on the Download button below.
       </StyledBodyText>
     </StyledDialogContent>
     <StyledDialogActions>
@@ -132,11 +125,7 @@ const UploaderToolDialog: FC<Props> = ({
       >
         Download
       </StyledButton>
-      <StyledButton
-        id="uploader-cli-close-button"
-        variant="outlined"
-        onClick={onClose}
-      >
+      <StyledButton id="uploader-cli-close-button" variant="outlined" onClick={onClose}>
         Close
       </StyledButton>
     </StyledDialogActions>

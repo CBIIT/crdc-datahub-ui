@@ -23,10 +23,7 @@ import bannerSvg from "../../assets/banner/list_banner.svg";
 import PageBanner from "../../components/PageBanner";
 import { FormatDate } from "../../utils";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import {
-  mutation as SAVE_APP,
-  Response as SaveAppResp,
-} from "../../graphql/saveApplication";
+import { mutation as SAVE_APP, Response as SaveAppResp } from "../../graphql/saveApplication";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import usePageTitle from "../../hooks/usePageTitle";
 
@@ -142,15 +139,13 @@ const columns: Column[] = [
   },
   {
     label: "Submitted Date",
-    value: (a) =>
-      a.submittedDate ? FormatDate(a.submittedDate, "M/D/YYYY h:mm A") : "",
+    value: (a) => (a.submittedDate ? FormatDate(a.submittedDate, "M/D/YYYY h:mm A") : ""),
     field: "submittedDate",
     default: true,
   },
   {
     label: "Last Updated Date",
-    value: (a) =>
-      a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : "",
+    value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
     field: "updatedAt",
   },
   {
@@ -159,32 +154,21 @@ const columns: Column[] = [
       const role = user?.role;
 
       if (
-        (role === "User" ||
-          role === "Submitter" ||
-          role === "Organization Owner") &&
+        (role === "User" || role === "Submitter" || role === "Organization Owner") &&
         a.applicant?.applicantID === user._id &&
         ["New", "In Progress", "Inquired"].includes(a.status)
       ) {
         return (
-          <Link
-            to={`/submission/${a?.["_id"]}`}
-            state={{ from: "/submissions" }}
-          >
+          <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
             <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
               Resume
             </StyledActionButton>
           </Link>
         );
       }
-      if (
-        role === "Federal Lead" &&
-        ["Submitted", "In Review"].includes(a.status)
-      ) {
+      if (role === "Federal Lead" && ["Submitted", "In Review"].includes(a.status)) {
         return (
-          <Link
-            to={`/submission/${a?.["_id"]}`}
-            state={{ from: "/submissions" }}
-          >
+          <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
             <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">
               Review
             </StyledActionButton>
@@ -221,8 +205,7 @@ const ListingView: FC = () => {
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
-  const [creatingApplication, setCreatingApplication] =
-    useState<boolean>(false);
+  const [creatingApplication, setCreatingApplication] = useState<boolean>(false);
 
   const { data, loading, error } = useQuery<Response>(query, {
     variables: {
@@ -234,13 +217,10 @@ const ListingView: FC = () => {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
-  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(
-    SAVE_APP,
-    {
-      context: { clientName: "backend" },
-      fetchPolicy: "no-cache",
-    }
-  );
+  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
@@ -277,8 +257,7 @@ const ListingView: FC = () => {
     if (errors) {
       navigate("", {
         state: {
-          error:
-            "Unable to create a submission request. Please try again later",
+          error: "Unable to create a submission request. Please try again later",
         },
       });
       return;
@@ -296,19 +275,11 @@ const ListingView: FC = () => {
         subTitle="Below is a list of submission requests that are associated with your account. Please click on any of the submission requests to review or continue work."
         padding="57px 0 0 25px"
         body={
-          <StyledBannerBody
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-end"
-          >
+          <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {(user?.role === "User" ||
               user?.role === "Submitter" ||
               user?.role === "Organization Owner") && (
-              <StyledButton
-                type="button"
-                onClick={createApp}
-                loading={creatingApplication}
-              >
+              <StyledButton type="button" onClick={createApp} loading={creatingApplication}>
                 Start a Submission Request
               </StyledButton>
             )}
@@ -371,18 +342,11 @@ const ListingView: FC = () => {
               )}
 
               {/* No content message */}
-              {(!data?.listApplications?.total ||
-                data?.listApplications?.total === 0) && (
+              {(!data?.listApplications?.total || data?.listApplications?.total === 0) && (
                 <TableRow style={{ height: 53 * 10 }}>
                   <TableCell colSpan={columns.length}>
-                    <Typography
-                      variant="h6"
-                      align="center"
-                      fontSize={18}
-                      color="#757575"
-                    >
-                      There are no submission requests associated with your
-                      account
+                    <Typography variant="h6" align="center" fontSize={18} color="#757575">
+                      There are no submission requests associated with your account
                     </Typography>
                   </TableCell>
                 </TableRow>

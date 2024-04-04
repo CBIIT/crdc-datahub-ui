@@ -52,9 +52,7 @@ const PlannedPublication: FC<Props> = ({
           readOnly={readOnly}
         />
         <DatePickerInput
-          inputID={idPrefix.concat(
-            `planned-publication-${index}-expected-publication-date`
-          )}
+          inputID={idPrefix.concat(`planned-publication-${index}-expected-publication-date`)}
           label="Expected Publication Date"
           name={`study[plannedPublications][${index}][expectedDate]`}
           initialValue={expectedDate}
@@ -71,9 +69,7 @@ const PlannedPublication: FC<Props> = ({
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
-          id={idPrefix.concat(
-            `planned-publication-${index}-remove-planned-publication-button`
-          )}
+          id={idPrefix.concat(`planned-publication-${index}-remove-planned-publication-button`)}
           label="Remove Planned Publication"
           placement="start"
           onClick={onDelete}

@@ -18,8 +18,5 @@ export const mutation = gql`
 `;
 
 export type Response = {
-  updateMyUser: Pick<
-    User,
-    "firstName" | "lastName" | "userStatus" | "role" | "organization"
-  >;
+  updateMyUser: Pick<User, "firstName" | "lastName" | "userStatus" | "role" | "organization">;
 };

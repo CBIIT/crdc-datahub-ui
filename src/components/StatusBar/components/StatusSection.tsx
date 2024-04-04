@@ -54,18 +54,16 @@ const StyledStatus = styled("span")<{
   color: getColorScheme(status).color,
 }));
 
-const StyledButton = styled(Button)<{ status: ApplicationStatus }>(
-  ({ status }) => ({
-    ...getColorScheme(status),
-    fontWeight: "700",
-    borderRadius: "8px",
-    border: "0 !important",
-    textTransform: "none",
-    width: "165px",
-    lineHeight: "19px",
-    padding: "10px 20px 10px 20px",
-  })
-);
+const StyledButton = styled(Button)<{ status: ApplicationStatus }>(({ status }) => ({
+  ...getColorScheme(status),
+  fontWeight: "700",
+  borderRadius: "8px",
+  border: "0 !important",
+  textTransform: "none",
+  width: "165px",
+  lineHeight: "19px",
+  padding: "10px 20px 10px 20px",
+}));
 
 /**
  * Status Bar Application Status Section
@@ -79,10 +77,7 @@ const StatusSection: FC = () => {
 
   const [open, setOpen] = useState<boolean>(false);
   const lastReview = useMemo(
-    () =>
-      SortHistory(history).find(
-        (h: HistoryEvent) => h.reviewComment?.length > 0
-      ),
+    () => SortHistory(history).find((h: HistoryEvent) => h.reviewComment?.length > 0),
     [history]
   );
 
@@ -90,11 +85,7 @@ const StatusSection: FC = () => {
     <>
       {StatusIconMap[status] && (
         <StyledAvatar>
-          <img
-            src={StatusIconMap[status]}
-            alt={`${status} icon`}
-            data-testid="status-bar-icon"
-          />
+          <img src={StatusIconMap[status]} alt={`${status} icon`} data-testid="status-bar-icon" />
         </StyledAvatar>
       )}
       <StyledStatus

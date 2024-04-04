@@ -9,13 +9,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import {
-  Timeline,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineDot,
-  TimelineContent,
-} from "@mui/lab";
+import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineContent } from "@mui/lab";
 import { styled } from "@mui/material/styles";
 import { useFormContext } from "../../Contexts/FormContext";
 import { HistoryIconMap } from "../../../assets/history/submissionRequest";
@@ -193,14 +187,12 @@ const StyledTimelineContent = styled(TimelineContent)({
   color: "#fff",
 });
 
-const StyledTypography = styled(Typography)<{ status?: ApplicationStatus }>(
-  ({ status }) => ({
-    lineHeight: "2.5",
-    minWidth: "100px",
-    textAlign: "left",
-    color: getStatusColor(status),
-  })
-);
+const StyledTypography = styled(Typography)<{ status?: ApplicationStatus }>(({ status }) => ({
+  lineHeight: "2.5",
+  minWidth: "100px",
+  textAlign: "left",
+  color: getStatusColor(status),
+}));
 
 const StyledAvatar = styled(Avatar)({
   background: "transparent",
@@ -278,9 +270,7 @@ const HistorySection: FC = () => {
                         <StyledTypography title={dateTime}>
                           {FormatDate(dateTime, "M/D/YYYY", "N/A")}
                         </StyledTypography>
-                        <StyledTypography status={status}>
-                          {status?.toUpperCase()}
-                        </StyledTypography>
+                        <StyledTypography status={status}>{status?.toUpperCase()}</StyledTypography>
                         {index === 0 && HistoryIconMap[status] && (
                           <StyledAvatar>
                             <img

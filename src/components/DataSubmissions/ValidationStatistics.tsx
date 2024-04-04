@@ -5,11 +5,7 @@ import ContentCarousel from "../Carousel";
 import NodeTotalChart from "../NodeTotalChart";
 import MiniPieChart from "../NodeChart";
 import SuspenseLoader from "../SuspenseLoader";
-import {
-  buildMiniChartSeries,
-  buildPrimaryChartSeries,
-  compareNodeStats,
-} from "../../utils";
+import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from "../../utils";
 import StatisticLegend from "./StatisticLegend";
 
 type Props = {
@@ -99,16 +95,11 @@ const defaultFilters: LegendFilter[] = [
  * @param {Props} props
  * @returns {React.FC<Props>}
  */
-const DataSubmissionStatistics: FC<Props> = ({
-  dataSubmission,
-  statistics,
-}: Props) => {
+const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Props) => {
   const [filters, setFilters] = useState<LegendFilter[]>(defaultFilters);
   const [tabValue, setTabValue] = useState<"count" | "percentage">("count");
 
-  const disabledSeries: SeriesLabel[] = filters
-    .filter((f) => f.disabled)
-    .map((f) => f.label);
+  const disabledSeries: SeriesLabel[] = filters.filter((f) => f.disabled).map((f) => f.label);
   const dataset: SubmissionStatistic[] = useMemo(
     () => cloneDeep(statistics || []).sort(compareNodeStats),
     [statistics]
@@ -129,10 +120,8 @@ const DataSubmissionStatistics: FC<Props> = ({
     setFilters(newFilters);
   };
 
-  const handleViewByChange = (
-    _: React.SyntheticEvent,
-    newValue: "count" | "percentage"
-  ) => setTabValue(newValue);
+  const handleViewByChange = (_: React.SyntheticEvent, newValue: "count" | "percentage") =>
+    setTabValue(newValue);
 
   if (!dataSubmission || !dataset) {
     return (
@@ -145,9 +134,7 @@ const DataSubmissionStatistics: FC<Props> = ({
   if (!dataset?.some((s) => s.total > 0)) {
     return (
       <StyledChartArea direction="row">
-        <StyledNoData variant="h6">
-          No data has been successfully uploaded yet.
-        </StyledNoData>
+        <StyledNoData variant="h6">No data has been successfully uploaded yet.</StyledNoData>
       </StyledChartArea>
     );
   }
@@ -156,16 +143,8 @@ const DataSubmissionStatistics: FC<Props> = ({
     <StyledChartArea direction="row">
       <Stack direction="column" alignItems="center" flex={1}>
         <StyledSectionTitle variant="h6">Summary Total</StyledSectionTitle>
-        <NodeTotalChart
-          data={primaryChartSeries}
-          normalize={tabValue === "percentage"}
-        />
-        <Tabs
-          value={tabValue}
-          onChange={handleViewByChange}
-          aria-label="View chart by"
-          centered
-        >
+        <NodeTotalChart data={primaryChartSeries} normalize={tabValue === "percentage"} />
+        <Tabs value={tabValue} onChange={handleViewByChange} aria-label="View chart by" centered>
           <StyledTab label="View By Count" value="count" />
           <StyledTab label="View By Percentage" value="percentage" />
         </Tabs>
@@ -191,7 +170,6 @@ const DataSubmissionStatistics: FC<Props> = ({
   );
 };
 
-export default React.memo<Props>(
-  DataSubmissionStatistics,
-  (prevProps, nextProps) => isEqual(prevProps, nextProps)
+export default React.memo<Props>(DataSubmissionStatistics, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
 );

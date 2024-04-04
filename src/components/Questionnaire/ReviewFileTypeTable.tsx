@@ -104,28 +104,16 @@ const ReviewFileTypeTable: React.FC<ReviewFileTypeTableProps> = ({ files }) => (
     <Table>
       <TableHead>
         <StyledTableHeaderRow>
-          <StyledTableHeaderCell
-            id="review-file-type-table-file-type"
-            width="auto"
-          >
+          <StyledTableHeaderCell id="review-file-type-table-file-type" width="auto">
             File Type
           </StyledTableHeaderCell>
-          <StyledTableHeaderCell
-            id="review-file-type-table-file-extension"
-            width="25%"
-          >
+          <StyledTableHeaderCell id="review-file-type-table-file-extension" width="25%">
             File Extension
           </StyledTableHeaderCell>
-          <StyledTableHeaderCell
-            id="review-file-type-table-number-of-files"
-            width="17%"
-          >
+          <StyledTableHeaderCell id="review-file-type-table-number-of-files" width="17%">
             Number of files
           </StyledTableHeaderCell>
-          <StyledTableHeaderCell
-            id="review-file-type-table-estimated-data-size"
-            width="25%"
-          >
+          <StyledTableHeaderCell id="review-file-type-table-estimated-data-size" width="25%">
             Estimated data size
           </StyledTableHeaderCell>
         </StyledTableHeaderRow>
@@ -133,22 +121,13 @@ const ReviewFileTypeTable: React.FC<ReviewFileTypeTableProps> = ({ files }) => (
       <TableBody>
         {files.map((file: FileInfo, idx: number) => (
           <StyledTableRow key={`${file.type}-${file.count}-${file.amount}`}>
-            <StyledTableCell
-              id={`review-file-type-table-file-${idx}-file-type`}
-              width="auto"
-            >
+            <StyledTableCell id={`review-file-type-table-file-${idx}-file-type`} width="auto">
               {file.type}
             </StyledTableCell>
-            <StyledTableCell
-              id={`review-file-type-table-file-${idx}-file-extension`}
-              width="25%"
-            >
+            <StyledTableCell id={`review-file-type-table-file-${idx}-file-extension`} width="25%">
               {file.extension}
             </StyledTableCell>
-            <StyledTableCellNumber
-              id={`review-file-type-table-file-${idx}-file-count`}
-              width="17%"
-            >
+            <StyledTableCellNumber id={`review-file-type-table-file-${idx}-file-count`} width="17%">
               {file.count}
             </StyledTableCellNumber>
             <StyledTableCellNumber

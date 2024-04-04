@@ -13,15 +13,8 @@ const LogoArea = styled("div")({
 
 const Logo = () => (
   <LogoArea>
-    <Link
-      id="header-logo-home-link"
-      className="logoContainer"
-      to={headerData.globalHeaderLogoLink}
-    >
-      <img
-        src={headerData.globalHeaderLogoSmall}
-        alt={headerData.globalHeaderLogoAltText}
-      />
+    <Link id="header-logo-home-link" className="logoContainer" to={headerData.globalHeaderLogoLink}>
+      <img src={headerData.globalHeaderLogoSmall} alt={headerData.globalHeaderLogoAltText} />
     </Link>
   </LogoArea>
 );

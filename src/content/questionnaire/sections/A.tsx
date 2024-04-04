@@ -4,21 +4,14 @@ import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import {
-  Status as FormStatus,
-  useFormContext,
-} from "../../../components/Contexts/FormContext";
+import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
-import {
-  filterForNumbers,
-  mapObjectWithKey,
-  validateEmail,
-} from "../../../utils";
+import { filterForNumbers, mapObjectWithKey, validateEmail } from "../../../utils";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import institutionConfig from "../../../config/InstitutionConfig";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
@@ -46,10 +39,7 @@ const StyledFormControlLabel = styled(FormControlLabel)({
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
-const FormSectionA: FC<FormSectionProps> = ({
-  SectionOption,
-  refs,
-}: FormSectionProps) => {
+const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const {
     status,
     data: { questionnaireData: data },
@@ -59,9 +49,7 @@ const FormSectionA: FC<FormSectionProps> = ({
   const { readOnlyInputs } = useFormMode();
   const { A: SectionAMetadata } = SectionMetadata;
 
-  const [primaryContact, setPrimaryContact] = useState<Contact>(
-    data?.primaryContact
-  );
+  const [primaryContact, setPrimaryContact] = useState<Contact>(data?.primaryContact);
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(
     data?.piAsPrimaryContact || false
   );
@@ -94,10 +82,7 @@ const FormSectionA: FC<FormSectionProps> = ({
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
 
-    if (
-      !formObject.additionalContacts ||
-      formObject.additionalContacts.length === 0
-    ) {
+    if (!formObject.additionalContacts || formObject.additionalContacts.length === 0) {
       combinedData.additionalContacts = [];
     }
     if (formObject.piAsPrimaryContact) {
@@ -149,17 +134,11 @@ const FormSectionA: FC<FormSectionProps> = ({
   }, [location]);
 
   return (
-    <FormContainer
-      ref={formContainerRef}
-      formRef={formRef}
-      description={SectionOption.title}
-    >
+    <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
       {/* Principal Investigator */}
       <SectionGroup
         title={SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.title}
-        description={
-          SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.description
-        }
+        description={SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.description}
       >
         <TextInput
           id="section-a-pi-first-name"

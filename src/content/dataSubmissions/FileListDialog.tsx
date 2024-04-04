@@ -10,10 +10,7 @@ import {
 } from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import GenericTable, {
-  Column,
-  FetchListing,
-} from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column, FetchListing } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate, paginateAndSort } from "../../utils";
 
 const StyledDialog = styled(Dialog)({
@@ -151,9 +148,7 @@ const tableContainerSx: TableContainerProps["sx"] = {
 const columns: Column<BatchFileInfo>[] = [
   {
     label: "Type",
-    renderValue: (data) => (
-      <StyledNodeType>{data?.nodeType || "N/A"}</StyledNodeType>
-    ),
+    renderValue: (data) => <StyledNodeType>{data?.nodeType || "N/A"}</StyledNodeType>,
     field: "nodeType",
     default: true,
   },
@@ -174,8 +169,7 @@ type Props = {
 
 const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
   const [batchFiles, setBatchFiles] = useState<BatchFileInfo[]>([]);
-  const [prevBatchFilesFetch, setPrevBatchFilesFetch] =
-    useState<FetchListing<BatchFileInfo>>(null);
+  const [prevBatchFilesFetch, setPrevBatchFilesFetch] = useState<FetchListing<BatchFileInfo>>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -198,11 +192,7 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
       setError("Invalid submission ID provided.");
       return;
     }
-    if (
-      !force &&
-      batchFiles?.length > 0 &&
-      isEqual(fetchListing, prevBatchFilesFetch)
-    ) {
+    if (!force && batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFilesFetch)) {
       return;
     }
 
@@ -213,13 +203,7 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
   };
 
   return (
-    <StyledDialog
-      open={open}
-      onClose={handleCloseDialog}
-      title=""
-      {...rest}
-      scroll="body"
-    >
+    <StyledDialog open={open} onClose={handleCloseDialog} title="" {...rest} scroll="body">
       <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
         <CloseIconSvg />
       </StyledCloseDialogButton>
@@ -229,9 +213,7 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
         Uploaded on {FormatDate(batch?.createdAt, "M/D/YYYY [at] hh:mm A")}
       </StyledSubtitle>
 
-      <StyledNumberOfFiles>{`${
-        batch?.fileCount || 0
-      } FILES`}</StyledNumberOfFiles>
+      <StyledNumberOfFiles>{`${batch?.fileCount || 0} FILES`}</StyledNumberOfFiles>
 
       <GenericTable
         columns={columns}

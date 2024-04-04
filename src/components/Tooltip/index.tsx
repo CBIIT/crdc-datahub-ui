@@ -1,9 +1,4 @@
-import {
-  IconButton,
-  Tooltip as MuiToolTip,
-  TooltipProps,
-  styled,
-} from "@mui/material";
+import { IconButton, Tooltip as MuiToolTip, TooltipProps, styled } from "@mui/material";
 import { useState } from "react";
 import infoCircleIcon from "../../assets/icons/info_circle.svg";
 
@@ -72,11 +67,7 @@ const Tooltip = ({ classes, icon, children, title, ...rest }: Props) => {
       {...rest}
     >
       {children ?? (
-        <TooltipButton
-          onClick={toggleTooltip}
-          aria-label="Toggle Tooltip"
-          disableRipple
-        >
+        <TooltipButton onClick={toggleTooltip} aria-label="Toggle Tooltip" disableRipple>
           {icon ?? <TooltipIcon />}
         </TooltipButton>
       )}

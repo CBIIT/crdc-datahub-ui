@@ -171,19 +171,15 @@ const Home: FC = () => {
       <PageContentContainer>
         {authData.isLoggedIn ? (
           <div className="loginPageTextContainer">
-            <h1 className="loginPageTextTitle">
-              Welcome to CRDC Submission Portal
-            </h1>
+            <h1 className="loginPageTextTitle">Welcome to CRDC Submission Portal</h1>
             <div className="loginPageText">You are logged in.</div>
           </div>
         ) : (
           <div className="loginPageTextContainer">
-            <h1 className="loginPageTextTitle">
-              Login to CRDC Submission Portal
-            </h1>
+            <h1 className="loginPageTextTitle">Login to CRDC Submission Portal</h1>
             <div className="loginPageText">
-              Please login with a Login.gov account to make a data submission
-              request or to upload data for approved submissions
+              Please login with a Login.gov account to make a data submission request or to upload
+              data for approved submissions
             </div>
             <Link
               id="loginPageLoginButton"

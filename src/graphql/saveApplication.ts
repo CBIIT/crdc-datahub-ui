@@ -27,8 +27,5 @@ export const mutation = gql`
 `;
 
 export type Response = {
-  saveApplication: Omit<
-    Application,
-    "programName" | "studyAbbreviation" | "questionnaireData"
-  >;
+  saveApplication: Omit<Application, "programName" | "studyAbbreviation" | "questionnaireData">;
 };

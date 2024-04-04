@@ -28,13 +28,7 @@ type Submission = {
  * @note `null` indicates that the type has not been uploaded yet.
  * @note `New` indicates that the type has been uploaded but not validated yet.
  */
-type ValidationStatus =
-  | null
-  | "New"
-  | "Validating"
-  | "Passed"
-  | "Error"
-  | "Warning";
+type ValidationStatus = null | "New" | "Validating" | "Passed" | "Error" | "Warning";
 
 type SubmissionStatus =
   | "New"

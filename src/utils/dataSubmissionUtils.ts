@@ -10,31 +10,20 @@ export type SubmitInfo = {
  * @param {User["role"]} userRole - The role of the user
  * @returns {SubmitInfo} Info indicating whether or not to disable submit, as well as if it is due to an admin override
  */
-export const shouldDisableSubmit = (
-  submission: Submission,
-  userRole: User["role"]
-): SubmitInfo => {
+export const shouldDisableSubmit = (submission: Submission, userRole: User["role"]): SubmitInfo => {
   if (!userRole) {
     return { disable: true, isAdminOverride: false };
   }
-  const {
-    metadataValidationStatus,
-    fileValidationStatus,
-    fileErrors,
-    intention,
-  } = submission;
+  const { metadataValidationStatus, fileValidationStatus, fileErrors, intention } = submission;
 
   const isAdmin = userRole === "Admin";
   const isMissingBoth = !metadataValidationStatus && !fileValidationStatus;
   const isMissingOne = !metadataValidationStatus || !fileValidationStatus;
   const isValidating =
-    metadataValidationStatus === "Validating" ||
-    fileValidationStatus === "Validating";
+    metadataValidationStatus === "Validating" || fileValidationStatus === "Validating";
   const isDeleteIntention = intention === "Delete";
-  const hasNew =
-    metadataValidationStatus === "New" || fileValidationStatus === "New";
-  const hasError =
-    metadataValidationStatus === "Error" || fileValidationStatus === "Error";
+  const hasNew = metadataValidationStatus === "New" || fileValidationStatus === "New";
+  const hasError = metadataValidationStatus === "Error" || fileValidationStatus === "Error";
   const hasSubmissionLevelErrors = fileErrors?.length > 0;
 
   const isAdminOverride =
@@ -50,8 +39,7 @@ export const shouldDisableSubmit = (
     hasNew ||
     hasSubmissionLevelErrors ||
     (isDeleteIntention && !metadataValidationStatus) ||
-    (userRole !== "Admin" &&
-      (hasError || (isMissingOne && !isDeleteIntention)));
+    (userRole !== "Admin" && (hasError || (isMissingOne && !isDeleteIntention)));
 
   return { disable, isAdminOverride };
 };
@@ -99,11 +87,7 @@ export const unpackQCResultSeverities = (results: QCResult[]): QCResult[] => {
  * @param contentType the content type
  * @returns void
  */
-export const downloadBlob = (
-  content: string,
-  filename: string,
-  contentType: string
-): void => {
+export const downloadBlob = (content: string, filename: string, contentType: string): void => {
   const blob = new Blob([content], { type: contentType });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");

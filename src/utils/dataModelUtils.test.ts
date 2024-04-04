@@ -80,13 +80,9 @@ describe("fetchManifest cases", () => {
   });
 
   it("should throw an error if fetch fails", async () => {
-    (fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.reject(new Error("fetch error"))
-    );
+    (fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error("fetch error")));
 
-    await expect(utils.fetchManifest()).rejects.toThrow(
-      "Unable to fetch or parse manifest"
-    );
+    await expect(utils.fetchManifest()).rejects.toThrow("Unable to fetch or parse manifest");
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
@@ -96,9 +92,7 @@ describe("fetchManifest cases", () => {
       Promise.resolve({ json: () => Promise.reject(new Error("JSON error")) })
     );
 
-    await expect(utils.fetchManifest()).rejects.toThrow(
-      "Unable to fetch or parse manifest"
-    );
+    await expect(utils.fetchManifest()).rejects.toThrow("Unable to fetch or parse manifest");
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
@@ -139,24 +133,21 @@ describe("buildAssetUrls cases", () => {
   });
 
   const readMeValues = ["", null, undefined, false];
-  it.each(readMeValues)(
-    "should not include a README URL if the filename is %s",
-    (readme) => {
-      const dc: DataCommon = {
-        name: "test-name",
-        assets: {
-          "current-version": "1.0",
-          "model-file": "model-file",
-          "prop-file": "prop-file",
-          "readme-file": readme,
-        } as ManifestAssets,
-      } as DataCommon;
+  it.each(readMeValues)("should not include a README URL if the filename is %s", (readme) => {
+    const dc: DataCommon = {
+      name: "test-name",
+      assets: {
+        "current-version": "1.0",
+        "model-file": "model-file",
+        "prop-file": "prop-file",
+        "readme-file": readme,
+      } as ManifestAssets,
+    } as DataCommon;
 
-      const result = utils.buildAssetUrls(dc);
+    const result = utils.buildAssetUrls(dc);
 
-      expect(result.readme).toEqual(null);
-    }
-  );
+    expect(result.readme).toEqual(null);
+  });
 
   it("should not throw an exception if dealing with invalid data", () => {
     expect(() => utils.buildAssetUrls(null)).not.toThrow();

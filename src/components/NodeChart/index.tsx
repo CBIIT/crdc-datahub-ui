@@ -52,24 +52,17 @@ const StyledChartContainer = styled(Box)({
 const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
   const [hoveredSlice, setHoveredSlice] = useState<PieSectorDataItem>(null);
 
-  const dataset: PieSectorDataItem[] = useMemo(
-    () => data.filter(({ value }) => value > 0),
-    [data]
-  );
+  const dataset: PieSectorDataItem[] = useMemo(() => data.filter(({ value }) => value > 0), [data]);
   const onMouseOver = useCallback((data) => setHoveredSlice(data), []);
   const onMouseLeave = useCallback(() => setHoveredSlice(null), []);
   const showDefaultCenter: boolean = useMemo(
-    () =>
-      (dataset.length === 0 && hoveredSlice === null) ||
-      hoveredSlice?.value === 0,
+    () => (dataset.length === 0 && hoveredSlice === null) || hoveredSlice?.value === 0,
     [dataset, hoveredSlice]
   );
 
   return (
     <StyledChartContainer>
-      {label && (
-        <StyledPieChartLabel>{label.replace(/_/g, " ")}</StyledPieChartLabel>
-      )}
+      {label && <StyledPieChartLabel>{label.replace(/_/g, " ")}</StyledPieChartLabel>}
       <PieChart width={150} height={150}>
         <Pie
           data={[{ value: 100 }]}
@@ -81,10 +74,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
           aria-label={`${label} chart background`}
         >
           {showDefaultCenter ? (
-            <Label
-              position="center"
-              content={<PieChartCenter title="Total" value={0} />}
-            />
+            <Label position="center" content={<PieChartCenter title="Total" value={0} />} />
           ) : null}
         </Pie>
         <Pie

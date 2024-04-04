@@ -47,12 +47,7 @@ const StyledColorBox = styled(Box, {
  * @returns {React.FC<Props>}
  */
 const LegendItem: FC<Props> = ({ color, label, disabled, onClick }: Props) => (
-  <StyledStack
-    direction="row"
-    alignItems="center"
-    disabled={disabled}
-    onClick={() => onClick?.()}
-  >
+  <StyledStack direction="row" alignItems="center" disabled={disabled} onClick={() => onClick?.()}>
     <StyledColorBox color={color} />
     <StyledLabel>{label}</StyledLabel>
   </StyledStack>

@@ -8,13 +8,11 @@ type Props = {
   studies: Organization["studies"];
 };
 
-const StyledStudyCount = styled(Typography)<{ component: ElementType }>(
-  ({ theme }) => ({
-    textDecoration: "underline",
-    cursor: "pointer",
-    color: theme.palette.primary.main,
-  })
-);
+const StyledStudyCount = styled(Typography)<{ component: ElementType }>(({ theme }) => ({
+  textDecoration: "underline",
+  cursor: "pointer",
+  color: theme.palette.primary.main,
+}));
 
 const TooltipBody: FC<Props> = ({ _id, studies }) => (
   <Typography variant="body1">

@@ -1,10 +1,4 @@
-import React, {
-  FC,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { FC, createContext, useContext, useEffect, useState } from "react";
 import { DataCommons } from "../../config/DataCommons";
 import { fetchManifest } from "../../utils";
 
@@ -88,17 +82,11 @@ type ProviderProps = {
  * @param {ProviderProps} props
  * @returns {JSX.Element} Context provider
  */
-export const DataCommonProvider: FC<ProviderProps> = ({
-  DataCommon,
-  children,
-}: ProviderProps) => {
+export const DataCommonProvider: FC<ProviderProps> = ({ DataCommon, children }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
   useEffect(() => {
-    if (
-      !DataCommon ||
-      DataCommons.find((dc) => dc.name === DataCommon) === undefined
-    ) {
+    if (!DataCommon || DataCommons.find((dc) => dc.name === DataCommon) === undefined) {
       setState({
         status: Status.ERROR,
         DataCommon: null,

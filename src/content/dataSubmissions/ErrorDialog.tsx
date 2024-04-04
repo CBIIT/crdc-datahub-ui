@@ -1,12 +1,4 @@
-import {
-  Button,
-  Dialog,
-  DialogProps,
-  IconButton,
-  Stack,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { FormatDate } from "../../utils";
 
@@ -149,17 +141,12 @@ const ErrorDialog = ({
       )}
       <StyledErrorDetails direction="column" spacing={2.5}>
         <StyledSubtitle variant="body2">
-          {errorCount ||
-            `${errors?.length || 0} ${
-              errors?.length === 1 ? "ERROR" : "ERRORS"
-            }`}
+          {errorCount || `${errors?.length || 0} ${errors?.length === 1 ? "ERROR" : "ERRORS"}`}
         </StyledSubtitle>
         <StyledErrors direction="column" spacing={2.75} padding={1.25}>
           {errors?.map((error: string, idx: number) => (
             // eslint-disable-next-line react/no-array-index-key
-            <StyledErrorItem key={`${idx}_${error}`}>{`${
-              idx + 1
-            }. ${error}`}</StyledErrorItem>
+            <StyledErrorItem key={`${idx}_${error}`}>{`${idx + 1}. ${error}`}</StyledErrorItem>
           ))}
         </StyledErrors>
       </StyledErrorDetails>

@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  ReactNode,
-  ComponentType,
-  ComponentProps,
-} from "react";
+import { useState, useEffect, ReactNode, ComponentType, ComponentProps } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type WrapperProps<T extends ComponentType<any>> = ComponentProps<T> & {
@@ -24,7 +18,5 @@ export const useConditionalWrapper: Props = (condition, wrapper) => {
     setRenderWrapper(condition());
   }, []);
 
-  return renderWrapper
-    ? wrapper
-    : ({ children }: WrapperProps<typeof wrapper>) => children;
+  return renderWrapper ? wrapper : ({ children }: WrapperProps<typeof wrapper>) => children;
 };

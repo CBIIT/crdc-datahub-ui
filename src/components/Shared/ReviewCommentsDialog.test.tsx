@@ -102,10 +102,7 @@ describe("ReviewCommentsDialog Tests", () => {
     };
     const { getByText } = render(<BaseComponent {...data} />);
 
-    expect(getByText(/Based on submission from/)).toHaveAttribute(
-      "title",
-      mockLastReview.dateTime
-    );
+    expect(getByText(/Based on submission from/)).toHaveAttribute("title", mockLastReview.dateTime);
   });
 
   it("closes the dialog when the close button is clicked", async () => {

@@ -1,10 +1,4 @@
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloLink,
-  HttpLink,
-  DefaultOptions,
-} from "@apollo/client";
+import { ApolloClient, InMemoryCache, ApolloLink, HttpLink, DefaultOptions } from "@apollo/client";
 import env from "./env";
 
 const defaultOptions: DefaultOptions = {

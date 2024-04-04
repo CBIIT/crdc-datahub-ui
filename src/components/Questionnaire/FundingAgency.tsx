@@ -27,13 +27,7 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const FundingAgency: FC<Props> = ({
-  idPrefix = "",
-  index,
-  funding,
-  readOnly,
-  onDelete,
-}: Props) => {
+const FundingAgency: FC<Props> = ({ idPrefix = "", index, funding, readOnly, onDelete }: Props) => {
   const { status } = useFormContext();
 
   const { agency, grantNumbers, nciProgramOfficer, nciGPA } = funding || {};
@@ -55,9 +49,7 @@ const FundingAgency: FC<Props> = ({
           readOnly={readOnly}
         />
         <TextInput
-          id={idPrefix.concat(
-            `funding-agency-${index}-grant-or-contract-numbers`
-          )}
+          id={idPrefix.concat(`funding-agency-${index}-grant-or-contract-numbers`)}
           label="Grant or Contract Number(s)"
           name={`study[funding][${index}][grantNumbers]`}
           value={grantNumbers}
@@ -83,9 +75,7 @@ const FundingAgency: FC<Props> = ({
           readOnly={readOnly}
         />
         <TextInput
-          id={idPrefix.concat(
-            `funding-agency-${index}-nci-genomic-program-administrator`
-          )}
+          id={idPrefix.concat(`funding-agency-${index}-nci-genomic-program-administrator`)}
           label="NCI Genomic Program Administrator"
           name={`study[funding][${index}][nciGPA]`}
           value={nciGPA}

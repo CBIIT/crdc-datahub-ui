@@ -38,16 +38,8 @@ type Props = ButtonProps & {
   textColor?: string;
 };
 
-const AddRemoveButton: FC<Props> = ({
-  label,
-  placement = "end",
-  disabled,
-  onClick,
-  ...rest
-}) => {
-  const onClickWrapper = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
+const AddRemoveButton: FC<Props> = ({ label, placement = "end", disabled, onClick, ...rest }) => {
+  const onClickWrapper = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     if (disabled) {
       return;
     }

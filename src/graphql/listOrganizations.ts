@@ -20,12 +20,6 @@ export const query = gql`
 export type Response = {
   listOrganizations: Pick<
     Organization,
-    | "_id"
-    | "name"
-    | "status"
-    | "conciergeName"
-    | "studies"
-    | "createdAt"
-    | "updateAt"
+    "_id" | "name" | "status" | "conciergeName" | "studies" | "createdAt" | "updateAt"
   >[];
 };

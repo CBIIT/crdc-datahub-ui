@@ -3,11 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import { fireEvent, render, waitFor } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import { axe } from "jest-axe";
-import {
-  ContextState,
-  Context as FormCtx,
-  Status as FormStatus,
-} from "../Contexts/FormContext";
+import { ContextState, Context as FormCtx, Status as FormStatus } from "../Contexts/FormContext";
 import StatusBar from "./StatusBar";
 import StatusApproved from "../../assets/history/submissionRequest/StatusApproved.svg";
 import StatusRejected from "../../assets/history/submissionRequest/StatusRejected.svg";
@@ -141,38 +137,32 @@ describe("StatusBar > General Tests", () => {
     "-06-12T09:13:58.000Z",
     "12023-06-20T09:13:58",
   ];
-  it.each(invalidDates)(
-    "defaults the last updated date to N/A for invalid date %p",
-    (date) => {
-      const data = {
-        status: "In Progress",
-        updatedAt: date,
-      };
+  it.each(invalidDates)("defaults the last updated date to N/A for invalid date %p", (date) => {
+    const data = {
+      status: "In Progress",
+      updatedAt: date,
+    };
 
-      const { getByTestId } = render(<BaseComponent data={data} />);
+    const { getByTestId } = render(<BaseComponent data={data} />);
 
-      expect(getByTestId("status-bar-last-updated")).toHaveTextContent("N/A");
-    }
-  );
+    expect(getByTestId("status-bar-last-updated")).toHaveTextContent("N/A");
+  });
 
   const validDates = [
     ["2019-11-23T14:26:01Z", "11/23/2019"],
     ["2027-04-24T19:01:09Z", "4/24/2027"],
     ["2031-01-07T19:01:09Z", "1/7/2031"],
   ];
-  it.each(validDates)(
-    "formats the last updated date %p as %p",
-    (input, output) => {
-      const data = {
-        status: "In Progress",
-        updatedAt: input,
-      };
+  it.each(validDates)("formats the last updated date %p as %p", (input, output) => {
+    const data = {
+      status: "In Progress",
+      updatedAt: input,
+    };
 
-      const { getByTestId } = render(<BaseComponent data={data} />);
+    const { getByTestId } = render(<BaseComponent data={data} />);
 
-      expect(getByTestId("status-bar-last-updated")).toHaveTextContent(output);
-    }
-  );
+    expect(getByTestId("status-bar-last-updated")).toHaveTextContent(output);
+  });
 
   const statusWithIcon = [
     ["Rejected", StatusRejected],
@@ -191,14 +181,11 @@ describe("StatusBar > General Tests", () => {
   );
 
   const statusWithoutIcon = ["In Progress", "Submitted", "In Review", "New"];
-  it.each(statusWithoutIcon)(
-    "does not render an icon for status %p",
-    (status) => {
-      const { getByTestId } = render(<BaseComponent data={{ status }} />);
+  it.each(statusWithoutIcon)("does not render an icon for status %p", (status) => {
+    const { getByTestId } = render(<BaseComponent data={{ status }} />);
 
-      expect(() => getByTestId("status-bar-icon")).toThrow();
-    }
-  );
+    expect(() => getByTestId("status-bar-icon")).toThrow();
+  });
 });
 
 describe("StatusBar > Comments Modal Tests", () => {
@@ -307,9 +294,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
   it("provides the unformatted review date as a title attribute", () => {
     const data = {
-      history: [
-        { dateTime: "2009-11-24T11:42:45Z", reviewComment: "abc comment 123" },
-      ],
+      history: [{ dateTime: "2009-11-24T11:42:45Z", reviewComment: "abc comment 123" }],
     };
 
     const { getByText } = render(<BaseComponent data={data} />);
@@ -318,9 +303,10 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(
-      getByText(/BASED ON SUBMISSION FROM 11\/24\/2009:/i)
-    ).toHaveAttribute("title", data.history[0].dateTime);
+    expect(getByText(/BASED ON SUBMISSION FROM 11\/24\/2009:/i)).toHaveAttribute(
+      "title",
+      data.history[0].dateTime
+    );
   });
 
   it("closes the modal with the Close button", async () => {
@@ -340,9 +326,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(queryByTestId("review-comments-dialog-close"));
     });
 
-    await waitFor(() =>
-      expect(queryByTestId("review-comments-dialog")).toBeNull()
-    );
+    await waitFor(() => expect(queryByTestId("review-comments-dialog")).toBeNull());
   });
 });
 
@@ -386,9 +370,7 @@ describe("StatusBar > History Modal Tests", () => {
       fireEvent.click(getByText("Full History"));
     });
 
-    const elements = getByTestId("status-bar-history-dialog").querySelectorAll(
-      "li"
-    );
+    const elements = getByTestId("status-bar-history-dialog").querySelectorAll("li");
     expect(elements[0]).toHaveTextContent(/Rejected/i);
     expect(elements[0]).toHaveTextContent("11/24/2023");
     expect(elements[1]).toHaveTextContent(/In Progress/i);
@@ -447,10 +429,7 @@ describe("StatusBar > History Modal Tests", () => {
       fireEvent.click(getByText("Full History"));
     });
 
-    expect(getByText("11/24/2009")).toHaveAttribute(
-      "title",
-      data.history[0].dateTime
-    );
+    expect(getByText("11/24/2009")).toHaveAttribute("title", data.history[0].dateTime);
   });
 
   it("closes the modal with the Close button", async () => {
@@ -470,8 +449,6 @@ describe("StatusBar > History Modal Tests", () => {
       fireEvent.click(queryByTestId("status-bar-dialog-close"));
     });
 
-    await waitFor(() =>
-      expect(queryByTestId("status-bar-history-dialog")).toBeNull()
-    );
+    await waitFor(() => expect(queryByTestId("status-bar-history-dialog")).toBeNull());
   });
 });

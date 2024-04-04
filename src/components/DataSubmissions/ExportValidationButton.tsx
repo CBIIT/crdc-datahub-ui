@@ -6,11 +6,7 @@ import { useSnackbar } from "notistack";
 import dayjs from "dayjs";
 import { unparse } from "papaparse";
 import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
-import {
-  downloadBlob,
-  filterAlphaNumeric,
-  unpackQCResultSeverities,
-} from "../../utils";
+import { downloadBlob, filterAlphaNumeric, unpackQCResultSeverities } from "../../utils";
 
 export type Props = {
   /**
@@ -46,13 +42,10 @@ export const ExportValidationButton: React.FC<Props> = ({
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(
-    SUBMISSION_QC_RESULTS,
-    {
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-    }
-  );
+  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+  });
 
   const handleClick = async () => {
     setLoading(true);
@@ -70,10 +63,9 @@ export const ExportValidationButton: React.FC<Props> = ({
     });
 
     if (error || !d?.submissionQCResults?.results) {
-      enqueueSnackbar(
-        "Unable to retrieve submission quality control results.",
-        { variant: "error" }
-      );
+      enqueueSnackbar("Unable to retrieve submission quality control results.", {
+        variant: "error",
+      });
       setLoading(false);
       return;
     }
@@ -87,13 +79,8 @@ export const ExportValidationButton: React.FC<Props> = ({
     }
 
     try {
-      const filteredName = filterAlphaNumeric(
-        submission.name?.trim()?.replaceAll(" ", "-"),
-        "-"
-      );
-      const filename = `${filteredName}-${dayjs().format(
-        "YYYY-MM-DDTHHmmss"
-      )}.csv`;
+      const filteredName = filterAlphaNumeric(submission.name?.trim()?.replaceAll(" ", "-"), "-");
+      const filename = `${filteredName}-${dayjs().format("YYYY-MM-DDTHHmmss")}.csv`;
       const unpacked = unpackQCResultSeverities(d.submissionQCResults.results);
       const fieldset = Object.entries(fields);
       const csvArray = [];

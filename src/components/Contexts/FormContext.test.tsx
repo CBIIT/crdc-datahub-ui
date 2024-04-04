@@ -2,11 +2,7 @@ import React, { FC } from "react";
 import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
-import {
-  Status as FormStatus,
-  FormProvider,
-  useFormContext,
-} from "./FormContext";
+import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
 import { query as GET_APP } from "../../graphql/getApplication";
 import { query as GET_LAST_APP } from "../../graphql/getMyLastApplication";
 
@@ -62,14 +58,10 @@ describe("FormContext > FormProvider Tests", () => {
   it("should return an error for empty IDs", async () => {
     const screen = render(<TestParent appId="" />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("error")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("error")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(FormStatus.ERROR);
-    expect(screen.getByTestId("error").textContent).toEqual(
-      "Invalid application ID provided"
-    );
+    expect(screen.getByTestId("error").textContent).toEqual("Invalid application ID provided");
   });
 
   it("should return an error for graphql-based failures", async () => {
@@ -90,9 +82,7 @@ describe("FormContext > FormProvider Tests", () => {
       <TestParent mocks={mocks} appId="556ac14a-f247-42e8-8878-8468060fb49a" />
     );
 
-    await waitFor(() =>
-      expect(screen.getByTestId("error")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("error")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(FormStatus.ERROR);
     expect(screen.getByTestId("error").textContent).toEqual(
@@ -116,9 +106,7 @@ describe("FormContext > FormProvider Tests", () => {
       <TestParent mocks={mocks} appId="556ac14a-f247-42e8-8878-8468060fb49a" />
     );
 
-    await waitFor(() =>
-      expect(screen.getByTestId("error")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("error")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(FormStatus.ERROR);
     expect(screen.getByTestId("error").textContent).toEqual(
@@ -155,17 +143,13 @@ describe("FormContext > FormProvider Tests", () => {
       <TestParent mocks={mocks} appId="556ac14a-f247-42e8-8878-8468060fb49a" />
     );
 
-    await waitFor(() =>
-      expect(screen.getByTestId("status")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
     expect(screen.getByTestId("app-id").textContent).toEqual(
       "556ac14a-f247-42e8-8878-8468060fb49a"
     );
-    expect(screen.getByTestId("pi-first-name").textContent).toEqual(
-      "Successfully"
-    );
+    expect(screen.getByTestId("pi-first-name").textContent).toEqual("Successfully");
     expect(screen.getByTestId("pi-last-name").textContent).toEqual("Fetched");
   });
 
@@ -192,9 +176,7 @@ describe("FormContext > FormProvider Tests", () => {
     ];
     const screen = render(<TestParent mocks={mocks} appId="new" />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("status")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
     expect(screen.getByTestId("app-id").textContent).toEqual("new");
@@ -218,9 +200,7 @@ describe("FormContext > FormProvider Tests", () => {
     ];
     const screen = render(<TestParent mocks={mocks} appId="new" />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("status")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
     expect(screen.getByTestId("app-id").textContent).toEqual("new");
@@ -265,13 +245,9 @@ describe("FormContext > FormProvider Tests", () => {
         },
       },
     ];
-    const screen = render(
-      <TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />
-    );
+    const screen = render(<TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("status")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
     expect(screen.getByTestId("pi-first-name").textContent).toEqual("Test");
@@ -317,13 +293,9 @@ describe("FormContext > FormProvider Tests", () => {
         },
       },
     ];
-    const screen = render(
-      <TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />
-    );
+    const screen = render(<TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("status")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
     expect(screen.getByTestId("pi-first-name").textContent).toEqual("");

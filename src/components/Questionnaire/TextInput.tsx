@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  ReactNode,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from "react";
+import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -185,9 +178,7 @@ const TextInput: FC<Props> = ({
     setVal(newVal);
   };
 
-  const onChangeWrapper = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (typeof onChange === "function") {
       onChange(event);
     }

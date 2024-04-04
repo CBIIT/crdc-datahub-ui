@@ -49,10 +49,7 @@ export const buildPrimaryChartSeries = (
  * @param b The second SubmissionStatistic
  * @returns The comparison result
  */
-export const compareNodeStats = (
-  a: SubmissionStatistic,
-  b: SubmissionStatistic
-): number => {
+export const compareNodeStats = (a: SubmissionStatistic, b: SubmissionStatistic): number => {
   if (a.total === b.total) {
     return a.nodeName.localeCompare(b.nodeName);
   }

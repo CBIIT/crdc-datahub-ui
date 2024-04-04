@@ -3,10 +3,7 @@ import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { Button, styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
-import {
-  navMobileList,
-  navbarSublists,
-} from "../../../config/globalHeaderData";
+import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
 import APITokenDialog from "../../../content/users/APITokenDialog";
 import UploaderToolDialog from "../../../content/users/UploaderToolDialog";
 
@@ -284,10 +281,7 @@ const useOutsideAlerter = (ref1, ref2) => {
           !ref2.current.contains(event.target))
       ) {
         const toggle = document.getElementsByClassName("navText clicked");
-        if (
-          toggle[0] &&
-          !event.target.getAttribute("class")?.includes("navText clicked")
-        ) {
+        if (toggle[0] && !event.target.getAttribute("class")?.includes("navText clicked")) {
           const temp: HTMLElement = toggle[0] as HTMLElement;
           temp.click();
         }
@@ -339,10 +333,7 @@ const NavBar = () => {
   };
 
   const handleMenuClick = (e) => {
-    if (
-      e.target.innerText === clickedTitle ||
-      !clickableTitle.includes(e.target.innerText)
-    ) {
+    if (e.target.innerText === clickedTitle || !clickableTitle.includes(e.target.innerText)) {
       setClickedTitle("");
     } else {
       setClickedTitle(e.target.innerText);
@@ -362,8 +353,7 @@ const NavBar = () => {
   function shouldBeUnderlined(item) {
     const linkName = item.name;
     const correctPath = window.location.href.slice(
-      window.location.href.lastIndexOf(window.location.host) +
-        window.location.host.length
+      window.location.href.lastIndexOf(window.location.host) + window.location.host.length
     );
     if (item.className === "navMobileItem") {
       return correctPath === item.link;
@@ -371,9 +361,7 @@ const NavBar = () => {
     if (navbarSublists[linkName] === undefined) {
       return false;
     }
-    const linkNames = Object.values(navbarSublists[linkName]).map(
-      (e: NavSubLinkData) => e.link
-    );
+    const linkNames = Object.values(navbarSublists[linkName]).map((e: NavSubLinkData) => e.link);
     return linkNames.includes(correctPath);
   }
 
@@ -404,11 +392,7 @@ const NavBar = () => {
                 <div className="navTitle directLink">
                   <NavLink
                     to={navMobileItem.link}
-                    target={
-                      navMobileItem.link.startsWith("https://")
-                        ? "_blank"
-                        : "_self"
-                    }
+                    target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
                   >
                     <div
                       id={navMobileItem.id}
@@ -416,9 +400,7 @@ const NavBar = () => {
                       role="button"
                       tabIndex={0}
                       className={`navText directLink ${
-                        shouldBeUnderlined(navMobileItem)
-                          ? "shouldBeUnderlined"
-                          : ""
+                        shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""
                       }`}
                       onClick={handleMenuClick}
                     >
@@ -430,11 +412,7 @@ const NavBar = () => {
             ) : (
               <LiSection key={navkey}>
                 <div
-                  className={
-                    clickedTitle === navMobileItem.name
-                      ? "navTitleClicked"
-                      : "navTitle"
-                  }
+                  className={clickedTitle === navMobileItem.name ? "navTitleClicked" : "navTitle"}
                 >
                   <div
                     id={navMobileItem.id}
@@ -442,14 +420,8 @@ const NavBar = () => {
                     role="button"
                     tabIndex={0}
                     className={`${
-                      clickedTitle === navMobileItem.name
-                        ? "navText clicked"
-                        : "navText"
-                    } ${
-                      shouldBeUnderlined(navMobileItem)
-                        ? "shouldBeUnderlined"
-                        : ""
-                    }`}
+                      clickedTitle === navMobileItem.name ? "navText clicked" : "navText"
+                    } ${shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""}`}
                     onClick={handleMenuClick}
                   >
                     {navMobileItem.name}
@@ -458,17 +430,11 @@ const NavBar = () => {
               </LiSection>
             );
           })}
-          <LiSection
-            className={`name-dropdown-li${
-              authData?.isLoggedIn ? "" : " login-button"
-            }`}
-          >
+          <LiSection className={`name-dropdown-li${authData?.isLoggedIn ? "" : " login-button"}`}>
             {authData.isLoggedIn ? (
               <div
                 id="navbar-dropdown-name-container"
-                className={
-                  clickedTitle === displayName ? "navTitleClicked" : "navTitle"
-                }
+                className={clickedTitle === displayName ? "navTitleClicked" : "navTitle"}
               >
                 <div
                   id="navbar-dropdown-name"
@@ -497,10 +463,7 @@ const NavBar = () => {
           </LiSection>
         </UlContainer>
       </NavContainer>
-      <Dropdown
-        ref={dropdownSelection}
-        className={clickedTitle === "" ? "invisible" : ""}
-      >
+      <Dropdown ref={dropdownSelection} className={clickedTitle === "" ? "invisible" : ""}>
         <NameDropdownContainer>
           <div className="dropdownList">
             {clickedTitle !== "" && clickedTitle !== displayName
@@ -509,11 +472,7 @@ const NavBar = () => {
                   return (
                     dropItem.link && (
                       <Link
-                        target={
-                          dropItem.link.startsWith("https://")
-                            ? "_blank"
-                            : "_self"
-                        }
+                        target={dropItem.link.startsWith("https://") ? "_blank" : "_self"}
                         id={dropItem.id}
                         to={dropItem.link}
                         className="dropdownItem"
@@ -613,14 +572,8 @@ const NavBar = () => {
           </div>
         </NameDropdownContainer>
       </NameDropdown>
-      <APITokenDialog
-        open={openAPITokenDialog}
-        onClose={() => setOpenAPITokenDialog(false)}
-      />
-      <UploaderToolDialog
-        open={uploaderToolOpen}
-        onClose={() => setUploaderToolOpen(false)}
-      />
+      <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
+      <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
     </Nav>
   );
 };

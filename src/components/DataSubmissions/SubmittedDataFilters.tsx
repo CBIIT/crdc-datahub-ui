@@ -124,11 +124,7 @@ export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
               data-testid="data-content-node-filter"
             >
               {nodeTypes?.map((nodeType) => (
-                <MenuItem
-                  key={nodeType}
-                  value={nodeType}
-                  data-testid={`nodeType-${nodeType}`}
-                >
+                <MenuItem key={nodeType} value={nodeType} data-testid={`nodeType-${nodeType}`}>
                   {nodeType}
                 </MenuItem>
               ))}

@@ -20,8 +20,7 @@ const StyledDialog = styled(Dialog, {
   "& .MuiDialog-paper": {
     borderRadius: "8px",
     border: "2px solid",
-    borderColor:
-      getColorScheme && status ? getColorScheme(status).color : "#E25C22",
+    borderColor: getColorScheme && status ? getColorScheme(status).color : "#E25C22",
     background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
     boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
     padding: "22px 28px 24px",
@@ -143,11 +142,7 @@ const ReviewCommentsDialog = <T, H>({
         Review Comments
       </StyledTitle>
       <StyledSubTitle title={lastReview?.dateTime}>
-        {`Based on submission from ${FormatDate(
-          lastReview?.dateTime,
-          "M/D/YYYY",
-          "N/A"
-        )}:`}
+        {`Based on submission from ${FormatDate(lastReview?.dateTime, "M/D/YYYY", "N/A")}:`}
       </StyledSubTitle>
     </StyledDialogTitle>
     <StyledDialogContent>{lastReview?.reviewComment}</StyledDialogContent>

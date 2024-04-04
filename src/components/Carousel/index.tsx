@@ -38,8 +38,7 @@ const StyledWrapper = styled("div")({
     top: "0",
     bottom: "0",
     width: "162px",
-    background:
-      "linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%)",
+    background: "linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%)",
     zIndex: 9,
   },
   "& .react-multi-carousel-list::before": {
@@ -49,8 +48,7 @@ const StyledWrapper = styled("div")({
     top: "0",
     bottom: "0",
     width: "162px",
-    background:
-      "linear-gradient(to left, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%)",
+    background: "linear-gradient(to left, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%)",
     zIndex: 9,
   },
 });

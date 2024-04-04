@@ -1,16 +1,8 @@
 import gql from "graphql-tag";
 
 export const mutation = gql`
-  mutation approveApplication(
-    $id: ID!
-    $comment: String
-    $wholeProgram: Boolean
-  ) {
-    approveApplication(
-      _id: $id
-      wholeProgram: $wholeProgram
-      comment: $comment
-    ) {
+  mutation approveApplication($id: ID!, $comment: String, $wholeProgram: Boolean) {
+    approveApplication(_id: $id, wholeProgram: $wholeProgram, comment: $comment) {
       _id
     }
   }

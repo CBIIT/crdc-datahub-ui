@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  ReactNode,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from "react";
+import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -196,10 +189,7 @@ const SelectInput: FC<Props> = ({
         inputRef,
         containsOnlyValidOptions ? "" : "Please select only valid options"
       );
-    } else if (
-      required &&
-      !options.findIndex((option) => option.value === newValue)
-    ) {
+    } else if (required && !options.findIndex((option) => option.value === newValue)) {
       updateInputValidity(inputRef, "Please select an entry from the list");
     } else {
       updateInputValidity(inputRef, "");
@@ -279,16 +269,10 @@ const SelectInput: FC<Props> = ({
           hidden
         >
           {options.map((option) => (
-            <option
-              key={option.value}
-              value={option.value}
-              aria-label={`${option.value}`}
-            />
+            <option key={option.value} value={option.value} aria-label={`${option.value}`} />
           ))}
         </ProxySelect>
-        <StyledHelperText>
-          {!readOnly && error ? helperText : " "}
-        </StyledHelperText>
+        <StyledHelperText>{!readOnly && error ? helperText : " "}</StyledHelperText>
       </FormControl>
     </GridItem>
   );

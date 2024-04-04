@@ -70,9 +70,7 @@ const PaginationActions: FC<CustomPaginationActionsProps> = ({
       onChange={onPageChange}
       variant="outlined"
       shape="rounded"
-      renderItem={(params: PaginationRenderItemParams) => (
-        <StyledPaginationItem {...params} />
-      )}
+      renderItem={(params: PaginationRenderItemParams) => <StyledPaginationItem {...params} />}
     />
     {AdditionalActions}
   </>

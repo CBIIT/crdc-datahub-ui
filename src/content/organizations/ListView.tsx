@@ -191,8 +191,7 @@ const columns: Column[] = [
   {
     label: "Primary Contact",
     value: (a) => a.conciergeName,
-    comparator: (a, b) =>
-      (a?.conciergeName || "").localeCompare(b?.conciergeName || ""),
+    comparator: (a, b) => (a?.conciergeName || "").localeCompare(b?.conciergeName || ""),
   },
   {
     label: "Studies",
@@ -281,25 +280,17 @@ const ListingView: FC = () => {
           ? u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1
           : true
       )
-      .filter((u: T) =>
-        statusFilter && statusFilter !== "All"
-          ? u.status === statusFilter
-          : true
-      )
+      .filter((u: T) => (statusFilter && statusFilter !== "All" ? u.status === statusFilter : true))
       .filter((u: T) => {
         if (!studyFilter || studyFilter.trim().length < 1) {
           return true;
         }
 
         const nameMatch = u?.studies?.some(
-          (s) =>
-            s.studyName.toLowerCase().indexOf(studyFilter.toLowerCase()) !== -1
+          (s) => s.studyName.toLowerCase().indexOf(studyFilter.toLowerCase()) !== -1
         );
         const abbrMatch = u?.studies?.some(
-          (s) =>
-            s.studyAbbreviation
-              .toLowerCase()
-              .indexOf(studyFilter.toLowerCase()) !== -1
+          (s) => s.studyAbbreviation.toLowerCase().indexOf(studyFilter.toLowerCase()) !== -1
         );
 
         return nameMatch || abbrMatch;
@@ -312,16 +303,7 @@ const ListingView: FC = () => {
 
     setCount(sorted.length);
     setDataset(sorted.slice(page * perPage, page * perPage + perPage));
-  }, [
-    data,
-    perPage,
-    page,
-    orderBy,
-    order,
-    studyFilter,
-    orgFilter,
-    statusFilter,
-  ]);
+  }, [data, perPage, page, orderBy, order, studyFilter, orgFilter, statusFilter]);
 
   useEffect(() => {
     setPage(0);
@@ -342,11 +324,7 @@ const ListingView: FC = () => {
         subTitle=""
         padding="38px 0 0 25px"
         body={
-          <StyledBannerBody
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-end"
-          >
+          <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             <StyledButton component={Link} to="/organizations/new">
               Add Organization
             </StyledButton>
@@ -356,9 +334,7 @@ const ListingView: FC = () => {
 
       <StyledContainer maxWidth="xl">
         <StyledFilterContainer>
-          <StyledInlineLabel htmlFor="organization-filter">
-            Organization
-          </StyledInlineLabel>
+          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
           <StyledFormControl>
             <StyledTextField
               {...register("organization")}
@@ -447,12 +423,7 @@ const ListingView: FC = () => {
               {(!dataset.length || dataset.length === 0) && (
                 <TableRow style={{ height: 53 * 10 }}>
                   <TableCell colSpan={columns.length}>
-                    <Typography
-                      variant="h6"
-                      align="center"
-                      fontSize={18}
-                      color="#757575"
-                    >
+                    <Typography variant="h6" align="center" fontSize={18} color="#757575">
                       No organizations found.
                     </Typography>
                   </TableCell>

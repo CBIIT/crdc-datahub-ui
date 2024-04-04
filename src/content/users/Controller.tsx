@@ -47,10 +47,7 @@ export default ({ type }: Props) => {
   const isAdministrative = role === "Admin" || role === "Organization Owner";
 
   // Accounts can only view their own "profile", redirect to it
-  if (
-    (type === "profile" && userId !== _id) ||
-    (type === "users" && !isAdministrative)
-  ) {
+  if ((type === "profile" && userId !== _id) || (type === "users" && !isAdministrative)) {
     return <Navigate to={`/profile/${_id}`} />;
   }
 
@@ -65,10 +62,7 @@ export default ({ type }: Props) => {
 
   // Admin or Org Owner viewing a user's "Edit User" page or their own "Edit User" page
   return (
-    <MemorizedProvider
-      preload={isAdministrative && type === "users"}
-      filterInactive
-    >
+    <MemorizedProvider preload={isAdministrative && type === "users"} filterInactive>
       <ProfileView _id={userId} viewType={type} />
     </MemorizedProvider>
   );

@@ -3,12 +3,7 @@ import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
 import { Divider, Grid, Stack, styled } from "@mui/material";
 import { useFormContext } from "../../../components/Contexts/FormContext";
-import {
-  KeyedFunding,
-  KeyedPlannedPublication,
-  KeyedPublication,
-  KeyedRepository,
-} from "./B";
+import { KeyedFunding, KeyedPlannedPublication, KeyedPublication, KeyedRepository } from "./B";
 import { KeyedContact } from "./A";
 import { KeyedFileTypeData } from "./D";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
@@ -18,11 +13,7 @@ import ReviewDataListingProperty, {
   StyledValue,
 } from "../../../components/Questionnaire/ReviewDataListingProperty";
 import ReviewFileTypeTable from "../../../components/Questionnaire/ReviewFileTypeTable";
-import {
-  mapObjectWithKey,
-  formatPhoneNumber,
-  findProgram,
-} from "../../../utils";
+import { mapObjectWithKey, formatPhoneNumber, findProgram } from "../../../utils";
 import useFormMode from "../../../hooks/useFormMode";
 import DataTypes from "../../../config/DataTypesConfig";
 import SectionMetadata from "../../../config/SectionMetadata";
@@ -56,10 +47,7 @@ const BlankGrid = styled(Grid)(() => ({
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
-const FormSectionReview: FC<FormSectionProps> = ({
-  SectionOption,
-  refs,
-}: FormSectionProps) => {
+const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const {
     data: { questionnaireData: data },
   } = useFormContext();
@@ -92,9 +80,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
   const [repositories] = useState<KeyedRepository[]>(
     data.study?.repositories?.map(mapObjectWithKey) || []
   );
-  const [fileTypes] = useState<KeyedFileTypeData[]>(
-    data.files?.map(mapObjectWithKey) || []
-  );
+  const [fileTypes] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
   const [piAddressPart1, ...piAddressPart2] = pi?.address?.split(",") || [];
   const [programOption] = useState<ProgramOption>(findProgram(data.program));
   const predefinedProgram =
@@ -148,16 +134,11 @@ const FormSectionReview: FC<FormSectionProps> = ({
       hideReturnToSubmissions={false}
     >
       {/* Principal Investigator and Contact Information Section */}
-      <ReviewSection
-        idPrefix="review-section-a"
-        title={SectionMetadata.A.title}
-      >
+      <ReviewSection idPrefix="review-section-a" title={SectionMetadata.A.title}>
         <ReviewDataListing
           idPrefix="review-pi"
           title={SectionMetadata.A.sections.PRINCIPAL_INVESTIGATOR.title}
-          description={
-            SectionMetadata.A.sections.PRINCIPAL_INVESTIGATOR.description
-          }
+          description={SectionMetadata.A.sections.PRINCIPAL_INVESTIGATOR.description}
         >
           <ReviewDataListingProperty
             idPrefix="review-pi-name"
@@ -185,9 +166,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
             label="Institution Address"
             value={
               <StyledAddress>
-                <StyledValue>{`${piAddressPart1}${
-                  piAddressPart2?.length ? "," : ""
-                }`}</StyledValue>
+                <StyledValue>{`${piAddressPart1}${piAddressPart2?.length ? "," : ""}`}</StyledValue>
                 <StyledValue>{piAddressPart2.join(",")}</StyledValue>
               </StyledAddress>
             }
@@ -258,63 +237,50 @@ const FormSectionReview: FC<FormSectionProps> = ({
           )}
         </ReviewDataListing>
 
-        {additionalContacts?.map(
-          (additionalContact: KeyedContact, idx: number) => (
-            <ReviewDataListing
-              key={additionalContact.key}
-              idPrefix={`review-additional-contacts-${idx}`}
-              title={
-                idx === 0
-                  ? SectionMetadata.A.sections.ADDITIONAL_CONTACTS.title
-                  : null
-              }
-              description={
-                idx === 0
-                  ? SectionMetadata.A.sections.ADDITIONAL_CONTACTS.description
-                  : null
-              }
-            >
-              <ReviewDataListingProperty
-                idPrefix={`review-additional-contacts-${idx}-name`}
-                label="Contact Name"
-                value={`${additionalContact.lastName}, ${additionalContact.firstName}`}
-              />
-              <ReviewDataListingProperty
-                idPrefix={`review-additional-contacts-${idx}-position`}
-                label="Position"
-                value={additionalContact.position}
-              />
-              <ReviewDataListingProperty
-                idPrefix={`review-additional-contacts-${idx}-email-address`}
-                label="Email Address"
-                value={additionalContact.email}
-              />
-              <ReviewDataListingProperty
-                idPrefix={`review-additional-contacts-${idx}-institution-name`}
-                label="Institution Name"
-                value={additionalContact.institution}
-              />
-              <ReviewDataListingProperty
-                idPrefix={`review-additional-contacts-${idx}-phone-number`}
-                label="Phone Number"
-                value={formatPhoneNumber(additionalContact.phone)}
-              />
-            </ReviewDataListing>
-          )
-        )}
+        {additionalContacts?.map((additionalContact: KeyedContact, idx: number) => (
+          <ReviewDataListing
+            key={additionalContact.key}
+            idPrefix={`review-additional-contacts-${idx}`}
+            title={idx === 0 ? SectionMetadata.A.sections.ADDITIONAL_CONTACTS.title : null}
+            description={
+              idx === 0 ? SectionMetadata.A.sections.ADDITIONAL_CONTACTS.description : null
+            }
+          >
+            <ReviewDataListingProperty
+              idPrefix={`review-additional-contacts-${idx}-name`}
+              label="Contact Name"
+              value={`${additionalContact.lastName}, ${additionalContact.firstName}`}
+            />
+            <ReviewDataListingProperty
+              idPrefix={`review-additional-contacts-${idx}-position`}
+              label="Position"
+              value={additionalContact.position}
+            />
+            <ReviewDataListingProperty
+              idPrefix={`review-additional-contacts-${idx}-email-address`}
+              label="Email Address"
+              value={additionalContact.email}
+            />
+            <ReviewDataListingProperty
+              idPrefix={`review-additional-contacts-${idx}-institution-name`}
+              label="Institution Name"
+              value={additionalContact.institution}
+            />
+            <ReviewDataListingProperty
+              idPrefix={`review-additional-contacts-${idx}-phone-number`}
+              label="Phone Number"
+              value={formatPhoneNumber(additionalContact.phone)}
+            />
+          </ReviewDataListing>
+        ))}
       </ReviewSection>
 
       {/* Program and study information Section */}
-      <ReviewSection
-        idPrefix="review-section-b"
-        title={SectionMetadata.B.title}
-      >
+      <ReviewSection idPrefix="review-section-b" title={SectionMetadata.B.title}>
         <ReviewDataListing
           idPrefix="review-program-information"
           title={SectionMetadata.B.sections.PROGRAM_INFORMATION.title}
-          description={
-            SectionMetadata.B.sections.PROGRAM_INFORMATION.description
-          }
+          description={SectionMetadata.B.sections.PROGRAM_INFORMATION.description}
         >
           <ReviewDataListingProperty
             idPrefix="review-program-information-title"
@@ -324,21 +290,13 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <ReviewDataListingProperty
             idPrefix="review-program-information-abbreviation"
             label="Program Abbreviation"
-            value={
-              predefinedProgram
-                ? programOption.abbreviation
-                : program?.abbreviation
-            }
+            value={predefinedProgram ? programOption.abbreviation : program?.abbreviation}
           />
           <ReviewDataListingProperty
             idPrefix="review-program-information-description"
             gridWidth={12}
             label="Program Description"
-            value={
-              predefinedProgram
-                ? programOption.description
-                : program?.description
-            }
+            value={predefinedProgram ? programOption.description : program?.description}
             valuePlacement="bottom"
           />
         </ReviewDataListing>
@@ -371,14 +329,8 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <ReviewDataListing
             key={fundingAgency.key}
             idPrefix={`review-funding-agency-${idx}`}
-            title={
-              idx === 0 ? SectionMetadata.B.sections.FUNDING_AGENCY.title : null
-            }
-            description={
-              idx === 0
-                ? SectionMetadata.B.sections.FUNDING_AGENCY.description
-                : null
-            }
+            title={idx === 0 ? SectionMetadata.B.sections.FUNDING_AGENCY.title : null}
+            description={idx === 0 ? SectionMetadata.B.sections.FUNDING_AGENCY.description : null}
           >
             <ReviewDataListingProperty
               idPrefix={`review-funding-agency-${idx}-organization`}
@@ -410,9 +362,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
         <ReviewDataListing
           idPrefix="review-dbGaP"
           title={SectionMetadata.B.sections.DBGAP_REGISTRATION.title}
-          description={
-            SectionMetadata.B.sections.DBGAP_REGISTRATION.description
-          }
+          description={SectionMetadata.B.sections.DBGAP_REGISTRATION.description}
         >
           <ReviewDataListingProperty
             idPrefix="review-dbGaP-registration"
@@ -432,15 +382,9 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <ReviewDataListing
             key={publication.key}
             idPrefix={`review-existing-publication-${idx}`}
-            title={
-              idx === 0
-                ? SectionMetadata.B.sections.EXISTING_PUBLICATIONS.title
-                : null
-            }
+            title={idx === 0 ? SectionMetadata.B.sections.EXISTING_PUBLICATIONS.title : null}
             description={
-              idx === 0
-                ? SectionMetadata.B.sections.EXISTING_PUBLICATIONS.description
-                : null
+              idx === 0 ? SectionMetadata.B.sections.EXISTING_PUBLICATIONS.description : null
             }
           >
             <ReviewDataListingProperty
@@ -463,50 +407,36 @@ const FormSectionReview: FC<FormSectionProps> = ({
           </ReviewDataListing>
         ))}
 
-        {plannedPublications?.map(
-          (plannedPublication: KeyedPlannedPublication, idx: number) => (
-            <ReviewDataListing
-              key={plannedPublication.key}
-              idPrefix={`review-planned-publication-${idx}`}
-              title={
-                idx === 0
-                  ? SectionMetadata.B.sections.PLANNED_PUBLICATIONS.title
-                  : null
-              }
-              description={
-                idx === 0
-                  ? SectionMetadata.B.sections.PLANNED_PUBLICATIONS.description
-                  : null
-              }
-            >
-              <ReviewDataListingProperty
-                idPrefix={`review-planned-publication-${idx}-title`}
-                gridWidth={12}
-                label="Planned Publication Title"
-                value={plannedPublication.title}
-                valuePlacement="bottom"
-              />
-              <ReviewDataListingProperty
-                idPrefix={`review-planned-publication-${idx}-date`}
-                label="Expected Publication Date"
-                value={plannedPublication.expectedDate}
-              />
-            </ReviewDataListing>
-          )
-        )}
+        {plannedPublications?.map((plannedPublication: KeyedPlannedPublication, idx: number) => (
+          <ReviewDataListing
+            key={plannedPublication.key}
+            idPrefix={`review-planned-publication-${idx}`}
+            title={idx === 0 ? SectionMetadata.B.sections.PLANNED_PUBLICATIONS.title : null}
+            description={
+              idx === 0 ? SectionMetadata.B.sections.PLANNED_PUBLICATIONS.description : null
+            }
+          >
+            <ReviewDataListingProperty
+              idPrefix={`review-planned-publication-${idx}-title`}
+              gridWidth={12}
+              label="Planned Publication Title"
+              value={plannedPublication.title}
+              valuePlacement="bottom"
+            />
+            <ReviewDataListingProperty
+              idPrefix={`review-planned-publication-${idx}-date`}
+              label="Expected Publication Date"
+              value={plannedPublication.expectedDate}
+            />
+          </ReviewDataListing>
+        ))}
 
         {repositories?.map((repository: KeyedRepository, idx: number) => (
           <ReviewDataListing
             key={repository.key}
             idPrefix={`review-repository-${idx}`}
-            title={
-              idx === 0 ? SectionMetadata.B.sections.REPOSITORY.title : null
-            }
-            description={
-              idx === 0
-                ? SectionMetadata.B.sections.REPOSITORY.description
-                : null
-            }
+            title={idx === 0 ? SectionMetadata.B.sections.REPOSITORY.title : null}
+            description={idx === 0 ? SectionMetadata.B.sections.REPOSITORY.description : null}
           >
             <ReviewDataListingProperty
               idPrefix={`review-repository-${idx}-name`}
@@ -525,9 +455,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
               label="Data Type(s) Submitted"
               value={repository.dataTypesSubmitted?.map(
                 (dataType) =>
-                  repositoryDataTypesOptions.find(
-                    (option) => option.name === dataType
-                  )?.label
+                  repositoryDataTypesOptions.find((option) => option.name === dataType)?.label
               )}
               valuePlacement="bottom"
               isList
@@ -544,10 +472,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
       </ReviewSection>
 
       {/* Data Access and Disease Information Section */}
-      <ReviewSection
-        idPrefix="review-section-c"
-        title={SectionMetadata.C.title}
-      >
+      <ReviewSection idPrefix="review-section-c" title={SectionMetadata.C.title}>
         <ReviewDataListing
           idPrefix="review-data-access"
           title={SectionMetadata.C.sections.DATA_ACCESS.title}
@@ -618,15 +543,10 @@ const FormSectionReview: FC<FormSectionProps> = ({
       </ReviewSection>
 
       {/* Data Types Section */}
-      <ReviewSection
-        idPrefix="review-section-d"
-        title={SectionMetadata.D.title}
-      >
+      <ReviewSection idPrefix="review-section-d" title={SectionMetadata.D.title}>
         <ReviewDataListing
           idPrefix="review-data-delivery"
-          title={
-            SectionMetadata.D.sections.DATA_DELIVERY_AND_RELEASE_DATES.title
-          }
+          title={SectionMetadata.D.sections.DATA_DELIVERY_AND_RELEASE_DATES.title}
         >
           <ReviewDataListingProperty
             idPrefix="review-data-delivery-targeted-data-submission-delivery-date"
@@ -648,32 +568,22 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <ReviewDataListingProperty
             idPrefix="review-data-types-clinical-trial"
             label={DataTypes.clinicalTrial.label}
-            value={
-              data.dataTypes?.includes(DataTypes.clinicalTrial.name)
-                ? "Yes"
-                : "No"
-            }
+            value={data.dataTypes?.includes(DataTypes.clinicalTrial.name) ? "Yes" : "No"}
           />
           <ReviewDataListingProperty
             idPrefix="review-data-types-proteomics"
             label={DataTypes.proteomics.label}
-            value={
-              data.dataTypes?.includes(DataTypes.proteomics.name) ? "Yes" : "No"
-            }
+            value={data.dataTypes?.includes(DataTypes.proteomics.name) ? "Yes" : "No"}
           />
           <ReviewDataListingProperty
             idPrefix="review-data-types-genomics"
             label={DataTypes.genomics.label}
-            value={
-              data.dataTypes?.includes(DataTypes.genomics.name) ? "Yes" : "No"
-            }
+            value={data.dataTypes?.includes(DataTypes.genomics.name) ? "Yes" : "No"}
           />
           <ReviewDataListingProperty
             idPrefix="review-data-types-imaging"
             label={DataTypes.imaging.label}
-            value={
-              data.dataTypes?.includes(DataTypes.imaging.name) ? "Yes" : "No"
-            }
+            value={data.dataTypes?.includes(DataTypes.imaging.name) ? "Yes" : "No"}
           />
           {data.dataTypes?.includes(DataTypes.imaging.name) &&
             data.imagingDataDeIdentified !== null && (
@@ -697,17 +607,13 @@ const FormSectionReview: FC<FormSectionProps> = ({
           <ReviewDataListing
             idPrefix="review-clinical-data-types"
             title={SectionMetadata.D.sections.CLINICAL_DATA_TYPES.title}
-            description={
-              SectionMetadata.D.sections.CLINICAL_DATA_TYPES.description
-            }
+            description={SectionMetadata.D.sections.CLINICAL_DATA_TYPES.description}
           >
             <ReviewDataListingProperty
               idPrefix="review-clinical-data-types-demographic-data"
               label={DataTypes.demographicData.label}
               value={
-                data.clinicalData?.dataTypes?.includes(
-                  DataTypes.demographicData.name
-                )
+                data.clinicalData?.dataTypes?.includes(DataTypes.demographicData.name)
                   ? "Yes"
                   : "No"
               }
@@ -716,9 +622,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
               idPrefix="review-clinical-data-types-relapse-recurrence-data"
               label={DataTypes.relapseRecurrenceData.label}
               value={
-                data.clinicalData?.dataTypes?.includes(
-                  DataTypes.relapseRecurrenceData.name
-                )
+                data.clinicalData?.dataTypes?.includes(DataTypes.relapseRecurrenceData.name)
                   ? "Yes"
                   : "No"
               }
@@ -727,42 +631,28 @@ const FormSectionReview: FC<FormSectionProps> = ({
               idPrefix="review-clinical-data-types-diagnosis-data"
               label={DataTypes.diagnosisData.label}
               value={
-                data.clinicalData?.dataTypes?.includes(
-                  DataTypes.diagnosisData.name
-                )
-                  ? "Yes"
-                  : "No"
+                data.clinicalData?.dataTypes?.includes(DataTypes.diagnosisData.name) ? "Yes" : "No"
               }
             />
             <ReviewDataListingProperty
               idPrefix="review-clinical-data-types-outcome-data"
               label={DataTypes.outcomeData.label}
               value={
-                data.clinicalData?.dataTypes?.includes(
-                  DataTypes.outcomeData.name
-                )
-                  ? "Yes"
-                  : "No"
+                data.clinicalData?.dataTypes?.includes(DataTypes.outcomeData.name) ? "Yes" : "No"
               }
             />
             <ReviewDataListingProperty
               idPrefix="review-clinical-data-types-treatment-data"
               label={DataTypes.treatmentData.label}
               value={
-                data.clinicalData?.dataTypes?.includes(
-                  DataTypes.treatmentData.name
-                )
-                  ? "Yes"
-                  : "No"
+                data.clinicalData?.dataTypes?.includes(DataTypes.treatmentData.name) ? "Yes" : "No"
               }
             />
             <ReviewDataListingProperty
               idPrefix="review-clinical-data-types-biospecimen-data"
               label={DataTypes.biospecimenData.label}
               value={
-                data.clinicalData?.dataTypes?.includes(
-                  DataTypes.biospecimenData.name
-                )
+                data.clinicalData?.dataTypes?.includes(DataTypes.biospecimenData.name)
                   ? "Yes"
                   : "No"
               }
@@ -796,9 +686,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
         <ReviewDataListing
           idPrefix="review-additional-comments"
           title={SectionMetadata.D.sections.ADDITIONAL_COMMENTS.title}
-          description={
-            SectionMetadata.D.sections.ADDITIONAL_COMMENTS.description
-          }
+          description={SectionMetadata.D.sections.ADDITIONAL_COMMENTS.description}
         >
           <ReviewDataListingProperty
             idPrefix="review-additional-comments-submitter-comment"

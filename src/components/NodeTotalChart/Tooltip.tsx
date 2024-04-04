@@ -80,12 +80,7 @@ const Tooltip: FC<Props> = ({ active, payload, label, normalized }: Props) => {
     <StyledContainer>
       <StyledTitle>{label.replace(/_/g, " ")}</StyledTitle>
       {normalizedPayload.map((item) => (
-        <StyledKeyStack
-          key={item.name}
-          direction="row"
-          alignItems="center"
-          columnGap="6px"
-        >
+        <StyledKeyStack key={item.name} direction="row" alignItems="center" columnGap="6px">
           <StyledColorCode background={item.color} />
           <StyledName>{item.name}</StyledName>
           <StyledValue>{formatter.format(item.value || 0)}</StyledValue>

@@ -1,10 +1,4 @@
-import {
-  FormControl,
-  FormGroup,
-  FormHelperText,
-  Grid,
-  styled,
-} from "@mui/material";
+import { FormControl, FormGroup, FormHelperText, Grid, styled } from "@mui/material";
 import { FC, useEffect, useId, useRef, useState } from "react";
 import Tooltip from "../Tooltip";
 import CheckboxInput from "./CheckboxInput";
@@ -71,9 +65,7 @@ const FormGroupCheckbox: FC<Props> = ({
   const helperText =
     helpText ||
     (required && !val?.length && "This field is required") ||
-    (!allowMultipleChecked && val?.length > 1
-      ? "Please select only one option"
-      : " ");
+    (!allowMultipleChecked && val?.length > 1 ? "Please select only one option" : " ");
   const firstCheckboxInputRef = useRef<HTMLInputElement>(null);
 
   const onChangeWrapper = (newVal: string[]) => {
@@ -104,18 +96,12 @@ const FormGroupCheckbox: FC<Props> = ({
     const multipleChecked = val?.length > 1;
 
     if (notSelectedAndRequired) {
-      updateInputValidity(
-        firstCheckboxInputRef,
-        "Please select at least one option"
-      );
+      updateInputValidity(firstCheckboxInputRef, "Please select at least one option");
       return;
     }
 
     if (!allowMultipleChecked && multipleChecked) {
-      updateInputValidity(
-        firstCheckboxInputRef,
-        "Please select only one option"
-      );
+      updateInputValidity(firstCheckboxInputRef, "Please select only one option");
       return;
     }
 
@@ -147,9 +133,7 @@ const FormGroupCheckbox: FC<Props> = ({
             const isChecked = val?.includes(option.value);
             return (
               <CheckboxInput
-                id={idPrefix.concat(
-                  `-${option.label.toLowerCase().replace(" ", "-")}-checkbox`
-                )}
+                id={idPrefix.concat(`-${option.label.toLowerCase().replace(" ", "-")}-checkbox`)}
                 aria-labelledby={`${id}-label`}
                 key={option.value}
                 name={name}

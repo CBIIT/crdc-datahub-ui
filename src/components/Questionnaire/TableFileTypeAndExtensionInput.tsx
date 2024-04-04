@@ -85,38 +85,36 @@ const StyledPaper = styled(Paper)(() => ({
   },
 }));
 
-const StyledAutocomplete = styled(Autocomplete)(
-  ({ readOnly }: { readOnly?: boolean }) => ({
-    "& .MuiInputBase-root": {
-      backgroundColor: readOnly ? "#E5EEF4" : "#FFFFFF",
-      "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
-        display: "flex",
-        alignItems: "center",
-        padding: 0,
-      },
-      "& .MuiInputBase-input": {
-        fontWeight: 400,
-        fontSize: "16px",
-        fontFamily: "'Nunito', 'Rubik', sans-serif",
-        padding: "10px 12px 10px 12px !important",
-        color: readOnly ? "#083A50" : "initial",
-        cursor: readOnly ? "not-allowed !important" : "initial",
-      },
-      "& ::placeholder": {
-        color: "#87878C",
-        fontWeight: 400,
-        opacity: 1,
-      },
-      "& .MuiAutocomplete-endAdornment": {
-        right: "8px",
-      },
-      "&.Mui-focused": {
-        boxShadow:
-          "2px 2px 2px 1px rgba(38, 184, 147, 0.10), -2px -2px 2px 1px rgba(38, 184, 147, 0.20)",
-      },
+const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: boolean }) => ({
+  "& .MuiInputBase-root": {
+    backgroundColor: readOnly ? "#E5EEF4" : "#FFFFFF",
+    "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
+      display: "flex",
+      alignItems: "center",
+      padding: 0,
     },
-  })
-);
+    "& .MuiInputBase-input": {
+      fontWeight: 400,
+      fontSize: "16px",
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+      padding: "10px 12px 10px 12px !important",
+      color: readOnly ? "#083A50" : "initial",
+      cursor: readOnly ? "not-allowed !important" : "initial",
+    },
+    "& ::placeholder": {
+      color: "#87878C",
+      fontWeight: 400,
+      opacity: 1,
+    },
+    "& .MuiAutocomplete-endAdornment": {
+      right: "8px",
+    },
+    "&.Mui-focused": {
+      boxShadow:
+        "2px 2px 2px 1px rgba(38, 184, 147, 0.10), -2px -2px 2px 1px rgba(38, 184, 147, 0.20)",
+    },
+  },
+}));
 
 /**
  * Generates a generic autocomplete select box with a label and help text
@@ -141,8 +139,7 @@ const TableAutocompleteInput: FC<Props> = ({
   const fileTypeRef = useRef<HTMLInputElement>(null);
   const fileExtensionRef = useRef<HTMLInputElement>(null);
   const [showFileTypeEror, setShowFileTypeError] = useState<boolean>(false);
-  const [showFileExtensionError, setShowFileExtensionError] =
-    useState<boolean>(false);
+  const [showFileExtensionError, setShowFileExtensionError] = useState<boolean>(false);
 
   useEffect(() => {
     const invalid = () => {
@@ -183,9 +180,7 @@ const TableAutocompleteInput: FC<Props> = ({
     setShowFileExtensionError(false);
     v = v || "";
     if (v === "") {
-      fileExtensionRef.current.setCustomValidity(
-        "Please specify a file extension type"
-      );
+      fileExtensionRef.current.setCustomValidity("Please specify a file extension type");
     } else {
       fileExtensionRef.current.setCustomValidity("");
     }

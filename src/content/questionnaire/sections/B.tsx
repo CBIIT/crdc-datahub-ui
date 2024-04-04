@@ -8,10 +8,7 @@ import programOptions, {
   NotApplicableProgram,
   OptionalProgram,
 } from "../../../config/ProgramConfig";
-import {
-  Status as FormStatus,
-  useFormContext,
-} from "../../../components/Contexts/FormContext";
+import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
@@ -59,10 +56,7 @@ export type KeyedFunding = {
  * @param {FormSectionProps} props
  * @returns {JSX.Element}
  */
-const FormSectionB: FC<FormSectionProps> = ({
-  SectionOption,
-  refs,
-}: FormSectionProps) => {
+const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const {
     status,
     data: { questionnaireData: data },
@@ -71,16 +65,14 @@ const FormSectionB: FC<FormSectionProps> = ({
   const { B: SectionBMetadata } = SectionMetadata;
 
   const [program, setProgram] = useState<Program>(data.program);
-  const [programOption, setProgramOption] = useState<ProgramOption>(
-    findProgram(data.program)
-  );
+  const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(data.program));
   const [study] = useState<Study>(data.study);
   const [publications, setPublications] = useState<KeyedPublication[]>(
     data.study?.publications?.map(mapObjectWithKey) || []
   );
-  const [plannedPublications, setPlannedPublications] = useState<
-    KeyedPlannedPublication[]
-  >(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
+  const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(
+    data.study?.plannedPublications?.map(mapObjectWithKey) || []
+  );
   const [repositories, setRepositories] = useState<KeyedRepository[]>(
     data.study?.repositories?.map(mapObjectWithKey) || []
   );
@@ -90,9 +82,7 @@ const FormSectionB: FC<FormSectionProps> = ({
   const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(
     data.study?.isDbGapRegistered
   );
-  const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(
-    data.study?.dbGaPPPHSNumber
-  );
+  const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
 
   const programKeyRef = useRef(new Date().getTime());
   const formContainerRef = useRef<HTMLDivElement>();
@@ -124,18 +114,12 @@ const FormSectionB: FC<FormSectionProps> = ({
     }
 
     // Reset publications if the user has not entered any publications
-    if (
-      !formObject.study.publications ||
-      formObject.study.publications.length === 0
-    ) {
+    if (!formObject.study.publications || formObject.study.publications.length === 0) {
       combinedData.study.publications = [];
     }
 
     // Reset repositories if the user has not entered any repositories
-    if (
-      !formObject.study.repositories ||
-      formObject.study.repositories.length === 0
-    ) {
+    if (!formObject.study.repositories || formObject.study.repositories.length === 0) {
       combinedData.study.repositories = [];
     }
 
@@ -338,11 +322,7 @@ const FormSectionB: FC<FormSectionProps> = ({
     programOption && !programOption.editable && !programOption.notApplicable;
 
   return (
-    <FormContainer
-      ref={formContainerRef}
-      formRef={formRef}
-      description={SectionOption.title}
-    >
+    <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
       {/* Program Registration Section */}
       <SectionGroup
         title={SectionBMetadata.sections.PROGRAM_INFORMATION.title}
@@ -377,11 +357,7 @@ const FormSectionB: FC<FormSectionProps> = ({
           id="section-b-program-abbreviation"
           label="Program Abbreviation"
           name="program[abbreviation]"
-          value={
-            predefinedProgram
-              ? programOption?.abbreviation
-              : program?.abbreviation
-          }
+          value={predefinedProgram ? programOption?.abbreviation : program?.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
           onChange={(e) => {
             e.target.value = e.target.value.toUpperCase();
@@ -397,11 +373,7 @@ const FormSectionB: FC<FormSectionProps> = ({
           id="section-b-program-description"
           label="Program Description"
           name="program[description]"
-          value={
-            predefinedProgram
-              ? programOption?.description
-              : program?.description
-          }
+          value={predefinedProgram ? programOption?.description : program?.description}
           gridWidth={12}
           maxLength={500}
           placeholder="500 characters allowed"
@@ -546,9 +518,7 @@ const FormSectionB: FC<FormSectionProps> = ({
       {/* Existing Publications */}
       <SectionGroup
         title={SectionBMetadata.sections.EXISTING_PUBLICATIONS.title}
-        description={
-          SectionBMetadata.sections.EXISTING_PUBLICATIONS.description
-        }
+        description={SectionBMetadata.sections.EXISTING_PUBLICATIONS.description}
         endButton={
           <AddRemoveButton
             id="section-b-add-publication-button"

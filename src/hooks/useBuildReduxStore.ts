@@ -8,16 +8,8 @@ import {
 } from "data-model-navigator";
 import ReduxThunk from "redux-thunk";
 import { createLogger } from "redux-logger";
-import {
-  baseConfiguration,
-  defaultReadMeTitle,
-  graphViewConfig,
-} from "../config/ModelNavigator";
-import {
-  buildAssetUrls,
-  buildBaseFilterContainers,
-  buildFilterOptionsList,
-} from "../utils";
+import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from "../config/ModelNavigator";
+import { buildAssetUrls, buildBaseFilterContainers, buildFilterOptionsList } from "../utils";
 
 export type Status = "waiting" | "loading" | "error" | "success";
 
@@ -81,10 +73,7 @@ const useBuildReduxStore = (): [
     setStatus("loading");
 
     const assets = buildAssetUrls(datacommon);
-    const response = await getModelExploreData(
-      assets.model,
-      assets.props
-    )?.catch(() => null);
+    const response = await getModelExploreData(assets.model, assets.props)?.catch(() => null);
     if (!response?.data || !response?.version) {
       setStatus("error");
       return;
@@ -106,12 +95,9 @@ const useBuildReduxStore = (): [
         facetfilterConfig: {
           ...baseConfiguration,
           facetSearchData: datacommon.configuration.facetFilterSearchData,
-          facetSectionVariables:
-            datacommon.configuration.facetFilterSectionVariables,
+          facetSectionVariables: datacommon.configuration.facetFilterSectionVariables,
           baseFilters: buildBaseFilterContainers(datacommon),
-          filterSections: datacommon.configuration.facetFilterSearchData.map(
-            (s) => s?.datafield
-          ),
+          filterSections: datacommon.configuration.facetFilterSearchData.map((s) => s?.datafield),
           filterOptions: buildFilterOptionsList(datacommon),
         },
         pageConfig: {
@@ -120,8 +106,7 @@ const useBuildReduxStore = (): [
         },
         readMeConfig: {
           readMeUrl: assets.readme,
-          readMeTitle:
-            datacommon.configuration?.readMeTitle || defaultReadMeTitle,
+          readMeTitle: datacommon.configuration?.readMeTitle || defaultReadMeTitle,
           allowDownload: false,
         },
         pdfDownloadConfig: datacommon.configuration.pdfConfig,

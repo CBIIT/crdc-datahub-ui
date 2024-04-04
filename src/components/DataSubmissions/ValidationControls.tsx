@@ -90,17 +90,8 @@ const StyledRadioControl = styled(FormControlLabel)({
   },
 });
 
-const ValidateRoles: User["role"][] = [
-  "Submitter",
-  "Data Curator",
-  "Organization Owner",
-  "Admin",
-];
-const ValidateStatuses: Submission["status"][] = [
-  "In Progress",
-  "Withdrawn",
-  "Rejected",
-];
+const ValidateRoles: User["role"][] = ["Submitter", "Data Curator", "Organization Owner", "Admin"];
+const ValidateStatuses: Submission["status"][] = ["In Progress", "Withdrawn", "Rejected"];
 
 /**
  * Provides the UI for validating a data submission's assets.
@@ -108,10 +99,7 @@ const ValidateStatuses: Submission["status"][] = [
  * @param {Props}
  * @returns {React.FC<Props>}
  */
-const ValidationControls: FC<Props> = ({
-  dataSubmission,
-  onValidate,
-}: Props) => {
+const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) => {
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -127,10 +115,7 @@ const ValidationControls: FC<Props> = ({
     if (!user?.role || ValidateRoles.includes(user?.role) === false) {
       return false;
     }
-    if (
-      !dataSubmission?.status ||
-      ValidateStatuses.includes(dataSubmission?.status) === false
-    ) {
+    if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
       return false;
     }
 
@@ -141,10 +126,7 @@ const ValidationControls: FC<Props> = ({
     if (!user?.role || ValidateRoles.includes(user?.role) === false) {
       return false;
     }
-    if (
-      !dataSubmission?.status ||
-      ValidateStatuses.includes(dataSubmission?.status) === false
-    ) {
+    if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
       return false;
     }
     if (dataSubmission.intention === "Delete") {
@@ -154,13 +136,10 @@ const ValidationControls: FC<Props> = ({
     return dataSubmission?.fileValidationStatus !== null;
   }, [user?.role, dataSubmission?.fileValidationStatus]);
 
-  const [validateSubmission] = useMutation<ValidateSubmissionResp>(
-    VALIDATE_SUBMISSION,
-    {
-      context: { clientName: "backend" },
-      fetchPolicy: "no-cache",
-    }
-  );
+  const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
 
   const handleValidateFiles = async () => {
     if (isValidating || !validationType || !uploadType) {
@@ -208,10 +187,7 @@ const ValidationControls: FC<Props> = ({
       dataSubmission?.fileValidationStatus === "Validating" ||
         dataSubmission?.metadataValidationStatus === "Validating"
     );
-  }, [
-    dataSubmission?.fileValidationStatus,
-    dataSubmission?.metadataValidationStatus,
-  ]);
+  }, [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]);
 
   useEffect(() => {
     if (validationType !== null) {
@@ -225,11 +201,7 @@ const ValidationControls: FC<Props> = ({
   }, [dataSubmission]);
 
   return (
-    <FlowWrapper
-      title="Validate Data"
-      borderColor="#8E9AD5"
-      hoverColor="#869AFF"
-    >
+    <FlowWrapper title="Validate Data" borderColor="#8E9AD5" hoverColor="#869AFF">
       <StyledFileValidationSection direction="row" alignItems="center">
         <div className="fileValidationLeftSide">
           <div className="fileValidationLeftSideTopRow">

@@ -21,11 +21,7 @@ import { useAuthContext } from "../../components/Contexts/AuthContext";
 import { useOrganizationListContext } from "../../components/Contexts/OrganizationListContext";
 import GenericAlert from "../../components/GenericAlert";
 import SuspenseLoader from "../../components/SuspenseLoader";
-import {
-  OrgAssignmentMap,
-  OrgRequiredRoles,
-  Roles,
-} from "../../config/AuthRoles";
+import { OrgAssignmentMap, OrgRequiredRoles, Roles } from "../../config/AuthRoles";
 import {
   EDIT_USER,
   EditUserResp,
@@ -148,19 +144,17 @@ const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
 });
 
-const StyledButton = styled(LoadingButton)(
-  ({ txt, border }: { txt: string; border: string }) => ({
-    borderRadius: "8px",
-    border: `2px solid ${border}`,
-    color: `${txt} !important`,
-    width: "101px",
-    height: "51px",
-    textTransform: "none",
-    fontWeight: 700,
-    fontSize: "17px",
-    padding: "6px 8px",
-  })
-);
+const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string; border: string }) => ({
+  borderRadius: "8px",
+  border: `2px solid ${border}`,
+  color: `${txt} !important`,
+  width: "101px",
+  height: "51px",
+  textTransform: "none",
+  fontWeight: 700,
+  fontSize: "17px",
+  padding: "6px 8px",
+}));
 
 const StyledContentStack = styled(Stack)({
   marginLeft: "2px !important",
@@ -216,13 +210,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     fetchPolicy: "no-cache",
   });
 
-  const [updateMyUser] = useMutation<UpdateMyUserResp, { userInfo: UserInput }>(
-    UPDATE_MY_USER,
-    {
-      context: { clientName: "backend" },
-      fetchPolicy: "no-cache",
-    }
-  );
+  const [updateMyUser] = useMutation<UpdateMyUserResp, { userInfo: UserInput }>(UPDATE_MY_USER, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
 
   const [editUser] = useMutation<EditUserResp>(EDIT_USER, {
     context: { clientName: "backend" },
@@ -303,10 +294,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     // No action needed if viewing own profile, using cached data
     if (isSelf && viewType === "profile") {
       setUser({ ...currentUser });
-      setFormValues(
-        currentUser,
-        getEditableFields(currentUser, currentUser, viewType)
-      );
+      setFormValues(currentUser, getEditableFields(currentUser, currentUser, viewType));
       return;
     }
 
@@ -328,9 +316,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       return;
     }
 
-    const expectedOrg = orgData?.find(
-      (org) => org.name === OrgAssignmentMap[role]
-    )?._id;
+    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[role])?._id;
     setValue("organization.orgID", expectedOrg || "");
   }, [orgFieldDisabled, role, user, orgData]);
 
@@ -351,12 +337,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       </GenericAlert>
       <StyledBanner />
       <StyledContainer maxWidth="lg">
-        <Stack
-          direction="row"
-          justifyContent="center"
-          alignItems="flex-start"
-          spacing={2}
-        >
+        <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
           <StyledProfileIcon>
             <img src={profileIcon} alt="profile icon" />
           </StyledProfileIcon>
@@ -475,9 +456,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 )}
               </StyledField>
               <StyledField>
-                <StyledLabel id="userOrganizationLabel">
-                  Organization
-                </StyledLabel>
+                <StyledLabel id="userOrganizationLabel">Organization</StyledLabel>
                 {fieldset.includes("organization") ? (
                   <Controller
                     name="organization.orgID"
@@ -506,9 +485,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   user?.organization?.orgName
                 )}
               </StyledField>
-              <StyledField
-                sx={{ display: displayDataCommons ? "block" : "none" }}
-              >
+              <StyledField sx={{ display: displayDataCommons ? "block" : "none" }}>
                 <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
                 {fieldset.includes("dataCommons") ? (
                   <Controller
@@ -545,12 +522,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 spacing={1}
               >
                 {fieldset?.length > 0 && (
-                  <StyledButton
-                    type="submit"
-                    loading={saving}
-                    txt="#14634F"
-                    border="#26B893"
-                  >
+                  <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
                     Save
                   </StyledButton>
                 )}

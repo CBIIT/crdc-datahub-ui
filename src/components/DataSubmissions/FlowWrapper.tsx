@@ -10,21 +10,19 @@ type Props = {
 
 const StyledBox = styled(Box, {
   shouldForwardProp: (prop) => prop !== "borderColor" && prop !== "hoverColor",
-})<Pick<Props, "borderColor" | "hoverColor">>(
-  ({ borderColor, hoverColor }) => ({
-    border: `2px solid ${borderColor}`,
-    borderRadius: "8px",
-    paddingLeft: "35px",
-    paddingTop: "24px",
-    paddingRight: "26px",
-    paddingBottom: "26px",
-    margin: "31px",
-    "&:hover": {
-      borderColor: hoverColor,
-      boxShadow: "0px 0px 10px 5px #00000026",
-    },
-  })
-);
+})<Pick<Props, "borderColor" | "hoverColor">>(({ borderColor, hoverColor }) => ({
+  border: `2px solid ${borderColor}`,
+  borderRadius: "8px",
+  paddingLeft: "35px",
+  paddingTop: "24px",
+  paddingRight: "26px",
+  paddingBottom: "26px",
+  margin: "31px",
+  "&:hover": {
+    borderColor: hoverColor,
+    boxShadow: "0px 0px 10px 5px #00000026",
+  },
+}));
 
 const StyledTitle = styled(Typography)({
   fontFamily: "Nunito Sans",
@@ -35,12 +33,7 @@ const StyledTitle = styled(Typography)({
   textTransform: "uppercase",
 });
 
-const FlowWrapper: FC<Props> = ({
-  title,
-  borderColor,
-  hoverColor,
-  children,
-}) => (
+const FlowWrapper: FC<Props> = ({ title, borderColor, hoverColor, children }) => (
   <StyledBox borderColor={borderColor} hoverColor={hoverColor}>
     <StyledTitle variant="h3">{title}</StyledTitle>
     {children}

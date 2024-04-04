@@ -1,8 +1,5 @@
 import { InitialQuestionnaire } from "../config/InitialValues";
-import programOptions, {
-  NotApplicableProgram,
-  OptionalProgram,
-} from "../config/ProgramConfig";
+import programOptions, { NotApplicableProgram, OptionalProgram } from "../config/ProgramConfig";
 import * as utils from "./formUtils";
 
 describe("filterNonNumeric cases", () => {
@@ -274,9 +271,7 @@ describe("mapOrganizationStudyToId cases", () => {
       { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
     ] as ApprovedStudy[];
 
-    expect(() =>
-      utils.mapOrganizationStudyToId(undefined, studies)
-    ).not.toThrow();
+    expect(() => utils.mapOrganizationStudyToId(undefined, studies)).not.toThrow();
   });
 
   it("should not throw an exception if the study is null", () => {
@@ -303,8 +298,6 @@ describe("mapOrganizationStudyToId cases", () => {
   it("should not throw an exception if the approved studies are undefined", () => {
     const study = { studyName: "Study 1", studyAbbreviation: "S1" };
 
-    expect(() =>
-      utils.mapOrganizationStudyToId(study, undefined)
-    ).not.toThrow();
+    expect(() => utils.mapOrganizationStudyToId(study, undefined)).not.toThrow();
   });
 });

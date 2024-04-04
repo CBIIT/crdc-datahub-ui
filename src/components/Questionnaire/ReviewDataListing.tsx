@@ -24,13 +24,7 @@ type Props = {
   children?: ReactNode;
 };
 
-const ReviewDataListing = ({
-  idPrefix,
-  title,
-  description,
-  hideTitle,
-  children,
-}: Props) => (
+const ReviewDataListing = ({ idPrefix, title, description, hideTitle, children }: Props) => (
   <>
     {title || description ? (
       <StyledGridHeader xs={12} item>
@@ -40,10 +34,7 @@ const ReviewDataListing = ({
           </StyledTitle>
         )}
         {description && (
-          <StyledDescription
-            id={idPrefix.concat(`-section-description`)}
-            variant="body1"
-          >
+          <StyledDescription id={idPrefix.concat(`-section-description`)} variant="body1">
             {description}
           </StyledDescription>
         )}

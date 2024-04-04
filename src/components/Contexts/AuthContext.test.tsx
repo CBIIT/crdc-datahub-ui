@@ -2,11 +2,7 @@ import React, { FC } from "react";
 import { GraphQLError } from "graphql";
 import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import {
-  AuthProvider,
-  Status as AuthStatus,
-  useAuthContext,
-} from "./AuthContext";
+import { AuthProvider, Status as AuthStatus, useAuthContext } from "./AuthContext";
 import { query as GET_MY_USER } from "../../graphql/getMyUser";
 
 type Props = {
@@ -29,12 +25,8 @@ const TestChild: FC = () => {
 
       {/* User Data */}
       {user?._id && <div data-testid="user-id">{user._id}</div>}
-      {typeof user?.firstName === "string" && (
-        <div data-testid="first-name">{user.firstName}</div>
-      )}
-      {typeof user?.lastName === "string" && (
-        <div data-testid="last-name">{user.lastName}</div>
-      )}
+      {typeof user?.firstName === "string" && <div data-testid="first-name">{user.firstName}</div>}
+      {typeof user?.lastName === "string" && <div data-testid="last-name">{user.lastName}</div>}
     </>
   );
 };
@@ -90,19 +82,13 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     const screen = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("status")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
     expect(screen.getByTestId("isLoggedIn").textContent).toEqual("true");
     expect(screen.getByTestId("user-id").textContent).toEqual(userData._id);
-    expect(screen.getByTestId("first-name").textContent).toEqual(
-      userData.firstName
-    );
-    expect(screen.getByTestId("last-name").textContent).toEqual(
-      userData.lastName
-    );
+    expect(screen.getByTestId("first-name").textContent).toEqual(userData.firstName);
+    expect(screen.getByTestId("last-name").textContent).toEqual(userData.lastName);
   });
 
   it("should successfully verify the cached user with the BE service", async () => {
@@ -131,9 +117,7 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     const screen = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("status")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
     expect(screen.getByTestId("isLoggedIn").textContent).toEqual("true");
@@ -174,9 +158,7 @@ describe("AuthContext > AuthProvider Tests", () => {
     await waitFor(
       () => {
         const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
-        expect(cachedUser.firstName).toEqual(
-          mocks[0].result.data.getMyUser.firstName
-        );
+        expect(cachedUser.firstName).toEqual(mocks[0].result.data.getMyUser.firstName);
       },
       { timeout: 1000 }
     );
@@ -196,9 +178,7 @@ describe("AuthContext > AuthProvider Tests", () => {
         },
         result: {
           data: null,
-          errors: [
-            new GraphQLError("A user must be logged in to perform this action"),
-          ],
+          errors: [new GraphQLError("A user must be logged in to perform this action")],
         },
       },
     ];
@@ -207,15 +187,11 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     const screen = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("status")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
 
     expect(screen.getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("isLoggedIn").textContent).toEqual("false")
-    );
+    await waitFor(() => expect(screen.getByTestId("isLoggedIn").textContent).toEqual("false"));
 
     await waitFor(
       () => {

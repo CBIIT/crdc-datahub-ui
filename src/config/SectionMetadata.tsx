@@ -38,18 +38,15 @@ const sectionMetadata = {
       },
       STUDY_INFORMATION: {
         title: "STUDY INFORMATION",
-        description:
-          "A short description of the effort that these data have been collected for.",
+        description: "A short description of the effort that these data have been collected for.",
       },
       FUNDING_AGENCY: {
         title: "FUNDING AGENCY/ORGANIZATION",
-        description:
-          "List the agency(s) and/or organization(s) that funded this study.",
+        description: "List the agency(s) and/or organization(s) that funded this study.",
       },
       DBGAP_REGISTRATION: {
         title: "dbGaP REGISTRATION",
-        description:
-          "Please indicate if your study is currently registered with dbGaP.",
+        description: "Please indicate if your study is currently registered with dbGaP.",
       },
       EXISTING_PUBLICATIONS: {
         title: "EXISTING PUBLICATIONS",
@@ -63,8 +60,7 @@ const sectionMetadata = {
       },
       REPOSITORY: {
         title: "REPOSITORY",
-        description:
-          "Add repository if your data has been submitted to another repository",
+        description: "Add repository if your data has been submitted to another repository",
       },
     },
   },
@@ -76,11 +72,10 @@ const sectionMetadata = {
         title: "DATA ACCESS",
         description: (
           <>
-            Informed consent is the basis for institutions submitting data to
-            determine the appropriateness of submitting human data to open or
-            controlled-access NIH/NCI data repositories. This refers to how CRDC
-            data repositories distribute scientific data to the public. The
-            controlled-access studies are required to submit an Institutional
+            Informed consent is the basis for institutions submitting data to determine the
+            appropriateness of submitting human data to open or controlled-access NIH/NCI data
+            repositories. This refers to how CRDC data repositories distribute scientific data to
+            the public. The controlled-access studies are required to submit an Institutional
             Certification to NIH. Learn about this at{" "}
             <Link
               to="https://sharing.nih.gov/genomic-data-sharing-policy/institutional-certifications"
@@ -124,8 +119,7 @@ const sectionMetadata = {
         title: "FILE TYPES",
         description: (
           <>
-            List the number, size, and formats of files in the submission in the
-            table below.
+            List the number, size, and formats of files in the submission in the table below.
             <br />
             Indicate one file type per row. At least one file type is required.
           </>
@@ -133,8 +127,7 @@ const sectionMetadata = {
       },
       ADDITIONAL_COMMENTS: {
         title: "ADDITIONAL INFORMATION",
-        description:
-          "Additional Comments or Information about this submission.",
+        description: "Additional Comments or Information about this submission.",
       },
     },
   },

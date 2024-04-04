@@ -36,24 +36,17 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
   const [totalData, setTotalData] = useState<number>(0);
 
-  const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp>(
-    GET_SUBMISSION_NODES,
-    {
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-    }
-  );
+  const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp>(GET_SUBMISSION_NODES, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+  });
 
-  const handleFetchData = async (
-    fetchListing: FetchListing<T>,
-    force: boolean
-  ) => {
+  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
-      enqueueSnackbar(
-        "Cannot fetch results. Submission ID is invalid or missing.",
-        { variant: "error" }
-      );
+      enqueueSnackbar("Cannot fetch results. Submission ID is invalid or missing.", {
+        variant: "error",
+      });
       return;
     }
     if (!force && data?.length > 0 && isEqual(fetchListing, prevListing)) {
@@ -90,11 +83,7 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
       return;
     }
 
-    if (
-      error ||
-      !d?.getSubmissionNodes ||
-      !d?.getSubmissionNodes?.properties?.length
-    ) {
+    if (error || !d?.getSubmissionNodes || !d?.getSubmissionNodes?.properties?.length) {
       enqueueSnackbar("Unable to retrieve node data.", { variant: "error" });
       setLoading(false);
       return;
@@ -133,10 +122,7 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
 
   return (
     <>
-      <SubmittedDataFilters
-        submissionId={submissionId}
-        onChange={handleFilterChange}
-      />
+      <SubmittedDataFilters submissionId={submissionId} onChange={handleFilterChange} />
       <GenericTable
         ref={tableRef}
         columns={columns}

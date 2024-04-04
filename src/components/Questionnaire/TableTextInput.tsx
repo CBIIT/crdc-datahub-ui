@@ -1,11 +1,5 @@
 import React, { FC, useEffect, useId, useState, useRef } from "react";
-import {
-  Input,
-  InputProps,
-  Tooltip,
-  TooltipProps,
-  styled,
-} from "@mui/material";
+import { Input, InputProps, Tooltip, TooltipProps, styled } from "@mui/material";
 import useFormMode from "../../hooks/useFormMode";
 import { updateInputValidity } from "../../utils";
 

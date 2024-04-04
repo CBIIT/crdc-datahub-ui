@@ -228,8 +228,7 @@ const GenericTable = <T,>(
   };
 
   const emptyRows = useMemo(
-    () =>
-      page > 0 && total ? Math.max(0, (1 + page) * perPage - (total || 0)) : 0,
+    () => (page > 0 && total ? Math.max(0, (1 + page) * perPage - (total || 0)) : 0),
     [data]
   );
 

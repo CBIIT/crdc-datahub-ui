@@ -80,22 +80,15 @@ type Props = {
   onSubmit?: () => void;
 } & Omit<DialogProps, "onClose">;
 
-const ConfirmDialog: FC<Props> = ({
-  title,
-  onClose,
-  onSubmit,
-  open,
-  ...rest
-}) => (
+const ConfirmDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest }) => (
   <StyledDialog open={open} onClose={() => onClose?.()} {...rest}>
     <StyledCloseDialogButton aria-label="close" onClick={() => onClose?.()}>
       <CloseIconSvg />
     </StyledCloseDialogButton>
     <StyledDialogContent>
       <StyledBodyText id="confirm-dialog-body" variant="h6">
-        Currently, there are active data submissions for this study within this
-        organization. Are you sure you want to remove this study from the
-        organization?
+        Currently, there are active data submissions for this study within this organization. Are
+        you sure you want to remove this study from the organization?
       </StyledBodyText>
     </StyledDialogContent>
     <StyledDialogActions>
@@ -107,11 +100,7 @@ const ConfirmDialog: FC<Props> = ({
       >
         Confirm to Remove
       </StyledActionButton>
-      <StyledActionButton
-        id="uploader-cli-cancel-button"
-        variant="outlined"
-        onClick={onClose}
-      >
+      <StyledActionButton id="uploader-cli-cancel-button" variant="outlined" onClick={onClose}>
         Cancel
       </StyledActionButton>
     </StyledDialogActions>

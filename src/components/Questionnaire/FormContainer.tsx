@@ -28,15 +28,13 @@ const StyledButton = styled(Button, {
 
 const StyledFormContainer = styled("div", {
   shouldForwardProp: (prop) => prop !== "returnIsVisible",
-})<HTMLProps<HTMLDivElement> & { returnIsVisible: boolean }>(
-  ({ returnIsVisible }) => ({
-    background: "transparent",
-    borderRadius: "8px",
-    paddingBottom: "25px",
-    marginTop: returnIsVisible ? "0 !important" : "-36px !important",
-    scrollMarginTop: "0px",
-  })
-);
+})<HTMLProps<HTMLDivElement> & { returnIsVisible: boolean }>(({ returnIsVisible }) => ({
+  background: "transparent",
+  borderRadius: "8px",
+  paddingBottom: "25px",
+  marginTop: returnIsVisible ? "0 !important" : "-36px !important",
+  scrollMarginTop: "0px",
+}));
 
 const StyledForm = styled("form")(() => ({
   fontWeight: 400,
@@ -84,10 +82,7 @@ const FormContainer = forwardRef<HTMLDivElement, Props>(
     };
 
     return (
-      <StyledFormContainer
-        ref={ref}
-        returnIsVisible={!hideReturnToSubmissions && readOnlyInputs}
-      >
+      <StyledFormContainer ref={ref} returnIsVisible={!hideReturnToSubmissions && readOnlyInputs}>
         <StyledButton
           isVisible={!hideReturnToSubmissions && readOnlyInputs}
           variant="text"

@@ -1,7 +1,4 @@
-import {
-  InitialApplication,
-  InitialQuestionnaire,
-} from "../config/InitialValues";
+import { InitialApplication, InitialQuestionnaire } from "../config/InitialValues";
 import * as utils from "./formModeUtils";
 
 describe("getFormMode tests based on provided requirements", () => {
@@ -47,18 +44,11 @@ describe("getFormMode tests based on provided requirements", () => {
     const user: User = { ...baseUser, role: "User" };
 
     it("should allow User to edit when form status is New", () => {
-      expect(utils.getFormMode(user, baseSubmission)).toBe(
-        utils.FormModes.EDIT
-      );
+      expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.EDIT);
     });
 
     it("should set View Only for User when form is Submitted, In Review, Approved, or Rejected", () => {
-      const statuses: ApplicationStatus[] = [
-        "Submitted",
-        "In Review",
-        "Approved",
-        "Rejected",
-      ];
+      const statuses: ApplicationStatus[] = ["Submitted", "In Review", "Approved", "Rejected"];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(
@@ -71,9 +61,7 @@ describe("getFormMode tests based on provided requirements", () => {
       const statuses: ApplicationStatus[] = ["New", "In Progress", "Inquired"];
 
       statuses.forEach((status) => {
-        expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(
-          utils.FormModes.EDIT
-        );
+        expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.EDIT);
       });
     });
 
@@ -87,9 +75,7 @@ describe("getFormMode tests based on provided requirements", () => {
         },
       };
 
-      expect(utils.getFormMode(user, submission)).toBe(
-        utils.FormModes.UNAUTHORIZED
-      );
+      expect(utils.getFormMode(user, submission)).toBe(utils.FormModes.UNAUTHORIZED);
     });
   });
 
@@ -98,18 +84,11 @@ describe("getFormMode tests based on provided requirements", () => {
     const user: User = { ...baseUser, role: "Submitter" };
 
     it("should allow Submitter to edit when form status is New", () => {
-      expect(utils.getFormMode(user, baseSubmission)).toBe(
-        utils.FormModes.EDIT
-      );
+      expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.EDIT);
     });
 
     it("should set View Only for Submitter when form is Submitted, In Review, Approved, or Rejected", () => {
-      const statuses: ApplicationStatus[] = [
-        "Submitted",
-        "In Review",
-        "Approved",
-        "Rejected",
-      ];
+      const statuses: ApplicationStatus[] = ["Submitted", "In Review", "Approved", "Rejected"];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(
@@ -122,9 +101,7 @@ describe("getFormMode tests based on provided requirements", () => {
       const statuses: ApplicationStatus[] = ["New", "In Progress", "Inquired"];
 
       statuses.forEach((status) => {
-        expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(
-          utils.FormModes.EDIT
-        );
+        expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.EDIT);
       });
     });
   });
@@ -137,9 +114,7 @@ describe("getFormMode tests based on provided requirements", () => {
       const statuses: ApplicationStatus[] = ["Submitted", "In Review"];
 
       statuses.forEach((status) => {
-        expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(
-          utils.FormModes.REVIEW
-        );
+        expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.REVIEW);
       });
     });
 
@@ -169,9 +144,7 @@ describe("getFormMode tests based on provided requirements", () => {
         },
       };
 
-      expect(utils.getFormMode(user, submission)).toBe(
-        utils.FormModes.VIEW_ONLY
-      );
+      expect(utils.getFormMode(user, submission)).toBe(utils.FormModes.VIEW_ONLY);
     });
   });
 
@@ -183,19 +156,12 @@ describe("getFormMode tests based on provided requirements", () => {
       const statuses: ApplicationStatus[] = ["New", "In Progress", "Inquired"];
 
       statuses.forEach((status) => {
-        expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(
-          utils.FormModes.EDIT
-        );
+        expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.EDIT);
       });
     });
 
     it("should set View Only for Org Owner when form is Submitted, In Review, Approved, or Rejected", () => {
-      const statuses: ApplicationStatus[] = [
-        "Submitted",
-        "In Review",
-        "Approved",
-        "Rejected",
-      ];
+      const statuses: ApplicationStatus[] = ["Submitted", "In Review", "Approved", "Rejected"];
 
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(
@@ -214,9 +180,7 @@ describe("getFormMode tests based on provided requirements", () => {
         },
       };
 
-      expect(utils.getFormMode(user, submission)).toBe(
-        utils.FormModes.VIEW_ONLY
-      );
+      expect(utils.getFormMode(user, submission)).toBe(utils.FormModes.VIEW_ONLY);
     });
   });
 
@@ -252,9 +216,7 @@ describe("getFormMode tests based on provided requirements", () => {
         },
       };
 
-      expect(utils.getFormMode(user, submission)).toBe(
-        utils.FormModes.VIEW_ONLY
-      );
+      expect(utils.getFormMode(user, submission)).toBe(utils.FormModes.VIEW_ONLY);
     });
   });
 
@@ -329,15 +291,9 @@ describe("getFormMode tests based on provided requirements", () => {
         _id: "user-456-another-user",
       };
 
-      expect(utils.getFormMode(fedLead, submission)).toBe(
-        utils.FormModes.VIEW_ONLY
-      );
-      expect(utils.getFormMode(submitterOwner, submission)).toBe(
-        utils.FormModes.EDIT
-      );
-      expect(utils.getFormMode(orgOwnerSubmissionOwner, submission)).toBe(
-        utils.FormModes.EDIT
-      );
+      expect(utils.getFormMode(fedLead, submission)).toBe(utils.FormModes.VIEW_ONLY);
+      expect(utils.getFormMode(submitterOwner, submission)).toBe(utils.FormModes.EDIT);
+      expect(utils.getFormMode(orgOwnerSubmissionOwner, submission)).toBe(utils.FormModes.EDIT);
     });
   });
 
@@ -345,37 +301,27 @@ describe("getFormMode tests based on provided requirements", () => {
   describe("getFormMode > Edge Case Tests", () => {
     describe("getFormMode > Edge Case Tests > Invalid data tests", () => {
       it("should set Unauthorized when a null User is provided", () => {
-        expect(utils.getFormMode(null, baseSubmission)).toBe(
-          utils.FormModes.UNAUTHORIZED
-        );
+        expect(utils.getFormMode(null, baseSubmission)).toBe(utils.FormModes.UNAUTHORIZED);
       });
 
       it("should set Unauthorized when a null data Submission is provided", () => {
         const user: User = { ...baseUser, role: "User" };
 
-        expect(utils.getFormMode(user, null)).toBe(
-          utils.FormModes.UNAUTHORIZED
-        );
+        expect(utils.getFormMode(user, null)).toBe(utils.FormModes.UNAUTHORIZED);
       });
 
       it("should set Unauthorized when a null data Submission and User is provided", () => {
-        expect(utils.getFormMode(null, null)).toBe(
-          utils.FormModes.UNAUTHORIZED
-        );
+        expect(utils.getFormMode(null, null)).toBe(utils.FormModes.UNAUTHORIZED);
       });
 
       it("should set Unauthorized when a null data Submission and User is provided", () => {
-        expect(utils.getFormMode(null, null)).toBe(
-          utils.FormModes.UNAUTHORIZED
-        );
+        expect(utils.getFormMode(null, null)).toBe(utils.FormModes.UNAUTHORIZED);
       });
 
       it("should set Unauthorized form if user role is undefined", () => {
         const user: User = { ...baseUser, role: undefined };
 
-        expect(utils.getFormMode(user, baseSubmission)).toBe(
-          utils.FormModes.UNAUTHORIZED
-        );
+        expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.UNAUTHORIZED);
       });
 
       it("should set Unauthorized if form status is unknown or not defined", () => {
@@ -385,9 +331,7 @@ describe("getFormMode tests based on provided requirements", () => {
           status: undefined,
         };
 
-        expect(utils.getFormMode(user, submission)).toBe(
-          utils.FormModes.UNAUTHORIZED
-        );
+        expect(utils.getFormMode(user, submission)).toBe(utils.FormModes.UNAUTHORIZED);
       });
     });
   });

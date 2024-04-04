@@ -42,17 +42,11 @@ const MainLayout = withTracking(Layout);
 // Pages
 const Home = Loader(lazy(() => import("./content")));
 const Login = Loader(lazy(() => import("./content/login/Controller")));
-const Questionnaire = Loader(
-  lazy(() => import("./content/questionnaire/Controller"))
-);
-const DataSubmissions = Loader(
-  lazy(() => import("./content/dataSubmissions/Controller"))
-);
+const Questionnaire = Loader(lazy(() => import("./content/questionnaire/Controller")));
+const DataSubmissions = Loader(lazy(() => import("./content/dataSubmissions/Controller")));
 const Users = Loader(lazy(() => import("./content/users/Controller")));
 const DMN = Loader(lazy(() => import("./content/modelNavigator/Controller")));
-const Organizations = Loader(
-  lazy(() => import("./content/organizations/Controller"))
-);
+const Organizations = Loader(lazy(() => import("./content/organizations/Controller")));
 
 // Status Pages
 const Status404 = Loader(lazy(() => import("./content/status/Page404")));

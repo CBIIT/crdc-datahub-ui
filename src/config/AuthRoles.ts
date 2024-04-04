@@ -34,10 +34,7 @@ export const OrgRequiredRoles: User["role"][] = [
  *
  * NOTE: This depends on the organizations existing in the database.
  */
-type RoleSubset = Extends<
-  User["role"],
-  "Admin" | "Data Curator" | "Federal Lead"
->;
+type RoleSubset = Extends<User["role"], "Admin" | "Data Curator" | "Federal Lead">;
 export const OrgAssignmentMap: Record<RoleSubset, Organization["name"]> = {
   Admin: "FNL",
   "Data Curator": "FNL",

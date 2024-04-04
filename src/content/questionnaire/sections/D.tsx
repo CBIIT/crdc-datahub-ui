@@ -2,20 +2,10 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  styled,
-} from "@mui/material";
+import { Table, TableBody, TableCell, TableHead, TableRow, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import {
-  Status as FormStatus,
-  useFormContext,
-} from "../../../components/Contexts/FormContext";
+import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
@@ -145,10 +135,7 @@ const InvisibleInput = styled("input")({
   display: "block",
 });
 
-const FormSectionD: FC<FormSectionProps> = ({
-  SectionOption,
-  refs,
-}: FormSectionProps) => {
+const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const {
     status,
     data: { questionnaireData: data },
@@ -157,14 +144,11 @@ const FormSectionD: FC<FormSectionProps> = ({
   const { D: SectionDMetadata } = SectionMetadata;
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
-  const [isClinical, setIsClinical] = useState<boolean>(
-    dataTypes?.includes("clinicalTrial")
-  );
+  const [isClinical, setIsClinical] = useState<boolean>(dataTypes?.includes("clinicalTrial"));
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const [dataTypesErrorMsg, setDataTypesErrorMsg] = useState<string>("");
-  const [clinicalDataTypesErrorMsg, setClinicalDataTypesErrorMsg] =
-    useState<string>("");
+  const [clinicalDataTypesErrorMsg, setClinicalDataTypesErrorMsg] = useState<string>("");
   const dataTypesInputRef = useRef<HTMLInputElement>(null);
   const clinicalDataTypesInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -179,10 +163,9 @@ const FormSectionD: FC<FormSectionProps> = ({
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(
     data.files?.map(mapObjectWithKey) || []
   );
-  const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] =
-    useState<string[]>(
-      reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)
-    );
+  const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(
+    reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)
+  );
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -194,24 +177,20 @@ const FormSectionD: FC<FormSectionProps> = ({
     // Remove empty strings from dataType arrays
     combinedData.dataTypes = combinedData.dataTypes.filter((str) => str !== "");
     // Handle validity for at dataTypes section
-    if (
-      combinedData.dataTypes.length !== 0 ||
-      combinedData.otherDataTypes !== ""
-    ) {
+    if (combinedData.dataTypes.length !== 0 || combinedData.otherDataTypes !== "") {
       setDataTypesErrorMsg("");
       dataTypesInputRef.current.setCustomValidity("");
     } else {
       setDataTypesErrorMsg("At least one data type is required");
-      dataTypesInputRef.current.setCustomValidity(
-        "At least one data type is required"
-      );
+      dataTypesInputRef.current.setCustomValidity("At least one data type is required");
     }
 
     if (!combinedData.dataTypes.includes("clinicalTrial")) {
       combinedData.clinicalData = InitialQuestionnaire.clinicalData;
     } else {
-      combinedData.clinicalData.dataTypes =
-        combinedData.clinicalData.dataTypes.filter((str) => str !== "");
+      combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter(
+        (str) => str !== ""
+      );
     }
 
     // Handle validity for at clinical data types section
@@ -223,22 +202,16 @@ const FormSectionD: FC<FormSectionProps> = ({
       setClinicalDataTypesErrorMsg("");
       clinicalDataTypesInputRef.current.setCustomValidity("");
     } else if (combinedData.dataTypes.includes("clinicalTrial")) {
-      setClinicalDataTypesErrorMsg(
-        "At least one clinical data type is required"
-      );
+      setClinicalDataTypesErrorMsg("At least one clinical data type is required");
       clinicalDataTypesInputRef.current?.setCustomValidity(
         "At least one clinical data type is required"
       );
     }
 
-    combinedData.targetedReleaseDate = dayjs(
-      formObject.targetedReleaseDate
-    ).isValid()
+    combinedData.targetedReleaseDate = dayjs(formObject.targetedReleaseDate).isValid()
       ? formObject.targetedReleaseDate
       : "";
-    combinedData.targetedSubmissionDate = dayjs(
-      formObject.targetedSubmissionDate
-    ).isValid()
+    combinedData.targetedSubmissionDate = dayjs(formObject.targetedSubmissionDate).isValid()
       ? formObject.targetedSubmissionDate
       : "";
     if (formObject.imagingDataDeIdentified === "true") {
@@ -302,15 +275,9 @@ const FormSectionD: FC<FormSectionProps> = ({
   }, []);
 
   return (
-    <FormContainer
-      ref={formContainerRef}
-      formRef={formRef}
-      description={SectionOption.title}
-    >
+    <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
       {/* Data Delivery and Release Dates Section */}
-      <SectionGroup
-        title={SectionDMetadata.sections.DATA_DELIVERY_AND_RELEASE_DATES.title}
-      >
+      <SectionGroup title={SectionDMetadata.sections.DATA_DELIVERY_AND_RELEASE_DATES.title}>
         <DatePickerInput
           inputID="section-d-targeted-data-submission-delivery-date"
           label="Targeted Data Submission Delivery Date"
@@ -412,9 +379,7 @@ const FormSectionD: FC<FormSectionProps> = ({
       {isClinical && (
         <SectionGroup
           title={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title}
-          description={
-            SectionDMetadata.sections.CLINICAL_DATA_TYPES.description
-          }
+          description={SectionDMetadata.sections.CLINICAL_DATA_TYPES.description}
           required
           error={clinicalDataTypesErrorMsg}
         >
@@ -436,9 +401,7 @@ const FormSectionD: FC<FormSectionProps> = ({
             label="Relapse/Recurrence Data"
             name="clinicalData[dataTypes][]"
             graphQLValue="relapseRecurrenceData"
-            value={data.clinicalData.dataTypes.includes(
-              "relapseRecurrenceData"
-            )}
+            value={data.clinicalData.dataTypes.includes("relapseRecurrenceData")}
             tooltipText="Relapse/recurrence data refers to information associated with the return of a disease after a period of remission. Indicate whether relapse/recurrence data is available for the study."
             readOnly={readOnlyInputs}
           />
@@ -544,10 +507,7 @@ const FormSectionD: FC<FormSectionProps> = ({
             </TableHead>
             <TableBody>
               {fileTypeData.map((fileData: KeyedFileTypeData, idx: number) => (
-                <TableRow
-                  key={fileData.key}
-                  className={`${readOnlyInputs ? "readOnly" : ""}`}
-                >
+                <TableRow key={fileData.key} className={`${readOnlyInputs ? "readOnly" : ""}`}>
                   <TableFileTypeAndExtensionInput
                     inputID={`section-d-file-type-${idx}-file`}
                     typeValue={fileData.type}
@@ -589,9 +549,7 @@ const FormSectionD: FC<FormSectionProps> = ({
                           onClick={() => removeFileDataType(fileData.key)}
                           startIcon={<RemoveCircleIcon />}
                           iconColor="#E74040"
-                          disabled={
-                            readOnlyInputs || status === FormStatus.SAVING
-                          }
+                          disabled={readOnlyInputs || status === FormStatus.SAVING}
                           aria-label="Remove File Type"
                           sx={{ minWidth: "0px !important" }}
                         />

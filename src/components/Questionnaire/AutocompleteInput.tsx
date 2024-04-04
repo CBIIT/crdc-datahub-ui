@@ -9,14 +9,7 @@ import {
   TextField,
   styled,
 } from "@mui/material";
-import {
-  ReactNode,
-  SyntheticEvent,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, SyntheticEvent, useEffect, useId, useRef, useState } from "react";
 import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
 import Tooltip from "../Tooltip";
 import { updateInputValidity } from "../../utils";
@@ -103,35 +96,33 @@ const StyledAsterisk = styled("span")(() => ({
   marginLeft: "2px",
 }));
 
-const StyledAutocomplete = styled(Autocomplete)(
-  ({ readOnly }: { readOnly?: boolean }) => ({
-    "& .MuiInputBase-root": {
-      "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
-        display: "flex",
-        alignItems: "center",
-        padding: 0,
-      },
-      "& .MuiOutlinedInput-input:read-only": {
-        backgroundColor: "#E5EEF4",
-        color: "#083A50",
-        cursor: "not-allowed",
-        borderRadius: "8px",
-      },
-      "& .MuiInputBase-input": {
-        fontWeight: 400,
-        fontSize: "16px",
-        fontFamily: "'Nunito', 'Rubik', sans-serif",
-        padding: "12px 30px 12px 12px !important",
-        height: "20px",
-        cursor: readOnly ? "not-allowed !important" : "initial",
-      },
-      "& .MuiAutocomplete-clearIndicator": {
-        visibility: "hidden !important",
-        position: "absolute",
-      },
+const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: boolean }) => ({
+  "& .MuiInputBase-root": {
+    "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
+      display: "flex",
+      alignItems: "center",
+      padding: 0,
     },
-  })
-);
+    "& .MuiOutlinedInput-input:read-only": {
+      backgroundColor: "#E5EEF4",
+      color: "#083A50",
+      cursor: "not-allowed",
+      borderRadius: "8px",
+    },
+    "& .MuiInputBase-input": {
+      fontWeight: 400,
+      fontSize: "16px",
+      fontFamily: "'Nunito', 'Rubik', sans-serif",
+      padding: "12px 30px 12px 12px !important",
+      height: "20px",
+      cursor: readOnly ? "not-allowed !important" : "initial",
+    },
+    "& .MuiAutocomplete-clearIndicator": {
+      visibility: "hidden !important",
+      position: "absolute",
+    },
+  },
+}));
 
 const StyledFormHelperText = styled(FormHelperText)(() => ({
   marginLeft: 0,
@@ -198,10 +189,7 @@ const AutocompleteInput = <T,>({
     setError(false);
   };
 
-  const onInputChangeWrapper = (
-    event: SyntheticEvent,
-    newValue: string
-  ): void => {
+  const onInputChangeWrapper = (event: SyntheticEvent, newValue: string): void => {
     processValue(newValue as unknown as T);
     setError(false);
   };
@@ -263,9 +251,7 @@ const AutocompleteInput = <T,>({
           )}
           {...rest}
         />
-        <StyledFormHelperText>
-          {!readOnly && error ? helperText : " "}
-        </StyledFormHelperText>
+        <StyledFormHelperText>{!readOnly && error ? helperText : " "}</StyledFormHelperText>
       </StyledFormControl>
     </Grid>
   );

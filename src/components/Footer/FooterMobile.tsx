@@ -250,8 +250,7 @@ const FooterMobile = () => {
   const emailInput = useRef<HTMLInputElement>(null);
 
   function validateEmail(email) {
-    const reg =
-      /^[A-Za-z0-9]+([_.-][A-Za-z0-9]+)*@([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}$/;
+    const reg = /^[A-Za-z0-9]+([_.-][A-Za-z0-9]+)*@([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}$/;
     return reg.test(email);
   }
 
@@ -283,11 +282,7 @@ const FooterMobile = () => {
               const linkkey = `link_${linkidx}`;
               return (
                 <div className="dropdown" key={linkkey}>
-                  <button
-                    type="button"
-                    onClick={() => handleDropdown(linkkey)}
-                    className="dropbtn"
-                  >
+                  <button type="button" onClick={() => handleDropdown(linkkey)} className="dropbtn">
                     <svg
                       id={`${linkkey}Arrow`}
                       className="arrow"
@@ -317,11 +312,7 @@ const FooterMobile = () => {
                           {item.text}
                         </a>
                       ) : (
-                        <a
-                          className="footItemLink"
-                          key={itemkey}
-                          href={item.link}
-                        >
+                        <a className="footItemLink" key={itemkey} href={item.link}>
                           {item.text}
                         </a>
                       );
@@ -340,12 +331,7 @@ const FooterMobile = () => {
             id="signup"
             noValidate
           >
-            <input
-              type="hidden"
-              name="topic_id"
-              id="topic_id"
-              value="USNIHNCI_223"
-            />
+            <input type="hidden" name="topic_id" id="topic_id" value="USNIHNCI_223" />
             <div className="signUpTitle">Sign up for email updates</div>
             <div className="enterTitle">
               <label htmlFor="email">
@@ -377,9 +363,7 @@ const FooterMobile = () => {
               rel="noopener noreferrer"
             >
               <div className="logoUpperText">National Cancer Institute</div>
-              <div className="logoLowerText">
-                at the National Institutes of Health
-              </div>
+              <div className="logoLowerText">at the National Institutes of Health</div>
             </a>
           </div>
           <div id="bottom-footer-contact-us">
@@ -413,9 +397,7 @@ const FooterMobile = () => {
                 return (
                   <a
                     key={followkey}
-                    className={
-                      followidx !== 0 ? "bottom-footer-social-media-imgs" : ""
-                    }
+                    className={followidx !== 0 ? "bottom-footer-social-media-imgs" : ""}
                     href={followItem.link}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -430,12 +412,7 @@ const FooterMobile = () => {
             {FooterData.global_footer_links.map((linkItem, idx) => {
               const linkitemkey = `linkitem_${idx}`;
               return (
-                <a
-                  key={linkitemkey}
-                  href={linkItem.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a key={linkitemkey} href={linkItem.link} target="_blank" rel="noopener noreferrer">
                   {linkItem.text}
                 </a>
               );

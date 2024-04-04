@@ -116,9 +116,7 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
   ) => {
     const radioId = id || useId();
     const [val, setVal] = useState<string>(
-      value?.toString() === "" || value?.toString() === undefined
-        ? null
-        : value?.toString()
+      value?.toString() === "" || value?.toString() === undefined ? null : value?.toString()
     );
     const [error, setError] = useState(false);
     const radioGroupInputRef = useRef<HTMLInputElement>(null);
@@ -154,17 +152,9 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
     }, [value]);
 
     return (
-      <GridStyled
-        md={gridWidth || 6}
-        xs={12}
-        item
-        containerWidth={containerWidth}
-      >
+      <GridStyled md={gridWidth || 6} xs={12} item containerWidth={containerWidth}>
         <FormControl className="formControl" error={error}>
-          <Stack
-            direction={inline ? "row" : "column"}
-            alignItems={inline ? "center" : "initial"}
-          >
+          <Stack direction={inline ? "row" : "column"} alignItems={inline ? "center" : "initial"}>
             <StyledFormLabel className="radio-label" htmlFor={radioId}>
               {label}
               {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
@@ -200,9 +190,7 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
               })}
             </RadioGroup>
           </Stack>
-          <FormHelperText
-            className={(!readOnly && error ? "" : "displayNone") || ""}
-          >
+          <FormHelperText className={(!readOnly && error ? "" : "displayNone") || ""}>
             {(!readOnly && error ? "This field is required" : null) || " "}
           </FormHelperText>
         </FormControl>

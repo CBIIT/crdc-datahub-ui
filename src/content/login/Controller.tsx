@@ -12,9 +12,7 @@ const loginController = () => {
 
   const { state } = useLocation();
   const redirectURLOnLoginSuccess =
-    state && state.redirectURLOnLoginSuccess
-      ? state.redirectURLOnLoginSuccess
-      : null;
+    state && state.redirectURLOnLoginSuccess ? state.redirectURLOnLoginSuccess : null;
   const urlParam = {
     client_id: env.REACT_APP_NIH_CLIENT_ID,
     redirect_uri: env.REACT_APP_NIH_REDIRECT_URL,

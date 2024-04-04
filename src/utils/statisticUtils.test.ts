@@ -14,9 +14,7 @@ describe("compareNodeStats cases", () => {
   });
 
   it("should correctly sort in ascending order by node.nodeName when node.total is equal", () => {
-    const sortedStats = [node3B, node1A, node3A, node1B].sort(
-      utils.compareNodeStats
-    );
+    const sortedStats = [node3B, node1A, node3A, node1B].sort(utils.compareNodeStats);
 
     expect(sortedStats).toEqual([node1A, node1B, node3A, node3B]);
   });

@@ -9,11 +9,7 @@ import {
   Context as FormCtx,
   Status as FormStatus,
 } from "../Contexts/FormContext";
-import {
-  ContextState,
-  Context as AuthCtx,
-  Status as AuthStatus,
-} from "../Contexts/AuthContext";
+import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
 
 type Props = {
   section: string;
@@ -66,9 +62,7 @@ describe("ProgressBar Accessibility Tests", () => {
       },
     };
 
-    const { container } = render(
-      <BaseComponent section={keys[0]} data={data} />
-    );
+    const { container } = render(<BaseComponent section={keys[0]} data={data} />);
     const results = await axe(container);
 
     expect(results).toHaveNoViolations();
@@ -82,9 +76,7 @@ describe("ProgressBar Accessibility Tests", () => {
       },
     };
 
-    const { container } = render(
-      <BaseComponent section={keys[0]} data={data} />
-    );
+    const { container } = render(<BaseComponent section={keys[0]} data={data} />);
     const results = await axe(container);
 
     expect(results).toHaveNoViolations();
@@ -98,9 +90,7 @@ describe("ProgressBar Accessibility Tests", () => {
       },
     };
 
-    const { container } = render(
-      <BaseComponent section={keys[0]} data={data} />
-    );
+    const { container } = render(<BaseComponent section={keys[0]} data={data} />);
     const results = await axe(container);
 
     expect(results).toHaveNoViolations();
@@ -120,26 +110,19 @@ describe("ProgressBar General Tests", () => {
         const root = screen.getByText(title).closest("a");
 
         expect(root).toBeVisible();
-        expect(root).toHaveAttribute(
-          "data-testId",
-          `progress-bar-section-${index}`
-        );
+        expect(root).toHaveAttribute("data-testId", `progress-bar-section-${index}`);
         expect(root).toHaveAttribute("href");
         expect(root).toHaveAttribute("aria-disabled");
       });
   });
 
   it("renders the currently active section as highlighted", () => {
-    const { container, getByTestId } = render(
-      <BaseComponent section={keys[1]} data={{}} />
-    );
+    const { container, getByTestId } = render(<BaseComponent section={keys[1]} data={{}} />);
     const activeLinks = container.querySelectorAll("a[data-selected='true']");
 
     expect(activeLinks.length).toBe(1);
     expect(activeLinks[0]).toBe(getByTestId("progress-bar-section-1"));
-    expect(activeLinks[0].querySelector(".MuiButtonBase-root")).toHaveClass(
-      "Mui-selected"
-    );
+    expect(activeLinks[0].querySelector(".MuiButtonBase-root")).toHaveClass("Mui-selected");
   });
 
   it("renders the completed sections with a checkmark", () => {
@@ -149,9 +132,7 @@ describe("ProgressBar General Tests", () => {
       },
     };
 
-    const { getByTestId } = render(
-      <BaseComponent section={keys[0]} data={data} />
-    );
+    const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
     const element = getByTestId("progress-bar-section-1");
 
     expect(element.querySelector(".MuiAvatar-root svg")).toHaveAttribute(
@@ -161,12 +142,8 @@ describe("ProgressBar General Tests", () => {
   });
 
   it("renders the Review section as disabled by default", () => {
-    const { getByTestId } = render(
-      <BaseComponent section={keys[0]} data={{}} />
-    );
-    const reviewSection = getByTestId(
-      `progress-bar-section-${keys.length - 1}`
-    );
+    const { getByTestId } = render(<BaseComponent section={keys[0]} data={{}} />);
+    const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
 
     expect(reviewSection).toBeVisible();
     expect(reviewSection).toHaveAttribute("aria-disabled", "true");
@@ -179,15 +156,11 @@ describe("ProgressBar General Tests", () => {
   it("renders the Review section as enabled only when all sections are completed", () => {
     const data = {
       questionnaireData: {
-        sections: keys
-          .slice(0, keys.length - 1)
-          .map((s) => ({ name: s, status: "Completed" })),
+        sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
       },
     };
 
-    const { getByTestId } = render(
-      <BaseComponent section={keys[0]} data={data} />
-    );
+    const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
 
     sections.slice(0, sections.length - 1).forEach((_, index) => {
       const sectionLink = getByTestId(`progress-bar-section-${index}`);
@@ -198,9 +171,10 @@ describe("ProgressBar General Tests", () => {
       );
     });
 
-    expect(
-      getByTestId(`progress-bar-section-${keys.length - 1}`)
-    ).toHaveAttribute("aria-disabled", "false");
+    expect(getByTestId(`progress-bar-section-${keys.length - 1}`)).toHaveAttribute(
+      "aria-disabled",
+      "false"
+    );
   });
 
   const completedStates: ApplicationStatus[] = ["Approved"];
@@ -210,22 +184,17 @@ describe("ProgressBar General Tests", () => {
       const data = {
         status,
         questionnaireData: {
-          sections: keys
-            .slice(0, keys.length - 1)
-            .map((s) => ({ name: s, status: "Completed" })),
+          sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
         },
       };
 
-      const { getByTestId } = render(
-        <BaseComponent section={keys[0]} data={data} />
-      );
-      const reviewSection = getByTestId(
-        `progress-bar-section-${keys.length - 1}`
-      );
+      const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
+      const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
 
-      expect(
-        reviewSection.querySelector(".MuiAvatar-root svg")
-      ).toHaveAttribute("data-testid", "CheckIcon");
+      expect(reviewSection.querySelector(".MuiAvatar-root svg")).toHaveAttribute(
+        "data-testid",
+        "CheckIcon"
+      );
     }
   );
 
@@ -242,22 +211,17 @@ describe("ProgressBar General Tests", () => {
       const data = {
         status,
         questionnaireData: {
-          sections: keys
-            .slice(0, keys.length - 1)
-            .map((s) => ({ name: s, status: "Completed" })),
+          sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
         },
       };
 
-      const { getByTestId } = render(
-        <BaseComponent section={keys[0]} data={data} />
-      );
-      const reviewSection = getByTestId(
-        `progress-bar-section-${keys.length - 1}`
-      );
+      const { getByTestId } = render(<BaseComponent section={keys[0]} data={data} />);
+      const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
 
-      expect(
-        reviewSection.querySelector(".MuiAvatar-root svg")
-      ).toHaveAttribute("data-testid", "ArrowUpwardIcon");
+      expect(reviewSection.querySelector(".MuiAvatar-root svg")).toHaveAttribute(
+        "data-testid",
+        "ArrowUpwardIcon"
+      );
     }
   );
 });

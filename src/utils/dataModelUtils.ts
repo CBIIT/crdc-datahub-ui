@@ -31,17 +31,21 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
  * @returns ModelAssetUrls
  */
 export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
-  model: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc
-    ?.assets?.["current-version"]}/${dc?.assets?.["model-file"]}`,
-  props: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc
-    ?.assets?.["current-version"]}/${dc?.assets?.["prop-file"]}`,
+  model: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.[
+    "current-version"
+  ]}/${dc?.assets?.["model-file"]}`,
+  props: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.[
+    "current-version"
+  ]}/${dc?.assets?.["prop-file"]}`,
   readme: dc?.assets?.["readme-file"]
-    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc
-        ?.assets?.["current-version"]}/${dc?.assets?.["readme-file"]}`
+    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.[
+        "current-version"
+      ]}/${dc?.assets?.["readme-file"]}`
     : null,
   loading_file: dc?.assets?.["loading-file"]
-    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc
-        ?.assets?.["current-version"]}/${dc?.assets?.["loading-file"]}`
+    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.[
+        "current-version"
+      ]}/${dc?.assets?.["loading-file"]}`
     : null,
 });
 
@@ -52,9 +56,7 @@ export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
  * @param dc The data common to build the base filters for
  * @returns An array of base filters used by Data Model Navigator
  */
-export const buildBaseFilterContainers = (
-  dc: DataCommon
-): { [key: string]: [] } => {
+export const buildBaseFilterContainers = (dc: DataCommon): { [key: string]: [] } => {
   if (!dc || !dc?.configuration?.facetFilterSearchData) {
     return {};
   }
@@ -93,16 +95,10 @@ export const buildFilterOptionsList = (dc: DataCommon): string[] => {
   }
 
   return dc.configuration.facetFilterSearchData.reduce((a, searchData) => {
-    if (
-      !Array.isArray(searchData?.checkboxItems) ||
-      searchData.checkboxItems.length === 0
-    ) {
+    if (!Array.isArray(searchData?.checkboxItems) || searchData.checkboxItems.length === 0) {
       return a;
     }
 
-    return [
-      ...a,
-      ...searchData.checkboxItems.map((item) => item?.name?.toLowerCase()),
-    ];
+    return [...a, ...searchData.checkboxItems.map((item) => item?.name?.toLowerCase())];
   }, []);
 };

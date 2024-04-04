@@ -65,9 +65,7 @@ const TimeConstraint: FC<Props> = ({
       </Grid>
       <Grid item xs={12}>
         <AddRemoveButton
-          id={idPrefix.concat(
-            `time-constraint-${index}-remove-time-constraint-button`
-          )}
+          id={idPrefix.concat(`time-constraint-${index}-remove-time-constraint-button`)}
           label="Remove Time Constraint"
           placement="start"
           onClick={onDelete}

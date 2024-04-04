@@ -35,9 +35,7 @@ describe("SubmittedData > General", () => {
     result: {
       data: {
         submissionStats: {
-          stats: [
-            { ...baseSubmissionStatistic, nodeName: "example-node", total: 1 },
-          ],
+          stats: [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }],
         },
       },
     },
@@ -101,10 +99,9 @@ describe("SubmittedData > General", () => {
     );
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Unable to retrieve node data.",
-        { variant: "error" }
-      );
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve node data.", {
+        variant: "error",
+      });
     });
   });
 
@@ -137,10 +134,9 @@ describe("SubmittedData > General", () => {
     );
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Unable to retrieve node data.",
-        { variant: "error" }
-      );
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve node data.", {
+        variant: "error",
+      });
     });
   });
 });
@@ -163,9 +159,7 @@ describe("SubmittedData > Table", () => {
     result: {
       data: {
         submissionStats: {
-          stats: [
-            { ...baseSubmissionStatistic, nodeName: "example-node", total: 1 },
-          ],
+          stats: [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }],
         },
       },
     },

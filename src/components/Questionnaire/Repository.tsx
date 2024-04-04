@@ -34,17 +34,10 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const Repository: FC<Props> = ({
-  idPrefix = "",
-  index,
-  repository,
-  readOnly,
-  onDelete,
-}: Props) => {
+const Repository: FC<Props> = ({ idPrefix = "", index, repository, readOnly, onDelete }: Props) => {
   const { status } = useFormContext();
 
-  const { name, studyID, dataTypesSubmitted, otherDataTypesSubmitted } =
-    repository || {};
+  const { name, studyID, dataTypesSubmitted, otherDataTypesSubmitted } = repository || {};
 
   return (
     <GridContainer container>

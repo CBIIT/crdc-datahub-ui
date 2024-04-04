@@ -32,10 +32,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Error",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -46,10 +43,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Error",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -60,10 +54,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -74,10 +65,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Error",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -88,10 +76,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Warning",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -102,10 +87,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -127,10 +109,7 @@ describe("General Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -141,10 +120,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -156,10 +132,7 @@ describe("General Submit", () => {
       fileValidationStatus: null,
       intention: "Delete",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -171,10 +144,7 @@ describe("General Submit", () => {
       fileValidationStatus: null,
       intention: "Update",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -186,10 +156,7 @@ describe("General Submit", () => {
       fileValidationStatus: "Passed",
       intention: "Delete",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -201,10 +168,7 @@ describe("General Submit", () => {
       fileValidationStatus: "Error",
       intention: "Delete",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -215,10 +179,7 @@ describe("General Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: null,
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -229,10 +190,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Validating",
       fileValidationStatus: "Validating",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -243,10 +201,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Validating",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -257,10 +212,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Validating",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -271,10 +223,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "New",
       fileValidationStatus: "New",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -285,10 +234,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "New",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -299,10 +245,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "New",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -313,10 +256,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Warning",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -327,10 +267,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -341,10 +278,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Warning",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -485,10 +419,7 @@ describe("Admin Submit", () => {
         },
       ],
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -525,10 +456,7 @@ describe("Submit > Submission Type/Intention", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Error",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(
-      submission,
-      "Submitter"
-    );
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -663,12 +591,8 @@ describe("unpackQCResultSeverities cases", () => {
 
     // 10 errors and 5 warnings per result with 10K results, 150K total
     expect(unpackedResults.length).toEqual(150000);
-    expect(
-      unpackedResults.filter((result) => result.severity === "Error").length
-    ).toEqual(100000);
-    expect(
-      unpackedResults.filter((result) => result.severity === "Warning").length
-    ).toEqual(50000);
+    expect(unpackedResults.filter((result) => result.severity === "Error").length).toEqual(100000);
+    expect(unpackedResults.filter((result) => result.severity === "Warning").length).toEqual(50000);
   });
 
   it("should return an empty array when given an empty array", () => {
@@ -712,9 +636,7 @@ describe("downloadBlob cases", () => {
 
     utils.downloadBlob(content, "blob.csv", contentType);
 
-    expect(URL.createObjectURL).toHaveBeenCalledWith(
-      new Blob([content], { type: contentType })
-    );
+    expect(URL.createObjectURL).toHaveBeenCalledWith(new Blob([content], { type: contentType }));
   });
 
   it("should create a anchor with the href and download properties", () => {

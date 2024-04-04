@@ -167,12 +167,8 @@ const columns: Column[] = [
     label: "Name",
     value: (a) => `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`,
     comparator: (a, b) => {
-      const aName = `${a.lastName ? `${a.lastName}, ` : ""}${
-        a.firstName || ""
-      }`;
-      const bName = `${b.lastName ? `${b.lastName}, ` : ""}${
-        b.firstName || ""
-      }`;
+      const aName = `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`;
+      const bName = `${b.lastName ? `${b.lastName}, ` : ""}${b.firstName || ""}`;
 
       return aName.localeCompare(bName);
     },
@@ -271,9 +267,7 @@ const ListingView: FC = () => {
       return;
     }
 
-    const orgID = orgData?.find(
-      (org: Organization) => org._id === user.organization?.orgID
-    )?._id;
+    const orgID = orgData?.find((org: Organization) => org._id === user.organization?.orgID)?._id;
     setValue("organization", orgID || "All");
   }, [user, orgData]);
 
@@ -286,17 +280,11 @@ const ListingView: FC = () => {
 
     const sorted = data.listUsers
       .filter((u: T) =>
-        orgFilter && orgFilter !== "All"
-          ? u.organization?.orgID === orgFilter
-          : true
+        orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true
       )
+      .filter((u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true))
       .filter((u: T) =>
-        roleFilter && roleFilter !== "All" ? u.role === roleFilter : true
-      )
-      .filter((u: T) =>
-        statusFilter && statusFilter !== "All"
-          ? u.userStatus === statusFilter
-          : true
+        statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true
       )
       .sort((a, b) => orderBy?.comparator(a, b) || 0);
 
@@ -306,16 +294,7 @@ const ListingView: FC = () => {
 
     setCount(sorted.length);
     setDataset(sorted.slice(page * perPage, page * perPage + perPage));
-  }, [
-    data,
-    perPage,
-    page,
-    orderBy,
-    order,
-    roleFilter,
-    orgFilter,
-    statusFilter,
-  ]);
+  }, [data, perPage, page, orderBy, order, roleFilter, orgFilter, statusFilter]);
 
   useEffect(() => {
     setPage(0);
@@ -333,9 +312,7 @@ const ListingView: FC = () => {
         )}
 
         <StyledFilterContainer>
-          <StyledInlineLabel htmlFor="organization-filter">
-            Organization
-          </StyledInlineLabel>
+          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="organization"
@@ -453,12 +430,7 @@ const ListingView: FC = () => {
               {(!dataset.length || dataset.length === 0) && (
                 <TableRow style={{ height: 53 * 10 }}>
                   <TableCell colSpan={columns.length}>
-                    <Typography
-                      variant="h6"
-                      align="center"
-                      fontSize={18}
-                      color="#757575"
-                    >
+                    <Typography variant="h6" align="center" fontSize={18} color="#757575">
                       No users found.
                     </Typography>
                   </TableCell>

@@ -35,25 +35,12 @@ type Props = {
   children?: ReactNode;
 };
 
-const ReviewSection: FC<Props> = ({
-  idPrefix,
-  title,
-  divider = true,
-  children,
-}) => (
+const ReviewSection: FC<Props> = ({ idPrefix, title, divider = true, children }) => (
   <GridContainer container rowSpacing={3.125} columnSpacing={0}>
-    <Grid
-      className="review-section-header"
-      xs={12}
-      item
-      sx={{ padding: "0 !important" }}
-    >
+    <Grid className="review-section-header" xs={12} item sx={{ padding: "0 !important" }}>
       <Stack direction="row" alignItems="center">
         {title && (
-          <StyledTitle
-            id={idPrefix.concat("-section-header-title")}
-            variant="h6"
-          >
+          <StyledTitle id={idPrefix.concat("-section-header-title")} variant="h6">
             {title}
           </StyledTitle>
         )}

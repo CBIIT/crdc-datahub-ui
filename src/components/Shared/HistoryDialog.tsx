@@ -10,13 +10,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import {
-  Timeline,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineDot,
-  TimelineContent,
-} from "@mui/lab";
+import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineContent } from "@mui/lab";
 import { styled } from "@mui/material/styles";
 import { FormatDate, SortHistory } from "../../utils";
 
@@ -146,14 +140,12 @@ const StyledTimelineContent = styled(TimelineContent)({
   color: "#fff",
 });
 
-const StyledTypography = styled(Typography)<{ color: CSSProperties["color"] }>(
-  ({ color }) => ({
-    lineHeight: "2.5",
-    minWidth: "100px",
-    textAlign: "left",
-    color,
-  })
-);
+const StyledTypography = styled(Typography)<{ color: CSSProperties["color"] }>(({ color }) => ({
+  lineHeight: "2.5",
+  minWidth: "100px",
+  textAlign: "left",
+  color,
+}));
 
 const StyledAvatar = styled(Avatar)({
   background: "transparent",
@@ -230,29 +222,16 @@ const HistoryDialog = <T extends string>({
                 <StyledTimelineVerticalLine />
               </StyledTimelineSeparator>
               <StyledTimelineContent>
-                <Stack
-                  direction="row"
-                  alignContent="center"
-                  spacing={1}
-                  paddingRight={0}
-                >
+                <Stack direction="row" alignContent="center" spacing={1} paddingRight={0}>
                   <StyledTypography
                     title={dateTime}
-                    color={
-                      typeof getTextColor === "function"
-                        ? getTextColor(status)
-                        : "#FFF"
-                    }
+                    color={typeof getTextColor === "function" ? getTextColor(status) : "#FFF"}
                     data-testid="history-item-date"
                   >
                     {FormatDate(dateTime, "M/D/YYYY", "N/A")}
                   </StyledTypography>
                   <StyledTypography
-                    color={
-                      typeof getTextColor === "function"
-                        ? getTextColor(status)
-                        : "#FFF"
-                    }
+                    color={typeof getTextColor === "function" ? getTextColor(status) : "#FFF"}
                     data-testid="history-item-status"
                   >
                     {status?.toString()?.toUpperCase()}

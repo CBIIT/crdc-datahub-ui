@@ -1,10 +1,4 @@
-import React, {
-  FC,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-} from "react";
+import React, { FC, createContext, useContext, useEffect, useMemo } from "react";
 import ReactGA from "react-ga4";
 import { useAuthContext } from "./AuthContext";
 import env from "../../env";
@@ -36,9 +30,7 @@ export const useAnalytics = (): ContextState => {
   const context = useContext<ContextState>(Context);
 
   if (!context) {
-    throw new Error(
-      "AnalyticsContext cannot be used outside of the AnalyticsProvider component"
-    );
+    throw new Error("AnalyticsContext cannot be used outside of the AnalyticsProvider component");
   }
 
   return context;

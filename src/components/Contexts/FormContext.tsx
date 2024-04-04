@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { ApolloError, useLazyQuery, useMutation } from "@apollo/client";
 import { merge, cloneDeep } from "lodash";
 import {
@@ -28,10 +21,7 @@ import {
   SaveAppResp,
   SubmitAppResp,
 } from "../../graphql";
-import {
-  InitialApplication,
-  InitialQuestionnaire,
-} from "../../config/InitialValues";
+import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import ErrorCodes from "../../config/ErrorCodes";
 import sectionMetadata from "../../config/SectionMetadata";
 
@@ -45,10 +35,7 @@ export type ContextState = {
   submitData?: () => Promise<string | boolean>;
   reopenForm?: () => Promise<string | boolean>;
   reviewForm?: () => Promise<string | boolean>;
-  approveForm?: (
-    comment: string,
-    wholeProgram: boolean
-  ) => Promise<string | boolean>;
+  approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
   inquireForm?: (comment: string) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
   setData?: (Application) => Promise<SetDataReturnType>;
@@ -88,9 +75,7 @@ export const useFormContext = (): ContextState => {
   const context = useContext<ContextState>(Context);
 
   if (!context) {
-    throw new Error(
-      "FormContext cannot be used outside of the FormProvider component"
-    );
+    throw new Error("FormContext cannot be used outside of the FormProvider component");
   }
 
   return context;
@@ -108,10 +93,7 @@ type ProviderProps = {
  * @param {ProviderProps} props - Form context provider props
  * @returns {JSX.Element} - Form context provider
  */
-export const FormProvider: FC<ProviderProps> = ({
-  children,
-  id,
-}: ProviderProps) => {
+export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
@@ -125,13 +107,10 @@ export const FormProvider: FC<ProviderProps> = ({
     fetchPolicy: "no-cache",
   });
 
-  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(
-    SAVE_APP,
-    {
-      context: { clientName: "backend" },
-      fetchPolicy: "no-cache",
-    }
-  );
+  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
 
   const [submitApp] = useMutation<SubmitAppResp>(SUBMIT_APP, {
     variables: { id },
@@ -169,9 +148,7 @@ export const FormProvider: FC<ProviderProps> = ({
     fetchPolicy: "no-cache",
   });
 
-  const setData = async (
-    data: QuestionnaireData
-  ): Promise<SetDataReturnType> => {
+  const setData = async (data: QuestionnaireData): Promise<SetDataReturnType> => {
     const newState = {
       ...state,
       data: {
@@ -186,10 +163,7 @@ export const FormProvider: FC<ProviderProps> = ({
       const { data: d, errors } = await saveApp({
         variables: {
           application: {
-            _id:
-              newState?.data?.["_id"] === "new"
-                ? undefined
-                : newState?.data?.["_id"],
+            _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
             programName: data?.program?.name,
             studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
             questionnaireData: JSON.stringify(data),
@@ -255,14 +229,13 @@ export const FormProvider: FC<ProviderProps> = ({
       let newErrorState = state;
       // If duplicate study abbrev error, then prevent section from being completed
       if (errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
-        const newSections = state?.data?.questionnaireData?.sections?.map(
-          (section) =>
-            section.name === sectionMetadata.B.id
-              ? ({
-                  ...section,
-                  status: "In Progress",
-                } as Section)
-              : section
+        const newSections = state?.data?.questionnaireData?.sections?.map((section) =>
+          section.name === sectionMetadata.B.id
+            ? ({
+                ...section,
+                status: "In Progress",
+              } as Section)
+            : section
         );
         newErrorState = {
           ...state,
@@ -430,8 +403,7 @@ export const FormProvider: FC<ProviderProps> = ({
       if (id === "new") {
         const { data: d } = await lastApp();
         const { getMyLastApplication } = d || {};
-        const lastAppData =
-          JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
+        const lastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
 
         setState({
           status: Status.LOADED,
@@ -466,14 +438,11 @@ export const FormProvider: FC<ProviderProps> = ({
       );
 
       // Check if we need to autofill the PI details
-      const sectionA: Section = questionnaireData?.sections?.find(
-        (s: Section) => s?.name === "A"
-      );
+      const sectionA: Section = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
       if (!sectionA || sectionA?.status === "Not Started") {
         const { data: lastAppData } = await lastApp();
         const { getMyLastApplication } = lastAppData || {};
-        const parsedLastAppData =
-          JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
+        const parsedLastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
 
         questionnaireData.pi = {
           ...questionnaireData.pi,

@@ -8,9 +8,7 @@ it("should not have any accessibility violations", async () => {
     { label: "Passed" as SeriesLabel, value: 25, color: "#ffffff" },
     { label: "Error" as SeriesLabel, value: 25, color: "#3b3b3b" },
   ];
-  const { container } = render(
-    <NodeChart label="Test Chart" centerCount={3} data={data} />
-  );
+  const { container } = render(<NodeChart label="Test Chart" centerCount={3} data={data} />);
 
   const results = await axe(container);
 

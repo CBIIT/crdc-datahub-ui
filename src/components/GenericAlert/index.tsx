@@ -36,11 +36,7 @@ type Props = {
  *
  * @deprecated DO NOT USE. Replaced by `enqueueSnackbar` from Notistack.
  */
-const GenericAlert: FC<Props> = ({
-  open,
-  children,
-  severity = "success",
-}: Props) => {
+const GenericAlert: FC<Props> = ({ open, children, severity = "success" }: Props) => {
   const [bgColor, setBgColor] = useState<string>(null);
 
   useEffect(() => {

@@ -112,19 +112,14 @@ describe("ExportValidationButton cases", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton
-          submission={{ ...baseSubmission, _id: submissionID }}
-          fields={{}}
-        />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
     expect(called).toBe(false);
 
     // NOTE: This must be separate from the expect below to ensure its not called multiple times
-    await waitFor(() =>
-      UserEvent.click(getByTestId("export-validation-button"))
-    );
+    await waitFor(() => UserEvent.click(getByTestId("export-validation-button")));
     await waitFor(() => {
       expect(called).toBe(true);
     });
@@ -179,9 +174,7 @@ describe("ExportValidationButton cases", () => {
       ];
 
       const fields = {
-        ID: jest
-          .fn()
-          .mockImplementation((result: QCResult) => result.submissionID),
+        ID: jest.fn().mockImplementation((result: QCResult) => result.submissionID),
       };
 
       const { getByTestId } = render(
@@ -243,10 +236,7 @@ describe("ExportValidationButton cases", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton
-          submission={{ ...baseSubmission, _id: submissionID }}
-          fields={{}}
-        />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
@@ -322,12 +312,8 @@ describe("ExportValidationButton cases", () => {
     ];
 
     const fields = {
-      DisplayID: jest
-        .fn()
-        .mockImplementation((result: QCResult) => result.displayID),
-      ValidationType: jest
-        .fn()
-        .mockImplementation((result: QCResult) => result.validationType),
+      DisplayID: jest.fn().mockImplementation((result: QCResult) => result.displayID),
+      ValidationType: jest.fn().mockImplementation((result: QCResult) => result.validationType),
       // Testing the fallback of falsy values
       NullValueField: jest.fn().mockImplementation(() => null),
     };
@@ -373,10 +359,7 @@ describe("ExportValidationButton cases", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton
-          submission={{ ...baseSubmission, _id: submissionID }}
-          fields={{}}
-        />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
@@ -417,10 +400,7 @@ describe("ExportValidationButton cases", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton
-          submission={{ ...baseSubmission, _id: submissionID }}
-          fields={{}}
-        />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
@@ -470,10 +450,7 @@ describe("ExportValidationButton cases", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton
-          submission={{ ...baseSubmission, _id: submissionID }}
-          fields={{}}
-        />
+        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
       </TestParent>
     );
 
@@ -482,10 +459,9 @@ describe("ExportValidationButton cases", () => {
     });
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Unable to export validation results.",
-        { variant: "error" }
-      );
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to export validation results.", {
+        variant: "error",
+      });
     });
   });
 });

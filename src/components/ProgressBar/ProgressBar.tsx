@@ -96,8 +96,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
     // Dynamically build the progress bar with section statuses
     sectionKeys.forEach((s) => {
       const { title, id } = config[s];
-      const status =
-        sectionStatuses?.find((sec) => sec.name === s)?.status || "Not Started";
+      const status = sectionStatuses?.find((sec) => sec.name === s)?.status || "Not Started";
       completedSections += status === "Completed" ? 1 : 0;
 
       newSections.push({
@@ -116,9 +115,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
       const showReviewTitle = formMode === "View Only" || formMode === "Review";
       const reviewIcon = reviewUnlocked ? "Review" : "ReviewDisabled";
       reviewSection.icon =
-        ["Approved"].includes(status) && reviewUnlocked
-          ? "Completed"
-          : reviewIcon;
+        ["Approved"].includes(status) && reviewUnlocked ? "Completed" : reviewIcon;
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
       reviewSection.title = showReviewTitle ? "Review" : reviewSection.title;
     }

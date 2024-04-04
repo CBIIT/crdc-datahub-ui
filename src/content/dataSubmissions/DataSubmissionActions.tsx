@@ -1,13 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import {
-  Button,
-  OutlinedInput,
-  Stack,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
@@ -81,13 +75,7 @@ const StyledDialogText = styled(Typography)({
   lineHeight: "19.6px",
 });
 
-export type ActiveDialog =
-  | "Submit"
-  | "Release"
-  | "Withdraw"
-  | "Reject"
-  | "Complete"
-  | "Cancel";
+export type ActiveDialog = "Submit" | "Release" | "Withdraw" | "Reject" | "Complete" | "Cancel";
 type UserRole = User["role"];
 
 type ActionConfig = {
@@ -152,25 +140,17 @@ type Props = {
   onError: (message: string) => void;
 };
 
-const DataSubmissionActions = ({
-  submission,
-  submitActionButton,
-  onAction,
-  onError,
-}: Props) => {
+const DataSubmissionActions = ({ submission, submitActionButton, onAction, onError }: Props) => {
   const { user } = useAuthContext();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
   const [reviewComment, setReviewComment] = useState("");
 
-  const [exportSubmission] = useMutation<ExportSubmissionResp>(
-    EXPORT_SUBMISSION,
-    {
-      context: { clientName: "backend" },
-      fetchPolicy: "no-cache",
-    }
-  );
+  const [exportSubmission] = useMutation<ExportSubmissionResp>(EXPORT_SUBMISSION, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
 
   const handleExportSubmission = async (): Promise<boolean> => {
     if (!submission?._id) {
@@ -224,10 +204,7 @@ const DataSubmissionActions = ({
 
   const canShowAction = (actionKey: ActionKey) => {
     const config = actionConfig[actionKey];
-    return (
-      config?.statuses?.includes(submission?.status) &&
-      config?.roles?.includes(user?.role)
-    );
+    return config?.statuses?.includes(submission?.status) && config?.roles?.includes(user?.role);
   };
 
   const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -244,9 +221,7 @@ const DataSubmissionActions = ({
           color="primary"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
-          disabled={
-            submitActionButton?.disable || (action && action !== "Submit")
-          }
+          disabled={submitActionButton?.disable || (action && action !== "Submit")}
         >
           {submitActionButton?.label || "Submit"}
         </StyledLoadingButton>
@@ -320,9 +295,7 @@ const DataSubmissionActions = ({
 
       {/* Submit Dialog */}
       <StyledDialog
-        open={
-          currentDialog === "Submit" && submitActionButton.label === "Submit"
-        }
+        open={currentDialog === "Submit" && submitActionButton.label === "Submit"}
         onClose={onCloseDialog}
         title="Submit Data Submission"
         actions={
@@ -342,17 +315,14 @@ const DataSubmissionActions = ({
         }
       >
         <StyledDialogText variant="body2">
-          This action will lock your submission and it will no longer accept
-          updates to the data. Are you sure you want to proceed?
+          This action will lock your submission and it will no longer accept updates to the data.
+          Are you sure you want to proceed?
         </StyledDialogText>
       </StyledDialog>
 
       {/* Admin Submit Dialog */}
       <StyledDialog
-        open={
-          currentDialog === "Submit" &&
-          submitActionButton.label === "Admin Submit"
-        }
+        open={currentDialog === "Submit" && submitActionButton.label === "Admin Submit"}
         onClose={onCloseDialog}
         title="Admin Submit Data Submission"
         actions={
@@ -407,8 +377,8 @@ const DataSubmissionActions = ({
         }
       >
         <StyledDialogText variant="body2">
-          This action will release this submission to data commons and it can no
-          longer accept changes to the data. Are you sure you want to proceed?
+          This action will release this submission to data commons and it can no longer accept
+          changes to the data. Are you sure you want to proceed?
         </StyledDialogText>
       </StyledDialog>
 
@@ -434,8 +404,8 @@ const DataSubmissionActions = ({
         }
       >
         <StyledDialogText variant="body2">
-          This action will remove this submission and it will no longer be
-          accessible. Are you sure you want to proceed?
+          This action will remove this submission and it will no longer be accessible. Are you sure
+          you want to proceed?
         </StyledDialogText>
       </StyledDialog>
 
@@ -461,9 +431,8 @@ const DataSubmissionActions = ({
         }
       >
         <StyledDialogText variant="body2">
-          This action will halt the data curation process and give control back
-          to you if you wish to update the data within the submission. Are you
-          certain you want to proceed?
+          This action will halt the data curation process and give control back to you if you wish
+          to update the data within the submission. Are you certain you want to proceed?
         </StyledDialogText>
       </StyledDialog>
 
@@ -525,8 +494,8 @@ const DataSubmissionActions = ({
         }
       >
         <StyledDialogText variant="body2">
-          This action will close out the submission and start close out
-          activities. Are you sure you want to proceed?
+          This action will close out the submission and start close out activities. Are you sure you
+          want to proceed?
         </StyledDialogText>
       </StyledDialog>
     </StyledActionWrapper>

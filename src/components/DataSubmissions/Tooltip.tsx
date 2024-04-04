@@ -113,9 +113,7 @@ const Tooltip = ({
           title={
             <>
               {title && <StyledTitle variant="h5">{title}</StyledTitle>}
-              {subtitle && (
-                <StyledSubtitle variant="h6">{subtitle}</StyledSubtitle>
-              )}
+              {subtitle && <StyledSubtitle variant="h6">{subtitle}</StyledSubtitle>}
               {body && <StyledBodyWrapper>{body}</StyledBodyWrapper>}
             </>
           }

@@ -4,10 +4,7 @@ import { Box } from "@mui/material";
 import { Provider } from "react-redux";
 import { ReduxDataDictionary } from "data-model-navigator";
 import SuspenseLoader from "../../components/SuspenseLoader";
-import {
-  Status,
-  useDataCommonContext,
-} from "../../components/Contexts/DataCommonContext";
+import { Status, useDataCommonContext } from "../../components/Contexts/DataCommonContext";
 import useBuildReduxStore from "../../hooks/useBuildReduxStore";
 
 /**
@@ -34,17 +31,13 @@ const ModelNavigator: FC = () => {
   }
 
   if (!DataCommon || status === Status.ERROR || buildStatus === "error") {
-    throw new Error(
-      "Unable to build Model Navigator for the selected Data Common"
-    );
+    throw new Error("Unable to build Model Navigator for the selected Data Common");
   }
 
   return (
     <Box sx={{ mt: "40px" }}>
       <Provider store={store}>
-        <ReduxDataDictionary
-          pdfDownloadConfig={DataCommon.configuration?.pdfConfig}
-        />
+        <ReduxDataDictionary pdfDownloadConfig={DataCommon.configuration?.pdfConfig} />
       </Provider>
     </Box>
   );

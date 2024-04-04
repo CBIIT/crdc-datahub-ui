@@ -1,11 +1,5 @@
 import React, { FC, useEffect, useId, useRef, useState } from "react";
-import {
-  FormControl,
-  FormHelperText,
-  Grid,
-  TextFieldProps,
-  styled,
-} from "@mui/material";
+import { FormControl, FormHelperText, Grid, TextFieldProps, styled } from "@mui/material";
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import timezone from "dayjs/plugin/timezone";
@@ -153,16 +147,13 @@ const DatePickerInput: FC<Props> = ({
 
   const processValue = (inputVal: Dayjs) => {
     const isInvalidDay = !inputVal?.isValid();
-    const isPastDate = inputVal?.isBefore(
-      dayjs(new Date()).tz().startOf("day")
-    );
+    const isPastDate = inputVal?.isBefore(dayjs(new Date()).tz().startOf("day"));
 
     let newErrorMsg = "";
     if (required && !inputVal) {
       newErrorMsg = "This field is required";
     } else if (disablePast && isPastDate) {
-      newErrorMsg =
-        "The date is invalid. Please select today's date or a future date";
+      newErrorMsg = "The date is invalid. Please select today's date or a future date";
     } else if (
       (required || (inputVal !== null && inputRef.current?.value !== format)) &&
       isInvalidDay
@@ -246,9 +237,7 @@ const DatePickerInput: FC<Props> = ({
           }}
           {...rest}
         />
-        <StyledFormHelperText>
-          {(error ? errorMsg : infoText) || " "}
-        </StyledFormHelperText>
+        <StyledFormHelperText>{(error ? errorMsg : infoText) || " "}</StyledFormHelperText>
       </StyledFormControl>
     </GridItem>
   );

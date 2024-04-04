@@ -6,11 +6,7 @@ export const mutation = gql`
     $conciergeID: String
     $studies: [ApprovedStudyInput]
   ) {
-    createOrganization(
-      name: $name
-      conciergeID: $conciergeID
-      studies: $studies
-    ) {
+    createOrganization(name: $name, conciergeID: $conciergeID, studies: $studies) {
       _id
       name
       status

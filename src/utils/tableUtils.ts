@@ -1,7 +1,4 @@
-import {
-  FetchListing,
-  Order,
-} from "../components/DataSubmissions/GenericTable";
+import { FetchListing, Order } from "../components/DataSubmissions/GenericTable";
 import { SORT, DIRECTION } from "../config/TableConfig";
 
 /**
@@ -22,10 +19,7 @@ export const getSortDirection = (sortDirection: Order) =>
  *
  * @template T - Type of the elements in the data array
  */
-export const paginateAndSort = <T>(
-  data: T[],
-  fetchListing: FetchListing<T>
-): T[] => {
+export const paginateAndSort = <T>(data: T[], fetchListing: FetchListing<T>): T[] => {
   if (!data) {
     return [];
   }
