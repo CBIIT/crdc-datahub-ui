@@ -8,6 +8,7 @@ import StyledRadioButton from "../Questionnaire/StyledRadioButton";
 import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
 import { getDefaultValidationType, getValidationTypes } from "../../utils";
 import FlowWrapper from "./FlowWrapper";
+import { CrossValidationButton } from "./CrossValidationButton";
 
 type Props = {
   /**
@@ -266,6 +267,12 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         >
           {isValidating ? "Validating..." : "Validate"}
         </StyledValidateButton>
+        <CrossValidationButton
+          submission={dataSubmission}
+          variant="contained"
+          color="info"
+          onValidate={onValidate}
+        />
       </StyledFileValidationSection>
     </FlowWrapper>
   );

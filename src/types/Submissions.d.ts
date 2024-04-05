@@ -11,19 +11,21 @@ type Submission = {
   bucketName: string; // # populated from organization
   rootPath: string; // # a submission folder will be created under this path, default is / or "" meaning root folder
   status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
-  metadataValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
-  fileValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
+  metadataValidationStatus: ValidationStatus;
+  fileValidationStatus: ValidationStatus;
+  crossSubmissionStatus: ValidationStatus;
   fileErrors: QCResult[]; // holds submission level file errors, e.g., extra files in S3 folder
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
   intention: SubmissionIntention; // [Update, New, Delete]
+  otherSubmissions: OtherSubmissions;
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
 /**
- * The status of a Metadata or Files in a submission.
+ * The status of the validation action for a Submission.
  *
  * @note `null` indicates that the type has not been uploaded yet.
  * @note `New` indicates that the type has been uploaded but not validated yet.
@@ -52,6 +54,17 @@ type SubmissionAction =
   | "Archive";
 
 type SubmissionIntention = "New" | "Update" | "Delete";
+
+/**
+ * Represents the status of other submissions related to the current submission.
+ *
+ * @note Does NOT include the current submission.
+ * @note Linked by the studyAbbreviation relationship.
+ */
+type OtherSubmissions = {
+  "In-progress": Submission["_id"][];
+  Submitted: Submission["_id"][];
+};
 
 type FileInput = {
   fileName: string;

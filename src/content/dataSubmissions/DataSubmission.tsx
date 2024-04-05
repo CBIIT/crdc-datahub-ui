@@ -45,7 +45,11 @@ import DataSubmissionStatistics from "../../components/DataSubmissions/Validatio
 import ValidationControls from "../../components/DataSubmissions/ValidationControls";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import FileListDialog from "./FileListDialog";
-import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
+import {
+  ReleaseInfo,
+  shouldDisableRelease,
+  shouldDisableSubmit,
+} from "../../utils/dataSubmissionUtils";
 import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
 import SubmittedData from "./SubmittedData";
@@ -383,6 +387,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
+
   const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(() => {
     const canSubmitRoles: User["role"][] = [
       "Submitter",
@@ -396,6 +401,10 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
     return shouldDisableSubmit(data.getSubmission, user?.role);
   }, [data?.getSubmission, user]);
+  const releaseInfo: ReleaseInfo = useMemo(
+    () => shouldDisableRelease(data?.getSubmission),
+    [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
+  );
 
   const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
     context: { clientName: "backend" },
@@ -528,15 +537,23 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
   }, [submissionError]);
 
   useEffect(() => {
+    const { fileValidationStatus, metadataValidationStatus, crossSubmissionStatus } =
+      data?.getSubmission || {};
+
     if (
-      data?.getSubmission?.fileValidationStatus !== "Validating" &&
-      data?.getSubmission?.metadataValidationStatus !== "Validating"
+      fileValidationStatus !== "Validating" &&
+      metadataValidationStatus !== "Validating" &&
+      crossSubmissionStatus !== "Validating"
     ) {
       stopPolling();
     } else {
       startPolling(60000);
     }
-  }, [data?.getSubmission?.fileValidationStatus, data?.getSubmission?.metadataValidationStatus]);
+  }, [
+    data?.getSubmission?.fileValidationStatus,
+    data?.getSubmission?.metadataValidationStatus,
+    data?.getSubmission?.crossSubmissionStatus,
+  ]);
 
   useEffect(() => {
     if (!hasUploadingBatches && batchRefreshTimeout) {
@@ -643,6 +660,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                 disable: submitInfo?.disable,
                 label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
               }}
+              releaseActionButton={releaseInfo}
               onError={(message: string) => enqueueSnackbar(message, { variant: "error" })}
             />
           </StyledCardActions>
