@@ -1,4 +1,4 @@
-import { Box, Typography, styled } from '@mui/material';
+import { Box, Typography, styled } from "@mui/material";
 import { CSSProperties, FC } from "react";
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
 };
 
 const StyledBox = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "borderColor" && prop !== "hoverColor"
+  shouldForwardProp: (prop) => prop !== "borderColor" && prop !== "hoverColor",
 })<Pick<Props, "borderColor" | "hoverColor">>(({ borderColor, hoverColor }) => ({
   border: `2px solid ${borderColor}`,
   borderRadius: "8px",

@@ -1,7 +1,11 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const mutation = gql`
-  mutation createOrganization($name: String!, $conciergeID: String, $studies: [ApprovedStudyInput]) {
+  mutation createOrganization(
+    $name: String!
+    $conciergeID: String
+    $studies: [ApprovedStudyInput]
+  ) {
     createOrganization(name: $name, conciergeID: $conciergeID, studies: $studies) {
       _id
       name

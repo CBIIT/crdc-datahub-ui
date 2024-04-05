@@ -31,7 +31,7 @@ const TimeConstraint: FC<Props> = ({
   index,
   timeConstraint,
   readOnly,
-  onDelete
+  onDelete,
 }) => {
   const { status } = useFormContext();
   const { description, effectiveDate } = timeConstraint;

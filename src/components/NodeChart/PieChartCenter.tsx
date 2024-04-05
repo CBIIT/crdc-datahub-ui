@@ -1,26 +1,26 @@
-import { FC } from 'react';
+import { FC } from "react";
 import { styled } from "@mui/material";
 
-const StyledCircle = styled('circle')(({ theme }) => ({
+const StyledCircle = styled("circle")(({ theme }) => ({
   fill: theme.palette.background.paper,
   stroke: theme.palette.divider,
   strokeWidth: 1,
   filter: "drop-shadow(0px 0px 11px rgba(0, 0, 0, 0.3))",
 }));
 
-const StyledTextContainer = styled('text')({
+const StyledTextContainer = styled("text")({
   fill: "#3D4551",
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
-  textAnchor: 'middle',
-  dominantBaseline: 'central',
+  textAnchor: "middle",
+  dominantBaseline: "central",
   userSelect: "none",
 });
 
-const StyledCenterTitle = styled('tspan')({
+const StyledCenterTitle = styled("tspan")({
   fontSize: 16,
 });
 
-const StyledCenterCount = styled('tspan')({
+const StyledCenterCount = styled("tspan")({
   fontSize: 18,
   fontWeight: 600,
 });
@@ -49,9 +49,16 @@ type PieChartCenterProps = {
  * @param {Props} props
  * @returns {React.FC<PieChartCenterProps>}
  */
-const PieChartCenter: FC<PieChartCenterProps> = ({ title, value, viewBox }: PieChartCenterProps) => {
+const PieChartCenter: FC<PieChartCenterProps> = ({
+  title,
+  value,
+  viewBox,
+}: PieChartCenterProps) => {
   const { cx, cy } = viewBox;
-  const formatter = new Intl.NumberFormat("en-US", { style: "decimal", minimumFractionDigits: 0 });
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "decimal",
+    minimumFractionDigits: 0,
+  });
 
   return (
     <g>

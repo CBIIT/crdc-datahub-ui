@@ -1,7 +1,13 @@
 import { FC } from "react";
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogProps,
-  IconButton, Typography, styled,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogProps,
+  IconButton,
+  Typography,
+  styled,
 } from "@mui/material";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
@@ -37,13 +43,13 @@ const StyledDialogActions = styled(DialogActions)({
 });
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
-  position: 'absolute !important' as 'absolute',
+  position: "absolute !important" as "absolute",
   right: "21px",
   top: "11px",
   padding: "10px",
   "& svg": {
-    color: "#44627C"
-  }
+    color: "#44627C",
+  },
 }));
 
 const StyledActionButton = styled(Button)({
@@ -60,13 +66,13 @@ const StyledActionButton = styled(Button)({
   fontWeight: "700 !important",
   lineHeight: "24px !important",
   letterSpacing: "0.32px",
-  textTransform: "none !important" as 'none',
+  textTransform: "none !important" as "none",
   alignSelf: "center",
   margin: "0 15px !important",
   marginTop: "45px !important",
   "&:hover": {
     background: "transparent !important",
-  }
+  },
 });
 
 type Props = {
@@ -74,29 +80,15 @@ type Props = {
   onSubmit?: () => void;
 } & Omit<DialogProps, "onClose">;
 
-const ConfirmDialog: FC<Props> = ({
-  title,
-  onClose,
-  onSubmit,
-  open,
-  ...rest
-}) => (
-  <StyledDialog
-    open={open}
-    onClose={() => onClose?.()}
-    {...rest}
-  >
-    <StyledCloseDialogButton
-      aria-label="close"
-      onClick={() => onClose?.()}
-    >
+const ConfirmDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest }) => (
+  <StyledDialog open={open} onClose={() => onClose?.()} {...rest}>
+    <StyledCloseDialogButton aria-label="close" onClick={() => onClose?.()}>
       <CloseIconSvg />
     </StyledCloseDialogButton>
     <StyledDialogContent>
       <StyledBodyText id="confirm-dialog-body" variant="h6">
-        Currently, there are active data submissions for this study within this organization.
-        {" "}
-        Are you sure you want to remove this study from the organization?
+        Currently, there are active data submissions for this study within this organization. Are
+        you sure you want to remove this study from the organization?
       </StyledBodyText>
     </StyledDialogContent>
     <StyledDialogActions>
@@ -108,11 +100,7 @@ const ConfirmDialog: FC<Props> = ({
       >
         Confirm to Remove
       </StyledActionButton>
-      <StyledActionButton
-        id="uploader-cli-cancel-button"
-        variant="outlined"
-        onClick={onClose}
-      >
+      <StyledActionButton id="uploader-cli-cancel-button" variant="outlined" onClick={onClose}>
         Cancel
       </StyledActionButton>
     </StyledDialogActions>

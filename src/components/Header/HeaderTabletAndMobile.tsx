@@ -133,7 +133,7 @@ type NavbarMobileList = {
 }[];
 
 const Header = () => {
-  const [navMobileDisplay, setNavMobileDisplay] = useState('none');
+  const [navMobileDisplay, setNavMobileDisplay] = useState("none");
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
   const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
   const navMobileListHookResult = useState(navMobileList);
@@ -158,47 +158,47 @@ const Header = () => {
 
   navbarSublists[displayName] = [
     {
-      name: 'User Profile',
+      name: "User Profile",
       link: `/profile/${authData?.user?._id}`,
-      id: 'navbar-dropdown-item-user-profile',
-      className: 'navMobileSubItem',
+      id: "navbar-dropdown-item-user-profile",
+      className: "navMobileSubItem",
     },
     {
-      name: 'Uploader CLI Tool',
+      name: "Uploader CLI Tool",
       onClick: () => setUploaderToolOpen(true),
-      id: 'navbar-dropdown-item-uploader-tool',
-      className: 'navMobileSubItem action',
+      id: "navbar-dropdown-item-uploader-tool",
+      className: "navMobileSubItem action",
     },
     {
-      name: 'Logout',
-      link: '/logout',
-      id: 'navbar-dropdown-item-logout',
-      className: 'navMobileSubItem',
+      name: "Logout",
+      link: "/logout",
+      id: "navbar-dropdown-item-logout",
+      className: "navMobileSubItem",
     },
   ];
 
   if (authData?.user?.role === "Admin" || authData?.user?.role === "Organization Owner") {
     navbarSublists[displayName].splice(1, 0, {
-      name: 'Manage Users',
-      link: '/users',
-      id: 'navbar-dropdown-item-user-manage',
-      className: 'navMobileSubItem',
+      name: "Manage Users",
+      link: "/users",
+      id: "navbar-dropdown-item-user-manage",
+      className: "navMobileSubItem",
     });
   }
   if (authData?.user?.role === "Admin") {
     navbarSublists[displayName].splice(1, 0, {
-      name: 'Manage Organizations',
-      link: '/organizations',
-      id: 'navbar-dropdown-item-user-manage',
-      className: 'navMobileSubItem',
+      name: "Manage Organizations",
+      link: "/organizations",
+      id: "navbar-dropdown-item-user-manage",
+      className: "navMobileSubItem",
     });
   }
   if (authData?.user?.role === "Submitter" || authData?.user?.role === "Organization Owner") {
     navbarSublists[displayName].splice(1, 0, {
-      name: 'API Token',
+      name: "API Token",
       onClick: () => setOpenAPITokenDialog(true),
-      id: 'navbar-dropdown-item-api-token',
-      className: 'navMobileSubItem action',
+      id: "navbar-dropdown-item-api-token",
+      className: "navMobileSubItem action",
     });
   }
 
@@ -219,9 +219,7 @@ const Header = () => {
   return (
     <>
       <GenericAlert open={showLogoutAlert}>
-        <span>
-          You have been logged out.
-        </span>
+        <span>You have been logged out.</span>
       </GenericAlert>
       <HeaderBanner>
         <HeaderContainer>
@@ -234,10 +232,10 @@ const Header = () => {
               className="menuButton"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  setNavMobileDisplay('block');
+                  setNavMobileDisplay("block");
                 }
               }}
-              onClick={() => setNavMobileDisplay('block')}
+              onClick={() => setNavMobileDisplay("block")}
             >
               Menu
             </div>
@@ -254,10 +252,10 @@ const Header = () => {
               className="closeIcon"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  setNavMobileDisplay('none');
+                  setNavMobileDisplay("none");
                 }
               }}
-              onClick={() => setNavMobileDisplay('none')}
+              onClick={() => setNavMobileDisplay("none")}
             >
               <img className="closeIconImg" src={menuClearIcon} alt="menuClearButton" />
             </div>
@@ -278,116 +276,133 @@ const Header = () => {
               </div>
             )}
             <div className="navMobileContainer">
-              {
-                navbarMobileList.map((navMobileItem, idx) => {
-                  const mobilekey = `mobile_${idx}`;
-                  return (
-                    <React.Fragment key={mobilekey}>
-                      {
-                        navMobileItem.className === 'navMobileItem'
-                        && (
-                          <NavLink
-                            id={navMobileItem.id}
-                            to={navMobileItem.link}
-                            target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
-                            onClick={() => setNavMobileDisplay('none')}
-                          >
-                            <div className="navMobileItem">{navMobileItem.name}</div>
-                          </NavLink>
-
-                        )
-                      }
-                      {
-                        navMobileItem.className === 'navMobileItem clickable'
-                        && (
-                          <div
-                            id={navMobileItem.id}
-                            role="button" tabIndex={0}
-                            className="navMobileItem clickable"
-                            onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
-                            onClick={clickNavItem}
-                          >
-                            {navMobileItem.name}
-                          </div>
-                        )
-                      }
-                      {
-                        navMobileItem.className === 'navMobileSubItem action'
-                        && typeof navMobileItem.onClick === "function"
-                        && (
-                          <div
-                            id={navMobileItem.id}
-                            role="button" tabIndex={0}
-                            className="navMobileItem SubItem action"
-                            onKeyDown={(e) => { if (e.key === "Enter") { navMobileItem.onClick(); } }}
-                            onClick={() => navMobileItem.onClick()}
-                          >
-                            {navMobileItem.name}
-                          </div>
-                        )
-                      }
-                      {
-                        navMobileItem.className === 'navMobileSubItem'
-                        && (
-                        <Link
+              {navbarMobileList.map((navMobileItem, idx) => {
+                const mobilekey = `mobile_${idx}`;
+                return (
+                  <React.Fragment key={mobilekey}>
+                    {navMobileItem.className === "navMobileItem" && (
+                      <NavLink
+                        id={navMobileItem.id}
+                        to={navMobileItem.link}
+                        target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
+                        onClick={() => setNavMobileDisplay("none")}
+                      >
+                        <div className="navMobileItem">{navMobileItem.name}</div>
+                      </NavLink>
+                    )}
+                    {navMobileItem.className === "navMobileItem clickable" && (
+                      <div
+                        id={navMobileItem.id}
+                        role="button"
+                        tabIndex={0}
+                        className="navMobileItem clickable"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            clickNavItem(e);
+                          }
+                        }}
+                        onClick={clickNavItem}
+                      >
+                        {navMobileItem.name}
+                      </div>
+                    )}
+                    {navMobileItem.className === "navMobileSubItem action" &&
+                      typeof navMobileItem.onClick === "function" && (
+                        <div
                           id={navMobileItem.id}
-                          to={navMobileItem.link}
-                          target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
+                          role="button"
+                          tabIndex={0}
+                          className="navMobileItem SubItem action"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              navMobileItem.onClick();
+                            }
+                          }}
+                          onClick={() => navMobileItem.onClick()}
                         >
-                          <div
-                            role="button"
-                            tabIndex={0}
-                            className="navMobileItem SubItem"
-                            onKeyDown={(e) => {
-                                  if (e.key === "Enter") {
-                                    setNavMobileDisplay('none');
-                                    if (navMobileItem.name === "Logout") {
-                                      handleLogout();
-                                      setNavbarMobileList(navMobileList);
-                                    } else {
-                                      navigate(navMobileItem.link);
-                                    }
-                                  }
-                                }}
-                            onClick={() => {
-                                  setNavMobileDisplay('none');
-                                  if (navMobileItem.name === "Logout") {
-                                    handleLogout();
-                                    setNavbarMobileList(navMobileList);
-                                  } else {
-                                    navigate(navMobileItem.link);
-                                  }
-                                }}
-                          >
-                            {navMobileItem.name}
-                          </div>
-                        </Link>
-                        )
-                      }
-                      {navMobileItem.className === 'navMobileSubTitle' && <div className="navMobileItem">{navMobileItem.name}</div>}
-                    </React.Fragment>
-                  );
-                })
-              }
+                          {navMobileItem.name}
+                        </div>
+                      )}
+                    {navMobileItem.className === "navMobileSubItem" && (
+                      <Link
+                        id={navMobileItem.id}
+                        to={navMobileItem.link}
+                        target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
+                      >
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          className="navMobileItem SubItem"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              setNavMobileDisplay("none");
+                              if (navMobileItem.name === "Logout") {
+                                handleLogout();
+                                setNavbarMobileList(navMobileList);
+                              } else {
+                                navigate(navMobileItem.link);
+                              }
+                            }
+                          }}
+                          onClick={() => {
+                            setNavMobileDisplay("none");
+                            if (navMobileItem.name === "Logout") {
+                              handleLogout();
+                              setNavbarMobileList(navMobileList);
+                            } else {
+                              navigate(navMobileItem.link);
+                            }
+                          }}
+                        >
+                          {navMobileItem.name}
+                        </div>
+                      </Link>
+                    )}
+                    {navMobileItem.className === "navMobileSubTitle" && (
+                      <div className="navMobileItem">{navMobileItem.name}</div>
+                    )}
+                  </React.Fragment>
+                );
+              })}
               {/* eslint-disable-next-line no-nested-ternary */}
               {navbarMobileList === navMobileList ? (
                 authData.isLoggedIn ? (
                   <div
                     id="navbar-dropdown-name"
-                    role="button" tabIndex={0}
+                    role="button"
+                    tabIndex={0}
                     className="navMobileItem clickable"
-                    onKeyDown={(e) => { if (e.key === "Enter") { clickNavItem(e); } }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        clickNavItem(e);
+                      }
+                    }}
                     onClick={clickNavItem}
                   >
                     {displayName}
                   </div>
                 ) : (
-                  <Link id="navbar-link-login" to="/login" state={{ redirectURLOnLoginSuccess: restorePath }}>
-                    <div role="button" tabIndex={0} className="navMobileItem" onKeyDown={(e) => { if (e.key === "Enter") { setNavMobileDisplay('none'); } }} onClick={() => setNavMobileDisplay('none')}>
+                  <Link
+                    id="navbar-link-login"
+                    to="/login"
+                    state={{ redirectURLOnLoginSuccess: restorePath }}
+                  >
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      className="navMobileItem"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          setNavMobileDisplay("none");
+                        }
+                      }}
+                      onClick={() => setNavMobileDisplay("none")}
+                    >
                       Login
                     </div>
                   </Link>
-                )) : null}
+                )
+              ) : null}
             </div>
           </div>
           <div
@@ -397,10 +412,10 @@ const Header = () => {
             className="greyContainer"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                setNavMobileDisplay('none');
+                setNavMobileDisplay("none");
               }
             }}
-            onClick={() => setNavMobileDisplay('none')}
+            onClick={() => setNavMobileDisplay("none")}
             aria-label="greyContainer"
           />
         </MenuArea>

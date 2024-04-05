@@ -1,8 +1,8 @@
-import { axe } from 'jest-axe';
-import { render } from '@testing-library/react';
-import Page from './Page404';
+import { axe } from "jest-axe";
+import { render } from "@testing-library/react";
+import Page from "./Page404";
 
-it('should not have any accessibility violations', async () => {
+it("should not have any accessibility violations", async () => {
   const { container } = render(<Page />);
   const results = await axe(container);
 

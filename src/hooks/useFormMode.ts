@@ -16,7 +16,9 @@ const useFormMode = () => {
 
     const updatedFormMode: FormMode = getFormMode(user, data);
     setFormMode(updatedFormMode);
-    setReadOnlyInputs(updatedFormMode === FormModes.VIEW_ONLY || updatedFormMode === FormModes.REVIEW);
+    setReadOnlyInputs(
+      updatedFormMode === FormModes.VIEW_ONLY || updatedFormMode === FormModes.REVIEW
+    );
   }, [user, data]);
 
   return { formMode, readOnlyInputs };

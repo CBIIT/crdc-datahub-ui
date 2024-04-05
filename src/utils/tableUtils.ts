@@ -7,7 +7,8 @@ import { SORT, DIRECTION } from "../config/TableConfig";
  * @param {Order} sortDirection - The sorting direction as a string ("asc" or "desc")
  * @returns {number} The numeric representation of the sorting direction: 1 for ascending, -1 for descending
  */
-export const getSortDirection = (sortDirection: Order) => (sortDirection?.toLowerCase() === SORT.ASC ? DIRECTION.ASC : DIRECTION.DESC);
+export const getSortDirection = (sortDirection: Order) =>
+  sortDirection?.toLowerCase() === SORT.ASC ? DIRECTION.ASC : DIRECTION.DESC;
 
 /**
  * Sorts and paginates a dataset
@@ -18,10 +19,7 @@ export const getSortDirection = (sortDirection: Order) => (sortDirection?.toLowe
  *
  * @template T - Type of the elements in the data array
  */
-export const paginateAndSort = <T>(
-  data: T[],
-  fetchListing: FetchListing<T>
-): T[] => {
+export const paginateAndSort = <T>(data: T[], fetchListing: FetchListing<T>): T[] => {
   if (!data) {
     return [];
   }

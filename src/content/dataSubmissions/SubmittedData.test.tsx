@@ -1,17 +1,17 @@
-import { FC } from 'react';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import { GraphQLError } from 'graphql';
-import { axe } from 'jest-axe';
-import { render, waitFor } from '@testing-library/react';
-import SubmittedData from './SubmittedData';
-import { GET_SUBMISSION_NODES, SUBMISSION_STATS } from '../../graphql';
+import { FC } from "react";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { GraphQLError } from "graphql";
+import { axe } from "jest-axe";
+import { render, waitFor } from "@testing-library/react";
+import SubmittedData from "./SubmittedData";
+import { GET_SUBMISSION_NODES, SUBMISSION_STATS } from "../../graphql";
 
 type ParentProps = {
   mocks?: MockedResponse[];
   children: React.ReactNode;
 };
 
-const TestParent: FC<ParentProps> = ({ mocks, children } : ParentProps) => (
+const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
   <MockedProvider mocks={mocks} showWarnings>
     {children}
   </MockedProvider>
@@ -19,12 +19,12 @@ const TestParent: FC<ParentProps> = ({ mocks, children } : ParentProps) => (
 
 describe("SubmittedData > General", () => {
   const baseSubmissionStatistic: SubmissionStatistic = {
-    nodeName: '',
+    nodeName: "",
     total: 0,
     new: 0,
     passed: 0,
     warning: 0,
-    error: 0
+    error: 0,
   };
 
   const mockSubmissionQuery = {
@@ -63,7 +63,12 @@ describe("SubmittedData > General", () => {
     );
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("Cannot fetch results. Submission ID is invalid or missing.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Cannot fetch results. Submission ID is invalid or missing.",
+        {
+          variant: "error",
+        }
+      );
     });
   });
 
@@ -83,8 +88,8 @@ describe("SubmittedData > General", () => {
             nodeType: "example-node",
           },
         },
-        error: new Error('Simulated network error'),
-      }
+        error: new Error("Simulated network error"),
+      },
     ];
 
     render(
@@ -94,7 +99,9 @@ describe("SubmittedData > General", () => {
     );
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve node data.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve node data.", {
+        variant: "error",
+      });
     });
   });
 
@@ -115,9 +122,9 @@ describe("SubmittedData > General", () => {
           },
         },
         result: {
-          errors: [new GraphQLError('Simulated GraphQL error')],
+          errors: [new GraphQLError("Simulated GraphQL error")],
         },
-      }
+      },
     ];
 
     render(
@@ -127,19 +134,21 @@ describe("SubmittedData > General", () => {
     );
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve node data.", { variant: "error" });
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve node data.", {
+        variant: "error",
+      });
     });
   });
 });
 
 describe("SubmittedData > Table", () => {
   const baseSubmissionStatistic: SubmissionStatistic = {
-    nodeName: '',
+    nodeName: "",
     total: 0,
     new: 0,
     passed: 0,
     warning: 0,
-    error: 0
+    error: 0,
   };
 
   const mockSubmissionQuery = {
@@ -185,7 +194,7 @@ describe("SubmittedData > Table", () => {
             },
           },
         },
-      }
+      },
     ];
 
     const { getByText } = render(
@@ -224,13 +233,17 @@ describe("SubmittedData > Table", () => {
                 {
                   nodeType: "example-node",
                   nodeID: "example-node-id",
-                  props: JSON.stringify({ "col.1": "value-1", "col.2": "value-2", "col.3": "value-3" }),
+                  props: JSON.stringify({
+                    "col.1": "value-1",
+                    "col.2": "value-2",
+                    "col.3": "value-3",
+                  }),
                 },
               ],
             },
           },
         },
-      }
+      },
     ];
 
     const { getByTestId, getByText } = render(
@@ -276,13 +289,17 @@ describe("SubmittedData > Table", () => {
                 {
                   nodeType: "example-node",
                   nodeID: "example-node-id",
-                  props: JSON.stringify({ "good-col-1": "ok", "good-col-2": "ok", "bad-column": "bad" }),
+                  props: JSON.stringify({
+                    "good-col-1": "ok",
+                    "good-col-2": "ok",
+                    "bad-column": "bad",
+                  }),
                 },
               ],
             },
           },
         },
-      }
+      },
     ];
 
     const { getByTestId, getByText } = render(
@@ -322,7 +339,7 @@ describe("SubmittedData > Table", () => {
             },
           },
         },
-      }
+      },
     ];
 
     const { getByTestId } = render(

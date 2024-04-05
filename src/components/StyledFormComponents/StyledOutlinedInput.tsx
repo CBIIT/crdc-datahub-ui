@@ -58,4 +58,4 @@ const StyledOutlinedInput = styled(OutlinedInput)(() => ({
   },
 }));
 
-  export default StyledOutlinedInput;
+export default StyledOutlinedInput;

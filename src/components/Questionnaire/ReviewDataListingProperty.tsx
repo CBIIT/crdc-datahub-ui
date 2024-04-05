@@ -18,7 +18,7 @@ export const StyledValue = styled("span")(() => ({
   fontWeight: 400,
   lineHeight: "19.6px",
   overflowWrap: "anywhere",
-  wordBreak: "break-word"
+  wordBreak: "break-word",
 }));
 
 const StyledLabelWrapper = styled(Stack)(() => ({
@@ -61,7 +61,10 @@ const ReviewDataListingProperty: FC<Props> = ({
       return [];
     }
     if (typeof value === "string") {
-      const splitted = value.split(',').map((item) => item.trim()).filter((item) => item.length);
+      const splitted = value
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item.length);
       if (splitted.length > 1) {
         setIsMultiple(true);
       }
@@ -95,19 +98,19 @@ const ReviewDataListingProperty: FC<Props> = ({
           alignItems={isMultiple ? "flex-start" : "center"}
           spacing={1}
         >
-          {isList ? displayValues?.map((val, idx) => (
-            <StyledValue
-            // eslint-disable-next-line react/no-array-index-key
-              key={`${val}_${idx}_${new Date().getTime()}`}
-              id={idPrefix.concat(`-property-value-${idx}`)}
-            >
-              {' '}
-              {`${val}${idx !== displayValues.length - 1 ? "," : ""}`}
-            </StyledValue>
-          )) : (
-            <StyledValue id={idPrefix.concat(`-property-value`)}>
-              {value}
-            </StyledValue>
+          {isList ? (
+            displayValues?.map((val, idx) => (
+              <StyledValue
+                // eslint-disable-next-line react/no-array-index-key
+                key={`${val}_${idx}_${new Date().getTime()}`}
+                id={idPrefix.concat(`-property-value-${idx}`)}
+              >
+                {" "}
+                {`${val}${idx !== displayValues.length - 1 ? "," : ""}`}
+              </StyledValue>
+            ))
+          ) : (
+            <StyledValue id={idPrefix.concat(`-property-value`)}>{value}</StyledValue>
           )}
         </Stack>
       </Stack>

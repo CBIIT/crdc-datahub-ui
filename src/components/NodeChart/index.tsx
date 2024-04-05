@@ -1,8 +1,8 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from "react";
 import { Box, Typography, styled } from "@mui/material";
-import { PieChart, Pie, Label, Cell } from 'recharts';
-import { isEqual } from 'lodash';
-import PieChartCenter from './PieChartCenter';
+import { PieChart, Pie, Label, Cell } from "recharts";
+import { isEqual } from "lodash";
+import PieChartCenter from "./PieChartCenter";
 
 type Props = {
   /**
@@ -55,8 +55,10 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
   const dataset: PieSectorDataItem[] = useMemo(() => data.filter(({ value }) => value > 0), [data]);
   const onMouseOver = useCallback((data) => setHoveredSlice(data), []);
   const onMouseLeave = useCallback(() => setHoveredSlice(null), []);
-  const showDefaultCenter: boolean = useMemo(() => (dataset.length === 0 && hoveredSlice === null)
-    || hoveredSlice?.value === 0, [dataset, hoveredSlice]);
+  const showDefaultCenter: boolean = useMemo(
+    () => (dataset.length === 0 && hoveredSlice === null) || hoveredSlice?.value === 0,
+    [dataset, hoveredSlice]
+  );
 
   return (
     <StyledChartContainer>
@@ -71,7 +73,9 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
           isAnimationActive={false}
           aria-label={`${label} chart background`}
         >
-          {showDefaultCenter ? <Label position="center" content={(<PieChartCenter title="Total" value={0} />)} /> : null}
+          {showDefaultCenter ? (
+            <Label position="center" content={<PieChartCenter title="Total" value={0} />} />
+          ) : null}
         </Pie>
         <Pie
           data={dataset}
@@ -85,15 +89,17 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
           onMouseLeave={onMouseLeave}
           aria-label={`${label} chart`}
         >
-          {dataset.map(({ label, color }) => (<Cell key={label} fill={color} cursor="pointer" />))}
+          {dataset.map(({ label, color }) => (
+            <Cell key={label} fill={color} cursor="pointer" />
+          ))}
           <Label
             position="center"
-            content={(
+            content={
               <PieChartCenter
                 title={hoveredSlice ? hoveredSlice.label : "Total"}
                 value={hoveredSlice ? hoveredSlice.value : centerCount}
               />
-            )}
+            }
           />
         </Pie>
       </PieChart>
@@ -101,4 +107,6 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
   );
 };
 
-export default React.memo<Props>(NodeChart, (prevProps, nextProps) => isEqual(prevProps, nextProps));
+export default React.memo<Props>(NodeChart, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+);

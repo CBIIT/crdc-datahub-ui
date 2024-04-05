@@ -5,14 +5,8 @@ import gql from "graphql-tag";
  *   This is NOT for upload type "update"
  */
 export const mutation = gql`
-  mutation updateBatch(
-    $batchID: ID!
-    $files: [UploadResult]
-  ) {
-    updateBatch(
-      batchID: $batchID
-      files: $files
-    ) {
+  mutation updateBatch($batchID: ID!, $files: [UploadResult]) {
+    updateBatch(batchID: $batchID, files: $files) {
       _id
       submissionID
       type

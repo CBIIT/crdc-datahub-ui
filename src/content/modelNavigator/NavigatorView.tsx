@@ -1,10 +1,11 @@
-import React, { FC } from 'react';
-import { Box } from '@mui/material';
-import { Provider } from 'react-redux';
-import { ReduxDataDictionary } from 'data-model-navigator';
-import SuspenseLoader from '../../components/SuspenseLoader';
-import { Status, useDataCommonContext } from '../../components/Contexts/DataCommonContext';
-import useBuildReduxStore from '../../hooks/useBuildReduxStore';
+import React, { FC } from "react";
+import { Box } from "@mui/material";
+// eslint-disable-next-line import/no-extraneous-dependencies -- Required to use legacy version from DMN
+import { Provider } from "react-redux";
+import { ReduxDataDictionary } from "data-model-navigator";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import { Status, useDataCommonContext } from "../../components/Contexts/DataCommonContext";
+import useBuildReduxStore from "../../hooks/useBuildReduxStore";
 
 /**
  * Encapsulates the Data Model Navigator component
@@ -18,7 +19,7 @@ import useBuildReduxStore from '../../hooks/useBuildReduxStore';
  */
 const ModelNavigator: FC = () => {
   const { status, DataCommon } = useDataCommonContext();
-  const [{ status: buildStatus, store },, populate] = useBuildReduxStore();
+  const [{ status: buildStatus, store }, , populate] = useBuildReduxStore();
 
   if (status === Status.LOADING || buildStatus === "loading") {
     return <SuspenseLoader />;
@@ -34,7 +35,7 @@ const ModelNavigator: FC = () => {
   }
 
   return (
-    <Box sx={{ mt: "40px", }}>
+    <Box sx={{ mt: "40px" }}>
       <Provider store={store}>
         <ReduxDataDictionary pdfDownloadConfig={DataCommon.configuration?.pdfConfig} />
       </Provider>

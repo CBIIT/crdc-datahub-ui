@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import usePageTitle from '../../hooks/usePageTitle';
+import { FC } from "react";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const Page404: FC = () => {
   usePageTitle("Page Not Found");

@@ -12,16 +12,15 @@ import { FormatDate } from "../../utils";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
 const StyledDialog = styled(Dialog, {
-  shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme"
+  shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme",
 })<{
   status: unknown;
-  getColorScheme:(status: unknown) => CSSProperties;
+  getColorScheme: (status: unknown) => CSSProperties;
 }>(({ status, getColorScheme }) => ({
   "& .MuiDialog-paper": {
     borderRadius: "8px",
     border: "2px solid",
-    borderColor:
-      getColorScheme && status ? getColorScheme(status).color : "#E25C22",
+    borderColor: getColorScheme && status ? getColorScheme(status).color : "#E25C22",
     background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
     boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
     padding: "22px 28px 24px",
@@ -54,10 +53,10 @@ const StyledPreTitle = styled("p")({
 });
 
 const StyledTitle = styled("p", {
-  shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme"
+  shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme",
 })<{
   status: unknown;
-  getColorScheme:(status: unknown) => CSSProperties;
+  getColorScheme: (status: unknown) => CSSProperties;
 }>(({ status, getColorScheme }) => ({
   color: getColorScheme && status ? getColorScheme(status).color : "#E25C22",
   fontSize: "35px",
@@ -143,11 +142,7 @@ const ReviewCommentsDialog = <T, H>({
         Review Comments
       </StyledTitle>
       <StyledSubTitle title={lastReview?.dateTime}>
-        {`Based on submission from ${FormatDate(
-          lastReview?.dateTime,
-          "M/D/YYYY",
-          "N/A"
-        )}:`}
+        {`Based on submission from ${FormatDate(lastReview?.dateTime, "M/D/YYYY", "N/A")}:`}
       </StyledSubTitle>
     </StyledDialogTitle>
     <StyledDialogContent>{lastReview?.reviewComment}</StyledDialogContent>

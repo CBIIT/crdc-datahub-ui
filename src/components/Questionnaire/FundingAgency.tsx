@@ -27,13 +27,7 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const FundingAgency: FC<Props> = ({
-  idPrefix = "",
-  index,
-  funding,
-  readOnly,
-  onDelete,
-}: Props) => {
+const FundingAgency: FC<Props> = ({ idPrefix = "", index, funding, readOnly, onDelete }: Props) => {
   const { status } = useFormContext();
 
   const { agency, grantNumbers, nciProgramOfficer, nciGPA } = funding || {};
@@ -61,13 +55,13 @@ const FundingAgency: FC<Props> = ({
           value={grantNumbers}
           maxLength={50}
           placeholder="Enter Grant or Contract Number(s)"
-          tooltipText={(
+          tooltipText={
             <>
               For US federally funded studies, include:
               <br />
               Grant or Contract number(s), for example, R01CAXXXX.
             </>
-          )}
+          }
           required
           readOnly={readOnly}
         />

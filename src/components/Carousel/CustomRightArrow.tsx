@@ -1,7 +1,7 @@
-import { styled } from '@mui/material';
+import { styled } from "@mui/material";
 import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
 
-const StyledButton = styled('button')({
+const StyledButton = styled("button")({
   color: "#3D4551",
   background: "transparent !important",
   transform: "translateX(15px)",

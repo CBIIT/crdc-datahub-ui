@@ -10,7 +10,7 @@ import {
   GridProps,
 } from "@mui/material";
 import { updateInputValidity } from "../../utils";
-import StyledRadioButton from './StyledRadioButton';
+import StyledRadioButton from "./StyledRadioButton";
 
 const GridStyled = styled(Grid, {
   shouldForwardProp: (prop) => prop !== "containerWidth",
@@ -82,7 +82,9 @@ const RadioYesNoInput: FC<Props> = ({
   readOnly,
   ...rest
 }) => {
-  const [val, setVal] = useState<string>((value?.toString() === "" || value?.toString() === undefined) ? null : value?.toString());
+  const [val, setVal] = useState<string>(
+    value?.toString() === "" || value?.toString() === undefined ? null : value?.toString()
+  );
   const [error, setError] = useState(false);
   const radioGroupInputRef = useRef<HTMLInputElement>(null);
 
@@ -127,8 +129,31 @@ const RadioYesNoInput: FC<Props> = ({
           data-type="string"
           {...rest}
         >
-          <FormControlLabel value="true" color="#1D91AB" control={<StyledRadioButton inputRef={radioGroupInputRef} id={id.concat("-yes-radio-button")} readOnly={readOnly} disabled={readOnly} />} label="Yes" />
-          <FormControlLabel value="false" color="#1D91AB" control={<StyledRadioButton id={id.concat("-no-radio-button")} readOnly={readOnly} disabled={readOnly} />} label="No" />
+          <FormControlLabel
+            value="true"
+            color="#1D91AB"
+            control={
+              <StyledRadioButton
+                inputRef={radioGroupInputRef}
+                id={id.concat("-yes-radio-button")}
+                readOnly={readOnly}
+                disabled={readOnly}
+              />
+            }
+            label="Yes"
+          />
+          <FormControlLabel
+            value="false"
+            color="#1D91AB"
+            control={
+              <StyledRadioButton
+                id={id.concat("-no-radio-button")}
+                readOnly={readOnly}
+                disabled={readOnly}
+              />
+            }
+            label="No"
+          />
         </RadioGroup>
         <FormHelperText className={(!readOnly && error ? "" : "displayNone") || ""}>
           {(!readOnly && error ? "This field is required" : null) || " "}

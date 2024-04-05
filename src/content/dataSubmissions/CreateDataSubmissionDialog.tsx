@@ -196,7 +196,7 @@ const StyledHelperText = styled(BaseStyledHelperText)({
 });
 
 const StyledOutlinedInputMultiline = styled(StyledOutlinedInput)({
-  height: "96px"
+  height: "96px",
 });
 
 const DropdownArrowsIcon = styled("div")(() => ({
@@ -225,7 +225,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     reset,
     control,
     formState: { errors },
-    setValue
+    setValue,
   } = useForm<CreateSubmissionParams>({
     defaultValues: {
       dataCommons: "CDS",
@@ -233,7 +233,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
       intention: "New",
       dbGaPID: "",
       name: "",
-    }
+    },
   });
 
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
@@ -252,14 +252,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
-  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(
-    approvedStudiesQuery,
-    {
-      variables: {},
-      context: { clientName: "backend" },
-      fetchPolicy: "no-cache",
-    }
-  );
+  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
+    variables: {},
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
 
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
   const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
@@ -270,9 +267,9 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
   organizationNames?.unshift({ label: "All", value: "All" });
   const approvedStudiesMapToDbGaPID = useMemo(() => {
     const result = {};
-    approvedStudiesData?.listApprovedStudiesOfMyOrganization?.forEach(
-      (study) => result[study.studyAbbreviation] = study.dbGaPID
-    );
+    approvedStudiesData?.listApprovedStudiesOfMyOrganization?.forEach((study) => {
+      result[study.studyAbbreviation] = study.dbGaPID;
+    });
     return result;
   }, [approvedStudiesData]);
 
@@ -320,10 +317,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     setCreatingSubmission(true);
   };
 
-  const onSubmit: SubmitHandler<CreateSubmissionParams> = (data) => {
-    createSubmission(data);
-  };
-
   const createSubmission = async ({
     studyAbbreviation,
     dataCommons,
@@ -358,6 +351,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
       });
   };
 
+  const onSubmit: SubmitHandler<CreateSubmissionParams> = (data) => {
+    createSubmission(data);
+  };
+
   const handleStudyChange = (e: SelectChangeEvent<unknown>) => {
     const value = e?.target?.value as string;
     if (!value || !approvedStudiesMapToDbGaPID || !approvedStudiesMapToDbGaPID[value]) {
@@ -382,11 +379,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
           >
             <CloseIconSvg />
           </StyledCloseDialogButton>
-          <Stack
-            direction="column"
-            justifyContent="center"
-            alignItems="flex-start"
-          >
+          <Stack direction="column" justifyContent="center" alignItems="flex-start">
             <StyledHeader variant="h3" id="create-a-submission-title">
               Create a Data Submission
             </StyledHeader>
@@ -405,10 +398,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
               <Stack direction="column">
                 <StyledOrganizationField>
                   <StyledLabel id="organization">Organization</StyledLabel>
-                  <StyledOutlinedInput
-                    value={user.organization?.orgName}
-                    readOnly
-                  />
+                  <StyledOutlinedInput value={user.organization?.orgName} readOnly />
                 </StyledOrganizationField>
                 <StyledField>
                   <StyledLabel id="dataCommons">
@@ -460,16 +450,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-study-abbreviation-helper-text"
                       >
-                        {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map(
-                          (abbr) => (
-                            <MenuItem
-                              key={abbr.studyAbbreviation}
-                              value={abbr.studyAbbreviation}
-                            >
-                              {abbr.studyAbbreviation}
-                            </MenuItem>
-                          )
-                        )}
+                        {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((abbr) => (
+                          <MenuItem key={abbr.studyAbbreviation} value={abbr.studyAbbreviation}>
+                            {abbr.studyAbbreviation}
+                          </MenuItem>
+                        ))}
                       </StyledSelect>
                     )}
                   />
@@ -549,12 +534,9 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
           </StyledDialogButton>
           {error && (
             <StyledDialogError variant="body1">
-              Unable to create this data submission. If the problem persists
-              please contact
+              Unable to create this data submission. If the problem persists please contact
               <br />
-              <a href="mailto:ncicrdchelpdesk@mail.nih.gov">
-                ncicrdchelpdesk@mail.nih.gov
-              </a>
+              <a href="mailto:ncicrdchelpdesk@mail.nih.gov">ncicrdchelpdesk@mail.nih.gov</a>
             </StyledDialogError>
           )}
         </StyledDialogActions>

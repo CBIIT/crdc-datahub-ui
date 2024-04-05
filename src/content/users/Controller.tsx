@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { Navigate, useParams } from "react-router-dom";
-import { useAuthContext } from '../../components/Contexts/AuthContext';
-import { OrganizationProvider } from '../../components/Contexts/OrganizationListContext';
+import { useAuthContext } from "../../components/Contexts/AuthContext";
+import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
 import ListView from "./ListView";
 import ProfileView from "./ProfileView";
 
@@ -40,7 +40,7 @@ const MemorizedProvider = memo(OrganizationProvider);
  * @param {Props} props - React props
  * @returns {FC} - React component
  */
-export default ({ type } : Props) => {
+export default ({ type }: Props) => {
   const { userId } = useParams();
   const { user } = useAuthContext();
   const { _id, role } = user || {};

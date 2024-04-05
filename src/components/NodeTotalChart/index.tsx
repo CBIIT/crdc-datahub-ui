@@ -1,18 +1,10 @@
 import { FC } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Box, styled } from "@mui/material";
 import NodeTooltip from "./Tooltip";
-import CustomTick from './CustomTick';
-import ActiveBar from './ActiveBar';
-import { calculateMaxDomain, formatTick } from '../../utils';
+import CustomTick from "./CustomTick";
+import ActiveBar from "./ActiveBar";
+import { calculateMaxDomain, formatTick } from "../../utils";
 
 type Props = {
   /**
@@ -66,7 +58,7 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => (
           dataKey="label"
           axisLine={false}
           tickLine={false}
-          tick={<CustomTick />}
+          tick={CustomTick}
           interval={0}
           allowDataOverflow
           allowDuplicatedCategory

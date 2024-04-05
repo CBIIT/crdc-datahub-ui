@@ -1,18 +1,12 @@
 import React, { FC, useEffect, useId, useRef, useState } from "react";
-import {
-  FormControl,
-  FormHelperText,
-  Grid,
-  TextFieldProps,
-  styled,
-} from "@mui/material";
+import { FormControl, FormHelperText, Grid, TextFieldProps, styled } from "@mui/material";
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
-import timezone from 'dayjs/plugin/timezone';
+import timezone from "dayjs/plugin/timezone";
 
 import Tooltip from "../Tooltip";
 import calendarIcon from "../../assets/icons/calendar.svg";
-import { updateInputValidity } from '../../utils';
+import { updateInputValidity } from "../../utils";
 
 const CalendarIcon = styled("div")(() => ({
   backgroundImage: `url(${calendarIcon})`,
@@ -78,7 +72,8 @@ const StyledDatePicker = styled(DatePicker)(() => ({
   },
   "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D !important",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   "& .MuiOutlinedInput-notchedOutline": {
     borderColor: "#6B7294",
@@ -86,7 +81,7 @@ const StyledDatePicker = styled(DatePicker)(() => ({
   "& .MuiInputBase-input::placeholder": {
     color: "#87878C",
     fontWeight: 400,
-    opacity: 1
+    opacity: 1,
   },
   // Override the input error border color
   "&.Mui-error fieldset": {
@@ -97,7 +92,7 @@ const StyledDatePicker = styled(DatePicker)(() => ({
     backgroundColor: "#E5EEF4",
     color: "#083A50",
     cursor: "not-allowed",
-    overflow: "hidden"
+    overflow: "hidden",
   },
 }));
 
@@ -143,7 +138,9 @@ const DatePickerInput: FC<Props> = ({
 
   const [val, setVal] = useState<Dayjs>(dayjs(initialValue || null));
   const [error, setError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string>(errorText || (required ? "This field is required" : null));
+  const [errorMsg, setErrorMsg] = useState<string>(
+    errorText || (required ? "This field is required" : null)
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   dayjs.extend(timezone);
   dayjs.tz.setDefault("America/New_York");
@@ -157,7 +154,10 @@ const DatePickerInput: FC<Props> = ({
       newErrorMsg = "This field is required";
     } else if (disablePast && isPastDate) {
       newErrorMsg = "The date is invalid. Please select today's date or a future date";
-    } else if ((required || (inputVal !== null && inputRef.current?.value !== format)) && isInvalidDay) {
+    } else if (
+      (required || (inputVal !== null && inputRef.current?.value !== format)) &&
+      isInvalidDay
+    ) {
       newErrorMsg = `The date is invalid. Please enter a date in the format ${format}`;
     }
 
@@ -192,12 +192,14 @@ const DatePickerInput: FC<Props> = ({
       <StyledFormControl fullWidth error={error}>
         <StyledFormLabel htmlFor={id}>
           {label}
-          {required ? (<StyledAsterisk>*</StyledAsterisk>) : ""}
+          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
           {tooltipText && <Tooltip title={tooltipText} />}
         </StyledFormLabel>
         <StyledDatePicker
           value={val}
-          onChange={(value: Dayjs) => { onChangeWrapper(value.tz()); }}
+          onChange={(value: Dayjs) => {
+            onChangeWrapper(value.tz());
+          }}
           inputRef={inputRef}
           disablePast={disablePast}
           format={format}
@@ -235,9 +237,7 @@ const DatePickerInput: FC<Props> = ({
           }}
           {...rest}
         />
-        <StyledFormHelperText>
-          {(error ? errorMsg : infoText) || " "}
-        </StyledFormHelperText>
+        <StyledFormHelperText>{(error ? errorMsg : infoText) || " "}</StyledFormHelperText>
       </StyledFormControl>
     </GridItem>
   );

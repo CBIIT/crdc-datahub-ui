@@ -1,5 +1,5 @@
-import '@testing-library/jest-dom';
-import 'jest-axe/extend-expect';
+import "@testing-library/jest-dom";
+import "jest-axe/extend-expect";
 
 /**
  * Mocks the enqueueSnackbar function from notistack for testing
@@ -9,7 +9,7 @@ import 'jest-axe/extend-expect';
  * @see notistack documentation: https://notistack.com/getting-started
  */
 global.mockEnqueue = jest.fn();
-jest.mock('notistack', () => ({
-  ...jest.requireActual('notistack'),
-  useSnackbar: () => ({ enqueueSnackbar: global.mockEnqueue })
+jest.mock("notistack", () => ({
+  ...jest.requireActual("notistack"),
+  useSnackbar: () => ({ enqueueSnackbar: global.mockEnqueue }),
 }));

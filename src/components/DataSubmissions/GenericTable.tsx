@@ -14,9 +14,17 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { CSSProperties, ElementType, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import {
+  CSSProperties,
+  ElementType,
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from "react";
 import PaginationActions from "./PaginationActions";
-import SuspenseLoader from '../SuspenseLoader';
+import SuspenseLoader from "../SuspenseLoader";
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
@@ -35,7 +43,9 @@ const StyledTableContainer = styled(TableContainer)({
   },
 });
 
-const StyledTable = styled(Table, { shouldForwardProp: (p) => p !== "horizontalScroll" })<{ horizontalScroll: boolean }>(({ horizontalScroll }) => ({
+const StyledTable = styled(Table, {
+  shouldForwardProp: (p) => p !== "horizontalScroll",
+})<{ horizontalScroll: boolean }>(({ horizontalScroll }) => ({
   whiteSpace: horizontalScroll ? "nowrap" : "initial",
   display: horizontalScroll ? "block" : "table",
   overflowX: horizontalScroll ? "auto" : "initial",
@@ -47,7 +57,7 @@ const StyledTableHead = styled(TableHead)({
 
 const StyledTableRow = styled(TableRow)({
   height: "46.59px",
-  minHeight: "46.59px"
+  minHeight: "46.59px",
 });
 
 const StyledHeaderCell = styled(TableCell)({
@@ -82,10 +92,15 @@ const StyledTableCell = styled(TableCell)({
 });
 
 const StyledTablePagination = styled(TablePagination, {
-  shouldForwardProp: (prop) => prop !== "placement"
-})<TablePaginationProps & { component: ElementType; placement: CSSProperties["justifyContent"]; }>(
-  ({ placement }) => ({
-    "& .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
+  shouldForwardProp: (prop) => prop !== "placement",
+})<
+  TablePaginationProps & {
+    component: ElementType;
+    placement: CSSProperties["justifyContent"];
+  }
+>(({ placement }) => ({
+  "& .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel, & .MuiTablePagination-select":
+    {
       height: "27px",
       display: "flex",
       alignItems: "center",
@@ -100,37 +115,36 @@ const StyledTablePagination = styled(TablePagination, {
       lineHeight: "14.913px",
       letterSpacing: "0.14px",
     },
-    "& .MuiToolbar-root .MuiInputBase-root": {
-      height: "27px",
-      marginLeft: 0,
-      marginRight: "16px",
-    },
-    "& .MuiToolbar-root p": {
-      marginTop: 0,
-      marginBottom: 0,
-    },
-    "& .MuiToolbar-root": {
-      minHeight: "45px",
-      height: "fit-content",
-      paddingTop: "7px",
-      paddingBottom: "6px",
-      borderTop: "2px solid #083A50",
-      background: "#F5F7F8",
-      ...(placement && {
-        justifyContent: placement,
-        "& .MuiTablePagination-spacer": {
-          display: "none"
-        }
-      })
-    },
-  })
-);
+  "& .MuiToolbar-root .MuiInputBase-root": {
+    height: "27px",
+    marginLeft: 0,
+    marginRight: "16px",
+  },
+  "& .MuiToolbar-root p": {
+    marginTop: 0,
+    marginBottom: 0,
+  },
+  "& .MuiToolbar-root": {
+    minHeight: "45px",
+    height: "fit-content",
+    paddingTop: "7px",
+    paddingBottom: "6px",
+    borderTop: "2px solid #083A50",
+    background: "#F5F7F8",
+    ...(placement && {
+      justifyContent: placement,
+      "& .MuiTablePagination-spacer": {
+        display: "none",
+      },
+    }),
+  },
+}));
 
 export type Order = "asc" | "desc";
 
 export type Column<T> = {
   label: string | React.ReactNode;
-  renderValue: (a: T) => string | boolean | number | React.ReactNode;
+  renderValue: (a: T) => React.ReactNode;
   field?: keyof T;
   default?: true;
   sortDisabled?: boolean;
@@ -169,25 +183,28 @@ type Props<T> = {
   onPerPageChange?: (perPage: number) => void;
 };
 
-const GenericTable = <T,>({
-  columns,
-  data,
-  total = 0,
-  loading,
-  horizontalScroll = false,
-  noContentText,
-  defaultOrder = "desc",
-  defaultRowsPerPage = 10,
-  paginationPlacement,
-  containerProps,
-  numRowsNoContent = 10,
-  AdditionalActions,
-  setItemKey,
-  onFetchData,
-  onOrderChange,
-  onOrderByChange,
-  onPerPageChange,
-}: Props<T>, ref: React.Ref<TableMethods>) => {
+const GenericTable = <T,>(
+  {
+    columns,
+    data,
+    total = 0,
+    loading,
+    horizontalScroll = false,
+    noContentText,
+    defaultOrder = "desc",
+    defaultRowsPerPage = 10,
+    paginationPlacement,
+    containerProps,
+    numRowsNoContent = 10,
+    AdditionalActions,
+    setItemKey,
+    onFetchData,
+    onOrderChange,
+    onOrderByChange,
+    onPerPageChange,
+  }: Props<T>,
+  ref: React.Ref<TableMethods>
+) => {
   const [order, setOrder] = useState<Order>(defaultOrder);
   const [orderBy, setOrderBy] = useState<Column<T>>(
     columns.find((c) => c.default) || columns.find((c) => c.field)
@@ -195,37 +212,25 @@ const GenericTable = <T,>({
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(defaultRowsPerPage);
 
-  useEffect(() => {
-    fetchData();
-  }, [page, perPage, order, orderBy]);
-
-  useImperativeHandle(ref, () => ({
-    refresh: () => {
-      fetchData(true);
-    },
-    setPage: (newPage: number, forceRefetch = false) => {
-      setPage(newPage);
-      if (forceRefetch) {
-        fetchData(true);
-      }
-    }
-  }));
-
   const fetchData = (force = false) => {
     if (!onFetchData) {
       return;
     }
-    onFetchData({
-      first: perPage,
-      offset: page * perPage,
-      sortDirection: order,
-      orderBy: orderBy?.field,
-    }, force);
+    onFetchData(
+      {
+        first: perPage,
+        offset: page * perPage,
+        sortDirection: order,
+        orderBy: orderBy?.field,
+      },
+      force
+    );
   };
 
-  const emptyRows = useMemo(() => (page > 0 && total
-      ? Math.max(0, (1 + page) * perPage - (total || 0))
-      : 0), [data]);
+  const emptyRows = useMemo(
+    () => (page > 0 && total ? Math.max(0, (1 + page) * perPage - (total || 0)) : 0),
+    [data]
+  );
 
   const handleRequestSort = (column: Column<T>) => {
     const newOrder = orderBy === column && order === "asc" ? "desc" : "asc";
@@ -250,9 +255,25 @@ const GenericTable = <T,>({
     setPage(0);
   };
 
+  useEffect(() => {
+    fetchData();
+  }, [page, perPage, order, orderBy]);
+
+  useImperativeHandle(ref, () => ({
+    refresh: () => {
+      fetchData(true);
+    },
+    setPage: (newPage: number, forceRefetch = false) => {
+      setPage(newPage);
+      if (forceRefetch) {
+        fetchData(true);
+      }
+    },
+  }));
+
   return (
     <StyledTableContainer {...containerProps}>
-      {loading && (<SuspenseLoader fullscreen={false} />)}
+      {loading && <SuspenseLoader fullscreen={false} />}
       <StyledTable horizontalScroll={horizontalScroll && total > 0}>
         <StyledTableHead>
           <TableRow>
@@ -278,32 +299,32 @@ const GenericTable = <T,>({
           </TableRow>
         </StyledTableHead>
         <TableBody>
-          {loading && total === 0 ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
-            <StyledTableRow key={`loading_row_${idx}`}>
-              <TableCell colSpan={columns.length} />
-            </StyledTableRow>
-          )) : (
-            data?.map((d: T, idx: number) => {
-              const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
-              return (
-                <TableRow tabIndex={-1} hover key={itemKey}>
-                  {columns.map((col: Column<T>) => (
-                    <StyledTableCell key={`${itemKey}_${col.label}`}>
-                      {col.renderValue(d)}
-                    </StyledTableCell>
-                  ))}
-                </TableRow>
-              );
-            })
-          )}
+          {loading && total === 0
+            ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
+                <StyledTableRow key={`loading_row_${idx}`}>
+                  <TableCell colSpan={columns.length} />
+                </StyledTableRow>
+              ))
+            : data?.map((d: T, idx: number) => {
+                const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
+                return (
+                  <TableRow tabIndex={-1} hover key={itemKey}>
+                    {columns.map((col: Column<T>) => (
+                      <StyledTableCell key={`${itemKey}_${col.label}`}>
+                        {col.renderValue(d)}
+                      </StyledTableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
 
-          {!loading && emptyRows > 0 && (
+          {!loading &&
+            emptyRows > 0 &&
             Array.from(Array(emptyRows).keys())?.map((row) => (
               <StyledTableRow key={`empty_row_${row}`}>
                 <TableCell colSpan={columns.length} />
               </StyledTableRow>
-            ))
-          )}
+            ))}
 
           {/* No content message */}
           {!loading && (!total || total === 0) && (
@@ -333,28 +354,33 @@ const GenericTable = <T,>({
         onRowsPerPageChange={handleChangeRowsPerPage}
         placement={paginationPlacement}
         nextIconButtonProps={{
-            disabled: perPage === -1
-              || !data
-              || total === 0
-              || total <= (page + 1) * perPage
-              || emptyRows > 0
-              || loading
+          disabled:
+            perPage === -1 ||
+            !data ||
+            total === 0 ||
+            total <= (page + 1) * perPage ||
+            emptyRows > 0 ||
+            loading,
         }}
         SelectProps={{
           inputProps: {
             "aria-label": "rows per page",
-            "data-testid": "generic-table-rows-per-page"
+            "data-testid": "generic-table-rows-per-page",
           },
           native: true,
         }}
         backIconButtonProps={{ disabled: page === 0 || loading }}
         // eslint-disable-next-line react/no-unstable-nested-components
-        ActionsComponent={(props) => <PaginationActions {...props} AdditionalActions={AdditionalActions} />}
+        ActionsComponent={(props) => (
+          <PaginationActions {...props} AdditionalActions={AdditionalActions} />
+        )}
       />
     </StyledTableContainer>
   );
 };
 
-const TableWithRef = forwardRef(GenericTable) as <T>(props: Props<T> & { ref?: React.Ref<TableMethods> }) => ReturnType<typeof GenericTable>;
+const TableWithRef = forwardRef(GenericTable) as <T>(
+  props: Props<T> & { ref?: React.Ref<TableMethods> }
+) => ReturnType<typeof GenericTable>;
 
 export default TableWithRef;

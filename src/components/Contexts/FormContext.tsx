@@ -1,12 +1,5 @@
-import React, {
-  FC,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
+import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
+import { ApolloError, useLazyQuery, useMutation } from "@apollo/client";
 import { merge, cloneDeep } from "lodash";
 import {
   APPROVE_APP,
@@ -100,59 +93,59 @@ type ProviderProps = {
  * @param {ProviderProps} props - Form context provider props
  * @returns {JSX.Element} - Form context provider
  */
-export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps) => {
+export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [getApp] = useLazyQuery<GetAppResp>(GET_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [submitApp] = useMutation<SubmitAppResp>(SUBMIT_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [reviewApp] = useMutation<ReviewAppResp>(REVIEW_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [reopenApp] = useMutation<ReopenAppResp>(REOPEN_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [approveApp] = useMutation<ApproveAppResp>(APPROVE_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [inquireApp] = useMutation<InquireAppResp>(INQUIRE_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [rejectApp] = useMutation<RejectAppResp>(REJECT_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const setData = async (data: QuestionnaireData): Promise<SetDataReturnType> => {
@@ -160,8 +153,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       ...state,
       data: {
         ...state.data,
-        questionnaireData: data
-      }
+        questionnaireData: data,
+      },
     };
 
     setState((prevState) => ({ ...prevState, status: Status.SAVING }));
@@ -174,15 +167,19 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
             programName: data?.program?.name,
             studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
             questionnaireData: JSON.stringify(data),
-          }
-        }
+          },
+        },
       });
 
       if (errors) {
-        setState({ ...newState, status: Status.ERROR, error: "An unknown GraphQL Error occured" });
+        setState({
+          ...newState,
+          status: Status.ERROR,
+          error: "An unknown GraphQL Error occurred",
+        });
         return {
           status: "failed",
-          errorMessage: "An unknown GraphQL Error occured"
+          errorMessage: "An unknown GraphQL Error occurred",
         };
       }
 
@@ -201,21 +198,25 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         updatedAt: d?.saveApplication?.updatedAt,
         createdAt: d?.saveApplication?.createdAt,
         submittedDate: d?.saveApplication?.submittedDate,
-        history: d?.saveApplication?.history
+        history: d?.saveApplication?.history,
       };
 
       if (!d?.saveApplication?.["_id"]) {
-        setState({ ...newState, status: Status.ERROR, error: "An unknown issue occured" });
+        setState({
+          ...newState,
+          status: Status.ERROR,
+          error: "An unknown issue occurred",
+        });
         return {
           status: "failed",
-          errorMessage: "An unknown issue occured"
+          errorMessage: "An unknown issue occurred",
         };
       }
 
       setState({ ...newState, status: Status.LOADED, error: null });
       return {
         status: "success",
-        id: d.saveApplication["_id"]
+        id: d.saveApplication["_id"],
       };
     } catch (error) {
       let errorMessage: string;
@@ -228,26 +229,30 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       let newErrorState = state;
       // If duplicate study abbrev error, then prevent section from being completed
       if (errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
-        const newSections = state?.data?.questionnaireData?.sections?.map((section) => (section.name === sectionMetadata.B.id ? {
-          ...section,
-          status: "In Progress"
-        } as Section : section));
+        const newSections = state?.data?.questionnaireData?.sections?.map((section) =>
+          section.name === sectionMetadata.B.id
+            ? ({
+                ...section,
+                status: "In Progress",
+              } as Section)
+            : section
+        );
         newErrorState = {
           ...state,
           data: {
             ...state?.data,
             questionnaireData: {
               ...state?.data?.questionnaireData,
-              sections: newSections
-            }
-          }
+              sections: newSections,
+            },
+          },
         };
       }
 
       setState({ ...newErrorState, status: Status.ERROR, error: errorMessage });
       return {
         status: "failed",
-        errorMessage
+        errorMessage,
       };
     }
   };
@@ -257,8 +262,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
 
     const { data: res, errors } = await submitApp({
       variables: {
-        _id: state?.data["_id"]
-      }
+        _id: state?.data["_id"],
+      },
     });
 
     if (errors) {
@@ -278,8 +283,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       variables: {
         _id: state?.data["_id"],
         comment,
-        wholeProgram
-      }
+        wholeProgram,
+      },
     });
 
     if (errors) {
@@ -298,8 +303,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     const { data: res, errors } = await inquireApp({
       variables: {
         _id: state?.data["_id"],
-        comment
-      }
+        comment,
+      },
     });
 
     if (errors) {
@@ -318,8 +323,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     const { data: res, errors } = await rejectApp({
       variables: {
         _id: state?.data["_id"],
-        comment
-      }
+        comment,
+      },
     });
 
     if (errors) {
@@ -338,7 +343,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     const { data: res, errors } = await reviewApp({
       variables: {
         _id: state?.data["_id"],
-      }
+      },
     });
 
     if (errors) {
@@ -364,7 +369,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     const { data: res, errors } = await reopenApp({
       variables: {
         _id: state?.data["_id"],
-      }
+      },
     });
 
     if (errors) {
@@ -376,7 +381,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       ...prevState,
       data: {
         ...prevState?.data,
-        ...res?.reopenApplication
+        ...res?.reopenApplication,
       },
       status: Status.LOADED,
     }));
@@ -385,7 +390,11 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
 
   useEffect(() => {
     if (!id || !id.trim()) {
-      setState({ status: Status.ERROR, data: null, error: "Invalid application ID provided" });
+      setState({
+        status: Status.ERROR,
+        data: null,
+        error: "Invalid application ID provided",
+      });
       return;
     }
 
@@ -415,12 +424,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
 
       const { data: d, error } = await getApp();
       if (error || !d?.getApplication?.questionnaireData) {
-        setState({ status: Status.ERROR, data: null, error: "An unknown API or GraphQL error occurred" });
+        setState({
+          status: Status.ERROR,
+          data: null,
+          error: "An unknown API or GraphQL error occurred",
+        });
         return;
       }
 
       const { getApplication } = d;
-      const questionnaireData: QuestionnaireData = JSON.parse(getApplication?.questionnaireData || null);
+      const questionnaireData: QuestionnaireData = JSON.parse(
+        getApplication?.questionnaireData || null
+      );
 
       // Check if we need to autofill the PI details
       const sectionA: Section = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
@@ -440,9 +455,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         data: {
           ...merge(cloneDeep(InitialApplication), d?.getApplication),
           questionnaireData: {
-            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData)
+            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
           },
-        }
+        },
       });
     })();
   }, [id]);
@@ -461,9 +476,5 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     [state]
   );
 
-  return (
-    <Context.Provider value={value}>
-      {children}
-    </Context.Provider>
-  );
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };

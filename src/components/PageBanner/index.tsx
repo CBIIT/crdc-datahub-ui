@@ -1,7 +1,7 @@
 import React, { FC } from "react";
-import { Container, styled } from '@mui/material';
+import { Container, styled } from "@mui/material";
 
-const StyledBanner = styled("div")(({ bannerSrc } : { bannerSrc: string }) => ({
+const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: bannerSrc ? `url(${bannerSrc})` : "transparent",
   backgroundBlendMode: "luminosity, normal",
   backgroundSize: "cover",
@@ -13,7 +13,7 @@ const StyledBanner = styled("div")(({ bannerSrc } : { bannerSrc: string }) => ({
   alignItems: "center",
 }));
 
-const StyledBannerContentContainer = styled(Container)(({ padding } : { padding?: string }) => ({
+const StyledBannerContentContainer = styled(Container)(({ padding }: { padding?: string }) => ({
   "&.MuiContainer-root": {
     padding: padding || "57px 0 0 65px",
     width: "100%",
@@ -64,13 +64,11 @@ export type Props = {
  *
  * @returns {React.FC<Props>}
  */
-const PageBanner: FC<Props> = ({
-  title, subTitle, padding, body, bannerSrc
-} : Props) => (
+const PageBanner: FC<Props> = ({ title, subTitle, padding, body, bannerSrc }: Props) => (
   <StyledBanner bannerSrc={bannerSrc}>
     <StyledBannerContentContainer maxWidth="xl" padding={padding}>
       <StyledBannerTitle>{title}</StyledBannerTitle>
-      {subTitle && (<StyledBannerSubtitle>{subTitle}</StyledBannerSubtitle>)}
+      {subTitle && <StyledBannerSubtitle>{subTitle}</StyledBannerSubtitle>}
       {body}
     </StyledBannerContentContainer>
   </StyledBanner>

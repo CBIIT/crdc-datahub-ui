@@ -1,20 +1,20 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Checkbox, FormControlLabel, Grid, styled } from '@mui/material';
-import { parseForm } from '@jalik/form-parser';
-import { cloneDeep } from 'lodash';
+import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
+import { parseForm } from "@jalik/form-parser";
+import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import AutocompleteInput from '../../../components/Questionnaire/AutocompleteInput';
-import AddRemoveButton from '../../../components/Questionnaire/AddRemoveButton';
-import { filterForNumbers, mapObjectWithKey, validateEmail } from '../../../utils';
+import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
+import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
+import { filterForNumbers, mapObjectWithKey, validateEmail } from "../../../utils";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import institutionConfig from "../../../config/InstitutionConfig";
-import { InitialQuestionnaire } from '../../../config/InitialValues';
+import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
 import useFormMode from "../../../hooks/useFormMode";
 
@@ -40,34 +40,34 @@ const StyledFormControlLabel = styled(FormControlLabel)({
  * @returns {JSX.Element}
  */
 const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data: { questionnaireData: data } } = useFormContext();
+  const {
+    status,
+    data: { questionnaireData: data },
+  } = useFormContext();
   const location = useLocation();
   const { pi } = data;
   const { readOnlyInputs } = useFormMode();
   const { A: SectionAMetadata } = SectionMetadata;
 
   const [primaryContact, setPrimaryContact] = useState<Contact>(data?.primaryContact);
-  const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(data?.piAsPrimaryContact || false);
-  const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(data.additionalContacts?.map(mapObjectWithKey) || []);
+  const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(
+    data?.piAsPrimaryContact || false
+  );
+  const [additionalContacts, setAdditionalContacts] = useState<KeyedContact[]>(
+    data.additionalContacts?.map(mapObjectWithKey) || []
+  );
 
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const {
-    nextButtonRef, saveFormRef, submitFormRef,
-    approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef,
+    nextButtonRef,
+    saveFormRef,
+    submitFormRef,
+    approveFormRef,
+    inquireFormRef,
+    rejectFormRef,
+    getFormObjectRef,
   } = refs;
-
-  useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) { return; }
-
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    getFormObjectRef.current = getFormObject;
-  }, [refs]);
 
   const togglePrimaryPI = () => {
     setPiAsPrimaryContact(!piAsPrimaryContact);
@@ -75,7 +75,9 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const getFormObject = (): FormObject | null => {
-    if (!formRef.current) { return null; }
+    if (!formRef.current) {
+      return null;
+    }
 
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
@@ -110,18 +112,29 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   useEffect(() => {
+    if (!saveFormRef.current || !submitFormRef.current) {
+      return;
+    }
+
+    nextButtonRef.current.style.display = "flex";
+    saveFormRef.current.style.display = "flex";
+    submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    inquireFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
+    getFormObjectRef.current = getFormObject;
+  }, [refs]);
+
+  useEffect(() => {
     if (location?.state?.from === "/submissions") {
       return;
     }
+
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, [location]);
 
   return (
-    <FormContainer
-      ref={formContainerRef}
-      formRef={formRef}
-      description={SectionOption.title}
-    >
+    <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
       {/* Principal Investigator */}
       <SectionGroup
         title={SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.title}
@@ -205,13 +218,13 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <Grid item md={12}>
           <StyledFormControlLabel
             label="Same as Principal Investigator"
-            control={(
+            control={
               <Checkbox
                 checked={piAsPrimaryContact}
                 onChange={() => !readOnlyInputs && togglePrimaryPI()}
                 readOnly={readOnlyInputs}
               />
-            )}
+            }
           />
           <input
             id="section-a-primary-contact-same-as-pi-checkbox"
@@ -301,7 +314,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       <SectionGroup
         title={SectionAMetadata.sections.ADDITIONAL_CONTACTS.title}
         description={SectionAMetadata.sections.ADDITIONAL_CONTACTS.description}
-        endButton={(
+        endButton={
           <AddRemoveButton
             id="section-a-add-additional-contact-button"
             label="Add Contact"
@@ -309,7 +322,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             onClick={addContact}
             disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
-        )}
+        }
       >
         <TransitionGroupWrapper
           items={additionalContacts}

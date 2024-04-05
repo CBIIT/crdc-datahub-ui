@@ -1,12 +1,4 @@
-import {
-  Button,
-  Dialog,
-  DialogProps,
-  IconButton,
-  Stack,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
 const StyledDialog = styled(Dialog)({
@@ -44,7 +36,7 @@ const StyledCloseButton = styled(Button)({
     letterSpacing: "0.32px",
     textTransform: "none",
     alignSelf: "center",
-  }
+  },
 });
 
 const StyledConfirmButton = styled(Button)({
@@ -59,7 +51,7 @@ const StyledConfirmButton = styled(Button)({
     letterSpacing: "0.32px",
     textTransform: "none",
     alignSelf: "center",
-  }
+  },
 });
 
 const StyledHeader = styled(Typography)({
@@ -107,22 +99,15 @@ const DeleteDialog = ({
     <StyledDescription>
       {description || (
         <>
-          The metadata or files specified in the selected files, along with
-          their associated child nodes, will be deleted permanently, and this
-          action is irreversible.
+          The metadata or files specified in the selected files, along with their associated child
+          nodes, will be deleted permanently, and this action is irreversible.
           <br />
           Are you sure you want to proceed?
         </>
       )}
     </StyledDescription>
 
-    <Stack
-      direction="row"
-      justifyContent="center"
-      alignItems="center"
-      spacing={2}
-      marginTop="61px"
-    >
+    <Stack direction="row" justifyContent="center" alignItems="center" spacing={2} marginTop="61px">
       <StyledCloseButton
         id="error-dialog-close-button"
         variant="contained"

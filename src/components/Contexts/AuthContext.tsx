@@ -1,14 +1,7 @@
-import React, {
-  FC,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { useLazyQuery } from '@apollo/client';
-import { query as GET_USER, Response as GetUserResp } from '../../graphql/getMyUser';
-import env from '../../env';
+import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useLazyQuery } from "@apollo/client";
+import { query as GET_USER, Response as GetUserResp } from "../../graphql/getMyUser";
+import env from "../../env";
 
 const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
 
@@ -20,7 +13,7 @@ const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
  * @returns Promise that resolves to true if logged in, false if not
  */
 const userLogout = async (): Promise<boolean> => {
-  const d = await fetch(`${AUTH_SERVICE_URL}/logout`, { method: 'POST' }).catch(() => null);
+  const d = await fetch(`${AUTH_SERVICE_URL}/logout`, { method: "POST" }).catch(() => null);
   const { status } = await d.json().catch(() => null);
 
   return status || false;
@@ -35,11 +28,11 @@ const userLogout = async (): Promise<boolean> => {
  */
 const userLogin = async (authCode: string): Promise<[boolean, string]> => {
   const options = {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       code: authCode,
-      IDP: 'nih',
+      IDP: "nih",
       redirectUri: env.REACT_APP_NIH_REDIRECT_URL,
     }),
   };
@@ -86,7 +79,7 @@ const initialState: ContextState = {
  * @see useAuthContext – Auth context hook
  */
 export const Context = createContext<ContextState>(null);
-Context.displayName = 'AuthContext';
+Context.displayName = "AuthContext";
 
 /**
  * Auth Context Hook
@@ -117,18 +110,20 @@ type ProviderProps = {
  * @returns {JSX.Element} - Auth context provider
  */
 
-export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) => {
-  const cachedUser = JSON.parse(localStorage.getItem('userDetails'));
-  const cachedState = cachedUser ? {
-    isLoggedIn: true,
-    status: Status.LOADED,
-    user: cachedUser,
-  } : null;
+export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => {
+  const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
+  const cachedState = cachedUser
+    ? {
+        isLoggedIn: true,
+        status: Status.LOADED,
+        user: cachedUser,
+      }
+    : null;
   const [state, setState] = useState<ContextState>(cachedState || initialState);
 
   const [getMyUser] = useLazyQuery<GetUserResp>(GET_USER, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache',
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const logout = async (): Promise<boolean> => {
@@ -164,13 +159,18 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
           return;
         }
 
-        setState({ ...state, isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
+        setState({
+          ...state,
+          isLoggedIn: true,
+          status: Status.LOADED,
+          user: data?.getMyUser,
+        });
         return;
       }
 
       // User came from NIH SSO, login to AuthN
       const searchParams = new URLSearchParams(document.location.search);
-      const authCode = searchParams.get('code');
+      const authCode = searchParams.get("code");
       if (authCode) {
         const userLoginResult = await userLogin(authCode);
         // If login success
@@ -182,36 +182,40 @@ export const AuthProvider: FC<ProviderProps> = ({ children } : ProviderProps) =>
           }
 
           window.history.replaceState({}, document.title, window.location.pathname);
-          setState({ isLoggedIn: true, status: Status.LOADED, user: data?.getMyUser });
-          const stateParam = searchParams.get('state');
+          setState({
+            isLoggedIn: true,
+            status: Status.LOADED,
+            user: data?.getMyUser,
+          });
+          const stateParam = searchParams.get("state");
           if (stateParam !== null) {
             window.location.href = stateParam;
           }
           return;
         }
         // Login failed
-          setState({ ...initialState, error: userLoginResult[1], status: Status.LOADED });
-          return;
+        setState({
+          ...initialState,
+          error: userLoginResult[1],
+          status: Status.LOADED,
+        });
+        return;
       }
       // User is not logged in
-        setState({ ...initialState, status: Status.LOADED });
+      setState({ ...initialState, status: Status.LOADED });
     })();
   }, []);
 
   useEffect(() => {
-    if (state.isLoggedIn && typeof state.user === 'object') {
-      localStorage.setItem('userDetails', JSON.stringify(state.user));
+    if (state.isLoggedIn && typeof state.user === "object") {
+      localStorage.setItem("userDetails", JSON.stringify(state.user));
       return;
     }
 
-    localStorage.removeItem('userDetails');
+    localStorage.removeItem("userDetails");
   }, [state.isLoggedIn, state.user]);
 
   const value = useMemo(() => ({ ...state, logout, setData }), [state]);
 
-  return (
-    <Context.Provider value={value}>
-      {children}
-    </Context.Provider>
-  );
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };

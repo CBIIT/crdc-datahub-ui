@@ -2,25 +2,19 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { parseForm } from "@jalik/form-parser";
 import { cloneDeep } from "lodash";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  styled,
-} from "@mui/material";
+import { Table, TableBody, TableCell, TableHead, TableRow, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import {
-  Status as FormStatus,
-  useFormContext,
-} from "../../../components/Contexts/FormContext";
+import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import { mapObjectWithKey, filterPositiveIntegerString, reshapeCheckboxGroupOptions } from "../../../utils";
+import {
+  mapObjectWithKey,
+  filterPositiveIntegerString,
+  reshapeCheckboxGroupOptions,
+} from "../../../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
 import { fileTypeOptions } from "../../../config/FileTypeConfig";
@@ -142,7 +136,10 @@ const InvisibleInput = styled("input")({
 });
 
 const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data: { questionnaireData: data } } = useFormContext();
+  const {
+    status,
+    data: { questionnaireData: data },
+  } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const { D: SectionDMetadata } = SectionMetadata;
 
@@ -154,23 +151,21 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [clinicalDataTypesErrorMsg, setClinicalDataTypesErrorMsg] = useState<string>("");
   const dataTypesInputRef = useRef<HTMLInputElement>(null);
   const clinicalDataTypesInputRef = useRef<HTMLInputElement>(null);
-  const { nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef } = refs;
-  const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(data.files?.map(mapObjectWithKey) || []);
-  const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
-
-  useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) {
-      return;
-    }
-
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    getFormObjectRef.current = getFormObject;
-  }, [refs]);
+  const {
+    nextButtonRef,
+    saveFormRef,
+    submitFormRef,
+    approveFormRef,
+    inquireFormRef,
+    rejectFormRef,
+    getFormObjectRef,
+  } = refs;
+  const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(
+    data.files?.map(mapObjectWithKey) || []
+  );
+  const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(
+    reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)
+  );
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -193,20 +188,32 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (!combinedData.dataTypes.includes("clinicalTrial")) {
       combinedData.clinicalData = InitialQuestionnaire.clinicalData;
     } else {
-      combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter((str) => str !== "");
+      combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter(
+        (str) => str !== ""
+      );
     }
 
     // Handle validity for at clinical data types section
-    if (combinedData.dataTypes.includes("clinicalTrial") && (combinedData.clinicalData?.dataTypes?.length !== 0 || combinedData.clinicalData?.otherDataTypes !== "")) {
+    if (
+      combinedData.dataTypes.includes("clinicalTrial") &&
+      (combinedData.clinicalData?.dataTypes?.length !== 0 ||
+        combinedData.clinicalData?.otherDataTypes !== "")
+    ) {
       setClinicalDataTypesErrorMsg("");
       clinicalDataTypesInputRef.current.setCustomValidity("");
     } else if (combinedData.dataTypes.includes("clinicalTrial")) {
       setClinicalDataTypesErrorMsg("At least one clinical data type is required");
-      clinicalDataTypesInputRef.current?.setCustomValidity("At least one clinical data type is required");
+      clinicalDataTypesInputRef.current?.setCustomValidity(
+        "At least one clinical data type is required"
+      );
     }
 
-    combinedData.targetedReleaseDate = dayjs(formObject.targetedReleaseDate).isValid() ? formObject.targetedReleaseDate : "";
-    combinedData.targetedSubmissionDate = dayjs(formObject.targetedSubmissionDate).isValid() ? formObject.targetedSubmissionDate : "";
+    combinedData.targetedReleaseDate = dayjs(formObject.targetedReleaseDate).isValid()
+      ? formObject.targetedReleaseDate
+      : "";
+    combinedData.targetedSubmissionDate = dayjs(formObject.targetedSubmissionDate).isValid()
+      ? formObject.targetedSubmissionDate
+      : "";
     if (formObject.imagingDataDeIdentified === "true") {
       combinedData.imagingDataDeIdentified = true;
     } else if (formObject.imagingDataDeIdentified === "false") {
@@ -215,7 +222,11 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     // Override empty file array
     combinedData.files = formObject.files;
     // Overwrite number type. If empty string, convert to null.
-    combinedData.files.map((file) => file.count = parseInt(file.count.toString(), 10) || null);
+    combinedData.files.map((file) => {
+      file.count = parseInt(file.count.toString(), 10) || null;
+
+      return file;
+    });
 
     return { ref: formRef, data: combinedData };
   };
@@ -223,7 +234,13 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addFileDataType = () => {
     setFileTypeData([
       ...fileTypeData,
-      { key: `${fileTypeData.length}_${new Date().getTime()}`, type: ``, count: null, amount: "", extension: "" },
+      {
+        key: `${fileTypeData.length}_${new Date().getTime()}`,
+        type: ``,
+        count: null,
+        amount: "",
+        extension: "",
+      },
     ]);
   };
 
@@ -240,19 +257,27 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   useEffect(() => {
+    if (!saveFormRef.current || !submitFormRef.current) {
+      return;
+    }
+
+    nextButtonRef.current.style.display = "flex";
+    saveFormRef.current.style.display = "flex";
+    submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    inquireFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
+    getFormObjectRef.current = getFormObject;
+  }, [refs]);
+
+  useEffect(() => {
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
   return (
-    <FormContainer
-      ref={formContainerRef}
-      formRef={formRef}
-      description={SectionOption.title}
-    >
+    <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
       {/* Data Delivery and Release Dates Section */}
-      <SectionGroup
-        title={SectionDMetadata.sections.DATA_DELIVERY_AND_RELEASE_DATES.title}
-      >
+      <SectionGroup title={SectionDMetadata.sections.DATA_DELIVERY_AND_RELEASE_DATES.title}>
         <DatePickerInput
           inputID="section-d-targeted-data-submission-delivery-date"
           label="Targeted Data Submission Delivery Date"
@@ -281,7 +306,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         required
         error={dataTypesErrorMsg}
       >
-        <InvisibleInput ref={dataTypesInputRef} aria-label={SectionDMetadata.sections.DATA_TYPES.title} />
+        <InvisibleInput
+          ref={dataTypesInputRef}
+          aria-label={SectionDMetadata.sections.DATA_TYPES.title}
+        />
         <SwitchInput
           id="section-d-clinical-trial"
           label="Clinical"
@@ -317,7 +345,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           graphQLValue="imaging"
           value={dataTypes.includes("imaging")}
           onChange={(e, checked) => handleDataTypesChange(checked, "imaging")}
-          toggleContent={(
+          toggleContent={
             <RadioYesNoInput
               id="section-d-imaging-de-identified"
               value={data.imagingDataDeIdentified}
@@ -329,7 +357,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               required={dataTypes.includes("imaging")}
               readOnly={readOnlyInputs}
             />
-          )}
+          }
           tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
           readOnly={readOnlyInputs}
           sx={{ paddingBottom: "8px" }}
@@ -355,7 +383,10 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           error={clinicalDataTypesErrorMsg}
         >
-          <InvisibleInput ref={clinicalDataTypesInputRef} aria-label={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title} />
+          <InvisibleInput
+            ref={clinicalDataTypesInputRef}
+            aria-label={SectionDMetadata.sections.CLINICAL_DATA_TYPES.title}
+          />
           <SwitchInput
             id="section-d-demographic-data"
             label="Demographic Data"
@@ -439,7 +470,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       <SectionGroup
         title={SectionDMetadata.sections.FILE_TYPES.title}
         description={SectionDMetadata.sections.FILE_TYPES.description}
-        beginButton={(
+        beginButton={
           <AddRemoveButton
             id="section-d-add-file-type-button"
             label="Add File Type"
@@ -447,7 +478,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             onClick={addFileDataType}
             disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
-        )}
+        }
       >
         <TableContainer>
           <Table className="noBorder">
@@ -469,15 +500,14 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                   Estimated data size
                   <span className="asterisk">*</span>
                 </TableCell>
-                <TableCell width="5%" className="topRowLast">Remove</TableCell>
+                <TableCell width="5%" className="topRowLast">
+                  Remove
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {fileTypeData.map((fileData: KeyedFileTypeData, idx: number) => (
-                <TableRow
-                  key={fileData.key}
-                  className={`${readOnlyInputs ? "readOnly" : ""}`}
-                >
+                <TableRow key={fileData.key} className={`${readOnlyInputs ? "readOnly" : ""}`}>
                   <TableFileTypeAndExtensionInput
                     inputID={`section-d-file-type-${idx}-file`}
                     typeValue={fileData.type}
@@ -548,7 +578,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           multiline
           readOnly={readOnlyInputs}
           inputProps={{
-            "aria-label": SectionDMetadata.sections.ADDITIONAL_COMMENTS.title
+            "aria-label": SectionDMetadata.sections.ADDITIONAL_COMMENTS.title,
           }}
         />
         <FormGroupCheckbox

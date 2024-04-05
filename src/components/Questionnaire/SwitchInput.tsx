@@ -8,13 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  SwitchProps,
-  Grid,
-  Switch,
-  FormHelperText,
-  styled,
-} from "@mui/material";
+import { SwitchProps, Grid, Switch, FormHelperText, styled } from "@mui/material";
 import Tooltip from "../Tooltip";
 import { updateInputValidity } from "../../utils";
 
@@ -113,29 +107,27 @@ const GridStyled = styled(Grid)({
 
 const Container = styled("div", {
   shouldForwardProp: (prop) => prop !== "containerWidth",
-})<HTMLProps<HTMLDivElement> & { containerWidth?: string }>(
-  ({ containerWidth }) => ({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    fontSize: "16px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    fontWeight: 700,
-    lineHeight: "19.6px",
-    minHeight: "50px",
-    flexWrap: "wrap",
-    width: containerWidth,
-  })
-);
+})<HTMLProps<HTMLDivElement> & { containerWidth?: string }>(({ containerWidth }) => ({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  fontSize: "16px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontWeight: 700,
+  lineHeight: "19.6px",
+  minHeight: "50px",
+  flexWrap: "wrap",
+  width: containerWidth,
+}));
 
 const HideContentWrapper = styled("div")({
   display: "none !important",
 });
 
 type Props = {
-  label: string,
-  name: string,
+  label: string;
+  name: string;
   tooltipText?: string;
   required?: boolean;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
@@ -255,7 +247,7 @@ const CustomSwitch: FC<Props> = ({
             />
             {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
             <input
-              onChange={() => { }}
+              onChange={() => {}}
               className="input"
               name={name}
               type="checkbox"
@@ -266,14 +258,12 @@ const CustomSwitch: FC<Props> = ({
             />
             <div className={val ? "textChecked" : "text"}>Yes</div>
           </div>
-          <FormHelperText className="errorMessage">{!readOnly && error ? errorMsg : " "}</FormHelperText>
+          <FormHelperText className="errorMessage">
+            {!readOnly && error ? errorMsg : " "}
+          </FormHelperText>
         </div>
       </Container>
-      {val ? (
-        toggleContent
-      ) : (
-        <HideContentWrapper>{toggleContent}</HideContentWrapper>
-      )}
+      {val ? toggleContent : <HideContentWrapper>{toggleContent}</HideContentWrapper>}
     </GridStyled>
   );
 };

@@ -5,7 +5,8 @@
  * @param {string} str - The string to capitalize.
  * @returns {string} - The capitalized string or an empty string if the input is empty.
  */
-export const capitalizeFirstLetter = (str: string): string => (str ? str[0].toUpperCase() + str.slice(1) : "");
+export const capitalizeFirstLetter = (str: string): string =>
+  str ? str[0].toUpperCase() + str.slice(1) : "";
 
 /**
  * Function to add a space between a number and a letter in a string.
@@ -60,7 +61,13 @@ export const filterAlphaNumeric = (input: string, extraChars = ""): string => {
   // The base regex matches alphanumeric characters.
   // We add the `extraChars` by splitting it into individual characters, escaping each one, and then joining with "|".
   // This ensures characters with special meaning in regex (like ".") are treated as literal characters.
-  const pattern = new RegExp(`[^a-zA-Z0-9${extraChars.split("").map((char) => `\\${char}`).join("|")}]`, 'g');
+  const pattern = new RegExp(
+    `[^a-zA-Z0-9${extraChars
+      .split("")
+      .map((char) => `\\${char}`)
+      .join("|")}]`,
+    "g"
+  );
 
   // We replace characters that don't match the allowed set with an empty string.
   return input?.replace(pattern, "") || "";
@@ -78,10 +85,10 @@ export const filterPositiveIntegerString = (input: string): string => {
   }
 
   const nonIntegerPattern = /[^0-9]/g;
-  const filtered = input.replace(nonIntegerPattern, '');
+  const filtered = input.replace(nonIntegerPattern, "");
 
   // Remove leading zeros using a regular expression
-  const noLeadingZeros = filtered.replace(/^0+/, '');
+  const noLeadingZeros = filtered.replace(/^0+/, "");
 
   return noLeadingZeros || "";
 };

@@ -1,13 +1,18 @@
-import React, { FC, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { FC, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
-  List, ListItem, ListItemText, ListItemButton,
-  Stack, ListItemAvatar, styled
-} from '@mui/material';
-import config from '../../config/SectionConfig';
-import { Status, useFormContext } from '../Contexts/FormContext';
-import StatusAdornment from './StatusAdornment';
-import useFormMode from '../../hooks/useFormMode';
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
+  Stack,
+  ListItemAvatar,
+  styled,
+} from "@mui/material";
+import config from "../../config/SectionConfig";
+import { Status, useFormContext } from "../Contexts/FormContext";
+import StatusAdornment from "./StatusAdornment";
+import useFormMode from "../../hooks/useFormMode";
 
 type Props = {
   section: string;
@@ -24,7 +29,7 @@ type ProgressSection = {
 
 const StyledList = styled(List)({
   marginTop: "22px",
-  width: '250px',
+  width: "250px",
   "& li:not(:first-of-type) .MuiStack-root": {
     marginTop: "24px",
   },
@@ -108,10 +113,9 @@ const ProgressBar: FC<Props> = ({ section }) => {
     const reviewUnlocked = completedSections === sectionKeys.length - 1;
     if (reviewSection) {
       const showReviewTitle = formMode === "View Only" || formMode === "Review";
-      // eslint-disable-next-line no-nested-ternary
-      reviewSection.icon = ["Approved"].includes(status) && reviewUnlocked
-        ? "Completed"
-        : reviewUnlocked ? "Review" : "ReviewDisabled";
+      const reviewIcon = reviewUnlocked ? "Review" : "ReviewDisabled";
+      reviewSection.icon =
+        ["Approved"].includes(status) && reviewUnlocked ? "Completed" : reviewIcon;
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
       reviewSection.title = showReviewTitle ? "Review" : reviewSection.title;
     }

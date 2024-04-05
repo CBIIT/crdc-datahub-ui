@@ -42,7 +42,7 @@ const mockLastReview: HistoryBase<unknown> = {
   dateTime: "2023-01-01T00:00:00Z",
   reviewComment: "This is a mock comment",
   status: undefined,
-  userID: ""
+  userID: "",
 };
 
 describe("ReviewCommentsDialog Accessibility Tests", () => {
@@ -55,7 +55,7 @@ describe("ReviewCommentsDialog Accessibility Tests", () => {
         reviewComment: "",
         dateTime: "",
         userID: "",
-      }
+      },
     };
 
     const { container } = render(<BaseComponent {...data} />);
@@ -68,7 +68,7 @@ describe("ReviewCommentsDialog Accessibility Tests", () => {
     const data = {
       open: true,
       title: "Title",
-      lastReview: mockLastReview
+      lastReview: mockLastReview,
     };
 
     const { container } = render(<BaseComponent {...data} />);
@@ -84,7 +84,7 @@ describe("ReviewCommentsDialog Tests", () => {
       open: true,
       title: "",
       lastReview: mockLastReview,
-      onClose: () => {}
+      onClose: () => {},
     };
 
     const { getByText } = render(<BaseComponent {...data} />);
@@ -98,14 +98,11 @@ describe("ReviewCommentsDialog Tests", () => {
       open: true,
       title: "",
       lastReview: mockLastReview,
-      onClose: () => {}
+      onClose: () => {},
     };
     const { getByText } = render(<BaseComponent {...data} />);
 
-    expect(getByText(/Based on submission from/)).toHaveAttribute(
-      "title",
-      mockLastReview.dateTime
-    );
+    expect(getByText(/Based on submission from/)).toHaveAttribute("title", mockLastReview.dateTime);
   });
 
   it("closes the dialog when the close button is clicked", async () => {
@@ -114,7 +111,7 @@ describe("ReviewCommentsDialog Tests", () => {
       open: true,
       title: "",
       lastReview: mockLastReview,
-      onClose: mockClose
+      onClose: mockClose,
     };
 
     const { getByTestId } = render(<BaseComponent {...data} />);
@@ -131,7 +128,7 @@ describe("ReviewCommentsDialog Tests", () => {
       open: false,
       title: "",
       lastReview: mockLastReview,
-      onClose: () => {}
+      onClose: () => {},
     };
 
     const { queryByTestId, queryByText } = render(<BaseComponent {...data} />);

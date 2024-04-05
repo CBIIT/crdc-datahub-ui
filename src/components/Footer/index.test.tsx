@@ -1,8 +1,8 @@
-import { axe } from 'jest-axe';
-import { render } from '@testing-library/react';
-import Footer from './index';
+import { axe } from "jest-axe";
+import { render } from "@testing-library/react";
+import Footer from "./index";
 
-it('should not have any accessibility violations', async () => {
+it("should not have any accessibility violations", async () => {
   const { container } = render(<Footer />);
   const results = await axe(container);
 

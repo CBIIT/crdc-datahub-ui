@@ -1,31 +1,31 @@
-import { MODEL_FILE_REPO } from '../config/DataCommons';
-import * as utils from './dataModelUtils';
+import { MODEL_FILE_REPO } from "../config/DataCommons";
+import * as utils from "./dataModelUtils";
 
 global.fetch = jest.fn();
 
-jest.mock('../env', () => ({
-  ...jest.requireActual('../env'),
+jest.mock("../env", () => ({
+  ...jest.requireActual("../env"),
   REACT_APP_DEV_TIER: undefined,
 }));
 
-describe('fetchManifest cases', () => {
+describe("fetchManifest cases", () => {
   beforeEach(() => {
     jest.resetAllMocks();
     sessionStorage.clear();
   });
 
-  it('should return manifest from sessionStorage if it exists', async () => {
+  it("should return manifest from sessionStorage if it exists", async () => {
     const fakeManifest: DataModelManifest = {
       CDS: {
-        'model-file': 'cds-model.yaml',
-        'prop-file': 'cds-model-props.yaml',
-        'readme-file': 'cds-model-readme.md',
-        'loading-file': 'cds-loading.zip',
-        'current-version': '1.0',
-        versions: []
+        "model-file": "cds-model.yaml",
+        "prop-file": "cds-model-props.yaml",
+        "readme-file": "cds-model-readme.md",
+        "loading-file": "cds-loading.zip",
+        "current-version": "1.0",
+        versions: [],
       },
     };
-    sessionStorage.setItem('manifest', JSON.stringify(fakeManifest));
+    sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
 
     const manifest = await utils.fetchManifest();
 
@@ -33,19 +33,21 @@ describe('fetchManifest cases', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('should fetch manifest from server if it does not exist in sessionStorage', async () => {
+  it("should fetch manifest from server if it does not exist in sessionStorage", async () => {
     const fakeManifest: DataModelManifest = {
       CDS: {
-        'model-file': 'cds-model.yaml',
-        'prop-file': 'cds-model-props.yaml',
-        'readme-file': 'cds-model-readme.md',
-        'loading-file': 'cds-loading.zip',
-        'current-version': '1.0',
-        versions: []
+        "model-file": "cds-model.yaml",
+        "prop-file": "cds-model-props.yaml",
+        "readme-file": "cds-model-readme.md",
+        "loading-file": "cds-loading.zip",
+        "current-version": "1.0",
+        versions: [],
       },
     };
 
-    (fetch as jest.Mock).mockImplementationOnce(() => Promise.resolve({ json: () => Promise.resolve(fakeManifest) }));
+    (fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({ json: () => Promise.resolve(fakeManifest) })
+    );
 
     const manifest = await utils.fetchManifest();
 
@@ -53,47 +55,53 @@ describe('fetchManifest cases', () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
-  it('should cache manifest in sessionStorage after fetching', async () => {
+  it("should cache manifest in sessionStorage after fetching", async () => {
     const fakeManifest: DataModelManifest = {
       CDS: {
-        'model-file': 'cds-model.yaml',
-        'prop-file': 'cds-model-props.yaml',
-        'readme-file': 'cds-model-readme.md',
-        'loading-file': 'cds-loading.zip',
-        'current-version': '1.0',
-        versions: []
+        "model-file": "cds-model.yaml",
+        "prop-file": "cds-model-props.yaml",
+        "readme-file": "cds-model-readme.md",
+        "loading-file": "cds-loading.zip",
+        "current-version": "1.0",
+        versions: [],
       },
     };
 
-    (fetch as jest.Mock).mockImplementationOnce(() => Promise.resolve({ json: () => Promise.resolve(fakeManifest) }));
+    (fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({ json: () => Promise.resolve(fakeManifest) })
+    );
 
-    expect(sessionStorage.getItem('manifest')).toBeNull();
+    expect(sessionStorage.getItem("manifest")).toBeNull();
 
     await utils.fetchManifest();
 
-    const cachedManifest = JSON.parse(sessionStorage.getItem('manifest'));
+    const cachedManifest = JSON.parse(sessionStorage.getItem("manifest"));
     expect(cachedManifest).toEqual(fakeManifest);
   });
 
-  it('should throw an error if fetch fails', async () => {
-    (fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error('fetch error')));
+  it("should throw an error if fetch fails", async () => {
+    (fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error("fetch error")));
 
-    await expect(utils.fetchManifest()).rejects.toThrow('Unable to fetch or parse manifest');
+    await expect(utils.fetchManifest()).rejects.toThrow("Unable to fetch or parse manifest");
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   // NOTE: We're asserting that JSON.parse does not throw an error here
-  it('should throw a controlled error if fetch returns invalid JSON', async () => {
-    (fetch as jest.Mock).mockImplementationOnce(() => Promise.resolve({ json: () => Promise.reject(new Error('JSON error')) }));
+  it("should throw a controlled error if fetch returns invalid JSON", async () => {
+    (fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({ json: () => Promise.reject(new Error("JSON error")) })
+    );
 
-    await expect(utils.fetchManifest()).rejects.toThrow('Unable to fetch or parse manifest');
+    await expect(utils.fetchManifest()).rejects.toThrow("Unable to fetch or parse manifest");
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
-  it('should fall back to prod tier if REACT_APP_DEV_TIER is not defined', async () => {
-    const fakeManifest = { key: 'value' };
+  it("should fall back to prod tier if REACT_APP_DEV_TIER is not defined", async () => {
+    const fakeManifest = { key: "value" };
 
-    (fetch as jest.Mock).mockImplementationOnce(() => Promise.resolve({ json: () => Promise.resolve(fakeManifest) }));
+    (fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({ json: () => Promise.resolve(fakeManifest) })
+    );
 
     await utils.fetchManifest();
 
@@ -101,16 +109,16 @@ describe('fetchManifest cases', () => {
   });
 });
 
-describe('buildAssetUrls cases', () => {
-  it('should build asset URLs using prod tier when REACT_APP_DEV_TIER is not defined', () => {
+describe("buildAssetUrls cases", () => {
+  it("should build asset URLs using prod tier when REACT_APP_DEV_TIER is not defined", () => {
     const dc: DataCommon = {
-      name: 'test-name',
+      name: "test-name",
       assets: {
-        'current-version': '1.0',
-        'model-file': 'model-file',
-        'prop-file': 'prop-file',
-        'readme-file': 'readme-file',
-        'loading-file': 'loading-file-zip-name',
+        "current-version": "1.0",
+        "model-file": "model-file",
+        "prop-file": "prop-file",
+        "readme-file": "readme-file",
+        "loading-file": "loading-file-zip-name",
       } as ManifestAssets,
     } as DataCommon;
 
@@ -124,15 +132,15 @@ describe('buildAssetUrls cases', () => {
     });
   });
 
-  const readMeValues = ['', null, undefined, false];
-  it.each(readMeValues)('should not include a README URL if the filename is %s', (readme) => {
+  const readMeValues = ["", null, undefined, false];
+  it.each(readMeValues)("should not include a README URL if the filename is %s", (readme) => {
     const dc: DataCommon = {
-      name: 'test-name',
+      name: "test-name",
       assets: {
-        'current-version': '1.0',
-        'model-file': 'model-file',
-        'prop-file': 'prop-file',
-        'readme-file': readme,
+        "current-version": "1.0",
+        "model-file": "model-file",
+        "prop-file": "prop-file",
+        "readme-file": readme,
       } as ManifestAssets,
     } as DataCommon;
 
@@ -141,15 +149,15 @@ describe('buildAssetUrls cases', () => {
     expect(result.readme).toEqual(null);
   });
 
-  it('should not throw an exception if dealing with invalid data', () => {
+  it("should not throw an exception if dealing with invalid data", () => {
     expect(() => utils.buildAssetUrls(null)).not.toThrow();
     expect(() => utils.buildAssetUrls({} as DataCommon)).not.toThrow();
     expect(() => utils.buildAssetUrls(undefined)).not.toThrow();
   });
 });
 
-describe('buildBaseFilterContainers tests', () => {
-  it('should return an empty object if dc is null or undefined', () => {
+describe("buildBaseFilterContainers tests", () => {
+  it("should return an empty object if dc is null or undefined", () => {
     const result = utils.buildBaseFilterContainers(null);
     expect(result).toEqual({});
 
@@ -157,7 +165,7 @@ describe('buildBaseFilterContainers tests', () => {
     expect(result2).toEqual({});
   });
 
-  it('should return an empty object if facetFilterSearchData is not an array or is an empty array', () => {
+  it("should return an empty object if facetFilterSearchData is not an array or is an empty array", () => {
     const dc: DataCommon = {
       configuration: {
         facetFilterSearchData: null,
@@ -177,12 +185,12 @@ describe('buildBaseFilterContainers tests', () => {
     expect(result2).toEqual({});
   });
 
-  it('should build filter containers correctly', () => {
+  it("should build filter containers correctly", () => {
     const dc: DataCommon = {
       configuration: {
         facetFilterSearchData: [
-          { datafield: 'field1' },
-          { datafield: 'field2' },
+          { datafield: "field1" },
+          { datafield: "field2" },
           { datafield: null },
         ] as FacetSearchData[],
       } as ModelNavigatorConfig,
@@ -197,8 +205,8 @@ describe('buildBaseFilterContainers tests', () => {
   });
 });
 
-describe('buildFilterOptionsList tests', () => {
-  it('should return an empty array if dc is null or undefined', () => {
+describe("buildFilterOptionsList tests", () => {
+  it("should return an empty array if dc is null or undefined", () => {
     const result = utils.buildFilterOptionsList(null);
     expect(result).toEqual([]);
 
@@ -206,7 +214,7 @@ describe('buildFilterOptionsList tests', () => {
     expect(result2).toEqual([]);
   });
 
-  it('should return an empty array if facetFilterSearchData is not an array or is an empty array', () => {
+  it("should return an empty array if facetFilterSearchData is not an array or is an empty array", () => {
     const dc: DataCommon = {
       configuration: {
         facetFilterSearchData: null,
@@ -226,18 +234,18 @@ describe('buildFilterOptionsList tests', () => {
     expect(result2).toEqual([]);
   });
 
-  it('should build filter options list correctly', () => {
+  it("should build filter options list correctly", () => {
     const dc: DataCommon = {
       configuration: {
         facetFilterSearchData: [
-          { checkboxItems: [{ name: 'Item 1' }, { name: 'Item 2' }] },
-          { checkboxItems: [{ name: 'Item 3' }, { name: 'Item 4' }] },
+          { checkboxItems: [{ name: "Item 1" }, { name: "Item 2" }] },
+          { checkboxItems: [{ name: "Item 3" }, { name: "Item 4" }] },
           { checkboxItems: null },
         ] as FacetSearchData[],
       } as ModelNavigatorConfig,
     } as DataCommon;
 
     const result = utils.buildFilterOptionsList(dc);
-    expect(result).toEqual(['item 1', 'item 2', 'item 3', 'item 4']);
+    expect(result).toEqual(["item 1", "item 2", "item 3", "item 4"]);
   });
 });

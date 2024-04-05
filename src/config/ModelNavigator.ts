@@ -1,7 +1,7 @@
 const filterResetIcon = {
-  src: 'https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/Clear-icon.svg',
-  alt: 'Reset icon',
-  size: '12 px',
+  src: "https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/Clear-icon.svg",
+  alt: "Reset icon",
+  size: "12 px",
 };
 
 /**
@@ -38,4 +38,4 @@ export const graphViewConfig = {
 /**
  * Fall-back title for the Data Model README popup
  */
-export const defaultReadMeTitle = 'Understanding the Data Model';
+export const defaultReadMeTitle = "Understanding the Data Model";

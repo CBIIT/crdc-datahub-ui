@@ -1,7 +1,7 @@
-import React, { ElementType, FC } from 'react';
-import { Typography, styled } from '@mui/material';
-import Tooltip from '../Tooltip';
-import { formatFullStudyName } from '../../utils';
+import React, { ElementType, FC } from "react";
+import { Typography, styled } from "@mui/material";
+import Tooltip from "../Tooltip";
+import { formatFullStudyName } from "../../utils";
 
 type Props = {
   _id: Organization["_id"];
@@ -41,9 +41,7 @@ const StudyTooltip: FC<Props> = ({ _id, studies }) => (
     arrow
   >
     <StyledStudyCount variant="body2" component="span">
-      other
-      {" "}
-      {studies.length - 1}
+      other {studies.length - 1}
     </StyledStudyCount>
   </Tooltip>
 );

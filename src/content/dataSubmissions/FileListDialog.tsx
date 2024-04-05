@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Button, Dialog, DialogProps, IconButton, TableContainerProps, Typography, styled } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogProps,
+  IconButton,
+  TableContainerProps,
+  Typography,
+  styled,
+} from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import GenericTable, { Column, FetchListing } from "../../components/DataSubmissions/GenericTable";
@@ -18,13 +26,13 @@ const StyledDialog = styled(Dialog)({
 });
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
-  position: 'absolute',
+  position: "absolute",
   right: "21px",
   top: "11px",
   padding: "10px",
   "& svg": {
-    color: "#44627C"
-  }
+    color: "#44627C",
+  },
 }));
 
 const StyledCloseButton = styled(Button)({
@@ -43,7 +51,7 @@ const StyledCloseButton = styled(Button)({
   "&:hover": {
     background: "transparent",
     border: "1px solid #000",
-  }
+  },
 });
 
 const StyledHeader = styled(Typography)({
@@ -55,7 +63,7 @@ const StyledHeader = styled(Typography)({
   lineHeight: "27px",
   letterSpacing: "0.5px",
   textTransform: "uppercase",
-  marginBottom: "2px"
+  marginBottom: "2px",
 });
 
 const StyledTitle = styled(Typography)({
@@ -75,7 +83,7 @@ const StyledSubtitle = styled(Typography)({
   fontWeight: "400",
   lineHeight: "19.6px",
   marginTop: "8px",
-  marginBottom: "40px"
+  marginBottom: "40px",
 });
 
 const StyledNumberOfFiles = styled(Typography)({
@@ -87,7 +95,7 @@ const StyledNumberOfFiles = styled(Typography)({
   lineHeight: "19.6px",
   letterSpacing: "0.52px",
   textTransform: "uppercase",
-  marginBottom: "21px"
+  marginBottom: "21px",
 });
 
 const StyledNodeType = styled(Typography)({
@@ -111,7 +119,7 @@ const StyledFileName = styled(Typography)({
   textTransform: "none",
   padding: 0,
   justifyContent: "flex-start",
-  wordBreak: "break-all"
+  wordBreak: "break-all",
 });
 
 const tableContainerSx: TableContainerProps["sx"] = {
@@ -142,15 +150,15 @@ const columns: Column<BatchFileInfo>[] = [
     label: "Type",
     renderValue: (data) => <StyledNodeType>{data?.nodeType || "N/A"}</StyledNodeType>,
     field: "nodeType",
-    default: true
+    default: true,
   },
   {
     label: "Filename",
     renderValue: (data) => <StyledFileName>{data?.fileName}</StyledFileName>,
     field: "fileName",
     sx: {
-      width: "70%"
-    }
+      width: "70%",
+    },
   },
 ];
 
@@ -159,12 +167,7 @@ type Props = {
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
 
-const FileListDialog = ({
-  batch,
-  onClose,
-  open,
-  ...rest
-}: Props) => {
+const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
   const [batchFiles, setBatchFiles] = useState<BatchFileInfo[]>([]);
   const [prevBatchFilesFetch, setPrevBatchFilesFetch] = useState<FetchListing<BatchFileInfo>>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -181,7 +184,10 @@ const FileListDialog = ({
     }
   };
 
-  const handleFetchBatchFiles = async (fetchListing: FetchListing<BatchFileInfo>, force: boolean) => {
+  const handleFetchBatchFiles = async (
+    fetchListing: FetchListing<BatchFileInfo>,
+    force: boolean
+  ) => {
     if (!batch?._id || !batch?.submissionID) {
       setError("Invalid submission ID provided.");
       return;
@@ -202,22 +208,12 @@ const FileListDialog = ({
         <CloseIconSvg />
       </StyledCloseDialogButton>
       <StyledHeader variant="h3">Data Submission</StyledHeader>
-      <StyledTitle variant="h6">
-        Batch
-        {" "}
-        {batch?.displayID}
-        {" "}
-        File List
-      </StyledTitle>
+      <StyledTitle variant="h6">Batch {batch?.displayID} File List</StyledTitle>
       <StyledSubtitle variant="body1">
-        Uploaded on
-        {" "}
-        {FormatDate(batch?.createdAt, "M/D/YYYY [at] hh:mm A")}
+        Uploaded on {FormatDate(batch?.createdAt, "M/D/YYYY [at] hh:mm A")}
       </StyledSubtitle>
 
-      <StyledNumberOfFiles>
-        {`${batch?.fileCount || 0} FILES`}
-      </StyledNumberOfFiles>
+      <StyledNumberOfFiles>{`${batch?.fileCount || 0} FILES`}</StyledNumberOfFiles>
 
       <GenericTable
         columns={columns}

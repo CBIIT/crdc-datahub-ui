@@ -4,11 +4,14 @@
  * @param inputRef - The reference to the HTMLInputElement to be validated
  * @param message - The custom validation message to be set. Defaults to an empty string if not provided.
  */
-export const updateInputValidity = (inputRef: React.RefObject<HTMLInputElement>, message = ""): void => {
+export const updateInputValidity = (
+  inputRef: React.RefObject<HTMLInputElement>,
+  message = ""
+): void => {
   if (!inputRef?.current) {
     return; // Invalid ref
   }
-  if (typeof inputRef.current.setCustomValidity !== 'function') {
+  if (typeof inputRef.current.setCustomValidity !== "function") {
     return; // Input element doesn't support custom validity
   }
 
@@ -27,7 +30,7 @@ export const updateSelectValidity = (selectRef, message = ""): void => {
   if (!selectRef?.current?.node) {
     return; // Invalid ref
   }
-  if (typeof selectRef.current.node?.setCustomValidity !== 'function') {
+  if (typeof selectRef.current.node?.setCustomValidity !== "function") {
     return; // Input element doesn't support custom validity
   }
 
@@ -47,8 +50,13 @@ export const updateSelectValidity = (selectRef, message = ""): void => {
  *          Returns false if the value is NaN after being parsed or if it doesn't
  *          fall within the min and max parameters.
  */
-export const isValidInRange = (value: string | number, min = 0, max?: number, allowFloat = false): boolean => {
-  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+export const isValidInRange = (
+  value: string | number,
+  min = 0,
+  max?: number,
+  allowFloat = false
+): boolean => {
+  const numValue = typeof value === "string" ? parseFloat(value) : value;
 
   if (Number.isNaN(numValue)) {
     return false;

@@ -1,5 +1,5 @@
 import { render, fireEvent, waitFor } from "@testing-library/react";
-import { act } from 'react-dom/test-utils';
+import { act } from "react-dom/test-utils";
 import { BrowserRouter } from "react-router-dom";
 import { FC, useMemo } from "react";
 import { axe } from "jest-axe";
@@ -35,9 +35,7 @@ describe("DataSubmissionSummary Accessibility Tests", () => {
       ],
     };
 
-    const { container } = render(
-      <BaseComponent dataSubmission={dataSubmission} />
-    );
+    const { container } = render(<BaseComponent dataSubmission={dataSubmission} />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -53,9 +51,7 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
       ],
     };
 
-    const { getByText } = render(
-      <BaseComponent dataSubmission={dataSubmission} />
-    );
+    const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
     expect(getByText("Review Comments")).toBeVisible();
   });
 
@@ -70,9 +66,7 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
       ],
     };
 
-    const { getByText } = render(
-      <BaseComponent dataSubmission={dataSubmission} />
-    );
+    const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
     act(() => {
       fireEvent.click(getByText("Review Comments"));
@@ -99,9 +93,7 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
       ],
     };
 
-    const { getByText } = render(
-      <BaseComponent dataSubmission={dataSubmission} />
-    );
+    const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
     act(() => {
       fireEvent.click(getByText("Review Comments"));
@@ -124,9 +116,7 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
       ],
     };
 
-    const { getByText, queryByText } = render(
-      <BaseComponent dataSubmission={dataSubmission} />
-    );
+    const { getByText, queryByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
     act(() => {
       fireEvent.click(getByText("Review Comments"));
@@ -163,7 +153,9 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
     act(() => {
       fireEvent.click(closeButton);
     });
-    await waitFor(() => expect(queryByText("Another comment for close icon test")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(queryByText("Another comment for close icon test")).not.toBeInTheDocument()
+    );
   });
 });
 
@@ -173,9 +165,7 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
       history: [{ dateTime: "2023-11-23T14:26:01Z" }],
     };
 
-    const { getByText } = render(
-      <BaseComponent dataSubmission={dataSubmission} />
-    );
+    const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
     expect(getByText("Full History")).toBeVisible();
   });
 
@@ -187,9 +177,7 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
       ],
     };
 
-    const { getByText } = render(
-      <BaseComponent dataSubmission={dataSubmission} />
-    );
+    const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
     act(() => {
       fireEvent.click(getByText("Full History"));
@@ -256,7 +244,7 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
       history: [
         { dateTime: "2023-11-20T10:00:00Z", status: "New" },
         { dateTime: "2023-11-22T10:00:00Z", status: "In Progress" },
-        { dateTime: "2023-11-24T10:00:00Z", status: "Submitted" }
+        { dateTime: "2023-11-24T10:00:00Z", status: "Submitted" },
       ],
     };
 
@@ -268,8 +256,12 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 
     await waitFor(() => {
       const items = getAllByTestId("history-item-date");
-      expect(new Date(items[0].textContent).getTime()).toBeGreaterThan(new Date(items[1].textContent).getTime());
-      expect(new Date(items[1].textContent).getTime()).toBeGreaterThan(new Date(items[2].textContent).getTime());
+      expect(new Date(items[0].textContent).getTime()).toBeGreaterThan(
+        new Date(items[1].textContent).getTime()
+      );
+      expect(new Date(items[1].textContent).getTime()).toBeGreaterThan(
+        new Date(items[2].textContent).getTime()
+      );
     });
   });
 
@@ -291,21 +283,24 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
     expect(() => getByTestId("history-item-1-icon")).toThrow();
   });
 
-  it.each(Object.entries(HistoryIconMap))("renders the correct icon for the status %s", (status, svg) => {
-    const dataSubmission = {
-      history: [{ dateTime: "2023-11-24T01:25:45Z", status }],
-    };
+  it.each(Object.entries(HistoryIconMap))(
+    "renders the correct icon for the status %s",
+    (status, svg) => {
+      const dataSubmission = {
+        history: [{ dateTime: "2023-11-24T01:25:45Z", status }],
+      };
 
-    const { getByTestId, getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+      const { getByTestId, getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+      act(() => {
+        fireEvent.click(getByText("Full History"));
+      });
 
-    const icon = getByTestId("history-item-0-icon");
+      const icon = getByTestId("history-item-0-icon");
 
-    expect(icon).toBeVisible();
-    expect(icon).toHaveAttribute("alt", `${status} icon`);
-    expect(icon).toHaveAttribute("src", svg);
-  });
+      expect(icon).toBeVisible();
+      expect(icon).toHaveAttribute("alt", `${status} icon`);
+      expect(icon).toHaveAttribute("src", svg);
+    }
+  );
 });

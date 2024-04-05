@@ -51,7 +51,7 @@ const InactivityWarningContent = styled("div")({
     border: "1px solid #626262",
     marginTop: "30px",
     borderRadius: "4px",
-    fontWeight: 500
+    fontWeight: 500,
   },
   "& .extendButton": {
     backgroundColor: "#566672 !important",
@@ -109,7 +109,7 @@ const SessionTimeoutContent = styled("div")({
     border: "1px solid #626262",
     marginTop: "30px",
     borderRadius: "4px",
-    fontWeight: 500
+    fontWeight: 500,
   },
   "& .closeButton": {
     backgroundColor: "#566672 !important",
@@ -137,19 +137,42 @@ const InactivityDialog = () => {
     const AUTH_API = `${window.origin}/api/authn/authenticated`;
     try {
       const res = await fetch(AUTH_API, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
-      }).then((response) => response.json()).catch(() => {
-      });
+      })
+        .then((response) => response.json())
+        .catch(() => {});
 
       if (res.status) {
         setWarning(false);
       }
     } catch (e) {
       // Add Erro handler here.
+    }
+  };
+
+  const handleExtendSession = () => {
+    extendSession();
+  };
+
+  const handleSignOutNoBanner = async () => {
+    const logoutStatus = await authData.logout();
+    if (logoutStatus) {
+      navigate("/");
+      setWarning(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    const logoutStatus = await authData.logout();
+    if (logoutStatus) {
+      navigate("/");
+      setWarning(false);
+      setShowLogoutAlert(true);
+      setTimeout(() => setShowLogoutAlert(false), 10000);
     }
   };
 
@@ -176,7 +199,7 @@ const InactivityDialog = () => {
   useEffect(() => {
     if (isLoggedIn) {
       // NOTE: 1000 milliseconds = 1 second, PING_INTERVAL * 1000 = PING_INTERVAL milliseconds;
-      const ID = setInterval(loadData, 5 * 1000);
+      const ID = setInterval(loadData, 10 * 1000);
       setIntervalID(ID);
     } else {
       clearInterval(intervalID);
@@ -184,35 +207,13 @@ const InactivityDialog = () => {
     return () => clearInterval(intervalID);
   }, [isLoggedIn]);
 
-  const handleExtendSession = () => {
-    extendSession();
-  };
-  const handleSignOutNoBanner = async () => {
-    const logoutStatus = await authData.logout();
-    if (logoutStatus) {
-      navigate("/");
-      setWarning(false);
-    }
-  };
-  const handleSignOut = async () => {
-    const logoutStatus = await authData.logout();
-    if (logoutStatus) {
-      navigate("/");
-      setWarning(false);
-      setShowLogoutAlert(true);
-      setTimeout(() => setShowLogoutAlert(false), 10000);
-    }
-  };
-
   return (
     <>
       <GenericAlert open={showLogoutAlert}>
-        <span>
-          You have been logged out.
-        </span>
+        <span>You have been logged out.</span>
       </GenericAlert>
       <InactivityWarningDialog open={warning}>
-        <DialogTitle id="customized-dialog-title"> Session Timeout Warning</DialogTitle>
+        <DialogTitle id="customized-dialog-title">Session Timeout Warning</DialogTitle>
         <InactivityWarningContent>
           This session is about to expire due to inactivity.
           <br />
@@ -254,7 +255,11 @@ const InactivityDialog = () => {
               }
             }}
           >
-            <img style={{ height: 10, marginBottom: 2 }} src="https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/LocalFindCaseDeleteIcon.svg" alt="close icon" />
+            <img
+              style={{ height: 10, marginBottom: 2 }}
+              src="https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/LocalFindCaseDeleteIcon.svg"
+              alt="close icon"
+            />
           </div>
         </DialogTitle>
         <SessionTimeoutContent>
@@ -273,7 +278,10 @@ const InactivityDialog = () => {
             <Button
               variant="contained"
               className="buttonGroup loginButton"
-              onClick={() => { setTimedOut(false); navigate("login"); }}
+              onClick={() => {
+                setTimedOut(false);
+                navigate("login");
+              }}
               disableElevation={false}
             >
               LOGIN

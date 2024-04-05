@@ -2,13 +2,13 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   _id: "new",
   applicant: null,
   organization: null,
-  status: 'New',
-  createdAt: '',
-  updatedAt: '',
-  submittedDate: '',
+  status: "New",
+  createdAt: "",
+  updatedAt: "",
+  submittedDate: "",
   history: [],
-  programName: '',
-  studyAbbreviation: '',
+  programName: "",
+  studyAbbreviation: "",
 };
 
 export const InitialQuestionnaire: QuestionnaireData = {
@@ -28,7 +28,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
     email: "",
     phone: "",
     position: "",
-    institution: ""
+    institution: "",
   },
   additionalContacts: [],
   program: {
@@ -36,7 +36,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
     abbreviation: "",
     description: "",
     notApplicable: false,
-    isCustom: false
+    isCustom: false,
   },
   study: {
     name: "",
@@ -51,7 +51,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
         grantNumbers: "",
         nciProgramOfficer: "",
         nciGPA: "",
-      }
+      },
     ],
     isDbGapRegistered: false,
     dbGaPPPHSNumber: "",

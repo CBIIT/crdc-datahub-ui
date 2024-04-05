@@ -43,12 +43,12 @@ type OrgInfo = {
 
 type EditUserInput = {
   userID: User["_id"];
-  userStatus: User['userStatus'];
+  userStatus: User["userStatus"];
   organization: {
-    orgID: OrgInfo['orgID'];
+    orgID: OrgInfo["orgID"];
   };
-  dataCommons: User['dataCommons'];
-  role: User['role'];
+  dataCommons: User["dataCommons"];
+  role: User["role"];
 };
 
 type Organization = {

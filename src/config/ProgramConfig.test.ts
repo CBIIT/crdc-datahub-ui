@@ -1,4 +1,4 @@
-import programs, { OptionalProgram } from './ProgramConfig';
+import programs, { OptionalProgram } from "./ProgramConfig";
 
 describe("ProgramConfig test", () => {
   it("should should have the optional program at the last index", () => {

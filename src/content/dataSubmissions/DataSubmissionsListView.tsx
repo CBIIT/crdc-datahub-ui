@@ -1,31 +1,43 @@
 import React, { FC, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Alert, Container, Stack, styled,
-  Table, TableBody, TableCell,
-  TableContainer, TableHead,
-  TablePagination, TableRow,
-  TableSortLabel, Typography,
+  Alert,
+  Container,
+  Stack,
+  styled,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+  Typography,
   FormControl,
-  Select, MenuItem,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { useQuery } from '@apollo/client';
-import { query, Response } from '../../graphql/listSubmissions';
-import { query as listOrganizationsQuery, Response as listOrganizationsResponse } from "../../graphql/listOrganizations";
+import { useQuery } from "@apollo/client";
+import { query, Response } from "../../graphql/listSubmissions";
+import {
+  query as listOrganizationsQuery,
+  Response as listOrganizationsResponse,
+} from "../../graphql/listOrganizations";
 import bannerSvg from "../../assets/banner/data_submissions_banner.png";
-import PageBanner from '../../components/PageBanner';
-import { FormatDate } from '../../utils';
-import { useAuthContext } from '../../components/Contexts/AuthContext';
-import SuspenseLoader from '../../components/SuspenseLoader';
-import usePageTitle from '../../hooks/usePageTitle';
+import PageBanner from "../../components/PageBanner";
+import { FormatDate } from "../../utils";
+import { useAuthContext } from "../../components/Contexts/AuthContext";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import usePageTitle from "../../hooks/usePageTitle";
 import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
 
 type T = Submission;
 
 type Column = {
   label: string;
-  value: (a: T, user: User) => string | boolean | number | React.ReactNode;
+  value: (a: T, user: User) => React.ReactNode;
   field?: string;
   default?: true;
 };
@@ -45,7 +57,7 @@ const StyledTableContainer = styled(TableContainer)({
   position: "relative",
 });
 
-const OrganizationStatusContainer = styled('div')({
+const OrganizationStatusContainer = styled("div")({
   height: "45px",
   display: "flex",
   alignItems: "center",
@@ -81,7 +93,7 @@ const StyledTableCell = styled(TableCell)({
   },
 });
 
-const StyledInlineLabel = styled('label')({
+const StyledInlineLabel = styled("label")({
   paddingLeft: "10px",
   fontWeight: "700",
   fontSize: "16px",
@@ -107,7 +119,8 @@ const baseTextFieldStyles = {
   },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   "& .Mui-disabled": {
     cursor: "not-allowed",
@@ -196,8 +209,22 @@ const columns: Column[] = [
   },
 ];
 
-const statusValues: string[] = ["All", "New", "In Progress", "Submitted", "Released", "Withdrawn", "Rejected", "Completed", "Archived", "Canceled"];
-const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, value: v }));
+const statusValues: string[] = [
+  "All",
+  "New",
+  "In Progress",
+  "Submitted",
+  "Released",
+  "Withdrawn",
+  "Rejected",
+  "Completed",
+  "Archived",
+  "Canceled",
+];
+const statusOptionArray: SelectOption[] = statusValues.map((v) => ({
+  label: v,
+  value: v,
+}));
 /**
  * View for List of Questionnaire/Submissions
  *
@@ -212,24 +239,28 @@ const ListingView: FC = () => {
 
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<Column>(
-    columns.find((c) => c.default)
-    || columns.find((c) => c.field)
+    columns.find((c) => c.default) || columns.find((c) => c.field)
   );
 
   // Only org owners/submitters with organizations assigned can create data submissions
-  const orgOwnerOrSubmitter = (user?.role === "Organization Owner" || user?.role === "Submitter");
-  const hasOrganizationAssigned = (user?.organization !== null && user?.organization?.orgID !== null);
-  const shouldHaveAllFilter = (user?.role === "Admin" || user?.role === "Federal Lead" || user?.role === "Data Curator" || user?.role === "Data Commons POC");
+  const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
+  const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
+  const shouldHaveAllFilter =
+    user?.role === "Admin" ||
+    user?.role === "Federal Lead" ||
+    user?.role === "Data Curator" ||
+    user?.role === "Data Commons POC";
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(10);
-  // eslint-disable-next-line no-nested-ternary
-  const [organizationFilter, setOrganizationFilter] = useState<string>(shouldHaveAllFilter ? "All" : (hasOrganizationAssigned ? user.organization?.orgName : "All"));
+  const [organizationFilter, setOrganizationFilter] = useState<string>(
+    // eslint-disable-next-line no-nested-ternary
+    shouldHaveAllFilter ? "All" : hasOrganizationAssigned ? user.organization?.orgName : "All"
+  );
   const [statusFilter, setStatusFilter] = useState<string>("All");
 
   const { data: allOrganizations } = useQuery<listOrganizationsResponse>(listOrganizationsQuery, {
-    variables: {
-    },
-    context: { clientName: 'backend' },
+    variables: {},
+    context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
@@ -239,16 +270,19 @@ const ListingView: FC = () => {
       offset: page * perPage,
       sortDirection: order.toUpperCase(),
       orderBy: orderBy.field,
-      organization: (organizationFilter !== "All" ? allOrganizations?.listOrganizations?.find((org) => org.name === organizationFilter)?._id : "All"),
+      organization:
+        organizationFilter !== "All"
+          ? allOrganizations?.listOrganizations?.find((org) => org.name === organizationFilter)?._id
+          : "All",
       status: statusFilter,
     },
-    context: { clientName: 'backend' },
+    context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
   // eslint-disable-next-line arrow-body-style
   const emptyRows = useMemo(() => {
-    return (page > 0 && data?.listSubmissions?.total)
+    return page > 0 && data?.listSubmissions?.total
       ? Math.max(0, (1 + page) * perPage - (data?.listSubmissions?.total || 0))
       : 0;
   }, [data]);
@@ -265,10 +299,15 @@ const ListingView: FC = () => {
 
   const handleOnCreateSubmission = () => {
     refetch();
-    enqueueSnackbar("Data Submission Created Successfully", { variant: "success" });
+    enqueueSnackbar("Data Submission Created Successfully", {
+      variant: "success",
+    });
   };
 
-  const organizationNames: SelectOption[] = allOrganizations?.listOrganizations?.map((org) => ({ label: org.name, value: org.name }));
+  const organizationNames: SelectOption[] = allOrganizations?.listOrganizations?.map((org) => ({
+    label: org.name,
+    value: org.name,
+  }));
   organizationNames?.unshift({ label: "All", value: "All" });
 
   return (
@@ -277,7 +316,7 @@ const ListingView: FC = () => {
         title="Data Submission List"
         subTitle="Below is a list of data submissions that are associated with your account. Please click on any of the data submissions to review or continue work."
         padding="57px 0 0 25px"
-        body={(
+        body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}
             {/* Create a submission only available to org owners and submitters that have organizations assigned */}
@@ -286,7 +325,7 @@ const ListingView: FC = () => {
               onCreate={handleOnCreateSubmission}
             />
           </StyledBannerBody>
-        )}
+        }
         bannerSrc={bannerSvg}
       />
       <StyledContainer maxWidth="xl">
@@ -302,29 +341,51 @@ const ListingView: FC = () => {
               <TableRow>
                 <TableCell colSpan={12}>
                   <OrganizationStatusContainer>
-                    <StyledInlineLabel htmlFor="data-submissions-table-organization">Organization</StyledInlineLabel>
+                    <StyledInlineLabel htmlFor="data-submissions-table-organization">
+                      Organization
+                    </StyledInlineLabel>
                     <StyledFormControl>
                       <StyledSelect
-                        sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
+                        sx={{
+                          minWidth: "300px",
+                          marginLeft: "24px",
+                          marginRight: "64px",
+                        }}
                         value={organizationFilter}
                         MenuProps={{ disablePortal: true }}
-                        inputProps={{ id: "data-submissions-table-organization" }}
+                        inputProps={{
+                          id: "data-submissions-table-organization",
+                        }}
                         readOnly={orgOwnerOrSubmitter || user?.role === "User"}
                         onChange={(e) => setOrganizationFilter(e.target.value as unknown as string)}
                       >
-                        {organizationNames?.map(({ value, label }) => (<MenuItem key={value} value={value}>{label}</MenuItem>))}
+                        {organizationNames?.map(({ value, label }) => (
+                          <MenuItem key={value} value={value}>
+                            {label}
+                          </MenuItem>
+                        ))}
                       </StyledSelect>
                     </StyledFormControl>
-                    <StyledInlineLabel htmlFor="data-submissions-table-status">Status</StyledInlineLabel>
+                    <StyledInlineLabel htmlFor="data-submissions-table-status">
+                      Status
+                    </StyledInlineLabel>
                     <StyledFormControl>
                       <StyledSelect
-                        sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
+                        sx={{
+                          minWidth: "300px",
+                          marginLeft: "24px",
+                          marginRight: "64px",
+                        }}
                         value={statusFilter}
                         MenuProps={{ disablePortal: true }}
                         inputProps={{ id: "data-submissions-table-status" }}
                         onChange={(e) => setStatusFilter(e.target.value as unknown as string)}
                       >
-                        {statusOptionArray.map(({ value, label }) => (<MenuItem key={value} value={value}>{label}</MenuItem>))}
+                        {statusOptionArray.map(({ value, label }) => (
+                          <MenuItem key={value} value={value}>
+                            {label}
+                          </MenuItem>
+                        ))}
                       </StyledSelect>
                     </StyledFormControl>
                   </OrganizationStatusContainer>
@@ -332,7 +393,10 @@ const ListingView: FC = () => {
               </TableRow>
               <TableRow sx={{ background: "#083A50" }}>
                 {columns.map((col: Column, index) => (
-                  <StyledHeaderCell sx={{ paddingLeft: (index === 0 ? "32px !important" : "") }} key={col.label}>
+                  <StyledHeaderCell
+                    sx={{ paddingLeft: index === 0 ? "32px !important" : "" }}
+                    key={col.label}
+                  >
                     {col.field ? (
                       <TableSortLabel
                         active={orderBy === col}
@@ -357,9 +421,17 @@ const ListingView: FC = () => {
                 </TableRow>
               )}
               {data?.listSubmissions?.submissions?.map((d: T, index) => (
-                <TableRow sx={{ background: (index % 2 === 0 ? "#fff" : "#E3EEF9") }} tabIndex={-1} hover key={d["_id"]}>
+                <TableRow
+                  sx={{ background: index % 2 === 0 ? "#fff" : "#E3EEF9" }}
+                  tabIndex={-1}
+                  hover
+                  key={d["_id"]}
+                >
                   {columns.map((col: Column, index) => (
-                    <StyledTableCell sx={{ paddingLeft: (index === 0 ? "32px !important" : "") }} key={`${d["_id"]}_${col.label}`}>
+                    <StyledTableCell
+                      sx={{ paddingLeft: index === 0 ? "32px !important" : "" }}
+                      key={`${d["_id"]}_${col.label}`}
+                    >
                       {col.value(d, user)}
                     </StyledTableCell>
                   ))}
@@ -377,12 +449,7 @@ const ListingView: FC = () => {
               {(!data?.listSubmissions?.total || data?.listSubmissions?.total === 0) && (
                 <TableRow style={{ height: 53 * 10 }}>
                   <TableCell colSpan={columns.length}>
-                    <Typography
-                      variant="h6"
-                      align="center"
-                      fontSize={18}
-                      color="#757575"
-                    >
+                    <Typography variant="h6" align="center" fontSize={18} color="#757575">
                       There are no data submissions associated with your account
                     </Typography>
                   </TableCell>
@@ -399,14 +466,18 @@ const ListingView: FC = () => {
             onPageChange={(e, newPage) => setPage(newPage)}
             onRowsPerPageChange={handleChangeRowsPerPage}
             nextIconButtonProps={{
-              disabled: perPage === -1
-                || !data?.listSubmissions
-                || data?.listSubmissions?.total === 0
-                || data?.listSubmissions?.total <= (page + 1) * perPage
-                || emptyRows > 0
-                || loading
+              disabled:
+                perPage === -1 ||
+                !data?.listSubmissions ||
+                data?.listSubmissions?.total === 0 ||
+                data?.listSubmissions?.total <= (page + 1) * perPage ||
+                emptyRows > 0 ||
+                loading,
             }}
-            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
+            SelectProps={{
+              inputProps: { "aria-label": "rows per page" },
+              native: true,
+            }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>

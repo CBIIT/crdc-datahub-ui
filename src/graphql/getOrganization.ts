@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const query = gql`
   query getOrganizationData($orgID: ID!, $organization: String) {
@@ -15,7 +15,14 @@ export const query = gql`
       createdAt
       updateAt
     }
-    listSubmissions(first: -1, offset: 0, orderBy: "updatedAt", sortDirection: "ASC", organization: $organization, status: "All") {
+    listSubmissions(
+      first: -1
+      offset: 0
+      orderBy: "updatedAt"
+      sortDirection: "ASC"
+      organization: $organization
+      status: "All"
+    ) {
       submissions {
         _id
         studyAbbreviation

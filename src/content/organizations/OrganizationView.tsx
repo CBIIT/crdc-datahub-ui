@@ -1,31 +1,45 @@
-import { FC, useEffect, useMemo, useState } from 'react';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { LoadingButton } from '@mui/lab';
+import { FC, useEffect, useMemo, useState } from "react";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { LoadingButton } from "@mui/lab";
 import {
-  Alert, Box, Container, MenuItem,
-  OutlinedInput, Select, Stack, Typography,
+  Alert,
+  Box,
+  Container,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  Stack,
+  Typography,
   styled,
-} from '@mui/material';
-import { useSnackbar } from 'notistack';
-import { cloneDeep } from 'lodash';
-import { Controller, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import bannerSvg from '../../assets/banner/profile_banner.png';
-import profileIcon from '../../assets/icons/organization.svg';
-import SuspenseLoader from '../../components/SuspenseLoader';
+} from "@mui/material";
+import { useSnackbar } from "notistack";
+import { cloneDeep } from "lodash";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import bannerSvg from "../../assets/banner/profile_banner.png";
+import profileIcon from "../../assets/icons/organization.svg";
+import SuspenseLoader from "../../components/SuspenseLoader";
 import {
-  CREATE_ORG, CreateOrgResp,
-  EDIT_ORG, EditOrgResp,
-  GET_ORG, GetOrgResp,
-  LIST_APPROVED_STUDIES, ListApprovedStudiesResp,
-  LIST_CURATORS, ListCuratorsResp,
-} from '../../graphql';
-import ConfirmDialog from '../../components/Organizations/ConfirmDialog';
-import usePageTitle from '../../hooks/usePageTitle';
-import { formatFullStudyName, mapOrganizationStudyToId } from '../../utils';
+  CREATE_ORG,
+  CreateOrgResp,
+  EDIT_ORG,
+  EditOrgResp,
+  GET_ORG,
+  GetOrgResp,
+  LIST_APPROVED_STUDIES,
+  ListApprovedStudiesResp,
+  LIST_CURATORS,
+  ListCuratorsResp,
+} from "../../graphql";
+import ConfirmDialog from "../../components/Organizations/ConfirmDialog";
+import usePageTitle from "../../hooks/usePageTitle";
+import { formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
 
 type Props = {
-  _id: Organization["_id"] | "new";
+  /**
+   * @see Organization["_id"] | "new"
+   */
+  _id: string;
 };
 
 type FormInput = Omit<EditOrganizationInput, "studies"> & {
@@ -65,20 +79,20 @@ const StyledProfileIcon = styled("div")({
   },
 });
 
-const StyledField = styled('div')({
-  marginBottom: '10px',
-  minHeight: '41px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-start',
-  fontSize: '18px',
+const StyledField = styled("div")({
+  marginBottom: "10px",
+  minHeight: "41px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  fontSize: "18px",
 });
 
-const StyledLabel = styled('span')({
-  color: '#356AAD',
-  fontWeight: '700',
-  marginRight: '40px',
-  minWidth: '135px',
+const StyledLabel = styled("span")({
+  color: "#356AAD",
+  fontWeight: "700",
+  marginRight: "40px",
+  minWidth: "135px",
 });
 
 const BaseInputStyling = {
@@ -98,7 +112,8 @@ const BaseInputStyling = {
   },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "1px solid #209D7D",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+    boxShadow:
+      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
   "& .MuiList-root": {
     padding: 0,
@@ -120,7 +135,7 @@ const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
 });
 
-const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string, border: string }) => ({
+const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string; border: string }) => ({
   borderRadius: "8px",
   border: `2px solid ${border}`,
   color: `${txt} !important`,
@@ -167,7 +182,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
   const assignedStudies: string[] = useMemo(() => {
     const activeStudies = {};
-    const activeSubs = dataSubmissions?.filter((ds) => !inactiveSubmissionStatus.includes(ds?.status));
+    const activeSubs = dataSubmissions?.filter(
+      (ds) => !inactiveSubmissionStatus.includes(ds?.status)
+    );
 
     organization?.studies?.forEach((s) => {
       // NOTE: The `Submission` type only has `studyAbbreviation`, we cannot compare IDs
@@ -180,105 +197,35 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   }, [organization, dataSubmissions]);
 
   const { handleSubmit, register, reset, control } = useForm<FormInput>();
-  const editableFields: (keyof FormInput)[] = [
-    "name",
-    "conciergeID",
-    "studies",
-    "status",
-  ];
+  const editableFields: (keyof FormInput)[] = ["name", "conciergeID", "studies", "status"];
 
   const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
-    context: { clientName: 'backend' },
+    context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: approvedStudies, refetch: refetchStudies } = useQuery<ListApprovedStudiesResp>(LIST_APPROVED_STUDIES, {
-    context: { clientName: 'backend' },
-    fetchPolicy: "cache-and-network",
-  });
+  const { data: approvedStudies, refetch: refetchStudies } = useQuery<ListApprovedStudiesResp>(
+    LIST_APPROVED_STUDIES,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const [getOrganization] = useLazyQuery<GetOrgResp>(GET_ORG, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [editOrganization] = useMutation<EditOrgResp>(EDIT_ORG, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [createOrganization] = useMutation<CreateOrgResp>(CREATE_ORG, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
-
-  const handleBypassWarning = () => {
-    setConfirmOpen(false);
-    handleSubmit(onSubmit)();
-  };
-
-  const handlePreSubmit = (data: FormInput) => {
-    if (_id !== "new") {
-      const previousStudies = organization?.studies?.map((s) => s?.studyAbbreviation) || [];
-      const removedActiveStudies = previousStudies
-        .filter((s) => !data.studies?.includes(s))
-        .filter((s) => assignedStudies.includes(s))
-        .length;
-
-      // If there are active submissions for a study being removed, show a warning
-      if (removedActiveStudies) {
-        setConfirmOpen(true);
-        return;
-      }
-    }
-
-    onSubmit(data);
-  };
-
-  const onSubmit = async (data: FormInput) => {
-    setSaving(true);
-
-    const studyMap: { [_id: string]: Pick<ApprovedStudy, "studyName" | "studyAbbreviation"> } = {};
-    approvedStudies?.listApprovedStudies?.forEach(({ _id, studyName, studyAbbreviation }) => {
-      studyMap[_id] = { studyName, studyAbbreviation };
-    });
-
-    const variables = {
-      ...data,
-      studies: data.studies.map((_id) => (studyMap[_id]))?.filter((s) => !!s?.studyName) || [],
-    };
-
-    if (_id === "new" && !organization?._id) {
-      const { data: d, errors } = await createOrganization({ variables })
-        .catch((e) => ({ errors: e?.message, data: null }));
-      setSaving(false);
-
-      if (errors || !d?.createOrganization?._id) {
-        setError(errors || "Unable to create organization");
-        return;
-      }
-
-      setOrganization(null);
-      setDataSubmissions(null);
-      enqueueSnackbar("This organization has been successfully added.", { variant: "default" });
-      reset();
-    } else {
-      const { data: d, errors } = await editOrganization({ variables: { orgID: organization._id, ...variables, } })
-        .catch((e) => ({ errors: e?.message, data: null }));
-      setSaving(false);
-
-      if (errors || !d?.editOrganization) {
-        setError(errors || "Unable to save changes");
-        return;
-      }
-
-      enqueueSnackbar("All changes have been saved", { variant: "default" });
-      setFormValues(data);
-      setOrganization((prev: Organization) => ({ ...prev, studies: d.editOrganization.studies }));
-    }
-
-    setError(null);
-  };
 
   /**
    * Updates the default form values after save or initial fetch
@@ -295,25 +242,109 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     reset(resetData);
   };
 
+  const onSubmit = async (data: FormInput) => {
+    setSaving(true);
+
+    const studyMap: {
+      [_id: string]: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">;
+    } = {};
+    approvedStudies?.listApprovedStudies?.forEach(({ _id, studyName, studyAbbreviation }) => {
+      studyMap[_id] = { studyName, studyAbbreviation };
+    });
+
+    const variables = {
+      ...data,
+      studies: data.studies.map((_id) => studyMap[_id])?.filter((s) => !!s?.studyName) || [],
+    };
+
+    if (_id === "new" && !organization?._id) {
+      const { data: d, errors } = await createOrganization({ variables }).catch((e) => ({
+        errors: e?.message,
+        data: null,
+      }));
+      setSaving(false);
+
+      if (errors || !d?.createOrganization?._id) {
+        setError(errors || "Unable to create organization");
+        return;
+      }
+
+      setOrganization(null);
+      setDataSubmissions(null);
+      enqueueSnackbar("This organization has been successfully added.", {
+        variant: "default",
+      });
+      reset();
+    } else {
+      const { data: d, errors } = await editOrganization({
+        variables: { orgID: organization._id, ...variables },
+      }).catch((e) => ({ errors: e?.message, data: null }));
+      setSaving(false);
+
+      if (errors || !d?.editOrganization) {
+        setError(errors || "Unable to save changes");
+        return;
+      }
+
+      enqueueSnackbar("All changes have been saved", { variant: "default" });
+      setFormValues(data);
+      setOrganization((prev: Organization) => ({
+        ...prev,
+        studies: d.editOrganization.studies,
+      }));
+    }
+
+    setError(null);
+  };
+
+  const handleBypassWarning = () => {
+    setConfirmOpen(false);
+    handleSubmit(onSubmit)();
+  };
+
+  const handlePreSubmit = (data: FormInput) => {
+    if (_id !== "new") {
+      const previousStudies = organization?.studies?.map((s) => s?.studyAbbreviation) || [];
+      const removedActiveStudies = previousStudies
+        .filter((s) => !data.studies?.includes(s))
+        .filter((s) => assignedStudies.includes(s)).length;
+
+      // If there are active submissions for a study being removed, show a warning
+      if (removedActiveStudies) {
+        setConfirmOpen(true);
+        return;
+      }
+    }
+
+    onSubmit(data);
+  };
+
   useEffect(() => {
     setError(null);
 
     if (_id === "new") {
       setOrganization(null);
       setDataSubmissions(null);
-      setFormValues({
-        name: "",
-        conciergeID: "",
-        studies: [],
-        status: "Active",
-      }, ["name", "conciergeID", "studies", "status"]);
+      setFormValues(
+        {
+          name: "",
+          conciergeID: "",
+          studies: [],
+          status: "Active",
+        },
+        ["name", "conciergeID", "studies", "status"]
+      );
       return;
     }
 
     (async () => {
-      const { data, error } = await getOrganization({ variables: { orgID: _id, organization: _id } });
+      const { data, error } = await getOrganization({
+        variables: { orgID: _id, organization: _id },
+      });
       if (error || !data?.getOrganization) {
-        navigate("/organizations", { state: { error: "Unable to fetch organization" } });
+        navigate("/organizations", {
+          state: { error: "Unable to fetch organization" },
+        });
         return;
       }
 
@@ -328,9 +359,10 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       setDataSubmissions(data?.listSubmissions?.submissions);
       setFormValues({
         ...data?.getOrganization,
-        studies: data?.getOrganization?.studies
-          ?.map((s) => mapOrganizationStudyToId(s, studyList || []))
-          ?.filter((_id) => !!_id) || [],
+        studies:
+          data?.getOrganization?.studies
+            ?.map((s) => mapOrganizationStudyToId(s, studyList || []))
+            ?.filter((_id) => !!_id) || [],
       });
     })();
   }, [_id]);
@@ -343,12 +375,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     <>
       <StyledBanner />
       <StyledContainer maxWidth="lg">
-        <Stack
-          direction="row"
-          justifyContent="center"
-          alignItems="flex-start"
-          spacing={2}
-        >
+        <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
           <StyledProfileIcon>
             <img src={profileIcon} alt="organization icon" />
           </StyledProfileIcon>
@@ -361,9 +388,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
           >
             <StyledTitleBox>
               <StyledPageTitle variant="h1">
-                {_id !== "new" ? "Edit" : "Add"}
-                {" "}
-                Organization
+                {_id !== "new" ? "Edit" : "Add"} Organization
               </StyledPageTitle>
             </StyledTitleBox>
 
@@ -375,7 +400,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               )}
 
               <StyledField>
-                <StyledLabel id="organizationName">{_id !== "new" ? "Organization" : "Name"}</StyledLabel>
+                <StyledLabel id="organizationName">
+                  {_id !== "new" ? "Organization" : "Name"}
+                </StyledLabel>
                 <StyledTextField
                   {...register("name", { required: true })}
                   size="small"
@@ -385,7 +412,12 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
-                <Stack direction="column" justifyContent="flex-start" alignItems="flex-start" spacing={1}>
+                <Stack
+                  direction="column"
+                  justifyContent="flex-start"
+                  alignItems="flex-start"
+                  spacing={1}
+                >
                   <Controller
                     name="conciergeID"
                     control={control}
@@ -395,12 +427,18 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                         {...field}
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
-                        inputProps={{ "aria-labelledby": "primaryContactLabel" }}
+                        inputProps={{
+                          "aria-labelledby": "primaryContactLabel",
+                        }}
                       >
                         <MenuItem value={null}>{"<Not Set>"}</MenuItem>
-                        {activeCurators?.listActiveCurators?.map(({ userID, firstName, lastName }) => (
-                          <MenuItem key={userID} value={userID}>{(`${firstName} ${lastName}`).trim()}</MenuItem>
-                        ))}
+                        {activeCurators?.listActiveCurators?.map(
+                          ({ userID, firstName, lastName }) => (
+                            <MenuItem key={userID} value={userID}>
+                              {`${firstName} ${lastName}`.trim()}
+                            </MenuItem>
+                          )
+                        )}
                       </StyledSelect>
                     )}
                   />
@@ -420,11 +458,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       inputProps={{ "aria-labelledby": "studiesLabel" }}
                       multiple
                     >
-                      {approvedStudies?.listApprovedStudies?.map(({ _id, studyName, studyAbbreviation }) => (
-                        <MenuItem key={_id} value={_id}>
-                          {formatFullStudyName(studyName, studyAbbreviation)}
-                        </MenuItem>
-                      ))}
+                      {approvedStudies?.listApprovedStudies?.map(
+                        ({ _id, studyName, studyAbbreviation }) => (
+                          <MenuItem key={_id} value={_id}>
+                            {formatFullStudyName(studyName, studyAbbreviation)}
+                          </MenuItem>
+                        )
+                      )}
                     </StyledSelect>
                   )}
                 />
@@ -456,8 +496,17 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">Save</StyledButton>
-                <StyledButton type="button" onClick={() => navigate("/organizations")} txt="#666666" border="#828282">Cancel</StyledButton>
+                <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
+                  Save
+                </StyledButton>
+                <StyledButton
+                  type="button"
+                  onClick={() => navigate("/organizations")}
+                  txt="#666666"
+                  border="#828282"
+                >
+                  Cancel
+                </StyledButton>
               </StyledButtonStack>
             </form>
           </StyledContentStack>

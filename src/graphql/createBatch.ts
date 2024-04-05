@@ -1,13 +1,18 @@
 import gql from "graphql-tag";
 
 export const mutation = gql`
-  mutation createBatch ($submissionID: ID!, $type: String, $metadataIntention: String, $files: [FileInput]) {
+  mutation createBatch(
+    $submissionID: ID!
+    $type: String
+    $metadataIntention: String
+    $files: [FileInput]
+  ) {
     createBatch(
-      submissionID: $submissionID,
-      type: $type,
-      metadataIntention: $metadataIntention,
+      submissionID: $submissionID
+      type: $type
+      metadataIntention: $metadataIntention
       files: $files
-      ) {
+    ) {
       _id
       submissionID
       bucketName
@@ -27,5 +32,5 @@ export const mutation = gql`
 `;
 
 export type Response = {
-  createBatch: NewBatch
+  createBatch: NewBatch;
 };

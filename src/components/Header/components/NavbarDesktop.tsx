@@ -3,10 +3,7 @@ import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { Button, styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
-import {
-  navMobileList,
-  navbarSublists,
-} from "../../../config/globalHeaderData";
+import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
 import APITokenDialog from "../../../content/users/APITokenDialog";
 import UploaderToolDialog from "../../../content/users/UploaderToolDialog";
 
@@ -138,7 +135,7 @@ const LiSection = styled("li")({
       borderLeft: "1px solid #585C65",
       margin: "0 0 4px 8px",
       transform: "rotate(-45deg)",
-       WebkitTransform: "rotate(-45deg)",
+      WebkitTransform: "rotate(-45deg)",
     },
   },
   "& .clicked": {
@@ -165,7 +162,7 @@ const LiSection = styled("li")({
         borderLeft: "0",
         margin: "0 0 0 8px",
         transform: "rotate(-45deg)",
-         WebkitTransform: "rotate(-45deg)",
+        WebkitTransform: "rotate(-45deg)",
       },
     },
   },
@@ -275,7 +272,14 @@ const StyledLoginLink = styled(Link)({
 const useOutsideAlerter = (ref1, ref2) => {
   useEffect(() => {
     function handleClickOutside(event) {
-      if (!event.target || (event.target.getAttribute("class") !== "dropdownList" && ref1.current && !ref1.current.contains(event.target) && ref2.current && !ref2.current.contains(event.target))) {
+      if (
+        !event.target ||
+        (event.target.getAttribute("class") !== "dropdownList" &&
+          ref1.current &&
+          !ref1.current.contains(event.target) &&
+          ref2.current &&
+          !ref2.current.contains(event.target))
+      ) {
         const toggle = document.getElementsByClassName("navText clicked");
         if (toggle[0] && !event.target.getAttribute("class")?.includes("navText clicked")) {
           const temp: HTMLElement = toggle[0] as HTMLElement;
@@ -297,7 +301,9 @@ const NavBar = () => {
   const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
   const dropdownSelection = useRef(null);
   const nameDropdownSelection = useRef(null);
-  const clickableObject = navMobileList.filter((item) => item.className === 'navMobileItem clickable');
+  const clickableObject = navMobileList.filter(
+    (item) => item.className === "navMobileItem clickable"
+  );
   const clickableTitle = clickableObject.map((item) => item.name);
   const navigate = useNavigate();
   const authData = useAuthContext();
@@ -346,7 +352,9 @@ const NavBar = () => {
   };
   function shouldBeUnderlined(item) {
     const linkName = item.name;
-    const correctPath = window.location.href.slice(window.location.href.lastIndexOf(window.location.host) + window.location.host.length);
+    const correctPath = window.location.href.slice(
+      window.location.href.lastIndexOf(window.location.host) + window.location.host.length
+    );
     if (item.className === "navMobileItem") {
       return correctPath === item.link;
     }
@@ -373,127 +381,172 @@ const NavBar = () => {
   return (
     <Nav>
       <GenericAlert open={showLogoutAlert}>
-        <span>
-          You have been logged out.
-        </span>
+        <span>You have been logged out.</span>
       </GenericAlert>
       <NavContainer>
         <UlContainer>
-          {
-              navMobileList.map((navMobileItem, idx) => {
-                const navkey = `nav_${idx}`;
-                return (
-                  navMobileItem.className === 'navMobileItem'
-                    ? (
-                      <LiSection key={navkey}>
-                        <div className="navTitle directLink">
-                          <NavLink to={navMobileItem.link} target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}>
-                            <div
-                              id={navMobileItem.id}
-                              onKeyDown={onKeyPressHandler}
-                              role="button"
-                              tabIndex={0}
-                              className={`navText directLink ${shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""}`}
-                              onClick={handleMenuClick}
-                            >
-                              {navMobileItem.name}
-                            </div>
-                          </NavLink>
-                        </div>
-                      </LiSection>
-                    )
-                    : (
-                      <LiSection key={navkey}>
-                        <div className={clickedTitle === navMobileItem.name ? 'navTitleClicked' : 'navTitle'}>
-                          <div
-                            id={navMobileItem.id}
-                            onKeyDown={onKeyPressHandler}
-                            role="button"
-                            tabIndex={0}
-                            className={`${clickedTitle === navMobileItem.name ? 'navText clicked' : 'navText'} ${shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""}`}
-                            onClick={handleMenuClick}
-                          >
-                            {navMobileItem.name}
-                          </div>
-                        </div>
-                      </LiSection>
-                    )
-                );
-              })
-            }
+          {navMobileList.map((navMobileItem, idx) => {
+            const navkey = `nav_${idx}`;
+            return navMobileItem.className === "navMobileItem" ? (
+              <LiSection key={navkey}>
+                <div className="navTitle directLink">
+                  <NavLink
+                    to={navMobileItem.link}
+                    target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
+                  >
+                    <div
+                      id={navMobileItem.id}
+                      onKeyDown={onKeyPressHandler}
+                      role="button"
+                      tabIndex={0}
+                      className={`navText directLink ${
+                        shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""
+                      }`}
+                      onClick={handleMenuClick}
+                    >
+                      {navMobileItem.name}
+                    </div>
+                  </NavLink>
+                </div>
+              </LiSection>
+            ) : (
+              <LiSection key={navkey}>
+                <div
+                  className={clickedTitle === navMobileItem.name ? "navTitleClicked" : "navTitle"}
+                >
+                  <div
+                    id={navMobileItem.id}
+                    onKeyDown={onKeyPressHandler}
+                    role="button"
+                    tabIndex={0}
+                    className={`${
+                      clickedTitle === navMobileItem.name ? "navText clicked" : "navText"
+                    } ${shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""}`}
+                    onClick={handleMenuClick}
+                  >
+                    {navMobileItem.name}
+                  </div>
+                </div>
+              </LiSection>
+            );
+          })}
           <LiSection className={`name-dropdown-li${authData?.isLoggedIn ? "" : " login-button"}`}>
             {authData.isLoggedIn ? (
-              <div id="navbar-dropdown-name-container" className={(clickedTitle === displayName ? 'navTitleClicked' : 'navTitle')}>
+              <div
+                id="navbar-dropdown-name-container"
+                className={clickedTitle === displayName ? "navTitleClicked" : "navTitle"}
+              >
                 <div
                   id="navbar-dropdown-name"
                   onKeyDown={onKeyPressHandler}
                   role="button"
-                  tabIndex={0} className={clickedTitle === displayName ? 'navText displayName clicked' : 'navText displayName'}
+                  tabIndex={0}
+                  className={
+                    clickedTitle === displayName
+                      ? "navText displayName clicked"
+                      : "navText displayName"
+                  }
                   onClick={handleMenuClick}
                 >
                   {displayName}
                 </div>
               </div>
             ) : (
-              <StyledLoginLink id="header-navbar-login-button" to="/login" state={{ redirectURLOnLoginSuccess: restorePath }}>
+              <StyledLoginLink
+                id="header-navbar-login-button"
+                to="/login"
+                state={{ redirectURLOnLoginSuccess: restorePath }}
+              >
                 Login
               </StyledLoginLink>
             )}
           </LiSection>
         </UlContainer>
       </NavContainer>
-      <Dropdown ref={dropdownSelection} className={(clickedTitle === '') ? "invisible" : ""}>
+      <Dropdown ref={dropdownSelection} className={clickedTitle === "" ? "invisible" : ""}>
         <NameDropdownContainer>
           <div className="dropdownList">
-            {
-              (clickedTitle !== "" && clickedTitle !== displayName)
-                ? navbarSublists[clickedTitle]?.map((dropItem, idx) => {
+            {clickedTitle !== "" && clickedTitle !== displayName
+              ? navbarSublists[clickedTitle]?.map((dropItem, idx) => {
                   const dropkey = `drop_${idx}`;
                   return (
-                    dropItem.link
-                        && (
-                        <Link target={dropItem.link.startsWith("https://") ? "_blank" : "_self"} id={dropItem.id} to={dropItem.link} className="dropdownItem" key={dropkey} onClick={() => setClickedTitle("")}>
-                          {dropItem.name}
-                          <div className="dropdownItemText">{dropItem.text}</div>
-                        </Link>
-                        )
-                    );
-                  })
-                : null
-              }
+                    dropItem.link && (
+                      <Link
+                        target={dropItem.link.startsWith("https://") ? "_blank" : "_self"}
+                        id={dropItem.id}
+                        to={dropItem.link}
+                        className="dropdownItem"
+                        key={dropkey}
+                        onClick={() => setClickedTitle("")}
+                      >
+                        {dropItem.name}
+                        <div className="dropdownItemText">{dropItem.text}</div>
+                      </Link>
+                    )
+                  );
+                })
+              : null}
           </div>
         </NameDropdownContainer>
       </Dropdown>
-      <NameDropdown ref={nameDropdownSelection} className={clickedTitle !== displayName ? "invisible" : ""}>
+      <NameDropdown
+        ref={nameDropdownSelection}
+        className={clickedTitle !== displayName ? "invisible" : ""}
+      >
         <NameDropdownContainer>
           <div className="dropdownList">
             <span className="dropdownItem">
-              <Link id="navbar-dropdown-item-name-user-profile" to={`/profile/${authData?.user?._id}`} className="dropdownItem" onClick={() => setClickedTitle("")}>
+              <Link
+                id="navbar-dropdown-item-name-user-profile"
+                to={`/profile/${authData?.user?._id}`}
+                className="dropdownItem"
+                onClick={() => setClickedTitle("")}
+              >
                 User Profile
               </Link>
             </span>
             <span className="dropdownItem">
-              <Button id="navbar-dropdown-item-name-uploader-tool" className="dropdownItem dropdownItemButton" onClick={() => setUploaderToolOpen(true)}>
+              <Button
+                id="navbar-dropdown-item-name-uploader-tool"
+                className="dropdownItem dropdownItemButton"
+                onClick={() => setUploaderToolOpen(true)}
+              >
                 Uploader CLI Tool
               </Button>
             </span>
-            {(authData?.user?.role === "Admin" || authData?.user?.role === "Organization Owner") && (
+            {(authData?.user?.role === "Admin" ||
+              authData?.user?.role === "Organization Owner") && (
               <span className="dropdownItem">
-                <Link id="navbar-dropdown-item-name-user-manage" to="/users" className="dropdownItem" onClick={() => setClickedTitle("")}>
+                <Link
+                  id="navbar-dropdown-item-name-user-manage"
+                  to="/users"
+                  className="dropdownItem"
+                  onClick={() => setClickedTitle("")}
+                >
                   Manage Users
                 </Link>
               </span>
             )}
-            {(authData?.user?.role === "Admin") && (
+            {authData?.user?.role === "Admin" && (
               <span className="dropdownItem">
-                <Link id="navbar-dropdown-item-name-organization-manage" to="/organizations" className="dropdownItem" onClick={() => setClickedTitle("")}>
+                <Link
+                  id="navbar-dropdown-item-name-organization-manage"
+                  to="/organizations"
+                  className="dropdownItem"
+                  onClick={() => setClickedTitle("")}
+                >
                   Manage Organizations
                 </Link>
               </span>
             )}
-            {(authData?.user?.role === "Submitter" || authData?.user?.role === "Organization Owner") && (
+            {(authData?.user?.role === "Submitter" ||
+              authData?.user?.role === "Organization Owner") && (
               <span className="dropdownItem">
-                <Button id="navbar-dropdown-item-name-api-token" className="dropdownItem dropdownItemButton" onClick={() => setOpenAPITokenDialog(true)}>
+                <Button
+                  id="navbar-dropdown-item-name-api-token"
+                  className="dropdownItem dropdownItemButton"
+                  onClick={() => setOpenAPITokenDialog(true)}
+                >
                   API Token
                 </Button>
               </span>
@@ -503,13 +556,16 @@ const NavBar = () => {
               role="button"
               tabIndex={0}
               className="dropdownItem"
-              onClick={() => { setClickedTitle(""); handleLogout(); }}
+              onClick={() => {
+                setClickedTitle("");
+                handleLogout();
+              }}
               onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    setClickedTitle("");
-                    handleLogout();
-                  }
-                }}
+                if (e.key === "Enter") {
+                  setClickedTitle("");
+                  handleLogout();
+                }
+              }}
             >
               Logout
             </span>

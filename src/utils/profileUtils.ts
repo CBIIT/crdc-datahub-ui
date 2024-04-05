@@ -27,7 +27,11 @@ export const formatIDP = (idp: User["IDP"]): string => {
  * @param viewType the page where the user originated from
  * @return array of editable fields derived from User type keys
  */
-export const getEditableFields = (current: User, profileOf: User, viewType: "users" | "profile"): (keyof User)[] => {
+export const getEditableFields = (
+  current: User,
+  profileOf: User,
+  viewType: "users" | "profile"
+): (keyof User)[] => {
   const fields: (keyof User)[] = [];
   const isSelf: boolean = current._id === profileOf?._id;
 

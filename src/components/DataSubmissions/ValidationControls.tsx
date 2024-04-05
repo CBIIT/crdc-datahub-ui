@@ -1,13 +1,13 @@
-import { FC, useEffect, useMemo, useState } from 'react';
-import { useMutation } from '@apollo/client';
-import { FormControlLabel, RadioGroup, Stack, styled } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { useSnackbar } from 'notistack';
-import { useAuthContext } from '../Contexts/AuthContext';
+import { FC, useEffect, useMemo, useState } from "react";
+import { useMutation } from "@apollo/client";
+import { FormControlLabel, RadioGroup, Stack, styled } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { useSnackbar } from "notistack";
+import { useAuthContext } from "../Contexts/AuthContext";
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
-import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from '../../graphql';
-import { getDefaultValidationType, getValidationTypes } from '../../utils';
-import FlowWrapper from './FlowWrapper';
+import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import { getDefaultValidationType, getValidationTypes } from "../../utils";
+import FlowWrapper from "./FlowWrapper";
 
 type Props = {
   /**
@@ -48,7 +48,7 @@ const StyledFileValidationSection = styled(Stack)({
     lineHeight: "20px",
     letterSpacing: "0em",
     textAlign: "left",
-    minWidth: "270px"
+    minWidth: "270px",
   },
   ".fileValidationLeftSide": {
     display: "flex",
@@ -106,8 +106,10 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   const [validationType, setValidationType] = useState<ValidationType>(null);
   const [uploadType, setUploadType] = useState<ValidationTarget>("New");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isValidating, setIsValidating] = useState<boolean>(dataSubmission?.fileValidationStatus === "Validating"
-    || dataSubmission?.metadataValidationStatus === "Validating");
+  const [isValidating, setIsValidating] = useState<boolean>(
+    dataSubmission?.fileValidationStatus === "Validating" ||
+      dataSubmission?.metadataValidationStatus === "Validating"
+  );
 
   const canValidateMetadata: boolean = useMemo(() => {
     if (!user?.role || ValidateRoles.includes(user?.role) === false) {
@@ -135,8 +137,8 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   }, [user?.role, dataSubmission?.fileValidationStatus]);
 
   const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const handleValidateFiles = async () => {
@@ -157,15 +159,20 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         _id: dataSubmission?._id,
         types: getValidationTypes(validationType),
         scope: uploadType === "New" ? "New" : "All",
-      }
+      },
     });
 
     if (errors || !data?.validateSubmission?.success) {
-      enqueueSnackbar("Unable to initiate validation process.", { variant: "error" });
+      enqueueSnackbar("Unable to initiate validation process.", {
+        variant: "error",
+      });
       setIsValidating(false);
       onValidate?.(false);
     } else {
-      enqueueSnackbar("Validation process is starting; this may take some time. Please wait before initiating another validation.", { variant: "success" });
+      enqueueSnackbar(
+        "Validation process is starting; this may take some time. Please wait before initiating another validation.",
+        { variant: "success" }
+      );
       setIsValidating(true);
       onValidate?.(true);
     }
@@ -176,8 +183,10 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   };
 
   useEffect(() => {
-    setIsValidating(dataSubmission?.fileValidationStatus === "Validating"
-      || dataSubmission?.metadataValidationStatus === "Validating");
+    setIsValidating(
+      dataSubmission?.fileValidationStatus === "Validating" ||
+        dataSubmission?.metadataValidationStatus === "Validating"
+    );
   }, [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]);
 
   useEffect(() => {
@@ -198,7 +207,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
           <div className="fileValidationLeftSideTopRow">
             <div className="headerText">Validation Type:</div>
             <div className="fileValidationRadioButtonGroup">
-              <RadioGroup value={validationType} onChange={(e, val: ValidationType) => setValidationType(val)} row>
+              <RadioGroup
+                value={validationType}
+                onChange={(e, val: ValidationType) => setValidationType(val)}
+                row
+              >
                 <StyledRadioControl
                   value="Metadata"
                   control={<StyledRadioButton readOnly={false} />}
@@ -223,7 +236,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
           <div className="fileValidationLeftSideBottomRow">
             <div className="headerText">Validation Target:</div>
             <div className="fileValidationRadioButtonGroup">
-              <RadioGroup value={uploadType} onChange={(event, val: ValidationTarget) => setUploadType(val)} row>
+              <RadioGroup
+                value={uploadType}
+                onChange={(event, val: ValidationTarget) => setUploadType(val)}
+                row
+              >
                 <StyledRadioControl
                   value="New"
                   control={<StyledRadioButton readOnly={false} />}

@@ -1,44 +1,44 @@
-import Logo from '../assets/header/Portal_Logo.svg';
-import LogoSmall from '../assets/header/Portal_Logo_Small.svg';
-import usaFlagSmall from '../assets/header/us_flag_small.svg';
-import { DataCommons } from './DataCommons';
+import Logo from "../assets/header/Portal_Logo.svg";
+import LogoSmall from "../assets/header/Portal_Logo_Small.svg";
+import usaFlagSmall from "../assets/header/us_flag_small.svg";
+import { DataCommons } from "./DataCommons";
 
 // globalHeaderLogo image 468x100
 // globalHeaderImage: image 2200x100
 export const headerData = {
   globalHeaderLogo: Logo,
   globalHeaderLogoSmall: LogoSmall,
-  globalHeaderLogoLink: '/',
-  globalHeaderLogoAltText: 'Portal Logo',
+  globalHeaderLogoLink: "/",
+  globalHeaderLogoAltText: "Portal Logo",
   usaFlagSmall,
-  usaFlagSmallAltText: 'usaFlagSmall',
+  usaFlagSmallAltText: "usaFlagSmall",
 };
 
 export const navMobileList = [
   {
-    name: 'Return to CRDC',
-    link: 'https://datacommons.cancer.gov/',
-    id: 'navbar-dropdown-join-crdc-data-hub',
-    className: 'navMobileItem',
+    name: "Return to CRDC",
+    link: "https://datacommons.cancer.gov/",
+    id: "navbar-dropdown-join-crdc-data-hub",
+    className: "navMobileItem",
   },
   {
-    name: 'Submission Requests',
-    link: '/submissions',
-    id: 'navbar-dropdown-submission-requests',
-    className: 'navMobileItem',
+    name: "Submission Requests",
+    link: "/submissions",
+    id: "navbar-dropdown-submission-requests",
+    className: "navMobileItem",
   },
   {
-    name: 'Data Submissions',
-    link: '/data-submissions',
-    id: 'navbar-dropdown-data-submissions',
-    className: 'navMobileItem',
+    name: "Data Submissions",
+    link: "/data-submissions",
+    id: "navbar-dropdown-data-submissions",
+    className: "navMobileItem",
   },
   {
-    name: 'Model Navigator',
-    link: '#',
-    id: 'navbar-dropdown-model-navigator',
-    className: 'navMobileItem clickable',
-  }
+    name: "Model Navigator",
+    link: "#",
+    id: "navbar-dropdown-model-navigator",
+    className: "navMobileItem clickable",
+  },
 ];
 
 export const navbarSublists = {
@@ -56,7 +56,7 @@ export const navbarSublists = {
   "Model Navigator": DataCommons.map((dc) => ({
     name: `${dc.name} Model`,
     link: `/model-navigator/${dc.name}`,
-    text: '',
-    className: 'navMobileSubItem',
+    text: "",
+    className: "navMobileSubItem",
   })),
 };
