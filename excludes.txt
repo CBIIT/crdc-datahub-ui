@@ -1,9 +1,8 @@
 # Exclude by folder
-^\.github/
+src/config/
 
 # Exclude by extension
 \.pdf$
 \.png$
 \.svg$
 \.json$
-\.example$

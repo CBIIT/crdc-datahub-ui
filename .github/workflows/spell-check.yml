@@ -31,4 +31,7 @@ jobs:
         uses: check-spelling/check-spelling@v0.0.22
         with:
             post_comment: 1
+            excludes: "excludes.txt"
+            only: "only.txt"
+            # only_check_changed_files: 1
 
