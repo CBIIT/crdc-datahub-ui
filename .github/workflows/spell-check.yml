@@ -1,0 +1,29 @@
+name: Spell Check
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: "*"
+    paths:
+      - "src/**"
+      - "public/**"
+      - "*.json"
+      - "*.js"
+      - "*.jsx"
+      - "*.ts"
+      - "*.tsx"
+
+permissions:
+  contents: read
+
+jobs:
+  spellcheck:
+    name: Spell Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Check Spelling
+        uses: check-spelling/check-spelling@v0.0.22
+
