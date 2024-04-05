@@ -1,0 +1,9 @@
+# Exclude by folder
+^\.github/
+
+# Exclude by extension
+\.pdf$
+\.png$
+\.svg$
+\.json$
+\.example$
