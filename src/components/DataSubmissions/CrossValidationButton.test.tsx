@@ -6,7 +6,11 @@ import userEvent from "@testing-library/user-event";
 import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
 import { CrossValidationButton } from "./CrossValidationButton";
 
-const baseSubmission: Omit<Submission, "_id" | "crossSubmissionStatus" | "otherSubmissions"> = {
+// NOTE: We omit all properties that the component specifically depends on
+const baseSubmission: Omit<
+  Submission,
+  "_id" | "status" | "crossSubmissionStatus" | "otherSubmissions"
+> = {
   name: "",
   submitterID: "",
   submitterName: "",
@@ -17,7 +21,6 @@ const baseSubmission: Omit<Submission, "_id" | "crossSubmissionStatus" | "otherS
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
-  status: "Submitted",
   metadataValidationStatus: "Passed",
   fileValidationStatus: "Passed",
   fileErrors: [],
@@ -74,6 +77,7 @@ describe("Accessibility", () => {
           submission={{
             ...baseSubmission,
             _id: "example-sub-id",
+            status: "Submitted",
             crossSubmissionStatus: "New",
             otherSubmissions: {
               "In-progress": [],
@@ -96,7 +100,8 @@ describe("Accessibility", () => {
             ...baseSubmission,
             _id: "example-sub-id",
             // NOTE: This disables the button
-            crossSubmissionStatus: "Validating",
+            status: "New",
+            crossSubmissionStatus: null,
             otherSubmissions: {
               "In-progress": [],
               Submitted: ["submitted-id"],
@@ -124,6 +129,7 @@ describe("Basic Functionality", () => {
           submission={{
             ...baseSubmission,
             _id: "smoke-test-id",
+            status: null,
             otherSubmissions: null,
             crossSubmissionStatus: null,
           }}
@@ -140,6 +146,7 @@ describe("Basic Functionality", () => {
           submission={{
             ...baseSubmission,
             _id: "example-sub-id",
+            status: "Submitted",
             crossSubmissionStatus: "New",
             otherSubmissions: {
               "In-progress": [],
@@ -152,6 +159,7 @@ describe("Basic Functionality", () => {
     );
 
     // TODO: Mock the API response to simulate a success state
+    // this will cause silent GraphQL mock errors if not implemented
 
     await waitFor(() => userEvent.click(getByTestId("cross-validate-button")));
 
@@ -173,6 +181,7 @@ describe("Basic Functionality", () => {
           submission={{
             ...baseSubmission,
             _id: "example-sub-id",
+            status: "Submitted",
             crossSubmissionStatus: "New",
             otherSubmissions: {
               "In-progress": [],
@@ -203,6 +212,7 @@ describe("Basic Functionality", () => {
           submission={{
             ...baseSubmission,
             _id: "example-sub-id",
+            status: "Submitted",
             crossSubmissionStatus: "New",
             otherSubmissions: {
               "In-progress": [],
@@ -235,6 +245,7 @@ describe("Basic Functionality", () => {
           submission={{
             ...baseSubmission,
             _id: "example-sub-id",
+            status: "Submitted",
             crossSubmissionStatus: "New",
             otherSubmissions: {
               "In-progress": [],
@@ -261,6 +272,7 @@ describe("Basic Functionality", () => {
           submission={{
             ...baseSubmission,
             _id: "example-sub-id",
+            status: "Submitted",
             crossSubmissionStatus: "New",
             otherSubmissions: {
               "In-progress": [],
@@ -293,9 +305,10 @@ describe("Implementation Requirements", () => {
           submission={{
             ...baseSubmission,
             _id: "example-sub-id",
+            status: "Submitted",
             crossSubmissionStatus: "New",
             otherSubmissions: {
-              "In-progress": ["some-other-id"],
+              "In-progress": [],
               Submitted: ["submitted-id"],
             },
           }}
@@ -314,6 +327,7 @@ describe("Implementation Requirements", () => {
           submission={{
             ...baseSubmission,
             _id: "validating-test-id",
+            status: "Submitted",
             crossSubmissionStatus: "Validating",
             otherSubmissions: {
               "In-progress": ["some-other-id"],
@@ -333,9 +347,10 @@ describe("Implementation Requirements", () => {
     const submission: Submission = {
       ...baseSubmission,
       _id: "validating-test-id",
+      status: "Submitted",
       crossSubmissionStatus: "Validating",
       otherSubmissions: {
-        "In-progress": ["some-other-id"],
+        "In-progress": [],
         Submitted: ["submitted-id"],
       },
     };
@@ -372,6 +387,7 @@ describe("Implementation Requirements", () => {
           submission={{
             ...baseSubmission,
             _id: "validating-test-id",
+            status: "Submitted",
             crossSubmissionStatus: "New",
             otherSubmissions: {
               "In-progress": [],
@@ -394,10 +410,11 @@ describe("Implementation Requirements", () => {
           submission={{
             ...baseSubmission,
             _id: "validating-test-id",
+            status: "Submitted",
             crossSubmissionStatus: "New",
             otherSubmissions: {
               "In-progress": ["in-prog-id", "another-in-prog-id"],
-              Submitted: [],
+              Submitted: [], // NOTE: This disables the button
             },
           }}
           onValidate={jest.fn()}
@@ -410,7 +427,7 @@ describe("Implementation Requirements", () => {
   });
 
   it.each<ValidationStatus>(["Passed", "Warning", "Error"])(
-    "should not be disabled even if the crossSubmissionStatus is %s",
+    "should not be disabled based on the crossSubmissionStatus (checking '%s')",
     (status) => {
       const { getByTestId } = render(
         <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
@@ -418,6 +435,7 @@ describe("Implementation Requirements", () => {
             submission={{
               ...baseSubmission,
               _id: `not-disabled-assertion-${status}-id`,
+              status: "Submitted",
               crossSubmissionStatus: status,
               otherSubmissions: {
                 "In-progress": ["submitted-id", "another-submitted-id"],
@@ -442,6 +460,7 @@ describe("Implementation Requirements", () => {
           <CrossValidationButton
             submission={{
               ...baseSubmission,
+              status: "Submitted",
               _id: `render-role-test-${role}-id`,
               crossSubmissionStatus: null,
               otherSubmissions: null,
@@ -468,7 +487,8 @@ describe("Implementation Requirements", () => {
           submission={{
             ...baseSubmission,
             _id: `role-test-${role}-id`,
-            // NOTE: Rendering logic is not tied to these properties
+            status: "Submitted",
+            // NOTE: Visibility logic is NOT tied to these properties
             crossSubmissionStatus: null,
             otherSubmissions: null,
           }}
@@ -478,5 +498,60 @@ describe("Implementation Requirements", () => {
     );
 
     expect(() => getByTestId("cross-validate-button")).toThrow();
+  });
+
+  it("should only be enabled for the Submission status of 'Submitted'", () => {
+    const { getByTestId } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <CrossValidationButton
+          submission={{
+            ...baseSubmission,
+            _id: "render-status-test-Submitted-id",
+            status: "Submitted",
+            crossSubmissionStatus: "New",
+            otherSubmissions: {
+              "In-progress": [],
+              Submitted: ["this-enables-the-button"],
+            },
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("cross-validate-button")).toBeInTheDocument();
+    expect(getByTestId("cross-validate-button")).toBeEnabled();
+  });
+
+  it.each<Submission["status"]>([
+    "New",
+    "In Progress",
+    "Withdrawn",
+    "Released",
+    "Completed",
+    "Archived",
+    "Canceled",
+    "fake status" as Submission["status"],
+  ])("should always be disabled for the Submission status of '%s'", (status) => {
+    const { getByTestId } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <CrossValidationButton
+          submission={{
+            ...baseSubmission,
+            _id: `render-status-test-${status}-id`,
+            status,
+            crossSubmissionStatus: "New",
+            otherSubmissions: {
+              "In-progress": [],
+              Submitted: ["this-enables-the-button"],
+            },
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("cross-validate-button")).toBeInTheDocument();
+    expect(getByTestId("cross-validate-button")).toBeDisabled();
   });
 });

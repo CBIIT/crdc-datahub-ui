@@ -34,7 +34,7 @@ export type Props = {
  * @returns {React.FC<Props>}
  */
 export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...props }) => {
-  const { crossSubmissionStatus, otherSubmissions } = submission || {};
+  const { status, crossSubmissionStatus, otherSubmissions } = submission || {};
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -61,7 +61,12 @@ export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...pr
   return (
     <Button
       onClick={handleClick}
-      disabled={isValidating || otherSubmissions?.Submitted?.length === 0}
+      disabled={
+        isValidating ||
+        otherSubmissions?.Submitted?.length === 0 ||
+        status !== "Submitted" ||
+        props.disabled
+      }
       data-testid="cross-validate-button"
       {...props}
     >
