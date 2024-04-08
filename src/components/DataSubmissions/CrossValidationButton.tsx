@@ -90,7 +90,6 @@ export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...pr
       });
       setIsValidating(false);
       onValidate?.(false);
-      setLoading(false);
     } finally {
       setLoading(false);
     }
