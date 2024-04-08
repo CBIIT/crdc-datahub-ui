@@ -1,19 +1,22 @@
 import React, { FC, useMemo, useState } from "react";
 import { cloneDeep, isEqual } from "lodash";
-import { Box, Stack, Tab, Tabs, Typography, styled } from "@mui/material";
+import { Box, Stack, StackProps, Tab, Tabs, Typography, styled } from "@mui/material";
 import ContentCarousel from "../Carousel";
 import NodeTotalChart from "../NodeTotalChart";
 import MiniPieChart from "../NodeChart";
 import SuspenseLoader from "../SuspenseLoader";
 import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from "../../utils";
 import StatisticLegend from "./StatisticLegend";
+import blurredDataVisualizationSvg from "../../assets/dataSubmissions/blurred_data_visualization.svg";
 
 type Props = {
   dataSubmission: Submission;
   statistics: SubmissionStatistic[];
 };
 
-const StyledChartArea = styled(Stack)({
+const StyledChartArea = styled(Stack, {
+  shouldForwardProp: (prop) => prop !== "hasNoData",
+})<StackProps & { hasNoData?: boolean }>(({ hasNoData }) => ({
   height: "422px",
   display: "flex",
   justifyContent: "center",
@@ -25,19 +28,32 @@ const StyledChartArea = styled(Stack)({
   "& > *": {
     zIndex: 10,
   },
-  "&::after": {
+  "&::before": {
     position: "absolute",
     content: '""',
+    width: "1440px",
     height: "100%",
     background: "#FFFFFF",
-    left: "-100%",
-    right: "-100%",
     top: "0",
-    bottom: "0",
+    left: "50%",
+    transform: "translateX(-50%)",
     boxShadow: "0px 4px 20px 0px #00000059",
     zIndex: 1,
   },
-});
+  ...(hasNoData && {
+    "&::after": {
+      position: "absolute",
+      content: `url(${blurredDataVisualizationSvg})`,
+      width: "100%",
+      height: "344px",
+      background: "transparent",
+      top: "0",
+      left: "50%",
+      transform: "translateX(-50%)",
+      zIndex: 2,
+    },
+  }),
+}));
 
 const StyledSectionTitle = styled(Typography)({
   marginTop: "5px",
@@ -49,10 +65,14 @@ const StyledSectionTitle = styled(Typography)({
 });
 
 const StyledNoData = styled(Typography)({
-  fontSize: "16px",
+  width: "944px",
+  fontSize: "21px",
   fontWeight: 400,
-  fontFamily: "Nunito",
-  color: "#083A50",
+  lineHeight: "29px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  color: "#595959",
+  filter: "drop-shadow(0px 0px 85px #FFF)",
+  textAlign: "center",
   userSelect: "none",
 });
 
@@ -133,8 +153,12 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
 
   if (!dataset?.some((s) => s.total > 0)) {
     return (
-      <StyledChartArea direction="row">
-        <StyledNoData variant="h6">No data has been successfully uploaded yet.</StyledNoData>
+      <StyledChartArea direction="row" hasNoData>
+        <StyledNoData variant="h6">
+          This is the data submission visualization section which displays validation results for
+          uploaded data. After uploading and validating the data (see below), the visualization
+          graphic will display.
+        </StyledNoData>
       </StyledChartArea>
     );
   }
