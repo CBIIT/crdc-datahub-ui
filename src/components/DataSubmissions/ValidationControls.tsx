@@ -34,7 +34,6 @@ const StyledValidateButton = styled(LoadingButton)({
   "&.MuiButtonBase-root": {
     height: "fit-content",
     minHeight: "44px",
-    marginLeft: "auto",
     minWidth: "137px",
   },
 });
@@ -89,6 +88,11 @@ const StyledRadioControl = styled(FormControlLabel)({
     marginRight: "0px",
     minWidth: "unset",
   },
+});
+
+const StyledButtonStack = styled(Stack)({
+  marginLeft: "auto",
+  marginRight: "auto",
 });
 
 const ValidateRoles: User["role"][] = ["Submitter", "Data Curator", "Organization Owner", "Admin"];
@@ -258,21 +262,28 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
             </div>
           </div>
         </div>
-        <StyledValidateButton
-          variant="contained"
-          color="info"
-          disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
-          loading={isLoading}
-          onClick={handleValidateFiles}
+        <StyledButtonStack
+          direction="column"
+          justifyContent="center"
+          alignItems="center"
+          spacing={2}
         >
-          {isValidating ? "Validating..." : "Validate"}
-        </StyledValidateButton>
-        <CrossValidationButton
-          submission={dataSubmission}
-          variant="contained"
-          color="info"
-          onValidate={onValidate}
-        />
+          <StyledValidateButton
+            variant="contained"
+            color="info"
+            disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
+            loading={isLoading}
+            onClick={handleValidateFiles}
+          >
+            {isValidating ? "Validating..." : "Validate"}
+          </StyledValidateButton>
+          <CrossValidationButton
+            submission={dataSubmission}
+            variant="contained"
+            color="info"
+            onValidate={onValidate}
+          />
+        </StyledButtonStack>
       </StyledFileValidationSection>
     </FlowWrapper>
   );
