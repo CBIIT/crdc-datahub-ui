@@ -1,5 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { Button, ButtonProps } from "@mui/material";
+import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
 
 /**
@@ -35,6 +36,7 @@ export type Props = {
 export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...props }) => {
   const { crossSubmissionStatus, otherSubmissions } = submission || {};
   const { user } = useAuthContext();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [isValidating, setIsValidating] = useState<boolean>(crossSubmissionStatus === "Validating");
 
@@ -42,6 +44,10 @@ export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...pr
     // TODO: Initiate cross validation and handle errors
     onValidate(true);
     setIsValidating(true);
+    enqueueSnackbar(
+      "Validation process is starting; this may take some time. Please wait before initiating another validation.",
+      { variant: "success" }
+    );
   };
 
   useEffect(() => {

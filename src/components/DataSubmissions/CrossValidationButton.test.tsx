@@ -1,7 +1,8 @@
 import { FC } from "react";
-import { render } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
+import userEvent from "@testing-library/user-event";
 import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
 import { CrossValidationButton } from "./CrossValidationButton";
 
@@ -132,15 +133,152 @@ describe("Basic Functionality", () => {
     );
   });
 
-  // TODO: it("should initiate cross validation when clicked", async () => {});
+  it("should initiate cross validation when clicked", async () => {
+    const { getByTestId } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <CrossValidationButton
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id",
+            crossSubmissionStatus: "New",
+            otherSubmissions: {
+              "In-progress": [],
+              Submitted: ["submitted-id"],
+            },
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
 
-  // TODO: it("should handle API network errors gracefully", () => {});
+    // TODO: Mock the API response to simulate a success state
 
-  // TODO: it("should handle API GraphQL errors gracefully", () => {});
+    await waitFor(() => userEvent.click(getByTestId("cross-validate-button")));
 
-  // TODO: it("should call the onValidate callback when clicked (success)", async () => {});
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Validation process is starting; this may take some time. Please wait before initiating another validation.",
+        {
+          variant: "success",
+        }
+      );
+      expect(getByTestId("cross-validate-button")).toBeDisabled();
+    });
+  });
 
-  // TODO: it("should call the onValidate callback when clicked (failure)", async () => {});
+  it("should handle API network errors gracefully", async () => {
+    const { getByTestId } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <CrossValidationButton
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id",
+            crossSubmissionStatus: "New",
+            otherSubmissions: {
+              "In-progress": [],
+              Submitted: ["submitted-id"],
+            },
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    // TODO: Mock the API response to simulate a network error
+
+    await waitFor(() => userEvent.click(getByTestId("cross-validate-button")));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to initiate validation process.", {
+        variant: "error",
+      });
+      expect(getByTestId("cross-validate-button")).toBeEnabled();
+    });
+  });
+
+  it("should handle API GraphQL errors gracefully", async () => {
+    const { getByTestId } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <CrossValidationButton
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id",
+            crossSubmissionStatus: "New",
+            otherSubmissions: {
+              "In-progress": [],
+              Submitted: ["submitted-id"],
+            },
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    // TODO: Mock the API response to simulate a GRAPHQL error
+
+    await waitFor(() => userEvent.click(getByTestId("cross-validate-button")));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to initiate validation process.", {
+        variant: "error",
+      });
+      expect(getByTestId("cross-validate-button")).toBeEnabled();
+    });
+  });
+
+  it("should call the onValidate callback when clicked (success)", async () => {
+    const onValidate = jest.fn();
+
+    const { getByTestId } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <CrossValidationButton
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id",
+            crossSubmissionStatus: "New",
+            otherSubmissions: {
+              "In-progress": [],
+              Submitted: ["submitted-id"],
+            },
+          }}
+          onValidate={onValidate}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => userEvent.click(getByTestId("cross-validate-button")));
+
+    expect(onValidate).toHaveBeenCalledTimes(1);
+    expect(onValidate).toHaveBeenCalledWith(true);
+  });
+
+  it("should call the onValidate callback when clicked (failure)", async () => {
+    const onValidate = jest.fn();
+
+    const { getByTestId } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <CrossValidationButton
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id",
+            crossSubmissionStatus: "New",
+            otherSubmissions: {
+              "In-progress": [],
+              Submitted: ["submitted-id"],
+            },
+          }}
+          onValidate={onValidate}
+        />
+      </TestParent>
+    );
+
+    // TODO: Mock the API response to simulate a failure state
+
+    await waitFor(() => userEvent.click(getByTestId("cross-validate-button")));
+
+    expect(onValidate).toHaveBeenCalledTimes(1);
+    expect(onValidate).toHaveBeenCalledWith(false);
+  });
 });
 
 describe("Implementation Requirements", () => {
@@ -258,7 +396,7 @@ describe("Implementation Requirements", () => {
             _id: "validating-test-id",
             crossSubmissionStatus: "New",
             otherSubmissions: {
-              "In-progress": ["inprog-id", "another-inprog-id"],
+              "In-progress": ["in-prog-id", "another-in-prog-id"],
               Submitted: [],
             },
           }}
