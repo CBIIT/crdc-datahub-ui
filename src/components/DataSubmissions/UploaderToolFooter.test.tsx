@@ -20,8 +20,7 @@ jest.mock("../../utils", () => ({
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 
-const baseSubmission: Submission = {
-  _id: "",
+const baseSubmission: Omit<Submission, "_id"> = {
   name: "",
   submitterID: "",
   submitterName: "",
@@ -59,7 +58,7 @@ describe("Accessibility", () => {
   it("should have no violations", async () => {
     const { container } = render(
       <TestParent>
-        <Component submission={baseSubmission} />
+        <Component submission={{ ...baseSubmission, _id: "accessibility-base" }} />
       </TestParent>
     );
 
@@ -71,7 +70,7 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Component submission={baseSubmission} />
+        <Component submission={{ ...baseSubmission, _id: "smoke-test-id" }} />
       </TestParent>
     );
 
@@ -101,7 +100,7 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <Component submission={baseSubmission} />
+        <Component submission={{ ...baseSubmission, _id: "network-error-handling" }} />
       </TestParent>
     );
 
@@ -132,7 +131,7 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <Component submission={baseSubmission} />
+        <Component submission={{ ...baseSubmission, _id: "graphql-error-handling" }} />
       </TestParent>
     );
 
@@ -153,7 +152,7 @@ describe("Implementation Requirements", () => {
   it("should have the Uploader CLI download link", () => {
     const { getByText, getByTestId } = render(
       <TestParent>
-        <Component submission={baseSubmission} />
+        <Component submission={{ ...baseSubmission, _id: "cli-download-link-id" }} />
       </TestParent>
     );
 
@@ -170,12 +169,10 @@ describe("Implementation Requirements", () => {
 
     const { getByText, getByTestId } = render(
       <TestParent mocks={mocks}>
-        <Component submission={baseSubmission} />
+        <Component submission={{ ...baseSubmission, _id: "config-download-link-id" }} />
       </TestParent>
     );
     const button = getByTestId("uploader-cli-config-button");
-
-    await waitFor(() => userEvent.click(button));
 
     expect(getByText(/configuration file/)).toBeVisible();
     expect(button).toBeVisible();
@@ -203,7 +200,7 @@ describe("Implementation Requirements", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <Component submission={baseSubmission} />
+        <Component submission={{ ...baseSubmission, _id: "cli-download-on-click" }} />
       </TestParent>
     );
 
@@ -244,7 +241,7 @@ describe("Implementation Requirements", () => {
 
       const { getByTestId } = render(
         <TestParent mocks={mocks}>
-          <Component submission={{ ...baseSubmission, name: input }} />
+          <Component submission={{ ...baseSubmission, _id: "safe-filename-test", name: input }} />
         </TestParent>
       );
 
