@@ -68,6 +68,7 @@ const StyledButton = styled(Button)<{
   component?: React.ComponentType;
   to?: LinkProps["to"];
   target?: LinkProps["target"];
+  download?: LinkProps["download"];
 }>({
   width: "128px",
   height: "42px",
@@ -120,8 +121,9 @@ const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest
         component={Link}
         id="uploader-cli-download-button"
         variant="outlined"
-        target="_blank"
+        target="_self"
         to={env?.REACT_APP_UPLOADER_CLI}
+        download
       >
         Download
       </StyledButton>

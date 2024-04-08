@@ -9,6 +9,7 @@ import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "..
 import { useAuthContext } from "../Contexts/AuthContext";
 import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
 import FlowWrapper from "./FlowWrapper";
+import UploaderToolFooter from "./UploaderToolFooter";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -316,7 +317,7 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
   };
 
   return (
-    <FlowWrapper title="Upload Data" borderColor="#8FC8D5" hoverColor="#92E7FA">
+    <FlowWrapper title="Upload Metadata" borderColor="#8FC8D5" hoverColor="#92E7FA">
       <Stack direction="row" alignItems="center" spacing={1.25}>
         <RadioInput
           id="data-submission-dashboard-upload-type"
@@ -374,6 +375,7 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
           onConfirm={onDeleteUpload}
         />
       </Stack>
+      <UploaderToolFooter submission={submission} />
     </FlowWrapper>
   );
 };
