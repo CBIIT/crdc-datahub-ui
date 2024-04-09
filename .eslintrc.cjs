@@ -10,6 +10,7 @@ const config = {
     "airbnb",
     "airbnb-typescript",
     "prettier",
+    "plugin:storybook/recommended",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
@@ -35,6 +36,13 @@ const config = {
     "prettier/prettier": "error",
 
     "import/prefer-default-export": "off",
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        devDependencies: ["**/*.{stories,test,spec}.{ts,tsx}"],
+        optionalDependencies: false,
+      },
+    ],
     "max-len": "off",
     "no-console": "warn",
     "no-param-reassign": "off",
@@ -53,10 +61,7 @@ const config = {
 
     /* react rules */
     "react/prop-types": "off",
-    "react/jsx-filename-extension": [
-      1,
-      { extensions: [".js", ".jsx", ".tsx", ".ts"] },
-    ],
+    "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx", ".ts"] }],
     "react/jsx-props-no-spreading": "off",
     "react/react-in-jsx-scope": "off",
     "react/require-default-props": "off",
@@ -76,11 +81,7 @@ const config = {
         warnOnDuplicates: true,
       },
     ],
-    "react/destructuring-assignment": [
-      "error",
-      "always",
-      { destructureInSignature: "always" },
-    ],
+    "react/destructuring-assignment": ["error", "always", { destructureInSignature: "always" }],
 
     /* typescript-eslint rules */
     "@typescript-eslint/no-empty-function": "error",
