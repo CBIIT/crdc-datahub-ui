@@ -118,7 +118,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     }
 
     return dataSubmission?.metadataValidationStatus !== null;
-  }, [user?.role, dataSubmission?.metadataValidationStatus]);
+  }, [user?.role, dataSubmission?.metadataValidationStatus, dataSubmission?.status]);
 
   const canValidateFiles: boolean = useMemo(() => {
     if (!user?.role || ValidateRoles.includes(user?.role) === false) {
@@ -129,7 +129,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     }
 
     return dataSubmission?.fileValidationStatus !== null;
-  }, [user?.role, dataSubmission?.fileValidationStatus]);
+  }, [user?.role, dataSubmission?.fileValidationStatus, dataSubmission?.status]);
 
   const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
     context: { clientName: 'backend' },
