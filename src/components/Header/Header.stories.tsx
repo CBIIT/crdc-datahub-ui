@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { BrowserRouter } from "react-router-dom";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import Header from "./index";
 
@@ -10,13 +9,6 @@ const meta = {
     layout: "fullscreen",
   },
   tags: ["autodocs"],
-  decorators: [
-    (Story) => (
-      <BrowserRouter>
-        <Story />
-      </BrowserRouter>
-    ),
-  ],
 } satisfies Meta<typeof Header>;
 
 export default meta;
