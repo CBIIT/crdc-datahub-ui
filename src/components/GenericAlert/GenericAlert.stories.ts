@@ -9,7 +9,6 @@ const meta = {
   },
   tags: ["autodocs"],
   argTypes: {
-    open: { control: "boolean" },
     severity: { control: "radio", options: ["success", "error"] },
     children: { control: "text" },
   },

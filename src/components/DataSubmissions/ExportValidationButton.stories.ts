@@ -8,10 +8,6 @@ const meta = {
     layout: "centered",
   },
   tags: ["autodocs"],
-  argTypes: {
-    submission: { control: "object" },
-    fields: { control: "object" },
-  },
 } satisfies Meta<typeof ExportValidationButton>;
 
 export default meta;

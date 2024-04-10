@@ -82,6 +82,7 @@
     "@storybook/addon-jest": "^8.0.6",
     "@storybook/addon-links": "^8.0.6",
     "@storybook/addon-onboarding": "^8.0.6",
+    "@storybook/addon-themes": "^8.0.6",
     "@storybook/blocks": "^8.0.6",
     "@storybook/preset-create-react-app": "^8.0.6",
     "@storybook/react": "^8.0.6",
