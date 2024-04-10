@@ -17,27 +17,36 @@ interface LayoutProps {
   children?: ReactNode;
 }
 
+/**
+ * Provides the base-head content for the application.
+ *
+ * @returns {React.FC} The Helmet component.
+ */
+export const HelmetWrapper: FC = () => (
+  <Helmet defaultTitle="CRDC DataHub">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <link
+      href={
+        "https://fonts.googleapis.com/css2?" +
+        "family=Open+Sans&" +
+        "family=Poppins:wght@400;700&" +
+        "family=Lato:wght@300;400;500;600;700&" +
+        "family=Inter:wght@300;400;500;600;700&" +
+        "family=Nunito+Sans:wght@400;500;600;700;800;900&" +
+        "family=Nunito:wght@300;400;500;600;700;800;900&" +
+        "family=Public+Sans:wght@300;400;500;600;700&" +
+        "family=Rubik:wght@300;400;500;600;700&" +
+        "family=Roboto:wght@400&" +
+        "display=swap"
+      }
+      rel="stylesheet"
+    />
+  </Helmet>
+);
+
 const Layout: FC<LayoutProps> = ({ children }) => (
   <>
-    <Helmet defaultTitle="CRDC DataHub">
-      <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-      <link
-        href={
-          "https://fonts.googleapis.com/css2?" +
-          "family=Open+Sans&" +
-          "family=Poppins:wght@400;700&" +
-          "family=Lato:wght@300;400;500;600;700&" +
-          "family=Inter:wght@300;400;500;600;700&" +
-          "family=Nunito+Sans:wght@400;500;600;700;800;900&" +
-          "family=Nunito:wght@300;400;500;600;700;800;900&" +
-          "family=Public+Sans:wght@300;400;500;600;700&" +
-          "family=Rubik:wght@300;400;500;600;700&" +
-          "family=Roboto:wght@400&" +
-          "display=swap"
-        }
-        rel="stylesheet"
-      />
-    </Helmet>
+    <HelmetWrapper />
     <Header />
     <OverlayWindow />
     <StyledWrapper>
