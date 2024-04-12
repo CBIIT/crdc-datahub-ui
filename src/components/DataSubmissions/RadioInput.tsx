@@ -63,7 +63,7 @@ const StyledAsterisk = styled("span")(() => ({
 
 const StyledFormControlLabel = styled(FormControlLabel)(() => ({
   "&.MuiFormControlLabel-root": {
-    paddingRight: "10px",
+    paddingRight: "5px",
     marginRight: "2px",
   },
   "& .MuiFormControlLabel-label": {
@@ -94,6 +94,7 @@ type Props = {
   required?: boolean;
   readOnly?: boolean;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
+  parentProps?: GridProps;
 } & RadioGroupProps;
 
 const RadioInput = forwardRef<HTMLDivElement, Props>(
@@ -110,6 +111,7 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
       helpText,
       required,
       readOnly,
+      parentProps,
       ...rest
     },
     ref
@@ -152,7 +154,7 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
     }, [value]);
 
     return (
-      <GridStyled md={gridWidth || 6} xs={12} item containerWidth={containerWidth}>
+      <GridStyled md={gridWidth || 6} xs={12} item containerWidth={containerWidth} {...parentProps}>
         <FormControl className="formControl" error={error}>
           <Stack direction={inline ? "row" : "column"} alignItems={inline ? "center" : "initial"}>
             <StyledFormLabel className="radio-label" htmlFor={radioId}>

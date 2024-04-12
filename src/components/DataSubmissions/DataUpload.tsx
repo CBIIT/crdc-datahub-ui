@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
@@ -72,7 +72,7 @@ const StyledUploadActionWrapper = styled(Stack)(() => ({
   "&.MuiStack-root": {
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: "48px",
+    marginLeft: "20px",
   },
 }));
 
@@ -89,7 +89,7 @@ type Props = {
   onUpload: (message: string, severity: VariantType) => void;
 };
 
-const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
+const DataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
@@ -315,8 +315,27 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
     handleUploadFiles();
   };
 
+  const Actions: ReactElement = useMemo(
+    () => (
+      <StyledUploadFilesButton
+        variant="contained"
+        color="info"
+        onClick={() =>
+          metadataIntention === "Delete" ? setOpenDeleteDialog(true) : handleUploadFiles()
+        }
+        disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
+        disableElevation
+        disableRipple
+        disableTouchRipple
+      >
+        {isUploading ? "Uploading..." : "Upload"}
+      </StyledUploadFilesButton>
+    ),
+    [selectedFiles, metadataIntention, readOnly, canUpload, isUploading]
+  );
+
   return (
-    <FlowWrapper title="Upload Data" borderColor="#8FC8D5" hoverColor="#92E7FA">
+    <FlowWrapper index={1} title="Upload Data" actions={Actions}>
       <Stack direction="row" alignItems="center" spacing={1.25}>
         <RadioInput
           id="data-submission-dashboard-upload-type"
@@ -325,6 +344,7 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
           onChange={(_event, value: MetadataIntention) => !readOnly && setMetadataIntention(value)}
           options={metadataIntentionOptions}
           gridWidth={4}
+          parentProps={{ sx: { minWidth: "400px" } }}
           readOnly={readOnly}
           inline
           row
@@ -354,28 +374,14 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
               : "No files selected"}
           </StyledFilesSelected>
         </StyledUploadActionWrapper>
-        <StyledUploadFilesButton
-          variant="contained"
-          color="info"
-          onClick={() =>
-            metadataIntention === "Delete" ? setOpenDeleteDialog(true) : handleUploadFiles()
-          }
-          disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
-          disableElevation
-          disableRipple
-          disableTouchRipple
-        >
-          {isUploading ? "Uploading..." : "Upload"}
-        </StyledUploadFilesButton>
-
-        <DeleteDialog
-          open={openDeleteDialog}
-          onClose={onCloseDeleteDialog}
-          onConfirm={onDeleteUpload}
-        />
       </Stack>
+      <DeleteDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onDeleteUpload}
+      />
     </FlowWrapper>
   );
 };
 
-export default DataSubmissionUpload;
+export default DataUpload;

@@ -1,6 +1,6 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, ReactElement, useEffect, useMemo, useState } from "react";
 import { useMutation } from "@apollo/client";
-import { FormControlLabel, RadioGroup, Stack, styled } from "@mui/material";
+import { FormControlLabel, RadioGroup, Stack, Typography, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
@@ -31,47 +31,27 @@ const StyledValidateButton = styled(LoadingButton)({
   lineHeight: "24px",
   letterSpacing: "0.32px",
   "&.MuiButtonBase-root": {
-    height: "fit-content",
-    minHeight: "44px",
     marginLeft: "auto",
     minWidth: "137px",
   },
 });
 
-const StyledFileValidationSection = styled(Stack)({
-  marginTop: "5px",
-  ".headerText": {
-    fontFamily: "Nunito",
-    color: "#083A50",
-    fontSize: "16px",
-    fontWeight: "700",
-    lineHeight: "20px",
-    letterSpacing: "0em",
-    textAlign: "left",
-    minWidth: "270px",
-  },
-  ".fileValidationLeftSide": {
-    display: "flex",
-    flexDirection: "column",
-  },
-  ".fileValidationLeftSideTopRow": {
-    display: "grid",
-    gridTemplateColumns: "1fr 3fr",
-    height: "50px",
-    alignItems: "center",
-    borderBottom: "1px solid #0B7F99",
-    width: "800px",
-  },
-  ".fileValidationLeftSideBottomRow": {
-    display: "grid",
-    gridTemplateColumns: "1fr 3fr",
-    height: "50px",
-    alignItems: "center",
-    width: "800px",
-  },
-  ".fileValidationRadioButtonGroup": {
-    marginLeft: "20px",
-  },
+const StyledRow = styled(Stack)({
+  fontFamily: "Nunito",
+});
+
+const StyledRowTitle = styled(Typography)({
+  fontWeight: 700,
+  fontSize: "16px",
+  color: "#083A50",
+  minWidth: "170px",
+});
+
+const StyledRowContent = styled(Stack)({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  width: "650px",
 });
 
 const StyledRadioControl = styled(FormControlLabel)({
@@ -182,6 +162,21 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     setIsLoading(false);
   };
 
+  const Actions: ReactElement = useMemo(
+    () => (
+      <StyledValidateButton
+        variant="contained"
+        color="info"
+        disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
+        loading={isLoading}
+        onClick={handleValidateFiles}
+      >
+        {isValidating ? "Validating..." : "Validate"}
+      </StyledValidateButton>
+    ),
+    [canValidateFiles, canValidateMetadata, isValidating, isLoading]
+  );
+
   useEffect(() => {
     setIsValidating(
       dataSubmission?.fileValidationStatus === "Validating" ||
@@ -201,72 +196,61 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   }, [dataSubmission]);
 
   return (
-    <FlowWrapper title="Validate Data" borderColor="#8E9AD5" hoverColor="#869AFF">
-      <StyledFileValidationSection direction="row" alignItems="center">
-        <div className="fileValidationLeftSide">
-          <div className="fileValidationLeftSideTopRow">
-            <div className="headerText">Validation Type:</div>
-            <div className="fileValidationRadioButtonGroup">
-              <RadioGroup
-                value={validationType}
-                onChange={(e, val: ValidationType) => setValidationType(val)}
-                row
-              >
-                <StyledRadioControl
-                  value="Metadata"
-                  control={<StyledRadioButton readOnly={false} />}
-                  label="Validate Metadata"
-                  disabled={!canValidateMetadata}
-                />
-                <StyledRadioControl
-                  value="Files"
-                  control={<StyledRadioButton readOnly={false} />}
-                  label="Validate Data Files"
-                  disabled={!canValidateFiles}
-                />
-                <StyledRadioControl
-                  value="All"
-                  control={<StyledRadioButton readOnly={false} />}
-                  label="Both"
-                  disabled={!canValidateFiles || !canValidateMetadata}
-                />
-              </RadioGroup>
-            </div>
-          </div>
-          <div className="fileValidationLeftSideBottomRow">
-            <div className="headerText">Validation Target:</div>
-            <div className="fileValidationRadioButtonGroup">
-              <RadioGroup
-                value={uploadType}
-                onChange={(event, val: ValidationTarget) => setUploadType(val)}
-                row
-              >
-                <StyledRadioControl
-                  value="New"
-                  control={<StyledRadioButton readOnly={false} />}
-                  label="New Uploaded Data"
-                  disabled={!canValidateFiles && !canValidateMetadata}
-                />
-                <StyledRadioControl
-                  value="All"
-                  control={<StyledRadioButton readOnly={false} />}
-                  label="All Uploaded Data"
-                  disabled={!canValidateFiles && !canValidateMetadata}
-                />
-              </RadioGroup>
-            </div>
-          </div>
-        </div>
-        <StyledValidateButton
-          variant="contained"
-          color="info"
-          disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
-          loading={isLoading}
-          onClick={handleValidateFiles}
-        >
-          {isValidating ? "Validating..." : "Validate"}
-        </StyledValidateButton>
-      </StyledFileValidationSection>
+    <FlowWrapper index={3} title="Validate Data" actions={Actions} last>
+      <>
+        <StyledRow direction="row" alignItems="center">
+          <StyledRowTitle>Validation Type:</StyledRowTitle>
+          <StyledRowContent>
+            <RadioGroup
+              value={validationType}
+              onChange={(e, val: ValidationType) => setValidationType(val)}
+              row
+            >
+              <StyledRadioControl
+                value="Metadata"
+                control={<StyledRadioButton readOnly={false} />}
+                label="Validate Metadata"
+                disabled={!canValidateMetadata}
+              />
+              <StyledRadioControl
+                value="Files"
+                control={<StyledRadioButton readOnly={false} />}
+                label="Validate Data Files"
+                disabled={!canValidateFiles}
+              />
+              <StyledRadioControl
+                value="All"
+                control={<StyledRadioButton readOnly={false} />}
+                label="Both"
+                disabled={!canValidateFiles || !canValidateMetadata}
+              />
+            </RadioGroup>
+          </StyledRowContent>
+        </StyledRow>
+        <StyledRow direction="row" alignItems="center">
+          <StyledRowTitle>Validation Target:</StyledRowTitle>
+          <StyledRowContent>
+            <RadioGroup
+              value={uploadType}
+              onChange={(event, val: ValidationTarget) => setUploadType(val)}
+              row
+            >
+              <StyledRadioControl
+                value="New"
+                control={<StyledRadioButton readOnly={false} />}
+                label="New Uploaded Data"
+                disabled={!canValidateFiles && !canValidateMetadata}
+              />
+              <StyledRadioControl
+                value="All"
+                control={<StyledRadioButton readOnly={false} />}
+                label="All Uploaded Data"
+                disabled={!canValidateFiles && !canValidateMetadata}
+              />
+            </RadioGroup>
+          </StyledRowContent>
+        </StyledRow>
+      </>
     </FlowWrapper>
   );
 };
