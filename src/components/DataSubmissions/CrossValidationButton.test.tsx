@@ -446,7 +446,7 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("cross-validate-button")).toBeEnabled();
   });
 
-  it("should be disabled if there are no other related Submitted submissions", () => {
+  it("should be HIDDEN if there are no other related Submitted submissions", () => {
     const { getByTestId } = render(
       <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
@@ -465,8 +465,7 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    expect(getByTestId("cross-validate-button")).toBeInTheDocument();
-    expect(getByTestId("cross-validate-button")).toBeDisabled();
+    expect(() => getByTestId("cross-validate-button")).toThrow();
   });
 
   it.each<ValidationStatus>(["Passed", "Warning", "Error"])(
@@ -496,7 +495,7 @@ describe("Implementation Requirements", () => {
   );
 
   it.each<User["role"]>(["Data Curator", "Admin"])(
-    "should always render for the role %s",
+    "should always render for the role %s with Other Submissions present",
     (role) => {
       const { getByTestId } = render(
         <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
@@ -506,7 +505,10 @@ describe("Implementation Requirements", () => {
               status: "Submitted",
               _id: `render-role-test-${role}-id`,
               crossSubmissionStatus: null,
-              otherSubmissions: null,
+              otherSubmissions: {
+                "In-progress": [],
+                Submitted: ["submitted-id", "another-submitted-id"],
+              },
             }}
             onValidate={jest.fn()}
           />
@@ -531,9 +533,12 @@ describe("Implementation Requirements", () => {
             ...baseSubmission,
             _id: `role-test-${role}-id`,
             status: "Submitted",
-            // NOTE: Visibility logic is NOT tied to these properties
             crossSubmissionStatus: null,
-            otherSubmissions: null,
+            otherSubmissions: {
+              "In-progress": [],
+              // NOTE: Even with these values, the button should not render
+              Submitted: ["submitted-id", "another-submitted-id"],
+            },
           }}
           onValidate={jest.fn()}
         />

@@ -101,7 +101,11 @@ export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...pr
     setIsValidating(crossSubmissionStatus === "Validating");
   }, [crossSubmissionStatus]);
 
-  if (!user?.role || !CrossValidateRoles.includes(user.role)) {
+  if (
+    !user?.role ||
+    !CrossValidateRoles.includes(user.role) ||
+    !otherSubmissions?.Submitted?.length
+  ) {
     return null;
   }
 
@@ -109,12 +113,7 @@ export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...pr
     <StyledValidateButton
       onClick={handleClick}
       loading={loading}
-      disabled={
-        isValidating ||
-        otherSubmissions?.Submitted?.length === 0 ||
-        status !== "Submitted" ||
-        props.disabled
-      }
+      disabled={isValidating || status !== "Submitted" || props.disabled}
       data-testid="cross-validate-button"
       {...props}
     >
