@@ -120,7 +120,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     }
 
     return dataSubmission?.metadataValidationStatus !== null;
-  }, [user?.role, dataSubmission?.metadataValidationStatus]);
+  }, [user?.role, dataSubmission?.metadataValidationStatus, dataSubmission?.status]);
 
   const canValidateFiles: boolean = useMemo(() => {
     if (!user?.role || ValidateRoles.includes(user?.role) === false) {
@@ -134,7 +134,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     }
 
     return dataSubmission?.fileValidationStatus !== null;
-  }, [user?.role, dataSubmission?.fileValidationStatus]);
+  }, [user?.role, dataSubmission?.fileValidationStatus, dataSubmission?.status]);
 
   const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
     context: { clientName: "backend" },
@@ -160,7 +160,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         types: getValidationTypes(validationType),
         scope: uploadType === "New" ? "New" : "All",
       },
-    });
+    }).catch((e) => ({ errors: e?.message, data: null }));
 
     if (errors || !data?.validateSubmission?.success) {
       enqueueSnackbar("Unable to initiate validation process.", {
