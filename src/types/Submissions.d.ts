@@ -13,7 +13,7 @@ type Submission = {
   status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
   metadataValidationStatus: ValidationStatus;
   fileValidationStatus: ValidationStatus;
-  crossSubmissionStatus: ValidationStatus;
+  crossSubmissionStatus: CrossSubmissionStatus;
   fileErrors: QCResult[]; // holds submission level file errors, e.g., extra files in S3 folder
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
@@ -31,6 +31,7 @@ type Submission = {
  * @note `New` indicates that the type has been uploaded but not validated yet.
  */
 type ValidationStatus = null | "New" | "Validating" | "Passed" | "Error" | "Warning";
+type CrossSubmissionStatus = Exclude<ValidationStatus, "Warning">;
 
 type SubmissionStatus =
   | "New"

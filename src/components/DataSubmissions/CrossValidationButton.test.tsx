@@ -468,7 +468,7 @@ describe("Implementation Requirements", () => {
     expect(() => getByTestId("cross-validate-button")).toThrow();
   });
 
-  it.each<ValidationStatus>(["Passed", "Warning", "Error"])(
+  it.each<CrossSubmissionStatus>(["Passed", "Error"])(
     "should not be disabled based on the crossSubmissionStatus (checking '%s')",
     (status) => {
       const { getByTestId } = render(

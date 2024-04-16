@@ -688,7 +688,7 @@ describe("shouldDisableRelease", () => {
     expect(result.requireAlert).toBe(true);
   });
 
-  it.each<ValidationStatus>(["Passed", "Warning"])(
+  it.each<CrossSubmissionStatus>(["Passed"])(
     "should allow release when crossSubmissionStatus is %s and other submissions exist",
     (status) => {
       const result: ReleaseInfo = utils.shouldDisableRelease({
@@ -705,12 +705,12 @@ describe("shouldDisableRelease", () => {
     }
   );
 
-  it.each<ValidationStatus>([
+  it.each<CrossSubmissionStatus>([
     null,
     "New",
     "Validating",
     "Error",
-    "fake status" as ValidationStatus,
+    "fake status" as CrossSubmissionStatus,
   ])(
     "should not allow release when crossSubmissionStatus is %s and other submissions exist",
     (status) => {
