@@ -30,6 +30,7 @@ const StyledValidateButton = styled(LoadingButton)({
   fontStyle: "normal",
   lineHeight: "24px",
   letterSpacing: "0.32px",
+  height: "44px",
   "&.MuiButtonBase-root": {
     marginLeft: "auto",
     minWidth: "137px",
@@ -59,11 +60,9 @@ const StyledRadioControl = styled(FormControlLabel)({
   fontSize: "16px",
   fontWeight: "500",
   lineHeight: "20px",
-  letterSpacing: "0em",
   textAlign: "left",
   color: "#083A50",
-  minWidth: "200px",
-  marginRight: "20px",
+  minWidth: "230px",
   "&:last-child": {
     marginRight: "0px",
     minWidth: "unset",
@@ -198,7 +197,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   return (
     <FlowWrapper index={3} title="Validate Data" actions={Actions} last>
       <>
-        <StyledRow direction="row" alignItems="center">
+        <StyledRow direction="row" alignItems="center" sx={{ marginBottom: "-5px" }}>
           <StyledRowTitle>Validation Type:</StyledRowTitle>
           <StyledRowContent>
             <RadioGroup
@@ -227,7 +226,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
             </RadioGroup>
           </StyledRowContent>
         </StyledRow>
-        <StyledRow direction="row" alignItems="center">
+        <StyledRow direction="row" alignItems="center" sx={{ marginTop: "-5px" }}>
           <StyledRowTitle>Validation Target:</StyledRowTitle>
           <StyledRowContent>
             <RadioGroup

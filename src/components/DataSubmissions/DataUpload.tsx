@@ -27,7 +27,7 @@ const StyledMetadataText = styled(StyledUploadTypeText)(() => ({
 
 const StyledUploadFilesButton = styled(Button)(() => ({
   minWidth: "137px",
-  minHeight: "44px",
+  height: "44px",
   padding: "10px",
   color: "#FFF",
   fontFamily: "'Nunito'",
@@ -41,9 +41,10 @@ const StyledUploadFilesButton = styled(Button)(() => ({
     minWidth: "137px",
   },
 }));
+
 const StyledChooseFilesButton = styled(LoadingButton)(() => ({
   minWidth: "137px",
-  minHeight: "44px",
+  height: "44px",
   padding: "10px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
