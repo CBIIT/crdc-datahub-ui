@@ -155,7 +155,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         types: getValidationTypes(validationType),
         scope: uploadType === "New" ? "New" : "All",
       }
-    });
+    }).catch((e) => ({ errors: e?.message, data: null }));
 
     if (errors || !data?.validateSubmission?.success) {
       enqueueSnackbar("Unable to initiate validation process.", { variant: "error" });
