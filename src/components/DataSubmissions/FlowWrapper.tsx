@@ -78,6 +78,7 @@ const StyledTitle = styled(Typography)({
 
 const StyledActionsGrid = styled(Grid)({
   paddingTop: "27px",
+  paddingRight: "8px",
   alignSelf: "center",
 });
 
