@@ -51,3 +51,5 @@ type HistoryBase<T> = {
   dateTime: string; // YYYY-MM-DDTHH:MM:SSZ format
   userID: string;
 };
+
+declare module "*.pdf";
