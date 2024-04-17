@@ -90,7 +90,13 @@ type Props = {
   onUpload: (message: string, severity: VariantType) => void;
 };
 
-const DataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
+/**
+ * A component that handles the Metadata upload process for a Data Submission
+ *
+ * @param {Props} props
+ * @returns {React.FC<Props>}
+ */
+export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
@@ -384,5 +390,3 @@ const DataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) =>
     </FlowWrapper>
   );
 };
-
-export default DataUpload;

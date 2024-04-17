@@ -20,7 +20,7 @@ import { useSnackbar, VariantType } from "notistack";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
-import DataUpload from "../../components/DataSubmissions/DataUpload";
+import { MetadataUpload } from "../../components/DataSubmissions/MetadataUpload";
 import {
   GET_SUBMISSION,
   LIST_BATCHES,
@@ -586,7 +586,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
             />
             <StyledFlowContainer>
               <UserGuide />
-              <DataUpload
+              <MetadataUpload
                 submission={data?.getSubmission}
                 readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
                 onCreateBatch={refreshBatchTable}
