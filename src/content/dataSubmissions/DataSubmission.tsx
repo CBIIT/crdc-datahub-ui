@@ -50,6 +50,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
 import SubmittedData from "./SubmittedData";
 import { UserGuide } from "../../components/DataSubmissions/UserGuide";
+import { DataUpload } from "../../components/DataSubmissions/DataUpload";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -592,6 +593,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                 onCreateBatch={refreshBatchTable}
                 onUpload={handleOnUpload}
               />
+              <DataUpload submission={data?.getSubmission} />
               <ValidationControls
                 dataSubmission={data?.getSubmission}
                 onValidate={handleOnValidate}

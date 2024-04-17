@@ -17,7 +17,7 @@ const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
     maxWidth: "none",
     borderRadius: "8px",
-    width: "755px !important",
+    width: "731px !important",
     padding: "47px 59px 71px 54px",
     border: "2px solid #0B7F99",
     background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
@@ -27,7 +27,7 @@ const StyledDialog = styled(Dialog)({
 
 const StyledHeader = styled(Typography)({
   color: "#0B7F99",
-  fontFamily: "'Nunito Sans', 'Rubik', sans-serif !important",
+  fontFamily: "'Nunito Sans' !important",
   fontSize: "35px !important",
   fontStyle: "normal",
   fontWeight: "900 !important",
@@ -74,6 +74,7 @@ const StyledButton = styled(Button)<{
   height: "42px",
   padding: "12px 60px !important",
   borderRadius: "8px !important",
+  background: "#FFF !important",
   border: "1px solid #000 !important",
   color: "#000 !important",
   textAlign: "center",
@@ -117,6 +118,9 @@ const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest
       </StyledBodyText>
     </StyledDialogContent>
     <StyledDialogActions>
+      <StyledButton id="uploader-cli-close-button" variant="outlined" onClick={onClose}>
+        Close
+      </StyledButton>
       <StyledButton
         component={Link}
         id="uploader-cli-download-button"
@@ -126,9 +130,6 @@ const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest
         download
       >
         Download
-      </StyledButton>
-      <StyledButton id="uploader-cli-close-button" variant="outlined" onClick={onClose}>
-        Close
       </StyledButton>
     </StyledDialogActions>
   </StyledDialog>

@@ -5,7 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import Component from "./UploaderToolFooter";
+import { DataUpload } from "./DataUpload";
 import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 
 jest.mock("../../env", () => ({
@@ -58,7 +58,7 @@ describe("Accessibility", () => {
   it("should have no violations", async () => {
     const { container } = render(
       <TestParent>
-        <Component submission={{ ...baseSubmission, _id: "accessibility-base" }} />
+        <DataUpload submission={{ ...baseSubmission, _id: "accessibility-base" }} />
       </TestParent>
     );
 
@@ -70,7 +70,7 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Component submission={{ ...baseSubmission, _id: "smoke-test-id" }} />
+        <DataUpload submission={{ ...baseSubmission, _id: "smoke-test-id" }} />
       </TestParent>
     );
 
@@ -80,7 +80,7 @@ describe("Basic Functionality", () => {
   it("should not crash when the submission is null", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Component submission={null} />
+        <DataUpload submission={null} />
       </TestParent>
     );
 
@@ -100,7 +100,7 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <Component submission={{ ...baseSubmission, _id: "network-error-handling" }} />
+        <DataUpload submission={{ ...baseSubmission, _id: "network-error-handling" }} />
       </TestParent>
     );
 
@@ -131,7 +131,7 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <Component submission={{ ...baseSubmission, _id: "graphql-error-handling" }} />
+        <DataUpload submission={{ ...baseSubmission, _id: "graphql-error-handling" }} />
       </TestParent>
     );
 
@@ -152,7 +152,7 @@ describe("Implementation Requirements", () => {
   it("should have the Uploader CLI download link", () => {
     const { getByText, getByTestId } = render(
       <TestParent>
-        <Component submission={{ ...baseSubmission, _id: "cli-download-link-id" }} />
+        <DataUpload submission={{ ...baseSubmission, _id: "cli-download-link-id" }} />
       </TestParent>
     );
 
@@ -169,7 +169,7 @@ describe("Implementation Requirements", () => {
 
     const { getByText, getByTestId } = render(
       <TestParent mocks={mocks}>
-        <Component submission={{ ...baseSubmission, _id: "config-download-link-id" }} />
+        <DataUpload submission={{ ...baseSubmission, _id: "config-download-link-id" }} />
       </TestParent>
     );
     const button = getByTestId("uploader-cli-config-button");
@@ -200,7 +200,7 @@ describe("Implementation Requirements", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <Component submission={{ ...baseSubmission, _id: "cli-download-on-click" }} />
+        <DataUpload submission={{ ...baseSubmission, _id: "cli-download-on-click" }} />
       </TestParent>
     );
 
@@ -241,7 +241,7 @@ describe("Implementation Requirements", () => {
 
       const { getByTestId } = render(
         <TestParent mocks={mocks}>
-          <Component submission={{ ...baseSubmission, _id: "safe-filename-test", name: input }} />
+          <DataUpload submission={{ ...baseSubmission, _id: "safe-filename-test", name: input }} />
         </TestParent>
       );
 
