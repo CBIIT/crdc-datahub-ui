@@ -56,7 +56,9 @@
     "typecheck": "tsc --noEmit",
     "prepare": "husky install",
     "prestorybook": "npm run test:ci -- --json --outputFile=.jest-results.json",
-    "storybook": "storybook dev -p 6006"
+    "storybook": "storybook dev -p 6006",
+    "prestorybook-build": "npm run prestorybook",
+    "storybook-build": "storybook build"
   },
   "eslintConfig": {
     "extends": [
