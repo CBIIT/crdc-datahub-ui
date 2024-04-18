@@ -101,14 +101,15 @@ describe("Accessibility", () => {
           submission={{
             ...baseSubmission,
             _id: "example-sub-id",
-            // NOTE: This disables the button
             status: "New",
             crossSubmissionStatus: null,
             otherSubmissions: {
               "In-progress": [],
+              // NOTE: this is needed otherwise the button won't render
               Submitted: ["submitted-id"],
             },
           }}
+          disabled
           onValidate={jest.fn()}
         />
       </TestParent>
@@ -341,7 +342,7 @@ describe("Implementation Requirements", () => {
     jest.resetAllMocks();
   });
 
-  it("should be named 'Validate Cross-Submissions'", () => {
+  it("should be named 'Cross Validate'", () => {
     const { getByText } = render(
       <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
@@ -360,7 +361,7 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    expect(getByText("Validate Cross-Submissions")).toBeInTheDocument();
+    expect(getByText("Cross Validate")).toBeInTheDocument();
   });
 
   it("should render as disabled with text 'Validating...' when the submission is validating", () => {
@@ -420,7 +421,7 @@ describe("Implementation Requirements", () => {
     );
 
     expect(getByTestId("cross-validate-button")).toBeEnabled();
-    expect(getByTestId("cross-validate-button")).toHaveTextContent("Validate Cross-Submissions");
+    expect(getByTestId("cross-validate-button")).toHaveTextContent(/validate/i);
   });
 
   it("should be enabled only if there are other related Submitted submissions", () => {

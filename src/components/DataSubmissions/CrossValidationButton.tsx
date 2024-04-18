@@ -117,7 +117,7 @@ export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...pr
       data-testid="cross-validate-button"
       {...props}
     >
-      {isValidating ? "Validating..." : "Validate Cross-Submissions"}
+      {isValidating ? "Validating..." : "Cross Validate"}
     </StyledValidateButton>
   );
 };
