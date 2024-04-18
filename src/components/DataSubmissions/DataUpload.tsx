@@ -8,6 +8,7 @@ import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 import { downloadBlob, filterAlphaNumeric } from "../../utils";
 import FlowWrapper from "./FlowWrapper";
 import UploaderToolDialog from "../UploaderToolDialog";
+import UploaderConfigDialog, { InputForm } from "../UploaderConfigDialog";
 
 export type Props = {
   /**
@@ -64,18 +65,22 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
   const { _id, name } = submission || {};
 
   const [cliDialogOpen, setCLIDialogOpen] = useState<boolean>(false);
+  const [configDialogOpen, setConfigDialogOpen] = useState<boolean>(false);
   const [retrieveCLIConfig] = useLazyQuery<RetrieveCLIConfigResp>(RETRIEVE_CLI_CONFIG, {
-    variables: {
-      _id,
-      apiURL: env.REACT_APP_BACKEND_API,
-    },
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const handleConfigDownload = async () => {
+  const handleConfigDownload = async ({ manifest, dataFolder }: InputForm) => {
     try {
-      const { data, error } = await retrieveCLIConfig();
+      const { data, error } = await retrieveCLIConfig({
+        variables: {
+          _id,
+          dataFolder,
+          manifest,
+          apiURL: env.REACT_APP_BACKEND_API,
+        },
+      });
 
       if (error || !data?.retrieveCLIConfig?.length) {
         throw new Error(error.message);
@@ -86,6 +91,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
       const filename = `${prefixedName.replace(/-+$/, "")}.yml`;
 
       downloadBlob(data.retrieveCLIConfig, filename, "application/yaml");
+      setConfigDialogOpen(false);
     } catch (e) {
       enqueueSnackbar("Unable to download Uploader CLI config file", {
         variant: "error",
@@ -95,7 +101,11 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
 
   const Actions: ReactElement = useMemo(
     () => (
-      <StyledDownloadButton onClick={handleConfigDownload} variant="contained" color="info">
+      <StyledDownloadButton
+        onClick={() => setConfigDialogOpen(true)}
+        variant="contained"
+        color="info"
+      >
         Download Configuration File
       </StyledDownloadButton>
     ),
@@ -118,6 +128,11 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
           this submission.
         </StyledBox>
         <UploaderToolDialog open={cliDialogOpen} onClose={() => setCLIDialogOpen(false)} />
+        <UploaderConfigDialog
+          open={configDialogOpen}
+          onClose={() => setConfigDialogOpen(false)}
+          onDownload={handleConfigDownload}
+        />
       </>
     </FlowWrapper>
   );
