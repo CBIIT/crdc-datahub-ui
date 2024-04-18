@@ -30,7 +30,6 @@ const StyledValidateButton = styled(LoadingButton)({
   fontStyle: "normal",
   lineHeight: "24px",
   letterSpacing: "0.32px",
-  height: "44px",
   "&.MuiButtonBase-root": {
     marginLeft: "auto",
     minWidth: "137px",
