@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { render, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import UploaderConfigDialog from "./index";
@@ -114,7 +114,6 @@ describe("Basic Functionality", () => {
     });
   });
 
-  // TODO: getting an act warning here
   it("should clear the form when reopening the dialog", async () => {
     const { rerender, getByTestId } = render(
       <TestParent>
@@ -125,17 +124,16 @@ describe("Basic Functionality", () => {
     const dataFolderInput = within(
       getByTestId("uploader-config-dialog-input-data-folder")
     ).getByRole("textbox");
+
+    fireEvent.input(dataFolderInput, { target: { value: "test-folder" } });
+    await waitFor(() => expect(dataFolderInput).toHaveValue("test-folder"));
+
     const manifestInput = within(getByTestId("uploader-config-dialog-input-manifest")).getByRole(
       "textbox"
     );
 
-    userEvent.type(dataFolderInput, "test-folder");
-    userEvent.type(manifestInput, "test-manifest");
-
-    await waitFor(() => {
-      expect(dataFolderInput).toHaveValue("test-folder");
-      expect(manifestInput).toHaveValue("test-manifest");
-    });
+    fireEvent.input(manifestInput, { target: { value: "test-manifest" } });
+    await waitFor(() => expect(manifestInput).toHaveValue("test-manifest"));
 
     // Simulate closing dialog
     rerender(

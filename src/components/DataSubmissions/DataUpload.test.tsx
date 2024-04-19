@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
+import { act, render, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
@@ -104,7 +104,7 @@ describe("Basic Functionality", () => {
     );
 
     // Open the dialog
-    await waitFor(() => userEvent.click(getByTestId("uploader-cli-config-button")));
+    userEvent.click(getByTestId("uploader-cli-config-button"));
 
     // Skip filling the fields and click the download button
     await waitFor(() => {
@@ -159,9 +159,8 @@ describe("Basic Functionality", () => {
   });
 });
 
-// TODO: act warning here
 describe("Implementation Requirements", () => {
-  it("should have the Uploader CLI download dialog link", async () => {
+  it("should have the Uploader CLI download dialog button", async () => {
     const { getByText, getByTestId } = render(
       <TestParent>
         <DataUpload submission={{ ...baseSubmission, _id: "cli-download-link-id" }} />
@@ -172,6 +171,12 @@ describe("Implementation Requirements", () => {
 
     expect(getByText(/CLI Tool download/i)).toBeVisible();
     expect(link).toContainElement(getByText(/CLI Tool download/i));
+
+    await act(async () => userEvent.click(link));
+
+    await waitFor(() => {
+      expect(getByText(/Uploader CLI Tool/i)).toBeInTheDocument();
+    });
   });
 
   it("should have the Configuration download link", async () => {
@@ -217,10 +222,12 @@ describe("Implementation Requirements", () => {
     expect(called).toBe(false);
 
     // Open the dialog
-    await waitFor(() => userEvent.click(getByTestId("uploader-cli-config-button")));
+    await act(async () => {
+      userEvent.click(getByTestId("uploader-cli-config-button"));
+    });
 
     // Skip filling the fields and click the download button
-    await waitFor(() => {
+    await act(async () => {
       userEvent.click(getByText("Download"));
     });
 
@@ -262,10 +269,10 @@ describe("Implementation Requirements", () => {
       );
 
       // Open the dialog
-      await waitFor(() => userEvent.click(getByTestId("uploader-cli-config-button")));
+      await act(async () => userEvent.click(getByTestId("uploader-cli-config-button")));
 
       // Skip filling the fields and click the download button
-      await waitFor(() => {
+      await act(async () => {
         userEvent.click(getByText("Download"));
       });
 
