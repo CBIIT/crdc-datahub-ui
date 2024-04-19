@@ -105,6 +105,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
         onClick={() => setConfigDialogOpen(true)}
         variant="contained"
         color="info"
+        data-testid="uploader-cli-config-button"
       >
         Download Configuration File
       </StyledDownloadButton>
@@ -120,7 +121,10 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
           work. The CLI Tools is a one-time download however the configuration file needs to be
           customized for each submission. You can either edit the example configuration files found
           in the{" "}
-          <StyledToolButton onClick={() => setCLIDialogOpen(true)}>
+          <StyledToolButton
+            onClick={() => setCLIDialogOpen(true)}
+            data-testid="uploader-cli-download-button"
+          >
             <span>CLI Tool download</span>
             <StyledOpenInNewIcon />
           </StyledToolButton>

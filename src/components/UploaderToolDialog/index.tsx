@@ -102,9 +102,14 @@ const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest
     open={open}
     onClose={() => onClose?.()}
     aria-labelledby="uploader-cli-header"
+    data-testid="uploader-cli-dialog"
     {...rest}
   >
-    <StyledCloseDialogButton aria-label="close" onClick={() => onClose?.()}>
+    <StyledCloseDialogButton
+      data-testid="uploader-cli-dialog-close-icon"
+      aria-label="close"
+      onClick={() => onClose?.()}
+    >
       <CloseIconSvg />
     </StyledCloseDialogButton>
     <StyledHeader id="uploader-cli-header" variant="h1">
@@ -118,12 +123,12 @@ const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest
       </StyledBodyText>
     </StyledDialogContent>
     <StyledDialogActions>
-      <StyledButton id="uploader-cli-close-button" variant="outlined" onClick={onClose}>
+      <StyledButton data-testid="uploader-cli-close-button" variant="outlined" onClick={onClose}>
         Close
       </StyledButton>
       <StyledButton
         component={Link}
-        id="uploader-cli-download-button"
+        data-testid="uploader-cli-dialog-download-button"
         variant="outlined"
         target="_self"
         to={env?.REACT_APP_UPLOADER_CLI}

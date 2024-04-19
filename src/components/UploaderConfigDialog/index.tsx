@@ -135,20 +135,25 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
   return (
     <StyledDialog
       open={open}
-      onClose={() => onClose?.()}
+      onClose={onClose}
       aria-labelledby="uploader-config-header"
+      data-testid="uploader-config-dialog"
       {...rest}
     >
-      <StyledCloseDialogButton aria-label="close" onClick={() => onClose?.()}>
+      <StyledCloseDialogButton
+        data-testid="uploader-config-dialog-close-icon"
+        aria-label="close"
+        onClick={onClose}
+      >
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      <StyledHeader data-testid="uploader-config-header" variant="h1">
+      <StyledHeader data-testid="uploader-config-dialog-header" variant="h1">
         Download
         <br />
         Configuration File
       </StyledHeader>
       <StyledDialogContent>
-        <StyledBodyText data-testid="uploader-config-body" variant="body1">
+        <StyledBodyText data-testid="uploader-config-dialog-body" variant="body1">
           Please provide the full pathway to the data files on your local system and to the file
           manifest.
         </StyledBodyText>
@@ -160,6 +165,7 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
             <StyledOutlinedInput
               {...register("dataFolder", { required: true })}
               placeholder="Enter pathway"
+              data-testid="uploader-config-dialog-input-data-folder"
               required
             />
           </Box>
@@ -170,6 +176,7 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
             <StyledOutlinedInput
               {...register("manifest", { required: true })}
               placeholder="Enter location"
+              data-testid="uploader-config-dialog-input-manifest"
               required
             />
           </Box>
@@ -177,14 +184,14 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
       </StyledDialogContent>
       <StyledDialogActions>
         <StyledButton
-          data-testid="uploader-config-close-button"
+          data-testid="uploader-config-dialog-close-button"
           variant="outlined"
           onClick={onClose}
         >
           Close
         </StyledButton>
         <StyledButton
-          data-testid="uploader-config-download-button"
+          data-testid="uploader-config-dialog-download-button"
           variant="outlined"
           onClick={handleDownload}
           loading={downloading}

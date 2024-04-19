@@ -10,7 +10,6 @@ import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 
 jest.mock("../../env", () => ({
   ...jest.requireActual("../../env"),
-  REACT_APP_UPLOADER_CLI: "mocked-cli-download-link",
   REACT_APP_BACKEND_API: "mocked-backend-api-url",
 }));
 
@@ -98,13 +97,19 @@ describe("Basic Functionality", () => {
       },
     ];
 
-    const { getByTestId } = render(
+    const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
         <DataUpload submission={{ ...baseSubmission, _id: "network-error-handling" }} />
       </TestParent>
     );
 
+    // Open the dialog
     await waitFor(() => userEvent.click(getByTestId("uploader-cli-config-button")));
+
+    // Skip filling the fields and click the download button
+    await waitFor(() => {
+      userEvent.click(getByText("Download"));
+    });
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -129,13 +134,19 @@ describe("Basic Functionality", () => {
       },
     ];
 
-    const { getByTestId } = render(
+    const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
         <DataUpload submission={{ ...baseSubmission, _id: "graphql-error-handling" }} />
       </TestParent>
     );
 
+    // Open the dialog
     await waitFor(() => userEvent.click(getByTestId("uploader-cli-config-button")));
+
+    // Skip filling the fields and click the download button
+    await waitFor(() => {
+      userEvent.click(getByText("Download"));
+    });
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -148,8 +159,9 @@ describe("Basic Functionality", () => {
   });
 });
 
+// TODO: act warning here
 describe("Implementation Requirements", () => {
-  it("should have the Uploader CLI download link", () => {
+  it("should have the Uploader CLI download dialog link", async () => {
     const { getByText, getByTestId } = render(
       <TestParent>
         <DataUpload submission={{ ...baseSubmission, _id: "cli-download-link-id" }} />
@@ -158,10 +170,8 @@ describe("Implementation Requirements", () => {
 
     const link = getByTestId("uploader-cli-download-button");
 
-    expect(getByText(/Uploader CLI tool/)).toBeVisible();
-    expect(link).toHaveAttribute("href", expect.stringMatching(/mocked-cli-download-link/g));
-    expect(link).toHaveAttribute("download");
-    expect(link).toHaveAttribute("target", "_self");
+    expect(getByText(/CLI Tool download/i)).toBeVisible();
+    expect(link).toContainElement(getByText(/CLI Tool download/i));
   });
 
   it("should have the Configuration download link", async () => {
@@ -174,7 +184,7 @@ describe("Implementation Requirements", () => {
     );
     const button = getByTestId("uploader-cli-config-button");
 
-    expect(getByText(/configuration file/)).toBeVisible();
+    expect(getByText(/download configuration file/i)).toBeVisible();
     expect(button).toBeVisible();
   });
 
@@ -198,7 +208,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByTestId } = render(
+    const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
         <DataUpload submission={{ ...baseSubmission, _id: "cli-download-on-click" }} />
       </TestParent>
@@ -206,7 +216,13 @@ describe("Implementation Requirements", () => {
 
     expect(called).toBe(false);
 
+    // Open the dialog
     await waitFor(() => userEvent.click(getByTestId("uploader-cli-config-button")));
+
+    // Skip filling the fields and click the download button
+    await waitFor(() => {
+      userEvent.click(getByText("Download"));
+    });
 
     await waitFor(() => {
       expect(called).toBe(true);
@@ -239,13 +255,19 @@ describe("Implementation Requirements", () => {
         },
       ];
 
-      const { getByTestId } = render(
+      const { getByTestId, getByText } = render(
         <TestParent mocks={mocks}>
           <DataUpload submission={{ ...baseSubmission, _id: "safe-filename-test", name: input }} />
         </TestParent>
       );
 
+      // Open the dialog
       await waitFor(() => userEvent.click(getByTestId("uploader-cli-config-button")));
+
+      // Skip filling the fields and click the download button
+      await waitFor(() => {
+        userEvent.click(getByText("Download"));
+      });
 
       await waitFor(() => {
         expect(mockDownloadBlob).toHaveBeenCalledWith(
