@@ -1,3 +1,5 @@
+import { safeParse } from "./jsonUtils";
+
 export type SubmitInfo = {
   disable: boolean;
   isAdminOverride: boolean;
@@ -121,6 +123,7 @@ export type ReleaseInfo = {
  */
 export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
   const { crossSubmissionStatus, otherSubmissions } = submission || {};
+  const parsedSubmissions = safeParse<OtherSubmissions>(otherSubmissions);
 
   // Cross-validation has already occurred, nothing else required
   const shortCircuitStatuses: ValidationStatus[] = ["Passed", "Warning"];
@@ -128,13 +131,13 @@ export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
     return { disable: false, requireAlert: false };
   }
 
-  // Scenario 1: All other submissions are "In-progress", allow release with alert
-  if (otherSubmissions?.Submitted?.length === 0 && otherSubmissions["In-progress"]?.length > 0) {
+  // Scenario 1: All other submissions are "In Progress", allow release with alert
+  if (parsedSubmissions?.Submitted?.length === 0 && parsedSubmissions["In Progress"]?.length > 0) {
     return { disable: false, requireAlert: true };
   }
 
   // Scenario 2: More than one other "Submitted" submission exists, disable release entirely
-  if (otherSubmissions?.Submitted.length > 0) {
+  if (parsedSubmissions?.Submitted?.length > 0) {
     return { disable: true, requireAlert: false };
   }
 

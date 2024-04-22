@@ -81,10 +81,10 @@ describe("Accessibility", () => {
             _id: "example-sub-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
-            otherSubmissions: {
-              "In-progress": [],
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
               Submitted: ["submitted-id"],
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />
@@ -103,11 +103,11 @@ describe("Accessibility", () => {
             _id: "example-sub-id",
             status: "New",
             crossSubmissionStatus: null,
-            otherSubmissions: {
-              "In-progress": [],
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
               // NOTE: this is needed otherwise the button won't render
               Submitted: ["submitted-id"],
-            },
+            }),
           }}
           disabled
           onValidate={jest.fn()}
@@ -177,10 +177,10 @@ describe("Basic Functionality", () => {
             _id: submissionID,
             status: "Submitted",
             crossSubmissionStatus: "New",
-            otherSubmissions: {
-              "In-progress": [],
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
               Submitted: ["submitted-id"],
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />
@@ -223,10 +223,10 @@ describe("Basic Functionality", () => {
             _id: submissionID,
             status: "Submitted",
             crossSubmissionStatus: "New",
-            otherSubmissions: {
-              "In-progress": [],
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
               Submitted: ["submitted-id"],
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />
@@ -265,10 +265,10 @@ describe("Basic Functionality", () => {
             _id: submissionID,
             status: "Submitted",
             crossSubmissionStatus: "New",
-            otherSubmissions: {
-              "In-progress": [],
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
               Submitted: ["submitted-id"],
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />
@@ -317,10 +317,10 @@ describe("Basic Functionality", () => {
               _id: submissionID,
               status: "Submitted",
               crossSubmissionStatus: "New",
-              otherSubmissions: {
-                "In-progress": [],
+              otherSubmissions: JSON.stringify({
+                "In Progress": [],
                 Submitted: ["submitted-id"],
-              },
+              }),
             }}
             onValidate={onValidate}
           />
@@ -351,10 +351,10 @@ describe("Implementation Requirements", () => {
             _id: "example-sub-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
-            otherSubmissions: {
-              "In-progress": [],
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
               Submitted: ["submitted-id"],
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />
@@ -373,10 +373,10 @@ describe("Implementation Requirements", () => {
             _id: "validating-test-id",
             status: "Submitted",
             crossSubmissionStatus: "Validating",
-            otherSubmissions: {
-              "In-progress": ["some-other-id"],
+            otherSubmissions: JSON.stringify({
+              "In Progress": ["some-other-id"],
               Submitted: ["submitted-id"],
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />
@@ -393,10 +393,10 @@ describe("Implementation Requirements", () => {
       _id: "validating-test-id",
       status: "Submitted",
       crossSubmissionStatus: "Validating",
-      otherSubmissions: {
-        "In-progress": [],
+      otherSubmissions: JSON.stringify({
+        "In Progress": [],
         Submitted: ["submitted-id"],
-      },
+      }),
     };
 
     const { getByTestId, rerender } = render(
@@ -433,10 +433,10 @@ describe("Implementation Requirements", () => {
             _id: "validating-test-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
-            otherSubmissions: {
-              "In-progress": [],
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
               Submitted: ["submitted-id", "another-submitted-id"],
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />
@@ -456,10 +456,10 @@ describe("Implementation Requirements", () => {
             _id: "validating-test-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
-            otherSubmissions: {
-              "In-progress": ["in-prog-id", "another-in-prog-id"],
+            otherSubmissions: JSON.stringify({
+              "In Progress": ["in-prog-id", "another-in-prog-id"],
               Submitted: [], // NOTE: This disables the button
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />
@@ -480,10 +480,10 @@ describe("Implementation Requirements", () => {
               _id: `not-disabled-assertion-${status}-id`,
               status: "Submitted",
               crossSubmissionStatus: status,
-              otherSubmissions: {
-                "In-progress": ["submitted-id", "another-submitted-id"],
+              otherSubmissions: JSON.stringify({
+                "In Progress": ["submitted-id", "another-submitted-id"],
                 Submitted: ["submitted-id", "another-submitted-id"],
-              },
+              }),
             }}
             onValidate={jest.fn()}
           />
@@ -506,10 +506,10 @@ describe("Implementation Requirements", () => {
               status: "Submitted",
               _id: `render-role-test-${role}-id`,
               crossSubmissionStatus: null,
-              otherSubmissions: {
-                "In-progress": [],
+              otherSubmissions: JSON.stringify({
+                "In Progress": [],
                 Submitted: ["submitted-id", "another-submitted-id"],
-              },
+              }),
             }}
             onValidate={jest.fn()}
           />
@@ -535,11 +535,11 @@ describe("Implementation Requirements", () => {
             _id: `role-test-${role}-id`,
             status: "Submitted",
             crossSubmissionStatus: null,
-            otherSubmissions: {
-              "In-progress": [],
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
               // NOTE: Even with these values, the button should not render
               Submitted: ["submitted-id", "another-submitted-id"],
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />
@@ -558,10 +558,10 @@ describe("Implementation Requirements", () => {
             _id: "render-status-test-Submitted-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
-            otherSubmissions: {
-              "In-progress": [],
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
               Submitted: ["this-enables-the-button"],
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />
@@ -590,10 +590,10 @@ describe("Implementation Requirements", () => {
             _id: `render-status-test-${status}-id`,
             status,
             crossSubmissionStatus: "New",
-            otherSubmissions: {
-              "In-progress": [],
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
               Submitted: ["this-enables-the-button"],
-            },
+            }),
           }}
           onValidate={jest.fn()}
         />

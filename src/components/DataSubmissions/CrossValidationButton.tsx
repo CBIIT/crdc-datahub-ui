@@ -5,6 +5,7 @@ import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import { safeParse } from "../../utils";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -52,9 +53,10 @@ export type Props = {
  * @returns {React.FC<Props>}
  */
 export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...props }) => {
-  const { _id, status, crossSubmissionStatus, otherSubmissions } = submission || {};
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { _id, status, crossSubmissionStatus, otherSubmissions } = submission || {};
+  const parsedSubmissions = safeParse<OtherSubmissions>(otherSubmissions);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(crossSubmissionStatus === "Validating");
@@ -104,7 +106,7 @@ export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...pr
   if (
     !user?.role ||
     !CrossValidateRoles.includes(user.role) ||
-    !otherSubmissions?.Submitted?.length
+    !parsedSubmissions?.Submitted?.length
   ) {
     return null;
   }

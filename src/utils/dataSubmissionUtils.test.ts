@@ -664,10 +664,10 @@ describe("shouldDisableRelease", () => {
     const result: ReleaseInfo = utils.shouldDisableRelease({
       ...baseSubmission,
       crossSubmissionStatus: null,
-      otherSubmissions: {
-        "In-progress": [],
+      otherSubmissions: JSON.stringify({
+        "In Progress": [],
         Submitted: [],
-      },
+      }),
     });
 
     expect(result.disable).toBe(false);
@@ -678,10 +678,10 @@ describe("shouldDisableRelease", () => {
     const result: ReleaseInfo = utils.shouldDisableRelease({
       ...baseSubmission,
       crossSubmissionStatus: null,
-      otherSubmissions: {
-        "In-progress": ["ABC-123", "XYZ-456"],
+      otherSubmissions: JSON.stringify({
+        "In Progress": ["ABC-123", "XYZ-456"],
         Submitted: [],
-      },
+      }),
     });
 
     expect(result.disable).toBe(false);
@@ -694,10 +694,10 @@ describe("shouldDisableRelease", () => {
       const result: ReleaseInfo = utils.shouldDisableRelease({
         ...baseSubmission,
         crossSubmissionStatus: status,
-        otherSubmissions: {
-          "In-progress": ["ABC-123", "XYZ-456"],
+        otherSubmissions: JSON.stringify({
+          "In Progress": ["ABC-123", "XYZ-456"],
           Submitted: ["DEF-456", "GHI-789"],
-        },
+        }),
       });
 
       expect(result.disable).toBe(false);
@@ -717,10 +717,10 @@ describe("shouldDisableRelease", () => {
       const result: ReleaseInfo = utils.shouldDisableRelease({
         ...baseSubmission,
         crossSubmissionStatus: status,
-        otherSubmissions: {
-          "In-progress": ["ABC-123", "XYZ-456"],
+        otherSubmissions: JSON.stringify({
+          "In Progress": ["ABC-123", "XYZ-456"],
           Submitted: ["DEF-456", "GHI-789"],
-        },
+        }),
       });
 
       expect(result.disable).toBe(true);
