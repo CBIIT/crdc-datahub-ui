@@ -13,19 +13,16 @@ const StyledStack = styled(Stack, {
 })<{ disabled: boolean }>(({ disabled }) => ({
   opacity: disabled ? 0.4 : 1,
   textDecoration: disabled ? "line-through" : "none",
-  marginRight: "35px",
-  "&:last-child": {
-    marginRight: "0",
-  },
   cursor: "pointer",
   userSelect: "none",
 }));
 
 const StyledLabel = styled(Typography)({
-  color: "#383838",
-  fontSize: "11px",
+  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   fontWeight: 600,
-  fontFamily: "'Nunito Sans'",
+  fontSize: "11px",
+  lineHeight: "27px",
+  color: "#383838",
 });
 
 const StyledColorBox = styled(Box, {
