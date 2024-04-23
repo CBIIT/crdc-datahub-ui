@@ -68,7 +68,6 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
   const [configDialogOpen, setConfigDialogOpen] = useState<boolean>(false);
   const [retrieveCLIConfig] = useLazyQuery<RetrieveCLIConfigResp>(RETRIEVE_CLI_CONFIG, {
     context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
   });
 
   const handleConfigDownload = async ({ manifest, dataFolder }: InputForm) => {

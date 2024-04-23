@@ -136,7 +136,7 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
     <StyledDialog
       open={open}
       onClose={onClose}
-      aria-labelledby="uploader-config-header"
+      aria-labelledby="uploader-config-dialog-header"
       data-testid="uploader-config-dialog"
       {...rest}
     >
@@ -147,7 +147,11 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
       >
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      <StyledHeader data-testid="uploader-config-dialog-header" variant="h1">
+      <StyledHeader
+        id="uploader-config-dialog-header"
+        data-testid="uploader-config-dialog-header"
+        variant="h1"
+      >
         Download
         <br />
         Configuration File
@@ -159,24 +163,26 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
         </StyledBodyText>
         <StyledForm onSubmit={handleDownload}>
           <Box>
-            <StyledLabel>
+            <StyledLabel id="data-folder-input-label">
               Local data file pathway <StyledAsterisk />
             </StyledLabel>
             <StyledOutlinedInput
               {...register("dataFolder", { required: true })}
               placeholder="Enter pathway"
               data-testid="uploader-config-dialog-input-data-folder"
+              inputProps={{ "aria-labelledby": "data-folder-input-label" }}
               required
             />
           </Box>
           <Box>
-            <StyledLabel>
+            <StyledLabel id="manifest-input-label">
               Local file manifest location <StyledAsterisk />
             </StyledLabel>
             <StyledOutlinedInput
               {...register("manifest", { required: true })}
               placeholder="Enter location"
               data-testid="uploader-config-dialog-input-manifest"
+              inputProps={{ "aria-labelledby": "manifest-input-label" }}
               required
             />
           </Box>
