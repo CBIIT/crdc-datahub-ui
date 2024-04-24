@@ -20,7 +20,7 @@ import { useSnackbar, VariantType } from "notistack";
 import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
-import DataSubmissionUpload from "../../components/DataSubmissions/DataSubmissionUpload";
+import DataUpload from "../../components/DataSubmissions/DataUpload";
 import {
   GET_SUBMISSION,
   LIST_BATCHES,
@@ -49,6 +49,7 @@ import { shouldDisableSubmit } from "../../utils/dataSubmissionUtils";
 import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
 import SubmittedData from "./SubmittedData";
+import { UserGuide } from "../../components/DataSubmissions/UserGuide";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -244,6 +245,10 @@ const StyledFileCountButton = styled(Button)(() => ({
     textDecorationLine: "underline",
   },
 }));
+
+const StyledFlowContainer = styled(Box)({
+  padding: "27px 59px 59px 60px",
+});
 
 const columns: Column<Batch>[] = [
   {
@@ -579,16 +584,19 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
               dataSubmission={data?.getSubmission}
               statistics={data?.submissionStats?.stats}
             />
-            <DataSubmissionUpload
-              submission={data?.getSubmission}
-              readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
-              onCreateBatch={refreshBatchTable}
-              onUpload={handleOnUpload}
-            />
-            <ValidationControls
-              dataSubmission={data?.getSubmission}
-              onValidate={handleOnValidate}
-            />
+            <StyledFlowContainer>
+              <UserGuide />
+              <DataUpload
+                submission={data?.getSubmission}
+                readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
+                onCreateBatch={refreshBatchTable}
+                onUpload={handleOnUpload}
+              />
+              <ValidationControls
+                dataSubmission={data?.getSubmission}
+                onValidate={handleOnValidate}
+              />
+            </StyledFlowContainer>
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_ACTIVITY}>
               <LinkTab
                 value={URLTabs.DATA_ACTIVITY}

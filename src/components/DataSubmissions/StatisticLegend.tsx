@@ -11,18 +11,28 @@ const StyledContainer = styled(Stack)({
   borderRadius: "8px",
   background: "#F5F8F9",
   border: "1px solid #939393",
-  width: "600px",
-  padding: "8px 0",
+  width: "569px",
+  padding: "13px 32px 12.79px",
   marginTop: "20px",
+  gap: "2.21px",
+});
+
+const StyledLegendHeader = styled(Typography)({
+  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+  fontWeight: 600,
+  fontSize: "13px",
+  lineHeight: "17.73px",
+  letterSpacing: "-0.25px",
+  color: "#525252",
 });
 
 const StyledLegendTitle = styled(Typography)({
-  fontFamily: "Nunito",
-  fontSize: "13px",
+  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   fontWeight: 600,
+  fontSize: "13px",
+  lineHeight: "17.73px",
+  letterSpacing: "-0.25px",
   color: "#156071",
-  marginLeft: "-48px",
-  marginRight: "30px",
 });
 
 /**
@@ -31,17 +41,22 @@ const StyledLegendTitle = styled(Typography)({
  * @returns {React.FC}
  */
 const StatisticLegend: FC<Props> = ({ filters, onClick }) => (
-  <StyledContainer direction="row" justifyContent="center" alignItems="center">
-    <StyledLegendTitle>Validation Status</StyledLegendTitle>
-    {filters.map((filter) => (
-      <LegendItem
-        key={filter.label}
-        color={filter.color}
-        label={filter.label}
-        disabled={filter.disabled}
-        onClick={() => onClick?.(filter)}
-      />
-    ))}
+  <StyledContainer direction="column" justifyContent="center" alignItems="center">
+    <StyledLegendHeader variant="h6">
+      Click a Validation Status to Filter the Node Displays above
+    </StyledLegendHeader>
+    <Stack direction="row" justifyContent="center" alignItems="center" gap="35px">
+      <StyledLegendTitle>Validation Status</StyledLegendTitle>
+      {filters.map((filter) => (
+        <LegendItem
+          key={filter.label}
+          color={filter.color}
+          label={filter.label}
+          disabled={filter.disabled}
+          onClick={() => onClick?.(filter)}
+        />
+      ))}
+    </Stack>
   </StyledContainer>
 );
 
