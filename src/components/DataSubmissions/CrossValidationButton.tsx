@@ -106,7 +106,8 @@ export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...pr
   if (
     !user?.role ||
     !CrossValidateRoles.includes(user.role) ||
-    !parsedSubmissions?.Submitted?.length
+    !parsedSubmissions?.Submitted?.length ||
+    status !== "Submitted"
   ) {
     return null;
   }

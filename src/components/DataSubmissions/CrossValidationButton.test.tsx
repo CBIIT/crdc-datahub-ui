@@ -101,7 +101,7 @@ describe("Accessibility", () => {
           submission={{
             ...baseSubmission,
             _id: "example-sub-id",
-            status: "New",
+            status: "Submitted",
             crossSubmissionStatus: null,
             otherSubmissions: JSON.stringify({
               "In Progress": [],
@@ -581,7 +581,7 @@ describe("Implementation Requirements", () => {
     "Archived",
     "Canceled",
     "fake status" as Submission["status"],
-  ])("should always be disabled for the Submission status of '%s'", (status) => {
+  ])("should never be visible for the Submission status of '%s'", (status) => {
     const { getByTestId } = render(
       <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
@@ -600,7 +600,6 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    expect(getByTestId("cross-validate-button")).toBeInTheDocument();
-    expect(getByTestId("cross-validate-button")).toBeDisabled();
+    expect(() => getByTestId("cross-validate-button")).toThrow();
   });
 });
