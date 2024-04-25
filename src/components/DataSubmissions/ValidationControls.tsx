@@ -173,8 +173,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       </StyledValidateButton>
     ),
     [
-      validationType,
-      uploadType,
+      handleValidateFiles,
       dataSubmission,
       canValidateFiles,
       canValidateMetadata,
