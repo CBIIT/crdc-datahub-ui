@@ -107,7 +107,7 @@ const StyledCard = styled(Card)(() => ({
     pointerEvents: "none",
     backgroundImage: "linear-gradient(to bottom, rgba(255,255,255,0), rgba(251,253,255, 1) 20%)",
     width: "100%",
-    height: "360px",
+    height: "260px",
   },
 }));
 
