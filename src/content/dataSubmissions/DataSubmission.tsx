@@ -68,7 +68,7 @@ const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
 
 const StyledBannerContentContainer = styled(Container)(({ padding }: { padding?: string }) => ({
   "&.MuiContainer-root": {
-    padding: padding || "58px 73px 186px",
+    padding: padding || "58px 73px 75px",
     marginTop: "-295px",
     width: "100%",
     height: "100%",
@@ -88,9 +88,8 @@ const StyledCard = styled(Card)(() => ({
   "& .MuiCardActions-root": {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    paddingTop: "34px",
-    paddingBottom: "41px",
+    paddingTop: 0,
+    paddingBottom: 0,
     position: "relative",
   },
   "&.MuiPaper-root": {
@@ -103,7 +102,7 @@ const StyledCard = styled(Card)(() => ({
     content: '""',
     position: "absolute",
     zIndex: 1,
-    bottom: 120,
+    bottom: "50px",
     left: 0,
     pointerEvents: "none",
     backgroundImage: "linear-gradient(to bottom, rgba(255,255,255,0), rgba(251,253,255, 1) 20%)",
@@ -116,13 +115,12 @@ const StyledMainContentArea = styled("div")(() => ({
   position: "relative",
   zIndex: 2,
   borderRadius: 0,
-  minHeight: "300px",
   padding: "21px 40px 0",
 }));
 
 const StyledCardActions = styled(CardActions)(() => ({
   "&.MuiCardActions-root": {
-    paddingTop: 0,
+    paddingTop: "32px",
   },
 }));
 
@@ -130,6 +128,7 @@ const StyledTabs = styled(Tabs)(() => ({
   position: "relative",
   display: "flex",
   alignItems: "flex-end",
+  zIndex: 3,
   "& .MuiTabs-flexContainer": {
     justifyContent: "center",
   },
