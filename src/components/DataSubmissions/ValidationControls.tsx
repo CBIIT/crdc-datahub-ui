@@ -181,7 +181,14 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         />
       </>
     ),
-    [dataSubmission, canValidateFiles, canValidateMetadata, isValidating, isLoading]
+    [
+      dataSubmission,
+      handleValidateFiles,
+      canValidateFiles,
+      canValidateMetadata,
+      isValidating,
+      isLoading,
+    ]
   );
 
   useEffect(() => {
