@@ -14,10 +14,9 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-
 import { isEqual } from "lodash";
 import { useSnackbar, VariantType } from "notistack";
-import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
+import bannerPng from "../../assets/dataSubmissions/dashboard_banner.png";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import DataUpload from "../../components/DataSubmissions/DataUpload";
@@ -556,7 +555,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
   return (
     <StyledWrapper>
-      <StyledBanner bannerSrc={bannerSvg} />
+      <StyledBanner bannerSrc={bannerPng} />
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCopyWrapper direction="row" spacing={1.625} alignItems="center">
           <StyledCopyLabel id="data-submission-id-label" variant="body1">
