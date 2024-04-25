@@ -170,6 +170,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
           disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
           loading={isLoading}
           onClick={handleValidateFiles}
+          data-testid="validate-controls-validate-button"
         >
           {isValidating ? "Validating..." : "Validate"}
         </StyledValidateButton>
@@ -218,6 +219,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
             <RadioGroup
               value={validationType}
               onChange={(e, val: ValidationType) => setValidationType(val)}
+              data-testid="validate-controls-validation-type"
               row
             >
               <StyledRadioControl
@@ -247,6 +249,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
             <RadioGroup
               value={uploadType}
               onChange={(event, val: ValidationTarget) => setUploadType(val)}
+              data-testid="validate-controls-validation-target"
               row
             >
               <StyledRadioControl
