@@ -1,9 +1,12 @@
 import { FC } from "react";
-import { getByLabelText, render } from "@testing-library/react";
+import { act, getByLabelText, render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
+import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
 import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
 import ValidationControls from "./ValidationControls";
+import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
 
 // NOTE: We omit all properties that the component specifically depends on
 const baseSubmission: Omit<
@@ -121,24 +124,460 @@ describe("Basic Functionality", () => {
     );
   });
 
-  it.todo("should show a success snackbar when validation is successful");
+  it("should show a success snackbar when validation is successful", async () => {
+    const submissionID = "base-success-test-onclick-id";
+    let called = false;
+    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      {
+        request: {
+          query: VALIDATE_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: () => {
+          called = true;
 
-  it.todo("should initiate Metadata validation when 'Validate Metadata' is selected");
+          return {
+            data: {
+              validateSubmission: {
+                success: true,
+              },
+            },
+          };
+        },
+      },
+    ];
 
-  it.todo("should initiate Data Files validation when 'Validate Data Files' is selected");
+    const { getByTestId } = render(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
 
-  it.todo("should initiate Metadata and Data Files validation when 'Both' is selected");
+    expect(called).toBe(false);
 
-  it.todo("should initiate against 'New' files when 'New Uploaded Data' is selected");
+    userEvent.click(getByTestId("validate-controls-validate-button"));
 
-  it.todo("should initiate against 'All' files when 'All Uploaded Data' is selected");
+    await waitFor(() => {
+      expect(called).toBe(true);
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Validation process is starting; this may take some time. Please wait before initiating another validation.",
+        {
+          variant: "success",
+        }
+      );
+      expect(getByTestId("validate-controls-validate-button")).toBeDisabled();
+    });
+  });
 
-  it.todo("should handle API network errors gracefully");
+  it("should initiate Metadata validation when 'Validate Metadata' is selected", async () => {
+    const submissionID = "base-onclick-metadata-id";
+    let called = false;
+    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      {
+        request: {
+          query: VALIDATE_SUBMISSION,
+          variables: {
+            _id: submissionID,
+            types: ["metadata"],
+            scope: "New",
+          },
+        },
+        result: () => {
+          called = true;
 
-  it.todo("should handle API GraphQL errors gracefully");
+          return {
+            data: {
+              validateSubmission: {
+                success: true,
+              },
+            },
+          };
+        },
+      },
+    ];
 
-  // NOTE: this becomes it.each
-  it.todo("should call the onValidate callback when clicked with %s");
+    const { getByTestId } = render(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: null,
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    expect(called).toBe(false);
+
+    const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+
+    await act(async () => userEvent.click(getByLabelText(radio, "Validate Metadata")));
+
+    userEvent.click(getByTestId("validate-controls-validate-button"));
+
+    await waitFor(() => {
+      expect(called).toBe(true);
+    });
+  });
+
+  it("should initiate Data Files validation when 'Validate Data Files' is selected", async () => {
+    const submissionID = "data-files-validation-id";
+    let called = false;
+    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      {
+        request: {
+          query: VALIDATE_SUBMISSION,
+          variables: {
+            _id: submissionID,
+            types: ["file"],
+            scope: "New",
+          },
+        },
+        result: () => {
+          called = true;
+
+          return {
+            data: {
+              validateSubmission: {
+                success: true,
+              },
+            },
+          };
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: null,
+            fileValidationStatus: "New",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    expect(called).toBe(false);
+
+    const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+    await act(async () => userEvent.click(getByLabelText(radio, "Validate Data Files")));
+
+    userEvent.click(getByTestId("validate-controls-validate-button"));
+
+    await waitFor(() => {
+      expect(called).toBe(true);
+    });
+  });
+
+  it("should initiate Metadata and Data Files validation when 'Both' is selected", async () => {
+    const submissionID = "metadata-and-files-validation-id";
+    let called = false;
+    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      {
+        request: {
+          query: VALIDATE_SUBMISSION,
+          variables: {
+            _id: submissionID,
+            types: ["metadata", "file"],
+            scope: "New",
+          },
+        },
+        result: () => {
+          called = true;
+
+          return {
+            data: {
+              validateSubmission: {
+                success: true,
+              },
+            },
+          };
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    expect(called).toBe(false);
+
+    const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+    await act(async () => userEvent.click(getByLabelText(radio, "Both")));
+
+    userEvent.click(getByTestId("validate-controls-validate-button"));
+
+    await waitFor(() => {
+      expect(called).toBe(true);
+    });
+  });
+
+  it("should initiate against 'New' files when 'New Uploaded Data' is selected", async () => {
+    const submissionID = "new-uploads-validation-id";
+    let called = false;
+    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      {
+        request: {
+          query: VALIDATE_SUBMISSION,
+          variables: {
+            _id: submissionID,
+            types: ["metadata"], // NOTE: this is just the default type
+            scope: "New",
+          },
+        },
+        result: () => {
+          called = true;
+
+          return {
+            data: {
+              validateSubmission: {
+                success: true,
+              },
+            },
+          };
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: null,
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    expect(called).toBe(false);
+
+    const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+    await act(async () => userEvent.click(getByLabelText(radio, "New Uploaded Data")));
+
+    userEvent.click(getByTestId("validate-controls-validate-button"));
+
+    await waitFor(() => {
+      expect(called).toBe(true);
+    });
+  });
+
+  it.each<ValidationTarget>(["New", "All"])(
+    "should initiate against '%s Uploaded Data' when the option is selected",
+    async (target) => {
+      const submissionID = `${target}-uploads-validation-id`;
+      let called = false;
+      const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+        {
+          request: {
+            query: VALIDATE_SUBMISSION,
+            variables: {
+              _id: submissionID,
+              types: ["metadata"], // NOTE: this is just the default type
+              scope: target,
+            },
+          },
+          result: () => {
+            called = true;
+
+            return {
+              data: {
+                validateSubmission: {
+                  success: true,
+                },
+              },
+            };
+          },
+        },
+      ];
+
+      const { getByTestId } = render(
+        <TestParent
+          mocks={mocks}
+          context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+        >
+          <ValidationControls
+            dataSubmission={{
+              ...baseSubmission,
+              _id: submissionID,
+              status: "In Progress",
+              metadataValidationStatus: "New",
+              fileValidationStatus: null,
+            }}
+            onValidate={jest.fn()}
+          />
+        </TestParent>
+      );
+
+      expect(called).toBe(false);
+
+      const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+      await act(async () => userEvent.click(getByLabelText(radio, `${target} Uploaded Data`)));
+
+      userEvent.click(getByTestId("validate-controls-validate-button"));
+
+      await waitFor(() => {
+        expect(called).toBe(true);
+      });
+    }
+  );
+
+  it("should handle API network errors gracefully", async () => {
+    const submissionID = "base-network-error-test-id";
+    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      {
+        request: {
+          query: VALIDATE_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        error: new Error("Mock network error"),
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => userEvent.click(getByTestId("validate-controls-validate-button")));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to initiate validation process.", {
+        variant: "error",
+      });
+      expect(getByTestId("validate-controls-validate-button")).toBeEnabled();
+    });
+  });
+
+  it("should handle API GraphQL errors gracefully", async () => {
+    const submissionID = "base-GraphQL-error-test-id";
+    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      {
+        request: {
+          query: VALIDATE_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          errors: [new GraphQLError("Mock GraphQL error")],
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => userEvent.click(getByTestId("validate-controls-validate-button")));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to initiate validation process.", {
+        variant: "error",
+      });
+      expect(getByTestId("validate-controls-validate-button")).toBeEnabled();
+    });
+  });
+
+  it.each<boolean>([true, false])(
+    "should call the onValidate callback when clicked with %s",
+    async (result) => {
+      const onValidate = jest.fn();
+      const submissionID = "base-onValidate-failure-test-id";
+      const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+        {
+          request: {
+            query: VALIDATE_SUBMISSION,
+          },
+          variableMatcher: () => true,
+          result: {
+            data: {
+              validateSubmission: {
+                success: result, // Simulated success/failure using the result parameter
+              },
+            },
+          },
+        },
+      ];
+
+      const { getByTestId } = render(
+        <TestParent
+          mocks={mocks}
+          context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+        >
+          <ValidationControls
+            dataSubmission={{
+              ...baseSubmission,
+              _id: submissionID,
+              status: "In Progress",
+              metadataValidationStatus: "New",
+              fileValidationStatus: "New",
+            }}
+            onValidate={onValidate}
+          />
+        </TestParent>
+      );
+
+      await waitFor(() => userEvent.click(getByTestId("validate-controls-validate-button")));
+
+      await waitFor(() => {
+        expect(onValidate).toHaveBeenCalledTimes(1);
+        expect(onValidate).toHaveBeenCalledWith(result);
+      });
+    }
+  );
 });
 
 describe("Implementation Requirements", () => {
@@ -186,7 +625,54 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("validate-controls-validate-button")).toHaveTextContent("Validating...");
   });
 
-  it.todo("should reset the validation type and upload type after validation");
+  it("should reset the validation type and upload type after starting validation", async () => {
+    const submissionID = "reset-state-onclick-id";
+    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      {
+        request: {
+          query: VALIDATE_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            validateSubmission: {
+              success: true,
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    // Change from default type
+    const typeRadio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+    await act(async () => userEvent.click(getByLabelText(typeRadio, "Both")));
+
+    // Change from default target
+    const targetRadio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+    await act(async () => userEvent.click(getByLabelText(targetRadio, `All Uploaded Data`)));
+
+    userEvent.click(getByTestId("validate-controls-validate-button"));
+
+    await waitFor(() => {
+      expect(getByLabelText(typeRadio, "Validate Metadata")).toBeChecked();
+      expect(getByLabelText(targetRadio, "New Uploaded Data")).toBeChecked();
+    });
+  });
 
   it("should select 'Validate Metadata' Validation Type by default", () => {
     const { getByTestId } = render(
