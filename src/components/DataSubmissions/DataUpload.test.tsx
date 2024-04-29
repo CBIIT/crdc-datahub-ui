@@ -40,6 +40,8 @@ const baseSubmission: Omit<Submission, "_id"> = {
   intention: "New",
   createdAt: "",
   updatedAt: "",
+  crossSubmissionStatus: null,
+  otherSubmissions: null,
 };
 
 type ParentProps = {
