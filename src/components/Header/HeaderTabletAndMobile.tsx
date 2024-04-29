@@ -9,7 +9,7 @@ import { navMobileList, navbarSublists } from "../../config/globalHeaderData";
 import { useAuthContext } from "../Contexts/AuthContext";
 import GenericAlert from "../GenericAlert";
 import APITokenDialog from "../../content/users/APITokenDialog";
-import UploaderToolDialog from "../../content/users/UploaderToolDialog";
+import UploaderToolDialog from "../UploaderToolDialog";
 
 const HeaderBanner = styled("div")({
   width: "100%",

@@ -399,6 +399,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
               disabled={totalData <= 0}
             />
           }
+          containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </QCResultsContext.Provider>
       <ErrorDialog

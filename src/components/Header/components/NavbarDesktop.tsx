@@ -5,7 +5,7 @@ import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
 import APITokenDialog from "../../../content/users/APITokenDialog";
-import UploaderToolDialog from "../../../content/users/UploaderToolDialog";
+import UploaderToolDialog from "../../UploaderToolDialog";
 
 const Nav = styled("div")({
   top: 0,

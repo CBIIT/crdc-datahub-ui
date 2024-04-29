@@ -14,13 +14,12 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-
 import { isEqual } from "lodash";
 import { useSnackbar, VariantType } from "notistack";
-import bannerSvg from "../../assets/dataSubmissions/dashboard_banner.svg";
+import bannerPng from "../../assets/dataSubmissions/dashboard_banner.png";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
-import DataUpload from "../../components/DataSubmissions/DataUpload";
+import { MetadataUpload } from "../../components/DataSubmissions/MetadataUpload";
 import {
   GET_SUBMISSION,
   LIST_BATCHES,
@@ -54,6 +53,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
 import SubmittedData from "./SubmittedData";
 import { UserGuide } from "../../components/DataSubmissions/UserGuide";
+import { DataUpload } from "../../components/DataSubmissions/DataUpload";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -72,7 +72,7 @@ const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
 
 const StyledBannerContentContainer = styled(Container)(({ padding }: { padding?: string }) => ({
   "&.MuiContainer-root": {
-    padding: padding || "58px 73px 186px",
+    padding: padding || "58px 73px 75px",
     marginTop: "-295px",
     width: "100%",
     height: "100%",
@@ -92,9 +92,8 @@ const StyledCard = styled(Card)(() => ({
   "& .MuiCardActions-root": {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    paddingTop: "34px",
-    paddingBottom: "41px",
+    paddingTop: 0,
+    paddingBottom: 0,
     position: "relative",
   },
   "&.MuiPaper-root": {
@@ -107,12 +106,12 @@ const StyledCard = styled(Card)(() => ({
     content: '""',
     position: "absolute",
     zIndex: 1,
-    bottom: 120,
+    bottom: "50px",
     left: 0,
     pointerEvents: "none",
     backgroundImage: "linear-gradient(to bottom, rgba(255,255,255,0), rgba(251,253,255, 1) 20%)",
     width: "100%",
-    height: "360px",
+    height: "260px",
   },
 }));
 
@@ -120,13 +119,12 @@ const StyledMainContentArea = styled("div")(() => ({
   position: "relative",
   zIndex: 2,
   borderRadius: 0,
-  minHeight: "300px",
   padding: "21px 40px 0",
 }));
 
 const StyledCardActions = styled(CardActions)(() => ({
   "&.MuiCardActions-root": {
-    paddingTop: 0,
+    paddingTop: "32px",
   },
 }));
 
@@ -134,6 +132,7 @@ const StyledTabs = styled(Tabs)(() => ({
   position: "relative",
   display: "flex",
   alignItems: "flex-end",
+  zIndex: 3,
   "& .MuiTabs-flexContainer": {
     justifyContent: "center",
   },
@@ -574,7 +573,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
   return (
     <StyledWrapper>
-      <StyledBanner bannerSrc={bannerSvg} />
+      <StyledBanner bannerSrc={bannerPng} />
       <StyledBannerContentContainer maxWidth="xl">
         <StyledCopyWrapper direction="row" spacing={1.625} alignItems="center">
           <StyledCopyLabel id="data-submission-id-label" variant="body1">
@@ -603,12 +602,13 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
             />
             <StyledFlowContainer>
               <UserGuide />
-              <DataUpload
+              <MetadataUpload
                 submission={data?.getSubmission}
                 readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
                 onCreateBatch={refreshBatchTable}
                 onUpload={handleOnUpload}
               />
+              <DataUpload submission={data?.getSubmission} />
               <ValidationControls
                 dataSubmission={data?.getSubmission}
                 onValidate={handleOnValidate}
