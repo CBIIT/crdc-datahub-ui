@@ -177,6 +177,7 @@ const StyledRadioInput = styled(RadioInput)(() => ({
   },
   "& .MuiFormControlLabel-root": {
     marginRight: "0 !important",
+    paddingRight: "10px !important",
   },
 }));
 
@@ -546,7 +547,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
         <StyledButton
           type="button"
           onClick={handleOpenDialog}
-          loading={creatingSubmission}
           sx={{ bottom: "30px", right: "50px" }}
           disabled={!hasOrganizationAssigned}
         >
