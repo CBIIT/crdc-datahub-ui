@@ -14,7 +14,6 @@ import { useForm } from "react-hook-form";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
-import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -164,26 +163,24 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
         <StyledForm onSubmit={handleDownload}>
           <Box>
             <StyledLabel id="data-folder-input-label">
-              Local data file pathway <StyledAsterisk />
+              Local path of the Data Files location
             </StyledLabel>
             <StyledOutlinedInput
               {...register("dataFolder", { required: true })}
               placeholder="Enter pathway"
               data-testid="uploader-config-dialog-input-data-folder"
               inputProps={{ "aria-labelledby": "data-folder-input-label" }}
-              required
             />
           </Box>
           <Box>
             <StyledLabel id="manifest-input-label">
-              Local file manifest location <StyledAsterisk />
+              Local path of the file manifest file
             </StyledLabel>
             <StyledOutlinedInput
               {...register("manifest", { required: true })}
               placeholder="Enter location"
               data-testid="uploader-config-dialog-input-manifest"
               inputProps={{ "aria-labelledby": "manifest-input-label" }}
-              required
             />
           </Box>
         </StyledForm>
@@ -194,7 +191,7 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
           variant="outlined"
           onClick={onClose}
         >
-          Close
+          Cancel
         </StyledButton>
         <StyledButton
           data-testid="uploader-config-dialog-download-button"

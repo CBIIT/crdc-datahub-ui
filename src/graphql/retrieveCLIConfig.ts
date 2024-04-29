@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 export const query = gql`
-  query retrieveCLIConfig($_id: ID!, $apiURL: String!, $dataFolder: String, $manifest: String) {
+  query retrieveCLIConfig($_id: String!, $apiURL: String!, $dataFolder: String, $manifest: String) {
     retrieveCLIConfig(
       submissionID: $_id
       apiURL: $apiURL
