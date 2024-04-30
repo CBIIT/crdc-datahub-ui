@@ -21,7 +21,7 @@ const getColorScheme = (status: ApplicationStatus): CSSProperties => {
       };
     case "Rejected":
       return {
-        color: "#E25C22 !important",
+        color: "#B83700 !important",
         background: "#FFDBCB !important",
       };
     default:
@@ -113,7 +113,6 @@ const StatusSection: FC = () => {
             status={status}
             lastReview={lastReview}
             title="CRDC Submission Request"
-            getColorScheme={getColorScheme}
           />
         </>
       )}

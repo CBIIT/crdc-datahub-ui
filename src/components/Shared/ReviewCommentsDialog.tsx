@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  PaperProps,
   styled,
 } from "@mui/material";
 import { CSSProperties } from "react";
@@ -100,23 +101,40 @@ const StyledCloseButton = styled(Button)({
   margin: "auto",
 });
 
+/**
+ * Returns the styling for Review Comments dialog based on the Questionnaire Status
+ *
+ * @param status The current Questionnaire's status
+ * @returns Color scheme to match the status
+ */
+const getColorScheme = (status: ApplicationStatus): CSSProperties => {
+  switch (status) {
+    case "Approved":
+      return {
+        color: "#0D6E87 !important",
+      };
+    case "Rejected":
+      return {
+        color: "#E25C22 !important",
+      };
+    default:
+      return {
+        color: "#0D6E87 !important",
+      };
+  }
+};
+
+type ExtendedPaperProps = Partial<PaperProps> & React.HTMLAttributes<HTMLDivElement>;
+
 type Props<T, H> = {
   open: boolean;
   status?: T;
   lastReview: HistoryBase<H>;
   title: string;
-  getColorScheme?: (status: T) => CSSProperties;
   onClose?: () => void;
 };
 
-const ReviewCommentsDialog = <T, H>({
-  open,
-  status,
-  lastReview,
-  title,
-  getColorScheme,
-  onClose,
-}: Props<T, H>) => (
+const ReviewCommentsDialog = <T, H>({ open, status, lastReview, title, onClose }: Props<T, H>) => (
   <StyledDialog
     open={open}
     onClose={() => onClose?.()}
@@ -124,6 +142,11 @@ const ReviewCommentsDialog = <T, H>({
     status={status}
     getColorScheme={getColorScheme}
     data-testid="review-comments-dialog"
+    PaperProps={
+      {
+        "data-testid": "review-comments-dialog-paper",
+      } as ExtendedPaperProps
+    }
   >
     <StyledCloseDialogButton
       onClick={onClose}
