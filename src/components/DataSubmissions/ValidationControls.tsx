@@ -172,7 +172,14 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         {isValidating ? "Validating..." : "Validate"}
       </StyledValidateButton>
     ),
-    [validationType, canValidateFiles, canValidateMetadata, isValidating, isLoading]
+    [
+      handleValidateFiles,
+      dataSubmission,
+      canValidateFiles,
+      canValidateMetadata,
+      isValidating,
+      isLoading,
+    ]
   );
 
   useEffect(() => {
