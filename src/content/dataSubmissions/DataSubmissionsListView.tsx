@@ -639,6 +639,7 @@ const ListingView: FC = () => {
               required
               label="Submission Name"
               placeholder="25 characters allowed"
+              validate={(v: string) => v?.trim()?.length > 0}
             />
           </form>
 
