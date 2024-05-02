@@ -98,7 +98,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
-  const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("New");
+  const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("Add");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
@@ -109,15 +109,15 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
     !submission?.metadataValidationStatus && !submission?.fileValidationStatus;
   const acceptedExtensions = [".tsv", ".txt"];
   const metadataIntentionOptions = [
-    { label: "New", value: "New", disabled: !canUpload },
+    { label: "Add", value: "Add", disabled: !canUpload },
     {
-      label: "Update",
-      value: "Update",
+      label: "Add/Change",
+      value: "Add/Change",
       disabled: !canUpload || isNewSubmission,
     },
     {
-      label: "Delete",
-      value: "Delete",
+      label: "Remove",
+      value: "Remove",
       disabled: !canUpload || isNewSubmission,
     },
   ];
@@ -182,7 +182,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
   const onUploadFail = (fileCount = 0) => {
     onUpload(
       `${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${
-        metadataIntention === "Delete" ? "delete" : "upload"
+        metadataIntention === "Remove" ? "delete" : "upload"
       }`,
       "error"
     );
@@ -250,7 +250,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
       // Batch upload completed successfully
       onUpload(
         `${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${
-          metadataIntention === "Delete" ? "deleted" : "uploaded"
+          metadataIntention === "Remove" ? "deleted" : "uploaded"
         }`,
         "success"
       );
@@ -326,7 +326,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
         variant="contained"
         color="info"
         onClick={() =>
-          metadataIntention === "Delete" ? setOpenDeleteDialog(true) : handleUploadFiles()
+          metadataIntention === "Remove" ? setOpenDeleteDialog(true) : handleUploadFiles()
         }
         data-testid="metadata-upload-file-upload-button"
         disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
@@ -351,7 +351,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
           onChange={(_, value: MetadataIntention) => !readOnly && setMetadataIntention(value)}
           options={metadataIntentionOptions}
           gridWidth={4}
-          parentProps={{ sx: { minWidth: "400px" } }}
+          parentProps={{ sx: { minWidth: "430px" } }}
           readOnly={readOnly}
           inline
           row
