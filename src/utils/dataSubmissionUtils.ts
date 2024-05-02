@@ -125,8 +125,8 @@ export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
   const { crossSubmissionStatus, otherSubmissions } = submission || {};
   const parsedSubmissions = safeParse<OtherSubmissions>(otherSubmissions);
 
-  // Cross-validation has already occurred, nothing else required
-  const shortCircuitStatuses: ValidationStatus[] = ["Passed", "Warning"];
+  // Cross-validation has already occurred and passed, nothing else required
+  const shortCircuitStatuses: CrossSubmissionStatus[] = ["Passed"];
   if (crossSubmissionStatus && shortCircuitStatuses.includes(crossSubmissionStatus)) {
     return { disable: false, requireAlert: false };
   }
