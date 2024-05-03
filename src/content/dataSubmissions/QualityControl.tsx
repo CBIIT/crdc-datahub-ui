@@ -2,7 +2,7 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
-import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
+import { Box, Button, FormControl, MenuItem, Select, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useSnackbar } from "notistack";
 import {
@@ -18,6 +18,7 @@ import { FormatDate, capitalizeFirstLetter } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
+import DeleteAllOrphanFilesButton from "../../components/DataSubmissions/DeleteAllOrphanFilesButton";
 
 type FilterForm = {
   /**
@@ -386,11 +387,14 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
           AdditionalActions={
-            <ExportValidationButton
-              submission={submission}
-              fields={csvColumns}
-              disabled={totalData <= 0}
-            />
+            <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
+              <ExportValidationButton
+                submission={submission}
+                fields={csvColumns}
+                disabled={totalData <= 0}
+              />
+              <DeleteAllOrphanFilesButton submissionId={submissionId} />
+            </Stack>
           }
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
