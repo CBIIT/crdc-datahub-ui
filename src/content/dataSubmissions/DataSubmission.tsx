@@ -19,7 +19,7 @@ import { useSnackbar, VariantType } from "notistack";
 import bannerPng from "../../assets/dataSubmissions/dashboard_banner.png";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
-import DataUpload from "../../components/DataSubmissions/DataUpload";
+import { MetadataUpload } from "../../components/DataSubmissions/MetadataUpload";
 import {
   GET_SUBMISSION,
   LIST_BATCHES,
@@ -49,6 +49,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
 import SubmittedData from "./SubmittedData";
 import { UserGuide } from "../../components/DataSubmissions/UserGuide";
+import { DataUpload } from "../../components/DataSubmissions/DataUpload";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -584,12 +585,13 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
             />
             <StyledFlowContainer>
               <UserGuide />
-              <DataUpload
+              <MetadataUpload
                 submission={data?.getSubmission}
                 readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
                 onCreateBatch={refreshBatchTable}
                 onUpload={handleOnUpload}
               />
+              <DataUpload submission={data?.getSubmission} />
               <ValidationControls
                 dataSubmission={data?.getSubmission}
                 onValidate={handleOnValidate}
