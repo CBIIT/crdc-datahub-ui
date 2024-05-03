@@ -66,6 +66,12 @@ export type { Response as GetSubmissionNodesResp } from "./getSubmissionNodes";
 export { query as SUBMISSION_STATS } from "./submissionStats";
 export type { Response as SubmissionStatsResp } from "./submissionStats";
 
+export { mutation as DELETE_EXTRA_FILE } from "./deleteExtraFile";
+export type { Response as DeleteExtraFileResp } from "./deleteExtraFile";
+
+export { mutation as DELETE_ALL_EXTRA_FILES } from "./deleteAllExtraFiles";
+export type { Response as DeleteAllExtraFilesResp } from "./deleteAllExtraFiles";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";
