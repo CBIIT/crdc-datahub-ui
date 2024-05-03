@@ -79,7 +79,6 @@ const StyledHeaderCell = styled(TableCell)({
 const StyledTableCell = styled(TableCell)({
   fontSize: "16px",
   color: "#083A50 !important",
-  borderBottom: "0.5px solid #6B7294",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
   fontWeight: 400,
@@ -262,7 +261,13 @@ const GenericTable = <T,>(
                 return (
                   <TableRow tabIndex={-1} hover key={itemKey}>
                     {columns.map((col: Column<T>) => (
-                      <StyledTableCell key={`${itemKey}_${col.label}`}>
+                      <StyledTableCell
+                        key={`${itemKey}_${col.label}`}
+                        sx={{
+                          borderBottom:
+                            idx !== (data?.length ?? 0) - 1 ? "1px solid #6B7294" : "none",
+                        }}
+                      >
                         {col.renderValue(d)}
                       </StyledTableCell>
                     ))}

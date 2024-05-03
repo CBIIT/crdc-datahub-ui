@@ -42,7 +42,7 @@ const StyledTablePagination = styled(MuiTablePagination, {
     paddingTop: "7px",
     paddingBottom: "6px",
     borderTop: verticalPlacement === "bottom" ? "2px solid #083A50" : "none",
-    background: "#F5F7F8",
+    background: "#FFFFFF",
     ...(placement && {
       justifyContent: placement,
       "& .MuiTablePagination-spacer": {
