@@ -365,7 +365,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     setValue("dbGaPID", approvedStudiesMapToDbGaPID[value]);
   };
 
-  const validateEmpty = (value: string) => (!value?.trim() ? "This field is required" : "");
+  const validateEmpty = (value: string) => (!value?.trim() ? "This field is required" : null);
 
   return (
     <>
