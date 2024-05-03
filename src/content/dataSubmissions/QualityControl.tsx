@@ -13,11 +13,7 @@ import {
   SUBMISSION_QC_RESULTS,
   SubmissionQCResultsResp,
 } from "../../graphql";
-import GenericTable, {
-  Column,
-  FetchListing,
-  TableMethods,
-} from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate, capitalizeFirstLetter } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
@@ -386,6 +382,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
           loading={loading}
           defaultRowsPerPage={20}
           defaultOrder="desc"
+          position="both"
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
           AdditionalActions={

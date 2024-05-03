@@ -1,4 +1,3 @@
-import { FetchListing, Order } from "../components/DataSubmissions/GenericTable";
 import { SORT, DIRECTION } from "../config/TableConfig";
 
 /**
