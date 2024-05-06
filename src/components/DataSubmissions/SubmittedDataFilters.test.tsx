@@ -172,7 +172,7 @@ describe("SubmittedDataFilters cases", () => {
       },
     ];
 
-    const { getByTestId, getByText } = render(
+    const { getByTestId, getByText, getAllByText } = render(
       <TestParent mocks={mocks}>
         <SubmittedDataFilters submissionId="id-test-filtering-data-file" />
       </TestParent>
@@ -184,7 +184,7 @@ describe("SubmittedDataFilters cases", () => {
 
     await waitFor(() => {
       // Sanity check that the box is open
-      expect(() => getByText(/participant/i)).not.toThrow();
+      expect(() => getAllByText(/participant/i)).not.toThrow();
       expect(() => getByText(/file/i)).not.toThrow();
       // This should throw an error
       expect(() => getByText(/data file/i)).toThrow();
