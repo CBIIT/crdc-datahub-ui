@@ -393,7 +393,10 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
                 fields={csvColumns}
                 disabled={totalData <= 0}
               />
-              <DeleteAllOrphanFilesButton submissionId={submissionId} />
+              <DeleteAllOrphanFilesButton
+                submissionId={submissionId}
+                disabled={!submission?.fileErrors?.length}
+              />
             </Stack>
           }
           containerProps={{ sx: { marginBottom: "8px" } }}
