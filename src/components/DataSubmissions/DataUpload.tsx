@@ -30,7 +30,7 @@ const StyledDownloadButton = styled(Button)({
   lineHeight: "16px",
   letterSpacing: "0.32px",
   width: "137px",
-  height: "44px",
+  height: "47px",
   "&.MuiButtonBase-root": {
     marginLeft: "auto",
   },
@@ -42,9 +42,9 @@ const StyledToolButton = styled(Typography)({
   lineHeight: "16px",
   fontWeight: 700,
   display: "inline",
-  "& span": {
-    borderBottom: "1px solid #D1D1D1",
-  },
+  textDecoration: "underline",
+  textDecorationThickness: "1px",
+  textUnderlineOffset: "1.5px",
 });
 
 const StyledOpenInNewIcon = styled(OpenInNewIcon)({

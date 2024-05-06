@@ -26,7 +26,9 @@ const getStatusColor = (status: ApplicationStatus): CSSProperties["color"] => {
     case "Approved":
       return "#10EBA9";
     case "Rejected":
-      return "#E25C22";
+      return "#FFA985";
+    case "In Review":
+      return "#4DC9FF";
     default:
       return "#fff";
   }
