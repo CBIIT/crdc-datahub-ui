@@ -1,5 +1,4 @@
-import { ThemeProvider } from "@mui/material";
-import { CSSProperties } from "react";
+import { ThemeProvider, rgbToHex } from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
 import { render, fireEvent, waitFor } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
@@ -12,18 +11,10 @@ type Props<T, H> = {
   status?: T;
   lastReview: HistoryBase<H>;
   title: string;
-  getColorScheme?: (status: T) => CSSProperties;
   onClose?: () => void;
 };
 
-const BaseComponent = <T, H>({
-  open,
-  status,
-  lastReview,
-  title,
-  getColorScheme,
-  onClose,
-}: Props<T, H>) => (
+const BaseComponent = <T, H>({ open, status, lastReview, title, onClose }: Props<T, H>) => (
   <ThemeProvider theme={theme}>
     <BrowserRouter>
       <ReviewCommentsDialog
@@ -32,7 +23,6 @@ const BaseComponent = <T, H>({
         lastReview={lastReview}
         status={status}
         title={title}
-        getColorScheme={getColorScheme}
       />
     </BrowserRouter>
   </ThemeProvider>
@@ -150,11 +140,10 @@ describe("ReviewCommentsDialog Tests", () => {
     expect(getByText(customTitle)).toBeInTheDocument();
   });
 
-  it("has correct status passed through prop", () => {
-    const mockGetColorScheme = jest.fn().mockImplementation((status) => ({
-      color: status === "Approved" ? "#0D6E87" : "#E25C22",
-      background: status === "Approved" ? "#CDEAF0" : "#FFDBCB",
-    }));
+  it("renders the title with correct color", () => {
+    const mockGetColorScheme = jest
+      .fn()
+      .mockImplementation((status) => (status === "Approved" ? "#0D6E87" : "#E25C22"));
 
     const data = {
       open: true,
@@ -162,11 +151,34 @@ describe("ReviewCommentsDialog Tests", () => {
       status: "Approved",
       lastReview: mockLastReview,
       onClose: () => {},
-      getColorScheme: mockGetColorScheme,
     };
 
-    render(<BaseComponent {...data} />);
+    const { getByTestId } = render(<BaseComponent {...data} />);
+    const styles = getComputedStyle(getByTestId("review-comments-dialog-title"));
 
-    expect(mockGetColorScheme).toHaveBeenCalledWith("Approved");
+    expect(rgbToHex(styles.color).toUpperCase()).toBe(
+      mockGetColorScheme(data.status).toUpperCase()
+    );
+  });
+
+  it("renders the dialog border with correct color", () => {
+    const mockGetColorScheme = jest
+      .fn()
+      .mockImplementation((status) => (status === "Approved" ? "#0D6E87" : "#E25C22"));
+
+    const data = {
+      open: true,
+      title: "",
+      status: "Approved",
+      lastReview: mockLastReview,
+      onClose: () => {},
+    };
+
+    const { getByTestId } = render(<BaseComponent {...data} />);
+    const styles = getComputedStyle(getByTestId("review-comments-dialog-paper"));
+
+    expect(rgbToHex(styles.borderColor).toUpperCase()).toBe(
+      mockGetColorScheme(data.status).toUpperCase()
+    );
   });
 });

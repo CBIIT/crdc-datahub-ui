@@ -1,5 +1,5 @@
 import * as utils from "./dataSubmissionUtils";
-import { SubmitInfo } from "./dataSubmissionUtils";
+import { ReleaseInfo, SubmitInfo } from "./dataSubmissionUtils";
 
 const baseSubmission: Submission = {
   _id: "1234",
@@ -15,6 +15,8 @@ const baseSubmission: Submission = {
   rootPath: "",
   status: "New",
   metadataValidationStatus: null,
+  crossSubmissionStatus: null,
+  otherSubmissions: null,
   fileValidationStatus: null,
   fileErrors: [],
   history: [],
@@ -654,5 +656,79 @@ describe("downloadBlob cases", () => {
 
     expect(mockClick).toHaveBeenCalled();
     expect(mockRemove).toHaveBeenCalled();
+  });
+});
+
+describe("shouldDisableRelease", () => {
+  it("should allow release without alert when there are no other submissions and cross validation has not run", () => {
+    const result: ReleaseInfo = utils.shouldDisableRelease({
+      ...baseSubmission,
+      crossSubmissionStatus: null,
+      otherSubmissions: JSON.stringify({
+        "In Progress": [],
+        Submitted: [],
+      }),
+    });
+
+    expect(result.disable).toBe(false);
+    expect(result.requireAlert).toBe(false);
+  });
+
+  it("should allow release with alert when other submissions are In Progress and there are no Submitted submissions", () => {
+    const result: ReleaseInfo = utils.shouldDisableRelease({
+      ...baseSubmission,
+      crossSubmissionStatus: null,
+      otherSubmissions: JSON.stringify({
+        "In Progress": ["ABC-123", "XYZ-456"],
+        Submitted: [],
+      }),
+    });
+
+    expect(result.disable).toBe(false);
+    expect(result.requireAlert).toBe(true);
+  });
+
+  it.each<CrossSubmissionStatus>(["Passed"])(
+    "should allow release when crossSubmissionStatus is %s and other submissions exist",
+    (status) => {
+      const result: ReleaseInfo = utils.shouldDisableRelease({
+        ...baseSubmission,
+        crossSubmissionStatus: status,
+        otherSubmissions: JSON.stringify({
+          "In Progress": ["ABC-123", "XYZ-456"],
+          Submitted: ["DEF-456", "GHI-789"],
+        }),
+      });
+
+      expect(result.disable).toBe(false);
+      expect(result.requireAlert).toBe(false);
+    }
+  );
+
+  it.each<CrossSubmissionStatus>([
+    null,
+    "New",
+    "Validating",
+    "Error",
+    "fake status" as CrossSubmissionStatus,
+  ])(
+    "should not allow release when crossSubmissionStatus is %s and other submissions exist",
+    (status) => {
+      const result: ReleaseInfo = utils.shouldDisableRelease({
+        ...baseSubmission,
+        crossSubmissionStatus: status,
+        otherSubmissions: JSON.stringify({
+          "In Progress": ["ABC-123", "XYZ-456"],
+          Submitted: ["DEF-456", "GHI-789"],
+        }),
+      });
+
+      expect(result.disable).toBe(true);
+      expect(result.requireAlert).toBe(false);
+    }
+  );
+
+  it("should not throw an exception when Submission is null", () => {
+    expect(() => utils.shouldDisableRelease(null as Submission)).not.toThrow();
   });
 });

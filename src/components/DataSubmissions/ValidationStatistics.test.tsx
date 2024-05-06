@@ -23,6 +23,8 @@ const baseSubmission: Omit<Submission, "_id"> = {
   intention: "New",
   createdAt: "",
   updatedAt: "",
+  crossSubmissionStatus: "New",
+  otherSubmissions: null,
 };
 
 describe("Accessibility", () => {

@@ -1,3 +1,5 @@
+import { safeParse } from "./jsonUtils";
+
 export type SubmitInfo = {
   disable: boolean;
   isAdminOverride: boolean;
@@ -96,4 +98,49 @@ export const downloadBlob = (content: string, filename: string, contentType: str
   link.setAttribute("href", url);
   link.click();
   link.remove();
+};
+
+export type ReleaseInfo = {
+  /**
+   * Whether the release button should be disabled entirely
+   */
+  disable: boolean;
+  /**
+   * Whether the release button should require a special alert prior to releasing
+   */
+  requireAlert: boolean;
+};
+
+/**
+ * Determines if a submission can be Released based on the cross-validation status and the status of
+ * other submissions related to the current submission.
+ *
+ * @note This function DOES NOT factor these attributes into the decision, and should be handled separately:
+ *    - The user's role
+ *    - The submission status
+ * @param submission The submission to check
+ * @returns {ReleaseInfo} Whether the submission meets the cross-validation criteria to be released
+ */
+export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
+  const { crossSubmissionStatus, otherSubmissions } = submission || {};
+  const parsedSubmissions = safeParse<OtherSubmissions>(otherSubmissions);
+
+  // Cross-validation has already occurred and passed, nothing else required
+  const shortCircuitStatuses: CrossSubmissionStatus[] = ["Passed"];
+  if (crossSubmissionStatus && shortCircuitStatuses.includes(crossSubmissionStatus)) {
+    return { disable: false, requireAlert: false };
+  }
+
+  // Scenario 1: All other submissions are "In Progress", allow release with alert
+  if (parsedSubmissions?.Submitted?.length === 0 && parsedSubmissions["In Progress"]?.length > 0) {
+    return { disable: false, requireAlert: true };
+  }
+
+  // Scenario 2: More than one other "Submitted" submission exists, disable release entirely
+  if (parsedSubmissions?.Submitted?.length > 0) {
+    return { disable: true, requireAlert: false };
+  }
+
+  // Scenario 0: No restrictions, allow release
+  return { disable: false, requireAlert: false };
 };

@@ -20,6 +20,7 @@ export const query = gql`
       status
       metadataValidationStatus
       fileValidationStatus
+      crossSubmissionStatus
       fileErrors {
         submissionID
         type
@@ -47,9 +48,10 @@ export const query = gql`
       }
       conciergeName
       conciergeEmail
+      intention
+      otherSubmissions
       createdAt
       updatedAt
-      intention
     }
 
     submissionStats(_id: $id) {

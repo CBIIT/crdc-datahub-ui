@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import "@testing-library/jest-dom";
 import "jest-axe/extend-expect";
 
@@ -15,9 +16,41 @@ jest.mock("notistack", () => ({
 }));
 
 /**
+ * Mocks the DataTransfer class for testing as it is not available in JSDOM
+ *
+ * @note This only implements the underlying data structure and `files()` method
+ * @see MDN documentation: https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer
+ */
+global.DataTransfer = class DataTransfer {
+  items = null;
+
+  constructor() {
+    this.items = new (class {
+      array: unknown[];
+
+      constructor() {
+        this.array = [];
+      }
+
+      add(file) {
+        this.array.push(file);
+      }
+
+      get length() {
+        return this.array.length;
+      }
+    })();
+  }
+
+  get files() {
+    return this.items.array;
+  }
+} as typeof DataTransfer;
+
+/**
  * Mocks the Recharts ResponsiveContainer component for testing
  *
- * @note This solves the missing ResizeObserver error in tests
+ * @note This solves the missing ResizeObserver error in Jest
  * @see Recharts documentation: https://recharts.org/en-US/guide
  */
 const MockResponsiveContainer = (props) => <div {...props} />;
