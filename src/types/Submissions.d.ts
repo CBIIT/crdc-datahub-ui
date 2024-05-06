@@ -10,25 +10,48 @@ type Submission = {
   dbGaPID: string; // # aka. phs number
   bucketName: string; // # populated from organization
   rootPath: string; // # a submission folder will be created under this path, default is / or "" meaning root folder
-  status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
-  metadataValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
-  fileValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
+  status: SubmissionStatus;
+  metadataValidationStatus: ValidationStatus;
+  fileValidationStatus: ValidationStatus;
+  crossSubmissionStatus: CrossSubmissionStatus;
   fileErrors: QCResult[]; // holds submission level file errors, e.g., extra files in S3 folder
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
-  intention: SubmissionIntention; // [Update, New, Delete]
+  intention: SubmissionIntention;
+  /**
+   * A JSON string containing information for related submissions. Mapped by SubmissionStatus, related by studyAbbreviation.
+   *
+   * @see OtherSubmissions
+   */
+  otherSubmissions: string;
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
 /**
- * The status of a Metadata or Files in a submission.
+ * The status of the validation action for a Submission.
  *
  * @note `null` indicates that the type has not been uploaded yet.
  * @note `New` indicates that the type has been uploaded but not validated yet.
  */
 type ValidationStatus = null | "New" | "Validating" | "Passed" | "Error" | "Warning";
+
+/**
+ * The status of the cross-submission validation action for a Submission.
+ *
+ * @note Value of `null` or `Warning` does not represent a valid state and can be ignored.
+ */
+type CrossSubmissionStatus = Exclude<ValidationStatus, "Warning">;
+
+/**
+ * A parsed version of the `otherSubmissions` field in a Submission object.  *
+ *
+ * @example ```{ "Submitted": ["abc-0001", "xyz-0002"], "In Progress": ["bge-0003"] }```
+ */
+type OtherSubmissions = {
+  [key in Extract<SubmissionStatus, "In Progress" | "Submitted">]: string[];
+};
 
 type SubmissionStatus =
   | "New"

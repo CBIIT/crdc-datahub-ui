@@ -158,7 +158,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
   const handleChooseFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = event?.target || {};
 
-    if (!files) {
+    if (!files?.length) {
       setSelectedFiles(null);
       return;
     }
@@ -328,6 +328,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
         onClick={() =>
           metadataIntention === "Delete" ? setOpenDeleteDialog(true) : handleUploadFiles()
         }
+        data-testid="metadata-upload-file-upload-button"
         disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
         disableElevation
         disableRipple
@@ -344,9 +345,10 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
       <Stack direction="row" alignItems="center" spacing={1.25}>
         <RadioInput
           id="data-submission-dashboard-upload-type"
+          data-testid="metadata-upload-batch-intention"
           label="Upload Type:"
           value={metadataIntention}
-          onChange={(_event, value: MetadataIntention) => !readOnly && setMetadataIntention(value)}
+          onChange={(_, value: MetadataIntention) => !readOnly && setMetadataIntention(value)}
           options={metadataIntentionOptions}
           gridWidth={4}
           parentProps={{ sx: { minWidth: "400px" } }}
@@ -360,6 +362,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
             ref={uploadMetadataInputRef}
             type="file"
             accept={acceptedExtensions.toString()}
+            data-testid="metadata-upload-file-input"
             aria-label="Upload metadata files"
             onChange={handleChooseFiles}
             readOnly={readOnly}
@@ -370,10 +373,11 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
             color="info"
             onClick={handleChooseFilesClick}
             disabled={readOnly || isUploading || !canUpload}
+            data-testid="metadata-upload-file-select-button"
           >
             Choose Files
           </StyledChooseFilesButton>
-          <StyledFilesSelected variant="body1">
+          <StyledFilesSelected variant="body1" data-testid="metadata-upload-file-count">
             {selectedFiles?.length
               ? `${selectedFiles.length} ${selectedFiles.length > 1 ? "files" : "file"} selected`
               : "No files selected"}
@@ -384,6 +388,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}
         onConfirm={onDeleteUpload}
+        data-testid="metadata-upload-delete-dialog"
       />
     </FlowWrapper>
   );
