@@ -24,10 +24,11 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledCloseButton = styled(Button)({
+  background: "#FFFFFF",
   "&.MuiButton-root": {
     minWidth: "101px",
     padding: "10px",
-    color: "#949494",
+    color: "#000000",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
@@ -36,6 +37,7 @@ const StyledCloseButton = styled(Button)({
     letterSpacing: "0.32px",
     textTransform: "none",
     alignSelf: "center",
+    border: "1px solid #AEAEAE",
   },
 });
 
@@ -107,7 +109,7 @@ const DeleteDialog = ({
       )}
     </StyledDescription>
 
-    <Stack direction="row" justifyContent="center" alignItems="center" spacing={2} marginTop="61px">
+    <Stack direction="row" justifyContent="center" alignItems="center" spacing={2} marginTop="58px">
       <StyledCloseButton
         id="error-dialog-close-button"
         variant="contained"
