@@ -29,7 +29,6 @@ import {
 import RadioInput from "../../components/DataSubmissions/RadioInput";
 import { DataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import StyledOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
@@ -199,14 +198,6 @@ const StyledHelperText = styled(BaseStyledHelperText)({
 const StyledOutlinedInputMultiline = styled(StyledOutlinedInput)({
   height: "96px",
 });
-
-const DropdownArrowsIcon = styled("div")(() => ({
-  backgroundImage: `url(${dropdownArrowsIcon})`,
-  backgroundSize: "contain",
-  backgroundRepeat: "no-repeat",
-  width: "10px",
-  height: "18px",
-}));
 
 type CreateSubmissionParams = Pick<
   Submission,
@@ -414,7 +405,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                       <StyledSelect
                         {...field}
                         value={field.value || ""}
-                        IconComponent={DropdownArrowsIcon}
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-data-commons-helper-text"
                       >
@@ -447,7 +437,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                           field.onChange(e);
                           handleStudyChange(e);
                         }}
-                        IconComponent={DropdownArrowsIcon}
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-study-abbreviation-helper-text"
                       >
