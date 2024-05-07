@@ -46,7 +46,7 @@ const DeleteAllOrphanFilesButton = ({ submissionId, disabled, ...rest }: Props) 
       variables: {
         _id: submissionId,
       },
-    }).catch((e) => ({ errors: e?.message, data: null }));
+    });
     setLoading(false);
 
     if (errors || !d?.deleteAllExtraFiles?.success) {
