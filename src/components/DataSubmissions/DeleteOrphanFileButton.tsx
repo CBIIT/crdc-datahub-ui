@@ -32,9 +32,16 @@ const StyledChip = styled(Chip)({
 type Props = {
   submissionId: Submission["_id"];
   submittedId: QCResult["submittedID"];
+  onDeleteFile: (success: boolean) => void;
 } & ChipProps;
 
-const DeleteOrphanFileButton = ({ submissionId, submittedId, disabled, ...rest }: Props) => {
+const DeleteOrphanFileButton = ({
+  submissionId,
+  submittedId,
+  onDeleteFile,
+  disabled,
+  ...rest
+}: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -51,18 +58,17 @@ const DeleteOrphanFileButton = ({ submissionId, submittedId, disabled, ...rest }
         _id: submissionId,
         fileName: submittedId,
       },
-    }).catch((e) => ({ errors: e?.message, data: null }));
+    });
     setLoading(false);
 
-    if (errors || !d?.deleteAllExtraFiles?.success) {
+    if (errors || !d?.deleteExtraFile?.success) {
       enqueueSnackbar("There was an issue deleting orphan file.", {
         variant: "error",
       });
-      setLoading(false);
       // return;
     }
 
-    // console.log(d.deleteAllExtraFiles);
+    onDeleteFile(d?.deleteExtraFile?.success);
   };
 
   return (
