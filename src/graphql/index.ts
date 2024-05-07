@@ -72,6 +72,9 @@ export type { Response as DeleteExtraFileResp } from "./deleteExtraFile";
 export { mutation as DELETE_ALL_EXTRA_FILES } from "./deleteAllExtraFiles";
 export type { Response as DeleteAllExtraFilesResp } from "./deleteAllExtraFiles";
 
+export { query as RETRIEVE_CLI_CONFIG } from "./retrieveCLIConfig";
+export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";

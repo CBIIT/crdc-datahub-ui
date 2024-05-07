@@ -5,6 +5,7 @@ import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material"
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
+import { ReleaseInfo } from "../../utils";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -75,11 +76,17 @@ const StyledDialogText = styled(Typography)({
   lineHeight: "19.6px",
 });
 
-export type ActiveDialog = "Submit" | "Release" | "Withdraw" | "Reject" | "Complete" | "Cancel";
-type UserRole = User["role"];
+export type ActiveDialog =
+  | "Submit"
+  | "Release"
+  | "ReleaseCrossValidation"
+  | "Withdraw"
+  | "Reject"
+  | "Complete"
+  | "Cancel";
 
 type ActionConfig = {
-  roles: UserRole[];
+  roles: User["role"][];
   statuses: SubmissionStatus[];
 };
 
@@ -136,11 +143,18 @@ type SubmitActionButton = {
 type Props = {
   submission: Submission;
   submitActionButton: SubmitActionButton;
+  releaseActionButton: ReleaseInfo;
   onAction: (action: SubmissionAction, reviewComment?: string) => Promise<void>;
   onError: (message: string) => void;
 };
 
-const DataSubmissionActions = ({ submission, submitActionButton, onAction, onError }: Props) => {
+const DataSubmissionActions = ({
+  submission,
+  submitActionButton,
+  releaseActionButton,
+  onAction,
+  onError,
+}: Props) => {
   const { user } = useAuthContext();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
@@ -230,9 +244,11 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         <StyledLoadingButton
           variant="contained"
           color="primary"
-          onClick={() => onOpenDialog("Release")}
+          onClick={() =>
+            onOpenDialog(releaseActionButton.requireAlert ? "ReleaseCrossValidation" : "Release")
+          }
           loading={action === "Release"}
-          disabled={action && action !== "Release"}
+          disabled={(action && action !== "Release") || releaseActionButton.disable}
         >
           Release
         </StyledLoadingButton>
@@ -355,7 +371,7 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         />
       </StyledDialog>
 
-      {/* Release Dialog */}
+      {/* Release Dialog (default) */}
       <StyledDialog
         open={currentDialog === "Release"}
         onClose={onCloseDialog}
@@ -379,6 +395,33 @@ const DataSubmissionActions = ({ submission, submitActionButton, onAction, onErr
         <StyledDialogText variant="body2">
           This action will release this submission to data commons and it can no longer accept
           changes to the data. Are you sure you want to proceed?
+        </StyledDialogText>
+      </StyledDialog>
+
+      {/* Release dialog (cross-validation) */}
+      <StyledDialog
+        open={currentDialog === "ReleaseCrossValidation"}
+        onClose={onCloseDialog}
+        title="Release Data Submission"
+        actions={
+          <>
+            <Button onClick={onCloseDialog} disabled={!!action}>
+              Cancel
+            </Button>
+            <LoadingButton
+              onClick={() => handleOnAction("Release")}
+              loading={!!action}
+              color="error"
+              autoFocus
+            >
+              Confirm Release
+            </LoadingButton>
+          </>
+        }
+      >
+        <StyledDialogText variant="body2">
+          There are other data submissions for the same study currently ongoing. Are you sure you
+          want to release this data submission to Data Commons?
         </StyledDialogText>
       </StyledDialog>
 

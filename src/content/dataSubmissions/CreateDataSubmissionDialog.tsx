@@ -356,6 +356,8 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     setValue("dbGaPID", approvedStudiesMapToDbGaPID[value]);
   };
 
+  const validateEmpty = (value: string) => (!value?.trim() ? "This field is required" : null);
+
   return (
     <>
       <CreateSubmissionDialog open={creatingSubmission} scroll="body">
@@ -471,8 +473,8 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                   </StyledLabel>
                   <StyledOutlinedInputMultiline
                     {...register("name", {
-                      required: "This field is required",
                       maxLength: 25,
+                      validate: validateEmpty,
                     })}
                     multiline
                     rows={3}

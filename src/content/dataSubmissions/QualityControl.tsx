@@ -322,7 +322,11 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
 
   useEffect(() => {
     tableRef.current?.refresh();
-  }, [submission?.metadataValidationStatus, submission?.fileValidationStatus]);
+  }, [
+    submission?.metadataValidationStatus,
+    submission?.fileValidationStatus,
+    submission?.crossSubmissionStatus,
+  ]);
 
   return (
     <>
