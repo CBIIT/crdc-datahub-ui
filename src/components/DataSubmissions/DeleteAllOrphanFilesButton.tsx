@@ -63,15 +63,17 @@ const DeleteAllOrphanFilesButton = ({ submissionId, disabled, ...rest }: Props) 
   return (
     <>
       <StyledTooltip title="Delete All Orphaned Files" placement="top">
-        <StyledIconButton
-          onClick={handleClick}
-          disabled={loading || disabled}
-          data-testid="delete-all-orphan-files-button"
-          aria-label="Delete all orphan files"
-          {...rest}
-        >
-          <DeleteAllFilesIcon />
-        </StyledIconButton>
+        <span>
+          <StyledIconButton
+            onClick={handleClick}
+            disabled={loading || disabled}
+            data-testid="delete-all-orphan-files-button"
+            aria-label="Delete all orphan files"
+            {...rest}
+          >
+            <DeleteAllFilesIcon />
+          </StyledIconButton>
+        </span>
       </StyledTooltip>
       <DeleteDialog
         open={openDeleteAllDialog}
