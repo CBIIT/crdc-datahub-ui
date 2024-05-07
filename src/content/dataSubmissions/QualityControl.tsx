@@ -328,33 +328,6 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
     <>
       <StyledFilterContainer>
         <Stack direction="row" justifyContent="flex-start" alignItems="center">
-          <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
-          <StyledFormControl>
-            <Controller
-              name="nodeType"
-              control={control}
-              render={({ field }) => (
-                <StyledSelect
-                  {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
-                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
-                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
-                  inputProps={{ id: "nodeType-filter" }}
-                >
-                  <MenuItem value="All">All</MenuItem>
-                  {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
-                    <MenuItem key={nodeType} value={nodeType}>
-                      {nodeType}
-                    </MenuItem>
-                  ))}
-                </StyledSelect>
-              )}
-            />
-          </StyledFormControl>
-        </Stack>
-
-        <Stack direction="row" justifyContent="flex-start" alignItems="center">
           <StyledInlineLabel htmlFor="batchID-filter">Batch ID</StyledInlineLabel>
           <StyledFormControl>
             <Controller
@@ -374,6 +347,33 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
                     <MenuItem key={batch._id} value={batch._id}>
                       {batch.displayID}
                       {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
+                    </MenuItem>
+                  ))}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
+
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="nodeType"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                  inputProps={{ id: "nodeType-filter" }}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
+                    <MenuItem key={nodeType} value={nodeType}>
+                      {nodeType}
                     </MenuItem>
                   ))}
                 </StyledSelect>
