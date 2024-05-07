@@ -152,7 +152,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => 
   useEffect(() => {
     (async () => {
       // User had an active session, reverify with BE
-      if (cachedState) {
+      if (cachedState || env?.NODE_ENV === "development") {
         const { data, error } = await getMyUser();
         if (error || !data?.getMyUser) {
           setState({ ...initialState, status: Status.LOADED });

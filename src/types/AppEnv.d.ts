@@ -1,5 +1,11 @@
 type AppEnv = {
   /**
+   * Current environment
+   *
+   * @note `test` is used by Jest
+   */
+  NODE_ENV: "test" | "development" | "production";
+  /**
    * NIH SSO Url
    */
   REACT_APP_NIH_AUTHORIZE_URL: string;
@@ -19,11 +25,8 @@ type AppEnv = {
   REACT_APP_BACKEND_API: string;
   /**
    * Current deployment tier
-   *
-   * @example DEV2
-   * @example PROD
    */
-  REACT_APP_DEV_TIER: string;
+  REACT_APP_DEV_TIER: "dev" | "dev2" | "qa" | "qa2" | "stage" | "prod";
   /**
    * Fully-qualified URL to the Uploader CLI zip download
    *
