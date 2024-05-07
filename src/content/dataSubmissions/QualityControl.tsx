@@ -19,6 +19,7 @@ import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
 import DeleteAllOrphanFilesButton from "../../components/DataSubmissions/DeleteAllOrphanFilesButton";
+import DeleteOrphanFileButton from "../../components/DataSubmissions/DeleteOrphanFileButton";
 
 type FilterForm = {
   /**
@@ -83,6 +84,11 @@ const StyledInlineLabel = styled("label")({
   fontWeight: "700",
 });
 
+const StyledIssuesTextWrapper = styled(Box)({
+  whiteSpace: "nowrap",
+  wordBreak: "break-word",
+});
+
 const baseTextFieldStyles = {
   borderRadius: "8px",
   "& .MuiInputBase-input": {
@@ -133,6 +139,9 @@ const columns: Column<QCResult>[] = [
     label: "Submitted Identifier",
     renderValue: (data) => <StyledBreakAll>{data?.submittedID}</StyledBreakAll>,
     field: "submittedID",
+    sx: {
+      width: "20%",
+    },
   },
   {
     label: "Severity",
@@ -154,25 +163,40 @@ const columns: Column<QCResult>[] = [
     renderValue: (data) =>
       (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
         <QCResultsContext.Consumer>
-          {({ handleOpenErrorDialog }) => (
-            <>
-              <span>
-                {data.errors?.length > 0 ? data.errors[0].title : data.warnings[0]?.title}
-              </span>{" "}
-              <StyledErrorDetailsButton
-                onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
-                variant="text"
-                disableRipple
-                disableTouchRipple
-                disableFocusRipple
-              >
-                See details
-              </StyledErrorDetailsButton>
-            </>
+          {({ submission, handleDeleteOrphanFile, handleOpenErrorDialog }) => (
+            <Stack direction="row">
+              <StyledIssuesTextWrapper>
+                <span>
+                  {data.errors?.length > 0 ? data.errors[0].title : data.warnings[0]?.title}.
+                </span>{" "}
+                <StyledErrorDetailsButton
+                  onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
+                  variant="text"
+                  disableRipple
+                  disableTouchRipple
+                  disableFocusRipple
+                >
+                  See details.
+                </StyledErrorDetailsButton>
+              </StyledIssuesTextWrapper>
+              {submission?.fileErrors?.length > 0 &&
+                submission.fileErrors.find(
+                  (fileError) => fileError.submittedID === data.submittedID
+                ) && (
+                  <DeleteOrphanFileButton
+                    submissionId={submission?._id}
+                    submittedId={data?.submittedID}
+                    onDeleteFile={handleDeleteOrphanFile}
+                  />
+                )}
+            </Stack>
           )}
         </QCResultsContext.Consumer>
       ),
     sortDisabled: true,
+    sx: {
+      width: "38%",
+    },
   },
 ];
 
@@ -283,6 +307,13 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
     }
   };
 
+  const handleDeleteOrphanFile = (success: boolean) => {
+    if (!success) {
+      return;
+    }
+    tableRef.current?.refresh();
+  };
+
   const handleOpenErrorDialog = (data: QCResult) => {
     setOpenErrorDialog(true);
     setSelectedRow(data);
@@ -290,9 +321,11 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
 
   const providerValue = useMemo(
     () => ({
+      submission,
+      handleDeleteOrphanFile,
       handleOpenErrorDialog,
     }),
-    [handleOpenErrorDialog]
+    [submission, handleDeleteOrphanFile, handleOpenErrorDialog]
   );
 
   useEffect(() => {
