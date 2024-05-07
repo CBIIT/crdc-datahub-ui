@@ -53,22 +53,27 @@ const DeleteOrphanFileButton = ({
   const deleteOrphanFile = async () => {
     setLoading(true);
 
-    const { data: d, errors } = await deleteExtraFile({
-      variables: {
-        _id: submissionId,
-        fileName: submittedId,
-      },
-    });
-    setLoading(false);
+    try {
+      const { data: d, errors } = await deleteExtraFile({
+        variables: {
+          _id: submissionId,
+          fileName: submittedId,
+        },
+      });
 
-    if (errors || !d?.deleteExtraFile?.success) {
+      if (errors || !d?.deleteExtraFile?.success) {
+        throw new Error("Unable to delete orphan file.");
+      }
+
+      onDeleteFile(true);
+    } catch (err) {
       enqueueSnackbar("There was an issue deleting orphan file.", {
         variant: "error",
       });
-      // return;
+      onDeleteFile(false);
+    } finally {
+      setLoading(false);
     }
-
-    onDeleteFile(d?.deleteExtraFile?.success);
   };
 
   return (

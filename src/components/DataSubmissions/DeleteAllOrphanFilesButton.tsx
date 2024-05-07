@@ -42,22 +42,23 @@ const DeleteAllOrphanFilesButton = ({ submissionId, disabled, ...rest }: Props) 
   const deleteAllOrphanedFiles = async () => {
     setLoading(true);
 
-    const { data: d, errors } = await deleteAllExtraFiles({
-      variables: {
-        _id: submissionId,
-      },
-    });
-    setLoading(false);
+    try {
+      const { data: d, errors } = await deleteAllExtraFiles({
+        variables: {
+          _id: submissionId,
+        },
+      });
 
-    if (errors || !d?.deleteAllExtraFiles?.success) {
+      if (errors || !d?.deleteAllExtraFiles?.success) {
+        throw new Error("Unable to delete all orphaned files.");
+      }
+    } catch (err) {
       enqueueSnackbar("There was an issue deleting all orphan files.", {
         variant: "error",
       });
+    } finally {
       setLoading(false);
-      // return;
     }
-
-    // console.log(d.deleteAllExtraFiles);
   };
 
   return (
