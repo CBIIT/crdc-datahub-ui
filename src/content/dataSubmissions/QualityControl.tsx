@@ -2,7 +2,7 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
-import { Box, Button, FormControl, MenuItem, Select, Stack, styled } from "@mui/material";
+import { Box, Button, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useSnackbar } from "notistack";
 import {
@@ -21,6 +21,7 @@ import { ExportValidationButton } from "../../components/DataSubmissions/ExportV
 import DeleteAllOrphanFilesButton from "../../components/DataSubmissions/DeleteAllOrphanFilesButton";
 import DeleteOrphanFileButton from "../../components/DataSubmissions/DeleteOrphanFileButton";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
+import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 
 type FilterForm = {
   /**
@@ -69,60 +70,30 @@ const StyledBreakAll = styled(Box)({
 const StyledFilterContainer = styled(Box)({
   display: "flex",
   alignItems: "center",
-  justifyContent: "flex-start",
-  marginBottom: "19px",
-  paddingLeft: "24px",
+  justifyContent: "space-between",
+  marginBottom: "21px",
+  paddingLeft: "26px",
+  paddingRight: "35px",
 });
 
 const StyledFormControl = styled(FormControl)({
-  margin: "10px",
-  marginRight: "15px",
-  minWidth: "250px",
+  minWidth: "231px",
 });
 
 const StyledInlineLabel = styled("label")({
-  padding: "0 10px",
-  fontWeight: "700",
+  color: "#083A50",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontWeight: 700,
+  fontSize: "16px",
+  fontStyle: "normal",
+  lineHeight: "19.6px",
+  paddingRight: "10px",
 });
 
 const StyledIssuesTextWrapper = styled(Box)({
   whiteSpace: "nowrap",
   wordBreak: "break-word",
 });
-
-const baseTextFieldStyles = {
-  borderRadius: "8px",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "16px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .Mui-disabled": {
-    cursor: "not-allowed",
-  },
-  "& .MuiList-root": {
-    padding: "0 !important",
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
-};
-
-const StyledSelect = styled(Select)(baseTextFieldStyles);
 
 const columns: Column<QCResult>[] = [
   {
@@ -356,73 +327,84 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
   return (
     <>
       <StyledFilterContainer>
-        <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="nodeType"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                defaultValue="All"
-                value={field.value || "All"}
-                MenuProps={{ disablePortal: true }}
-                inputProps={{ id: "nodeType-filter" }}
-              >
-                <MenuItem value="All">All</MenuItem>
-                {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
-                  <MenuItem key={nodeType} value={nodeType}>
-                    {nodeType}
-                  </MenuItem>
-                ))}
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-        <StyledInlineLabel htmlFor="batchID-filter">Batch ID</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="batchID"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                defaultValue="All"
-                value={field.value || "All"}
-                MenuProps={{ disablePortal: true }}
-                inputProps={{ id: "batchID-filter" }}
-              >
-                <MenuItem value="All">All</MenuItem>
-                {batchData?.listBatches?.batches?.map((batch) => (
-                  <MenuItem key={batch._id} value={batch._id}>
-                    {batch.displayID}
-                    {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
-                  </MenuItem>
-                ))}
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-        <StyledInlineLabel htmlFor="severity-filter">Severity</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="severity"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                defaultValue="All"
-                value={field.value || "All"}
-                MenuProps={{ disablePortal: true }}
-                inputProps={{ id: "severity-filter" }}
-              >
-                <MenuItem value="All">All</MenuItem>
-                <MenuItem value="Error">Error</MenuItem>
-                <MenuItem value="Warning">Warning</MenuItem>
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="nodeType"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                  inputProps={{ id: "nodeType-filter" }}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
+                    <MenuItem key={nodeType} value={nodeType}>
+                      {nodeType}
+                    </MenuItem>
+                  ))}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
+
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="batchID-filter">Batch ID</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="batchID"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                  inputProps={{ id: "batchID-filter" }}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {batchData?.listBatches?.batches?.map((batch) => (
+                    <MenuItem key={batch._id} value={batch._id}>
+                      {batch.displayID}
+                      {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
+                    </MenuItem>
+                  ))}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
+
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="severity-filter">Severity</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="severity"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                  inputProps={{ id: "severity-filter" }}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  <MenuItem value="Error">Error</MenuItem>
+                  <MenuItem value="Warning">Warning</MenuItem>
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
       </StyledFilterContainer>
       <QCResultsContext.Provider value={providerValue}>
         <GenericTable
