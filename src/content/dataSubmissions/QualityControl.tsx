@@ -408,7 +408,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
                 disabled={totalData <= 0}
               />
               <DeleteAllOrphanFilesButton
-                submissionId={submissionId}
+                submission={submission}
                 disabled={!submission?.fileErrors?.length}
               />
             </Stack>

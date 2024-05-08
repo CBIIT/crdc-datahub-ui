@@ -6,6 +6,7 @@ import { ReactComponent as DeleteAllFilesIcon } from "../../assets/icons/delete_
 import { DELETE_ALL_EXTRA_FILES, DeleteAllExtraFilesResp } from "../../graphql";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
+import { useAuthContext } from "../Contexts/AuthContext";
 
 const StyledIconButton = styled(IconButton)(({ disabled }) => ({
   opacity: disabled ? 0.26 : 1,
@@ -17,11 +18,24 @@ const StyledTooltip = styled(StyledFormTooltip)({
   },
 });
 
+/**
+ * The roles that are allowed to delete all orphan files within a submission.
+ *
+ * @note The button is only visible to users with these roles.
+ */
+const DeleteAllOrphanFileRoles: User["role"][] = [
+  "Submitter",
+  "Organization Owner",
+  "Data Curator",
+  "Admin",
+];
+
 type Props = {
-  submissionId: string;
+  submission: Submission;
 } & IconButtonProps;
 
-const DeleteAllOrphanFilesButton = ({ submissionId, disabled, ...rest }: Props) => {
+const DeleteAllOrphanFilesButton = ({ submission, disabled, ...rest }: Props) => {
+  const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
   const [openDeleteAllDialog, setOpenDeleteAllDialog] = useState<boolean>(false);
@@ -45,7 +59,7 @@ const DeleteAllOrphanFilesButton = ({ submissionId, disabled, ...rest }: Props) 
     try {
       const { data: d, errors } = await deleteAllExtraFiles({
         variables: {
-          _id: submissionId,
+          _id: submission._id,
         },
       });
 
@@ -60,6 +74,14 @@ const DeleteAllOrphanFilesButton = ({ submissionId, disabled, ...rest }: Props) 
       setLoading(false);
     }
   };
+
+  if (
+    !user?.role ||
+    !DeleteAllOrphanFileRoles.includes(user.role) ||
+    !submission?.fileErrors?.length
+  ) {
+    return null;
+  }
 
   return (
     <>
