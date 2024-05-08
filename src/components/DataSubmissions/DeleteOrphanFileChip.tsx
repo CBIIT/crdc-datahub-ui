@@ -10,23 +10,29 @@ const StyledChip = styled(Chip)({
   "&.MuiChip-root": {
     border: "1px solid #2B528B",
     background: "#2B528B",
-    height: "21px",
+    height: "23px",
     marginLeft: "60.5px",
     alignSelf: "center",
   },
-  "& .MuiSvgIcon-root": {
-    color: "#FFFFFF",
-    fontSize: "15px",
-    marginLeft: "3.65px",
+  "& .MuiChip-icon": {
+    marginLeft: "3.62px",
+    marginRight: 0,
+    height: "100%",
+    width: "14.69px",
+    alignSelf: "center",
+    paddingTop: "2.65px",
+    paddingBottom: "3.66px",
   },
   "& .MuiChip-label": {
     color: "#D8E3F2",
     fontFamily: "'Inter', 'Rubik', sans-serif",
     fontWeight: 400,
     fontSize: "10px",
-    lineHeight: "11px",
-    paddingLeft: "8px",
+    lineHeight: "12.1px",
+    paddingLeft: "3.66px",
     paddingRight: "5px",
+    paddingTop: "2px",
+    paddingBottom: "3px",
   },
 });
 
