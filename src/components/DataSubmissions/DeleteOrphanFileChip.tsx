@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Chip, ChipProps, styled } from "@mui/material";
-import CancelIcon from "@mui/icons-material/Cancel";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
+import { ReactComponent as DeleteFileIcon } from "../../assets/icons/delete_single_file_icon.svg";
 import { DELETE_EXTRA_FILE, DeleteExtraFileResp } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
 
@@ -100,7 +100,7 @@ const DeleteOrphanFileChip = ({
 
   return (
     <StyledChip
-      icon={<CancelIcon data-testid="delete-orphaned-file-icon" />}
+      icon={<DeleteFileIcon data-testid="delete-orphaned-file-icon" />}
       label="Delete orphaned file"
       onClick={deleteOrphanFile}
       disabled={loading || disabled}
