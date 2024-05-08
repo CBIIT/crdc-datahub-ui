@@ -100,7 +100,7 @@ const DeleteDialog = ({
       {description || (
         <>
           The metadata or files specified in the selected files, along with their associated child
-          nodes, will be deleted permanently, and this action is irreversible.
+          nodes, will be deleted from this data submission, and this action is irreversible.
           <br />
           Are you sure you want to proceed?
         </>
