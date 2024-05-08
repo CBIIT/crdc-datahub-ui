@@ -19,8 +19,7 @@ import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
 import DeleteAllOrphanFilesButton from "../../components/DataSubmissions/DeleteAllOrphanFilesButton";
-import DeleteOrphanFileButton from "../../components/DataSubmissions/DeleteOrphanFileButton";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
+import DeleteOrphanFileChip from "../../components/DataSubmissions/DeleteOrphanFileChip";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 
 type FilterForm = {
@@ -135,12 +134,7 @@ const columns: Column<QCResult>[] = [
     renderValue: (data) =>
       (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
         <QCResultsContext.Consumer>
-          {({
-            submission,
-            hideDeleteOrphanFileButton,
-            handleDeleteOrphanFile,
-            handleOpenErrorDialog,
-          }) => (
+          {({ submission, handleDeleteOrphanFile, handleOpenErrorDialog }) => (
             <Stack direction="row">
               <StyledIssuesTextWrapper>
                 <span>
@@ -156,17 +150,11 @@ const columns: Column<QCResult>[] = [
                   See details.
                 </StyledErrorDetailsButton>
               </StyledIssuesTextWrapper>
-              {!hideDeleteOrphanFileButton &&
-                submission?.fileErrors?.length > 0 &&
-                submission.fileErrors.find(
-                  (fileError) => fileError.submittedID === data.submittedID
-                ) && (
-                  <DeleteOrphanFileButton
-                    submissionId={submission?._id}
-                    submittedId={data?.submittedID}
-                    onDeleteFile={handleDeleteOrphanFile}
-                  />
-                )}
+              <DeleteOrphanFileChip
+                submission={submission}
+                submittedID={data?.submittedID}
+                onDeleteFile={handleDeleteOrphanFile}
+              />
             </Stack>
           )}
         </QCResultsContext.Consumer>
@@ -176,13 +164,6 @@ const columns: Column<QCResult>[] = [
       width: "38%",
     },
   },
-];
-
-const canDeleteOrphanFileRoles: User["role"][] = [
-  "Submitter",
-  "Organization Owner",
-  "Data Curator",
-  "Admin",
 ];
 
 // CSV columns used for exporting table data
@@ -209,7 +190,6 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>();
   const { enqueueSnackbar } = useSnackbar();
-  const { user } = useAuthContext();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<QCResult[]>([]);
@@ -218,7 +198,6 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
   const tableRef = useRef<TableMethods>(null);
-  const canDeleteOrphanFiles = useMemo(() => canDeleteOrphanFileRoles.includes(user?.role), [user]);
 
   const errorDescriptions =
     selectedRow?.errors?.map((error) => `(Error) ${error.description}`) ?? [];
@@ -309,11 +288,10 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
   const providerValue = useMemo(
     () => ({
       submission,
-      hideDeleteOrphanFileButton: !canDeleteOrphanFiles,
       handleDeleteOrphanFile,
       handleOpenErrorDialog,
     }),
-    [submission, canDeleteOrphanFiles, handleDeleteOrphanFile, handleOpenErrorDialog]
+    [submission, handleDeleteOrphanFile, handleOpenErrorDialog]
   );
 
   useEffect(() => {
@@ -429,12 +407,10 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
                 fields={csvColumns}
                 disabled={totalData <= 0}
               />
-              {canDeleteOrphanFiles && (
-                <DeleteAllOrphanFilesButton
-                  submissionId={submissionId}
-                  disabled={!submission?.fileErrors?.length}
-                />
-              )}
+              <DeleteAllOrphanFilesButton
+                submissionId={submissionId}
+                disabled={!submission?.fileErrors?.length}
+              />
             </Stack>
           }
           containerProps={{ sx: { marginBottom: "8px" } }}

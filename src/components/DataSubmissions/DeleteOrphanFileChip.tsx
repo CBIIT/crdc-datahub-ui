@@ -4,6 +4,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
 import { DELETE_EXTRA_FILE, DeleteExtraFileResp } from "../../graphql";
+import { useAuthContext } from "../Contexts/AuthContext";
 
 const StyledChip = styled(Chip)({
   "&.MuiChip-root": {
@@ -29,19 +30,32 @@ const StyledChip = styled(Chip)({
   },
 });
 
+/**
+ * The roles that are allowed to delete orphan files within a submission.
+ *
+ * @note The button is only visible to users with these roles.
+ */
+const DeleteOrphanFileRoles: User["role"][] = [
+  "Submitter",
+  "Organization Owner",
+  "Data Curator",
+  "Admin",
+];
+
 type Props = {
-  submissionId: Submission["_id"];
-  submittedId: QCResult["submittedID"];
+  submission: Submission;
+  submittedID: QCResult["submittedID"];
   onDeleteFile: (success: boolean) => void;
 } & ChipProps;
 
-const DeleteOrphanFileButton = ({
-  submissionId,
-  submittedId,
+const DeleteOrphanFileChip = ({
+  submission,
+  submittedID,
   onDeleteFile,
   disabled,
   ...rest
 }: Props) => {
+  const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -56,8 +70,8 @@ const DeleteOrphanFileButton = ({
     try {
       const { data: d, errors } = await deleteExtraFile({
         variables: {
-          _id: submissionId,
-          fileName: submittedId,
+          _id: submission._id,
+          fileName: submittedID,
         },
       });
 
@@ -76,15 +90,25 @@ const DeleteOrphanFileButton = ({
     }
   };
 
+  if (
+    !user?.role ||
+    !DeleteOrphanFileRoles.includes(user.role) ||
+    !submission?.fileErrors?.find((fileError) => fileError.submittedID === submittedID)
+  ) {
+    return null;
+  }
+
   return (
     <StyledChip
-      icon={<CancelIcon />}
+      icon={<CancelIcon data-testid="delete-orphaned-file-icon" />}
       label="Delete orphaned file"
       onClick={deleteOrphanFile}
       disabled={loading || disabled}
+      aria-label="Delete orphaned file"
+      data-testid="delete-orphaned-file-chip"
       {...rest}
     />
   );
 };
 
-export default DeleteOrphanFileButton;
+export default DeleteOrphanFileChip;
