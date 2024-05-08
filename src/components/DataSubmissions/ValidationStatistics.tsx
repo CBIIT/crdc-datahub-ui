@@ -145,7 +145,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
 
   if (!dataSubmission || !dataset) {
     return (
-      <StyledChartArea direction="row">
+      <StyledChartArea direction="row" data-testid="statistics-loader-container">
         <SuspenseLoader fullscreen={false} />
       </StyledChartArea>
     );
@@ -153,7 +153,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
 
   if (!dataset?.some((s) => s.total > 0)) {
     return (
-      <StyledChartArea direction="row" hasNoData>
+      <StyledChartArea direction="row" data-testid="statistics-empty-container" hasNoData>
         <StyledNoData variant="h6">
           This is the data submission visualization section which displays validation results for
           uploaded data. After uploading and validating the data (see below), the visualization
@@ -164,7 +164,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   }
 
   return (
-    <StyledChartArea direction="row">
+    <StyledChartArea direction="row" data-testid="statistics-charts-container">
       <Stack direction="column" alignItems="center" flex={1}>
         <StyledSectionTitle variant="h6">Summary Total</StyledSectionTitle>
         <NodeTotalChart data={primaryChartSeries} normalize={tabValue === "percentage"} />

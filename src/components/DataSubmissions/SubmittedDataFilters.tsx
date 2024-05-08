@@ -91,7 +91,8 @@ export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
       cloneDeep(data?.submissionStats?.stats)
         ?.sort(compareNodeStats)
         ?.reverse()
-        ?.map((stat) => stat.nodeName),
+        ?.map((stat) => stat.nodeName)
+        ?.filter((nodeType) => nodeType?.toLowerCase() !== "data file"),
     [data?.submissionStats?.stats]
   );
 

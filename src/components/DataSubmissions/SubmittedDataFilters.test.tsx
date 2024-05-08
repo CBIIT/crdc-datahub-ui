@@ -3,6 +3,7 @@ import { render, waitFor, within } from "@testing-library/react";
 import UserEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { act } from "react-dom/test-utils";
 import { SubmittedDataFilters } from "./SubmittedDataFilters";
 import { SUBMISSION_STATS, SubmissionStatsResp } from "../../graphql";
 
@@ -148,6 +149,46 @@ describe("SubmittedDataFilters cases", () => {
     const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
 
     await waitFor(() => expect(muiSelectBox).toHaveTextContent("FIRST"));
+  });
+
+  it("should NOT show the nodeType 'Data File'", async () => {
+    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+      {
+        request: {
+          query: SUBMISSION_STATS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionStats: {
+              stats: [
+                { ...baseStatistic, nodeName: "Participant", total: 3 },
+                { ...baseStatistic, nodeName: "Data File", total: 2 },
+                { ...baseStatistic, nodeName: "File", total: 1 },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByTestId, getByText, getAllByText } = render(
+      <TestParent mocks={mocks}>
+        <SubmittedDataFilters submissionId="id-test-filtering-data-file" />
+      </TestParent>
+    );
+
+    const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
+
+    await act(async () => UserEvent.click(muiSelectBox));
+
+    await waitFor(() => {
+      // Sanity check that the box is open
+      expect(() => getAllByText(/participant/i)).not.toThrow();
+      expect(() => getByText(/file/i)).not.toThrow();
+      // This should throw an error
+      expect(() => getByText(/data file/i)).toThrow();
+    });
   });
 
   // NOTE: This test no longer applies since the component fetches it's own data.

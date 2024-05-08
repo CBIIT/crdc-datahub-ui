@@ -395,12 +395,12 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
       "Data Curator",
       "Admin",
     ];
-    if (!data?.getSubmission?._id || !canSubmitRoles.includes(user?.role)) {
+    if (!data?.getSubmission?._id || !canSubmitRoles.includes(user?.role) || hasUploadingBatches) {
       return { disable: true, isAdminOverride: false };
     }
 
     return shouldDisableSubmit(data.getSubmission, user?.role);
-  }, [data?.getSubmission, user]);
+  }, [data?.getSubmission, user, hasUploadingBatches]);
   const releaseInfo: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
     [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
