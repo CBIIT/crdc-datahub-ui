@@ -194,6 +194,33 @@ describe("DeleteOrphanFileChip Component", () => {
     });
   });
 
+  it("should call onDeleteFile with true and show message on success mutation", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+        mocks={successMocks}
+      >
+        <DeleteOrphanFileChip
+          submission={baseSubmission}
+          submittedID="mock-file-name"
+          onDeleteFile={onDeleteFile}
+        />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("delete-orphaned-file-chip"));
+
+    await waitFor(() => {
+      expect(onDeleteFile).toHaveBeenCalledWith(true);
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "The orphaned file has been successfully deleted.",
+        {
+          variant: "success",
+        }
+      );
+    });
+  });
+
   it("should call onDeleteFile with false and show error message on failed mutation", async () => {
     const { getByTestId } = render(
       <TestParent
@@ -212,9 +239,12 @@ describe("DeleteOrphanFileChip Component", () => {
 
     await waitFor(() => {
       expect(onDeleteFile).toHaveBeenCalledWith(false);
-      expect(global.mockEnqueue).toHaveBeenCalledWith("There was an issue deleting orphan file.", {
-        variant: "error",
-      });
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "There was an issue deleting orphaned file.",
+        {
+          variant: "error",
+        }
+      );
     });
   });
 
