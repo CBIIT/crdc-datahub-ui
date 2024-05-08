@@ -273,6 +273,13 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
     }
   };
 
+  const handleDeleteAllOrphanFiles = (success: boolean) => {
+    if (!success) {
+      return;
+    }
+    tableRef.current?.refresh();
+  };
+
   const handleDeleteOrphanFile = (success: boolean) => {
     if (!success) {
       return;
@@ -410,6 +417,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
               <DeleteAllOrphanFilesButton
                 submission={submission}
                 disabled={!submission?.fileErrors?.length}
+                onDelete={handleDeleteAllOrphanFiles}
               />
             </Stack>
           }

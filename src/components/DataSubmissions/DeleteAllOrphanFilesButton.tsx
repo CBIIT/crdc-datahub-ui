@@ -32,9 +32,10 @@ const DeleteAllOrphanFileRoles: User["role"][] = [
 
 type Props = {
   submission: Submission;
+  onDelete: (success: boolean) => void;
 } & IconButtonProps;
 
-const DeleteAllOrphanFilesButton = ({ submission, disabled, ...rest }: Props) => {
+const DeleteAllOrphanFilesButton = ({ submission, onDelete, disabled, ...rest }: Props) => {
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
@@ -66,12 +67,19 @@ const DeleteAllOrphanFilesButton = ({ submission, disabled, ...rest }: Props) =>
       if (errors || !d?.deleteAllExtraFiles?.success) {
         throw new Error("Unable to delete all orphaned files.");
       }
+      enqueueSnackbar("All orphaned files have been successfully deleted.", {
+        variant: "success",
+      });
+
+      onDelete(true);
     } catch (err) {
-      enqueueSnackbar("There was an issue deleting all orphan files.", {
+      enqueueSnackbar("There was an issue deleting all orphaned files.", {
         variant: "error",
       });
+      onDelete(false);
     } finally {
       setLoading(false);
+      setOpenDeleteAllDialog(false);
     }
   };
 

@@ -85,9 +85,13 @@ const DeleteOrphanFileChip = ({
         throw new Error("Unable to delete orphan file.");
       }
 
+      enqueueSnackbar("The orphaned file has been successfully deleted.", {
+        variant: "success",
+      });
+
       onDeleteFile(true);
     } catch (err) {
-      enqueueSnackbar("There was an issue deleting orphan file.", {
+      enqueueSnackbar("There was an issue deleting orphaned file.", {
         variant: "error",
       });
       onDeleteFile(false);
