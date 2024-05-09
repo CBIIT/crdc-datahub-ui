@@ -108,9 +108,9 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
   const isNewSubmission = !submission?.metadataValidationStatus && !submission?.fileValidationStatus;
   const acceptedExtensions = [".tsv", ".txt"];
   const metadataIntentionOptions = [
-    { label: "New", value: "New", disabled: !canUpload },
-    { label: "Update", value: "Update", disabled: !canUpload || isNewSubmission },
-    { label: "Delete", value: "Delete", disabled: !canUpload || isNewSubmission },
+    { label: "Add", value: "Add", disabled: !canUpload },
+    { label: "Add/Change", value: "Add/Change", disabled: !canUpload || isNewSubmission },
+    { label: "Remove", value: "Remove", disabled: !canUpload || isNewSubmission },
   ];
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
