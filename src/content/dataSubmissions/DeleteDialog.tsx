@@ -94,11 +94,17 @@ const DeleteDialog = ({
   ...rest
 }: Props) => (
   <StyledDialog open={open} onClose={onClose} title="" {...rest}>
-    <StyledCloseDialogButton aria-label="close" onClick={onClose}>
+    <StyledCloseDialogButton
+      onClick={onClose}
+      aria-label="close"
+      data-testid="delete-dialog-close-icon-button"
+    >
       <CloseIconSvg />
     </StyledCloseDialogButton>
-    <StyledHeader variant="h3">{header}</StyledHeader>
-    <StyledDescription>
+    <StyledHeader variant="h3" data-testid="delete-dialog-header">
+      {header}
+    </StyledHeader>
+    <StyledDescription data-testid="delete-dialog-description">
       {description || (
         <>
           The metadata or files specified in the selected files, along with their associated child
@@ -115,6 +121,8 @@ const DeleteDialog = ({
         variant="contained"
         color="info"
         onClick={onClose}
+        aria-label="Cancel button"
+        data-testid="delete-dialog-cancel-button"
       >
         {closeText}
       </StyledCloseButton>
@@ -123,6 +131,8 @@ const DeleteDialog = ({
         variant="contained"
         color="error"
         onClick={onConfirm}
+        aria-label="Confirm to Remove button"
+        data-testid="delete-dialog-confirm-button"
       >
         {confirmText}
       </StyledConfirmButton>
