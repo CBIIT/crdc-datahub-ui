@@ -171,6 +171,7 @@ describe("DeleteOrphanFileChip Component", () => {
     );
 
     expect(getByTestId("delete-orphaned-file-chip")).toHaveAttribute("aria-disabled");
+    expect(getByTestId("delete-orphaned-file-chip")).toHaveClass("Mui-disabled");
   });
 
   it("should call onDeleteFile with true on successful mutation", async () => {
@@ -248,7 +249,7 @@ describe("DeleteOrphanFileChip Component", () => {
     });
   });
 
-  it("should never render when submission has no fileErrors", async () => {
+  it("should disable when submission has no fileErrors", async () => {
     const { getByTestId } = render(
       <TestParent
         context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
@@ -262,12 +263,12 @@ describe("DeleteOrphanFileChip Component", () => {
       </TestParent>
     );
 
-    expect(() => getByTestId("delete-orphaned-file-chip")).toThrow();
-    expect(() => getByTestId("delete-orphaned-file-icon")).toThrow();
+    expect(getByTestId("delete-orphaned-file-chip")).toHaveAttribute("aria-disabled");
+    expect(getByTestId("delete-orphaned-file-chip")).toHaveClass("Mui-disabled");
   });
 
   it.each<User["role"]>(["Federal Lead", "Data Commons POC", "fake role" as User["role"]])(
-    "should never render for the role %s",
+    "should disable for the role %s",
     (role) => {
       const { getByTestId } = render(
         <TestParent context={{ ...baseContext, user: { ...baseUser, role } }} mocks={failureMocks}>
@@ -279,8 +280,8 @@ describe("DeleteOrphanFileChip Component", () => {
         </TestParent>
       );
 
-      expect(() => getByTestId("delete-orphaned-file-chip")).toThrow();
-      expect(() => getByTestId("delete-orphaned-file-icon")).toThrow();
+      expect(getByTestId("delete-orphaned-file-chip")).toHaveAttribute("aria-disabled");
+      expect(getByTestId("delete-orphaned-file-chip")).toHaveClass("Mui-disabled");
     }
   );
 });
