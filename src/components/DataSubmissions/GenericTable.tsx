@@ -226,29 +226,31 @@ const GenericTable = <T,>(
         />
       )}
       <StyledTable horizontalScroll={horizontalScroll && total > 0}>
-        <StyledTableHead>
-          <TableRow>
-            {columns.map((col: Column<T>) => (
-              <StyledHeaderCell
-                key={col.label.toString()}
-                sx={col.sx}
-                data-testid={`generic-table-header-${col.label.toString()}`}
-              >
-                {col.field && !col.sortDisabled ? (
-                  <TableSortLabel
-                    active={orderBy === col}
-                    direction={orderBy === col ? order : "asc"}
-                    onClick={() => handleRequestSort(col)}
-                  >
-                    {col.label}
-                  </TableSortLabel>
-                ) : (
-                  col.label
-                )}
-              </StyledHeaderCell>
-            ))}
-          </TableRow>
-        </StyledTableHead>
+        {columns?.length > 0 && (
+          <StyledTableHead>
+            <TableRow>
+              {columns.map((col: Column<T>) => (
+                <StyledHeaderCell
+                  key={col.label.toString()}
+                  sx={col.sx}
+                  data-testid={`generic-table-header-${col.label.toString()}`}
+                >
+                  {col.field && !col.sortDisabled ? (
+                    <TableSortLabel
+                      active={orderBy === col}
+                      direction={orderBy === col ? order : "asc"}
+                      onClick={() => handleRequestSort(col)}
+                    >
+                      {col.label}
+                    </TableSortLabel>
+                  ) : (
+                    col.label
+                  )}
+                </StyledHeaderCell>
+              ))}
+            </TableRow>
+          </StyledTableHead>
+        )}
         <TableBody>
           {loading && total === 0
             ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
