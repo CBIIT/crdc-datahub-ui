@@ -305,6 +305,32 @@ describe("DeleteAllOrphanFilesButton Component", () => {
     });
   });
 
+  it("should show correct text in delete dialog", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+        mocks={successMocks}
+      >
+        <DeleteAllOrphanFilesButton submission={{ ...baseSubmission }} onDelete={onDelete} />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("delete-all-orphan-files-button"));
+
+    const headerText = "Delete All Orphaned Files";
+    const descriptionText =
+      "All uploaded data files without associate metadata will be deleted. This operation is irreversible. Are you sure you want to proceed?";
+    const confirmText = "Confirm to Delete";
+    const closeText = "Cancel";
+
+    await waitFor(() => {
+      expect(screen.getByText(headerText)).toBeInTheDocument();
+      expect(screen.getByText(descriptionText)).toBeInTheDocument();
+      expect(screen.getByText(confirmText)).toBeInTheDocument();
+      expect(screen.getByText(closeText)).toBeInTheDocument();
+    });
+  });
+
   it("should hide tooltip when unhovering over icon button", async () => {
     const { getByTestId } = render(
       <TestParent
