@@ -648,7 +648,10 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                 </BatchTableContext.Provider>
               )}
               {tab === URLTabs.VALIDATION_RESULTS && (
-                <QualityControl submission={data?.getSubmission} />
+                <QualityControl
+                  submission={data?.getSubmission}
+                  refreshSubmission={getSubmission}
+                />
               )}
               {tab === URLTabs.SUBMITTED_DATA && <SubmittedData submissionId={submissionId} />}
 

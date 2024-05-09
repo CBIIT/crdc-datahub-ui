@@ -184,9 +184,10 @@ export const csvColumns = {
 
 type Props = {
   submission: Submission;
+  refreshSubmission: () => void;
 };
 
-const QualityControl: FC<Props> = ({ submission }: Props) => {
+const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>();
   const { enqueueSnackbar } = useSnackbar();
@@ -273,17 +274,11 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
     }
   };
 
-  const handleDeleteAllOrphanFiles = (success: boolean) => {
-    if (!success) {
-      return;
-    }
-    tableRef.current?.refresh();
-  };
-
   const handleDeleteOrphanFile = (success: boolean) => {
     if (!success) {
       return;
     }
+    refreshSubmission();
     tableRef.current?.refresh();
   };
 
@@ -417,7 +412,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
               <DeleteAllOrphanFilesButton
                 submission={submission}
                 disabled={!submission?.fileErrors?.length}
-                onDelete={handleDeleteAllOrphanFiles}
+                onDelete={handleDeleteOrphanFile}
               />
             </Stack>
           }
