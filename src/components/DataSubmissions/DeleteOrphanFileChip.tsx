@@ -64,6 +64,10 @@ const DeleteOrphanFileChip = ({
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
+  const isOrphanFile = useMemo(
+    () => submission?.fileErrors?.find((error) => error.submittedID === submittedID),
+    [submission?.fileErrors, submittedID]
+  );
   const canDeleteOrphanedFiles = useMemo(() => {
     if (
       !user?.role ||
@@ -110,6 +114,10 @@ const DeleteOrphanFileChip = ({
       setLoading(false);
     }
   };
+
+  if (!isOrphanFile) {
+    return null;
+  }
 
   return (
     <StyledChip

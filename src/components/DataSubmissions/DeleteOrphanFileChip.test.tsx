@@ -249,7 +249,7 @@ describe("DeleteOrphanFileChip Component", () => {
     });
   });
 
-  it("should disable when submission has no fileErrors", async () => {
+  it("should never render when not an orphan file", async () => {
     const { getByTestId } = render(
       <TestParent
         context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
@@ -263,8 +263,8 @@ describe("DeleteOrphanFileChip Component", () => {
       </TestParent>
     );
 
-    expect(getByTestId("delete-orphaned-file-chip")).toHaveAttribute("aria-disabled");
-    expect(getByTestId("delete-orphaned-file-chip")).toHaveClass("Mui-disabled");
+    expect(() => getByTestId("delete-orphaned-file-chip")).toThrow();
+    expect(() => getByTestId("delete-orphaned-file-icon")).toThrow();
   });
 
   it.each<User["role"]>(["Federal Lead", "Data Commons POC", "fake role" as User["role"]])(
