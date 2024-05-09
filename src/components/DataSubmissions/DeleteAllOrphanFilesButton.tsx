@@ -3,7 +3,7 @@ import { IconButton, IconButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
 import { ReactComponent as DeleteAllFilesIcon } from "../../assets/icons/delete_all_files_icon.svg";
-import { DELETE_ALL_EXTRA_FILES, DeleteAllExtraFilesResp } from "../../graphql";
+import { DELETE_ALL_ORPHANED_FILES, DeleteAllOrphanedFilesResp } from "../../graphql";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
@@ -52,10 +52,13 @@ const DeleteAllOrphanFilesButton = ({ submission, onDelete, disabled, ...rest }:
     return true;
   }, [user, submission]);
 
-  const [deleteAllExtraFiles] = useMutation<DeleteAllExtraFilesResp>(DELETE_ALL_EXTRA_FILES, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  const [deleteAllOrphanedFiles] = useMutation<DeleteAllOrphanedFilesResp>(
+    DELETE_ALL_ORPHANED_FILES,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const handleClick = async () => {
     setOpenDeleteAllDialog(true);
@@ -65,17 +68,17 @@ const DeleteAllOrphanFilesButton = ({ submission, onDelete, disabled, ...rest }:
     setOpenDeleteAllDialog(false);
   };
 
-  const deleteAllOrphanedFiles = async () => {
+  const handleOnDelete = async () => {
     setLoading(true);
 
     try {
-      const { data: d, errors } = await deleteAllExtraFiles({
+      const { data: d, errors } = await deleteAllOrphanedFiles({
         variables: {
           _id: submission._id,
         },
       });
 
-      if (errors || !d?.deleteAllExtraFiles?.success) {
+      if (errors || !d?.deleteAllOrphanedFiles?.success) {
         throw new Error("Unable to delete all orphaned files.");
       }
       enqueueSnackbar("All orphaned files have been successfully deleted.", {
@@ -117,7 +120,7 @@ const DeleteAllOrphanFilesButton = ({ submission, onDelete, disabled, ...rest }:
       <DeleteDialog
         open={openDeleteAllDialog}
         onClose={onCloseDeleteDialog}
-        onConfirm={deleteAllOrphanedFiles}
+        onConfirm={handleOnDelete}
         header="Delete All Orphaned Files"
         description="All uploaded data files without associate metadata will be deleted. This operation is irreversible. Are you sure you want to proceed?"
         confirmText="Confirm to Delete"

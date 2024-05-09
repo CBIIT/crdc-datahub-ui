@@ -3,7 +3,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
-import { DELETE_ALL_EXTRA_FILES } from "../../graphql";
+import { DELETE_ALL_ORPHANED_FILES } from "../../graphql";
 import DeleteAllOrphanFilesButton from "./DeleteAllOrphanFilesButton";
 
 const baseSubmission: Submission = {
@@ -86,12 +86,12 @@ const TestParent: FC<ParentProps> = ({
 const successMocks: MockedResponse[] = [
   {
     request: {
-      query: DELETE_ALL_EXTRA_FILES,
+      query: DELETE_ALL_ORPHANED_FILES,
       variables: { _id: "submission-id" },
     },
     result: {
       data: {
-        deleteAllExtraFiles: { success: true },
+        deleteAllOrphanedFiles: { success: true },
       },
     },
   },
@@ -100,7 +100,7 @@ const successMocks: MockedResponse[] = [
 const failureMocks: MockedResponse[] = [
   {
     request: {
-      query: DELETE_ALL_EXTRA_FILES,
+      query: DELETE_ALL_ORPHANED_FILES,
       variables: { _id: "submission-id" },
     },
     error: new Error("Unable to delete orphan file."),

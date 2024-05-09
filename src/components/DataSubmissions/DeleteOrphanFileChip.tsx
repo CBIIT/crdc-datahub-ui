@@ -3,7 +3,7 @@ import { Chip, ChipProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
 import { ReactComponent as DeleteFileIcon } from "../../assets/icons/delete_single_file_icon.svg";
-import { DELETE_EXTRA_FILE, DeleteExtraFileResp } from "../../graphql";
+import { DELETE_ORPHANED_FILE, DeleteOrphanedFileResp } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
 
 const StyledChip = styled(Chip)({
@@ -80,23 +80,23 @@ const DeleteOrphanFileChip = ({
     return true;
   }, [user, submission]);
 
-  const [deleteExtraFile] = useMutation<DeleteExtraFileResp>(DELETE_EXTRA_FILE, {
+  const [deleteOrphanedFile] = useMutation<DeleteOrphanedFileResp>(DELETE_ORPHANED_FILE, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const deleteOrphanFile = async () => {
+  const handleOnDelete = async () => {
     setLoading(true);
 
     try {
-      const { data: d, errors } = await deleteExtraFile({
+      const { data: d, errors } = await deleteOrphanedFile({
         variables: {
           _id: submission._id,
           fileName: submittedID,
         },
       });
 
-      if (errors || !d?.deleteExtraFile?.success) {
+      if (errors || !d?.deleteOrphanedFile?.success) {
         throw new Error("Unable to delete orphan file.");
       }
 
@@ -123,7 +123,7 @@ const DeleteOrphanFileChip = ({
     <StyledChip
       icon={<DeleteFileIcon data-testid="delete-orphaned-file-icon" />}
       label="Delete orphaned file"
-      onClick={deleteOrphanFile}
+      onClick={handleOnDelete}
       disabled={loading || disabled || !canDeleteOrphanedFiles}
       aria-label="Delete orphaned file"
       data-testid="delete-orphaned-file-chip"

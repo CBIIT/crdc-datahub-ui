@@ -4,7 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
 import DeleteOrphanFileChip from "./DeleteOrphanFileChip";
-import { DELETE_EXTRA_FILE } from "../../graphql";
+import { DELETE_ORPHANED_FILE } from "../../graphql";
 
 const baseSubmission: Submission = {
   _id: "submission-id",
@@ -86,12 +86,12 @@ const TestParent: FC<ParentProps> = ({
 const successMocks: MockedResponse[] = [
   {
     request: {
-      query: DELETE_EXTRA_FILE,
+      query: DELETE_ORPHANED_FILE,
       variables: { _id: "submission-id", fileName: "mock-file-name" },
     },
     result: {
       data: {
-        deleteExtraFile: { success: true },
+        deleteOrphanedFile: { success: true },
       },
     },
   },
@@ -100,7 +100,7 @@ const successMocks: MockedResponse[] = [
 const failureMocks: MockedResponse[] = [
   {
     request: {
-      query: DELETE_EXTRA_FILE,
+      query: DELETE_ORPHANED_FILE,
       variables: { _id: "submission-id", fileName: "mock-file-name" },
     },
     error: new Error("Unable to delete orphan file."),
