@@ -90,10 +90,10 @@ type Props = {
 } & Omit<DialogProps, "onClose">;
 
 const DeleteDialog = ({
-  header = "Delete Data",
+  header = "Remove Data",
   description,
   closeText = "Cancel",
-  confirmText = "Confirm to Delete",
+  confirmText = "Confirm to Remove",
   onClose,
   onConfirm,
   open,
@@ -108,7 +108,7 @@ const DeleteDialog = ({
       {description || (
         <>
           The metadata or files specified in the selected files, along with their associated child
-          nodes, will be deleted from this data submission, and this action is irreversible.
+          nodes, will be removed from this data submission, and this action is irreversible.
           <br />
           Are you sure you want to proceed?
         </>
