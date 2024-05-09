@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { IconButton, IconButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
@@ -40,6 +40,17 @@ const DeleteAllOrphanFilesButton = ({ submission, onDelete, disabled, ...rest }:
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
   const [openDeleteAllDialog, setOpenDeleteAllDialog] = useState<boolean>(false);
+  const canDeleteOrphanedFiles = useMemo(() => {
+    if (
+      !user?.role ||
+      !DeleteAllOrphanFileRoles.includes(user.role) ||
+      !submission?.fileErrors?.length
+    ) {
+      return false;
+    }
+
+    return true;
+  }, [user, submission]);
 
   const [deleteAllExtraFiles] = useMutation<DeleteAllExtraFilesResp>(DELETE_ALL_EXTRA_FILES, {
     context: { clientName: "backend" },
@@ -83,21 +94,13 @@ const DeleteAllOrphanFilesButton = ({ submission, onDelete, disabled, ...rest }:
     }
   };
 
-  if (
-    !user?.role ||
-    !DeleteAllOrphanFileRoles.includes(user.role) ||
-    !submission?.fileErrors?.length
-  ) {
-    return null;
-  }
-
   return (
     <>
       <StyledTooltip title="Delete All Orphaned Files" placement="top">
         <span>
           <StyledIconButton
             onClick={handleClick}
-            disabled={loading || disabled}
+            disabled={loading || disabled || !canDeleteOrphanedFiles}
             data-testid="delete-all-orphan-files-button"
             aria-label="Delete all orphan files"
             {...rest}

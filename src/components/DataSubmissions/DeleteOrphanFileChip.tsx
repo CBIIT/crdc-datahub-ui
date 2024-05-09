@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Chip, ChipProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
@@ -64,6 +64,17 @@ const DeleteOrphanFileChip = ({
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
+  const canDeleteOrphanedFiles = useMemo(() => {
+    if (
+      !user?.role ||
+      !DeleteOrphanFileRoles.includes(user.role) ||
+      !submission?.fileErrors?.length
+    ) {
+      return false;
+    }
+
+    return true;
+  }, [user, submission]);
 
   const [deleteExtraFile] = useMutation<DeleteExtraFileResp>(DELETE_EXTRA_FILE, {
     context: { clientName: "backend" },
@@ -100,20 +111,12 @@ const DeleteOrphanFileChip = ({
     }
   };
 
-  if (
-    !user?.role ||
-    !DeleteOrphanFileRoles.includes(user.role) ||
-    !submission?.fileErrors?.find((fileError) => fileError.submittedID === submittedID)
-  ) {
-    return null;
-  }
-
   return (
     <StyledChip
       icon={<DeleteFileIcon data-testid="delete-orphaned-file-icon" />}
       label="Delete orphaned file"
       onClick={deleteOrphanFile}
-      disabled={loading || disabled}
+      disabled={loading || disabled || !canDeleteOrphanedFiles}
       aria-label="Delete orphaned file"
       data-testid="delete-orphaned-file-chip"
       {...rest}
