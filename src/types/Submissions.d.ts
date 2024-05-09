@@ -94,7 +94,15 @@ type BatchFileInfo = {
 
 type BatchStatus = "Uploading" | "Uploaded" | "Failed";
 
-type MetadataIntention = "New" | "Update" | "Delete";
+/**
+ * The intention of the metadata upload.
+ *
+ * @note In MVP-2.1.0, the previous values were:
+ *  - `New` => `Add`
+ *  - `Update` => `Add/Change`
+ *  - `Delete` => `Remove`
+ */
+type MetadataIntention = "Add" | "Add/Change" | "Remove";
 
 type UploadType = "metadata" | "data file";
 
@@ -103,7 +111,10 @@ type Batch = {
   displayID: number;
   submissionID: string; // parent
   type: UploadType;
-  metadataIntention: MetadataIntention; // [New, Update, Delete], Update is meant for "Update or insert", metadata only! file batches are always treated as Update
+  /**
+   * See {@link MetadataIntention} for more information.
+   */
+  metadataIntention: MetadataIntention;
   fileCount: number; // calculated by BE
   files: BatchFileInfo[];
   status: BatchStatus;
@@ -118,7 +129,7 @@ type NewBatch = {
   bucketName?: string; // S3 bucket of the submission, for file batch / CLI use
   filePrefix?: string; // prefix/path within S3 bucket, for file batch / CLI use
   type: UploadType;
-  metadataIntention: MetadataIntention; // [New, Update, Delete], Update is meant for "Update or insert", metadata only! file batches are always treated as Update
+  metadataIntention: MetadataIntention;
   fileCount: number; // calculated by BE
   files: FileURL[];
   status: BatchStatus; // [New, Uploaded, Upload Failed, Loaded, Rejected] Loaded and Rejected are for metadata batch only

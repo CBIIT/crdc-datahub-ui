@@ -98,7 +98,7 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
-  const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("New");
+  const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("Add");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
@@ -258,7 +258,7 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
         return;
       }
       // Batch upload completed successfully
-      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${metadataIntention === "Delete" ? "deleted" : "uploaded"}`, "success");
+      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${metadataIntention === "Remove" ? "removed" : "uploaded"}`, "success");
       setIsUploading(false);
       setSelectedFiles(null);
       if (uploadMetadataInputRef.current) {
@@ -271,7 +271,7 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
   };
 
   const onUploadFail = (fileCount = 0) => {
-    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${metadataIntention === "Delete" ? "delete" : "upload"}`, "error");
+    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${metadataIntention === "Remove" ? "remove" : "upload"}`, "error");
     setSelectedFiles(null);
     setIsUploading(false);
     if (uploadMetadataInputRef.current) {
@@ -328,7 +328,7 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
         <StyledUploadFilesButton
           variant="contained"
           color="info"
-          onClick={() => (metadataIntention === "Delete" ? setOpenDeleteDialog(true) : handleUploadFiles())}
+          onClick={() => (metadataIntention === "Remove" ? setOpenDeleteDialog(true) : handleUploadFiles())}
           disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
           disableElevation
           disableRipple
