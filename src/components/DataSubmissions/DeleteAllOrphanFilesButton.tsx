@@ -120,6 +120,8 @@ const DeleteAllOrphanFilesButton = ({ submission, onDelete, disabled, ...rest }:
         onConfirm={deleteAllOrphanedFiles}
         header="Delete All Orphaned Files"
         description="All uploaded data files without associate metadata will be deleted. This operation is irreversible. Are you sure you want to proceed?"
+        confirmText="Confirm to Delete"
+        closeText="Cancel"
       />
     </>
   );
