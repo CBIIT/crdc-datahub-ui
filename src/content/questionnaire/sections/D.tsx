@@ -341,7 +341,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={data.otherDataTypes}
           placeholder="Other Data Types (Specify)"
           gridWidth={12}
-          tooltipText="Data that do not fit in any of the other categories."
+          tooltipText='Data that do not fit in any of the other categories. Enter other data types, separated by pipes ("|").'
           readOnly={readOnlyInputs}
           maxLength={200}
         />
@@ -418,7 +418,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             value={data.clinicalData.otherDataTypes}
             placeholder="Other clinical data types (Specify)"
             gridWidth={12}
-            tooltipText="If there are any additional types of data included with the study not already specified above, describe here."
+            tooltipText='If there are any additional types of data included with the study not already specified above, describe here. Enter other clinical data types, separated by pipes ("|").'
             readOnly={readOnlyInputs}
             maxLength={200}
           />

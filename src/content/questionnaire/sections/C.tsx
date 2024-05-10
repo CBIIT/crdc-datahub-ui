@@ -159,6 +159,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-c-other-cancer-types"
           key={`other_cancer_types_${cancerTypes?.toString()}`}
           label="Other cancer type(s)"
+          tooltipText='Enter other cancer type(s), separated by pipes ("|").'
           labelStartAddornment={(
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
@@ -180,6 +181,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-c-pre-cancer-types"
           label="Pre-Cancer types (provide all that apply)"
+          tooltipText='Enter pre-cancer types, separated by pipes ("|").'
           name="preCancerTypes"
           placeholder="Provide pre-cancer types"
           value={data.preCancerTypes}
@@ -206,6 +208,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-c-other-species-of-subjects"
           label="Other Specie(s) involved"
+          tooltipText='Enter other specie(s) involved, separated by pipes ("|").'
           labelStartAddornment={(
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
