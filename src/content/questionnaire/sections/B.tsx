@@ -290,8 +290,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Program Title"
           name="program[name]"
           value={predefinedProgram ? programOption?.name : program?.name}
-          maxLength={50}
-          placeholder="50 characters allowed"
+          maxLength={100}
+          placeholder="100 characters allowed"
           hideValidation={readOnlyProgram}
           required
           readOnly={readOnlyProgram}
