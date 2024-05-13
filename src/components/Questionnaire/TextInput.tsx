@@ -55,7 +55,10 @@ const StyledHelperText = styled(FormHelperText)(() => ({
   minHeight: "20px",
 }));
 
-const StyledOutlinedInput = styled(OutlinedInput)(() => ({
+const StyledOutlinedInput = styled(OutlinedInput, {
+  shouldForwardProp: (prop) => prop !== "resize" && prop !== "lineHeight",
+})<OutlinedInputProps & { resize: boolean; rowHeight: number }>(
+  ({ resize, rowHeight, rows, minRows, maxRows }) => ({
   borderRadius: "8px",
   backgroundColor: "#fff",
   color: "#083A50",
@@ -70,8 +73,13 @@ const StyledOutlinedInput = styled(OutlinedInput)(() => ({
   "&.MuiInputBase-multiline": {
     padding: "12px",
   },
+  "& .MuiInputBase-inputMultiline": {
+    resize: resize ? "vertical" : "none",
+    minHeight: resize ? `${(+rows ?? +minRows) * rowHeight}px` : "none",
+    maxHeight: !resize || rows ? "none" : `${(+maxRows) * rowHeight}px`,
+  },
   "&.MuiInputBase-multiline .MuiInputBase-input": {
-    lineHeight: "25px",
+    lineHeight: `${rowHeight}px`,
     padding: 0,
   },
   "& .MuiOutlinedInput-notchedOutline": {
@@ -104,7 +112,8 @@ const StyledOutlinedInput = styled(OutlinedInput)(() => ({
     cursor: "not-allowed",
     borderRadius: "8px",
   },
-}));
+})
+);
 
 type Props = {
   label?: string | ReactNode;
@@ -115,6 +124,7 @@ type Props = {
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
   maxLength?: number;
   hideValidation?: boolean;
+  resize?: boolean;
   validate?: (input: string) => boolean;
   filter?: (input: string) => string;
   parentStateSetter?: (string) => void;
@@ -147,6 +157,10 @@ const TextInput: FC<Props> = ({
   filter,
   type,
   readOnly,
+  rows,
+  multiline,
+  resize,
+  inputProps,
   onChange,
   parentStateSetter,
   ...rest
@@ -157,6 +171,7 @@ const TextInput: FC<Props> = ({
   const [error, setError] = useState(false);
   const errorMsg = errorText || (required ? "This field is required" : null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const ROW_HEIGHT = 25; // line height of each row in a multiline
 
   const processValue = (inputVal: string) => {
     let newVal = inputVal;
@@ -200,6 +215,11 @@ const TextInput: FC<Props> = ({
     processValue(value?.toString());
   }, [value]);
 
+  /* MUI sets the height for multiline input using inline styling. Needs to be overwritten to have a working minHeight */
+  const customInputProps = resize && multiline
+      ? { style: { height: `${+rows * ROW_HEIGHT}px`, overflow: "auto" } }
+      : {};
+
   return (
     <StyledGridWrapper md={gridWidth || 6} xs={12} item>
       <StyledFormControl fullWidth error={error}>
@@ -221,7 +241,12 @@ const TextInput: FC<Props> = ({
           onChange={onChangeWrapper}
           required={required}
           readOnly={readOnly}
+          rows={rows}
+          multiline={multiline}
+          resize={resize}
+          rowHeight={ROW_HEIGHT}
           {...rest}
+          inputProps={{ ...customInputProps, ...inputProps }}
           id={id}
         />
         <StyledHelperText>
