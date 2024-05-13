@@ -290,8 +290,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Program Title"
           name="program[name]"
           value={predefinedProgram ? programOption?.name : program?.name}
-          maxLength={50}
-          placeholder="50 characters allowed"
+          maxLength={100}
+          placeholder="100 characters allowed"
           hideValidation={readOnlyProgram}
           required
           readOnly={readOnlyProgram}
@@ -319,10 +319,10 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           gridWidth={12}
           maxLength={500}
           placeholder="500 characters allowed"
-          minRows={2}
-          maxRows={2}
+          rows={4}
           hideValidation={readOnlyProgram}
           multiline
+          resize
           required
           readOnly={readOnlyProgram}
         />
@@ -388,12 +388,12 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           gridWidth={12}
           maxLength={2500}
           placeholder="2,500 characters allowed"
-          minRows={2}
-          maxRows={2}
+          rows={4}
           readOnly={readOnlyInputs}
           hideValidation={readOnlyInputs}
           required
           multiline
+          resize
           tooltipText="Describe your study and the data being submitted. Include objectives of the study and provide a brief description of the scientific value of the study."
         />
       </SectionGroup>
