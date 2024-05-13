@@ -66,6 +66,9 @@ export type { Response as GetSubmissionNodesResp } from "./getSubmissionNodes";
 export { query as SUBMISSION_STATS } from "./submissionStats";
 export type { Response as SubmissionStatsResp } from "./submissionStats";
 
+export { query as RETRIEVE_CLI_CONFIG } from "./retrieveCLIConfig";
+export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";

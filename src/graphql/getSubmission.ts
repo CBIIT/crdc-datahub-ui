@@ -20,6 +20,7 @@ export const query = gql`
       status
       metadataValidationStatus
       fileValidationStatus
+      crossSubmissionStatus
       fileErrors {
         submissionID
         type
@@ -47,9 +48,10 @@ export const query = gql`
       }
       conciergeName
       conciergeEmail
+      intention
+      otherSubmissions
       createdAt
       updatedAt
-      intention
     }
 
     submissionStats(_id: $id) {
@@ -61,10 +63,6 @@ export const query = gql`
         warning
         error
       }
-    }
-
-    totalQCResults: submissionQCResults(_id: $id, first: 1) {
-      total
     }
   }
 `;
@@ -79,11 +77,5 @@ export type Response = {
    */
   submissionStats: {
     stats: SubmissionStatistic[];
-  };
-  /**
-   * The total number of QC results for the submission
-   */
-  totalQCResults: {
-    total: number;
   };
 };

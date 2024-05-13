@@ -1,386 +1,142 @@
-import { ReactElement, useEffect, useMemo, useRef, useState } from "react";
-import { useMutation } from "@apollo/client";
-import { useParams } from "react-router-dom";
-import { LoadingButton } from "@mui/lab";
-import { VariantType } from "notistack";
-import { Button, Stack, Typography, styled } from "@mui/material";
-import RadioInput from "./RadioInput";
-import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
-import { useAuthContext } from "../Contexts/AuthContext";
-import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
+import { FC, ReactElement, useMemo, useState } from "react";
+import { useLazyQuery } from "@apollo/client";
+import { useSnackbar } from "notistack";
+import { Box, Button, Typography, styled } from "@mui/material";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import env from "../../env";
+import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
+import { downloadBlob, filterAlphaNumeric } from "../../utils";
 import FlowWrapper from "./FlowWrapper";
+import UploaderToolDialog from "../UploaderToolDialog";
+import UploaderConfigDialog, { InputForm } from "../UploaderConfigDialog";
 
-const StyledUploadTypeText = styled(Typography)(() => ({
-  color: "#083A50",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "19.6px",
-}));
-
-const StyledMetadataText = styled(StyledUploadTypeText)(() => ({
-  "&.MuiTypography-root": {
-    color: "#000000",
-  },
-}));
-
-const StyledUploadFilesButton = styled(Button)(() => ({
-  minWidth: "137px",
-  padding: "10px",
-  color: "#FFF",
-  fontFamily: "'Nunito'",
-  fontSize: "16px",
-  fontStyle: "normal",
-  lineHeight: "24px",
-  letterSpacing: "0.32px",
-  textTransform: "none",
-  "&.MuiButtonBase-root": {
-    marginLeft: "auto",
-    minWidth: "137px",
-  },
-}));
-
-const StyledChooseFilesButton = styled(LoadingButton)(() => ({
-  minWidth: "137px",
-  padding: "10px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 500,
-  lineHeight: "24px",
-  textTransform: "initial",
-  marginLeft: "12px",
-  marginRight: "12px",
-  "&.MuiButtonBase-root": {
-    marginLeft: "15px",
-  },
-}));
-
-const StyledFilesSelected = styled(Typography)(() => ({
-  color: "#083A50",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "italic",
-  fontWeight: 400,
-  lineHeight: "19.6px",
-  minWidth: "135px",
-}));
-
-const StyledUploadActionWrapper = styled(Stack)(() => ({
-  "&.MuiStack-root": {
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: "20px",
-  },
-}));
-
-const VisuallyHiddenInput = styled("input")(() => ({
-  display: "none !important",
-}));
-
-const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
-
-type Props = {
+export type Props = {
+  /**
+   * The submission to download a pre-configured CLI config for.
+   */
   submission: Submission;
-  readOnly?: boolean;
-  onCreateBatch: () => void;
-  onUpload: (message: string, severity: VariantType) => void;
 };
 
-const DataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
-  const { submissionId } = useParams();
-  const { user } = useAuthContext();
+const StyledBox = styled(Box)({
+  maxWidth: "790px",
+  lineHeight: "22px",
+  marginTop: "10px",
+});
 
-  const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("New");
-  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
-  const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
-  const isSubmissionOwner = submission?.submitterID === user?._id;
-  const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
-  const isNewSubmission =
-    !submission?.metadataValidationStatus && !submission?.fileValidationStatus;
-  const acceptedExtensions = [".tsv", ".txt"];
-  const metadataIntentionOptions = [
-    { label: "New", value: "New", disabled: !canUpload },
-    {
-      label: "Update",
-      value: "Update",
-      disabled: !canUpload || isNewSubmission,
-    },
-    {
-      label: "Delete",
-      value: "Delete",
-      disabled: !canUpload || isNewSubmission,
-    },
-  ];
+const StyledDownloadButton = styled(Button)({
+  padding: "10px 6px",
+  fontSize: "14px",
+  fontStyle: "normal",
+  lineHeight: "16px",
+  letterSpacing: "0.32px",
+  width: "137px",
+  height: "47px",
+  "&.MuiButtonBase-root": {
+    marginLeft: "auto",
+  },
+});
 
-  const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
+const StyledToolButton = styled(Typography)({
+  color: "#005999",
+  cursor: "pointer",
+  lineHeight: "16px",
+  fontWeight: 700,
+  display: "inline",
+  textDecoration: "underline",
+  textDecorationThickness: "1px",
+  textUnderlineOffset: "1.5px",
+});
+
+const StyledOpenInNewIcon = styled(OpenInNewIcon)({
+  color: "#005999",
+  fontSize: "18px",
+  verticalAlign: "middle",
+  marginLeft: "4px",
+});
+
+/**
+ * Provides a way to download the Uploader CLI tool and a pre-configured CLI config file.
+ *
+ * @param {Props} props
+ * @returns {React.FC<Props>}
+ */
+export const DataUpload: FC<Props> = ({ submission }: Props) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const { _id, name } = submission || {};
+
+  const [cliDialogOpen, setCLIDialogOpen] = useState<boolean>(false);
+  const [configDialogOpen, setConfigDialogOpen] = useState<boolean>(false);
+  const [retrieveCLIConfig] = useLazyQuery<RetrieveCLIConfigResp>(RETRIEVE_CLI_CONFIG, {
     context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
   });
 
-  const [updateBatch] = useMutation<UpdateBatchResp>(UPDATE_BATCH, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-
-  // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
-  useEffect(() => {
-    const unloadHandler = (event: BeforeUnloadEvent) => {
-      if (selectedFiles?.length > 0) {
-        event.preventDefault();
-        event.returnValue = "You have unsaved form changes. Are you sure you want to leave?";
-      }
-    };
-
-    window.addEventListener("beforeunload", unloadHandler);
-
-    return () => {
-      window.removeEventListener("beforeunload", unloadHandler);
-    };
-  });
-
-  const handleChooseFilesClick = () => {
-    if (!canUpload || readOnly) {
-      return;
-    }
-    uploadMetadataInputRef?.current?.click();
-  };
-
-  const handleChooseFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { files } = event?.target || {};
-
-    if (!files) {
-      setSelectedFiles(null);
-      return;
-    }
-
-    // Filter out any file that is not an accepted file extension
-    const filteredFiles = Array.from(files)?.filter((file: File) =>
-      acceptedExtensions.some((ext) => file.name?.toLowerCase()?.endsWith(ext))
-    );
-    if (!filteredFiles?.length) {
-      setSelectedFiles(null);
-      return;
-    }
-
-    // Add the files back to a FileList
-    const dataTransfer = new DataTransfer();
-    filteredFiles.forEach((file) => dataTransfer?.items?.add(file));
-
-    setSelectedFiles(dataTransfer?.files);
-  };
-
-  const onUploadFail = (fileCount = 0) => {
-    onUpload(
-      `${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${
-        metadataIntention === "Delete" ? "delete" : "upload"
-      }`,
-      "error"
-    );
-    setSelectedFiles(null);
-    setIsUploading(false);
-    if (uploadMetadataInputRef.current) {
-      uploadMetadataInputRef.current.value = "";
-    }
-  };
-
-  const createNewBatch = async (): Promise<NewBatch> => {
-    if (!selectedFiles?.length) {
-      return null;
-    }
-
+  const handleConfigDownload = async ({ manifest, dataFolder }: InputForm) => {
     try {
-      const formattedFiles: FileInput[] = Array.from(selectedFiles)?.map((file) => ({
-        fileName: file.name,
-        size: file.size,
-      }));
-      const { data: batch, errors } = await createBatch({
+      const { data, error } = await retrieveCLIConfig({
         variables: {
-          submissionID: submissionId,
-          type: "metadata",
-          metadataIntention,
-          files: formattedFiles,
+          _id,
+          dataFolder,
+          manifest,
+          apiURL: env.REACT_APP_BACKEND_API,
         },
       });
 
-      if (errors) {
-        throw new Error("Unexpected network error");
+      if (error || !data?.retrieveCLIConfig?.length) {
+        throw new Error(error.message);
       }
 
-      return batch?.createBatch;
-    } catch (err) {
-      // Unable to initiate upload process so all failed
-      onUploadFail(selectedFiles?.length);
-      return null;
-    }
-  };
+      const filteredName = filterAlphaNumeric(name.trim()?.replaceAll(" ", "-"), "-");
+      const prefixedName = `cli-config-${filteredName}`;
+      const filename = `${prefixedName.replace(/-+$/, "")}.yml`;
 
-  const onBucketUpload = async (batchID: string, files: UploadResult[]) => {
-    let failedFilesCount = 0;
-    files?.forEach((file) => {
-      if (!file.succeeded) {
-        failedFilesCount += 1;
-      }
-    });
-
-    try {
-      const { errors } = await updateBatch({
-        variables: {
-          batchID,
-          files,
-        },
+      downloadBlob(data.retrieveCLIConfig, filename, "application/yaml");
+      setConfigDialogOpen(false);
+    } catch (e) {
+      enqueueSnackbar("Unable to download Uploader CLI config file", {
+        variant: "error",
       });
-
-      if (errors) {
-        throw new Error("Unexpected network error");
-      }
-      if (failedFilesCount > 0) {
-        onUploadFail(failedFilesCount);
-        return;
-      }
-      // Batch upload completed successfully
-      onUpload(
-        `${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${
-          metadataIntention === "Delete" ? "deleted" : "uploaded"
-        }`,
-        "success"
-      );
-      setIsUploading(false);
-      setSelectedFiles(null);
-      if (uploadMetadataInputRef.current) {
-        uploadMetadataInputRef.current.value = "";
-      }
-    } catch (err) {
-      // Unable to let BE know of upload result so all fail
-      onUploadFail(selectedFiles?.length);
     }
-  };
-
-  const handleUploadFiles = async () => {
-    if (!selectedFiles?.length || !canUpload || readOnly) {
-      return;
-    }
-
-    setIsUploading(true);
-    const newBatch: NewBatch = await createNewBatch();
-    if (!newBatch) {
-      return;
-    }
-    onCreateBatch();
-
-    const uploadResult: UploadResult[] = [];
-
-    const uploadPromises = newBatch.files?.map(async (file: FileURL) => {
-      const selectedFile: File = Array.from(selectedFiles).find((f) => f.name === file.fileName);
-      try {
-        const res = await fetch(file.signedURL, {
-          method: "PUT",
-          body: selectedFile,
-          headers: {
-            "Content-Type": "text/tab-separated-values",
-          },
-        });
-        if (!res.ok) {
-          throw new Error("Unexpected network error");
-        }
-        uploadResult.push({
-          fileName: file.fileName,
-          succeeded: true,
-          errors: null,
-        });
-      } catch (err) {
-        uploadResult.push({
-          fileName: file.fileName,
-          succeeded: false,
-          errors: err?.toString(),
-        });
-      }
-    });
-
-    // Wait for all uploads to finish
-    await Promise.allSettled(uploadPromises);
-    onBucketUpload(newBatch._id, uploadResult);
-  };
-
-  const onCloseDeleteDialog = () => {
-    setOpenDeleteDialog(false);
-  };
-
-  const onDeleteUpload = () => {
-    setOpenDeleteDialog(false);
-    handleUploadFiles();
   };
 
   const Actions: ReactElement = useMemo(
     () => (
-      <StyledUploadFilesButton
+      <StyledDownloadButton
+        onClick={() => setConfigDialogOpen(true)}
         variant="contained"
         color="info"
-        onClick={() =>
-          metadataIntention === "Delete" ? setOpenDeleteDialog(true) : handleUploadFiles()
-        }
-        disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
-        disableElevation
-        disableRipple
-        disableTouchRipple
+        data-testid="uploader-cli-config-button"
       >
-        {isUploading ? "Uploading..." : "Upload"}
-      </StyledUploadFilesButton>
+        Download Configuration File
+      </StyledDownloadButton>
     ),
-    [selectedFiles, metadataIntention, readOnly, canUpload, isUploading]
+    []
   );
 
   return (
-    <FlowWrapper index={1} title="Upload Data" actions={Actions}>
-      <Stack direction="row" alignItems="center" spacing={1.25}>
-        <RadioInput
-          id="data-submission-dashboard-upload-type"
-          label="Upload Type:"
-          value={metadataIntention}
-          onChange={(_event, value: MetadataIntention) => !readOnly && setMetadataIntention(value)}
-          options={metadataIntentionOptions}
-          gridWidth={4}
-          parentProps={{ sx: { minWidth: "400px" } }}
-          readOnly={readOnly}
-          inline
-          row
-        />
-        <StyledUploadActionWrapper direction="row">
-          <StyledMetadataText variant="body2">Metadata Files</StyledMetadataText>
-          <VisuallyHiddenInput
-            ref={uploadMetadataInputRef}
-            type="file"
-            accept={acceptedExtensions.toString()}
-            aria-label="Upload metadata files"
-            onChange={handleChooseFiles}
-            readOnly={readOnly}
-            multiple
-          />
-          <StyledChooseFilesButton
-            variant="contained"
-            color="info"
-            onClick={handleChooseFilesClick}
-            disabled={readOnly || isUploading || !canUpload}
+    <FlowWrapper index={2} title="Upload Data Files" actions={Actions}>
+      <>
+        <StyledBox data-testid="uploader-cli-footer">
+          The CLI Tool is used to upload data files to DataHub and requires a configuration file to
+          work. The CLI Tools is a one-time download however the configuration file needs to be
+          customized for each submission. You can either edit the example configuration files found
+          in the{" "}
+          <StyledToolButton
+            onClick={() => setCLIDialogOpen(true)}
+            data-testid="uploader-cli-download-button"
           >
-            Choose Files
-          </StyledChooseFilesButton>
-          <StyledFilesSelected variant="body1">
-            {selectedFiles?.length
-              ? `${selectedFiles.length} ${selectedFiles.length > 1 ? "files" : "file"} selected`
-              : "No files selected"}
-          </StyledFilesSelected>
-        </StyledUploadActionWrapper>
-      </Stack>
-      <DeleteDialog
-        open={openDeleteDialog}
-        onClose={onCloseDeleteDialog}
-        onConfirm={onDeleteUpload}
-      />
+            <span>CLI Tool download</span>
+            <StyledOpenInNewIcon />
+          </StyledToolButton>
+          , or you can click the button on the right to download a configuration file customized for
+          this submission.
+        </StyledBox>
+        <UploaderToolDialog open={cliDialogOpen} onClose={() => setCLIDialogOpen(false)} />
+        <UploaderConfigDialog
+          open={configDialogOpen}
+          onClose={() => setConfigDialogOpen(false)}
+          onDownload={handleConfigDownload}
+        />
+      </>
     </FlowWrapper>
   );
 };
-
-export default DataUpload;

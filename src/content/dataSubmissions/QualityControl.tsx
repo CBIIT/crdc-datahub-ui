@@ -304,7 +304,11 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
 
   useEffect(() => {
     tableRef.current?.refresh();
-  }, [submission?.metadataValidationStatus, submission?.fileValidationStatus]);
+  }, [
+    submission?.metadataValidationStatus,
+    submission?.fileValidationStatus,
+    submission?.crossSubmissionStatus,
+  ]);
 
   return (
     <>
@@ -395,6 +399,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
               disabled={totalData <= 0}
             />
           }
+          containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </QCResultsContext.Provider>
       <ErrorDialog

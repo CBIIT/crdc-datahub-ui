@@ -8,6 +8,7 @@ import StyledRadioButton from "../Questionnaire/StyledRadioButton";
 import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
 import { getDefaultValidationType, getValidationTypes } from "../../utils";
 import FlowWrapper from "./FlowWrapper";
+import { CrossValidationButton } from "./CrossValidationButton";
 
 type Props = {
   /**
@@ -162,17 +163,33 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
 
   const Actions: ReactElement = useMemo(
     () => (
-      <StyledValidateButton
-        variant="contained"
-        color="info"
-        disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
-        loading={isLoading}
-        onClick={handleValidateFiles}
-      >
-        {isValidating ? "Validating..." : "Validate"}
-      </StyledValidateButton>
+      <>
+        <StyledValidateButton
+          variant="contained"
+          color="info"
+          disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
+          loading={isLoading}
+          onClick={handleValidateFiles}
+          data-testid="validate-controls-validate-button"
+        >
+          {isValidating ? "Validating..." : "Validate"}
+        </StyledValidateButton>
+        <CrossValidationButton
+          submission={dataSubmission}
+          variant="contained"
+          color="info"
+          onValidate={onValidate}
+        />
+      </>
     ),
-    [canValidateFiles, canValidateMetadata, isValidating, isLoading]
+    [
+      handleValidateFiles,
+      dataSubmission,
+      canValidateFiles,
+      canValidateMetadata,
+      isValidating,
+      isLoading,
+    ]
   );
 
   useEffect(() => {
@@ -202,6 +219,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
             <RadioGroup
               value={validationType}
               onChange={(e, val: ValidationType) => setValidationType(val)}
+              data-testid="validate-controls-validation-type"
               row
             >
               <StyledRadioControl
@@ -231,6 +249,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
             <RadioGroup
               value={uploadType}
               onChange={(event, val: ValidationTarget) => setUploadType(val)}
+              data-testid="validate-controls-validation-target"
               row
             >
               <StyledRadioControl

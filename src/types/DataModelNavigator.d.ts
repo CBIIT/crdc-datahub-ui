@@ -27,6 +27,12 @@ type ModelNavigatorConfig = {
      */
     downloadPrefix?: string;
     /**
+     * The default name for a Node file download
+     *
+     * Falls back to the `downloadPrefix` if not provided.
+     */
+    fileTransferManifestName?: string;
+    /**
      * Override default ICDC URL in PDF footers
      */
     footnote: string;

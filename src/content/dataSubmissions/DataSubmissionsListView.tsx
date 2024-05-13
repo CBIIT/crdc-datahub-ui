@@ -25,7 +25,7 @@ import {
   query as listOrganizationsQuery,
   Response as listOrganizationsResponse,
 } from "../../graphql/listOrganizations";
-import bannerSvg from "../../assets/banner/data_submissions_banner.png";
+import bannerSvg from "../../assets/banner/submission_banner.png";
 import PageBanner from "../../components/PageBanner";
 import { FormatDate } from "../../utils";
 import { useAuthContext } from "../../components/Contexts/AuthContext";

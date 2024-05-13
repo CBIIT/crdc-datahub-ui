@@ -134,6 +134,7 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
         horizontalScroll
         setItemKey={(item, idx) => `${idx}_${item.nodeID}_${item.nodeID}`}
         onFetchData={handleFetchData}
+        containerProps={{ sx: { marginBottom: "8px" } }}
       />
     </>
   );

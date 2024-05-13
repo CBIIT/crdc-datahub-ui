@@ -26,6 +26,7 @@ export const DataCommons: DataCommon[] = [
         fileType: "pdf",
         prefix: "CDS_",
         downloadPrefix: "CDS_",
+        fileTransferManifestName: "CDS_Data_Loading_Template-file-manifest",
         iconSrc: logo,
         footnote: "https://hub.datacommons.cancer.gov/model-navigator/CDS",
         landscape: true,
