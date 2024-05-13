@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import DataSubmissionUpload from "./DataSubmissionUpload";
+import { MetadataUpload } from "./MetadataUpload";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 
 const meta = {
   title: "Data Submissions / Metadata Upload",
-  component: DataSubmissionUpload,
+  component: MetadataUpload,
   parameters: {
     layout: "fullscreen",
   },
@@ -20,7 +20,7 @@ const meta = {
       </AuthContext.Provider>
     ),
   ],
-} satisfies Meta<typeof DataSubmissionUpload>;
+} satisfies Meta<typeof MetadataUpload>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -50,9 +50,11 @@ const baseSubmission: Submission = {
   intention: "New",
   createdAt: "",
   updatedAt: "",
+  crossSubmissionStatus: "New",
+  otherSubmissions: "",
 };
 
-export const MetadataUpload: Story = {
+export const Default: Story = {
   args: {
     submission: {
       ...baseSubmission,

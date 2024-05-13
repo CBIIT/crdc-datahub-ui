@@ -38,6 +38,8 @@ const baseSubmission: Submission = {
   intention: "New",
   createdAt: "",
   updatedAt: "",
+  crossSubmissionStatus: "New",
+  otherSubmissions: "",
 };
 
 export const Summary: Story = {

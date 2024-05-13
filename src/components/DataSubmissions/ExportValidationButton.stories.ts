@@ -37,6 +37,8 @@ export const Button: Story = {
       intention: "New",
       createdAt: "",
       updatedAt: "",
+      crossSubmissionStatus: "New",
+      otherSubmissions: "",
     },
     fields: {
       "Batch ID": (d) => d.displayID,
