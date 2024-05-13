@@ -87,7 +87,7 @@ const Repository: FC<Props> = ({
         <TextInput
           id={idPrefix.concat(`repository-${index}-other-data-types-submitted`)}
           label="Other Data Type(s)"
-          tooltipText='Enter other data type(s), separated by pipes ("|").'
+          tooltipText='Enter additional Data Types, separated by pipes ("|").'
           name={`study[repositories][${index}][otherDataTypesSubmitted]`}
           value={otherDataTypesSubmitted}
           placeholder="Other, specify as free text"
