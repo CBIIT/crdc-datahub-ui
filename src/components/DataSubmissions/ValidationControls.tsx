@@ -6,7 +6,11 @@ import { useSnackbar } from 'notistack';
 import { useAuthContext } from '../Contexts/AuthContext';
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
 import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from '../../graphql';
-import { getDefaultValidationType, getValidationTypes } from '../../utils';
+import {
+  getDefaultValidationTarget,
+  getDefaultValidationType,
+  getValidationTypes,
+} from "../../utils";
 import FlowWrapper from './FlowWrapper';
 
 type Props = {
@@ -90,8 +94,27 @@ const StyledRadioControl = styled(FormControlLabel)({
   },
 });
 
-const ValidateRoles: User["role"][] = ["Submitter", "Data Curator", "Organization Owner", "Admin"];
-const ValidateStatuses: Submission["status"][] = ["In Progress", "Withdrawn", "Rejected"];
+/**
+ * Base set of user roles that can validate a submission.
+ */
+const BaseValidateRoles: User["role"][] = [
+  "Submitter",
+  "Data Curator",
+  "Organization Owner",
+  "Admin",
+];
+
+/**
+ * A map from Submission Status to the user roles that can validate the submission for that status.
+ *
+ * @note All of the permission logic really should be refactored into a hook or otherwise.
+ */
+const ValidateMap: Partial<Record<Submission["status"], User["role"][]>> = {
+  "In Progress": BaseValidateRoles,
+  Withdrawn: BaseValidateRoles,
+  Rejected: BaseValidateRoles,
+  Submitted: ["Data Curator", "Admin"],
+};
 
 /**
  * Provides the UI for validating a data submission's assets.
@@ -104,16 +127,17 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   const { enqueueSnackbar } = useSnackbar();
 
   const [validationType, setValidationType] = useState<ValidationType>(null);
-  const [uploadType, setUploadType] = useState<ValidationTarget>("New");
+  const [uploadType, setUploadType] = useState<ValidationTarget>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(dataSubmission?.fileValidationStatus === "Validating"
     || dataSubmission?.metadataValidationStatus === "Validating");
 
   const canValidateMetadata: boolean = useMemo(() => {
-    if (!user?.role || ValidateRoles.includes(user?.role) === false) {
+    const permissionMap = ValidateMap[dataSubmission?.status];
+    if (!user?.role || !dataSubmission?.status || !permissionMap) {
       return false;
     }
-    if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
+    if (permissionMap.includes(user.role) === false) {
       return false;
     }
 
@@ -121,10 +145,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   }, [user?.role, dataSubmission?.metadataValidationStatus, dataSubmission?.status]);
 
   const canValidateFiles: boolean = useMemo(() => {
-    if (!user?.role || ValidateRoles.includes(user?.role) === false) {
+    const permissionMap = ValidateMap[dataSubmission?.status];
+    if (!user?.role || !dataSubmission?.status || !permissionMap) {
       return false;
     }
-    if (!dataSubmission?.status || ValidateStatuses.includes(dataSubmission?.status) === false) {
+    if (permissionMap.includes(user.role) === false) {
       return false;
     }
 
@@ -167,7 +192,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       onValidate?.(true);
     }
 
-    setValidationType(getDefaultValidationType(dataSubmission));
+    setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
     setUploadType("New");
     setIsLoading(false);
   };
@@ -185,7 +210,18 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       return;
     }
 
-    setValidationType(getDefaultValidationType(dataSubmission));
+    setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
+  }, [dataSubmission, user]);
+
+  useEffect(() => {
+    if (uploadType !== null) {
+      return;
+    }
+    if (typeof dataSubmission === "undefined") {
+      return;
+    }
+
+    setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
   }, [dataSubmission]);
 
   return (
@@ -225,7 +261,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
                   value="New"
                   control={<StyledRadioButton readOnly={false} />}
                   label="New Uploaded Data"
-                  disabled={!canValidateFiles && !canValidateMetadata}
+                  disabled={
+                    (!canValidateFiles && !canValidateMetadata)
+                    // NOTE: No new data to validate if the submission is already submitted
+                    || dataSubmission?.status === "Submitted"
+                  }
                 />
                 <StyledRadioControl
                   value="All"
