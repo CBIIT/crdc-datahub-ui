@@ -258,7 +258,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
               valuePlacement="bottom"
               isList
             />
-            <ReviewDataListingProperty idPrefix={`review-repository-${idx}-other-data-types`} label="Other Data Type(s)" value={repository.otherDataTypesSubmitted} valuePlacement="bottom" isList />
+            <ReviewDataListingProperty idPrefix={`review-repository-${idx}-other-data-types`} label="Other Data Type(s)" value={repository.otherDataTypesSubmitted} valuePlacement="bottom" delimiter="|" isList />
           </ReviewDataListing>
         ))}
       </ReviewSection>
@@ -279,8 +279,8 @@ const FormSectionReview: FC<FormSectionProps> = ({
           description={SectionMetadata.C.sections.CANCER_TYPES.description}
         >
           <ReviewDataListingProperty idPrefix="review-cancer-types-cancer-types" label="Cancer types" value={data.cancerTypes} valuePlacement="bottom" isList />
-          <ReviewDataListingProperty idPrefix="review-cancer-types-other-cancer-types" label="Other cancer type(s)" value={data.otherCancerTypes} valuePlacement="bottom" isList />
-          <ReviewDataListingProperty idPrefix="review-cancer-types-pre-cancer-types" label="Pre-cancer types" value={data.preCancerTypes} valuePlacement="bottom" isList />
+          <ReviewDataListingProperty idPrefix="review-cancer-types-other-cancer-types" label="Other cancer type(s)" value={data.otherCancerTypes} valuePlacement="bottom" delimiter="|" isList />
+          <ReviewDataListingProperty idPrefix="review-cancer-types-pre-cancer-types" label="Pre-cancer types" value={data.preCancerTypes} valuePlacement="bottom" delimiter="|" isList />
         </ReviewDataListing>
 
         <ReviewDataListing
@@ -288,7 +288,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
           title={SectionMetadata.C.sections.SUBJECTS.title}
         >
           <ReviewDataListingProperty idPrefix="review-subjects-species" label="Species of subjects" value={data.species} valuePlacement="bottom" isList />
-          <ReviewDataListingProperty idPrefix="review-subjects-other-species" label="Other Specie(s) involved" value={data.otherSpeciesOfSubjects} valuePlacement="bottom" isList />
+          <ReviewDataListingProperty idPrefix="review-subjects-other-species" label="Other Specie(s) involved" value={data.otherSpeciesOfSubjects} valuePlacement="bottom" delimiter="|" isList />
           <ReviewDataListingProperty idPrefix="review-subjects-number-of-subjects-included-in-the-submission" label="Number of subjects included in the submission" value={data.numberOfParticipants?.toString()} valuePlacement="bottom" />
         </ReviewDataListing>
       </ReviewSection>
@@ -315,7 +315,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
           {data.dataTypes?.includes(DataTypes.imaging.name) && data.imagingDataDeIdentified !== null && (
             <ReviewDataListingProperty idPrefix="review-data-types-imaging-data-de-identified" label="Imaging Data de-identified" value={data.imagingDataDeIdentified ? "Yes" : "No"} />
           )}
-          <ReviewDataListingProperty idPrefix="review-data-types-other-data-types" gridWidth={12} label="Other Data types" value={data.otherDataTypes} valuePlacement="bottom" isList />
+          <ReviewDataListingProperty idPrefix="review-data-types-other-data-types" gridWidth={12} label="Other Data types" value={data.otherDataTypes} valuePlacement="bottom" delimiter="|" isList />
         </ReviewDataListing>
 
         {data.dataTypes?.includes(DataTypes.clinicalTrial.name) && (
@@ -330,7 +330,7 @@ const FormSectionReview: FC<FormSectionProps> = ({
             <ReviewDataListingProperty idPrefix="review-clinical-data-types-outcome-data" label={DataTypes.outcomeData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.outcomeData.name) ? "Yes" : "No"} />
             <ReviewDataListingProperty idPrefix="review-clinical-data-types-treatment-data" label={DataTypes.treatmentData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.treatmentData.name) ? "Yes" : "No"} />
             <ReviewDataListingProperty idPrefix="review-clinical-data-types-biospecimen-data" label={DataTypes.biospecimenData.label} value={data.clinicalData?.dataTypes?.includes(DataTypes.biospecimenData.name) ? "Yes" : "No"} />
-            <ReviewDataListingProperty idPrefix="review-clinical-data-types-other-clinical-data-types" gridWidth={12} label="Other Clinical Data types" value={data.clinicalData?.otherDataTypes?.split(",")} valuePlacement="bottom" isList />
+            <ReviewDataListingProperty idPrefix="review-clinical-data-types-other-clinical-data-types" gridWidth={12} label="Other Clinical Data types" value={data.clinicalData?.otherDataTypes} valuePlacement="bottom" delimiter="|" isList />
             <ReviewDataListingProperty idPrefix="review-clinical-data-types-additional-data-in-future" label="Additional Data in future" value={data.clinicalData?.futureDataTypes ? "Yes" : "No"} />
           </ReviewDataListing>
         )}
