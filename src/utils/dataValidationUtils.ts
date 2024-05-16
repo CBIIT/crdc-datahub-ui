@@ -19,11 +19,26 @@ export const getValidationTypes = (validationType: ValidationType): string[] => 
  * Determines the default "Validation Type" for the given data submission.
  *
  * @param dataSubmission The data submission to get the default validation type for.
+ * @param user The current user.
+ * @param permissionMap The map of permissions for each submission status.
  * @returns The default validation type for the given data submission.
  */
-export const getDefaultValidationType = (dataSubmission: Submission): ValidationType => {
-  const { metadataValidationStatus, fileValidationStatus } = dataSubmission || {};
+export const getDefaultValidationType = (
+  dataSubmission: Submission,
+  user: User,
+  permissionMap: Partial<Record<Submission["status"], User["role"][]>>
+): ValidationType => {
+  const { role } = user || {};
+  const { status, metadataValidationStatus, fileValidationStatus } = dataSubmission || {};
 
+  if (
+    status === "Submitted"
+    && permissionMap["Submitted"]?.includes(role)
+    && metadataValidationStatus
+    && fileValidationStatus
+  ) {
+    return "All";
+  }
   if (metadataValidationStatus !== null) {
     return "Metadata";
   }
@@ -32,4 +47,26 @@ export const getDefaultValidationType = (dataSubmission: Submission): Validation
   }
 
   return "Metadata";
+};
+
+/**
+ * Determines the default Validation Target.
+ *
+ * @param dataSubmission The data submission to get the default validation type for.
+ * @param user The current user.
+ * @param permissionMap The map of permissions for each submission status.
+ */
+export const getDefaultValidationTarget = (
+  dataSubmission: Submission,
+  user: User,
+  permissionMap: Partial<Record<Submission["status"], User["role"][]>>
+): ValidationTarget => {
+  const { role } = user || {};
+  const { status } = dataSubmission || {};
+
+  if (status === "Submitted" && permissionMap["Submitted"]?.includes(role)) {
+    return "All";
+  }
+
+  return "New";
 };
