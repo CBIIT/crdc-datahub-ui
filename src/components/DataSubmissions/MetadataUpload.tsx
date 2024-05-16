@@ -182,7 +182,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
   const onUploadFail = (fileCount = 0) => {
     onUpload(
       `${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${
-        metadataIntention === "Remove" ? "delete" : "upload"
+        metadataIntention === "Remove" ? "remove" : "upload"
       }`,
       "error"
     );
@@ -250,7 +250,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
       // Batch upload completed successfully
       onUpload(
         `${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${
-          metadataIntention === "Remove" ? "deleted" : "uploaded"
+          metadataIntention === "Remove" ? "removed" : "uploaded"
         }`,
         "success"
       );
