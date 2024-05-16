@@ -29,11 +29,6 @@ import {
   SubmissionActionResp,
 } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
-import GenericTable, {
-  Column,
-  FetchListing,
-  TableMethods,
-} from "../../components/DataSubmissions/GenericTable";
 import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
@@ -53,6 +48,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
 import SubmittedData from "./SubmittedData";
 import { UserGuide } from "../../components/DataSubmissions/UserGuide";
+import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import { DataUpload } from "../../components/DataSubmissions/DataUpload";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
@@ -672,7 +668,10 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                 </BatchTableContext.Provider>
               )}
               {tab === URLTabs.VALIDATION_RESULTS && (
-                <QualityControl submission={data?.getSubmission} />
+                <QualityControl
+                  submission={data?.getSubmission}
+                  refreshSubmission={getSubmission}
+                />
               )}
               {tab === URLTabs.SUBMITTED_DATA && <SubmittedData submissionId={submissionId} />}
 

@@ -2,7 +2,7 @@ import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
-import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
+import { Box, Button, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useSnackbar } from "notistack";
 import {
@@ -13,15 +13,14 @@ import {
   SUBMISSION_QC_RESULTS,
   SubmissionQCResultsResp,
 } from "../../graphql";
-import GenericTable, {
-  Column,
-  FetchListing,
-  TableMethods,
-} from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate, capitalizeFirstLetter } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
+import DeleteAllOrphanFilesButton from "../../components/DataSubmissions/DeleteAllOrphanFilesButton";
+import DeleteOrphanFileChip from "../../components/DataSubmissions/DeleteOrphanFileChip";
+import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 
 type FilterForm = {
   /**
@@ -70,55 +69,30 @@ const StyledBreakAll = styled(Box)({
 const StyledFilterContainer = styled(Box)({
   display: "flex",
   alignItems: "center",
-  justifyContent: "flex-start",
-  marginBottom: "19px",
-  paddingLeft: "24px",
+  justifyContent: "space-between",
+  marginBottom: "21px",
+  paddingLeft: "26px",
+  paddingRight: "35px",
 });
 
 const StyledFormControl = styled(FormControl)({
-  margin: "10px",
-  marginRight: "15px",
-  minWidth: "250px",
+  minWidth: "231px",
 });
 
 const StyledInlineLabel = styled("label")({
-  padding: "0 10px",
-  fontWeight: "700",
+  color: "#083A50",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontWeight: 700,
+  fontSize: "16px",
+  fontStyle: "normal",
+  lineHeight: "19.6px",
+  paddingRight: "10px",
 });
 
-const baseTextFieldStyles = {
-  borderRadius: "8px",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "16px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .Mui-disabled": {
-    cursor: "not-allowed",
-  },
-  "& .MuiList-root": {
-    padding: "0 !important",
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
-};
-
-const StyledSelect = styled(Select)(baseTextFieldStyles);
+const StyledIssuesTextWrapper = styled(Box)({
+  whiteSpace: "nowrap",
+  wordBreak: "break-word",
+});
 
 const columns: Column<QCResult>[] = [
   {
@@ -136,6 +110,9 @@ const columns: Column<QCResult>[] = [
     label: "Submitted Identifier",
     renderValue: (data) => <StyledBreakAll>{data?.submittedID}</StyledBreakAll>,
     field: "submittedID",
+    sx: {
+      width: "20%",
+    },
   },
   {
     label: "Severity",
@@ -157,25 +134,35 @@ const columns: Column<QCResult>[] = [
     renderValue: (data) =>
       (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
         <QCResultsContext.Consumer>
-          {({ handleOpenErrorDialog }) => (
-            <>
-              <span>
-                {data.errors?.length > 0 ? data.errors[0].title : data.warnings[0]?.title}
-              </span>{" "}
-              <StyledErrorDetailsButton
-                onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
-                variant="text"
-                disableRipple
-                disableTouchRipple
-                disableFocusRipple
-              >
-                See details
-              </StyledErrorDetailsButton>
-            </>
+          {({ submission, handleDeleteOrphanFile, handleOpenErrorDialog }) => (
+            <Stack direction="row">
+              <StyledIssuesTextWrapper>
+                <span>
+                  {data.errors?.length > 0 ? data.errors[0].title : data.warnings[0]?.title}.
+                </span>{" "}
+                <StyledErrorDetailsButton
+                  onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
+                  variant="text"
+                  disableRipple
+                  disableTouchRipple
+                  disableFocusRipple
+                >
+                  See details.
+                </StyledErrorDetailsButton>
+              </StyledIssuesTextWrapper>
+              <DeleteOrphanFileChip
+                submission={submission}
+                submittedID={data?.submittedID}
+                onDeleteFile={handleDeleteOrphanFile}
+              />
+            </Stack>
           )}
         </QCResultsContext.Consumer>
       ),
     sortDisabled: true,
+    sx: {
+      width: "38%",
+    },
   },
 ];
 
@@ -197,9 +184,10 @@ export const csvColumns = {
 
 type Props = {
   submission: Submission;
+  refreshSubmission: () => void;
 };
 
-const QualityControl: FC<Props> = ({ submission }: Props) => {
+const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>();
   const { enqueueSnackbar } = useSnackbar();
@@ -286,6 +274,14 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
     }
   };
 
+  const handleDeleteOrphanFile = (success: boolean) => {
+    if (!success) {
+      return;
+    }
+    refreshSubmission();
+    tableRef.current?.refresh();
+  };
+
   const handleOpenErrorDialog = (data: QCResult) => {
     setOpenErrorDialog(true);
     setSelectedRow(data);
@@ -293,9 +289,11 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
 
   const providerValue = useMemo(
     () => ({
+      submission,
+      handleDeleteOrphanFile,
       handleOpenErrorDialog,
     }),
-    [handleOpenErrorDialog]
+    [submission, handleDeleteOrphanFile, handleOpenErrorDialog]
   );
 
   useEffect(() => {
@@ -313,73 +311,84 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
   return (
     <>
       <StyledFilterContainer>
-        <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="nodeType"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                defaultValue="All"
-                value={field.value || "All"}
-                MenuProps={{ disablePortal: true }}
-                inputProps={{ id: "nodeType-filter" }}
-              >
-                <MenuItem value="All">All</MenuItem>
-                {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
-                  <MenuItem key={nodeType} value={nodeType}>
-                    {nodeType}
-                  </MenuItem>
-                ))}
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-        <StyledInlineLabel htmlFor="batchID-filter">Batch ID</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="batchID"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                defaultValue="All"
-                value={field.value || "All"}
-                MenuProps={{ disablePortal: true }}
-                inputProps={{ id: "batchID-filter" }}
-              >
-                <MenuItem value="All">All</MenuItem>
-                {batchData?.listBatches?.batches?.map((batch) => (
-                  <MenuItem key={batch._id} value={batch._id}>
-                    {batch.displayID}
-                    {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
-                  </MenuItem>
-                ))}
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-        <StyledInlineLabel htmlFor="severity-filter">Severity</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="severity"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                defaultValue="All"
-                value={field.value || "All"}
-                MenuProps={{ disablePortal: true }}
-                inputProps={{ id: "severity-filter" }}
-              >
-                <MenuItem value="All">All</MenuItem>
-                <MenuItem value="Error">Error</MenuItem>
-                <MenuItem value="Warning">Warning</MenuItem>
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="batchID-filter">Batch ID</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="batchID"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                  inputProps={{ id: "batchID-filter" }}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {batchData?.listBatches?.batches?.map((batch) => (
+                    <MenuItem key={batch._id} value={batch._id}>
+                      {batch.displayID}
+                      {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
+                    </MenuItem>
+                  ))}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
+
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="nodeType"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                  inputProps={{ id: "nodeType-filter" }}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
+                    <MenuItem key={nodeType} value={nodeType}>
+                      {nodeType}
+                    </MenuItem>
+                  ))}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
+
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="severity-filter">Severity</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="severity"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue="All"
+                  value={field.value || "All"}
+                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                  inputProps={{ id: "severity-filter" }}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  <MenuItem value="Error">Error</MenuItem>
+                  <MenuItem value="Warning">Warning</MenuItem>
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
       </StyledFilterContainer>
       <QCResultsContext.Provider value={providerValue}>
         <GenericTable
@@ -390,14 +399,22 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
           loading={loading}
           defaultRowsPerPage={20}
           defaultOrder="desc"
+          position="both"
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
           AdditionalActions={
-            <ExportValidationButton
-              submission={submission}
-              fields={csvColumns}
-              disabled={totalData <= 0}
-            />
+            <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
+              <ExportValidationButton
+                submission={submission}
+                fields={csvColumns}
+                disabled={totalData <= 0}
+              />
+              <DeleteAllOrphanFilesButton
+                submission={submission}
+                disabled={!submission?.fileErrors?.length}
+                onDelete={handleDeleteOrphanFile}
+              />
+            </Stack>
           }
           containerProps={{ sx: { marginBottom: "8px" } }}
         />

@@ -66,6 +66,12 @@ export type { Response as GetSubmissionNodesResp } from "./getSubmissionNodes";
 export { query as SUBMISSION_STATS } from "./submissionStats";
 export type { Response as SubmissionStatsResp } from "./submissionStats";
 
+export { mutation as DELETE_ORPHANED_FILE } from "./deleteOrphanedFile";
+export type { Response as DeleteOrphanedFileResp } from "./deleteOrphanedFile";
+
+export { mutation as DELETE_ALL_ORPHANED_FILES } from "./deleteAllOrphanedFiles";
+export type { Response as DeleteAllOrphanedFilesResp } from "./deleteAllOrphanedFiles";
+
 export { query as RETRIEVE_CLI_CONFIG } from "./retrieveCLIConfig";
 export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
 

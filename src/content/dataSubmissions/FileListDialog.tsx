@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import GenericTable, { Column, FetchListing } from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate, paginateAndSort } from "../../utils";
 
 const StyledDialog = styled(Dialog)({

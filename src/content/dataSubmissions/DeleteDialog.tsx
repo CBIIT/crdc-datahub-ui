@@ -24,10 +24,11 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledCloseButton = styled(Button)({
+  background: "#FFFFFF",
   "&.MuiButton-root": {
     minWidth: "101px",
     padding: "10px",
-    color: "#949494",
+    color: "#000000",
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
@@ -36,6 +37,7 @@ const StyledCloseButton = styled(Button)({
     letterSpacing: "0.32px",
     textTransform: "none",
     alignSelf: "center",
+    border: "1px solid #AEAEAE",
   },
 });
 
@@ -92,11 +94,17 @@ const DeleteDialog = ({
   ...rest
 }: Props) => (
   <StyledDialog open={open} onClose={onClose} title="" {...rest}>
-    <StyledCloseDialogButton aria-label="close" onClick={onClose}>
+    <StyledCloseDialogButton
+      onClick={onClose}
+      aria-label="close"
+      data-testid="delete-dialog-close-icon-button"
+    >
       <CloseIconSvg />
     </StyledCloseDialogButton>
-    <StyledHeader variant="h3">{header}</StyledHeader>
-    <StyledDescription>
+    <StyledHeader variant="h3" data-testid="delete-dialog-header">
+      {header}
+    </StyledHeader>
+    <StyledDescription data-testid="delete-dialog-description">
       {description || (
         <>
           The metadata or files specified in the selected files, along with their associated child
@@ -107,12 +115,14 @@ const DeleteDialog = ({
       )}
     </StyledDescription>
 
-    <Stack direction="row" justifyContent="center" alignItems="center" spacing={2} marginTop="61px">
+    <Stack direction="row" justifyContent="center" alignItems="center" spacing={2} marginTop="58px">
       <StyledCloseButton
         id="error-dialog-close-button"
         variant="contained"
         color="info"
         onClick={onClose}
+        aria-label="Cancel button"
+        data-testid="delete-dialog-cancel-button"
       >
         {closeText}
       </StyledCloseButton>
@@ -121,6 +131,8 @@ const DeleteDialog = ({
         variant="contained"
         color="error"
         onClick={onConfirm}
+        aria-label="Confirm to Remove button"
+        data-testid="delete-dialog-confirm-button"
       >
         {confirmText}
       </StyledConfirmButton>
