@@ -1,4 +1,4 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Button, ButtonProps, styled } from "@mui/material";
@@ -49,4 +49,4 @@ const BackButton: FC<Props> = ({ text = "Back", navigateTo }) => {
   );
 };
 
-export default BackButton;
+export default React.memo(BackButton);

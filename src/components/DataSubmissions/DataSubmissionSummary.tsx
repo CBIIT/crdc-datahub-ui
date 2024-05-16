@@ -1,5 +1,6 @@
 import { Button, Divider, Grid, Stack, Typography, styled } from "@mui/material";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import { isEqual } from "lodash";
 import SubmissionHeaderProperty, { StyledValue } from "./SubmissionHeaderProperty";
 import Tooltip from "./Tooltip";
 import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
@@ -310,4 +311,6 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   );
 };
 
-export default DataSubmissionSummary;
+export default React.memo<Props>(DataSubmissionSummary, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+);

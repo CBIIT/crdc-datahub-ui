@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Dialog,
@@ -242,4 +242,6 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
   );
 };
 
-export default FileListDialog;
+export default React.memo<Props>(FileListDialog, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+);
