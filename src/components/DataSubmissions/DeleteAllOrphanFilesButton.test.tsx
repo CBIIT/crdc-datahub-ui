@@ -176,29 +176,6 @@ describe("DeleteAllOrphanFilesButton Component", () => {
     expect(getByTestId("delete-all-orphan-files-button")).toBeDisabled();
   });
 
-  it("should call onDelete with true on successful mutation", async () => {
-    const { getByTestId } = render(
-      <TestParent
-        context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
-        mocks={successMocks}
-      >
-        <DeleteAllOrphanFilesButton submission={baseSubmission} onDelete={onDelete} />
-      </TestParent>
-    );
-
-    userEvent.click(getByTestId("delete-all-orphan-files-button"));
-
-    await waitFor(() => {
-      expect(screen.getByText("Delete All Orphaned Files")).toBeInTheDocument();
-    });
-
-    userEvent.click(getByTestId("delete-dialog-confirm-button"));
-
-    await waitFor(() => {
-      expect(onDelete).toHaveBeenCalledWith(true);
-    });
-  });
-
   it("should call onDelete with true and show message on success mutation", async () => {
     const { getByTestId } = render(
       <TestParent
