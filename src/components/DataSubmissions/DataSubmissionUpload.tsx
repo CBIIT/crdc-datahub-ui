@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
+import { isEqual } from "lodash";
 import { VariantType } from "notistack";
 import {
   Button,
@@ -347,4 +348,4 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
   );
 };
 
-export default DataSubmissionUpload;
+export default React.memo<Props>(DataSubmissionUpload, (prevProps, nextProps) => isEqual(prevProps, nextProps));

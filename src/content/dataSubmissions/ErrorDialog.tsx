@@ -1,4 +1,5 @@
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
+import React from "react";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { FormatDate } from "../../utils";
 
@@ -172,4 +173,4 @@ const ErrorDialog = ({
   );
 };
 
-export default ErrorDialog;
+export default React.memo(ErrorDialog);

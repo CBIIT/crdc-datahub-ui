@@ -1,7 +1,8 @@
-import { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { FormControlLabel, RadioGroup, Stack, styled } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { isEqual } from 'lodash';
 import { useSnackbar } from 'notistack';
 import { useAuthContext } from '../Contexts/AuthContext';
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
@@ -12,21 +13,6 @@ import {
   getValidationTypes,
 } from "../../utils";
 import FlowWrapper from './FlowWrapper';
-
-type Props = {
-  /**
-   * The data submission to display validation controls for.
-   *
-   * NOTE: Initially null during the loading state.
-   */
-  dataSubmission?: Submission;
-  /**
-   * Callback function called when the validating is initiated.
-   *
-   * @param success whether the validation was successfully initiated
-   */
-  onValidate: (success: boolean) => void;
-};
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -114,6 +100,21 @@ const ValidateMap: Partial<Record<Submission["status"], User["role"][]>> = {
   Withdrawn: BaseValidateRoles,
   Rejected: BaseValidateRoles,
   Submitted: ["Data Curator", "Admin"],
+};
+
+type Props = {
+  /**
+   * The data submission to display validation controls for.
+   *
+   * NOTE: Initially null during the loading state.
+   */
+  dataSubmission?: Submission;
+  /**
+   * Callback function called when the validating is initiated.
+   *
+   * @param success whether the validation was successfully initiated
+   */
+  onValidate: (success: boolean) => void;
 };
 
 /**
@@ -291,4 +292,4 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   );
 };
 
-export default ValidationControls;
+export default React.memo<Props>(ValidationControls, (prevProps, nextProps) => isEqual(prevProps, nextProps));

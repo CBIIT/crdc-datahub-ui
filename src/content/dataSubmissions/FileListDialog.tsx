@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button, Dialog, DialogProps, IconButton, TableContainerProps, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
@@ -246,4 +246,4 @@ const FileListDialog = ({
   );
 };
 
-export default FileListDialog;
+export default React.memo<Props>(FileListDialog, (prevProps, nextProps) => isEqual(prevProps, nextProps));
