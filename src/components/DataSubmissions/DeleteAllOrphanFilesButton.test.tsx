@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { render, screen, waitFor } from "@testing-library/react";
+import { GraphQLError } from "graphql";
 import userEvent from "@testing-library/user-event";
 import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
 import { DELETE_ALL_ORPHANED_FILES } from "../../graphql";
@@ -107,6 +108,30 @@ const failureMocks: MockedResponse[] = [
   },
 ];
 
+const graphqlErrorMocks: MockedResponse[] = [
+  {
+    request: {
+      query: DELETE_ALL_ORPHANED_FILES,
+      variables: { _id: "submission-id" },
+    },
+    error: new GraphQLError("Mock GraphQL error"),
+  },
+];
+
+const failureMocksSuccessFalse: MockedResponse[] = [
+  {
+    request: {
+      query: DELETE_ALL_ORPHANED_FILES,
+      variables: { _id: "submission-id" },
+    },
+    result: {
+      data: {
+        deleteAllOrphanedFiles: { success: false },
+      },
+    },
+  },
+];
+
 describe("DeleteAllOrphanFilesButton Component", () => {
   const onDelete = jest.fn();
 
@@ -139,6 +164,30 @@ describe("DeleteAllOrphanFilesButton Component", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Delete All Orphaned Files")).toBeInTheDocument();
+    });
+  });
+
+  it("should close the delete dialog when the close button is clicked", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+        mocks={successMocks}
+      >
+        <DeleteAllOrphanFilesButton submission={baseSubmission} onDelete={onDelete} />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("delete-all-orphan-files-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Delete All Orphaned Files")).toBeInTheDocument();
+    });
+
+    const closeButton = getByTestId("delete-dialog-cancel-button");
+    userEvent.click(closeButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText("Delete All Orphaned Files")).not.toBeInTheDocument();
     });
   });
 
@@ -210,6 +259,64 @@ describe("DeleteAllOrphanFilesButton Component", () => {
       <TestParent
         context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
         mocks={failureMocks}
+      >
+        <DeleteAllOrphanFilesButton submission={baseSubmission} onDelete={onDelete} />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("delete-all-orphan-files-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Delete All Orphaned Files")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("delete-dialog-confirm-button"));
+
+    await waitFor(() => {
+      expect(onDelete).toHaveBeenCalledWith(false);
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "There was an issue deleting all orphaned files.",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should call onDelete with false and show error message on failed mutation", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+        mocks={graphqlErrorMocks}
+      >
+        <DeleteAllOrphanFilesButton submission={baseSubmission} onDelete={onDelete} />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("delete-all-orphan-files-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Delete All Orphaned Files")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("delete-dialog-confirm-button"));
+
+    await waitFor(() => {
+      expect(onDelete).toHaveBeenCalledWith(false);
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "There was an issue deleting all orphaned files.",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should call onDelete with false and show error message on failed mutation", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+        mocks={failureMocksSuccessFalse}
       >
         <DeleteAllOrphanFilesButton submission={baseSubmission} onDelete={onDelete} />
       </TestParent>

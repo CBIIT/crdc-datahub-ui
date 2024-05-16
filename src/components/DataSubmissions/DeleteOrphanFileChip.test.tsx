@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { GraphQLError } from "graphql";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -104,6 +105,30 @@ const failureMocks: MockedResponse[] = [
       variables: { _id: "submission-id", fileName: "mock-file-name" },
     },
     error: new Error("Unable to delete orphan file."),
+  },
+];
+
+const graphqlErrorMocks: MockedResponse[] = [
+  {
+    request: {
+      query: DELETE_ORPHANED_FILE,
+      variables: { _id: "submission-id", fileName: "mock-file-name" },
+    },
+    error: new GraphQLError("Mock GraphQL error"),
+  },
+];
+
+const failureMocksSuccessFalse: MockedResponse[] = [
+  {
+    request: {
+      query: DELETE_ORPHANED_FILE,
+      variables: { _id: "submission-id", fileName: "mock-file-name" },
+    },
+    result: {
+      data: {
+        deleteOrphanedFile: { success: false },
+      },
+    },
   },
 ];
 
@@ -227,6 +252,87 @@ describe("DeleteOrphanFileChip Component", () => {
       <TestParent
         context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
         mocks={failureMocks}
+      >
+        <DeleteOrphanFileChip
+          submission={baseSubmission}
+          submittedID="mock-file-name"
+          onDeleteFile={onDeleteFile}
+        />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("delete-orphaned-file-chip"));
+
+    await waitFor(() => {
+      expect(onDeleteFile).toHaveBeenCalledWith(false);
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "There was an issue deleting orphaned file.",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should call onDeleteFile with false and show error message on failed mutation", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+        mocks={failureMocks}
+      >
+        <DeleteOrphanFileChip
+          submission={baseSubmission}
+          submittedID="mock-file-name"
+          onDeleteFile={onDeleteFile}
+        />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("delete-orphaned-file-chip"));
+
+    await waitFor(() => {
+      expect(onDeleteFile).toHaveBeenCalledWith(false);
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "There was an issue deleting orphaned file.",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should call onDeleteFile with false and show error message on graphql error", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+        mocks={graphqlErrorMocks}
+      >
+        <DeleteOrphanFileChip
+          submission={baseSubmission}
+          submittedID="mock-file-name"
+          onDeleteFile={onDeleteFile}
+        />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("delete-orphaned-file-chip"));
+
+    await waitFor(() => {
+      expect(onDeleteFile).toHaveBeenCalledWith(false);
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "There was an issue deleting orphaned file.",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should call onDeleteFile with false and show error message on success false", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+        mocks={failureMocksSuccessFalse}
       >
         <DeleteOrphanFileChip
           submission={baseSubmission}
