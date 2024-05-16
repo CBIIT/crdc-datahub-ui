@@ -219,10 +219,16 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
   const handlePreSubmit = (data: FormInput) => {
     if (_id !== "new") {
+      const studyMap: { [_id: string]: ApprovedStudy["studyAbbreviation"] } = {};
+      approvedStudies?.listApprovedStudies?.forEach(({ _id, studyAbbreviation }) => {
+        studyMap[_id] = studyAbbreviation;
+      });
+
+      const newStudies = data.studies.map((_id) => studyMap[_id]);
       const previousStudies = organization?.studies?.map((s) => s?.studyAbbreviation) || [];
       const removedActiveStudies = previousStudies
-        .filter((s) => !data.studies?.includes(s))
-        .filter((s) => assignedStudies.includes(s))
+        .filter((studyAbbr) => !newStudies?.includes(studyAbbr))
+        .filter((studyAbbr) => assignedStudies.includes(studyAbbr))
         .length;
 
       // If there are active submissions for a study being removed, show a warning
