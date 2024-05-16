@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { isEqual } from "lodash";
@@ -355,4 +355,4 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
   );
 };
 
-export default QualityControl;
+export default React.memo<Props>(QualityControl, (prevProps, nextProps) => isEqual(prevProps, nextProps));
