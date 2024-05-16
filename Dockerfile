@@ -1,4 +1,4 @@
-FROM node:20.11.1-alpine3.19  as build
+FROM node:20.11.1-alpine3.19  AS fnl_base_image
 
 WORKDIR /usr/src/app
 
