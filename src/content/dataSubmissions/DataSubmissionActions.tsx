@@ -1,7 +1,8 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
+import { isEqual } from "lodash";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
@@ -545,4 +546,6 @@ const DataSubmissionActions = ({
   );
 };
 
-export default DataSubmissionActions;
+export default React.memo<Props>(DataSubmissionActions, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+);

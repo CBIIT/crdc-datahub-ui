@@ -35,7 +35,7 @@ import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
 import ErrorDialog from "./ErrorDialog";
 import BatchTableContext from "./Contexts/BatchTableContext";
-import DataSubmissionStatistics from "../../components/DataSubmissions/ValidationStatistics";
+import ValidationStatistics from "../../components/DataSubmissions/ValidationStatistics";
 import ValidationControls from "../../components/DataSubmissions/ValidationControls";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import FileListDialog from "./FileListDialog";
@@ -366,12 +366,16 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
   const [totalBatches, setTotalBatches] = useState<number>(0);
   const [hasUploadingBatches, setHasUploadingBatches] = useState<boolean>(false);
   const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
-  const [batchRefreshTimeout, setBatchRefreshTimeout] = useState<NodeJS.Timeout>(null);
   const [error, setError] = useState<string>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
+  const [startBatchPolling, setStartBatchPolling] = useState<
+    ((pollInterval: number) => void) | null
+  >(null);
+  const [stopBatchPolling, setStopBatchPolling] = useState<(() => void) | null>(null);
+  const [lastValidationTime, setLastValidationTime] = useState(Date.now());
 
   const {
     data,
@@ -380,6 +384,18 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     stopPolling,
     refetch: getSubmission,
   } = useQuery<GetSubmissionResp>(GET_SUBMISSION, {
+    notifyOnNetworkStatusChange: true,
+    onCompleted: (d) => {
+      setLastValidationTime(Date.now());
+      if (
+        d?.getSubmission?.fileValidationStatus !== "Validating" &&
+        d?.getSubmission?.metadataValidationStatus !== "Validating"
+      ) {
+        stopPolling();
+      } else {
+        startPolling(1000);
+      }
+    },
     variables: { id: submissionId },
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -406,7 +422,15 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
   );
 
+  const onRetrievebatches = (data: ListBatchesResp) => {
+    setBatches(data.listBatches.batches);
+    setTotalBatches(data.listBatches.total);
+    setHasUploadingBatches(data.fullStatusList.batches.some((b) => b.status === "Uploading"));
+  };
+
   const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
+    notifyOnNetworkStatusChange: true,
+    onCompleted: onRetrievebatches,
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -430,7 +454,12 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
     try {
       setLoading(true);
-      const { data: newBatchFiles, error: batchFilesError } = await listBatches({
+      const {
+        data: newBatchFiles,
+        error: batchFilesError,
+        startPolling,
+        stopPolling,
+      } = await listBatches({
         variables: {
           submissionID: submissionId,
           first,
@@ -445,11 +474,17 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
         setError("Unable to retrieve batch data.");
         return;
       }
-      setBatches(newBatchFiles.listBatches.batches);
-      setTotalBatches(newBatchFiles.listBatches.total);
-      setHasUploadingBatches(
-        newBatchFiles.fullStatusList.batches.some((b) => b.status === "Uploading")
+
+      const hasUploading = newBatchFiles.fullStatusList?.batches?.some(
+        (b) => b.status === "Uploading"
       );
+
+      if (hasUploading) {
+        setStartBatchPolling(() => startPolling);
+        setStopBatchPolling(() => stopPolling);
+      }
+
+      // See onRetrievebatches for state updates
     } catch (err) {
       setError("Unable to retrieve batch data.");
     } finally {
@@ -517,7 +552,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
     // NOTE: Immediately update submission object to get "Validating" status
     getSubmission();
-    startPolling(60000);
+    startPolling(1000);
   };
 
   const providerValue = useMemo(
@@ -537,35 +572,18 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
   }, [submissionError]);
 
   useEffect(() => {
-    const { fileValidationStatus, metadataValidationStatus, crossSubmissionStatus } =
-      data?.getSubmission || {};
-
-    if (
-      fileValidationStatus !== "Validating" &&
-      metadataValidationStatus !== "Validating" &&
-      crossSubmissionStatus !== "Validating"
-    ) {
-      stopPolling();
-    } else {
-      startPolling(60000);
-    }
-  }, [
-    data?.getSubmission?.fileValidationStatus,
-    data?.getSubmission?.metadataValidationStatus,
-    data?.getSubmission?.crossSubmissionStatus,
-  ]);
-
-  useEffect(() => {
-    if (!hasUploadingBatches && batchRefreshTimeout) {
-      clearInterval(batchRefreshTimeout);
-      setBatchRefreshTimeout(null);
+    if (!hasUploadingBatches && stopBatchPolling) {
+      stopBatchPolling();
       getSubmission();
-    } else if (!batchRefreshTimeout && hasUploadingBatches) {
-      setBatchRefreshTimeout(setInterval(refreshBatchTable, 60000));
-    }
 
-    return () => clearInterval(batchRefreshTimeout);
-  }, [hasUploadingBatches]);
+      setStartBatchPolling(null);
+      setStopBatchPolling(null);
+      return;
+    }
+    if (hasUploadingBatches && startBatchPolling) {
+      startBatchPolling(1000);
+    }
+  }, [hasUploadingBatches, stopBatchPolling, startBatchPolling]);
 
   return (
     <StyledWrapper>
@@ -592,7 +610,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
           <StyledCardContent>
             {error && <StyledAlert severity="error">Oops! An error occurred. {error}</StyledAlert>}
             <DataSubmissionSummary dataSubmission={data?.getSubmission} />
-            <DataSubmissionStatistics
+            <ValidationStatistics
               dataSubmission={data?.getSubmission}
               statistics={data?.submissionStats?.stats}
             />
@@ -606,6 +624,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
               />
               <DataUpload submission={data?.getSubmission} />
               <ValidationControls
+                /* Without key the component will continue to poll if status updates Error => Error and skips 'Validating' status due to race condition */
+                key={`last_validation_time_${lastValidationTime}`}
                 dataSubmission={data?.getSubmission}
                 onValidate={handleOnValidate}
               />

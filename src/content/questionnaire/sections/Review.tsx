@@ -465,6 +465,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
               label="Other Data Type(s)"
               value={repository.otherDataTypesSubmitted}
               valuePlacement="bottom"
+              delimiter="|"
               isList
             />
           </ReviewDataListing>
@@ -504,6 +505,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
             label="Other cancer type(s)"
             value={data.otherCancerTypes}
             valuePlacement="bottom"
+            delimiter="|"
             isList
           />
           <ReviewDataListingProperty
@@ -511,6 +513,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
             label="Pre-cancer types"
             value={data.preCancerTypes}
             valuePlacement="bottom"
+            delimiter="|"
             isList
           />
         </ReviewDataListing>
@@ -531,6 +534,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
             label="Other Specie(s) involved"
             value={data.otherSpeciesOfSubjects}
             valuePlacement="bottom"
+            delimiter="|"
             isList
           />
           <ReviewDataListingProperty
@@ -599,6 +603,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
             label="Other Data types"
             value={data.otherDataTypes}
             valuePlacement="bottom"
+            delimiter="|"
             isList
           />
         </ReviewDataListing>
@@ -663,6 +668,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
               label="Other Clinical Data types"
               value={data.clinicalData?.otherDataTypes?.split(",")}
               valuePlacement="bottom"
+              delimiter="|"
               isList
             />
             <ReviewDataListingProperty
