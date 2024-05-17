@@ -194,7 +194,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     }
 
     setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
-    setUploadType("New");
+    setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
     setIsLoading(false);
   };
 
