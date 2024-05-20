@@ -1,7 +1,6 @@
 {
   "name": "crdc-datahub-ui",
-  "version": "0.1.0",
-  "private": true,
+  "version": "3.0.0",
   "dependencies": {
     "@apollo/client": "^3.9.8",
     "@axe-core/react": "^4.9.0",
@@ -55,12 +54,6 @@
     "format:fix": "prettier --ignore-path .gitignore --write \"**/*.{js,jsx,ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "prepare": "husky install"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
