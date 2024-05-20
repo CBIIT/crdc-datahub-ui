@@ -3,7 +3,6 @@ import { render, waitFor, within } from "@testing-library/react";
 import UserEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { act } from "react-dom/test-utils";
 import { SubmittedDataFilters } from "./SubmittedDataFilters";
 import { SUBMISSION_STATS, SubmissionStatsResp } from "../../graphql";
 
@@ -98,9 +97,9 @@ describe("SubmittedDataFilters cases", () => {
 
     const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
 
-    await waitFor(() => {
-      UserEvent.click(muiSelectBox);
+    UserEvent.click(muiSelectBox);
 
+    await waitFor(() => {
       const muiSelectList = within(getByTestId("data-content-node-filter")).getByRole("listbox", {
         hidden: true,
       });
@@ -180,7 +179,7 @@ describe("SubmittedDataFilters cases", () => {
 
     const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
 
-    await act(async () => UserEvent.click(muiSelectBox));
+    UserEvent.click(muiSelectBox);
 
     await waitFor(() => {
       // Sanity check that the box is open

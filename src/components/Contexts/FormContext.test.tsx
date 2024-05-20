@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
@@ -56,12 +56,12 @@ describe("FormContext > useFormContext Tests", () => {
 
 describe("FormContext > FormProvider Tests", () => {
   it("should return an error for empty IDs", async () => {
-    const screen = render(<TestParent appId="" />);
+    const { findByTestId, getByTestId } = render(<TestParent appId="" />);
 
-    await waitFor(() => expect(screen.getByTestId("error")).toBeInTheDocument());
+    await findByTestId("error");
 
-    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.ERROR);
-    expect(screen.getByTestId("error").textContent).toEqual("Invalid application ID provided");
+    expect(getByTestId("status").textContent).toEqual(FormStatus.ERROR);
+    expect(getByTestId("error").textContent).toEqual("Invalid application ID provided");
   });
 
   it("should return an error for graphql-based failures", async () => {
@@ -78,16 +78,14 @@ describe("FormContext > FormProvider Tests", () => {
         },
       },
     ];
-    const screen = render(
+    const { findByTestId, getByTestId } = render(
       <TestParent mocks={mocks} appId="556ac14a-f247-42e8-8878-8468060fb49a" />
     );
 
-    await waitFor(() => expect(screen.getByTestId("error")).toBeInTheDocument());
+    await findByTestId("error");
 
-    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.ERROR);
-    expect(screen.getByTestId("error").textContent).toEqual(
-      "An unknown API or GraphQL error occurred"
-    );
+    expect(getByTestId("status").textContent).toEqual(FormStatus.ERROR);
+    expect(getByTestId("error").textContent).toEqual("An unknown API or GraphQL error occurred");
   });
 
   it("should return an error for network-based failures", async () => {
@@ -102,16 +100,14 @@ describe("FormContext > FormProvider Tests", () => {
         error: new Error("Test network error"),
       },
     ];
-    const screen = render(
+    const { findByTestId, getByTestId } = render(
       <TestParent mocks={mocks} appId="556ac14a-f247-42e8-8878-8468060fb49a" />
     );
 
-    await waitFor(() => expect(screen.getByTestId("error")).toBeInTheDocument());
+    await findByTestId("error");
 
-    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.ERROR);
-    expect(screen.getByTestId("error").textContent).toEqual(
-      "An unknown API or GraphQL error occurred"
-    );
+    expect(getByTestId("status").textContent).toEqual(FormStatus.ERROR);
+    expect(getByTestId("error").textContent).toEqual("An unknown API or GraphQL error occurred");
   });
 
   it("should return data for nominal requests", async () => {
@@ -139,18 +135,16 @@ describe("FormContext > FormProvider Tests", () => {
         },
       },
     ];
-    const screen = render(
+    const { findByTestId, getByTestId } = render(
       <TestParent mocks={mocks} appId="556ac14a-f247-42e8-8878-8468060fb49a" />
     );
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
-    expect(screen.getByTestId("app-id").textContent).toEqual(
-      "556ac14a-f247-42e8-8878-8468060fb49a"
-    );
-    expect(screen.getByTestId("pi-first-name").textContent).toEqual("Successfully");
-    expect(screen.getByTestId("pi-last-name").textContent).toEqual("Fetched");
+    expect(getByTestId("status").textContent).toEqual(FormStatus.LOADED);
+    expect(getByTestId("app-id").textContent).toEqual("556ac14a-f247-42e8-8878-8468060fb49a");
+    expect(getByTestId("pi-first-name").textContent).toEqual("Successfully");
+    expect(getByTestId("pi-last-name").textContent).toEqual("Fetched");
   });
 
   it("should autofill the user's last application for new submissions", async () => {
@@ -174,14 +168,14 @@ describe("FormContext > FormProvider Tests", () => {
         },
       },
     ];
-    const screen = render(<TestParent mocks={mocks} appId="new" />);
+    const { findByTestId, getByTestId } = render(<TestParent mocks={mocks} appId="new" />);
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
-    expect(screen.getByTestId("app-id").textContent).toEqual("new");
-    expect(screen.getByTestId("pi-first-name").textContent).toEqual("Test");
-    expect(screen.getByTestId("pi-last-name").textContent).toEqual("User");
+    expect(getByTestId("status").textContent).toEqual(FormStatus.LOADED);
+    expect(getByTestId("app-id").textContent).toEqual("new");
+    expect(getByTestId("pi-first-name").textContent).toEqual("Test");
+    expect(getByTestId("pi-last-name").textContent).toEqual("User");
   });
 
   it("should default to an empty string when no autofill information is returned", async () => {
@@ -198,14 +192,14 @@ describe("FormContext > FormProvider Tests", () => {
         errors: [new GraphQLError("The user has no previous applications")],
       },
     ];
-    const screen = render(<TestParent mocks={mocks} appId="new" />);
+    const { findByTestId, getByTestId } = render(<TestParent mocks={mocks} appId="new" />);
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
-    expect(screen.getByTestId("app-id").textContent).toEqual("new");
-    expect(screen.getByTestId("pi-first-name").textContent).toEqual("");
-    expect(screen.getByTestId("pi-last-name").textContent).toEqual("");
+    expect(getByTestId("status").textContent).toEqual(FormStatus.LOADED);
+    expect(getByTestId("app-id").textContent).toEqual("new");
+    expect(getByTestId("pi-first-name").textContent).toEqual("");
+    expect(getByTestId("pi-last-name").textContent).toEqual("");
   });
 
   it("should autofill PI details if Section A is not started", async () => {
@@ -245,13 +239,15 @@ describe("FormContext > FormProvider Tests", () => {
         },
       },
     ];
-    const screen = render(<TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />);
+    const { findByTestId, getByTestId } = render(
+      <TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />
+    );
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
-    expect(screen.getByTestId("pi-first-name").textContent).toEqual("Test");
-    expect(screen.getByTestId("pi-last-name").textContent).toEqual("User");
+    expect(getByTestId("status").textContent).toEqual(FormStatus.LOADED);
+    expect(getByTestId("pi-first-name").textContent).toEqual("Test");
+    expect(getByTestId("pi-last-name").textContent).toEqual("User");
   });
 
   it("should not execute getMyLastApplication if Section A is started", async () => {
@@ -293,13 +289,15 @@ describe("FormContext > FormProvider Tests", () => {
         },
       },
     ];
-    const screen = render(<TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />);
+    const { findByTestId, getByTestId } = render(
+      <TestParent mocks={mocks} appId="AAA-BBB-EXISTING-APP" />
+    );
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(FormStatus.LOADED);
-    expect(screen.getByTestId("pi-first-name").textContent).toEqual("");
-    expect(screen.getByTestId("pi-last-name").textContent).toEqual("");
+    expect(getByTestId("status").textContent).toEqual(FormStatus.LOADED);
+    expect(getByTestId("pi-first-name").textContent).toEqual("");
+    expect(getByTestId("pi-last-name").textContent).toEqual("");
   });
 
   // it("should execute saveApplication when setData is called", async () => {

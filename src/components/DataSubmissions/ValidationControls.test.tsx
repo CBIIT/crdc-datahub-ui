@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { act, getByLabelText, render, waitFor } from "@testing-library/react";
+import { getByLabelText, render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
@@ -224,7 +224,7 @@ describe("Basic Functionality", () => {
 
     const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
 
-    await act(async () => userEvent.click(getByLabelText(radio, "Validate Metadata")));
+    userEvent.click(getByLabelText(radio, "Validate Metadata"));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -278,7 +278,7 @@ describe("Basic Functionality", () => {
     expect(called).toBe(false);
 
     const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
-    await act(async () => userEvent.click(getByLabelText(radio, "Validate Data Files")));
+    userEvent.click(getByLabelText(radio, "Validate Data Files"));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -332,7 +332,7 @@ describe("Basic Functionality", () => {
     expect(called).toBe(false);
 
     const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
-    await act(async () => userEvent.click(getByLabelText(radio, "Both")));
+    userEvent.click(getByLabelText(radio, "Both"));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -386,7 +386,7 @@ describe("Basic Functionality", () => {
     expect(called).toBe(false);
 
     const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
-    await act(async () => userEvent.click(getByLabelText(radio, "New Uploaded Data")));
+    userEvent.click(getByLabelText(radio, "New Uploaded Data"));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -445,7 +445,7 @@ describe("Basic Functionality", () => {
       expect(called).toBe(false);
 
       const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
-      await act(async () => userEvent.click(getByLabelText(radio, `${target} Uploaded Data`)));
+      userEvent.click(getByLabelText(radio, `${target} Uploaded Data`));
 
       userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -482,7 +482,7 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    await waitFor(() => userEvent.click(getByTestId("validate-controls-validate-button")));
+    userEvent.click(getByTestId("validate-controls-validate-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to initiate validation process.", {
@@ -521,7 +521,7 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    await waitFor(() => userEvent.click(getByTestId("validate-controls-validate-button")));
+    userEvent.click(getByTestId("validate-controls-validate-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to initiate validation process.", {
@@ -570,7 +570,7 @@ describe("Basic Functionality", () => {
         </TestParent>
       );
 
-      await waitFor(() => userEvent.click(getByTestId("validate-controls-validate-button")));
+      userEvent.click(getByTestId("validate-controls-validate-button"));
 
       await waitFor(() => {
         expect(onValidate).toHaveBeenCalledTimes(1);
@@ -660,11 +660,11 @@ describe("Implementation Requirements", () => {
 
     // Change from default type
     const typeRadio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
-    await act(async () => userEvent.click(getByLabelText(typeRadio, "Both")));
+    userEvent.click(getByLabelText(typeRadio, "Both"));
 
     // Change from default target
     const targetRadio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
-    await act(async () => userEvent.click(getByLabelText(targetRadio, `All Uploaded Data`)));
+    userEvent.click(getByLabelText(targetRadio, `All Uploaded Data`));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 

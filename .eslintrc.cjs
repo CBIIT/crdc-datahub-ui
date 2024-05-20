@@ -101,11 +101,12 @@ const config = {
     "react-hooks/rules-of-hooks": "off",
     "react-hooks/exhaustive-deps": "off",
     "import/prefer-default-export": "off",
-    "import/no-anonymous-default-export": "off",
 
     /* jest and testing-library rules */
     "testing-library/prefer-screen-queries": "off",
     "testing-library/no-wait-for-multiple-assertions": "off",
+    "testing-library/no-node-access": "off",
+    "testing-library/no-container": "off",
   },
 };
 
