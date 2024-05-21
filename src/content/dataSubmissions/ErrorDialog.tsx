@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
+import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import React from "react";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { FormatDate } from "../../utils";
@@ -101,32 +101,13 @@ const StyledErrorDetails = styled(Stack)({
   maxHeight: "290px"
 });
 
-const StyledNodeContainer = styled(Box)({
-  display: "flex",
-  alignItems: "center",
-  marginTop: "8px",
-  color: "#595959",
-});
-
-const StyledNodeType = styled(Typography)({
-  textTransform: "capitalize",
-  fontWeight: 800,
-  fontSize: "18px",
-});
-
-const StyledSubmittedID = styled(Typography)({
-  marginLeft: "5px",
-  fontSize: "18px",
-});
-
 type Props = {
   header?: string;
   title?: string;
   closeText?: string;
   errors: string[];
   errorCount?: string;
-  nodeType?: string;
-  submittedID?: string;
+  nodeInfo?: string;
   uploadedDate?: string;
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
@@ -137,8 +118,7 @@ const ErrorDialog = ({
   closeText = "Close",
   errors,
   errorCount,
-  nodeType,
-  submittedID,
+  nodeInfo,
   uploadedDate,
   onClose,
   open,
@@ -170,13 +150,8 @@ const ErrorDialog = ({
           {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
         </StyledUploadedDate>
       )}
-      {nodeType && (
-        <StyledNodeContainer>
-          <StyledNodeType>
-            {`${nodeType}${submittedID ? ":" : ""}`}
-          </StyledNodeType>
-          {submittedID && (<StyledSubmittedID>{submittedID}</StyledSubmittedID>)}
-        </StyledNodeContainer>
+      {nodeInfo && (
+        <StyledUploadedDate>{nodeInfo}</StyledUploadedDate>
       )}
       <StyledErrorDetails direction="column" spacing={2.5}>
         <StyledSubtitle variant="body2">

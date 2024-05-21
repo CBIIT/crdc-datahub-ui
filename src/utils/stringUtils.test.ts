@@ -122,3 +122,37 @@ describe("filterPositiveIntegerString utility function", () => {
     expect(result).toEqual("1");
   });
 });
+
+describe('titleCase', () => {
+  it('should capitalize the first letter of each word', () => {
+    expect(utils.titleCase('data file')).toBe('Data File');
+  });
+
+  it('should handle single word strings', () => {
+    expect(utils.titleCase('participant')).toBe('Participant');
+  });
+
+  it('should handle empty strings', () => {
+    expect(utils.titleCase('')).toBe('');
+  });
+
+  it('should safely handle null values', () => {
+    expect(utils.titleCase(null)).toBe('');
+  });
+
+  it('should safely handle undefined values', () => {
+    expect(utils.titleCase(undefined)).toBe('');
+  });
+
+  it('should safely handle non-string values', () => {
+    expect(utils.titleCase(["this isnt a string"] as unknown as string)).toBe('');
+  });
+
+  it('should handle strings with multiple spaces', () => {
+    expect(utils.titleCase('data   file')).toBe('Data   File');
+  });
+
+  it('should handle strings with mixed case', () => {
+    expect(utils.titleCase('dATa fiLE')).toBe('Data File');
+  });
+});

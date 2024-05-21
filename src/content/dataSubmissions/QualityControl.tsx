@@ -6,7 +6,7 @@ import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/materia
 import { Controller, useForm } from 'react-hook-form';
 import { LIST_BATCHES, LIST_NODE_TYPES, ListBatchesResp, ListNodeTypesResp, SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
 import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
-import { FormatDate } from "../../utils";
+import { FormatDate, titleCase } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 
@@ -348,8 +348,7 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
         onClose={() => setOpenErrorDialog(false)}
         header={null}
         title="Validation Issues"
-        nodeType={`${selectedRow?.type}${selectedRow?.type?.toLocaleLowerCase() !== "data file" ? " Node" : ""}`}
-        submittedID={selectedRow?.submittedID}
+        nodeInfo={`For ${titleCase(selectedRow?.type)}${selectedRow?.type?.toLocaleLowerCase() !== "data file" ? " Node" : ""} ID ${selectedRow?.submittedID}`}
         errors={allDescriptions}
         errorCount={`${allDescriptions?.length || 0} ${allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"}`}
       />
