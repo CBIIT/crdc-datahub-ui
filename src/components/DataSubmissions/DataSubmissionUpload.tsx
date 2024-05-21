@@ -259,7 +259,7 @@ const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }:
         return;
       }
       // Batch upload completed successfully
-      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${metadataIntention === "Remove" ? "removed" : "uploaded"}`, "success");
+      onUpload("The batch upload is in progress. You can check the upload status in the Data Activity tab once the upload is complete", "success");
       setIsUploading(false);
       setSelectedFiles(null);
       if (uploadMetadataInputRef.current) {
