@@ -47,8 +47,6 @@ const DataSubmissions = Loader(lazy(() => import("./content/dataSubmissions/Cont
 const Users = Loader(lazy(() => import("./content/users/Controller")));
 const DMN = Loader(lazy(() => import("./content/modelNavigator/Controller")));
 const Organizations = Loader(lazy(() => import("./content/organizations/Controller")));
-
-// Status Pages
 const Status404 = Loader(lazy(() => import("./content/status/Page404")));
 
 const routes: RouteObject[] = [
@@ -57,7 +55,7 @@ const routes: RouteObject[] = [
     element: <MainLayout />,
     children: [
       {
-        path: "/:redirect?",
+        path: "/",
         element: <Home />,
       },
       {
@@ -96,7 +94,13 @@ const routes: RouteObject[] = [
       },
       {
         path: "/submission/:appId/:section?",
-        element: <Questionnaire />,
+        element: (
+          <RequireAuth
+            component={<Questionnaire />}
+            redirectPath="/submissions"
+            redirectName="Submission Requests"
+          />
+        ),
       },
       {
         path: "/users/:userId?",
