@@ -102,12 +102,12 @@ describe("ProgressBar General Tests", () => {
   const sections = Object.values(config);
 
   it("renders the progress bar with all A-D config-defined sections", () => {
-    const screen = render(<BaseComponent section={keys[0]} data={{}} />);
+    const { getByText } = render(<BaseComponent section={keys[0]} data={{}} />);
 
     sections
       .filter((section) => section.id !== config.REVIEW.id)
       .forEach(({ title }, index) => {
-        const root = screen.getByText(title).closest("a");
+        const root = getByText(title).closest("a");
 
         expect(root).toBeVisible();
         expect(root).toHaveAttribute("data-testId", `progress-bar-section-${index}`);

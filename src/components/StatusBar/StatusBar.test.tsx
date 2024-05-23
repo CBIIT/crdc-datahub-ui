@@ -1,7 +1,6 @@
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { fireEvent, render, waitFor } from "@testing-library/react";
-import { act } from "react-dom/test-utils";
 import { axe } from "jest-axe";
 import { ContextState, Context as FormCtx, Status as FormStatus } from "../Contexts/FormContext";
 import StatusBar from "./StatusBar";
@@ -214,9 +213,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Review Comments"));
-    });
+    fireEvent.click(getByText("Review Comments"));
 
     expect(getByTestId("review-comments-dialog")).toBeVisible();
   });
@@ -235,9 +232,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Review Comments"));
-    });
+    fireEvent.click(getByText("Review Comments"));
 
     expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 11\/30\/2019:/i)).toBeVisible();
@@ -259,9 +254,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Review Comments"));
-    });
+    fireEvent.click(getByText("Review Comments"));
 
     expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 12\/30\/2023:/i)).toBeVisible();
@@ -283,9 +276,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Review Comments"));
-    });
+    fireEvent.click(getByText("Review Comments"));
 
     expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 11\/26\/2023:/i)).toBeVisible();
@@ -299,9 +290,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Review Comments"));
-    });
+    fireEvent.click(getByText("Review Comments"));
 
     expect(getByText(/BASED ON SUBMISSION FROM 11\/24\/2009:/i)).toHaveAttribute(
       "title",
@@ -316,15 +305,11 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { queryByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Review Comments"));
-    });
+    fireEvent.click(getByText("Review Comments"));
 
     expect(queryByTestId("review-comments-dialog")).toBeVisible();
 
-    act(() => {
-      fireEvent.click(queryByTestId("review-comments-dialog-close"));
-    });
+    fireEvent.click(queryByTestId("review-comments-dialog-close"));
 
     await waitFor(() => expect(queryByTestId("review-comments-dialog")).toBeNull());
   });
@@ -348,9 +333,7 @@ describe("StatusBar > History Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+    fireEvent.click(getByText("Full History"));
 
     expect(getByTestId("status-bar-history-dialog")).toBeVisible();
   });
@@ -366,9 +349,7 @@ describe("StatusBar > History Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+    fireEvent.click(getByText("Full History"));
 
     const elements = getByTestId("status-bar-history-dialog").querySelectorAll("li");
     expect(elements[0]).toHaveTextContent(/Rejected/i);
@@ -389,9 +370,7 @@ describe("StatusBar > History Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+    fireEvent.click(getByText("Full History"));
 
     expect(getByTestId("status-bar-history-item-0-icon")).toBeVisible();
     expect(() => getByTestId("status-bar-history-item-1-icon")).toThrow();
@@ -406,9 +385,7 @@ describe("StatusBar > History Modal Tests", () => {
 
       const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-      act(() => {
-        fireEvent.click(getByText("Full History"));
-      });
+      fireEvent.click(getByText("Full History"));
 
       const icon = getByTestId("status-bar-history-item-0-icon");
 
@@ -425,9 +402,7 @@ describe("StatusBar > History Modal Tests", () => {
 
     const { getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+    fireEvent.click(getByText("Full History"));
 
     expect(getByText("11/24/2009")).toHaveAttribute("title", data.history[0].dateTime);
   });
@@ -439,15 +414,11 @@ describe("StatusBar > History Modal Tests", () => {
 
     const { queryByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+    fireEvent.click(getByText("Full History"));
 
     expect(queryByTestId("status-bar-history-dialog")).toBeVisible();
 
-    act(() => {
-      fireEvent.click(queryByTestId("status-bar-dialog-close"));
-    });
+    fireEvent.click(queryByTestId("status-bar-dialog-close"));
 
     await waitFor(() => expect(queryByTestId("status-bar-history-dialog")).toBeNull());
   });
