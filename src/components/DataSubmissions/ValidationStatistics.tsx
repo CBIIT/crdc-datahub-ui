@@ -166,7 +166,9 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
           {" "}
           {`(${dataset.length})`}
         </StyledSectionTitle>
-        <ContentCarousel locked={dataset.length <= 3}>
+        {/* NOTE: The transform is derived from the difference of Chart width and
+            chart container width which is 50px on each side (100px) */}
+        <ContentCarousel additionalTransfrom={dataset.length > 3 ? 100 : 0} locked={dataset.length <= 3}>
           {dataset?.map((stat) => (
             <MiniPieChart
               key={stat.nodeName}

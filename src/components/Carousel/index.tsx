@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useState } from 'react';
 import { styled } from '@mui/material';
 import Carousel, { CarouselProps } from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
@@ -16,7 +16,7 @@ type Props = {
 const sizing = {
   desktop: {
     breakpoint: { max: 5000, min: 0 },
-    items: 3.5, // NOTE: Derived from `wrapper_width` / `item_width`
+    items: 3,
   },
 };
 
@@ -76,14 +76,6 @@ const ContentCarousel: FC<Props> = ({ children, locked, ...props }: Props) => {
 
   const handleBeforeChange = (nextSlide: number) => setActiveSlide(nextSlide);
 
-  const additionalTransform = useMemo<number>(() => {
-    if (locked) {
-      return 0;
-    }
-
-    return activeSlide < 1 ? 100 : 50;
-  }, [activeSlide, locked]);
-
   return (
     <StyledWrapper showLeftFade={activeSlide !== 0 && !locked} showRightFade={!locked}>
       <Carousel
@@ -96,7 +88,6 @@ const ContentCarousel: FC<Props> = ({ children, locked, ...props }: Props) => {
         itemClass="custom-carousel-item"
         customLeftArrow={<CustomLeftArrow />}
         customRightArrow={<CustomRightArrow />}
-        additionalTransfrom={additionalTransform}
         {...props}
       >
         {children}
