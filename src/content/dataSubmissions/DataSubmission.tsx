@@ -389,7 +389,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
       setLastValidationTime(Date.now());
       if (
         d?.getSubmission?.fileValidationStatus !== "Validating" &&
-        d?.getSubmission?.metadataValidationStatus !== "Validating"
+        d?.getSubmission?.metadataValidationStatus !== "Validating" &&
+        d?.getSubmission?.crossSubmissionStatus !== "Validating"
       ) {
         stopPolling();
       } else {
@@ -550,8 +551,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
       return;
     }
 
-    // NOTE: Immediately update submission object to get "Validating" status
-    getSubmission();
     startPolling(1000);
   };
 
