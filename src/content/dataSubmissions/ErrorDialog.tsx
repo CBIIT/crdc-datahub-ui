@@ -107,6 +107,7 @@ type Props = {
   closeText?: string;
   errors: string[];
   errorCount?: string;
+  nodeInfo?: string;
   uploadedDate?: string;
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
@@ -117,6 +118,7 @@ const ErrorDialog = ({
   closeText = "Close",
   errors,
   errorCount,
+  nodeInfo,
   uploadedDate,
   onClose,
   open,
@@ -147,6 +149,9 @@ const ErrorDialog = ({
           {" "}
           {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
         </StyledUploadedDate>
+      )}
+      {nodeInfo && (
+        <StyledUploadedDate>{nodeInfo}</StyledUploadedDate>
       )}
       <StyledErrorDetails direction="column" spacing={2.5}>
         <StyledSubtitle variant="body2">
