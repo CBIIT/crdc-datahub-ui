@@ -9,6 +9,25 @@ export const capitalizeFirstLetter = (str: string): string =>
   str ? str[0].toUpperCase() + str.slice(1) : "";
 
 /**
+ * Capitalizes the first letter of each word in a given string.
+ *
+ * @see Utilizes {@link capitalizeFirstLetter} to capitalize each word.
+ * @param str - The string to capitalize.
+ * @returns The capitalized string.
+ */
+export const titleCase = (str: string): string => {
+  if (typeof str !== "string") {
+    return "";
+  }
+
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => capitalizeFirstLetter(word))
+    .join(" ");
+};
+
+/**
  * Function to add a space between a number and a letter in a string.
  * @param input - The input string to be processed. It should be a string where a number is directly followed by a letter.
  * @returns The processed string with a space between the number and the letter. If the input string does not match the required pattern, the function will return the original string.
