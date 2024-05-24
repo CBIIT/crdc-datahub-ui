@@ -22,7 +22,8 @@ const baseSubmission: Submission = {
   history: [],
   conciergeName: "",
   conciergeEmail: "",
-  intention: "New",
+  intention: "New/Update",
+  dataType: "Metadata and Data Files",
   createdAt: "",
   updatedAt: "",
 };
@@ -139,12 +140,12 @@ describe("General Submit", () => {
     expect(result.isAdminOverride).toBe(false);
   });
 
-  it("should disable submit when file validation is null and intention is 'Update'", () => {
+  it("should disable submit when file validation is null and intention is 'New/Update'", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
-      intention: "Update",
+      intention: "New/Update",
     };
     const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
     expect(result.disable).toBe(true);
