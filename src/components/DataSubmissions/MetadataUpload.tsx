@@ -250,9 +250,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
       }
       // Batch upload completed successfully
       onUpload(
-        `${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${
-          metadataIntention === "Remove" ? "removed" : "uploaded"
-        }`,
+        "The batch upload is in progress. You can check the upload status in the Data Activity tab once the upload is complete",
         "success"
       );
       setIsUploading(false);
