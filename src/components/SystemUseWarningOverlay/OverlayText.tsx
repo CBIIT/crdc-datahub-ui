@@ -1,4 +1,4 @@
-export default {
+const OverlayContent = {
   content: [
     "This warning banner provides privacy and security notices consistent with applicable federal laws, directives, and other federal guidance for accessing this Government system, which includes (1) this computer network, (2) all computers connected to this network, and (3) all devices and storage media attached to this network or to a computer on this network.",
     "This system is provided for Government-authorized use only.",
@@ -11,3 +11,5 @@ export default {
     "Any communication or data transiting or stored on this system may be disclosed or used for any lawful Government purpose.",
   ],
 };
+
+export default OverlayContent;

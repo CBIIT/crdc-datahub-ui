@@ -109,9 +109,7 @@ describe("Basic Functionality", () => {
     userEvent.click(getByTestId("uploader-cli-config-button"));
 
     // Skip filling the fields and click the download button
-    await waitFor(() => {
-      userEvent.click(getByText("Download"));
-    });
+    userEvent.click(getByText("Download"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -143,12 +141,10 @@ describe("Basic Functionality", () => {
     );
 
     // Open the dialog
-    await waitFor(() => userEvent.click(getByTestId("uploader-cli-config-button")));
+    userEvent.click(getByTestId("uploader-cli-config-button"));
 
     // Skip filling the fields and click the download button
-    await waitFor(() => {
-      userEvent.click(getByText("Download"));
-    });
+    userEvent.click(getByText("Download"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -174,7 +170,7 @@ describe("Implementation Requirements", () => {
     expect(getByText(/CLI Tool download/i)).toBeVisible();
     expect(link).toContainElement(getByText(/CLI Tool download/i));
 
-    await act(async () => userEvent.click(link));
+    userEvent.click(link);
 
     await waitFor(() => {
       expect(getByText(/Uploader CLI Tool/i)).toBeInTheDocument();
@@ -224,11 +220,10 @@ describe("Implementation Requirements", () => {
     expect(called).toBe(false);
 
     // Open the dialog
-    await act(async () => {
-      userEvent.click(getByTestId("uploader-cli-config-button"));
-    });
+    userEvent.click(getByTestId("uploader-cli-config-button"));
 
     // Skip filling the fields and click the download button
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
     await act(async () => {
       userEvent.click(getByText("Download"));
     });
@@ -271,12 +266,10 @@ describe("Implementation Requirements", () => {
       );
 
       // Open the dialog
-      await act(async () => userEvent.click(getByTestId("uploader-cli-config-button")));
+      userEvent.click(getByTestId("uploader-cli-config-button"));
 
       // Skip filling the fields and click the download button
-      await act(async () => {
-        userEvent.click(getByText("Download"));
-      });
+      userEvent.click(getByText("Download"));
 
       await waitFor(() => {
         expect(mockDownloadBlob).toHaveBeenCalledWith(

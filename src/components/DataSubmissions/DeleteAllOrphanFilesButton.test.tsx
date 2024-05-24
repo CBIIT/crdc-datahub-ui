@@ -254,7 +254,7 @@ describe("DeleteAllOrphanFilesButton Component", () => {
     });
   });
 
-  it("should call onDelete with false and show error message on failed mutation", async () => {
+  it("should call onDelete with false and show error message on failed mutation (network failure)", async () => {
     const { getByTestId } = render(
       <TestParent
         context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
@@ -283,7 +283,7 @@ describe("DeleteAllOrphanFilesButton Component", () => {
     });
   });
 
-  it("should call onDelete with false and show error message on failed mutation", async () => {
+  it("should call onDelete with false and show error message on failed mutation (GraphQL error)", async () => {
     const { getByTestId } = render(
       <TestParent
         context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
@@ -312,7 +312,7 @@ describe("DeleteAllOrphanFilesButton Component", () => {
     });
   });
 
-  it("should call onDelete with false and show error message on failed mutation", async () => {
+  it("should call onDelete with false and show error message on failed mutation (API failure)", async () => {
     const { getByTestId } = render(
       <TestParent
         context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}

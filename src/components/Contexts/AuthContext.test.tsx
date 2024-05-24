@@ -80,15 +80,15 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     localStorage.setItem("userDetails", JSON.stringify(userData));
 
-    const screen = render(<TestParent mocks={mocks} />);
+    const { findByTestId, getByTestId } = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
-    expect(screen.getByTestId("isLoggedIn").textContent).toEqual("true");
-    expect(screen.getByTestId("user-id").textContent).toEqual(userData._id);
-    expect(screen.getByTestId("first-name").textContent).toEqual(userData.firstName);
-    expect(screen.getByTestId("last-name").textContent).toEqual(userData.lastName);
+    expect(getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
+    expect(getByTestId("isLoggedIn").textContent).toEqual("true");
+    expect(getByTestId("user-id").textContent).toEqual(userData._id);
+    expect(getByTestId("first-name").textContent).toEqual(userData.firstName);
+    expect(getByTestId("last-name").textContent).toEqual(userData.lastName);
   });
 
   it("should successfully verify the cached user with the BE service", async () => {
@@ -115,12 +115,12 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     localStorage.setItem("userDetails", JSON.stringify(userData));
 
-    const screen = render(<TestParent mocks={mocks} />);
+    const { findByTestId, getByTestId } = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
-    expect(screen.getByTestId("isLoggedIn").textContent).toEqual("true");
+    expect(getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
+    expect(getByTestId("isLoggedIn").textContent).toEqual("true");
   });
 
   it("should update the localStorage cache when the user is verified", async () => {
@@ -148,10 +148,10 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     localStorage.setItem("userDetails", JSON.stringify(userData));
 
-    const screen = render(<TestParent mocks={mocks} />);
+    const { getByTestId } = render(<TestParent mocks={mocks} />);
 
     await waitFor(() =>
-      expect(screen.getByTestId("first-name").textContent).toEqual(
+      expect(getByTestId("first-name").textContent).toEqual(
         mocks[0].result.data.getMyUser.firstName
       )
     );
@@ -185,13 +185,13 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     localStorage.setItem("userDetails", JSON.stringify(userData));
 
-    const screen = render(<TestParent mocks={mocks} />);
+    const { findByTestId, getByTestId } = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
+    expect(getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
 
-    await waitFor(() => expect(screen.getByTestId("isLoggedIn").textContent).toEqual("false"));
+    await waitFor(() => expect(getByTestId("isLoggedIn").textContent).toEqual("false"));
 
     await waitFor(
       () => {
