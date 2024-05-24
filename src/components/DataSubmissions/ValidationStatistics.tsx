@@ -1,6 +1,6 @@
 import React, { FC, useMemo, useState } from "react";
 import { cloneDeep, isEqual } from "lodash";
-import { Stack, StackProps, Tab, Tabs, Typography, styled } from "@mui/material";
+import { Box, Stack, StackProps, Tab, Tabs, Typography, styled } from "@mui/material";
 import ContentCarousel from "../Carousel";
 import NodeTotalChart from "../NodeTotalChart";
 import MiniPieChart from "../NodeChart";
@@ -98,6 +98,10 @@ const StyledTab = styled(Tab)({
   },
 });
 
+const PaddingBox = styled(Box)({
+  width: "175px",
+});
+
 const defaultFilters: LegendFilter[] = [
   { label: "New", color: "#4D90D3", disabled: false },
   { label: "Passed", color: "#32E69A", disabled: false },
@@ -173,12 +177,8 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
         <StyledSectionTitle variant="h6">
           Individual Node Types {`(${dataset.length})`}
         </StyledSectionTitle>
-        {/* NOTE: The transform is derived from the difference of Chart width and
-            chart container width which is 50px on each side (100px) */}
-        <ContentCarousel
-          additionalTransfrom={dataset.length > 3 ? 100 : 0}
-          locked={dataset.length <= 3}
-        >
+        <ContentCarousel partialVisible={false}>
+          {dataset.length > 2 && <PaddingBox />}
           {dataset?.map((stat) => (
             <MiniPieChart
               key={stat.nodeName}
@@ -187,8 +187,6 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
               data={buildMiniChartSeries(stat, disabledSeries)}
             />
           ))}
-          {/* NOTE: the 4th node is cut-off without this */}
-          {dataset.length === 4 && <span />}
         </ContentCarousel>
         <StatisticLegend filters={filters} onClick={handleFilterChange} />
       </Stack>
