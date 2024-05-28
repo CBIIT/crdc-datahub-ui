@@ -117,11 +117,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
 
   return (
     <FlowWrapper index={2} title="Upload Data Files" actions={Actions}>
-      {submission?.dataType === "Metadata Only" ? (
-        <StyledBox data-testid="uploader-cli-footer-alt">
-          This submission is for metadata only; there is no need to upload data files.
-        </StyledBox>
-      ) : (
+      {submission?.dataType === "Metadata and Data Files" ? (
         <>
           <StyledBox data-testid="uploader-cli-footer">
             The CLI Tool is used to upload data files to DataHub and requires a configuration file
@@ -145,6 +141,10 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
             onDownload={handleConfigDownload}
           />
         </>
+      ) : (
+        <StyledBox data-testid="uploader-cli-footer-alt">
+          This submission is for metadata only; there is no need to upload data files.
+        </StyledBox>
       )}
     </FlowWrapper>
   );
