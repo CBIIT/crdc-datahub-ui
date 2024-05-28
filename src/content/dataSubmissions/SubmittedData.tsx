@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from "react";
+import { FC, useMemo, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
@@ -9,6 +9,7 @@ import {
   FilterForm,
 } from "../../components/DataSubmissions/SubmittedDataFilters";
 import { safeParse } from "../../utils";
+import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
 
 type T = Pick<SubmissionNode, "nodeType" | "nodeID"> & {
   props: Record<string, string>;
@@ -16,9 +17,10 @@ type T = Pick<SubmissionNode, "nodeType" | "nodeID"> & {
 
 type Props = {
   submissionId: string;
+  submissionName: string;
 };
 
-const SubmittedData: FC<Props> = ({ submissionId }) => {
+const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const tableRef = useRef<TableMethods>(null);
@@ -116,6 +118,17 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
     tableRef.current?.setPage(0, true);
   };
 
+  const Actions = useMemo<React.ReactNode>(
+    () => (
+      <ExportNodeDataButton
+        submission={{ _id: submissionId, name: submissionName }}
+        nodeType={filterRef.current.nodeType}
+        disabled={loading || !data?.length}
+      />
+    ),
+    [submissionId, filterRef.current.nodeType, loading, data.length]
+  );
+
   return (
     <>
       <SubmittedDataFilters submissionId={submissionId} onChange={handleFilterChange} />
@@ -127,6 +140,8 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
         loading={loading}
         defaultRowsPerPage={20}
         defaultOrder="desc"
+        position="both"
+        AdditionalActions={Actions}
         horizontalScroll
         setItemKey={(item, idx) => `${idx}_${item.nodeID}_${item.nodeID}`}
         onFetchData={handleFetchData}
