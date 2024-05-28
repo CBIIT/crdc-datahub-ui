@@ -16,7 +16,8 @@ export const shouldDisableSubmit = (submission: Submission, userRole: User["role
   if (!userRole) {
     return { disable: true, isAdminOverride: false };
   }
-  const { metadataValidationStatus, fileValidationStatus, fileErrors, intention } = submission;
+  const { metadataValidationStatus, fileValidationStatus, fileErrors, intention, dataType } =
+    submission;
 
   const isAdmin = userRole === "Admin";
   const isMissingBoth = !metadataValidationStatus && !fileValidationStatus;
@@ -27,6 +28,7 @@ export const shouldDisableSubmit = (submission: Submission, userRole: User["role
   const hasNew = metadataValidationStatus === "New" || fileValidationStatus === "New";
   const hasError = metadataValidationStatus === "Error" || fileValidationStatus === "Error";
   const hasSubmissionLevelErrors = fileErrors?.length > 0;
+  const allowsMetadataOnly = isDeleteIntention || dataType === "Metadata Only";
 
   const isAdminOverride =
     isAdmin &&
@@ -34,14 +36,14 @@ export const shouldDisableSubmit = (submission: Submission, userRole: User["role
     !isMissingBoth &&
     !hasNew &&
     !hasSubmissionLevelErrors &&
-    (hasError || (isMissingOne && !isDeleteIntention));
+    (hasError || (isMissingOne && !allowsMetadataOnly));
   const disable =
     isValidating ||
     isMissingBoth ||
     hasNew ||
     hasSubmissionLevelErrors ||
     (isDeleteIntention && !metadataValidationStatus) ||
-    (userRole !== "Admin" && (hasError || (isMissingOne && !isDeleteIntention)));
+    (userRole !== "Admin" && (hasError || (isMissingOne && !allowsMetadataOnly)));
 
   return { disable, isAdminOverride };
 };

@@ -769,6 +769,31 @@ describe("Implementation Requirements", () => {
     expect(getByLabelText(radio, "Both")).toBeDisabled();
   });
 
+  it("should disable 'Validate Data Files' and 'Both' for the submission dataType of 'Metadata Only'", () => {
+    const { getByTestId } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+            intention: "New/Update",
+            dataType: "Metadata Only",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+
+    expect(getByLabelText(radio, "Validate Metadata")).toBeEnabled();
+    expect(getByLabelText(radio, "Validate Data Files")).toBeDisabled();
+    expect(getByLabelText(radio, "Both")).toBeDisabled();
+  });
+
   // NOTE: This impacts Data Curators and Admins only, since only they can validate post-submit.
   it.each<User["role"]>(["Admin", "Data Curator"])(
     "should select 'All Uploaded Data' when the submission is 'Submitted' and the role is '%s'",
