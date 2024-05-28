@@ -1,6 +1,6 @@
 import React, { FC, createContext, useContext, useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { LIST_ORGS, ListOrgsResp } from "../../graphql";
+import { LIST_INSTITUTIONS, ListInstitutionsResp } from "../../graphql";
 
 export type InstitutionCtxState = {
   status: InstitutionCtxStatus;
@@ -56,8 +56,7 @@ type ProviderProps = {
 export const InstitutionProvider: FC<ProviderProps> = ({ children }: ProviderProps) => {
   const [state, setState] = useState<InstitutionCtxState>(initialState);
 
-  // TODO: Update to fetch real institution data
-  const { data, loading, error } = useQuery<ListOrgsResp>(LIST_ORGS, {
+  const { data, loading, error } = useQuery<ListInstitutionsResp>(LIST_INSTITUTIONS, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
@@ -74,7 +73,7 @@ export const InstitutionProvider: FC<ProviderProps> = ({ children }: ProviderPro
 
     setState({
       status: InstitutionCtxStatus.LOADED,
-      data: data?.listOrganizations?.map((org) => org.name) || [],
+      data: data?.listInstitutions || [],
     });
   }, [loading, error, data]);
 

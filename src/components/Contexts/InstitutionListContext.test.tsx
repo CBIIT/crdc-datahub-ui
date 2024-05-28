@@ -3,7 +3,7 @@ import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { InstitutionProvider, useInstitutionList } from "./InstitutionListContext";
-import { LIST_ORGS, ListOrgsResp } from "../../graphql";
+import { LIST_INSTITUTIONS, ListInstitutionsResp } from "../../graphql";
 
 type Props = {
   mocks?: MockedResponse[];
@@ -32,14 +32,14 @@ describe("useInstitutionList", () => {
   });
 
   it("should render without crashing > empty array", async () => {
-    const mocks: MockedResponse<ListOrgsResp>[] = [
+    const mocks: MockedResponse<ListInstitutionsResp>[] = [
       {
         request: {
-          query: LIST_ORGS,
+          query: LIST_INSTITUTIONS,
         },
         result: {
           data: {
-            listOrganizations: [],
+            listInstitutions: [],
           },
         },
       },
@@ -51,14 +51,33 @@ describe("useInstitutionList", () => {
   });
 
   it("should render without crashing > null", async () => {
-    const mocks: MockedResponse<ListOrgsResp>[] = [
+    const mocks: MockedResponse<ListInstitutionsResp>[] = [
       {
         request: {
-          query: LIST_ORGS,
+          query: LIST_INSTITUTIONS,
         },
         result: {
           data: {
-            listOrganizations: null,
+            listInstitutions: null,
+          },
+        },
+      },
+    ];
+
+    const { getByTestId } = render(<TestParent mocks={mocks} />);
+
+    await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("LOADED"));
+  });
+
+  it("should render without crashing > actual data", async () => {
+    const mocks: MockedResponse<ListInstitutionsResp>[] = [
+      {
+        request: {
+          query: LIST_INSTITUTIONS,
+        },
+        result: {
+          data: {
+            listInstitutions: ["inst 1", "inst 2", "inst 3"],
           },
         },
       },
@@ -70,10 +89,10 @@ describe("useInstitutionList", () => {
   });
 
   it("should handle API network errors gracefully", async () => {
-    const mocks: MockedResponse<ListOrgsResp>[] = [
+    const mocks: MockedResponse<ListInstitutionsResp>[] = [
       {
         request: {
-          query: LIST_ORGS,
+          query: LIST_INSTITUTIONS,
         },
         error: new Error("Mock network error"),
       },
@@ -84,11 +103,11 @@ describe("useInstitutionList", () => {
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("ERROR"));
   });
 
-  it("should handle API network errors gracefully", async () => {
-    const mocks: MockedResponse<ListOrgsResp>[] = [
+  it("should handle API GraphQL errors gracefully", async () => {
+    const mocks: MockedResponse<ListInstitutionsResp>[] = [
       {
         request: {
-          query: LIST_ORGS,
+          query: LIST_INSTITUTIONS,
         },
         result: {
           errors: [new GraphQLError("Mock GraphQL error")],

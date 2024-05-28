@@ -29,6 +29,9 @@ export type { Response as GetAppResp } from "./getApplication";
 export { mutation as UPDATE_MY_USER } from "./updateMyUser";
 export type { Response as UpdateMyUserResp } from "./updateMyUser";
 
+export { query as LIST_INSTITUTIONS } from "./listInstitutions";
+export type { Response as ListInstitutionsResp } from "./listInstitutions";
+
 // Data Submissions
 export { query as GET_SUBMISSION } from "./getSubmission";
 export type { Response as GetSubmissionResp } from "./getSubmission";
