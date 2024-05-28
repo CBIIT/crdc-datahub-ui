@@ -84,6 +84,18 @@ describe("General Submit", () => {
     expect(result.isAdminOverride).toBe(false);
   });
 
+  it('should allow submit when metadata validation is "Passed" and is "Metadata Only" dataType', () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      dataType: "Metadata Only",
+      metadataValidationStatus: "Passed",
+      fileValidationStatus: null,
+    };
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
+    expect(result.disable).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
+  });
+
   it("should not disable submit when user role is not Admin and there are no validation errors", () => {
     const submission: Submission = {
       ...baseSubmission,
@@ -275,6 +287,17 @@ describe("General Submit", () => {
     expect(result.isAdminOverride).toBe(false);
   });
 
+  it('should allow submit when metadata validations is in "Passed" state', () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      metadataValidationStatus: "Warning",
+      fileValidationStatus: "Warning",
+    };
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
+    expect(result.disable).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
+  });
+
   it('should allow submit when both validations are in "Warning" state', () => {
     const submission: Submission = {
       ...baseSubmission,
@@ -319,6 +342,18 @@ describe("Admin Submit", () => {
     const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
     expect(result.disable).toBe(false);
     expect(result.isAdminOverride).toBe(true);
+  });
+
+  it("should allow submit without isAdminOverride but null data files with 'Metadata Only' dataType", () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      dataType: "Metadata Only",
+      metadataValidationStatus: "Passed",
+      fileValidationStatus: null,
+    };
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
+    expect(result.disable).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
   });
 
   it("should allow submit with isAdminOverride but null metadata", () => {
@@ -445,6 +480,18 @@ describe("Admin Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
       intention: "Delete",
+    };
+    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
+    expect(result.disable).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
+  });
+
+  it("should allow submit without isAdminOverride when metadata validation is 'Passed', file validation is null, and dataType is 'Metadata Only'", () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      dataType: "Metadata Only",
+      metadataValidationStatus: "Passed",
+      fileValidationStatus: null,
     };
     const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
     expect(result.disable).toBe(false);
