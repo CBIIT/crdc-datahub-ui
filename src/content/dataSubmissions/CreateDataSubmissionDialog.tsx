@@ -201,7 +201,7 @@ const StyledOutlinedInputMultiline = styled(StyledOutlinedInput)({
 
 type CreateSubmissionParams = Pick<
   Submission,
-  "studyAbbreviation" | "dataCommons" | "name" | "dbGaPID" | "intention"
+  "studyAbbreviation" | "dataCommons" | "name" | "dbGaPID" | "intention" | "dataType"
 >;
 
 type Props = {
@@ -216,13 +216,15 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     register,
     reset,
     control,
+    watch,
     formState: { errors },
     setValue,
   } = useForm<CreateSubmissionParams>({
     defaultValues: {
       dataCommons: "CDS",
       studyAbbreviation: "",
-      intention: "New",
+      intention: "New/Update",
+      dataType: "Metadata and Data Files",
       dbGaPID: "",
       name: "",
     },
@@ -239,6 +241,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
       name: string;
       dbGaPID: string;
       intention: SubmissionIntention;
+      dataType: SubmissionDataType;
     }
   >(CREATE_SUBMISSION, {
     context: { clientName: "backend" },
@@ -264,12 +267,34 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     });
     return result;
   }, [approvedStudiesData]);
+  const intention = watch("intention");
 
   const submissionTypeOptions = [
-    { label: "New", value: "New", disabled: false },
-    { label: "Update", value: "Update", disabled: false },
+    { label: "New/Update", value: "New/Update", disabled: false },
     { label: "Delete", value: "Delete", disabled: false },
   ];
+
+  const submissionDataTypeOptions: {
+    label: string;
+    value: SubmissionDataType;
+    disabled: boolean;
+  }[] = [
+    {
+      label: "Metadata and Data Files",
+      value: "Metadata and Data Files",
+      disabled: intention === "Delete",
+    },
+    { label: "Metadata Only", value: "Metadata Only", disabled: false },
+  ];
+
+  useEffect(() => {
+    if (intention === "New/Update") {
+      setValue("dataType", "Metadata and Data Files");
+    }
+    if (intention === "Delete") {
+      setValue("dataType", "Metadata Only");
+    }
+  }, [intention]);
 
   /**
    * Updates the default form values after save or initial fetch
@@ -284,6 +309,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
       "dbGaPID",
       "intention",
       "studyAbbreviation",
+      "dataType",
     ]
   ) => {
     const resetData = {};
@@ -299,7 +325,8 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     setFormValues({
       dataCommons: "CDS",
       studyAbbreviation: "",
-      intention: "New",
+      intention: "New/Update",
+      dataType: "Metadata and Data Files",
       dbGaPID: "",
       name: "",
     });
@@ -315,6 +342,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     name,
     dbGaPID,
     intention,
+    dataType,
   }: CreateSubmissionParams) => {
     await createDataSubmission({
       variables: {
@@ -323,6 +351,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
         name,
         dbGaPID,
         intention,
+        dataType,
       },
     })
       .then(() => {
@@ -335,6 +364,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
             name,
             dbGaPID,
             intention,
+            dataType,
           });
         }
       })
@@ -390,6 +420,56 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
               onSubmit={handleSubmit(onSubmit)}
             >
               <Stack direction="column">
+                <StyledField>
+                  <Controller
+                    name="intention"
+                    control={control}
+                    rules={{ required: "This field is required" }}
+                    render={({ field }) => (
+                      <Grid container>
+                        <StyledRadioInput
+                          {...field}
+                          id="create-data-submission-dialog-submission-type"
+                          label="Submission Type"
+                          value={field.value || ""}
+                          options={submissionTypeOptions}
+                          gridWidth={12}
+                          required
+                          row
+                          aria-describedby="submission-intention-helper-text"
+                        />
+                      </Grid>
+                    )}
+                  />
+                  <StyledHelperText id="submission-intention-helper-text">
+                    {errors?.intention?.message}
+                  </StyledHelperText>
+                </StyledField>
+                <StyledField>
+                  <Controller
+                    name="dataType"
+                    control={control}
+                    rules={{ required: "This field is required" }}
+                    render={({ field }) => (
+                      <Grid container>
+                        <StyledRadioInput
+                          {...field}
+                          id="create-data-submission-dialog-data-type"
+                          label="Data Type"
+                          value={field.value || ""}
+                          options={submissionDataTypeOptions}
+                          gridWidth={12}
+                          required
+                          row
+                          aria-describedby="submission-data-type-helper-text"
+                        />
+                      </Grid>
+                    )}
+                  />
+                  <StyledHelperText id="submission-data-type-helper-text">
+                    {errors?.intention?.message}
+                  </StyledHelperText>
+                </StyledField>
                 <StyledOrganizationField>
                   <StyledLabel id="organization">Organization</StyledLabel>
                   <StyledOutlinedInput value={user.organization?.orgName} readOnly />
@@ -484,31 +564,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                   />
                   <StyledHelperText id="submission-name-helper-text">
                     {errors?.name?.message}
-                  </StyledHelperText>
-                </StyledField>
-                <StyledField>
-                  <Controller
-                    name="intention"
-                    control={control}
-                    rules={{ required: "This field is required" }}
-                    render={({ field }) => (
-                      <Grid container>
-                        <StyledRadioInput
-                          {...field}
-                          id="create-data-submission-dialog-submission-type"
-                          label="Submission Type"
-                          value={field.value || ""}
-                          options={submissionTypeOptions}
-                          gridWidth={12}
-                          required
-                          row
-                          aria-describedby="submission-intention-helper-text"
-                        />
-                      </Grid>
-                    )}
-                  />
-                  <StyledHelperText id="submission-intention-helper-text">
-                    {errors?.intention?.message}
                   </StyledHelperText>
                 </StyledField>
               </Stack>
