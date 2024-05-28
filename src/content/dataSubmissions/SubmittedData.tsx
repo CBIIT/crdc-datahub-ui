@@ -2,6 +2,7 @@ import { FC, useMemo, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
+import { Stack } from "@mui/material";
 import { GET_SUBMISSION_NODES, GetSubmissionNodesResp } from "../../graphql";
 import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import {
@@ -120,11 +121,13 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
 
   const Actions = useMemo<React.ReactNode>(
     () => (
-      <ExportNodeDataButton
-        submission={{ _id: submissionId, name: submissionName }}
-        nodeType={filterRef.current.nodeType}
-        disabled={loading || !data?.length}
-      />
+      <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
+        <ExportNodeDataButton
+          submission={{ _id: submissionId, name: submissionName }}
+          nodeType={filterRef.current.nodeType}
+          disabled={loading || !data?.length}
+        />
+      </Stack>
     ),
     [submissionId, filterRef.current.nodeType, loading, data.length]
   );
