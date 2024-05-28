@@ -349,7 +349,8 @@ describe("SubmittedData > Table", () => {
     );
 
     await waitFor(() => {
-      expect(getByTestId("generic-table-rows-per-page")).toHaveValue("20");
+      expect(getByTestId("generic-table-rows-per-page-top")).toHaveValue("20");
+      expect(getByTestId("generic-table-rows-per-page-bottom")).toHaveValue("20");
     });
   });
 });

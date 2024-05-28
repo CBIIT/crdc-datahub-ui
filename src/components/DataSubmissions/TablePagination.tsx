@@ -101,14 +101,18 @@ const TablePagination = <T,>({
     SelectProps={{
       inputProps: {
         "aria-label": "rows per page",
-        "data-testid": "generic-table-rows-per-page",
+        "data-testid": `generic-table-rows-per-page-${verticalPlacement}`,
       },
       native: true,
     }}
     backIconButtonProps={{ disabled: page === 0 || loading }}
     // eslint-disable-next-line react/no-unstable-nested-components
     ActionsComponent={(props) => (
-      <PaginationActions {...props} AdditionalActions={AdditionalActions} />
+      <PaginationActions
+        AdditionalActions={AdditionalActions}
+        ariaProps={{ "aria-label": `${verticalPlacement} pagination actions` }}
+        {...props}
+      />
     )}
     {...rest}
   />
