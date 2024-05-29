@@ -148,7 +148,12 @@ const StyledSelect = styled(Select)(baseTextFieldStyles);
 const columns: Column[] = [
   {
     label: "Submission Name",
-    value: (a) => <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>,
+    value: (a) =>
+      a.status === "Deleted" ? (
+        a.name
+      ) : (
+        <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>
+      ),
     field: "name",
   },
   {
@@ -220,6 +225,7 @@ const statusValues: string[] = [
   "Completed",
   "Archived",
   "Canceled",
+  "Deleted",
 ];
 const statusOptionArray: SelectOption[] = statusValues.map((v) => ({
   label: v,
