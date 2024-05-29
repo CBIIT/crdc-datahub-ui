@@ -41,6 +41,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   dataType: "Metadata and Data Files",
   createdAt: "",
   updatedAt: "",
+  accessedAt: "",
   crossSubmissionStatus: null,
   otherSubmissions: null,
 };

@@ -48,6 +48,7 @@ describe("ExportValidationButton cases", () => {
     conciergeEmail: "",
     createdAt: "",
     updatedAt: "",
+    accessedAt: "",
     intention: "New/Update",
     dataType: "Metadata and Data Files",
   };
