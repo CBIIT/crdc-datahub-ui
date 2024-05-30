@@ -3,7 +3,11 @@ import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import { Stack } from "@mui/material";
-import { GET_SUBMISSION_NODES, GetSubmissionNodesResp } from "../../graphql";
+import {
+  GET_SUBMISSION_NODES,
+  GetSubmissionNodesInput,
+  GetSubmissionNodesResp,
+} from "../../graphql";
 import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import {
   SubmittedDataFilters,
@@ -35,10 +39,13 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
   const [totalData, setTotalData] = useState<number>(0);
 
-  const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp>(GET_SUBMISSION_NODES, {
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-  });
+  const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp, GetSubmissionNodesInput>(
+    GET_SUBMISSION_NODES,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
@@ -129,7 +136,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
         />
       </Stack>
     ),
-    [submissionId, filterRef.current.nodeType, loading, data.length]
+    [submissionId, submissionName, filterRef.current.nodeType, loading, data.length]
   );
 
   return (
