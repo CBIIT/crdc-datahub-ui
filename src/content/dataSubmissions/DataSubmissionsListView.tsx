@@ -17,6 +17,7 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Box,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useQuery } from "@apollo/client";
@@ -145,12 +146,16 @@ const baseTextFieldStyles = {
 
 const StyledSelect = styled(Select)(baseTextFieldStyles);
 
+const StyledDeletedText = styled(Box)(({ theme }) => ({
+  color: theme.palette.text.disabled,
+}));
+
 const columns: Column[] = [
   {
     label: "Submission Name",
     value: (a) =>
       a.status === "Deleted" ? (
-        a.name
+        <StyledDeletedText>{a.name}</StyledDeletedText>
       ) : (
         <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>
       ),
