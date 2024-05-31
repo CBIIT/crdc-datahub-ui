@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { Link, LinkProps, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
+import { isString } from "lodash";
 import PageBanner from "../../components/PageBanner";
 import {
   useOrganizationListContext,
@@ -23,6 +24,7 @@ import {
 import usePageTitle from "../../hooks/usePageTitle";
 import StudyTooltip from "../../components/Organizations/StudyTooltip";
 import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
+import { compareStrings } from "../../utils";
 
 type T = Partial<Organization>;
 
@@ -242,7 +244,7 @@ const ListingView: FC = () => {
   const tableRef = useRef<TableMethods>(null);
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
-    const { first, offset, sortDirection, orderBy } = fetchListing || {};
+    const { first, offset, sortDirection, orderBy, comparator } = fetchListing || {};
 
     if (!data?.length) {
       setDataset([]);
@@ -271,7 +273,19 @@ const ListingView: FC = () => {
 
         return nameMatch || abbrMatch;
       })
-      .sort((a, b) => columns?.find((column) => column.field === orderBy)?.comparator(a, b) || 0);
+      .sort((a, b) => {
+        if (comparator) {
+          return comparator(a, b);
+        }
+
+        const valA = a[orderBy];
+        const valB = b[orderBy];
+        if (valA && valB && isString(valA) && isString(valB)) {
+          return compareStrings(valA, valB);
+        }
+
+        return 0;
+      });
 
     if (sortDirection === "desc") {
       sorted.reverse();
