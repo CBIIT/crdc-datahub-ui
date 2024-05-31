@@ -94,6 +94,7 @@ export type Column<T> = {
   field?: keyof T;
   default?: true;
   sortDisabled?: boolean;
+  comparator?: (a: T, b: T) => number;
   sx?: TableCellProps["sx"];
 };
 
@@ -111,6 +112,9 @@ type Props<T> = {
   containerProps?: TableContainerProps;
   numRowsNoContent?: number;
   AdditionalActions?: React.ReactNode;
+  CustomTableHead?: React.ElementType<React.ComponentProps<typeof TableHead>>;
+  CustomTableHeaderCell?: React.ElementType<React.ComponentProps<typeof TableCell>>;
+  CustomTableBodyCell?: React.ElementType<React.ComponentProps<typeof TableCell>>;
   setItemKey?: (item: T, index: number) => string;
   onFetchData?: (params: FetchListing<T>, force: boolean) => void;
   onOrderChange?: (order: Order) => void;
@@ -133,6 +137,9 @@ const GenericTable = <T,>(
     containerProps,
     numRowsNoContent = 10,
     AdditionalActions,
+    CustomTableHead,
+    CustomTableHeaderCell,
+    CustomTableBodyCell,
     setItemKey,
     onFetchData,
     onOrderChange,
@@ -147,6 +154,9 @@ const GenericTable = <T,>(
   );
   const [page, setPage] = useState<number>(0);
   const [perPage, setPerPage] = useState<number>(defaultRowsPerPage);
+  const TableHeadComponent = CustomTableHead || StyledTableHead;
+  const TableHeaderCellComponent = CustomTableHeaderCell || StyledHeaderCell;
+  const TableBodyCellComponent = CustomTableBodyCell || StyledTableCell;
 
   const fetchData = (force = false) => {
     if (!onFetchData) {
@@ -227,10 +237,10 @@ const GenericTable = <T,>(
       )}
       <StyledTable horizontalScroll={horizontalScroll && total > 0}>
         {columns?.length > 0 && (
-          <StyledTableHead>
+          <TableHeadComponent>
             <TableRow>
               {columns.map((col: Column<T>) => (
-                <StyledHeaderCell
+                <TableHeaderCellComponent
                   key={col.label.toString()}
                   sx={col.sx}
                   data-testid={`generic-table-header-${col.label.toString()}`}
@@ -246,10 +256,10 @@ const GenericTable = <T,>(
                   ) : (
                     col.label
                   )}
-                </StyledHeaderCell>
+                </TableHeaderCellComponent>
               ))}
             </TableRow>
-          </StyledTableHead>
+          </TableHeadComponent>
         )}
         <TableBody>
           {loading && total === 0
@@ -263,7 +273,7 @@ const GenericTable = <T,>(
                 return (
                   <TableRow tabIndex={-1} hover key={itemKey}>
                     {columns.map((col: Column<T>) => (
-                      <StyledTableCell
+                      <TableBodyCellComponent
                         key={`${itemKey}_${col.label}`}
                         sx={{
                           borderBottom:
@@ -271,7 +281,7 @@ const GenericTable = <T,>(
                         }}
                       >
                         {col.renderValue(d)}
-                      </StyledTableCell>
+                      </TableBodyCellComponent>
                     ))}
                   </TableRow>
                 );
