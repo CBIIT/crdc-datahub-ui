@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { useQuery } from "@apollo/client";
 import {
   Alert,
@@ -8,36 +8,24 @@ import {
   FormControl,
   MenuItem,
   Select,
-  Table,
-  TableBody,
+  Stack,
   TableCell,
-  TableContainer,
   TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
-  Typography,
   styled,
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
+import { isString } from "lodash";
 import { useOrganizationListContext } from "../../components/Contexts/OrganizationListContext";
 import PageBanner from "../../components/PageBanner";
 import { Roles } from "../../config/AuthRoles";
 import { LIST_USERS, ListUsersResp } from "../../graphql";
-import { formatIDP } from "../../utils";
+import { compareStrings, formatIDP } from "../../utils";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import SuspenseLoader from "../../components/SuspenseLoader";
 import usePageTitle from "../../hooks/usePageTitle";
+import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 
 type T = User;
-
-type Column = {
-  label: string;
-  value: (a: T) => React.ReactNode;
-  default?: true;
-  comparator?: (a: T, b: T) => number;
-};
 
 type FilterForm = {
   /**
@@ -51,13 +39,6 @@ type FilterForm = {
 const StyledContainer = styled(Container)({
   marginTop: "-180px",
   paddingBottom: "90px",
-});
-
-const StyledTableContainer = styled(TableContainer)({
-  borderRadius: "8px",
-  border: "1px solid #083A50",
-  marginBottom: "25px",
-  position: "relative",
 });
 
 const StyledFilterContainer = styled(Box)({
@@ -155,63 +136,79 @@ const StyledActionButton = styled(Button)(
   })
 );
 
-const StyledTablePagination = styled(TablePagination)<{
-  component: React.ElementType;
-}>({
-  borderTop: "2px solid #083A50",
-  background: "#F5F7F8",
-});
-
-const columns: Column[] = [
+const columns: Column<T>[] = [
   {
     label: "Name",
-    value: (a) => `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`,
+    renderValue: (a) => `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`,
     comparator: (a, b) => {
       const aName = `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`;
       const bName = `${b.lastName ? `${b.lastName}, ` : ""}${b.firstName || ""}`;
 
-      return aName.localeCompare(bName);
+      return compareStrings(aName, bName);
+    },
+    default: true,
+    sx: {
+      width: "18%",
     },
   },
   {
     label: "Account Type",
-    value: (a) => formatIDP(a.IDP),
+    renderValue: (a) => formatIDP(a.IDP),
     comparator: (a, b) => a.IDP.localeCompare(b.IDP),
+    field: "IDP",
+    sx: {
+      width: "13%",
+    },
   },
   {
     label: "Email",
-    value: (a) => a.email,
+    renderValue: (a) => a.email,
     comparator: (a, b) => a.email.localeCompare(b.email),
+    field: "email",
   },
   {
     label: "Organization",
-    value: (a) => a.organization?.orgName || "",
-    comparator: (a, b) => {
-      const aOrg = a.organization?.orgName || "";
-      const bOrg = b.organization?.orgName || "";
-
-      return aOrg.localeCompare(bOrg);
+    renderValue: (a) => a.organization?.orgName || "",
+    comparator: (a, b) => compareStrings(a?.organization?.orgName, b?.organization?.orgName),
+    sx: {
+      width: "11%",
     },
   },
   {
     label: "Status",
-    value: (a) => a.userStatus,
+    renderValue: (a) => a.userStatus,
     comparator: (a, b) => a.userStatus.localeCompare(b.userStatus),
+    field: "userStatus",
+    sx: {
+      width: "7%",
+    },
   },
   {
     label: "Role",
-    value: (a) => a.role,
+    renderValue: (a) => a.role,
     comparator: (a, b) => a.role.localeCompare(b.role),
+    field: "role",
+    sx: {
+      width: "13%",
+    },
   },
   {
-    label: "Action",
-    value: (a) => (
+    label: (
+      <Stack direction="row" justifyContent="center" alignItems="center">
+        Action
+      </Stack>
+    ),
+    renderValue: (a) => (
       <Link to={`/users/${a?.["_id"]}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
       </Link>
     ),
+    sortDisabled: true,
+    sx: {
+      width: "100px",
+    },
   },
 ];
 
@@ -227,12 +224,6 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { data: orgData } = useOrganizationListContext();
 
-  const [order, setOrder] = useState<"asc" | "desc">("asc");
-  const [orderBy, setOrderBy] = useState<Column>(
-    columns.find((c) => c.default) || columns.find((c) => !!c.comparator)
-  );
-  const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(20);
   const [dataset, setDataset] = useState<T[]>([]);
   const [count, setCount] = useState<number>(0);
 
@@ -240,38 +231,16 @@ const ListingView: FC = () => {
   const orgFilter = watch("organization");
   const roleFilter = watch("role");
   const statusFilter = watch("status");
+  const tableRef = useRef<TableMethods>(null);
 
   const { data, loading, error } = useQuery<ListUsersResp>(LIST_USERS, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  // eslint-disable-next-line arrow-body-style
-  const emptyRows = useMemo(() => {
-    return page > 0 && count ? Math.max(0, page * perPage - count) : 0;
-  }, [count, perPage, page]);
+  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
+    const { first, offset, sortDirection, orderBy, comparator } = fetchListing || {};
 
-  const handleRequestSort = (column: Column) => {
-    setOrder(orderBy === column && order === "asc" ? "desc" : "asc");
-    setOrderBy(column);
-    setPage(0);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  useEffect(() => {
-    if (user.role !== "Organization Owner") {
-      return;
-    }
-
-    const orgID = orgData?.find((org: Organization) => org._id === user.organization?.orgID)?._id;
-    setValue("organization", orgID || "All");
-  }, [user, orgData]);
-
-  useEffect(() => {
     if (!data?.listUsers?.length) {
       setDataset([]);
       setCount(0);
@@ -286,19 +255,54 @@ const ListingView: FC = () => {
       .filter((u: T) =>
         statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true
       )
-      .sort((a, b) => orderBy?.comparator(a, b) || 0);
+      .sort((a, b) => {
+        if (comparator) {
+          return comparator(a, b);
+        }
 
-    if (order === "desc") {
+        const valA = a[orderBy];
+        const valB = b[orderBy];
+        if (valA && valB && isString(valA) && isString(valB)) {
+          return compareStrings(valA, valB);
+        }
+
+        return 0;
+      });
+
+    if (sortDirection === "desc") {
       sorted.reverse();
     }
 
     setCount(sorted.length);
-    setDataset(sorted.slice(page * perPage, page * perPage + perPage));
-  }, [data, perPage, page, orderBy, order, roleFilter, orgFilter, statusFilter]);
+    setDataset(sorted.slice(offset, first + offset));
+  };
 
   useEffect(() => {
-    setPage(0);
-  }, [orgFilter, roleFilter, statusFilter]);
+    if (user.role !== "Organization Owner") {
+      return;
+    }
+
+    const orgID = orgData?.find((org: Organization) => org._id === user.organization?.orgID)?._id;
+    setValue("organization", orgID || "All");
+  }, [user, orgData]);
+
+  useEffect(() => {
+    if (data && !dataset?.length) {
+      refreshTable();
+    }
+  }, [data, dataset]);
+
+  useEffect(() => {
+    setTablePage(0);
+  }, [orgFilter, roleFilter, statusFilter, tableRef]);
+
+  const setTablePage = (page: number) => {
+    tableRef.current?.setPage(page, true);
+  };
+
+  const refreshTable = () => {
+    tableRef.current?.refresh();
+  };
 
   return (
     <>
@@ -380,88 +384,21 @@ const ListingView: FC = () => {
             />
           </StyledFormControl>
         </StyledFilterContainer>
-        <StyledTableContainer>
-          <Table>
-            <StyledTableHead>
-              <TableRow>
-                {columns.map((col: Column) => (
-                  <StyledHeaderCell key={col.label}>
-                    {col.comparator ? (
-                      <TableSortLabel
-                        active={orderBy === col}
-                        direction={orderBy === col ? order : "asc"}
-                        onClick={() => handleRequestSort(col)}
-                      >
-                        {col.label}
-                      </TableSortLabel>
-                    ) : (
-                      col.label
-                    )}
-                  </StyledHeaderCell>
-                ))}
-              </TableRow>
-            </StyledTableHead>
-            <TableBody>
-              {loading && (
-                <TableRow>
-                  <TableCell>
-                    <SuspenseLoader fullscreen={false} />
-                  </TableCell>
-                </TableRow>
-              )}
-              {dataset.map((d: T) => (
-                <TableRow tabIndex={-1} hover key={`${d["_id"]}`}>
-                  {columns.map((col: Column) => (
-                    <StyledTableCell key={`${d["_id"]}_${col.label}`}>
-                      {col.value(d)}
-                    </StyledTableCell>
-                  ))}
-                </TableRow>
-              ))}
-
-              {/* Fill the difference between perPage and count to prevent height changes */}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={columns.length} />
-                </TableRow>
-              )}
-
-              {/* No content message */}
-              {(!dataset.length || dataset.length === 0) && (
-                <TableRow style={{ height: 53 * 10 }}>
-                  <TableCell colSpan={columns.length}>
-                    <Typography variant="h6" align="center" fontSize={18} color="#757575">
-                      No users found.
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          <StyledTablePagination
-            rowsPerPageOptions={[5, 10, 20, 50]}
-            component="div"
-            count={count}
-            rowsPerPage={perPage}
-            page={page}
-            onPageChange={(e, newPage) => setPage(newPage)}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{
-              disabled:
-                perPage === -1 ||
-                !dataset ||
-                dataset.length === 0 ||
-                count <= (page + 1) * perPage ||
-                emptyRows > 0 ||
-                loading,
-            }}
-            SelectProps={{
-              inputProps: { "aria-label": "rows per page" },
-              native: true,
-            }}
-            backIconButtonProps={{ disabled: page === 0 || loading }}
-          />
-        </StyledTableContainer>
+        <GenericTable
+          ref={tableRef}
+          columns={columns}
+          data={dataset || []}
+          total={count || 0}
+          loading={loading}
+          defaultRowsPerPage={20}
+          defaultOrder="asc"
+          setItemKey={(item, idx) => `${idx}_${item._id}`}
+          onFetchData={handleFetchData}
+          containerProps={{ sx: { marginBottom: "8px", borderColor: "#083A50" } }}
+          CustomTableHead={StyledTableHead}
+          CustomTableHeaderCell={StyledHeaderCell}
+          CustomTableBodyCell={StyledTableCell}
+        />
       </StyledContainer>
     </>
   );
