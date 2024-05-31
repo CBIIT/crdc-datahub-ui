@@ -168,6 +168,7 @@ const GenericTable = <T,>(
         offset: page * perPage,
         sortDirection: order,
         orderBy: orderBy?.field,
+        comparator: orderBy?.comparator,
       },
       force
     );
@@ -245,7 +246,7 @@ const GenericTable = <T,>(
                   sx={col.sx}
                   data-testid={`generic-table-header-${col.label.toString()}`}
                 >
-                  {col.field && !col.sortDisabled ? (
+                  {!col.sortDisabled ? (
                     <TableSortLabel
                       active={orderBy === col}
                       direction={orderBy === col ? order : "asc"}

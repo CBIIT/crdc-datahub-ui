@@ -7,6 +7,7 @@ type FetchListing<T> = {
   offset: number;
   sortDirection: Order;
   orderBy: keyof T;
+  comparator: (a: T, b: T) => number;
 };
 
 type TableMethods = {
