@@ -2,6 +2,7 @@ import type { StorybookConfig } from "@storybook/react-webpack5";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)"],
+
   addons: [
     "@storybook/preset-create-react-app",
     "@storybook/addon-onboarding",
@@ -10,14 +11,20 @@ const config: StorybookConfig = {
     "@storybook/addon-jest",
     "@storybook/addon-a11y",
     "storybook-addon-apollo-client",
+    "@chromatic-com/storybook"
   ],
+
   framework: {
     name: "@storybook/react-webpack5",
     options: {},
   },
-  docs: {
-    autodocs: "tag",
-  },
+
+  docs: {},
+
   staticDirs: ["../public"],
+
+  typescript: {
+    reactDocgen: "react-docgen-typescript"
+  }
 };
 export default config;
