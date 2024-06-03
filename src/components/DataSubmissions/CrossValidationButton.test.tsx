@@ -31,7 +31,8 @@ const baseSubmission: Omit<
   conciergeEmail: "",
   createdAt: "",
   updatedAt: "",
-  intention: "New",
+  intention: "New/Update",
+  dataType: "Metadata and Data Files",
 };
 
 const baseContext: ContextState = {
@@ -189,7 +190,7 @@ describe("Basic Functionality", () => {
 
     expect(called).toBe(false);
 
-    await waitFor(() => userEvent.click(getByTestId("cross-validate-button")));
+    userEvent.click(getByTestId("cross-validate-button"));
 
     await waitFor(() => {
       expect(called).toBe(true);
@@ -233,7 +234,7 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    await waitFor(() => userEvent.click(getByTestId("cross-validate-button")));
+    userEvent.click(getByTestId("cross-validate-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to initiate validation process.", {
@@ -275,7 +276,7 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    await waitFor(() => userEvent.click(getByTestId("cross-validate-button")));
+    userEvent.click(getByTestId("cross-validate-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to initiate validation process.", {
@@ -327,7 +328,7 @@ describe("Basic Functionality", () => {
         </TestParent>
       );
 
-      await waitFor(() => userEvent.click(getByTestId("cross-validate-button")));
+      userEvent.click(getByTestId("cross-validate-button"));
 
       await waitFor(() => {
         expect(onValidate).toHaveBeenCalledTimes(1);

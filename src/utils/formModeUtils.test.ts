@@ -314,10 +314,6 @@ describe("getFormMode tests based on provided requirements", () => {
         expect(utils.getFormMode(null, null)).toBe(utils.FormModes.UNAUTHORIZED);
       });
 
-      it("should set Unauthorized when a null data Submission and User is provided", () => {
-        expect(utils.getFormMode(null, null)).toBe(utils.FormModes.UNAUTHORIZED);
-      });
-
       it("should set Unauthorized form if user role is undefined", () => {
         const user: User = { ...baseUser, role: undefined };
 

@@ -184,6 +184,7 @@ const OverlayWindow = () => {
         open={open}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        data-testid="system-use-warning-dialog"
         maxWidth="md"
       >
         <DialogTitle id="alert-dialog-title">Warning</DialogTitle>

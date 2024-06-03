@@ -7,8 +7,6 @@ import {
   TableContainer,
   TableContainerProps,
   TableHead,
-  TablePagination,
-  TablePaginationProps,
   TableRow,
   TableSortLabel,
   Typography,
@@ -16,15 +14,14 @@ import {
 } from "@mui/material";
 import {
   CSSProperties,
-  ElementType,
   forwardRef,
   useEffect,
   useImperativeHandle,
   useMemo,
   useState,
 } from "react";
-import PaginationActions from "./PaginationActions";
 import SuspenseLoader from "../SuspenseLoader";
+import TablePagination from "./TablePagination";
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
@@ -53,6 +50,7 @@ const StyledTable = styled(Table, {
 
 const StyledTableHead = styled(TableHead)({
   background: "#4D7C8F",
+  borderBottom: "2px solid #083A50",
 });
 
 const StyledTableRow = styled(TableRow)({
@@ -81,7 +79,6 @@ const StyledHeaderCell = styled(TableCell)({
 const StyledTableCell = styled(TableCell)({
   fontSize: "16px",
   color: "#083A50 !important",
-  borderBottom: "0.5px solid #6B7294",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
   fontWeight: 400,
@@ -90,57 +87,6 @@ const StyledTableCell = styled(TableCell)({
     padding: "13px 16px",
   },
 });
-
-const StyledTablePagination = styled(TablePagination, {
-  shouldForwardProp: (prop) => prop !== "placement",
-})<
-  TablePaginationProps & {
-    component: ElementType;
-    placement: CSSProperties["justifyContent"];
-  }
->(({ placement }) => ({
-  "& .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel, & .MuiTablePagination-select":
-    {
-      height: "27px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "#1D355F",
-      textAlign: "center",
-      fontVariantNumeric: "lining-nums tabular-nums",
-      fontFamily: "Lato, sans-serif",
-      fontSize: "14px",
-      fontStyle: "normal",
-      fontWeight: 400,
-      lineHeight: "14.913px",
-      letterSpacing: "0.14px",
-    },
-  "& .MuiToolbar-root .MuiInputBase-root": {
-    height: "27px",
-    marginLeft: 0,
-    marginRight: "16px",
-  },
-  "& .MuiToolbar-root p": {
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  "& .MuiToolbar-root": {
-    minHeight: "45px",
-    height: "fit-content",
-    paddingTop: "7px",
-    paddingBottom: "6px",
-    borderTop: "2px solid #083A50",
-    background: "#F5F7F8",
-    ...(placement && {
-      justifyContent: placement,
-      "& .MuiTablePagination-spacer": {
-        display: "none",
-      },
-    }),
-  },
-}));
-
-export type Order = "asc" | "desc";
 
 export type Column<T> = {
   label: string | React.ReactNode;
@@ -151,24 +97,13 @@ export type Column<T> = {
   sx?: TableCellProps["sx"];
 };
 
-export type FetchListing<T> = {
-  first: number;
-  offset: number;
-  sortDirection: Order;
-  orderBy: keyof T;
-};
-
-export type TableMethods = {
-  refresh: () => void;
-  setPage: (page: number, forceRefetch?: boolean) => void;
-};
-
 type Props<T> = {
   columns: Column<T>[];
   data: T[];
   total: number;
   loading?: boolean;
   horizontalScroll?: boolean;
+  position?: PaginationPosition;
   noContentText?: string;
   defaultOrder?: Order;
   defaultRowsPerPage?: number;
@@ -190,6 +125,7 @@ const GenericTable = <T,>(
     total = 0,
     loading,
     horizontalScroll = false,
+    position = "bottom",
     noContentText,
     defaultOrder = "desc",
     defaultRowsPerPage = 10,
@@ -274,30 +210,47 @@ const GenericTable = <T,>(
   return (
     <StyledTableContainer {...containerProps}>
       {loading && <SuspenseLoader fullscreen={false} />}
+      {(position === "top" || position === "both") && (
+        <TablePagination
+          data={data}
+          total={total}
+          perPage={perPage}
+          page={page}
+          emptyRows={emptyRows}
+          loading={loading}
+          verticalPlacement="top"
+          placement={paginationPlacement}
+          AdditionalActions={AdditionalActions}
+          onPageChange={(_, newPage) => setPage(newPage - 1)}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      )}
       <StyledTable horizontalScroll={horizontalScroll && total > 0}>
-        <StyledTableHead>
-          <TableRow>
-            {columns.map((col: Column<T>) => (
-              <StyledHeaderCell
-                key={col.label.toString()}
-                sx={col.sx}
-                data-testid={`generic-table-header-${col.label.toString()}`}
-              >
-                {col.field && !col.sortDisabled ? (
-                  <TableSortLabel
-                    active={orderBy === col}
-                    direction={orderBy === col ? order : "asc"}
-                    onClick={() => handleRequestSort(col)}
-                  >
-                    {col.label}
-                  </TableSortLabel>
-                ) : (
-                  col.label
-                )}
-              </StyledHeaderCell>
-            ))}
-          </TableRow>
-        </StyledTableHead>
+        {columns?.length > 0 && (
+          <StyledTableHead>
+            <TableRow>
+              {columns.map((col: Column<T>) => (
+                <StyledHeaderCell
+                  key={col.label.toString()}
+                  sx={col.sx}
+                  data-testid={`generic-table-header-${col.label.toString()}`}
+                >
+                  {col.field && !col.sortDisabled ? (
+                    <TableSortLabel
+                      active={orderBy === col}
+                      direction={orderBy === col ? order : "asc"}
+                      onClick={() => handleRequestSort(col)}
+                    >
+                      {col.label}
+                    </TableSortLabel>
+                  ) : (
+                    col.label
+                  )}
+                </StyledHeaderCell>
+              ))}
+            </TableRow>
+          </StyledTableHead>
+        )}
         <TableBody>
           {loading && total === 0
             ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
@@ -310,7 +263,13 @@ const GenericTable = <T,>(
                 return (
                   <TableRow tabIndex={-1} hover key={itemKey}>
                     {columns.map((col: Column<T>) => (
-                      <StyledTableCell key={`${itemKey}_${col.label}`}>
+                      <StyledTableCell
+                        key={`${itemKey}_${col.label}`}
+                        sx={{
+                          borderBottom:
+                            idx !== (data?.length ?? 0) - 1 ? "1px solid #6B7294" : "none",
+                        }}
+                      >
                         {col.renderValue(d)}
                       </StyledTableCell>
                     ))}
@@ -344,37 +303,21 @@ const GenericTable = <T,>(
           )}
         </TableBody>
       </StyledTable>
-      <StyledTablePagination
-        rowsPerPageOptions={[5, 10, 20, 50]}
-        component="div"
-        count={total || 0}
-        rowsPerPage={perPage}
-        page={page}
-        onPageChange={(e, newPage) => setPage(newPage - 1)}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        placement={paginationPlacement}
-        nextIconButtonProps={{
-          disabled:
-            perPage === -1 ||
-            !data ||
-            total === 0 ||
-            total <= (page + 1) * perPage ||
-            emptyRows > 0 ||
-            loading,
-        }}
-        SelectProps={{
-          inputProps: {
-            "aria-label": "rows per page",
-            "data-testid": "generic-table-rows-per-page",
-          },
-          native: true,
-        }}
-        backIconButtonProps={{ disabled: page === 0 || loading }}
-        // eslint-disable-next-line react/no-unstable-nested-components
-        ActionsComponent={(props) => (
-          <PaginationActions {...props} AdditionalActions={AdditionalActions} />
-        )}
-      />
+      {(position === "bottom" || position === "both") && (
+        <TablePagination
+          data={data}
+          total={total}
+          perPage={perPage}
+          page={page}
+          emptyRows={emptyRows}
+          loading={loading}
+          verticalPlacement="bottom"
+          placement={paginationPlacement}
+          AdditionalActions={AdditionalActions}
+          onPageChange={(_, newPage) => setPage(newPage - 1)}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      )}
     </StyledTableContainer>
   );
 };

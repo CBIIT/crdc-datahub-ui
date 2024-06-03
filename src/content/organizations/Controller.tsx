@@ -11,7 +11,7 @@ import OrganizationView from "./OrganizationView";
  * @param {void} props - React props
  * @returns {FC} - React component
  */
-export default () => {
+const OrganizationController = () => {
   const { orgId } = useParams<{ orgId?: string }>();
   const { user } = useAuthContext();
   const isAdministrative = user?.role === "Admin";
@@ -30,3 +30,5 @@ export default () => {
     </OrganizationProvider>
   );
 };
+
+export default OrganizationController;

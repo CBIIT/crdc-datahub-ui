@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { act, getByLabelText, render, waitFor } from "@testing-library/react";
+import { getByLabelText, render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
@@ -30,7 +30,8 @@ const baseSubmission: Omit<
   conciergeEmail: "",
   createdAt: "",
   updatedAt: "",
-  intention: "New",
+  intention: "New/Update",
+  dataType: "Metadata and Data Files",
   status: "New",
 };
 
@@ -256,7 +257,7 @@ describe("Basic Functionality", () => {
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
-    await act(async () => userEvent.click(getByTestId("metadata-upload-file-upload-button")));
+    userEvent.click(getByTestId("metadata-upload-file-upload-button"));
 
     await waitFor(() => {
       expect(onCreateBatchMock).toHaveBeenCalledTimes(1);
@@ -319,7 +320,7 @@ describe("Basic Functionality", () => {
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
-    await act(async () => userEvent.click(getByTestId("metadata-upload-file-upload-button")));
+    userEvent.click(getByTestId("metadata-upload-file-upload-button"));
 
     await waitFor(() => {
       expect(onUploadMock).toHaveBeenCalledWith(expect.any(String), "success");
@@ -377,7 +378,7 @@ describe("Basic Functionality", () => {
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
-    await act(async () => userEvent.click(getByTestId("metadata-upload-file-upload-button")));
+    userEvent.click(getByTestId("metadata-upload-file-upload-button"));
 
     await waitFor(() => {
       expect(onUploadMock).toHaveBeenCalledWith(expect.any(String), "error");
@@ -436,7 +437,7 @@ describe("Basic Functionality", () => {
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
-    await act(async () => userEvent.click(getByTestId("metadata-upload-file-upload-button")));
+    userEvent.click(getByTestId("metadata-upload-file-upload-button"));
 
     await waitFor(() => {
       expect(onUploadMock).toHaveBeenCalledWith(expect.any(String), "error");
@@ -503,7 +504,7 @@ describe("Basic Functionality", () => {
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
-    await act(async () => userEvent.click(getByTestId("metadata-upload-file-upload-button")));
+    userEvent.click(getByTestId("metadata-upload-file-upload-button"));
 
     await waitFor(() => {
       expect(onUploadMock).toHaveBeenCalledWith(expect.any(String), "error");
@@ -580,7 +581,7 @@ describe("Implementation Requirements", () => {
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
     // NOTE: We're not awaiting this because we want to test the button state before the upload is complete
-    act(() => userEvent.click(getByTestId("metadata-upload-file-upload-button")));
+    userEvent.click(getByTestId("metadata-upload-file-upload-button"));
 
     await waitFor(() =>
       expect(getByTestId("metadata-upload-file-upload-button")).toHaveTextContent(/Uploading.../i)
@@ -932,6 +933,7 @@ describe("Implementation Requirements", () => {
       const updateRadio = getByLabelText(radio, "Add/Change");
       const deleteRadio = getByLabelText(radio, "Remove");
 
+      /* eslint-disable jest/no-conditional-expect */
       if (expected === false) {
         expect(newRadio).toBeDisabled();
         expect(updateRadio).toBeDisabled();
@@ -941,6 +943,7 @@ describe("Implementation Requirements", () => {
         expect(updateRadio).toBeEnabled();
         expect(deleteRadio).toBeEnabled();
       }
+      /* eslint-enable jest/no-conditional-expect */
     }
   );
 

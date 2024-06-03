@@ -9,7 +9,7 @@ import ListView from "./DataSubmissionsListView";
  * @param {void}
  * @returns {FC} - React component
  */
-export default () => {
+const DataSubmissionController = () => {
   const { submissionId, tab } = useParams();
 
   if (submissionId) {
@@ -18,3 +18,5 @@ export default () => {
 
   return <ListView />;
 };
+
+export default DataSubmissionController;

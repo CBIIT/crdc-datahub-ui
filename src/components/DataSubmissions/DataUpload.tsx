@@ -98,8 +98,12 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
     }
   };
 
-  const Actions: ReactElement = useMemo(
-    () => (
+  const Actions: ReactElement = useMemo(() => {
+    if (submission?.dataType === "Metadata Only") {
+      return null;
+    }
+
+    return (
       <StyledDownloadButton
         onClick={() => setConfigDialogOpen(true)}
         variant="contained"
@@ -108,35 +112,40 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
       >
         Download Configuration File
       </StyledDownloadButton>
-    ),
-    []
-  );
+    );
+  }, [submission?.dataType]);
 
   return (
     <FlowWrapper index={2} title="Upload Data Files" actions={Actions}>
-      <>
-        <StyledBox data-testid="uploader-cli-footer">
-          The CLI Tool is used to upload data files to DataHub and requires a configuration file to
-          work. The CLI Tools is a one-time download however the configuration file needs to be
-          customized for each submission. You can either edit the example configuration files found
-          in the{" "}
-          <StyledToolButton
-            onClick={() => setCLIDialogOpen(true)}
-            data-testid="uploader-cli-download-button"
-          >
-            <span>CLI Tool download</span>
-            <StyledOpenInNewIcon />
-          </StyledToolButton>
-          , or you can click the button on the right to download a configuration file customized for
-          this submission.
+      {submission?.dataType === "Metadata and Data Files" ? (
+        <>
+          <StyledBox data-testid="uploader-cli-footer">
+            The CLI Tool is used to upload data files to DataHub and requires a configuration file
+            to work. The CLI Tools is a one-time download however the configuration file needs to be
+            customized for each submission. You can either edit the example configuration files
+            found in the{" "}
+            <StyledToolButton
+              onClick={() => setCLIDialogOpen(true)}
+              data-testid="uploader-cli-download-button"
+            >
+              <span>CLI Tool download</span>
+              <StyledOpenInNewIcon />
+            </StyledToolButton>
+            , or you can click the button on the right to download a configuration file customized
+            for this submission.
+          </StyledBox>
+          <UploaderToolDialog open={cliDialogOpen} onClose={() => setCLIDialogOpen(false)} />
+          <UploaderConfigDialog
+            open={configDialogOpen}
+            onClose={() => setConfigDialogOpen(false)}
+            onDownload={handleConfigDownload}
+          />
+        </>
+      ) : (
+        <StyledBox data-testid="uploader-cli-footer-alt">
+          This submission is for metadata only; there is no need to upload data files.
         </StyledBox>
-        <UploaderToolDialog open={cliDialogOpen} onClose={() => setCLIDialogOpen(false)} />
-        <UploaderConfigDialog
-          open={configDialogOpen}
-          onClose={() => setConfigDialogOpen(false)}
-          onDownload={handleConfigDownload}
-        />
-      </>
+      )}
     </FlowWrapper>
   );
 };

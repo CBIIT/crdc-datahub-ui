@@ -3,11 +3,7 @@ import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import { GET_SUBMISSION_NODES, GetSubmissionNodesResp } from "../../graphql";
-import GenericTable, {
-  Column,
-  FetchListing,
-  TableMethods,
-} from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import {
   SubmittedDataFilters,
   FilterForm,

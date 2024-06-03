@@ -1,7 +1,6 @@
 import { ThemeProvider, rgbToHex } from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
 import { render, fireEvent, waitFor } from "@testing-library/react";
-import { act } from "react-dom/test-utils";
 import { axe } from "jest-axe";
 import ReviewCommentsDialog from "./ReviewCommentsDialog";
 import theme from "../../theme";
@@ -106,9 +105,7 @@ describe("ReviewCommentsDialog Tests", () => {
 
     const { getByTestId } = render(<BaseComponent {...data} />);
 
-    act(() => {
-      fireEvent.click(getByTestId("review-comments-dialog-close"));
-    });
+    fireEvent.click(getByTestId("review-comments-dialog-close"));
 
     await waitFor(() => expect(mockClose).toHaveBeenCalled());
   });

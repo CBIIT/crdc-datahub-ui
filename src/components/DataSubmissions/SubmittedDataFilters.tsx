@@ -1,10 +1,11 @@
 import { FC, useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { cloneDeep } from "lodash";
-import { Box, FormControl, MenuItem, Select, styled } from "@mui/material";
+import { Box, FormControl, MenuItem, styled } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { compareNodeStats } from "../../utils";
 import { SUBMISSION_STATS, SubmissionStatsResp } from "../../graphql";
+import StyledSelect from "../StyledFormComponents/StyledSelect";
 
 export type SubmittedDataFiltersProps = {
   /**
@@ -38,40 +39,6 @@ const StyledInlineLabel = styled("label")({
   padding: "0 10px",
   fontWeight: "700",
 });
-
-const baseTextFieldStyles = {
-  borderRadius: "8px",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "16px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .Mui-disabled": {
-    cursor: "not-allowed",
-  },
-  "& .MuiList-root": {
-    padding: "0 !important",
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
-};
-
-const StyledSelect = styled(Select)(baseTextFieldStyles);
 
 export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
   submissionId,
@@ -121,6 +88,7 @@ export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
               defaultValue={nodeTypes?.[0] || ""}
               value={field.value || ""}
               MenuProps={{ disablePortal: true }}
+              placeholderText=""
               inputProps={{ id: "nodeType-filter" }}
               data-testid="data-content-node-filter"
             >

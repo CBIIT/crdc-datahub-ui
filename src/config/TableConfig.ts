@@ -1,5 +1,3 @@
-import { Order } from "../components/DataSubmissions/GenericTable";
-
 export const SORT: { [key in Order as Uppercase<Order>]: Order } = {
   ASC: "asc",
   DESC: "desc",

@@ -162,9 +162,7 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
         </StyledBodyText>
         <StyledForm onSubmit={handleDownload}>
           <Box>
-            <StyledLabel id="data-folder-input-label">
-              Local path of the Data Files location
-            </StyledLabel>
+            <StyledLabel id="data-folder-input-label">Local Path of Data Files Folder</StyledLabel>
             <StyledOutlinedInput
               {...register("dataFolder", { required: true })}
               placeholder="Enter pathway"
@@ -173,9 +171,7 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
             />
           </Box>
           <Box>
-            <StyledLabel id="manifest-input-label">
-              Local path of the file manifest file
-            </StyledLabel>
+            <StyledLabel id="manifest-input-label">Local Path of Manifest File</StyledLabel>
             <StyledOutlinedInput
               {...register("manifest", { required: true })}
               placeholder="Enter location"

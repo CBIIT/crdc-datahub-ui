@@ -19,6 +19,7 @@ type Submission = {
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
   intention: SubmissionIntention;
+  dataType: SubmissionDataType;
   /**
    * A JSON string containing information for related submissions. Mapped by SubmissionStatus, related by studyAbbreviation.
    *
@@ -74,7 +75,9 @@ type SubmissionAction =
   | "Cancel"
   | "Archive";
 
-type SubmissionIntention = "New" | "Update" | "Delete";
+type SubmissionIntention = "New/Update" | "Delete";
+
+type SubmissionDataType = "Metadata Only" | "Metadata and Data Files";
 
 type FileInput = {
   fileName: string;

@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { render, fireEvent, act, waitFor } from "@testing-library/react";
+import { render, fireEvent, waitFor } from "@testing-library/react";
 import UserEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
@@ -48,7 +48,8 @@ describe("ExportValidationButton cases", () => {
     conciergeEmail: "",
     createdAt: "",
     updatedAt: "",
-    intention: "New",
+    intention: "New/Update",
+    dataType: "Metadata and Data Files",
   };
 
   const baseQCResult: Omit<QCResult, "submissionID"> = {
@@ -121,7 +122,7 @@ describe("ExportValidationButton cases", () => {
     expect(called).toBe(false);
 
     // NOTE: This must be separate from the expect below to ensure its not called multiple times
-    await waitFor(() => UserEvent.click(getByTestId("export-validation-button")));
+    UserEvent.click(getByTestId("export-validation-button"));
     await waitFor(() => {
       expect(called).toBe(true);
     });
@@ -192,9 +193,7 @@ describe("ExportValidationButton cases", () => {
         </TestParent>
       );
 
-      act(() => {
-        fireEvent.click(getByTestId("export-validation-button"));
-      });
+      fireEvent.click(getByTestId("export-validation-button"));
 
       await waitFor(() => {
         const filename = `${expected}-2021-01-19T145401.csv`;
@@ -242,9 +241,7 @@ describe("ExportValidationButton cases", () => {
       </TestParent>
     );
 
-    act(() => {
-      fireEvent.click(getByTestId("export-validation-button"));
-    });
+    fireEvent.click(getByTestId("export-validation-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -329,9 +326,7 @@ describe("ExportValidationButton cases", () => {
       </TestParent>
     );
 
-    act(() => {
-      fireEvent.click(getByTestId("export-validation-button"));
-    });
+    fireEvent.click(getByTestId("export-validation-button"));
 
     await waitFor(() => {
       // NOTE: The results are unpacked, 3 QCResults with 2 errors and 2 warnings each = 12 calls
@@ -365,9 +360,7 @@ describe("ExportValidationButton cases", () => {
       </TestParent>
     );
 
-    act(() => {
-      fireEvent.click(getByTestId("export-validation-button"));
-    });
+    fireEvent.click(getByTestId("export-validation-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -406,9 +399,7 @@ describe("ExportValidationButton cases", () => {
       </TestParent>
     );
 
-    act(() => {
-      fireEvent.click(getByTestId("export-validation-button"));
-    });
+    fireEvent.click(getByTestId("export-validation-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -456,9 +447,7 @@ describe("ExportValidationButton cases", () => {
       </TestParent>
     );
 
-    act(() => {
-      fireEvent.click(getByTestId("export-validation-button"));
-    });
+    fireEvent.click(getByTestId("export-validation-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to export validation results.", {

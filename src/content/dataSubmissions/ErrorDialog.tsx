@@ -1,4 +1,5 @@
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
+import React from "react";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { FormatDate } from "../../utils";
 
@@ -106,6 +107,7 @@ type Props = {
   closeText?: string;
   errors: string[];
   errorCount?: string;
+  nodeInfo?: string;
   uploadedDate?: string;
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
@@ -116,6 +118,7 @@ const ErrorDialog = ({
   closeText = "Close",
   errors,
   errorCount,
+  nodeInfo,
   uploadedDate,
   onClose,
   open,
@@ -139,6 +142,7 @@ const ErrorDialog = ({
           Uploaded on {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
         </StyledUploadedDate>
       )}
+      {nodeInfo && <StyledUploadedDate>{nodeInfo}</StyledUploadedDate>}
       <StyledErrorDetails direction="column" spacing={2.5}>
         <StyledSubtitle variant="body2">
           {errorCount || `${errors?.length || 0} ${errors?.length === 1 ? "ERROR" : "ERRORS"}`}
@@ -162,4 +166,4 @@ const ErrorDialog = ({
   );
 };
 
-export default ErrorDialog;
+export default React.memo(ErrorDialog);

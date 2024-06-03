@@ -25,7 +25,6 @@ export type Props = {
 
 const StyledIconButton = styled(IconButton)({
   color: "#606060",
-  marginRight: "38px",
 });
 
 /**

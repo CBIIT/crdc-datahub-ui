@@ -10,7 +10,7 @@ import { FormProvider } from "../../components/Contexts/FormContext";
  * @param {void}
  * @returns {FC} - React component
  */
-export default () => {
+const QuestionnaireController = () => {
   const { appId, section } = useParams();
 
   if (appId) {
@@ -23,3 +23,5 @@ export default () => {
 
   return <ListView />;
 };
+
+export default QuestionnaireController;

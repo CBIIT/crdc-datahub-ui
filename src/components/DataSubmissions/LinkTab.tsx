@@ -1,5 +1,5 @@
 import { Tab, TabProps, styled } from "@mui/material";
-import { ElementType } from "react";
+import React, { ElementType } from "react";
 import { Link, LinkProps } from "react-router-dom";
 
 const StyledTab = styled(Tab, {
@@ -60,4 +60,4 @@ const LinkTab = ({ label, value, to, selected }: Props) => (
   />
 );
 
-export default LinkTab;
+export default React.memo(LinkTab);

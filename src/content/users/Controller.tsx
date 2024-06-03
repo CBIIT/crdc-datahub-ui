@@ -40,7 +40,7 @@ const MemorizedProvider = memo(OrganizationProvider);
  * @param {Props} props - React props
  * @returns {FC} - React component
  */
-export default ({ type }: Props) => {
+const UserController = ({ type }: Props) => {
   const { userId } = useParams();
   const { user } = useAuthContext();
   const { _id, role } = user || {};
@@ -67,3 +67,5 @@ export default ({ type }: Props) => {
     </MemorizedProvider>
   );
 };
+
+export default UserController;

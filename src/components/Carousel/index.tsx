@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { styled } from "@mui/material";
 import Carousel, { CarouselProps } from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -7,6 +7,10 @@ import CustomRightArrow from "./CustomRightArrow";
 
 type Props = {
   children: React.ReactNode;
+  /**
+   * If true, will disable any user interaction with the carousel.
+   */
+  locked?: boolean;
 } & Partial<CarouselProps>;
 
 const sizing = {
@@ -16,7 +20,9 @@ const sizing = {
   },
 };
 
-const StyledWrapper = styled("div")({
+const StyledWrapper = styled("div", {
+  shouldForwardProp: (p) => p !== "showLeftFade" && p !== "showRightFade",
+})<{ showLeftFade: boolean; showRightFade: boolean }>(({ showLeftFade, showRightFade }) => ({
   maxWidth: "700px",
   minWidth: "464px", // NOTE: Without a min-width, the carousel collapses to 0px wide
   width: "100%",
@@ -37,7 +43,7 @@ const StyledWrapper = styled("div")({
     left: "calc(100% - 162px)",
     top: "0",
     bottom: "0",
-    width: "162px",
+    width: showRightFade ? "162px" : "0px",
     background: "linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%)",
     zIndex: 9,
   },
@@ -47,11 +53,11 @@ const StyledWrapper = styled("div")({
     right: "calc(100% - 162px)",
     top: "0",
     bottom: "0",
-    width: "162px",
+    width: showLeftFade ? "162px" : "0px",
     background: "linear-gradient(to left, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%)",
     zIndex: 9,
   },
-});
+}));
 
 const removeAriaHidden = () => {
   const elements = document.querySelectorAll(".react-multi-carousel-item");
@@ -65,22 +71,29 @@ const removeAriaHidden = () => {
  * @param Props
  * @returns {JSX.Element}
  */
-const ContentCarousel: FC<Props> = ({ children, ...props }: Props) => (
-  <StyledWrapper>
-    <Carousel
-      responsive={sizing}
-      swipeable
-      draggable
-      arrows
-      afterChange={removeAriaHidden}
-      itemClass="custom-carousel-item"
-      customLeftArrow={<CustomLeftArrow />}
-      customRightArrow={<CustomRightArrow />}
-      {...props}
-    >
-      {children}
-    </Carousel>
-  </StyledWrapper>
-);
+const ContentCarousel: FC<Props> = ({ children, locked, ...props }: Props) => {
+  const [activeSlide, setActiveSlide] = useState<number>(0);
+
+  const handleBeforeChange = (nextSlide: number) => setActiveSlide(nextSlide);
+
+  return (
+    <StyledWrapper showLeftFade={activeSlide !== 0 && !locked} showRightFade={!locked}>
+      <Carousel
+        responsive={sizing}
+        swipeable={!locked}
+        draggable={!locked}
+        arrows={!locked}
+        beforeChange={handleBeforeChange}
+        afterChange={removeAriaHidden}
+        itemClass="custom-carousel-item"
+        customLeftArrow={<CustomLeftArrow />}
+        customRightArrow={<CustomRightArrow />}
+        {...props}
+      >
+        {children}
+      </Carousel>
+    </StyledWrapper>
+  );
+};
 
 export default ContentCarousel;

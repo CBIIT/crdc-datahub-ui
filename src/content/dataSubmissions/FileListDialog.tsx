@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Dialog,
@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import GenericTable, { Column, FetchListing } from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import { FormatDate, paginateAndSort } from "../../utils";
 
 const StyledDialog = styled(Dialog)({
@@ -242,4 +242,6 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
   );
 };
 
-export default FileListDialog;
+export default React.memo<Props>(FileListDialog, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+);

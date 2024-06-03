@@ -1,5 +1,4 @@
 import { render, fireEvent, waitFor } from "@testing-library/react";
-import { act } from "react-dom/test-utils";
 import { BrowserRouter } from "react-router-dom";
 import { FC, useMemo } from "react";
 import { axe } from "jest-axe";
@@ -68,9 +67,7 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
 
     const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
-    act(() => {
-      fireEvent.click(getByText("Review Comments"));
-    });
+    fireEvent.click(getByText("Review Comments"));
 
     await waitFor(() => {
       expect(getByText(/This is the most recent review comment/)).toBeVisible();
@@ -95,9 +92,7 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
 
     const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
-    act(() => {
-      fireEvent.click(getByText("Review Comments"));
-    });
+    fireEvent.click(getByText("Review Comments"));
 
     await waitFor(() => {
       expect(getByText(/This is a rejected comment/)).toBeVisible();
@@ -118,14 +113,12 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
 
     const { getByText, queryByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
-    act(() => {
-      fireEvent.click(getByText("Review Comments"));
-    });
+    fireEvent.click(getByText("Review Comments"));
+
     await waitFor(() => expect(getByText("Comment for closing test")).toBeVisible());
 
-    act(() => {
-      fireEvent.click(getByText("Close"));
-    });
+    fireEvent.click(getByText("Close"));
+
     await waitFor(() => expect(queryByText("Comment for closing test")).not.toBeInTheDocument());
   });
 
@@ -144,15 +137,13 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
       <BaseComponent dataSubmission={dataSubmission} />
     );
 
-    act(() => {
-      fireEvent.click(getByText("Review Comments"));
-    });
+    fireEvent.click(getByText("Review Comments"));
+
     await waitFor(() => expect(getByText("Another comment for close icon test")).toBeVisible());
 
     const closeButton = getByTestId("review-comments-dialog-close-icon-button");
-    act(() => {
-      fireEvent.click(closeButton);
-    });
+    fireEvent.click(closeButton);
+
     await waitFor(() =>
       expect(queryByText("Another comment for close icon test")).not.toBeInTheDocument()
     );
@@ -179,9 +170,7 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 
     const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+    fireEvent.click(getByText("Full History"));
 
     await waitFor(() => {
       expect(getByText("SUBMITTED")).toBeVisible();
@@ -206,9 +195,7 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 
     const { getAllByTestId, getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+    fireEvent.click(getByText("Full History"));
 
     const elements = getAllByTestId("history-item");
     expect(elements[0]).toHaveTextContent(/ARCHIVED/i);
@@ -228,14 +215,12 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 
     const { getByText, queryByTestId } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+    fireEvent.click(getByText("Full History"));
+
     await waitFor(() => expect(queryByTestId("history-dialog")).toBeVisible());
 
-    act(() => {
-      fireEvent.click(queryByTestId("history-dialog-close"));
-    });
+    fireEvent.click(queryByTestId("history-dialog-close"));
+
     await waitFor(() => expect(queryByTestId("history-dialog")).not.toBeInTheDocument());
   });
 
@@ -250,9 +235,7 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 
     const { getByText, getAllByTestId } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+    fireEvent.click(getByText("Full History"));
 
     await waitFor(() => {
       const items = getAllByTestId("history-item-date");
@@ -275,9 +258,7 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
-    act(() => {
-      fireEvent.click(getByText("Full History"));
-    });
+    fireEvent.click(getByText("Full History"));
 
     expect(getByTestId("history-item-0-icon")).toBeVisible();
     expect(() => getByTestId("history-item-1-icon")).toThrow();
@@ -292,9 +273,7 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 
       const { getByTestId, getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
-      act(() => {
-        fireEvent.click(getByText("Full History"));
-      });
+      fireEvent.click(getByText("Full History"));
 
       const icon = getByTestId("history-item-0-icon");
 

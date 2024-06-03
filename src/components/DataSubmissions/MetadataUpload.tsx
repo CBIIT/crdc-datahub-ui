@@ -1,7 +1,8 @@
-import { ReactElement, useEffect, useMemo, useRef, useState } from "react";
+import React, { ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
+import { isEqual } from "lodash";
 import { VariantType } from "notistack";
 import { Button, Stack, Typography, styled } from "@mui/material";
 import RadioInput from "./RadioInput";
@@ -182,7 +183,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
   const onUploadFail = (fileCount = 0) => {
     onUpload(
       `${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${
-        metadataIntention === "Remove" ? "delete" : "upload"
+        metadataIntention === "Remove" ? "remove" : "upload"
       }`,
       "error"
     );
@@ -249,9 +250,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
       }
       // Batch upload completed successfully
       onUpload(
-        `${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully ${
-          metadataIntention === "Remove" ? "deleted" : "uploaded"
-        }`,
+        "The batch upload is in progress. You can check the upload status in the Data Activity tab once the upload is complete",
         "success"
       );
       setIsUploading(false);
@@ -393,3 +392,7 @@ export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }
     </FlowWrapper>
   );
 };
+
+export default React.memo<Props>(MetadataUpload, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+);

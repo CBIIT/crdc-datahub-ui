@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { act, getByLabelText, render, waitFor } from "@testing-library/react";
+import { getByLabelText, render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
@@ -31,7 +31,8 @@ const baseSubmission: Omit<
   conciergeEmail: "",
   createdAt: "",
   updatedAt: "",
-  intention: "New",
+  intention: "New/Update",
+  dataType: "Metadata and Data Files",
 };
 
 const baseContext: ContextState = {
@@ -224,7 +225,7 @@ describe("Basic Functionality", () => {
 
     const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
 
-    await act(async () => userEvent.click(getByLabelText(radio, "Validate Metadata")));
+    userEvent.click(getByLabelText(radio, "Validate Metadata"));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -278,7 +279,7 @@ describe("Basic Functionality", () => {
     expect(called).toBe(false);
 
     const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
-    await act(async () => userEvent.click(getByLabelText(radio, "Validate Data Files")));
+    userEvent.click(getByLabelText(radio, "Validate Data Files"));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -332,7 +333,7 @@ describe("Basic Functionality", () => {
     expect(called).toBe(false);
 
     const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
-    await act(async () => userEvent.click(getByLabelText(radio, "Both")));
+    userEvent.click(getByLabelText(radio, "Both"));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -386,7 +387,7 @@ describe("Basic Functionality", () => {
     expect(called).toBe(false);
 
     const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
-    await act(async () => userEvent.click(getByLabelText(radio, "New Uploaded Data")));
+    userEvent.click(getByLabelText(radio, "New Uploaded Data"));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -445,7 +446,7 @@ describe("Basic Functionality", () => {
       expect(called).toBe(false);
 
       const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
-      await act(async () => userEvent.click(getByLabelText(radio, `${target} Uploaded Data`)));
+      userEvent.click(getByLabelText(radio, `${target} Uploaded Data`));
 
       userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -482,7 +483,7 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    await waitFor(() => userEvent.click(getByTestId("validate-controls-validate-button")));
+    userEvent.click(getByTestId("validate-controls-validate-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to initiate validation process.", {
@@ -521,7 +522,7 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    await waitFor(() => userEvent.click(getByTestId("validate-controls-validate-button")));
+    userEvent.click(getByTestId("validate-controls-validate-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to initiate validation process.", {
@@ -570,7 +571,7 @@ describe("Basic Functionality", () => {
         </TestParent>
       );
 
-      await waitFor(() => userEvent.click(getByTestId("validate-controls-validate-button")));
+      userEvent.click(getByTestId("validate-controls-validate-button"));
 
       await waitFor(() => {
         expect(onValidate).toHaveBeenCalledTimes(1);
@@ -660,11 +661,11 @@ describe("Implementation Requirements", () => {
 
     // Change from default type
     const typeRadio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
-    await act(async () => userEvent.click(getByLabelText(typeRadio, "Both")));
+    userEvent.click(getByLabelText(typeRadio, "Both"));
 
     // Change from default target
     const targetRadio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
-    await act(async () => userEvent.click(getByLabelText(targetRadio, `All Uploaded Data`)));
+    userEvent.click(getByLabelText(targetRadio, `All Uploaded Data`));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -768,6 +769,150 @@ describe("Implementation Requirements", () => {
     expect(getByLabelText(radio, "Both")).toBeDisabled();
   });
 
+  it("should disable 'Validate Data Files' and 'Both' for the submission dataType of 'Metadata Only'", () => {
+    const { getByTestId } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+            intention: "New/Update",
+            dataType: "Metadata Only",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+
+    expect(getByLabelText(radio, "Validate Metadata")).toBeEnabled();
+    expect(getByLabelText(radio, "Validate Data Files")).toBeDisabled();
+    expect(getByLabelText(radio, "Both")).toBeDisabled();
+  });
+
+  // NOTE: This impacts Data Curators and Admins only, since only they can validate post-submit.
+  it.each<User["role"]>(["Admin", "Data Curator"])(
+    "should select 'All Uploaded Data' when the submission is 'Submitted' and the role is '%s'",
+    async (role) => {
+      const { getByTestId } = render(
+        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
+          <ValidationControls
+            dataSubmission={{
+              ...baseSubmission,
+              _id: "example-sub-id-disabled",
+              status: "Submitted",
+              metadataValidationStatus: "Passed",
+              fileValidationStatus: "Passed",
+            }}
+            onValidate={jest.fn()}
+          />
+        </TestParent>
+      );
+
+      const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+
+      await waitFor(() => {
+        expect(getByLabelText(radio, "New Uploaded Data")).toBeDisabled();
+        expect(getByLabelText(radio, "New Uploaded Data")).not.toBeChecked();
+        expect(getByLabelText(radio, "All Uploaded Data")).toBeEnabled();
+        expect(getByLabelText(radio, "All Uploaded Data")).toBeChecked();
+      });
+    }
+  );
+
+  // NOTE: This is an inverse sanity check of the above test
+  it.each<User["role"]>(["Submitter", "Organization Owner", "User", "fake role" as User["role"]])(
+    "should select 'New Uploaded Data' when the submission is 'Submitted' and the role is '%s'",
+    (role) => {
+      const { getByTestId } = render(
+        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
+          <ValidationControls
+            dataSubmission={{
+              ...baseSubmission,
+              _id: "example-sub-id-disabled",
+              status: "Submitted",
+              metadataValidationStatus: "Passed",
+              fileValidationStatus: "Passed",
+            }}
+            onValidate={jest.fn()}
+          />
+        </TestParent>
+      );
+
+      const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+
+      expect(getByLabelText(radio, "New Uploaded Data")).toBeDisabled();
+      expect(getByLabelText(radio, "New Uploaded Data")).toBeChecked();
+      expect(getByLabelText(radio, "All Uploaded Data")).toBeDisabled();
+    }
+  );
+
+  it.each<User["role"]>(["Admin", "Data Curator"])(
+    "should select 'Validate Metadata' when the submission is 'Submitted' with metadata and the role is '%s'",
+    async (role) => {
+      const { rerender, getByTestId } = render(
+        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
+          <ValidationControls dataSubmission={null} onValidate={jest.fn()} />
+        </TestParent>
+      );
+
+      const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+
+      // NOTE: We're simulating the same rendering logic used for the component impl.
+      rerender(
+        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
+          <ValidationControls
+            dataSubmission={{
+              ...baseSubmission,
+              _id: "example-sub-id-disabled",
+              status: "Submitted",
+              metadataValidationStatus: "Passed",
+              fileValidationStatus: null, // NOTE: No files uploaded
+            }}
+            onValidate={jest.fn()}
+          />
+        </TestParent>
+      );
+
+      await waitFor(() => {
+        expect(getByLabelText(radio, "Validate Metadata")).toBeChecked();
+        expect(getByLabelText(radio, "Validate Data Files")).toBeDisabled();
+        expect(getByLabelText(radio, "Both")).toBeDisabled();
+      });
+    }
+  );
+
+  it.each<User["role"]>(["Admin", "Data Curator"])(
+    "should select 'Both' when the submission is 'Submitted' with all data and the role is '%s'",
+    async (role) => {
+      const { getByTestId } = render(
+        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
+          <ValidationControls
+            dataSubmission={{
+              ...baseSubmission,
+              _id: "example-sub-id-disabled",
+              status: "Submitted",
+              metadataValidationStatus: "Passed",
+              fileValidationStatus: "Passed",
+            }}
+            onValidate={jest.fn()}
+          />
+        </TestParent>
+      );
+
+      const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+
+      await waitFor(() => {
+        expect(getByLabelText(radio, "Both")).toBeChecked();
+        expect(getByLabelText(radio, "Both")).toBeEnabled();
+      });
+    }
+  );
+
   it.each<SubmissionStatus>([
     "New",
     "Submitted",
@@ -799,6 +944,33 @@ describe("Implementation Requirements", () => {
     expect(getByLabelText(radio, "Validate Data Files")).toBeDisabled();
     expect(getByLabelText(radio, "Both")).toBeDisabled();
   });
+
+  it.each<User["role"]>(["Data Curator", "Admin"])(
+    "should be enabled for a %s when the Submission status is 'Submitted'",
+    (role) => {
+      const { getByTestId } = render(
+        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
+          <ValidationControls
+            dataSubmission={{
+              ...baseSubmission,
+              _id: "example-sub-id-disabled",
+              status: "Submitted",
+              metadataValidationStatus: "Passed",
+              fileValidationStatus: "Passed",
+            }}
+            onValidate={jest.fn()}
+          />
+        </TestParent>
+      );
+
+      const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+
+      expect(getByTestId("validate-controls-validate-button")).not.toBeDisabled();
+      expect(getByLabelText(radio, "Validate Metadata")).not.toBeDisabled();
+      expect(getByLabelText(radio, "Validate Data Files")).not.toBeDisabled();
+      expect(getByLabelText(radio, "Both")).not.toBeDisabled();
+    }
+  );
 
   it.each<User["role"]>([
     "Federal Lead",
