@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { MemoryRouter } from "react-router-dom";
 import { axe } from "jest-axe";
 import { render, waitFor } from "@testing-library/react";
 import SubmittedData from "./SubmittedData";
@@ -13,7 +14,7 @@ type ParentProps = {
 
 const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
   <MockedProvider mocks={mocks} showWarnings>
-    {children}
+    <MemoryRouter basename="">{children}</MemoryRouter>
   </MockedProvider>
 );
 
