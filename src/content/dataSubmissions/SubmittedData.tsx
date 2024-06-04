@@ -1,14 +1,20 @@
-import { FC, useRef, useState } from "react";
+import { FC, useMemo, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { GET_SUBMISSION_NODES, GetSubmissionNodesResp } from "../../graphql";
+import { Stack } from "@mui/material";
+import {
+  GET_SUBMISSION_NODES,
+  GetSubmissionNodesInput,
+  GetSubmissionNodesResp,
+} from "../../graphql";
 import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import {
   SubmittedDataFilters,
   FilterForm,
 } from "../../components/DataSubmissions/SubmittedDataFilters";
 import { safeParse } from "../../utils";
+import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
 
 type T = Pick<SubmissionNode, "nodeType" | "nodeID"> & {
   props: Record<string, string>;
@@ -16,9 +22,10 @@ type T = Pick<SubmissionNode, "nodeType" | "nodeID"> & {
 
 type Props = {
   submissionId: string;
+  submissionName: string;
 };
 
-const SubmittedData: FC<Props> = ({ submissionId }) => {
+const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const tableRef = useRef<TableMethods>(null);
@@ -32,10 +39,13 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
   const [totalData, setTotalData] = useState<number>(0);
 
-  const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp>(GET_SUBMISSION_NODES, {
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-  });
+  const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp, GetSubmissionNodesInput>(
+    GET_SUBMISSION_NODES,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
@@ -116,6 +126,19 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
     tableRef.current?.setPage(0, true);
   };
 
+  const Actions = useMemo<React.ReactNode>(
+    () => (
+      <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
+        <ExportNodeDataButton
+          submission={{ _id: submissionId, name: submissionName }}
+          nodeType={filterRef.current.nodeType}
+          disabled={loading || !data?.length}
+        />
+      </Stack>
+    ),
+    [submissionId, submissionName, filterRef.current.nodeType, loading, data.length]
+  );
+
   return (
     <>
       <SubmittedDataFilters submissionId={submissionId} onChange={handleFilterChange} />
@@ -127,6 +150,8 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
         loading={loading}
         defaultRowsPerPage={20}
         defaultOrder="desc"
+        position="both"
+        AdditionalActions={Actions}
         horizontalScroll
         setItemKey={(item, idx) => `${idx}_${item.nodeID}_${item.nodeID}`}
         onFetchData={handleFetchData}

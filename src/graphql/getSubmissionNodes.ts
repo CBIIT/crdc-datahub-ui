@@ -28,6 +28,15 @@ export const query = gql`
   }
 `;
 
+export type Input = {
+  _id: string;
+  nodeType: string;
+  first?: number;
+  offset?: number;
+  orderBy?: string;
+  sortDirection?: string;
+};
+
 export type Response = {
   getSubmissionNodes: {
     /**
