@@ -48,7 +48,8 @@ describe("ExportValidationButton cases", () => {
     conciergeEmail: "",
     createdAt: "",
     updatedAt: "",
-    intention: "New",
+    intention: "New/Update",
+    dataType: "Metadata and Data Files",
   };
 
   const baseQCResult: Omit<QCResult, "submissionID"> = {

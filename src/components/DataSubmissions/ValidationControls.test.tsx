@@ -31,7 +31,8 @@ const baseSubmission: Omit<
   conciergeEmail: "",
   createdAt: "",
   updatedAt: "",
-  intention: "New",
+  intention: "New/Update",
+  dataType: "Metadata and Data Files",
 };
 
 const baseContext: ContextState = {
@@ -755,6 +756,31 @@ describe("Implementation Requirements", () => {
             metadataValidationStatus: "New",
             fileValidationStatus: "New",
             intention: "Delete",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+
+    expect(getByLabelText(radio, "Validate Metadata")).toBeEnabled();
+    expect(getByLabelText(radio, "Validate Data Files")).toBeDisabled();
+    expect(getByLabelText(radio, "Both")).toBeDisabled();
+  });
+
+  it("should disable 'Validate Data Files' and 'Both' for the submission dataType of 'Metadata Only'", () => {
+    const { getByTestId } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+            intention: "New/Update",
+            dataType: "Metadata Only",
           }}
           onValidate={jest.fn()}
         />
