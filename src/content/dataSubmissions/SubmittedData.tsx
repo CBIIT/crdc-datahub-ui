@@ -93,7 +93,7 @@ const SubmittedData: FC<Props> = ({ submissionId }) => {
           label: prop,
           renderValue: (d) => d?.props?.[prop] || "",
           // NOTE: prop is not actually a keyof T, but it's a value of prop.props
-          field: prop as unknown as keyof T,
+          fieldKey: prop,
           default: index === 0 ? true : undefined,
         }))
       );
