@@ -11,9 +11,14 @@ type Props = {
 };
 
 const TestChild: FC = () => {
-  const { status } = useInstitutionList();
+  const { status, data } = useInstitutionList();
 
-  return <div data-testid="ctx-status">{status}</div>;
+  return (
+    <>
+      <div data-testid="ctx-status">{status}</div>
+      <div data-testid="ctx-data-length">{data?.length}</div>
+    </>
+  );
 };
 
 const TestParent: FC<Props> = ({ mocks = [], children }: Props) => (
@@ -48,6 +53,7 @@ describe("useInstitutionList", () => {
     const { getByTestId } = render(<TestParent mocks={mocks} />);
 
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("LOADED"));
+    expect(getByTestId("ctx-data-length")).toHaveTextContent("0");
   });
 
   it("should render without crashing > null", async () => {
@@ -66,7 +72,8 @@ describe("useInstitutionList", () => {
 
     const { getByTestId } = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("LOADED"));
+    await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("ERROR"));
+    expect(getByTestId("ctx-data-length")).toHaveTextContent("0");
   });
 
   it("should render without crashing > actual data", async () => {
@@ -86,6 +93,7 @@ describe("useInstitutionList", () => {
     const { getByTestId } = render(<TestParent mocks={mocks} />);
 
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("LOADED"));
+    expect(getByTestId("ctx-data-length")).toHaveTextContent("3");
   });
 
   it("should handle API network errors gracefully", async () => {
@@ -101,6 +109,7 @@ describe("useInstitutionList", () => {
     const { getByTestId } = render(<TestParent mocks={mocks} />);
 
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("ERROR"));
+    expect(getByTestId("ctx-data-length")).toHaveTextContent("0");
   });
 
   it("should handle API GraphQL errors gracefully", async () => {
@@ -118,5 +127,6 @@ describe("useInstitutionList", () => {
     const { getByTestId } = render(<TestParent mocks={mocks} />);
 
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("ERROR"));
+    expect(getByTestId("ctx-data-length")).toHaveTextContent("0");
   });
 });

@@ -3,7 +3,13 @@ import { useQuery } from "@apollo/client";
 import { LIST_INSTITUTIONS, ListInstitutionsResp } from "../../graphql";
 
 export type InstitutionCtxState = {
+  /**
+   * The current state of the context
+   */
   status: InstitutionCtxStatus;
+  /**
+   * List of institutions or an empty array if something went wrong
+   */
   data: string[];
 };
 
@@ -13,7 +19,7 @@ export enum InstitutionCtxStatus {
   ERROR = "ERROR",
 }
 
-const initialState: InstitutionCtxState = { status: InstitutionCtxStatus.LOADING, data: null };
+const initialState: InstitutionCtxState = { status: InstitutionCtxStatus.LOADING, data: [] };
 
 /**
  * Institution List Context
@@ -63,11 +69,11 @@ export const InstitutionProvider: FC<ProviderProps> = ({ children }: ProviderPro
 
   useEffect(() => {
     if (loading) {
-      setState({ status: InstitutionCtxStatus.LOADING, data: null });
+      setState({ status: InstitutionCtxStatus.LOADING, data: [] });
       return;
     }
-    if (error) {
-      setState({ status: InstitutionCtxStatus.ERROR, data: null });
+    if (error || Array.isArray(data?.listInstitutions) === false) {
+      setState({ status: InstitutionCtxStatus.ERROR, data: [] });
       return;
     }
 
