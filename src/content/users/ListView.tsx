@@ -150,6 +150,7 @@ const columns: Column<T>[] = [
     sx: {
       width: "18%",
     },
+    fieldKey: "name",
   },
   {
     label: "Account Type",
@@ -173,6 +174,7 @@ const columns: Column<T>[] = [
     sx: {
       width: "11%",
     },
+    fieldKey: "orgName",
   },
   {
     label: "Status",
@@ -287,14 +289,12 @@ const ListingView: FC = () => {
   }, [user, orgData]);
 
   useEffect(() => {
-    if (data && !dataset?.length) {
-      refreshTable();
-    }
-  }, [data, dataset]);
+    refreshTable();
+  }, [data, orgData]);
 
   useEffect(() => {
     setTablePage(0);
-  }, [orgFilter, roleFilter, statusFilter, tableRef]);
+  }, [orgFilter, roleFilter, statusFilter]);
 
   const setTablePage = (page: number) => {
     tableRef.current?.setPage(page, true);
