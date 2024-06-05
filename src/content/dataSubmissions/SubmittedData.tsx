@@ -1,4 +1,4 @@
-import { FC, useMemo, useRef, useState } from "react";
+import React, { FC, useMemo, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
@@ -161,4 +161,6 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
   );
 };
 
-export default SubmittedData;
+export default React.memo<Props>(SubmittedData, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+);
