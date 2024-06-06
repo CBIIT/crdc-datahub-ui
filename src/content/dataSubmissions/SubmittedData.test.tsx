@@ -48,7 +48,7 @@ describe("SubmittedData > General", () => {
   it("should not have any high level accessibility violations", async () => {
     const { container } = render(
       <TestParent mocks={[]}>
-        <SubmittedData submissionId={undefined} />
+        <SubmittedData submissionId={undefined} submissionName={undefined} />
       </TestParent>
     );
 
@@ -58,7 +58,7 @@ describe("SubmittedData > General", () => {
   it("should show an error message when no submission ID is provided", async () => {
     render(
       <TestParent mocks={[]}>
-        <SubmittedData submissionId={undefined} />
+        <SubmittedData submissionId={undefined} submissionName={undefined} />
       </TestParent>
     );
 
@@ -94,7 +94,7 @@ describe("SubmittedData > General", () => {
 
     render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} />
+        <SubmittedData submissionId={submissionID} submissionName={undefined} />
       </TestParent>
     );
 
@@ -129,7 +129,7 @@ describe("SubmittedData > General", () => {
 
     render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} />
+        <SubmittedData submissionId={submissionID} submissionName={undefined} />
       </TestParent>
     );
 
@@ -199,7 +199,7 @@ describe("SubmittedData > Table", () => {
 
     const { getByText } = render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} />
+        <SubmittedData submissionId={submissionID} submissionName={undefined} />
       </TestParent>
     );
 
@@ -248,7 +248,7 @@ describe("SubmittedData > Table", () => {
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} />
+        <SubmittedData submissionId={submissionID} submissionName={undefined} />
       </TestParent>
     );
 
@@ -304,7 +304,7 @@ describe("SubmittedData > Table", () => {
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} />
+        <SubmittedData submissionId={submissionID} submissionName={undefined} />
       </TestParent>
     );
 
@@ -344,12 +344,13 @@ describe("SubmittedData > Table", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} />
+        <SubmittedData submissionId={submissionID} submissionName={undefined} />
       </TestParent>
     );
 
     await waitFor(() => {
-      expect(getByTestId("generic-table-rows-per-page")).toHaveValue("20");
+      expect(getByTestId("generic-table-rows-per-page-top")).toHaveValue("20");
+      expect(getByTestId("generic-table-rows-per-page-bottom")).toHaveValue("20");
     });
   });
 });

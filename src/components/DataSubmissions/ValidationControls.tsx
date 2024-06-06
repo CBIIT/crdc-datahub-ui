@@ -134,7 +134,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     if (permissionMap.includes(user.role) === false) {
       return false;
     }
-    if (dataSubmission.intention === "Delete") {
+    if (dataSubmission.intention === "Delete" || dataSubmission.dataType === "Metadata Only") {
       return false;
     }
 

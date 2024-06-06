@@ -49,6 +49,7 @@ export const query = gql`
       conciergeName
       conciergeEmail
       intention
+      dataType
       otherSubmissions
       createdAt
       updatedAt

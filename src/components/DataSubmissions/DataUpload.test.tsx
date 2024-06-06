@@ -37,7 +37,8 @@ const baseSubmission: Omit<Submission, "_id"> = {
   history: [],
   conciergeName: "",
   conciergeEmail: "",
-  intention: "New",
+  intention: "New/Update",
+  dataType: "Metadata and Data Files",
   createdAt: "",
   updatedAt: "",
   crossSubmissionStatus: null,
@@ -79,13 +80,13 @@ describe("Basic Functionality", () => {
   });
 
   it("should not crash when the submission is null", () => {
-    const { getByTestId } = render(
+    const { getByText } = render(
       <TestParent>
         <DataUpload submission={null} />
       </TestParent>
     );
 
-    expect(getByTestId("uploader-cli-footer")).toBeVisible();
+    expect(getByText("Upload Data Files")).toBeVisible();
   });
 
   it("should handle API network errors gracefully", async () => {
@@ -177,18 +178,45 @@ describe("Implementation Requirements", () => {
     });
   });
 
-  it("should have the Configuration download link", async () => {
+  it("should have the Configuration download link when 'Metadata and Data Files' dataType", async () => {
     const mocks: MockedResponse[] = [];
 
     const { getByText, getByTestId } = render(
       <TestParent mocks={mocks}>
-        <DataUpload submission={{ ...baseSubmission, _id: "config-download-link-id" }} />
+        <DataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "config-download-link-id",
+            dataType: "Metadata and Data Files",
+          }}
+        />
       </TestParent>
     );
     const button = getByTestId("uploader-cli-config-button");
 
     expect(getByText(/download configuration file/i)).toBeVisible();
     expect(button).toBeVisible();
+  });
+
+  it("should render alt CLI footer when 'Metadata Only' dataType", async () => {
+    const mocks: MockedResponse[] = [];
+
+    const { getByText, getByTestId } = render(
+      <TestParent mocks={mocks}>
+        <DataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "config-download-link-id",
+            dataType: "Metadata Only",
+          }}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("uploader-cli-footer-alt")).toBeVisible();
+    expect(
+      getByText(/This submission is for metadata only; there is no need to upload data files./i)
+    ).toBeVisible();
   });
 
   it("should download the Uploader CLI configuration file on click", async () => {

@@ -7,6 +7,7 @@ export const mutation = gql`
     $name: String!
     $dbGaPID: String
     $intention: String!
+    $dataType: String!
   ) {
     createSubmission(
       studyAbbreviation: $studyAbbreviation
@@ -14,6 +15,7 @@ export const mutation = gql`
       name: $name
       dbGaPID: $dbGaPID
       intention: $intention
+      dataType: $dataType
     ) {
       _id
       status

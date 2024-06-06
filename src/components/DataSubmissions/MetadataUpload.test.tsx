@@ -4,7 +4,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
-import { MetadataUpload } from "./MetadataUpload";
+import MetadataUpload from "./MetadataUpload";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH } from "../../graphql";
 
 // NOTE: We omit any properties that are explicitly used within component logic
@@ -30,7 +30,8 @@ const baseSubmission: Omit<
   conciergeEmail: "",
   createdAt: "",
   updatedAt: "",
-  intention: "New",
+  intention: "New/Update",
+  dataType: "Metadata and Data Files",
   status: "New",
 };
 
