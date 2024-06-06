@@ -39,4 +39,4 @@ jobs:
         run: npm install
 
       - name: Run Typecheck
-        run: npm run lint:ci
+        run: npm run check:ci
