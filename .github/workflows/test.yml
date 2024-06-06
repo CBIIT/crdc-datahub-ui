@@ -2,23 +2,20 @@ name: Test Changes
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - "*.*.*"
+      - "main"
+      - "master"
   pull_request:
     branches: "*"
-    paths:
-      - "src/**"
-      - "public/**"
-      - "*.json"
-      - "*.js"
-      - "*.jsx"
-      - "*.ts"
-      - "*.tsx"
 
 permissions:
   contents: read
 
 jobs:
-  test:
-    name: Test Changes
+  jest:
+    name: Jest
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
