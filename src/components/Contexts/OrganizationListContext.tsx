@@ -86,12 +86,13 @@ export const OrganizationProvider: FC<ProviderProps> = ({
       return;
     }
 
+    const processedOrganizations = data?.listOrganizations
+      .filter((org: Organization) => (filterInactive ? org.status === "Active" : true))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
     setState({
       status: Status.LOADED,
-      data:
-        data?.listOrganizations?.filter((org: Organization) =>
-          filterInactive ? org.status === "Active" : true
-        ) || [],
+      data: processedOrganizations || [],
     });
   }, [loading, error, data]);
 
