@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // eslint-disable-next-line max-classes-per-file
 import "@testing-library/jest-dom";
 import "jest-axe/extend-expect";
@@ -58,3 +59,14 @@ jest.mock("recharts", () => ({
   ...jest.requireActual("recharts"),
   ResponsiveContainer: MockResponsiveContainer,
 }));
+
+/**
+ * Prevents the console.error and console.warn from silently failing
+ * in tests by throwing an error when called
+ */
+console.error = (message, ...rest) => {
+  throw message instanceof Error ? message : new Error(message, ...rest);
+};
+console.warn = (message, ...rest) => {
+  throw message instanceof Error ? message : new Error(message, ...rest);
+};
