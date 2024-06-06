@@ -21,10 +21,6 @@ import {
 import { useSnackbar } from "notistack";
 import { useQuery } from "@apollo/client";
 import { query, Response } from "../../graphql/listSubmissions";
-import {
-  query as listOrganizationsQuery,
-  Response as listOrganizationsResponse,
-} from "../../graphql/listOrganizations";
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import PageBanner from "../../components/PageBanner";
 import { FormatDate } from "../../utils";
@@ -32,6 +28,10 @@ import { useAuthContext } from "../../components/Contexts/AuthContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import usePageTitle from "../../hooks/usePageTitle";
 import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
+import {
+  Status,
+  useOrganizationListContext,
+} from "../../components/Contexts/OrganizationListContext";
 
 type T = Submission;
 
@@ -236,6 +236,7 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { status: orgStatus, data: allOrganizations } = useOrganizationListContext();
 
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<Column>(
@@ -258,12 +259,6 @@ const ListingView: FC = () => {
   );
   const [statusFilter, setStatusFilter] = useState<string>("All");
 
-  const { data: allOrganizations } = useQuery<listOrganizationsResponse>(listOrganizationsQuery, {
-    variables: {},
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-
   const { data, loading, error, refetch } = useQuery<Response>(query, {
     variables: {
       first: perPage,
@@ -272,7 +267,7 @@ const ListingView: FC = () => {
       orderBy: orderBy.field,
       organization:
         organizationFilter !== "All"
-          ? allOrganizations?.listOrganizations?.find((org) => org.name === organizationFilter)?._id
+          ? allOrganizations?.find((org) => org.name === organizationFilter)?._id
           : "All",
       status: statusFilter,
     },
@@ -304,7 +299,7 @@ const ListingView: FC = () => {
     });
   };
 
-  const organizationNames: SelectOption[] = allOrganizations?.listOrganizations?.map((org) => ({
+  const organizationNames: SelectOption[] = allOrganizations?.map((org) => ({
     label: org.name,
     value: org.name,
   }));
@@ -321,7 +316,7 @@ const ListingView: FC = () => {
             {/* NOTE For MVP-2: Organization Owners are just Users */}
             {/* Create a submission only available to org owners and submitters that have organizations assigned */}
             <CreateDataSubmissionDialog
-              organizations={allOrganizations?.listOrganizations}
+              organizations={allOrganizations}
               onCreate={handleOnCreateSubmission}
             />
           </StyledBannerBody>
@@ -413,7 +408,7 @@ const ListingView: FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {loading && (
+              {(loading || orgStatus === Status.LOADING) && (
                 <TableRow>
                   <TableCell>
                     <SuspenseLoader fullscreen={false} />
@@ -472,13 +467,16 @@ const ListingView: FC = () => {
                 data?.listSubmissions?.total === 0 ||
                 data?.listSubmissions?.total <= (page + 1) * perPage ||
                 emptyRows > 0 ||
-                loading,
+                loading ||
+                orgStatus === Status.LOADING,
             }}
             SelectProps={{
               inputProps: { "aria-label": "rows per page" },
               native: true,
             }}
-            backIconButtonProps={{ disabled: page === 0 || loading }}
+            backIconButtonProps={{
+              disabled: page === 0 || loading || orgStatus === Status.LOADING,
+            }}
           />
         </StyledTableContainer>
       </StyledContainer>

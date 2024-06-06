@@ -2,6 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import DataSubmission from "./DataSubmission";
 import ListView from "./DataSubmissionsListView";
+import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
 
 /**
  * Render the correct view based on the URL
@@ -16,7 +17,11 @@ const DataSubmissionController = () => {
     return <DataSubmission submissionId={submissionId} tab={tab} />;
   }
 
-  return <ListView />;
+  return (
+    <OrganizationProvider preload>
+      <ListView />
+    </OrganizationProvider>
+  );
 };
 
 export default DataSubmissionController;
