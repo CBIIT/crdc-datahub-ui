@@ -1,4 +1,4 @@
-name: Lint Changes
+name: TypeScript
 
 on:
   workflow_dispatch:
@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 jobs:
-  eslint_ts:
-    name: ESlint
+  typecheck:
+    name: Typecheck
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -38,5 +38,5 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run ESLint
-        run: npm run lint:ci
+      - name: Run Typecheck
+        run: npm run typecheck
