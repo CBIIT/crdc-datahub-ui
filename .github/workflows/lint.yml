@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   eslint_ts:
-    name: Eslint and TypeScript
+    name: ESlint and TypeScript
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
