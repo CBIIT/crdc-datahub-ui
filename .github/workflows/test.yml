@@ -1,4 +1,4 @@
-name: Test Changes
+name: Jest
 
 on:
   workflow_dispatch:
@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 jobs:
-  jest:
-    name: Jest
+  test:
+    name: Test Changes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

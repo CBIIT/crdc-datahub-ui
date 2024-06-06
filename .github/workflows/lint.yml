@@ -1,4 +1,4 @@
-name: Lint Changes
+name: ESLint
 
 on:
   workflow_dispatch:
@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 jobs:
-  eslint_ts:
-    name: ESlint
+  lint:
+    name: Lint Changes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
