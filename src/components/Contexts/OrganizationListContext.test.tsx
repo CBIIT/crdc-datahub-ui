@@ -26,7 +26,8 @@ const TestChild: FC = () => {
       <div data-testid="status">{status}</div>
       <ul data-testid="organization-list">
         {data?.map((org, index) => (
-          <li key={org?._id} data-testid={`organization-${index}`}>
+          // eslint-disable-next-line react/no-array-index-key
+          <li key={`organization-${index}`} data-testid={`organization-${index}`}>
             {org.name}
           </li>
         ))}
@@ -54,12 +55,25 @@ describe("OrganizationListContext > useOrganizationListContext Tests", () => {
 });
 
 describe("OrganizationListContext > OrganizationProvider Tests", () => {
+  const emptyMocks = [
+    {
+      request: {
+        query: LIST_ORGS,
+      },
+      result: {
+        data: {
+          listOrganizations: [],
+        },
+      },
+    },
+  ];
+
   it("should render without crashing", () => {
-    render(<TestParent />);
+    render(<TestParent mocks={emptyMocks} />);
   });
 
   it("should handle loading state correctly", async () => {
-    const { getByText } = render(<TestParent />);
+    const { getByText } = render(<TestParent mocks={emptyMocks} />);
     expect(getByText("Loading...")).toBeInTheDocument();
   });
 
