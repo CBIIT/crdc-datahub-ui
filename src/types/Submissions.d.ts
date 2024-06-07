@@ -63,7 +63,8 @@ type SubmissionStatus =
   | "Rejected"
   | "Completed"
   | "Archived"
-  | "Canceled";
+  | "Canceled"
+  | "Deleted";
 
 type SubmissionAction =
   | "Submit"
