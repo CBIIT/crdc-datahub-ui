@@ -19,7 +19,7 @@ import { useSnackbar, VariantType } from "notistack";
 import bannerPng from "../../assets/dataSubmissions/dashboard_banner.png";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
-import { MetadataUpload } from "../../components/DataSubmissions/MetadataUpload";
+import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
 import {
   GET_SUBMISSION,
   LIST_BATCHES,
@@ -672,7 +672,12 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                   refreshSubmission={getSubmission}
                 />
               )}
-              {tab === URLTabs.SUBMITTED_DATA && <SubmittedData submissionId={submissionId} />}
+              {tab === URLTabs.SUBMITTED_DATA && (
+                <SubmittedData
+                  submissionId={submissionId}
+                  submissionName={data?.getSubmission?.name}
+                />
+              )}
 
               {/* Return to Data Submission List Button */}
               <BackButton navigateTo="/data-submissions" text="Back to Data Submissions" />

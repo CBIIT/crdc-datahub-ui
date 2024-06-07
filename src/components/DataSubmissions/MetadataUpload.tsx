@@ -95,7 +95,7 @@ type Props = {
  * @param {Props} props
  * @returns {React.FC<Props>}
  */
-export const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
+const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
