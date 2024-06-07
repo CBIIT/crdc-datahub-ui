@@ -41,7 +41,6 @@ const baseSubmission: Submission = {
   conciergeEmail: "",
   createdAt: "",
   updatedAt: "",
-  accessedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
   status: "In Progress",

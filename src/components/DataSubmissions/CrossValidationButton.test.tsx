@@ -31,7 +31,6 @@ const baseSubmission: Omit<
   conciergeEmail: "",
   createdAt: "",
   updatedAt: "",
-  accessedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
 };

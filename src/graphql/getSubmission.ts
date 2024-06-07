@@ -51,7 +51,6 @@ export const query = gql`
       intention
       dataType
       otherSubmissions
-      accessedAt
       createdAt
       updatedAt
     }
