@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   Alert,
@@ -375,7 +375,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     ((pollInterval: number) => void) | null
   >(null);
   const [stopBatchPolling, setStopBatchPolling] = useState<(() => void) | null>(null);
-  const [lastValidationTime, setLastValidationTime] = useState(Date.now());
 
   const {
     data,
@@ -386,7 +385,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
   } = useQuery<GetSubmissionResp>(GET_SUBMISSION, {
     notifyOnNetworkStatusChange: true,
     onCompleted: (d) => {
-      setLastValidationTime(Date.now());
       if (
         d?.getSubmission?.fileValidationStatus !== "Validating" &&
         d?.getSubmission?.metadataValidationStatus !== "Validating" &&
@@ -546,13 +544,16 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     setSelectedRow(data);
   };
 
-  const handleOnValidate = (status: boolean) => {
-    if (!status) {
-      return;
-    }
+  const handleOnValidate = useCallback(
+    (status: boolean) => {
+      if (!status) {
+        return;
+      }
 
-    startPolling(1000);
-  };
+      startPolling(1000);
+    },
+    [startPolling]
+  );
 
   const providerValue = useMemo(
     () => ({
@@ -623,8 +624,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
               />
               <DataUpload submission={data?.getSubmission} />
               <ValidationControls
-                /* Without key the component will continue to poll if status updates Error => Error and skips 'Validating' status due to race condition */
-                key={`last_validation_time_${lastValidationTime}`}
                 dataSubmission={data?.getSubmission}
                 onValidate={handleOnValidate}
               />
