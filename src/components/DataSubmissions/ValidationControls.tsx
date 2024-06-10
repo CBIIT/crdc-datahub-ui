@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useEffect, useMemo, useState } from "react";
+import React, { FC, ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { FormControlLabel, RadioGroup, Stack, Typography, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
@@ -113,6 +113,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     dataSubmission?.fileValidationStatus === "Validating" ||
       dataSubmission?.metadataValidationStatus === "Validating"
   );
+  const prevIsValidating = useRef<boolean>(isValidating);
 
   const canValidateMetadata: boolean = useMemo(() => {
     const permissionMap = ValidateMap[dataSubmission?.status];
@@ -182,8 +183,6 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       onValidate?.(true);
     }
 
-    setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
-    setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
     setIsLoading(false);
   };
 
@@ -219,10 +218,19 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   );
 
   useEffect(() => {
-    setIsValidating(
+    const validating =
       dataSubmission?.fileValidationStatus === "Validating" ||
-        dataSubmission?.metadataValidationStatus === "Validating"
-    );
+      dataSubmission?.metadataValidationStatus === "Validating";
+
+    setIsValidating(validating);
+
+    // Reset the validation type and target only if the validation process finished
+    if (!validating && prevIsValidating.current === true) {
+      setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
+      setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
+    }
+
+    prevIsValidating.current = validating;
   }, [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]);
 
   useEffect(() => {

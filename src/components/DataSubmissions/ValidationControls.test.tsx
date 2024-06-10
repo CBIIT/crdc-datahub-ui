@@ -626,7 +626,7 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("validate-controls-validate-button")).toHaveTextContent("Validating...");
   });
 
-  it("should reset the validation type and upload type after starting validation", async () => {
+  it("should NOT reset the validation type and upload type after starting validation", async () => {
     const submissionID = "reset-state-onclick-id";
     const mocks: MockedResponse<ValidateSubmissionResp>[] = [
       {
@@ -643,6 +643,7 @@ describe("Implementation Requirements", () => {
         },
       },
     ];
+    const mockOnValidate = jest.fn();
 
     const { getByTestId } = render(
       <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
@@ -654,7 +655,7 @@ describe("Implementation Requirements", () => {
             metadataValidationStatus: "New",
             fileValidationStatus: "New",
           }}
-          onValidate={jest.fn()}
+          onValidate={mockOnValidate}
         />
       </TestParent>
     );
@@ -665,13 +666,112 @@ describe("Implementation Requirements", () => {
 
     // Change from default target
     const targetRadio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
-    userEvent.click(getByLabelText(targetRadio, `All Uploaded Data`));
+    userEvent.click(getByLabelText(targetRadio, "All Uploaded Data"));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
     await waitFor(() => {
-      expect(getByLabelText(typeRadio, "Validate Metadata")).toBeChecked();
-      expect(getByLabelText(targetRadio, "New Uploaded Data")).toBeChecked();
+      expect(mockOnValidate).toHaveBeenCalledTimes(1);
+    });
+
+    // NOTE: We're asserting that the state is not reset to the default values
+    expect(getByLabelText(typeRadio, "Both")).toBeChecked();
+    expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeChecked();
+  });
+
+  it("should reset the validation type and upload type after validation ends", async () => {
+    const submissionID = "reset-state-onclick-id";
+    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      {
+        request: {
+          query: VALIDATE_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            validateSubmission: {
+              success: true,
+            },
+          },
+        },
+      },
+    ];
+    const mockOnValidate = jest.fn();
+
+    const { getByTestId, rerender } = render(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+          }}
+          onValidate={mockOnValidate}
+        />
+      </TestParent>
+    );
+
+    // Change from default type
+    const typeRadio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+    userEvent.click(getByLabelText(typeRadio, "Validate Data Files"));
+
+    // Change from default target
+    const targetRadio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+    userEvent.click(getByLabelText(targetRadio, "All Uploaded Data"));
+
+    userEvent.click(getByTestId("validate-controls-validate-button"));
+
+    await waitFor(() => {
+      expect(mockOnValidate).toHaveBeenCalledTimes(1);
+      expect(getByLabelText(typeRadio, "Validate Data Files")).toBeChecked();
+      expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeChecked();
+    });
+
+    // Trigger re-render with validation statuses as 'Validating'
+    rerender(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "Validating",
+            fileValidationStatus: "Validating",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(mockOnValidate).toHaveBeenCalledTimes(1);
+      expect(getByLabelText(typeRadio, "Validate Data Files")).toBeChecked();
+      expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeChecked();
+    });
+
+    // Trigger re-render with validation statuses as 'Passed'
+    rerender(
+      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <ValidationControls
+          dataSubmission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+          }}
+          onValidate={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      // NOTE: Instead of calculating which radio should be checked, we're just asserting
+      // that the ones we selected are definitely not checked
+      expect(getByLabelText(typeRadio, "Validate Data Files")).not.toBeChecked();
+      expect(getByLabelText(targetRadio, "All Uploaded Data")).not.toBeChecked();
     });
   });
 
