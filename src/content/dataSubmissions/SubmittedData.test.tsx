@@ -238,6 +238,7 @@ describe("SubmittedData > Table", () => {
                     "col.2": "value-2",
                     "col.3": "value-3",
                   }),
+                  status: "New",
                 },
               ],
             },

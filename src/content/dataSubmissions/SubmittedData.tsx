@@ -16,7 +16,7 @@ import {
 import { safeParse } from "../../utils";
 import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
 
-type T = Pick<SubmissionNode, "nodeType" | "nodeID"> & {
+type T = Pick<SubmissionNode, "nodeType" | "nodeID" | "status"> & {
   props: Record<string, string>;
 };
 
@@ -97,16 +97,22 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
 
     // Only update columns if the nodeType has changed
     if (prevFilterRef.current.nodeType !== filterRef.current.nodeType) {
-      setTotalData(d.getSubmissionNodes.total);
-      setColumns(
-        d.getSubmissionNodes.properties.map((prop: string, index: number) => ({
+      const cols: Column<T>[] = d.getSubmissionNodes.properties.map(
+        (prop: string, index: number) => ({
           label: prop,
           renderValue: (d) => d?.props?.[prop] || "",
           // NOTE: prop is not actually a keyof T, but it's a value of prop.props
           field: prop as unknown as keyof T,
           default: index === 0 ? true : undefined,
-        }))
+        })
       );
+      cols.push({
+        label: "Status",
+        renderValue: (d) => d?.status || "",
+        field: "status",
+      });
+      setTotalData(d.getSubmissionNodes.total);
+      setColumns(cols);
 
       prevFilterRef.current = filterRef.current;
     }
@@ -116,6 +122,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
         nodeType: node.nodeType,
         nodeID: node.nodeID,
         props: safeParse(node.props),
+        status: node.status,
       }))
     );
     setLoading(false);

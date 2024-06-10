@@ -150,7 +150,9 @@ describe("SubmittedDataFilters cases", () => {
     await waitFor(() => expect(muiSelectBox).toHaveTextContent("FIRST"));
   });
 
-  it("should NOT show the nodeType 'Data File'", async () => {
+  // NOTE: This test used to be the inverse, but we now want to ensure that Data Files are shown
+  // Data Files are a special case, as they're common across all Data Models / Data Commons
+  it("should show the nodeType 'Data File' if present", async () => {
     const mocks: MockedResponse<SubmissionStatsResp>[] = [
       {
         request: {
@@ -163,7 +165,7 @@ describe("SubmittedDataFilters cases", () => {
               stats: [
                 { ...baseStatistic, nodeName: "Participant", total: 3 },
                 { ...baseStatistic, nodeName: "Data File", total: 2 },
-                { ...baseStatistic, nodeName: "File", total: 1 },
+                { ...baseStatistic, nodeName: "Sample", total: 1 },
               ],
             },
           },
@@ -184,9 +186,8 @@ describe("SubmittedDataFilters cases", () => {
     await waitFor(() => {
       // Sanity check that the box is open
       expect(() => getAllByText(/participant/i)).not.toThrow();
-      expect(() => getByText(/file/i)).not.toThrow();
-      // This should throw an error
-      expect(() => getByText(/data file/i)).toThrow();
+      expect(() => getByText(/sample/i)).not.toThrow();
+      expect(() => getByText(/data file/i)).not.toThrow();
     });
   });
 
