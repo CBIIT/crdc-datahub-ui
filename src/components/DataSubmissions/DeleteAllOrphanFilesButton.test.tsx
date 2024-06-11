@@ -46,6 +46,10 @@ const baseSubmission: Submission = {
   status: "In Progress",
   crossSubmissionStatus: "Passed",
   otherSubmissions: "",
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: "All",
 };
 
 const baseContext: ContextState = {

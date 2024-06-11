@@ -20,10 +20,12 @@ describe("Implementation Requirements", () => {
 
   it.todo("should indicate that validation is ongoing when a validation state is 'Validating'");
 
-  // NOTE: it.each here
+  // NOTE: it.each here all/new + meta/data/both
   it.todo("should indicate the validation type and target in a friendly format");
 
   it.todo("should include the start timestamp when validation is ongoing");
 
   it.todo("should include the start and end timestamps when validation is complete");
+
+  it.todo("should have title attributes on the timestamps with the unparsed ISO 8601 date");
 });

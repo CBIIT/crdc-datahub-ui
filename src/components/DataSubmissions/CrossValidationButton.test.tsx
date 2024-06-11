@@ -33,6 +33,10 @@ const baseSubmission: Omit<
   updatedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
+  validationStarted: "",
+  validationEnded: "",
+  validationType: "All",
+  validationScope: "New",
 };
 
 const baseContext: ContextState = {
