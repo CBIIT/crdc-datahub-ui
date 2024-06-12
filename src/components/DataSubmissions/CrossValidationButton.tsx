@@ -36,7 +36,7 @@ export type Props = {
    *
    * @param success whether the validation was successfully initiated
    */
-  onValidate: (success: boolean) => void;
+  onValidate: (success: boolean, types: ValidationType[]) => void;
 } & Omit<ButtonProps, "onClick">;
 
 /**
@@ -84,13 +84,13 @@ export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...pr
         { variant: "success" }
       );
       setIsValidating(true);
-      onValidate?.(true);
+      onValidate?.(true, ["cross-submission"]);
     } catch (error) {
       enqueueSnackbar("Unable to initiate validation process.", {
         variant: "error",
       });
       setIsValidating(false);
-      onValidate?.(false);
+      onValidate?.(false, null);
     } finally {
       setLoading(false);
     }

@@ -382,6 +382,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     startPolling,
     stopPolling,
     refetch: getSubmission,
+    updateQuery: updateSubmissionQuery,
   } = useQuery<GetSubmissionResp>(GET_SUBMISSION, {
     notifyOnNetworkStatusChange: true,
     onCompleted: (d) => {
@@ -397,7 +398,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     },
     variables: { id: submissionId },
     context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
+    fetchPolicy: "cache-and-network",
   });
 
   const tableRef = useRef<TableMethods>(null);
@@ -545,14 +546,31 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
   };
 
   const handleOnValidate = useCallback(
-    (status: boolean) => {
+    (status: boolean, types: ValidationType[]) => {
       if (!status) {
         return;
       }
 
       startPolling(1000);
+
+      // NOTE: This forces the UI to rerender with the new statuses immediately
+      updateSubmissionQuery((prev) => ({
+        ...prev,
+        getSubmission: {
+          ...prev.getSubmission,
+          fileValidationStatus: types?.includes("file")
+            ? "Validating"
+            : prev?.getSubmission?.fileValidationStatus,
+          metadataValidationStatus: types?.includes("metadata")
+            ? "Validating"
+            : prev?.getSubmission?.metadataValidationStatus,
+          crossSubmissionStatus: types?.includes("cross-submission")
+            ? "Validating"
+            : prev?.getSubmission?.crossSubmissionStatus,
+        },
+      }));
     },
-    [startPolling]
+    [startPolling, updateSubmissionQuery]
   );
 
   const providerValue = useMemo(

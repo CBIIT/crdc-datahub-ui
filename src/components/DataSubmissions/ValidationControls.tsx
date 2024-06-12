@@ -93,7 +93,7 @@ type Props = {
    *
    * @param success whether the validation was successfully initiated
    */
-  onValidate: (success: boolean) => void;
+  onValidate: (success: boolean, types: ValidationType[]) => void;
 };
 
 /**
@@ -160,10 +160,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
 
     setIsLoading(true);
 
+    const types = getValidationTypes(validationType);
     const { data, errors } = await validateSubmission({
       variables: {
         _id: dataSubmission?._id,
-        types: getValidationTypes(validationType),
+        types,
         scope: uploadType === "New" ? "New" : "All",
       },
     }).catch((e) => ({ errors: e?.message, data: null }));
@@ -173,14 +174,14 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         variant: "error",
       });
       setIsValidating(false);
-      onValidate?.(false);
+      onValidate?.(false, null);
     } else {
       enqueueSnackbar(
         "Validation process is starting; this may take some time. Please wait before initiating another validation.",
         { variant: "success" }
       );
       setIsValidating(true);
-      onValidate?.(true);
+      onValidate?.(true, types);
     }
 
     setIsLoading(false);
@@ -234,26 +235,16 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   }, [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]);
 
   useEffect(() => {
-    if (validationType !== null) {
-      return;
-    }
     if (typeof dataSubmission === "undefined") {
       return;
     }
-
-    setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
+    if (validationType === null) {
+      setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
+    }
+    if (uploadType === null) {
+      setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
+    }
   }, [dataSubmission, user]);
-
-  useEffect(() => {
-    if (uploadType !== null) {
-      return;
-    }
-    if (typeof dataSubmission === "undefined") {
-      return;
-    }
-
-    setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
-  }, [dataSubmission]);
 
   return (
     <FlowWrapper index={3} title="Validate Data" actions={Actions} last>

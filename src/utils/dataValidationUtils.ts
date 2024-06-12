@@ -4,7 +4,7 @@
  * @param validationType The validation type selected.
  * @returns The array of types to validate.
  */
-export const getValidationTypes = (validationType: ValidationType): string[] => {
+export const getValidationTypes = (validationType: ValidationType): ValidationType[] => {
   switch (validationType) {
     case "metadata":
       return ["metadata"];

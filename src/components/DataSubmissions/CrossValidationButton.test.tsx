@@ -336,7 +336,10 @@ describe("Basic Functionality", () => {
 
       await waitFor(() => {
         expect(onValidate).toHaveBeenCalledTimes(1);
-        expect(onValidate).toHaveBeenCalledWith(result);
+        expect(onValidate).toHaveBeenCalledWith(
+          result,
+          result === true ? ["cross-submission"] : null
+        );
       });
     }
   );

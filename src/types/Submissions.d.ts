@@ -37,7 +37,7 @@ type Submission = {
    *
    * @see {@link ValidationType} for more information.
    */
-  validationType: Exclude<ValidationType, "All">[];
+  validationType: Exclude<ValidationType, "All" | "cross-submission">[];
   /**
    * Holds submission level file errors, e.g., extra files in S3 folder
    */
@@ -300,7 +300,7 @@ type AsyncProcessResult = {
  *
  * @note `All` is a frontend-only concept which should be translated to ["metadata", "file"].
  */
-type ValidationType = "metadata" | "file" | "All";
+type ValidationType = "metadata" | "file" | "cross-submission" | "All";
 
 /**
  * The target of Data Validation action.
