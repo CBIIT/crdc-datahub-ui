@@ -14,6 +14,7 @@ import {
 } from "../../utils";
 import FlowWrapper from "./FlowWrapper";
 import { CrossValidationButton } from "./CrossValidationButton";
+import { ValidationStatus } from "./ValidationStatus";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -247,7 +248,14 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   }, [dataSubmission, user]);
 
   return (
-    <FlowWrapper index={3} title="Validate Data" actions={Actions} last>
+    <FlowWrapper
+      index={3}
+      titleContainerSx={{ marginBottom: "4px", columnGap: "12px" }}
+      title="Validate Data"
+      titleAdornment={<ValidationStatus submission={dataSubmission} />}
+      actions={Actions}
+      last
+    >
       <>
         <StyledRow direction="row" alignItems="center" sx={{ marginBottom: "-5px" }}>
           <StyledRowTitle>Validation Type:</StyledRowTitle>

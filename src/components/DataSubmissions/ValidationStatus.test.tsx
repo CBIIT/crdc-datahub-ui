@@ -1,16 +1,99 @@
-describe("Accessibility", () => {
-  it.todo("should not have accessibility violations");
+import { render, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { axe } from "jest-axe";
+import { ValidationStatus } from "./ValidationStatus";
+import RedBellIcon from "../../assets/icons/red_bell.svg";
+import GreenBellIcon from "../../assets/icons/green_bell.svg";
 
-  it.todo("should not have accessibility violations (validating)");
+describe("Accessibility", () => {
+  it("should not have accessibility violations (Complete)", async () => {
+    const { container } = render(
+      <ValidationStatus
+        submission={{
+          validationStarted: "2024-06-12T13:24:00Z",
+          validationEnded: "2024-06-12T13:13:00Z",
+          validationType: ["file"],
+          validationScope: "All",
+        }}
+      />
+    );
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("should not have accessibility violations (In Progress)", async () => {
+    const { container } = render(
+      <ValidationStatus
+        submission={{
+          validationStarted: "2024-06-12T13:25:00Z",
+          validationEnded: null,
+          validationType: ["file"],
+          validationScope: "All",
+        }}
+      />
+    );
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
 });
 
+// NOTE: We're testing component behavior here, not requirement-based behavior
 describe("Basic Functionality", () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
 
-  // NOTE: We're testing component behavior here, not the implementation specifics.
-  it.todo("should update the status text when the validation state changes");
+  it("should not crash if the submission is null", async () => {
+    const { container } = render(<ValidationStatus submission={null} />);
+
+    expect(container.firstChild).toBeNull();
+  });
+
+  it("should not appear for a new submission without validation history", async () => {
+    const { container, getByTestId } = render(
+      <ValidationStatus
+        submission={{
+          validationStarted: null,
+          validationEnded: null,
+          validationType: null,
+          validationScope: null,
+        }}
+      />
+    );
+
+    expect(container.firstChild).toBeNull();
+    expect(() => getByTestId("validation-status-chip")).toThrow();
+  });
+
+  it("should rerender when the validation state changes", async () => {
+    const { getByText, rerender } = render(
+      <ValidationStatus
+        submission={{
+          validationStarted: "2024-06-12T13:31:00Z",
+          validationEnded: null,
+          validationType: ["metadata"],
+          validationScope: "All",
+        }}
+      />
+    );
+
+    expect(getByText(/validation in-progress/i)).toBeInTheDocument();
+
+    rerender(
+      <ValidationStatus
+        submission={{
+          validationStarted: "2024-06-12T13:31:00Z",
+          validationEnded: "2024-06-12T13:35:00Z",
+          validationType: ["metadata"],
+          validationScope: "All",
+        }}
+      />
+    );
+
+    await waitFor(() => {
+      expect(getByText(/validation completed/i)).toBeInTheDocument();
+    });
+  });
 });
 
 describe("Implementation Requirements", () => {
@@ -18,14 +101,149 @@ describe("Implementation Requirements", () => {
     jest.resetAllMocks();
   });
 
-  it.todo("should indicate that validation is ongoing when a validation state is 'Validating'");
+  it("should have a tooltip appear on hover", async () => {
+    const { getByTestId, findByRole } = render(
+      <ValidationStatus
+        submission={{
+          validationStarted: "2024-06-12T13:35:00Z",
+          validationEnded: "2024-06-12T13:37:00Z",
+          validationType: ["metadata", "file"],
+          validationScope: "All",
+        }}
+      />
+    );
 
-  // NOTE: it.each here all/new + meta/data/both
-  it.todo("should indicate the validation type and target in a friendly format");
+    userEvent.hover(getByTestId("validation-status-chip"));
 
-  it.todo("should include the start timestamp when validation is ongoing");
+    // NOTE: We're just asserting that the tooltip is present on hover
+    // the text content of the tooltip is tested below
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toBeInTheDocument();
+  });
 
-  it.todo("should include the start and end timestamps when validation is complete");
+  it("should indicate that validation is ongoing with an icon and chip", () => {
+    const { getByTestId } = render(
+      <ValidationStatus
+        submission={{
+          validationStarted: "2024-06-12T13:42:00Z",
+          validationEnded: null,
+          validationType: ["file"],
+          validationScope: "New",
+        }}
+      />
+    );
 
-  it.todo("should have title attributes on the timestamps with the unparsed ISO 8601 date");
+    expect(getByTestId("validation-status-icon")).toBeInTheDocument();
+    expect(getByTestId("validation-status-icon")).toHaveAttribute("src", RedBellIcon);
+    expect(getByTestId("validation-status-chip")).toBeInTheDocument();
+    expect(getByTestId("validation-status-chip")).toHaveTextContent(/validation in-progress.../i);
+  });
+
+  it("should indicate that validation is complete with an icon and chip", () => {
+    const { getByTestId } = render(
+      <ValidationStatus
+        submission={{
+          validationStarted: "2024-06-12T13:43:00Z",
+          validationEnded: "2024-06-12T13:44:00Z",
+          validationType: ["file"],
+          validationScope: "New",
+        }}
+      />
+    );
+
+    expect(getByTestId("validation-status-icon")).toBeInTheDocument();
+    expect(getByTestId("validation-status-icon")).toHaveAttribute("src", GreenBellIcon);
+    expect(getByTestId("validation-status-chip")).toBeInTheDocument();
+    expect(getByTestId("validation-status-chip")).toHaveTextContent(/validation completed/i);
+  });
+
+  it.each<
+    Pick<
+      Submission,
+      "validationStarted" | "validationEnded" | "validationType" | "validationScope"
+    > & { expected: string }
+  >([
+    // Running – Metadata – New
+    {
+      expected:
+        "The validation (Type: Metadata, Target: New Uploaded Data) started on 06-12-2024 at 01:53 PM and is still in progress...",
+      validationStarted: "2024-06-12T13:53:00Z",
+      validationEnded: null,
+      validationType: ["metadata"],
+      validationScope: "New",
+    },
+    // Running - File - New
+    {
+      expected:
+        "The validation (Type: Data files, Target: New Uploaded Data) started on 06-12-2024 at 01:54 PM and is still in progress...",
+      validationStarted: "2024-06-12T13:54:00Z",
+      validationEnded: null,
+      validationType: ["file"],
+      validationScope: "New",
+    },
+    // Running - Both - New
+    {
+      expected:
+        "The validation (Type: Both, Target: New Uploaded Data) started on 06-12-2024 at 01:55 PM and is still in progress...",
+      validationStarted: "2024-06-12T13:55:03Z",
+      validationEnded: null,
+      validationType: ["metadata", "file"],
+      validationScope: "New",
+    },
+    // Running - Both - All
+    {
+      expected:
+        "The validation (Type: Both, Target: All Uploaded Data) started on 06-12-2024 at 01:56 PM and is still in progress...",
+      validationStarted: "2024-06-12T13:56:09Z",
+      validationEnded: null,
+      validationType: ["metadata", "file"],
+      validationScope: "All",
+    },
+    // Complete - Metadata - New
+    {
+      expected:
+        "The last validation (Type: Metadata, Target: New Uploaded Data) that ran on 06-12-2024 at 01:57 PM was completed on 06-12-2024 at 01:58 PM.",
+      validationStarted: "2024-06-12T13:57:00Z",
+      validationEnded: "2024-06-12T13:58:22Z",
+      validationType: ["metadata"],
+      validationScope: "New",
+    },
+    // Complete - File - New
+    {
+      expected:
+        "The last validation (Type: Data files, Target: New Uploaded Data) that ran on 06-12-2024 at 01:59 PM was completed on 06-12-2024 at 02:00 PM.",
+      validationStarted: "2024-06-12T13:59:00Z",
+      validationEnded: "2024-06-12T14:00:00Z",
+      validationType: ["file"],
+      validationScope: "New",
+    },
+    // Complete - Both - New
+    {
+      expected:
+        "The last validation (Type: Both, Target: New Uploaded Data) that ran on 06-12-2024 at 02:01 PM was completed on 06-12-2024 at 02:02 PM.",
+      validationStarted: "2024-06-12T14:01:00Z",
+      validationEnded: "2024-06-12T14:02:00Z",
+      validationType: ["metadata", "file"],
+      validationScope: "New",
+    },
+    // Complete - Both - All
+    {
+      expected:
+        "The last validation (Type: Both, Target: All Uploaded Data) that ran on 06-12-2024 at 02:03 PM was completed on 06-12-2024 at 02:04 PM.",
+      validationStarted: "2024-06-12T14:03:00Z",
+      validationEnded: "2024-06-12T14:04:00Z",
+      validationType: ["metadata", "file"],
+      validationScope: "All",
+    },
+  ])(
+    `should correctly format the tooltip text based on the most recent validation state`,
+    async ({ expected, ...submission }) => {
+      const { getByTestId, findByRole } = render(<ValidationStatus submission={submission} />);
+
+      userEvent.hover(getByTestId("validation-status-chip"));
+
+      const tooltip = await findByRole("tooltip");
+      expect(tooltip).toHaveTextContent(expected, { normalizeWhitespace: true });
+    }
+  );
 });
