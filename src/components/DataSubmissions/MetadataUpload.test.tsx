@@ -36,7 +36,7 @@ const baseSubmission: Omit<
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
-  validationType: "All",
+  validationType: ["metadata", "file"],
 };
 
 const baseContext: ContextState = {

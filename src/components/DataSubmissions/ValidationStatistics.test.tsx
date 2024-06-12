@@ -29,7 +29,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
-  validationType: "All",
+  validationType: ["metadata", "file"],
 };
 
 describe("Accessibility", () => {

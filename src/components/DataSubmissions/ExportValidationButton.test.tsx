@@ -53,7 +53,7 @@ describe("ExportValidationButton cases", () => {
     validationStarted: "",
     validationEnded: "",
     validationScope: "New",
-    validationType: "All",
+    validationType: ["metadata", "file"],
   };
 
   const baseQCResult: Omit<QCResult, "submissionID"> = {

@@ -49,7 +49,7 @@ const baseSubmission: Submission = {
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
-  validationType: "All",
+  validationType: ["metadata", "file"],
 };
 
 const baseContext: ContextState = {

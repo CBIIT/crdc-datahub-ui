@@ -6,9 +6,9 @@
  */
 export const getValidationTypes = (validationType: ValidationType): string[] => {
   switch (validationType) {
-    case "Metadata":
+    case "metadata":
       return ["metadata"];
-    case "Files":
+    case "file":
       return ["file"];
     default:
       return ["metadata", "file"];
@@ -40,13 +40,13 @@ export const getDefaultValidationType = (
     return "All";
   }
   if (metadataValidationStatus !== null) {
-    return "Metadata";
+    return "metadata";
   }
   if (fileValidationStatus !== null) {
-    return "Files";
+    return "file";
   }
 
-  return "Metadata";
+  return "metadata";
 };
 
 /**

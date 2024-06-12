@@ -151,10 +151,10 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     if (isValidating || !validationType || !uploadType) {
       return;
     }
-    if (!canValidateFiles && validationType === "Files") {
+    if (!canValidateFiles && validationType === "file") {
       return;
     }
-    if (!canValidateMetadata && validationType === "Metadata") {
+    if (!canValidateMetadata && validationType === "metadata") {
       return;
     }
 
@@ -268,13 +268,13 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
               row
             >
               <StyledRadioControl
-                value="Metadata"
+                value="metadata"
                 control={<StyledRadioButton readOnly={false} />}
                 label="Validate Metadata"
                 disabled={!canValidateMetadata}
               />
               <StyledRadioControl
-                value="Files"
+                value="file"
                 control={<StyledRadioButton readOnly={false} />}
                 label="Validate Data Files"
                 disabled={!canValidateFiles}

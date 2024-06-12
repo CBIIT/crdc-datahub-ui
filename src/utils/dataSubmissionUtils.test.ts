@@ -29,7 +29,7 @@ const baseSubmission: Submission = {
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
-  validationType: "All",
+  validationType: ["metadata", "file"],
 };
 
 describe("General Submit", () => {
