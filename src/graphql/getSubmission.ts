@@ -73,6 +73,13 @@ export const query = gql`
   }
 `;
 
+export type Input = {
+  /**
+   * The submission ID
+   */
+  id: string;
+};
+
 export type Response = {
   /**
    * The submission object

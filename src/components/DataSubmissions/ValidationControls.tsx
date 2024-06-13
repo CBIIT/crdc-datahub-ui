@@ -15,6 +15,7 @@ import {
 import FlowWrapper from "./FlowWrapper";
 import { CrossValidationButton } from "./CrossValidationButton";
 import { ValidationStatus } from "./ValidationStatus";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -86,15 +87,9 @@ type Props = {
   /**
    * The data submission to display validation controls for.
    *
-   * NOTE: Initially null during the loading state.
+   * @deprecated This prop is deprecated. Use `useSubmissionContext` instead.
    */
   dataSubmission?: Submission;
-  /**
-   * Callback function called when the validating is initiated.
-   *
-   * @param success whether the validation was successfully initiated
-   */
-  onValidate: (success: boolean, types: ValidationType[]) => void;
 };
 
 /**
@@ -103,11 +98,12 @@ type Props = {
  * @param {Props}
  * @returns {React.FC<Props>}
  */
-const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) => {
+const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { updateQuery, refetch } = useSubmissionContext();
 
-  const [validationType, setValidationType] = useState<ValidationType>(null);
+  const [validationType, setValidationType] = useState<ValidationType | "All">(null);
   const [uploadType, setUploadType] = useState<ValidationTarget>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(
@@ -161,12 +157,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
 
     setIsLoading(true);
 
-    const types = getValidationTypes(validationType);
     const { data, errors } = await validateSubmission({
       variables: {
         _id: dataSubmission?._id,
-        types,
-        scope: uploadType === "New" ? "New" : "All",
+        types: getValidationTypes(validationType),
+        scope: uploadType,
       },
     }).catch((e) => ({ errors: e?.message, data: null }));
 
@@ -175,17 +170,41 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         variant: "error",
       });
       setIsValidating(false);
-      onValidate?.(false, null);
     } else {
       enqueueSnackbar(
         "Validation process is starting; this may take some time. Please wait before initiating another validation.",
         { variant: "success" }
       );
       setIsValidating(true);
-      onValidate?.(true, types);
+      handleOnValidate();
     }
 
     setIsLoading(false);
+  };
+
+  const handleOnValidate = () => {
+    // NOTE: This forces the UI to rerender with the new statuses immediately
+    const types = getValidationTypes(validationType);
+    updateQuery((prev) => ({
+      ...prev,
+      getSubmission: {
+        ...prev.getSubmission,
+        fileValidationStatus: types?.includes("file")
+          ? "Validating"
+          : prev?.getSubmission?.fileValidationStatus,
+        metadataValidationStatus: types?.includes("metadata")
+          ? "Validating"
+          : prev?.getSubmission?.metadataValidationStatus,
+        validationStarted: new Date().toISOString(),
+        validationEnded: null,
+        validationType: types,
+        validationScope: uploadType,
+      },
+    }));
+
+    // Kick off polling to check for validation status change
+    // NOTE: We're waiting 1000ms to allow the cache to update
+    setTimeout(refetch, 1000);
   };
 
   const Actions: ReactElement = useMemo(
@@ -201,12 +220,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         >
           {isValidating ? "Validating..." : "Validate"}
         </StyledValidateButton>
-        <CrossValidationButton
-          submission={dataSubmission}
-          variant="contained"
-          color="info"
-          onValidate={onValidate}
-        />
+        <CrossValidationButton submission={dataSubmission} variant="contained" color="info" />
       </>
     ),
     [

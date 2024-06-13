@@ -2,6 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import DataSubmission from "./DataSubmission";
 import ListView from "./DataSubmissionsListView";
+import { SubmissionProvider } from "../../components/Contexts/SubmissionContext";
 
 /**
  * Render the correct view based on the URL
@@ -13,7 +14,11 @@ const DataSubmissionController = () => {
   const { submissionId, tab } = useParams();
 
   if (submissionId) {
-    return <DataSubmission submissionId={submissionId} tab={tab} />;
+    return (
+      <SubmissionProvider _id={submissionId}>
+        <DataSubmission submissionId={submissionId} tab={tab} />
+      </SubmissionProvider>
+    );
   }
 
   return <ListView />;

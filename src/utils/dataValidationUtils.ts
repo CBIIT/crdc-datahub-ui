@@ -4,7 +4,7 @@
  * @param validationType The validation type selected.
  * @returns The array of types to validate.
  */
-export const getValidationTypes = (validationType: ValidationType): ValidationType[] => {
+export const getValidationTypes = (validationType: ValidationType | "All"): ValidationType[] => {
   switch (validationType) {
     case "metadata":
       return ["metadata"];
@@ -27,7 +27,7 @@ export const getDefaultValidationType = (
   dataSubmission: Submission,
   user: User,
   permissionMap: Partial<Record<Submission["status"], User["role"][]>>
-): ValidationType => {
+): ValidationType | "All" => {
   const { role } = user || {};
   const { status, metadataValidationStatus, fileValidationStatus } = dataSubmission || {};
 

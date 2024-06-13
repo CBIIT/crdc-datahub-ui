@@ -1,5 +1,5 @@
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Alert,
   Box,
@@ -21,10 +21,8 @@ import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
 import {
-  GET_SUBMISSION,
   LIST_BATCHES,
   SUBMISSION_ACTION,
-  GetSubmissionResp,
   ListBatchesResp,
   SubmissionActionResp,
 } from "../../graphql";
@@ -50,6 +48,7 @@ import SubmittedData from "./SubmittedData";
 import { UserGuide } from "../../components/DataSubmissions/UserGuide";
 import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import { DataUpload } from "../../components/DataSubmissions/DataUpload";
+import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -361,6 +360,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { data, error: submissionError, refetch: getSubmission } = useSubmissionContext();
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [totalBatches, setTotalBatches] = useState<number>(0);
@@ -375,31 +375,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     ((pollInterval: number) => void) | null
   >(null);
   const [stopBatchPolling, setStopBatchPolling] = useState<(() => void) | null>(null);
-
-  const {
-    data,
-    error: submissionError,
-    startPolling,
-    stopPolling,
-    refetch: getSubmission,
-    updateQuery: updateSubmissionQuery,
-  } = useQuery<GetSubmissionResp>(GET_SUBMISSION, {
-    notifyOnNetworkStatusChange: true,
-    onCompleted: (d) => {
-      if (
-        d?.getSubmission?.fileValidationStatus !== "Validating" &&
-        d?.getSubmission?.metadataValidationStatus !== "Validating" &&
-        d?.getSubmission?.crossSubmissionStatus !== "Validating"
-      ) {
-        stopPolling();
-      } else {
-        startPolling(1000);
-      }
-    },
-    variables: { id: submissionId },
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-  });
 
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
@@ -545,34 +520,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     setSelectedRow(data);
   };
 
-  const handleOnValidate = useCallback(
-    (status: boolean, types: ValidationType[]) => {
-      if (!status) {
-        return;
-      }
-
-      startPolling(1000);
-
-      // NOTE: This forces the UI to rerender with the new statuses immediately
-      updateSubmissionQuery((prev) => ({
-        ...prev,
-        getSubmission: {
-          ...prev.getSubmission,
-          fileValidationStatus: types?.includes("file")
-            ? "Validating"
-            : prev?.getSubmission?.fileValidationStatus,
-          metadataValidationStatus: types?.includes("metadata")
-            ? "Validating"
-            : prev?.getSubmission?.metadataValidationStatus,
-          crossSubmissionStatus: types?.includes("cross-submission")
-            ? "Validating"
-            : prev?.getSubmission?.crossSubmissionStatus,
-        },
-      }));
-    },
-    [startPolling, updateSubmissionQuery]
-  );
-
   const providerValue = useMemo(
     () => ({
       handleOpenErrorDialog,
@@ -641,10 +588,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                 onUpload={handleOnUpload}
               />
               <DataUpload submission={data?.getSubmission} />
-              <ValidationControls
-                dataSubmission={data?.getSubmission}
-                onValidate={handleOnValidate}
-              />
+              <ValidationControls dataSubmission={data?.getSubmission} />
             </StyledFlowContainer>
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_ACTIVITY}>
               <LinkTab
