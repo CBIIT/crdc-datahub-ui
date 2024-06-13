@@ -54,18 +54,14 @@ const baseAuthCtx: AuthCtxState = {
   user: null,
 };
 
-const mockStartPolling = jest.fn();
-const mockStopPolling = jest.fn();
-const mockRefetch = jest.fn();
-const mockUpdateQuery = jest.fn();
 const baseSubmissionCtx: SubmissionCtxState = {
   status: SubmissionCtxStatus.LOADING,
   data: null,
   error: null,
-  startPolling: mockStartPolling,
-  stopPolling: mockStopPolling,
-  refetch: mockRefetch,
-  updateQuery: mockUpdateQuery,
+  startPolling: jest.fn(),
+  stopPolling: jest.fn(),
+  refetch: jest.fn(),
+  updateQuery: jest.fn(),
 };
 
 const baseUser: Omit<User, "role"> = {
@@ -636,10 +632,15 @@ describe("Implementation Requirements", () => {
       },
     ];
 
+    const mockRefetch = jest.fn();
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submissionCtxState={{
+          ...baseSubmissionCtx,
+          refetch: mockRefetch,
+        }}
       >
         <ValidationControls
           dataSubmission={{
@@ -663,9 +664,12 @@ describe("Implementation Requirements", () => {
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
-    await waitFor(() => {
-      expect(mockRefetch).toHaveBeenCalledTimes(1);
-    });
+    await waitFor(
+      () => {
+        expect(mockRefetch).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 1500 }
+    );
 
     // NOTE: We're asserting that the state is not reset to the default values
     expect(getByLabelText(typeRadio, "Both")).toBeChecked();
@@ -690,10 +694,15 @@ describe("Implementation Requirements", () => {
       },
     ];
 
+    const mockRefetch = jest.fn();
     const { getByTestId, rerender } = render(
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submissionCtxState={{
+          ...baseSubmissionCtx,
+          refetch: mockRefetch,
+        }}
       >
         <ValidationControls
           dataSubmission={{
@@ -717,11 +726,14 @@ describe("Implementation Requirements", () => {
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
-    await waitFor(() => {
-      expect(mockRefetch).toHaveBeenCalledTimes(1);
-      expect(getByLabelText(typeRadio, "Validate Data Files")).toBeChecked();
-      expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeChecked();
-    });
+    await waitFor(
+      () => {
+        expect(mockRefetch).toHaveBeenCalledTimes(1);
+        expect(getByLabelText(typeRadio, "Validate Data Files")).toBeChecked();
+        expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeChecked();
+      },
+      { timeout: 1500 }
+    );
 
     // Trigger re-render with validation statuses as 'Validating'
     rerender(

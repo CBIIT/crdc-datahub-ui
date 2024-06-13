@@ -54,18 +54,14 @@ const baseAuthCtx: AuthCtxState = {
   user: null,
 };
 
-const mockStartPolling = jest.fn();
-const mockStopPolling = jest.fn();
-const mockRefetch = jest.fn();
-const mockUpdateQuery = jest.fn();
 const baseSubmissionCtx: SubmissionCtxState = {
   status: SubmissionCtxStatus.LOADING,
   data: null,
   error: null,
-  startPolling: mockStartPolling,
-  stopPolling: mockStopPolling,
-  refetch: mockRefetch,
-  updateQuery: mockUpdateQuery,
+  startPolling: jest.fn(),
+  stopPolling: jest.fn(),
+  refetch: jest.fn(),
+  updateQuery: jest.fn(),
 };
 
 const baseUser: Omit<User, "role"> = {
