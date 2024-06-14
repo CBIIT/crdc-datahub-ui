@@ -8,7 +8,7 @@ export type InstitutionCtxState = {
    */
   status: InstitutionCtxStatus;
   /**
-   * List of institutions or an empty array if something went wrong
+   * An array of Submission Request institutions
    */
   data: string[];
 };
@@ -77,10 +77,10 @@ export const InstitutionProvider: FC<ProviderProps> = ({ children }: ProviderPro
       return;
     }
 
-    setState({
-      status: InstitutionCtxStatus.LOADED,
-      data: data?.listInstitutions || [],
-    });
+    const sortedData = [...data.listInstitutions]
+      .filter((v) => !!v && typeof v === "string")
+      .sort((a, b) => a.localeCompare(b));
+    setState({ status: InstitutionCtxStatus.LOADED, data: sortedData });
   }, [loading, error, data]);
 
   return <InstitutionCtx.Provider value={state}>{children}</InstitutionCtx.Provider>;

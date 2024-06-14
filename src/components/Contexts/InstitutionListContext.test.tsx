@@ -17,6 +17,7 @@ const TestChild: FC = () => {
     <>
       <div data-testid="ctx-status">{status}</div>
       <div data-testid="ctx-data-length">{data?.length}</div>
+      <div data-testid="ctx-data-json">{data ? JSON.stringify(data) : null}</div>
     </>
   );
 };
@@ -36,7 +37,7 @@ describe("useInstitutionList", () => {
     jest.spyOn(console, "error").mockRestore();
   });
 
-  it("should render without crashing > empty array", async () => {
+  it("should render without crashing (no data)", async () => {
     const mocks: MockedResponse<ListInstitutionsResp>[] = [
       {
         request: {
@@ -56,7 +57,7 @@ describe("useInstitutionList", () => {
     expect(getByTestId("ctx-data-length")).toHaveTextContent("0");
   });
 
-  it("should render without crashing > null", async () => {
+  it("should render without crashing (null data)", async () => {
     const mocks: MockedResponse<ListInstitutionsResp>[] = [
       {
         request: {
@@ -76,7 +77,7 @@ describe("useInstitutionList", () => {
     expect(getByTestId("ctx-data-length")).toHaveTextContent("0");
   });
 
-  it("should render without crashing > actual data", async () => {
+  it("should render without crashing (actual data)", async () => {
     const mocks: MockedResponse<ListInstitutionsResp>[] = [
       {
         request: {
@@ -128,5 +129,51 @@ describe("useInstitutionList", () => {
 
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("ERROR"));
     expect(getByTestId("ctx-data-length")).toHaveTextContent("0");
+  });
+
+  it("should sort the names alphabetically in descending order", async () => {
+    const mocks: MockedResponse<ListInstitutionsResp>[] = [
+      {
+        request: {
+          query: LIST_INSTITUTIONS,
+        },
+        result: {
+          data: {
+            listInstitutions: ["zebra", "1 potato", "1 alphabet", "NIH", "CDS"],
+          },
+        },
+      },
+    ];
+
+    const { getByTestId } = render(<TestParent mocks={mocks} />);
+
+    await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("LOADED"));
+
+    const dataset = JSON.parse(getByTestId("ctx-data-json").textContent);
+    expect(dataset[0]).toBe("1 alphabet");
+    expect(dataset[1]).toBe("1 potato");
+    expect(dataset[2]).toBe("CDS");
+    expect(dataset[3]).toBe("NIH");
+    expect(dataset[4]).toBe("zebra");
+  });
+
+  it("should filter unexpected data types from the results", async () => {
+    const mocks: MockedResponse<ListInstitutionsResp>[] = [
+      {
+        request: {
+          query: LIST_INSTITUTIONS,
+        },
+        result: {
+          data: {
+            listInstitutions: ["real data", { thisIsAObject: true }, 456, null] as string[],
+          },
+        },
+      },
+    ];
+
+    const { getByTestId } = render(<TestParent mocks={mocks} />);
+
+    await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("LOADED"));
+    expect(getByTestId("ctx-data-length")).toHaveTextContent("1");
   });
 });
