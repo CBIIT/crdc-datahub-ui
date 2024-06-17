@@ -106,9 +106,12 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
   const [validationType, setValidationType] = useState<ValidationType | "All">(null);
   const [uploadType, setUploadType] = useState<ValidationTarget>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isValidating, setIsValidating] = useState<boolean>(
-    dataSubmission?.fileValidationStatus === "Validating" ||
-      dataSubmission?.metadataValidationStatus === "Validating"
+
+  const isValidating = useMemo<boolean>(
+    () =>
+      dataSubmission?.fileValidationStatus === "Validating" ||
+      dataSubmission?.metadataValidationStatus === "Validating",
+    [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]
   );
   const prevIsValidating = useRef<boolean>(isValidating);
 
@@ -169,13 +172,11 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
       enqueueSnackbar("Unable to initiate validation process.", {
         variant: "error",
       });
-      setIsValidating(false);
     } else {
       enqueueSnackbar(
         "Validation process is starting; this may take some time. Please wait before initiating another validation.",
         { variant: "success" }
       );
-      setIsValidating(true);
       handleOnValidate();
     }
 
@@ -237,8 +238,6 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
     const validating =
       dataSubmission?.fileValidationStatus === "Validating" ||
       dataSubmission?.metadataValidationStatus === "Validating";
-
-    setIsValidating(validating);
 
     // Reset the validation type and target only if the validation process finished
     if (!validating && prevIsValidating.current === true) {

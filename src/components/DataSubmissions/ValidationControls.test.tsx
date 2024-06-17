@@ -202,7 +202,6 @@ describe("Basic Functionality", () => {
           variant: "success",
         }
       );
-      expect(getByTestId("validate-controls-validate-button")).toBeDisabled();
     });
   });
 
