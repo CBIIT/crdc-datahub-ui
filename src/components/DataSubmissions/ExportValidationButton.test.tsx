@@ -469,9 +469,12 @@ describe("ExportValidationButton cases", () => {
     fireEvent.click(getByTestId("export-validation-button"));
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to export validation results.", {
-        variant: "error",
-      });
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        expect.stringContaining("Unable to export validation results. Error:"),
+        {
+          variant: "error",
+        }
+      );
     });
   });
 });
