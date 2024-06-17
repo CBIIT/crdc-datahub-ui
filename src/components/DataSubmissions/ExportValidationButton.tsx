@@ -5,6 +5,7 @@ import { CloudDownload } from "@mui/icons-material";
 import { useSnackbar } from "notistack";
 import dayjs from "dayjs";
 import { unparse } from "papaparse";
+import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
 import { downloadBlob, filterAlphaNumeric, unpackQCResultSeverities } from "../../utils";
 
@@ -25,6 +26,12 @@ export type Props = {
 
 const StyledIconButton = styled(IconButton)({
   color: "#606060",
+});
+
+const StyledTooltip = styled(StyledFormTooltip)({
+  "& .MuiTooltip-tooltip": {
+    color: "#000000",
+  },
 });
 
 /**
@@ -96,7 +103,7 @@ export const ExportValidationButton: React.FC<Props> = ({
 
       downloadBlob(unparse(csvArray), filename, "text/csv");
     } catch (err) {
-      enqueueSnackbar("Unable to export validation results.", {
+      enqueueSnackbar(`Unable to export validation results. Error: ${err}`, {
         variant: "error",
       });
     }
@@ -105,14 +112,27 @@ export const ExportValidationButton: React.FC<Props> = ({
   };
 
   return (
-    <StyledIconButton
-      onClick={handleClick}
-      disabled={loading || disabled}
-      data-testid="export-validation-button"
-      aria-label="Export validation results"
-      {...buttonProps}
+    <StyledTooltip
+      title={
+        <span>
+          Export all validation issues for this data <br />
+          submission to a CSV file
+        </span>
+      }
+      placement="top"
+      data-testid="export-validation-tooltip"
     >
-      <CloudDownload />
-    </StyledIconButton>
+      <span>
+        <StyledIconButton
+          onClick={handleClick}
+          disabled={loading || disabled}
+          data-testid="export-validation-button"
+          aria-label="Export validation results"
+          {...buttonProps}
+        >
+          <CloudDownload />
+        </StyledIconButton>
+      </span>
+    </StyledTooltip>
   );
 };

@@ -224,7 +224,7 @@ const ListingView: FC = () => {
 
   const { user } = useAuthContext();
   const { state } = useLocation();
-  const { data: orgData } = useOrganizationListContext();
+  const { data: orgData, activeOrganizations } = useOrganizationListContext();
 
   const [dataset, setDataset] = useState<T[]>([]);
   const [count, setCount] = useState<number>(0);
@@ -331,7 +331,7 @@ const ListingView: FC = () => {
                   inputProps={{ id: "organization-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
-                  {orgData?.map((org: Organization) => (
+                  {activeOrganizations?.map((org: Organization) => (
                     <MenuItem key={org._id} value={org._id}>
                       {org.name}
                     </MenuItem>
