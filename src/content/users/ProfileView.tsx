@@ -192,11 +192,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<string>("");
   const userOrg = orgData?.find((org) => org._id === user?.organization?.orgID);
-  const orgList =
-    userOrg?.status === "Inactive"
-      ? [...activeOrganizations, userOrg].sort((a, b) => a.name?.localeCompare(b.name || ""))
-      : activeOrganizations || [];
-
+  const [orgList, setOrgList] = useState<Partial<Organization>[]>(undefined);
   const role = watch("role");
   const orgFieldDisabled = useMemo(
     () => !OrgRequiredRoles.includes(role) && role !== "User",
@@ -225,6 +221,20 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
+
+  useEffect(() => {
+    if (!user || orgStatus === OrgStatus.LOADING) {
+      return;
+    }
+    if (userOrg?.status === "Inactive") {
+      setOrgList(
+        [...activeOrganizations, userOrg].sort((a, b) => a.name?.localeCompare(b.name || ""))
+      );
+      return;
+    }
+
+    setOrgList(activeOrganizations || []);
+  }, [activeOrganizations, userOrg, user, orgStatus]);
 
   /**
    * Updates the default form values after save or initial fetch
@@ -285,6 +295,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
         if (d.editUser.userStatus === "Inactive") {
           logout();
         }
+      } else {
+        setUser((prevUser) => ({ ...prevUser, ...d.editUser }));
       }
     }
 
@@ -332,7 +344,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     }
   }, [role]);
 
-  if (!user || orgStatus === OrgStatus.LOADING || authStatus === AuthStatus.LOADING) {
+  if (
+    !user ||
+    orgStatus === OrgStatus.LOADING ||
+    authStatus === AuthStatus.LOADING ||
+    orgList === undefined
+  ) {
     return <SuspenseLoader />;
   }
 
