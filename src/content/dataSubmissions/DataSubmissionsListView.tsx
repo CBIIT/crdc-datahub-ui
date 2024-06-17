@@ -247,7 +247,7 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { status: orgStatus, data: allOrganizations } = useOrganizationListContext();
+  const { status: orgStatus, activeOrganizations: allOrganizations } = useOrganizationListContext();
 
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<Column>(
