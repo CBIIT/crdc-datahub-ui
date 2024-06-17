@@ -1,20 +1,20 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
-import { isEqual } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 import { Box, Button, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useSnackbar } from "notistack";
 import {
   LIST_BATCHES,
-  LIST_NODE_TYPES,
   ListBatchesResp,
-  ListNodeTypesResp,
   SUBMISSION_QC_RESULTS,
+  SUBMISSION_STATS,
   SubmissionQCResultsResp,
+  SubmissionStatsResp,
 } from "../../graphql";
 import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
-import { FormatDate, titleCase } from "../../utils";
+import { FormatDate, compareNodeStats, titleCase } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
@@ -225,11 +225,22 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: nodeTypes } = useQuery<ListNodeTypesResp>(LIST_NODE_TYPES, {
-    variables: { _id: submissionId },
+  const { data: submissionStats } = useQuery<SubmissionStatsResp>(SUBMISSION_STATS, {
+    variables: { id: submissionId },
     context: { clientName: "backend" },
+    skip: !submissionId,
     fetchPolicy: "cache-and-network",
   });
+
+  const nodeTypes = useMemo(
+    () =>
+      cloneDeep(submissionStats?.submissionStats?.stats)
+        ?.filter((stat) => stat.error > 0 || stat.warning > 0)
+        ?.sort(compareNodeStats)
+        ?.reverse()
+        ?.map((stat) => stat.nodeName),
+    [submissionStats?.submissionStats?.stats]
+  );
 
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
@@ -355,7 +366,7 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
                   inputProps={{ id: "nodeType-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
-                  {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
+                  {nodeTypes?.map((nodeType) => (
                     <MenuItem key={nodeType} value={nodeType}>
                       {nodeType}
                     </MenuItem>
