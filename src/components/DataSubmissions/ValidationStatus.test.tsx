@@ -1,21 +1,85 @@
 import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
+import { useMemo } from "react";
 import { ValidationStatus } from "./ValidationStatus";
 import RedBellIcon from "../../assets/icons/red_bell.svg";
 import GreenBellIcon from "../../assets/icons/green_bell.svg";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../Contexts/SubmissionContext";
+
+const BaseSubmission: Omit<
+  Submission,
+  "validationStarted" | "validationEnded" | "validationType" | "validationScope"
+> = {
+  _id: "",
+  name: "",
+  submitterID: "",
+  submitterName: "",
+  organization: undefined,
+  dataCommons: "",
+  modelVersion: "",
+  studyAbbreviation: "",
+  dbGaPID: "",
+  bucketName: "",
+  rootPath: "",
+  status: "New",
+  metadataValidationStatus: "New",
+  fileValidationStatus: "New",
+  crossSubmissionStatus: "New",
+  fileErrors: [],
+  history: [],
+  conciergeName: "",
+  conciergeEmail: "",
+  intention: "New/Update",
+  dataType: "Metadata Only",
+  otherSubmissions: "",
+  createdAt: "",
+  updatedAt: "",
+};
+
+type TestParentProps = {
+  submission: Pick<
+    Submission,
+    "validationStarted" | "validationEnded" | "validationType" | "validationScope"
+  >;
+  children: React.ReactNode;
+};
+
+const TestParent: React.FC<TestParentProps> = ({ submission, children }) => {
+  const value = useMemo<SubmissionCtxState>(
+    () => ({
+      status: SubmissionCtxStatus.LOADED,
+      error: null,
+      data: {
+        getSubmission: { ...BaseSubmission, ...submission },
+        submissionStats: {
+          stats: [],
+        },
+      },
+    }),
+    [submission]
+  );
+
+  return <SubmissionContext.Provider value={value}>{children}</SubmissionContext.Provider>;
+};
 
 describe("Accessibility", () => {
   it("should not have accessibility violations (Complete)", async () => {
     const { container } = render(
-      <ValidationStatus
+      <TestParent
         submission={{
           validationStarted: "2024-06-12T13:24:00Z",
           validationEnded: "2024-06-12T13:13:00Z",
           validationType: ["file"],
           validationScope: "all",
         }}
-      />
+      >
+        <ValidationStatus />
+      </TestParent>
     );
 
     expect(await axe(container)).toHaveNoViolations();
@@ -23,14 +87,16 @@ describe("Accessibility", () => {
 
   it("should not have accessibility violations (In Progress)", async () => {
     const { container } = render(
-      <ValidationStatus
+      <TestParent
         submission={{
           validationStarted: "2024-06-12T13:25:00Z",
           validationEnded: null,
           validationType: ["file"],
           validationScope: "all",
         }}
-      />
+      >
+        <ValidationStatus />
+      </TestParent>
     );
 
     expect(await axe(container)).toHaveNoViolations();
@@ -44,21 +110,27 @@ describe("Basic Functionality", () => {
   });
 
   it("should not crash if the submission is null", async () => {
-    const { container } = render(<ValidationStatus submission={null} />);
+    const { container } = render(
+      <TestParent submission={null}>
+        <ValidationStatus />
+      </TestParent>
+    );
 
     expect(container.firstChild).toBeNull();
   });
 
   it("should not appear for a new submission without validation history", async () => {
     const { container, getByTestId } = render(
-      <ValidationStatus
+      <TestParent
         submission={{
           validationStarted: null,
           validationEnded: null,
           validationType: null,
           validationScope: null,
         }}
-      />
+      >
+        <ValidationStatus />
+      </TestParent>
     );
 
     expect(container.firstChild).toBeNull();
@@ -67,27 +139,31 @@ describe("Basic Functionality", () => {
 
   it("should rerender when the validation state changes", async () => {
     const { getByText, rerender } = render(
-      <ValidationStatus
+      <TestParent
         submission={{
           validationStarted: "2024-06-12T13:31:00Z",
           validationEnded: null,
           validationType: ["metadata"],
           validationScope: "all",
         }}
-      />
+      >
+        <ValidationStatus />
+      </TestParent>
     );
 
     expect(getByText(/validation in-progress/i)).toBeInTheDocument();
 
     rerender(
-      <ValidationStatus
+      <TestParent
         submission={{
           validationStarted: "2024-06-12T13:31:00Z",
           validationEnded: "2024-06-12T13:35:00Z",
           validationType: ["metadata"],
           validationScope: "all",
         }}
-      />
+      >
+        <ValidationStatus />
+      </TestParent>
     );
 
     await waitFor(() => {
@@ -103,14 +179,16 @@ describe("Implementation Requirements", () => {
 
   it("should have a tooltip appear on hover", async () => {
     const { getByTestId, findByRole } = render(
-      <ValidationStatus
+      <TestParent
         submission={{
           validationStarted: "2024-06-12T13:35:00Z",
           validationEnded: "2024-06-12T13:37:00Z",
           validationType: ["metadata", "file"],
           validationScope: "all",
         }}
-      />
+      >
+        <ValidationStatus />
+      </TestParent>
     );
 
     userEvent.hover(getByTestId("validation-status-chip"));
@@ -123,14 +201,16 @@ describe("Implementation Requirements", () => {
 
   it("should indicate that validation is ongoing with an icon and chip", () => {
     const { getByTestId } = render(
-      <ValidationStatus
+      <TestParent
         submission={{
           validationStarted: "2024-06-12T13:42:00Z",
           validationEnded: null,
           validationType: ["file"],
           validationScope: "new",
         }}
-      />
+      >
+        <ValidationStatus />
+      </TestParent>
     );
 
     expect(getByTestId("validation-status-icon")).toBeInTheDocument();
@@ -141,14 +221,16 @@ describe("Implementation Requirements", () => {
 
   it("should indicate that validation is complete with an icon and chip", () => {
     const { getByTestId } = render(
-      <ValidationStatus
+      <TestParent
         submission={{
           validationStarted: "2024-06-12T13:43:00Z",
           validationEnded: "2024-06-12T13:44:00Z",
           validationType: ["file"],
           validationScope: "new",
         }}
-      />
+      >
+        <ValidationStatus />
+      </TestParent>
     );
 
     expect(getByTestId("validation-status-icon")).toBeInTheDocument();
@@ -238,7 +320,11 @@ describe("Implementation Requirements", () => {
   ])(
     `should correctly format the tooltip text based on the most recent validation state`,
     async ({ expected, ...submission }) => {
-      const { getByTestId, findByRole } = render(<ValidationStatus submission={submission} />);
+      const { getByTestId, findByRole } = render(
+        <TestParent submission={submission}>
+          <ValidationStatus />
+        </TestParent>
+      );
 
       userEvent.hover(getByTestId("validation-status-chip"));
 

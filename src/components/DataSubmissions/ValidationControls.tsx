@@ -272,7 +272,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
       index={3}
       titleContainerSx={{ marginBottom: "4px", columnGap: "12px" }}
       title="Validate Data"
-      titleAdornment={<ValidationStatus submission={dataSubmission} />}
+      titleAdornment={<ValidationStatus />}
       actions={Actions}
       last
     >

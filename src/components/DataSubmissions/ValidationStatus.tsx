@@ -4,6 +4,7 @@ import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import RedBell from "../../assets/icons/red_bell.svg";
 import GreenBell from "../../assets/icons/green_bell.svg";
 import { FormatDate, capitalizeFirstLetter } from "../../utils";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
 
 const StyledChip = styled(Box, { shouldForwardProp: (p) => p !== "variant" })<{
   variant: "green" | "red";
@@ -30,27 +31,15 @@ const StyledImage = styled("img")({
   marginRight: "7px",
 });
 
-export type Props = {
-  /**
-   * The relevant Data Submission object.
-   *
-   * Accepts either a Submission object or a subset of its properties.
-   */
-  submission:
-    | Pick<
-        Submission,
-        "validationStarted" | "validationEnded" | "validationType" | "validationScope"
-      >
-    | Submission;
-};
-
 /**
  * Provides the implementation for the ValidationControls current validation Status text.
  *
  * @returns {React.FC}
  */
-export const ValidationStatus: React.FC<Props> = ({ submission }: Props) => {
-  const { validationStarted, validationEnded, validationScope, validationType } = submission || {};
+export const ValidationStatus: React.FC = () => {
+  const { data } = useSubmissionContext();
+  const { validationStarted, validationEnded, validationScope, validationType } =
+    data?.getSubmission || {};
 
   const hadValidation: boolean = useMemo<boolean>(
     () => !!validationStarted || !!validationEnded || !!validationScope || !!validationType,
