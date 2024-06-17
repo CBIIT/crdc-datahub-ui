@@ -17,8 +17,11 @@ import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import bannerSvg from "../../assets/banner/profile_banner.png";
 import profileIcon from "../../assets/icons/profile_icon.svg";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
-import { useOrganizationListContext } from "../../components/Contexts/OrganizationListContext";
+import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
+import {
+  Status as OrgStatus,
+  useOrganizationListContext,
+} from "../../components/Contexts/OrganizationListContext";
 import GenericAlert from "../../components/GenericAlert";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { OrgAssignmentMap, OrgRequiredRoles, Roles } from "../../config/AuthRoles";
@@ -176,21 +179,20 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   usePageTitle(viewType === "profile" ? "User Profile" : `Edit User ${_id}`);
 
   const navigate = useNavigate();
-  const { data: orgData } = useOrganizationListContext();
-  const { user: currentUser, setData, logout } = useAuthContext();
+  const { data: orgData, activeOrganizations, status: orgStatus } = useOrganizationListContext();
+  const { user: currentUser, setData, logout, status: authStatus } = useAuthContext();
+  const { handleSubmit, register, reset, watch, setValue, control, formState } =
+    useForm<FormInput>();
 
   const isSelf = _id === currentUser._id;
-
   const [user, setUser] = useState<User | null>(
     isSelf && viewType === "profile" ? { ...currentUser } : null
   );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [changesAlert, setChangesAlert] = useState<string>("");
-
-  const { handleSubmit, register, reset, watch, setValue, control, formState } =
-    useForm<FormInput>();
-
+  const userOrg = orgData?.find((org) => org._id === user?.organization?.orgID);
+  const [orgList, setOrgList] = useState<Partial<Organization>[]>(undefined);
   const role = watch("role");
   const orgFieldDisabled = useMemo(
     () => !OrgRequiredRoles.includes(role) && role !== "User",
@@ -219,6 +221,20 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
+
+  useEffect(() => {
+    if (!user || orgStatus === OrgStatus.LOADING) {
+      return;
+    }
+    if (userOrg?.status === "Inactive") {
+      setOrgList(
+        [...activeOrganizations, userOrg].sort((a, b) => a.name?.localeCompare(b.name || ""))
+      );
+      return;
+    }
+
+    setOrgList(activeOrganizations || []);
+  }, [activeOrganizations, userOrg, user, orgStatus]);
 
   /**
    * Updates the default form values after save or initial fetch
@@ -279,6 +295,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
         if (d.editUser.userStatus === "Inactive") {
           logout();
         }
+      } else {
+        setUser((prevUser) => ({ ...prevUser, ...d.editUser }));
       }
     }
 
@@ -326,7 +344,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     }
   }, [role]);
 
-  if (!user) {
+  if (
+    !user ||
+    orgStatus === OrgStatus.LOADING ||
+    authStatus === AuthStatus.LOADING ||
+    orgList === undefined
+  ) {
     return <SuspenseLoader />;
   }
 
@@ -473,7 +496,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         }}
                       >
                         <MenuItem value="">{"<Not Set>"}</MenuItem>
-                        {orgData?.map((org) => (
+                        {orgList?.map((org) => (
                           <MenuItem key={org._id} value={org._id}>
                             {org.name}
                           </MenuItem>
