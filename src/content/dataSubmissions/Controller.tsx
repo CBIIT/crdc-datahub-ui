@@ -25,7 +25,7 @@ const DataSubmissionController = () => {
   }
 
   return (
-    <MemorizedProvider preload filterInactive>
+    <MemorizedProvider preload>
       <ListView />
     </MemorizedProvider>
   );
