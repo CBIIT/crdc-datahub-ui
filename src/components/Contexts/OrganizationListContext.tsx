@@ -5,6 +5,7 @@ import { LIST_ORGS, ListOrgsResp } from "../../graphql";
 export type ContextState = {
   status: Status;
   data: Partial<Organization>[];
+  activeOrganizations: Partial<Organization>[];
 };
 
 export enum Status {
@@ -13,7 +14,11 @@ export enum Status {
   ERROR = "ERROR",
 }
 
-const initialState: ContextState = { status: Status.LOADING, data: null };
+const initialState: ContextState = {
+  status: Status.LOADING,
+  data: [],
+  activeOrganizations: [],
+};
 
 /**
  * Organization List Context
@@ -51,7 +56,6 @@ export const useOrganizationListContext = (): ContextState => {
 
 type ProviderProps = {
   preload: boolean;
-  filterInactive?: boolean;
   children: React.ReactNode;
 };
 
@@ -62,11 +66,7 @@ type ProviderProps = {
  * @param {ProviderProps} props
  * @returns {JSX.Element} Context provider
  */
-export const OrganizationProvider: FC<ProviderProps> = ({
-  preload,
-  filterInactive,
-  children,
-}: ProviderProps) => {
+export const OrganizationProvider: FC<ProviderProps> = ({ preload, children }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
   const { data, loading, error } = preload
@@ -78,21 +78,26 @@ export const OrganizationProvider: FC<ProviderProps> = ({
 
   useEffect(() => {
     if (loading) {
-      setState({ status: Status.LOADING, data: null });
+      setState({ status: Status.LOADING, data: [], activeOrganizations: [] });
       return;
     }
     if (error) {
-      setState({ status: Status.ERROR, data: null });
+      setState({ status: Status.ERROR, data: [], activeOrganizations: [] });
       return;
     }
 
-    const processedOrganizations = data?.listOrganizations
-      .filter((org: Organization) => (filterInactive ? org.status === "Active" : true))
-      .sort((a, b) => a.name.localeCompare(b.name));
+    const sortedOrganizations = data?.listOrganizations?.sort(
+      (a, b) => a.name?.localeCompare(b.name)
+    );
+
+    const activeOrganizations = sortedOrganizations?.filter(
+      (org: Organization) => org.status === "Active"
+    );
 
     setState({
       status: Status.LOADED,
-      data: processedOrganizations || [],
+      data: sortedOrganizations || [],
+      activeOrganizations: activeOrganizations || [],
     });
   }, [loading, error, data]);
 
