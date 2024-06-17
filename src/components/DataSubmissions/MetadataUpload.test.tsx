@@ -35,7 +35,7 @@ const baseSubmission: Omit<
   status: "New",
   validationStarted: "",
   validationEnded: "",
-  validationScope: "New",
+  validationScope: "new",
   validationType: ["metadata", "file"],
 };
 

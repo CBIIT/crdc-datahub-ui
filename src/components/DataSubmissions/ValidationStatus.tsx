@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import RedBell from "../../assets/icons/red_bell.svg";
 import GreenBell from "../../assets/icons/green_bell.svg";
-import { FormatDate } from "../../utils";
+import { FormatDate, capitalizeFirstLetter } from "../../utils";
 
 const StyledChip = styled(Box, { shouldForwardProp: (p) => p !== "variant" })<{
   variant: "green" | "red";
@@ -78,7 +78,9 @@ export const ValidationStatus: React.FC<Props> = ({ submission }: Props) => {
       title={
         `The ${
           validationEnded ? "last" : ""
-        } validation (Type: ${typeDescription}, Target: ${validationScope} Uploaded Data) ` +
+        } validation (Type: ${typeDescription}, Target: ${capitalizeFirstLetter(
+          validationScope
+        )} Uploaded Data) ` +
         `${!validationEnded ? "started on" : "that ran on"} ${FormatDate(
           validationStarted,
           "MM-DD-YYYY [at] hh:mm A",

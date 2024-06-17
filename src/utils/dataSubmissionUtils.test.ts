@@ -28,7 +28,7 @@ const baseSubmission: Submission = {
   updatedAt: "",
   validationStarted: "",
   validationEnded: "",
-  validationScope: "New",
+  validationScope: "new",
   validationType: ["metadata", "file"],
 };
 

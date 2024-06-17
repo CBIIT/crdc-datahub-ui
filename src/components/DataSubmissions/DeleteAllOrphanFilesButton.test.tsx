@@ -48,7 +48,7 @@ const baseSubmission: Submission = {
   otherSubmissions: "",
   validationStarted: "",
   validationEnded: "",
-  validationScope: "New",
+  validationScope: "new",
   validationType: ["metadata", "file"],
 };
 

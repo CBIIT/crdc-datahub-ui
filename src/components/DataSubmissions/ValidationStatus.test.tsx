@@ -13,7 +13,7 @@ describe("Accessibility", () => {
           validationStarted: "2024-06-12T13:24:00Z",
           validationEnded: "2024-06-12T13:13:00Z",
           validationType: ["file"],
-          validationScope: "All",
+          validationScope: "all",
         }}
       />
     );
@@ -28,7 +28,7 @@ describe("Accessibility", () => {
           validationStarted: "2024-06-12T13:25:00Z",
           validationEnded: null,
           validationType: ["file"],
-          validationScope: "All",
+          validationScope: "all",
         }}
       />
     );
@@ -72,7 +72,7 @@ describe("Basic Functionality", () => {
           validationStarted: "2024-06-12T13:31:00Z",
           validationEnded: null,
           validationType: ["metadata"],
-          validationScope: "All",
+          validationScope: "all",
         }}
       />
     );
@@ -85,7 +85,7 @@ describe("Basic Functionality", () => {
           validationStarted: "2024-06-12T13:31:00Z",
           validationEnded: "2024-06-12T13:35:00Z",
           validationType: ["metadata"],
-          validationScope: "All",
+          validationScope: "all",
         }}
       />
     );
@@ -108,7 +108,7 @@ describe("Implementation Requirements", () => {
           validationStarted: "2024-06-12T13:35:00Z",
           validationEnded: "2024-06-12T13:37:00Z",
           validationType: ["metadata", "file"],
-          validationScope: "All",
+          validationScope: "all",
         }}
       />
     );
@@ -128,7 +128,7 @@ describe("Implementation Requirements", () => {
           validationStarted: "2024-06-12T13:42:00Z",
           validationEnded: null,
           validationType: ["file"],
-          validationScope: "New",
+          validationScope: "new",
         }}
       />
     );
@@ -146,7 +146,7 @@ describe("Implementation Requirements", () => {
           validationStarted: "2024-06-12T13:43:00Z",
           validationEnded: "2024-06-12T13:44:00Z",
           validationType: ["file"],
-          validationScope: "New",
+          validationScope: "new",
         }}
       />
     );
@@ -170,7 +170,7 @@ describe("Implementation Requirements", () => {
       validationStarted: "2024-06-12T13:53:00Z",
       validationEnded: null,
       validationType: ["metadata"],
-      validationScope: "New",
+      validationScope: "new",
     },
     // Running - File - New
     {
@@ -179,7 +179,7 @@ describe("Implementation Requirements", () => {
       validationStarted: "2024-06-12T13:54:00Z",
       validationEnded: null,
       validationType: ["file"],
-      validationScope: "New",
+      validationScope: "new",
     },
     // Running - Both - New
     {
@@ -188,7 +188,7 @@ describe("Implementation Requirements", () => {
       validationStarted: "2024-06-12T13:55:03Z",
       validationEnded: null,
       validationType: ["metadata", "file"],
-      validationScope: "New",
+      validationScope: "new",
     },
     // Running - Both - All
     {
@@ -197,7 +197,7 @@ describe("Implementation Requirements", () => {
       validationStarted: "2024-06-12T13:56:09Z",
       validationEnded: null,
       validationType: ["metadata", "file"],
-      validationScope: "All",
+      validationScope: "all",
     },
     // Complete - Metadata - New
     {
@@ -206,7 +206,7 @@ describe("Implementation Requirements", () => {
       validationStarted: "2024-06-12T13:57:00Z",
       validationEnded: "2024-06-12T13:58:22Z",
       validationType: ["metadata"],
-      validationScope: "New",
+      validationScope: "new",
     },
     // Complete - File - New
     {
@@ -215,7 +215,7 @@ describe("Implementation Requirements", () => {
       validationStarted: "2024-06-12T13:59:00Z",
       validationEnded: "2024-06-12T14:00:00Z",
       validationType: ["file"],
-      validationScope: "New",
+      validationScope: "new",
     },
     // Complete - Both - New
     {
@@ -224,7 +224,7 @@ describe("Implementation Requirements", () => {
       validationStarted: "2024-06-12T14:01:00Z",
       validationEnded: "2024-06-12T14:02:00Z",
       validationType: ["metadata", "file"],
-      validationScope: "New",
+      validationScope: "new",
     },
     // Complete - Both - All
     {
@@ -233,7 +233,7 @@ describe("Implementation Requirements", () => {
       validationStarted: "2024-06-12T14:03:00Z",
       validationEnded: "2024-06-12T14:04:00Z",
       validationType: ["metadata", "file"],
-      validationScope: "All",
+      validationScope: "all",
     },
   ])(
     `should correctly format the tooltip text based on the most recent validation state`,

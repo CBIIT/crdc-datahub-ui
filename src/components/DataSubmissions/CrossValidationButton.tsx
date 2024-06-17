@@ -4,7 +4,11 @@ import { ButtonProps, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
-import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import {
+  VALIDATE_SUBMISSION,
+  ValidateSubmissionInput,
+  ValidateSubmissionResp,
+} from "../../graphql";
 import { safeParse } from "../../utils";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 
@@ -56,10 +60,13 @@ export const CrossValidationButton: FC<Props> = ({ submission, ...props }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(crossSubmissionStatus === "Validating");
 
-  const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  const [validateSubmission] = useMutation<ValidateSubmissionResp, ValidateSubmissionInput>(
+    VALIDATE_SUBMISSION,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const handleClick = async () => {
     setLoading(true);
@@ -69,7 +76,7 @@ export const CrossValidationButton: FC<Props> = ({ submission, ...props }) => {
         variables: {
           _id,
           types: ["cross-submission"],
-          scope: "All",
+          scope: "all",
         },
       });
 

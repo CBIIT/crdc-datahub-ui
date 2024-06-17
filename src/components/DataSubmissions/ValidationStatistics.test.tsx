@@ -28,7 +28,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   otherSubmissions: null,
   validationStarted: "",
   validationEnded: "",
-  validationScope: "New",
+  validationScope: "new",
   validationType: ["metadata", "file"],
 };
 

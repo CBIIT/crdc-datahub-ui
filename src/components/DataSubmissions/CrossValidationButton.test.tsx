@@ -10,7 +10,11 @@ import {
   Status as AuthStatus,
 } from "../Contexts/AuthContext";
 import { CrossValidationButton } from "./CrossValidationButton";
-import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import {
+  VALIDATE_SUBMISSION,
+  ValidateSubmissionInput,
+  ValidateSubmissionResp,
+} from "../../graphql";
 import {
   SubmissionContext,
   SubmissionCtxState,
@@ -44,7 +48,7 @@ const baseSubmission: Omit<
   dataType: "Metadata and Data Files",
   validationStarted: "",
   validationEnded: "",
-  validationScope: "New",
+  validationScope: "new",
   validationType: ["metadata", "file"],
 };
 
@@ -170,14 +174,14 @@ describe("Basic Functionality", () => {
   it("should initiate cross validation when clicked", async () => {
     const submissionID = "base-success-test-onclick-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
           variables: {
             _id: submissionID,
             types: ["cross-submission"],
-            scope: "All",
+            scope: "all",
           },
         },
         result: () => {
@@ -232,7 +236,7 @@ describe("Basic Functionality", () => {
 
   it("should handle API network errors gracefully", async () => {
     const submissionID = "base-network-error-test-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -274,7 +278,7 @@ describe("Basic Functionality", () => {
 
   it("should handle API GraphQL errors gracefully", async () => {
     const submissionID = "base-GraphQL-error-test-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,

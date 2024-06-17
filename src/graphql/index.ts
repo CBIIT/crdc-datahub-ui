@@ -55,7 +55,10 @@ export { mutation as EXPORT_SUBMISSION } from "./exportSubmission";
 export type { Response as ExportSubmissionResp } from "./exportSubmission";
 
 export { mutation as VALIDATE_SUBMISSION } from "./validateSubmission";
-export type { Response as ValidateSubmissionResp } from "./validateSubmission";
+export type {
+  Input as ValidateSubmissionInput,
+  Response as ValidateSubmissionResp,
+} from "./validateSubmission";
 
 export { query as LIST_NODE_TYPES } from "./listSubmissionNodeTypes";
 export type { Response as ListNodeTypesResp } from "./listSubmissionNodeTypes";

@@ -21,11 +21,10 @@ export const query = gql`
       metadataValidationStatus
       fileValidationStatus
       crossSubmissionStatus
-      # TODO: Remove comments after backend changes are made
-      # validationStarted
-      # validationEnded
-      # validationScope
-      # validationType
+      validationStarted
+      validationEnded
+      validationScope
+      validationType
       fileErrors {
         submissionID
         type

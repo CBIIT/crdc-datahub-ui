@@ -6,7 +6,11 @@ import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
-import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import {
+  VALIDATE_SUBMISSION,
+  ValidateSubmissionInput,
+  ValidateSubmissionResp,
+} from "../../graphql";
 import {
   getDefaultValidationTarget,
   getDefaultValidationType,
@@ -142,10 +146,13 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
     return dataSubmission?.fileValidationStatus !== null;
   }, [user?.role, dataSubmission?.fileValidationStatus, dataSubmission?.status]);
 
-  const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  const [validateSubmission] = useMutation<ValidateSubmissionResp, ValidateSubmissionInput>(
+    VALIDATE_SUBMISSION,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const handleValidateFiles = async () => {
     if (isValidating || !validationType || !uploadType) {
@@ -310,7 +317,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
               row
             >
               <StyledRadioControl
-                value="New"
+                value="new"
                 control={<StyledRadioButton readOnly={false} />}
                 label="New Uploaded Data"
                 disabled={
@@ -320,7 +327,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
                 }
               />
               <StyledRadioControl
-                value="All"
+                value="all"
                 control={<StyledRadioButton readOnly={false} />}
                 label="All Uploaded Data"
                 disabled={!canValidateFiles && !canValidateMetadata}

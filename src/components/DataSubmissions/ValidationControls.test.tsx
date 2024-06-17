@@ -4,13 +4,18 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { capitalize } from "lodash";
 import {
   Context as AuthCtx,
   ContextState as AuthCtxState,
   Status as AuthStatus,
 } from "../Contexts/AuthContext";
 import ValidationControls from "./ValidationControls";
-import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import {
+  VALIDATE_SUBMISSION,
+  ValidateSubmissionInput,
+  ValidateSubmissionResp,
+} from "../../graphql";
 import {
   SubmissionContext,
   SubmissionCtxState,
@@ -44,7 +49,7 @@ const baseSubmission: Omit<
   dataType: "Metadata and Data Files",
   validationStarted: "",
   validationEnded: "",
-  validationScope: "New",
+  validationScope: "new",
   validationType: ["metadata", "file"],
 };
 
@@ -153,7 +158,7 @@ describe("Basic Functionality", () => {
   it("should show a success snackbar when validation is successful", async () => {
     const submissionID = "base-success-test-onclick-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -208,14 +213,14 @@ describe("Basic Functionality", () => {
   it("should initiate Metadata validation when 'Validate Metadata' is selected", async () => {
     const submissionID = "base-onclick-metadata-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
           variables: {
             _id: submissionID,
             types: ["metadata"],
-            scope: "New",
+            scope: "new",
           },
         },
         result: () => {
@@ -265,14 +270,14 @@ describe("Basic Functionality", () => {
   it("should initiate Data Files validation when 'Validate Data Files' is selected", async () => {
     const submissionID = "data-files-validation-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
           variables: {
             _id: submissionID,
             types: ["file"],
-            scope: "New",
+            scope: "new",
           },
         },
         result: () => {
@@ -321,14 +326,14 @@ describe("Basic Functionality", () => {
   it("should initiate Metadata and Data Files validation when 'Both' is selected", async () => {
     const submissionID = "metadata-and-files-validation-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
           variables: {
             _id: submissionID,
             types: ["metadata", "file"],
-            scope: "New",
+            scope: "new",
           },
         },
         result: () => {
@@ -377,14 +382,14 @@ describe("Basic Functionality", () => {
   it("should initiate against 'New' files when 'New Uploaded Data' is selected", async () => {
     const submissionID = "new-uploads-validation-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
           variables: {
             _id: submissionID,
             types: ["metadata"], // NOTE: this is just the default type
-            scope: "New",
+            scope: "new",
           },
         },
         result: () => {
@@ -430,12 +435,12 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it.each<ValidationTarget>(["New", "All"])(
-    "should initiate against '%s Uploaded Data' when the option is selected",
+  it.each<ValidationTarget>(["new", "all"])(
+    "should initiate against '%s' Uploaded Data when the option is selected",
     async (target) => {
       const submissionID = `${target}-uploads-validation-id`;
       let called = false;
-      const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
         {
           request: {
             query: VALIDATE_SUBMISSION,
@@ -479,7 +484,7 @@ describe("Basic Functionality", () => {
       expect(called).toBe(false);
 
       const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
-      userEvent.click(getByLabelText(radio, `${target} Uploaded Data`));
+      userEvent.click(getByLabelText(radio, `${capitalize(target)} Uploaded Data`));
 
       userEvent.click(getByTestId("validate-controls-validate-button"));
 
@@ -491,7 +496,7 @@ describe("Basic Functionality", () => {
 
   it("should handle API network errors gracefully", async () => {
     const submissionID = "base-network-error-test-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -530,7 +535,7 @@ describe("Basic Functionality", () => {
 
   it("should handle API GraphQL errors gracefully", async () => {
     const submissionID = "base-GraphQL-error-test-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -615,7 +620,7 @@ describe("Implementation Requirements", () => {
 
   it("should NOT reset the validation type and upload type after starting validation", async () => {
     const submissionID = "reset-state-onclick-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -677,7 +682,7 @@ describe("Implementation Requirements", () => {
 
   it("should reset the validation type and upload type after validation ends", async () => {
     const submissionID = "reset-state-onclick-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
