@@ -17,6 +17,7 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Box,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useQuery } from "@apollo/client";
@@ -145,10 +146,19 @@ const baseTextFieldStyles = {
 
 const StyledSelect = styled(Select)(baseTextFieldStyles);
 
+const StyledDeletedText = styled(Box)(({ theme }) => ({
+  color: theme.palette.text.disabled,
+}));
+
 const columns: Column[] = [
   {
     label: "Submission Name",
-    value: (a) => <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>,
+    value: (a) =>
+      a.status === "Deleted" ? (
+        <StyledDeletedText>{a.name}</StyledDeletedText>
+      ) : (
+        <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>
+      ),
     field: "name",
   },
   {
@@ -220,6 +230,7 @@ const statusValues: string[] = [
   "Completed",
   "Archived",
   "Canceled",
+  "Deleted",
 ];
 const statusOptionArray: SelectOption[] = statusValues.map((v) => ({
   label: v,
