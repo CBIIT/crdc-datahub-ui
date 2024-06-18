@@ -303,7 +303,7 @@ type ValidationType = "metadata" | "file" | "cross-submission";
 /**
  * The target of Data Validation action.
  */
-type ValidationTarget = "new" | "all";
+type ValidationTarget = "New" | "All";
 
 /**
  * Represents a node returned from the getSubmissionNodes API

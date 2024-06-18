@@ -76,7 +76,7 @@ export const CrossValidationButton: FC<Props> = ({ submission, ...props }) => {
         variables: {
           _id,
           types: ["cross-submission"],
-          scope: "all",
+          scope: "All",
         },
       });
 

@@ -65,8 +65,8 @@ export const getDefaultValidationTarget = (
   const { status } = dataSubmission || {};
 
   if (status === "Submitted" && permissionMap["Submitted"]?.includes(role)) {
-    return "all";
+    return "All";
   }
 
-  return "new";
+  return "New";
 };

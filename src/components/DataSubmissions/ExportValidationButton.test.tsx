@@ -52,7 +52,7 @@ describe("ExportValidationButton cases", () => {
     dataType: "Metadata and Data Files",
     validationStarted: "",
     validationEnded: "",
-    validationScope: "new",
+    validationScope: "New",
     validationType: ["metadata", "file"],
   };
 

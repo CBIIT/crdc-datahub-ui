@@ -4,7 +4,6 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { capitalize } from "lodash";
 import {
   Context as AuthCtx,
   ContextState as AuthCtxState,
@@ -49,7 +48,7 @@ const baseSubmission: Omit<
   dataType: "Metadata and Data Files",
   validationStarted: "",
   validationEnded: "",
-  validationScope: "new",
+  validationScope: "New",
   validationType: ["metadata", "file"],
 };
 
@@ -240,7 +239,7 @@ describe("Basic Functionality", () => {
           variables: {
             _id: submissionID,
             types: ["metadata"],
-            scope: "new",
+            scope: "New",
           },
         },
         result: () => {
@@ -296,7 +295,7 @@ describe("Basic Functionality", () => {
           variables: {
             _id: submissionID,
             types: ["file"],
-            scope: "new",
+            scope: "New",
           },
         },
         result: () => {
@@ -351,7 +350,7 @@ describe("Basic Functionality", () => {
           variables: {
             _id: submissionID,
             types: ["metadata", "file"],
-            scope: "new",
+            scope: "New",
           },
         },
         result: () => {
@@ -406,7 +405,7 @@ describe("Basic Functionality", () => {
           variables: {
             _id: submissionID,
             types: ["metadata"], // NOTE: this is just the default type
-            scope: "new",
+            scope: "New",
           },
         },
         result: () => {
@@ -451,8 +450,8 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it.each<ValidationTarget>(["new", "all"])(
-    "should initiate against '%s' Uploaded Data when the option is selected",
+  it.each<ValidationTarget>(["New", "All"])(
+    "should initiate against '%s Uploaded Data' when the option is selected",
     async (target) => {
       const submissionID = `${target}-uploads-validation-id`;
       let called = false;
@@ -499,7 +498,7 @@ describe("Basic Functionality", () => {
       expect(called).toBe(false);
 
       const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
-      userEvent.click(getByLabelText(radio, `${capitalize(target)} Uploaded Data`));
+      userEvent.click(getByLabelText(radio, `${target} Uploaded Data`));
 
       userEvent.click(getByTestId("validate-controls-validate-button"));
 

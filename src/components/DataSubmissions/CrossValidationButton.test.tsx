@@ -48,7 +48,7 @@ const baseSubmission: Omit<
   dataType: "Metadata and Data Files",
   validationStarted: "",
   validationEnded: "",
-  validationScope: "new",
+  validationScope: "New",
   validationType: ["metadata", "file"],
 };
 
@@ -181,7 +181,7 @@ describe("Basic Functionality", () => {
           variables: {
             _id: submissionID,
             types: ["cross-submission"],
-            scope: "all",
+            scope: "All",
           },
         },
         result: () => {

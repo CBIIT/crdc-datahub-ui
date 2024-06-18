@@ -307,7 +307,7 @@ const ValidationControls: FC = () => {
               row
             >
               <StyledRadioControl
-                value="new"
+                value="New"
                 control={<StyledRadioButton readOnly={false} />}
                 label="New Uploaded Data"
                 disabled={
@@ -317,7 +317,7 @@ const ValidationControls: FC = () => {
                 }
               />
               <StyledRadioControl
-                value="all"
+                value="All"
                 control={<StyledRadioButton readOnly={false} />}
                 label="All Uploaded Data"
                 disabled={!canValidateFiles && !canValidateMetadata}
