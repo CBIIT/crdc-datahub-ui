@@ -1,8 +1,16 @@
-import React from "react";
+import React, { memo } from "react";
 import { useParams } from "react-router-dom";
 import DataSubmission from "./DataSubmission";
 import ListView from "./DataSubmissionsListView";
+import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
 import { SubmissionProvider } from "../../components/Contexts/SubmissionContext";
+
+/**
+ * A memoized version of OrganizationProvider
+ *
+ * @see OrganizationProvider
+ */
+const MemorizedProvider = memo(OrganizationProvider);
 
 /**
  * Render the correct view based on the URL
@@ -21,7 +29,11 @@ const DataSubmissionController = () => {
     );
   }
 
-  return <ListView />;
+  return (
+    <MemorizedProvider preload>
+      <ListView />
+    </MemorizedProvider>
+  );
 };
 
 export default DataSubmissionController;

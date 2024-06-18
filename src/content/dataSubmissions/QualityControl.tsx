@@ -174,7 +174,7 @@ export const csvColumns = {
   Severity: (d: QCResult) => d.severity,
   "Validated Date": (d: QCResult) => FormatDate(d?.validatedDate, "MM-DD-YYYY [at] hh:mm A", ""),
   Issues: (d: QCResult) => {
-    const value = d.errors[0].description ?? d.warnings[0]?.description;
+    const value = d.errors[0]?.description ?? d.warnings[0]?.description;
 
     // NOTE: The ErrorMessage descriptions contain non-standard double quotes
     // that don't render correctly in Excel. This replaces them with standard double quotes.
