@@ -588,7 +588,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                 onUpload={handleOnUpload}
               />
               <DataUpload submission={data?.getSubmission} />
-              <ValidationControls dataSubmission={data?.getSubmission} />
+              <ValidationControls />
             </StyledFlowContainer>
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_ACTIVITY}>
               <LinkTab

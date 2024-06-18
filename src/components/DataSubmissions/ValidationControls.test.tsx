@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { getByLabelText, render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
@@ -85,38 +85,55 @@ const baseUser: Omit<User, "role"> = {
 type ParentProps = {
   mocks?: MockedResponse[];
   authCtxState?: AuthCtxState;
-  submissionCtxState?: SubmissionCtxState;
+  submissionCtxState?: Pick<SubmissionCtxState, "startPolling" | "stopPolling" | "refetch">;
+  submission: Submission;
   children: React.ReactNode;
 };
 
 const TestParent: FC<ParentProps> = ({
+  submission,
   authCtxState = baseAuthCtx,
-  submissionCtxState = baseSubmissionCtx,
+  submissionCtxState,
   mocks = [],
   children,
-}: ParentProps) => (
-  <AuthCtx.Provider value={authCtxState}>
-    <SubmissionContext.Provider value={submissionCtxState}>
-      <MockedProvider mocks={mocks} showWarnings>
-        {children}
-      </MockedProvider>
-    </SubmissionContext.Provider>
-  </AuthCtx.Provider>
-);
+}: ParentProps) => {
+  const value = useMemo<SubmissionCtxState>(
+    () => ({
+      ...baseSubmissionCtx,
+      ...submissionCtxState,
+      data: {
+        getSubmission: { ...submission },
+        submissionStats: { stats: [] },
+      },
+    }),
+    [submissionCtxState, submission]
+  );
+
+  return (
+    <AuthCtx.Provider value={authCtxState}>
+      <SubmissionContext.Provider value={value}>
+        <MockedProvider mocks={mocks} showWarnings>
+          {children}
+        </MockedProvider>
+      </SubmissionContext.Provider>
+    </AuthCtx.Provider>
+  );
+};
 
 describe("Accessibility", () => {
   it("should not have accessibility violations", async () => {
     const { container } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id",
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id",
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -125,16 +142,17 @@ describe("Accessibility", () => {
 
   it("should not have accessibility violations (disabled)", async () => {
     const { container } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "Submitted", // NOTE: This disables the entire component
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "Submitted", // NOTE: This disables the entire component
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -149,8 +167,11 @@ describe("Basic Functionality", () => {
 
   it("should render without crashing", () => {
     render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls dataSubmission={null} />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={null}
+      >
+        <ValidationControls />
       </TestParent>
     );
   });
@@ -182,16 +203,15 @@ describe("Basic Functionality", () => {
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -241,16 +261,15 @@ describe("Basic Functionality", () => {
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: null,
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: null,
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -298,16 +317,15 @@ describe("Basic Functionality", () => {
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: null,
+          fileValidationStatus: "New",
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: null,
-            fileValidationStatus: "New",
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -354,16 +372,15 @@ describe("Basic Functionality", () => {
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -410,16 +427,15 @@ describe("Basic Functionality", () => {
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: null,
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: null,
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -468,16 +484,15 @@ describe("Basic Functionality", () => {
         <TestParent
           mocks={mocks}
           authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+          submission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: null,
+          }}
         >
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: submissionID,
-              status: "In Progress",
-              metadataValidationStatus: "New",
-              fileValidationStatus: null,
-            }}
-          />
+          <ValidationControls />
         </TestParent>
       );
 
@@ -510,16 +525,15 @@ describe("Basic Functionality", () => {
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -551,16 +565,15 @@ describe("Basic Functionality", () => {
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -582,16 +595,17 @@ describe("Implementation Requirements", () => {
 
   it("should render as disabled with text 'Validating...' when metadata is validating", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: "Validating",
-            fileValidationStatus: null,
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "Validating",
+          fileValidationStatus: null,
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -601,16 +615,17 @@ describe("Implementation Requirements", () => {
 
   it("should render as disabled with text 'Validating...' when data files are validating", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: null,
-            fileValidationStatus: "Validating",
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: null,
+          fileValidationStatus: "Validating",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -645,16 +660,15 @@ describe("Implementation Requirements", () => {
           ...baseSubmissionCtx,
           refetch: mockRefetch,
         }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -707,16 +721,15 @@ describe("Implementation Requirements", () => {
           ...baseSubmissionCtx,
           refetch: mockRefetch,
         }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -744,16 +757,15 @@ describe("Implementation Requirements", () => {
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "Validating",
+          fileValidationStatus: "Validating",
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "Validating",
-            fileValidationStatus: "Validating",
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -768,16 +780,15 @@ describe("Implementation Requirements", () => {
       <TestParent
         mocks={mocks}
         authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
       >
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-        />
+        <ValidationControls />
       </TestParent>
     );
 
@@ -791,16 +802,17 @@ describe("Implementation Requirements", () => {
 
   it("should select 'Validate Metadata' Validation Type by default", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: null,
-            fileValidationStatus: null,
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: null,
+          fileValidationStatus: null,
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -814,16 +826,17 @@ describe("Implementation Requirements", () => {
 
   it("should select 'Validate Data Files' validation type when only Data Files are uploaded", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: null,
-            fileValidationStatus: "New",
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: null,
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -836,16 +849,17 @@ describe("Implementation Requirements", () => {
 
   it("should enable all options when both Metadata and Data Files are uploaded", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -858,17 +872,18 @@ describe("Implementation Requirements", () => {
 
   it("should disable 'Validate Data Files' and 'Both' for the submission intent of 'Delete'", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-            intention: "Delete",
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+          intention: "Delete",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -881,18 +896,19 @@ describe("Implementation Requirements", () => {
 
   it("should disable 'Validate Data Files' and 'Both' for the submission dataType of 'Metadata Only'", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-            intention: "New/Update",
-            dataType: "Metadata Only",
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+          intention: "New/Update",
+          dataType: "Metadata Only",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -908,16 +924,17 @@ describe("Implementation Requirements", () => {
     "should select 'All Uploaded Data' when the submission is 'Submitted' and the role is '%s'",
     async (role) => {
       const { getByTestId } = render(
-        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}>
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: "example-sub-id-disabled",
-              status: "Submitted",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: "Passed",
-            }}
-          />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "Submitted",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+          }}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -937,16 +954,17 @@ describe("Implementation Requirements", () => {
     "should select 'New Uploaded Data' when the submission is 'Submitted' and the role is '%s'",
     (role) => {
       const { getByTestId } = render(
-        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}>
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: "example-sub-id-disabled",
-              status: "Submitted",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: "Passed",
-            }}
-          />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "Submitted",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+          }}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -962,8 +980,11 @@ describe("Implementation Requirements", () => {
     "should select 'Validate Metadata' when the submission is 'Submitted' with metadata and the role is '%s'",
     async (role) => {
       const { rerender, getByTestId } = render(
-        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}>
-          <ValidationControls dataSubmission={null} />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={null}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -971,16 +992,17 @@ describe("Implementation Requirements", () => {
 
       // NOTE: We're simulating the same rendering logic used for the component impl.
       rerender(
-        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}>
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: "example-sub-id-disabled",
-              status: "Submitted",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: null, // NOTE: No files uploaded
-            }}
-          />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "Submitted",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: null, // NOTE: No files uploaded
+          }}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -996,16 +1018,17 @@ describe("Implementation Requirements", () => {
     "should select 'Both' when the submission is 'Submitted' with all data and the role is '%s'",
     async (role) => {
       const { getByTestId } = render(
-        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}>
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: "example-sub-id-disabled",
-              status: "Submitted",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: "Passed",
-            }}
-          />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "Submitted",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+          }}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -1028,16 +1051,17 @@ describe("Implementation Requirements", () => {
     "fake status" as SubmissionStatus,
   ])("should be disabled when the Submission status is '%s'", (status) => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status,
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status,
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -1053,16 +1077,17 @@ describe("Implementation Requirements", () => {
     "should be enabled for a %s when the Submission status is 'Submitted'",
     (role) => {
       const { getByTestId } = render(
-        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}>
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: "example-sub-id-disabled",
-              status: "Submitted",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: "Passed",
-            }}
-          />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "Submitted",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+          }}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -1082,16 +1107,17 @@ describe("Implementation Requirements", () => {
     "fake user role" as User["role"],
   ])("should be disabled for the role %s", (role) => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -1113,8 +1139,11 @@ describe("Implementation Requirements", () => {
     };
 
     const { getByTestId, rerender } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls dataSubmission={submission} />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={submission}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -1122,14 +1151,15 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("validate-controls-validate-button")).toHaveTextContent("Validating...");
 
     rerender(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...submission,
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...submission,
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 

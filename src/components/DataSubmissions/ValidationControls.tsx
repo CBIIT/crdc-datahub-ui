@@ -2,7 +2,6 @@ import React, { FC, ReactElement, useEffect, useMemo, useRef, useState } from "r
 import { useMutation } from "@apollo/client";
 import { FormControlLabel, RadioGroup, Stack, Typography, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
@@ -87,25 +86,16 @@ const ValidateMap: Partial<Record<Submission["status"], User["role"][]>> = {
   Submitted: ["Data Curator", "Admin"],
 };
 
-type Props = {
-  /**
-   * The data submission to display validation controls for.
-   *
-   * @deprecated This prop is deprecated. Use `useSubmissionContext` instead.
-   */
-  dataSubmission?: Submission;
-};
-
 /**
  * Provides the UI for validating a data submission's assets.
  *
- * @param {Props}
- * @returns {React.FC<Props>}
+ * @returns {React.FC}
  */
-const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
+const ValidationControls: FC = () => {
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { updateQuery, refetch } = useSubmissionContext();
+  const { data, updateQuery, refetch } = useSubmissionContext();
+  const { getSubmission: dataSubmission } = data || {};
 
   const [validationType, setValidationType] = useState<ValidationType | "All">(null);
   const [uploadType, setUploadType] = useState<ValidationTarget>(null);
@@ -340,6 +330,4 @@ const ValidationControls: FC<Props> = ({ dataSubmission }: Props) => {
   );
 };
 
-export default React.memo<Props>(ValidationControls, (prevProps, nextProps) =>
-  isEqual(prevProps, nextProps)
-);
+export default React.memo(ValidationControls);
