@@ -48,7 +48,7 @@ export const ValidationStatus: React.FC = () => {
 
   const typeDescription: string = useMemo<string>(() => {
     if (validationType?.length === 1 && validationType.includes("file")) {
-      return "Data files";
+      return "Data Files";
     }
     if (validationType?.length === 1 && validationType.includes("metadata")) {
       return "Metadata";

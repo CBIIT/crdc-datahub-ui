@@ -239,6 +239,26 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("validation-status-chip")).toHaveTextContent(/validation completed/i);
   });
 
+  it("should format the Validation Type of 'files' as 'Data Files'", async () => {
+    const { getByTestId, findByRole } = render(
+      <TestParent
+        submission={{
+          validationStarted: "2024-06-18T14:45:00Z",
+          validationEnded: null,
+          validationType: ["file"],
+          validationScope: "new",
+        }}
+      >
+        <ValidationStatus />
+      </TestParent>
+    );
+
+    userEvent.hover(getByTestId("validation-status-chip"));
+
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toHaveTextContent(/Type: Data Files/);
+  });
+
   it.each<
     Pick<
       Submission,
@@ -257,7 +277,7 @@ describe("Implementation Requirements", () => {
     // Running - File - New
     {
       expected:
-        "The validation (Type: Data files, Target: New Uploaded Data) started on 06-12-2024 at 01:54 PM and is still in progress...",
+        "The validation (Type: Data Files, Target: New Uploaded Data) started on 06-12-2024 at 01:54 PM and is still in progress...",
       validationStarted: "2024-06-12T13:54:00Z",
       validationEnded: null,
       validationType: ["file"],
@@ -293,7 +313,7 @@ describe("Implementation Requirements", () => {
     // Complete - File - New
     {
       expected:
-        "The last validation (Type: Data files, Target: New Uploaded Data) that ran on 06-12-2024 at 01:59 PM was completed on 06-12-2024 at 02:00 PM.",
+        "The last validation (Type: Data Files, Target: New Uploaded Data) that ran on 06-12-2024 at 01:59 PM was completed on 06-12-2024 at 02:00 PM.",
       validationStarted: "2024-06-12T13:59:00Z",
       validationEnded: "2024-06-12T14:00:00Z",
       validationType: ["file"],
