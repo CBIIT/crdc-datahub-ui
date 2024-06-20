@@ -19,12 +19,13 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useReducer,
   useRef,
-  useState,
 } from "react";
 import SuspenseLoader from "../SuspenseLoader";
 import TablePagination from "./TablePagination";
 import { generateSearchParameters } from "../../utils";
+import { tableStateReducer } from "../GenericTable/TableReducer";
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
@@ -129,8 +130,8 @@ type Props<T> = {
 const GenericTable = <T,>(
   {
     columns,
-    data,
-    total = 0,
+    data: initData = [],
+    total: initTotal = 0,
     loading,
     horizontalScroll = false,
     position = "bottom",
@@ -153,12 +154,22 @@ const GenericTable = <T,>(
   ref: React.Ref<TableMethods>
 ) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [order, setOrder] = useState<Order>(defaultOrder);
-  const [orderBy, setOrderBy] = useState<Column<T>>(
-    columns.find((c) => c.default) || columns.find((c) => c.fieldKey ?? c.field)
+  const defaultColumn =
+    columns.find((c) => c.default) || columns.find((c) => c.fieldKey ?? c.field);
+  const initalState: TableState<T> = {
+    data: initData,
+    total: initTotal,
+    page: 0,
+    perPage: defaultRowsPerPage,
+    sortDirection: defaultOrder,
+    orderBy: defaultColumn?.fieldKey ?? defaultColumn?.field?.toString(),
+  };
+  const [{ data, total, page, perPage, sortDirection, orderBy }, dispatch] = useReducer(
+    tableStateReducer,
+    initalState
   );
-  const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(defaultRowsPerPage);
+
+  const orderByColumn = columns?.find((c) => (c.fieldKey ?? c.field?.toString()) === orderBy);
   const TableHeadComponent = CustomTableHead || StyledTableHead;
   const TableHeaderCellComponent = CustomTableHeaderCell || StyledHeaderCell;
   const TableBodyCellComponent = CustomTableBodyCell || StyledTableCell;
@@ -175,8 +186,16 @@ const GenericTable = <T,>(
   const isOrder = (value: unknown): value is Order => value === "asc" || value === "desc";
 
   useEffect(() => {
+    dispatch({ type: "SET_DATA", payload: initData });
+  }, [initData]);
+
+  useEffect(() => {
+    dispatch({ type: "SET_TOTAL", payload: initTotal });
+  }, [initTotal]);
+
+  useEffect(() => {
     if (page < 0 || page > Math.ceil(total / perPage)) {
-      setPage(0);
+      dispatch({ type: "SET_PAGE", payload: initalState.page });
     }
   }, [data, total, perPage]);
 
@@ -193,17 +212,20 @@ const GenericTable = <T,>(
       parseInt(searchParams.get("rowsPerPage"), 10) || parseInt(defaultURLParams.rowsPerPage, 10);
 
     if (isOrder(sortDirection)) {
-      setOrder(sortDirection);
+      dispatch({ type: "SET_SORT_DIRECTION", payload: sortDirection });
     }
     const orderByColumn: Column<T> = columns.find((c) => orderBy === (c.fieldKey ?? c.field));
     if (orderByColumn) {
-      setOrderBy(orderByColumn);
+      dispatch({
+        type: "SET_ORDER_BY",
+        payload: orderByColumn.fieldKey ?? orderByColumn.field?.toString(),
+      });
     }
     if (!isNaN(page) && page + 1 <= Math.ceil(total / rowsPerPage) && page + 1 > 0) {
-      setPage(page);
+      dispatch({ type: "SET_PAGE", payload: page });
     }
     if (!isNaN(rowsPerPage) && rowsPerPage > 0) {
-      setPerPage(rowsPerPage);
+      dispatch({ type: "SET_PER_PAGE", payload: rowsPerPage });
     }
     paramsRef.current = true;
   }, [
@@ -219,14 +241,15 @@ const GenericTable = <T,>(
     if (!onFetchData) {
       return;
     }
-    const fieldKey = orderBy?.fieldKey ?? orderBy?.field?.toString();
+    const orderByColumn = columns?.find((c) => (c.fieldKey ?? c.field?.toString()) === orderBy);
+    const fieldKey = orderByColumn?.fieldKey ?? orderByColumn?.field?.toString();
     onFetchData(
       {
         first: perPage,
         offset: page * perPage,
-        sortDirection: order,
+        sortDirection,
         orderBy: fieldKey,
-        comparator: orderBy?.comparator,
+        comparator: orderByColumn?.comparator,
       },
       force
     );
@@ -239,7 +262,7 @@ const GenericTable = <T,>(
 
   const handleRequestSort = (column: Column<T>) => {
     const fieldKey = column.fieldKey ?? column.field?.toString();
-    const newOrder = orderBy === column && order === "asc" ? "desc" : "asc";
+    const newOrder = orderByColumn === column && sortDirection === "asc" ? "desc" : "asc";
 
     if (typeof onOrderChange === "function") {
       onOrderChange(newOrder);
@@ -252,17 +275,19 @@ const GenericTable = <T,>(
       {
         page: (page + 1)?.toString(),
         rowsPerPage: perPage?.toString(),
-        orderBy: fieldKey?.toString(),
+        orderBy: fieldKey,
         sortDirection: newOrder,
       },
       defaultURLParams
     );
 
+    dispatch({ type: "SET_ORDER_BY", payload: fieldKey });
+    dispatch({ type: "SET_SORT_DIRECTION", payload: newOrder });
     setSearchParams(updatedParams);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    const fieldKey = orderBy?.fieldKey ?? orderBy?.field?.toString();
+    const fieldKey = orderByColumn?.fieldKey ?? orderByColumn?.field?.toString();
     const newPerPage = parseInt(event.target.value, 10);
     if (typeof onPerPageChange === "function") {
       onPerPageChange(newPerPage);
@@ -273,11 +298,13 @@ const GenericTable = <T,>(
         page: "1",
         rowsPerPage: newPerPage?.toString(),
         orderBy: fieldKey,
-        sortDirection: order,
+        sortDirection,
       },
       defaultURLParams
     );
 
+    dispatch({ type: "SET_PAGE", payload: 0 });
+    dispatch({ type: "SET_PER_PAGE", payload: newPerPage });
     setSearchParams(updatedParams);
   };
 
@@ -286,24 +313,25 @@ const GenericTable = <T,>(
     if (!paramsRef.current) {
       return;
     }
-    const fieldKey = orderBy?.fieldKey ?? orderBy?.field?.toString();
+    const fieldKey = orderByColumn?.fieldKey ?? orderByColumn?.field?.toString();
 
     const updatedParams = generateSearchParameters(
       {
         page: (newPage + 1)?.toString(),
         rowsPerPage: perPage?.toString(),
         orderBy: fieldKey,
-        sortDirection: order,
+        sortDirection,
       },
       defaultURLParams
     );
 
+    dispatch({ type: "SET_PAGE", payload: newPage });
     setSearchParams(updatedParams);
   };
 
   useEffect(() => {
     fetchData();
-  }, [page, perPage, order, orderBy]);
+  }, [page, perPage, sortDirection, orderBy]);
 
   useImperativeHandle(ref, () => ({
     refresh: () => {
@@ -347,8 +375,8 @@ const GenericTable = <T,>(
                 >
                   {!col.sortDisabled ? (
                     <TableSortLabel
-                      active={orderBy === col}
-                      direction={orderBy === col ? order : "asc"}
+                      active={orderByColumn === col}
+                      direction={orderByColumn === col ? sortDirection : "asc"}
                       onClick={() => handleRequestSort(col)}
                     >
                       {col.label}
