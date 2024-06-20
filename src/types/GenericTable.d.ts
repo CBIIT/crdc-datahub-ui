@@ -21,3 +21,15 @@ type TableURLParams = {
   orderBy: string;
   sortDirection: Order;
 };
+
+type TableParams = {
+  page: number;
+  perPage: number;
+  sortDirection: Order;
+  orderBy: string;
+};
+
+type TableState<T> = {
+  data: T[];
+  total: number;
+} & TableParams;
