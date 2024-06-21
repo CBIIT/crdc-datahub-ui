@@ -368,7 +368,7 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
                   <MenuItem value="All">All</MenuItem>
                   {nodeTypes?.map((nodeType) => (
                     <MenuItem key={nodeType} value={nodeType}>
-                      {nodeType}
+                      {nodeType.toLowerCase()}
                     </MenuItem>
                   ))}
                 </StyledSelect>
