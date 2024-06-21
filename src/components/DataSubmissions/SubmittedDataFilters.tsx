@@ -93,7 +93,7 @@ export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
             >
               {nodeTypes?.map((nodeType) => (
                 <MenuItem key={nodeType} value={nodeType} data-testid={`nodeType-${nodeType}`}>
-                  {nodeType}
+                  {nodeType.toLowerCase()}
                 </MenuItem>
               ))}
             </StyledSelect>
