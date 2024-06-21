@@ -6,7 +6,7 @@ export { mutation as REOPEN_APP } from "./reopenApplication";
 export type { Response as ReopenAppResp } from "./reopenApplication";
 
 export { mutation as APPROVE_APP } from "./approveApplication";
-export type { Response as ApproveAppResp } from "./approveApplication";
+export type { Input as ApproveAppInput, Response as ApproveAppResp } from "./approveApplication";
 
 export { mutation as INQUIRE_APP } from "./inquireApplication";
 export type { Response as InquireAppResp } from "./inquireApplication";
@@ -28,6 +28,9 @@ export type { Response as GetAppResp } from "./getApplication";
 
 export { mutation as UPDATE_MY_USER } from "./updateMyUser";
 export type { Response as UpdateMyUserResp } from "./updateMyUser";
+
+export { query as LIST_INSTITUTIONS } from "./listInstitutions";
+export type { Response as ListInstitutionsResp } from "./listInstitutions";
 
 // Data Submissions
 export { query as GET_SUBMISSION } from "./getSubmission";

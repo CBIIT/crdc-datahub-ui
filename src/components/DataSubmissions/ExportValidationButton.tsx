@@ -103,7 +103,7 @@ export const ExportValidationButton: React.FC<Props> = ({
 
       downloadBlob(unparse(csvArray), filename, "text/csv");
     } catch (err) {
-      enqueueSnackbar("Unable to export validation results.", {
+      enqueueSnackbar(`Unable to export validation results. Error: ${err}`, {
         variant: "error",
       });
     }
