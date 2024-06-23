@@ -129,29 +129,19 @@ export const compareStrings = (a: string | null, b: string | null): number => {
   return a.localeCompare(b);
 };
 
-/**
- * Generates updated URL search parameters only when they differ from the default values.
- * This utility ensures that the URL remains clean by omitting default parameter values.
- * It works specifically with table-related parameters.
- *
- * @param {TableURLParams} currentParams - Current search parameters for table pagination and sorting.
- * @param {TableURLParams} defaultParams - Default values for table search parameters to compare against.
- *
- * @returns {URLSearchParams} - The new set of URL search parameters with only the modified values.
- */
 export const generateSearchParameters = (
-  currentParams: TableURLParams,
-  defaultParams: TableURLParams
+  searchParams: URLSearchParams,
+  currentParams: { [key: string]: string | number },
+  defaultParams: { [key: string]: string | number }
 ): URLSearchParams => {
-  const newParams = new URLSearchParams();
+  const newParams = searchParams;
 
-  // Loop through each property in currentParams
   Object.keys(currentParams).forEach((key) => {
     const currentValue = currentParams[key as keyof TableURLParams];
     const defaultValue = defaultParams[key as keyof TableURLParams];
 
     // Check if the current value is different from the default value
-    if (currentValue !== defaultValue) {
+    if (currentValue && currentValue !== defaultValue) {
       newParams.set(key, currentValue.toString());
     } else {
       newParams.delete(key);
