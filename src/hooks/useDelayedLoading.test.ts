@@ -11,12 +11,12 @@ describe("useDelayedLoading", () => {
   });
 
   it("should not show loading initially even when isLoading is true", () => {
-    const { result } = renderHook(() => useDelayedLoading(true));
+    const { result } = renderHook(() => useDelayedLoading(true, 1000));
     expect(result.current).toBe(false);
   });
 
   it("should show loading after a delay of 1000ms", () => {
-    const { result } = renderHook(() => useDelayedLoading(true));
+    const { result } = renderHook(() => useDelayedLoading(true, 1000));
     act(() => jest.advanceTimersByTime(999));
     expect(result.current).toBe(false); // still not shown just before the delay
     act(() => jest.advanceTimersByTime(1)); // exact moment the delay completes
@@ -37,7 +37,7 @@ describe("useDelayedLoading", () => {
   });
 
   it("should clean up on component unmount to prevent memory leaks", () => {
-    const { unmount } = renderHook(() => useDelayedLoading(true));
+    const { unmount } = renderHook(() => useDelayedLoading(true, 1000));
     const spy = jest.spyOn(global, "clearTimeout");
     unmount();
     expect(spy).toHaveBeenCalled(); // Verify that clearTimeout is called upon unmount
@@ -51,13 +51,13 @@ describe("useDelayedLoading", () => {
     });
 
     rerender(false);
-    act(() => jest.advanceTimersByTime(250));
+    act(() => jest.advanceTimersByTime(50));
     rerender(true);
-    act(() => jest.advanceTimersByTime(250)); // Total 500ms, half the delay
+    act(() => jest.advanceTimersByTime(50)); // Total 100ms, half the delay
     expect(result.current).toBe(false);
 
     rerender(false);
-    act(() => jest.advanceTimersByTime(750)); // 500ms into the next toggle, but was turned off
+    act(() => jest.advanceTimersByTime(150)); // 100ms into the next toggle, but was turned off
     expect(result.current).toBe(false);
   });
 
@@ -66,12 +66,12 @@ describe("useDelayedLoading", () => {
       initialProps: true,
     });
 
-    act(() => jest.advanceTimersByTime(999));
+    act(() => jest.advanceTimersByTime(199));
     expect(result.current).toBe(false);
     unmount();
 
     const { result: newResult } = renderHook(() => useDelayedLoading(true));
-    act(() => jest.advanceTimersByTime(1000));
+    act(() => jest.advanceTimersByTime(200));
     expect(newResult.current).toBe(true); // New instance should also respect the delay
   });
 
