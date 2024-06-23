@@ -6,6 +6,7 @@ import { axe } from "jest-axe";
 import { render, waitFor } from "@testing-library/react";
 import SubmittedData from "./SubmittedData";
 import { GET_SUBMISSION_NODES, SUBMISSION_STATS } from "../../graphql";
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -14,7 +15,9 @@ type ParentProps = {
 
 const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
   <MockedProvider mocks={mocks} showWarnings>
-    <MemoryRouter basename="">{children}</MemoryRouter>
+    <MemoryRouter basename="">
+      <SearchParamsProvider>{children}</SearchParamsProvider>
+    </MemoryRouter>
   </MockedProvider>
 );
 
