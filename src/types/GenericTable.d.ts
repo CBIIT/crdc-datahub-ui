@@ -29,7 +29,11 @@ type TableParams = {
   orderBy: string;
 };
 
+type TableStatus = "INITIAL" | "LOADING" | "LOADED" | "ERROR";
+
 type TableState<T> = {
+  status: TableStatus;
   data: T[];
   total: number;
+  perPageOptions: number[];
 } & TableParams;
