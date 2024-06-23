@@ -94,6 +94,14 @@ const StyledIssuesTextWrapper = styled(Box)({
   wordBreak: "break-word",
 });
 
+type TouchedState = { [K in keyof FilterForm]: boolean };
+
+const initialTouchedFields: TouchedState = {
+  nodeType: false,
+  batchID: false,
+  severity: false,
+};
+
 const columns: Column<QCResult>[] = [
   {
     label: "Batch ID",
@@ -189,7 +197,13 @@ type Props = {
 
 const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => {
   const { submissionId } = useParams();
-  const { watch, control } = useForm<FilterForm>();
+  const { watch, control } = useForm<FilterForm>({
+    defaultValues: {
+      batchID: "All",
+      nodeType: "All",
+      severity: "All",
+    },
+  });
   const { enqueueSnackbar } = useSnackbar();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -198,6 +212,10 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
   const [totalData, setTotalData] = useState(0);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
+  const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
+  const nodeTypeFilter = watch("nodeType");
+  const batchIDFilter = watch("batchID");
+  const severityFilter = watch("severity");
   const tableRef = useRef<TableMethods>(null);
 
   const errorDescriptions =
@@ -246,8 +264,6 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
     try {
       setLoading(true);
 
-      const nodeType = watch("nodeType");
-      const batchID = watch("batchID");
       const { data: d, error } = await submissionQCResults({
         variables: {
           submissionID: submissionId,
@@ -255,8 +271,8 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
           offset,
           sortDirection,
           orderBy,
-          nodeTypes: !nodeType || nodeType === "All" ? undefined : [watch("nodeType")],
-          batchIDs: !batchID || batchID === "All" ? undefined : [watch("batchID")],
+          nodeTypes: !nodeTypeFilter || nodeTypeFilter === "All" ? undefined : [nodeTypeFilter],
+          batchIDs: !batchIDFilter || batchIDFilter === "All" ? undefined : [batchIDFilter],
           severities: watch("severity") || "All",
         },
         context: { clientName: "backend" },
@@ -297,8 +313,11 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
   );
 
   useEffect(() => {
+    if (!touchedFilters.nodeType && !touchedFilters.batchID && !touchedFilters.severity) {
+      return;
+    }
     tableRef.current?.setPage(0, true);
-  }, [watch("nodeType"), watch("batchID"), watch("severity")]);
+  }, [nodeTypeFilter, batchIDFilter, severityFilter]);
 
   useEffect(() => {
     tableRef.current?.refresh();
@@ -307,6 +326,10 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
     submission?.fileValidationStatus,
     submission?.crossSubmissionStatus,
   ]);
+
+  const handleFilterChange = (field: keyof FilterForm) => {
+    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
+  };
 
   return (
     <>
@@ -320,11 +343,14 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
                   MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                   inputProps={{ id: "batchID-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("batchID");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {batchData?.listBatches?.batches?.map((batch) => (
@@ -348,11 +374,14 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
                   MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                   inputProps={{ id: "nodeType-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("nodeType");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
@@ -375,11 +404,14 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
                   MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                   inputProps={{ id: "severity-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("severity");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Error">Error</MenuItem>
