@@ -33,7 +33,7 @@ import {
   validateRowsPerPage,
   validateSortDirection,
 } from "../../utils";
-import { TableStatus, tableStateReducer } from "../GenericTable/TableReducer";
+import { tableStateReducer } from "../GenericTable/TableReducer";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
 import { useDelayedLoading } from "../../hooks/useDelayedLoading";
 
@@ -181,12 +181,11 @@ const GenericTable = <T,>(
   };
   const initialState: TableState<T> = {
     ...initialTableParams,
-    status: TableStatus.INITIAL,
     data: initData,
     total: initTotal,
     perPageOptions: rowsPerPageOptions,
   };
-  const [{ data, total, page, perPage, sortDirection, orderBy, perPageOptions, status }, dispatch] =
+  const [{ data, total, page, perPage, sortDirection, orderBy, perPageOptions }, dispatch] =
     useReducer(tableStateReducer, initialState);
   const [paramsInitialized, setParamsInitialized] = useState<boolean>(false);
 
@@ -255,7 +254,6 @@ const GenericTable = <T,>(
     total,
     data,
     loading,
-    status,
     disableUrlParams,
     searchParams.get("sortDirection"),
     searchParams.get("orderBy"),
@@ -440,13 +438,11 @@ const GenericTable = <T,>(
     );
   };
 
-  console.log({ paramsInitialized, showDelayedLoading, status, data, total, page });
+  // console.log({ paramsInitialized, showDelayedLoading, status, data, total, page });
 
   return (
     <StyledTableContainer {...containerProps}>
-      {(!paramsInitialized || showDelayedLoading || status !== TableStatus.LOADED) && (
-        <SuspenseLoader fullscreen={false} />
-      )}
+      {(!paramsInitialized || showDelayedLoading) && <SuspenseLoader fullscreen={false} />}
       {(position === "top" || position === "both") && <Pagination verticalPlacement="top" />}
       <StyledTable horizontalScroll={horizontalScroll && total > 0}>
         {columns?.length > 0 && (
@@ -475,8 +471,7 @@ const GenericTable = <T,>(
           </TableHeadComponent>
         )}
         <TableBody>
-          {(!paramsInitialized || showDelayedLoading || status !== TableStatus.LOADED) &&
-          (total === 0 || !data?.length)
+          {(!paramsInitialized || showDelayedLoading) && (total === 0 || !data?.length)
             ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
                 <StyledTableRow key={`loading_row_${idx}`}>
                   <TableCell colSpan={columns.length} />
