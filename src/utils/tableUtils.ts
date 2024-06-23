@@ -1,3 +1,4 @@
+import { isEqual } from "lodash";
 import { SORT, DIRECTION } from "../config/TableConfig";
 
 /**
@@ -117,32 +118,34 @@ export const validateSortDirection = (sortDirection: string): sortDirection is O
   sortDirection === "asc" || sortDirection === "desc";
 
 /**
- * Updates the given `updates` object with a new value for a specified key if the new value is
- * valid and different from the current state.
+ * Conditionally updates a property within a state object if the new value passes an optional validation function
+ * and is different from the current value. This function helps ensure state immutability and controlled updates.
  *
- * This function creates a clone of the `updates` object, modifies the clone if the new value
- * passes validation and is different from the current value in the state, and then returns the clone.
- * This avoids direct mutation of the original `updates` object, adhering to immutability principles.
+ * @template T - The type of the state object.
+ * @template K - The key of the property within the state object to update.
+ * @param {T} state - The current state object.
+ * @param {K} key - The key of the property in the state object to update.
+ * @param {T[K]} payload - The new value for the property specified by key.
+ * @param {(value: T[K]) => boolean} [validatorFn] - An optional function to validate the new value before updating.
+ * If the validation function is provided and returns false, the state is not updated.
  *
- * @param {keyof T} key - The key in the state object that needs to be updated.
- * @param {T[K]} newValue - The new value proposed for the key.
- * @param {(value: T[K]) => boolean} validator - A function that returns true if the new value is valid.
- * @param {T} currentState - The current state object containing the current values of keys.
- * @param {Partial<T>} updates - The object to which validated and changed values are added.
- *
- * @returns {T} A new object with the updated values if changes were valid and necessary.
+ * @returns {T} - Returns the updated state if the new value is valid and different from the current value; otherwise,
+ * returns the original state unchanged.
  */
-export const updateIfValidAndChanged = <T, K extends keyof T>(
+export const validateAndSetIfChanged = <T, K extends keyof T>(
+  state: T,
   key: K,
-  newValue: T[K],
-  validator: (value: T[K]) => boolean,
-  currentState: T,
-  updates: Partial<T>
+  payload: T[K],
+  validatorFn?: (value: T[K]) => boolean
 ): T => {
-  const updated = { ...currentState, ...updates };
-  if (newValue !== undefined && validator(newValue) && newValue !== currentState[key]) {
-    updated[key] = newValue;
+  if (validatorFn && !validatorFn(payload)) {
+    return state; // return unchanged state if fails validation
   }
 
-  return updated;
+  // if attempting to set state to same value
+  if (isEqual(payload, state[key])) {
+    return state;
+  }
+
+  return { ...state, [key]: payload };
 };

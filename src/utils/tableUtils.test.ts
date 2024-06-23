@@ -4,7 +4,7 @@ import {
   validateRowsPerPage,
   validatePerPageOptions,
   validateSortDirection,
-  updateIfValidAndChanged,
+  validateAndSetIfChanged,
 } from "./index";
 
 describe("tableUtils", () => {
@@ -83,103 +83,44 @@ describe("tableUtils", () => {
     });
   });
 
-  describe("updateIfValidAndChanged", () => {
-    const initialState: Partial<TableState<unknown>> = {
-      total: 100,
-      page: 1,
-      perPage: 10,
-      perPageOptions: [10, 20, 30],
-      sortDirection: "asc",
-    };
+  describe("validateAndSetIfChanged", () => {
+    const initialState = { count: 0, name: "initial" };
 
-    it("should update total if valid and different", () => {
-      const updates = {};
-      const newState = updateIfValidAndChanged("total", 150, validateTotal, initialState, updates);
-      expect(newState.total).toBe(150);
+    it("should update the state when the new value is valid and different", () => {
+      const newState = validateAndSetIfChanged(initialState, "count", 10, validateTotal);
+      expect(newState).toEqual({ ...initialState, count: 10 });
     });
 
-    it("should not update total if not valid", () => {
-      const updates = {};
-      const newState = updateIfValidAndChanged("total", -10, validateTotal, initialState, updates);
-      expect(newState).toEqual(initialState);
+    it("should not update the state when the new value is the same as the current value", () => {
+      const newState = validateAndSetIfChanged(initialState, "count", 0, validateTotal);
+      expect(newState).toBe(initialState);
     });
 
-    it("should not update total if same value", () => {
-      const updates = {};
-      const newState = updateIfValidAndChanged("total", 100, validateTotal, initialState, updates);
-      expect(newState).toEqual(initialState);
+    it("should not update the state when the new value fails validation", () => {
+      const newState = validateAndSetIfChanged(initialState, "count", -1, validateTotal);
+      expect(newState).toBe(initialState);
     });
 
-    it("should update perPage if valid and in perPageOptions", () => {
-      const updates = {};
-      const newState = updateIfValidAndChanged(
-        "perPage",
-        20,
-        (perPage) => validateRowsPerPage(perPage, initialState.perPageOptions),
-        initialState,
-        updates
-      );
-      expect(newState.perPage).toBe(20);
+    it("should update the state when no validation function is provided", () => {
+      const newState = validateAndSetIfChanged(initialState, "name", "updated");
+      expect(newState).toEqual({ ...initialState, name: "updated" });
     });
 
-    it("should not update perPage if not in perPageOptions", () => {
-      const updates = {};
-      const newState = updateIfValidAndChanged(
-        "perPage",
-        5,
-        (perPage) => validateRowsPerPage(perPage, initialState.perPageOptions),
-        initialState,
-        updates
-      );
-      expect(newState).toEqual(initialState);
+    it("should not update the state when the new value is the same and no validation function is provided", () => {
+      const newState = validateAndSetIfChanged(initialState, "name", "initial");
+      expect(newState).toBe(initialState);
     });
 
-    it("should not update perPage if same value", () => {
-      const updates = {};
-      const newState = updateIfValidAndChanged(
-        "perPage",
-        10,
-        (perPage) => validateRowsPerPage(perPage, initialState.perPageOptions),
-        initialState,
-        updates
-      );
-      expect(newState).toEqual(initialState);
+    it("should update the state when the validation function is optional and the value is valid", () => {
+      const optionalValidator = (value: number) => value >= 0;
+      const newState = validateAndSetIfChanged(initialState, "count", 5, optionalValidator);
+      expect(newState).toEqual({ ...initialState, count: 5 });
     });
 
-    it("should update sortDirection if valid", () => {
-      const updates = {};
-      const newState = updateIfValidAndChanged(
-        "sortDirection",
-        "desc",
-        validateSortDirection,
-        initialState,
-        updates
-      );
-      expect(newState.sortDirection).toBe("desc");
-    });
-
-    it("should not update sortDirection if invalid", () => {
-      const updates = {};
-      const newState = updateIfValidAndChanged(
-        "sortDirection",
-        "upward" as Order,
-        validateSortDirection,
-        initialState,
-        updates
-      );
-      expect(newState).toEqual(initialState);
-    });
-
-    it("should not update sortDirection if same value", () => {
-      const updates = {};
-      const newState = updateIfValidAndChanged(
-        "sortDirection",
-        "asc",
-        validateSortDirection,
-        initialState,
-        updates
-      );
-      expect(newState).toEqual(initialState);
+    it("should not update the state when the optional validation function returns false", () => {
+      const optionalValidator = (value: number) => value < 0;
+      const newState = validateAndSetIfChanged(initialState, "count", 5, optionalValidator);
+      expect(newState).toBe(initialState);
     });
   });
 });
