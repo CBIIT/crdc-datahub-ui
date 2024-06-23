@@ -16,14 +16,18 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { isString } from "lodash";
-import { useOrganizationListContext } from "../../components/Contexts/OrganizationListContext";
+import {
+  Status as OrgStatus,
+  useOrganizationListContext,
+} from "../../components/Contexts/OrganizationListContext";
 import PageBanner from "../../components/PageBanner";
 import { Roles } from "../../config/AuthRoles";
 import { LIST_USERS, ListUsersResp } from "../../graphql";
 import { compareStrings, formatIDP } from "../../utils";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
+import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
 type T = User;
 
@@ -136,6 +140,14 @@ const StyledActionButton = styled(Button)(
   })
 );
 
+type TouchedState = { [K in keyof FilterForm]: boolean };
+
+const initialTouchedFields: TouchedState = {
+  organization: false,
+  role: false,
+  status: false,
+};
+
 const columns: Column<T>[] = [
   {
     label: "Name",
@@ -222,14 +234,21 @@ const columns: Column<T>[] = [
 const ListingView: FC = () => {
   usePageTitle("Manage Users");
 
-  const { user } = useAuthContext();
+  const { user, status: authStatus } = useAuthContext();
   const { state } = useLocation();
-  const { data: orgData, activeOrganizations } = useOrganizationListContext();
-
+  const { data: orgData, activeOrganizations, status: orgStatus } = useOrganizationListContext();
+  const [searchParams, setSearchParams] = useSearchParamsContext();
   const [dataset, setDataset] = useState<T[]>([]);
   const [count, setCount] = useState<number>(0);
+  const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
-  const { watch, setValue, control } = useForm<FilterForm>();
+  const { watch, setValue, control } = useForm<FilterForm>({
+    defaultValues: {
+      organization: "All",
+      role: "All",
+      status: "All",
+    },
+  });
   const orgFilter = watch("organization");
   const roleFilter = watch("role");
   const statusFilter = watch("status");
@@ -288,20 +307,68 @@ const ListingView: FC = () => {
     setValue("organization", orgID || "All");
   }, [user, orgData]);
 
-  useEffect(() => {
-    refreshTable();
-  }, [data, orgData]);
+  const isValidOrg = (orgId: string) => !!activeOrganizations?.find((org) => org._id === orgId);
+  const isRoleFilterOption = (role: string): role is FilterForm["role"] =>
+    ["All", ...Roles].includes(role);
+  const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
+    ["All", "Inactive", "Active"].includes(status);
 
   useEffect(() => {
+    if (!activeOrganizations) {
+      return;
+    }
+
+    const organizationId = searchParams.get("organization");
+    const role = searchParams.get("role");
+    const status = searchParams.get("status");
+
+    if (isValidOrg(organizationId) && organizationId !== orgFilter) {
+      setValue("organization", organizationId);
+    }
+    if (isRoleFilterOption(role) && role !== roleFilter) {
+      setValue("role", role);
+    }
+    if (isStatusFilterOption(status) && status !== statusFilter) {
+      setValue("status", status);
+    }
+  }, [
+    activeOrganizations,
+    searchParams.get("organization"),
+    searchParams.get("role"),
+    searchParams.get("status"),
+  ]);
+
+  useEffect(() => {
+    if (!touchedFilters.organization && !touchedFilters.role && !touchedFilters.status) {
+      return;
+    }
+
+    if (orgFilter && orgFilter !== "All") {
+      searchParams.set("organization", orgFilter);
+    } else if (orgFilter === "All") {
+      searchParams.delete("organization");
+    }
+    if (roleFilter && roleFilter !== "All") {
+      searchParams.set("role", roleFilter);
+    } else if (roleFilter === "All") {
+      searchParams.delete("role");
+    }
+    if (statusFilter && statusFilter !== "All") {
+      searchParams.set("status", statusFilter);
+    } else if (statusFilter === "All") {
+      searchParams.delete("status");
+    }
+
     setTablePage(0);
-  }, [orgFilter, roleFilter, statusFilter]);
+    setSearchParams(searchParams);
+  }, [orgFilter, roleFilter, statusFilter, touchedFilters]);
 
   const setTablePage = (page: number) => {
     tableRef.current?.setPage(page, true);
   };
 
-  const refreshTable = () => {
-    tableRef.current?.refresh();
+  const handleFilterChange = (field: keyof FilterForm) => {
+    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
   };
 
   return (
@@ -325,10 +392,13 @@ const ListingView: FC = () => {
                 <StyledSelect
                   {...field}
                   disabled={user.role === "Organization Owner"}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   MenuProps={{ disablePortal: true }}
                   inputProps={{ id: "organization-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("organization");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {activeOrganizations?.map((org: Organization) => (
@@ -348,10 +418,13 @@ const ListingView: FC = () => {
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   MenuProps={{ disablePortal: true }}
                   inputProps={{ id: "role-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("role");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {Roles.map((role) => (
@@ -371,10 +444,13 @@ const ListingView: FC = () => {
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   MenuProps={{ disablePortal: true }}
                   inputProps={{ id: "status-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("status");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Active">Active</MenuItem>
@@ -389,7 +465,8 @@ const ListingView: FC = () => {
           columns={columns}
           data={dataset || []}
           total={count || 0}
-          loading={loading}
+          loading={loading || orgStatus === OrgStatus.LOADING || authStatus === AuthStatus.LOADING}
+          disableUrlParams={false}
           defaultRowsPerPage={20}
           defaultOrder="asc"
           setItemKey={(item, idx) => `${idx}_${item._id}`}

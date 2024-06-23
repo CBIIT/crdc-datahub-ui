@@ -19,12 +19,13 @@ import { isString } from "lodash";
 import PageBanner from "../../components/PageBanner";
 import {
   useOrganizationListContext,
-  Status,
+  Status as OrgStatus,
 } from "../../components/Contexts/OrganizationListContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import StudyTooltip from "../../components/Organizations/StudyTooltip";
 import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
 import { compareStrings } from "../../utils";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
 type T = Partial<Organization>;
 
@@ -156,6 +157,14 @@ const StyledActionButton = styled(Button)(
   })
 );
 
+type TouchedState = { [K in keyof FilterForm]: boolean };
+
+const initialTouchedFields: TouchedState = {
+  organization: false,
+  study: false,
+  status: false,
+};
+
 const columns: Column<T>[] = [
   {
     label: "Name",
@@ -232,12 +241,20 @@ const ListingView: FC = () => {
   usePageTitle("Manage Organizations");
 
   const { state } = useLocation();
-  const { status, data } = useOrganizationListContext();
+  const { data, status: orgStatus } = useOrganizationListContext();
+  const [searchParams, setSearchParams] = useSearchParamsContext();
+  const { watch, register, control, setValue } = useForm<FilterForm>({
+    defaultValues: {
+      organization: searchParams.get("organization") || "",
+      study: searchParams.get("study") || "",
+      status: (searchParams.get("status") as FilterForm["status"]) || "All",
+    },
+  });
 
   const [dataset, setDataset] = useState<T[]>([]);
   const [count, setCount] = useState<number>(0);
+  const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
-  const { watch, register, control } = useForm<FilterForm>();
   const orgFilter = watch("organization");
   const studyFilter = watch("study");
   const statusFilter = watch("status");
@@ -295,28 +312,71 @@ const ListingView: FC = () => {
     setDataset(sorted.slice(offset, first + offset));
   };
 
-  useEffect(() => {
-    if (data && !dataset?.length) {
-      refreshTable();
-    }
-  }, [data, dataset]);
+  const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
+    ["All", "Inactive", "Active"].includes(status);
 
   useEffect(() => {
+    if (!data?.length) {
+      return;
+    }
+
+    const organizationId = searchParams.get("organization") || "";
+    const study = searchParams.get("study") || "";
+    const status = searchParams.get("status");
+
+    if (organizationId !== orgFilter) {
+      setValue("organization", organizationId);
+    }
+    if (study !== studyFilter) {
+      setValue("study", study);
+    }
+    if (isStatusFilterOption(status) && status !== statusFilter) {
+      setValue("status", status);
+    }
+  }, [
+    data,
+    searchParams.get("organization"),
+    searchParams.get("role"),
+    searchParams.get("status"),
+  ]);
+
+  useEffect(() => {
+    if (!touchedFilters.organization && !touchedFilters.study && !touchedFilters.status) {
+      return;
+    }
+
+    if (orgFilter) {
+      searchParams.set("organization", orgFilter);
+    } else {
+      searchParams.delete("organization");
+    }
+    if (studyFilter) {
+      searchParams.set("study", studyFilter);
+    } else {
+      searchParams.delete("study");
+    }
+    if (statusFilter && statusFilter !== "All") {
+      searchParams.set("status", statusFilter);
+    } else if (statusFilter === "All") {
+      searchParams.delete("status");
+    }
+
     setTablePage(0);
-  }, [orgFilter, studyFilter, statusFilter, tableRef]);
+    setSearchParams(searchParams);
+  }, [orgFilter, studyFilter, statusFilter]);
 
   const setTablePage = (page: number) => {
     tableRef.current?.setPage(page, true);
   };
 
-  const refreshTable = () => {
-    tableRef.current?.refresh();
+  const handleFilterChange = (field: keyof FilterForm) => {
+    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
   };
 
   return (
     <>
       <Container maxWidth="xl">
-        {(state?.error || status === Status.ERROR) && (
+        {(state?.error || orgStatus === OrgStatus.ERROR) && (
           <Alert sx={{ mt: 2, mx: "auto", p: 2 }} severity="error">
             {state?.error || "An error occurred while loading the data."}
           </Alert>
@@ -341,7 +401,9 @@ const ListingView: FC = () => {
           <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
           <StyledFormControl>
             <StyledTextField
-              {...register("organization")}
+              {...register("organization", {
+                onChange: (e) => handleFilterChange("organization"),
+              })}
               placeholder="Enter a Organization"
               id="organization-filter"
               required
@@ -350,7 +412,9 @@ const ListingView: FC = () => {
           <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
           <StyledFormControl>
             <StyledTextField
-              {...register("study")}
+              {...register("study", {
+                onChange: (e) => handleFilterChange("study"),
+              })}
               placeholder="Enter a Study"
               id="study-filter"
               required
@@ -364,10 +428,13 @@ const ListingView: FC = () => {
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   MenuProps={{ disablePortal: true }}
                   inputProps={{ id: "status-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("status");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Active">Active</MenuItem>
@@ -382,7 +449,8 @@ const ListingView: FC = () => {
           columns={columns}
           data={dataset || []}
           total={count || 0}
-          loading={false}
+          loading={orgStatus === OrgStatus.LOADING}
+          disableUrlParams={false}
           defaultRowsPerPage={20}
           defaultOrder="asc"
           setItemKey={(item, idx) => `${idx}_${item._id}`}
