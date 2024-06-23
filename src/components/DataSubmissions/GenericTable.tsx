@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable react/no-array-index-key */
 import {
   Table,
@@ -7,12 +8,12 @@ import {
   TableContainer,
   TableContainerProps,
   TableHead,
+  TablePaginationProps,
   TableRow,
   TableSortLabel,
   Typography,
   styled,
 } from "@mui/material";
-import { useSearchParams } from "react-router-dom";
 import {
   CSSProperties,
   forwardRef,
@@ -21,11 +22,20 @@ import {
   useMemo,
   useReducer,
   useRef,
+  useState,
 } from "react";
+import { isEqual } from "lodash";
 import SuspenseLoader from "../SuspenseLoader";
 import TablePagination from "./TablePagination";
-import { generateSearchParameters } from "../../utils";
-import { tableStateReducer } from "../GenericTable/TableReducer";
+import {
+  generateSearchParameters,
+  validatePage,
+  validateRowsPerPage,
+  validateSortDirection,
+} from "../../utils";
+import { TableStatus, tableStateReducer } from "../GenericTable/TableReducer";
+import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
+import { useDelayedLoading } from "../../hooks/useDelayedLoading";
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
@@ -103,17 +113,20 @@ export type Column<T> = {
   sx?: TableCellProps["sx"];
 };
 
-type Props<T> = {
+export type Props<T> = {
   columns: Column<T>[];
   data: T[];
   total: number;
   loading?: boolean;
+  disableUrlParams?: boolean;
   horizontalScroll?: boolean;
   position?: PaginationPosition;
   noContentText?: string;
   defaultOrder?: Order;
   defaultRowsPerPage?: number;
+  rowsPerPageOptions?: number[];
   paginationPlacement?: CSSProperties["justifyContent"];
+  paginationMode?: "client" | "server";
   containerProps?: TableContainerProps;
   numRowsNoContent?: number;
   AdditionalActions?: React.ReactNode;
@@ -133,12 +146,15 @@ const GenericTable = <T,>(
     data: initData = [],
     total: initTotal = 0,
     loading,
+    disableUrlParams = true,
     horizontalScroll = false,
     position = "bottom",
     noContentText,
     defaultOrder = "desc",
     defaultRowsPerPage = 10,
+    rowsPerPageOptions = [5, 10, 20, 50],
     paginationPlacement,
+    paginationMode,
     containerProps,
     numRowsNoContent = 10,
     AdditionalActions,
@@ -153,84 +169,94 @@ const GenericTable = <T,>(
   }: Props<T>,
   ref: React.Ref<TableMethods>
 ) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const defaultColumn =
+  const showDelayedLoading = useDelayedLoading(loading, 200);
+  const [searchParams, setSearchParams] = useSearchParamsContext();
+  const defaultColumn: Column<T> =
     columns.find((c) => c.default) || columns.find((c) => c.fieldKey ?? c.field);
-  const initalState: TableState<T> = {
-    data: initData,
-    total: initTotal,
+  const initialTableParams: TableParams = {
     page: 0,
     perPage: defaultRowsPerPage,
     sortDirection: defaultOrder,
     orderBy: defaultColumn?.fieldKey ?? defaultColumn?.field?.toString(),
   };
-  const [{ data, total, page, perPage, sortDirection, orderBy }, dispatch] = useReducer(
-    tableStateReducer,
-    initalState
-  );
+  const initialState: TableState<T> = {
+    ...initialTableParams,
+    status: TableStatus.INITIAL,
+    data: initData,
+    total: initTotal,
+    perPageOptions: rowsPerPageOptions,
+  };
+  const [{ data, total, page, perPage, sortDirection, orderBy, perPageOptions, status }, dispatch] =
+    useReducer(tableStateReducer, initialState);
+  const [paramsInitialized, setParamsInitialized] = useState<boolean>(false);
 
-  const orderByColumn = columns?.find((c) => (c.fieldKey ?? c.field?.toString()) === orderBy);
   const TableHeadComponent = CustomTableHead || StyledTableHead;
   const TableHeaderCellComponent = CustomTableHeaderCell || StyledHeaderCell;
   const TableBodyCellComponent = CustomTableBodyCell || StyledTableCell;
-  const defaultOrderByColumn: Column<T> =
-    columns.find((c) => c.default) || columns.find((c) => c.fieldKey ?? c.field);
-  const defaultURLParams: TableURLParams = {
-    page: "1",
-    rowsPerPage: defaultRowsPerPage?.toString(),
-    orderBy: defaultOrderByColumn?.fieldKey ?? defaultOrderByColumn?.field?.toString(),
-    sortDirection: defaultOrder,
-  };
-  const paramsRef = useRef(false);
-
-  const isOrder = (value: unknown): value is Order => value === "asc" || value === "desc";
+  const orderByColumn = columns?.find((c) => (c.fieldKey ?? c.field?.toString()) === orderBy);
+  const prevFetchRef = useRef<FetchListing<T>>(null);
 
   useEffect(() => {
-    dispatch({ type: "SET_DATA", payload: initData });
-  }, [initData]);
-
-  useEffect(() => {
-    dispatch({ type: "SET_TOTAL", payload: initTotal });
-  }, [initTotal]);
-
-  useEffect(() => {
-    if (page < 0 || page > Math.ceil(total / perPage)) {
-      dispatch({ type: "SET_PAGE", payload: initalState.page });
+    if (loading) {
+      return;
     }
-  }, [data, total, perPage]);
+    dispatch({ type: "SET_DATA", payload: initData });
+  }, [loading, initData]);
 
   useEffect(() => {
-    if (!total) {
+    if (loading) {
+      return;
+    }
+    dispatch({ type: "SET_TOTAL", payload: initTotal });
+  }, [loading, initTotal]);
+
+  useEffect(() => {
+    if (disableUrlParams) {
+      setParamsInitialized(true);
+      return;
+    }
+    if (loading) {
       return;
     }
 
-    const sortDirection = searchParams.get("sortDirection") || defaultURLParams.sortDirection;
-    const orderBy = searchParams.get("orderBy") || defaultURLParams.orderBy;
-    const page =
-      parseInt(searchParams.get("page"), 10) - 1 || parseInt(defaultURLParams.page, 10) - 1;
-    const rowsPerPage =
-      parseInt(searchParams.get("rowsPerPage"), 10) || parseInt(defaultURLParams.rowsPerPage, 10);
+    const newSortDirection = searchParams.get("sortDirection") || initialState.sortDirection;
+    const newOrderBy = searchParams.get("orderBy") || initialState.orderBy;
+    const newPage = parseInt(searchParams.get("page"), 10) - 1 || initialState.page;
+    const newRowsPerPage = parseInt(searchParams.get("rowsPerPage"), 10) || initialState.perPage;
 
-    if (isOrder(sortDirection)) {
-      dispatch({ type: "SET_SORT_DIRECTION", payload: sortDirection });
+    const allUpdates: Partial<TableState<T>> = {};
+
+    if (validateSortDirection(newSortDirection)) {
+      allUpdates.sortDirection = newSortDirection;
     }
-    const orderByColumn: Column<T> = columns.find((c) => orderBy === (c.fieldKey ?? c.field));
+
+    const orderByColumn: Column<T> = columns.find((c) => newOrderBy === (c.fieldKey ?? c.field));
     if (orderByColumn) {
-      dispatch({
-        type: "SET_ORDER_BY",
-        payload: orderByColumn.fieldKey ?? orderByColumn.field?.toString(),
-      });
+      allUpdates.orderBy = orderByColumn.fieldKey ?? orderByColumn.field?.toString();
     }
-    if (!isNaN(page) && page + 1 <= Math.ceil(total / rowsPerPage) && page + 1 > 0) {
-      dispatch({ type: "SET_PAGE", payload: page });
+
+    const isRowsPerPageValid = validateRowsPerPage(newRowsPerPage, perPageOptions);
+    if (isRowsPerPageValid) {
+      allUpdates.perPage = newRowsPerPage;
     }
-    if (!isNaN(rowsPerPage) && rowsPerPage > 0) {
-      dispatch({ type: "SET_PER_PAGE", payload: rowsPerPage });
+
+    if (validatePage(newPage)) {
+      console.log("UseEffect SET_PAGE");
+      allUpdates.page = newPage;
+    } else {
+      console.log("UseEffect DELETE PAGE", { newPage, total, perPage, newRowsPerPage });
+      searchParams.delete("page"); // reset page to default
+      setSearchParams(searchParams);
     }
-    paramsRef.current = true;
+
+    dispatch({ type: "SET_ALL", payload: allUpdates });
+    setParamsInitialized(true);
   }, [
     total,
     data,
+    loading,
+    status,
+    disableUrlParams,
     searchParams.get("sortDirection"),
     searchParams.get("orderBy"),
     searchParams.get("page"),
@@ -241,18 +267,28 @@ const GenericTable = <T,>(
     if (!onFetchData) {
       return;
     }
+    if (!paramsInitialized && !disableUrlParams) {
+      return;
+    }
+    if (!validatePage(page)) {
+      return;
+    }
     const orderByColumn = columns?.find((c) => (c.fieldKey ?? c.field?.toString()) === orderBy);
     const fieldKey = orderByColumn?.fieldKey ?? orderByColumn?.field?.toString();
-    onFetchData(
-      {
-        first: perPage,
-        offset: page * perPage,
-        sortDirection,
-        orderBy: fieldKey,
-        comparator: orderByColumn?.comparator,
-      },
-      force
-    );
+    const fetchListing: FetchListing<T> = {
+      first: perPage,
+      offset: page * perPage,
+      sortDirection,
+      orderBy: fieldKey,
+      comparator: orderByColumn?.comparator,
+    };
+
+    if (!force && isEqual(fetchListing, prevFetchRef.current)) {
+      return;
+    }
+    console.log({ fetchListing, prevFetch: prevFetchRef.current });
+    prevFetchRef.current = fetchListing;
+    onFetchData(fetchListing, force);
   };
 
   const emptyRows = useMemo(
@@ -271,98 +307,147 @@ const GenericTable = <T,>(
       onOrderByChange(column);
     }
 
-    const updatedParams = generateSearchParameters(
-      {
-        page: (page + 1)?.toString(),
-        rowsPerPage: perPage?.toString(),
-        orderBy: fieldKey,
-        sortDirection: newOrder,
-      },
-      defaultURLParams
-    );
+    if (!disableUrlParams) {
+      const updatedParams = generateSearchParameters(
+        searchParams,
+        {
+          page: page + 1,
+          rowsPerPage: perPage,
+          orderBy: fieldKey,
+          sortDirection: newOrder,
+        },
+        { ...initialTableParams, page: initialTableParams.page + 1 } // convert to 1-based indexing
+      );
+      setSearchParams(updatedParams);
+    }
 
     dispatch({ type: "SET_ORDER_BY", payload: fieldKey });
     dispatch({ type: "SET_SORT_DIRECTION", payload: newOrder });
-    setSearchParams(updatedParams);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    const fieldKey = orderByColumn?.fieldKey ?? orderByColumn?.field?.toString();
     const newPerPage = parseInt(event.target.value, 10);
     if (typeof onPerPageChange === "function") {
       onPerPageChange(newPerPage);
     }
 
-    const updatedParams = generateSearchParameters(
-      {
-        page: "1",
-        rowsPerPage: newPerPage?.toString(),
-        orderBy: fieldKey,
-        sortDirection,
-      },
-      defaultURLParams
-    );
+    if (!disableUrlParams) {
+      const updatedParams = generateSearchParameters(
+        searchParams,
+        {
+          page: initialState.page + 1,
+          rowsPerPage: newPerPage,
+          orderBy,
+          sortDirection,
+        },
+        { ...initialTableParams, page: initialTableParams.page + 1 } // convert to 1-based indexing
+      );
+      setSearchParams(updatedParams);
+    }
 
+    console.log("handleChangeRowsPerPage SET_PAGE");
     dispatch({ type: "SET_PAGE", payload: 0 });
     dispatch({ type: "SET_PER_PAGE", payload: newPerPage });
-    setSearchParams(updatedParams);
   };
 
   const handlePageChange = (newPage: number) => {
     // initial URL params not set, avoid changing page too early
-    if (!paramsRef.current) {
+    if (!paramsInitialized) {
       return;
     }
-    const fieldKey = orderByColumn?.fieldKey ?? orderByColumn?.field?.toString();
 
-    const updatedParams = generateSearchParameters(
-      {
-        page: (newPage + 1)?.toString(),
-        rowsPerPage: perPage?.toString(),
-        orderBy: fieldKey,
-        sortDirection,
-      },
-      defaultURLParams
-    );
+    if (!disableUrlParams) {
+      const updatedParams = generateSearchParameters(
+        searchParams,
+        {
+          page: newPage + 1,
+          rowsPerPage: perPage,
+          orderBy,
+          sortDirection,
+        },
+        { ...initialTableParams, page: initialTableParams.page + 1 } // convert to 1-based indexing
+      );
+      setSearchParams(updatedParams);
+    }
 
+    console.log("handlePageChange SET_PAGE");
     dispatch({ type: "SET_PAGE", payload: newPage });
-    setSearchParams(updatedParams);
   };
 
   useEffect(() => {
+    if (!paramsInitialized) {
+      return;
+    }
+    console.log("FETCH: useEffect - page, perPage, sortDirection, orderBy", {
+      page,
+      perPage,
+      sortDirection,
+      orderBy,
+    });
     fetchData();
-  }, [page, perPage, sortDirection, orderBy]);
+  }, [page, perPage, sortDirection, orderBy, paramsInitialized]);
 
   useImperativeHandle(ref, () => ({
     refresh: () => {
+      console.log("FETCH: useImperativeHandle - refresh");
       fetchData(true);
     },
     setPage: (newPage: number, forceRefetch = false) => {
       handlePageChange(newPage);
-      if (forceRefetch) {
+      if (newPage === page && forceRefetch) {
+        console.log("FETCH: useImperativeHandle - setPage");
         fetchData(true);
       }
     },
   }));
 
-  return (
-    <StyledTableContainer {...containerProps}>
-      {loading && <SuspenseLoader fullscreen={false} />}
-      {(position === "top" || position === "both") && (
+  const Pagination = (
+    props: Partial<TablePaginationProps> & { verticalPlacement: "top" | "bottom" }
+  ) => {
+    const pageIsInvalid = page + 1 > Math.ceil(total / perPage);
+    const safePage = pageIsInvalid ? 0 : page;
+
+    return useMemo(
+      () => (
         <TablePagination
           data={data}
           total={total}
           perPage={perPage}
-          page={page < total / perPage ? page : 0}
+          page={safePage}
           emptyRows={emptyRows}
-          loading={loading}
+          loading={!paramsInitialized || loading}
           verticalPlacement="top"
           placement={paginationPlacement}
+          rowsPerPageOptions={rowsPerPageOptions}
           AdditionalActions={AdditionalActions}
           onPageChange={(_, newPage) => handlePageChange(newPage - 1)}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          {...props}
         />
+      ),
+      [
+        data,
+        total,
+        perPage,
+        page,
+        emptyRows,
+        paramsInitialized,
+        loading,
+        paginationPlacement,
+        rowsPerPageOptions,
+        AdditionalActions,
+      ]
+    );
+  };
+
+  console.log({ paramsInitialized, showDelayedLoading, status, data, total, page });
+
+  return (
+    <StyledTableContainer {...containerProps}>
+      {(!paramsInitialized || showDelayedLoading || status !== TableStatus.LOADED) && (
+        <SuspenseLoader fullscreen={false} />
       )}
+      {(position === "top" || position === "both") && <Pagination verticalPlacement="top" />}
       <StyledTable horizontalScroll={horizontalScroll && total > 0}>
         {columns?.length > 0 && (
           <TableHeadComponent>
@@ -390,7 +475,8 @@ const GenericTable = <T,>(
           </TableHeadComponent>
         )}
         <TableBody>
-          {loading && total === 0
+          {(!paramsInitialized || showDelayedLoading || status !== TableStatus.LOADED) &&
+          (total === 0 || !data?.length)
             ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
                 <StyledTableRow key={`loading_row_${idx}`}>
                   <TableCell colSpan={columns.length} />
@@ -415,7 +501,8 @@ const GenericTable = <T,>(
                 );
               })}
 
-          {!loading &&
+          {!showDelayedLoading &&
+            paramsInitialized &&
             emptyRows > 0 &&
             Array.from(Array(emptyRows).keys())?.map((row) => (
               <StyledTableRow key={`empty_row_${row}`}>
@@ -424,38 +511,26 @@ const GenericTable = <T,>(
             ))}
 
           {/* No content message */}
-          {!loading && (!total || total === 0) && (
-            <TableRow style={{ height: 46 * numRowsNoContent }}>
-              <TableCell colSpan={columns.length}>
-                <Typography
-                  variant="body1"
-                  align="center"
-                  fontSize={18}
-                  fontWeight={500}
-                  color="#757575"
-                >
-                  {noContentText || "No existing data was found"}
-                </Typography>
-              </TableCell>
-            </TableRow>
-          )}
+          {!showDelayedLoading &&
+            paramsInitialized &&
+            (!total || total === 0 || (total && !data?.length)) && (
+              <TableRow style={{ height: 46 * numRowsNoContent }}>
+                <TableCell colSpan={columns.length}>
+                  <Typography
+                    variant="body1"
+                    align="center"
+                    fontSize={18}
+                    fontWeight={500}
+                    color="#757575"
+                  >
+                    {noContentText || "No existing data was found"}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            )}
         </TableBody>
       </StyledTable>
-      {(position === "bottom" || position === "both") && (
-        <TablePagination
-          data={data}
-          total={total}
-          perPage={perPage}
-          page={page < total / perPage ? page : 0}
-          emptyRows={emptyRows}
-          loading={loading}
-          verticalPlacement="bottom"
-          placement={paginationPlacement}
-          AdditionalActions={AdditionalActions}
-          onPageChange={(_, newPage) => handlePageChange(newPage - 1)}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      )}
+      {(position === "bottom" || position === "both") && <Pagination verticalPlacement="bottom" />}
     </StyledTableContainer>
   );
 };
