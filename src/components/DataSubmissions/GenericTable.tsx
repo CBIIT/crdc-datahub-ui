@@ -126,7 +126,6 @@ export type Props<T> = {
   defaultRowsPerPage?: number;
   rowsPerPageOptions?: number[];
   paginationPlacement?: CSSProperties["justifyContent"];
-  paginationMode?: "client" | "server";
   containerProps?: TableContainerProps;
   numRowsNoContent?: number;
   AdditionalActions?: React.ReactNode;
@@ -154,7 +153,6 @@ const GenericTable = <T,>(
     defaultRowsPerPage = 10,
     rowsPerPageOptions = [5, 10, 20, 50],
     paginationPlacement,
-    paginationMode,
     containerProps,
     numRowsNoContent = 10,
     AdditionalActions,
