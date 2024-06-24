@@ -13,7 +13,7 @@ import {
   SubmissionQCResultsResp,
   SubmissionStatsResp,
 } from "../../graphql";
-import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column } from "../../components/GenericTable";
 import { FormatDate, compareNodeStats, titleCase } from "../../utils";
 import ErrorDialog from "./ErrorDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";

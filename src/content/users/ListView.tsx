@@ -25,7 +25,7 @@ import { LIST_USERS, ListUsersResp } from "../../graphql";
 import { compareStrings, formatIDP, sortData } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
-import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column } from "../../components/GenericTable";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
 type T = User;

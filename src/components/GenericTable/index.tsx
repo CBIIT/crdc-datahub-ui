@@ -25,14 +25,14 @@ import {
 } from "react";
 import { isEqual } from "lodash";
 import SuspenseLoader from "../SuspenseLoader";
-import TablePagination from "./TablePagination";
+import TablePagination from "../DataSubmissions/TablePagination";
 import {
   generateSearchParameters,
   validatePage,
   validateRowsPerPage,
   validateSortDirection,
 } from "../../utils";
-import { tableStateReducer } from "../GenericTable/TableReducer";
+import { tableStateReducer } from "./TableReducer";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
 import { useDelayedLoading } from "../../hooks/useDelayedLoading";
 

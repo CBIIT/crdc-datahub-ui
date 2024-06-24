@@ -8,7 +8,7 @@ import {
   GetSubmissionNodesInput,
   GetSubmissionNodesResp,
 } from "../../graphql";
-import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column } from "../../components/GenericTable";
 import {
   SubmittedDataFilters,
   FilterForm,

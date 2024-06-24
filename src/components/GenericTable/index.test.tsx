@@ -3,7 +3,7 @@ import { render, fireEvent, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { MemoryRouter } from "react-router-dom";
-import GenericTable, { Column, Props } from "../DataSubmissions/GenericTable";
+import GenericTable, { Column, Props } from ".";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 
 const mockData = [

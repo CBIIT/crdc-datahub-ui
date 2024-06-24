@@ -48,7 +48,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
 import SubmittedData from "./SubmittedData";
 import { UserGuide } from "../../components/DataSubmissions/UserGuide";
-import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
+import GenericTable, { Column } from "../../components/GenericTable";
 import { DataUpload } from "../../components/DataSubmissions/DataUpload";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
