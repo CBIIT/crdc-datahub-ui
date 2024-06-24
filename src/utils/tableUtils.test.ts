@@ -6,6 +6,7 @@ import {
   validateSortDirection,
   validateAndSetIfChanged,
   validateOrderBy,
+  getValidationFn,
 } from "./index";
 
 describe("tableUtils", () => {
@@ -161,6 +162,57 @@ describe("tableUtils", () => {
       const optionalValidator = (value: number) => value < 0;
       const newState = validateAndSetIfChanged(initialState, "count", 5, optionalValidator);
       expect(newState).toBe(initialState);
+    });
+  });
+
+  describe("getValidationFn", () => {
+    const state: TableState<unknown> = {
+      data: [],
+      total: 100,
+      page: 1,
+      perPage: 10,
+      perPageOptions: [10, 20, 30],
+      sortDirection: "asc",
+      orderBy: "name",
+    };
+
+    it("should return Array.isArray for 'data' key", () => {
+      const validationFn = getValidationFn(state, "data");
+      expect(validationFn).toBe(Array.isArray);
+    });
+
+    it("should return validateTotal for 'total' key", () => {
+      const validationFn = getValidationFn(state, "total");
+      expect(validationFn).toBe(validateTotal);
+    });
+
+    it("should return validatePage for 'page' key", () => {
+      const validationFn = getValidationFn(state, "page");
+      expect(validationFn).toBe(validatePage);
+    });
+
+    it("should return a function that calls validateRowsPerPage for 'perPage' key", () => {
+      const validationFn = getValidationFn(state, "perPage");
+      expect(validationFn(10 as never)).toBeTruthy();
+    });
+
+    it("should return validatePerPageOptions for 'perPageOptions' key", () => {
+      const validationFn = getValidationFn(state, "perPageOptions");
+      expect(validationFn).toBe(validatePerPageOptions);
+    });
+
+    it("should return validateSortDirection for 'sortDirection' key", () => {
+      const validationFn = getValidationFn(state, "sortDirection");
+      expect(validationFn).toBe(validateSortDirection);
+    });
+
+    it("should return validateOrderBy for 'orderBy' key", () => {
+      const validationFn = getValidationFn(state, "orderBy");
+      expect(validationFn).toBe(validateOrderBy);
+    });
+
+    it("should throw an error for an invalid key", () => {
+      expect(() => getValidationFn(state, "invalidKey" as never)).toThrow("Unexpected table key.");
     });
   });
 });

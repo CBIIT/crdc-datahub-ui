@@ -160,3 +160,24 @@ export const validateAndSetIfChanged = <T, K extends keyof T>(
 
   return { ...state, [key]: payload };
 };
+
+export const getValidationFn = <K extends keyof TableState<T>, T>(state: TableState<T>, key: K) => {
+  switch (key) {
+    case "data":
+      return Array.isArray;
+    case "total":
+      return validateTotal;
+    case "page":
+      return validatePage;
+    case "perPage":
+      return (val) => validateRowsPerPage(val, state.perPageOptions);
+    case "perPageOptions":
+      return validatePerPageOptions;
+    case "sortDirection":
+      return validateSortDirection;
+    case "orderBy":
+      return validateOrderBy;
+    default:
+      throw new Error(`Unexpected table key.`);
+  }
+};
