@@ -12,7 +12,6 @@ import {
 export type TableAction<T> =
   | { type: "SET_DATA"; payload: T[] }
   | { type: "SET_TOTAL"; payload: number }
-  | { type: "SET_DATA_AND_TOTAL"; payload: { data: T[]; total: number } }
   | { type: "SET_PAGE"; payload: number }
   | { type: "SET_PER_PAGE"; payload: number }
   | { type: "SET_PER_PAGE_OPTIONS"; payload: number[] }
@@ -23,7 +22,6 @@ export type TableAction<T> =
 export const tableActionTypes = {
   SET_DATA: "SET_DATA",
   SET_TOTAL: "SET_TOTAL",
-  SET_DATA_AND_TOTAL: "SET_DATA_AND_TOTAL",
   SET_PAGE: "SET_PAGE",
   SET_PER_PAGE: "SET_PER_PAGE",
   SET_PER_PAGE_OPTIONS: "SET_PER_PAGE_OPTIONS",
