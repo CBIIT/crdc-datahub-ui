@@ -488,6 +488,7 @@ const GenericTable = <T,>(
                           borderBottom:
                             idx !== (data?.length ?? 0) - 1 ? "1px solid #6B7294" : "none",
                         }}
+                        data-testid="table-body-cell-with-data"
                       >
                         {col.renderValue(d)}
                       </TableBodyCellComponent>

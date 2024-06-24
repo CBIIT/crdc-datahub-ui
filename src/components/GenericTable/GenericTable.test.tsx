@@ -43,14 +43,12 @@ const defaultProps: Props<(typeof mockData)[0]> = {
   onPerPageChange: jest.fn(),
 };
 
-type ParentProps = {
-  mocks?: MockedResponse[];
-  children: React.ReactNode;
-};
-
-const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
+const TestParent: FC<{ mocks?: MockedResponse[]; children: React.ReactNode }> = ({
+  mocks,
+  children,
+}) => (
   <MockedProvider mocks={mocks} showWarnings>
-    <MemoryRouter basename="">
+    <MemoryRouter>
       <SearchParamsProvider>{children}</SearchParamsProvider>
     </MemoryRouter>
   </MockedProvider>
@@ -75,67 +73,171 @@ describe("GenericTable", () => {
     expect(getByTestId(`generic-table-header-${columns[1].label}`)).toBeInTheDocument();
   });
 
-  it("handles sort direction changes", () => {
-    const { getByText } = setup();
-    const nameHeader = getByText("Name");
-    userEvent.click(nameHeader);
-    expect(defaultProps.onOrderChange).toHaveBeenCalledWith("desc");
-    expect(defaultProps.onOrderByChange).toHaveBeenCalledWith(columns[0]);
+  describe("Sorting and Pagination", () => {
+    it("handles sort direction changes", () => {
+      const { getByText } = setup();
+      const nameHeader = getByText("Name");
+      userEvent.click(nameHeader);
+      expect(defaultProps.onOrderChange).toHaveBeenCalledWith("desc");
+      expect(defaultProps.onOrderByChange).toHaveBeenCalledWith(columns[0]);
+    });
+
+    it("handles page changes via pagination next button", () => {
+      const { getByRole } = setup();
+      const pagination = getByRole("navigation");
+      const nextPageButton = within(pagination).getByLabelText("Go to next page");
+      const defaultColumn = columns.find((c) => c.default);
+      userEvent.click(nextPageButton);
+
+      const fetchListing = {
+        first: defaultProps.defaultRowsPerPage,
+        offset: 1 * defaultProps.defaultRowsPerPage,
+        sortDirection: defaultProps.defaultOrder,
+        orderBy: defaultColumn?.fieldKey ?? defaultColumn?.field?.toString(),
+      };
+      expect(defaultProps.onFetchData).toHaveBeenCalledWith(fetchListing, false);
+    });
+
+    it("handles page changes via pagination number button", async () => {
+      const { getByRole } = setup();
+      const pagination = getByRole("navigation");
+      const page3Button = within(pagination).getByLabelText("Go to page 3");
+      const defaultColumn = columns.find((c) => c.default);
+      userEvent.click(page3Button);
+
+      const fetchListing = {
+        first: defaultProps.defaultRowsPerPage,
+        offset: 2 * defaultProps.defaultRowsPerPage,
+        sortDirection: defaultProps.defaultOrder,
+        orderBy: defaultColumn?.fieldKey ?? defaultColumn?.field?.toString(),
+      };
+      expect(defaultProps.onFetchData).toHaveBeenCalledWith(fetchListing, false);
+    });
   });
 
-  it("handles page changes via pagination next button", () => {
-    const { getByRole } = setup();
-    const pagination = getByRole("navigation");
-    const nextPageButton = within(pagination).getByLabelText("Go to next page");
-    const defaultColumn = columns.find((c) => c.default);
-    userEvent.click(nextPageButton);
+  describe("Row and Page Interaction", () => {
+    it("updates rows per page", () => {
+      const { getByLabelText } = setup();
+      const select = getByLabelText("rows per page");
+      fireEvent.change(select, { target: { value: 10 } });
+      expect(defaultProps.onPerPageChange).toHaveBeenCalledWith(10);
+    });
 
-    const fetchListing: FetchListing<(typeof mockData)[0]> = {
-      first: defaultProps.defaultRowsPerPage,
-      offset: 1 * defaultProps.defaultRowsPerPage,
-      sortDirection: defaultProps.defaultOrder,
-      orderBy: defaultColumn?.fieldKey ?? defaultColumn?.field?.toString(),
-    };
-    expect(defaultProps.onFetchData).toHaveBeenCalledWith(fetchListing, false);
+    it("refreshes data when called from ref", () => {
+      const { ref } = setup();
+      ref.current?.refresh();
+      expect(defaultProps.onFetchData).toHaveBeenCalledWith(expect.anything(), true);
+    });
+
+    it("displays no data message when there is no data", () => {
+      const { getByText } = setup({ ...defaultProps, data: [], total: 0 });
+      expect(getByText("No existing data was found")).toBeInTheDocument();
+    });
+
+    it("properly handles an empty columns array", () => {
+      const { queryByRole } = setup({ ...defaultProps, columns: [] });
+      expect(queryByRole("columnheader")).not.toBeInTheDocument();
+    });
   });
 
-  it("handles page changes via pagination number button", async () => {
-    const { getByRole } = setup();
-    const pagination = getByRole("navigation");
-    const page3Button = within(pagination).getByLabelText("Go to page 3");
-    const defaultColumn = columns.find((c) => c.default);
-    userEvent.click(page3Button);
+  describe("Style Application", () => {
+    it("applies horizontal scroll styles when enabled", () => {
+      const { container } = setup({ ...defaultProps, horizontalScroll: true });
+      expect(container.querySelector("table")).toHaveStyle("white-space: nowrap");
+      expect(container.querySelector("table")).toHaveStyle("display: block");
+      expect(container.querySelector("table")).toHaveStyle("overflow-x: auto");
+    });
 
-    const fetchListing: FetchListing<(typeof mockData)[0]> = {
-      first: defaultProps.defaultRowsPerPage,
-      offset: 2 * defaultProps.defaultRowsPerPage,
-      sortDirection: defaultProps.defaultOrder,
-      orderBy: defaultColumn?.fieldKey ?? defaultColumn?.field?.toString(),
-      comparator: undefined,
-    };
-    expect(defaultProps.onFetchData).toHaveBeenCalledWith(fetchListing, false);
+    it("does not apply horizontal scroll styles when disabled", () => {
+      const { container } = setup({ ...defaultProps, horizontalScroll: false });
+      expect(container.querySelector("table")).toHaveStyle("white-space: initial");
+      expect(container.querySelector("table")).toHaveStyle("display: table");
+      expect(container.querySelector("table")).toHaveStyle("overflow-x: initial");
+    });
+
+    it("applies borderBottom style conditionally based on row position", () => {
+      const { getAllByTestId } = setup();
+
+      const tableCells = getAllByTestId("table-body-cell-with-data");
+
+      const lastRow = tableCells[tableCells.length - 1];
+      expect(lastRow).toHaveStyle("border-bottom: none");
+
+      const anyOtherRow = tableCells[0];
+      expect(anyOtherRow).toHaveStyle("border-bottom: 1px solid #6B7294");
+    });
   });
 
-  it("updates rows per page", () => {
-    const { getByLabelText } = setup();
-    const select = getByLabelText("rows per page");
-    fireEvent.change(select, { target: { value: 10 } });
-    expect(defaultProps.onPerPageChange).toHaveBeenCalledWith(10);
+  describe("Early Return Conditions", () => {
+    it("does not invoke data fetching when onFetchData is not provided", () => {
+      const { getByText } = setup({
+        ...defaultProps,
+        onFetchData: undefined,
+      });
+
+      const nameHeader = getByText("Name");
+      userEvent.click(nameHeader);
+      expect(defaultProps.onFetchData).not.toHaveBeenCalled();
+    });
+
+    it("does not interact with URL parameters when disabled", () => {
+      const { queryByTestId } = setup({ ...defaultProps, disableUrlParams: true });
+      const nameHeader = queryByTestId(`generic-table-header-Name`);
+      expect(nameHeader).not.toHaveAttribute("role", "button");
+    });
   });
 
-  it("refreshes data when called from ref", () => {
-    const { ref } = setup();
-    ref.current?.refresh();
-    expect(defaultProps.onFetchData).toHaveBeenCalledWith(expect.anything(), true);
+  describe("No Data and Errors", () => {
+    it("displays no data message when there is no data", () => {
+      const { getByText } = setup({ ...defaultProps, data: [], total: 0 });
+      expect(getByText("No existing data was found")).toBeInTheDocument();
+    });
+
+    it("properly handles an empty columns array", () => {
+      const { queryByRole } = setup({ ...defaultProps, columns: [] });
+      expect(queryByRole("columnheader")).not.toBeInTheDocument();
+    });
   });
 
-  it("displays no data message when there is no data", () => {
-    const { getByText } = setup({ ...defaultProps, data: [], total: 0 });
-    expect(getByText("No existing data was found")).toBeInTheDocument();
+  describe("Visual and Interaction Features", () => {
+    it("checks styled component properties when horizontal scroll is enabled", () => {
+      const { container } = setup({ ...defaultProps, horizontalScroll: true });
+      expect(container.querySelector(".MuiTable-root")).toHaveStyle("display: block");
+    });
+
+    it("renders top and bottom pagination when position is both", () => {
+      const { getByTestId } = setup({ ...defaultProps, position: "both" });
+      const topPagination = getByTestId("generic-table-rows-per-page-top");
+      const bottomPagination = getByTestId("generic-table-rows-per-page-bottom");
+      expect(topPagination).toBeInTheDocument();
+      expect(bottomPagination).toBeInTheDocument();
+    });
+
+    it("handles no sort when sortDisabled is true", () => {
+      const customColumns = [
+        ...columns,
+        { label: "NoSort", renderValue: (item) => item.name, sortDisabled: true },
+      ];
+      const { queryByText } = setup({ ...defaultProps, columns: customColumns });
+      const noSortHeader = queryByText("NoSort");
+      expect(noSortHeader).not.toHaveAttribute("role", "button");
+    });
   });
 
-  it("properly handles an empty columns array", () => {
-    const { queryByRole } = setup({ ...defaultProps, columns: [] });
-    expect(queryByRole("columnheader")).not.toBeInTheDocument();
+  describe("Data Rendering", () => {
+    it("displays empty rows when data is less than per page count", () => {
+      const { getAllByRole } = setup({ ...defaultProps, data: [mockData[0]], total: 1 });
+      expect(getAllByRole("row").length).toBeGreaterThan(1); // Includes header row
+    });
+
+    it("displays a no data message when there is no data", () => {
+      const { getByText } = setup({ ...defaultProps, data: [], total: 0 });
+      expect(getByText("No existing data was found")).toBeInTheDocument();
+    });
+
+    it("properly handles an empty columns array", () => {
+      const { queryByRole } = setup({ ...defaultProps, columns: [] });
+      expect(queryByRole("columnheader")).not.toBeInTheDocument();
+    });
   });
 });
