@@ -128,25 +128,3 @@ export const compareStrings = (a: string | null, b: string | null): number => {
 
   return a.localeCompare(b);
 };
-
-export const generateSearchParameters = (
-  searchParams: URLSearchParams,
-  currentParams: { [key: string]: string | number },
-  defaultParams: { [key: string]: string | number }
-): URLSearchParams => {
-  const newParams = searchParams;
-
-  Object.keys(currentParams).forEach((key) => {
-    const currentValue = currentParams[key as keyof TableURLParams];
-    const defaultValue = defaultParams[key as keyof TableURLParams];
-
-    // Check if the current value is different from the default value
-    if (currentValue && currentValue !== defaultValue) {
-      newParams.set(key, currentValue.toString());
-    } else {
-      newParams.delete(key);
-    }
-  });
-
-  return newParams;
-};

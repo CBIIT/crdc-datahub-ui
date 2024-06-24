@@ -11,3 +11,4 @@ export * from "./dataSubmissionUtils";
 export * from "./tableUtils";
 export * from "./statisticUtils";
 export * from "./jsonUtils";
+export * from "./searchParamUtils";
