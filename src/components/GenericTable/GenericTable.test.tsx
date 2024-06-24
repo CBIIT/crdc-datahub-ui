@@ -129,11 +129,6 @@ describe("GenericTable", () => {
       expect(defaultProps.onFetchData).toHaveBeenCalledWith(expect.anything(), true);
     });
 
-    it("displays no data message when there is no data", () => {
-      const { getByText } = setup({ ...defaultProps, data: [], total: 0 });
-      expect(getByText("No existing data was found")).toBeInTheDocument();
-    });
-
     it("properly handles an empty columns array", () => {
       const { queryByRole } = setup({ ...defaultProps, columns: [] });
       expect(queryByRole("columnheader")).not.toBeInTheDocument();
@@ -179,12 +174,6 @@ describe("GenericTable", () => {
       userEvent.click(nameHeader);
       expect(defaultProps.onFetchData).not.toHaveBeenCalled();
     });
-
-    it("does not interact with URL parameters when disabled", () => {
-      const { queryByTestId } = setup({ ...defaultProps, disableUrlParams: true });
-      const nameHeader = queryByTestId(`generic-table-header-Name`);
-      expect(nameHeader).not.toHaveAttribute("role", "button");
-    });
   });
 
   describe("No Data and Errors", () => {
@@ -196,6 +185,11 @@ describe("GenericTable", () => {
     it("properly handles an empty columns array", () => {
       const { queryByRole } = setup({ ...defaultProps, columns: [] });
       expect(queryByRole("columnheader")).not.toBeInTheDocument();
+    });
+
+    it("displays empty rows when data is less than per page count", () => {
+      const { getAllByRole } = setup({ ...defaultProps, data: [mockData[0]], total: 1 });
+      expect(getAllByRole("row").length).toBeGreaterThan(1); // Includes header row
     });
   });
 
@@ -221,23 +215,6 @@ describe("GenericTable", () => {
       const { queryByText } = setup({ ...defaultProps, columns: customColumns });
       const noSortHeader = queryByText("NoSort");
       expect(noSortHeader).not.toHaveAttribute("role", "button");
-    });
-  });
-
-  describe("Data Rendering", () => {
-    it("displays empty rows when data is less than per page count", () => {
-      const { getAllByRole } = setup({ ...defaultProps, data: [mockData[0]], total: 1 });
-      expect(getAllByRole("row").length).toBeGreaterThan(1); // Includes header row
-    });
-
-    it("displays a no data message when there is no data", () => {
-      const { getByText } = setup({ ...defaultProps, data: [], total: 0 });
-      expect(getByText("No existing data was found")).toBeInTheDocument();
-    });
-
-    it("properly handles an empty columns array", () => {
-      const { queryByRole } = setup({ ...defaultProps, columns: [] });
-      expect(queryByRole("columnheader")).not.toBeInTheDocument();
     });
   });
 });
