@@ -287,7 +287,7 @@ type SubmissionNode = {
   submissionID: string;
   nodeType: string;
   nodeID: string;
-  status: string;
+  status: ValidationStatus;
   createdAt: string;
   updatedAt: string;
   validatedAt: string;

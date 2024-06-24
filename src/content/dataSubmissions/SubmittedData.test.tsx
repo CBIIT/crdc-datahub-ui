@@ -242,6 +242,7 @@ describe("SubmittedData > Table", () => {
                     "col.2": "value-2",
                     "col.3": "value-3",
                   }),
+                  status: "New",
                 },
               ],
             },
@@ -263,6 +264,65 @@ describe("SubmittedData > Table", () => {
       expect(getByText("value-1")).toBeInTheDocument();
       expect(getByText("value-2")).toBeInTheDocument();
       expect(getByText("value-3")).toBeInTheDocument();
+    });
+  });
+
+  it("should append the 'Status' column to any node type", async () => {
+    const submissionID = "example-status-column-id";
+
+    const mocks: MockedResponse[] = [
+      mockSubmissionQuery,
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+          variables: {
+            _id: submissionID,
+            sortDirection: "desc",
+            first: 20,
+            offset: 0,
+            nodeType: "example-node",
+          },
+        },
+        result: {
+          data: {
+            getSubmissionNodes: {
+              total: 2,
+              properties: ["col-xyz"],
+              nodes: [
+                {
+                  nodeType: "example-node",
+                  nodeID: "example-node-id",
+                  props: JSON.stringify({
+                    "col-xyz": "value-1",
+                  }),
+                  status: "New",
+                },
+                {
+                  nodeType: "example-node2",
+                  nodeID: "example-node-id2",
+                  props: JSON.stringify({
+                    "col-xyz": "value-2",
+                  }),
+                  status: null,
+                },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByTestId, getByText } = render(
+      <TestParent mocks={mocks}>
+        <SubmittedData submissionId={submissionID} submissionName={undefined} />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("generic-table-header-col-xyz")).toBeInTheDocument();
+      expect(getByTestId("generic-table-header-Status")).toBeInTheDocument();
+      expect(getByText("value-1")).toBeInTheDocument();
+      expect(getByText("New")).toBeInTheDocument();
     });
   });
 
