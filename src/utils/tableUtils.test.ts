@@ -5,6 +5,7 @@ import {
   validatePerPageOptions,
   validateSortDirection,
   validateAndSetIfChanged,
+  validateOrderBy,
 } from "./index";
 
 describe("tableUtils", () => {
@@ -80,6 +81,45 @@ describe("tableUtils", () => {
       expect(validateSortDirection("ascending")).toBeFalsy();
       expect(validateSortDirection("")).toBeFalsy();
       expect(validateSortDirection("1")).toBeFalsy();
+    });
+  });
+
+  describe("validateOrderBy", () => {
+    it("should return true for null", () => {
+      expect(validateOrderBy(null)).toBeTruthy();
+    });
+
+    it("should return true for an empty string", () => {
+      expect(validateOrderBy("")).toBeTruthy();
+    });
+
+    it("should return true for a valid string", () => {
+      expect(validateOrderBy("columnName")).toBeTruthy();
+    });
+
+    it("should return false for undefined", () => {
+      expect(validateOrderBy(undefined)).toBeFalsy();
+    });
+
+    it("should return false for numbers", () => {
+      expect(validateOrderBy(123 as unknown as string)).toBeFalsy();
+    });
+
+    it("should return false for boolean values", () => {
+      expect(validateOrderBy(true as unknown as string)).toBeFalsy();
+      expect(validateOrderBy(false as unknown as string)).toBeFalsy();
+    });
+
+    it("should return false for objects", () => {
+      expect(validateOrderBy({} as unknown as string)).toBeFalsy();
+    });
+
+    it("should return false for arrays", () => {
+      expect(validateOrderBy(["string"] as unknown as string)).toBeFalsy();
+    });
+
+    it("should return false for functions", () => {
+      expect(validateOrderBy((() => {}) as unknown as string)).toBeFalsy();
     });
   });
 

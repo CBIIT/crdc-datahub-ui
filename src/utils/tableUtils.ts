@@ -49,7 +49,7 @@ export const paginateAndSort = <T>(data: T[], fetchListing: FetchListing<T>): T[
  * @returns {boolean} - Returns `true` if the total is a valid, non-negative number; otherwise, returns `false`.
  */
 export const validateTotal = (total: number) => {
-  if (isNaN(total)) {
+  if (total == null || isNaN(total)) {
     return false;
   }
   if (total < 0) {
@@ -65,7 +65,7 @@ export const validateTotal = (total: number) => {
  * @returns {boolean} - Returns `true` if the page number is valid and not less than 0; otherwise, returns `false`.
  */
 export const validatePage = (page: number) => {
-  if (isNaN(page)) {
+  if (page == null || isNaN(page)) {
     return false;
   }
   const minPage = 0;
@@ -116,6 +116,17 @@ export const validatePerPageOptions = (perPageOptions: number[]) => {
  */
 export const validateSortDirection = (sortDirection: string): sortDirection is Order =>
   sortDirection === "asc" || sortDirection === "desc";
+
+/**
+ * Validates if the provided value is either null or a string.
+ * This function is used to ensure that order by parameters are either non-existent (null)
+ * or correctly represented as strings.
+ *
+ * @param value {string | null} - The value to be validated.
+ * @returns {boolean} - Returns `true` if the value is either null or a string, otherwise returns `false`.
+ */
+export const validateOrderBy = (value: string | null): boolean =>
+  value === null || typeof value === "string";
 
 /**
  * Conditionally updates a property within a state object if the new value passes an optional validation function
