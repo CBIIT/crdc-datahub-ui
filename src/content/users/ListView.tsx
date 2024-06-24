@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
-import { isString } from "lodash";
 import {
   Status as OrgStatus,
   useOrganizationListContext,
@@ -23,7 +22,7 @@ import {
 import PageBanner from "../../components/PageBanner";
 import { Roles } from "../../config/AuthRoles";
 import { LIST_USERS, ListUsersResp } from "../../graphql";
-import { compareStrings, formatIDP } from "../../utils";
+import { compareStrings, formatIDP, sortData } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
@@ -262,40 +261,25 @@ const ListingView: FC = () => {
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy, comparator } = fetchListing || {};
 
-    if (!data?.listUsers?.length) {
+    const users = data?.listUsers;
+    if (!users?.length) {
       setDataset([]);
       setCount(0);
       return;
     }
 
-    const sorted = data.listUsers
-      .filter((u: T) =>
-        orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true
-      )
-      .filter((u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true))
-      .filter((u: T) =>
-        statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true
-      )
-      .sort((a, b) => {
-        if (comparator) {
-          return comparator(a, b);
-        }
+    const filters: FilterFunction<T>[] = [
+      (u: T) => (orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true),
+      (u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true),
+      (u: T) => (statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true),
+    ];
 
-        const valA = a[orderBy];
-        const valB = b[orderBy];
-        if (valA && valB && isString(valA) && isString(valB)) {
-          return compareStrings(valA, valB);
-        }
+    const filteredData = users.filter((u) => filters.every((filter) => filter(u)));
+    const sortedData = sortData(filteredData, orderBy, sortDirection, comparator);
+    const paginatedData = sortedData.slice(offset, first + offset);
 
-        return 0;
-      });
-
-    if (sortDirection === "desc") {
-      sorted.reverse();
-    }
-
-    setCount(sorted.length);
-    setDataset(sorted.slice(offset, first + offset));
+    setCount(sortedData?.length);
+    setDataset(paginatedData);
   };
 
   useEffect(() => {

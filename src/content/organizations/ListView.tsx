@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import { Link, LinkProps, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
-import { isString } from "lodash";
 import PageBanner from "../../components/PageBanner";
 import {
   useOrganizationListContext,
@@ -24,7 +23,7 @@ import {
 import usePageTitle from "../../hooks/usePageTitle";
 import StudyTooltip from "../../components/Organizations/StudyTooltip";
 import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
-import { compareStrings } from "../../utils";
+import { sortData } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
 type T = Partial<Organization>;
@@ -269,14 +268,13 @@ const ListingView: FC = () => {
       return;
     }
 
-    const sorted = data
-      .filter((u: T) =>
+    const filters: FilterFunction<T>[] = [
+      (u: T) =>
         orgFilter && orgFilter.length > 0
           ? u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1
-          : true
-      )
-      .filter((u: T) => (statusFilter && statusFilter !== "All" ? u.status === statusFilter : true))
-      .filter((u: T) => {
+          : true,
+      (u: T) => (statusFilter && statusFilter !== "All" ? u.status === statusFilter : true),
+      (u: T) => {
         if (!studyFilter || studyFilter.trim().length < 1) {
           return true;
         }
@@ -289,27 +287,15 @@ const ListingView: FC = () => {
         );
 
         return nameMatch || abbrMatch;
-      })
-      .sort((a, b) => {
-        if (comparator) {
-          return comparator(a, b);
-        }
+      },
+    ];
 
-        const valA = a[orderBy];
-        const valB = b[orderBy];
-        if (valA && valB && isString(valA) && isString(valB)) {
-          return compareStrings(valA, valB);
-        }
+    const filteredData = data.filter((u) => filters.every((filter) => filter(u)));
+    const sortedData = sortData(filteredData, orderBy, sortDirection, comparator);
+    const paginatedData = sortedData.slice(offset, first + offset);
 
-        return 0;
-      });
-
-    if (sortDirection === "desc") {
-      sorted.reverse();
-    }
-
-    setCount(sorted.length);
-    setDataset(sorted.slice(offset, first + offset));
+    setCount(sortedData?.length);
+    setDataset(paginatedData);
   };
 
   const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
