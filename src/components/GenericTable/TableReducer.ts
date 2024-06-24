@@ -6,6 +6,7 @@ import {
   validateSortDirection,
   validateAndSetIfChanged,
   validateOrderBy,
+  getValidationFn,
 } from "../../utils";
 
 export type TableAction<T> =
@@ -78,26 +79,5 @@ export const tableStateReducer = <T>(
     }
     default:
       throw new Error(`Unexpected action type.`);
-  }
-};
-
-const getValidationFn = <K extends keyof TableState<T>, T>(state: TableState<T>, key: K) => {
-  switch (key) {
-    case "data":
-      return Array.isArray;
-    case "total":
-      return validateTotal;
-    case "page":
-      return validatePage;
-    case "perPage":
-      return (val) => validateRowsPerPage(val, state.perPageOptions);
-    case "perPageOptions":
-      return validatePerPageOptions;
-    case "sortDirection":
-      return validateSortDirection;
-    case "orderBy":
-      return validateOrderBy;
-    default:
-      throw new Error(`Unexpected table key.`);
   }
 };

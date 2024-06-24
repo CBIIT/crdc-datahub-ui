@@ -161,6 +161,19 @@ export const validateAndSetIfChanged = <T, K extends keyof T>(
   return { ...state, [key]: payload };
 };
 
+/**
+ * Dynamically retrieves a validation function based on a specified key of a TableState object.
+ * This utility function is useful for abstracting the validation logic according to the field
+ * specified in the state, simplifying the process of validating various fields within a table's state.
+ *
+ * @param {TableState<T>} state - The current state of the table, used to access any necessary additional
+ *                                parameters for specific validation functions that require them.
+ * @param {K} key - The key from the TableState object which denotes the field to be validated.
+ * @returns {(value: any) => boolean} | never - Returns a validation function appropriate for the specified
+ *                                              field. Throws an error if the key is not recognized.
+ * @template T - The type of elements contained in the table state.
+ * @template K - The type representing the keys of the table state.
+ */
 export const getValidationFn = <K extends keyof TableState<T>, T>(state: TableState<T>, key: K) => {
   switch (key) {
     case "data":

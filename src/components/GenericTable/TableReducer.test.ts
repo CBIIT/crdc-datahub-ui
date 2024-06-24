@@ -1,4 +1,4 @@
-import { tableStateReducer, tableActionTypes } from "./TableReducer";
+import { tableStateReducer, tableActionTypes, TableAction } from "./TableReducer";
 
 describe("tableStateReducer", () => {
   type MockData = { id: number };
@@ -208,6 +208,23 @@ describe("tableStateReducer", () => {
       };
       const newState = tableStateReducer(initialState, action);
       expect(newState).toEqual({ ...initialState, sortDirection: "asc" });
+    });
+  });
+
+  describe("TableReducer default case", () => {
+    const initialState: TableState<MockData> = {
+      data: [],
+      total: 0,
+      page: 0,
+      perPage: 10,
+      perPageOptions: [10, 20, 30],
+      sortDirection: "asc",
+      orderBy: "",
+    };
+
+    it("should throw an error for unexpected action types", () => {
+      const action = { type: "UNKNOWN_ACTION" } as unknown as TableAction<MockData>;
+      expect(() => tableStateReducer(initialState, action)).toThrow("Unexpected action type.");
     });
   });
 });
