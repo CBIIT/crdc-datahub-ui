@@ -403,6 +403,7 @@ const ListingView: FC = () => {
             <StyledTextField
               {...register("organization", {
                 onChange: (e) => handleFilterChange("organization"),
+                setValueAs: (val) => val?.trim(),
               })}
               placeholder="Enter a Organization"
               id="organization-filter"
@@ -414,6 +415,7 @@ const ListingView: FC = () => {
             <StyledTextField
               {...register("study", {
                 onChange: (e) => handleFilterChange("study"),
+                setValueAs: (val) => val?.trim(),
               })}
               placeholder="Enter a Study"
               id="study-filter"
