@@ -5,6 +5,7 @@ import {
   validateRowsPerPage,
   validateSortDirection,
   validateAndSetIfChanged,
+  validateOrderBy,
 } from "../../utils";
 
 export type TableAction<T> =
@@ -56,7 +57,7 @@ export const tableStateReducer = <T>(
       return validateAndSetIfChanged(state, "sortDirection", action.payload, validateSortDirection);
     }
     case tableActionTypes.SET_ORDER_BY:
-      return validateAndSetIfChanged(state, "orderBy", action.payload);
+      return validateAndSetIfChanged(state, "orderBy", action.payload, validateOrderBy);
     case tableActionTypes.SET_ALL: {
       let newState = { ...state };
       let hasChanges = false;
@@ -95,7 +96,7 @@ const getValidationFn = <K extends keyof TableState<T>, T>(state: TableState<T>,
     case "sortDirection":
       return validateSortDirection;
     case "orderBy":
-      return null;
+      return validateOrderBy;
     default:
       throw new Error(`Unexpected table key.`);
   }
