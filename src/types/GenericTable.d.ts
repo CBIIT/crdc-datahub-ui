@@ -34,3 +34,5 @@ type TableState<T> = {
   total: number;
   perPageOptions: number[];
 } & TableParams;
+
+type FilterFunction<T> = (item: T) => boolean;

@@ -1,5 +1,6 @@
-import { isEqual } from "lodash";
+import { isEqual, isString } from "lodash";
 import { SORT, DIRECTION } from "../config/TableConfig";
+import { compareStrings } from "./stringUtils";
 
 /**
  * Converts a string sorting order to its corresponding numeric value
@@ -194,3 +195,46 @@ export const getValidationFn = <K extends keyof TableState<T>, T>(state: TableSt
       throw new Error(`Unexpected table key.`);
   }
 };
+
+/**
+ * Sorts an array of data based on a specified field and direction.
+ * @param {T[]} data - Array of data to be sorted.
+ * @param {string} orderBy - The key to order the data by.
+ * @param {Order} sortDirection - The direction to sort the data.
+ * @param {(a: T, b: T) => number} [comparator] - Optional comparator function to customize the sorting logic.
+ * @returns {T[]} - The sorted array of data.
+ */
+export const sortData = <T>(
+  data: T[],
+  orderBy: string,
+  sortDirection: Order,
+  comparator?: (a: T, b: T) => number
+): T[] => {
+  const sortedData = data.sort((a, b) => {
+    if (comparator) {
+      return comparator(a, b);
+    }
+
+    const valA = a[orderBy]?.toString();
+    const valB = b[orderBy]?.toString();
+    if (valA && valB && isString(valA) && isString(valB)) {
+      return compareStrings(valA, valB);
+    }
+
+    return 0;
+  });
+
+  if (sortDirection === "desc") {
+    return sortedData.reverse();
+  }
+  return sortedData;
+};
+
+/**
+ * Filters an array of data based on multiple filter criteria.
+ * @param {T[]} data - Array of data to be filtered.
+ * @param {Array<(item: T) => boolean>} filters - An array of filter functions to apply to the data.
+ * @returns {T[]} - The filtered array of data.
+ */
+export const filterData = <T>(data: T[], filters: Array<(item: T) => boolean>): T[] =>
+  data.filter((item) => filters.every((filter) => filter(item)));

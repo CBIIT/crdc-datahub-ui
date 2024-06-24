@@ -7,7 +7,14 @@ import {
   validateAndSetIfChanged,
   validateOrderBy,
   getValidationFn,
+  filterData,
+  sortData,
 } from "./index";
+
+interface TestData {
+  name: string | null | undefined;
+  age: number;
+}
 
 describe("tableUtils", () => {
   describe("validateTotal", () => {
@@ -213,6 +220,107 @@ describe("tableUtils", () => {
 
     it("should throw an error for an invalid key", () => {
       expect(() => getValidationFn(state, "invalidKey" as never)).toThrow("Unexpected table key.");
+    });
+  });
+
+  describe("sortData", () => {
+    const testData: TestData[] = [
+      { name: "John", age: 28 },
+      { name: "Jane", age: 22 },
+      { name: "Doe", age: 45 },
+    ];
+
+    it("should sort data by name in ascending order", () => {
+      const result = sortData(testData, "name", "asc");
+      expect(result[0].name).toBe("Doe");
+      expect(result[2].name).toBe("John");
+    });
+
+    it("should sort data by age in descending order", () => {
+      const result = sortData(testData, "age", "desc");
+      expect(result[0].age).toBe(45);
+      expect(result[2].age).toBe(22);
+    });
+
+    it("should handle empty data array", () => {
+      const result = sortData<TestData>([], "age", "asc");
+      expect(result.length).toBe(0);
+    });
+
+    it("should handle invalid orderBy key", () => {
+      const result = sortData(testData, "unknownKey", "asc");
+      expect(result).toEqual(testData); // Should not change the original data
+    });
+
+    it("should not fail when comparator is undefined", () => {
+      const result = sortData(testData, "name", "asc", undefined);
+      expect(result[0].name).toBe("Doe");
+      expect(result[2].name).toBe("John");
+    });
+
+    it("should handle sorting with null and undefined values correctly", () => {
+      const mixedData = [
+        { name: null, age: 34 },
+        { name: undefined, age: 47 },
+        { name: "Alice", age: 30 },
+      ];
+      const result = sortData(mixedData, "name", "asc");
+      expect(result[0].name).toBeNull();
+      expect(result[1].name).toBeUndefined();
+      expect(result[2].name).toBe("Alice");
+    });
+  });
+
+  describe("filterData", () => {
+    const testData: TestData[] = [
+      { name: "John", age: 28 },
+      { name: "Jane", age: 22 },
+      { name: "Doe", age: 45 },
+    ];
+
+    it("should filter data by age greater than 25", () => {
+      const filters = [(item: TestData) => item.age > 25];
+      const result = filterData(testData, filters);
+      expect(result.length).toBe(2);
+      expect(result.every((item) => item.age > 25)).toBeTruthy();
+    });
+
+    it("should filter data by name starting with J", () => {
+      const filters = [(item: TestData) => item.name?.startsWith("J") ?? false];
+      const result = filterData(testData, filters);
+      expect(result.length).toBe(2);
+      expect(result.some((item) => item.name === "John")).toBeTruthy();
+      expect(result.some((item) => item.name === "Jane")).toBeTruthy();
+    });
+
+    it("should return all items if no filters are provided", () => {
+      const result = filterData(testData, []);
+      expect(result.length).toBe(3);
+    });
+
+    it("should handle data containing null and undefined values", () => {
+      const mixedData: TestData[] = [
+        { name: "Alice", age: 30 },
+        { name: null, age: 40 },
+        { name: undefined, age: 50 },
+      ];
+      const filters = [(item: TestData) => item.name !== undefined];
+      const result = filterData(mixedData, filters);
+      expect(result.length).toBe(2);
+      expect(result.some((item) => item.name === "Alice")).toBeTruthy();
+    });
+
+    it("should return an empty array if all items are filtered out", () => {
+      const filters = [(item: TestData) => item.age > 100]; // No one is over 100
+      const result = filterData(testData, filters);
+      expect(result.length).toBe(0);
+    });
+
+    it("should not mutate the original data array", () => {
+      const originalData = [...testData];
+      const filters = [(item: TestData) => item.age < 50];
+      filterData(testData, filters);
+      expect(testData).toEqual(originalData);
     });
   });
 });
