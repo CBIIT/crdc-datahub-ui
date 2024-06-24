@@ -16,8 +16,8 @@ export const generateSearchParameters = (
   const newParams = searchParams;
 
   Object.keys(currentParams).forEach((key) => {
-    const currentValue = currentParams[key as keyof TableURLParams]?.toString();
-    const defaultValue = defaultParams[key as keyof TableURLParams]?.toString();
+    const currentValue = currentParams[key]?.toString();
+    const defaultValue = defaultParams[key]?.toString();
 
     // Check if the current value is different from the default value
     if (currentValue && currentValue !== defaultValue) {

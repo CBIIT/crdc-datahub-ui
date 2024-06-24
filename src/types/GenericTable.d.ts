@@ -15,13 +15,6 @@ type TableMethods = {
   setPage: (page: number, forceRefetch?: boolean) => void;
 };
 
-type TableURLParams = {
-  page: string; // converted from number for URL
-  rowsPerPage: string; // converted from number for URL
-  orderBy: string;
-  sortDirection: Order;
-};
-
 type TableParams = {
   page: number;
   perPage: number;
