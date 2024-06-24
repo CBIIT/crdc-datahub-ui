@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable react/no-array-index-key */
 import {
   Table,
@@ -238,10 +237,8 @@ const GenericTable = <T,>(
     }
 
     if (validatePage(newPage)) {
-      console.log("UseEffect SET_PAGE");
       allUpdates.page = newPage;
     } else {
-      console.log("UseEffect DELETE PAGE", { newPage, total, perPage, newRowsPerPage });
       searchParams.delete("page"); // reset page to default
       setSearchParams(searchParams);
     }
@@ -282,7 +279,6 @@ const GenericTable = <T,>(
     if (!force && isEqual(fetchListing, prevFetchRef.current)) {
       return;
     }
-    console.log({ fetchListing, prevFetch: prevFetchRef.current });
     prevFetchRef.current = fetchListing;
     onFetchData(fetchListing, force);
   };
@@ -341,7 +337,6 @@ const GenericTable = <T,>(
       setSearchParams(updatedParams);
     }
 
-    console.log("handleChangeRowsPerPage SET_PAGE");
     dispatch({ type: "SET_PAGE", payload: 0 });
     dispatch({ type: "SET_PER_PAGE", payload: newPerPage });
   };
@@ -366,7 +361,6 @@ const GenericTable = <T,>(
       setSearchParams(updatedParams);
     }
 
-    console.log("handlePageChange SET_PAGE");
     dispatch({ type: "SET_PAGE", payload: newPage });
   };
 
@@ -374,24 +368,16 @@ const GenericTable = <T,>(
     if (!paramsInitialized) {
       return;
     }
-    console.log("FETCH: useEffect - page, perPage, sortDirection, orderBy", {
-      page,
-      perPage,
-      sortDirection,
-      orderBy,
-    });
     fetchData();
   }, [page, perPage, sortDirection, orderBy, paramsInitialized]);
 
   useImperativeHandle(ref, () => ({
     refresh: () => {
-      console.log("FETCH: useImperativeHandle - refresh");
       fetchData(true);
     },
     setPage: (newPage: number, forceRefetch = false) => {
       handlePageChange(newPage);
       if (newPage === page && forceRefetch) {
-        console.log("FETCH: useImperativeHandle - setPage");
         fetchData(true);
       }
     },
@@ -435,8 +421,6 @@ const GenericTable = <T,>(
       ]
     );
   };
-
-  // console.log({ paramsInitialized, showDelayedLoading, status, data, total, page });
 
   return (
     <StyledTableContainer {...containerProps}>
