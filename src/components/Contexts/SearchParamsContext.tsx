@@ -1,7 +1,10 @@
-import React, { createContext, useContext, useMemo } from "react";
-import { SetURLSearchParams, useSearchParams } from "react-router-dom";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { SetURLSearchParams, useLocation, useSearchParams } from "react-router-dom";
+
+export type LastSearchParams = { [key: string]: string } | null;
 
 type ContextState = {
+  lastSearchParams: LastSearchParams;
   searchParams: URLSearchParams;
   setSearchParams: SetURLSearchParams;
 };
@@ -31,6 +34,21 @@ type ProviderProps = {
  */
 export const SearchParamsProvider: React.FC<ProviderProps> = ({ children }) => {
   const [searchParams, setSearchParamsBase] = useSearchParams();
+  const location = useLocation();
+
+  const [lastSearchParams, setLastSearchParams] = useState<LastSearchParams>(null);
+
+  useEffect(() => {
+    if (location?.search === lastSearchParams?.[location?.pathname]) {
+      return;
+    }
+    // if no previous search params for pathname, don't store empty search params
+    if (!lastSearchParams?.[location.pathname] && !location?.search) {
+      return;
+    }
+
+    setLastSearchParams((prev) => ({ ...prev, [location.pathname]: location.search }));
+  }, [location]);
 
   const setSearchParams: SetURLSearchParams = (newSearchParams, options = {}) => {
     setSearchParamsBase(newSearchParams, { replace: true, ...options });
@@ -38,10 +56,11 @@ export const SearchParamsProvider: React.FC<ProviderProps> = ({ children }) => {
 
   const value = useMemo(
     () => ({
+      lastSearchParams,
       searchParams,
       setSearchParams,
     }),
-    [searchParams, setSearchParams]
+    [lastSearchParams, searchParams, setSearchParams]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
@@ -55,9 +74,9 @@ export const SearchParamsProvider: React.FC<ProviderProps> = ({ children }) => {
  *
  * @see SearchParamsProvider – Must be wrapped in a SearchParamsProvider component
  * @see ContextState – Search Params context state returned by the hook
- * @returns {[URLSearchParams, SetURLSearchParams]} - Search Params context and setter
+ * @returns {ContextState} - Search Params context and setter
  */
-export const useSearchParamsContext = (): [URLSearchParams, SetURLSearchParams] => {
+export const useSearchParamsContext = (): ContextState => {
   const context = useContext<ContextState>(Context);
 
   if (!context) {
@@ -66,5 +85,5 @@ export const useSearchParamsContext = (): [URLSearchParams, SetURLSearchParams] 
     );
   }
 
-  return [context.searchParams, context.setSearchParams];
+  return context;
 };
