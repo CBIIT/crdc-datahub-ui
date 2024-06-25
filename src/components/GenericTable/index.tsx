@@ -16,6 +16,7 @@ import {
 import {
   CSSProperties,
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -383,14 +384,12 @@ const GenericTable = <T,>(
     },
   }));
 
-  const Pagination = (
-    props: Partial<TablePaginationProps> & { verticalPlacement: "top" | "bottom" }
-  ) => {
-    const pageIsInvalid = page + 1 > Math.ceil(total / perPage);
-    const safePage = pageIsInvalid ? 0 : page;
+  const Pagination = useCallback(
+    (props: Partial<TablePaginationProps> & { verticalPlacement: "top" | "bottom" }) => {
+      const pageIsInvalid = page + 1 > Math.ceil(total / perPage);
+      const safePage = pageIsInvalid ? 0 : page;
 
-    return useMemo(
-      () => (
+      return (
         <TablePagination
           data={data}
           total={total}
@@ -406,21 +405,21 @@ const GenericTable = <T,>(
           onRowsPerPageChange={handleChangeRowsPerPage}
           {...props}
         />
-      ),
-      [
-        data,
-        total,
-        perPage,
-        page,
-        emptyRows,
-        paramsInitialized,
-        loading,
-        paginationPlacement,
-        rowsPerPageOptions,
-        AdditionalActions,
-      ]
-    );
-  };
+      );
+    },
+    [
+      data,
+      total,
+      perPage,
+      page,
+      emptyRows,
+      paramsInitialized,
+      loading,
+      paginationPlacement,
+      rowsPerPageOptions,
+      AdditionalActions,
+    ]
+  );
 
   return (
     <StyledTableContainer {...containerProps}>
