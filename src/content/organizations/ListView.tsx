@@ -241,7 +241,7 @@ const ListingView: FC = () => {
 
   const { state } = useLocation();
   const { data, status: orgStatus } = useOrganizationListContext();
-  const [searchParams, setSearchParams] = useSearchParamsContext();
+  const { searchParams, setSearchParams } = useSearchParamsContext();
   const { watch, register, control, setValue } = useForm<FilterForm>({
     defaultValues: {
       organization: "",

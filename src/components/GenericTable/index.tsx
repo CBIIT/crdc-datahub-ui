@@ -168,7 +168,7 @@ const GenericTable = <T,>(
   ref: React.Ref<TableMethods>
 ) => {
   const showDelayedLoading = useDelayedLoading(loading, 200);
-  const [searchParams, setSearchParams] = useSearchParamsContext();
+  const { searchParams, setSearchParams } = useSearchParamsContext();
   const defaultColumn: Column<T> =
     columns.find((c) => c.default) || columns.find((c) => c.fieldKey ?? c.field);
   const initialTableParams: TableParams = {

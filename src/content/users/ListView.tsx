@@ -236,7 +236,7 @@ const ListingView: FC = () => {
   const { user, status: authStatus } = useAuthContext();
   const { state } = useLocation();
   const { data: orgData, activeOrganizations, status: orgStatus } = useOrganizationListContext();
-  const [searchParams, setSearchParams] = useSearchParamsContext();
+  const { searchParams, setSearchParams } = useSearchParamsContext();
   const [dataset, setDataset] = useState<T[]>([]);
   const [count, setCount] = useState<number>(0);
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
