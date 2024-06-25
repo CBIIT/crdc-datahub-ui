@@ -159,7 +159,7 @@ const columns: Column<T>[] = [
   {
     label: "Organization",
     renderValue: (a) => a.organization.name,
-    fieldKey: "organizationName",
+    fieldKey: "organization.name",
   },
   {
     label: "Study",
