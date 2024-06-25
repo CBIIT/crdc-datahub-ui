@@ -230,6 +230,11 @@ describe("tableUtils", () => {
       { name: "Doe", age: 45 },
     ];
 
+    it("should return empty array if invalid data is passed", () => {
+      const result = sortData(null, "name", "asc");
+      expect(result).toStrictEqual([]);
+    });
+
     it("should sort data by name in ascending order", () => {
       const result = sortData(testData, "name", "asc");
       expect(result[0].name).toBe("Doe");
@@ -256,6 +261,11 @@ describe("tableUtils", () => {
       const result = sortData(testData, "name", "asc", undefined);
       expect(result[0].name).toBe("Doe");
       expect(result[2].name).toBe("John");
+    });
+
+    it("should use comparator when defined", () => {
+      const result = sortData(testData, "name", "asc", (a, b) => (a.name === "John" ? -1 : 1));
+      expect(result[0].name).toBe("John");
     });
 
     it("should handle sorting with null and undefined values correctly", () => {

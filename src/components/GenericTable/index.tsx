@@ -16,6 +16,7 @@ import {
 import {
   CSSProperties,
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -25,7 +26,7 @@ import {
 } from "react";
 import { isEqual } from "lodash";
 import SuspenseLoader from "../SuspenseLoader";
-import TablePagination from "../DataSubmissions/TablePagination";
+import TablePagination from "./TablePagination";
 import {
   generateSearchParameters,
   validatePage,
@@ -218,7 +219,7 @@ const GenericTable = <T,>(
     const newSortDirection = searchParams.get("sortDirection") || initialState.sortDirection;
     const newOrderBy = searchParams.get("orderBy") || initialState.orderBy;
     const newPage = parseInt(searchParams.get("page"), 10) - 1 || initialState.page;
-    const newRowsPerPage = parseInt(searchParams.get("rowsPerPage"), 10) || initialState.perPage;
+    const newRowsPerPage = parseInt(searchParams.get("perPage"), 10) || initialState.perPage;
 
     const allUpdates: Partial<TableState<T>> = {};
 
@@ -253,7 +254,7 @@ const GenericTable = <T,>(
     searchParams.get("sortDirection"),
     searchParams.get("orderBy"),
     searchParams.get("page"),
-    searchParams.get("rowsPerPage"),
+    searchParams.get("perPage"),
   ]);
 
   const fetchData = (force = false) => {
@@ -304,7 +305,7 @@ const GenericTable = <T,>(
         searchParams,
         {
           page: page + 1,
-          rowsPerPage: perPage,
+          perPage,
           orderBy: fieldKey,
           sortDirection: newOrder,
         },
@@ -328,7 +329,7 @@ const GenericTable = <T,>(
         searchParams,
         {
           page: initialState.page + 1,
-          rowsPerPage: newPerPage,
+          perPage: newPerPage,
           orderBy,
           sortDirection,
         },
@@ -352,7 +353,7 @@ const GenericTable = <T,>(
         searchParams,
         {
           page: newPage + 1,
-          rowsPerPage: perPage,
+          perPage,
           orderBy,
           sortDirection,
         },
@@ -383,49 +384,43 @@ const GenericTable = <T,>(
     },
   }));
 
-  const Pagination = (
-    props: Partial<TablePaginationProps> & { verticalPlacement: "top" | "bottom" }
-  ) => {
-    const pageIsInvalid = page + 1 > Math.ceil(total / perPage);
-    const safePage = pageIsInvalid ? 0 : page;
+  const Pagination = useCallback(
+    ({
+      disabled,
+      verticalPlacement,
+      ...rest
+    }: Partial<TablePaginationProps> & {
+      verticalPlacement: "top" | "bottom";
+      disabled: boolean;
+    }) => {
+      const pageIsInvalid = page + 1 > Math.ceil(total / perPage);
+      const safePage = pageIsInvalid ? 0 : page;
 
-    return useMemo(
-      () => (
+      return (
         <TablePagination
-          data={data}
+          disabled={disabled}
           total={total}
           perPage={perPage}
           page={safePage}
-          emptyRows={emptyRows}
-          loading={!paramsInitialized || loading}
-          verticalPlacement="top"
+          verticalPlacement={verticalPlacement}
           placement={paginationPlacement}
           rowsPerPageOptions={rowsPerPageOptions}
           AdditionalActions={AdditionalActions}
           onPageChange={(_, newPage) => handlePageChange(newPage - 1)}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          {...props}
+          {...rest}
         />
-      ),
-      [
-        data,
-        total,
-        perPage,
-        page,
-        emptyRows,
-        paramsInitialized,
-        loading,
-        paginationPlacement,
-        rowsPerPageOptions,
-        AdditionalActions,
-      ]
-    );
-  };
+      );
+    },
+    [total, perPage, page, paginationPlacement, rowsPerPageOptions, AdditionalActions]
+  );
 
   return (
     <StyledTableContainer {...containerProps}>
       {(!paramsInitialized || showDelayedLoading) && <SuspenseLoader fullscreen={false} />}
-      {(position === "top" || position === "both") && <Pagination verticalPlacement="top" />}
+      {(position === "top" || position === "both") && (
+        <Pagination verticalPlacement="top" disabled={!data || loading || !paramsInitialized} />
+      )}
       <StyledTable horizontalScroll={horizontalScroll && total > 0}>
         {columns?.length > 0 && (
           <TableHeadComponent>
@@ -508,7 +503,9 @@ const GenericTable = <T,>(
             )}
         </TableBody>
       </StyledTable>
-      {(position === "bottom" || position === "both") && <Pagination verticalPlacement="bottom" />}
+      {(position === "bottom" || position === "both") && (
+        <Pagination verticalPlacement="bottom" disabled={!data || loading || !paramsInitialized} />
+      )}
     </StyledTableContainer>
   );
 };

@@ -244,9 +244,9 @@ const ListingView: FC = () => {
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const { watch, register, control, setValue } = useForm<FilterForm>({
     defaultValues: {
-      organization: searchParams.get("organization") || "",
-      study: searchParams.get("study") || "",
-      status: (searchParams.get("status") as FilterForm["status"]) || "All",
+      organization: "",
+      study: "",
+      status: "All",
     },
   });
 

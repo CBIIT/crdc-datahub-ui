@@ -210,7 +210,12 @@ export const sortData = <T>(
   sortDirection: Order,
   comparator?: (a: T, b: T) => number
 ): T[] => {
-  const sortedData = data.sort((a, b) => {
+  if (!Array.isArray(data) || !data?.length) {
+    return [];
+  }
+
+  const dataClone = [...data];
+  const sortedData = dataClone.sort((a, b) => {
     if (comparator) {
       return comparator(a, b);
     }
