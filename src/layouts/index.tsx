@@ -7,6 +7,7 @@ import Header from "../components/Header";
 import ScrollButton from "../components/ScrollButton/ScrollButtonView";
 import OverlayWindow from "../components/SystemUseWarningOverlay/OverlayWindow";
 import InactivityDialog from "../components/InactivityDialog/InactivityDialog";
+import { SearchParamsProvider } from "../components/Contexts/SearchParamsContext";
 
 const StyledWrapper = styled("main")({
   minHeight: "400px",
@@ -18,7 +19,7 @@ interface LayoutProps {
 }
 
 const Layout: FC<LayoutProps> = ({ children }) => (
-  <>
+  <SearchParamsProvider>
     <Helmet defaultTitle="CRDC DataHub">
       <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
       <link
@@ -46,7 +47,7 @@ const Layout: FC<LayoutProps> = ({ children }) => (
     </StyledWrapper>
     <Footer />
     <InactivityDialog />
-  </>
+  </SearchParamsProvider>
 );
 
 export default Layout;
