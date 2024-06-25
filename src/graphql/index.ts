@@ -36,6 +36,9 @@ export type { Response as ListInstitutionsResp } from "./listInstitutions";
 export { query as GET_SUBMISSION } from "./getSubmission";
 export type { Response as GetSubmissionResp } from "./getSubmission";
 
+export { query as LIST_SUBMISSIONS } from "./listSubmissions";
+export type { Response as ListSubmissionsResp } from "./listSubmissions";
+
 export { mutation as SUBMISSION_ACTION } from "./submissionAction";
 export type { Response as SubmissionActionResp } from "./submissionAction";
 
