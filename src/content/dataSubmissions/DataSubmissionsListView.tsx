@@ -250,7 +250,7 @@ const ListingView: FC = () => {
   const statusFilter = watch("status");
   const tableRef = useRef<TableMethods>(null);
 
-  const [listSubmissions] = useLazyQuery<ListSubmissionsResp>(LIST_SUBMISSIONS, {
+  const [listSubmissions, { refetch }] = useLazyQuery<ListSubmissionsResp>(LIST_SUBMISSIONS, {
     variables: { status: statusFilter },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
@@ -334,8 +334,26 @@ const ListingView: FC = () => {
     tableRef.current?.setPage(page, true);
   };
 
-  const handleOnCreateSubmission = () => {
-    // refetch();
+  const handleOnCreateSubmission = async () => {
+    try {
+      setLoading(true);
+
+      if (!activeOrganizations) {
+        return;
+      }
+
+      const { data: d } = await refetch();
+      if (error || !d?.listSubmissions) {
+        throw new Error("Unable to retrieve submission quality control results.");
+      }
+      setData(d.listSubmissions.submissions);
+      setTotalData(d.listSubmissions.total);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+
     enqueueSnackbar("Data Submission Created Successfully", {
       variant: "success",
     });
