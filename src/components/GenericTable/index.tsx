@@ -219,7 +219,7 @@ const GenericTable = <T,>(
     const newSortDirection = searchParams.get("sortDirection") || initialState.sortDirection;
     const newOrderBy = searchParams.get("orderBy") || initialState.orderBy;
     const newPage = parseInt(searchParams.get("page"), 10) - 1 || initialState.page;
-    const newRowsPerPage = parseInt(searchParams.get("rowsPerPage"), 10) || initialState.perPage;
+    const newRowsPerPage = parseInt(searchParams.get("perPage"), 10) || initialState.perPage;
 
     const allUpdates: Partial<TableState<T>> = {};
 
@@ -254,7 +254,7 @@ const GenericTable = <T,>(
     searchParams.get("sortDirection"),
     searchParams.get("orderBy"),
     searchParams.get("page"),
-    searchParams.get("rowsPerPage"),
+    searchParams.get("perPage"),
   ]);
 
   const fetchData = (force = false) => {
@@ -305,7 +305,7 @@ const GenericTable = <T,>(
         searchParams,
         {
           page: page + 1,
-          rowsPerPage: perPage,
+          perPage,
           orderBy: fieldKey,
           sortDirection: newOrder,
         },
@@ -329,7 +329,7 @@ const GenericTable = <T,>(
         searchParams,
         {
           page: initialState.page + 1,
-          rowsPerPage: newPerPage,
+          perPage: newPerPage,
           orderBy,
           sortDirection,
         },
@@ -353,7 +353,7 @@ const GenericTable = <T,>(
         searchParams,
         {
           page: newPage + 1,
-          rowsPerPage: perPage,
+          perPage,
           orderBy,
           sortDirection,
         },
