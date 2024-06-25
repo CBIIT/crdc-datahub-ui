@@ -83,7 +83,7 @@ describe("Basic Functionality", () => {
               getSubmissionNodes: {
                 total: 1,
                 properties: [],
-                nodes: [{ nodeType, nodeID: "example-node-id", props: "" }],
+                nodes: [{ nodeType, nodeID: "example-node-id", props: "", status: null }],
               },
             },
           };
@@ -239,6 +239,7 @@ describe("Basic Functionality", () => {
                 {
                   nodeType: ["aaaa"] as unknown as string,
                   nodeID: 123 as unknown as string,
+                  status: null,
                   props: "this is not JSON",
                 },
               ],
@@ -275,7 +276,7 @@ describe("Implementation Requirements", () => {
     jest.resetAllMocks();
   });
 
-  it("should have a tooltip present on the button", async () => {
+  it("should have a tooltip present on the button for Metadata", async () => {
     const { getByTestId, findByRole } = render(
       <TestParent mocks={[]}>
         <ExportNodeDataButton
@@ -290,6 +291,52 @@ describe("Implementation Requirements", () => {
     const tooltip = await findByRole("tooltip");
     expect(tooltip).toBeInTheDocument();
     expect(tooltip).toHaveTextContent("Export submitted metadata for selected node type");
+  });
+
+  it("should have a tooltip present on the button for Data Files", async () => {
+    const { getByTestId, findByRole } = render(
+      <TestParent mocks={[]}>
+        <ExportNodeDataButton
+          submission={{ _id: "data-file-tooltip-id", name: "test-tooltip" }}
+          nodeType="Data File"
+        />
+      </TestParent>
+    );
+
+    UserEvent.hover(getByTestId("export-node-data-button"));
+
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent("Export a list of all uploaded data files");
+  });
+
+  it("should change the tooltip when the nodeType prop changes", async () => {
+    const { getByTestId, findByRole, rerender } = render(
+      <TestParent mocks={[]}>
+        <ExportNodeDataButton
+          submission={{ _id: "example-tooltip-id", name: "test-tooltip" }}
+          nodeType="sample"
+        />
+      </TestParent>
+    );
+
+    UserEvent.hover(getByTestId("export-node-data-button"));
+
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toHaveTextContent("Export submitted metadata for selected node type");
+
+    rerender(
+      <TestParent mocks={[]}>
+        <ExportNodeDataButton
+          submission={{ _id: "example-tooltip-id", name: "test-tooltip" }}
+          nodeType="Data File"
+        />
+      </TestParent>
+    );
+
+    UserEvent.hover(getByTestId("export-node-data-button"));
+
+    expect(tooltip).toHaveTextContent("Export a list of all uploaded data files");
   });
 
   it.each<{ name: string; nodeType: string; date: Date; expected: string }>([
@@ -357,7 +404,14 @@ describe("Implementation Requirements", () => {
               getSubmissionNodes: {
                 total: 1,
                 properties: ["a"],
-                nodes: [{ nodeType, nodeID: "example-node-id", props: JSON.stringify({ a: 1 }) }],
+                nodes: [
+                  {
+                    nodeType,
+                    nodeID: "example-node-id",
+                    props: JSON.stringify({ a: 1 }),
+                    status: null,
+                  },
+                ],
               },
             },
           },

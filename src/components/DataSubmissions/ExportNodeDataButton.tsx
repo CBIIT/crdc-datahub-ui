@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { IconButtonProps, IconButton, styled } from "@mui/material";
 import { CloudDownload } from "@mui/icons-material";
@@ -53,6 +53,14 @@ export const ExportNodeDataButton: React.FC<Props> = ({
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
 
+  const tooltip = useMemo<string>(
+    () =>
+      nodeType?.toLocaleLowerCase() === "data file"
+        ? "Export a list of all uploaded data files"
+        : "Export submitted metadata for selected node type",
+    [nodeType]
+  );
+
   const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp, GetSubmissionNodesInput>(
     GET_SUBMISSION_NODES,
     {
@@ -95,7 +103,10 @@ export const ExportNodeDataButton: React.FC<Props> = ({
     try {
       const filteredName = filterAlphaNumeric(submission.name?.trim()?.replaceAll(" ", "-"), "-");
       const filename = `${filteredName}_${nodeType}_${dayjs().format("YYYYMMDDHHmm")}.tsv`;
-      const csvArray = d.getSubmissionNodes.nodes.map((node) => JSON.parse(node.props));
+      const csvArray = d.getSubmissionNodes.nodes.map((node) => ({
+        ...JSON.parse(node.props),
+        status: node.status,
+      }));
 
       downloadBlob(unparse(csvArray, { delimiter: "\t" }), filename, "text/tab-separated-values");
     } catch (err) {
@@ -108,11 +119,7 @@ export const ExportNodeDataButton: React.FC<Props> = ({
   };
 
   return (
-    <StyledTooltip
-      title="Export submitted metadata for selected node type"
-      placement="top"
-      data-testid="export-node-data-tooltip"
-    >
+    <StyledTooltip title={tooltip} placement="top" data-testid="export-node-data-tooltip">
       <span>
         <StyledIconButton
           onClick={handleClick}
