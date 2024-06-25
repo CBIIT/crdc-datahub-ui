@@ -385,46 +385,42 @@ const GenericTable = <T,>(
   }));
 
   const Pagination = useCallback(
-    (props: Partial<TablePaginationProps> & { verticalPlacement: "top" | "bottom" }) => {
+    ({
+      disabled,
+      verticalPlacement,
+      ...rest
+    }: Partial<TablePaginationProps> & {
+      verticalPlacement: "top" | "bottom";
+      disabled: boolean;
+    }) => {
       const pageIsInvalid = page + 1 > Math.ceil(total / perPage);
       const safePage = pageIsInvalid ? 0 : page;
 
       return (
         <TablePagination
-          data={data}
+          disabled={disabled}
           total={total}
           perPage={perPage}
           page={safePage}
-          emptyRows={emptyRows}
-          loading={!paramsInitialized || loading}
-          verticalPlacement="top"
+          verticalPlacement={verticalPlacement}
           placement={paginationPlacement}
           rowsPerPageOptions={rowsPerPageOptions}
           AdditionalActions={AdditionalActions}
           onPageChange={(_, newPage) => handlePageChange(newPage - 1)}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          {...props}
+          {...rest}
         />
       );
     },
-    [
-      data,
-      total,
-      perPage,
-      page,
-      emptyRows,
-      paramsInitialized,
-      loading,
-      paginationPlacement,
-      rowsPerPageOptions,
-      AdditionalActions,
-    ]
+    [total, perPage, page, paginationPlacement, rowsPerPageOptions, AdditionalActions]
   );
 
   return (
     <StyledTableContainer {...containerProps}>
       {(!paramsInitialized || showDelayedLoading) && <SuspenseLoader fullscreen={false} />}
-      {(position === "top" || position === "both") && <Pagination verticalPlacement="top" />}
+      {(position === "top" || position === "both") && (
+        <Pagination verticalPlacement="top" disabled={!data || loading || !paramsInitialized} />
+      )}
       <StyledTable horizontalScroll={horizontalScroll && total > 0}>
         {columns?.length > 0 && (
           <TableHeadComponent>
@@ -507,7 +503,9 @@ const GenericTable = <T,>(
             )}
         </TableBody>
       </StyledTable>
-      {(position === "bottom" || position === "both") && <Pagination verticalPlacement="bottom" />}
+      {(position === "bottom" || position === "both") && (
+        <Pagination verticalPlacement="bottom" disabled={!data || loading || !paramsInitialized} />
+      )}
     </StyledTableContainer>
   );
 };
