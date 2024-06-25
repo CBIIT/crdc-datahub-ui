@@ -17,7 +17,7 @@ const StyledStudyCount = styled(Typography)<{ component: ElementType }>(({ theme
 const TooltipBody: FC<Props> = ({ _id, studies }) => (
   <Typography variant="body1">
     {studies?.map(({ studyName, studyAbbreviation }) => (
-      <React.Fragment key={`${_id}_study_${studyName}`}>
+      <React.Fragment key={`${_id}_study_${studyName}_abbrev_${studyAbbreviation}`}>
         {formatFullStudyName(studyName, studyAbbreviation)}
         <br />
       </React.Fragment>

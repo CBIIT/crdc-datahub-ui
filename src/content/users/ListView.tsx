@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { useQuery } from "@apollo/client";
 import {
   Alert,
@@ -8,36 +8,27 @@ import {
   FormControl,
   MenuItem,
   Select,
-  Table,
-  TableBody,
+  Stack,
   TableCell,
-  TableContainer,
   TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
-  Typography,
   styled,
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
-import { useOrganizationListContext } from "../../components/Contexts/OrganizationListContext";
+import {
+  Status as OrgStatus,
+  useOrganizationListContext,
+} from "../../components/Contexts/OrganizationListContext";
 import PageBanner from "../../components/PageBanner";
 import { Roles } from "../../config/AuthRoles";
 import { LIST_USERS, ListUsersResp } from "../../graphql";
-import { formatIDP } from "../../utils";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
-import SuspenseLoader from "../../components/SuspenseLoader";
+import { compareStrings, formatIDP, sortData } from "../../utils";
+import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
+import GenericTable, { Column } from "../../components/GenericTable";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
 type T = User;
-
-type Column = {
-  label: string;
-  value: (a: T) => React.ReactNode;
-  default?: true;
-  comparator?: (a: T, b: T) => number;
-};
 
 type FilterForm = {
   /**
@@ -51,13 +42,6 @@ type FilterForm = {
 const StyledContainer = styled(Container)({
   marginTop: "-180px",
   paddingBottom: "90px",
-});
-
-const StyledTableContainer = styled(TableContainer)({
-  borderRadius: "8px",
-  border: "1px solid #083A50",
-  marginBottom: "25px",
-  position: "relative",
 });
 
 const StyledFilterContainer = styled(Box)({
@@ -155,63 +139,89 @@ const StyledActionButton = styled(Button)(
   })
 );
 
-const StyledTablePagination = styled(TablePagination)<{
-  component: React.ElementType;
-}>({
-  borderTop: "2px solid #083A50",
-  background: "#F5F7F8",
-});
+type TouchedState = { [K in keyof FilterForm]: boolean };
 
-const columns: Column[] = [
+const initialTouchedFields: TouchedState = {
+  organization: false,
+  role: false,
+  status: false,
+};
+
+const columns: Column<T>[] = [
   {
     label: "Name",
-    value: (a) => `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`,
+    renderValue: (a) => `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`,
     comparator: (a, b) => {
       const aName = `${a.lastName ? `${a.lastName}, ` : ""}${a.firstName || ""}`;
       const bName = `${b.lastName ? `${b.lastName}, ` : ""}${b.firstName || ""}`;
 
-      return aName.localeCompare(bName);
+      return compareStrings(aName, bName);
     },
+    default: true,
+    sx: {
+      width: "18%",
+    },
+    fieldKey: "name",
   },
   {
     label: "Account Type",
-    value: (a) => formatIDP(a.IDP),
+    renderValue: (a) => formatIDP(a.IDP),
     comparator: (a, b) => a.IDP.localeCompare(b.IDP),
-  },
-  {
-    label: "Email",
-    value: (a) => a.email,
-    comparator: (a, b) => a.email.localeCompare(b.email),
-  },
-  {
-    label: "Organization",
-    value: (a) => a.organization?.orgName || "",
-    comparator: (a, b) => {
-      const aOrg = a.organization?.orgName || "";
-      const bOrg = b.organization?.orgName || "";
-
-      return aOrg.localeCompare(bOrg);
+    field: "IDP",
+    sx: {
+      width: "13%",
     },
   },
   {
+    label: "Email",
+    renderValue: (a) => a.email,
+    comparator: (a, b) => a.email.localeCompare(b.email),
+    field: "email",
+  },
+  {
+    label: "Organization",
+    renderValue: (a) => a.organization?.orgName || "",
+    comparator: (a, b) => compareStrings(a?.organization?.orgName, b?.organization?.orgName),
+    sx: {
+      width: "11%",
+    },
+    fieldKey: "orgName",
+  },
+  {
     label: "Status",
-    value: (a) => a.userStatus,
+    renderValue: (a) => a.userStatus,
     comparator: (a, b) => a.userStatus.localeCompare(b.userStatus),
+    field: "userStatus",
+    sx: {
+      width: "7%",
+    },
   },
   {
     label: "Role",
-    value: (a) => a.role,
+    renderValue: (a) => a.role,
     comparator: (a, b) => a.role.localeCompare(b.role),
+    field: "role",
+    sx: {
+      width: "13%",
+    },
   },
   {
-    label: "Action",
-    value: (a) => (
+    label: (
+      <Stack direction="row" justifyContent="center" alignItems="center">
+        Action
+      </Stack>
+    ),
+    renderValue: (a) => (
       <Link to={`/users/${a?.["_id"]}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
       </Link>
     ),
+    sortDisabled: true,
+    sx: {
+      width: "100px",
+    },
   },
 ];
 
@@ -223,43 +233,53 @@ const columns: Column[] = [
 const ListingView: FC = () => {
   usePageTitle("Manage Users");
 
-  const { user } = useAuthContext();
+  const { user, status: authStatus } = useAuthContext();
   const { state } = useLocation();
-  const { data: orgData, activeOrganizations } = useOrganizationListContext();
-
-  const [order, setOrder] = useState<"asc" | "desc">("asc");
-  const [orderBy, setOrderBy] = useState<Column>(
-    columns.find((c) => c.default) || columns.find((c) => !!c.comparator)
-  );
-  const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(20);
+  const { data: orgData, activeOrganizations, status: orgStatus } = useOrganizationListContext();
+  const { searchParams, setSearchParams } = useSearchParamsContext();
   const [dataset, setDataset] = useState<T[]>([]);
   const [count, setCount] = useState<number>(0);
+  const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
-  const { watch, setValue, control } = useForm<FilterForm>();
+  const { watch, setValue, control } = useForm<FilterForm>({
+    defaultValues: {
+      organization: "All",
+      role: "All",
+      status: "All",
+    },
+  });
   const orgFilter = watch("organization");
   const roleFilter = watch("role");
   const statusFilter = watch("status");
+  const tableRef = useRef<TableMethods>(null);
 
   const { data, loading, error } = useQuery<ListUsersResp>(LIST_USERS, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  // eslint-disable-next-line arrow-body-style
-  const emptyRows = useMemo(() => {
-    return page > 0 && count ? Math.max(0, page * perPage - count) : 0;
-  }, [count, perPage, page]);
+  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
+    const { first, offset, sortDirection, orderBy, comparator } = fetchListing || {};
 
-  const handleRequestSort = (column: Column) => {
-    setOrder(orderBy === column && order === "asc" ? "desc" : "asc");
-    setOrderBy(column);
-    setPage(0);
-  };
+    const users = data?.listUsers;
+    if (!users?.length) {
+      setDataset([]);
+      setCount(0);
+      return;
+    }
 
-  const handleChangeRowsPerPage = (event) => {
-    setPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    const filters: FilterFunction<T>[] = [
+      (u: T) => (orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true),
+      (u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true),
+      (u: T) => (statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true),
+    ];
+
+    const filteredData = users.filter((u) => filters.every((filter) => filter(u)));
+    const sortedData = sortData(filteredData, orderBy, sortDirection, comparator);
+    const paginatedData = sortedData.slice(offset, first + offset);
+
+    setCount(sortedData?.length);
+    setDataset(paginatedData);
   };
 
   useEffect(() => {
@@ -271,34 +291,69 @@ const ListingView: FC = () => {
     setValue("organization", orgID || "All");
   }, [user, orgData]);
 
+  const isValidOrg = (orgId: string) => !!activeOrganizations?.find((org) => org._id === orgId);
+  const isRoleFilterOption = (role: string): role is FilterForm["role"] =>
+    ["All", ...Roles].includes(role);
+  const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
+    ["All", "Inactive", "Active"].includes(status);
+
   useEffect(() => {
-    if (!data?.listUsers?.length) {
-      setDataset([]);
-      setCount(0);
+    if (!activeOrganizations) {
       return;
     }
 
-    const sorted = data.listUsers
-      .filter((u: T) =>
-        orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true
-      )
-      .filter((u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true))
-      .filter((u: T) =>
-        statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true
-      )
-      .sort((a, b) => orderBy?.comparator(a, b) || 0);
+    const organizationId = searchParams.get("organization");
+    const role = searchParams.get("role");
+    const status = searchParams.get("status");
 
-    if (order === "desc") {
-      sorted.reverse();
+    if (isValidOrg(organizationId) && organizationId !== orgFilter) {
+      setValue("organization", organizationId);
     }
-
-    setCount(sorted.length);
-    setDataset(sorted.slice(page * perPage, page * perPage + perPage));
-  }, [data, perPage, page, orderBy, order, roleFilter, orgFilter, statusFilter]);
+    if (isRoleFilterOption(role) && role !== roleFilter) {
+      setValue("role", role);
+    }
+    if (isStatusFilterOption(status) && status !== statusFilter) {
+      setValue("status", status);
+    }
+  }, [
+    activeOrganizations,
+    searchParams.get("organization"),
+    searchParams.get("role"),
+    searchParams.get("status"),
+  ]);
 
   useEffect(() => {
-    setPage(0);
-  }, [orgFilter, roleFilter, statusFilter]);
+    if (!touchedFilters.organization && !touchedFilters.role && !touchedFilters.status) {
+      return;
+    }
+
+    if (orgFilter && orgFilter !== "All") {
+      searchParams.set("organization", orgFilter);
+    } else if (orgFilter === "All") {
+      searchParams.delete("organization");
+    }
+    if (roleFilter && roleFilter !== "All") {
+      searchParams.set("role", roleFilter);
+    } else if (roleFilter === "All") {
+      searchParams.delete("role");
+    }
+    if (statusFilter && statusFilter !== "All") {
+      searchParams.set("status", statusFilter);
+    } else if (statusFilter === "All") {
+      searchParams.delete("status");
+    }
+
+    setTablePage(0);
+    setSearchParams(searchParams);
+  }, [orgFilter, roleFilter, statusFilter, touchedFilters]);
+
+  const setTablePage = (page: number) => {
+    tableRef.current?.setPage(page, true);
+  };
+
+  const handleFilterChange = (field: keyof FilterForm) => {
+    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
+  };
 
   return (
     <>
@@ -321,10 +376,13 @@ const ListingView: FC = () => {
                 <StyledSelect
                   {...field}
                   disabled={user.role === "Organization Owner"}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   MenuProps={{ disablePortal: true }}
                   inputProps={{ id: "organization-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("organization");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {activeOrganizations?.map((org: Organization) => (
@@ -344,10 +402,13 @@ const ListingView: FC = () => {
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   MenuProps={{ disablePortal: true }}
                   inputProps={{ id: "role-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("role");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {Roles.map((role) => (
@@ -367,10 +428,13 @@ const ListingView: FC = () => {
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   MenuProps={{ disablePortal: true }}
                   inputProps={{ id: "status-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("status");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Active">Active</MenuItem>
@@ -380,88 +444,22 @@ const ListingView: FC = () => {
             />
           </StyledFormControl>
         </StyledFilterContainer>
-        <StyledTableContainer>
-          <Table>
-            <StyledTableHead>
-              <TableRow>
-                {columns.map((col: Column) => (
-                  <StyledHeaderCell key={col.label}>
-                    {col.comparator ? (
-                      <TableSortLabel
-                        active={orderBy === col}
-                        direction={orderBy === col ? order : "asc"}
-                        onClick={() => handleRequestSort(col)}
-                      >
-                        {col.label}
-                      </TableSortLabel>
-                    ) : (
-                      col.label
-                    )}
-                  </StyledHeaderCell>
-                ))}
-              </TableRow>
-            </StyledTableHead>
-            <TableBody>
-              {loading && (
-                <TableRow>
-                  <TableCell>
-                    <SuspenseLoader fullscreen={false} />
-                  </TableCell>
-                </TableRow>
-              )}
-              {dataset.map((d: T) => (
-                <TableRow tabIndex={-1} hover key={`${d["_id"]}`}>
-                  {columns.map((col: Column) => (
-                    <StyledTableCell key={`${d["_id"]}_${col.label}`}>
-                      {col.value(d)}
-                    </StyledTableCell>
-                  ))}
-                </TableRow>
-              ))}
-
-              {/* Fill the difference between perPage and count to prevent height changes */}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={columns.length} />
-                </TableRow>
-              )}
-
-              {/* No content message */}
-              {(!dataset.length || dataset.length === 0) && (
-                <TableRow style={{ height: 53 * 10 }}>
-                  <TableCell colSpan={columns.length}>
-                    <Typography variant="h6" align="center" fontSize={18} color="#757575">
-                      No users found.
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          <StyledTablePagination
-            rowsPerPageOptions={[5, 10, 20, 50]}
-            component="div"
-            count={count}
-            rowsPerPage={perPage}
-            page={page}
-            onPageChange={(e, newPage) => setPage(newPage)}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{
-              disabled:
-                perPage === -1 ||
-                !dataset ||
-                dataset.length === 0 ||
-                count <= (page + 1) * perPage ||
-                emptyRows > 0 ||
-                loading,
-            }}
-            SelectProps={{
-              inputProps: { "aria-label": "rows per page" },
-              native: true,
-            }}
-            backIconButtonProps={{ disabled: page === 0 || loading }}
-          />
-        </StyledTableContainer>
+        <GenericTable
+          ref={tableRef}
+          columns={columns}
+          data={dataset || []}
+          total={count || 0}
+          loading={loading || orgStatus === OrgStatus.LOADING || authStatus === AuthStatus.LOADING}
+          disableUrlParams={false}
+          defaultRowsPerPage={20}
+          defaultOrder="asc"
+          setItemKey={(item, idx) => `${idx}_${item._id}`}
+          onFetchData={handleFetchData}
+          containerProps={{ sx: { marginBottom: "8px", borderColor: "#083A50" } }}
+          CustomTableHead={StyledTableHead}
+          CustomTableHeaderCell={StyledHeaderCell}
+          CustomTableBodyCell={StyledTableCell}
+        />
       </StyledContainer>
     </>
   );

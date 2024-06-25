@@ -52,25 +52,21 @@ const StyledTablePagination = styled(MuiTablePagination, {
   },
 }));
 
-type Props<T> = {
-  data: T[];
+type Props = {
+  disabled: boolean;
   total: number;
   perPage: number;
   page: number;
-  emptyRows: number;
-  loading: boolean;
   verticalPlacement: "top" | "bottom";
   placement?: CSSProperties["justifyContent"];
   AdditionalActions?: React.ReactNode;
 } & Partial<TablePaginationProps>;
 
-const TablePagination = <T,>({
-  data,
+const TablePagination = ({
+  disabled,
   total,
   perPage,
   page,
-  emptyRows,
-  loading,
   verticalPlacement,
   placement,
   AdditionalActions,
@@ -78,7 +74,7 @@ const TablePagination = <T,>({
   onPageChange,
   onRowsPerPageChange,
   ...rest
-}: Props<T>) => (
+}: Props) => (
   <StyledTablePagination
     rowsPerPageOptions={rowsPerPageOptions}
     component="div"
@@ -90,13 +86,7 @@ const TablePagination = <T,>({
     verticalPlacement={verticalPlacement}
     placement={placement}
     nextIconButtonProps={{
-      disabled:
-        perPage === -1 ||
-        !data ||
-        total === 0 ||
-        total <= (page + 1) * perPage ||
-        emptyRows > 0 ||
-        loading,
+      disabled: disabled || !total || total <= (page + 1) * perPage,
     }}
     SelectProps={{
       inputProps: {
@@ -105,7 +95,7 @@ const TablePagination = <T,>({
       },
       native: true,
     }}
-    backIconButtonProps={{ disabled: page === 0 || loading }}
+    backIconButtonProps={{ disabled: disabled || page <= 0 }}
     // eslint-disable-next-line react/no-unstable-nested-components
     ActionsComponent={(props) => (
       <PaginationActions
