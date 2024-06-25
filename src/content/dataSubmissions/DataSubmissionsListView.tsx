@@ -261,6 +261,10 @@ const ListingView: FC = () => {
     try {
       setLoading(true);
 
+      if (!activeOrganizations) {
+        return;
+      }
+
       const organization = activeOrganizations?.find((org) => org._id === orgFilter);
       const { data: d, error } = await listSubmissions({
         variables: {
@@ -268,7 +272,7 @@ const ListingView: FC = () => {
           offset,
           sortDirection,
           orderBy,
-          organization,
+          organization: organization?._id ?? "All",
           status: statusFilter,
         },
         context: { clientName: "backend" },
