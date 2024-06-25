@@ -26,7 +26,7 @@ import {
 } from "react";
 import { isEqual } from "lodash";
 import SuspenseLoader from "../SuspenseLoader";
-import TablePagination from "../DataSubmissions/TablePagination";
+import TablePagination from "./TablePagination";
 import {
   generateSearchParameters,
   validatePage,
