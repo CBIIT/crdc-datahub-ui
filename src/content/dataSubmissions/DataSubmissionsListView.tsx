@@ -327,7 +327,7 @@ const ListingView: FC = () => {
       return;
     }
 
-    if (orgFilter && orgFilter !== "All") {
+    if (canChangeOrgs && orgFilter && orgFilter !== "All") {
       searchParams.set("organization", orgFilter);
     } else if (orgFilter === "All") {
       searchParams.delete("organization");
