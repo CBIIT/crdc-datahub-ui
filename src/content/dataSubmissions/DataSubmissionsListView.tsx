@@ -194,13 +194,6 @@ const columns: Column<T>[] = [
   },
 ];
 
-const rolesWithAllFilter: User["role"][] = [
-  "Admin",
-  "Federal Lead",
-  "Data Curator",
-  "Data Commons POC",
-];
-
 const blockOrgChangeRoles: User["role"][] = ["Organization Owner", "Submitter", "User"];
 
 const statusValues: SubmissionStatus[] = [
@@ -232,13 +225,8 @@ const ListingView: FC = () => {
   // Only org owners/submitters with organizations assigned can create data submissions
   const { watch, control, setValue } = useForm<FilterForm>({
     defaultValues: {
-      organization:
-        searchParams.get("organization") ||
-        rolesWithAllFilter.includes(user?.role) ||
-        (!user?.organization !== null && user?.organization?.orgID !== null)
-          ? "All"
-          : user.organization?.orgName,
-      status: (searchParams.get("status") as FilterForm["status"]) || "All",
+      organization: "All",
+      status: "All",
     },
   });
   const [loading, setLoading] = useState<boolean>(false);
@@ -246,6 +234,7 @@ const ListingView: FC = () => {
   const [data, setData] = useState<Submission[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
+  const canChangeOrgs = !blockOrgChangeRoles.includes(user?.role);
   const orgFilter = watch("organization");
   const statusFilter = watch("status");
   const tableRef = useRef<TableMethods>(null);
@@ -261,7 +250,7 @@ const ListingView: FC = () => {
     try {
       setLoading(true);
 
-      if (!activeOrganizations) {
+      if (!activeOrganizations?.length) {
         return;
       }
 
@@ -290,25 +279,52 @@ const ListingView: FC = () => {
     }
   };
 
-  const isValidOrg = (orgId: string) => !!activeOrganizations?.find((org) => org._id === orgId);
+  const isValidOrg = (orgId: string) =>
+    orgId && !!activeOrganizations?.find((org) => org._id === orgId);
   const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
-    ["All", "Inactive", "Active"].includes(status);
+    ["All", ...statusValues].includes(status);
+
+  const handleOrganizationChange = (organizationId: string) => {
+    const isValidUserOrg = isValidOrg(user?.organization?.orgID);
+    const isValidOrgFilter = isValidOrg(organizationId);
+
+    if ((!canChangeOrgs || !isValidOrgFilter) && organizationId) {
+      searchParams.delete("organization");
+      setSearchParams(searchParams);
+    } else if (!canChangeOrgs && isValidUserOrg && organizationId !== orgFilter) {
+      setValue("organization", user.organization.orgID);
+    } else if (canChangeOrgs && isValidOrgFilter && organizationId !== orgFilter) {
+      setValue("organization", organizationId);
+    }
+  };
+
+  const handleStatusChange = (status: string) => {
+    const isValidStatusFilter = isStatusFilterOption(status);
+
+    if (isValidStatusFilter && status !== statusFilter) {
+      setValue("status", status);
+    } else if (!isValidStatusFilter && status) {
+      searchParams.delete("status");
+      setSearchParams(searchParams);
+    }
+  };
 
   useEffect(() => {
-    if (!activeOrganizations) {
+    if (!activeOrganizations?.length) {
       return;
     }
 
     const organizationId = searchParams.get("organization");
     const status = searchParams.get("status");
 
-    if (isValidOrg(organizationId) && organizationId !== orgFilter) {
-      setValue("organization", organizationId);
-    }
-    if (isStatusFilterOption(status) && status !== statusFilter) {
-      setValue("status", status);
-    }
-  }, [activeOrganizations, searchParams.get("organization"), searchParams.get("status")]);
+    handleStatusChange(status);
+    handleOrganizationChange(organizationId);
+  }, [
+    activeOrganizations,
+    canChangeOrgs,
+    searchParams.get("organization"),
+    searchParams.get("status"),
+  ]);
 
   useEffect(() => {
     if (!touchedFilters.organization && !touchedFilters.status) {
@@ -335,12 +351,12 @@ const ListingView: FC = () => {
   };
 
   const handleOnCreateSubmission = async () => {
+    if (!activeOrganizations?.length) {
+      return;
+    }
+
     try {
       setLoading(true);
-
-      if (!activeOrganizations) {
-        return;
-      }
 
       const { data: d } = await refetch();
       if (error || !d?.listSubmissions) {
@@ -400,7 +416,7 @@ const ListingView: FC = () => {
                     value={field.value}
                     MenuProps={{ disablePortal: true }}
                     inputProps={{ id: "organization-filter" }}
-                    readOnly={blockOrgChangeRoles.includes(user?.role)}
+                    readOnly={!canChangeOrgs}
                     onChange={(e) => {
                       field.onChange(e);
                       handleFilterChange("organization");
