@@ -43,6 +43,6 @@ export const query = gql`
 export type Response = {
   listSubmissions: {
     total: number;
-    submissions: Submission[];
+    submissions: Omit<Submission, "submitterID" | "bucketName" | "rootPath" | "history">[];
   };
 };

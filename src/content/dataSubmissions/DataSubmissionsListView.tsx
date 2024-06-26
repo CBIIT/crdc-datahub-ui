@@ -29,7 +29,7 @@ import { LIST_SUBMISSIONS, ListSubmissionsResp } from "../../graphql";
 import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
-type T = Submission;
+type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
 
 type FilterForm = {
   organization: string;
@@ -231,7 +231,7 @@ const ListingView: FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const [data, setData] = useState<Submission[]>([]);
+  const [data, setData] = useState<T[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
   const canChangeOrgs = !blockOrgChangeRoles.includes(user?.role);
@@ -245,7 +245,7 @@ const ListingView: FC = () => {
     fetchPolicy: "cache-and-network",
   });
 
-  const handleFetchData = async (fetchListing: FetchListing<Submission>, force: boolean) => {
+  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     try {
       setLoading(true);
