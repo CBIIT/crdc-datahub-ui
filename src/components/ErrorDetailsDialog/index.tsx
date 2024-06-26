@@ -131,23 +131,46 @@ const ErrorDetailsDialog = ({
   };
 
   return (
-    <StyledDialog open={open} onClose={handleCloseDialog} title="" {...rest}>
-      <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
+    <StyledDialog
+      open={open}
+      onClose={handleCloseDialog}
+      data-testid="error-details-dialog"
+      title=""
+      {...rest}
+    >
+      <StyledCloseDialogButton
+        aria-label="close"
+        onClick={handleCloseDialog}
+        data-testid="error-details-close-icon"
+      >
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      {header && <StyledHeader variant="h3">{header}</StyledHeader>}
-      <StyledTitle variant="h6">{title}</StyledTitle>
+      {header && (
+        <StyledHeader variant="h3" data-testid="error-details-header">
+          {header}
+        </StyledHeader>
+      )}
+      <StyledTitle variant="h6" data-testid="error-details-title">
+        {title}
+      </StyledTitle>
       {uploadedDate && (
-        <StyledUploadedDate>
+        <StyledUploadedDate data-testid="error-details-upload-date">
           Uploaded on {FormatDate(uploadedDate, "M/D/YYYY", "N/A")}
         </StyledUploadedDate>
       )}
-      {nodeInfo && <StyledUploadedDate>{nodeInfo}</StyledUploadedDate>}
+      {nodeInfo && (
+        <StyledUploadedDate data-testid="error-details-node-info">{nodeInfo}</StyledUploadedDate>
+      )}
       <StyledErrorDetails direction="column" spacing={2.5}>
-        <StyledSubtitle variant="body2">
+        <StyledSubtitle variant="body2" data-testid="error-details-error-count">
           {errorCount || `${errors?.length || 0} ${errors?.length === 1 ? "ERROR" : "ERRORS"}`}
         </StyledSubtitle>
-        <StyledErrors direction="column" spacing={2.75} padding={1.25}>
+        <StyledErrors
+          direction="column"
+          spacing={2.75}
+          padding={1.25}
+          data-testid="error-details-error-list"
+        >
           {errors?.map((error: string, idx: number) => (
             // eslint-disable-next-line react/no-array-index-key
             <StyledErrorItem key={`${idx}_${error}`}>{`${idx + 1}. ${error}`}</StyledErrorItem>
@@ -156,6 +179,7 @@ const ErrorDetailsDialog = ({
       </StyledErrorDetails>
       <StyledCloseButton
         id="error-dialog-close-button"
+        data-testid="error-details-close-button"
         variant="contained"
         color="info"
         onClick={handleCloseDialog}

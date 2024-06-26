@@ -203,8 +203,19 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
   };
 
   return (
-    <StyledDialog open={open} onClose={handleCloseDialog} title="" {...rest} scroll="body">
-      <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
+    <StyledDialog
+      open={open}
+      onClose={handleCloseDialog}
+      title=""
+      data-testid="file-list-dialog"
+      scroll="body"
+      {...rest}
+    >
+      <StyledCloseDialogButton
+        aria-label="close"
+        onClick={handleCloseDialog}
+        data-testid="file-list-close-icon"
+      >
         <CloseIconSvg />
       </StyledCloseDialogButton>
       <StyledHeader variant="h3">Data Submission</StyledHeader>
@@ -232,6 +243,7 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
 
       <StyledCloseButton
         id="file-list-dialog-close-button"
+        data-testid="file-list-close-button"
         variant="contained"
         color="info"
         onClick={handleCloseDialog}
