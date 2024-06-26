@@ -50,6 +50,7 @@ import SubmittedData from "./SubmittedData";
 import { UserGuide } from "../../components/DataSubmissions/UserGuide";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { DataUpload } from "../../components/DataSubmissions/DataUpload";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -361,6 +362,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { lastSearchParams } = useSearchParamsContext();
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [totalBatches, setTotalBatches] = useState<number>(0);
@@ -376,6 +378,9 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
   >(null);
   const [stopBatchPolling, setStopBatchPolling] = useState<(() => void) | null>(null);
   const [lastValidationTime, setLastValidationTime] = useState(Date.now());
+  const dataSubmissionListPageUrl = `/data-submissions${
+    lastSearchParams?.["/data-submissions"] ?? ""
+  }`;
 
   const {
     data,
@@ -680,7 +685,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
               )}
 
               {/* Return to Data Submission List Button */}
-              <BackButton navigateTo="/data-submissions" text="Back to Data Submissions" />
+              <BackButton navigateTo={dataSubmissionListPageUrl} text="Back to Data Submissions" />
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions>
