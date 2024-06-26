@@ -282,27 +282,24 @@ const ListingView: FC = () => {
     ["All", ...statusValues].includes(status);
 
   const handleOrganizationChange = (organizationId: string) => {
-    const isValidUserOrg = isValidOrg(user?.organization?.orgID);
-    const isValidOrgFilter = isValidOrg(organizationId);
+    if (organizationId === orgFilter) {
+      return;
+    }
 
-    if ((!canChangeOrgs || !isValidOrgFilter) && organizationId) {
-      searchParams.delete("organization");
-      setSearchParams(searchParams);
-    } else if (!canChangeOrgs && isValidUserOrg && organizationId !== orgFilter) {
+    if (!canChangeOrgs && isValidOrg(user?.organization?.orgID)) {
       setValue("organization", user.organization.orgID);
-    } else if (canChangeOrgs && isValidOrgFilter && organizationId !== orgFilter) {
+    } else if (canChangeOrgs && isValidOrg(organizationId)) {
       setValue("organization", organizationId);
     }
   };
 
   const handleStatusChange = (status: string) => {
-    const isValidStatusFilter = isStatusFilterOption(status);
+    if (status === statusFilter) {
+      return;
+    }
 
-    if (isValidStatusFilter && status !== statusFilter) {
+    if (isStatusFilterOption(status)) {
       setValue("status", status);
-    } else if (!isValidStatusFilter && status) {
-      searchParams.delete("status");
-      setSearchParams(searchParams);
     }
   };
 
