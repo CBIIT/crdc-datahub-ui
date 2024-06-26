@@ -62,6 +62,7 @@ const baseSubmissionCtx: SubmissionCtxState = {
   status: SubmissionCtxStatus.LOADING,
   data: null,
   error: null,
+  isPolling: false,
   startPolling: jest.fn(),
   stopPolling: jest.fn(),
   refetch: jest.fn(),
