@@ -685,7 +685,10 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
               )}
 
               {/* Return to Data Submission List Button */}
-              <BackButton navigateTo={dataSubmissionListPageUrl} text="Back to Data Submissions" />
+              <BackButton
+                navigateTo={dataSubmissionListPageUrl}
+                text="Back to Data Submissions List"
+              />
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions>
