@@ -16,8 +16,8 @@ import GenericTable, { Column } from "../../components/GenericTable";
 import BatchTableContext from "./Contexts/BatchTableContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import { FormatDate } from "../../utils";
-import FileListDialog from "./FileListDialog";
-import ErrorDialog from "./ErrorDialog";
+import FileListDialog from "../../components/FileListDialog";
+import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
 
 const StyledRejectedStatus = styled("div")({
   color: "#B54717",
@@ -302,7 +302,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </BatchTableContext.Provider>
-      <ErrorDialog
+      <ErrorDetailsDialog
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header="Data Submission"

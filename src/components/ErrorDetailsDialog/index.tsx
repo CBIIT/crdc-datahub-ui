@@ -112,7 +112,7 @@ type Props = {
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
 
-const ErrorDialog = ({
+const ErrorDetailsDialog = ({
   header,
   title,
   closeText = "Close",
@@ -166,4 +166,4 @@ const ErrorDialog = ({
   );
 };
 
-export default React.memo(ErrorDialog);
+export default React.memo(ErrorDetailsDialog);
