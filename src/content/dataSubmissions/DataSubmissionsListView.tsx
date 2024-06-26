@@ -79,7 +79,6 @@ const StyledTableCell = styled(TableCell)({
   },
 });
 
-/*  */
 const StyledSelect = styled(StyledSelectFormComponent)({
   width: "310px",
 });
@@ -113,8 +112,6 @@ const StyledInlineLabel = styled("label")({
   padding: 0,
   fontWeight: "700",
 });
-
-/*  */
 
 const StyledDeletedText = styled(Box)(({ theme }) => ({
   color: theme.palette.text.disabled,
