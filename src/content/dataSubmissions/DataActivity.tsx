@@ -80,6 +80,7 @@ const columns: Column<Batch>[] = [
       <BatchTableContext.Consumer>
         {({ handleOpenFileListDialog }) => (
           <StyledFileCountButton
+            data-testid={`activity-file-count-${data?._id}`}
             onClick={() => handleOpenFileListDialog && handleOpenFileListDialog(data)}
             variant="text"
             disableRipple
@@ -128,6 +129,7 @@ const columns: Column<Batch>[] = [
           return (
             <StyledErrorDetailsButton
               onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
+              data-testid={`activity-error-count-${data?._id}`}
               variant="text"
               disableRipple
               disableTouchRipple
