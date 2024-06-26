@@ -48,6 +48,8 @@ const StyledContainer = styled(Container)({
 
 const StyledTableHead = styled(TableHead)({
   background: "#083A50",
+  borderTop: "1px solid #6B7294",
+  borderBottom: "1px solid #6B7294",
 });
 
 const StyledHeaderCell = styled(TableCell)({
