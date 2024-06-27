@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo, useRef, useState } from "react";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Alert,
   Box,
@@ -21,10 +21,8 @@ import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
 import {
-  GET_SUBMISSION,
   LIST_BATCHES,
   SUBMISSION_ACTION,
-  GetSubmissionResp,
   ListBatchesResp,
   SubmissionActionResp,
 } from "../../graphql";
@@ -51,6 +49,7 @@ import { UserGuide } from "../../components/DataSubmissions/UserGuide";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { DataUpload } from "../../components/DataSubmissions/DataUpload";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -363,6 +362,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
+  const { data, error: submissionError, refetch: getSubmission } = useSubmissionContext();
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [totalBatches, setTotalBatches] = useState<number>(0);
@@ -377,35 +377,9 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     ((pollInterval: number) => void) | null
   >(null);
   const [stopBatchPolling, setStopBatchPolling] = useState<(() => void) | null>(null);
-  const [lastValidationTime, setLastValidationTime] = useState(Date.now());
   const dataSubmissionListPageUrl = `/data-submissions${
     lastSearchParams?.["/data-submissions"] ?? ""
   }`;
-
-  const {
-    data,
-    error: submissionError,
-    startPolling,
-    stopPolling,
-    refetch: getSubmission,
-  } = useQuery<GetSubmissionResp>(GET_SUBMISSION, {
-    notifyOnNetworkStatusChange: true,
-    onCompleted: (d) => {
-      setLastValidationTime(Date.now());
-      if (
-        d?.getSubmission?.fileValidationStatus !== "Validating" &&
-        d?.getSubmission?.metadataValidationStatus !== "Validating" &&
-        d?.getSubmission?.crossSubmissionStatus !== "Validating"
-      ) {
-        stopPolling();
-      } else {
-        startPolling(1000);
-      }
-    },
-    variables: { id: submissionId },
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
 
   const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
@@ -551,14 +525,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     setSelectedRow(data);
   };
 
-  const handleOnValidate = (status: boolean) => {
-    if (!status) {
-      return;
-    }
-
-    startPolling(1000);
-  };
-
   const providerValue = useMemo(
     () => ({
       handleOpenErrorDialog,
@@ -627,12 +593,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
                 onUpload={handleOnUpload}
               />
               <DataUpload submission={data?.getSubmission} />
-              <ValidationControls
-                /* Without key the component will continue to poll if status updates Error => Error and skips 'Validating' status due to race condition */
-                key={`last_validation_time_${lastValidationTime}`}
-                dataSubmission={data?.getSubmission}
-                onValidate={handleOnValidate}
-              />
+              <ValidationControls />
             </StyledFlowContainer>
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_ACTIVITY}>
               <LinkTab

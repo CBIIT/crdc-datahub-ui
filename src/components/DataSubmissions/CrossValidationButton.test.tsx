@@ -4,9 +4,22 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
+import {
+  Context as AuthCtx,
+  ContextState as AuthCtxState,
+  Status as AuthStatus,
+} from "../Contexts/AuthContext";
 import { CrossValidationButton } from "./CrossValidationButton";
-import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import {
+  VALIDATE_SUBMISSION,
+  ValidateSubmissionInput,
+  ValidateSubmissionResp,
+} from "../../graphql";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../Contexts/SubmissionContext";
 
 // NOTE: We omit all properties that the component specifically depends on
 const baseSubmission: Omit<
@@ -33,12 +46,26 @@ const baseSubmission: Omit<
   updatedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: ["metadata", "file"],
 };
 
-const baseContext: ContextState = {
+const baseAuthCtx: AuthCtxState = {
   status: AuthStatus.LOADED,
   isLoggedIn: false,
   user: null,
+};
+
+const baseSubmissionCtx: SubmissionCtxState = {
+  status: SubmissionCtxStatus.LOADING,
+  data: null,
+  error: null,
+  startPolling: jest.fn(),
+  stopPolling: jest.fn(),
+  refetch: jest.fn(),
+  updateQuery: jest.fn(),
 };
 
 const baseUser: Omit<User, "role"> = {
@@ -56,26 +83,30 @@ const baseUser: Omit<User, "role"> = {
 
 type ParentProps = {
   mocks?: MockedResponse[];
-  context?: ContextState;
+  authCtxState?: AuthCtxState;
+  submissionCtxState?: SubmissionCtxState;
   children: React.ReactNode;
 };
 
 const TestParent: FC<ParentProps> = ({
-  context = baseContext,
+  authCtxState = baseAuthCtx,
+  submissionCtxState = baseSubmissionCtx,
   mocks = [],
   children,
 }: ParentProps) => (
-  <Context.Provider value={context}>
-    <MockedProvider mocks={mocks} showWarnings>
-      {children}
-    </MockedProvider>
-  </Context.Provider>
+  <AuthCtx.Provider value={authCtxState}>
+    <SubmissionContext.Provider value={submissionCtxState}>
+      <MockedProvider mocks={mocks} showWarnings>
+        {children}
+      </MockedProvider>
+    </SubmissionContext.Provider>
+  </AuthCtx.Provider>
 );
 
 describe("Accessibility", () => {
   it("should not have accessibility violations", async () => {
     const { container } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -87,7 +118,6 @@ describe("Accessibility", () => {
               Submitted: ["submitted-id"],
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -97,7 +127,7 @@ describe("Accessibility", () => {
 
   it("should not have accessibility violations (disabled)", async () => {
     const { container, getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -111,7 +141,6 @@ describe("Accessibility", () => {
             }),
           }}
           disabled
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -128,7 +157,7 @@ describe("Basic Functionality", () => {
 
   it("should render without crashing", () => {
     render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -137,7 +166,6 @@ describe("Basic Functionality", () => {
             otherSubmissions: null,
             crossSubmissionStatus: null,
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -146,7 +174,7 @@ describe("Basic Functionality", () => {
   it("should initiate cross validation when clicked", async () => {
     const submissionID = "base-success-test-onclick-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -171,7 +199,10 @@ describe("Basic Functionality", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+      >
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -183,7 +214,6 @@ describe("Basic Functionality", () => {
               Submitted: ["submitted-id"],
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -206,7 +236,7 @@ describe("Basic Functionality", () => {
 
   it("should handle API network errors gracefully", async () => {
     const submissionID = "base-network-error-test-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -217,7 +247,10 @@ describe("Basic Functionality", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+      >
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -229,7 +262,6 @@ describe("Basic Functionality", () => {
               Submitted: ["submitted-id"],
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -246,7 +278,7 @@ describe("Basic Functionality", () => {
 
   it("should handle API GraphQL errors gracefully", async () => {
     const submissionID = "base-GraphQL-error-test-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -259,7 +291,10 @@ describe("Basic Functionality", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+      >
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -271,7 +306,6 @@ describe("Basic Functionality", () => {
               Submitted: ["submitted-id"],
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -285,57 +319,6 @@ describe("Basic Functionality", () => {
       expect(getByTestId("cross-validate-button")).toBeEnabled();
     });
   });
-
-  it.each<boolean>([true, false])(
-    "should call the onValidate callback when clicked with %s",
-    async (result) => {
-      const onValidate = jest.fn();
-      const submissionID = "base-onValidate-failure-test-id";
-      const mocks: MockedResponse<ValidateSubmissionResp>[] = [
-        {
-          request: {
-            query: VALIDATE_SUBMISSION,
-          },
-          variableMatcher: () => true,
-          result: {
-            data: {
-              validateSubmission: {
-                success: result, // Simulated success/failure using the result parameter
-              },
-            },
-          },
-        },
-      ];
-
-      const { getByTestId } = render(
-        <TestParent
-          mocks={mocks}
-          context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
-        >
-          <CrossValidationButton
-            submission={{
-              ...baseSubmission,
-              _id: submissionID,
-              status: "Submitted",
-              crossSubmissionStatus: "New",
-              otherSubmissions: JSON.stringify({
-                "In Progress": [],
-                Submitted: ["submitted-id"],
-              }),
-            }}
-            onValidate={onValidate}
-          />
-        </TestParent>
-      );
-
-      userEvent.click(getByTestId("cross-validate-button"));
-
-      await waitFor(() => {
-        expect(onValidate).toHaveBeenCalledTimes(1);
-        expect(onValidate).toHaveBeenCalledWith(result);
-      });
-    }
-  );
 });
 
 describe("Implementation Requirements", () => {
@@ -345,7 +328,7 @@ describe("Implementation Requirements", () => {
 
   it("should be named 'Cross Validate'", () => {
     const { getByText } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -357,7 +340,6 @@ describe("Implementation Requirements", () => {
               Submitted: ["submitted-id"],
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -367,7 +349,7 @@ describe("Implementation Requirements", () => {
 
   it("should render as disabled with text 'Validating...' when the submission is validating", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -379,7 +361,6 @@ describe("Implementation Requirements", () => {
               Submitted: ["submitted-id"],
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -401,8 +382,8 @@ describe("Implementation Requirements", () => {
     };
 
     const { getByTestId, rerender } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
-        <CrossValidationButton submission={submission} onValidate={jest.fn()} />
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+        <CrossValidationButton submission={submission} />
       </TestParent>
     );
 
@@ -410,13 +391,12 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("cross-validate-button")).toHaveTextContent("Validating...");
 
     rerender(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
           submission={{
             ...submission,
             crossSubmissionStatus: "Passed",
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -427,7 +407,7 @@ describe("Implementation Requirements", () => {
 
   it("should be enabled only if there are other related Submitted submissions", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -439,7 +419,6 @@ describe("Implementation Requirements", () => {
               Submitted: ["submitted-id", "another-submitted-id"],
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -450,7 +429,7 @@ describe("Implementation Requirements", () => {
 
   it("should be HIDDEN if there are no other related Submitted submissions", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -462,7 +441,6 @@ describe("Implementation Requirements", () => {
               Submitted: [], // NOTE: This disables the button
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -474,7 +452,7 @@ describe("Implementation Requirements", () => {
     "should not be disabled based on the crossSubmissionStatus (checking '%s')",
     (status) => {
       const { getByTestId } = render(
-        <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
           <CrossValidationButton
             submission={{
               ...baseSubmission,
@@ -486,7 +464,6 @@ describe("Implementation Requirements", () => {
                 Submitted: ["submitted-id", "another-submitted-id"],
               }),
             }}
-            onValidate={jest.fn()}
           />
         </TestParent>
       );
@@ -500,7 +477,7 @@ describe("Implementation Requirements", () => {
     "should always render for the role %s with Other Submissions present",
     (role) => {
       const { getByTestId } = render(
-        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
+        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}>
           <CrossValidationButton
             submission={{
               ...baseSubmission,
@@ -512,7 +489,6 @@ describe("Implementation Requirements", () => {
                 Submitted: ["submitted-id", "another-submitted-id"],
               }),
             }}
-            onValidate={jest.fn()}
           />
         </TestParent>
       );
@@ -529,7 +505,7 @@ describe("Implementation Requirements", () => {
     "fake role" as User["role"],
   ])("should never render for the role %s", (role) => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}>
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -542,7 +518,6 @@ describe("Implementation Requirements", () => {
               Submitted: ["submitted-id", "another-submitted-id"],
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -552,7 +527,7 @@ describe("Implementation Requirements", () => {
 
   it("should only be enabled for the Submission status of 'Submitted'", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -564,7 +539,6 @@ describe("Implementation Requirements", () => {
               Submitted: ["this-enables-the-button"],
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );
@@ -584,7 +558,7 @@ describe("Implementation Requirements", () => {
     "fake status" as Submission["status"],
   ])("should never be visible for the Submission status of '%s'", (status) => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
         <CrossValidationButton
           submission={{
             ...baseSubmission,
@@ -596,7 +570,6 @@ describe("Implementation Requirements", () => {
               Submitted: ["this-enables-the-button"],
             }),
           }}
-          onValidate={jest.fn()}
         />
       </TestParent>
     );

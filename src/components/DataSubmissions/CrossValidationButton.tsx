@@ -4,8 +4,13 @@ import { ButtonProps, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
-import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import {
+  VALIDATE_SUBMISSION,
+  ValidateSubmissionInput,
+  ValidateSubmissionResp,
+} from "../../graphql";
 import { safeParse } from "../../utils";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -29,14 +34,10 @@ const CrossValidateRoles: User["role"][] = ["Data Curator", "Admin"];
 export type Props = {
   /**
    * The full Data Submission object to initiate cross validation on.
+   *
+   * @deprecated This prop is deprecated. Use `useSubmissionContext` instead.
    */
   submission: Submission;
-  /**
-   * Callback function called when the cross validation is initiated.
-   *
-   * @param success whether the validation was successfully initiated
-   */
-  onValidate: (success: boolean) => void;
 } & Omit<ButtonProps, "onClick">;
 
 /**
@@ -45,23 +46,27 @@ export type Props = {
  * This component manages the following:
  * - Who can see the button
  * - When to disable the button
- * - Dispatching the `onValidate` callback when the button is clicked
  *
  * @returns {React.FC<Props>}
  */
-export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...props }) => {
+export const CrossValidationButton: FC<Props> = ({ submission, ...props }) => {
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { updateQuery, refetch } = useSubmissionContext();
+
   const { _id, status, crossSubmissionStatus, otherSubmissions } = submission || {};
   const parsedSubmissions = safeParse<OtherSubmissions>(otherSubmissions);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(crossSubmissionStatus === "Validating");
 
-  const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  const [validateSubmission] = useMutation<ValidateSubmissionResp, ValidateSubmissionInput>(
+    VALIDATE_SUBMISSION,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const handleClick = async () => {
     setLoading(true);
@@ -84,16 +89,30 @@ export const CrossValidationButton: FC<Props> = ({ submission, onValidate, ...pr
         { variant: "success" }
       );
       setIsValidating(true);
-      onValidate?.(true);
+      handleOnValidate();
     } catch (error) {
       enqueueSnackbar("Unable to initiate validation process.", {
         variant: "error",
       });
       setIsValidating(false);
-      onValidate?.(false);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOnValidate = () => {
+    // NOTE: This forces the UI to rerender with the new statuses immediately
+    updateQuery((prev) => ({
+      ...prev,
+      getSubmission: {
+        ...prev.getSubmission,
+        crossSubmissionStatus: "Validating",
+      },
+    }));
+
+    // Kick off polling to check for validation status change
+    // NOTE: We're waiting 1000ms to allow the cache to update
+    setTimeout(refetch, 1000);
   };
 
   useEffect(() => {

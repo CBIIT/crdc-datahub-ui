@@ -21,6 +21,10 @@ export const query = gql`
       metadataValidationStatus
       fileValidationStatus
       crossSubmissionStatus
+      validationStarted
+      validationEnded
+      validationScope
+      validationType
       fileErrors {
         submissionID
         type
@@ -67,6 +71,13 @@ export const query = gql`
     }
   }
 `;
+
+export type Input = {
+  /**
+   * The submission ID
+   */
+  id: string;
+};
 
 export type Response = {
   /**

@@ -1,12 +1,25 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { getByLabelText, render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
+import {
+  Context as AuthCtx,
+  ContextState as AuthCtxState,
+  Status as AuthStatus,
+} from "../Contexts/AuthContext";
 import ValidationControls from "./ValidationControls";
-import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import {
+  VALIDATE_SUBMISSION,
+  ValidateSubmissionInput,
+  ValidateSubmissionResp,
+} from "../../graphql";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../Contexts/SubmissionContext";
 
 // NOTE: We omit all properties that the component specifically depends on
 const baseSubmission: Omit<
@@ -33,12 +46,26 @@ const baseSubmission: Omit<
   updatedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: ["metadata", "file"],
 };
 
-const baseContext: ContextState = {
+const baseAuthCtx: AuthCtxState = {
   status: AuthStatus.LOADED,
   isLoggedIn: false,
   user: null,
+};
+
+const baseSubmissionCtx: SubmissionCtxState = {
+  status: SubmissionCtxStatus.LOADING,
+  data: null,
+  error: null,
+  startPolling: jest.fn(),
+  stopPolling: jest.fn(),
+  refetch: jest.fn(),
+  updateQuery: jest.fn(),
 };
 
 const baseUser: Omit<User, "role"> = {
@@ -56,36 +83,56 @@ const baseUser: Omit<User, "role"> = {
 
 type ParentProps = {
   mocks?: MockedResponse[];
-  context?: ContextState;
+  authCtxState?: AuthCtxState;
+  submissionCtxState?: Pick<SubmissionCtxState, "startPolling" | "stopPolling" | "refetch">;
+  submission: Submission;
   children: React.ReactNode;
 };
 
 const TestParent: FC<ParentProps> = ({
-  context = baseContext,
+  submission,
+  authCtxState = baseAuthCtx,
+  submissionCtxState,
   mocks = [],
   children,
-}: ParentProps) => (
-  <Context.Provider value={context}>
-    <MockedProvider mocks={mocks} showWarnings>
-      {children}
-    </MockedProvider>
-  </Context.Provider>
-);
+}: ParentProps) => {
+  const value = useMemo<SubmissionCtxState>(
+    () => ({
+      ...baseSubmissionCtx,
+      ...submissionCtxState,
+      data: {
+        getSubmission: { ...submission },
+        submissionStats: { stats: [] },
+      },
+    }),
+    [submissionCtxState, submission]
+  );
+
+  return (
+    <AuthCtx.Provider value={authCtxState}>
+      <SubmissionContext.Provider value={value}>
+        <MockedProvider mocks={mocks} showWarnings>
+          {children}
+        </MockedProvider>
+      </SubmissionContext.Provider>
+    </AuthCtx.Provider>
+  );
+};
 
 describe("Accessibility", () => {
   it("should not have accessibility violations", async () => {
     const { container } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id",
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id",
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -94,17 +141,17 @@ describe("Accessibility", () => {
 
   it("should not have accessibility violations (disabled)", async () => {
     const { container } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "Submitted", // NOTE: This disables the entire component
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "Submitted", // NOTE: This disables the entire component
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -119,8 +166,11 @@ describe("Basic Functionality", () => {
 
   it("should render without crashing", () => {
     render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls dataSubmission={null} onValidate={null} />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={null}
+      >
+        <ValidationControls />
       </TestParent>
     );
   });
@@ -128,7 +178,7 @@ describe("Basic Functionality", () => {
   it("should show a success snackbar when validation is successful", async () => {
     const submissionID = "base-success-test-onclick-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -149,17 +199,18 @@ describe("Basic Functionality", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -175,14 +226,13 @@ describe("Basic Functionality", () => {
           variant: "success",
         }
       );
-      expect(getByTestId("validate-controls-validate-button")).toBeDisabled();
     });
   });
 
   it("should initiate Metadata validation when 'Validate Metadata' is selected", async () => {
     const submissionID = "base-onclick-metadata-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -207,17 +257,18 @@ describe("Basic Functionality", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: null,
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: null,
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -237,7 +288,7 @@ describe("Basic Functionality", () => {
   it("should initiate Data Files validation when 'Validate Data Files' is selected", async () => {
     const submissionID = "data-files-validation-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -262,17 +313,18 @@ describe("Basic Functionality", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: null,
-            fileValidationStatus: "New",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: null,
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -291,7 +343,7 @@ describe("Basic Functionality", () => {
   it("should initiate Metadata and Data Files validation when 'Both' is selected", async () => {
     const submissionID = "metadata-and-files-validation-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -316,17 +368,18 @@ describe("Basic Functionality", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -345,7 +398,7 @@ describe("Basic Functionality", () => {
   it("should initiate against 'New' files when 'New Uploaded Data' is selected", async () => {
     const submissionID = "new-uploads-validation-id";
     let called = false;
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -370,17 +423,18 @@ describe("Basic Functionality", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: null,
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: null,
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -401,7 +455,7 @@ describe("Basic Functionality", () => {
     async (target) => {
       const submissionID = `${target}-uploads-validation-id`;
       let called = false;
-      const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+      const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
         {
           request: {
             query: VALIDATE_SUBMISSION,
@@ -428,18 +482,16 @@ describe("Basic Functionality", () => {
       const { getByTestId } = render(
         <TestParent
           mocks={mocks}
-          context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+          submission={{
+            ...baseSubmission,
+            _id: submissionID,
+            status: "In Progress",
+            metadataValidationStatus: "New",
+            fileValidationStatus: null,
+          }}
         >
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: submissionID,
-              status: "In Progress",
-              metadataValidationStatus: "New",
-              fileValidationStatus: null,
-            }}
-            onValidate={jest.fn()}
-          />
+          <ValidationControls />
         </TestParent>
       );
 
@@ -458,7 +510,7 @@ describe("Basic Functionality", () => {
 
   it("should handle API network errors gracefully", async () => {
     const submissionID = "base-network-error-test-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -469,17 +521,18 @@ describe("Basic Functionality", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -495,7 +548,7 @@ describe("Basic Functionality", () => {
 
   it("should handle API GraphQL errors gracefully", async () => {
     const submissionID = "base-GraphQL-error-test-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -508,17 +561,18 @@ describe("Basic Functionality", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -531,54 +585,6 @@ describe("Basic Functionality", () => {
       expect(getByTestId("validate-controls-validate-button")).toBeEnabled();
     });
   });
-
-  it.each<boolean>([true, false])(
-    "should call the onValidate callback when clicked with %s",
-    async (result) => {
-      const onValidate = jest.fn();
-      const submissionID = "base-onValidate-failure-test-id";
-      const mocks: MockedResponse<ValidateSubmissionResp>[] = [
-        {
-          request: {
-            query: VALIDATE_SUBMISSION,
-          },
-          variableMatcher: () => true,
-          result: {
-            data: {
-              validateSubmission: {
-                success: result, // Simulated success/failure using the result parameter
-              },
-            },
-          },
-        },
-      ];
-
-      const { getByTestId } = render(
-        <TestParent
-          mocks={mocks}
-          context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}
-        >
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: submissionID,
-              status: "In Progress",
-              metadataValidationStatus: "New",
-              fileValidationStatus: "New",
-            }}
-            onValidate={onValidate}
-          />
-        </TestParent>
-      );
-
-      userEvent.click(getByTestId("validate-controls-validate-button"));
-
-      await waitFor(() => {
-        expect(onValidate).toHaveBeenCalledTimes(1);
-        expect(onValidate).toHaveBeenCalledWith(result);
-      });
-    }
-  );
 });
 
 describe("Implementation Requirements", () => {
@@ -588,17 +594,17 @@ describe("Implementation Requirements", () => {
 
   it("should render as disabled with text 'Validating...' when metadata is validating", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: "Validating",
-            fileValidationStatus: null,
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "Validating",
+          fileValidationStatus: null,
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -608,17 +614,17 @@ describe("Implementation Requirements", () => {
 
   it("should render as disabled with text 'Validating...' when data files are validating", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: null,
-            fileValidationStatus: "Validating",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: null,
+          fileValidationStatus: "Validating",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -626,9 +632,9 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("validate-controls-validate-button")).toHaveTextContent("Validating...");
   });
 
-  it("should reset the validation type and upload type after starting validation", async () => {
+  it("should NOT reset the validation type and upload type after starting validation", async () => {
     const submissionID = "reset-state-onclick-id";
-    const mocks: MockedResponse<ValidateSubmissionResp>[] = [
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
       {
         request: {
           query: VALIDATE_SUBMISSION,
@@ -644,18 +650,24 @@ describe("Implementation Requirements", () => {
       },
     ];
 
+    const mockRefetch = jest.fn();
     const { getByTestId } = render(
-      <TestParent mocks={mocks} context={{ ...baseContext, user: { ...baseUser, role: "Admin" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: submissionID,
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submissionCtxState={{
+          ...baseSubmissionCtx,
+          refetch: mockRefetch,
+        }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -665,29 +677,141 @@ describe("Implementation Requirements", () => {
 
     // Change from default target
     const targetRadio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
-    userEvent.click(getByLabelText(targetRadio, `All Uploaded Data`));
+    userEvent.click(getByLabelText(targetRadio, "All Uploaded Data"));
 
     userEvent.click(getByTestId("validate-controls-validate-button"));
 
+    await waitFor(
+      () => {
+        expect(mockRefetch).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 1500 }
+    );
+
+    // NOTE: We're asserting that the state is not reset to the default values
+    expect(getByLabelText(typeRadio, "Both")).toBeChecked();
+    expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeChecked();
+  });
+
+  it("should reset the validation type and upload type after validation ends", async () => {
+    const submissionID = "reset-state-onclick-id";
+    const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
+      {
+        request: {
+          query: VALIDATE_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            validateSubmission: {
+              success: true,
+            },
+          },
+        },
+      },
+    ];
+
+    const mockRefetch = jest.fn();
+    const { getByTestId, rerender } = render(
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submissionCtxState={{
+          ...baseSubmissionCtx,
+          refetch: mockRefetch,
+        }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
+
+    // Change from default type
+    const typeRadio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+    userEvent.click(getByLabelText(typeRadio, "Validate Data Files"));
+
+    // Change from default target
+    const targetRadio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+    userEvent.click(getByLabelText(targetRadio, "All Uploaded Data"));
+
+    userEvent.click(getByTestId("validate-controls-validate-button"));
+
+    await waitFor(
+      () => {
+        expect(mockRefetch).toHaveBeenCalledTimes(1);
+        expect(getByLabelText(typeRadio, "Validate Data Files")).toBeChecked();
+        expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeChecked();
+      },
+      { timeout: 1500 }
+    );
+
+    // Trigger re-render with validation statuses as 'Validating'
+    rerender(
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "Validating",
+          fileValidationStatus: "Validating",
+        }}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
+
     await waitFor(() => {
-      expect(getByLabelText(typeRadio, "Validate Metadata")).toBeChecked();
-      expect(getByLabelText(targetRadio, "New Uploaded Data")).toBeChecked();
+      expect(mockRefetch).toHaveBeenCalledTimes(1);
+      expect(getByLabelText(typeRadio, "Validate Data Files")).toBeChecked();
+      expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeChecked();
+    });
+
+    // Trigger re-render with validation statuses as 'Passed'
+    rerender(
+      <TestParent
+        mocks={mocks}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        submission={{
+          ...baseSubmission,
+          _id: submissionID,
+          status: "In Progress",
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      // NOTE: Instead of calculating which radio should be checked, we're just asserting
+      // that the ones we selected are definitely not checked
+      expect(getByLabelText(typeRadio, "Validate Data Files")).not.toBeChecked();
+      expect(getByLabelText(targetRadio, "All Uploaded Data")).not.toBeChecked();
     });
   });
 
   it("should select 'Validate Metadata' Validation Type by default", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: null,
-            fileValidationStatus: null,
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: null,
+          fileValidationStatus: null,
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -701,17 +825,17 @@ describe("Implementation Requirements", () => {
 
   it("should select 'Validate Data Files' validation type when only Data Files are uploaded", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: null,
-            fileValidationStatus: "New",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: null,
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -724,17 +848,17 @@ describe("Implementation Requirements", () => {
 
   it("should enable all options when both Metadata and Data Files are uploaded", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -747,18 +871,18 @@ describe("Implementation Requirements", () => {
 
   it("should disable 'Validate Data Files' and 'Both' for the submission intent of 'Delete'", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-            intention: "Delete",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+          intention: "Delete",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -771,19 +895,19 @@ describe("Implementation Requirements", () => {
 
   it("should disable 'Validate Data Files' and 'Both' for the submission dataType of 'Metadata Only'", () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-            intention: "New/Update",
-            dataType: "Metadata Only",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+          intention: "New/Update",
+          dataType: "Metadata Only",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -799,17 +923,17 @@ describe("Implementation Requirements", () => {
     "should select 'All Uploaded Data' when the submission is 'Submitted' and the role is '%s'",
     async (role) => {
       const { getByTestId } = render(
-        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: "example-sub-id-disabled",
-              status: "Submitted",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: "Passed",
-            }}
-            onValidate={jest.fn()}
-          />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "Submitted",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+          }}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -829,17 +953,17 @@ describe("Implementation Requirements", () => {
     "should select 'New Uploaded Data' when the submission is 'Submitted' and the role is '%s'",
     (role) => {
       const { getByTestId } = render(
-        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: "example-sub-id-disabled",
-              status: "Submitted",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: "Passed",
-            }}
-            onValidate={jest.fn()}
-          />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "Submitted",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+          }}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -855,8 +979,11 @@ describe("Implementation Requirements", () => {
     "should select 'Validate Metadata' when the submission is 'Submitted' with metadata and the role is '%s'",
     async (role) => {
       const { rerender, getByTestId } = render(
-        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
-          <ValidationControls dataSubmission={null} onValidate={jest.fn()} />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={null}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -864,17 +991,17 @@ describe("Implementation Requirements", () => {
 
       // NOTE: We're simulating the same rendering logic used for the component impl.
       rerender(
-        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: "example-sub-id-disabled",
-              status: "Submitted",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: null, // NOTE: No files uploaded
-            }}
-            onValidate={jest.fn()}
-          />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "Submitted",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: null, // NOTE: No files uploaded
+          }}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -890,17 +1017,17 @@ describe("Implementation Requirements", () => {
     "should select 'Both' when the submission is 'Submitted' with all data and the role is '%s'",
     async (role) => {
       const { getByTestId } = render(
-        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: "example-sub-id-disabled",
-              status: "Submitted",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: "Passed",
-            }}
-            onValidate={jest.fn()}
-          />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "Submitted",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+          }}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -923,17 +1050,17 @@ describe("Implementation Requirements", () => {
     "fake status" as SubmissionStatus,
   ])("should be disabled when the Submission status is '%s'", (status) => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status,
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status,
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -949,17 +1076,17 @@ describe("Implementation Requirements", () => {
     "should be enabled for a %s when the Submission status is 'Submitted'",
     (role) => {
       const { getByTestId } = render(
-        <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
-          <ValidationControls
-            dataSubmission={{
-              ...baseSubmission,
-              _id: "example-sub-id-disabled",
-              status: "Submitted",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: "Passed",
-            }}
-            onValidate={jest.fn()}
-          />
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+          submission={{
+            ...baseSubmission,
+            _id: "example-sub-id-disabled",
+            status: "Submitted",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+          }}
+        >
+          <ValidationControls />
         </TestParent>
       );
 
@@ -979,17 +1106,17 @@ describe("Implementation Requirements", () => {
     "fake user role" as User["role"],
   ])("should be disabled for the role %s", (role) => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "In Progress",
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -1011,8 +1138,11 @@ describe("Implementation Requirements", () => {
     };
 
     const { getByTestId, rerender } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls dataSubmission={submission} onValidate={jest.fn()} />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={submission}
+      >
+        <ValidationControls />
       </TestParent>
     );
 
@@ -1020,15 +1150,15 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("validate-controls-validate-button")).toHaveTextContent("Validating...");
 
     rerender(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <ValidationControls
-          dataSubmission={{
-            ...submission,
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-          onValidate={jest.fn()}
-        />
+      <TestParent
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        submission={{
+          ...submission,
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
       </TestParent>
     );
 

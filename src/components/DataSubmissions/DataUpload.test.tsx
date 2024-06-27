@@ -43,6 +43,10 @@ const baseSubmission: Omit<Submission, "_id"> = {
   updatedAt: "",
   crossSubmissionStatus: null,
   otherSubmissions: null,
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: ["metadata", "file"],
 };
 
 type ParentProps = {

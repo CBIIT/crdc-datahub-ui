@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import DataSubmission from "./DataSubmission";
 import ListView from "./DataSubmissionsListView";
 import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
+import { SubmissionProvider } from "../../components/Contexts/SubmissionContext";
 
 /**
  * A memoized version of OrganizationProvider
@@ -21,7 +22,11 @@ const DataSubmissionController = () => {
   const { submissionId, tab } = useParams();
 
   if (submissionId) {
-    return <DataSubmission submissionId={submissionId} tab={tab} />;
+    return (
+      <SubmissionProvider _id={submissionId}>
+        <DataSubmission submissionId={submissionId} tab={tab} />
+      </SubmissionProvider>
+    );
   }
 
   return (

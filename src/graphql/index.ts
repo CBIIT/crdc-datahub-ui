@@ -34,7 +34,7 @@ export type { Response as ListInstitutionsResp } from "./listInstitutions";
 
 // Data Submissions
 export { query as GET_SUBMISSION } from "./getSubmission";
-export type { Response as GetSubmissionResp } from "./getSubmission";
+export type { Input as GetSubmissionInput, Response as GetSubmissionResp } from "./getSubmission";
 
 export { query as LIST_SUBMISSIONS } from "./listSubmissions";
 export type { Response as ListSubmissionsResp } from "./listSubmissions";
@@ -61,7 +61,10 @@ export { mutation as EXPORT_SUBMISSION } from "./exportSubmission";
 export type { Response as ExportSubmissionResp } from "./exportSubmission";
 
 export { mutation as VALIDATE_SUBMISSION } from "./validateSubmission";
-export type { Response as ValidateSubmissionResp } from "./validateSubmission";
+export type {
+  Input as ValidateSubmissionInput,
+  Response as ValidateSubmissionResp,
+} from "./validateSubmission";
 
 export { query as LIST_NODE_TYPES } from "./listSubmissionNodeTypes";
 export type { Response as ListNodeTypesResp } from "./listSubmissionNodeTypes";
