@@ -3,8 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { useMemo } from "react";
 import { ValidationStatus } from "./ValidationStatus";
-import RedBellIcon from "../../assets/icons/red_bell.svg";
-import GreenBellIcon from "../../assets/icons/green_bell.svg";
 import {
   SubmissionContext,
   SubmissionCtxState,
@@ -214,7 +212,7 @@ describe("Implementation Requirements", () => {
     );
 
     expect(getByTestId("validation-status-icon")).toBeInTheDocument();
-    expect(getByTestId("validation-status-icon")).toHaveAttribute("src", RedBellIcon);
+    expect(getByTestId("validation-status-chip")).toHaveStyle("color: #903813");
     expect(getByTestId("validation-status-chip")).toBeInTheDocument();
     expect(getByTestId("validation-status-chip")).toHaveTextContent(/validation in-progress.../i);
   });
@@ -234,7 +232,7 @@ describe("Implementation Requirements", () => {
     );
 
     expect(getByTestId("validation-status-icon")).toBeInTheDocument();
-    expect(getByTestId("validation-status-icon")).toHaveAttribute("src", GreenBellIcon);
+    expect(getByTestId("validation-status-chip")).toHaveStyle("color: #165848");
     expect(getByTestId("validation-status-chip")).toBeInTheDocument();
     expect(getByTestId("validation-status-chip")).toHaveTextContent(/validation completed/i);
   });
@@ -349,7 +347,7 @@ describe("Implementation Requirements", () => {
       userEvent.hover(getByTestId("validation-status-chip"));
 
       const tooltip = await findByRole("tooltip");
-      expect(tooltip).toHaveTextContent(expected, { normalizeWhitespace: true });
+      expect(tooltip).toHaveTextContent(expected, { normalizeWhitespace: false });
     }
   );
 });
