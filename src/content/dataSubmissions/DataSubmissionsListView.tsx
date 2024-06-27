@@ -267,7 +267,7 @@ const ListingView: FC = () => {
         fetchPolicy: "no-cache",
       });
       if (error || !d?.listSubmissions) {
-        throw new Error("Unable to retrieve submission quality control results.");
+        throw new Error("Unable to retrieve Data Submission List results.");
       }
       setData(d.listSubmissions.submissions);
       setTotalData(d.listSubmissions.total);
@@ -356,7 +356,7 @@ const ListingView: FC = () => {
 
       const { data: d } = await refetch();
       if (error || !d?.listSubmissions) {
-        throw new Error("Unable to retrieve submission quality control results.");
+        throw new Error("Unable to retrieve Data Submission List results.");
       }
       setData(d.listSubmissions.submissions);
       setTotalData(d.listSubmissions.total);
