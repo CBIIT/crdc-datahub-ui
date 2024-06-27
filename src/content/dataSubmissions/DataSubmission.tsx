@@ -36,6 +36,7 @@ import BackButton from "../../components/DataSubmissions/BackButton";
 import SubmittedData from "./SubmittedData";
 import { UserGuide } from "../../components/DataSubmissions/UserGuide";
 import { DataUpload } from "../../components/DataSubmissions/DataUpload";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import DataActivity, { DataActivityRef } from "./DataActivity";
 
@@ -222,9 +223,13 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { lastSearchParams } = useSearchParamsContext();
   const { data, error: submissionError, refetch: getSubmission } = useSubmissionContext();
   const [error, setError] = useState<string>(null);
 
+  const dataSubmissionListPageUrl = `/data-submissions${
+    lastSearchParams?.["/data-submissions"] ?? ""
+  }`;
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const activityRef = useRef<DataActivityRef>(null);
   const hasUploadingBatches = useMemo<boolean>(
@@ -388,7 +393,10 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
               )}
 
               {/* Return to Data Submission List Button */}
-              <BackButton navigateTo="/data-submissions" text="Back to Data Submissions" />
+              <BackButton
+                navigateTo={dataSubmissionListPageUrl}
+                text="Back to Data Submissions List"
+              />
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions>

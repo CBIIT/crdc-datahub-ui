@@ -1,9 +1,8 @@
 import { Box, styled } from "@mui/material";
 import { useMemo } from "react";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
-import RedBell from "../../assets/icons/red_bell.svg";
-import GreenBell from "../../assets/icons/green_bell.svg";
-import { FormatDate, capitalizeFirstLetter } from "../../utils";
+import { ReactComponent as BellIcon } from "../../assets/icons/bell_icon.svg";
+import { FormatDate, capitalizeFirstLetter as capitalizeFirst } from "../../utils";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 
 const StyledChip = styled(Box, { shouldForwardProp: (p) => p !== "variant" })<{
@@ -25,7 +24,7 @@ const StyledChip = styled(Box, { shouldForwardProp: (p) => p !== "variant" })<{
   padding: "5px 9px",
 }));
 
-const StyledImage = styled("img")({
+const StyledBellIcon = styled(BellIcon)({
   width: "17px",
   height: "auto",
   marginRight: "7px",
@@ -57,39 +56,28 @@ export const ValidationStatus: React.FC = () => {
     return "Both";
   }, [validationType]);
 
+  const titleText = useMemo<string>(() => {
+    const typeAndTarget = `(Type: ${typeDescription}, Target: ${capitalizeFirst(
+      validationScope || ""
+    )} Uploaded Data)`;
+    const startDate = FormatDate(validationStarted, "MM-DD-YYYY [at] hh:mm A", "N/A");
+    const endDate = FormatDate(validationEnded, "MM-DD-YYYY [at] hh:mm A", "N/A");
+
+    const inProgressTemplate = `The validation ${typeAndTarget} started on ${startDate} and is still in progress...`;
+    const completedTemplate = `The last validation ${typeAndTarget} that ran on ${startDate} was completed on ${endDate}.`;
+
+    return validationEnded ? completedTemplate : inProgressTemplate;
+  }, [validationStarted, validationEnded, typeDescription, validationType, validationScope]);
+
   // No validation has ever been run, hide the component
   if (!hadValidation) {
     return null;
   }
 
   return (
-    <StyledTooltip
-      title={
-        `The ${
-          validationEnded ? "last" : ""
-        } validation (Type: ${typeDescription}, Target: ${capitalizeFirstLetter(
-          validationScope
-        )} Uploaded Data) ` +
-        `${!validationEnded ? "started on" : "that ran on"} ${FormatDate(
-          validationStarted,
-          "MM-DD-YYYY [at] hh:mm A",
-          "N/A"
-        )} ` +
-        `${
-          !validationEnded
-            ? "and is still in progress..."
-            : `was completed on ${FormatDate(validationEnded, "MM-DD-YYYY [at] hh:mm A", "N/A")}.`
-        }`
-      }
-      placement="bottom"
-      data-testid="validation-status-tooltip"
-    >
+    <StyledTooltip title={titleText} placement="bottom" data-testid="validation-status-tooltip">
       <StyledChip data-testid="validation-status-chip" variant={validationEnded ? "green" : "red"}>
-        <StyledImage
-          src={validationEnded ? GreenBell : RedBell}
-          alt="Validation Status"
-          data-testid="validation-status-icon"
-        />
+        <StyledBellIcon data-testid="validation-status-icon" />
         {`VALIDATION ${validationEnded ? "COMPLETED" : "IN-PROGRESS..."}`}
       </StyledChip>
     </StyledTooltip>

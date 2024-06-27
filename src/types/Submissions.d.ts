@@ -37,7 +37,7 @@ type Submission = {
    *
    * @see {@link ValidationType} for more information.
    */
-  validationType: Exclude<ValidationType, "All">[];
+  validationType: ValidationType[];
   /**
    * Holds submission level file errors, e.g., extra files in S3 folder
    */

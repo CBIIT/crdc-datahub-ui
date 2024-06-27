@@ -232,17 +232,17 @@ const ValidationControls: FC = () => {
   );
 
   useEffect(() => {
-    const validating =
+    const isValidating =
       dataSubmission?.fileValidationStatus === "Validating" ||
       dataSubmission?.metadataValidationStatus === "Validating";
 
     // Reset the validation type and target only if the validation process finished
-    if (!validating && prevIsValidating.current === true) {
+    if (!isValidating && prevIsValidating.current === true) {
       setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
       setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
     }
 
-    prevIsValidating.current = validating;
+    prevIsValidating.current = isValidating;
   }, [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]);
 
   useEffect(() => {
