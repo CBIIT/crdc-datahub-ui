@@ -1,101 +1,63 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import { Button, Stack, Typography, styled } from "@mui/material";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
+import { isEqual } from "lodash";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
+import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
   alignItems: "center",
 }));
 
-const StyledButtonBase = styled(LoadingButton)(() => ({
-  display: "flex",
-  width: "128px",
-  height: "51px",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "10px",
-  flexShrink: 0,
+const StyledOutlinedInput = styled(OutlinedInput)(() => ({
+  borderRadius: "8px",
+  backgroundColor: "#fff",
+  color: "#083A50",
+  "& .MuiInputBase-input": {
+    fontWeight: 400,
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    lineHeight: "19.6px",
+    padding: "12px",
+    height: "20px",
+  },
+  "&.MuiInputBase-multiline": {
+    padding: "12px",
+  },
+  "&.MuiInputBase-multiline .MuiInputBase-input": {
+    lineHeight: "25px",
+    padding: 0,
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#6B7294",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    border: "1px solid #209D7D",
+    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#87878C",
+    fontWeight: 400,
+    opacity: 1
+  },
+}));
+
+const StyledLoadingButton = styled(LoadingButton)(() => ({
+  minWidth: "137px",
+  width: "fit-content",
+  padding: "10px",
   borderRadius: "8px",
   textAlign: "center",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "16px",
+  lineHeight: "24px",
   letterSpacing: "0.32px",
   textTransform: "initial",
   zIndex: 3,
-}));
-
-const StyledSubmitButton = styled(StyledButtonBase)(() => ({
-  background: "#1D91AB",
-  color: "#FFF",
-  "&:hover": {
-    background: "#1A7B90",
-  },
-}));
-
-const StyledReleaseButton = styled(StyledButtonBase)(() => ({
-  background: "#8DC63F",
-  color: "#FFF",
-  "&:hover": {
-    background: "#7AB32E",
-  },
-}));
-
-const StyledWithdrawButton = styled(StyledButtonBase)(() => ({
-  background: "#DAA520",
-  color: "#FFF",
-  "&:hover": {
-    background: "#C8941A",
-  },
-}));
-
-const StyledRejectButton = styled(StyledButtonBase)(() => ({
-  background: "#D54309",
-  color: "#FFF",
-  "&:hover": {
-    background: "#B83A07",
-  },
-}));
-
-const StyledCompleteButton = styled(StyledButtonBase)(() => ({
-  background: "#4CAF50",
-  color: "#FFF",
-  "&:hover": {
-    background: "#418E46",
-  },
-}));
-
-const StyledCancelButton = styled(StyledButtonBase)(() => ({
-  border: "1px solid #AEAEAE",
-  background: "#757D88",
-  color: "#FFF",
-  "&:hover": {
-    background: "#5B6169",
-  },
-}));
-
-const StyledArchiveButton = styled(StyledButtonBase)(() => ({
-  background: "#6A5ACD",
-  color: "#FFF",
-  "&:hover": {
-    background: "#594ABF",
-  },
-}));
-
-const StyledReturnButton = styled(StyledButtonBase)(() => ({
-  background: "#6A5ACD",
-  color: "#FFF",
-  flexDirection: "row",
-  "&:hover": {
-    background: "#594ABF",
-  },
 }));
 
 const StyledDialog = styled(CustomDialog)({
@@ -158,27 +120,69 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
 };
 
-type Props = {
-  submission: Submission;
-  onAction: (action: SubmissionAction) => Promise<void>;
+type SubmitActionButton = {
+  label: "Submit" | "Admin Submit";
+  disable: boolean;
 };
 
-const DataSubmissionActions = ({ submission, onAction }: Props) => {
+type Props = {
+  submission: Submission;
+  submitActionButton: SubmitActionButton;
+  onAction: (action: SubmissionAction, reviewComment?: string) => Promise<void>;
+  onError: (message: string) => void;
+};
+
+const DataSubmissionActions = ({ submission, submitActionButton, onAction, onError }: Props) => {
   const { user } = useAuthContext();
-  const navigate = useNavigate();
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
+  const [reviewComment, setReviewComment] = useState("");
+
+  const [exportSubmission] = useMutation<ExportSubmissionResp>(EXPORT_SUBMISSION, {
+    context: { clientName: 'backend' },
+    fetchPolicy: 'no-cache'
+  });
+
+  const handleExportSubmission = async (): Promise<boolean> => {
+    if (!submission?._id) {
+      return false;
+    }
+
+    try {
+      const { data: d, errors } = await exportSubmission({
+        variables: {
+          _id: submission._id,
+        }
+      });
+      if (errors || !d?.exportSubmission?.success) {
+        throw new Error();
+      }
+      return d.exportSubmission.success;
+    } catch (err) {
+      onError("Unable to export submission.");
+    }
+
+    return false;
+  };
 
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
       setCurrentDialog(null);
     }
     setAction(action);
+    if (action === "Release") {
+      const isExported = await handleExportSubmission();
+      if (!isExported) {
+        setAction(null);
+        return;
+      }
+    }
     if (typeof onAction === "function") {
-      await onAction(action);
+      await onAction(action, reviewComment || null);
     }
     setAction(null);
+    setReviewComment("");
   };
 
   const onOpenDialog = (dialog: ActiveDialog) => {
@@ -187,11 +191,7 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
 
   const onCloseDialog = () => {
     setCurrentDialog(null);
-  };
-
-  const returnToSubmissionList = () => {
-    navigate("/data-submissions");
-    window.scrollTo(0, 0);
+    setReviewComment("");
   };
 
   const canShowAction = (actionKey: ActionKey) => {
@@ -199,116 +199,95 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
     return config?.statuses?.includes(submission?.status) && config?.roles?.includes(user?.role);
   };
 
+  const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const val = event?.target?.value || "";
+    setReviewComment(val);
+  };
+
   return (
     <StyledActionWrapper direction="row" spacing={2}>
-      {/* Return to Data Submission List Button */}
-      <StyledReturnButton
-        variant="contained"
-        onClick={returnToSubmissionList}
-        startIcon={<ArrowBackIcon fontSize="small" />}
-        disabled={!!action}
-        disableElevation
-        disableRipple
-        disableTouchRipple
-      >
-        Back
-      </StyledReturnButton>
       {/* Action Buttons */}
       {canShowAction("Submit") ? (
-        <StyledSubmitButton
+        <StyledLoadingButton
           variant="contained"
+          color="primary"
           onClick={() => onOpenDialog("Submit")}
           loading={action === "Submit"}
-          disabled={action && action !== "Submit"} /* TODO: Post MVP2-M2 - Will be disabled if fails validation check */
-          disableElevation
-          disableRipple
-          disableTouchRipple
+          disabled={submitActionButton?.disable || (action && action !== "Submit")}
         >
-          Submit
-        </StyledSubmitButton>
+          {submitActionButton?.label || "Submit"}
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("Release") ? (
-        <StyledReleaseButton
+        <StyledLoadingButton
           variant="contained"
+          color="primary"
           onClick={() => onOpenDialog("Release")}
           loading={action === "Release"}
           disabled={action && action !== "Release"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
         >
           Release
-        </StyledReleaseButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("Complete") ? (
-        <StyledCompleteButton
+        <StyledLoadingButton
           variant="contained"
+          color="primary"
           onClick={() => onOpenDialog("Complete")}
           loading={action === "Complete"}
           disabled={action && action !== "Complete"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
         >
           Complete
-        </StyledCompleteButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("Archive") ? (
-        <StyledArchiveButton
+        <StyledLoadingButton
           variant="contained"
+          color="primary"
           onClick={() => handleOnAction("Archive")}
           loading={action === "Archive"}
           disabled={action && action !== "Archive"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
         >
           Archive
-        </StyledArchiveButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("Withdraw") ? (
-        <StyledWithdrawButton
+        <StyledLoadingButton
           variant="contained"
+          color="error"
           onClick={() => onOpenDialog("Withdraw")}
           loading={action === "Withdraw"}
           disabled={action && action !== "Withdraw"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
         >
           Withdraw
-        </StyledWithdrawButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("SubmittedReject") || canShowAction("ReleasedReject") ? (
-        <StyledRejectButton
+        <StyledLoadingButton
           variant="contained"
+          color="error"
           onClick={() => onOpenDialog("Reject")}
           loading={action === "Reject"}
           disabled={action && action !== "Reject"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
         >
           Reject
-        </StyledRejectButton>
+        </StyledLoadingButton>
       ) : null}
       {canShowAction("Cancel") ? (
-        <StyledCancelButton
+        <StyledLoadingButton
           variant="contained"
+          color="error"
           onClick={() => onOpenDialog("Cancel")}
           loading={action === "Cancel"}
           disabled={action && action !== "Cancel"}
-          disableElevation
-          disableRipple
-          disableTouchRipple
         >
           Cancel
-        </StyledCancelButton>
+        </StyledLoadingButton>
       ) : null}
 
       {/* Submit Dialog */}
       <StyledDialog
-        open={currentDialog === "Submit"}
+        open={currentDialog === "Submit" && submitActionButton.label === "Submit"}
         onClose={onCloseDialog}
         title="Submit Data Submission"
         actions={(
@@ -329,6 +308,39 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
           This action will lock your submission and it will no longer accept updates
           to the data. Are you sure you want to proceed?
         </StyledDialogText>
+      </StyledDialog>
+
+      {/* Admin Submit Dialog */}
+      <StyledDialog
+        open={currentDialog === "Submit" && submitActionButton.label === "Admin Submit"}
+        onClose={onCloseDialog}
+        title="Admin Submit Data Submission"
+        actions={(
+          <Stack direction="row" marginTop="24px">
+            <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
+            <LoadingButton
+              onClick={() => handleOnAction("Submit")}
+              loading={!!action}
+              disabled={reviewComment?.trim()?.length <= 0}
+              autoFocus
+            >
+              Confirm to Submit
+            </LoadingButton>
+          </Stack>
+        )}
+      >
+        <StyledOutlinedInput
+          value={reviewComment}
+          onChange={handleCommentChange}
+          placeholder="Enter comments here. Max of 500 characters"
+          inputProps={{ "aria-label": "Admin override justification" }}
+          slotProps={{ input: { minLength: 1, maxLength: 500 } }}
+          minRows={4}
+          maxRows={4}
+          multiline
+          fullWidth
+          required
+        />
       </StyledDialog>
 
       {/* Release Dialog */}
@@ -412,23 +424,32 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
         onClose={onCloseDialog}
         title="Reject Data Submission"
         actions={(
-          <>
-            <Button onClick={onCloseDialog} disabled={!!action}>No</Button>
+          <Stack direction="row" marginTop="24px">
+            <Button onClick={onCloseDialog} disabled={!!action}>Cancel</Button>
             <LoadingButton
               onClick={() => handleOnAction("Reject")}
               loading={!!action}
+              disabled={reviewComment?.trim()?.length <= 0}
               color="error"
               autoFocus
             >
-              Yes
+              Confirm to Reject
             </LoadingButton>
-          </>
+          </Stack>
         )}
       >
-        <StyledDialogText variant="body2">
-          This action will reject the submission and return control to the submitter.
-          Are you sure you want to proceed?
-        </StyledDialogText>
+        <StyledOutlinedInput
+          value={reviewComment}
+          onChange={handleCommentChange}
+          placeholder="Enter comments here. Max of 500 characters"
+          inputProps={{ "aria-label": "Reject justification" }}
+          slotProps={{ input: { minLength: 1, maxLength: 500 } }}
+          minRows={4}
+          maxRows={4}
+          multiline
+          fullWidth
+          required
+        />
       </StyledDialog>
 
       {/* Complete Dialog */}
@@ -459,4 +480,4 @@ const DataSubmissionActions = ({ submission, onAction }: Props) => {
   );
 };
 
-export default DataSubmissionActions;
+export default React.memo<Props>(DataSubmissionActions, (prevProps, nextProps) => isEqual(prevProps, nextProps));

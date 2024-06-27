@@ -6,7 +6,8 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import { isEqual } from "lodash";
 import SubmissionHeaderProperty, {
   StyledValue,
 } from "./SubmissionHeaderProperty";
@@ -14,15 +15,17 @@ import Tooltip from "./Tooltip";
 import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
 import HistoryDialog from "../Shared/HistoryDialog";
 import DataSubmissionIconMap from "./DataSubmissionIconMap";
+import ReviewCommentsDialog from "../Shared/ReviewCommentsDialog";
+import { SortHistory } from "../../utils";
 
 const StyledSummaryWrapper = styled("div")(() => ({
   borderRadius: "8px 8px 0px 0px",
   textWrap: "nowrap",
-  padding: "25px 21px 59px 48px",
+  padding: "21px 21px 31px 48px",
 }));
 
 const StyledSubmissionTitle = styled(Typography)(() => ({
-  color: "#1D91AB",
+  color: "#187A90",
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   fontSize: "13px",
   fontStyle: "normal",
@@ -42,38 +45,71 @@ const StyledSubmissionStatus = styled(Typography)(() => ({
   minHeight: "30px",
 }));
 
+const StyledButtonWrapper = styled(Stack)(() => ({
+  flexDirection: "column",
+  justifyContent: "flex-start",
+  alignItems: "flex-start",
+  gap: "9px",
+  paddingLeft: "5px",
+}));
+
+const StyledReviewCommentsButton = styled(Button)(() => ({
+  "&.MuiButton-root": {
+    minWidth: "168px",
+    marginTop: "16px",
+    padding: "11px 10px",
+    border: "1px solid #B3B3B3",
+    color: "#BE4511",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: "17px",
+    letterSpacing: "0.32px",
+    "&:hover": {
+      backgroundColor: "#FFF",
+      borderColor: "#B3B3B3",
+      color: "#BE4511",
+    },
+    "&:disabled": {
+      backgroundColor: "#FFF",
+      borderColor: "#B3B3B3",
+      color: "#B1B1B1",
+      fontWeight: 700
+    }
+  }
+}));
+
 const StyledHistoryButton = styled(Button)(() => ({
-  marginTop: "16px",
-  marginBottom: "10px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  padding: "10px 20px",
-  borderRadius: "8px",
-  border: "1px solid #B3B3B3",
-  color: "#004A80",
-  textAlign: "center",
-  fontFamily: "'Nunito'",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "17px",
-  letterSpacing: "0.32px",
-  textTransform: "none",
-  "&:hover": {
-    backgroundColor: "#1A5874",
-    borderColor: "#DDE6EF",
-    color: "#DDE6EF",
-  },
+  "&.MuiButton-root": {
+    minWidth: "168px",
+    marginBottom: "10px",
+    padding: "11px 20px",
+    border: "1px solid #B3B3B3",
+    color: "#004A80",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: "17px",
+    letterSpacing: "0.32px",
+    "&:hover": {
+      backgroundColor: "#FFF",
+      borderColor: "#B3B3B3",
+      color: "#004A80",
+    },
+  }
 }));
 
 const StyledSectionDivider = styled(Divider)(() => ({
   "&.MuiDivider-root": {
+    display: "flex",
+    alignSelf: "flex-start",
     width: "2px",
-    height: "114px",
+    height: "159px",
     background: "#6CACDA",
     marginLeft: "44px",
-    marginTop: "8px",
+    marginTop: "9px",
     alignSelft: "flex-end"
   },
 }));
@@ -125,7 +161,14 @@ type Props = {
 
 const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const [historyDialogOpen, setHistoryDialogOpen] = useState<boolean>(false);
+  const [reviewCommentsDialogOpen, setReviewCommentsDialogOpen] = useState<boolean>(false);
   const [hasEllipsis, setHasEllipsis] = useState(false);
+  const lastReview = useMemo(
+    () => SortHistory(dataSubmission?.history).find(
+        (h: HistoryBase<SubmissionStatus>) => h.status === "Rejected" && h.reviewComment?.length > 0
+    ),
+    [dataSubmission]
+  );
   const textRef = useRef<HTMLParagraphElement | null>(null);
 
   useEffect(() => {
@@ -147,6 +190,14 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
 
   const handleOnHistoryDialogClose = () => {
     setHistoryDialogOpen(false);
+  };
+
+  const handleOnReviewCommentsDialogOpen = () => {
+    setReviewCommentsDialogOpen(true);
+  };
+
+  const handleOnReviewCommentsDialogClose = () => {
+    setReviewCommentsDialogOpen(false);
   };
 
   const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
@@ -175,15 +226,26 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
       >
         <Stack direction="column" minWidth="192px">
           <StyledSubmissionTitle variant="h6">STATUS</StyledSubmissionTitle>
-          <StyledSubmissionStatus variant="h5">
+          <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
             {dataSubmission?.status}
           </StyledSubmissionStatus>
-          <StyledHistoryButton
-            variant="outlined"
-            onClick={handleOnHistoryDialogOpen}
-          >
-            Full History
-          </StyledHistoryButton>
+          <StyledButtonWrapper>
+            <StyledReviewCommentsButton
+              variant="contained"
+              color="info"
+              onClick={handleOnReviewCommentsDialogOpen}
+              disabled={!lastReview}
+            >
+              Review Comments
+            </StyledReviewCommentsButton>
+            <StyledHistoryButton
+              variant="contained"
+              color="info"
+              onClick={handleOnHistoryDialogOpen}
+            >
+              Full History
+            </StyledHistoryButton>
+          </StyledButtonWrapper>
         </Stack>
 
         <StyledSectionDivider orientation="vertical" />
@@ -260,8 +322,14 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         iconMap={DataSubmissionIconMap}
         getTextColor={getHistoryTextColorFromStatus}
       />
+      <ReviewCommentsDialog
+        open={reviewCommentsDialogOpen}
+        onClose={handleOnReviewCommentsDialogClose}
+        title="Data Submission"
+        lastReview={lastReview}
+      />
     </StyledSummaryWrapper>
   );
 };
 
-export default DataSubmissionSummary;
+export default React.memo<Props>(DataSubmissionSummary, (prevProps, nextProps) => isEqual(prevProps, nextProps));

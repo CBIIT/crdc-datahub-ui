@@ -5,7 +5,7 @@ import {
   Table, TableBody, TableCell,
   TableContainer, TableHead,
   TablePagination, TableRow,
-  TableSortLabel, Typography, Box, CircularProgress,
+  TableSortLabel, Typography,
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { useMutation, useQuery } from '@apollo/client';
@@ -15,6 +15,8 @@ import PageBanner from '../../components/PageBanner';
 import { FormatDate } from '../../utils';
 import { useAuthContext } from '../../components/Contexts/AuthContext';
 import { mutation as SAVE_APP, Response as SaveAppResp } from '../../graphql/saveApplication';
+import SuspenseLoader from '../../components/SuspenseLoader';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type T = Omit<Application, "questionnaireData">;
 
@@ -36,7 +38,7 @@ const StyledButton = styled(LoadingButton)({
   color: "#fff",
   textTransform: "none",
   borderColor: "#26B893 !important",
-  background: "#22A584 !important",
+  background: "#1B8369 !important",
   marginRight: "25px",
 });
 
@@ -157,7 +159,7 @@ const columns: Column[] = [
 
       return (
         <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-          <StyledActionButton bg="#74D9E7" text="#156071" border="#84B4BE">View</StyledActionButton>
+          <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">View</StyledActionButton>
         </Link>
       );
     },
@@ -170,6 +172,8 @@ const columns: Column[] = [
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  usePageTitle("Submission Request List");
+
   const navigate = useNavigate();
   const { state } = useLocation();
   const { user } = useAuthContext();
@@ -296,22 +300,7 @@ const ListingView: FC = () => {
               {loading && (
                 <TableRow>
                   <TableCell>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        background: '#fff',
-                        left: 0,
-                        top: 0,
-                        width: '100%',
-                        height: '100%',
-                        zIndex: "9999",
-                      }}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <CircularProgress size={64} disableShrink thickness={3} />
-                    </Box>
+                    <SuspenseLoader fullscreen={false} />
                   </TableCell>
                 </TableRow>
               )}
@@ -340,7 +329,7 @@ const ListingView: FC = () => {
                       variant="h6"
                       align="center"
                       fontSize={18}
-                      color="#AAA"
+                      color="#757575"
                     >
                       There are no submission requests associated with your account
                     </Typography>
@@ -365,6 +354,7 @@ const ListingView: FC = () => {
                 || emptyRows > 0
                 || loading
             }}
+            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
             backIconButtonProps={{ disabled: page === 0 || loading }}
           />
         </StyledTableContainer>

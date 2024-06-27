@@ -1,351 +1,276 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@mui/material';
-import styled from 'styled-components';
-import { useAuthContext } from '../../Contexts/AuthContext';
-import GenericAlert from '../../GenericAlert';
-import { navMobileList, navbarSublists } from '../../../config/globalHeaderData';
-import APITokenDialog from '../../../content/users/APITokenDialog';
-import UploaderToolDialog from '../../../content/users/UploaderToolDialog';
+import React, { useEffect, useState, useRef } from "react";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
+import { Button, styled } from "@mui/material";
+import { useAuthContext } from "../../Contexts/AuthContext";
+import GenericAlert from "../../GenericAlert";
+import {
+  navMobileList,
+  navbarSublists,
+} from "../../../config/globalHeaderData";
+import APITokenDialog from "../../../content/users/APITokenDialog";
+import UploaderToolDialog from "../../../content/users/UploaderToolDialog";
 
-const Nav = styled.div`
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: #ffffff;
-    box-shadow: -0.1px 6px 9px -6px rgba(0, 0, 0, 0.5);
-    z-index: 1100;
-    position: relative;
+const Nav = styled("div")({
+  top: 0,
+  left: 0,
+  width: "100%",
+  background: "#ffffff",
+  boxShadow: "-0.1px 6px 9px -6px rgba(0, 0, 0, 0.5)",
+  zIndex: 1100,
+  position: "relative",
+  "& .dropdownContainer": {
+    margin: "0 auto",
+    position: "relative",
+    width: "1400px",
+  },
+  "& .loggedInName": {
+    color: "#007BBD",
+    textAlign: "right",
+    fontSize: "14px",
+    fontFamily: "Poppins",
+    fontStyle: "normal",
+    fontWeight: 600,
+    lineHeight: "normal",
+    letterSpacing: "0.42px",
+    textDecoration: "none",
+    textTransform: "uppercase",
+    padding: "10px 0",
+    marginBottom: "4.5px",
+    marginRight: "40px",
+  },
+  "& .invisible": {
+    visibility: "hidden",
+  },
+});
 
-    .dropdownContainer {
-      // outline: none;
-      // visibility: hidden;
-      // opacity: 0;
-      margin: 0 auto;
-      position: relative;
-      width: 1400px;
-    }
-    .loggedInName{
-      color: #007BBD;
-      text-align: right;
-      font-size: 14px;
-      font-family: Poppins;
-      font-style: normal;
-      font-weight: 600;
-      line-height: normal;
-      letter-spacing: 0.42px;
-      text-decoration: none;
-      text-transform: uppercase;
-      padding: 10px 0 10px 0;
-      margin-bottom: 4.5px;
-      margin-right: 40px;
-    }
-    .invisible {
-      visibility: hidden;
-    }
- `;
+const NavContainer = styled("div")({
+  margin: "0 auto",
+  maxWidth: "1400px",
+  textAlign: "left",
+  position: "relative",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "end",
+  "#navbar-dropdown-name-container": {
+    margin: 0,
+  },
+});
 
-const NavContainer = styled.div`
-    margin: 0 auto;
-    max-width: 1400px;
-    text-align: left;
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
+const UlContainer = styled("ul")({
+  listStyle: "none",
+  margin: 0,
+  paddingTop: "17px",
+  paddingLeft: "11px",
+  display: "flex",
+  width: "100%",
+});
 
-    #navbar-dropdown-name-container {
-      margin: 0;
-    }
-`;
+const LiSection = styled("li")({
+  display: "inline-block",
+  position: "relative",
+  lineHeight: "50px",
+  letterSpacing: "1px",
+  textAlign: "center",
+  transition: "all 0.3s ease-in-out",
+  "& a": {
+    color: "#585C65",
+    textDecoration: "none",
+  },
+  "& .displayName": {
+    color: "#007BBD",
+    fontSize: "14px",
+    lineHeight: "20px",
+    padding: "10px 0",
+    textAlign: "right",
+    width: "fit-content",
+  },
+  "&.name-dropdown-li": {
+    marginLeft: "auto",
+  },
+  "&.login-button": {
+    lineHeight: "48px",
+  },
+  "& .navTitle": {
+    display: "block",
+    color: "#585C65",
+    fontFamily: "poppins",
+    fontSize: "17px",
+    fontWeight: 700,
+    lineHeight: "40px",
+    letterSpacing: "normal",
+    textDecoration: "none",
+    margin: "0 5px",
+    padding: "0 8px",
+    userSelect: "none",
+    borderTop: "4px solid transparent",
+    borderLeft: "4px solid transparent",
+    borderRight: "4px solid transparent",
+    "&:hover": {
+      cursor: "pointer",
+    },
+  },
+  "& .navText": {
+    borderBottom: "4px solid transparent",
+    width: "fit-content",
+    margin: "auto",
+    "&:hover": {
+      cursor: "pointer",
+      color: "#3A75BD",
+      borderBottom: "4px solid #3A75BD",
+      "&::after": {
+        content: '""',
+        display: "inline-block",
+        width: "6px",
+        height: "6px",
+        borderBottom: "1px solid #298085",
+        borderLeft: "1px solid #298085",
+        margin: "0 0 4px 8px",
+        transform: "rotate(-45deg)",
+        WebkitTransform: "rotate(-45deg)",
+      },
+    },
+    "&::after": {
+      content: '""',
+      display: "inline-block",
+      width: "6px",
+      height: "6px",
+      borderBottom: "1px solid #585C65",
+      borderLeft: "1px solid #585C65",
+      margin: "0 0 4px 8px",
+      transform: "rotate(-45deg)",
+       WebkitTransform: "rotate(-45deg)",
+    },
+  },
+  "& .clicked": {
+    color: "#FFFFFF",
+    background: "#1F4671",
+    "&::after": {
+      borderTop: "1px solid #FFFFFF",
+      borderRight: "1px solid #FFFFFF",
+      borderBottom: "0",
+      borderLeft: "0",
+      margin: "0 0 0 8px",
+    },
+    "&:hover": {
+      borderBottom: "4px solid #1F4671",
+      color: "#FFFFFF",
+      "&::after": {
+        content: '""',
+        display: "inline-block",
+        width: "6px",
+        height: "6px",
+        borderTop: "1px solid #FFFFFF",
+        borderRight: "1px solid #FFFFFF",
+        borderBottom: "0",
+        borderLeft: "0",
+        margin: "0 0 0 8px",
+        transform: "rotate(-45deg)",
+         WebkitTransform: "rotate(-45deg)",
+      },
+    },
+  },
+  "& .directLink::after": {
+    display: "none",
+  },
+  "& .directLink:hover::after": {
+    display: "none",
+  },
+  "& .shouldBeUnderlined": {
+    borderBottom: "4px solid #3A75BD !important",
+  },
+  "& .navTitleClicked": {
+    display: "block",
+    color: "#FFFFFF",
+    fontFamily: "poppins",
+    fontSize: "17px",
+    fontWeight: 700,
+    lineHeight: "40px",
+    letterSpacing: "normal",
+    textDecoration: "none",
+    margin: "0 45px 0 5px",
+    padding: "0 15px",
+    userSelect: "none",
+    background: "#1F4671",
+    borderTop: "4px solid #5786FF",
+    borderLeft: "4px solid #5786FF",
+    borderRight: "4px solid #5786FF",
+  },
+  "& .invisible": {
+    visibility: "hidden",
+  },
+});
 
-const UlContainer = styled.ul`
-  list-style: none;
-  margin: 0;
-  padding-top: 17px;
-  padding-left: 11px;
-`;
+const Dropdown = styled("div")({
+  top: "60.5px",
+  left: 0,
+  width: "100%",
+  background: "#1F4671",
+  zIndex: 1100,
+  position: "absolute",
+});
 
-const LiSection = styled.li`
-  display: inline-block;
-  position: relative;
-  line-height: 50px;
-  letter-spacing: 1px;
-  text-align: center;
-  transition:all 0.3s ease-in-out;
+const NameDropdownContainer = styled("div")({
+  margin: "0 auto",
+  textAlign: "left",
+  position: "relative",
+  maxWidth: "1400px",
+  "& .dropdownList": {
+    background: "#1F4671",
+    display: "inline-flex",
+    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+    padding: "32px 32px 0 32px",
+  },
+  "& .dropdownItem": {
+    padding: "0 10px 52px 10px",
+    textAlign: "left",
+    fontFamily: "'Poppins', sans-serif",
+    fontStyle: "normal",
+    fontWeight: 600,
+    fontSize: "20px",
+    lineHeight: "110%",
+    color: "#FFFFFF",
+    textDecoration: "none",
+    cursor: "pointer",
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
+  "& .dropdownItemButton": {
+    paddingBottom: 0,
+    textTransform: "none",
+    "&:hover": {
+      background: "transparent",
+    },
+  },
+  "#navbar-dropdown-item-name-logout": {
+    maxWidth: "200px",
+  },
+});
 
-  a {
-    color: #585C65;
-    text-decoration: none;
-  }
+const NameDropdown = styled("div")({
+  top: "60.5px",
+  left: 0,
+  width: "100%",
+  background: "#1F4671",
+  zIndex: 1100,
+  position: "absolute",
+});
 
-  .displayName {
-    color: #007BBD;
-    font-size: 14px;
-    line-height: 21px;
-    padding: 10px 0px;
-    text-align: right;
-    width: fit-content;
-  }
-
-  .navTitle {
-    display: block;
-    color: #585C65;
-    font-family: poppins;
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 40px;
-    letter-spacing: normal;
-    text-decoration: none;
-    margin: 0 5px 0 5px;
-    padding: 0 8px;
-    user-select:none;
-    border-top: 4px solid transparent;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-  }
-
-  .navTitle:hover {
-    cursor: pointer;
-  }
-
-  .navText {
-    border-bottom: 4px solid transparent;
-    width: fit-content;
-    margin: auto;
-  }
-
-  .navText:hover {
-    cursor: pointer;
-    color: #3A75BD;
-    border-bottom: 4px solid #3A75BD;
-
-    ::after {
-      content: "";
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-bottom: 1px solid #298085;
-      border-left: 1px solid #298085;
-      margin: 0 0 4px 8px;
-      transform: rotate(-45deg);
-      -webkit-transform: rotate(-45deg);
-    }
-  }
-
-  .navText::after {
-    content: "";
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-bottom: 1px solid #585C65;
-    border-left: 1px solid #585C65;
-    margin: 0 0 4px 8px;
-    transform: rotate(-45deg);
-    -webkit-transform: rotate(-45deg);
-  }
-
-  .clicked {
-    color: #FFFFFF;
-    background: #1F4671;
-  }
-
-  .clicked::after {
-    border-top: 1px solid #FFFFFF;
-    border-right: 1px solid #FFFFFF;
-    border-bottom: 0;
-    border-left: 0;
-    margin: 0 0 0 8px
-  }
-
-  .clicked:hover {
-    border-bottom: 4px solid #1F4671;
-    color: #FFFFFF;
-
-    ::after {
-      content: "";
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-top: 1px solid #FFFFFF;
-      border-right: 1px solid #FFFFFF;
-      border-bottom: 0;
-      border-left: 0;
-      margin: 0 0 0 8px;
-      transform: rotate(-45deg);
-      -webkit-transform: rotate(-45deg);
-    }
-  }
-
-  .directLink::after {
-    display: none;
-  }
-
-  .directLink:hover {
-    ::after {
-      display: none;
-    }
-  }
-  .shouldBeUnderlined {
-    border-bottom: 4px solid #3A75BD !important;
-  }
-  .navTitleClicked {
-    display: block;
-    color: #FFFFFF;
-    font-family: poppins;
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 40px;
-    letter-spacing: normal;
-    text-decoration: none;
-    margin: 0 45px 0 5px;
-    padding: 0 15px;
-    user-select:none;
-    background: #1F4671;
-    border-top: 4px solid #5786FF;
-    border-left: 4px solid #5786FF;
-    border-right: 4px solid #5786FF;
-  }
-  .invisible {
-    visibility: hidden;
-  }
-`;
-
-const Dropdown = styled.div`
-    top: 60.5px;
-    left: 0;
-    width: 100%;
-    background: #1F4671;
-    z-index: 1100;
-    position: absolute;
-    // visibility: hidden;
-    // outline: none;
-    // opacity: 0;
-`;
-
-// const DropdownContainer = styled.div`
-//     margin: 0 auto;
-//     text-align: left;
-//     position: relative;
-//     max-width: 1400px;
-
-//     .dropdownList {
-//       background: #1F4671;
-//       display: grid;
-//       grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
-//       padding: 32px 32px 0 32px;
-//     }
-//     .dropdownNameList {
-//       background: #1F4671;
-//       display: flex;
-//       flex-direction: column;
-//       padding: 32px 32px 0 32px;
-//       width: 400px;
-//       height: 200px;
-//       justify-content: end;
-//     }
-
-//     .dropdownItem {
-//       padding: 0 10px 52px 10px;
-//       text-align: left;
-//       font-family: 'Poppins';
-//       font-weight: 600;
-//       font-style: normal;
-//       font-size: 20px;
-//       line-height: 110%;
-//       color: #FFFFFF;
-//       text-decoration: none;
-//   }
-
-//   .dropdownItem:hover {
-//     text-decoration: underline;
-//   }
-
-//   .dropdownItemText {
-//     margin-top: 5px;
-//     font-family: 'Open Sans';
-//     font-style: normal;
-//     font-weight: 400;
-//     font-size: 16.16px;
-//     line-height: 22px;
-//   }
-// `;
-
-const NameDropdownContainer = styled.div`
-  margin: 0 auto;
-  text-align: left;
-  position: relative;
-  max-width: 1400px;
-  .dropdownList {
-      background: #1F4671;
-      display: inline-flex;
-      grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
-      padding: 32px 32px 0 32px;
-  }
-  .dropdownItem {
-    padding: 0 10px 52px 10px;
-    text-align: left;
-    font-family: 'Poppins';
-    font-weight: 600;
-    font-style: normal;
-    font-size: 20px;
-    line-height: 110%;
-    color: #FFFFFF;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .dropdownItem:hover {
-    text-decoration: underline;
-  }
-  .dropdownItemButton {
-    padding-bottom: 0;
-    text-transform: none;
-  }
-  .dropdownItemButton:hover {
-    background: transparent;
-  }
-  #navbar-dropdown-item-name-logout {
-    max-width: 200px;
-  }
-`;
-
-const NameDropdown = styled.div`
-    top: 60.5px;
-    left: 0;
-    width: 100%;
-    background: #1F4671;
-    z-index: 1100;
-    position: absolute;
-
-    // left: 0;
-    // background: #1F4671;
-    // z-index: 1100;
-    // position: absolute;
-    // // visibility: hidden;
-    // // outline: none;
-    // // opacity: 0;
-    // /* border-left: 4px solid #5786FF;
-    // border-bottom: 4px solid #5786FF;
-    // border-right: 4px solid #5786FF; */
-    // width: 100%;
-`;
-
-const StyledLoginLink = styled(Link)`
-  color: #007BBD;
-  text-align: right;
-  font-size: 14px;
-  font-family: Poppins;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: 0.42px;
-  text-decoration: none;
-  text-transform: uppercase;
-  padding: 10px 0 10px 0;
-  margin-bottom: 4.5px;
-  margin-right: 32px;
-`;
+const StyledLoginLink = styled(Link)({
+  color: "#007BBD !important",
+  textAlign: "right",
+  fontSize: "14px",
+  fontFamily: "Poppins",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "normal",
+  letterSpacing: "0.42px",
+  textDecoration: "none",
+  textTransform: "uppercase",
+  padding: "10px 0",
+  marginBottom: "4.5px",
+  marginRight: "32px",
+});
 
 const useOutsideAlerter = (ref1, ref2) => {
   useEffect(() => {
@@ -496,27 +421,26 @@ const NavBar = () => {
                 );
               })
             }
-        </UlContainer>
-        {authData.isLoggedIn
-            ? (
-              <LiSection>
-                <div id="navbar-dropdown-name-container" className={(clickedTitle === displayName ? 'navTitleClicked' : 'navTitle')}>
-                  <div
-                    id="navbar-dropdown-name"
-                    onKeyDown={onKeyPressHandler}
-                    role="button"
-                    tabIndex={0} className={clickedTitle === displayName ? 'navText displayName clicked' : 'navText displayName'}
-                    onClick={handleMenuClick}
-                  >
-                    {displayName}
-                  </div>
+          <LiSection className={`name-dropdown-li${authData?.isLoggedIn ? "" : " login-button"}`}>
+            {authData.isLoggedIn ? (
+              <div id="navbar-dropdown-name-container" className={(clickedTitle === displayName ? 'navTitleClicked' : 'navTitle')}>
+                <div
+                  id="navbar-dropdown-name"
+                  onKeyDown={onKeyPressHandler}
+                  role="button"
+                  tabIndex={0} className={clickedTitle === displayName ? 'navText displayName clicked' : 'navText displayName'}
+                  onClick={handleMenuClick}
+                >
+                  {displayName}
                 </div>
-              </LiSection>
+              </div>
             ) : (
               <StyledLoginLink id="header-navbar-login-button" to="/login" state={{ redirectURLOnLoginSuccess: restorePath }}>
                 Login
               </StyledLoginLink>
             )}
+          </LiSection>
+        </UlContainer>
       </NavContainer>
       <Dropdown ref={dropdownSelection} className={(clickedTitle === '') ? "invisible" : ""}>
         <NameDropdownContainer>

@@ -70,7 +70,7 @@ export const OrganizationProvider: FC<ProviderProps> = ({ preload, filterInactiv
   const [state, setState] = useState<ContextState>(initialState);
 
   const { data, loading, error } = preload ? useQuery<ListOrgsResp>(LIST_ORGS, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   }) : { data: null, loading: false, error: null };
 

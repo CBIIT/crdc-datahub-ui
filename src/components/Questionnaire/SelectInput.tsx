@@ -46,7 +46,7 @@ const GridItem = styled(Grid)(() => ({
 }));
 
 const StyledAsterisk = styled("span")(() => ({
-  color: "#D54309",
+  color: "#C93F08",
   marginLeft: "2px",
 }));
 
@@ -129,6 +129,11 @@ const StyledSelect = styled(Select, {
   },
 }));
 
+const StyledHelperText = styled(FormHelperText)(() => ({
+  marginTop: "4px",
+  minHeight: "20px",
+}));
+
 type Props = {
   value: string | string[];
   options: SelectOption[];
@@ -138,7 +143,8 @@ type Props = {
   helpText?: string;
   tooltipText?: string | ReactNode;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
-  onChange?: (value: string) => void;
+  onChange?: (value: string | string[]) => void;
+  filter?: (input: string | string[]) => string | string[];
 } & Omit<SelectProps, "onChange">;
 
 /**
@@ -157,12 +163,13 @@ const SelectInput: FC<Props> = ({
   tooltipText,
   gridWidth,
   onChange,
+  filter,
   multiple,
   placeholder,
   readOnly,
   ...rest
 }) => {
-  const id = useId();
+  const id = rest.id || useId();
 
   const [val, setVal] = useState(multiple ? [] : "");
   const [error, setError] = useState(false);
@@ -191,11 +198,15 @@ const SelectInput: FC<Props> = ({
   };
 
   const onChangeWrapper = (newVal) => {
+    let filteredVal = newVal;
+    if (typeof filter === "function") {
+      filteredVal = filter(newVal);
+    }
     if (typeof onChange === "function") {
-      onChange(newVal);
+      onChange(filteredVal);
     }
 
-    processValue(newVal);
+    processValue(filteredVal);
     setError(false);
   };
 
@@ -215,7 +226,7 @@ const SelectInput: FC<Props> = ({
   return (
     <GridItem md={gridWidth || 6} xs={12} item>
       <FormControl fullWidth error={error}>
-        <StyledFormLabel htmlFor={id}>
+        <StyledFormLabel htmlFor={id} id={`${id}-label`}>
           {label}
           {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
           {tooltipText && <Tooltip placement="right" title={tooltipText} />}
@@ -233,6 +244,7 @@ const SelectInput: FC<Props> = ({
           readOnly={readOnly}
           inputRef={inputRef}
           {...rest}
+          id={id}
         >
           {options.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -247,13 +259,14 @@ const SelectInput: FC<Props> = ({
           value={val}
           onChange={() => {}}
           multiple={multiple}
+          aria-labelledby={`${id}-label`}
           hidden
         >
           {options.map((option) => (
             <option key={option.value} value={option.value} aria-label={`${option.value}`} />
           ))}
         </ProxySelect>
-        <FormHelperText>{!readOnly && error ? helperText : " "}</FormHelperText>
+        <StyledHelperText>{!readOnly && error ? helperText : " "}</StyledHelperText>
       </FormControl>
     </GridItem>
   );

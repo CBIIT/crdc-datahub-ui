@@ -1,14 +1,14 @@
-FROM node:18.18.2-alpine3.18  as build
+FROM node:20.11.1-alpine3.19  as build
 
 WORKDIR /usr/src/app
 
 COPY . .
 
-RUN NODE_OPTIONS="--max-old-space-size=4096" npm install --legacy-peer-deps
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm ci
 
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
-FROM nginx:1.25.3-alpine3.18-slim as prod
+FROM nginx:1.25.4-alpine3.18-slim as prod
 
 COPY --from=build /usr/src/app/build /usr/share/nginx/html
 COPY --from=build /usr/src/app/conf/inject.template.js /usr/share/nginx/html/inject.template.js

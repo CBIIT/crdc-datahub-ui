@@ -1,8 +1,11 @@
-import React, { FC, useMemo } from 'react';
+import '@testing-library/jest-dom';
+import 'jest-axe/extend-expect';
+
+import { FC, useMemo } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
-import '@testing-library/jest-dom';
+import { axe } from 'jest-axe';
 import {
   ContextState,
   Context as FormCtx,
@@ -11,13 +14,8 @@ import {
 import StatusBar from './StatusBar';
 import StatusApproved from '../../assets/history/submissionRequest/StatusApproved.svg';
 import StatusRejected from '../../assets/history/submissionRequest/StatusRejected.svg';
-import New from '../../assets/history/submissionRequest/SubmissionRequestNew.svg';
-import Approved from '../../assets/history/submissionRequest/Approved.svg';
-import Rejected from '../../assets/history/submissionRequest/Rejected.svg';
-import Submitted from '../../assets/history/submissionRequest/SubmissionRequestSubmitted.svg';
-import UnderReview from '../../assets/history/submissionRequest/UnderReview.svg';
-import InProgress from '../../assets/history/submissionRequest/InProgress.svg';
 import { FormatDate } from "../../utils";
+import { HistoryIconMap } from '../../assets/history/submissionRequest';
 
 type Props = {
   data: object;
@@ -38,6 +36,41 @@ const BaseComponent: FC<Props> = ({ data = {} } : Props) => {
   );
 };
 
+describe("StatusBar Accessibility Tests", () => {
+  it("has no base accessibility violations", async () => {
+    const { container } = render(<BaseComponent data={{}} />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+
+  it("has no accessibility violations when there are no review comments", async () => {
+    const data = {
+      history: [{
+        reviewComment: "",
+      }],
+    };
+
+    const { container } = render(<BaseComponent data={data} />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+
+  it("has no accessibility violations when there are review comments", async () => {
+    const data = {
+      history: [{
+        reviewComment: "This is a review comment",
+      }],
+    };
+
+    const { container } = render(<BaseComponent data={data} />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+});
+
 describe("StatusBar > General Tests", () => {
   it("renders the base elements", () => {
     const { getByTestId, getByText } = render(<BaseComponent data={{}} />);
@@ -56,7 +89,7 @@ describe("StatusBar > General Tests", () => {
   });
 
   // NOTE: We aren't using the root level reviewComment attribute, only the history level ones
-  // So we're testing against it's usage here
+  // So we're testing AGAINST it's usage here
   it("does not render the comments button for the Application.reviewComment attribute", () => {
     const data = {
       reviewComment: "This is a review comment",
@@ -162,7 +195,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
   });
 
   it("renders the most recent comment by date", async () => {
@@ -180,7 +213,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 11\/30\/2019:/i)).toBeVisible();
     expect(getByText(data.history[2].reviewComment)).toBeVisible();
   });
@@ -201,7 +234,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 12\/30\/2023:/i)).toBeVisible();
     expect(getByText(data.history[1].reviewComment)).toBeVisible();
   });
@@ -222,7 +255,7 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(getByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 11\/26\/2023:/i)).toBeVisible();
     expect(getByText(data.history[1].reviewComment)).toBeVisible();
   });
@@ -252,13 +285,13 @@ describe("StatusBar > Comments Modal Tests", () => {
       fireEvent.click(getByText("Review Comments"));
     });
 
-    expect(queryByTestId("status-bar-review-dialog")).toBeVisible();
+    expect(queryByTestId("review-comments-dialog")).toBeVisible();
 
     act(() => {
-      fireEvent.click(queryByTestId("status-bar-dialog-close"));
+      fireEvent.click(queryByTestId("review-comments-dialog-close"));
     });
 
-    await waitFor(() => expect(queryByTestId("status-bar-review-dialog")).toBeNull());
+    await waitFor(() => expect(queryByTestId("review-comments-dialog")).toBeNull());
   });
 });
 
@@ -329,8 +362,7 @@ describe("StatusBar > History Modal Tests", () => {
     expect(() => getByTestId("status-bar-history-item-1-icon")).toThrow();
   });
 
-  const statusesWithIcons = [["New", New], ["Submitted", Submitted], ["Approved", Approved], ["Rejected", Rejected], ["In Review", UnderReview], ["In Progress", InProgress]];
-  it.each(statusesWithIcons)("renders the correct icon for the status %s", (status, svg) => {
+  it.each(Object.entries(HistoryIconMap))("renders the correct icon for the status %s", (status, svg) => {
     const data = {
       history: [{ dateTime: "2023-11-24T01:25:45Z", status }],
     };

@@ -1,62 +1,50 @@
-import React, { FC, useState, useRef, useEffect } from 'react';
-import { Grid, FormControl, FormControlLabel, Radio, RadioGroup, RadioProps, RadioGroupProps, FormHelperText, Stack } from '@mui/material';
-import styled from "styled-components";
-import { updateInputValidity } from '../../utils';
+import React, { FC, useState, useRef, useEffect } from "react";
+import {
+  Grid,
+  FormControl,
+  FormControlLabel,
+  RadioGroup,
+  RadioGroupProps,
+  FormHelperText,
+  Stack,
+  styled,
+  GridProps,
+} from "@mui/material";
+import { updateInputValidity } from "../../utils";
+import StyledRadioButton from '../Questionnaire/StyledRadioButton';
 
-const GridStyled = styled(Grid)<{ $containerWidth?: string; }>`
-  width: ${(props) => props.$containerWidth};
-  .formControl{
-    margin-top: 8px;
-    margin-bottom: 4px;
-  }
-  .css-hsm3ra-MuiFormLabel-root {
-    color: rgba(0, 0, 0, 0.6) !important;
-  }
-  .MuiRadio-root {
-    color: #1D91AB !important;
-    margin-left: 10px;
-    padding-right: 7px;
-  }
-  #invisibleRadioInput {
-    height: 0;
-    border: none;
-    width: 0;
-  }
-  .MuiFormHelperText-root {
-    color: #083A50;
-    margin-left: 0;
-  }
-  .MuiFormHelperText-root.Mui-error {
-    color: #D54309 !important;
-  }
-  .displayNone {
-    display: none !important;
-  }
-`;
-
-const BpIcon = styled('span')(() => ({
-  borderRadius: '50%',
-  width: 24,
-  height: 24,
-  outline: '6px auto #1D91AB',
-  'input:hover ~ &': {
-    outlineOffset: "2px",
+const GridStyled = styled(Grid, {
+  shouldForwardProp: (prop) => prop !== "containerWidth",
+})<GridProps & { containerWidth?: string }>(({ containerWidth }) => ({
+  width: containerWidth,
+  "& .formControl": {
+    marginTop: "8px",
+    marginBottom: "4px",
+  },
+  "& .css-hsm3ra-MuiFormLabel-root": {
+    color: "rgba(0, 0, 0, 0.6) !important",
+  },
+  "& .MuiRadio-root": {
+    color: "#1D91AB !important",
+    marginLeft: "10px",
+    paddingRight: "7px",
+  },
+  "& #invisibleRadioInput": {
+    height: 0,
+    border: "none",
+    width: 0,
+  },
+  "& .MuiFormHelperText-root": {
+    color: "#083A50",
+    marginLeft: 0,
+  },
+  "& .MuiFormHelperText-root.Mui-error": {
+    color: "#D54309 !important",
+  },
+  "& .displayNone": {
+    display: "none !important",
   },
 }));
-
-const BpCheckedIcon = styled(BpIcon)({
-  backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
-  '&:before': {
-    borderRadius: "50%",
-    display: 'block',
-    marginTop: "4px",
-    marginLeft: "4px",
-    width: 16,
-    height: 16,
-    backgroundImage: 'radial-gradient(#1D91AB, #1D91AB)',
-    content: '""',
-  },
-});
 
 const StyledFormLabel = styled("label")(() => ({
   fontWeight: 700,
@@ -64,26 +52,18 @@ const StyledFormLabel = styled("label")(() => ({
   lineHeight: "19.6px",
   minHeight: "20px",
   color: "#083A50",
+  marginRight: "10px",
 }));
 
 const StyledAsterisk = styled("span")(() => ({
   marginRight: "2px",
-  color: "#D54309",
-}));
-
-const StyledRadio = styled(Radio)((props) => ({
-  "& input": {
-    cursor: props.readOnly ? "not-allowed" : "initial",
-  },
-  "& .radio-icon": {
-    backgroundColor: props.readOnly ? "#D2DFE9 !important" : "initial",
-  }
+  color: "#C93F08",
 }));
 
 const StyledFormControlLabel = styled(FormControlLabel)(() => ({
   "&.MuiFormControlLabel-root": {
     paddingRight: "10px",
-    marginRight: "2px"
+    marginRight: "2px",
   },
   "& .MuiFormControlLabel-label": {
     color: "#083A50",
@@ -92,22 +72,8 @@ const StyledFormControlLabel = styled(FormControlLabel)(() => ({
     fontStyle: "normal",
     fontWeight: 500,
     lineHeight: "19.6px",
-  }
+  },
 }));
-
-// Inspired by blueprintjs
-const BpRadio = (props: RadioProps) => (
-  <StyledRadio
-    disableRipple
-    color="default"
-    checkedIcon={<BpCheckedIcon className="radio-icon" />}
-    icon={<BpIcon className="radio-icon" />}
-    inputProps={{
-        "data-type": "auto"
-      } as unknown}
-    {...props}
-  />
-);
 
 type Option = {
   label: string;
@@ -143,7 +109,11 @@ const RadioYesNoInput: FC<Props> = ({
   readOnly,
   ...rest
 }) => {
-  const [val, setVal] = useState<string>((value?.toString() === "" || value?.toString() === undefined) ? null : value?.toString());
+  const [val, setVal] = useState<string>(
+    value?.toString() === "" || value?.toString() === undefined
+      ? null
+      : value?.toString()
+  );
   const [error, setError] = useState(false);
   const radioGroupInputRef = useRef<HTMLInputElement>(null);
 
@@ -173,10 +143,22 @@ const RadioYesNoInput: FC<Props> = ({
     };
   }, [radioGroupInputRef]);
 
+  useEffect(() => {
+    setVal(value?.toString() ?? null);
+  }, [value]);
+
   return (
-    <GridStyled md={gridWidth || 6} xs={12} item $containerWidth={containerWidth}>
+    <GridStyled
+      md={gridWidth || 6}
+      xs={12}
+      item
+      containerWidth={containerWidth}
+    >
       <FormControl className="formControl" error={error}>
-        <Stack direction={inline ? "row" : "column"} alignItems={inline ? "center" : "initial"}>
+        <Stack
+          direction={inline ? "row" : "column"}
+          alignItems={inline ? "center" : "initial"}
+        >
           <StyledFormLabel>
             {label}
             {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
@@ -199,7 +181,7 @@ const RadioYesNoInput: FC<Props> = ({
                   label={option.label}
                   color="#1D91AB"
                   control={(
-                    <BpRadio
+                    <StyledRadioButton
                       id={id.concat(`-${option.label}-radio-button`)}
                       readOnly={readOnly || option.disabled}
                       disabled={option.disabled}

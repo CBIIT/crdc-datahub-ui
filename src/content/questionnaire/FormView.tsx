@@ -1,46 +1,53 @@
-import React, { FC, createRef, useEffect, useRef, useState } from 'react';
+import React, { FC, createRef, useEffect, useRef, useState } from "react";
 import {
   useNavigate,
-  unstable_useBlocker as useBlocker, unstable_Blocker as Blocker, Navigate
-} from 'react-router-dom';
-import { isEqual, cloneDeep } from 'lodash';
-import { Alert, AlertColor, Button, Container, Divider, Stack, styled } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { WithStyles, withStyles } from "@mui/styles";
-import ForwardArrowIcon from '@mui/icons-material/ArrowForwardIos';
-import BackwardArrowIcon from '@mui/icons-material/ArrowBackIos';
-import { Status as FormStatus, useFormContext } from '../../components/Contexts/FormContext';
-import SuspenseLoader from '../../components/SuspenseLoader';
-import StatusBar from '../../components/StatusBar/StatusBar';
-import ProgressBar from '../../components/ProgressBar/ProgressBar';
-import Section from './sections';
-import map, { InitialSections } from '../../config/SectionConfig';
-import UnsavedChangesDialog from '../../components/Questionnaire/UnsavedChangesDialog';
-import SubmitFormDialog from '../../components/Questionnaire/SubmitFormDialog';
-import useFormMode from './sections/hooks/useFormMode';
-import InquireFormDialog from '../../components/Questionnaire/InquireFormDialog';
-import RejectFormDialog from '../../components/Questionnaire/RejectFormDialog';
-import ApproveFormDialog from '../../components/Questionnaire/ApproveFormDialog';
-import PageBanner from '../../components/PageBanner';
+  unstable_useBlocker as useBlocker,
+  unstable_Blocker as Blocker,
+  Navigate,
+} from "react-router-dom";
+import { isEqual, cloneDeep } from "lodash";
+import {
+  Alert,
+  Container,
+  Divider,
+  Stack,
+  styled,
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { useSnackbar } from 'notistack';
+import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
+import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
+import {
+  Status as FormStatus,
+  useFormContext,
+} from "../../components/Contexts/FormContext";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import StatusBar from "../../components/StatusBar/StatusBar";
+import ProgressBar from "../../components/ProgressBar/ProgressBar";
+import Section from "./sections";
+import map, { InitialSections } from "../../config/SectionConfig";
+import UnsavedChangesDialog from "../../components/Questionnaire/UnsavedChangesDialog";
+import SubmitFormDialog from "../../components/Questionnaire/SubmitFormDialog";
+import useFormMode from "../../hooks/useFormMode";
+import InquireFormDialog from "../../components/Questionnaire/InquireFormDialog";
+import RejectFormDialog from "../../components/Questionnaire/RejectFormDialog";
+import ApproveFormDialog from "../../components/Questionnaire/ApproveFormDialog";
+import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
-import GenericAlert from '../../components/GenericAlert';
-import { Status as AuthStatus, useAuthContext } from '../../components/Contexts/AuthContext';
-import ErrorCodes from '../../config/ErrorCodes';
+import {
+  Status as AuthStatus,
+  useAuthContext,
+} from "../../components/Contexts/AuthContext";
+import ErrorCodes from "../../config/ErrorCodes";
+import usePageTitle from '../../hooks/usePageTitle';
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
     padding: 0,
     minHeight: "300px",
     scrollMarginTop: "-60px",
-  }
+  },
 }));
-
-type Props = {
-  section?: string;
-  classes: WithStyles<typeof styles>['classes'];
-};
-
-const validateSection = (section: string) => typeof map[section] !== 'undefined';
 
 const StyledSidebar = styled(Stack)({
   position: "sticky",
@@ -64,16 +71,78 @@ const StyledAlert = styled(Alert)({
   fontWeight: 400,
   fontSize: "16px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
-  scrollMarginTop: "64px"
+  scrollMarginTop: "64px",
 });
+
+const StyledContent = styled(Stack)({
+  width: "100%",
+  maxWidth: "980px",
+  marginLeft: "41px",
+});
+
+const StyledControls = styled(Stack)({
+  color: "#FFFFFF",
+  marginTop: "15px !important",
+  "& .MuiButton-root": {
+    margin: "0 6px",
+    padding: "10px 28px 10px !important",
+    minWidth: "128px",
+    fontSize: "16px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    letterSpacing: "0.32px",
+    lineHeight: "24px",
+    borderRadius: "8px",
+    textTransform: "none",
+  },
+  "& a": {
+    color: "inherit",
+    textDecoration: "none",
+  },
+  "& .MuiButton-startIcon": {
+    marginRight: "20px",
+    marginLeft: 0,
+  },
+  "& .MuiButton-endIcon": {
+    marginRight: 0,
+    marginLeft: "20px",
+  },
+  "& .MuiSvgIcon-root": {
+    fontSize: "20px",
+  },
+});
+
+const StyledLoadingButton = styled(LoadingButton)({
+  "&.MuiButton-root": {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minWidth: "128px",
+    padding: "10px",
+    fontFamily: "'Nunito', 'Rubik', sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
+    lineHeight: "24px",
+    letterSpacing: "0.32px",
+    "& .MuiSvgIcon-root": {
+      fontSize: "20px",
+    },
+  },
+});
+
+const StyledExtendedLoadingButton = styled(StyledLoadingButton)({
+  "&.MuiButton-root": {
+    minWidth: "137px",
+  },
+});
+
+const validateSection = (section: string) => typeof map[section] !== "undefined";
 
 export type SaveForm =
   | { status: "success"; id: string }
   | { status: "failed"; errorMessage: string };
 
-type AlertState = {
-  message: string;
-  severity: AlertColor;
+type Props = {
+  section?: string;
 };
 
 /**
@@ -82,8 +151,9 @@ type AlertState = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const FormView: FC<Props> = ({ section, classes } : Props) => {
+const FormView: FC<Props> = ({ section } : Props) => {
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const { status, data, setData, submitData, approveForm, inquireForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
   const { user, status: authStatus } = useAuthContext();
   const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
@@ -94,7 +164,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const { formMode, readOnlyInputs } = useFormMode();
-  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
   const [allSectionsComplete, setAllSectionsComplete] = useState<boolean>(false);
 
   const sectionKeys = Object.keys(map);
@@ -107,7 +176,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
   const hasUpdatedReviewStatusRef = useRef(false);
-  const alertTimeoutRef = useRef(null);
 
   const refs = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -118,6 +186,8 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     rejectFormRef: createRef<HTMLButtonElement>(),
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
+
+  usePageTitle(`Submission Request ${data?._id || ""}`);
 
   useEffect(() => {
     const formLoaded = status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
@@ -165,21 +235,37 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
       return false;
     }
-    if (!readOnlyInputs && isDirty()) {
-      setBlockedNavigate(true);
-      return true;
+    if (!isDirty() || readOnlyInputs) {
+      return false;
     }
 
-    return false;
+    // If there are no validation errors, save form data without a prompt
+    const { ref } = refs.getFormObjectRef.current?.() || {};
+    if (ref?.current?.checkValidity() === true) {
+      saveForm();
+      return false;
+    }
+
+    setBlockedNavigate(true);
+    return true;
   });
 
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
     const unloadHandler = (event: BeforeUnloadEvent) => {
-      if (isDirty()) {
-        event.preventDefault();
-        event.returnValue = 'You have unsaved form changes. Are you sure you want to leave?';
+      if (!isDirty()) {
+        return;
       }
+
+      // If there are no validation errors, save form data without a prompt
+      const { ref } = refs.getFormObjectRef.current?.() || {};
+      if (ref?.current?.checkValidity() === true) {
+        saveForm();
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue = 'You have unsaved form changes. Are you sure you want to leave?';
     };
 
     window.addEventListener('beforeunload', unloadHandler);
@@ -430,15 +516,10 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
     if (!isEqual(data.questionnaireData, newData) || error === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
       const res = await setData(newData);
       if (res?.status === "failed" && res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
-        setChangesAlert({ severity: "error", message: `The Study Abbreviation already existed in the system. Your changes were unable to be saved.` });
+        enqueueSnackbar("The Study Abbreviation already existed in the system. Your changes were unable to be saved.", { variant: 'error' });
       } else {
-        setChangesAlert({ severity: "success", message: `Your changes for the ${map[activeSection].title} section have been successfully saved.` });
+        enqueueSnackbar(`Your changes for the ${map[activeSection].title} section have been successfully saved.`, { variant: 'success' });
       }
-
-      if (alertTimeoutRef.current) {
-        clearTimeout(alertTimeoutRef.current);
-      }
-      alertTimeoutRef.current = setTimeout(() => setChangesAlert(null), 10000);
 
       if (!blockedNavigate && res?.status === "success" && data["_id"] === "new" && res.id !== data?.['_id']) {
         // NOTE: This currently triggers a form data refetch, which is not ideal
@@ -604,12 +685,6 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
 
   return (
     <>
-      <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="formview-changes-alert">
-        <span>
-          {changesAlert?.message}
-        </span>
-      </GenericAlert>
-
       <PageBanner
         title="Submission Request Form"
         subTitle="The following set of high-level questions are intended to provide insight to the CRDC, related to data storage, access, secondary sharing needs and other requirements of data submitters."
@@ -627,102 +702,99 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
             <StyledDivider orientation="vertical" />
           </StyledSidebar>
 
-          <Stack className={classes.content} direction="column" spacing={5}>
+          <StyledContent direction="column" spacing={5}>
             <StatusBar />
 
             {hasError && <StyledAlert ref={errorAlertRef} severity="error">Oops! An error occurred. Please refresh the page or try again later.</StyledAlert>}
 
             <Section section={activeSection} refs={refs} />
 
-            <Stack
-              className={classes.controls}
+            <StyledControls
               direction="row"
               justifyContent="center"
               alignItems="center"
               spacing={2}
             >
-              <Button
+              <StyledLoadingButton
                 id="submission-form-back-button"
-                className={classes.backButton}
-                variant="outlined"
+                variant="contained"
+                color="info"
                 type="button"
                 disabled={status === FormStatus.SAVING || !prevSection}
                 onClick={handleBackClick}
                 size="large"
-                startIcon={<BackwardArrowIcon />}
+                startIcon={<ChevronLeft />}
               >
                 Back
-              </Button>
-              <LoadingButton
+              </StyledLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-save-button"
-                className={classes.saveButton}
-                variant="outlined"
-                type="button"
+                variant="contained"
+                color="success"
                 ref={refs.saveFormRef}
-                size="large"
                 loading={status === FormStatus.SAVING}
                 onClick={() => saveForm()}
-                sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
+                sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
               >
                 Save
-              </LoadingButton>
-              <LoadingButton
+              </StyledLoadingButton>
+              <StyledExtendedLoadingButton
                 id="submission-form-submit-button"
-                className={classes.submitButton}
-                variant="outlined"
+                variant="contained"
+                color="primary"
                 type="submit"
                 ref={refs.submitFormRef}
                 size="large"
                 onClick={handleSubmitForm}
-                sx={{ display: readOnlyInputs ? "none !important" : "initial" }}
+                sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
               >
                 Submit
-              </LoadingButton>
-              <LoadingButton
+              </StyledExtendedLoadingButton>
+              <StyledExtendedLoadingButton
                 id="submission-form-approve-button"
-                className={classes.approveButton}
-                variant="outlined"
+                variant="contained"
+                color="primary"
                 ref={refs.approveFormRef}
                 size="large"
                 onClick={handleApproveForm}
               >
                 Approve
-              </LoadingButton>
-              <LoadingButton
+              </StyledExtendedLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-inquire-button"
-                className={classes.inquireButton}
-                variant="outlined"
+                variant="contained"
+                color="error"
                 ref={refs.inquireFormRef}
                 size="large"
                 onClick={handleInquireForm}
               >
                 Request Additional Information
-              </LoadingButton>
-              <LoadingButton
+              </StyledLoadingButton>
+              <StyledExtendedLoadingButton
                 id="submission-form-reject-button"
-                className={classes.rejectButton}
-                variant="outlined"
+                variant="contained"
+                color="error"
                 ref={refs.rejectFormRef}
                 size="large"
                 onClick={handleRejectForm}
               >
                 Reject
-              </LoadingButton>
-              <Button
+              </StyledExtendedLoadingButton>
+              <StyledLoadingButton
                 id="submission-form-next-button"
-                className={classes.nextButton}
-                variant="outlined"
+                variant="contained"
+                color="info"
                 type="button"
                 ref={refs.nextButtonRef}
                 onClick={handleNextClick}
                 disabled={status === FormStatus.SAVING || !nextSection || (isSectionD && !allSectionsComplete)}
                 size="large"
-                endIcon={<ForwardArrowIcon />}
+                endIcon={<ChevronRight />}
               >
                 Next
-              </Button>
-            </Stack>
-          </Stack>
+              </StyledLoadingButton>
+            </StyledControls>
+          </StyledContent>
         </StyledContentWrapper>
       </StyledContainer>
 
@@ -758,106 +830,4 @@ const FormView: FC<Props> = ({ section, classes } : Props) => {
   );
 };
 
-const styles = () => ({
-  header: {
-    width: "100%",
-    height: "300px",
-    background: "#F2F4F8",
-  },
-  content: {
-    width: "100%",
-    maxWidth: "980px",
-    marginLeft: '41px',
-  },
-  controls: {
-    color: "#FFFFFF",
-    marginTop: "15px !important",
-    "& button": {
-      margin: "0 6px",
-      padding: "14px 11px",
-      minWidth: "128px",
-      fontWeight: 700,
-      fontSize: '16px',
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
-      letterSpacing: "0.32px",
-      lineHeight: "20.14px",
-      borderRadius: "8px",
-      borderColor: "#828282",
-      background: "#737373",
-      color: "inherit",
-      textTransform: "none",
-    },
-    "& button:disabled": {
-      backgroundColor: "#CDCDCD",
-    },
-    "& button:hover:not([disabled])": {
-      color: "#fff",
-      background: "#5E5E5E",
-    },
-    "& a": {
-      color: "inherit",
-      textDecoration: "none",
-    },
-    "& .MuiButton-startIcon": {
-      marginRight: "20px",
-    },
-    "& .MuiButton-endIcon": {
-      marginLeft: "20px"
-    },
-    "& .MuiSvgIcon-root": {
-      fontSize: "20px"
-    }
-  },
-  backButton: {
-    "&.MuiButton-root": {
-      display: "flex",
-      justifyContent: "flex-start"
-    }
-  },
-  nextButton: {
-    "&.MuiButton-root": {
-      display: "flex",
-      justifyContent: "flex-end"
-    }
-  },
-  saveButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#22A584"
-    }
-  },
-  approveButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#22A584"
-    }
-  },
-  inquireButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#D54309"
-    }
-  },
-  rejectButton: {
-    "&.MuiButton-root": {
-      borderColor: "#26B893",
-      background: "#D54309"
-    }
-  },
-  submitButton: {
-    "&.MuiButton-root": {
-      display: "flex",
-      width: "128px",
-      height: "50.593px",
-      padding: "11px",
-      justifyContent: "center",
-      alignItems: "center",
-      flexShrink: 0,
-      borderRadius: "8px",
-      border: "1px solid #828282",
-      background: "#0B7F99",
-    }
-  },
-});
-
-export default withStyles(styles)(FormView);
+export default FormView;

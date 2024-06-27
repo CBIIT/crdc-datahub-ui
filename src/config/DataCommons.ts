@@ -26,6 +26,7 @@ export const DataCommons: DataCommon[] = [
         fileType: 'pdf',
         prefix: 'CDS_',
         downloadPrefix: 'CDS_',
+        fileTransferManifestName: "CDS_Data_Loading_Template-file-manifest",
         iconSrc: logo,
         footnote: "https://hub.datacommons.cancer.gov/model-navigator/CDS",
         landscape: true,
@@ -111,7 +112,7 @@ export const DataCommons: DataCommon[] = [
           isExpanded: true,
         },
         'Filter By Property': {
-          color: '#94C0EC',
+          color: '#0D71A3',
           checkBoxColorsOne: '#E3F4FD',
           checkBoxColorsTwo: '#f0f8ff',
           checkBoxBorderColor: '#0D71A3',

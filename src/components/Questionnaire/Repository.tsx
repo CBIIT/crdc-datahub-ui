@@ -17,9 +17,7 @@ export const repositoryDataTypesOptions = [
   DataTypes.clinicalTrial,
   DataTypes.genomics,
   DataTypes.imaging,
-  DataTypes.immunology,
   DataTypes.proteomics,
-  DataTypes.epidemiologicOrCohort,
 ];
 
 type Props = {
@@ -89,6 +87,7 @@ const Repository: FC<Props> = ({
         <TextInput
           id={idPrefix.concat(`repository-${index}-other-data-types-submitted`)}
           label="Other Data Type(s)"
+          tooltipText='Enter additional Data Types, separated by pipes ("|").'
           name={`study[repositories][${index}][otherDataTypesSubmitted]`}
           value={otherDataTypesSubmitted}
           placeholder="Other, specify as free text"

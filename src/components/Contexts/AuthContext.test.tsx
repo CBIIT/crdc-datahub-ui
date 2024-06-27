@@ -90,7 +90,7 @@ describe("AuthContext > AuthProvider Tests", () => {
     expect(screen.getByTestId("last-name").textContent).toEqual(userData.lastName);
   });
 
-  it("should successfully verify the cached user with the AuthZ service", async () => {
+  it("should successfully verify the cached user with the BE service", async () => {
     const userData = {
       _id: "123-random-id-456",
       firstName: "Random",
@@ -145,13 +145,14 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     const screen = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() => expect(screen.getByTestId("first-name").textContent).toEqual("The API updated my first name"));
-
-    const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
-    expect(cachedUser.firstName).toEqual("The API updated my first name");
+    await waitFor(() => expect(screen.getByTestId("first-name").textContent).toEqual(mocks[0].result.data.getMyUser.firstName));
+    await waitFor(() => {
+      const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
+      expect(cachedUser.firstName).toEqual(mocks[0].result.data.getMyUser.firstName);
+    }, { timeout: 1000 });
   });
 
-  it("should logout the user if the AuthZ API call fails", async () => {
+  it("should logout the user if the BE API call fails", async () => {
     const userData = {
       _id: "GGGG-1393-AAA-9101",
       firstName: "Random",
@@ -178,7 +179,8 @@ describe("AuthContext > AuthProvider Tests", () => {
 
     await waitFor(() => expect(screen.getByTestId("isLoggedIn").textContent).toEqual("false"));
 
-    expect(screen.getByTestId("isLoggedIn").textContent).toEqual("false");
-    expect(localStorage.getItem("userDetails")).toBeNull();
+    await waitFor(() => {
+      expect(localStorage.getItem("userDetails")).toBeNull();
+    }, { timeout: 1000 });
   });
 });

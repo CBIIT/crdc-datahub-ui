@@ -1,6 +1,5 @@
 import { Grid, Stack, styled } from "@mui/material";
-import { CSSProperties } from "@mui/styles";
-import { FC, useMemo, useState } from "react";
+import { CSSProperties, FC, useMemo, useState } from "react";
 
 export const StyledLabel = styled("span")(() => ({
   color: "#000000",
@@ -43,6 +42,7 @@ type Props = {
   gridWidth?: GridWidth;
   hideLabel?: boolean;
   textTransform?: CSSProperties["textTransform"];
+  delimiter?: string;
 };
 
 const ReviewDataListingProperty: FC<Props> = ({
@@ -54,6 +54,7 @@ const ReviewDataListingProperty: FC<Props> = ({
   gridWidth,
   textTransform = "uppercase",
   hideLabel = false,
+  delimiter = ",",
 }) => {
   const [isMultiple, setIsMultiple] = useState(false);
 
@@ -62,15 +63,15 @@ const ReviewDataListingProperty: FC<Props> = ({
       return [];
     }
     if (typeof value === "string") {
-      const splitted = value.split(',').map((item) => item.trim()).filter((item) => item.length);
-      if (splitted.length > 1) {
+      const split = value.split(delimiter).map((item) => item.trim()).filter((item) => item.length);
+      if (split.length > 1) {
         setIsMultiple(true);
       }
-      return splitted;
+      return split;
     }
     setIsMultiple(true);
     return value?.map((item) => item.trim()).filter((item) => item.length);
-  }, [value, isList]);
+  }, [value, isList, delimiter]);
 
   return (
     <StyledGrid md={gridWidth || 6} xs={12} item>
@@ -103,7 +104,7 @@ const ReviewDataListingProperty: FC<Props> = ({
               id={idPrefix.concat(`-property-value-${idx}`)}
             >
               {' '}
-              {`${val}${idx !== displayValues.length - 1 ? "," : ""}`}
+              {val}
             </StyledValue>
           )) : (
             <StyledValue id={idPrefix.concat(`-property-value`)}>

@@ -23,7 +23,7 @@ const StyledFormLabel = styled("label")(({ theme }) => ({
 }));
 
 const StyledAsterisk = styled("span")(() => ({
-  color: "#D54309",
+  color: "#C93F08",
   marginLeft: "2px",
 }));
 
@@ -129,7 +129,7 @@ const FormGroupCheckbox: FC<Props> = ({
     <Grid md={gridWidth || 6} xs={12} item>
       <FormControl fullWidth error={error}>
         {!hideLabel && (
-          <StyledFormLabel htmlFor={id}>
+          <StyledFormLabel htmlFor={id} id={`${id}-label`}>
             {label}
             {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
             {tooltipText && <Tooltip title={tooltipText} />}
@@ -141,6 +141,7 @@ const FormGroupCheckbox: FC<Props> = ({
             return (
               <CheckboxInput
                 id={idPrefix.concat(`-${option.label.toLowerCase().replace(" ", "-")}-checkbox`)}
+                aria-labelledby={`${id}-label`}
                 key={option.value}
                 name={name}
                 checked={isChecked}
@@ -173,6 +174,7 @@ const FormGroupCheckbox: FC<Props> = ({
               data-type="boolean"
               value={isChecked ? "true" : "false"}
               onChange={() => { }}
+              aria-labelledby={`${id}-label`}
               checked
               hidden
             />

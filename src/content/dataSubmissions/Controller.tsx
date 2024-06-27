@@ -10,10 +10,10 @@ import ListView from "./DataSubmissionsListView";
  * @returns {FC} - React component
  */
 export default () => {
-  const { submissionId } = useParams();
+  const { submissionId, tab } = useParams();
 
   if (submissionId) {
-    return <DataSubmission />;
+    return <DataSubmission submissionId={submissionId} tab={tab} />;
   }
 
   return <ListView />;

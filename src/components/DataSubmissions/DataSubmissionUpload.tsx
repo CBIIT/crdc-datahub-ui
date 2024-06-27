@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
+import { isEqual } from "lodash";
+import { VariantType } from "notistack";
 import {
-  AlertColor,
   Button,
   Stack,
   Typography,
@@ -12,6 +13,8 @@ import {
 import RadioInput from "./RadioInput";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
+import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
+import FlowWrapper from './FlowWrapper';
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -29,55 +32,35 @@ const StyledMetadataText = styled(StyledUploadTypeText)(() => ({
 }));
 
 const StyledUploadFilesButton = styled(Button)(() => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: "12px 20px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  background: "#005EA2",
+  minWidth: "137px",
+  minHeight: "44px",
+  padding: "10px",
   color: "#FFF",
-  textAlign: "center",
   fontFamily: "'Nunito'",
   fontSize: "16px",
   fontStyle: "normal",
-  fontWeight: 700,
-  lineHeight: "16px",
+  lineHeight: "24px",
   letterSpacing: "0.32px",
   textTransform: "none",
   "&.MuiButtonBase-root": {
     marginLeft: "auto",
-    marginRight: "21.5px",
     minWidth: "137px",
   }
 }));
 const StyledChooseFilesButton = styled(LoadingButton)(() => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: "12px 22px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "8px",
-  border: "1px solid #6B7294",
-  background: "#FFFFFF",
-  textAlign: "center",
-  color: "#000000",
+  minWidth: "137px",
+  minHeight: "44px",
+  padding: "10px",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 500,
-  lineHeight: "19.6px",
+  lineHeight: "24px",
   textTransform: "initial",
-  height: "44px",
-  boxShadow: "none",
   marginLeft: "12px",
   marginRight: "12px",
   "&.MuiButtonBase-root": {
     marginLeft: "15px",
-  },
-  "&:hover": {
-    cursor: "pointer",
-    background: "#C0DAF3"
   },
 }));
 
@@ -89,11 +72,6 @@ const StyledFilesSelected = styled(Typography)(() => ({
   fontWeight: 400,
   lineHeight: "19.6px",
   minWidth: "135px",
-}));
-
-const StyledUploadWrapper = styled(Stack)(() => ({
-  paddingLeft: "24px",
-  marginBottom: "19px"
 }));
 
 const StyledUploadActionWrapper = styled(Stack)(() => ({
@@ -110,25 +88,31 @@ const VisuallyHiddenInput = styled("input")(() => ({
 
 const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
 
-type UploadType = "New" | "Update";
-
 type Props = {
-  submitterID: string;
+  submission: Submission;
   readOnly?: boolean;
-  onUpload: (message: string, severity: AlertColor) => void;
+  onCreateBatch: () => void;
+  onUpload: (message: string, severity: VariantType) => void;
 };
 
-const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
+const DataSubmissionUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
-  const [uploadType, setUploadType] = useState<UploadType>("New");
+  const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("Add");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const uploadMetatadataInputRef = useRef<HTMLInputElement>(null);
-  const isSubmissionOwner = submitterID === user?._id;
+  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+  const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
+  const isSubmissionOwner = submission?.submitterID === user?._id;
   const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
+  const isNewSubmission = !submission?.metadataValidationStatus && !submission?.fileValidationStatus;
   const acceptedExtensions = [".tsv", ".txt"];
+  const metadataIntentionOptions = [
+    { label: "Add", value: "Add", disabled: !canUpload },
+    { label: "Add/Change", value: "Add/Change", disabled: !canUpload || isNewSubmission },
+    { label: "Remove", value: "Remove", disabled: !canUpload || isNewSubmission },
+  ];
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
     context: { clientName: 'backend' },
@@ -160,7 +144,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
     if (!canUpload || readOnly) {
       return;
     }
-    uploadMetatadataInputRef?.current?.click();
+    uploadMetadataInputRef?.current?.click();
   };
 
   const handleChooseFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -196,7 +180,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         variables: {
           submissionID: submissionId,
           type: "metadata",
-          metadataIntention: "New",
+          metadataIntention,
           files: formattedFiles,
         }
       });
@@ -223,6 +207,7 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
     if (!newBatch) {
       return;
     }
+    onCreateBatch();
 
     const uploadResult: UploadResult[] = [];
 
@@ -274,11 +259,11 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
         return;
       }
       // Batch upload completed successfully
-      onUpload(`${selectedFiles.length} ${selectedFiles.length > 1 ? "Files" : "File"} successfully uploaded`, "success");
+      onUpload("The batch upload is in progress. You can check the upload status in the Data Activity tab once the upload is complete", "success");
       setIsUploading(false);
       setSelectedFiles(null);
-      if (uploadMetatadataInputRef.current) {
-        uploadMetatadataInputRef.current.value = "";
+      if (uploadMetadataInputRef.current) {
+        uploadMetadataInputRef.current.value = "";
       }
     } catch (err) {
       // Unable to let BE know of upload result so all fail
@@ -287,60 +272,80 @@ const DataSubmissionUpload = ({ submitterID, readOnly, onUpload }: Props) => {
   };
 
   const onUploadFail = (fileCount = 0) => {
-    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to upload`, "error");
+    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${metadataIntention === "Remove" ? "remove" : "upload"}`, "error");
     setSelectedFiles(null);
     setIsUploading(false);
-    if (uploadMetatadataInputRef.current) {
-      uploadMetatadataInputRef.current.value = "";
+    if (uploadMetadataInputRef.current) {
+      uploadMetadataInputRef.current.value = "";
     }
   };
 
+  const onCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+  };
+
+  const onDeleteUpload = () => {
+    setOpenDeleteDialog(false);
+    handleUploadFiles();
+  };
+
   return (
-    <StyledUploadWrapper direction="row" alignItems="center" spacing={1.25}>
-      <RadioInput
-        id="data-submission-dashboard-upload-type"
-        label="Upload Type"
-        value={uploadType}
-        onChange={(event, value: UploadType) => setUploadType(value)}
-        options={[{ label: "New", value: "New" }, { label: "Update", value: "Update", disabled: true }]}
-        gridWidth={4}
-        readOnly={readOnly}
-        inline
-        row
-      />
-      <StyledUploadActionWrapper direction="row">
-        <StyledMetadataText variant="body2">Metadata Files</StyledMetadataText>
-        <VisuallyHiddenInput
-          ref={uploadMetatadataInputRef}
-          type="file"
-          accept={acceptedExtensions.toString()}
-          onChange={handleChooseFiles}
+    <FlowWrapper title="Upload Data" borderColor="#8FC8D5" hoverColor="#92E7FA">
+      <Stack direction="row" alignItems="center" spacing={1.25}>
+        <RadioInput
+          id="data-submission-dashboard-upload-type"
+          label="Upload Type:"
+          value={metadataIntention}
+          onChange={(_event, value: MetadataIntention) => !readOnly && setMetadataIntention(value)}
+          options={metadataIntentionOptions}
+          gridWidth={4}
           readOnly={readOnly}
-          multiple
+          inline
+          row
         />
-        <StyledChooseFilesButton
-          variant="outlined"
-          onClick={handleChooseFilesClick}
-          disabled={readOnly || isUploading || !canUpload}
+        <StyledUploadActionWrapper direction="row">
+          <StyledMetadataText variant="body2">Metadata Files</StyledMetadataText>
+          <VisuallyHiddenInput
+            ref={uploadMetadataInputRef}
+            type="file"
+            accept={acceptedExtensions.toString()}
+            aria-label="Upload metadata files"
+            onChange={handleChooseFiles}
+            readOnly={readOnly}
+            multiple
+          />
+          <StyledChooseFilesButton
+            variant="contained"
+            color="info"
+            onClick={handleChooseFilesClick}
+            disabled={readOnly || isUploading || !canUpload}
+          >
+            Choose Files
+          </StyledChooseFilesButton>
+          <StyledFilesSelected variant="body1">
+            {selectedFiles?.length ? `${selectedFiles.length} ${selectedFiles.length > 1 ? "files" : "file"} selected` : "No files selected"}
+          </StyledFilesSelected>
+        </StyledUploadActionWrapper>
+        <StyledUploadFilesButton
+          variant="contained"
+          color="info"
+          onClick={() => (metadataIntention === "Remove" ? setOpenDeleteDialog(true) : handleUploadFiles())}
+          disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
+          disableElevation
+          disableRipple
+          disableTouchRipple
         >
-          Choose Files
-        </StyledChooseFilesButton>
-        <StyledFilesSelected variant="body1">
-          {selectedFiles?.length ? `${selectedFiles.length} ${selectedFiles.length > 1 ? "files" : "file"} selected` : "No files selected"}
-        </StyledFilesSelected>
-      </StyledUploadActionWrapper>
-      <StyledUploadFilesButton
-        variant="contained"
-        onClick={handleUploadFiles}
-        disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
-        disableElevation
-        disableRipple
-        disableTouchRipple
-      >
-        {isUploading ? "Uploading..." : "Upload"}
-      </StyledUploadFilesButton>
-    </StyledUploadWrapper>
+          {isUploading ? "Uploading..." : "Upload"}
+        </StyledUploadFilesButton>
+
+        <DeleteDialog
+          open={openDeleteDialog}
+          onClose={onCloseDeleteDialog}
+          onConfirm={onDeleteUpload}
+        />
+      </Stack>
+    </FlowWrapper>
   );
 };
 
-export default DataSubmissionUpload;
+export default React.memo<Props>(DataSubmissionUpload, (prevProps, nextProps) => isEqual(prevProps, nextProps));

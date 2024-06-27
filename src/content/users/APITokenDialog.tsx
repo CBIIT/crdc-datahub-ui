@@ -71,7 +71,6 @@ const StyledTokenInput = styled(OutlinedInput)({
   "& .MuiOutlinedInput-notchedOutline": {
     borderRadius: "8px",
     border: "1px solid #6B7294 !important",
-
   }
 });
 
@@ -81,7 +80,6 @@ const StyledGenerateButton = styled(Button)({
   padding: "12px 7px !important",
   borderRadius: "8px !important",
   border: "1px solid #000 !important",
-  background: "#1D91AB !important",
   color: "#FFFFFF",
   textAlign: "center",
   fontFamily: "'Nunito', 'Rubik', sans-serif !important",
@@ -91,9 +89,6 @@ const StyledGenerateButton = styled(Button)({
   lineHeight: "24px !important",
   letterSpacing: "0.32px !important",
   textTransform: "none !important" as 'none',
-  "&:hover": {
-    background: "#1D91AB !important",
-  },
 });
 
 const StyledCopyTokenButton = styled(IconButton)(() => ({
@@ -164,7 +159,7 @@ const APITokenDialog: FC<Props> = ({
   const [changesAlert, setChangesAlert] = useState<AlertState>(null);
 
   const [grantToken] = useMutation<GrantTokenResp>(GRANT_TOKEN, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
@@ -222,7 +217,7 @@ const APITokenDialog: FC<Props> = ({
     <StyledDialog
       open={open}
       onClose={handleCloseDialog}
-      title=""
+      aria-labelledby="api-token-header"
       {...rest}
     >
       <GenericAlert open={!!changesAlert} severity={changesAlert?.severity} key="api-token-dialog-changes-alert">
@@ -236,10 +231,10 @@ const APITokenDialog: FC<Props> = ({
       >
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      <StyledHeader id="api-token-header" variant="h3">
+      <StyledHeader id="api-token-header" variant="h1">
         API Token
       </StyledHeader>
-      <StyledTitle id="api-token-title" variant="h6">
+      <StyledTitle id="api-token-title" variant="body1">
         An API Token is required to utilize the Uploader CLI tool for file uploads.
         <br />
         <br />
@@ -251,8 +246,13 @@ const APITokenDialog: FC<Props> = ({
         <StyledGenerateButton id="api-token-create-token-button" onClick={handleCreateToken} variant="contained">
           Create Token
         </StyledGenerateButton>
-        <StyledTokenInput id="api-token-input" value={tokens?.length ? "*************************************" : ""} readOnly />
-        <StyledCopyTokenButton id="api-token-copy-token-button" disabled={!tokens?.length} onClick={handleCopyToken}>
+        <StyledTokenInput
+          id="api-token-input"
+          value={tokens?.length ? "*************************************" : ""}
+          inputProps={{ "aria-label": "API Token" }}
+          readOnly
+        />
+        <StyledCopyTokenButton id="api-token-copy-token-button" disabled={!tokens?.length} onClick={handleCopyToken} aria-label="Copy Token">
           <CopyIconSvg />
         </StyledCopyTokenButton>
       </Stack>

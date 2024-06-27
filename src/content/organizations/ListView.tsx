@@ -1,8 +1,7 @@
 import React, { ElementType, FC, useEffect, useMemo, useState } from "react";
 import {
-  Alert, Box, Button, CircularProgress,
-  Container, FormControl, MenuItem,
-  OutlinedInput,
+  Alert, Box, Button,
+  Container, FormControl, MenuItem, OutlinedInput,
   Select, Stack, Table, TableBody, TableCell,
   TableContainer, TableHead, TablePagination, TableRow,
   TableSortLabel, Typography, styled,
@@ -10,8 +9,10 @@ import {
 import { Link, LinkProps, useLocation } from "react-router-dom";
 import { Controller, useForm } from 'react-hook-form';
 import PageBanner from "../../components/PageBanner";
-import Tooltip from '../../components/Tooltip';
 import { useOrganizationListContext, Status } from '../../components/Contexts/OrganizationListContext';
+import SuspenseLoader from '../../components/SuspenseLoader';
+import usePageTitle from '../../hooks/usePageTitle';
+import StudyTooltip from '../../components/Organizations/StudyTooltip';
 
 type T = Partial<Organization>;
 
@@ -44,7 +45,7 @@ const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   color: "#fff",
   textTransform: "none",
   borderColor: "#26B893 !important",
-  background: "#22A584 !important",
+  background: "#1B8369 !important",
   marginRight: "25px",
 });
 
@@ -161,12 +162,6 @@ const StyledTablePagination = styled(TablePagination)<{ component: React.Element
   background: "#F5F7F8",
 });
 
-const StyledStudyCount = styled(Typography)<{ component: ElementType }>(({ theme }) => ({
-  textDecoration: "underline",
-  cursor: "pointer",
-  color: theme.palette.primary.main,
-}));
-
 const columns: Column[] = [
   {
     label: "Name",
@@ -187,24 +182,9 @@ const columns: Column[] = [
 
       return (
         <>
-          {studies[0].studyAbbreviation}
+          {studies[0].studyAbbreviation || studies[0].studyName}
           {studies.length > 1 && " and "}
-          {studies.length > 1 && (
-            <Tooltip
-              title={<StudyContent _id={_id} studies={studies} />}
-              placement="top"
-              open={undefined}
-              onBlur={undefined}
-              disableHoverListener={false}
-              arrow
-            >
-              <StyledStudyCount variant="body2" component="span">
-                other
-                {" "}
-                {studies.length - 1}
-              </StyledStudyCount>
-            </Tooltip>
-          )}
+          {studies.length > 1 && (<StudyTooltip _id={_id} studies={studies} />)}
         </>
       );
     },
@@ -226,26 +206,14 @@ const columns: Column[] = [
   },
 ];
 
-const StudyContent: FC<{ _id: Organization["_id"], studies: Organization["studies"] }> = ({ _id, studies }) => (
-  <Typography variant="body1">
-    {studies?.map(({ studyName, studyAbbreviation }) => (
-      <React.Fragment key={`${_id}_study_${studyName}`}>
-        {studyName}
-        {" ("}
-        {studyAbbreviation}
-        {") "}
-        <br />
-      </React.Fragment>
-    ))}
-  </Typography>
-);
-
 /**
  * View for List of Organizations
  *
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
+  usePageTitle("Manage Organizations");
+
   const { state } = useLocation();
   const { status, data } = useOrganizationListContext();
 
@@ -338,15 +306,15 @@ const ListingView: FC = () => {
 
       <StyledContainer maxWidth="xl">
         <StyledFilterContainer>
-          <StyledInlineLabel>Organization</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
           <StyledFormControl>
-            <StyledTextField {...register("organization")} placeholder="Enter a Organization" required />
+            <StyledTextField {...register("organization")} placeholder="Enter a Organization" id="organization-filter" required />
           </StyledFormControl>
-          <StyledInlineLabel>Study</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
           <StyledFormControl>
-            <StyledTextField {...register("study")} placeholder="Enter a Study" required />
+            <StyledTextField {...register("study")} placeholder="Enter a Study" id="study-filter" required />
           </StyledFormControl>
-          <StyledInlineLabel>Status</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
           <StyledFormControl>
             <Controller
               name="status"
@@ -357,6 +325,7 @@ const ListingView: FC = () => {
                   defaultValue="All"
                   value={field.value || "All"}
                   MenuProps={{ disablePortal: true }}
+                  inputProps={{ id: "status-filter" }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Active">Active</MenuItem>
@@ -391,22 +360,7 @@ const ListingView: FC = () => {
               {status === Status.LOADING && (
                 <TableRow>
                   <TableCell>
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        background: "#fff",
-                        left: 0,
-                        top: 0,
-                        width: "100%",
-                        height: "100%",
-                        zIndex: "9999",
-                      }}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <CircularProgress size={64} disableShrink thickness={3} />
-                    </Box>
+                    <SuspenseLoader fullscreen={false} />
                   </TableCell>
                 </TableRow>
               )}
@@ -435,7 +389,7 @@ const ListingView: FC = () => {
                       variant="h6"
                       align="center"
                       fontSize={18}
-                      color="#AAA"
+                      color="#757575"
                     >
                       No organizations found.
                     </Typography>
@@ -461,6 +415,7 @@ const ListingView: FC = () => {
                 || emptyRows > 0
                 || status === Status.LOADING,
             }}
+            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
             backIconButtonProps={{ disabled: page === 0 || status === Status.LOADING }}
           />
         </StyledTableContainer>

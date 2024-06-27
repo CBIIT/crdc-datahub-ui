@@ -36,7 +36,7 @@ const StyledDialogTitle = styled(DialogTitle)({
 });
 
 const StyledPreTitle = styled("p")({
-  color: "#98A7C6",
+  color: "#D5DAE7",
   fontSize: "13px",
   fontFamily: "Nunito Sans",
   lineHeight: "27px",
@@ -162,13 +162,15 @@ const StyledAvatar = styled(Avatar)({
 });
 
 const StyledCloseButton = styled(Button)({
+  minWidth: "137px",
   fontWeight: "700",
   borderRadius: "8px",
   textTransform: "none",
   color: "#fff",
   borderColor: "#fff",
   margin: "0 auto",
-  minWidth: "128px",
+  padding: "10px",
+  lineHeight: "24px",
   "&:hover": {
     borderColor: "#fff",
   },
@@ -207,7 +209,7 @@ const HistoryDialog = <T extends string>({
       open={open}
       onClose={onClose}
       scroll="body"
-      data-testid="status-bar-history-dialog"
+      data-testid="history-dialog"
       {...rest}
     >
       <StyledDialogTitle>
@@ -219,7 +221,7 @@ const HistoryDialog = <T extends string>({
           {sortedHistory?.map(({ status, dateTime }, index) => (
             <StyledTimelineItem
               key={`history-item-${status}-${dateTime}}`}
-              data-testid={`status-bar-history-item-${index}`}
+              data-testid="history-item"
             >
               <StyledTimelineSeparator>
                 <StyledTimelineDot />
@@ -227,10 +229,25 @@ const HistoryDialog = <T extends string>({
               </StyledTimelineSeparator>
               <StyledTimelineContent>
                 <Stack direction="row" alignContent="center" spacing={1} paddingRight={0}>
-                  <StyledTypography title={dateTime} color={typeof getTextColor === "function" ? getTextColor(status) : "#FFF"}>
+                  <StyledTypography
+                    title={dateTime}
+                    color={
+                    typeof getTextColor === "function"
+                      ? getTextColor(status)
+                      : "#FFF"
+                    }
+                    data-testid="history-item-date"
+                  >
                     {FormatDate(dateTime, "M/D/YYYY", "N/A")}
                   </StyledTypography>
-                  <StyledTypography color={typeof getTextColor === "function" ? getTextColor(status) : "#FFF"}>
+                  <StyledTypography
+                    color={
+                      typeof getTextColor === "function"
+                        ? getTextColor(status)
+                        : "#FFF"
+                    }
+                    data-testid="history-item-status"
+                  >
                     {status?.toString()?.toUpperCase()}
                   </StyledTypography>
                   {index === 0 && iconMap && iconMap[status] && (
@@ -238,7 +255,7 @@ const HistoryDialog = <T extends string>({
                       <img
                         src={iconMap[status]}
                         alt={`${status} icon`}
-                        data-testid={`status-bar-history-item-${index}-icon`}
+                        data-testid={`history-item-${index}-icon`}
                       />
                     </StyledAvatar>
                   )}
@@ -250,12 +267,12 @@ const HistoryDialog = <T extends string>({
       </StyledDialogContent>
       <DialogActions>
         <StyledCloseButton
-          id="status-bar-close-full-history-button"
+          id="close-full-history-button"
           onClick={() => onClose()}
           variant="outlined"
           size="large"
           aria-label="Close dialog"
-          data-testid="status-bar-dialog-close"
+          data-testid="history-dialog-close"
         >
           Close
         </StyledCloseButton>

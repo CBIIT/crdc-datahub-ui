@@ -19,6 +19,7 @@ import { OrgAssignmentMap, OrgRequiredRoles, Roles } from '../../config/AuthRole
 import { EDIT_USER, EditUserResp, GET_USER, GetUserResp, UPDATE_MY_USER, UpdateMyUserResp } from '../../graphql';
 import { formatIDP, getEditableFields } from '../../utils';
 import { DataCommons } from '../../config/DataCommons';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type Props = {
   _id: User["_id"];
@@ -158,6 +159,8 @@ const StyledTitleBox = styled(Box)({
  * @returns {JSX.Element}
  */
 const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
+  usePageTitle(viewType === "profile" ? "User Profile" : `Edit User ${_id}`);
+
   const navigate = useNavigate();
   const { data: orgData } = useOrganizationListContext();
   const { user: currentUser, setData, logout } = useAuthContext();
@@ -178,17 +181,17 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const fieldset = useMemo(() => getEditableFields(currentUser, user, viewType), [user?._id, _id, currentUser?.role, viewType]);
 
   const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
   const [updateMyUser] = useMutation<UpdateMyUserResp, { userInfo: UserInput }>(UPDATE_MY_USER, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
   const [editUser] = useMutation<EditUserResp>(EDIT_USER, {
-    context: { clientName: 'userService' },
+    context: { clientName: 'backend' },
     fetchPolicy: 'no-cache'
   });
 
@@ -328,12 +331,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
             spacing={2}
           >
             <StyledTitleBox>
-              <StyledPageTitle variant="h4">
+              <StyledPageTitle variant="h1">
                 {viewType === "profile" ? "User Profile" : "Edit User"}
               </StyledPageTitle>
             </StyledTitleBox>
             <StyledHeader>
-              <StyledHeaderText variant="h1">
+              <StyledHeaderText variant="h2">
                 {user.email}
               </StyledHeaderText>
             </StyledHeader>
@@ -354,19 +357,29 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 {user.email}
               </StyledField>
               <StyledField>
-                <StyledLabel>First name</StyledLabel>
+                <StyledLabel id="firstNameLabel">First name</StyledLabel>
                 {fieldset.includes("firstName") ? (
-                  <StyledTextField {...register("firstName", { required: true })} size="small" required />
+                  <StyledTextField
+                    {...register("firstName", { required: true })}
+                    size="small"
+                    inputProps={{ "aria-labelledby": "firstNameLabel" }}
+                    required
+                  />
                 ) : user.firstName}
               </StyledField>
               <StyledField>
-                <StyledLabel>Last name</StyledLabel>
+                <StyledLabel id="lastNameLabel">Last name</StyledLabel>
                 {fieldset.includes("lastName") ? (
-                  <StyledTextField {...register("lastName", { required: true })} size="small" required />
+                  <StyledTextField
+                    {...register("lastName", { required: true })}
+                    size="small"
+                    required
+                    inputProps={{ "aria-labelledby": "lastNameLabel" }}
+                  />
                 ) : user.lastName}
               </StyledField>
               <StyledField>
-                <StyledLabel>Role</StyledLabel>
+                <StyledLabel id="userRoleLabel">Role</StyledLabel>
                 {fieldset.includes("role") ? (
                   <Stack direction="column" justifyContent="flex-start" alignItems="flex-start" spacing={1}>
                     <Controller
@@ -378,6 +391,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                           {...field}
                           size="small"
                           MenuProps={{ disablePortal: true }}
+                          inputProps={{ "aria-labelledby": "userRoleLabel" }}
                         >
                           {Roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
                         </StyledSelect>
@@ -387,7 +401,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 ) : user?.role}
               </StyledField>
               <StyledField>
-                <StyledLabel>Account Status</StyledLabel>
+                <StyledLabel id="userStatusLabel">Account Status</StyledLabel>
                 {fieldset.includes("userStatus") ? (
                   <Controller
                     name="userStatus"
@@ -399,6 +413,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         size="small"
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
+                        inputProps={{ "aria-labelledby": "userStatusLabel" }}
                       >
                         <MenuItem value="Active">Active</MenuItem>
                         <MenuItem value="Inactive">Inactive</MenuItem>
@@ -408,7 +423,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 ) : user.userStatus}
               </StyledField>
               <StyledField>
-                <StyledLabel>Organization</StyledLabel>
+                <StyledLabel id="userOrganizationLabel">Organization</StyledLabel>
                 {fieldset.includes("organization") ? (
                   <Controller
                     name="organization.orgID"
@@ -420,6 +435,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                         disabled={orgFieldDisabled}
+                        inputProps={{ "aria-labelledby": "userOrganizationLabel" }}
                       >
                         <MenuItem value="">{"<Not Set>"}</MenuItem>
                         {orgData?.map((org) => <MenuItem key={org._id} value={org._id}>{org.name}</MenuItem>)}
@@ -429,7 +445,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 ) : user?.organization?.orgName}
               </StyledField>
               <StyledField sx={{ display: displayDataCommons ? "block" : "none" }}>
-                <StyledLabel>Data Commons</StyledLabel>
+                <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
                 {fieldset.includes("dataCommons") ? (
                   <Controller
                     name="dataCommons"
@@ -442,6 +458,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         value={field.value || []}
                         disabled={dcFieldDisabled}
                         MenuProps={{ disablePortal: true }}
+                        inputProps={{ "aria-labelledby": "userDataCommons" }}
                         multiple
                       >
                         {DataCommons.map((dc) => <MenuItem key={dc.name} value={dc.name}>{dc.name}</MenuItem>)}
@@ -458,7 +475,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 spacing={1}
               >
                 {fieldset?.length > 0 && <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">Save</StyledButton>}
-                {viewType === "users" && <StyledButton type="button" onClick={() => navigate("/users")} txt="#949494" border="#828282">Cancel</StyledButton>}
+                {viewType === "users" && <StyledButton type="button" onClick={() => navigate("/users")} txt="#666666" border="#828282">Cancel</StyledButton>}
               </StyledButtonStack>
             </form>
           </StyledContentStack>

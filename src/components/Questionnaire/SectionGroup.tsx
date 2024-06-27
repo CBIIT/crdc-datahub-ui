@@ -4,16 +4,6 @@ import {
   Typography, styled
 } from "@mui/material";
 
-type Props = {
-  children: React.ReactNode;
-  title?: string;
-  description?: string | React.ReactNode;
-  endButton?: React.ReactNode;
-  beginButton?: React.ReactNode;
-  required?: boolean;
-  error?: string;
-};
-
 const StyledGrid = styled(Grid)({
   marginTop: "46px",
   "&:first-of-type": {
@@ -42,13 +32,19 @@ export const StyledTitle = styled(Typography)({
 export const StyledDescription = styled(Typography)({
   fontWeight: 400,
   color: "#2A836D",
-  marginTop: "16px",
+  marginTop: "24px",
   fontSize: "16px",
+  "& a": {
+    color: "inherit",
+    fontWeight: "700",
+    textDecoration: "underline",
+  },
 });
 
 const StyledEndAdornment = styled(Box)({
   marginLeft: "auto",
 });
+
 const StyledBeginAdornment = styled(Box)({
   marginRight: "12px",
   marginTop: "auto",
@@ -57,11 +53,12 @@ const StyledBeginAdornment = styled(Box)({
 });
 
 const StyledAsterisk = styled('span')({
-    color: "#D54309",
+    color: "#C93F08",
     marginLeft: "2px",
 });
+
 const StyledError = styled('div')({
-  color: "#D54309",
+  color: "#C93F08",
   textTransform: "none",
   fontFamily: 'Nunito',
   fontWeight: '400',
@@ -73,13 +70,27 @@ const StyledError = styled('div')({
   marginBottom: '0',
   minHeight: '20px',
 });
+
+type Props = {
+  children: React.ReactNode;
+  title?: string;
+  description?: React.ReactNode;
+  endButton?: React.ReactNode;
+  beginButton?: React.ReactNode;
+  required?: boolean;
+  error?: string;
+};
+
 /**
  * Generic Form Input Section Group
  *
  * @param {Props} props
  * @returns {React.ReactNode}
  */
-const SectionGroup: FC<Props> = ({ title, description, children, endButton, beginButton, required, error }) => (
+const SectionGroup: FC<Props> = ({
+  children,
+  title, description, endButton, beginButton, required, error,
+}) => (
   <StyledGrid container rowSpacing={0} columnSpacing={1.5}>
     <StyledHeader xs={12} item>
       <Stack direction="column" alignItems="flex-start">
@@ -88,7 +99,6 @@ const SectionGroup: FC<Props> = ({ title, description, children, endButton, begi
             {title}
             {required ? <StyledAsterisk className="asterisk">*</StyledAsterisk> : ""}
             {error ? <StyledError className="asterisk">{error}</StyledError> : ""}
-
           </StyledTitle>
         )}
         <Stack direction="row" alignItems="flex-start" justifyContent="space-between" width="100%">
@@ -99,7 +109,6 @@ const SectionGroup: FC<Props> = ({ title, description, children, endButton, begi
           )}
           {beginButton && <StyledBeginAdornment>{beginButton}</StyledBeginAdornment>}
         </Stack>
-
       </Stack>
     </StyledHeader>
     {children}
