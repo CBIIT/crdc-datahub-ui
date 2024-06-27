@@ -257,7 +257,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
       handleOpenErrorDialog,
       handleOpenFileListDialog,
     }),
-    [handleOpenErrorDialog]
+    [handleOpenErrorDialog, handleOpenFileListDialog]
   );
 
   useImperativeHandle(
