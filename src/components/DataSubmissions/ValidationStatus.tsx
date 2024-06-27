@@ -67,7 +67,7 @@ export const ValidationStatus: React.FC = () => {
     const completedTemplate = `The last validation ${typeAndTarget} that ran on ${startDate} was completed on ${endDate}.`;
 
     return validationEnded ? completedTemplate : inProgressTemplate;
-  }, [validationStarted, validationEnded, validationType, validationScope]);
+  }, [validationStarted, validationEnded, typeDescription, validationType, validationScope]);
 
   // No validation has ever been run, hide the component
   if (!hadValidation) {
