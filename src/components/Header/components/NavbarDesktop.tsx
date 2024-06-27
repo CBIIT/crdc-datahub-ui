@@ -352,9 +352,7 @@ const NavBar = () => {
   };
   function shouldBeUnderlined(item) {
     const linkName = item.name;
-    const correctPath = window.location.href.slice(
-      window.location.href.lastIndexOf(window.location.host) + window.location.host.length
-    );
+    const correctPath = window.location.pathname;
     if (item.className === "navMobileItem") {
       return correctPath === item.link;
     }
