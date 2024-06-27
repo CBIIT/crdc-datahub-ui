@@ -298,7 +298,7 @@ const ListingView: FC = () => {
     ["All", "Inactive", "Active"].includes(status);
 
   useEffect(() => {
-    if (!activeOrganizations) {
+    if (!activeOrganizations?.length) {
       return;
     }
 
