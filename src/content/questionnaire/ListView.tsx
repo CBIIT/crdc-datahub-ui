@@ -23,7 +23,7 @@ import bannerSvg from "../../assets/banner/list_banner.svg";
 import PageBanner from "../../components/PageBanner";
 import { FormatDate } from "../../utils";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import { mutation as SAVE_APP, Response as SaveAppResp } from "../../graphql/saveApplication";
+import { SAVE_APP, SaveAppInput, SaveAppResp } from "../../graphql";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import usePageTitle from "../../hooks/usePageTitle";
 
@@ -217,7 +217,7 @@ const ListingView: FC = () => {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
-  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
+  const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -249,8 +249,9 @@ const ListingView: FC = () => {
           studyAbbreviation: "",
           questionnaireData: "{}",
         },
+        controlledAccess: false,
       },
-    });
+    }).catch((e) => ({ data: null, errors: e }));
 
     setCreatingApplication(false);
 
