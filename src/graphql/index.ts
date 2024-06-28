@@ -33,6 +33,12 @@ export { query as LIST_INSTITUTIONS } from "./listInstitutions";
 export type { Response as ListInstitutionsResp } from "./listInstitutions";
 
 // Data Submissions
+export { mutation as CREATE_SUBMISSION } from "./createSubmission";
+export type {
+  Input as CreateSubmissionInput,
+  Response as CreateSubmissionResp,
+} from "./createSubmission";
+
 export { query as GET_SUBMISSION } from "./getSubmission";
 export type { Input as GetSubmissionInput, Response as GetSubmissionResp } from "./getSubmission";
 
@@ -122,3 +128,6 @@ export type { Response as CreateOrgResp } from "./createOrganization";
 // Misc.
 export { mutation as GRANT_TOKEN } from "./grantToken";
 export type { Response as GrantTokenResp } from "./grantToken";
+
+export { query as LIST_APPROVED_STUDIES_OF_MY_ORG } from "./listApprovedStudiesOfMyOrganization";
+export type { Response as ListApprovedStudiesOfMyOrgResp } from "./listApprovedStudiesOfMyOrganization";
