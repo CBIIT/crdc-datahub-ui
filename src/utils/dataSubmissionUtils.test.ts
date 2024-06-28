@@ -30,6 +30,7 @@ const baseSubmission: Submission = {
   validationEnded: "",
   validationScope: "New",
   validationType: ["metadata", "file"],
+  studyID: "",
 };
 
 describe("General Submit", () => {

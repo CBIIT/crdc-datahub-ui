@@ -47,6 +47,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   validationEnded: "",
   validationScope: "New",
   validationType: ["metadata", "file"],
+  studyID: "",
 };
 
 type ParentProps = {
