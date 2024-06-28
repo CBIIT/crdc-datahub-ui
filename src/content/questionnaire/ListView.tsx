@@ -248,8 +248,8 @@ const ListingView: FC = () => {
           programName: "",
           studyAbbreviation: "",
           questionnaireData: "{}",
+          controlledAccess: false,
         },
-        controlledAccess: false,
       },
     }).catch((e) => ({ data: null, errors: e }));
 

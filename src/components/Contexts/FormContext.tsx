@@ -168,8 +168,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
             programName: data?.program?.name,
             studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
             questionnaireData: JSON.stringify(data),
+            controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
           },
-          controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
         },
       });
 

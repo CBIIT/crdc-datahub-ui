@@ -30,11 +30,18 @@ export type Input = {
   /**
    * The Submission Request input
    */
-  application: ApplicationInput;
-  /**
-   * Whether the study is controlled access
-   */
-  controlledAccess: boolean;
+  application: {
+    _id: string;
+    programName: Program["name"];
+    studyAbbreviation: Study["abbreviation"];
+    /**
+     * Stringified JSON Application Questionnaire Data
+     *
+     * @see {@link QuestionnaireData}
+     */
+    questionnaireData: string;
+    controlledAccess: boolean;
+  };
 };
 
 export type Response = {
