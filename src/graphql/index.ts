@@ -15,7 +15,7 @@ export { mutation as REJECT_APP } from "./rejectApplication";
 export type { Response as RejectAppResp } from "./rejectApplication";
 
 export { mutation as SAVE_APP } from "./saveApplication";
-export type { Response as SaveAppResp } from "./saveApplication";
+export type { Input as SaveAppInput, Response as SaveAppResp } from "./saveApplication";
 
 export { mutation as SUBMIT_APP } from "./submitApplication";
 export type { Response as SubmitAppResp } from "./submitApplication";
