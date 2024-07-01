@@ -121,6 +121,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
         offset,
         sortDirection,
         orderBy,
+        partial: false,
         ...filterRef.current,
       },
       context: { fetchOptions: { signal: abortController.signal } },

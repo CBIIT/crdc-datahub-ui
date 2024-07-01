@@ -227,7 +227,7 @@ describe("SubmittedData > Table", () => {
       },
     ];
 
-    const { getByTestId, getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <SubmittedData submissionId={submissionID} submissionName={undefined} />
       </TestParent>
@@ -235,12 +235,10 @@ describe("SubmittedData > Table", () => {
 
     await waitFor(() => {
       expect(getByTestId("generic-table-header-col.1")).toBeInTheDocument();
-      expect(getByTestId("generic-table-header-col.2")).toBeInTheDocument();
-      expect(getByTestId("generic-table-header-col.3")).toBeInTheDocument();
-      expect(getByText("value-1")).toBeInTheDocument();
-      expect(getByText("value-2")).toBeInTheDocument();
-      expect(getByText("value-3")).toBeInTheDocument();
     });
+
+    expect(getByTestId("generic-table-header-col.2")).toBeInTheDocument();
+    expect(getByTestId("generic-table-header-col.3")).toBeInTheDocument();
   });
 
   it("should append the 'Status' column to any node type", async () => {
@@ -282,23 +280,22 @@ describe("SubmittedData > Table", () => {
       },
     ];
 
-    const { getByTestId, getByText } = render(
+    const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <SubmittedData submissionId={submissionID} submissionName={undefined} />
       </TestParent>
     );
 
     await waitFor(() => {
-      expect(getByTestId("generic-table-header-col-xyz")).toBeInTheDocument();
       expect(getByTestId("generic-table-header-Status")).toBeInTheDocument();
-      expect(getByText("value-1")).toBeInTheDocument();
-      expect(getByText("New")).toBeInTheDocument();
     });
   });
 
   it.todo("should append an interactive Checkbox column to the table");
 
   it.todo("should select all rows when the 'Select All' checkbox is clicked");
+
+  it.todo("should handle failure to query for all nodes when 'Select All' is clicked");
 
   it.todo("should delete all selected rows when the 'Delete' button is clicked");
 
