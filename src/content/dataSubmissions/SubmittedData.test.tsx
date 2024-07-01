@@ -84,14 +84,8 @@ describe("SubmittedData > General", () => {
       {
         request: {
           query: GET_SUBMISSION_NODES,
-          variables: {
-            _id: submissionID,
-            sortDirection: "desc",
-            first: 20,
-            offset: 0,
-            nodeType: "example-node",
-          },
         },
+        variableMatcher: () => true,
         error: new Error("Simulated network error"),
       },
     ];
@@ -117,14 +111,8 @@ describe("SubmittedData > General", () => {
       {
         request: {
           query: GET_SUBMISSION_NODES,
-          variables: {
-            _id: submissionID,
-            sortDirection: "desc",
-            first: 20,
-            offset: 0,
-            nodeType: "example-node",
-          },
         },
+        variableMatcher: () => true,
         result: {
           errors: [new GraphQLError("Simulated GraphQL error")],
         },
@@ -181,14 +169,8 @@ describe("SubmittedData > Table", () => {
       {
         request: {
           query: GET_SUBMISSION_NODES,
-          variables: {
-            _id: submissionID,
-            sortDirection: "desc",
-            first: 20,
-            offset: 0,
-            nodeType: "example-node",
-          },
         },
+        variableMatcher: () => true,
         result: {
           data: {
             getSubmissionNodes: {
@@ -220,14 +202,8 @@ describe("SubmittedData > Table", () => {
       {
         request: {
           query: GET_SUBMISSION_NODES,
-          variables: {
-            _id: submissionID,
-            sortDirection: "desc",
-            first: 20,
-            offset: 0,
-            nodeType: "example-node",
-          },
         },
+        variableMatcher: () => true,
         result: {
           data: {
             getSubmissionNodes: {
@@ -275,14 +251,8 @@ describe("SubmittedData > Table", () => {
       {
         request: {
           query: GET_SUBMISSION_NODES,
-          variables: {
-            _id: submissionID,
-            sortDirection: "desc",
-            first: 20,
-            offset: 0,
-            nodeType: "example-node",
-          },
         },
+        variableMatcher: () => true,
         result: {
           data: {
             getSubmissionNodes: {
@@ -336,14 +306,8 @@ describe("SubmittedData > Table", () => {
       {
         request: {
           query: GET_SUBMISSION_NODES,
-          variables: {
-            _id: submissionID,
-            sortDirection: "desc",
-            first: 20,
-            offset: 0,
-            nodeType: "example-node",
-          },
         },
+        variableMatcher: () => true,
         result: {
           data: {
             getSubmissionNodes: {
@@ -386,14 +350,8 @@ describe("SubmittedData > Table", () => {
       {
         request: {
           query: GET_SUBMISSION_NODES,
-          variables: {
-            _id: submissionID,
-            sortDirection: "desc",
-            first: 20,
-            offset: 0,
-            nodeType: "example-node",
-          },
         },
+        variableMatcher: () => true,
         result: {
           data: {
             getSubmissionNodes: {

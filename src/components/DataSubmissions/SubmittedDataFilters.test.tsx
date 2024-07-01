@@ -18,6 +18,11 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
 );
 
 describe("SubmittedDataFilters cases", () => {
+  afterEach(() => {
+    jest.clearAllTimers();
+    jest.useRealTimers();
+  });
+
   const baseStatistic: SubmissionStatistic = {
     nodeName: "",
     total: 0,
@@ -191,7 +196,7 @@ describe("SubmittedDataFilters cases", () => {
     });
   });
 
-  it("should visually render the nodeName as lowercase", async () => {
+  it("should always visually render the nodeName as lowercase", async () => {
     const mocks: MockedResponse<SubmissionStatsResp>[] = [
       {
         request: {
@@ -229,54 +234,181 @@ describe("SubmittedDataFilters cases", () => {
     });
   });
 
-  // NOTE: This test no longer applies since the component fetches it's own data.
-  // it("should update the empty selection when the node types are populated", async () => {
-  //   const stats: SubmissionStatistic[] = [
-  //     { ...baseStatistic, nodeName: "FIRST-NODE", total: 999 },
-  //     { ...baseStatistic, nodeName: "SECOND", total: 3 },
-  //     { ...baseStatistic, nodeName: "THIRD", total: 1 },
-  //   ];
+  it("should immediately dispatch NodeType and Status filter changes", async () => {
+    const mockOnChange = jest.fn();
+    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+      {
+        request: {
+          query: SUBMISSION_STATS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionStats: {
+              stats: [
+                { ...baseStatistic, nodeName: "enrollment", total: 3 },
+                { ...baseStatistic, nodeName: "sample", total: 2 },
+                { ...baseStatistic, nodeName: "study", total: 1 },
+              ],
+            },
+          },
+        },
+      },
+    ];
 
-  //   const { getByTestId, rerender } = render(<SubmittedDataFilters statistics={[]} />);
-  //   const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
+    const { getByTestId } = render(
+      <TestParent mocks={mocks}>
+        <SubmittedDataFilters submissionId="example-immediate-dispatch" onChange={mockOnChange} />
+      </TestParent>
+    );
 
-  //   rerender(<SubmittedDataFilters statistics={stats} />);
+    jest.useFakeTimers();
 
-  //   expect(muiSelectBox).toHaveTextContent("FIRST-NODE");
-  // });
+    const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
 
-  // NOTE: This test no longer applies since the component fetches it's own data.
-  // it("should not change a NON-DEFAULT selection when the node types are updated", async () => {
-  //   const stats: SubmissionStatistic[] = [
-  //     { ...baseStatistic, nodeName: "FIRST", total: 100 },
-  //     { ...baseStatistic, nodeName: "SECOND", total: 2 },
-  //     { ...baseStatistic, nodeName: "THIRD", total: 1 },
-  //   ];
+    UserEvent.click(muiSelectBox);
 
-  //   const { getByTestId, rerender } = render(<SubmittedDataFilters statistics={stats} />);
-  //   const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
+    await waitFor(() => {
+      const muiSelectList = within(getByTestId("data-content-node-filter")).getByRole("listbox", {
+        hidden: true,
+      });
 
-  //   await waitFor(() => {
-  //     expect(muiSelectBox).toHaveTextContent("FIRST");
-  //   });
+      expect(within(muiSelectList).getByTestId("nodeType-enrollment")).toBeInTheDocument();
+    });
 
-  //   // Open the dropdown
-  //   await waitFor(() => UserEvent.click(muiSelectBox));
+    UserEvent.click(getByTestId("nodeType-study"));
 
-  //   // Select the 3rd option
-  //   const firstOption = getByTestId("nodeType-THIRD");
-  //   await waitFor(() => UserEvent.click(firstOption));
+    expect(mockOnChange).toHaveBeenCalled(); // Called without advancing timers
+  });
 
-  //   const newStats: SubmissionStatistic[] = [
-  //     ...stats,
-  //     { ...baseStatistic, nodeName: "NEW-FIRST", total: 999 },
-  //   ];
+  it("should debounce the submittedID field input", async () => {
+    const mockOnChange = jest.fn();
+    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+      {
+        request: {
+          query: SUBMISSION_STATS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionStats: {
+              stats: [
+                { ...baseStatistic, nodeName: "enrollment", total: 3 },
+                { ...baseStatistic, nodeName: "sample", total: 2 },
+                { ...baseStatistic, nodeName: "study", total: 1 },
+              ],
+            },
+          },
+        },
+      },
+    ];
 
-  //   rerender(<SubmittedDataFilters statistics={newStats} />);
+    const { getByTestId } = render(
+      <TestParent mocks={mocks}>
+        <SubmittedDataFilters submissionId="example-debounced-dispatch" onChange={mockOnChange} />
+      </TestParent>
+    );
 
-  //   await waitFor(() => {
-  //     // Verify the 3rd option is still selected
-  //     expect(muiSelectBox).toHaveTextContent("THIRD");
-  //   });
-  // });
+    jest.useFakeTimers();
+
+    UserEvent.type(getByTestId("data-content-submitted-id-filter"), "id1");
+    UserEvent.type(getByTestId("data-content-submitted-id-filter"), " abc 9912");
+
+    expect(mockOnChange).not.toHaveBeenCalled(); // Not called before advancing timers
+
+    jest.advanceTimersByTime(500);
+
+    expect(mockOnChange).toHaveBeenCalledWith({
+      nodeType: expect.any(String),
+      status: expect.any(String),
+      submittedID: "id1 abc 9912",
+    }); // Called after advancing timers
+  });
+
+  it("should dispatch an empty submittedID field input immediately", async () => {
+    const mockOnChange = jest.fn();
+    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+      {
+        request: {
+          query: SUBMISSION_STATS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionStats: {
+              stats: [
+                { ...baseStatistic, nodeName: "enrollment", total: 3 },
+                { ...baseStatistic, nodeName: "sample", total: 2 },
+                { ...baseStatistic, nodeName: "study", total: 1 },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks}>
+        <SubmittedDataFilters submissionId="example-empty-submitted-id" onChange={mockOnChange} />
+      </TestParent>
+    );
+
+    jest.useFakeTimers();
+
+    UserEvent.type(getByTestId("data-content-submitted-id-filter"), "valid id here");
+
+    jest.advanceTimersByTime(1000);
+
+    expect(mockOnChange).toHaveBeenCalledWith({
+      nodeType: expect.any(String),
+      status: expect.any(String),
+      submittedID: "valid id here",
+    });
+
+    UserEvent.type(getByTestId("data-content-submitted-id-filter"), "{backspace}".repeat(14));
+
+    expect(mockOnChange).toHaveBeenCalledWith({
+      nodeType: expect.any(String),
+      status: expect.any(String),
+      submittedID: "",
+    }); // Called immediately after clearing the input without advancing timers
+  });
+
+  it("should not dispatch a submittedID field with less than 3 characters", async () => {
+    const mockOnChange = jest.fn();
+    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+      {
+        request: {
+          query: SUBMISSION_STATS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionStats: {
+              stats: [
+                { ...baseStatistic, nodeName: "enrollment", total: 3 },
+                { ...baseStatistic, nodeName: "sample", total: 2 },
+                { ...baseStatistic, nodeName: "study", total: 1 },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks}>
+        <SubmittedDataFilters submissionId="less-than-3-characters" onChange={mockOnChange} />
+      </TestParent>
+    );
+
+    jest.useFakeTimers();
+
+    UserEvent.type(getByTestId("data-content-submitted-id-filter"), "1");
+    UserEvent.type(getByTestId("data-content-submitted-id-filter"), "2");
+
+    jest.advanceTimersByTime(500);
+
+    expect(mockOnChange).not.toHaveBeenCalled();
+  });
 });

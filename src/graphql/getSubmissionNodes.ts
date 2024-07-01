@@ -1,5 +1,6 @@
 import gql from "graphql-tag";
 
+// TODO: Update query for new filters
 export const query = gql`
   query getSubmissionNodes(
     $_id: String!
@@ -30,8 +31,22 @@ export const query = gql`
 `;
 
 export type Input = {
+  /**
+   * The `_id` of the Data Submission
+   */
   _id: string;
+  /**
+   * The type of node to query for
+   */
   nodeType: string;
+  /**
+   * Status filter for the current validation status of the node
+   */
+  status: "All" | ValidationStatus;
+  /**
+   * Optional fuzzy-filter for the submitted Node ID
+   */
+  submittedID?: string;
   first?: number;
   offset?: number;
   orderBy?: string;

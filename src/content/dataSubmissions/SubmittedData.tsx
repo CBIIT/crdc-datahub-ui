@@ -29,8 +29,8 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const tableRef = useRef<TableMethods>(null);
-  const filterRef = useRef<FilterForm>({ nodeType: "" });
-  const prevFilterRef = useRef<FilterForm>({ nodeType: "" });
+  const filterRef = useRef<FilterForm>({ nodeType: "", status: "All", submittedID: "" });
+  const prevFilterRef = useRef<FilterForm>({ nodeType: "", status: "All", submittedID: "" });
   const abortControllerRef = useRef<AbortController>(new AbortController());
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -80,7 +80,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
         offset,
         sortDirection,
         orderBy,
-        nodeType: filterRef.current.nodeType,
+        ...filterRef.current,
       },
       context: { fetchOptions: { signal: abortController.signal } },
     });
@@ -143,7 +143,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
         />
       </Stack>
     ),
-    [submissionId, submissionName, filterRef.current.nodeType, loading, data.length]
+    [submissionId, submissionName, filterRef.current, loading, data.length]
   );
 
   return (
