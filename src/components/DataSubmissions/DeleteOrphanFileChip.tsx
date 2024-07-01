@@ -54,6 +54,14 @@ type Props = {
   onDeleteFile: (success: boolean) => void;
 } & ChipProps;
 
+/**
+ * A chip component that allows deletion of a specific orphan file associated with a submission.
+ *
+ * @param {Props} props
+ * @returns {JSX.Element}
+ *
+ * @deprecated This component is deprecated. The Data View tab will handle deleting orphaned files instead.
+ */
 const DeleteOrphanFileChip = ({
   submission,
   submittedID,
