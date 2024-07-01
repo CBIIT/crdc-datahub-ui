@@ -47,7 +47,7 @@ export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
   submissionId,
   onChange,
 }: SubmittedDataFiltersProps) => {
-  const { watch, setValue, control } = useForm<FilterForm>({
+  const { watch, setValue, getValues, control } = useForm<FilterForm>({
     defaultValues: { nodeType: "", status: "All", submittedID: "" },
   });
 
@@ -76,7 +76,8 @@ export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
       return;
     }
 
-    setValue("nodeType", nodeTypes?.[0] || "");
+    setValue("nodeType", nodeTypes[0]);
+    onChange?.({ ...getValues(), nodeType: nodeTypes[0] });
   }, [nodeTypes]);
 
   useEffect(() => {
