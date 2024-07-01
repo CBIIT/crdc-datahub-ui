@@ -207,7 +207,7 @@ describe("SubmittedData > Table", () => {
         result: {
           data: {
             getSubmissionNodes: {
-              total: 2,
+              total: 1,
               properties: ["col.1", "col.2", "col.3"],
               nodes: [
                 {
@@ -268,7 +268,7 @@ describe("SubmittedData > Table", () => {
                   status: "New",
                 },
                 {
-                  nodeType: "example-node2",
+                  nodeType: "example-node",
                   nodeID: "example-node-id2",
                   props: JSON.stringify({
                     "col-xyz": "value-2",
@@ -295,6 +295,14 @@ describe("SubmittedData > Table", () => {
       expect(getByText("New")).toBeInTheDocument();
     });
   });
+
+  it.todo("should append an interactive Checkbox column to the table");
+
+  it.todo("should select all rows when the 'Select All' checkbox is clicked");
+
+  it.todo("should delete all selected rows when the 'Delete' button is clicked");
+
+  it.todo("should deselect all rows when any filter changes");
 
   // NOTE: We're asserting that the columns ARE built using getSubmissionNodes.properties
   // instead of the keys of nodes.[x].props JSON object

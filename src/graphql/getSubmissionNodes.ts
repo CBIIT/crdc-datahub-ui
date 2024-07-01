@@ -1,5 +1,13 @@
 import gql from "graphql-tag";
 
+const SubmissionNodeFragment = gql`
+  fragment SubmissionNodeFragment on Node {
+    nodeType
+    status
+    props
+  }
+`;
+
 // TODO: Update query for new filters
 export const query = gql`
   query getSubmissionNodes(
@@ -9,6 +17,7 @@ export const query = gql`
     $offset: Int
     $orderBy: String
     $sortDirection: String
+    $partial: Boolean = false
   ) {
     getSubmissionNodes(
       submissionID: $_id
@@ -19,15 +28,14 @@ export const query = gql`
       sortDirection: $sortDirection
     ) {
       total
-      properties
+      properties @skip(if: $partial)
       nodes {
-        nodeType
         nodeID
-        status
-        props
+        ...SubmissionNodeFragment @skip(if: $partial)
       }
     }
   }
+  ${SubmissionNodeFragment}
 `;
 
 export type Input = {
@@ -51,23 +59,35 @@ export type Input = {
   offset?: number;
   orderBy?: string;
   sortDirection?: string;
+  /**
+   * If true, only return the `total`, and `nodes.nodeID` fields
+   * will be returned.
+   */
+  partial?: boolean;
 };
 
-export type Response = {
-  getSubmissionNodes: {
-    /**
-     * Total number of nodes in the submission.
-     */
-    total: number;
-    /**
-     * The list of all node properties including parents
-     */
-    properties: string[];
-    /**
-     * An array of nodes matching the queried node type
-     *
-     * @note Unused values are omitted from the query. See the type definition for additional fields.
-     */
-    nodes: Pick<SubmissionNode, "nodeType" | "nodeID" | "props" | "status">[];
-  };
-};
+export type Response =
+  | {
+      getSubmissionNodes: {
+        /**
+         * Total number of nodes in the submission.
+         */
+        total: number;
+        /**
+         * The list of all node properties including parents
+         */
+        properties: string[];
+        /**
+         * An array of nodes matching the queried node type
+         *
+         * @note Unused values are omitted from the query. See the type definition for additional fields.
+         */
+        nodes: Pick<SubmissionNode, "nodeType" | "nodeID" | "props" | "status">[];
+      };
+    }
+  | {
+      getSubmissionNodes: {
+        total: number;
+        nodes: Pick<SubmissionNode, "nodeID">[];
+      };
+    };
