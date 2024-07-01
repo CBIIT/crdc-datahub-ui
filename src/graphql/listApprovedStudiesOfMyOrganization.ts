@@ -8,6 +8,7 @@ export const query = gql`
       studyName
       studyAbbreviation
       dbGaPID
+      controlledAccess
     }
   }
 `;

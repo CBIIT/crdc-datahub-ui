@@ -1,5 +1,4 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
-import { cloneDeep } from "lodash";
+import { FC, useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -10,7 +9,6 @@ import {
   Grid,
   IconButton,
   MenuItem,
-  SelectChangeEvent,
   Stack,
   Typography,
   styled,
@@ -208,11 +206,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
   const {
     handleSubmit,
     register,
-    reset,
     control,
     watch,
     formState: { errors },
     setValue,
+    reset,
   } = useForm<CreateSubmissionInput>({
     defaultValues: {
       dataCommons: "CDS",
@@ -226,7 +224,9 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
 
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
+  const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
   const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
+
   const [createDataSubmission] = useMutation<CreateSubmissionResp, CreateSubmissionInput>(
     CREATE_SUBMISSION,
     {
@@ -238,24 +238,12 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     LIST_APPROVED_STUDIES_OF_MY_ORG,
     {
       context: { clientName: "backend" },
-      fetchPolicy: "no-cache",
+      fetchPolicy: "cache-and-network",
     }
   );
 
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
   const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
-  const organizationNames: SelectOption[] = organizations?.map((org) => ({
-    label: org.name,
-    value: org.name,
-  }));
-  organizationNames?.unshift({ label: "All", value: "All" });
-  const approvedStudiesMapToDbGaPID = useMemo(() => {
-    const result = {};
-    approvedStudiesData?.listApprovedStudiesOfMyOrganization?.forEach((study) => {
-      result[study.studyAbbreviation] = study.dbGaPID;
-    });
-    return result;
-  }, [approvedStudiesData]);
   const intention = watch("intention");
 
   const submissionTypeOptions = [
@@ -276,52 +264,8 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     { label: "Metadata Only", value: "Metadata Only", disabled: false },
   ];
 
-  useEffect(() => {
-    if (intention === "New/Update") {
-      setValue("dataType", "Metadata and Data Files");
-    }
-    if (intention === "Delete") {
-      setValue("dataType", "Metadata Only");
-    }
-  }, [intention]);
-
-  /**
-   * Updates the default form values after save or initial fetch
-   *
-   * @param data FormInput
-   */
-  const setFormValues = (
-    data: CreateSubmissionInput,
-    fields: (keyof CreateSubmissionInput)[] = [
-      "name",
-      "dataCommons",
-      "dbGaPID",
-      "intention",
-      "studyID",
-      "dataType",
-    ]
-  ) => {
-    const resetData = {};
-
-    fields.forEach((field) => {
-      resetData[field] = cloneDeep(data[field]);
-    });
-
-    reset(resetData);
-  };
-
-  useEffect(() => {
-    setFormValues({
-      dataCommons: "CDS",
-      studyID: "",
-      intention: "New/Update",
-      dataType: "Metadata and Data Files",
-      dbGaPID: "",
-      name: "",
-    });
-  }, []);
-
   const handleOpenDialog = () => {
+    reset();
     setCreatingSubmission(true);
   };
 
@@ -366,16 +310,32 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     createSubmission(data);
   };
 
-  const handleStudyChange = (e: SelectChangeEvent<unknown>) => {
-    const value = e?.target?.value as string;
-    if (!value || !approvedStudiesMapToDbGaPID || !approvedStudiesMapToDbGaPID[value]) {
+  const validateEmpty = (value: string) => (!value?.trim() ? "This field is required" : null);
+
+  useEffect(() => {
+    if (intention === "New/Update") {
+      setValue("dataType", "Metadata and Data Files");
+    }
+    if (intention === "Delete") {
+      setValue("dataType", "Metadata Only");
+    }
+  }, [intention]);
+
+  useEffect(() => {
+    const studyID = watch("studyID");
+    const mappedStudy = approvedStudiesData?.listApprovedStudiesOfMyOrganization?.find(
+      (s) => s._id === studyID
+    );
+
+    if (!studyID || !mappedStudy) {
       setValue("dbGaPID", "");
+      setIsDbGapRequired(false);
       return;
     }
-    setValue("dbGaPID", approvedStudiesMapToDbGaPID[value]);
-  };
 
-  const validateEmpty = (value: string) => (!value?.trim() ? "This field is required" : null);
+    setValue("dbGaPID", mappedStudy.dbGaPID || "");
+    setIsDbGapRequired(mappedStudy.controlledAccess);
+  }, [watch("studyID")]);
 
   return (
     <>
@@ -504,10 +464,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                       <StyledSelect
                         {...field}
                         value={field.value || ""}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          handleStudyChange(e);
-                        }}
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-study-abbreviation-helper-text"
                       >
@@ -524,9 +480,14 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                   </StyledHelperText>
                 </StyledField>
                 <StyledField>
-                  <StyledLabel id="dbGaPID">dbGaP ID</StyledLabel>
+                  <StyledLabel id="dbGaPID">
+                    dbGaP ID
+                    {isDbGapRequired && <StyledAsterisk />}
+                  </StyledLabel>
                   <StyledOutlinedInput
-                    {...register("dbGaPID", { required: false, maxLength: 50 })}
+                    {...register("dbGaPID", {
+                      required: isDbGapRequired ? "This field is required" : null,
+                    })}
                     inputProps={{ maxLength: 50 }}
                     placeholder="Input dbGaP ID"
                     aria-describedby="submission-dbGaPID-helper-text"
