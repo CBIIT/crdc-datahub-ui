@@ -18,6 +18,7 @@ import {
 import { safeParse } from "../../utils";
 import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
 import DataViewContext from "./Contexts/DataViewContext";
+import DeleteDialog from "../../components/DeleteDialog";
 
 const HeaderCheckbox = () => (
   <DataViewContext.Consumer>
@@ -289,6 +290,15 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </DataViewContext.Provider>
+      <DeleteDialog
+        open={false}
+        title={`Remove ${filterRef?.current?.nodeType} Data`}
+        description={`You have selected to delete ${selectedItems.length} ${filterRef?.current?.nodeType}. Are you sure you want to remove them and their associated children from this data submission?`}
+        confirmText="Confirm"
+        closeText="Cancel"
+        onConfirm={() => {}}
+        onClose={() => {}}
+      />
     </>
   );
 };
