@@ -165,7 +165,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
                       onChange={() => handleToggleRow([d.nodeID])}
                     />
                   }
-                  label={<span style={visuallyHidden}>Select All</span>}
+                  label={<span style={visuallyHidden}>Select Row</span>}
                   sx={{ margin: 0 }}
                 />
               </Stack>
