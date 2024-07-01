@@ -52,11 +52,13 @@ const TestParent: React.FC<TestParentProps> = ({ submission, children }) => {
     () => ({
       status: SubmissionCtxStatus.LOADED,
       error: null,
+      isPolling: false,
       data: {
         getSubmission: { ...BaseSubmission, ...submission },
         submissionStats: {
           stats: [],
         },
+        listBatches: null,
       },
     }),
     [submission]

@@ -15,7 +15,7 @@ import {
 } from "../../graphql";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { FormatDate, compareNodeStats, titleCase } from "../../utils";
-import ErrorDialog from "./ErrorDialog";
+import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
 import DeleteAllOrphanFilesButton from "../../components/DataSubmissions/DeleteAllOrphanFilesButton";
@@ -462,7 +462,7 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </QCResultsContext.Provider>
-      <ErrorDialog
+      <ErrorDetailsDialog
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header={null}

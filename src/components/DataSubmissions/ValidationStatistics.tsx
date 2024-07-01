@@ -176,6 +176,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
         {/* NOTE: The transform is derived from the difference of Chart width and
             chart container width which is 50px on each side (100px) */}
         <ContentCarousel
+          key={`carousel_${dataset.length}`}
           additionalTransfrom={dataset.length > 3 ? 100 : 0}
           locked={dataset.length <= 3}
         >
