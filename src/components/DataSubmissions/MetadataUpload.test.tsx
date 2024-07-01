@@ -1,11 +1,11 @@
 import { FC } from "react";
-import { getByLabelText, render, waitFor } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
 import MetadataUpload from "./MetadataUpload";
-import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH } from "../../graphql";
+import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 
 // NOTE: We omit any properties that are explicitly used within component logic
 const baseSubmission: Omit<
@@ -58,7 +58,7 @@ const baseUser: Omit<User, "role"> = {
   updateAt: "",
 };
 
-const baseNewBatch: Omit<NewBatch, "metadataIntention" | "files" | "fileCount"> = {
+const baseNewBatch: Omit<NewBatch, "files" | "fileCount"> = {
   _id: "",
   submissionID: "",
   type: "metadata",
@@ -73,7 +73,6 @@ const baseBatch: Batch = {
   displayID: 0,
   submissionID: "",
   type: "metadata",
-  metadataIntention: "Add",
   fileCount: 0,
   files: [],
   status: "Uploading",
@@ -207,7 +206,7 @@ describe("Basic Functionality", () => {
 
   it("should call onCreateBatch when successfully creating a batch", async () => {
     const onCreateBatchMock = jest.fn();
-    const mocks: MockedResponse[] = [
+    const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
           query: CREATE_BATCH,
@@ -217,7 +216,6 @@ describe("Basic Functionality", () => {
           data: {
             createBatch: {
               ...baseNewBatch,
-              metadataIntention: "Add",
               fileCount: 1,
               files: [{ fileName: "metadata.txt", signedURL: "example-signed-url" }],
             },
@@ -255,9 +253,6 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Add"));
-
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
@@ -270,7 +265,7 @@ describe("Basic Functionality", () => {
 
   it("should call onUpload when successfully uploading metadata", async () => {
     const onUploadMock = jest.fn();
-    const mocks: MockedResponse[] = [
+    const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
           query: CREATE_BATCH,
@@ -280,7 +275,6 @@ describe("Basic Functionality", () => {
           data: {
             createBatch: {
               ...baseNewBatch,
-              metadataIntention: "Add",
               fileCount: 1,
               files: [{ fileName: "metadata.txt", signedURL: "example-signed-url" }],
             },
@@ -318,9 +312,6 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Add"));
-
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
@@ -333,7 +324,7 @@ describe("Basic Functionality", () => {
 
   it("should call onUpload when failing to upload metadata (CREATE BATCH)", async () => {
     const onUploadMock = jest.fn();
-    const mocks: MockedResponse[] = [
+    const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
           query: CREATE_BATCH,
@@ -351,8 +342,12 @@ describe("Basic Functionality", () => {
             updateBatch: {
               ...baseBatch,
               fileCount: 1,
-              files: [{ fileName: "metadata.txt", signedURL: "example-signed-url" }],
-            },
+              files: [
+                {
+                  fileName: "metadata.txt",
+                },
+              ],
+            } as Batch,
           },
         },
       },
@@ -376,9 +371,6 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Add"));
-
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
@@ -391,7 +383,7 @@ describe("Basic Functionality", () => {
 
   it("should call onUpload when failing to upload metadata (UPDATE BATCH)", async () => {
     const onUploadMock = jest.fn();
-    const mocks: MockedResponse[] = [
+    const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
           query: CREATE_BATCH,
@@ -401,7 +393,6 @@ describe("Basic Functionality", () => {
           data: {
             createBatch: {
               ...baseNewBatch,
-              metadataIntention: "Add",
               fileCount: 1,
               files: [{ fileName: "metadata.txt", signedURL: "example-signed-url" }],
             },
@@ -435,9 +426,6 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Add"));
-
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
@@ -454,7 +442,7 @@ describe("Basic Functionality", () => {
       .mockImplementationOnce(() => Promise.reject(new Error("simulated")));
 
     const onUploadMock = jest.fn();
-    const mocks: MockedResponse[] = [
+    const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
           query: CREATE_BATCH,
@@ -464,7 +452,6 @@ describe("Basic Functionality", () => {
           data: {
             createBatch: {
               ...baseNewBatch,
-              metadataIntention: "Add",
               fileCount: 1,
               files: [{ fileName: "metadata.txt", signedURL: "example-signed-url" }],
             },
@@ -502,9 +489,6 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Add"));
-
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
@@ -526,7 +510,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should render the Upload with text 'Uploading...' when metadata is uploading", async () => {
-    const mocks: MockedResponse[] = [
+    const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
           query: CREATE_BATCH,
@@ -536,7 +520,6 @@ describe("Implementation Requirements", () => {
           data: {
             createBatch: {
               ...baseNewBatch,
-              metadataIntention: "Add",
               fileCount: 1,
               files: [{ fileName: "metadata.txt", signedURL: "example-signed-url" }],
             },
@@ -552,7 +535,6 @@ describe("Implementation Requirements", () => {
           data: {
             updateBatch: {
               ...baseBatch,
-              metadataIntention: "Add",
               status: "Uploaded",
             },
           },
@@ -578,9 +560,6 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Add"));
-
     const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
 
@@ -590,177 +569,6 @@ describe("Implementation Requirements", () => {
     await waitFor(() =>
       expect(getByTestId("metadata-upload-file-upload-button")).toHaveTextContent(/Uploading.../i)
     );
-  });
-
-  it("should disable 'Add/Change' and 'Remove' if no metadata or data files are uploaded yet", () => {
-    const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <MetadataUpload
-          submission={{
-            ...baseSubmission,
-            _id: "id-readonly-no-other-data",
-            metadataValidationStatus: null,
-            fileValidationStatus: null,
-          }}
-          onCreateBatch={jest.fn()}
-          onUpload={jest.fn()}
-        />
-      </TestParent>
-    );
-
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-
-    expect(getByLabelText(radio, "Add")).toBeEnabled();
-    expect(getByLabelText(radio, "Add/Change")).toBeDisabled();
-    expect(getByLabelText(radio, "Remove")).toBeDisabled();
-  });
-
-  it.each<MetadataIntention>(["Add", "Add/Change"])(
-    "should create a '%s' metadata batch when that intention is selected",
-    async (intention) => {
-      const variableMatcherMock = jest.fn().mockReturnValue(true);
-      const mocks: MockedResponse<CreateBatchResp>[] = [
-        {
-          request: {
-            query: CREATE_BATCH,
-          },
-          variableMatcher: variableMatcherMock,
-          result: {
-            data: {
-              createBatch: {
-                ...baseNewBatch,
-                metadataIntention: intention,
-                fileCount: 1,
-                files: [{ fileName: "metadata.txt", signedURL: "example-signed-url" }],
-              },
-            },
-          },
-        },
-      ];
-
-      const { getByTestId } = render(
-        <TestParent
-          mocks={mocks}
-          context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}
-        >
-          <MetadataUpload
-            submission={{
-              ...baseSubmission,
-              _id: `id-${intention}-metadata-batch`,
-              metadataValidationStatus: "New",
-              fileValidationStatus: "New",
-            }}
-            onCreateBatch={jest.fn()}
-            onUpload={jest.fn()}
-          />
-        </TestParent>
-      );
-
-      const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-      userEvent.click(getByLabelText(radio, intention));
-
-      const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
-      userEvent.upload(getByTestId("metadata-upload-file-input"), file);
-
-      userEvent.click(getByTestId("metadata-upload-file-upload-button"));
-
-      expect(variableMatcherMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          metadataIntention: intention,
-        })
-      );
-    }
-  );
-
-  // NOTE: this is separate because of the confirmation dialog step
-  it("should create a 'Remove' metadata batch when that intention is selected", async () => {
-    const variableMatcherMock = jest.fn().mockReturnValue(true);
-    const mocks: MockedResponse<CreateBatchResp>[] = [
-      {
-        request: {
-          query: CREATE_BATCH,
-        },
-        variableMatcher: variableMatcherMock,
-        result: {
-          data: {
-            createBatch: {
-              ...baseNewBatch,
-              metadataIntention: "Remove",
-              fileCount: 1,
-              files: [
-                {
-                  fileName: "metadata.txt",
-                  signedURL: "example-signed-url",
-                },
-              ],
-            },
-          },
-        },
-      },
-    ];
-
-    const { getByTestId, getByText } = render(
-      <TestParent
-        mocks={mocks}
-        context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}
-      >
-        <MetadataUpload
-          submission={{
-            ...baseSubmission,
-            _id: "id-delete-metadata-batch",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-          onCreateBatch={jest.fn()}
-          onUpload={jest.fn()}
-        />
-      </TestParent>
-    );
-
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Remove"));
-
-    const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
-    userEvent.upload(getByTestId("metadata-upload-file-input"), file);
-
-    userEvent.click(getByTestId("metadata-upload-file-upload-button"));
-
-    userEvent.click(getByText(/confirm/i)); // NOTE: this is the confirmation dialog
-
-    expect(variableMatcherMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        metadataIntention: "Remove",
-      })
-    );
-  });
-
-  it("should show a confirmation dialog on click when the intention is 'Remove'", async () => {
-    const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
-        <MetadataUpload
-          submission={{
-            ...baseSubmission,
-            _id: "id-readonly-no-other-data",
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-          }}
-          onCreateBatch={jest.fn()}
-          onUpload={jest.fn()}
-        />
-      </TestParent>
-    );
-
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Remove"));
-
-    const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
-    userEvent.upload(getByTestId("metadata-upload-file-input"), file);
-
-    expect(() => getByTestId("metadata-upload-delete-dialog")).toThrow(); // NOTE: not in the DOM yet
-
-    userEvent.click(getByTestId("metadata-upload-file-upload-button"));
-
-    expect(getByTestId("metadata-upload-delete-dialog")).toBeVisible();
   });
 
   it("should show the total count of valid files selected", async () => {
@@ -778,9 +586,6 @@ describe("Implementation Requirements", () => {
         />
       </TestParent>
     );
-
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Add")); // NOTE: this is already selected by default
 
     const files = new Array(10).fill(
       new File(["unused-content"], "fake-metadata.txt", { type: "text/plain" })
@@ -804,9 +609,6 @@ describe("Implementation Requirements", () => {
         />
       </TestParent>
     );
-
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Add")); // NOTE: this is already selected by default
 
     const file = new File(["unused-content"], "fake-metadata.txt", { type: "text/plain" });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
@@ -835,10 +637,6 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-
-    userEvent.click(getByLabelText(radio, "Add")); // NOTE: this is already selected by default
-
     const file = new File(["unused-content"], `allowed-text${ext}`, { type });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
     expect(getByTestId("metadata-upload-file-count")).toHaveTextContent(/1 file selected/i);
@@ -865,8 +663,7 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-    userEvent.click(getByLabelText(radio, "Add")); // NOTE: this is already selected by default
+    // NOTE: this is already selected by default
 
     const file = new File(["unused-content"], `NOT-text${ext}`, { type });
     userEvent.upload(getByTestId("metadata-upload-file-input"), file);
@@ -897,11 +694,6 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-
-    expect(getByLabelText(radio, "Add")).toBeDisabled();
-    expect(getByLabelText(radio, "Add/Change")).toBeDisabled();
-    expect(getByLabelText(radio, "Remove")).toBeDisabled();
     expect(getByTestId("metadata-upload-file-select-button")).toBeDisabled();
   });
 
@@ -932,20 +724,13 @@ describe("Implementation Requirements", () => {
         </TestParent>
       );
 
-      const radio = getByTestId("metadata-upload-batch-intention") as HTMLInputElement;
-      const newRadio = getByLabelText(radio, "Add");
-      const updateRadio = getByLabelText(radio, "Add/Change");
-      const deleteRadio = getByLabelText(radio, "Remove");
+      const uploadButton = getByTestId("metadata-upload-file-select-button");
 
       /* eslint-disable jest/no-conditional-expect */
       if (expected === false) {
-        expect(newRadio).toBeDisabled();
-        expect(updateRadio).toBeDisabled();
-        expect(deleteRadio).toBeDisabled();
+        expect(uploadButton).toBeDisabled();
       } else {
-        expect(newRadio).toBeEnabled();
-        expect(updateRadio).toBeEnabled();
-        expect(deleteRadio).toBeEnabled();
+        expect(uploadButton).toBeEnabled();
       }
       /* eslint-enable jest/no-conditional-expect */
     }
