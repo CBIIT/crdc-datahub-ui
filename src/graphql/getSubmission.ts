@@ -13,6 +13,7 @@ export const query = gql`
       }
       dataCommons
       modelVersion
+      studyID
       studyAbbreviation
       dbGaPID
       bucketName

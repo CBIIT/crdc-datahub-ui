@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export const mutation = gql`
-  mutation saveApplication($application: AppInput!, $controlledAccess: Boolean!) {
-    saveApplication(application: $application, controlledAccess: $controlledAccess) {
+  mutation saveApplication($application: AppInput!) {
+    saveApplication(application: $application) {
       _id
       status
       createdAt
