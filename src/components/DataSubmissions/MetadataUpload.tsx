@@ -8,7 +8,7 @@ import { Button, Stack, Typography, styled } from "@mui/material";
 import RadioInput from "./RadioInput";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
-import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
+import DeleteDialog from "../DeleteDialog";
 import FlowWrapper from "./FlowWrapper";
 
 const StyledUploadTypeText = styled(Typography)(() => ({

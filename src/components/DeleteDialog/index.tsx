@@ -93,7 +93,7 @@ const DeleteDialog = ({
   open,
   ...rest
 }: Props) => (
-  <StyledDialog open={open} onClose={onClose} title="" {...rest}>
+  <StyledDialog open={open} onClose={onClose} title="" data-testid="delete-dialog" {...rest}>
     <StyledCloseDialogButton
       onClick={onClose}
       aria-label="close"
