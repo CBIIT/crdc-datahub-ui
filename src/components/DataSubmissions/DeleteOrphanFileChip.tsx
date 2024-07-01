@@ -58,7 +58,7 @@ type Props = {
  * A chip component that allows deletion of a specific orphan file associated with a submission.
  *
  * @param {Props} props
- * @returns {JSX.Element}
+ * @returns {JSX.Element | null}
  *
  * @deprecated This component is deprecated. The Data View tab will handle deleting orphaned files instead.
  */
