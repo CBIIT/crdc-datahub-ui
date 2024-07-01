@@ -15,11 +15,9 @@ import {
 } from "../../graphql";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { FormatDate, compareNodeStats, titleCase } from "../../utils";
-import ErrorDialog from "./ErrorDialog";
+import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
-import DeleteAllOrphanFilesButton from "../../components/DataSubmissions/DeleteAllOrphanFilesButton";
-import DeleteOrphanFileChip from "../../components/DataSubmissions/DeleteOrphanFileChip";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 
 type FilterForm = {
@@ -142,7 +140,7 @@ const columns: Column<QCResult>[] = [
     renderValue: (data) =>
       (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
         <QCResultsContext.Consumer>
-          {({ submission, handleDeleteOrphanFile, handleOpenErrorDialog }) => (
+          {({ handleOpenErrorDialog }) => (
             <Stack direction="row">
               <StyledIssuesTextWrapper>
                 <span>
@@ -158,11 +156,6 @@ const columns: Column<QCResult>[] = [
                   See details.
                 </StyledErrorDetailsButton>
               </StyledIssuesTextWrapper>
-              <DeleteOrphanFileChip
-                submission={submission}
-                submittedID={data?.submittedID}
-                onDeleteFile={handleDeleteOrphanFile}
-              />
             </Stack>
           )}
         </QCResultsContext.Consumer>
@@ -301,14 +294,6 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
     }
   };
 
-  const handleDeleteOrphanFile = (success: boolean) => {
-    if (!success) {
-      return;
-    }
-    refreshSubmission();
-    tableRef.current?.refresh();
-  };
-
   const handleOpenErrorDialog = (data: QCResult) => {
     setOpenErrorDialog(true);
     setSelectedRow(data);
@@ -316,11 +301,9 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
 
   const providerValue = useMemo(
     () => ({
-      submission,
-      handleDeleteOrphanFile,
       handleOpenErrorDialog,
     }),
-    [submission, handleDeleteOrphanFile, handleOpenErrorDialog]
+    [handleOpenErrorDialog]
   );
 
   useEffect(() => {
@@ -452,17 +435,12 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
                 fields={csvColumns}
                 disabled={totalData <= 0}
               />
-              <DeleteAllOrphanFilesButton
-                submission={submission}
-                disabled={!submission?.fileErrors?.length}
-                onDelete={handleDeleteOrphanFile}
-              />
             </Stack>
           }
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </QCResultsContext.Provider>
-      <ErrorDialog
+      <ErrorDetailsDialog
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header={null}

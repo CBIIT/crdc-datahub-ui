@@ -70,6 +70,12 @@ export const query = gql`
         error
       }
     }
+
+    listBatches(submissionID: $id, first: -1) {
+      batches {
+        status
+      }
+    }
   }
 `;
 
@@ -90,5 +96,11 @@ export type Response = {
    */
   submissionStats: {
     stats: SubmissionStatistic[];
+  };
+  /**
+   * The full list of batches for the submission
+   */
+  listBatches: {
+    batches: Pick<Batch, "status">[];
   };
 };
