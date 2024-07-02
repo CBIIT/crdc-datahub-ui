@@ -1,25 +1,23 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
-import { isEqual } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 import { Box, Button, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useSnackbar } from "notistack";
 import {
   LIST_BATCHES,
-  LIST_NODE_TYPES,
   ListBatchesResp,
-  ListNodeTypesResp,
   SUBMISSION_QC_RESULTS,
+  SUBMISSION_STATS,
   SubmissionQCResultsResp,
+  SubmissionStatsResp,
 } from "../../graphql";
-import GenericTable, { Column } from "../../components/DataSubmissions/GenericTable";
-import { FormatDate, titleCase } from "../../utils";
-import ErrorDialog from "./ErrorDialog";
+import GenericTable, { Column } from "../../components/GenericTable";
+import { FormatDate, compareNodeStats, titleCase } from "../../utils";
+import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
-import DeleteAllOrphanFilesButton from "../../components/DataSubmissions/DeleteAllOrphanFilesButton";
-import DeleteOrphanFileChip from "../../components/DataSubmissions/DeleteOrphanFileChip";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 
 type FilterForm = {
@@ -94,6 +92,14 @@ const StyledIssuesTextWrapper = styled(Box)({
   wordBreak: "break-word",
 });
 
+type TouchedState = { [K in keyof FilterForm]: boolean };
+
+const initialTouchedFields: TouchedState = {
+  nodeType: false,
+  batchID: false,
+  severity: false,
+};
+
 const columns: Column<QCResult>[] = [
   {
     label: "Batch ID",
@@ -134,7 +140,7 @@ const columns: Column<QCResult>[] = [
     renderValue: (data) =>
       (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
         <QCResultsContext.Consumer>
-          {({ submission, handleDeleteOrphanFile, handleOpenErrorDialog }) => (
+          {({ handleOpenErrorDialog }) => (
             <Stack direction="row">
               <StyledIssuesTextWrapper>
                 <span>
@@ -150,11 +156,6 @@ const columns: Column<QCResult>[] = [
                   See details.
                 </StyledErrorDetailsButton>
               </StyledIssuesTextWrapper>
-              <DeleteOrphanFileChip
-                submission={submission}
-                submittedID={data?.submittedID}
-                onDeleteFile={handleDeleteOrphanFile}
-              />
             </Stack>
           )}
         </QCResultsContext.Consumer>
@@ -189,7 +190,13 @@ type Props = {
 
 const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => {
   const { submissionId } = useParams();
-  const { watch, control } = useForm<FilterForm>();
+  const { watch, control } = useForm<FilterForm>({
+    defaultValues: {
+      batchID: "All",
+      nodeType: "All",
+      severity: "All",
+    },
+  });
   const { enqueueSnackbar } = useSnackbar();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -198,6 +205,10 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
   const [totalData, setTotalData] = useState(0);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
+  const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
+  const nodeTypeFilter = watch("nodeType");
+  const batchIDFilter = watch("batchID");
+  const severityFilter = watch("severity");
   const tableRef = useRef<TableMethods>(null);
 
   const errorDescriptions =
@@ -225,11 +236,22 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: nodeTypes } = useQuery<ListNodeTypesResp>(LIST_NODE_TYPES, {
-    variables: { _id: submissionId },
+  const { data: submissionStats } = useQuery<SubmissionStatsResp>(SUBMISSION_STATS, {
+    variables: { id: submissionId },
     context: { clientName: "backend" },
+    skip: !submissionId,
     fetchPolicy: "cache-and-network",
   });
+
+  const nodeTypes = useMemo(
+    () =>
+      cloneDeep(submissionStats?.submissionStats?.stats)
+        ?.filter((stat) => stat.error > 0 || stat.warning > 0)
+        ?.sort(compareNodeStats)
+        ?.reverse()
+        ?.map((stat) => stat.nodeName),
+    [submissionStats?.submissionStats?.stats]
+  );
 
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
@@ -246,8 +268,6 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
     try {
       setLoading(true);
 
-      const nodeType = watch("nodeType");
-      const batchID = watch("batchID");
       const { data: d, error } = await submissionQCResults({
         variables: {
           submissionID: submissionId,
@@ -255,8 +275,8 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
           offset,
           sortDirection,
           orderBy,
-          nodeTypes: !nodeType || nodeType === "All" ? undefined : [watch("nodeType")],
-          batchIDs: !batchID || batchID === "All" ? undefined : [watch("batchID")],
+          nodeTypes: !nodeTypeFilter || nodeTypeFilter === "All" ? undefined : [nodeTypeFilter],
+          batchIDs: !batchIDFilter || batchIDFilter === "All" ? undefined : [batchIDFilter],
           severities: watch("severity") || "All",
         },
         context: { clientName: "backend" },
@@ -274,14 +294,6 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
     }
   };
 
-  const handleDeleteOrphanFile = (success: boolean) => {
-    if (!success) {
-      return;
-    }
-    refreshSubmission();
-    tableRef.current?.refresh();
-  };
-
   const handleOpenErrorDialog = (data: QCResult) => {
     setOpenErrorDialog(true);
     setSelectedRow(data);
@@ -289,16 +301,17 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
 
   const providerValue = useMemo(
     () => ({
-      submission,
-      handleDeleteOrphanFile,
       handleOpenErrorDialog,
     }),
-    [submission, handleDeleteOrphanFile, handleOpenErrorDialog]
+    [handleOpenErrorDialog]
   );
 
   useEffect(() => {
+    if (!touchedFilters.nodeType && !touchedFilters.batchID && !touchedFilters.severity) {
+      return;
+    }
     tableRef.current?.setPage(0, true);
-  }, [watch("nodeType"), watch("batchID"), watch("severity")]);
+  }, [nodeTypeFilter, batchIDFilter, severityFilter]);
 
   useEffect(() => {
     tableRef.current?.refresh();
@@ -307,6 +320,10 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
     submission?.fileValidationStatus,
     submission?.crossSubmissionStatus,
   ]);
+
+  const handleFilterChange = (field: keyof FilterForm) => {
+    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
+  };
 
   return (
     <>
@@ -320,11 +337,14 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
                   MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                   inputProps={{ id: "batchID-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("batchID");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   {batchData?.listBatches?.batches?.map((batch) => (
@@ -348,16 +368,19 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
                   MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                   inputProps={{ id: "nodeType-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("nodeType");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
-                  {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
+                  {nodeTypes?.map((nodeType) => (
                     <MenuItem key={nodeType} value={nodeType}>
-                      {nodeType}
+                      {nodeType.toLowerCase()}
                     </MenuItem>
                   ))}
                 </StyledSelect>
@@ -375,11 +398,14 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  defaultValue="All"
-                  value={field.value || "All"}
+                  value={field.value}
                   /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
                   MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                   inputProps={{ id: "severity-filter" }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("severity");
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Error">Error</MenuItem>
@@ -409,17 +435,12 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
                 fields={csvColumns}
                 disabled={totalData <= 0}
               />
-              <DeleteAllOrphanFilesButton
-                submission={submission}
-                disabled={!submission?.fileErrors?.length}
-                onDelete={handleDeleteOrphanFile}
-              />
             </Stack>
           }
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </QCResultsContext.Provider>
-      <ErrorDialog
+      <ErrorDetailsDialog
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header={null}

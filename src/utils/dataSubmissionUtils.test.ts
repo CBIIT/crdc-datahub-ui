@@ -26,6 +26,10 @@ const baseSubmission: Submission = {
   dataType: "Metadata and Data Files",
   createdAt: "",
   updatedAt: "",
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: ["metadata", "file"],
 };
 
 describe("General Submit", () => {

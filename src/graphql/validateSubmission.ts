@@ -8,6 +8,12 @@ export const mutation = gql`
   }
 `;
 
+export type Input = {
+  _id: string;
+  types?: ValidationType[];
+  scope?: ValidationTarget;
+};
+
 export type Response = {
   validateSubmission: Pick<DataValidationResult, "success">;
 };

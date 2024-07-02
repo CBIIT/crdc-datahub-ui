@@ -21,6 +21,10 @@ export const query = gql`
       metadataValidationStatus
       fileValidationStatus
       crossSubmissionStatus
+      validationStarted
+      validationEnded
+      validationScope
+      validationType
       fileErrors {
         submissionID
         type
@@ -65,8 +69,21 @@ export const query = gql`
         error
       }
     }
+
+    listBatches(submissionID: $id, first: -1) {
+      batches {
+        status
+      }
+    }
   }
 `;
+
+export type Input = {
+  /**
+   * The submission ID
+   */
+  id: string;
+};
 
 export type Response = {
   /**
@@ -78,5 +95,11 @@ export type Response = {
    */
   submissionStats: {
     stats: SubmissionStatistic[];
+  };
+  /**
+   * The full list of batches for the submission
+   */
+  listBatches: {
+    batches: Pick<Batch, "status">[];
   };
 };

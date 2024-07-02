@@ -34,6 +34,7 @@ import {
 import ConfirmDialog from "../../components/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
 import { formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
 type Props = {
   /**
@@ -173,12 +174,14 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const { lastSearchParams } = useSearchParamsContext();
 
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [dataSubmissions, setDataSubmissions] = useState<Partial<Submission>[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
+  const manageOrgPageUrl = `/organizations${lastSearchParams?.["/organizations"] ?? ""}`;
 
   const assignedStudies: string[] = useMemo(() => {
     const activeStudies = {};
@@ -295,6 +298,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     }
 
     setError(null);
+    navigate(manageOrgPageUrl);
   };
 
   const handleBypassWarning = () => {
@@ -348,7 +352,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
         variables: { orgID: _id, organization: _id },
       });
       if (error || !data?.getOrganization) {
-        navigate("/organizations", {
+        navigate(manageOrgPageUrl, {
           state: { error: "Unable to fetch organization" },
         });
         return;
@@ -507,7 +511,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 </StyledButton>
                 <StyledButton
                   type="button"
-                  onClick={() => navigate("/organizations")}
+                  onClick={() => navigate(manageOrgPageUrl)}
                   txt="#666666"
                   border="#828282"
                 >

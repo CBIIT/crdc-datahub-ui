@@ -22,6 +22,7 @@ export const query = gql`
       nodes {
         nodeType
         nodeID
+        status
         props
       }
     }
@@ -52,6 +53,6 @@ export type Response = {
      *
      * @note Unused values are omitted from the query. See the type definition for additional fields.
      */
-    nodes: Pick<SubmissionNode, "nodeType" | "nodeID" | "props">[];
+    nodes: Pick<SubmissionNode, "nodeType" | "nodeID" | "props" | "status">[];
   };
 };
