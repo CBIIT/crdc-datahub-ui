@@ -326,7 +326,7 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
       titleAdornment={
         <StyledTooltip
           placement="right"
-          title="The metadata uploaded in this batch will be compared with existing data within the submission. Any new metadata will be added to the submission, and existing metadata will be updated accordingly."
+          title="The metadata uploaded will be compared with existing data within the submission. All new data will be added to the submission, including updates to existing information."
           open={undefined} // will use hoverListener to open
           disableHoverListener={false}
         />
