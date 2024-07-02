@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -197,11 +197,10 @@ const StyledOutlinedInputMultiline = styled(StyledOutlinedInput)({
 });
 
 type Props = {
-  organizations: Partial<Organization>[];
   onCreate: (data: CreateSubmissionInput) => void;
 };
 
-const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
+const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const { user } = useAuthContext();
   const {
     handleSubmit,
@@ -225,7 +224,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
-  const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
 
   const [createDataSubmission] = useMutation<CreateSubmissionResp, CreateSubmissionInput>(
     CREATE_SUBMISSION,
@@ -363,11 +361,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
         </StyledDialogTitle>
         <StyledDialogContent>
           <StyledFormWrapper>
-            <form
-              id="create-submission-dialog-form"
-              ref={createSubmissionDialogFormRef}
-              onSubmit={handleSubmit(onSubmit)}
-            >
+            <form id="create-submission-dialog-form" onSubmit={handleSubmit(onSubmit)}>
               <Stack direction="column">
                 <StyledField>
                   <Controller
