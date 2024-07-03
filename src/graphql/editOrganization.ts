@@ -5,7 +5,7 @@ export const mutation = gql`
     $orgID: ID!
     $name: String
     $conciergeID: String
-    $studies: [ID]
+    $studies: [ApprovedStudyInput]
     $status: String
   ) {
     editOrganization(
@@ -34,7 +34,7 @@ export type Input = {
   orgID: string;
   name: string;
   conciergeID: string;
-  studies: ApprovedStudy["_id"][];
+  studies: { studyID: string }[];
   status: Organization["status"];
 };
 

@@ -1,6 +1,5 @@
 type ApprovedStudy = {
   _id: string;
-  originalOrg: Organization["_id"];
   /**
    * Study name
    *

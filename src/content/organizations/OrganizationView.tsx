@@ -45,7 +45,9 @@ type Props = {
   _id: string;
 };
 
-type FormInput = Omit<EditOrgInput, "orgID">;
+type FormInput = Omit<EditOrgInput, "orgID" | "studies"> & {
+  studies: string[];
+};
 
 const StyledContainer = styled(Container)({
   marginBottom: "90px",
@@ -248,8 +250,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
 
+    const variables = {
+      ...data,
+      studies: data.studies.map((studyID) => ({ studyID })),
+    };
+
     if (_id === "new" && !organization?._id) {
-      const { data: d, errors } = await createOrganization({ variables: data }).catch((e) => ({
+      const { data: d, errors } = await createOrganization({ variables }).catch((e) => ({
         errors: e?.message,
         data: null,
       }));
@@ -268,7 +275,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       reset();
     } else {
       const { data: d, errors } = await editOrganization({
-        variables: { orgID: organization._id, ...data },
+        variables: { orgID: organization._id, ...variables },
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 
