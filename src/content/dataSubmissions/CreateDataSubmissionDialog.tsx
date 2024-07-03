@@ -19,13 +19,12 @@ import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
-  query as approvedStudiesQuery,
-  Response as approvedStudiesRespone,
-} from "../../graphql/listApprovedStudiesOfMyOrganization";
-import {
-  mutation as CREATE_SUBMISSION,
-  Response as CreateSubmissionResp,
-} from "../../graphql/createSubmission";
+  CREATE_SUBMISSION,
+  CreateSubmissionResp,
+  CreateSubmissionInput,
+  ListApprovedStudiesOfMyOrgResp,
+  LIST_APPROVED_STUDIES_OF_MY_ORG,
+} from "../../graphql";
 import RadioInput from "../../components/DataSubmissions/RadioInput";
 import { DataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
@@ -199,14 +198,9 @@ const StyledOutlinedInputMultiline = styled(StyledOutlinedInput)({
   height: "96px",
 });
 
-type CreateSubmissionParams = Pick<
-  Submission,
-  "studyAbbreviation" | "dataCommons" | "name" | "dbGaPID" | "intention" | "dataType"
->;
-
 type Props = {
   organizations: Partial<Organization>[];
-  onCreate: (data: CreateSubmissionParams) => void;
+  onCreate: (data: CreateSubmissionInput) => void;
 };
 
 const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
@@ -219,10 +213,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     watch,
     formState: { errors },
     setValue,
-  } = useForm<CreateSubmissionParams>({
+  } = useForm<CreateSubmissionInput>({
     defaultValues: {
       dataCommons: "CDS",
-      studyAbbreviation: "",
+      studyID: "",
       intention: "New/Update",
       dataType: "Metadata and Data Files",
       dbGaPID: "",
@@ -233,25 +227,20 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
-  const [createDataSubmission] = useMutation<
-    CreateSubmissionResp,
+  const [createDataSubmission] = useMutation<CreateSubmissionResp, CreateSubmissionInput>(
+    CREATE_SUBMISSION,
     {
-      studyAbbreviation: string;
-      dataCommons: string;
-      name: string;
-      dbGaPID: string;
-      intention: SubmissionIntention;
-      dataType: SubmissionDataType;
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
     }
-  >(CREATE_SUBMISSION, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
-    variables: {},
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  );
+  const { data: approvedStudiesData } = useQuery<ListApprovedStudiesOfMyOrgResp>(
+    LIST_APPROVED_STUDIES_OF_MY_ORG,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
   const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
@@ -302,13 +291,13 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
    * @param data FormInput
    */
   const setFormValues = (
-    data: CreateSubmissionParams,
-    fields: (keyof CreateSubmissionParams)[] = [
+    data: CreateSubmissionInput,
+    fields: (keyof CreateSubmissionInput)[] = [
       "name",
       "dataCommons",
       "dbGaPID",
       "intention",
-      "studyAbbreviation",
+      "studyID",
       "dataType",
     ]
   ) => {
@@ -324,7 +313,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
   useEffect(() => {
     setFormValues({
       dataCommons: "CDS",
-      studyAbbreviation: "",
+      studyID: "",
       intention: "New/Update",
       dataType: "Metadata and Data Files",
       dbGaPID: "",
@@ -337,16 +326,16 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
   };
 
   const createSubmission = async ({
-    studyAbbreviation,
+    studyID,
     dataCommons,
     name,
     dbGaPID,
     intention,
     dataType,
-  }: CreateSubmissionParams) => {
+  }: CreateSubmissionInput) => {
     await createDataSubmission({
       variables: {
-        studyAbbreviation,
+        studyID,
         dataCommons,
         name,
         dbGaPID,
@@ -359,7 +348,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
         setError(false);
         if (onCreate) {
           onCreate({
-            studyAbbreviation,
+            studyID,
             dataCommons,
             name,
             dbGaPID,
@@ -373,7 +362,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
       });
   };
 
-  const onSubmit: SubmitHandler<CreateSubmissionParams> = (data) => {
+  const onSubmit: SubmitHandler<CreateSubmissionInput> = (data) => {
     createSubmission(data);
   };
 
@@ -508,7 +497,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                     <StyledAsterisk />
                   </StyledLabel>
                   <Controller
-                    name="studyAbbreviation"
+                    name="studyID"
                     control={control}
                     rules={{ required: "This field is required" }}
                     render={({ field }) => (
@@ -522,16 +511,16 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-study-abbreviation-helper-text"
                       >
-                        {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((abbr) => (
-                          <MenuItem key={abbr.studyAbbreviation} value={abbr.studyAbbreviation}>
-                            {abbr.studyAbbreviation}
+                        {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((study) => (
+                          <MenuItem key={study._id} value={study._id}>
+                            {study.studyAbbreviation}
                           </MenuItem>
                         ))}
                       </StyledSelect>
                     )}
                   />
                   <StyledHelperText id="submission-study-abbreviation-helper-text">
-                    {errors?.studyAbbreviation?.message}
+                    {errors?.studyID?.message}
                   </StyledHelperText>
                 </StyledField>
                 <StyledField>

@@ -16,13 +16,6 @@ type Application = {
   questionnaireData: QuestionnaireData;
 };
 
-type ApplicationInput = {
-  _id: string;
-  programName: Program["name"];
-  studyAbbreviation: Study["abbreviation"];
-  questionnaireData: string; // Cast to QuestionnaireData
-};
-
 type QuestionnaireData = {
   sections: Section[];
   pi: PI;

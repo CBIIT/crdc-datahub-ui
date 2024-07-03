@@ -6,6 +6,7 @@ type Submission = {
   organization: Pick<Organization, "_id" | "name">; // Organization
   dataCommons: string;
   modelVersion: string;
+  studyID: string;
   studyAbbreviation: string;
   dbGaPID: string; // # aka. phs number
   bucketName: string; // # populated from organization

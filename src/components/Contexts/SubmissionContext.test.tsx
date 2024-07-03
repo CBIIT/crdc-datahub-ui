@@ -49,6 +49,7 @@ const baseSubmission: Submission = {
   otherSubmissions: "",
   createdAt: "",
   updatedAt: "",
+  studyID: "",
 };
 
 const TestChild: FC = () => {
