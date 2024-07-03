@@ -50,6 +50,7 @@ const baseSubmission: Submission = {
   validationEnded: "",
   validationScope: "New",
   validationType: ["metadata", "file"],
+  studyID: "",
 };
 
 const baseContext: ContextState = {
