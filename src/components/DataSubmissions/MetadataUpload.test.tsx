@@ -140,6 +140,41 @@ describe("Accessibility", () => {
   });
 });
 
+describe("MetadataUpload Tooltip", () => {
+  it("should display tooltip on hover with correct text", async () => {
+    const { findByRole, getByLabelText } = render(
+      <TestParent context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}>
+        <MetadataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "id-onCreateBatch-callback",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+          }}
+          onCreateBatch={jest.fn()}
+          onUpload={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    const tooltipText =
+      "The metadata uploaded will be compared with existing data within the submission. All new data will be added to the submission, including updates to existing information.";
+
+    const tooltipBtn = getByLabelText("Toggle Tooltip");
+    userEvent.hover(tooltipBtn);
+
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent(tooltipText);
+
+    userEvent.unhover(tooltipBtn);
+
+    await waitFor(() => {
+      expect(tooltip).not.toBeInTheDocument();
+    });
+  });
+});
+
 describe("Basic Functionality", () => {
   beforeEach(() => {
     jest.spyOn(window, "fetch").mockResolvedValue(new Response(null, { status: 200 }));
