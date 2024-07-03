@@ -18,6 +18,7 @@ import { safeParse } from "../../utils";
 import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
 import DataViewContext from "./Contexts/DataViewContext";
 import DeleteDialog from "../../components/DeleteDialog";
+import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 
 const HeaderCheckbox = () => (
   <DataViewContext.Consumer>
@@ -60,13 +61,10 @@ type T = Pick<SubmissionNode, "nodeType" | "nodeID" | "status"> & {
   props: Record<string, string>;
 };
 
-type Props = {
-  submissionId: string;
-  submissionName: string;
-};
-
-const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
+const SubmittedData: FC = () => {
+  const { data: dataSubmission } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { _id, name } = dataSubmission?.getSubmission || {};
 
   const tableRef = useRef<TableMethods>(null);
   const filterRef = useRef<FilterForm>({ nodeType: "", status: "All", submittedID: "" });
@@ -90,10 +88,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
-    if (!submissionId) {
-      enqueueSnackbar("Cannot fetch results. Submission ID is invalid or missing.", {
-        variant: "error",
-      });
+    if (!_id) {
       return;
     }
     if (!force && data?.length > 0 && isEqual(fetchListing, prevListing)) {
@@ -116,7 +111,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
 
     const { data: d, error } = await getSubmissionNodes({
       variables: {
-        _id: submissionId,
+        _id,
         first,
         offset,
         sortDirection,
@@ -233,7 +228,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
 
     const { data: d, error } = await getSubmissionNodes({
       variables: {
-        _id: submissionId,
+        _id,
         first: -1,
         partial: true,
         ...filterRef.current,
@@ -249,19 +244,19 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
     }
 
     setSelectedItems(d.getSubmissionNodes.nodes.map((node) => node.nodeID));
-  }, [submissionId, filterRef, setSelectedItems]);
+  }, [_id, filterRef, setSelectedItems]);
 
   const Actions = useMemo<React.ReactNode>(
     () => (
       <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
         <ExportNodeDataButton
-          submission={{ _id: submissionId, name: submissionName }}
+          submission={{ _id, name }}
           nodeType={filterRef.current.nodeType}
           disabled={loading || !data?.length}
         />
       </Stack>
     ),
-    [submissionId, submissionName, filterRef.current, loading, data.length]
+    [_id, name, filterRef.current, loading, data.length]
   );
 
   const providerValue = useMemo(
@@ -271,7 +266,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
 
   return (
     <>
-      <SubmittedDataFilters submissionId={submissionId} onChange={handleFilterChange} />
+      <SubmittedDataFilters submissionId={_id} onChange={handleFilterChange} />
       <DataViewContext.Provider value={providerValue}>
         <GenericTable
           ref={tableRef}
@@ -302,6 +297,4 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
   );
 };
 
-export default React.memo<Props>(SubmittedData, (prevProps, nextProps) =>
-  isEqual(prevProps, nextProps)
-);
+export default React.memo(SubmittedData);

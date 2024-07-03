@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
@@ -7,19 +7,51 @@ import { render, waitFor } from "@testing-library/react";
 import SubmittedData from "./SubmittedData";
 import { GET_SUBMISSION_NODES, SUBMISSION_STATS } from "../../graphql";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../../components/Contexts/SubmissionContext";
 
 type ParentProps = {
   mocks?: MockedResponse[];
+  submissionId?: string;
+  submissionName?: string;
   children: React.ReactNode;
 };
 
-const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
-  <MockedProvider mocks={mocks} showWarnings>
-    <MemoryRouter basename="">
-      <SearchParamsProvider>{children}</SearchParamsProvider>
-    </MemoryRouter>
-  </MockedProvider>
-);
+const TestParent: FC<ParentProps> = ({
+  mocks,
+  submissionId,
+  submissionName,
+  children,
+}: ParentProps) => {
+  const value = useMemo<SubmissionCtxState>(
+    () => ({
+      status: SubmissionCtxStatus.LOADED,
+      error: null,
+      isPolling: false,
+      data: {
+        getSubmission: { _id: submissionId, name: submissionName } as Submission,
+        submissionStats: {
+          stats: [],
+        },
+        listBatches: null,
+      },
+    }),
+    [submissionId, submissionName]
+  );
+
+  return (
+    <MockedProvider mocks={mocks} showWarnings>
+      <MemoryRouter basename="">
+        <SubmissionContext.Provider value={value}>
+          <SearchParamsProvider>{children}</SearchParamsProvider>
+        </SubmissionContext.Provider>
+      </MemoryRouter>
+    </MockedProvider>
+  );
+};
 
 describe("SubmittedData > General", () => {
   const baseSubmissionStatistic: SubmissionStatistic = {
@@ -51,29 +83,12 @@ describe("SubmittedData > General", () => {
 
   it("should not have any high level accessibility violations", async () => {
     const { container } = render(
-      <TestParent mocks={[]}>
-        <SubmittedData submissionId={undefined} submissionName={undefined} />
+      <TestParent mocks={[]} submissionId={undefined} submissionName={undefined}>
+        <SubmittedData />
       </TestParent>
     );
 
     expect(await axe(container)).toHaveNoViolations();
-  });
-
-  it("should show an error message when no submission ID is provided", async () => {
-    render(
-      <TestParent mocks={[]}>
-        <SubmittedData submissionId={undefined} submissionName={undefined} />
-      </TestParent>
-    );
-
-    await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Cannot fetch results. Submission ID is invalid or missing.",
-        {
-          variant: "error",
-        }
-      );
-    });
   });
 
   it("should show an error message when the nodes cannot be fetched (network)", async () => {
@@ -91,8 +106,8 @@ describe("SubmittedData > General", () => {
     ];
 
     render(
-      <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} submissionName={undefined} />
+      <TestParent mocks={mocks} submissionId={submissionID} submissionName={undefined}>
+        <SubmittedData />
       </TestParent>
     );
 
@@ -120,8 +135,8 @@ describe("SubmittedData > General", () => {
     ];
 
     render(
-      <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} submissionName={undefined} />
+      <TestParent mocks={mocks} submissionId={submissionID} submissionName={undefined}>
+        <SubmittedData />
       </TestParent>
     );
 
@@ -184,8 +199,8 @@ describe("SubmittedData > Table", () => {
     ];
 
     const { getByText } = render(
-      <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} submissionName={undefined} />
+      <TestParent mocks={mocks} submissionId={submissionID} submissionName={undefined}>
+        <SubmittedData />
       </TestParent>
     );
 
@@ -228,8 +243,8 @@ describe("SubmittedData > Table", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} submissionName={undefined} />
+      <TestParent mocks={mocks} submissionId={submissionID} submissionName={undefined}>
+        <SubmittedData />
       </TestParent>
     );
 
@@ -281,8 +296,8 @@ describe("SubmittedData > Table", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} submissionName={undefined} />
+      <TestParent mocks={mocks} submissionId={submissionID} submissionName={undefined}>
+        <SubmittedData />
       </TestParent>
     );
 
@@ -338,8 +353,8 @@ describe("SubmittedData > Table", () => {
     ];
 
     const { getByTestId, getByText } = render(
-      <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} submissionName={undefined} />
+      <TestParent mocks={mocks} submissionId={submissionID} submissionName={undefined}>
+        <SubmittedData />
       </TestParent>
     );
 
@@ -372,8 +387,8 @@ describe("SubmittedData > Table", () => {
     ];
 
     const { getByTestId } = render(
-      <TestParent mocks={mocks}>
-        <SubmittedData submissionId={submissionID} submissionName={undefined} />
+      <TestParent mocks={mocks} submissionId={submissionID} submissionName={undefined}>
+        <SubmittedData />
       </TestParent>
     );
 
