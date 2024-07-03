@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import GenericTable, { Column } from "../../components/GenericTable";
+import GenericTable, { Column } from "../GenericTable";
 import { FormatDate, paginateAndSort } from "../../utils";
 
 const StyledDialog = styled(Dialog)({
@@ -170,8 +170,8 @@ type Props = {
 const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
   const [batchFiles, setBatchFiles] = useState<BatchFileInfo[]>([]);
   const [prevBatchFilesFetch, setPrevBatchFilesFetch] = useState<FetchListing<BatchFileInfo>>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [error, setError] = useState<string>(null);
+
+  const [, setError] = useState<string>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleCloseDialog = () => {
@@ -203,8 +203,19 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
   };
 
   return (
-    <StyledDialog open={open} onClose={handleCloseDialog} title="" {...rest} scroll="body">
-      <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
+    <StyledDialog
+      open={open}
+      onClose={handleCloseDialog}
+      title=""
+      data-testid="file-list-dialog"
+      scroll="body"
+      {...rest}
+    >
+      <StyledCloseDialogButton
+        aria-label="close"
+        onClick={handleCloseDialog}
+        data-testid="file-list-close-icon"
+      >
         <CloseIconSvg />
       </StyledCloseDialogButton>
       <StyledHeader variant="h3">Data Submission</StyledHeader>
@@ -232,6 +243,7 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
 
       <StyledCloseButton
         id="file-list-dialog-close-button"
+        data-testid="file-list-close-button"
         variant="contained"
         color="info"
         onClick={handleCloseDialog}

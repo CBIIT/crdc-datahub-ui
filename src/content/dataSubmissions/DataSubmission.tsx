@@ -1,9 +1,8 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMutation } from "@apollo/client";
 import {
   Alert,
   Box,
-  Button,
   Card,
   CardActions,
   CardContent,
@@ -14,29 +13,19 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { isEqual } from "lodash";
 import { useSnackbar, VariantType } from "notistack";
 import bannerPng from "../../assets/dataSubmissions/dashboard_banner.png";
 import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
-import {
-  LIST_BATCHES,
-  SUBMISSION_ACTION,
-  ListBatchesResp,
-  SubmissionActionResp,
-} from "../../graphql";
+import { SUBMISSION_ACTION, SubmissionActionResp } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
-import { FormatDate } from "../../utils";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
-import ErrorDialog from "./ErrorDialog";
-import BatchTableContext from "./Contexts/BatchTableContext";
 import ValidationStatistics from "../../components/DataSubmissions/ValidationStatistics";
 import ValidationControls from "../../components/DataSubmissions/ValidationControls";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import FileListDialog from "./FileListDialog";
 import {
   ReleaseInfo,
   shouldDisableRelease,
@@ -46,10 +35,10 @@ import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
 import SubmittedData from "./SubmittedData";
 import { UserGuide } from "../../components/DataSubmissions/UserGuide";
-import GenericTable, { Column } from "../../components/GenericTable";
 import { DataUpload } from "../../components/DataSubmissions/DataUpload";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
+import DataActivity, { DataActivityRef } from "./DataActivity";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -165,11 +154,6 @@ const StyledCardContent = styled(CardContent)({
   backgroundPosition: "top",
 });
 
-const StyledRejectedStatus = styled("div")(() => ({
-  color: "#B54717",
-  fontWeight: 600,
-}));
-
 const StyledCopyWrapper = styled(Stack)(() => ({
   height: "42px",
   width: "fit-content",
@@ -211,131 +195,9 @@ const StyledCopyIDButton = styled(IconButton)(() => ({
   },
 }));
 
-const StyledErrorDetailsButton = styled(Button)(() => ({
-  color: "#0B6CB1",
-  fontFamily: "Inter",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 600,
-  lineHeight: "19px",
-  textDecorationLine: "underline",
-  textTransform: "none",
-  padding: 0,
-  justifyContent: "flex-start",
-  "&:hover": {
-    background: "transparent",
-    textDecorationLine: "underline",
-  },
-}));
-
-const StyledFileCountButton = styled(Button)(() => ({
-  color: "#0B6CB1",
-  fontFamily: "Inter",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 600,
-  lineHeight: "19px",
-  textDecorationLine: "underline",
-  textTransform: "none",
-  padding: 0,
-  justifyContent: "flex-start",
-  "&:hover": {
-    background: "transparent",
-    textDecorationLine: "underline",
-  },
-}));
-
 const StyledFlowContainer = styled(Box)({
   padding: "27px 59px 59px 60px",
 });
-
-const columns: Column<Batch>[] = [
-  {
-    label: "Batch ID",
-    renderValue: (data) => data.displayID,
-    field: "displayID",
-  },
-  {
-    label: "Upload Type",
-    renderValue: (data) => (data?.type !== "metadata" ? "-" : data?.metadataIntention),
-    field: "metadataIntention",
-  },
-  {
-    label: "Batch Type",
-    renderValue: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
-    field: "type",
-  },
-  {
-    label: "File Count",
-    renderValue: (data) => (
-      <BatchTableContext.Consumer>
-        {({ handleOpenFileListDialog }) => (
-          <StyledFileCountButton
-            onClick={() => handleOpenFileListDialog && handleOpenFileListDialog(data)}
-            variant="text"
-            disableRipple
-            disableTouchRipple
-            disableFocusRipple
-          >
-            {Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data?.fileCount || 0)}
-          </StyledFileCountButton>
-        )}
-      </BatchTableContext.Consumer>
-    ),
-    field: "fileCount",
-  },
-  {
-    label: "Status",
-    renderValue: (data) => (
-      <Box textTransform="capitalize">
-        {data.status === "Failed" ? (
-          <StyledRejectedStatus>{data.status}</StyledRejectedStatus>
-        ) : (
-          data.status
-        )}
-      </Box>
-    ),
-    field: "status",
-  },
-  {
-    label: "Uploaded Date",
-    renderValue: (data) =>
-      data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : "",
-    field: "createdAt",
-    default: true,
-    sx: {
-      minWidth: "240px",
-    },
-  },
-  {
-    label: "Upload Errors",
-    renderValue: (data) => (
-      <BatchTableContext.Consumer>
-        {({ handleOpenErrorDialog }) => {
-          if (!data?.errors?.length) {
-            return null;
-          }
-
-          return (
-            <StyledErrorDetailsButton
-              onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
-              variant="text"
-              disableRipple
-              disableTouchRipple
-              disableFocusRipple
-            >
-              {data.errors?.length > 0
-                ? `${data.errors.length} ${data.errors.length === 1 ? "Error" : "Errors"}`
-                : ""}
-            </StyledErrorDetailsButton>
-          );
-        }}
-      </BatchTableContext.Consumer>
-    ),
-    field: "errors",
-    sortDisabled: true,
-  },
-];
 
 const URLTabs = {
   DATA_ACTIVITY: "data-activity",
@@ -363,26 +225,17 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
   const { data, error: submissionError, refetch: getSubmission } = useSubmissionContext();
-
-  const [batches, setBatches] = useState<Batch[]>([]);
-  const [totalBatches, setTotalBatches] = useState<number>(0);
-  const [hasUploadingBatches, setHasUploadingBatches] = useState<boolean>(false);
-  const [prevBatchFetch, setPrevBatchFetch] = useState<FetchListing<Batch>>(null);
   const [error, setError] = useState<string>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
-  const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
-  const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
-  const [startBatchPolling, setStartBatchPolling] = useState<
-    ((pollInterval: number) => void) | null
-  >(null);
-  const [stopBatchPolling, setStopBatchPolling] = useState<(() => void) | null>(null);
+
   const dataSubmissionListPageUrl = `/data-submissions${
     lastSearchParams?.["/data-submissions"] ?? ""
   }`;
-
-  const tableRef = useRef<TableMethods>(null);
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
+  const activityRef = useRef<DataActivityRef>(null);
+  const hasUploadingBatches = useMemo<boolean>(
+    () => data?.listBatches?.batches?.some((b) => b.status === "Uploading"),
+    [data?.listBatches?.batches]
+  );
 
   const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(() => {
     const canSubmitRoles: User["role"][] = [
@@ -402,75 +255,10 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
   );
 
-  const onRetrievebatches = (data: ListBatchesResp) => {
-    setBatches(data.listBatches.batches);
-    setTotalBatches(data.listBatches.total);
-    setHasUploadingBatches(data.fullStatusList.batches.some((b) => b.status === "Uploading"));
-  };
-
-  const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
-    notifyOnNetworkStatusChange: true,
-    onCompleted: onRetrievebatches,
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-
   const [submissionAction] = useMutation<SubmissionActionResp>(SUBMISSION_ACTION, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
-
-  const handleFetchBatches = async (fetchListing: FetchListing<Batch>, force: boolean) => {
-    const { first, offset, sortDirection, orderBy } = fetchListing || {};
-    if (!submissionId) {
-      setError("Invalid submission ID provided.");
-      return;
-    }
-    if (!force && batches?.length > 0 && isEqual(fetchListing, prevBatchFetch)) {
-      return;
-    }
-
-    setPrevBatchFetch(fetchListing);
-
-    try {
-      setLoading(true);
-      const {
-        data: newBatchFiles,
-        error: batchFilesError,
-        startPolling,
-        stopPolling,
-      } = await listBatches({
-        variables: {
-          submissionID: submissionId,
-          first,
-          offset,
-          sortDirection,
-          orderBy,
-        },
-        context: { clientName: "backend" },
-        fetchPolicy: "no-cache",
-      });
-      if (batchFilesError || !newBatchFiles?.listBatches) {
-        setError("Unable to retrieve batch data.");
-        return;
-      }
-
-      const hasUploading = newBatchFiles.fullStatusList?.batches?.some(
-        (b) => b.status === "Uploading"
-      );
-
-      if (hasUploading) {
-        setStartBatchPolling(() => startPolling);
-        setStopBatchPolling(() => stopPolling);
-      }
-
-      // See onRetrievebatches for state updates
-    } catch (err) {
-      setError("Unable to retrieve batch data.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const updateSubmissionAction = async (action: SubmissionAction, reviewComment?: string) => {
     if (!submissionId) {
@@ -494,19 +282,23 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     }
   };
 
-  const refreshBatchTable = () => {
-    tableRef.current?.refresh();
-  };
+  const handleBatchRefresh = useCallback(() => {
+    // Force refresh the batch table to fetch the latest batch
+    activityRef?.current?.tableRef?.refresh?.();
+  }, [activityRef?.current?.tableRef]);
 
-  const handleOnUpload = async (message: string, variant: VariantType) => {
-    refreshBatchTable();
-    enqueueSnackbar(message, { variant });
+  const handleOnUpload = useCallback(
+    async (message: string, variant: VariantType) => {
+      enqueueSnackbar(message, { variant });
 
-    const refreshStatuses: SubmissionStatus[] = ["New", "Withdrawn", "Rejected", "In Progress"];
-    if (refreshStatuses.includes(data?.getSubmission?.status)) {
+      // If the Data Activity tab is active, refresh the table
+      handleBatchRefresh();
+
+      // Refresh the submission data to start polling if needed
       await getSubmission();
-    }
-  };
+    },
+    [enqueueSnackbar, handleBatchRefresh, getSubmission]
+  );
 
   const handleCopyID = () => {
     if (!submissionId) {
@@ -515,24 +307,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
     navigator.clipboard.writeText(submissionId);
   };
 
-  const handleOpenErrorDialog = (data: Batch) => {
-    setOpenErrorDialog(true);
-    setSelectedRow(data);
-  };
-
-  const handleOpenFileListDialog = (data: Batch) => {
-    setOpenFileListDialog(true);
-    setSelectedRow(data);
-  };
-
-  const providerValue = useMemo(
-    () => ({
-      handleOpenErrorDialog,
-      handleOpenFileListDialog,
-    }),
-    [handleOpenErrorDialog]
-  );
-
   useEffect(() => {
     if (!submissionId) {
       setError("Invalid submission ID provided.");
@@ -540,20 +314,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
       setError("Unable to retrieve submission data.");
     }
   }, [submissionError]);
-
-  useEffect(() => {
-    if (!hasUploadingBatches && stopBatchPolling) {
-      stopBatchPolling();
-      getSubmission();
-
-      setStartBatchPolling(null);
-      setStopBatchPolling(null);
-      return;
-    }
-    if (hasUploadingBatches && startBatchPolling) {
-      startBatchPolling(1000);
-    }
-  }, [hasUploadingBatches, stopBatchPolling, startBatchPolling]);
 
   return (
     <StyledWrapper>
@@ -589,7 +349,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
               <MetadataUpload
                 submission={data?.getSubmission}
                 readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
-                onCreateBatch={refreshBatchTable}
+                onCreateBatch={handleBatchRefresh}
                 onUpload={handleOnUpload}
               />
               <DataUpload submission={data?.getSubmission} />
@@ -618,20 +378,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
             <StyledMainContentArea>
               {/* Primary Tab Content */}
-              {tab === URLTabs.DATA_ACTIVITY && (
-                <BatchTableContext.Provider value={providerValue}>
-                  <GenericTable
-                    ref={tableRef}
-                    columns={columns}
-                    data={batches || []}
-                    total={totalBatches || 0}
-                    loading={loading}
-                    defaultRowsPerPage={20}
-                    onFetchData={handleFetchBatches}
-                    containerProps={{ sx: { marginBottom: "8px" } }}
-                  />
-                </BatchTableContext.Provider>
-              )}
+              {tab === URLTabs.DATA_ACTIVITY && <DataActivity ref={activityRef} />}
               {tab === URLTabs.VALIDATION_RESULTS && (
                 <QualityControl
                   submission={data?.getSubmission}
@@ -666,19 +413,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
           </StyledCardActions>
         </StyledCard>
       </StyledBannerContentContainer>
-      <ErrorDialog
-        open={openErrorDialog}
-        onClose={() => setOpenErrorDialog(false)}
-        header="Data Submission"
-        title={`Batch ${selectedRow?.displayID || ""} Upload Errors`}
-        errors={selectedRow?.errors}
-        uploadedDate={data?.getSubmission?.createdAt}
-      />
-      <FileListDialog
-        open={openFileListDialog}
-        batch={selectedRow}
-        onClose={() => setOpenFileListDialog(false)}
-      />
     </StyledWrapper>
   );
 };

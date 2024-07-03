@@ -1,8 +1,8 @@
 import { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
+import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
-import { SubmissionProvider, useSubmissionContext } from "./SubmissionContext";
+import { SubmissionCtxStatus, SubmissionProvider, useSubmissionContext } from "./SubmissionContext";
 import { GET_SUBMISSION, GetSubmissionInput, GetSubmissionResp } from "../../graphql";
 
 const mockStartPolling = jest.fn();
@@ -90,6 +90,7 @@ describe("useSubmissionContext", () => {
           data: {
             getSubmission: null,
             submissionStats: null,
+            listBatches: null,
           },
         },
       },
@@ -149,6 +150,7 @@ describe("SubmissionProvider", () => {
           data: {
             getSubmission: null,
             submissionStats: null,
+            listBatches: null,
           },
         },
       },
@@ -174,6 +176,9 @@ describe("SubmissionProvider", () => {
             },
             submissionStats: {
               stats: [],
+            },
+            listBatches: {
+              batches: [],
             },
           },
         },
@@ -206,6 +211,9 @@ describe("SubmissionProvider", () => {
             },
             submissionStats: {
               stats: [],
+            },
+            listBatches: {
+              batches: [],
             },
           },
         },
@@ -240,6 +248,9 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
+            listBatches: {
+              batches: [],
+            },
           },
         },
       },
@@ -249,5 +260,130 @@ describe("SubmissionProvider", () => {
 
     await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
     expect(mockStartPolling).not.toHaveBeenCalled();
+  });
+
+  it("should start polling if there are uploading batches", async () => {
+    const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: 1,
+        request: {
+          query: GET_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmission: {
+              ...baseSubmission,
+              _id: "test-uploading-id",
+            },
+            submissionStats: {
+              stats: [],
+            },
+            listBatches: {
+              batches: [
+                {
+                  status: "Uploading",
+                },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    render(<TestParent mocks={mocks} _id="test-uploading-id" />);
+
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
+    expect(mockStopPolling).not.toHaveBeenCalled();
+  });
+
+  it("should stop polling if there are no uploading batches", async () => {
+    const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: 1,
+        request: {
+          query: GET_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmission: {
+              ...baseSubmission,
+              _id: "test-uploading-id",
+            },
+            submissionStats: {
+              stats: [],
+            },
+            listBatches: {
+              batches: [
+                {
+                  status: "Uploaded",
+                },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    render(<TestParent mocks={mocks} _id="test-uploading-id" />);
+
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
+    expect(mockStartPolling).not.toHaveBeenCalled();
+  });
+
+  it("should use the polling wrapper functions to start and stop polling", async () => {
+    const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
+      {
+        request: {
+          query: GET_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmission: {
+              ...baseSubmission,
+              _id: "test-wrapper-id",
+            },
+            submissionStats: {
+              stats: [],
+            },
+            listBatches: {
+              batches: [
+                {
+                  status: "Uploaded",
+                },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    const { result } = renderHook(() => useSubmissionContext(), {
+      wrapper: ({ children }) => (
+        <TestParent mocks={mocks} _id="test-wrapper-id">
+          {children}
+        </TestParent>
+      ),
+    });
+
+    await waitFor(() => expect(result.current.status).toBe(SubmissionCtxStatus.LOADED));
+
+    const { startPolling, stopPolling } = result.current;
+
+    act(() => {
+      startPolling(1000);
+    });
+
+    expect(mockStartPolling).toHaveBeenCalledWith(1000);
+    expect(result.current.isPolling).toBe(true);
+
+    act(() => {
+      stopPolling();
+    });
+
+    expect(mockStopPolling).toHaveBeenCalled();
+    expect(result.current.isPolling).toBe(false);
   });
 });
