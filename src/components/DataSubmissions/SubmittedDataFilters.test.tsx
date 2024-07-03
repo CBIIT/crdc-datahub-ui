@@ -3,7 +3,7 @@ import { render, waitFor, within } from "@testing-library/react";
 import UserEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { SubmittedDataFilters } from "./SubmittedDataFilters";
+import SubmittedDataFilters from "./SubmittedDataFilters";
 import { SUBMISSION_STATS, SubmissionStatsResp } from "../../graphql";
 
 type ParentProps = {

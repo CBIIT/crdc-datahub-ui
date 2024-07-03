@@ -11,8 +11,7 @@ import {
   GetSubmissionNodesResp,
 } from "../../graphql";
 import GenericTable, { Column } from "../../components/GenericTable";
-import {
-  SubmittedDataFilters,
+import SubmittedDataFilters, {
   FilterForm,
 } from "../../components/DataSubmissions/SubmittedDataFilters";
 import { safeParse } from "../../utils";

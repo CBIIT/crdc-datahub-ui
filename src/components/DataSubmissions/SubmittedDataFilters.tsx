@@ -1,6 +1,6 @@
-import { FC, useEffect, useMemo, useRef } from "react";
+import { FC, memo, useEffect, useMemo, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { cloneDeep, debounce } from "lodash";
+import { cloneDeep, debounce, isEqual } from "lodash";
 import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { compareNodeStats } from "../../utils";
@@ -43,7 +43,7 @@ const StyledInlineLabel = styled("label")({
   paddingRight: "10px",
 });
 
-export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
+const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
   submissionId,
   onChange,
 }: SubmittedDataFiltersProps) => {
@@ -176,3 +176,5 @@ export const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
     </StyledContainer>
   );
 };
+
+export default memo<SubmittedDataFiltersProps>(SubmittedDataFilters, isEqual);
