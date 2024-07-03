@@ -114,7 +114,7 @@ export { query as GET_ORG } from "./getOrganization";
 export type { Response as GetOrgResp } from "./getOrganization";
 
 export { mutation as EDIT_ORG } from "./editOrganization";
-export type { Input as EditOrgInput, Response as EditOrgResp } from "./editOrganization";
+export type { Response as EditOrgResp } from "./editOrganization";
 
 export { query as LIST_CURATORS } from "./listActiveCurators";
 export type { Response as ListCuratorsResp } from "./listActiveCurators";
@@ -123,7 +123,7 @@ export { query as LIST_APPROVED_STUDIES } from "./listApprovedStudies";
 export type { Response as ListApprovedStudiesResp } from "./listApprovedStudies";
 
 export { mutation as CREATE_ORG } from "./createOrganization";
-export type { Input as CreateOrgInput, Response as CreateOrgResp } from "./createOrganization";
+export type { Response as CreateOrgResp } from "./createOrganization";
 
 // Misc.
 export { mutation as GRANT_TOKEN } from "./grantToken";

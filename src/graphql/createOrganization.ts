@@ -20,12 +20,6 @@ export const mutation = gql`
   }
 `;
 
-export type Input = {
-  name: string;
-  conciergeID: string;
-  studies: ApprovedStudy["_id"][];
-};
-
 export type Response = {
   createOrganization: Organization;
 };

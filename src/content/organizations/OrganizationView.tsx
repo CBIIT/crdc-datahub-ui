@@ -30,8 +30,6 @@ import {
   ListApprovedStudiesResp,
   LIST_CURATORS,
   ListCuratorsResp,
-  EditOrgInput,
-  CreateOrgInput,
 } from "../../graphql";
 import ConfirmDialog from "../../components/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -45,7 +43,9 @@ type Props = {
   _id: string;
 };
 
-type FormInput = Omit<EditOrgInput, "orgID">;
+type FormInput = Omit<EditOrganizationInput, "studies"> & {
+  studies: ApprovedStudy["_id"][];
+};
 
 const StyledContainer = styled(Container)({
   marginBottom: "90px",
@@ -220,12 +220,12 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     fetchPolicy: "no-cache",
   });
 
-  const [editOrganization] = useMutation<EditOrgResp, EditOrgInput>(EDIT_ORG, {
+  const [editOrganization] = useMutation<EditOrgResp>(EDIT_ORG, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const [createOrganization] = useMutation<CreateOrgResp, CreateOrgInput>(CREATE_ORG, {
+  const [createOrganization] = useMutation<CreateOrgResp>(CREATE_ORG, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -248,8 +248,20 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
 
+    const studyMap: {
+      [_id: string]: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">;
+    } = {};
+    approvedStudies?.listApprovedStudies?.forEach(({ _id, studyName, studyAbbreviation }) => {
+      studyMap[_id] = { studyName, studyAbbreviation };
+    });
+
+    const variables = {
+      ...data,
+      studies: data.studies.map((_id) => studyMap[_id])?.filter((s) => !!s?.studyName) || [],
+    };
+
     if (_id === "new" && !organization?._id) {
-      const { data: d, errors } = await createOrganization({ variables: data }).catch((e) => ({
+      const { data: d, errors } = await createOrganization({ variables }).catch((e) => ({
         errors: e?.message,
         data: null,
       }));
@@ -268,7 +280,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       reset();
     } else {
       const { data: d, errors } = await editOrganization({
-        variables: { orgID: organization._id, ...data },
+        variables: { orgID: organization._id, ...variables },
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 

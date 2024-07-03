@@ -141,7 +141,6 @@ export const formatFullStudyName = (studyName: string, studyAbbreviation: string
  * Attempts to map a study name + abbreviation combination to an approved study ID.
  *
  * - Will return the first match found
- * - If the orgStudy already has an ID, it will be returned
  * - If no match is found, an empty string is returned
  *
  * @param Study information from Organization object
@@ -153,10 +152,6 @@ export const mapOrganizationStudyToId = (
   studies: Pick<ApprovedStudy, "_id" | "studyName" | "studyAbbreviation">[]
 ): ApprovedStudy["_id"] => {
   const { studyName, studyAbbreviation } = orgStudy || {};
-
-  if (orgStudy && "_id" in orgStudy && typeof orgStudy._id === "string") {
-    return orgStudy?._id;
-  }
 
   return (
     studies?.find(
