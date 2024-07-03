@@ -58,16 +58,9 @@ type Organization = {
   conciergeID: string | null;
   conciergeName: string | null;
   conciergeEmail: string | null;
-  studies: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">[];
+  studies: ApprovedStudy[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
-};
-
-type EditOrganizationInput = {
-  name: Organization["name"];
-  conciergeID: User["_id"];
-  studies: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">[];
-  status: Organization["status"];
 };
 
 type Tokens = {
