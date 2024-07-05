@@ -358,7 +358,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
             <StyledTabs value={isValidTab ? tab : URLTabs.DATA_ACTIVITY}>
               <LinkTab
                 value={URLTabs.DATA_ACTIVITY}
-                label="Data Activity"
+                label="Upload Activities"
                 to={`/data-submission/${submissionId}/${URLTabs.DATA_ACTIVITY}`}
                 selected={tab === URLTabs.DATA_ACTIVITY}
               />
