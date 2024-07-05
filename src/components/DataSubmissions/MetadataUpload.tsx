@@ -5,10 +5,9 @@ import { LoadingButton } from "@mui/lab";
 import { isEqual } from "lodash";
 import { VariantType } from "notistack";
 import { Button, Stack, Typography, styled } from "@mui/material";
-import RadioInput from "./RadioInput";
+import Tooltip from "../Tooltip";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
-import DeleteDialog from "../DeleteDialog";
 import FlowWrapper from "./FlowWrapper";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
@@ -72,12 +71,16 @@ const StyledUploadActionWrapper = styled(Stack)(() => ({
   "&.MuiStack-root": {
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: "20px",
   },
 }));
 
 const VisuallyHiddenInput = styled("input")(() => ({
   display: "none !important",
+}));
+
+const StyledTooltip = styled(Tooltip)(() => ({
+  alignSelf: "start",
+  marginTop: "3.5px",
 }));
 
 const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
@@ -99,29 +102,12 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
   const { submissionId } = useParams();
   const { user } = useAuthContext();
 
-  const [metadataIntention, setMetadataIntention] = useState<MetadataIntention>("Add");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
   const isSubmissionOwner = submission?.submitterID === user?._id;
   const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
-  const isNewSubmission =
-    !submission?.metadataValidationStatus && !submission?.fileValidationStatus;
   const acceptedExtensions = [".tsv", ".txt"];
-  const metadataIntentionOptions = [
-    { label: "Add", value: "Add", disabled: !canUpload },
-    {
-      label: "Add/Change",
-      value: "Add/Change",
-      disabled: !canUpload || isNewSubmission,
-    },
-    {
-      label: "Remove",
-      value: "Remove",
-      disabled: !canUpload || isNewSubmission,
-    },
-  ];
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
     context: { clientName: "backend" },
@@ -181,12 +167,7 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
   };
 
   const onUploadFail = (fileCount = 0) => {
-    onUpload(
-      `${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to ${
-        metadataIntention === "Remove" ? "remove" : "upload"
-      }`,
-      "error"
-    );
+    onUpload(`${fileCount} ${fileCount > 1 ? "Files" : "File"} failed to upload`, "error");
     setSelectedFiles(null);
     setIsUploading(false);
     if (uploadMetadataInputRef.current) {
@@ -208,7 +189,6 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
         variables: {
           submissionID: submissionId,
           type: "metadata",
-          metadataIntention,
           files: formattedFiles,
         },
       });
@@ -310,23 +290,12 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
     onBucketUpload(newBatch._id, uploadResult);
   };
 
-  const onCloseDeleteDialog = () => {
-    setOpenDeleteDialog(false);
-  };
-
-  const onDeleteUpload = () => {
-    setOpenDeleteDialog(false);
-    handleUploadFiles();
-  };
-
   const Actions: ReactElement = useMemo(
     () => (
       <StyledUploadFilesButton
         variant="contained"
         color="info"
-        onClick={() =>
-          metadataIntention === "Remove" ? setOpenDeleteDialog(true) : handleUploadFiles()
-        }
+        onClick={handleUploadFiles}
         data-testid="metadata-upload-file-upload-button"
         disabled={readOnly || !selectedFiles?.length || !canUpload || isUploading}
         disableElevation
@@ -336,25 +305,24 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
         {isUploading ? "Uploading..." : "Upload"}
       </StyledUploadFilesButton>
     ),
-    [selectedFiles, metadataIntention, readOnly, canUpload, isUploading]
+    [selectedFiles, readOnly, canUpload, isUploading]
   );
 
   return (
-    <FlowWrapper index={1} title="Upload Metadata" actions={Actions}>
-      <Stack direction="row" alignItems="center" spacing={1.25}>
-        <RadioInput
-          id="data-submission-dashboard-upload-type"
-          data-testid="metadata-upload-batch-intention"
-          label="Upload Type:"
-          value={metadataIntention}
-          onChange={(_, value: MetadataIntention) => !readOnly && setMetadataIntention(value)}
-          options={metadataIntentionOptions}
-          gridWidth={4}
-          parentProps={{ sx: { minWidth: "430px" } }}
-          readOnly={readOnly}
-          inline
-          row
+    <FlowWrapper
+      index={1}
+      title="Upload Metadata"
+      titleAdornment={
+        <StyledTooltip
+          placement="right"
+          title="The metadata uploaded will be compared with existing data within the submission. All new data will be added to the submission, including updates to existing information."
+          open={undefined} // will use hoverListener to open
+          disableHoverListener={false}
         />
+      }
+      actions={Actions}
+    >
+      <Stack direction="row" alignItems="center" spacing={1.25}>
         <StyledUploadActionWrapper direction="row">
           <StyledMetadataText variant="body2">Metadata Files</StyledMetadataText>
           <VisuallyHiddenInput
@@ -383,12 +351,6 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
           </StyledFilesSelected>
         </StyledUploadActionWrapper>
       </Stack>
-      <DeleteDialog
-        open={openDeleteDialog}
-        onClose={onCloseDeleteDialog}
-        onConfirm={onDeleteUpload}
-        data-testid="metadata-upload-delete-dialog"
-      />
     </FlowWrapper>
   );
 };

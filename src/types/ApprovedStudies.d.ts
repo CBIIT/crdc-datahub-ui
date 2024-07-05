@@ -1,6 +1,5 @@
 type ApprovedStudy = {
   _id: string;
-  originalOrg: Organization["_id"];
   /**
    * Study name
    *
@@ -13,5 +12,12 @@ type ApprovedStudy = {
    * @example GIS
    */
   studyAbbreviation: string;
+  /**
+   * dbGaP ID associated with the study
+   */
   dbGaPID: string;
+  /**
+   * Boolean flag dictating whether the study has controlled access data
+   */
+  controlledAccess: boolean;
 };

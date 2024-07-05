@@ -15,7 +15,7 @@ export { mutation as REJECT_APP } from "./rejectApplication";
 export type { Response as RejectAppResp } from "./rejectApplication";
 
 export { mutation as SAVE_APP } from "./saveApplication";
-export type { Response as SaveAppResp } from "./saveApplication";
+export type { Input as SaveAppInput, Response as SaveAppResp } from "./saveApplication";
 
 export { mutation as SUBMIT_APP } from "./submitApplication";
 export type { Response as SubmitAppResp } from "./submitApplication";
@@ -33,6 +33,12 @@ export { query as LIST_INSTITUTIONS } from "./listInstitutions";
 export type { Response as ListInstitutionsResp } from "./listInstitutions";
 
 // Data Submissions
+export { mutation as CREATE_SUBMISSION } from "./createSubmission";
+export type {
+  Input as CreateSubmissionInput,
+  Response as CreateSubmissionResp,
+} from "./createSubmission";
+
 export { query as GET_SUBMISSION } from "./getSubmission";
 export type { Input as GetSubmissionInput, Response as GetSubmissionResp } from "./getSubmission";
 
@@ -108,7 +114,7 @@ export { query as GET_ORG } from "./getOrganization";
 export type { Response as GetOrgResp } from "./getOrganization";
 
 export { mutation as EDIT_ORG } from "./editOrganization";
-export type { Response as EditOrgResp } from "./editOrganization";
+export type { Input as EditOrgInput, Response as EditOrgResp } from "./editOrganization";
 
 export { query as LIST_CURATORS } from "./listActiveCurators";
 export type { Response as ListCuratorsResp } from "./listActiveCurators";
@@ -117,8 +123,11 @@ export { query as LIST_APPROVED_STUDIES } from "./listApprovedStudies";
 export type { Response as ListApprovedStudiesResp } from "./listApprovedStudies";
 
 export { mutation as CREATE_ORG } from "./createOrganization";
-export type { Response as CreateOrgResp } from "./createOrganization";
+export type { Input as CreateOrgInput, Response as CreateOrgResp } from "./createOrganization";
 
 // Misc.
 export { mutation as GRANT_TOKEN } from "./grantToken";
 export type { Response as GrantTokenResp } from "./grantToken";
+
+export { query as LIST_APPROVED_STUDIES_OF_MY_ORG } from "./listApprovedStudiesOfMyOrganization";
+export type { Response as ListApprovedStudiesOfMyOrgResp } from "./listApprovedStudiesOfMyOrganization";

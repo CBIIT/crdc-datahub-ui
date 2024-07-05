@@ -11,7 +11,6 @@ const baseBatch: Batch = {
   displayID: 0,
   submissionID: "",
   type: "metadata",
-  metadataIntention: "Add",
   fileCount: 0,
   files: [],
   status: "Uploading",

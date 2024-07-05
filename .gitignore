@@ -18,6 +18,7 @@
 /.env.production.local
 .idea
 .vscode
+.nvmrc
 features.html
 
 npm-debug.log*

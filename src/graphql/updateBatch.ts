@@ -10,7 +10,6 @@ export const mutation = gql`
       _id
       submissionID
       type
-      metadataIntention
       fileCount
       files {
         filePrefix

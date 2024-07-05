@@ -21,6 +21,7 @@ import {
   SaveAppResp,
   SubmitAppResp,
   ApproveAppInput,
+  SaveAppInput,
 } from "../../graphql";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import ErrorCodes from "../../config/ErrorCodes";
@@ -108,7 +109,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     fetchPolicy: "no-cache",
   });
 
-  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
+  const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -167,6 +168,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
             programName: data?.program?.name,
             studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
             questionnaireData: JSON.stringify(data),
+            controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
           },
         },
       });

@@ -332,8 +332,9 @@ const DataSubmissionActions = ({
         }
       >
         <StyledDialogText variant="body2">
-          This action will lock your submission and it will no longer accept updates to the data.
-          Are you sure you want to proceed?
+          {submission?.status === "Rejected"
+            ? "Are you sure you want to resubmit your data without making any changes? Your previous submission was rejected, and resubmitting without addressing the issues may result in another rejection."
+            : "This action will lock your submission and it will no longer accept updates to the data. Are you sure you want to proceed?"}
         </StyledDialogText>
       </StyledDialog>
 

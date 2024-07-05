@@ -65,11 +65,6 @@ const columns: Column<Batch>[] = [
     field: "displayID",
   },
   {
-    label: "Upload Type",
-    renderValue: (data) => (data?.type !== "metadata" ? "-" : data?.metadataIntention),
-    field: "metadataIntention",
-  },
-  {
     label: "Batch Type",
     renderValue: (data) => <Box textTransform="capitalize">{data?.type}</Box>,
     field: "type",

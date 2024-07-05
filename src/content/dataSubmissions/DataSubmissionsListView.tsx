@@ -385,10 +385,7 @@ const ListingView: FC = () => {
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}
             {/* Create a submission only available to org owners and submitters that have organizations assigned */}
-            <CreateDataSubmissionDialog
-              organizations={activeOrganizations}
-              onCreate={handleOnCreateSubmission}
-            />
+            <CreateDataSubmissionDialog onCreate={handleOnCreateSubmission} />
           </StyledBannerBody>
         }
         bannerSrc={bannerSvg}

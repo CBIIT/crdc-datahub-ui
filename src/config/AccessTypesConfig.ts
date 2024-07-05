@@ -9,6 +9,7 @@ const options: FormGroupCheckboxOption[] = [
     tooltipText: "Data made publicly available to everyone without access restrictions",
   },
   {
+    // NOTE: If updating this value, please update the saveApp mutation in FormContext.tsx
     label: "Controlled Access",
     value: "Controlled Access",
     tooltipText:
