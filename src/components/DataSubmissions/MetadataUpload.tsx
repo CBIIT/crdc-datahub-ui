@@ -8,7 +8,6 @@ import { Button, Stack, Typography, styled } from "@mui/material";
 import Tooltip from "../Tooltip";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
-import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
 import FlowWrapper from "./FlowWrapper";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
@@ -105,7 +104,6 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
 
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
   const isSubmissionOwner = submission?.submitterID === user?._id;
   const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
@@ -292,15 +290,6 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
     onBucketUpload(newBatch._id, uploadResult);
   };
 
-  const onCloseDeleteDialog = () => {
-    setOpenDeleteDialog(false);
-  };
-
-  const onDeleteUpload = () => {
-    setOpenDeleteDialog(false);
-    handleUploadFiles();
-  };
-
   const Actions: ReactElement = useMemo(
     () => (
       <StyledUploadFilesButton
@@ -362,12 +351,6 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
           </StyledFilesSelected>
         </StyledUploadActionWrapper>
       </Stack>
-      <DeleteDialog
-        open={openDeleteDialog}
-        onClose={onCloseDeleteDialog}
-        onConfirm={onDeleteUpload}
-        data-testid="metadata-upload-delete-dialog"
-      />
     </FlowWrapper>
   );
 };
