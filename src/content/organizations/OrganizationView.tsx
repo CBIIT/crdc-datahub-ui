@@ -30,6 +30,8 @@ import {
   ListApprovedStudiesResp,
   LIST_CURATORS,
   ListCuratorsResp,
+  EditOrgInput,
+  CreateOrgInput,
 } from "../../graphql";
 import ConfirmDialog from "../../components/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -43,8 +45,8 @@ type Props = {
   _id: string;
 };
 
-type FormInput = Omit<EditOrganizationInput, "studies"> & {
-  studies: ApprovedStudy["_id"][];
+type FormInput = Omit<EditOrgInput, "orgID" | "studies"> & {
+  studies: string[];
 };
 
 const StyledContainer = styled(Container)({
@@ -220,12 +222,12 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     fetchPolicy: "no-cache",
   });
 
-  const [editOrganization] = useMutation<EditOrgResp>(EDIT_ORG, {
+  const [editOrganization] = useMutation<EditOrgResp, EditOrgInput>(EDIT_ORG, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const [createOrganization] = useMutation<CreateOrgResp>(CREATE_ORG, {
+  const [createOrganization] = useMutation<CreateOrgResp, CreateOrgInput>(CREATE_ORG, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -248,16 +250,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
 
-    const studyMap: {
-      [_id: string]: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">;
-    } = {};
-    approvedStudies?.listApprovedStudies?.forEach(({ _id, studyName, studyAbbreviation }) => {
-      studyMap[_id] = { studyName, studyAbbreviation };
-    });
-
     const variables = {
       ...data,
-      studies: data.studies.map((_id) => studyMap[_id])?.filter((s) => !!s?.studyName) || [],
+      studies: data.studies.map((studyID) => ({ studyID })),
     };
 
     if (_id === "new" && !organization?._id) {

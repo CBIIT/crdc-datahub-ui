@@ -21,6 +21,7 @@ export const mutation = gql`
       conciergeID
       conciergeName
       studies {
+        _id
         studyName
         studyAbbreviation
       }
@@ -29,6 +30,14 @@ export const mutation = gql`
     }
   }
 `;
+
+export type Input = {
+  orgID: string;
+  name: string;
+  conciergeID: string;
+  studies: { studyID: string }[];
+  status: Organization["status"];
+};
 
 export type Response = {
   editOrganization: Organization;
