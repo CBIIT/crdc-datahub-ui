@@ -308,13 +308,9 @@ describe("SubmittedData > Table", () => {
 
   it.todo("should append an interactive Checkbox column to the table");
 
-  it.todo("should select all rows when the 'Select All' checkbox is clicked");
+  it.todo("should fetch all nodes when the 'Select All' checkbox is clicked");
 
   it.todo("should handle failure to query for all nodes when 'Select All' is clicked");
-
-  it.todo("should delete all selected rows when the 'Delete' button is clicked");
-
-  it.todo("should use the proper pluralization for the delete dialog content button");
 
   it.todo("should deselect all rows when any filter changes");
 

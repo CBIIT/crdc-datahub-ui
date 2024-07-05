@@ -3,7 +3,7 @@ import { flushSync } from "react-dom";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { Checkbox, FormControlLabel, Stack } from "@mui/material";
+import { Checkbox, FormControlLabel, Stack, styled } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import {
   GET_SUBMISSION_NODES,
@@ -17,8 +17,14 @@ import SubmittedDataFilters, {
 import { safeParse } from "../../utils";
 import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
 import DataViewContext from "./Contexts/DataViewContext";
-import DeleteDialog from "../../components/DeleteDialog";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
+import DeleteNodeDataButton from "../../components/DataSubmissions/DeleteNodeDataButton";
+
+const StyledCheckbox = styled(Checkbox)({
+  padding: 0,
+  marginLeft: "10px",
+  marginTop: "-2px",
+});
 
 const HeaderCheckbox = () => (
   <DataViewContext.Consumer>
@@ -41,9 +47,8 @@ const HeaderCheckbox = () => (
         <Stack direction="row" spacing={0}>
           <FormControlLabel
             control={
-              <Checkbox
+              <StyledCheckbox
                 onChange={handleOnChange}
-                sx={{ padding: 0, marginLeft: "10px", marginTop: "-2px" }}
                 checked={isChecked}
                 indeterminate={isIntermediate}
               />
@@ -156,7 +161,7 @@ const SubmittedData: FC = () => {
               <Stack direction="row" spacing={1}>
                 <FormControlLabel
                   control={
-                    <Checkbox
+                    <StyledCheckbox
                       checked={selectedItems?.includes(d.nodeID)}
                       onChange={() => handleToggleRow([d.nodeID])}
                     />
@@ -244,7 +249,7 @@ const SubmittedData: FC = () => {
     }
 
     setSelectedItems(d.getSubmissionNodes.nodes.map((node) => node.nodeID));
-  }, [_id, filterRef, setSelectedItems]);
+  }, [_id, filterRef, data, setSelectedItems]);
 
   const Actions = useMemo<React.ReactNode>(
     () => (
@@ -254,9 +259,14 @@ const SubmittedData: FC = () => {
           nodeType={filterRef.current.nodeType}
           disabled={loading || !data?.length}
         />
+        <DeleteNodeDataButton
+          selectedItems={selectedItems}
+          nodeType={filterRef.current.nodeType}
+          disabled={loading}
+        />
       </Stack>
     ),
-    [_id, name, filterRef.current, loading, data.length]
+    [_id, name, filterRef.current?.nodeType, selectedItems, loading, data.length]
   );
 
   const providerValue = useMemo(
@@ -284,15 +294,6 @@ const SubmittedData: FC = () => {
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </DataViewContext.Provider>
-      <DeleteDialog
-        open={false}
-        title={`Remove ${filterRef?.current?.nodeType} Data`}
-        description={`You have selected to delete ${selectedItems.length} ${filterRef?.current?.nodeType}. Are you sure you want to remove them and their associated children from this data submission?`}
-        confirmText="Confirm"
-        closeText="Cancel"
-        onConfirm={() => {}}
-        onClose={() => {}}
-      />
     </>
   );
 };
