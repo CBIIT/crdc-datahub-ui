@@ -200,7 +200,7 @@ const StyledFlowContainer = styled(Box)({
 });
 
 const URLTabs = {
-  DATA_ACTIVITY: "data-activity",
+  UPLOAD_ACTIVITY: "upload-activity",
   VALIDATION_RESULTS: "validation-results",
   SUBMITTED_DATA: "submitted-data",
 };
@@ -218,7 +218,7 @@ type Props = {
   tab: string;
 };
 
-const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }) => {
+const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY }) => {
   usePageTitle(`Data Submission ${submissionId || ""}`);
 
   const { user } = useAuthContext();
@@ -355,12 +355,12 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
               <DataUpload submission={data?.getSubmission} />
               <ValidationControls />
             </StyledFlowContainer>
-            <StyledTabs value={isValidTab ? tab : URLTabs.DATA_ACTIVITY}>
+            <StyledTabs value={isValidTab ? tab : URLTabs.UPLOAD_ACTIVITY}>
               <LinkTab
-                value={URLTabs.DATA_ACTIVITY}
+                value={URLTabs.UPLOAD_ACTIVITY}
                 label="Upload Activities"
-                to={`/data-submission/${submissionId}/${URLTabs.DATA_ACTIVITY}`}
-                selected={tab === URLTabs.DATA_ACTIVITY}
+                to={`/data-submission/${submissionId}/${URLTabs.UPLOAD_ACTIVITY}`}
+                selected={tab === URLTabs.UPLOAD_ACTIVITY}
               />
               <LinkTab
                 value={URLTabs.VALIDATION_RESULTS}
@@ -378,7 +378,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.DATA_ACTIVITY }
 
             <StyledMainContentArea>
               {/* Primary Tab Content */}
-              {tab === URLTabs.DATA_ACTIVITY && <DataActivity ref={activityRef} />}
+              {tab === URLTabs.UPLOAD_ACTIVITY && <DataActivity ref={activityRef} />}
               {tab === URLTabs.VALIDATION_RESULTS && (
                 <QualityControl
                   submission={data?.getSubmission}
