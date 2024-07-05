@@ -253,6 +253,33 @@ describe("mapOrganizationStudyToId cases", () => {
     expect(result).toBe("1");
   });
 
+  it("should short-circuit if the study already has an id", () => {
+    const studies = [
+      { _id: "1", studyName: "Study 1", studyAbbreviation: "S1" },
+      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
+    ] as ApprovedStudy[];
+
+    const study = { _id: "id already exists", studyName: "Study 3", studyAbbreviation: "S3" };
+    const result = utils.mapOrganizationStudyToId(study, studies);
+
+    expect(result).toBe("id already exists");
+  });
+
+  it.each([null, undefined, 1])(
+    "should return an empty string if no valid _id is provided and none match",
+    (value) => {
+      const studies = [
+        { _id: "1", studyName: "Study 1", studyAbbreviation: "S1" },
+        { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
+      ] as ApprovedStudy[];
+
+      const study = { _id: value, studyName: "Study 3", studyAbbreviation: "S3" };
+      const result = utils.mapOrganizationStudyToId(study, studies);
+
+      expect(result).toBe("");
+    }
+  );
+
   it("should return an empty string if no matching study is found", () => {
     const studies = [
       { _id: "1", studyName: "Study 1", studyAbbreviation: "S1" },
