@@ -300,10 +300,10 @@ const SubmittedData: FC = () => {
           defaultOrder="desc"
           position="both"
           AdditionalActions={Actions}
-          horizontalScroll
           setItemKey={(item, idx) => `${idx}_${item.nodeID}`}
           onFetchData={handleFetchData}
           containerProps={{ sx: { marginBottom: "8px" } }}
+          tableProps={{ sx: { whiteSpace: "nowrap" } }}
         />
       </DataViewContext.Provider>
     </>
