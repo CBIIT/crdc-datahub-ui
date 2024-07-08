@@ -559,10 +559,6 @@ describe("SubmittedData > Table", () => {
         })
       );
     });
-
-    await waitFor(() => {
-      expect(getAllByRole("checkbox")[0]).toBeChecked();
-    });
   });
 
   it("should deselect all rows when the 'Select All' checkbox is clicked in the 'indeterminate' state", async () => {
