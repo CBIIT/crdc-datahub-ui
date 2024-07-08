@@ -2,10 +2,12 @@ import { memo, useState } from "react";
 import { isEqual } from "lodash";
 import { IconButton, IconButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
+import { useMutation } from "@apollo/client";
 import { ReactComponent as DeleteAllFilesIcon } from "../../assets/icons/delete_all_files_icon.svg";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import DeleteDialog from "../DeleteDialog";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
 
 const StyledIconButton = styled(IconButton)(({ disabled }) => ({
   opacity: disabled ? 0.26 : 1,
@@ -26,15 +28,26 @@ type Props = {
    * An array of the selected node IDs
    */
   selectedItems: string[];
+  /**
+   * Optional callback function for when successful deletion occurs
+   */
+  onDelete?: () => void;
 } & Omit<IconButtonProps, "onClick">;
 
-const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, ...rest }: Props) => {
+const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...rest }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
-  const { data, refetch } = useSubmissionContext();
+  const { data } = useSubmissionContext();
   const { _id } = data?.getSubmission || {};
 
   const [loading, setLoading] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
+
+  const [deleteDataRecords] = useMutation<DeleteDataRecordsResp, DeleteDataRecordsInput>(
+    DELETE_DATA_RECORDS,
+    {
+      context: { clientName: "backend" },
+    }
+  );
 
   const onClickIcon = async () => {
     setConfirmOpen(true);
@@ -45,13 +58,26 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, ...rest }: Pr
   };
 
   const onConfirmDialog = async () => {
-    // TODO: Implement delete functionality
-    // if failure, show snackbar error
-    // if success refetch data
-    setLoading(false);
-    setConfirmOpen(false);
-    refetch();
-    enqueueSnackbar(`placeholder ${_id}`, { variant: "error" });
+    try {
+      const { data: d, errors } = await deleteDataRecords({
+        variables: {
+          _id,
+          nodeType,
+          nodeIds: selectedItems,
+        },
+      });
+
+      if (errors || !d?.deleteDataRecords?.success) {
+        throw new Error("Unable to delete selected nodes.");
+      }
+
+      setConfirmOpen(false);
+      onDelete?.();
+    } catch (err) {
+      enqueueSnackbar("An error occurred while deleting the selected nodes.", { variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,7 +101,7 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, ...rest }: Pr
       </StyledTooltip>
       <DeleteDialog
         open={confirmOpen}
-        title={`Remove ${nodeType} Data`}
+        header={`Remove ${nodeType} Data`}
         description={`You have selected to delete ${selectedItems.length} ${nodeType}(s). Are you sure you want to remove them and their associated children from this data submission?`}
         confirmText="Confirm"
         closeText="Cancel"

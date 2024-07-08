@@ -81,7 +81,7 @@ type Props = {
   confirmText?: string;
   onClose: () => void;
   onConfirm: () => void;
-} & Omit<DialogProps, "onClose">;
+} & Omit<DialogProps, "onClose" | "title">;
 
 const DeleteDialog = ({
   header = "Remove Data",

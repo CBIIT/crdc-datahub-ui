@@ -67,7 +67,7 @@ type T = Pick<SubmissionNode, "nodeType" | "nodeID" | "status"> & {
 };
 
 const SubmittedData: FC = () => {
-  const { data: dataSubmission } = useSubmissionContext();
+  const { data: dataSubmission, refetch } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
   const { _id, name } = dataSubmission?.getSubmission || {};
 
@@ -251,6 +251,13 @@ const SubmittedData: FC = () => {
     setSelectedItems(d.getSubmissionNodes.nodes.map((node) => node.nodeID));
   }, [_id, filterRef, data, setSelectedItems]);
 
+  const handleOnDelete = useCallback(() => {
+    // TODO: Do we select a different node type?
+    setSelectedItems([]);
+    tableRef.current?.setPage(0, true);
+    refetch();
+  }, [setSelectedItems, refetch, tableRef.current]);
+
   const Actions = useMemo<React.ReactNode>(
     () => (
       <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
@@ -263,10 +270,11 @@ const SubmittedData: FC = () => {
           selectedItems={selectedItems}
           nodeType={filterRef.current.nodeType}
           disabled={loading}
+          onDelete={handleOnDelete}
         />
       </Stack>
     ),
-    [_id, name, filterRef.current?.nodeType, selectedItems, loading, data.length]
+    [handleOnDelete, _id, name, filterRef.current?.nodeType, selectedItems, loading, data.length]
   );
 
   const providerValue = useMemo(
