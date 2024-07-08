@@ -33,13 +33,13 @@ const HeaderCheckbox = () => (
       const isIntermediate = selectedItems.length > 0 && selectedItems.length < totalData;
 
       const handleOnChange = () => {
-        // Partially checked or completely unchecked. Check all
-        if (!isChecked || isIntermediate) {
+        // Completely unchecked. Check all
+        if (!isChecked && !isIntermediate) {
           handleToggleAll();
           return;
         }
 
-        // Completely checked. Uncheck all
+        // Partially or fully checked. Uncheck all
         handleToggleRow(selectedItems);
       };
 

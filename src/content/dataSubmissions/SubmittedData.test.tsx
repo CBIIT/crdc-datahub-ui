@@ -559,6 +559,140 @@ describe("SubmittedData > Table", () => {
         })
       );
     });
+
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")[0]).toBeChecked();
+    });
+  });
+
+  it("should deselect all rows when the 'Select All' checkbox is clicked in the 'indeterminate' state", async () => {
+    const submissionID = "example-deselect-all-id";
+
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 2,
+            properties: ["col-xyz"],
+            nodes: [
+              {
+                nodeType: "example-node",
+                nodeID: "example-node-id",
+                props: JSON.stringify({
+                  "col-xyz": "value-1",
+                }),
+                status: "New",
+              },
+              {
+                nodeType: "example-node",
+                nodeID: "example-node-id2",
+                props: JSON.stringify({
+                  "col-xyz": "value-2",
+                }),
+                status: null,
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    const { getAllByRole } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock]}
+        submissionId={submissionID}
+        submissionName={undefined}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    // Wait for the table to render
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")).toHaveLength(3);
+    });
+
+    userEvent.click(getAllByRole("checkbox")[1]); // click 1st row
+
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")[0]).toHaveAttribute("data-indeterminate", "true");
+    });
+
+    userEvent.click(getAllByRole("checkbox")[0]); // click 'Select All' checkbox (to uncheck all)
+
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")[0]).not.toBeChecked();
+    });
+  });
+
+  it("should deselect all rows when the 'Select All' checkbox is clicked in the 'checked' state", async () => {
+    const submissionID = "example-deselect-all-id";
+
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 2,
+            properties: ["col-xyz"],
+            nodes: [
+              {
+                nodeType: "example-node",
+                nodeID: "example-node-id",
+                props: JSON.stringify({
+                  "col-xyz": "value-1",
+                }),
+                status: "New",
+              },
+              {
+                nodeType: "example-node",
+                nodeID: "example-node-id2",
+                props: JSON.stringify({
+                  "col-xyz": "value-2",
+                }),
+                status: null,
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    const { getAllByRole } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock]}
+        submissionId={submissionID}
+        submissionName={undefined}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    // Wait for the table to render
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")).toHaveLength(3);
+    });
+
+    // Manually select all rows
+    userEvent.click(getAllByRole("checkbox")[1]);
+    userEvent.click(getAllByRole("checkbox")[2]);
+
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")[0]).toBeChecked();
+    });
+
+    userEvent.click(getAllByRole("checkbox")[0]); // click 'Select All' checkbox (to uncheck all)
+
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")[0]).not.toBeChecked();
+    });
   });
 
   it("should not fetch all nodes if the node count is less than the pagination count", async () => {
