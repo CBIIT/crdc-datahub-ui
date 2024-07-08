@@ -1,6 +1,7 @@
 // eslint-disable-next-line max-classes-per-file
 import "@testing-library/jest-dom";
 import "jest-axe/extend-expect";
+import failOnConsole from "jest-fail-on-console";
 
 /**
  * Mocks the enqueueSnackbar function from notistack for testing
@@ -58,3 +59,12 @@ jest.mock("recharts", () => ({
   ...jest.requireActual("recharts"),
   ResponsiveContainer: MockResponsiveContainer,
 }));
+
+/**
+ * Prevents the console.error and console.warn from silently failing
+ * in tests by throwing an error when called
+ */
+failOnConsole({
+  shouldFailOnWarn: true,
+  shouldFailOnError: true,
+});

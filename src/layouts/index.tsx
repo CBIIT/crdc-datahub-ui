@@ -7,6 +7,7 @@ import Header from "../components/Header";
 import ScrollButton from "../components/ScrollButton/ScrollButtonView";
 import OverlayWindow from "../components/SystemUseWarningOverlay/OverlayWindow";
 import InactivityDialog from "../components/InactivityDialog/InactivityDialog";
+import { SearchParamsProvider } from "../components/Contexts/SearchParamsContext";
 
 const StyledWrapper = styled("main")({
   minHeight: "400px",
@@ -50,8 +51,10 @@ const Layout: FC<LayoutProps> = ({ children }) => (
     <Header />
     <OverlayWindow />
     <StyledWrapper>
-      {children || <Outlet />}
-      <ScrollButton />
+      <SearchParamsProvider>
+        {children || <Outlet />}
+        <ScrollButton />
+      </SearchParamsProvider>
     </StyledWrapper>
     <Footer />
     <InactivityDialog />

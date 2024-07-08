@@ -4,10 +4,10 @@ export const query = gql`
   query listApprovedStudiesOfMyOrganization {
     listApprovedStudiesOfMyOrganization {
       _id
-      originalOrg
       studyName
       studyAbbreviation
       dbGaPID
+      controlledAccess
     }
   }
 `;

@@ -147,10 +147,12 @@ describe("SubmittedDataFilters cases", () => {
 
     const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
 
-    await waitFor(() => expect(muiSelectBox).toHaveTextContent("FIRST"));
+    await waitFor(() => expect(muiSelectBox).toHaveTextContent(/first/i));
   });
 
-  it("should NOT show the nodeType 'Data File'", async () => {
+  // NOTE: This test used to be the inverse, but we now want to ensure that Data Files are shown
+  // Data Files are a special case, as they're common across all Data Models / Data Commons
+  it("should show the nodeType 'data file' if present", async () => {
     const mocks: MockedResponse<SubmissionStatsResp>[] = [
       {
         request: {
@@ -163,7 +165,7 @@ describe("SubmittedDataFilters cases", () => {
               stats: [
                 { ...baseStatistic, nodeName: "Participant", total: 3 },
                 { ...baseStatistic, nodeName: "Data File", total: 2 },
-                { ...baseStatistic, nodeName: "File", total: 1 },
+                { ...baseStatistic, nodeName: "Sample", total: 1 },
               ],
             },
           },
@@ -184,9 +186,46 @@ describe("SubmittedDataFilters cases", () => {
     await waitFor(() => {
       // Sanity check that the box is open
       expect(() => getAllByText(/participant/i)).not.toThrow();
-      expect(() => getByText(/file/i)).not.toThrow();
-      // This should throw an error
-      expect(() => getByText(/data file/i)).toThrow();
+      expect(() => getByText(/sample/i)).not.toThrow();
+      expect(() => getByText(/data file/i)).not.toThrow();
+    });
+  });
+
+  it("should visually render the nodeName as lowercase", async () => {
+    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+      {
+        request: {
+          query: SUBMISSION_STATS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionStats: {
+              stats: [
+                { ...baseStatistic, nodeName: "NODE_NAME", total: 1 },
+                { ...baseStatistic, nodeName: "Upper_Case", total: 1 },
+                { ...baseStatistic, nodeName: "lower_case", total: 1 },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks}>
+        <SubmittedDataFilters submissionId="id-test-filtering-lower-case" />
+      </TestParent>
+    );
+
+    const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
+
+    UserEvent.click(muiSelectBox);
+
+    await waitFor(() => {
+      expect(getByTestId("nodeType-NODE_NAME")).toHaveTextContent("node_name");
+      expect(getByTestId("nodeType-Upper_Case")).toHaveTextContent("upper_case");
+      expect(getByTestId("nodeType-lower_case")).toHaveTextContent("lower_case");
     });
   });
 

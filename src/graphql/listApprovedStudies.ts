@@ -4,7 +4,6 @@ export const query = gql`
   query listApprovedStudies {
     listApprovedStudies {
       _id
-      originalOrg
       studyName
       studyAbbreviation
       dbGaPID

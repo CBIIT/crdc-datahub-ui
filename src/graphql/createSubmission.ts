@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 export const mutation = gql`
   mutation createSubmission(
-    $studyAbbreviation: String!
+    $studyID: String!
     $dataCommons: String!
     $name: String!
     $dbGaPID: String
@@ -10,7 +10,7 @@ export const mutation = gql`
     $dataType: String!
   ) {
     createSubmission(
-      studyAbbreviation: $studyAbbreviation
+      studyID: $studyID
       dataCommons: $dataCommons
       name: $name
       dbGaPID: $dbGaPID
@@ -23,6 +23,15 @@ export const mutation = gql`
     }
   }
 `;
+
+export type Input = {
+  studyID: string;
+  dataCommons: string;
+  name: string;
+  dbGaPID: string | null;
+  intention: SubmissionIntention;
+  dataType: SubmissionDataType;
+};
 
 export type Response = {
   createSubmission: Pick<Submission, "_id" | "status" | "createdAt">;

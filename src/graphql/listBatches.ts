@@ -15,7 +15,6 @@ const FullBatchFragment = gql`
   fragment BatchFragment on Batch {
     submissionID
     type
-    metadataIntention
     fileCount
     files {
       nodeType

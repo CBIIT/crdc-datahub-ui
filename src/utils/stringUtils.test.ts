@@ -156,3 +156,51 @@ describe("titleCase", () => {
     expect(utils.titleCase("dATa fiLE")).toBe("Data File");
   });
 });
+describe("compareStrings utility function", () => {
+  it("should correctly sort two non-empty strings", () => {
+    expect(utils.compareStrings("apple", "banana")).toBeLessThan(0);
+    expect(utils.compareStrings("banana", "apple")).toBeGreaterThan(0);
+  });
+
+  it("should place empty strings at the beginning of the sort order", () => {
+    expect(utils.compareStrings("banana", "")).toBeGreaterThan(0);
+    expect(utils.compareStrings("", "apple")).toBeLessThan(0);
+  });
+
+  it("should place null values at the beginning of the sort order", () => {
+    expect(utils.compareStrings("banana", null)).toBeGreaterThan(0);
+    expect(utils.compareStrings(null, "apple")).toBeLessThan(0);
+  });
+
+  it("should place spaces values before alphabetical characters in the sort order", () => {
+    expect(utils.compareStrings(" ", "banana")).toBeLessThan(0);
+    expect(utils.compareStrings("apple", " ")).toBeGreaterThan(0);
+  });
+
+  it("should place number values before alphabetical characters in the sort order", () => {
+    expect(utils.compareStrings("1", "banana")).toBeLessThan(0);
+    expect(utils.compareStrings("apple", "20")).toBeGreaterThan(0);
+  });
+
+  it("should place special characters values before numerical characters in the sort order", () => {
+    expect(utils.compareStrings("-", "1")).toBeLessThan(0);
+    expect(utils.compareStrings("1", "----")).toBeGreaterThan(0);
+  });
+
+  it("should treat two empty strings as equal", () => {
+    expect(utils.compareStrings("", "")).toBe(0);
+  });
+
+  it("should treat two null values as equal", () => {
+    expect(utils.compareStrings(null, null)).toBe(0);
+  });
+
+  it("should return zero when both strings are identical and non-empty", () => {
+    expect(utils.compareStrings("apple", "apple")).toBe(0);
+  });
+
+  it("should handle case-sensitive comparisons appropriately", () => {
+    expect(utils.compareStrings("apple", "Apple")).toBeLessThan(0);
+    expect(utils.compareStrings("Apple", "apple")).toBeGreaterThan(0);
+  });
+});

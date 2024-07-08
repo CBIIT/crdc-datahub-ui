@@ -13,10 +13,10 @@ import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInp
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import { filterForNumbers, mapObjectWithKey, validateEmail } from "../../../utils";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
-import institutionConfig from "../../../config/InstitutionConfig";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
 import useFormMode from "../../../hooks/useFormMode";
+import { useInstitutionList } from "../../../components/Contexts/InstitutionListContext";
 
 export type KeyedContact = {
   key: string;
@@ -44,6 +44,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     status,
     data: { questionnaireData: data },
   } = useFormContext();
+  const { data: institutionList } = useInstitutionList();
   const location = useLocation();
   const { pi } = data;
   const { readOnlyInputs } = useFormMode();
@@ -187,7 +188,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Institution"
           name="pi[institution]"
           value={pi?.institution || ""}
-          options={institutionConfig}
+          options={institutionList}
           placeholder="Enter or Select an Institution"
           validate={(v: string) => v?.trim()?.length > 0}
           required
@@ -287,7 +288,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               label="Institution"
               name="primaryContact[institution]"
               value={primaryContact?.institution || ""}
-              options={institutionConfig}
+              options={institutionList}
               placeholder="Enter or Select an Institution"
               readOnly={readOnlyInputs}
               validate={(v: string) => v?.trim()?.length > 0}

@@ -1,8 +1,8 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import FormView from "./FormView";
 import ListView from "./ListView";
 import { FormProvider } from "../../components/Contexts/FormContext";
+import { InstitutionProvider } from "../../components/Contexts/InstitutionListContext";
 
 /**
  * Render the correct view based on the URL
@@ -15,9 +15,11 @@ const QuestionnaireController = () => {
 
   if (appId) {
     return (
-      <FormProvider id={appId}>
-        <FormView section={section} />
-      </FormProvider>
+      <InstitutionProvider>
+        <FormProvider id={appId}>
+          <FormView section={section} />
+        </FormProvider>
+      </InstitutionProvider>
     );
   }
 

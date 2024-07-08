@@ -9,6 +9,7 @@ export const query = gql`
       conciergeID
       conciergeName
       studies {
+        _id
         studyName
         studyAbbreviation
       }

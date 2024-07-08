@@ -1,5 +1,4 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
-import { cloneDeep } from "lodash";
+import { FC, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -10,7 +9,6 @@ import {
   Grid,
   IconButton,
   MenuItem,
-  SelectChangeEvent,
   Stack,
   Typography,
   styled,
@@ -19,13 +17,12 @@ import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
-  query as approvedStudiesQuery,
-  Response as approvedStudiesRespone,
-} from "../../graphql/listApprovedStudiesOfMyOrganization";
-import {
-  mutation as CREATE_SUBMISSION,
-  Response as CreateSubmissionResp,
-} from "../../graphql/createSubmission";
+  CREATE_SUBMISSION,
+  CreateSubmissionResp,
+  CreateSubmissionInput,
+  ListApprovedStudiesOfMyOrgResp,
+  LIST_APPROVED_STUDIES_OF_MY_ORG,
+} from "../../graphql";
 import RadioInput from "../../components/DataSubmissions/RadioInput";
 import { DataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
@@ -199,30 +196,24 @@ const StyledOutlinedInputMultiline = styled(StyledOutlinedInput)({
   height: "96px",
 });
 
-type CreateSubmissionParams = Pick<
-  Submission,
-  "studyAbbreviation" | "dataCommons" | "name" | "dbGaPID" | "intention" | "dataType"
->;
-
 type Props = {
-  organizations: Partial<Organization>[];
-  onCreate: (data: CreateSubmissionParams) => void;
+  onCreate: (data: CreateSubmissionInput) => void;
 };
 
-const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
+const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const { user } = useAuthContext();
   const {
     handleSubmit,
     register,
-    reset,
     control,
     watch,
     formState: { errors },
     setValue,
-  } = useForm<CreateSubmissionParams>({
+    reset,
+  } = useForm<CreateSubmissionInput>({
     defaultValues: {
       dataCommons: "CDS",
-      studyAbbreviation: "",
+      studyID: "",
       intention: "New/Update",
       dataType: "Metadata and Data Files",
       dbGaPID: "",
@@ -232,41 +223,25 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
 
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
-  const [createDataSubmission] = useMutation<
-    CreateSubmissionResp,
+  const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
+
+  const [createDataSubmission] = useMutation<CreateSubmissionResp, CreateSubmissionInput>(
+    CREATE_SUBMISSION,
     {
-      studyAbbreviation: string;
-      dataCommons: string;
-      name: string;
-      dbGaPID: string;
-      intention: SubmissionIntention;
-      dataType: SubmissionDataType;
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
     }
-  >(CREATE_SUBMISSION, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
-    variables: {},
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  );
+  const { data: approvedStudiesData } = useQuery<ListApprovedStudiesOfMyOrgResp>(
+    LIST_APPROVED_STUDIES_OF_MY_ORG,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
   const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
-  const organizationNames: SelectOption[] = organizations?.map((org) => ({
-    label: org.name,
-    value: org.name,
-  }));
-  organizationNames?.unshift({ label: "All", value: "All" });
-  const approvedStudiesMapToDbGaPID = useMemo(() => {
-    const result = {};
-    approvedStudiesData?.listApprovedStudiesOfMyOrganization?.forEach((study) => {
-      result[study.studyAbbreviation] = study.dbGaPID;
-    });
-    return result;
-  }, [approvedStudiesData]);
   const intention = watch("intention");
 
   const submissionTypeOptions = [
@@ -287,66 +262,22 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
     { label: "Metadata Only", value: "Metadata Only", disabled: false },
   ];
 
-  useEffect(() => {
-    if (intention === "New/Update") {
-      setValue("dataType", "Metadata and Data Files");
-    }
-    if (intention === "Delete") {
-      setValue("dataType", "Metadata Only");
-    }
-  }, [intention]);
-
-  /**
-   * Updates the default form values after save or initial fetch
-   *
-   * @param data FormInput
-   */
-  const setFormValues = (
-    data: CreateSubmissionParams,
-    fields: (keyof CreateSubmissionParams)[] = [
-      "name",
-      "dataCommons",
-      "dbGaPID",
-      "intention",
-      "studyAbbreviation",
-      "dataType",
-    ]
-  ) => {
-    const resetData = {};
-
-    fields.forEach((field) => {
-      resetData[field] = cloneDeep(data[field]);
-    });
-
-    reset(resetData);
-  };
-
-  useEffect(() => {
-    setFormValues({
-      dataCommons: "CDS",
-      studyAbbreviation: "",
-      intention: "New/Update",
-      dataType: "Metadata and Data Files",
-      dbGaPID: "",
-      name: "",
-    });
-  }, []);
-
   const handleOpenDialog = () => {
+    reset();
     setCreatingSubmission(true);
   };
 
   const createSubmission = async ({
-    studyAbbreviation,
+    studyID,
     dataCommons,
     name,
     dbGaPID,
     intention,
     dataType,
-  }: CreateSubmissionParams) => {
+  }: CreateSubmissionInput) => {
     await createDataSubmission({
       variables: {
-        studyAbbreviation,
+        studyID,
         dataCommons,
         name,
         dbGaPID,
@@ -359,7 +290,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
         setError(false);
         if (onCreate) {
           onCreate({
-            studyAbbreviation,
+            studyID,
             dataCommons,
             name,
             dbGaPID,
@@ -373,20 +304,36 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
       });
   };
 
-  const onSubmit: SubmitHandler<CreateSubmissionParams> = (data) => {
+  const onSubmit: SubmitHandler<CreateSubmissionInput> = (data) => {
     createSubmission(data);
   };
 
-  const handleStudyChange = (e: SelectChangeEvent<unknown>) => {
-    const value = e?.target?.value as string;
-    if (!value || !approvedStudiesMapToDbGaPID || !approvedStudiesMapToDbGaPID[value]) {
+  const validateEmpty = (value: string) => (!value?.trim() ? "This field is required" : null);
+
+  useEffect(() => {
+    if (intention === "New/Update") {
+      setValue("dataType", "Metadata and Data Files");
+    }
+    if (intention === "Delete") {
+      setValue("dataType", "Metadata Only");
+    }
+  }, [intention]);
+
+  useEffect(() => {
+    const studyID = watch("studyID");
+    const mappedStudy = approvedStudiesData?.listApprovedStudiesOfMyOrganization?.find(
+      (s) => s._id === studyID
+    );
+
+    if (!studyID || !mappedStudy) {
       setValue("dbGaPID", "");
+      setIsDbGapRequired(false);
       return;
     }
-    setValue("dbGaPID", approvedStudiesMapToDbGaPID[value]);
-  };
 
-  const validateEmpty = (value: string) => (!value?.trim() ? "This field is required" : null);
+    setValue("dbGaPID", mappedStudy.dbGaPID || "");
+    setIsDbGapRequired(mappedStudy.controlledAccess);
+  }, [watch("studyID")]);
 
   return (
     <>
@@ -414,11 +361,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
         </StyledDialogTitle>
         <StyledDialogContent>
           <StyledFormWrapper>
-            <form
-              id="create-submission-dialog-form"
-              ref={createSubmissionDialogFormRef}
-              onSubmit={handleSubmit(onSubmit)}
-            >
+            <form id="create-submission-dialog-form" onSubmit={handleSubmit(onSubmit)}>
               <Stack direction="column">
                 <StyledField>
                   <Controller
@@ -508,36 +451,37 @@ const CreateDataSubmissionDialog: FC<Props> = ({ organizations, onCreate }) => {
                     <StyledAsterisk />
                   </StyledLabel>
                   <Controller
-                    name="studyAbbreviation"
+                    name="studyID"
                     control={control}
                     rules={{ required: "This field is required" }}
                     render={({ field }) => (
                       <StyledSelect
                         {...field}
                         value={field.value || ""}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          handleStudyChange(e);
-                        }}
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-study-abbreviation-helper-text"
                       >
-                        {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((abbr) => (
-                          <MenuItem key={abbr.studyAbbreviation} value={abbr.studyAbbreviation}>
-                            {abbr.studyAbbreviation}
+                        {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((study) => (
+                          <MenuItem key={study._id} value={study._id}>
+                            {study.studyAbbreviation}
                           </MenuItem>
                         ))}
                       </StyledSelect>
                     )}
                   />
                   <StyledHelperText id="submission-study-abbreviation-helper-text">
-                    {errors?.studyAbbreviation?.message}
+                    {errors?.studyID?.message}
                   </StyledHelperText>
                 </StyledField>
                 <StyledField>
-                  <StyledLabel id="dbGaPID">dbGaP ID</StyledLabel>
+                  <StyledLabel id="dbGaPID">
+                    dbGaP ID
+                    {isDbGapRequired && <StyledAsterisk />}
+                  </StyledLabel>
                   <StyledOutlinedInput
-                    {...register("dbGaPID", { required: false, maxLength: 50 })}
+                    {...register("dbGaPID", {
+                      required: isDbGapRequired ? "This field is required" : null,
+                    })}
                     inputProps={{ maxLength: 50 }}
                     placeholder="Input dbGaP ID"
                     aria-describedby="submission-dbGaPID-helper-text"

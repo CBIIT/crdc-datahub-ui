@@ -6,7 +6,7 @@ export { mutation as REOPEN_APP } from "./reopenApplication";
 export type { Response as ReopenAppResp } from "./reopenApplication";
 
 export { mutation as APPROVE_APP } from "./approveApplication";
-export type { Response as ApproveAppResp } from "./approveApplication";
+export type { Input as ApproveAppInput, Response as ApproveAppResp } from "./approveApplication";
 
 export { mutation as INQUIRE_APP } from "./inquireApplication";
 export type { Response as InquireAppResp } from "./inquireApplication";
@@ -15,7 +15,7 @@ export { mutation as REJECT_APP } from "./rejectApplication";
 export type { Response as RejectAppResp } from "./rejectApplication";
 
 export { mutation as SAVE_APP } from "./saveApplication";
-export type { Response as SaveAppResp } from "./saveApplication";
+export type { Input as SaveAppInput, Response as SaveAppResp } from "./saveApplication";
 
 export { mutation as SUBMIT_APP } from "./submitApplication";
 export type { Response as SubmitAppResp } from "./submitApplication";
@@ -29,9 +29,21 @@ export type { Response as GetAppResp } from "./getApplication";
 export { mutation as UPDATE_MY_USER } from "./updateMyUser";
 export type { Response as UpdateMyUserResp } from "./updateMyUser";
 
+export { query as LIST_INSTITUTIONS } from "./listInstitutions";
+export type { Response as ListInstitutionsResp } from "./listInstitutions";
+
 // Data Submissions
+export { mutation as CREATE_SUBMISSION } from "./createSubmission";
+export type {
+  Input as CreateSubmissionInput,
+  Response as CreateSubmissionResp,
+} from "./createSubmission";
+
 export { query as GET_SUBMISSION } from "./getSubmission";
-export type { Response as GetSubmissionResp } from "./getSubmission";
+export type { Input as GetSubmissionInput, Response as GetSubmissionResp } from "./getSubmission";
+
+export { query as LIST_SUBMISSIONS } from "./listSubmissions";
+export type { Response as ListSubmissionsResp } from "./listSubmissions";
 
 export { mutation as SUBMISSION_ACTION } from "./submissionAction";
 export type { Response as SubmissionActionResp } from "./submissionAction";
@@ -55,13 +67,19 @@ export { mutation as EXPORT_SUBMISSION } from "./exportSubmission";
 export type { Response as ExportSubmissionResp } from "./exportSubmission";
 
 export { mutation as VALIDATE_SUBMISSION } from "./validateSubmission";
-export type { Response as ValidateSubmissionResp } from "./validateSubmission";
+export type {
+  Input as ValidateSubmissionInput,
+  Response as ValidateSubmissionResp,
+} from "./validateSubmission";
 
 export { query as LIST_NODE_TYPES } from "./listSubmissionNodeTypes";
 export type { Response as ListNodeTypesResp } from "./listSubmissionNodeTypes";
 
 export { query as GET_SUBMISSION_NODES } from "./getSubmissionNodes";
-export type { Response as GetSubmissionNodesResp } from "./getSubmissionNodes";
+export type {
+  Input as GetSubmissionNodesInput,
+  Response as GetSubmissionNodesResp,
+} from "./getSubmissionNodes";
 
 export { query as SUBMISSION_STATS } from "./submissionStats";
 export type { Response as SubmissionStatsResp } from "./submissionStats";
@@ -76,6 +94,9 @@ export { query as RETRIEVE_CLI_CONFIG } from "./retrieveCLIConfig";
 export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
 
 // User Profile
+export { query as GET_MY_USER } from "./getMyUser";
+export type { Response as GetMyUserResp } from "./getMyUser";
+
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";
 
@@ -93,7 +114,7 @@ export { query as GET_ORG } from "./getOrganization";
 export type { Response as GetOrgResp } from "./getOrganization";
 
 export { mutation as EDIT_ORG } from "./editOrganization";
-export type { Response as EditOrgResp } from "./editOrganization";
+export type { Input as EditOrgInput, Response as EditOrgResp } from "./editOrganization";
 
 export { query as LIST_CURATORS } from "./listActiveCurators";
 export type { Response as ListCuratorsResp } from "./listActiveCurators";
@@ -102,8 +123,11 @@ export { query as LIST_APPROVED_STUDIES } from "./listApprovedStudies";
 export type { Response as ListApprovedStudiesResp } from "./listApprovedStudies";
 
 export { mutation as CREATE_ORG } from "./createOrganization";
-export type { Response as CreateOrgResp } from "./createOrganization";
+export type { Input as CreateOrgInput, Response as CreateOrgResp } from "./createOrganization";
 
 // Misc.
 export { mutation as GRANT_TOKEN } from "./grantToken";
 export type { Response as GrantTokenResp } from "./grantToken";
+
+export { query as LIST_APPROVED_STUDIES_OF_MY_ORG } from "./listApprovedStudiesOfMyOrganization";
+export type { Response as ListApprovedStudiesOfMyOrgResp } from "./listApprovedStudiesOfMyOrganization";

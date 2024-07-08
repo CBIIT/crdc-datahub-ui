@@ -1,5 +1,5 @@
-import { Box, Grid, Typography, styled } from "@mui/material";
-import { FC } from "react";
+import { Box, Grid, Stack, SxProps, Typography, styled } from "@mui/material";
+import React, { FC } from "react";
 
 type Props = {
   /**
@@ -10,11 +10,19 @@ type Props = {
    */
   index: number;
   /**
+   * Optional styling for the title container.
+   */
+  titleContainerSx?: SxProps;
+  /**
    * The title of the flow step.
    *
    * @example "Upload Metadata"
    */
   title: string;
+  /**
+   * An optional adornment to display after the title.
+   */
+  titleAdornment?: React.ReactNode;
   /**
    * Whether this is the last flow step.
    * This is used to determine whether to display the bottom border
@@ -82,13 +90,24 @@ const StyledActionsGrid = styled(Grid)({
   alignSelf: "center",
 });
 
-const FlowWrapper: FC<Props> = ({ index, title, last = false, children, actions }) => (
+const FlowWrapper: FC<Props> = ({
+  index,
+  title,
+  titleAdornment,
+  titleContainerSx: titleAdornmentSx,
+  last = false,
+  children,
+  actions,
+}) => (
   <StyledGrid container>
     <StyledIndexGrid item>
       <StyledIndex>{index}</StyledIndex>
     </StyledIndexGrid>
     <StyledPrimaryGrid item>
-      <StyledTitle variant="h3">{title}</StyledTitle>
+      <Stack direction="row" alignItems="center" sx={titleAdornmentSx}>
+        <StyledTitle variant="h3">{title}</StyledTitle>
+        {titleAdornment}
+      </Stack>
       <Box>{children}</Box>
     </StyledPrimaryGrid>
     {actions && <StyledActionsGrid item>{actions}</StyledActionsGrid>}

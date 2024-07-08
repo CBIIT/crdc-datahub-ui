@@ -15,11 +15,14 @@ import {
 import { cloneDeep } from "lodash";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
 import profileIcon from "../../assets/icons/profile_icon.svg";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
-import { useOrganizationListContext } from "../../components/Contexts/OrganizationListContext";
-import GenericAlert from "../../components/GenericAlert";
+import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
+import {
+  Status as OrgStatus,
+  useOrganizationListContext,
+} from "../../components/Contexts/OrganizationListContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { OrgAssignmentMap, OrgRequiredRoles, Roles } from "../../config/AuthRoles";
 import {
@@ -33,6 +36,7 @@ import {
 import { formatIDP, getEditableFields } from "../../utils";
 import { DataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
 type Props = {
   _id: User["_id"];
@@ -176,21 +180,21 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   usePageTitle(viewType === "profile" ? "User Profile" : `Edit User ${_id}`);
 
   const navigate = useNavigate();
-  const { data: orgData } = useOrganizationListContext();
-  const { user: currentUser, setData, logout } = useAuthContext();
+  const { enqueueSnackbar } = useSnackbar();
+  const { data: orgData, activeOrganizations, status: orgStatus } = useOrganizationListContext();
+  const { user: currentUser, setData, logout, status: authStatus } = useAuthContext();
+  const { lastSearchParams } = useSearchParamsContext();
+  const { handleSubmit, register, reset, watch, setValue, control, formState } =
+    useForm<FormInput>();
 
   const isSelf = _id === currentUser._id;
-
   const [user, setUser] = useState<User | null>(
     isSelf && viewType === "profile" ? { ...currentUser } : null
   );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
-  const [changesAlert, setChangesAlert] = useState<string>("");
-
-  const { handleSubmit, register, reset, watch, setValue, control, formState } =
-    useForm<FormInput>();
-
+  const userOrg = orgData?.find((org) => org._id === user?.organization?.orgID);
+  const [orgList, setOrgList] = useState<Partial<Organization>[]>(undefined);
   const role = watch("role");
   const orgFieldDisabled = useMemo(
     () => !OrgRequiredRoles.includes(role) && role !== "User",
@@ -204,6 +208,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     () => getEditableFields(currentUser, user, viewType),
     [user?._id, _id, currentUser?.role, viewType]
   );
+  const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
 
   const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
     context: { clientName: "backend" },
@@ -219,6 +224,20 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
+
+  useEffect(() => {
+    if (!user || orgStatus === OrgStatus.LOADING) {
+      return;
+    }
+    if (userOrg?.status === "Inactive") {
+      setOrgList(
+        [...activeOrganizations, userOrg].sort((a, b) => a.name?.localeCompare(b.name || ""))
+      );
+      return;
+    }
+
+    setOrgList(activeOrganizations || []);
+  }, [activeOrganizations, userOrg, user, orgStatus]);
 
   /**
    * Updates the default form values after save or initial fetch
@@ -279,12 +298,18 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
         if (d.editUser.userStatus === "Inactive") {
           logout();
         }
+      } else {
+        setUser((prevUser) => ({ ...prevUser, ...d.editUser }));
       }
     }
 
     setError(null);
-    setChangesAlert("All changes have been saved");
-    setTimeout(() => setChangesAlert(""), 10000);
+    enqueueSnackbar("All changes have been saved", { variant: "success" });
+
+    if (viewType === "users") {
+      navigate(manageUsersPageUrl);
+    }
+
     setFormValues(data);
   };
 
@@ -302,7 +327,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       const { data, error } = await getUser({ variables: { userID: _id } });
 
       if (error || !data?.getUser) {
-        navigate("/users", { state: { error: "Unable to fetch user data" } });
+        navigate(manageUsersPageUrl, {
+          state: { error: "Unable to fetch user data" },
+        });
         return;
       }
 
@@ -326,15 +353,17 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     }
   }, [role]);
 
-  if (!user) {
+  if (
+    !user ||
+    orgStatus === OrgStatus.LOADING ||
+    authStatus === AuthStatus.LOADING ||
+    orgList === undefined
+  ) {
     return <SuspenseLoader />;
   }
 
   return (
     <>
-      <GenericAlert open={!!changesAlert} key="profile-changes-alert">
-        <span>{changesAlert}</span>
-      </GenericAlert>
       <StyledBanner />
       <StyledContainer maxWidth="lg">
         <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
@@ -473,7 +502,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         }}
                       >
                         <MenuItem value="">{"<Not Set>"}</MenuItem>
-                        {orgData?.map((org) => (
+                        {orgList?.map((org) => (
                           <MenuItem key={org._id} value={org._id}>
                             {org.name}
                           </MenuItem>
@@ -529,7 +558,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 {viewType === "users" && (
                   <StyledButton
                     type="button"
-                    onClick={() => navigate("/users")}
+                    onClick={() => navigate(manageUsersPageUrl)}
                     txt="#666666"
                     border="#828282"
                   >

@@ -46,6 +46,11 @@ const baseSubmission: Submission = {
   status: "In Progress",
   crossSubmissionStatus: "Passed",
   otherSubmissions: "",
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: ["metadata", "file"],
+  studyID: "",
 };
 
 const baseContext: ContextState = {

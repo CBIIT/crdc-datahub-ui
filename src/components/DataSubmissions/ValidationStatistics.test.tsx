@@ -26,6 +26,11 @@ const baseSubmission: Omit<Submission, "_id"> = {
   updatedAt: "",
   crossSubmissionStatus: "New",
   otherSubmissions: null,
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: ["metadata", "file"],
+  studyID: "",
 };
 
 describe("Accessibility", () => {

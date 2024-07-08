@@ -43,6 +43,11 @@ const baseSubmission: Omit<Submission, "_id"> = {
   updatedAt: "",
   crossSubmissionStatus: null,
   otherSubmissions: null,
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: ["metadata", "file"],
+  studyID: "",
 };
 
 type ParentProps = {
@@ -247,8 +252,11 @@ describe("Implementation Requirements", () => {
 
     expect(called).toBe(false);
 
-    // Open the dialog
-    userEvent.click(getByTestId("uploader-cli-config-button"));
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
+    await act(async () => {
+      // Open the dialog
+      userEvent.click(getByTestId("uploader-cli-config-button"));
+    });
 
     // Skip filling the fields and click the download button
     // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act

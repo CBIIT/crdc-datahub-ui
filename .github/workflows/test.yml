@@ -1,17 +1,14 @@
-name: Test Changes
+name: Jest
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - "*.*.*"
+      - "main"
+      - "master"
   pull_request:
     branches: "*"
-    paths:
-      - "src/**"
-      - "public/**"
-      - "*.json"
-      - "*.js"
-      - "*.jsx"
-      - "*.ts"
-      - "*.tsx"
 
 permissions:
   contents: read
@@ -39,7 +36,7 @@ jobs:
             ${{ runner.os }}-modules-
 
       - name: Install Dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install
 
       - name: Run Jest
         run: npm run test:ci

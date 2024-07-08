@@ -165,7 +165,7 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
             <StyledLabel id="data-folder-input-label">Local Path of Data Files Folder</StyledLabel>
             <StyledOutlinedInput
               {...register("dataFolder", { required: true })}
-              placeholder="Enter pathway"
+              placeholder="/Users/me/my-data-files-folder"
               data-testid="uploader-config-dialog-input-data-folder"
               inputProps={{ "aria-labelledby": "data-folder-input-label" }}
             />
@@ -174,7 +174,7 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
             <StyledLabel id="manifest-input-label">Local Path of Manifest File</StyledLabel>
             <StyledOutlinedInput
               {...register("manifest", { required: true })}
-              placeholder="Enter location"
+              placeholder="/Users/me/my-metadata-folder/my-file-manifest.tsv"
               data-testid="uploader-config-dialog-input-manifest"
               inputProps={{ "aria-labelledby": "manifest-input-label" }}
             />

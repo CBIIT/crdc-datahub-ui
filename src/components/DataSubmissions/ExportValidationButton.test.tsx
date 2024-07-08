@@ -50,6 +50,11 @@ describe("ExportValidationButton cases", () => {
     updatedAt: "",
     intention: "New/Update",
     dataType: "Metadata and Data Files",
+    validationStarted: "",
+    validationEnded: "",
+    validationScope: "New",
+    validationType: ["metadata", "file"],
+    studyID: "",
   };
 
   const baseQCResult: Omit<QCResult, "submissionID"> = {
@@ -80,6 +85,25 @@ describe("ExportValidationButton cases", () => {
     );
 
     expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("should have a tooltip present on the button", async () => {
+    const { getByTestId, findByRole } = render(
+      <TestParent mocks={[]}>
+        <ExportValidationButton
+          submission={{ ...baseSubmission, _id: "test-tooltip-id" }}
+          fields={{}}
+        />
+      </TestParent>
+    );
+
+    UserEvent.hover(getByTestId("export-validation-button"));
+
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent(
+      "Export all validation issues for this data submission to a CSV file"
+    );
   });
 
   it("should execute the SUBMISSION_QC_RESULTS query onClick", async () => {
@@ -450,9 +474,12 @@ describe("ExportValidationButton cases", () => {
     fireEvent.click(getByTestId("export-validation-button"));
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to export validation results.", {
-        variant: "error",
-      });
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        expect.stringContaining("Unable to export validation results. Error:"),
+        {
+          variant: "error",
+        }
+      );
     });
   });
 });

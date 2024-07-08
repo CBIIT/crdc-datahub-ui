@@ -111,3 +111,20 @@ export const filterPositiveIntegerString = (input: string): string => {
 
   return noLeadingZeros || "";
 };
+
+/**
+ * Compares two string values for sorting in an array. Non-empty strings are sorted
+ * alphabetically, and `null` or empty strings are placed at the beginning.
+ *
+ * @param {string | null} a - The first string to compare.
+ * @param {string | null} b - The second string to compare.
+ * @returns {number} - A negative number if `a` should come before `b`, a positive number
+ * if `a` should come after `b`, or zero if they are considered equal for sorting purposes.
+ */
+export const compareStrings = (a: string | null, b: string | null): number => {
+  if (a === b) return 0;
+  if (!a || a === "") return -1;
+  if (!b || b === "") return 1;
+
+  return a.localeCompare(b);
+};

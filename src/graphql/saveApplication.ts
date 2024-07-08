@@ -26,6 +26,24 @@ export const mutation = gql`
   }
 `;
 
+export type Input = {
+  /**
+   * The Submission Request input
+   */
+  application: {
+    _id: string;
+    programName: Program["name"];
+    studyAbbreviation: Study["abbreviation"];
+    /**
+     * Stringified JSON Application Questionnaire Data
+     *
+     * @see {@link QuestionnaireData}
+     */
+    questionnaireData: string;
+    controlledAccess: boolean;
+  };
+};
+
 export type Response = {
   saveApplication: Omit<Application, "programName" | "studyAbbreviation" | "questionnaireData">;
 };

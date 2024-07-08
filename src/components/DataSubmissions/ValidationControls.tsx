@@ -1,12 +1,15 @@
-import React, { FC, ReactElement, useEffect, useMemo, useState } from "react";
+import React, { FC, ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { FormControlLabel, RadioGroup, Stack, Typography, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
-import { VALIDATE_SUBMISSION, ValidateSubmissionResp } from "../../graphql";
+import {
+  VALIDATE_SUBMISSION,
+  ValidateSubmissionInput,
+  ValidateSubmissionResp,
+} from "../../graphql";
 import {
   getDefaultValidationTarget,
   getDefaultValidationType,
@@ -14,6 +17,8 @@ import {
 } from "../../utils";
 import FlowWrapper from "./FlowWrapper";
 import { CrossValidationButton } from "./CrossValidationButton";
+import { ValidationStatus } from "./ValidationStatus";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -81,38 +86,28 @@ const ValidateMap: Partial<Record<Submission["status"], User["role"][]>> = {
   Submitted: ["Data Curator", "Admin"],
 };
 
-type Props = {
-  /**
-   * The data submission to display validation controls for.
-   *
-   * NOTE: Initially null during the loading state.
-   */
-  dataSubmission?: Submission;
-  /**
-   * Callback function called when the validating is initiated.
-   *
-   * @param success whether the validation was successfully initiated
-   */
-  onValidate: (success: boolean) => void;
-};
-
 /**
  * Provides the UI for validating a data submission's assets.
  *
- * @param {Props}
- * @returns {React.FC<Props>}
+ * @returns {React.FC}
  */
-const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) => {
+const ValidationControls: FC = () => {
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { data, updateQuery, refetch } = useSubmissionContext();
+  const { getSubmission: dataSubmission } = data || {};
 
-  const [validationType, setValidationType] = useState<ValidationType>(null);
+  const [validationType, setValidationType] = useState<ValidationType | "All">(null);
   const [uploadType, setUploadType] = useState<ValidationTarget>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isValidating, setIsValidating] = useState<boolean>(
-    dataSubmission?.fileValidationStatus === "Validating" ||
-      dataSubmission?.metadataValidationStatus === "Validating"
+
+  const isValidating = useMemo<boolean>(
+    () =>
+      dataSubmission?.fileValidationStatus === "Validating" ||
+      dataSubmission?.metadataValidationStatus === "Validating",
+    [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]
   );
+  const prevIsValidating = useRef<boolean>(isValidating);
 
   const canValidateMetadata: boolean = useMemo(() => {
     const permissionMap = ValidateMap[dataSubmission?.status];
@@ -141,19 +136,22 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
     return dataSubmission?.fileValidationStatus !== null;
   }, [user?.role, dataSubmission?.fileValidationStatus, dataSubmission?.status]);
 
-  const [validateSubmission] = useMutation<ValidateSubmissionResp>(VALIDATE_SUBMISSION, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  const [validateSubmission] = useMutation<ValidateSubmissionResp, ValidateSubmissionInput>(
+    VALIDATE_SUBMISSION,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const handleValidateFiles = async () => {
     if (isValidating || !validationType || !uploadType) {
       return;
     }
-    if (!canValidateFiles && validationType === "Files") {
+    if (!canValidateFiles && validationType === "file") {
       return;
     }
-    if (!canValidateMetadata && validationType === "Metadata") {
+    if (!canValidateMetadata && validationType === "metadata") {
       return;
     }
 
@@ -163,7 +161,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       variables: {
         _id: dataSubmission?._id,
         types: getValidationTypes(validationType),
-        scope: uploadType === "New" ? "New" : "All",
+        scope: uploadType,
       },
     }).catch((e) => ({ errors: e?.message, data: null }));
 
@@ -171,20 +169,40 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
       enqueueSnackbar("Unable to initiate validation process.", {
         variant: "error",
       });
-      setIsValidating(false);
-      onValidate?.(false);
     } else {
       enqueueSnackbar(
         "Validation process is starting; this may take some time. Please wait before initiating another validation.",
         { variant: "success" }
       );
-      setIsValidating(true);
-      onValidate?.(true);
+      handleOnValidate();
     }
 
-    setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
-    setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
     setIsLoading(false);
+  };
+
+  const handleOnValidate = () => {
+    // NOTE: This forces the UI to rerender with the new statuses immediately
+    const types = getValidationTypes(validationType);
+    updateQuery((prev) => ({
+      ...prev,
+      getSubmission: {
+        ...prev.getSubmission,
+        fileValidationStatus: types?.includes("file")
+          ? "Validating"
+          : prev?.getSubmission?.fileValidationStatus,
+        metadataValidationStatus: types?.includes("metadata")
+          ? "Validating"
+          : prev?.getSubmission?.metadataValidationStatus,
+        validationStarted: new Date().toISOString(),
+        validationEnded: null,
+        validationType: types,
+        validationScope: uploadType,
+      },
+    }));
+
+    // Kick off polling to check for validation status change
+    // NOTE: We're waiting 1000ms to allow the cache to update
+    setTimeout(refetch, 1000);
   };
 
   const Actions: ReactElement = useMemo(
@@ -200,12 +218,7 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
         >
           {isValidating ? "Validating..." : "Validate"}
         </StyledValidateButton>
-        <CrossValidationButton
-          submission={dataSubmission}
-          variant="contained"
-          color="info"
-          onValidate={onValidate}
-        />
+        <CrossValidationButton submission={dataSubmission} variant="contained" color="info" />
       </>
     ),
     [
@@ -219,36 +232,40 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   );
 
   useEffect(() => {
-    setIsValidating(
+    const isValidating =
       dataSubmission?.fileValidationStatus === "Validating" ||
-        dataSubmission?.metadataValidationStatus === "Validating"
-    );
+      dataSubmission?.metadataValidationStatus === "Validating";
+
+    // Reset the validation type and target only if the validation process finished
+    if (!isValidating && prevIsValidating.current === true) {
+      setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
+      setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
+    }
+
+    prevIsValidating.current = isValidating;
   }, [dataSubmission?.fileValidationStatus, dataSubmission?.metadataValidationStatus]);
 
   useEffect(() => {
-    if (validationType !== null) {
-      return;
-    }
     if (typeof dataSubmission === "undefined") {
       return;
     }
-
-    setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
+    if (validationType === null) {
+      setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
+    }
+    if (uploadType === null) {
+      setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
+    }
   }, [dataSubmission, user]);
 
-  useEffect(() => {
-    if (uploadType !== null) {
-      return;
-    }
-    if (typeof dataSubmission === "undefined") {
-      return;
-    }
-
-    setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
-  }, [dataSubmission]);
-
   return (
-    <FlowWrapper index={3} title="Validate Data" actions={Actions} last>
+    <FlowWrapper
+      index={3}
+      titleContainerSx={{ marginBottom: "4px", columnGap: "12px" }}
+      title="Validate Data"
+      titleAdornment={<ValidationStatus />}
+      actions={Actions}
+      last
+    >
       <>
         <StyledRow direction="row" alignItems="center" sx={{ marginBottom: "-5px" }}>
           <StyledRowTitle>Validation Type:</StyledRowTitle>
@@ -260,13 +277,13 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
               row
             >
               <StyledRadioControl
-                value="Metadata"
+                value="metadata"
                 control={<StyledRadioButton readOnly={false} />}
                 label="Validate Metadata"
                 disabled={!canValidateMetadata}
               />
               <StyledRadioControl
-                value="Files"
+                value="file"
                 control={<StyledRadioButton readOnly={false} />}
                 label="Validate Data Files"
                 disabled={!canValidateFiles}
@@ -313,6 +330,4 @@ const ValidationControls: FC<Props> = ({ dataSubmission, onValidate }: Props) =>
   );
 };
 
-export default React.memo<Props>(ValidationControls, (prevProps, nextProps) =>
-  isEqual(prevProps, nextProps)
-);
+export default React.memo(ValidationControls);

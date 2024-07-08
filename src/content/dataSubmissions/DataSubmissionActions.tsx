@@ -104,7 +104,7 @@ type ActionKey =
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
-    statuses: ["In Progress", "Withdrawn"],
+    statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   Release: {
     roles: ["Data Curator", "Admin"],
@@ -128,7 +128,7 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
   Cancel: {
     roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
-    statuses: ["New", "In Progress"],
+    statuses: ["New", "In Progress", "Rejected"],
   },
   Archive: {
     roles: ["Data Curator", "Admin"],
@@ -332,8 +332,9 @@ const DataSubmissionActions = ({
         }
       >
         <StyledDialogText variant="body2">
-          This action will lock your submission and it will no longer accept updates to the data.
-          Are you sure you want to proceed?
+          {submission?.status === "Rejected"
+            ? "Are you sure you want to resubmit your data without making any changes? Your previous submission was rejected, and resubmitting without addressing the issues may result in another rejection."
+            : "This action will lock your submission and it will no longer accept updates to the data. Are you sure you want to proceed?"}
         </StyledDialogText>
       </StyledDialog>
 

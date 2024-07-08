@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { AriaAttributes, FC } from "react";
 import {
   Pagination,
   PaginationItem,
@@ -54,6 +54,10 @@ export type CustomPaginationActionsProps = {
    * An optional prop to render additional action components.
    */
   AdditionalActions?: React.ReactNode;
+  /**
+   * Any additional aria attributes to be passed to the component.
+   */
+  ariaProps?: AriaAttributes;
 } & TablePaginationProps;
 
 const PaginationActions: FC<CustomPaginationActionsProps> = ({
@@ -62,6 +66,7 @@ const PaginationActions: FC<CustomPaginationActionsProps> = ({
   rowsPerPage,
   AdditionalActions,
   onPageChange,
+  ariaProps,
 }: CustomPaginationActionsProps) => (
   <>
     <StyledPagination
@@ -71,6 +76,7 @@ const PaginationActions: FC<CustomPaginationActionsProps> = ({
       variant="outlined"
       shape="rounded"
       renderItem={(params: PaginationRenderItemParams) => <StyledPaginationItem {...params} />}
+      {...ariaProps}
     />
     {AdditionalActions}
   </>

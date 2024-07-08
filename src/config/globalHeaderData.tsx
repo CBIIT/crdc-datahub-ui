@@ -34,6 +34,12 @@ export const navMobileList = [
     className: "navMobileItem",
   },
   {
+    name: "API Documentation",
+    link: "/playground",
+    id: "navbar-dropdown-graphql-playground",
+    className: "navMobileItem",
+  },
+  {
     name: "Model Navigator",
     link: "#",
     id: "navbar-dropdown-model-navigator",

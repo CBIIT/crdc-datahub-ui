@@ -30,10 +30,13 @@ import {
   ListApprovedStudiesResp,
   LIST_CURATORS,
   ListCuratorsResp,
+  EditOrgInput,
+  CreateOrgInput,
 } from "../../graphql";
 import ConfirmDialog from "../../components/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
 import { formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
 type Props = {
   /**
@@ -42,8 +45,8 @@ type Props = {
   _id: string;
 };
 
-type FormInput = Omit<EditOrganizationInput, "studies"> & {
-  studies: ApprovedStudy["_id"][];
+type FormInput = Omit<EditOrgInput, "orgID" | "studies"> & {
+  studies: string[];
 };
 
 const StyledContainer = styled(Container)({
@@ -173,12 +176,14 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const { lastSearchParams } = useSearchParamsContext();
 
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [dataSubmissions, setDataSubmissions] = useState<Partial<Submission>[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
+  const manageOrgPageUrl = `/organizations${lastSearchParams?.["/organizations"] ?? ""}`;
 
   const assignedStudies: string[] = useMemo(() => {
     const activeStudies = {};
@@ -217,12 +222,12 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     fetchPolicy: "no-cache",
   });
 
-  const [editOrganization] = useMutation<EditOrgResp>(EDIT_ORG, {
+  const [editOrganization] = useMutation<EditOrgResp, EditOrgInput>(EDIT_ORG, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const [createOrganization] = useMutation<CreateOrgResp>(CREATE_ORG, {
+  const [createOrganization] = useMutation<CreateOrgResp, CreateOrgInput>(CREATE_ORG, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -245,16 +250,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
 
-    const studyMap: {
-      [_id: string]: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">;
-    } = {};
-    approvedStudies?.listApprovedStudies?.forEach(({ _id, studyName, studyAbbreviation }) => {
-      studyMap[_id] = { studyName, studyAbbreviation };
-    });
-
     const variables = {
       ...data,
-      studies: data.studies.map((_id) => studyMap[_id])?.filter((s) => !!s?.studyName) || [],
+      studies: data.studies.map((studyID) => ({ studyID })),
     };
 
     if (_id === "new" && !organization?._id) {
@@ -295,6 +293,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     }
 
     setError(null);
+    navigate(manageOrgPageUrl);
   };
 
   const handleBypassWarning = () => {
@@ -348,7 +347,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
         variables: { orgID: _id, organization: _id },
       });
       if (error || !data?.getOrganization) {
-        navigate("/organizations", {
+        navigate(manageOrgPageUrl, {
           state: { error: "Unable to fetch organization" },
         });
         return;
@@ -507,7 +506,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 </StyledButton>
                 <StyledButton
                   type="button"
-                  onClick={() => navigate("/organizations")}
+                  onClick={() => navigate(manageOrgPageUrl)}
                   txt="#666666"
                   border="#828282"
                 >

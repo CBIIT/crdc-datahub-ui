@@ -35,6 +35,14 @@ type Props = {
   onDelete: (success: boolean) => void;
 } & IconButtonProps;
 
+/**
+ * A button component that triggers the deletion of all orphaned files within a submission.
+ *
+ * @param {Props} props
+ * @returns {JSX.Element}
+ *
+ * @deprecated This component is deprecated. The Data View tab will handle deleting orphaned files instead.
+ */
 const DeleteAllOrphanFilesButton = ({ submission, onDelete, disabled, ...rest }: Props) => {
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();

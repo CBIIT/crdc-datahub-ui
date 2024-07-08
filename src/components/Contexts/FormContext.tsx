@@ -20,6 +20,8 @@ import {
   ReviewAppResp,
   SaveAppResp,
   SubmitAppResp,
+  ApproveAppInput,
+  SaveAppInput,
 } from "../../graphql";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import ErrorCodes from "../../config/ErrorCodes";
@@ -107,7 +109,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     fetchPolicy: "no-cache",
   });
 
-  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
+  const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -130,8 +132,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     fetchPolicy: "no-cache",
   });
 
-  const [approveApp] = useMutation<ApproveAppResp>(APPROVE_APP, {
-    variables: { id },
+  const [approveApp] = useMutation<ApproveAppResp, ApproveAppInput>(APPROVE_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -167,6 +168,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
             programName: data?.program?.name,
             studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
             questionnaireData: JSON.stringify(data),
+            controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
           },
         },
       });
@@ -279,11 +281,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
   const approveForm = async (comment: string, wholeProgram: boolean) => {
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
 
+    const institutions: string[] = [
+      state?.data?.questionnaireData?.pi?.institution,
+      state?.data?.questionnaireData?.primaryContact?.institution,
+      ...(state?.data?.questionnaireData?.additionalContacts?.map((c) => c.institution) || []),
+    ].filter((i) => !!i && typeof i === "string");
+
     const { data: res, errors } = await approveApp({
       variables: {
-        _id: state?.data["_id"],
+        id: state?.data["_id"],
         comment,
         wholeProgram,
+        institutions,
       },
     });
 

@@ -5,7 +5,8 @@ type Submission = {
   submitterName: string; // <first name> <last name>
   organization: Pick<Organization, "_id" | "name">; // Organization
   dataCommons: string;
-  modelVersion: string; // for future use
+  modelVersion: string;
+  studyID: string;
   studyAbbreviation: string;
   dbGaPID: string; // # aka. phs number
   bucketName: string; // # populated from organization
@@ -14,7 +15,34 @@ type Submission = {
   metadataValidationStatus: ValidationStatus;
   fileValidationStatus: ValidationStatus;
   crossSubmissionStatus: CrossSubmissionStatus;
-  fileErrors: QCResult[]; // holds submission level file errors, e.g., extra files in S3 folder
+  /**
+   * The date and time when the validation process started.
+   *
+   * @note ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+   */
+  validationStarted: string;
+  /**
+   * The date and time when the validation process ended.
+   *
+   * @note ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+   */
+  validationEnded: string;
+  /**
+   * The last performed validation action scope.
+   *
+   * @see {@link ValidationTarget} for more information.
+   */
+  validationScope: ValidationTarget;
+  /**
+   * The last performed validation action type.
+   *
+   * @see {@link ValidationType} for more information.
+   */
+  validationType: ValidationType[];
+  /**
+   * Holds submission level file errors, e.g., extra files in S3 folder
+   */
+  fileErrors: QCResult[];
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
@@ -63,7 +91,8 @@ type SubmissionStatus =
   | "Rejected"
   | "Completed"
   | "Archived"
-  | "Canceled";
+  | "Canceled"
+  | "Deleted";
 
 type SubmissionAction =
   | "Submit"
@@ -113,16 +142,6 @@ type BatchFileInfo = {
 
 type BatchStatus = "Uploading" | "Uploaded" | "Failed";
 
-/**
- * The intention of the metadata upload.
- *
- * @note In MVP-2.1.0, the previous values were:
- *  - `New` => `Add`
- *  - `Update` => `Add/Change`
- *  - `Delete` => `Remove`
- */
-type MetadataIntention = "Add" | "Add/Change" | "Remove";
-
 type UploadType = "metadata" | "data file";
 
 type Batch = {
@@ -130,10 +149,6 @@ type Batch = {
   displayID: number;
   submissionID: string; // parent
   type: UploadType;
-  /**
-   * See {@link MetadataIntention} for more information.
-   */
-  metadataIntention: MetadataIntention;
   fileCount: number; // calculated by BE
   files: BatchFileInfo[];
   status: BatchStatus;
@@ -148,7 +163,6 @@ type NewBatch = {
   bucketName?: string; // S3 bucket of the submission, for file batch / CLI use
   filePrefix?: string; // prefix/path within S3 bucket, for file batch / CLI use
   type: UploadType;
-  metadataIntention: MetadataIntention;
   fileCount: number; // calculated by BE
   files: FileURL[];
   status: BatchStatus; // [New, Uploaded, Upload Failed, Loaded, Rejected] Loaded and Rejected are for metadata batch only
@@ -270,7 +284,7 @@ type AsyncProcessResult = {
 /**
  * The type of Data Validation to perform.
  */
-type ValidationType = "Metadata" | "Files" | "All";
+type ValidationType = "metadata" | "file" | "cross-submission";
 
 /**
  * The target of Data Validation action.
@@ -286,7 +300,7 @@ type SubmissionNode = {
   submissionID: string;
   nodeType: string;
   nodeID: string;
-  status: string;
+  status: ValidationStatus;
   createdAt: string;
   updatedAt: string;
   validatedAt: string;
