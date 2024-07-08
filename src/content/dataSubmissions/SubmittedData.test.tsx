@@ -4,8 +4,15 @@ import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "jest-axe";
 import { render, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import SubmittedData from "./SubmittedData";
-import { GET_SUBMISSION_NODES, SUBMISSION_STATS } from "../../graphql";
+import {
+  GET_SUBMISSION_NODES,
+  GetSubmissionNodesInput,
+  GetSubmissionNodesResp,
+  SUBMISSION_STATS,
+  SubmissionStatsResp,
+} from "../../graphql";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   SubmissionContext,
@@ -146,6 +153,126 @@ describe("SubmittedData > General", () => {
       });
     });
   });
+
+  it("should show an error message when 'Select All' failed to fetch all nodes (GraphQL)", async () => {
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 200,
+            properties: ["col-xyz"],
+            nodes: Array(20).fill({
+              nodeType: "example-node",
+              nodeID: "example-node-id",
+              props: JSON.stringify({
+                "col-xyz": "value-for-column-xyz",
+              }),
+              status: "New",
+            }),
+          },
+        },
+      },
+    };
+
+    const getAllNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        errors: [new GraphQLError("Simulated GraphQL error")],
+      },
+    };
+
+    const { getAllByRole } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock, getAllNodesMock]}
+        submissionId="example-select-all-id-failure"
+        submissionName={undefined}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      // NOTE: Default pagination is 20 rows, if that drops below 20, this test will need to be updated
+      expect(getAllByRole("checkbox")).toHaveLength(21);
+    });
+
+    userEvent.click(getAllByRole("checkbox")[0]); // click 'Select All' checkbox
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Cannot select all rows. Unable to retrieve node data.",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should show an error message when 'Select All' failed to fetch all nodes (network)", async () => {
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 200,
+            properties: ["col-xyz"],
+            nodes: Array(20).fill({
+              nodeType: "example-node",
+              nodeID: "example-node-id",
+              props: JSON.stringify({
+                "col-xyz": "value-for-column-xyz",
+              }),
+              status: "New",
+            }),
+          },
+        },
+      },
+    };
+
+    const getAllNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      error: new Error("Simulated network error"),
+    };
+
+    const { getAllByRole } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock, getAllNodesMock]}
+        submissionId="example-select-all-id-failure"
+        submissionName={undefined}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      // NOTE: Default pagination is 20 rows, if that drops below 20, this test will need to be updated
+      expect(getAllByRole("checkbox")).toHaveLength(21);
+    });
+
+    userEvent.click(getAllByRole("checkbox")[0]); // click 'Select All' checkbox
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Cannot select all rows. Unable to retrieve node data.",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
 });
 
 describe("SubmittedData > Table", () => {
@@ -158,7 +285,7 @@ describe("SubmittedData > Table", () => {
     error: 0,
   };
 
-  const mockSubmissionQuery = {
+  const mockSubmissionQuery: MockedResponse<SubmissionStatsResp> = {
     request: {
       query: SUBMISSION_STATS,
     },
@@ -306,13 +433,261 @@ describe("SubmittedData > Table", () => {
     });
   });
 
-  it.todo("should append an interactive Checkbox column to the table");
+  it("should append an interactive Checkbox column to the table", async () => {
+    const submissionID = "example-checkbox-column-id";
 
-  it.todo("should fetch all nodes when the 'Select All' checkbox is clicked");
+    const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 2,
+            properties: ["col-xyz"],
+            nodes: [
+              {
+                nodeType: "example-node",
+                nodeID: "example-node-id",
+                props: JSON.stringify({
+                  "col-xyz": "value-1",
+                }),
+                status: "New",
+              },
+              {
+                nodeType: "example-node",
+                nodeID: "example-node-id2",
+                props: JSON.stringify({
+                  "col-xyz": "value-2",
+                }),
+                status: null,
+              },
+            ],
+          },
+        },
+      },
+    };
 
-  it.todo("should handle failure to query for all nodes when 'Select All' is clicked");
+    const { getByTestId, getByLabelText, getAllByRole } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, mocks]}
+        submissionId={submissionID}
+        submissionName={undefined}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
 
-  it.todo("should deselect all rows when any filter changes");
+    await waitFor(() => {
+      expect(getByTestId("generic-table-header-checkbox")).toBeInTheDocument();
+    });
+
+    expect(getByLabelText("Select All")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")).toHaveLength(3); // header + 2 rows
+    });
+  });
+
+  it("should fetch all nodes when the 'Select All' checkbox is clicked", async () => {
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 200,
+            properties: ["col-xyz"],
+            nodes: Array(20).fill({
+              nodeType: "example-node",
+              nodeID: "example-node-id",
+              props: JSON.stringify({
+                "col-xyz": "value-for-column-xyz",
+              }),
+              status: "New",
+            }),
+          },
+        },
+      },
+    };
+
+    const mockMatcherAllNodes = jest.fn().mockImplementation(() => true);
+    const getAllNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: mockMatcherAllNodes,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 200,
+            nodes: Array(200).fill({
+              nodeID: "example-node-id",
+            }),
+          },
+        },
+      },
+    };
+
+    const { getAllByRole } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock, getAllNodesMock]}
+        submissionId="example-select-all-id"
+        submissionName={undefined}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      // NOTE: Default pagination is 20 rows, if that drops below 20, this test will need to be updated
+      expect(getAllByRole("checkbox")).toHaveLength(21); // header + 20 rows
+    });
+
+    expect(mockMatcherAllNodes).not.toHaveBeenCalled();
+
+    userEvent.click(getAllByRole("checkbox")[0]); // click 'Select All' checkbox
+
+    await waitFor(() => {
+      expect(mockMatcherAllNodes).toHaveBeenCalledWith(
+        expect.objectContaining({
+          partial: true,
+          first: -1,
+        })
+      );
+    });
+  });
+
+  it("should not fetch all nodes if the node count is less than the pagination count", async () => {
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 19,
+            properties: ["col-xyz"],
+            nodes: Array(19).fill({
+              nodeType: "example-node",
+              nodeID: "example-node-id",
+              props: JSON.stringify({
+                "col-xyz": "value-for-column-xyz",
+              }),
+              status: "New",
+            }),
+          },
+        },
+      },
+    };
+
+    const mockMatcherAllNodes = jest.fn().mockImplementation(() => true);
+    const getAllNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: mockMatcherAllNodes,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 19,
+            nodes: Array(200).fill({
+              nodeID: "example-node-id",
+            }),
+          },
+        },
+      },
+    };
+
+    const { getAllByRole } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock, getAllNodesMock]}
+        submissionId="example-select-all-id"
+        submissionName={undefined}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      // NOTE: Default pagination is 20 rows, if that drops below 20, this test will need to be updated
+      expect(getAllByRole("checkbox")).toHaveLength(20); // header + 19 rows
+    });
+
+    userEvent.click(getAllByRole("checkbox")[0]);
+
+    await waitFor(() => {
+      expect(mockMatcherAllNodes).not.toHaveBeenCalled();
+    });
+  });
+
+  it("should deselect all rows when any filter changes", async () => {
+    const submissionID = "example-deselect-all-id";
+
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 2, // initial query + filter change
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 2,
+            properties: ["col-xyz"],
+            nodes: [
+              {
+                nodeType: "example-node",
+                nodeID: "example-node-id",
+                props: JSON.stringify({
+                  "col-xyz": "value-1",
+                }),
+                status: "New",
+              },
+              {
+                nodeType: "example-node",
+                nodeID: "example-node-id2",
+                props: JSON.stringify({
+                  "col-xyz": "value-2",
+                }),
+                status: null,
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    const { getAllByRole, getByLabelText } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock]}
+        submissionId={submissionID}
+        submissionName={undefined}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")).toHaveLength(3); // header + 2 rows
+    });
+
+    userEvent.click(getAllByRole("checkbox")[1]); // click 'Select All' checkbox
+
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")[1]).toBeChecked();
+    });
+
+    userEvent.type(getByLabelText("Submitted ID"), "3 characters minimum");
+
+    await waitFor(() => {
+      expect(getAllByRole("checkbox")[1]).not.toBeChecked();
+    });
+  });
 
   // NOTE: We're asserting that the columns ARE built using getSubmissionNodes.properties
   // instead of the keys of nodes.[x].props JSON object

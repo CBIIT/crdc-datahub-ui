@@ -231,6 +231,11 @@ const SubmittedData: FC = () => {
       setSelectedItems(data?.map((node) => node.nodeID) || []);
     });
 
+    // If all rows are already visible, no need to fetch data
+    if (data?.length === totalData) {
+      return;
+    }
+
     const { data: d, error } = await getSubmissionNodes({
       variables: {
         _id,
@@ -249,10 +254,9 @@ const SubmittedData: FC = () => {
     }
 
     setSelectedItems(d.getSubmissionNodes.nodes.map((node) => node.nodeID));
-  }, [_id, filterRef, data, setSelectedItems]);
+  }, [_id, filterRef, data, totalData, setSelectedItems]);
 
   const handleOnDelete = useCallback(() => {
-    // TODO: Do we select a different node type?
     setSelectedItems([]);
     tableRef.current?.setPage(0, true);
     refetch();
