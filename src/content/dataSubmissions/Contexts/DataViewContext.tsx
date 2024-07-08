@@ -10,6 +10,10 @@ const DataViewContext = React.createContext<{
    */
   totalData?: number;
   /**
+   * A reference to a boolean indicating if all data is being fetched
+   */
+  isFetchingAllData?: React.MutableRefObject<boolean>;
+  /**
    * Toggle the current row selection
    *
    * @param nodeIds The node IDs to toggle selection for

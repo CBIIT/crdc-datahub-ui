@@ -28,13 +28,14 @@ const StyledCheckbox = styled(Checkbox)({
 
 const HeaderCheckbox = () => (
   <DataViewContext.Consumer>
-    {({ selectedItems, totalData, handleToggleAll, handleToggleRow }) => {
+    {({ selectedItems, totalData, isFetchingAllData, handleToggleAll, handleToggleRow }) => {
       const isChecked = selectedItems.length === totalData;
       const isIntermediate = selectedItems.length > 0 && selectedItems.length < totalData;
 
       const handleOnChange = () => {
         // Completely unchecked. Check all
         if (!isChecked && !isIntermediate) {
+          isFetchingAllData.current = true;
           handleToggleAll();
           return;
         }
@@ -49,8 +50,8 @@ const HeaderCheckbox = () => (
             control={
               <StyledCheckbox
                 onChange={handleOnChange}
-                checked={isChecked}
-                indeterminate={isIntermediate}
+                checked={isChecked || isFetchingAllData.current}
+                indeterminate={isIntermediate && !isFetchingAllData.current}
               />
             }
             label={<span style={visuallyHidden}>Select All</span>}
@@ -75,6 +76,7 @@ const SubmittedData: FC = () => {
   const filterRef = useRef<FilterForm>({ nodeType: "", status: "All", submittedID: "" });
   const prevFilterRef = useRef<FilterForm>({ nodeType: "", status: "All", submittedID: "" });
   const abortControllerRef = useRef<AbortController>(new AbortController());
+  const isFetchingAllData = useRef<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [columns, setColumns] = useState<Column<T>[]>([]);
@@ -233,6 +235,7 @@ const SubmittedData: FC = () => {
 
     // If all rows are already visible, no need to fetch data
     if (data?.length === totalData) {
+      isFetchingAllData.current = false;
       return;
     }
 
@@ -250,11 +253,13 @@ const SubmittedData: FC = () => {
         variant: "error",
       });
       setSelectedItems([]);
+      isFetchingAllData.current = false;
       return;
     }
 
     setSelectedItems(d.getSubmissionNodes.nodes.map((node) => node.nodeID));
-  }, [_id, filterRef, data, totalData, setSelectedItems]);
+    isFetchingAllData.current = false;
+  }, [_id, filterRef, data, totalData, isFetchingAllData, setSelectedItems]);
 
   const handleOnDelete = useCallback(() => {
     setSelectedItems([]);
@@ -282,8 +287,8 @@ const SubmittedData: FC = () => {
   );
 
   const providerValue = useMemo(
-    () => ({ handleToggleRow, handleToggleAll, selectedItems, totalData }),
-    [handleToggleRow, handleToggleAll, selectedItems, totalData]
+    () => ({ handleToggleRow, handleToggleAll, selectedItems, totalData, isFetchingAllData }),
+    [handleToggleRow, handleToggleAll, selectedItems, totalData, isFetchingAllData]
   );
 
   return (
