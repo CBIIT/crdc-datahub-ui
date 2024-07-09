@@ -13,6 +13,7 @@ import {
 import GenericTable, { Column } from "../../components/GenericTable";
 import SubmittedDataFilters, {
   FilterForm,
+  FilterMethods,
 } from "../../components/DataSubmissions/SubmittedDataFilters";
 import { safeParse } from "../../utils";
 import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
@@ -68,11 +69,12 @@ type T = Pick<SubmissionNode, "nodeType" | "nodeID" | "status"> & {
 };
 
 const SubmittedData: FC = () => {
-  const { data: dataSubmission, refetch } = useSubmissionContext();
+  const { data: dataSubmission, refetch: refetchSubmission } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
   const { _id, name } = dataSubmission?.getSubmission || {};
 
   const tableRef = useRef<TableMethods>(null);
+  const filterMethodRef = useRef<FilterMethods>(null);
   const filterRef = useRef<FilterForm>({ nodeType: "", status: "All", submittedID: "" });
   const prevFilterRef = useRef<FilterForm>({ nodeType: "", status: "All", submittedID: "" });
   const abortControllerRef = useRef<AbortController>(new AbortController());
@@ -261,11 +263,17 @@ const SubmittedData: FC = () => {
     isFetchingAllData.current = false;
   }, [_id, filterRef, data, totalData, isFetchingAllData, setSelectedItems]);
 
-  const handleOnDelete = useCallback(() => {
+  const handleOnDelete = () => {
+    enqueueSnackbar(
+      `${selectedItems.length} ${filterRef.current.nodeType}${
+        selectedItems.length !== 1 ? "(s) have" : " has"
+      } been deleted from this data submission`
+    );
     setSelectedItems([]);
-    tableRef.current?.setPage(0, true);
-    refetch();
-  }, [setSelectedItems, refetch, tableRef.current]);
+    refetchSubmission();
+    tableRef.current?.refresh();
+    filterMethodRef.current?.refetch();
+  };
 
   const Actions = useMemo<React.ReactNode>(
     () => (
@@ -293,7 +301,11 @@ const SubmittedData: FC = () => {
 
   return (
     <>
-      <SubmittedDataFilters submissionId={_id} onChange={handleFilterChange} />
+      <SubmittedDataFilters
+        submissionId={_id}
+        onChange={handleFilterChange}
+        ref={filterMethodRef}
+      />
       <DataViewContext.Provider value={providerValue}>
         <GenericTable
           ref={tableRef}

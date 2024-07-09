@@ -8,6 +8,7 @@ import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import DeleteDialog from "../DeleteDialog";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
+import { titleCase } from "../../utils";
 
 const StyledIconButton = styled(IconButton)(({ disabled }) => ({
   opacity: disabled ? 0.26 : 1,
@@ -101,8 +102,10 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
       </StyledTooltip>
       <DeleteDialog
         open={confirmOpen}
-        header={`Remove ${nodeType} Data`}
-        description={`You have selected to delete ${selectedItems.length} ${nodeType}(s). Are you sure you want to remove them and their associated children from this data submission?`}
+        header={`Delete ${titleCase(nodeType)}(s)`}
+        description={`You have selected to delete ${selectedItems.length} ${nodeType}${
+          selectedItems.length !== 1 ? "(s)" : ""
+        }. Are you sure you want to delete them and their associated children from this data submission?`}
         confirmText="Confirm"
         closeText="Cancel"
         onConfirm={onConfirmDialog}

@@ -1,4 +1,4 @@
-import { FC, memo, useEffect, useMemo, useRef } from "react";
+import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { cloneDeep, debounce, isEqual } from "lodash";
 import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
@@ -8,7 +8,7 @@ import { GetSubmissionNodesInput, SUBMISSION_STATS, SubmissionStatsResp } from "
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 import StyledInput from "../StyledFormComponents/StyledOutlinedInput";
 
-export type SubmittedDataFiltersProps = {
+export type FilterProps = {
   /**
    * The `_id` of the Data Submission
    *
@@ -16,6 +16,13 @@ export type SubmittedDataFiltersProps = {
    */
   submissionId: string;
   onChange?: (data: FilterForm) => void;
+};
+
+export type FilterMethods = {
+  /**
+   * A reference to the refetch function of the Apollo Query
+   */
+  refetch: ReturnType<typeof useQuery<SubmissionStatsResp>>["refetch"];
 };
 
 export type FilterForm = Pick<GetSubmissionNodesInput, "nodeType" | "status" | "submittedID">;
@@ -43,138 +50,145 @@ const StyledInlineLabel = styled("label")({
   paddingRight: "10px",
 });
 
-const SubmittedDataFilters: FC<SubmittedDataFiltersProps> = ({
-  submissionId,
-  onChange,
-}: SubmittedDataFiltersProps) => {
-  const { watch, setValue, getValues, control } = useForm<FilterForm>({
-    defaultValues: { nodeType: "", status: "All", submittedID: "" },
-  });
+/**
+ * A component that provides filters for the Submitted Data table
+ *
+ * @see {@link FilterProps} for the props
+ * @see {@link FilterMethods} for the methods available through a ref
+ */
+const SubmittedDataFilters = forwardRef<FilterMethods, FilterProps>(
+  ({ submissionId, onChange }, ref) => {
+    const { watch, setValue, getValues, control } = useForm<FilterForm>({
+      defaultValues: { nodeType: "", status: "All", submittedID: "" },
+    });
 
-  const debouncedOnChangeRef = useRef(
-    debounce((form: FilterForm) => onChange?.(form), 500)
-  ).current;
+    const debouncedOnChangeRef = useRef(
+      debounce((form: FilterForm) => onChange?.(form), 500)
+    ).current;
 
-  const { data } = useQuery<SubmissionStatsResp>(SUBMISSION_STATS, {
-    variables: { id: submissionId },
-    context: { clientName: "backend" },
-    skip: !submissionId,
-    fetchPolicy: "cache-and-network",
-  });
+    const { data, refetch } = useQuery<SubmissionStatsResp>(SUBMISSION_STATS, {
+      variables: { id: submissionId },
+      context: { clientName: "backend" },
+      skip: !submissionId,
+      fetchPolicy: "cache-and-network",
+    });
 
-  const nodeTypes = useMemo(
-    () =>
-      cloneDeep(data?.submissionStats?.stats)
-        ?.sort(compareNodeStats)
-        ?.reverse()
-        ?.map((stat) => stat.nodeName),
-    [data?.submissionStats?.stats]
-  );
+    const nodeTypes = useMemo(
+      () =>
+        cloneDeep(data?.submissionStats?.stats)
+          ?.sort(compareNodeStats)
+          ?.reverse()
+          ?.map((stat) => stat.nodeName),
+      [data?.submissionStats?.stats]
+    );
 
-  useEffect(() => {
-    if (!!watch("nodeType") || !nodeTypes?.length) {
-      return;
-    }
-
-    setValue("nodeType", nodeTypes[0]);
-    onChange?.({ ...getValues(), nodeType: nodeTypes[0] });
-  }, [nodeTypes]);
-
-  useEffect(() => {
-    const subscription = watch((formValue: FilterForm, { name }) => {
-      if (name === "submittedID") {
-        // Debounce if the submittedID has at least 3 characters
-        if (formValue.submittedID.length >= 3) {
-          debouncedOnChangeRef(formValue);
-          // If the submittedID is empty, call the onChange immediately
-        } else if (formValue.submittedID.length === 0) {
-          onChange?.(formValue);
-        }
-
-        // If the submittedID has less than 3 characters, do nothing
+    useEffect(() => {
+      if (!!watch("nodeType") || !nodeTypes?.length) {
         return;
       }
 
-      // Immediately call the onChange if the change is not in the submittedID field
-      onChange?.(formValue);
-    });
+      setValue("nodeType", nodeTypes[0]);
+      onChange?.({ ...getValues(), nodeType: nodeTypes[0] });
+    }, [nodeTypes]);
 
-    return () => subscription.unsubscribe();
-  }, [watch, debouncedOnChangeRef]);
+    useEffect(() => {
+      const subscription = watch((formValue: FilterForm, { name }) => {
+        if (name === "submittedID") {
+          // Debounce if the submittedID has at least 3 characters
+          if (formValue.submittedID.length >= 3) {
+            debouncedOnChangeRef(formValue);
+            // If the submittedID is empty, call the onChange immediately
+          } else if (formValue.submittedID.length === 0) {
+            onChange?.(formValue);
+          }
 
-  return (
-    <StyledContainer>
-      <Stack direction="row" justifyContent="flex-start" alignItems="center">
-        <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="nodeType"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                defaultValue={nodeTypes?.[0] || ""}
-                value={field.value}
-                MenuProps={{ disablePortal: true }}
-                placeholderText=""
-                inputProps={{ id: "nodeType-filter" }}
-                data-testid="data-content-node-filter"
-              >
-                {nodeTypes?.map((nodeType) => (
-                  <MenuItem key={nodeType} value={nodeType} data-testid={`nodeType-${nodeType}`}>
-                    {nodeType.toLowerCase()}
-                  </MenuItem>
-                ))}
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-      </Stack>
-      <Stack direction="row" justifyContent="flex-start" alignItems="center">
-        <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="status"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                value={field.value}
-                MenuProps={{ disablePortal: true }}
-                placeholderText=""
-                inputProps={{ id: "status-filter" }}
-                data-testid="data-content-status-filter"
-              >
-                <MenuItem value="All">All</MenuItem>
-                <MenuItem value="New">New</MenuItem>
-                <MenuItem value="Error">Error</MenuItem>
-                <MenuItem value="Passed">Passed</MenuItem>
-                <MenuItem value="Warning">Warning</MenuItem>
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-      </Stack>
-      <Stack direction="row" justifyContent="flex-start" alignItems="center">
-        <StyledInlineLabel htmlFor="submittedID-filter">Submitted ID</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="submittedID"
-            control={control}
-            rules={{ minLength: 3 }}
-            render={({ field }) => (
-              <StyledInput
-                {...field}
-                value={field.value}
-                inputProps={{ id: "submittedID-filter" }}
-                data-testid="data-content-submitted-id-filter"
-              />
-            )}
-          />
-        </StyledFormControl>
-      </Stack>
-    </StyledContainer>
-  );
-};
+          // If the submittedID has less than 3 characters, do nothing
+          return;
+        }
 
-export default memo<SubmittedDataFiltersProps>(SubmittedDataFilters, isEqual);
+        // Immediately call the onChange if the change is not in the submittedID field
+        onChange?.(formValue);
+      });
+
+      return () => subscription.unsubscribe();
+    }, [watch, debouncedOnChangeRef]);
+
+    useImperativeHandle(ref, () => ({ refetch }), [refetch]);
+
+    return (
+      <StyledContainer>
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="nodeType"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  defaultValue={nodeTypes?.[0] || ""}
+                  value={field.value}
+                  MenuProps={{ disablePortal: true }}
+                  placeholderText=""
+                  inputProps={{ id: "nodeType-filter" }}
+                  data-testid="data-content-node-filter"
+                >
+                  {nodeTypes?.map((nodeType) => (
+                    <MenuItem key={nodeType} value={nodeType} data-testid={`nodeType-${nodeType}`}>
+                      {nodeType.toLowerCase()}
+                    </MenuItem>
+                  ))}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  value={field.value}
+                  MenuProps={{ disablePortal: true }}
+                  placeholderText=""
+                  inputProps={{ id: "status-filter" }}
+                  data-testid="data-content-status-filter"
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  <MenuItem value="New">New</MenuItem>
+                  <MenuItem value="Error">Error</MenuItem>
+                  <MenuItem value="Passed">Passed</MenuItem>
+                  <MenuItem value="Warning">Warning</MenuItem>
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="submittedID-filter">Submitted ID</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="submittedID"
+              control={control}
+              rules={{ minLength: 3 }}
+              render={({ field }) => (
+                <StyledInput
+                  {...field}
+                  value={field.value}
+                  inputProps={{ id: "submittedID-filter" }}
+                  data-testid="data-content-submitted-id-filter"
+                />
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
+      </StyledContainer>
+    );
+  }
+);
+
+export default memo(SubmittedDataFilters, isEqual);

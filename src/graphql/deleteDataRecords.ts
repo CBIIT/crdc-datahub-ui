@@ -1,9 +1,10 @@
 import gql from "graphql-tag";
 
 export const mutation = gql`
-  mutation deleteDataRecords($_id: String!, $nodeType: String!, $nodeIds: [String!]!) {
+  mutation deleteDataRecords($_id: String!, $nodeType: String!, $nodeIds: [String!]) {
     deleteDataRecords(submissionID: $_id, nodeType: $nodeType, nodeIDs: $nodeIds) {
       success
+      message
     }
   }
 `;

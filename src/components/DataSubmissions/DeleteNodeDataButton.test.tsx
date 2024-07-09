@@ -279,10 +279,6 @@ describe("Implementation Requirements", () => {
     expect(tooltip).toHaveTextContent("Delete all selected nodes from this data submission");
   });
 
-  // NOTE: This test is not applicable to the current implementation,
-  // the selection count is not used for determining the pluralization
-  // it.todo("should use the proper pluralization for the delete dialog content button");
-
   it("should show a confirmation dialog when the 'Delete' icon is clicked", async () => {
     const { getByTestId, getByRole } = render(
       <Button nodeType="test" selectedItems={["1 item ID"]} />,
@@ -380,7 +376,55 @@ describe("Implementation Requirements", () => {
     const dialog = getByRole("dialog");
     expect(dialog).toBeInTheDocument();
 
-    expect(dialog).toHaveTextContent(/Remove test-node-123 Data/i);
-    expect(dialog).toHaveTextContent(/You have selected to delete 1 test-node-123\(s\)/i);
+    expect(dialog).toHaveTextContent(/Delete test-node-123/i);
+    expect(dialog).toHaveTextContent(/You have selected to delete 1 test-node-123/i);
   });
+
+  it.each<[string, string]>([
+    ["data file", "Data File"],
+    ["genomic_info", "Genomic_info"],
+    ["file", "File"],
+    ["ALL CAPS", "All Caps"],
+  ])("should use a title-cased nodeType in the dialog header", (nodeType, expected) => {
+    const { getByTestId, getByRole } = render(
+      <Button nodeType={nodeType} selectedItems={["node-id-456"]} />,
+      {
+        wrapper: TestParent,
+      }
+    );
+
+    userEvent.click(getByTestId("delete-node-data-button"));
+
+    const dialog = getByRole("dialog");
+
+    expect(within(dialog).getByTestId("delete-dialog-header")).toHaveTextContent(
+      `Delete ${expected}(s)`
+    );
+  });
+
+  it.each<[number, string]>([
+    [1, "test-node-123"],
+    [2, "test-node-123(s)"],
+    [999, "test-node-123(s)"],
+  ])(
+    "should use the proper pluralization for the delete dialog content",
+    async (selectedItems, expected) => {
+      const { getByTestId, getByRole } = render(
+        <Button
+          nodeType="test-node-123"
+          selectedItems={Array(selectedItems).fill("fake-node-id")}
+        />,
+        {
+          wrapper: TestParent,
+        }
+      );
+
+      userEvent.click(getByTestId("delete-node-data-button"));
+
+      const dialog = getByRole("dialog");
+      expect(within(dialog).getByTestId("delete-dialog-description")).toHaveTextContent(
+        `You have selected to delete ${selectedItems} ${expected}.`
+      );
+    }
+  );
 });
