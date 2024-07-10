@@ -249,7 +249,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       label: "New/Update",
       value: "New/Update",
       disabled: false,
-      tooltip: true,
       tooltipContent:
         "Select this option to add new data or update existing data in the destination data commons.",
     },
@@ -257,7 +256,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       label: "Delete",
       value: "Delete",
       disabled: false,
-      tooltip: true,
       tooltipContent:
         "Select this option if you want to delete existing data from the destination data commons.",
     },
@@ -268,7 +266,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       label: "Metadata and Data Files",
       value: "Metadata and Data Files",
       disabled: intention === "Delete",
-      tooltip: true,
       tooltipContent:
         "Select this option to create a submission that includes both metadata and data files.",
     },
@@ -276,7 +273,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       label: "Metadata Only",
       value: "Metadata Only",
       disabled: false,
-      tooltip: true,
       tooltipContent:
         "Select this option to create a metadata-only submission. In this case, uploading data files is not permitted.",
     },

@@ -81,7 +81,6 @@ export type Option = {
   label: string;
   value: string;
   disabled?: boolean;
-  tooltip?: boolean;
   tooltipContent?: string | ReactNode;
 };
 
@@ -176,7 +175,7 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
               {options?.map((option: Option, idx: number) => {
                 const isFirstOption = idx === 0;
 
-                return !option.tooltip ? (
+                return !option.tooltipContent ? (
                   <StyledFormControlLabel
                     value={option.value}
                     label={option.label}
