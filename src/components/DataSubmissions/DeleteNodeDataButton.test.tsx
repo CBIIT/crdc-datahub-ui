@@ -421,9 +421,18 @@ describe("Implementation Requirements", () => {
   );
 
   it.each<[number, string]>([
-    [1, "You have selected to delete 1 test-node-123 node."],
-    [2, "You have selected to delete 2 test-node-123 nodes."],
-    [1024, "You have selected to delete 1024 test-node-123 nodes."],
+    [
+      1,
+      "You have selected to delete 1 test-node-123 node. This action is irreversible. Are you sure you want to delete them and their associated children from this data submission?",
+    ],
+    [
+      2,
+      "You have selected to delete 2 test-node-123 nodes. This action is irreversible. Are you sure you want to delete them and their associated children from this data submission?",
+    ],
+    [
+      1024,
+      "You have selected to delete 1024 test-node-123 nodes. This action is irreversible. Are you sure you want to delete them and their associated children from this data submission?",
+    ],
   ])(
     "should use the proper pluralization for the delete dialog content",
     async (selectedItems, expected) => {
@@ -511,13 +520,13 @@ describe("Implementation Requirements", () => {
     {
       selectedItems: 1,
       dialogTitle: "Delete Data File",
-      dialogBody: "You have selected to delete 1 data file.",
+      dialogBody: "You have selected to delete 1 data file from this data submission.",
       snackbarMessage: "1 data file have been deleted from this data submission",
     },
     {
       selectedItems: 35,
       dialogTitle: "Delete Data Files",
-      dialogBody: "You have selected to delete 35 data files.",
+      dialogBody: "You have selected to delete 35 data files from this data submission.",
       snackbarMessage: "35 data files have been deleted from this data submission",
     },
   ])(

@@ -59,8 +59,8 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
       dialogBody: isDataFile
         ? `You have selected to delete ${itemCount} ${nodeType}${
             isMultiple ? "s" : ""
-          }. Are you sure you want to delete them and their associated children from this data submission?`
-        : `You have selected to delete ${itemCount} ${nodeType} ${nodeTerm}. Are you sure you want to delete them and their associated children from this data submission?`,
+          } from this data submission. This action is irreversible. Are you sure you want to continue?`
+        : `You have selected to delete ${itemCount} ${nodeType} ${nodeTerm}. This action is irreversible. Are you sure you want to delete them and their associated children from this data submission?`,
     };
   }, [nodeType, selectedItems]);
 
