@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { isEqual } from "lodash";
 import { IconButton, IconButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
@@ -40,6 +40,30 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
   const { data } = useSubmissionContext();
   const { _id } = data?.getSubmission || {};
 
+  const content = useMemo(() => {
+    const nodeTerm: string = selectedItems.length > 1 ? "nodes" : "node";
+    const itemCount: number = selectedItems.length;
+    const isDataFile: boolean = nodeType.toLowerCase() === "data file";
+    const isMultiple: boolean = itemCount !== 1;
+
+    return {
+      snackbarError: "An error occurred while deleting the selected rows.",
+      snackbarSuccess: isDataFile
+        ? `${itemCount} ${nodeType}${
+            isMultiple ? "s" : ""
+          } have been deleted from this data submission`
+        : `${itemCount} ${nodeType} ${nodeTerm} and their associated child nodes have been deleted from this data submission`,
+      dialogTitle: isDataFile
+        ? `Delete Data File${isMultiple ? "s" : ""}`
+        : `Delete ${titleCase(nodeType)} ${titleCase(nodeTerm)}`,
+      dialogBody: isDataFile
+        ? `You have selected to delete ${itemCount} ${nodeType}${
+            isMultiple ? "s" : ""
+          }. Are you sure you want to delete them and their associated children from this data submission?`
+        : `You have selected to delete ${itemCount} ${nodeType} ${nodeTerm}. Are you sure you want to delete them and their associated children from this data submission?`,
+    };
+  }, [nodeType, selectedItems]);
+
   const [loading, setLoading] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
@@ -69,13 +93,16 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
       });
 
       if (errors || !d?.deleteDataRecords?.success) {
-        throw new Error("Unable to delete selected nodes.");
+        throw new Error("Unable to delete selected rows.");
       }
 
       setConfirmOpen(false);
       onDelete?.();
+      enqueueSnackbar(content.snackbarSuccess, { variant: "success" });
     } catch (err) {
-      enqueueSnackbar("An error occurred while deleting the selected nodes.", { variant: "error" });
+      enqueueSnackbar(content.snackbarError, {
+        variant: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -102,10 +129,8 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
       </StyledTooltip>
       <DeleteDialog
         open={confirmOpen}
-        header={`Delete ${titleCase(nodeType)}(s)`}
-        description={`You have selected to delete ${selectedItems.length} ${nodeType}${
-          selectedItems.length !== 1 ? "(s)" : ""
-        }. Are you sure you want to delete them and their associated children from this data submission?`}
+        header={content.dialogTitle}
+        description={content.dialogBody}
         confirmText="Confirm"
         closeText="Cancel"
         onConfirm={onConfirmDialog}

@@ -264,11 +264,6 @@ const SubmittedData: FC = () => {
   }, [_id, filterRef, data, totalData, isFetchingAllData, setSelectedItems]);
 
   const handleOnDelete = () => {
-    enqueueSnackbar(
-      `${selectedItems.length} ${filterRef.current.nodeType}${
-        selectedItems.length !== 1 ? "(s) have" : " has"
-      } been deleted from this data submission`
-    );
     setSelectedItems([]);
     refetchSubmission();
     tableRef.current?.refresh();

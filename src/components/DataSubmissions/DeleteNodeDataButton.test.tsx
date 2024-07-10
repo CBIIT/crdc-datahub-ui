@@ -133,7 +133,7 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "An error occurred while deleting the selected nodes.",
+        "An error occurred while deleting the selected rows.",
         {
           variant: "error",
         }
@@ -166,7 +166,7 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "An error occurred while deleting the selected nodes.",
+        "An error occurred while deleting the selected rows.",
         {
           variant: "error",
         }
@@ -206,7 +206,7 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "An error occurred while deleting the selected nodes.",
+        "An error occurred while deleting the selected rows.",
         {
           variant: "error",
         }
@@ -361,8 +361,6 @@ describe("Implementation Requirements", () => {
     });
   });
 
-  // NOTE: The dialog functionality is tested elsewhere, this is just a sanity check
-  // against the current requirements
   it("should contain the nodeType and selection count in the delete dialog content", async () => {
     const { getByTestId, getByRole } = render(
       <Button nodeType="test-node-123" selectedItems={["node-id-456"]} />,
@@ -381,10 +379,10 @@ describe("Implementation Requirements", () => {
   });
 
   it.each<[string, string]>([
-    ["data file", "Data File"],
-    ["genomic_info", "Genomic_info"],
-    ["file", "File"],
-    ["ALL CAPS", "All Caps"],
+    ["not a data file", "Delete Not A Data File Node"],
+    ["genomic_info", "Delete Genomic_info Node"],
+    ["file", "Delete File Node"],
+    ["ALL CAPS", "Delete All Caps Node"],
   ])("should use a title-cased nodeType in the dialog header", (nodeType, expected) => {
     const { getByTestId, getByRole } = render(
       <Button nodeType={nodeType} selectedItems={["node-id-456"]} />,
@@ -397,15 +395,35 @@ describe("Implementation Requirements", () => {
 
     const dialog = getByRole("dialog");
 
-    expect(within(dialog).getByTestId("delete-dialog-header")).toHaveTextContent(
-      `Delete ${expected}(s)`
-    );
+    expect(within(dialog).getByTestId("delete-dialog-header")).toHaveTextContent(expected);
   });
 
   it.each<[number, string]>([
-    [1, "test-node-123"],
-    [2, "test-node-123(s)"],
-    [999, "test-node-123(s)"],
+    [1, "Delete Xyz-node Node"],
+    [2, "Delete Xyz-node Nodes"],
+    [72, "Delete Xyz-node Nodes"],
+  ])(
+    "should use the proper pluralization for the delete dialog title",
+    async (selectedItems, expected) => {
+      const { getByTestId, getByRole } = render(
+        <Button nodeType="xyz-node" selectedItems={Array(selectedItems).fill("fake-node-id")} />,
+        {
+          wrapper: TestParent,
+        }
+      );
+
+      userEvent.click(getByTestId("delete-node-data-button"));
+
+      const dialog = getByRole("dialog");
+
+      expect(within(dialog).getByTestId("delete-dialog-header")).toHaveTextContent(expected);
+    }
+  );
+
+  it.each<[number, string]>([
+    [1, "You have selected to delete 1 test-node-123 node."],
+    [2, "You have selected to delete 2 test-node-123 nodes."],
+    [1024, "You have selected to delete 1024 test-node-123 nodes."],
   ])(
     "should use the proper pluralization for the delete dialog content",
     async (selectedItems, expected) => {
@@ -422,9 +440,125 @@ describe("Implementation Requirements", () => {
       userEvent.click(getByTestId("delete-node-data-button"));
 
       const dialog = getByRole("dialog");
-      expect(within(dialog).getByTestId("delete-dialog-description")).toHaveTextContent(
-        `You have selected to delete ${selectedItems} ${expected}.`
+      expect(within(dialog).getByTestId("delete-dialog-description")).toHaveTextContent(expected);
+    }
+  );
+
+  it.each<[number, string]>([
+    [
+      1,
+      "1 test-node-123 node and their associated child nodes have been deleted from this data submission",
+    ],
+    [
+      2,
+      "2 test-node-123 nodes and their associated child nodes have been deleted from this data submission",
+    ],
+    [
+      1024,
+      "1024 test-node-123 nodes and their associated child nodes have been deleted from this data submission",
+    ],
+  ])(
+    "should use the proper pluralization for the delete confirmation snackbar message",
+    async (selectedItems, expected) => {
+      const mock: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput> = {
+        request: {
+          query: DELETE_DATA_RECORDS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            deleteDataRecords: {
+              success: true,
+              message: "",
+            },
+          },
+        },
+      };
+
+      const { getByTestId, getByRole } = render(
+        <Button
+          nodeType="test-node-123"
+          selectedItems={Array(selectedItems).fill("fake-node-id")}
+        />,
+        {
+          wrapper: (props) => <TestParent {...props} mocks={[mock]} />,
+        }
       );
+
+      userEvent.click(getByTestId("delete-node-data-button"));
+
+      const dialog = getByRole("dialog");
+      const button = await within(dialog).findByRole("button", { name: /confirm/i });
+
+      userEvent.click(button);
+
+      await waitFor(() => {
+        expect(global.mockEnqueue).toHaveBeenCalledWith(expected, {
+          variant: "success",
+        });
+      });
+    }
+  );
+
+  // NOTE: This is just a broad sanity check for the Data File nodeType
+  // which is common across all data models and has special handling
+  it.each<{
+    selectedItems: number;
+    dialogTitle: string;
+    dialogBody: string;
+    snackbarMessage: string;
+  }>([
+    {
+      selectedItems: 1,
+      dialogTitle: "Delete Data File",
+      dialogBody: "You have selected to delete 1 data file.",
+      snackbarMessage: "1 data file have been deleted from this data submission",
+    },
+    {
+      selectedItems: 35,
+      dialogTitle: "Delete Data Files",
+      dialogBody: "You have selected to delete 35 data files.",
+      snackbarMessage: "35 data files have been deleted from this data submission",
+    },
+  ])(
+    "should have different verbiage when the nodeType is 'data file'",
+    async ({ selectedItems, dialogTitle, dialogBody, snackbarMessage }) => {
+      const mock: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput> = {
+        request: {
+          query: DELETE_DATA_RECORDS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            deleteDataRecords: {
+              success: true,
+              message: "",
+            },
+          },
+        },
+      };
+
+      const { getByTestId, getByRole } = render(
+        <Button nodeType="data file" selectedItems={Array(selectedItems).fill("fake-data-file")} />,
+        {
+          wrapper: (props) => <TestParent {...props} mocks={[mock]} />,
+        }
+      );
+
+      userEvent.click(getByTestId("delete-node-data-button"));
+
+      const dialog = getByRole("dialog");
+      expect(within(dialog).getByTestId("delete-dialog-header")).toHaveTextContent(dialogTitle);
+      expect(within(dialog).getByTestId("delete-dialog-description")).toHaveTextContent(dialogBody);
+
+      const button = await within(dialog).findByRole("button", { name: /confirm/i });
+      userEvent.click(button);
+
+      await waitFor(() => {
+        expect(global.mockEnqueue).toHaveBeenCalledWith(snackbarMessage, {
+          variant: "success",
+        });
+      });
     }
   );
 });
