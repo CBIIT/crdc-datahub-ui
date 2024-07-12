@@ -32,13 +32,18 @@ type Props = {
   /**
    * Optional callback function for when successful deletion occurs
    */
-  onDelete?: () => void;
+  onDelete?: (message: string) => void;
 } & Omit<IconButtonProps, "onClick">;
 
 const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...rest }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { data } = useSubmissionContext();
-  const { _id } = data?.getSubmission || {};
+  const { _id, deletingData } = data?.getSubmission || {};
+
+  const tooltipText =
+    deletingData === true
+      ? "Delete action unavailable while another delete operation is in progress"
+      : "Delete all selected nodes from this data submission";
 
   const content = useMemo(() => {
     const nodeTerm: string = selectedItems.length > 1 ? "nodes" : "node";
@@ -97,8 +102,7 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
       }
 
       setConfirmOpen(false);
-      onDelete?.();
-      enqueueSnackbar(content.snackbarSuccess, { variant: "success" });
+      onDelete?.(content.snackbarSuccess);
     } catch (err) {
       enqueueSnackbar(content.snackbarError, {
         variant: "error",
@@ -111,14 +115,15 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
   return (
     <>
       <StyledTooltip
-        title="Delete all selected nodes from this data submission"
+        title={tooltipText}
         placement="top"
+        aria-label="Delete node data tooltip"
         data-testid="delete-node-data-tooltip"
       >
         <span>
           <StyledIconButton
             onClick={onClickIcon}
-            disabled={loading || disabled || selectedItems.length === 0}
+            disabled={loading || disabled || deletingData === true || selectedItems.length === 0}
             aria-label="Delete nodes icon"
             data-testid="delete-node-data-button"
             {...rest}

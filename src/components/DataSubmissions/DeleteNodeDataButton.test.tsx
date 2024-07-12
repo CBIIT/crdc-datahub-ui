@@ -42,6 +42,7 @@ const BaseSubmission: Submission = {
   validationEnded: "",
   validationScope: "New",
   validationType: [],
+  deletingData: false,
 };
 
 type TestParentProps = {
@@ -264,7 +265,15 @@ describe("Implementation Requirements", () => {
     jest.resetAllMocks();
   });
 
-  it("should have a tooltip on the delete button", async () => {
+  it("should be disabled when a deletion operation is in progress", () => {
+    const { getByTestId } = render(<Button nodeType="test" selectedItems={[]} />, {
+      wrapper: (props) => <TestParent {...props} submission={{ deletingData: true }} />,
+    });
+
+    expect(getByTestId("delete-node-data-button")).toBeDisabled();
+  });
+
+  it("should have a tooltip on the delete button (enabled)", async () => {
     const { getByTestId, findByRole } = render(
       <Button nodeType="test" selectedItems={["1 item ID"]} />,
       {
@@ -277,6 +286,21 @@ describe("Implementation Requirements", () => {
     const tooltip = await findByRole("tooltip");
     expect(tooltip).toBeInTheDocument();
     expect(tooltip).toHaveTextContent("Delete all selected nodes from this data submission");
+  });
+
+  it("should have a tooltip when the delete button is disabled with an ongoing deletion", async () => {
+    const { getByTestId, findByRole } = render(<Button nodeType="test" selectedItems={[]} />, {
+      wrapper: (props) => <TestParent {...props} submission={{ deletingData: true }} />,
+    });
+
+    // NOTE: Cannot hover a disabled button, pointing to the span instead
+    userEvent.hover(getByTestId("delete-node-data-button").parentElement);
+
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent(
+      "Delete action unavailable while another delete operation is in progress"
+    );
   });
 
   it("should show a confirmation dialog when the 'Delete' icon is clicked", async () => {
@@ -469,6 +493,7 @@ describe("Implementation Requirements", () => {
   ])(
     "should use the proper pluralization for the delete confirmation snackbar message",
     async (selectedItems, expected) => {
+      const mockOnDelete = jest.fn();
       const mock: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput> = {
         request: {
           query: DELETE_DATA_RECORDS,
@@ -488,6 +513,7 @@ describe("Implementation Requirements", () => {
         <Button
           nodeType="test-node-123"
           selectedItems={Array(selectedItems).fill("fake-node-id")}
+          onDelete={mockOnDelete}
         />,
         {
           wrapper: (props) => <TestParent {...props} mocks={[mock]} />,
@@ -502,9 +528,7 @@ describe("Implementation Requirements", () => {
       userEvent.click(button);
 
       await waitFor(() => {
-        expect(global.mockEnqueue).toHaveBeenCalledWith(expected, {
-          variant: "success",
-        });
+        expect(mockOnDelete).toHaveBeenCalledWith(expected);
       });
     }
   );
@@ -532,6 +556,7 @@ describe("Implementation Requirements", () => {
   ])(
     "should have different verbiage when the nodeType is 'data file'",
     async ({ selectedItems, dialogTitle, dialogBody, snackbarMessage }) => {
+      const mockOnDelete = jest.fn();
       const mock: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput> = {
         request: {
           query: DELETE_DATA_RECORDS,
@@ -548,7 +573,11 @@ describe("Implementation Requirements", () => {
       };
 
       const { getByTestId, getByRole } = render(
-        <Button nodeType="data file" selectedItems={Array(selectedItems).fill("fake-data-file")} />,
+        <Button
+          nodeType="data file"
+          selectedItems={Array(selectedItems).fill("fake-data-file")}
+          onDelete={mockOnDelete}
+        />,
         {
           wrapper: (props) => <TestParent {...props} mocks={[mock]} />,
         }
@@ -564,9 +593,7 @@ describe("Implementation Requirements", () => {
       userEvent.click(button);
 
       await waitFor(() => {
-        expect(global.mockEnqueue).toHaveBeenCalledWith(snackbarMessage, {
-          variant: "success",
-        });
+        expect(mockOnDelete).toHaveBeenCalledWith(snackbarMessage);
       });
     }
   );

@@ -8,11 +8,12 @@ const SubmissionNodeFragment = gql`
   }
 `;
 
-// TODO: Update query for new filters
 export const query = gql`
   query getSubmissionNodes(
     $_id: String!
     $nodeType: String!
+    $status: String
+    $submittedID: String
     $first: Int
     $offset: Int
     $orderBy: String
@@ -22,6 +23,8 @@ export const query = gql`
     getSubmissionNodes(
       submissionID: $_id
       nodeType: $nodeType
+      status: $status
+      nodeID: $submittedID
       first: $first
       offset: $offset
       orderBy: $orderBy

@@ -1,9 +1,9 @@
-import React, { FC, useCallback, useMemo, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { Checkbox, FormControlLabel, Stack, styled } from "@mui/material";
+import { Alert, Checkbox, FormControlLabel, Stack, styled } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import {
   GET_SUBMISSION_NODES,
@@ -26,6 +26,13 @@ const StyledCheckbox = styled(Checkbox)({
   marginLeft: "10px",
   marginTop: "-2px",
 });
+
+const StyledAlert = styled(Alert, { shouldForwardProp: (p) => p !== "visible" })<{
+  visible: boolean;
+}>(({ visible }) => ({
+  marginBottom: "22px",
+  display: visible ? "flex" : "none",
+}));
 
 const HeaderCheckbox = () => (
   <DataViewContext.Consumer>
@@ -69,9 +76,9 @@ type T = Pick<SubmissionNode, "nodeType" | "nodeID" | "status"> & {
 };
 
 const SubmittedData: FC = () => {
-  const { data: dataSubmission, refetch: refetchSubmission } = useSubmissionContext();
+  const { data: dataSubmission, refetch: refetchSubmission, updateQuery } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { _id, name } = dataSubmission?.getSubmission || {};
+  const { _id, name, deletingData } = dataSubmission?.getSubmission || {};
 
   const tableRef = useRef<TableMethods>(null);
   const filterMethodRef = useRef<FilterMethods>(null);
@@ -86,6 +93,7 @@ const SubmittedData: FC = () => {
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
   const [totalData, setTotalData] = useState<number>(0);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [deleteSuccessMessage, setDeleteSuccessMessage] = useState<string | null>(null);
 
   const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp, GetSubmissionNodesInput>(
     GET_SUBMISSION_NODES,
@@ -135,14 +143,17 @@ const SubmittedData: FC = () => {
       return;
     }
 
-    if (
-      error ||
-      !d?.getSubmissionNodes ||
-      !("properties" in d.getSubmissionNodes) ||
-      !d?.getSubmissionNodes?.properties?.length
-    ) {
+    if (error || !d?.getSubmissionNodes || !("properties" in d.getSubmissionNodes)) {
       enqueueSnackbar("Unable to retrieve node data.", { variant: "error" });
       setLoading(false);
+      return;
+    }
+
+    if (!d?.getSubmissionNodes?.total || !d?.getSubmissionNodes?.properties?.length) {
+      setData([]);
+      setTotalData(0);
+      setLoading(false);
+      setColumns([]);
       return;
     }
 
@@ -263,11 +274,21 @@ const SubmittedData: FC = () => {
     isFetchingAllData.current = false;
   }, [_id, filterRef, data, totalData, isFetchingAllData, setSelectedItems]);
 
-  const handleOnDelete = () => {
+  const handleOnDelete = (successMessage: string) => {
+    setDeleteSuccessMessage(successMessage);
     setSelectedItems([]);
-    refetchSubmission();
-    tableRef.current?.refresh();
-    filterMethodRef.current?.refetch();
+
+    updateQuery((prev) => ({
+      ...prev,
+      getSubmission: {
+        ...prev.getSubmission,
+        deletingData: true,
+      },
+    }));
+
+    // Kick off polling to check for deletion status change
+    // NOTE: We're waiting 1000ms to allow the cache to update
+    setTimeout(refetchSubmission, 1000);
   };
 
   const Actions = useMemo<React.ReactNode>(
@@ -294,8 +315,27 @@ const SubmittedData: FC = () => {
     [handleToggleRow, handleToggleAll, selectedItems, totalData, isFetchingAllData]
   );
 
+  useEffect(() => {
+    if (deletingData === true || !deleteSuccessMessage) {
+      return;
+    }
+
+    enqueueSnackbar(deleteSuccessMessage, { variant: "success" });
+    setDeleteSuccessMessage(null);
+
+    tableRef.current?.refresh();
+    filterMethodRef.current?.refetch();
+  }, [deletingData]);
+
   return (
     <>
+      <StyledAlert
+        severity="warning"
+        visible={deletingData === true}
+        data-testid="submitted-data-deletion-alert"
+      >
+        All selected nodes are currently being deleted. Please wait...
+      </StyledAlert>
       <SubmittedDataFilters
         submissionId={_id}
         onChange={handleFilterChange}

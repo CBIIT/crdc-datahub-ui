@@ -31,6 +31,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   validationScope: "New",
   validationType: ["metadata", "file"],
   studyID: "",
+  deletingData: false,
 };
 
 describe("Accessibility", () => {

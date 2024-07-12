@@ -40,6 +40,7 @@ const baseSubmission: Submission = {
   validationEnded: "",
   validationScope: "New",
   validationType: [],
+  deletingData: false,
   fileErrors: [],
   history: [],
   conciergeName: "",
@@ -327,6 +328,70 @@ describe("SubmissionProvider", () => {
     ];
 
     render(<TestParent mocks={mocks} _id="test-uploading-id" />);
+
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
+    expect(mockStartPolling).not.toHaveBeenCalled();
+  });
+
+  it("should start polling if there is an ongoing deletion", async () => {
+    const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: 1,
+        request: {
+          query: GET_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmission: {
+              ...baseSubmission,
+              _id: "test-deleting-id",
+              deletingData: true,
+            },
+            submissionStats: {
+              stats: [],
+            },
+            listBatches: {
+              batches: [],
+            },
+          },
+        },
+      },
+    ];
+
+    render(<TestParent mocks={mocks} _id="test-deleting-id" />);
+
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
+    expect(mockStopPolling).not.toHaveBeenCalled();
+  });
+
+  it("should stop polling if there is no ongoing deletion", async () => {
+    const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: 1,
+        request: {
+          query: GET_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmission: {
+              ...baseSubmission,
+              _id: "test-deleting-id",
+              deletingData: false,
+            },
+            submissionStats: {
+              stats: [],
+            },
+            listBatches: {
+              batches: [],
+            },
+          },
+        },
+      },
+    ];
+
+    render(<TestParent mocks={mocks} _id="test-deleting-id" />);
 
     await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
     expect(mockStartPolling).not.toHaveBeenCalled();

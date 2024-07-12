@@ -24,6 +24,7 @@ type ParentProps = {
   mocks?: MockedResponse[];
   submissionId?: string;
   submissionName?: string;
+  deletingData?: boolean;
   children: React.ReactNode;
 };
 
@@ -31,6 +32,7 @@ const TestParent: FC<ParentProps> = ({
   mocks,
   submissionId,
   submissionName,
+  deletingData = false,
   children,
 }: ParentProps) => {
   const value = useMemo<SubmissionCtxState>(
@@ -39,14 +41,14 @@ const TestParent: FC<ParentProps> = ({
       error: null,
       isPolling: false,
       data: {
-        getSubmission: { _id: submissionId, name: submissionName } as Submission,
+        getSubmission: { _id: submissionId, name: submissionName, deletingData } as Submission,
         submissionStats: {
           stats: [],
         },
         listBatches: null,
       },
     }),
-    [submissionId, submissionName]
+    [submissionId, submissionName, deletingData]
   );
 
   return (
@@ -215,6 +217,44 @@ describe("SubmittedData > General", () => {
     });
   });
 
+  // NOTE: We handle this separately by simply clearing the data and columns
+  // This is to support the deletion functionality, where the user may have selected
+  // to delete all rows.
+  it("should not show an error message when the selected node has 0 results", async () => {
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 0,
+            properties: [],
+            nodes: [],
+          },
+        },
+      },
+    };
+
+    render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock]}
+        submissionId="zero-results-id"
+        submissionName={undefined}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(
+      () => {
+        expect(global.mockEnqueue).toHaveBeenCalledTimes(0);
+      },
+      { timeout: 1000 }
+    );
+  });
+
   it("should show an error message when 'Select All' failed to fetch all nodes (network)", async () => {
     const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
       request: {
@@ -271,6 +311,59 @@ describe("SubmittedData > General", () => {
           variant: "error",
         }
       );
+    });
+  });
+
+  it("should show a alert box when a data deletion is ongoing", async () => {
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 20,
+            properties: ["col-xyz"],
+            nodes: Array(20).fill({
+              nodeType: "example-node",
+              nodeID: "example-node-id",
+              props: JSON.stringify({
+                "col-xyz": "value-for-column-xyz",
+              }),
+              status: "New",
+            }),
+          },
+        },
+      },
+    };
+
+    const { getByTestId, rerender } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock]}
+        submissionId="sub-delete-alert"
+        deletingData
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("submitted-data-deletion-alert")).toBeVisible();
+    });
+
+    expect(getByTestId("submitted-data-deletion-alert")).toHaveTextContent(
+      "All selected nodes are currently being deleted. Please wait..."
+    );
+
+    rerender(
+      <TestParent mocks={[]} submissionId="sub-delete-alert" deletingData={false}>
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("submitted-data-deletion-alert")).not.toBeVisible();
     });
   });
 });
