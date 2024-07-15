@@ -83,6 +83,38 @@ const StyledContentWrapper = styled(Box)(() => ({
   borderBottom: "1.25px solid #00799E",
   backgroundColor: "#FFF",
   padding: "35px 40px 39px 40px",
+  boxShadow: "0px 4px 12px rgba(127, 165, 201, 0.75)",
+
+  "& .generic-table": {
+    whiteSpace: "nowrap",
+    transform: "scaleY(-1)", // flip it back around to correct table
+  },
+  "& .generic-table-wrapper": {
+    overflowX: "auto",
+    transform: "scaleY(-1)", // flip the wrapper upside-down to have scroll-bar above table
+  },
+
+  // support basic styling for firefox
+  "@-moz-document url-prefix()": {
+    "& .generic-table-wrapper": {
+      scrollbarWidth: "thin",
+      scrollbarColor: "#66BCDE #CCDCE3",
+    },
+  },
+
+  "& .generic-table-wrapper::-webkit-scrollbar": {
+    height: "7px",
+    scrollbarWidth: "unset",
+    scrollbarColor: "unset",
+  },
+  "& .generic-table-wrapper::-webkit-scrollbar-track": {
+    backgroundColor: "#CCDCE3",
+    borderBottom: "1px solid #6B7294",
+  },
+  "& .generic-table-wrapper::-webkit-scrollbar-thumb": {
+    backgroundColor: "#66BCDE",
+    borderBottom: "1px solid #6B7294",
+  },
 }));
 
 type T = Pick<SubmissionNode, "props" | "status">;
@@ -310,7 +342,6 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           delayedLoadingTimeMs={delayedLoadingTimeRef.current}
           onFetchData={handleFetchData}
           setItemKey={(item, idx) => `${idx}_${nodeType}_${nodeID}_${item.status}`}
-          tableProps={{ sx: { whiteSpace: "nowrap" } }}
         />
       </StyledContentWrapper>
     </>

@@ -424,8 +424,8 @@ const GenericTable = <T,>(
       {(position === "top" || position === "both") && (
         <Pagination verticalPlacement="top" disabled={!data || loading || !paramsInitialized} />
       )}
-      <StyledTableWrapper>
-        <Table {...tableProps}>
+      <StyledTableWrapper className="generic-table-wrapper">
+        <Table className="generic-table" {...tableProps}>
           {columns?.length > 0 && (
             <TableHeadComponent>
               <TableRow>
