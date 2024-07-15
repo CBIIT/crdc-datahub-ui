@@ -46,14 +46,6 @@ export type Input = {
   sortDirection?: string;
 };
 
-export type PropetiesInput = {
-  submissionID: string;
-  nodeType: string;
-  nodeID: string;
-  relationship: NodeRelationship;
-  relatedNodeType: string;
-};
-
 export type Response = {
   getRelatedNodes: {
     /**
