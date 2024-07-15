@@ -137,7 +137,7 @@ export const compareStrings = (a: string | null, b: string | null): number => {
  * @param {string} keyElement - The key element to move to the front of the array.
  * @returns {string[]} A new array with the key element moved to the front if present.
  */
-export const moveToFront = (array: string[], keyElement: string): string[] => {
+export const moveToFrontOfArray = (array: string[], keyElement: string): string[] => {
   if (!array?.length) {
     return [];
   }

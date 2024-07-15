@@ -12,7 +12,7 @@ import {
   GetRelatedNodesResp,
 } from "../../graphql";
 import GenericTable, { Column } from "../GenericTable";
-import { moveToFront, safeParse } from "../../utils";
+import { moveToFrontOfArray, safeParse } from "../../utils";
 
 const StyledTabs = styled(Tabs)(() => ({
   position: "relative",
@@ -150,7 +150,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
     }
 
     // move the keyColumn to the front of array, if it exists in rawColumns
-    const columnsClone = moveToFront([...rawColumns], keyColumn);
+    const columnsClone = moveToFrontOfArray([...rawColumns], keyColumn);
 
     const cols: Column<T>[] = columnsClone.map((prop: string, idx: number) => ({
       label: prop,
