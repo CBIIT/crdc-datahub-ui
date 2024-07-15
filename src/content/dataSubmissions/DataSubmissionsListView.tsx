@@ -131,7 +131,7 @@ const columns: Column<T>[] = [
       a.status === "Deleted" ? (
         <StyledDeletedText>{a.name}</StyledDeletedText>
       ) : (
-        <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>
+        <Link to={`/data-submission/${a._id}/upload-activity`}>{a.name}</Link>
       ),
     field: "name",
   },
