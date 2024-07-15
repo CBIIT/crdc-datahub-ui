@@ -16,6 +16,7 @@ export const query = gql`
       relatedNodeType: $relatedNodeType
     ) {
       properties
+      IDPropName
     }
   }
 `;
@@ -34,5 +35,10 @@ export type Response = {
      * The list of all node properties including parents
      */
     properties: string[];
+    /**
+     * The ID/Key property of current node.
+     * ex. "study_participant_id" for participant node
+     */
+    IDPropName: string;
   };
 };
