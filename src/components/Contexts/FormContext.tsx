@@ -237,12 +237,12 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     const institutions: string[] = [
       state?.data?.questionnaireData?.pi?.institution,
       state?.data?.questionnaireData?.primaryContact?.institution,
-      ...(state?.data?.questionnaireData?.additionalContacts?.map((c) => c.institution) || []),
+      ...(state?.data?.questionnaireData?.additionalContacts?.map((c) => c?.institution) || []),
     ].filter((i) => !!i && typeof i === "string");
 
     const { data: res, errors } = await approveApp({
       variables: {
-        id: state?.data["_id"],
+        id: state?.data?.["_id"],
         comment,
         wholeProgram,
         institutions,
@@ -273,15 +273,15 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         _id: state?.data["_id"],
         comment,
       },
-    });
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.inquireApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.inquireApplication?.["_id"] || false;
+    return res?.inquireApplication?.["_id"];
   };
 
   // Here we reject the form to the API with a comment
@@ -293,15 +293,15 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         _id: state?.data["_id"],
         comment,
       },
-    });
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.rejectApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.rejectApplication?.["_id"] || false;
+    return res?.rejectApplication?.["_id"];
   };
 
   // Updating form status from Submitted to In Review
@@ -312,9 +312,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       variables: {
         _id: state?.data["_id"],
       },
-    });
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.reviewApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
@@ -327,7 +327,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       },
       status: Status.LOADED,
     }));
-    return res?.reviewApplication?.["_id"] || false;
+    return res?.reviewApplication?.["_id"];
   };
 
   // Reopen a form when it has been rejected and they submit an updated form
@@ -338,9 +338,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       variables: {
         _id: state?.data["_id"],
       },
-    });
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.reopenApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
@@ -353,7 +353,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       },
       status: Status.LOADED,
     }));
-    return res?.reopenApplication?.["_id"] || false;
+    return res?.reopenApplication?.["_id"];
   };
 
   useEffect(() => {

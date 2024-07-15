@@ -294,19 +294,16 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    try {
-      const res = await inquireForm(reviewComment);
-      setOpenInquireDialog(false);
-      navigate("/submissions");
-
-      return res;
-    } catch (err) {
-      setOpenInquireDialog(false);
+    const res = await inquireForm(reviewComment);
+    if (!res) {
       enqueueSnackbar("An error occurred while inquiring the form. Please try again.", {
         variant: "error",
       });
-      return false;
+    } else {
+      navigate("/submissions");
     }
+    setOpenInquireDialog(false);
+    return res;
   };
 
   /**
@@ -325,18 +322,16 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    try {
-      const res = await rejectForm(reviewComment);
-      setOpenRejectDialog(false);
-      navigate("/submissions");
-      return res;
-    } catch (err) {
-      setOpenRejectDialog(false);
+    const res = await rejectForm(reviewComment);
+    if (!res) {
       enqueueSnackbar("An error occurred while rejecting the form. Please try again.", {
         variant: "error",
       });
-      return false;
+    } else {
+      navigate("/submissions");
     }
+    setOpenRejectDialog(false);
+    return res;
   };
 
   /**
@@ -356,15 +351,13 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    try {
-      const res = await reopenForm();
-      return res;
-    } catch (err) {
+    const res = await reopenForm();
+    if (!res) {
       enqueueSnackbar("An error occurred while reopening the form. Please try again.", {
         variant: "error",
       });
-      return false;
     }
+    return res;
   };
 
   /**
@@ -383,15 +376,15 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    try {
-      const res = await reviewForm();
-      return res;
-    } catch (err) {
-      enqueueSnackbar("An error occurred while reviewing the form. Please try again.", {
-        variant: "error",
+    const res = await reviewForm();
+    if (!res) {
+      navigate("/submissions", {
+        state: {
+          error: "An error occurred while marking the form as In Review. Please try again.",
+        },
       });
-      return false;
     }
+    return res;
   };
 
   /**
