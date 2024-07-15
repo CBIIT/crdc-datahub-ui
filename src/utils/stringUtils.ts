@@ -128,3 +128,33 @@ export const compareStrings = (a: string | null, b: string | null): number => {
 
   return a.localeCompare(b);
 };
+
+/**
+ * Moves the specified key element to the front of the array.
+ * If the key element does not exist in the array, the original array is returned.
+ *
+ * @param {string[]} array - The array of strings to be reordered.
+ * @param {string} keyElement - The key element to move to the front of the array.
+ * @returns {string[]} A new array with the key element moved to the front if present.
+ */
+export const moveToFront = (array: string[], keyElement: string): string[] => {
+  if (!array?.length) {
+    return [];
+  }
+  if (!keyElement?.length) {
+    return array;
+  }
+
+  const index = array.indexOf(keyElement);
+
+  // Return original array if keyElement is not found or already at the first position
+  if (index <= 0) {
+    return array;
+  }
+
+  const newArray = [...array];
+  newArray.splice(index, 1);
+  newArray.unshift(keyElement);
+
+  return newArray;
+};
