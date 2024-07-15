@@ -104,8 +104,6 @@ const StyledContentWrapper = styled(Box)(() => ({
 
   "& .generic-table-wrapper::-webkit-scrollbar": {
     height: "7px",
-    scrollbarWidth: "unset",
-    scrollbarColor: "unset",
   },
   "& .generic-table-wrapper::-webkit-scrollbar-track": {
     backgroundColor: "#CCDCE3",
