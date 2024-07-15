@@ -296,7 +296,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           defaultOrder="desc"
           position="both"
           onFetchData={handleFetchData}
-          horizontalScroll
+          tableProps={{ sx: { whiteSpace: "nowrap" } }}
           setItemKey={(item, idx) => `${idx}_${nodeType}_${nodeID}_${item.status}`}
         />
       </StyledContentWrapper>
