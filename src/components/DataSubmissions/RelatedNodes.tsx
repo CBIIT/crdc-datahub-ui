@@ -12,7 +12,7 @@ import {
   GetRelatedNodesResp,
 } from "../../graphql";
 import GenericTable, { Column } from "../GenericTable";
-import { safeParse } from "../../utils";
+import { moveToFront, safeParse } from "../../utils";
 
 const StyledTabs = styled(Tabs)(() => ({
   position: "relative",
@@ -114,17 +114,21 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
 
   const hasNodes = parentNodes?.length > 0 || childNodes?.length > 0;
 
-  const handleSetupColumns = (rawColumns: string[]) => {
-    const cols: Column<T>[] = rawColumns?.map((prop: string, idx: number) => ({
+  const handleSetupColumns = (rawColumns: string[], keyColumn: string) => {
+    if (!rawColumns?.length) {
+      setLoading(false);
+    }
+
+    // move the keyColumn to the front of array, if it exists in rawColumns
+    const columnsClone = moveToFront([...rawColumns], keyColumn);
+
+    const cols: Column<T>[] = columnsClone.map((prop: string, idx: number) => ({
       label: prop,
       renderValue: (d) => d?.props?.[prop],
       fieldKey: prop,
       default: idx === 0 ? true : undefined,
     }));
 
-    if (!cols?.length) {
-      setLoading(false);
-    }
     if (isEqual(cols, columns)) {
       return;
     }
@@ -144,7 +148,8 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       relatedNodeType: currentTab?.name,
     },
     skip: !submissionID || !nodeType || !nodeID || !currentTab?.relationship || !currentTab?.name,
-    onCompleted: (data) => handleSetupColumns(data?.getRelatedNodes?.properties),
+    onCompleted: (data) =>
+      handleSetupColumns(data?.getRelatedNodes?.properties, data?.getRelatedNodes?.IDPropName),
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
@@ -176,19 +181,6 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
 
     enqueueSnackbar("Unable to load related node details.", { variant: "error" });
   }, [error]);
-
-  useEffect(() => {
-    if (!currentTab) {
-      return;
-    }
-
-    // show loading indicator on initial load
-    delayedLoadingTimeRef.current = 0;
-
-    setColumns(null);
-    setState(null);
-    setLoading(true);
-  }, [currentTab]);
 
   useEffect(() => {
     if (!columns?.length) {
@@ -263,6 +255,16 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
   };
 
   const handleSelectTab = (name: string, relationship: NodeRelationship) => {
+    if (currentTab.name === name && currentTab.relationship === relationship) {
+      return;
+    }
+
+    // show loading indicator on initial load
+    delayedLoadingTimeRef.current = 0;
+
+    setLoading(true);
+    setColumns(null);
+    setState(null);
     setCurrentTab({ relationship, name });
   };
 
@@ -301,9 +303,9 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           data={state?.nodes || []}
           total={state?.total || 0}
           loading={isLoading}
-          defaultRowsPerPage={10}
+          defaultRowsPerPage={20}
           numRowsNoContent={5}
-          defaultOrder="desc"
+          defaultOrder="asc"
           position="both"
           delayedLoadingTimeMs={delayedLoadingTimeRef.current}
           onFetchData={handleFetchData}
