@@ -136,18 +136,13 @@ describe("GenericTable", () => {
   });
 
   describe("Style Application", () => {
-    it("applies horizontal scroll styles when enabled", () => {
-      const { container } = setup({ ...defaultProps, horizontalScroll: true });
-      expect(container.querySelector("table")).toHaveStyle("white-space: nowrap");
-      expect(container.querySelector("table")).toHaveStyle("display: block");
-      expect(container.querySelector("table")).toHaveStyle("overflow-x: auto");
-    });
+    it("applies tableProps to the table element", () => {
+      const { container } = setup({
+        ...defaultProps,
+        tableProps: { sx: { backgroundColor: "red" } },
+      });
 
-    it("does not apply horizontal scroll styles when disabled", () => {
-      const { container } = setup({ ...defaultProps, horizontalScroll: false });
-      expect(container.querySelector("table")).toHaveStyle("white-space: initial");
-      expect(container.querySelector("table")).toHaveStyle("display: table");
-      expect(container.querySelector("table")).toHaveStyle("overflow-x: initial");
+      expect(container.querySelector("table")).toHaveStyle("background-color: red");
     });
 
     it("applies borderBottom style conditionally based on row position", () => {
@@ -194,11 +189,6 @@ describe("GenericTable", () => {
   });
 
   describe("Visual and Interaction Features", () => {
-    it("checks styled component properties when horizontal scroll is enabled", () => {
-      const { container } = setup({ ...defaultProps, horizontalScroll: true });
-      expect(container.querySelector(".MuiTable-root")).toHaveStyle("display: block");
-    });
-
     it("renders top and bottom pagination when position is both", () => {
       const { getByTestId } = setup({ ...defaultProps, position: "both" });
       const topPagination = getByTestId("generic-table-rows-per-page-top");
