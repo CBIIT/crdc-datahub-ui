@@ -61,7 +61,7 @@ const DataViewDetailsDialog = ({
   onClose,
   ...rest
 }: Props) => (
-  <StyledDialog open={open} onClose={onClose} title="" {...rest}>
+  <StyledDialog open={open} onClose={onClose} title="" scroll="body" {...rest}>
     <StyledCloseDialogButton
       onClick={onClose}
       aria-label="close"
