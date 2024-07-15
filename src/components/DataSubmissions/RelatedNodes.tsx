@@ -105,13 +105,14 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
   const [currentTab, setCurrentTab] = useState<NodeTab>(null);
   const [state, setState] = useState<GetRelatedNodesResp["getRelatedNodes"]>(null);
   const [error, setError] = useState<boolean>(false);
-  const [columns, setColumns] = useState<Column<T>[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [columns, setColumns] = useState<Column<T>[]>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
 
   const tableRef = useRef<TableMethods>(null);
-  const columnsRetrievedRef = useRef<boolean>(false);
-  const abortControllerRef = useRef<AbortController>(new AbortController());
+  const delayedLoadingTimeRef = useRef<number>(0);
+
+  const hasNodes = parentNodes?.length > 0 || childNodes?.length > 0;
 
   const handleSetupColumns = (rawColumns: string[]) => {
     const cols: Column<T>[] = rawColumns?.map((prop: string, idx: number) => ({
@@ -121,8 +122,14 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       default: idx === 0 ? true : undefined,
     }));
 
+    if (!cols?.length) {
+      setLoading(false);
+    }
+    if (isEqual(cols, columns)) {
+      return;
+    }
+
     setColumns(cols || []);
-    columnsRetrievedRef.current = true;
   };
 
   const { loading: loadingColumns } = useQuery<
@@ -163,11 +170,11 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
   }, [parentNodes, childNodes]);
 
   useEffect(() => {
-    if (!error || !submissionID || !nodeType || !currentTab) {
+    if (!error) {
       return;
     }
 
-    enqueueSnackbar("Unable to load node details.", { variant: "error" });
+    enqueueSnackbar("Unable to load related node details.", { variant: "error" });
   }, [error]);
 
   useEffect(() => {
@@ -175,10 +182,20 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       return;
     }
 
-    setColumns([]);
+    // show loading indicator on initial load
+    delayedLoadingTimeRef.current = 0;
+
+    setColumns(null);
     setState(null);
-    columnsRetrievedRef.current = false;
+    setLoading(true);
   }, [currentTab]);
+
+  useEffect(() => {
+    if (!columns?.length) {
+      return;
+    }
+    tableRef.current?.setPage(0, true);
+  }, [columns]);
 
   useEffect(() => {
     if (!firstTab || currentTab === firstTab) {
@@ -187,10 +204,6 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
 
     setCurrentTab(firstTab);
   }, [firstTab]);
-
-  useEffect(() => {
-    tableRef.current?.setPage(0, true);
-  }, [columnsRetrievedRef.current]);
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
@@ -201,18 +214,9 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       if (!force && state?.nodes?.length > 0 && isEqual(fetchListing, prevListing)) {
         return;
       }
-      if (abortControllerRef.current && prevListing) {
-        abortControllerRef.current.abort();
-      }
-      if (!columns?.length) {
-        return;
-      }
 
       setLoading(true);
       setPrevListing(fetchListing);
-
-      const abortController = new AbortController();
-      abortControllerRef.current = abortController;
 
       const { data: d, error } = await getRelatedNodes({
         variables: {
@@ -226,17 +230,15 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           sortDirection,
           orderBy,
         },
-        context: { clientName: "backend", fetchOptions: { signal: abortController.signal } },
+        context: { clientName: "backend" },
         fetchPolicy: "no-cache",
       });
-      if (abortController.signal.aborted) {
-        return;
-      }
+
       if (error || !d?.getRelatedNodes) {
         throw new Error("Unable to retrieve Related Nodes.");
       }
 
-      setState({
+      const newState: GetRelatedNodesResp["getRelatedNodes"] = {
         nodes: d.getRelatedNodes.nodes?.map((node) => ({
           nodeType: node.nodeType,
           nodeID: node.nodeID,
@@ -244,7 +246,15 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           status: node.status,
         })),
         total: d.getRelatedNodes?.total,
-      });
+      };
+
+      if (isEqual(newState, state)) {
+        return;
+      }
+
+      delayedLoadingTimeRef.current = 200;
+
+      setState(newState);
     } catch (err) {
       setError(true);
     } finally {
@@ -256,7 +266,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
     setCurrentTab({ relationship, name });
   };
 
-  const isLoading = loading || !columnsRetrievedRef.current || loadingColumns || !prevListing;
+  const isLoading = loading || loadingColumns || (hasNodes && columns === null);
 
   return (
     <>
@@ -265,7 +275,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           <StyledTab
             key={`parent_node_tab_${parent.nodeType}`}
             value={parent.nodeType}
-            label={parent.nodeType}
+            label={`${parent.nodeType} (${parent.total || 0})`}
             aria-label={`Related parent node tab ${parent.nodeType}`}
             data-testid="related-nodes-parent-node-tab"
             onClick={() => handleSelectTab(parent.nodeType, "parent")}
@@ -276,7 +286,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           <StyledTab
             key={`child_node_tab_${child.nodeType}`}
             value={child.nodeType}
-            label={child.nodeType}
+            label={`${child.nodeType} (${child.total || 0})`}
             aria-label={`Related child node tab ${child.nodeType}`}
             data-testid="related-nodes-child-node-tab"
             onClick={() => handleSelectTab(child.nodeType, "child")}
@@ -287,7 +297,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       <StyledContentWrapper>
         <GenericTable
           ref={tableRef}
-          columns={columns}
+          columns={columns || []}
           data={state?.nodes || []}
           total={state?.total || 0}
           loading={isLoading}
@@ -295,9 +305,10 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           numRowsNoContent={5}
           defaultOrder="desc"
           position="both"
+          delayedLoadingTimeMs={delayedLoadingTimeRef.current}
           onFetchData={handleFetchData}
-          tableProps={{ sx: { whiteSpace: "nowrap" } }}
           setItemKey={(item, idx) => `${idx}_${nodeType}_${nodeID}_${item.status}`}
+          tableProps={{ sx: { whiteSpace: "nowrap" } }}
         />
       </StyledContentWrapper>
     </>

@@ -144,8 +144,8 @@ const DataViewDetails = ({ submissionID, nodeType, nodeID }: Props) => {
         submissionID={submissionID}
         nodeType={nodeType}
         nodeID={nodeID}
-        parentNodes={data?.getNodeDetail?.parents}
-        childNodes={data?.getNodeDetail?.children}
+        parentNodes={data?.getNodeDetail?.parents || []}
+        childNodes={data?.getNodeDetail?.children || []}
       />
     </Stack>
   );
