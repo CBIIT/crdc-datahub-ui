@@ -353,8 +353,10 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
     const res = await reopenForm();
     if (!res) {
-      enqueueSnackbar("An error occurred while reopening the form. Please try again.", {
-        variant: "error",
+      navigate("/submissions", {
+        state: {
+          error: "An error occurred while marking the form as In Progress. Please try again.",
+        },
       });
     }
     return res;
