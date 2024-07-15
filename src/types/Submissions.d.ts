@@ -312,3 +312,19 @@ type SubmissionNode = {
    */
   props: string;
 };
+
+type RelatedNode = {
+  nodeType: string;
+  total: number;
+};
+
+type NodeDetailResult = {
+  submissionID: string;
+  nodeType: string;
+  nodeID: string;
+  IDPropName: string;
+  parents: RelatedNode[]; // array of Related node contains nodeType and counts
+  children: RelatedNode[]; // array of Related node contains nodeType and counts
+};
+
+type NodeRelationship = "parent" | "child";
