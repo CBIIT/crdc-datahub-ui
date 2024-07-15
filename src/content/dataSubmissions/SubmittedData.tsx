@@ -2,7 +2,7 @@ import React, { FC, useMemo, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { Stack } from "@mui/material";
+import { Button, Stack, styled } from "@mui/material";
 import {
   GET_SUBMISSION_NODES,
   GetSubmissionNodesInput,
@@ -15,6 +15,22 @@ import {
 } from "../../components/DataSubmissions/SubmittedDataFilters";
 import { safeParse } from "../../utils";
 import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
+import DataViewDetailsDialog from "../../components/DataSubmissions/DataViewDetailsDialog";
+
+const StyledFirstColumnButton = styled(Button)(() => ({
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "25px",
+  color: "#0B6CB1",
+  padding: 0,
+  margin: 0,
+  textDecoration: "underline",
+  "&:hover": {
+    backgroundColor: "transparent",
+  },
+}));
 
 type T = Pick<SubmissionNode, "nodeType" | "nodeID" | "status"> & {
   props: Record<string, string>;
@@ -38,6 +54,7 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
   const [data, setData] = useState<T[]>([]);
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
   const [totalData, setTotalData] = useState<number>(0);
+  const [selectedRow, setSelectedRow] = useState<T>(null);
 
   const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp, GetSubmissionNodesInput>(
     GET_SUBMISSION_NODES,
@@ -46,6 +63,14 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
       fetchPolicy: "cache-and-network",
     }
   );
+
+  const onClickFirstColumn = (data: T) => {
+    setSelectedRow(data);
+  };
+
+  const handleCloseDialog = () => {
+    setSelectedRow(null);
+  };
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
@@ -98,13 +123,26 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
     // Only update columns if the nodeType has changed
     if (prevFilterRef.current.nodeType !== filterRef.current.nodeType) {
       const cols: Column<T>[] = d.getSubmissionNodes.properties.map(
-        (prop: string, index: number) => ({
-          label: prop,
-          renderValue: (d) => d?.props?.[prop] || "",
-          // NOTE: prop is not actually a keyof T, but it's a value of prop.props
-          fieldKey: prop,
-          default: index === 0 ? true : undefined,
-        })
+        (prop: string, index: number) => {
+          const renderFirstColumnValue = (d: T): React.ReactNode => (
+            <StyledFirstColumnButton
+              variant="text"
+              onClick={() => onClickFirstColumn(d)}
+              disableRipple
+            >
+              {d?.props?.[prop] || ""}
+            </StyledFirstColumnButton>
+          );
+
+          return {
+            label: prop,
+            renderValue: (d) =>
+              (index === 0 ? renderFirstColumnValue(d) : d?.props?.[prop] || "") as React.ReactNode,
+            // NOTE: prop is not actually a keyof T, but it's a value of prop.props
+            fieldKey: prop,
+            default: index === 0 ? true : undefined,
+          };
+        }
       );
       cols.push({
         label: "Status",
@@ -163,6 +201,13 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
         setItemKey={(item, idx) => `${idx}_${item.nodeID}_${item.nodeID}`}
         onFetchData={handleFetchData}
         containerProps={{ sx: { marginBottom: "8px" } }}
+      />
+      <DataViewDetailsDialog
+        submissionID={submissionId}
+        nodeType={selectedRow?.nodeType}
+        nodeID={selectedRow?.nodeID}
+        open={!!selectedRow}
+        onClose={handleCloseDialog}
       />
     </>
   );
