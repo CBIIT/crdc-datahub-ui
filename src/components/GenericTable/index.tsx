@@ -123,6 +123,7 @@ export type Props<T> = {
   defaultRowsPerPage?: number;
   rowsPerPageOptions?: number[];
   paginationPlacement?: CSSProperties["justifyContent"];
+  delayedLoadingTimeMs?: number;
   tableProps?: TableProps;
   containerProps?: TableContainerProps;
   numRowsNoContent?: number;
@@ -150,6 +151,7 @@ const GenericTable = <T,>(
     defaultRowsPerPage = 10,
     rowsPerPageOptions = [5, 10, 20, 50],
     paginationPlacement,
+    delayedLoadingTimeMs = 200,
     tableProps,
     containerProps,
     numRowsNoContent = 10,
@@ -165,7 +167,10 @@ const GenericTable = <T,>(
   }: Props<T>,
   ref: React.Ref<TableMethods>
 ) => {
-  const showDelayedLoading = useDelayedLoading(loading, 200);
+  const showDelayedLoading = useDelayedLoading(
+    loading,
+    delayedLoadingTimeMs > 0 ? delayedLoadingTimeMs : 0
+  );
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const defaultColumn: Column<T> =
     columns.find((c) => c.default) || columns.find((c) => c.fieldKey ?? c.field);
