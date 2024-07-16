@@ -13,7 +13,7 @@ import {
   SubmittedDataFilters,
   FilterForm,
 } from "../../components/DataSubmissions/SubmittedDataFilters";
-import { safeParse } from "../../utils";
+import { moveToFrontOfArray, safeParse } from "../../utils";
 import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
 import DataViewDetailsDialog from "../../components/DataSubmissions/DataViewDetailsDialog";
 
@@ -64,12 +64,48 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
     }
   );
 
+  const renderFirstColumnValue = (d: T, prop: string): React.ReactNode => (
+    <StyledFirstColumnButton variant="text" onClick={() => onClickFirstColumn(d)} disableRipple>
+      {d?.props?.[prop] || ""}
+    </StyledFirstColumnButton>
+  );
+
   const onClickFirstColumn = (data: T) => {
     setSelectedRow(data);
   };
 
   const handleCloseDialog = () => {
     setSelectedRow(null);
+  };
+
+  const handleSetupColumns = (rawColumns: string[], keyColumn: string) => {
+    if (!rawColumns?.length) {
+      setLoading(false);
+    }
+
+    // move the keyColumn to the front of array, if it exists in rawColumns
+    const columnsClone = moveToFrontOfArray([...rawColumns], keyColumn);
+
+    const cols: Column<T>[] = columnsClone.map((prop: string, idx: number) => ({
+      label: prop,
+      renderValue: (d) =>
+        (idx === 0 ? renderFirstColumnValue(d, prop) : d?.props?.[prop] || "") as React.ReactNode,
+      // NOTE: prop is not actually a keyof T, but it's a value of prop.props
+      fieldKey: prop,
+      default: idx === 0 ? true : undefined,
+    }));
+
+    cols.push({
+      label: "Status",
+      renderValue: (d) => d?.status || "",
+      field: "status",
+    });
+
+    if (isEqual(cols, columns)) {
+      return;
+    }
+
+    setColumns(cols || []);
   };
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
@@ -122,35 +158,8 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
 
     // Only update columns if the nodeType has changed
     if (prevFilterRef.current.nodeType !== filterRef.current.nodeType) {
-      const cols: Column<T>[] = d.getSubmissionNodes.properties.map(
-        (prop: string, index: number) => {
-          const renderFirstColumnValue = (d: T): React.ReactNode => (
-            <StyledFirstColumnButton
-              variant="text"
-              onClick={() => onClickFirstColumn(d)}
-              disableRipple
-            >
-              {d?.props?.[prop] || ""}
-            </StyledFirstColumnButton>
-          );
-
-          return {
-            label: prop,
-            renderValue: (d) =>
-              (index === 0 ? renderFirstColumnValue(d) : d?.props?.[prop] || "") as React.ReactNode,
-            // NOTE: prop is not actually a keyof T, but it's a value of prop.props
-            fieldKey: prop,
-            default: index === 0 ? true : undefined,
-          };
-        }
-      );
-      cols.push({
-        label: "Status",
-        renderValue: (d) => d?.status || "",
-        field: "status",
-      });
+      handleSetupColumns(d.getSubmissionNodes.properties, d.getSubmissionNodes.IDPropName);
       setTotalData(d.getSubmissionNodes.total);
-      setColumns(cols);
 
       prevFilterRef.current = filterRef.current;
     }
