@@ -470,7 +470,11 @@ const NavBar = () => {
                   return (
                     dropItem.link && (
                       <Link
-                        target={dropItem.link.startsWith("https://") ? "_blank" : "_self"}
+                        target={
+                          dropItem.link.startsWith("https://") || dropItem.link.endsWith(".pdf")
+                            ? "_blank"
+                            : "_self"
+                        }
                         id={dropItem.id}
                         to={dropItem.link}
                         className="dropdownItem"

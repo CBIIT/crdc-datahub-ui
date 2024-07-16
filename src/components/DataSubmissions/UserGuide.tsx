@@ -23,7 +23,7 @@ export const UserGuide: FC = () => (
   <StyledText variant="body1">
     Prior to beginning uploading process, read detailed instructions available in the{" "}
     <Link to={Guide} target="_blank">
-      Data Submission User Guide
+      Data Submission User Instructions
     </Link>
     .
   </StyledText>
