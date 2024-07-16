@@ -12,7 +12,7 @@ import {
   GetRelatedNodesResp,
 } from "../../graphql";
 import GenericTable, { Column } from "../GenericTable";
-import { moveToFrontOfArray, safeParse } from "../../utils";
+import { capitalizeFirstLetter, moveToFrontOfArray, safeParse } from "../../utils";
 
 const StyledTabs = styled(Tabs)(() => ({
   position: "relative",
@@ -134,7 +134,6 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
   const { enqueueSnackbar } = useSnackbar();
   const [currentTab, setCurrentTab] = useState<NodeTab>(null);
   const [state, setState] = useState<GetRelatedNodesResp["getRelatedNodes"]>(null);
-  const [error, setError] = useState<boolean>(false);
   const [columns, setColumns] = useState<Column<T>[]>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
@@ -205,14 +204,6 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
   }, [parentNodes, childNodes]);
 
   useEffect(() => {
-    if (!error) {
-      return;
-    }
-
-    enqueueSnackbar("Unable to load related node details.", { variant: "error" });
-  }, [error]);
-
-  useEffect(() => {
     if (!columns?.length) {
       return;
     }
@@ -278,14 +269,14 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
 
       setState(newState);
     } catch (err) {
-      setError(true);
+      enqueueSnackbar("Unable to load related node details.", { variant: "error" });
     } finally {
       setLoading(false);
     }
   };
 
   const handleSelectTab = (name: string, relationship: NodeRelationship) => {
-    if (currentTab.name === name && currentTab.relationship === relationship) {
+    if (currentTab?.name === name && currentTab?.relationship === relationship) {
       return;
     }
 
@@ -307,20 +298,20 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           <StyledTab
             key={`parent_node_tab_${parent.nodeType}`}
             value={parent.nodeType}
-            label={`${parent.nodeType} (${parent.total || 0})`}
+            label={`${capitalizeFirstLetter(parent.nodeType)} (${parent.total || 0})`}
             aria-label={`Related parent node tab ${parent.nodeType}`}
-            data-testid="related-nodes-parent-node-tab"
+            data-testid={`related-nodes-parent-node-tab-${idx}`}
             onClick={() => handleSelectTab(parent.nodeType, "parent")}
             disableRipple
           />
         ))}
-        {childNodes?.map((child) => (
+        {childNodes?.map((child, idx) => (
           <StyledTab
             key={`child_node_tab_${child.nodeType}`}
             value={child.nodeType}
-            label={`${child.nodeType} (${child.total || 0})`}
+            label={`${capitalizeFirstLetter(child.nodeType)} (${child.total || 0})`}
             aria-label={`Related child node tab ${child.nodeType}`}
-            data-testid="related-nodes-child-node-tab"
+            data-testid={`related-nodes-child-node-tab-${idx}`}
             onClick={() => handleSelectTab(child.nodeType, "child")}
             disableRipple
           />
