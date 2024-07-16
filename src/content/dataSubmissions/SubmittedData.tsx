@@ -157,8 +157,8 @@ const SubmittedData: FC = () => {
       return;
     }
 
-    // Only update columns if the nodeType has changed
-    if (prevFilterRef.current.nodeType !== filterRef.current.nodeType) {
+    // Only update columns if the nodeType has changed or if there are no previous columns
+    if (prevFilterRef.current.nodeType !== filterRef.current.nodeType || !columns.length) {
       const cols: Column<T>[] = d.getSubmissionNodes.properties.map(
         (prop: string, index: number) => ({
           label: prop,
@@ -197,12 +197,11 @@ const SubmittedData: FC = () => {
         field: "status",
       });
 
-      setTotalData(d.getSubmissionNodes.total);
       setColumns(cols);
-
-      prevFilterRef.current = filterRef.current;
     }
 
+    prevFilterRef.current = filterRef.current;
+    setTotalData(d.getSubmissionNodes.total);
     setData(
       d.getSubmissionNodes.nodes.map((node) => ({
         nodeType: node.nodeType,
