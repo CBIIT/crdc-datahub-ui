@@ -193,6 +193,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 0,
+              IDPropName: null,
               properties: [],
               nodes: [],
             },
@@ -232,6 +233,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 2,
+              IDPropName: "col.2",
               properties: ["col.1", "col.2", "col.3"],
               nodes: [
                 {
@@ -287,6 +289,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 2,
+              IDPropName: "col-xyz",
               properties: ["col-xyz"],
               nodes: [
                 {
@@ -348,6 +351,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 2,
+              IDPropName: "goold-col-1",
               properties: ["good-col-1", "good-col-2"],
               nodes: [
                 {
@@ -398,6 +402,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 0,
+              IDPropName: null,
               properties: [],
               nodes: [],
             },
