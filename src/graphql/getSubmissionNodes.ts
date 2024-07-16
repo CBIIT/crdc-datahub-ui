@@ -18,6 +18,7 @@ export const query = gql`
       sortDirection: $sortDirection
     ) {
       total
+      IDPropName
       properties
       nodes {
         nodeType
@@ -44,6 +45,11 @@ export type Response = {
      * Total number of nodes in the submission.
      */
     total: number;
+    /**
+     * The ID/Key property of current node.
+     *
+     */
+    IDPropName: string;
     /**
      * The list of all node properties including parents
      */
