@@ -19,6 +19,31 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../../components/Contexts/SubmissionContext";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../../components/Contexts/AuthContext";
+
+const baseUser: User = {
+  _id: "",
+  firstName: "",
+  lastName: "",
+  userStatus: "Active",
+  role: "Submitter", // NOTE: This role has access to everything nested here by default
+  IDP: "nih",
+  email: "",
+  organization: null,
+  dataCommons: [],
+  createdAt: "",
+  updateAt: "",
+};
+
+const baseAuthCtx: AuthContextState = {
+  status: AuthContextStatus.LOADED,
+  isLoggedIn: false,
+  user: { ...baseUser },
+};
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -54,9 +79,11 @@ const TestParent: FC<ParentProps> = ({
   return (
     <MockedProvider mocks={mocks} showWarnings>
       <MemoryRouter basename="">
-        <SubmissionContext.Provider value={value}>
-          <SearchParamsProvider>{children}</SearchParamsProvider>
-        </SubmissionContext.Provider>
+        <AuthContext.Provider value={baseAuthCtx}>
+          <SubmissionContext.Provider value={value}>
+            <SearchParamsProvider>{children}</SearchParamsProvider>
+          </SubmissionContext.Provider>
+        </AuthContext.Provider>
       </MemoryRouter>
     </MockedProvider>
   );

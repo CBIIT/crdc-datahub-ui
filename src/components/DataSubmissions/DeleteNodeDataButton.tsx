@@ -7,6 +7,7 @@ import { ReactComponent as DeleteAllFilesIcon } from "../../assets/icons/delete_
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import DeleteDialog from "../DeleteDialog";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import { useAuthContext } from "../Contexts/AuthContext";
 import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
 import { titleCase } from "../../utils";
 
@@ -19,6 +20,18 @@ const StyledTooltip = styled(StyledFormTooltip)({
     color: "#000000",
   },
 });
+
+/**
+ * The users with permission to delete data nodes from a submission.
+ *
+ * @note The button is only visible to users with these roles.
+ */
+const DeletePermissionRoles: User["role"][] = [
+  "Submitter",
+  "Organization Owner",
+  "Data Curator",
+  "Admin",
+];
 
 type Props = {
   /**
@@ -38,6 +51,7 @@ type Props = {
 const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...rest }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { data } = useSubmissionContext();
+  const { user } = useAuthContext();
   const { _id, deletingData } = data?.getSubmission || {};
 
   const tooltipText =
@@ -111,6 +125,10 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
       setLoading(false);
     }
   };
+
+  if (!DeletePermissionRoles.includes(user?.role)) {
+    return null;
+  }
 
   return (
     <>

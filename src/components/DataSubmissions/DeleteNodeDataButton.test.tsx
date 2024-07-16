@@ -9,6 +9,11 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../Contexts/AuthContext";
 import Button from "./DeleteNodeDataButton";
 import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
 
@@ -45,14 +50,40 @@ const BaseSubmission: Submission = {
   deletingData: false,
 };
 
+const baseAuthCtx: AuthContextState = {
+  status: AuthContextStatus.LOADED,
+  isLoggedIn: false,
+  user: null,
+};
+
+const baseUser: User = {
+  _id: "",
+  firstName: "",
+  lastName: "",
+  userStatus: "Active",
+  role: "Submitter", // NOTE: This role has access to the delete button by default
+  IDP: "nih",
+  email: "",
+  organization: null,
+  dataCommons: [],
+  createdAt: "",
+  updateAt: "",
+};
+
 type TestParentProps = {
   submission?: Partial<Submission>;
+  user?: Partial<User>;
   mocks?: MockedResponse[];
   children: React.ReactNode;
 };
 
-const TestParent: React.FC<TestParentProps> = ({ mocks = [], submission = {}, children }) => {
-  const value = useMemo<SubmissionCtxState>(
+const TestParent: React.FC<TestParentProps> = ({
+  mocks = [],
+  submission = {},
+  user = {},
+  children,
+}) => {
+  const submissionCtxValue = useMemo<SubmissionCtxState>(
     () => ({
       status: SubmissionCtxStatus.LOADED,
       error: null,
@@ -68,9 +99,21 @@ const TestParent: React.FC<TestParentProps> = ({ mocks = [], submission = {}, ch
     [submission]
   );
 
+  const authCtxValue = useMemo<AuthContextState>(
+    () => ({
+      ...baseAuthCtx,
+      user: { ...baseUser, ...user },
+    }),
+    [user]
+  );
+
   return (
     <MockedProvider mocks={mocks} showWarnings>
-      <SubmissionContext.Provider value={value}>{children}</SubmissionContext.Provider>
+      <AuthContext.Provider value={authCtxValue}>
+        <SubmissionContext.Provider value={submissionCtxValue}>
+          {children}
+        </SubmissionContext.Provider>
+      </AuthContext.Provider>
     </MockedProvider>
   );
 };
@@ -595,6 +638,28 @@ describe("Implementation Requirements", () => {
       await waitFor(() => {
         expect(mockOnDelete).toHaveBeenCalledWith(snackbarMessage);
       });
+    }
+  );
+
+  it.each<User["role"]>(["Admin", "Data Curator", "Organization Owner", "Submitter"])(
+    "should be visible and interactive for the role %",
+    (role) => {
+      const { getByTestId } = render(<Button nodeType="test" selectedItems={[]} />, {
+        wrapper: (props) => <TestParent {...props} user={{ role }} />,
+      });
+
+      expect(getByTestId("delete-node-data-button")).toBeVisible();
+    }
+  );
+
+  it.each<User["role"]>(["Data Commons POC", "Federal Lead", "User", "fake role" as User["role"]])(
+    "should not be rendered for the role %s",
+    (role) => {
+      const { queryByTestId } = render(<Button nodeType="test" selectedItems={[]} />, {
+        wrapper: (props) => <TestParent {...props} user={{ role }} />,
+      });
+
+      expect(queryByTestId("delete-node-data-button")).not.toBeInTheDocument();
     }
   );
 });
