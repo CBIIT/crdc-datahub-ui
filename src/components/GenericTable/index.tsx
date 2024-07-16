@@ -199,6 +199,10 @@ const GenericTable = <T,>(
   const prevFetchRef = useRef<FetchListing<T>>(null);
 
   useEffect(() => {
+    const isValidOrderBy = columns?.find((c) => (c.fieldKey ?? c.field?.toString()) === orderBy);
+    if (orderBy && isValidOrderBy) {
+      return;
+    }
     if (loading || !paramsInitialized || !columns?.length || !defaultColumn) {
       return;
     }
@@ -206,6 +210,7 @@ const GenericTable = <T,>(
     const fieldKey = newDefaultColumn?.fieldKey ?? newDefaultColumn.field?.toString();
 
     dispatch({ type: "SET_ORDER_BY", payload: fieldKey });
+    dispatch({ type: "SET_SORT_DIRECTION", payload: defaultOrder });
   }, [loading, paramsInitialized, orderBy, columns, defaultColumn]);
 
   useEffect(() => {

@@ -136,6 +136,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
   const [state, setState] = useState<GetRelatedNodesResp["getRelatedNodes"]>(null);
   const [columns, setColumns] = useState<Column<T>[]>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingColumns, setLoadingColumns] = useState<boolean>(true);
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
 
   const tableRef = useRef<TableMethods>(null);
@@ -145,7 +146,9 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
 
   const handleSetupColumns = (rawColumns: string[], keyColumn: string) => {
     if (!rawColumns?.length) {
-      setLoading(false);
+      setColumns([]);
+      setLoadingColumns(false);
+      return;
     }
 
     // move the keyColumn to the front of array, if it exists in rawColumns
@@ -162,26 +165,28 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       return;
     }
 
+    setLoadingColumns(false);
     setColumns(cols || []);
+    setLoading(true);
   };
 
-  const { loading: loadingColumns } = useQuery<
-    GetRelatedNodePropertiesResp,
-    GetRelatedNodePropertiesInput
-  >(GET_RELATED_NODE_PROPERTIES, {
-    variables: {
-      submissionID,
-      nodeType,
-      nodeID,
-      relationship: currentTab?.relationship,
-      relatedNodeType: currentTab?.name,
-    },
-    skip: !submissionID || !nodeType || !nodeID || !currentTab?.relationship || !currentTab?.name,
-    onCompleted: (data) =>
-      handleSetupColumns(data?.getRelatedNodes?.properties, data?.getRelatedNodes?.IDPropName),
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-  });
+  useQuery<GetRelatedNodePropertiesResp, GetRelatedNodePropertiesInput>(
+    GET_RELATED_NODE_PROPERTIES,
+    {
+      variables: {
+        submissionID,
+        nodeType,
+        nodeID,
+        relationship: currentTab?.relationship,
+        relatedNodeType: currentTab?.name,
+      },
+      skip: !submissionID || !nodeType || !nodeID || !currentTab?.relationship || !currentTab?.name,
+      onCompleted: (data) =>
+        handleSetupColumns(data?.getRelatedNodes?.properties, data?.getRelatedNodes?.IDPropName),
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const [getRelatedNodes] = useLazyQuery<GetRelatedNodesResp, GetRelatedNodesInput>(
     GET_RELATED_NODES,
@@ -225,6 +230,11 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
         return;
       }
       if (!force && state?.nodes?.length > 0 && isEqual(fetchListing, prevListing)) {
+        return;
+      }
+      // TODO: find a more robust solution. Since the columns are dynamic,
+      // it tries to send a request before the correct orderBy can be calculated
+      if (!columns?.length || !orderBy) {
         return;
       }
 
@@ -283,8 +293,8 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
     // show loading indicator on initial load
     delayedLoadingTimeRef.current = 0;
 
-    setLoading(true);
     setColumns(null);
+    setLoadingColumns(true);
     setState(null);
     setCurrentTab({ relationship, name });
   };
