@@ -172,8 +172,10 @@ const GenericTable = <T,>(
     delayedLoadingTimeMs > 0 ? delayedLoadingTimeMs : 0
   );
   const { searchParams, setSearchParams } = useSearchParamsContext();
-  const defaultColumn: Column<T> =
-    columns.find((c) => c.default) || columns.find((c) => c.fieldKey ?? c.field);
+  const defaultColumn: Column<T> = useMemo(
+    () => columns?.find((c) => c.default) || columns?.find((c) => c.fieldKey ?? c.field),
+    [columns]
+  );
   const initialTableParams: TableParams = {
     page: 0,
     perPage: defaultRowsPerPage,
@@ -195,6 +197,16 @@ const GenericTable = <T,>(
   const TableBodyCellComponent = CustomTableBodyCell || StyledTableCell;
   const orderByColumn = columns?.find((c) => (c.fieldKey ?? c.field?.toString()) === orderBy);
   const prevFetchRef = useRef<FetchListing<T>>(null);
+
+  useEffect(() => {
+    if (loading || !paramsInitialized || !columns?.length || !defaultColumn) {
+      return;
+    }
+    const newDefaultColumn = columns?.find((c) => c.default);
+    const fieldKey = newDefaultColumn?.fieldKey ?? newDefaultColumn.field?.toString();
+
+    dispatch({ type: "SET_ORDER_BY", payload: fieldKey });
+  }, [loading, paramsInitialized, orderBy, columns, defaultColumn]);
 
   useEffect(() => {
     if (loading) {
@@ -230,7 +242,7 @@ const GenericTable = <T,>(
       allUpdates.sortDirection = newSortDirection;
     }
 
-    const orderByColumn: Column<T> = columns.find((c) => newOrderBy === (c.fieldKey ?? c.field));
+    const orderByColumn: Column<T> = columns?.find((c) => newOrderBy === (c.fieldKey ?? c.field));
     if (orderByColumn) {
       allUpdates.orderBy = orderByColumn.fieldKey ?? orderByColumn.field?.toString();
     }
@@ -455,14 +467,14 @@ const GenericTable = <T,>(
             {(!paramsInitialized || showDelayedLoading) && (total === 0 || !data?.length)
               ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
                   <StyledTableRow key={`loading_row_${idx}`}>
-                    <TableCell colSpan={columns.length} />
+                    <TableCell colSpan={columns?.length} />
                   </StyledTableRow>
                 ))
               : data?.map((d: T, idx: number) => {
                   const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
                   return (
                     <TableRow tabIndex={-1} hover key={itemKey}>
-                      {columns.map((col: Column<T>) => (
+                      {columns?.map((col: Column<T>) => (
                         <TableBodyCellComponent
                           key={`${itemKey}_${col.label}`}
                           sx={{
@@ -483,7 +495,7 @@ const GenericTable = <T,>(
               emptyRows > 0 &&
               Array.from(Array(emptyRows).keys())?.map((row) => (
                 <StyledTableRow key={`empty_row_${row}`}>
-                  <TableCell colSpan={columns.length} />
+                  <TableCell colSpan={columns?.length} />
                 </StyledTableRow>
               ))}
 
@@ -492,7 +504,7 @@ const GenericTable = <T,>(
               paramsInitialized &&
               (!total || total === 0 || (total && !data?.length)) && (
                 <TableRow style={{ height: 46 * numRowsNoContent }}>
-                  <TableCell colSpan={columns.length}>
+                  <TableCell colSpan={columns?.length}>
                     <Typography
                       variant="body1"
                       align="center"
