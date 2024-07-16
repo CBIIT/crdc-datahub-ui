@@ -252,6 +252,19 @@ describe("SubmittedData > Table", () => {
         },
       },
     ];
+    // TODO: Get columns separately to avoid retrieving same data twice as described below.
+    // Will make 2 requests, one for retrieving initial columns/data to get identity column
+    // and the other with orderBy set to the identity column or first column
+    mocks.push({
+      ...mocks[1],
+      request: {
+        ...mocks[1].request,
+        variables: {
+          ...mocks[1].request.variables,
+          orderBy: "col.2",
+        },
+      },
+    });
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
@@ -289,7 +302,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 2,
-              IDPropName: "col-xyz",
+              IDPropName: null,
               properties: ["col-xyz"],
               nodes: [
                 {
@@ -314,6 +327,19 @@ describe("SubmittedData > Table", () => {
         },
       },
     ];
+    // TODO: Get columns separately to avoid retrieving same data twice as described below.
+    // Will make 2 requests, one for retrieving initial columns/data to get identity column
+    // and the other with orderBy set to the identity column or first column
+    mocks.push({
+      ...mocks[1],
+      request: {
+        ...mocks[1].request,
+        variables: {
+          ...mocks[1].request.variables,
+          orderBy: "col-xyz",
+        },
+      },
+    });
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>

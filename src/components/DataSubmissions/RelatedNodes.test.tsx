@@ -227,6 +227,7 @@ describe("RelatedNodes", () => {
             first: 20,
             offset: 0,
             sortDirection: "asc",
+            orderBy: "sample_id",
           },
         },
         error: new Error("An error occurred"),
