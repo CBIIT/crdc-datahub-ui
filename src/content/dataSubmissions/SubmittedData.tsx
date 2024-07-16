@@ -89,7 +89,9 @@ const SubmittedData: FC<Props> = ({ submissionId, submissionName }) => {
     const cols: Column<T>[] = columnsClone.map((prop: string, idx: number) => ({
       label: prop,
       renderValue: (d) =>
-        (idx === 0 ? renderFirstColumnValue(d, prop) : d?.props?.[prop] || "") as React.ReactNode,
+        (idx === 0 && d.nodeType !== "data file"
+          ? renderFirstColumnValue(d, prop)
+          : d?.props?.[prop] || "") as React.ReactNode,
       // NOTE: prop is not actually a keyof T, but it's a value of prop.props
       fieldKey: prop,
       default: idx === 0 ? true : undefined,
