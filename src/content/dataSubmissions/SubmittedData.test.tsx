@@ -377,7 +377,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 2,
-              IDPropName: "goold-col-1",
+              IDPropName: "good-col-1",
               properties: ["good-col-1", "good-col-2"],
               nodes: [
                 {
