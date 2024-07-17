@@ -21,8 +21,9 @@ const StyledSectionDivider = styled(Divider)(() => ({
 }));
 
 const StyledNodeTypeWrapper = styled(Stack)(() => ({
-  width: "163px",
-  minWidth: "fit-content",
+  width: "fit-content",
+  minWidth: "163px",
+  maxWidth: "350px",
 }));
 
 const StyledLabel = styled(Typography)(() => ({
@@ -46,6 +47,8 @@ const StyledValue = styled(Typography)(() => ({
 }));
 
 const StyledNodeTypeLabel = styled(Typography)(() => ({
+  width: "100%",
+  maxWidth: "100%",
   color: "#929292",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "13px",
@@ -57,6 +60,8 @@ const StyledNodeTypeLabel = styled(Typography)(() => ({
 }));
 
 const StyledNodeTypeValue = styled(Typography)(() => ({
+  width: "max-content",
+  maxWidth: "100%",
   color: "#0B7F99",
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   fontSize: "35px",
@@ -64,6 +69,7 @@ const StyledNodeTypeValue = styled(Typography)(() => ({
   fontWeight: 900,
   lineHeight: "30px",
   textTransform: "capitalize",
+  wordBreak: "break-word",
 }));
 
 type Props = {
