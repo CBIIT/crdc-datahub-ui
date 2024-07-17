@@ -301,7 +301,6 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
   };
 
   const isLoading = loading || loadingColumns || (hasNodes && columns === null);
-  console.log({ loading, loadingColumns, hasNodes, columns });
 
   return (
     <>
