@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { isEqual, cloneDeep } from "lodash";
-import { Alert, Container, Divider, Stack, styled } from "@mui/material";
+import { Container, Divider, Stack, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
@@ -26,7 +26,6 @@ import ApproveFormDialog from "../../components/Questionnaire/ApproveFormDialog"
 import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
-import ErrorCodes from "../../config/ErrorCodes";
 import usePageTitle from "../../hooks/usePageTitle";
 
 const StyledContainer = styled(Container)(() => ({
@@ -53,13 +52,6 @@ const StyledDivider = styled(Divider)({
 
 const StyledContentWrapper = styled(Stack)({
   paddingBottom: "75px",
-});
-
-const StyledAlert = styled(Alert)({
-  fontWeight: 400,
-  fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  scrollMarginTop: "64px",
 });
 
 const StyledContent = styled(Stack)({
@@ -155,6 +147,8 @@ const FormView: FC<Props> = ({ section }: Props) => {
     error,
   } = useFormContext();
   const { user, status: authStatus } = useAuthContext();
+  const { formMode, readOnlyInputs } = useFormMode();
+
   const [activeSection, setActiveSection] = useState<string>(
     validateSection(section) ? section : "A"
   );
@@ -163,8 +157,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const [openApproveDialog, setOpenApproveDialog] = useState<boolean>(false);
   const [openInquireDialog, setOpenInquireDialog] = useState<boolean>(false);
   const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
-  const [hasError, setHasError] = useState<boolean>(false);
-  const { formMode, readOnlyInputs } = useFormMode();
   const [allSectionsComplete, setAllSectionsComplete] = useState<boolean>(false);
 
   const sectionKeys = Object.keys(map);
@@ -176,7 +168,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
     ? `/submission/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}`
     : null;
   const isSectionD = activeSection === "D";
-  const errorAlertRef = useRef(null);
   const formContentRef = useRef(null);
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
@@ -246,11 +237,13 @@ const FormView: FC<Props> = ({ section }: Props) => {
       const r = await submitData();
       setOpenSubmitDialog(false);
       navigate("/submissions");
-      setHasError(false);
+
       return r;
     } catch (err) {
       setOpenSubmitDialog(false);
-      setHasError(true);
+      enqueueSnackbar("An error occurred while submitting the form. Please try again.", {
+        variant: "error",
+      });
       return false;
     }
   };
@@ -270,19 +263,19 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    try {
-      const res = await approveForm(reviewComment, true);
-      setOpenApproveDialog(false);
-      if (res) {
-        setHasError(false);
-        navigate("/submissions");
-      }
-      return res;
-    } catch (err) {
-      setOpenApproveDialog(false);
-      setHasError(true);
-      return false;
+    const res = await approveForm(reviewComment, true);
+    setOpenApproveDialog(false);
+    if (res?.status === "success") {
+      navigate("/submissions");
+    } else {
+      enqueueSnackbar(
+        res.errorMessage || "An error occurred while approving the form. Please try again.",
+        {
+          variant: "error",
+        }
+      );
     }
+    return res.status === "success";
   };
 
   /**
@@ -301,17 +294,16 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    try {
-      const res = await inquireForm(reviewComment);
-      setOpenInquireDialog(false);
+    const res = await inquireForm(reviewComment);
+    if (!res) {
+      enqueueSnackbar("An error occurred while inquiring the form. Please try again.", {
+        variant: "error",
+      });
+    } else {
       navigate("/submissions");
-      setHasError(false);
-      return res;
-    } catch (err) {
-      setOpenInquireDialog(false);
-      setHasError(true);
-      return false;
     }
+    setOpenInquireDialog(false);
+    return res;
   };
 
   /**
@@ -330,17 +322,16 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    try {
-      const res = await rejectForm(reviewComment);
-      setOpenRejectDialog(false);
+    const res = await rejectForm(reviewComment);
+    if (!res) {
+      enqueueSnackbar("An error occurred while rejecting the form. Please try again.", {
+        variant: "error",
+      });
+    } else {
       navigate("/submissions");
-      setHasError(false);
-      return res;
-    } catch (err) {
-      setOpenRejectDialog(false);
-      setHasError(true);
-      return false;
     }
+    setOpenRejectDialog(false);
+    return res;
   };
 
   /**
@@ -360,14 +351,15 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    try {
-      const res = await reopenForm();
-      setHasError(false);
-      return res;
-    } catch (err) {
-      setHasError(true);
-      return false;
+    const res = await reopenForm();
+    if (!res) {
+      navigate("/submissions", {
+        state: {
+          error: "An error occurred while marking the form as In Progress. Please try again.",
+        },
+      });
     }
+    return res;
   };
 
   /**
@@ -386,14 +378,15 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    try {
-      const res = await reviewForm();
-      setHasError(false);
-      return res;
-    } catch (err) {
-      setHasError(true);
-      return false;
+    const res = await reviewForm();
+    if (!res) {
+      navigate("/submissions", {
+        state: {
+          error: "An error occurred while marking the form as In Review. Please try again.",
+        },
+      });
     }
+    return res;
   };
 
   /**
@@ -436,17 +429,11 @@ const FormView: FC<Props> = ({ section }: Props) => {
     }
 
     // Skip state update if there are no changes
-    if (
-      !isEqual(data.questionnaireData, newData) ||
-      error === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION
-    ) {
+    if (!isEqual(data.questionnaireData, newData)) {
       const res = await setData(newData);
-      if (
-        res?.status === "failed" &&
-        res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION
-      ) {
+      if (res?.status === "failed" && !!res?.errorMessage) {
         enqueueSnackbar(
-          "The Study Abbreviation already existed in the system. Your changes were unable to be saved.",
+          `An error occurred while saving the ${map[activeSection].title} section. ${res.errorMessage}`,
           {
             variant: "error",
           }
@@ -563,10 +550,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
     ) {
       return;
     }
-    // if duplicate study error, then block navigation
-    if (res?.status === "failed" && res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
-      return;
-    }
 
     blocker.proceed?.();
     if (res?.status === "success" && res.id) {
@@ -616,6 +599,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     }
     setOpenRejectDialog(true);
   };
+
   const handleCloseApproveFormDialog = () => {
     setOpenApproveDialog(false);
   };
@@ -685,15 +669,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
   }, [status, data]);
 
   useEffect(() => {
-    if (hasError && errorAlertRef?.current) {
-      errorAlertRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [hasError, errorAlertRef]);
-
-  useEffect(() => {
     if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
       return;
     }
@@ -717,16 +692,18 @@ const FormView: FC<Props> = ({ section }: Props) => {
     }
   }, [status, authStatus, formMode, data?.status]);
 
+  // Show loading spinner if the form is still loading
   if (status === FormStatus.LOADING || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
   }
 
-  // hide content while being re-routed
+  // Hide form content if the user is unauthorized
   if (authStatus === AuthStatus.ERROR) {
     return null;
   }
 
-  if ((status === FormStatus.ERROR && error !== ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) || !data) {
+  // Redirect to ListView if no data is found and the form is in the error state
+  if (status === FormStatus.ERROR && !data?._id) {
     return <Navigate to="/submissions" state={{ error: error || "Unknown error" }} />;
   }
 
@@ -747,12 +724,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
           <StyledContent direction="column" spacing={5}>
             <StatusBar />
-
-            {hasError && (
-              <StyledAlert ref={errorAlertRef} severity="error">
-                Oops! An error occurred. Please refresh the page or try again later.
-              </StyledAlert>
-            )}
 
             <Section section={activeSection} refs={refs} />
 

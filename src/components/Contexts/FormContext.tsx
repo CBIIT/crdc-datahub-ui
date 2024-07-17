@@ -1,5 +1,5 @@
 import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
-import { ApolloError, useLazyQuery, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { merge, cloneDeep } from "lodash";
 import {
   APPROVE_APP,
@@ -24,8 +24,6 @@ import {
   SaveAppInput,
 } from "../../graphql";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
-import ErrorCodes from "../../config/ErrorCodes";
-import sectionMetadata from "../../config/SectionMetadata";
 
 export type SetDataReturnType =
   | { status: "success"; id: string }
@@ -37,7 +35,7 @@ export type ContextState = {
   submitData?: () => Promise<string | boolean>;
   reopenForm?: () => Promise<string | boolean>;
   reviewForm?: () => Promise<string | boolean>;
-  approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
+  approveForm?: (comment: string, wholeProgram: boolean) => Promise<SetDataReturnType>;
   inquireForm?: (comment: string) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
   setData?: (Application) => Promise<SetDataReturnType>;
@@ -160,104 +158,56 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
     setState((prevState) => ({ ...prevState, status: Status.SAVING }));
 
-    try {
-      const { data: d, errors } = await saveApp({
-        variables: {
-          application: {
-            _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
-            programName: data?.program?.name,
-            studyName: data?.study?.name,
-            studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
-            questionnaireData: JSON.stringify(data),
-            controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
-          },
+    const { data: d, errors } = await saveApp({
+      variables: {
+        application: {
+          _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
+          programName: data?.program?.name,
+          studyName: data?.study?.name,
+          studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
+          questionnaireData: JSON.stringify(data),
+          controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
         },
+      },
+    }).catch((e) => ({ data: null, errors: [e] }));
+
+    if (errors || !d?.saveApplication?.["_id"]) {
+      const errorMessage = errors?.[0]?.message || "An unknown GraphQL Error occurred";
+
+      setState({
+        ...newState,
+        status: Status.ERROR,
+        error: errorMessage,
       });
-
-      if (errors) {
-        setState({
-          ...newState,
-          status: Status.ERROR,
-          error: "An unknown GraphQL Error occurred",
-        });
-        return {
-          status: "failed",
-          errorMessage: "An unknown GraphQL Error occurred",
-        };
-      }
-
-      if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
-        newState.data = {
-          ...newState.data,
-          _id: d.saveApplication["_id"],
-          applicant: d?.saveApplication?.applicant,
-          organization: d?.saveApplication?.organization,
-        };
-      }
-
-      newState.data = {
-        ...newState.data,
-        status: d?.saveApplication?.status,
-        updatedAt: d?.saveApplication?.updatedAt,
-        createdAt: d?.saveApplication?.createdAt,
-        submittedDate: d?.saveApplication?.submittedDate,
-        history: d?.saveApplication?.history,
-      };
-
-      if (!d?.saveApplication?.["_id"]) {
-        setState({
-          ...newState,
-          status: Status.ERROR,
-          error: "An unknown issue occurred",
-        });
-        return {
-          status: "failed",
-          errorMessage: "An unknown issue occurred",
-        };
-      }
-
-      setState({ ...newState, status: Status.LOADED, error: null });
-      return {
-        status: "success",
-        id: d.saveApplication["_id"],
-      };
-    } catch (error) {
-      let errorMessage: string;
-      if (error instanceof ApolloError) {
-        errorMessage = error.message;
-      } else {
-        errorMessage = String(error);
-      }
-
-      let newErrorState = state;
-      // If duplicate study abbrev error, then prevent section from being completed
-      if (errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
-        const newSections = state?.data?.questionnaireData?.sections?.map((section) =>
-          section.name === sectionMetadata.B.id
-            ? ({
-                ...section,
-                status: "In Progress",
-              } as Section)
-            : section
-        );
-        newErrorState = {
-          ...state,
-          data: {
-            ...state?.data,
-            questionnaireData: {
-              ...state?.data?.questionnaireData,
-              sections: newSections,
-            },
-          },
-        };
-      }
-
-      setState({ ...newErrorState, status: Status.ERROR, error: errorMessage });
       return {
         status: "failed",
         errorMessage,
       };
     }
+
+    if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
+      newState.data = {
+        ...newState.data,
+        _id: d.saveApplication["_id"],
+        applicant: d?.saveApplication?.applicant,
+        organization: d?.saveApplication?.organization,
+      };
+    }
+
+    newState.data = {
+      ...newState.data,
+      status: d?.saveApplication?.status,
+      updatedAt: d?.saveApplication?.updatedAt,
+      createdAt: d?.saveApplication?.createdAt,
+      submittedDate: d?.saveApplication?.submittedDate,
+      history: d?.saveApplication?.history,
+    };
+
+    setState({ ...newState, status: Status.LOADED, error: null });
+    return {
+      status: "success",
+      id: d.saveApplication["_id"],
+    };
   };
 
   const submitData = async () => {
@@ -279,31 +229,40 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
   };
 
   // Here we approve the form to the API with a comment and wholeProgram
-  const approveForm = async (comment: string, wholeProgram: boolean) => {
+  const approveForm = async (
+    comment: string,
+    wholeProgram: boolean
+  ): Promise<SetDataReturnType> => {
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
 
     const institutions: string[] = [
       state?.data?.questionnaireData?.pi?.institution,
       state?.data?.questionnaireData?.primaryContact?.institution,
-      ...(state?.data?.questionnaireData?.additionalContacts?.map((c) => c.institution) || []),
+      ...(state?.data?.questionnaireData?.additionalContacts?.map((c) => c?.institution) || []),
     ].filter((i) => !!i && typeof i === "string");
 
     const { data: res, errors } = await approveApp({
       variables: {
-        id: state?.data["_id"],
+        id: state?.data?.["_id"],
         comment,
         wholeProgram,
         institutions,
       },
-    });
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.approveApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
-      return false;
+      return {
+        status: "failed",
+        errorMessage: errors?.[0]?.message || "An unknown GraphQL Error occurred",
+      };
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.approveApplication?.["_id"] || false;
+    return {
+      status: "success",
+      id: res?.approveApplication?.["_id"],
+    };
   };
 
   // Here we set the form to inquired through the API with a comment
@@ -315,15 +274,15 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         _id: state?.data["_id"],
         comment,
       },
-    });
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.inquireApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.inquireApplication?.["_id"] || false;
+    return res?.inquireApplication?.["_id"];
   };
 
   // Here we reject the form to the API with a comment
@@ -335,15 +294,15 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         _id: state?.data["_id"],
         comment,
       },
-    });
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.rejectApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.rejectApplication?.["_id"] || false;
+    return res?.rejectApplication?.["_id"];
   };
 
   // Updating form status from Submitted to In Review
@@ -354,9 +313,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       variables: {
         _id: state?.data["_id"],
       },
-    });
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.reviewApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
@@ -369,7 +328,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       },
       status: Status.LOADED,
     }));
-    return res?.reviewApplication?.["_id"] || false;
+    return res?.reviewApplication?.["_id"];
   };
 
   // Reopen a form when it has been rejected and they submit an updated form
@@ -380,9 +339,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       variables: {
         _id: state?.data["_id"],
       },
-    });
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.reopenApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
@@ -395,7 +354,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       },
       status: Status.LOADED,
     }));
-    return res?.reopenApplication?.["_id"] || false;
+    return res?.reopenApplication?.["_id"];
   };
 
   useEffect(() => {
