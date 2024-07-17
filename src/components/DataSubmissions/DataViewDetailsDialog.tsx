@@ -3,6 +3,10 @@ import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.sv
 import DataViewDetails from "./DataViewDetails";
 
 const StyledDialog = styled(Dialog)({
+  "& .MuiDialog-container": {
+    // AM NOTE: Always show scrollbar to prevent content shift. not ideal visually
+    overflowY: "scroll !important",
+  },
   "& .MuiDialog-paper": {
     maxWidth: "none",
     width: "1144px !important",

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Box, styled, Tab, TabProps, Tabs } from "@mui/material";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
 import { isEqual } from "lodash";
 import {
@@ -132,25 +132,24 @@ type Props = {
 
 const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
-  const [currentTab, setCurrentTab] = useState<NodeTab>(null);
+  // AM NOTE: Turned this into a ref because the updated nodeName was
+  // not available at the time of fetchListing calls and it was causing
+  // the API call to return the previous node details
+  const currentTab = useRef<NodeTab>({ name: null, relationship: null });
   const [state, setState] = useState<GetRelatedNodesResp["getRelatedNodes"]>(null);
   const [columns, setColumns] = useState<Column<T>[]>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const hasNodes = parentNodes?.length > 0 || childNodes?.length > 0;
-  const [loadingColumns, setLoadingColumns] = useState<boolean>(
-    submissionID && nodeType && hasNodes
-  );
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
 
   const tableRef = useRef<TableMethods>(null);
-  const delayedLoadingTimeRef = useRef<number>(0);
+  // const delayedLoadingTimeRef = useRef<number>(0);
 
   const handleSetupColumns = (rawColumns: string[], keyColumn: string) => {
-    if (!rawColumns?.length) {
-      setColumns([]);
-      setLoadingColumns(false);
-      return;
-    }
+    // AM NOTE: This could probably be re-enabled. Just disabled for debugging. Unsure of impact
+    // if (!rawColumns?.length) {
+    //   return [];
+    // }
 
     // move the keyColumn to the front of array, if it exists in rawColumns
     const columnsClone = moveToFrontOfArray([...rawColumns], keyColumn);
@@ -162,28 +161,12 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       default: idx === 0 ? true : undefined,
     }));
 
-    if (isEqual(cols, columns)) {
-      return;
-    }
-
-    setLoadingColumns(false);
-    setColumns(cols || []);
-    setLoading(true);
+    return cols;
   };
 
-  useQuery<GetRelatedNodePropertiesResp, GetRelatedNodePropertiesInput>(
+  const [getNodeXXX] = useLazyQuery<GetRelatedNodePropertiesResp, GetRelatedNodePropertiesInput>(
     GET_RELATED_NODE_PROPERTIES,
     {
-      variables: {
-        submissionID,
-        nodeType,
-        nodeID,
-        relationship: currentTab?.relationship,
-        relatedNodeType: currentTab?.name,
-      },
-      skip: !submissionID || !nodeType || !nodeID || !currentTab?.relationship || !currentTab?.name,
-      onCompleted: (data) =>
-        handleSetupColumns(data?.getRelatedNodes?.properties, data?.getRelatedNodes?.IDPropName),
       context: { clientName: "backend" },
       fetchPolicy: "cache-and-network",
     }
@@ -210,45 +193,59 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
   }, [parentNodes, childNodes]);
 
   useEffect(() => {
-    if (!columns?.length) {
-      return;
-    }
-    tableRef.current?.setPage(0, true);
-  }, [columns]);
-
-  useEffect(() => {
-    if (!firstTab || currentTab === firstTab) {
+    if (!firstTab || currentTab.current === firstTab) {
       return;
     }
 
-    setCurrentTab(firstTab);
+    currentTab.current = firstTab;
   }, [firstTab]);
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     try {
-      if (!currentTab?.relationship || !currentTab?.name) {
+      if (!currentTab.current?.relationship || !currentTab.current?.name) {
         return;
       }
       if (!force && state?.nodes?.length > 0 && isEqual(fetchListing, prevListing)) {
         return;
       }
-      // TODO: find a more robust solution. Since the columns are dynamic,
-      // it tries to send a request before the correct orderBy can be calculated
-      if (!columns?.length || !orderBy) {
+      // AM NOTE: This prevents the double fetch when switching tabs
+      // Didn't test it thoroughly, but it seems to work
+      if (!force && state?.nodes?.length > 0 && prevListing && !(prevListing.orderBy in columns)) {
         return;
       }
 
+      // AM NOTE: Disabled this because columns are not available yet
+      // and this would prevent the initial fetch
+      //
+      // TODO: find a more robust solution. Since the columns are dynamic,
+      // it tries to send a request before the correct orderBy can be calculated
+      // if (!columns?.length || !orderBy) {
+      //   return;
+      // }
+
       setLoading(true);
       setPrevListing(fetchListing);
+
+      // AM NOTE: Recommend combining these queries back into one if using this approach
+      // since it's the same API anyway
+      const { data: nodeData } = await getNodeXXX({
+        variables: {
+          submissionID,
+          nodeType,
+          nodeID,
+          relationship: currentTab.current?.relationship,
+          relatedNodeType: currentTab.current?.name,
+        },
+      });
 
       const { data: d, error } = await getRelatedNodes({
         variables: {
           submissionID,
           nodeType,
           nodeID,
-          relationship: currentTab.relationship,
-          relatedNodeType: currentTab.name,
+          relationship: currentTab.current.relationship,
+          relatedNodeType: currentTab.current.name,
           first,
           offset,
           sortDirection,
@@ -272,39 +269,49 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
         total: d.getRelatedNodes?.total,
       };
 
-      if (isEqual(newState, state)) {
+      const newColumns = handleSetupColumns(
+        nodeData?.getRelatedNodes?.properties,
+        nodeData?.getRelatedNodes?.IDPropName
+      );
+
+      // AM NOTE: Added comparison to ensure columns are the same also
+      // Can't think of why the nodes would be identical but columns would change though...
+      if (isEqual(newState, state) && isEqual(newColumns, columns)) {
         return;
       }
 
-      delayedLoadingTimeRef.current = 200;
+      // AM NOTE: Disabled this for testing. It can be re-enabled if needed
+      // delayedLoadingTimeRef.current = 0;
 
       setState(newState);
+      setColumns(newColumns);
     } catch (err) {
-      enqueueSnackbar("Unable to load related node details.", { variant: "error" });
+      enqueueSnackbar(`Unable to load related node details.${err}`, { variant: "error" });
     } finally {
       setLoading(false);
     }
   };
 
   const handleSelectTab = (name: string, relationship: NodeRelationship) => {
-    if (currentTab?.name === name && currentTab?.relationship === relationship) {
+    if (currentTab.current?.name === name && currentTab.current?.relationship === relationship) {
       return;
     }
 
     // show loading indicator on initial load
-    delayedLoadingTimeRef.current = 0;
+    // delayedLoadingTimeRef.current = 0;
 
     setColumns(null);
-    setLoadingColumns(true);
     setState(null);
-    setCurrentTab({ relationship, name });
+    setLoading(true);
+    currentTab.current = { relationship, name };
+    tableRef.current?.setPage(0, true);
   };
 
-  const isLoading = loading || loadingColumns || (hasNodes && columns === null);
+  const isLoading = loading || (hasNodes && columns === null);
 
   return (
     <>
-      <StyledTabs value={currentTab?.name || false} aria-label="Related nodes tabs">
+      <StyledTabs value={currentTab.current?.name || false} aria-label="Related nodes tabs">
         {parentNodes?.map((parent, idx) => (
           <StyledTab
             key={`parent_node_tab_${parent.nodeType}`}
@@ -339,7 +346,8 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           numRowsNoContent={5}
           defaultOrder="asc"
           position="both"
-          delayedLoadingTimeMs={delayedLoadingTimeRef.current}
+          // AM NOTE: Can be re-enabled if needed
+          // delayedLoadingTimeMs={delayedLoadingTimeRef.current}
           onFetchData={handleFetchData}
           setItemKey={(item, idx) => `${idx}_${nodeType}_${nodeID}_${item.status}`}
         />
