@@ -136,13 +136,14 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
   const [state, setState] = useState<GetRelatedNodesResp["getRelatedNodes"]>(null);
   const [columns, setColumns] = useState<Column<T>[]>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [loadingColumns, setLoadingColumns] = useState<boolean>(true);
+  const hasNodes = parentNodes?.length > 0 || childNodes?.length > 0;
+  const [loadingColumns, setLoadingColumns] = useState<boolean>(
+    submissionID && nodeType && hasNodes
+  );
   const [prevListing, setPrevListing] = useState<FetchListing<T>>(null);
 
   const tableRef = useRef<TableMethods>(null);
   const delayedLoadingTimeRef = useRef<number>(0);
-
-  const hasNodes = parentNodes?.length > 0 || childNodes?.length > 0;
 
   const handleSetupColumns = (rawColumns: string[], keyColumn: string) => {
     if (!rawColumns?.length) {
@@ -300,6 +301,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
   };
 
   const isLoading = loading || loadingColumns || (hasNodes && columns === null);
+  console.log({ loading, loadingColumns, hasNodes, columns });
 
   return (
     <>
