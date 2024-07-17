@@ -14,6 +14,9 @@ export interface NavBarSublist {
   needsAuthentication?: boolean;
 }
 
+export const DataSubmissionInstructionsLink =
+  "https://datacommons.cancer.gov/sites/default/files/2024-07/CRDC%20Data%20Submission%20Instructions%202024.pdf";
+
 // globalHeaderLogo image 468x100
 // globalHeaderImage: image 2200x100
 export const headerData = {
@@ -87,7 +90,7 @@ export const navbarSublists: Record<string, NavBarSublist[]> = {
     },
     {
       name: "Data Submission Instructions",
-      link: "https://datacommons.cancer.gov/sites/default/files/2024-07/CRDC%20Data%20Submission%20Instructions%202024.pdf",
+      link: DataSubmissionInstructionsLink,
       text: "",
       id: "data-submission-instructions",
       className: "navMobileSubItem",
