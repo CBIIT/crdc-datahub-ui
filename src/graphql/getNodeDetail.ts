@@ -23,5 +23,5 @@ export type Input = {
 };
 
 export type Response = {
-  getNodeDetail: NodeDetailResult;
+  getNodeDetail: Pick<NodeDetailResult, "parents" | "children" | "IDPropName">;
 };
