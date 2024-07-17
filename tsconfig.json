@@ -12,9 +12,7 @@
     ],
     "allowJs": true,
     "checkJs": true,
-    // TODO – Re-enable this once the type issues in node_modules are resolved
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": false,
+    "skipLibCheck": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": false,
