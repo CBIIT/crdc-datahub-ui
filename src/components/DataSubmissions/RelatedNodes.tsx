@@ -164,13 +164,13 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
     return cols;
   };
 
-  const [getNodeXXX] = useLazyQuery<GetRelatedNodePropertiesResp, GetRelatedNodePropertiesInput>(
-    GET_RELATED_NODE_PROPERTIES,
-    {
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-    }
-  );
+  const [getRelatedNodeProps] = useLazyQuery<
+    GetRelatedNodePropertiesResp,
+    GetRelatedNodePropertiesInput
+  >(GET_RELATED_NODE_PROPERTIES, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+  });
 
   const [getRelatedNodes] = useLazyQuery<GetRelatedNodesResp, GetRelatedNodesInput>(
     GET_RELATED_NODES,
@@ -211,7 +211,8 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       }
       // AM NOTE: This prevents the double fetch when switching tabs
       // Didn't test it thoroughly, but it seems to work
-      if (!force && state?.nodes?.length > 0 && prevListing && !(prevListing.orderBy in columns)) {
+      const colNames = columns?.map((col) => col.fieldKey);
+      if (!force && state?.nodes?.length > 0 && prevListing && !(prevListing.orderBy in colNames)) {
         return;
       }
 
@@ -229,7 +230,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
 
       // AM NOTE: Recommend combining these queries back into one if using this approach
       // since it's the same API anyway
-      const { data: nodeData } = await getNodeXXX({
+      const { data: nodeData } = await getRelatedNodeProps({
         variables: {
           submissionID,
           nodeType,
