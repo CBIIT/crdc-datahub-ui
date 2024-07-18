@@ -78,16 +78,11 @@ export type { Response as ListNodeTypesResp } from "./listSubmissionNodeTypes";
 export { query as GET_NODE_DETAIL } from "./getNodeDetail";
 export type { Input as GetNodeDetailInput, Response as GetNodeDetailResp } from "./getNodeDetail";
 
-export { query as GET_RELATED_NODE_PROPERTIES } from "./getRelatedNodeProperties";
-export type {
-  Input as GetRelatedNodePropertiesInput,
-  Response as GetRelatedNodePropertiesResp,
-} from "./getRelatedNodeProperties";
-
 export { query as GET_RELATED_NODES } from "./getRelatedNodes";
 export type {
   Input as GetRelatedNodesInput,
   Response as GetRelatedNodesResp,
+  PropertiesOnlyResponse as GetRelatedNodesRespPropsOnly,
 } from "./getRelatedNodes";
 
 export { query as GET_SUBMISSION_NODES } from "./getSubmissionNodes";

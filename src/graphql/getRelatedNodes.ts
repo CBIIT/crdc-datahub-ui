@@ -1,5 +1,13 @@
 import gql from "graphql-tag";
 
+const RelatedNodeFragment = gql`
+  fragment RelatedNodeFragment on Node {
+    nodeType
+    nodeID
+    status
+    props
+  }
+`;
 export const query = gql`
   query getRelatedNodes(
     $submissionID: String!
@@ -11,6 +19,7 @@ export const query = gql`
     $offset: Int
     $orderBy: String
     $sortDirection: String
+    $propertiesOnly: Boolean = false
   ) {
     getRelatedNodes(
       submissionID: $submissionID
@@ -23,15 +32,15 @@ export const query = gql`
       orderBy: $orderBy
       sortDirection: $sortDirection
     ) {
-      total
+      total @skip(if: $propertiesOnly)
+      properties @include(if: $propertiesOnly)
+      IDPropName @include(if: $propertiesOnly)
       nodes {
-        nodeType
-        nodeID
-        status
-        props
+        ...RelatedNodeFragment @skip(if: $propertiesOnly)
       }
     }
   }
+  ${RelatedNodeFragment}
 `;
 
 export type Input = {
@@ -44,19 +53,13 @@ export type Input = {
   offset?: number;
   orderBy?: string;
   sortDirection?: string;
+  propertiesOnly?: boolean;
+};
+
+export type PropertiesOnlyResponse = {
+  getRelatedNodes: Pick<RelatedNodes, "properties" | "IDPropName">;
 };
 
 export type Response = {
-  getRelatedNodes: {
-    /**
-     * Total number of nodes in the submission.
-     */
-    total: number;
-    /**
-     * An array of nodes matching the queried node type
-     *
-     * @note Unused values are omitted from the query. See the type definition for additional fields.
-     */
-    nodes: Pick<SubmissionNode, "nodeType" | "nodeID" | "props" | "status">[];
-  };
+  getRelatedNodes: Pick<RelatedNodes, "nodes" | "total">;
 };
