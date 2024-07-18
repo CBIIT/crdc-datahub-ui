@@ -5,11 +5,9 @@ import { useSnackbar } from "notistack";
 import { isEqual } from "lodash";
 import {
   GET_RELATED_NODES,
-  GET_RELATED_NODE_PROPERTIES,
-  GetRelatedNodePropertiesInput,
-  GetRelatedNodePropertiesResp,
   GetRelatedNodesInput,
   GetRelatedNodesResp,
+  GetRelatedNodesRespPropsOnly,
 } from "../../graphql";
 import GenericTable, { Column } from "../GenericTable";
 import { capitalizeFirstLetter, moveToFrontOfArray, safeParse } from "../../utils";
@@ -164,13 +162,13 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
     return cols;
   };
 
-  const [getRelatedNodeProps] = useLazyQuery<
-    GetRelatedNodePropertiesResp,
-    GetRelatedNodePropertiesInput
-  >(GET_RELATED_NODE_PROPERTIES, {
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-  });
+  const [getRelatedNodeProps] = useLazyQuery<GetRelatedNodesRespPropsOnly, GetRelatedNodesInput>(
+    GET_RELATED_NODES,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const [getRelatedNodes] = useLazyQuery<GetRelatedNodesResp, GetRelatedNodesInput>(
     GET_RELATED_NODES,
@@ -273,6 +271,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
           nodeID,
           relationship,
           relatedNodeType,
+          propertiesOnly: true,
         },
       });
       if (error || !nodeData?.getRelatedNodes) {
@@ -290,7 +289,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       setState({ nodes: [], total: 0 });
       columnsRef.current = newColumns;
     } catch (err) {
-      enqueueSnackbar(`Unable to load related node columns.`, { variant: "error" });
+      enqueueSnackbar(`Unable to load related node details.`, { variant: "error" });
     }
   };
 
