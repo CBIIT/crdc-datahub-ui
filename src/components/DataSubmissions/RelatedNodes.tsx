@@ -203,6 +203,9 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       if (!currentTab?.relationship || !currentTab?.name) {
         return;
       }
+      if (!submissionID || !nodeType || !nodeType) {
+        return;
+      }
       if (!force && state?.nodes?.length > 0 && isEqual(fetchListing, prevListing)) {
         return;
       }
