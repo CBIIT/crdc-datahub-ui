@@ -1,11 +1,11 @@
 import { FC } from "react";
-import { MemoryRouter } from "react-router-dom";
 import { queryByTestId, render, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import RelatedNodes from "./RelatedNodes";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { GET_RELATED_NODES, GET_RELATED_NODE_PROPERTIES } from "../../graphql";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+import RelatedNodes from "./RelatedNodes";
 
 const mocks = [
   {
@@ -130,6 +130,56 @@ describe("RelatedNodes", () => {
     expect(getByTestId("generic-table")).toBeInTheDocument();
   });
 
+  it("shows error via snackbar when data fetching fails", async () => {
+    const newProps = {
+      submissionID: "fake-submission-id",
+      nodeType: "file",
+      nodeID: "fake-node-id",
+      parentNodes: [
+        {
+          nodeType: "sample",
+          total: 1,
+        },
+        {
+          nodeType: "study",
+          total: 7,
+        },
+      ],
+      childNodes: [],
+    };
+    const errorMocks = [
+      mocks[0],
+      {
+        request: {
+          query: GET_RELATED_NODES,
+          variables: {
+            submissionID: "fake-submission-id",
+            nodeType: "file",
+            nodeID: "fake-node-id",
+            relationship: "parent",
+            relatedNodeType: "sample",
+            first: 20,
+            offset: 0,
+            sortDirection: "asc",
+            orderBy: "sample_id",
+          },
+        },
+        error: new Error("An error occurred"),
+      },
+    ];
+    render(
+      <TestParent mocks={errorMocks}>
+        <RelatedNodes {...newProps} />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to load related node details.", {
+        variant: "error",
+      });
+    });
+  });
+
   it("handles no data state for tabs", async () => {
     const { getByText } = render(
       <TestParent mocks={[]}>
@@ -193,56 +243,6 @@ describe("RelatedNodes", () => {
     await waitFor(() => {
       expect(getByText("No existing data was found")).toBeInTheDocument();
       expect(queryByTestId(container, /generic-table-header-/)).not.toBeInTheDocument();
-    });
-  });
-
-  it("shows error via snackbar when data fetching fails", async () => {
-    const newProps = {
-      submissionID: "fake-submission-id",
-      nodeType: "file",
-      nodeID: "fake-node-id",
-      parentNodes: [
-        {
-          nodeType: "sample",
-          total: 1,
-        },
-        {
-          nodeType: "study",
-          total: 7,
-        },
-      ],
-      childNodes: [],
-    };
-    const errorMocks = [
-      mocks[0],
-      {
-        request: {
-          query: GET_RELATED_NODES,
-          variables: {
-            submissionID: "fake-submission-id",
-            nodeType: "file",
-            nodeID: "fake-node-id",
-            relationship: "parent",
-            relatedNodeType: "sample",
-            first: 20,
-            offset: 0,
-            sortDirection: "asc",
-            orderBy: "sample_id",
-          },
-        },
-        error: new Error("An error occurred"),
-      },
-    ];
-    render(
-      <TestParent mocks={errorMocks}>
-        <RelatedNodes {...newProps} />
-      </TestParent>
-    );
-
-    await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to load related node details.", {
-        variant: "error",
-      });
     });
   });
 

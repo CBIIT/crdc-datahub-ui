@@ -4,7 +4,7 @@ import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import DataViewDetails from "./DataViewDetails";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
-import { GET_NODE_DETAIL } from "../../graphql";
+import { GET_NODE_DETAIL, GET_RELATED_NODE_PROPERTIES, GET_RELATED_NODES } from "../../graphql";
 
 const mocks: MockedResponse[] = [
   {
@@ -22,6 +22,63 @@ const mocks: MockedResponse[] = [
           parents: [{ nodeType: "ParentType", total: 1 }],
           children: [{ nodeType: "ChildType", total: 2 }],
           IDPropName: "id",
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: GET_RELATED_NODE_PROPERTIES,
+      variables: {
+        submissionID: "12345",
+        nodeType: "Node1",
+        nodeID: "ID1",
+        relationship: "parent",
+        relatedNodeType: "ParentType",
+      },
+    },
+    result: {
+      data: {
+        getRelatedNodes: {
+          properties: [
+            "sample_id",
+            "sample_type",
+            "sample_anatomic_site",
+            "sample_tumor_status",
+            "participant.study_participant_id",
+          ],
+          IDPropName: "sample_id",
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: GET_RELATED_NODES,
+      variables: {
+        submissionID: "12345",
+        nodeType: "Node1",
+        nodeID: "ID1",
+        relationship: "parent",
+        relatedNodeType: "ParentType",
+        first: 20,
+        offset: 0,
+        sortDirection: "asc",
+      },
+    },
+    result: {
+      data: {
+        getRelatedNodes: {
+          nodes: [
+            {
+              nodeType: "sample",
+              nodeID: "ABC1200_Blood Biospecimen Type",
+              status: "New",
+              props:
+                '{"sample_id":"ABC1200_Blood Biospecimen Type","sample_type":"Blood Biospecimen Type","sample_anatomic_site":"Tumor","sample_tumor_status":"Tumor","participant.study_participant_id":"phs0123_ABC1200"}',
+            },
+          ],
+          total: 1,
         },
       },
     },
@@ -118,14 +175,14 @@ describe("DataViewDetails", () => {
           data: {
             getNodeDetail: {
               parents: [
-                { nodeType: "parentType", total: 1 },
+                { nodeType: "ParentType", total: 1 },
                 { nodeType: "anotherParent", total: 2 },
               ],
               children: [
                 { nodeType: "childType", total: 2 },
                 { nodeType: "anotherChild", total: 3 },
               ],
-              IDPropName: "id",
+              IDPropName: "sample_id",
             },
           },
         },
@@ -133,7 +190,7 @@ describe("DataViewDetails", () => {
     ];
 
     const { getByText } = render(
-      <TestParent mocks={enhancedMocks}>
+      <TestParent mocks={[mocks[1], mocks[2], ...enhancedMocks]}>
         <DataViewDetails {...props} />
       </TestParent>
     );
