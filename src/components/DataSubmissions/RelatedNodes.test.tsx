@@ -3,20 +3,21 @@ import { queryByTestId, render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { GET_RELATED_NODES, GET_RELATED_NODE_PROPERTIES } from "../../graphql";
+import { GET_RELATED_NODES } from "../../graphql";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 import RelatedNodes from "./RelatedNodes";
 
 const mocks = [
   {
     request: {
-      query: GET_RELATED_NODE_PROPERTIES,
+      query: GET_RELATED_NODES,
       variables: {
         submissionID: "fake-submission-id",
         nodeType: "file",
         nodeID: "fake-node-id",
         relationship: "parent",
         relatedNodeType: "sample",
+        propertiesOnly: true,
       },
     },
     result: {
@@ -30,19 +31,22 @@ const mocks = [
             "participant.study_participant_id",
           ],
           IDPropName: "sample_id",
+          nodes: null,
+          total: null,
         },
       },
     },
   },
   {
     request: {
-      query: GET_RELATED_NODE_PROPERTIES,
+      query: GET_RELATED_NODES,
       variables: {
         submissionID: "fake-submission-id",
         nodeType: "file",
         nodeID: "fake-node-id",
         relationship: "parent",
         relatedNodeType: "study",
+        propertiesOnly: true,
       },
     },
     result: {
@@ -50,6 +54,8 @@ const mocks = [
         getRelatedNodes: {
           properties: [],
           IDPropName: "phs_accession",
+          nodes: null,
+          total: null,
         },
       },
     },
@@ -66,6 +72,7 @@ const mocks = [
         first: 20,
         offset: 0,
         sortDirection: "asc",
+        propertiesOnly: false,
       },
     },
     result: {
@@ -81,6 +88,8 @@ const mocks = [
             },
           ],
           total: 1,
+          properties: null,
+          IDPropName: null,
         },
       },
     },
@@ -162,6 +171,7 @@ describe("RelatedNodes", () => {
             offset: 0,
             sortDirection: "asc",
             orderBy: "sample_id",
+            propertiesOnly: false,
           },
         },
         error: new Error("An error occurred"),
@@ -215,13 +225,14 @@ describe("RelatedNodes", () => {
     const mocks = [
       {
         request: {
-          query: GET_RELATED_NODE_PROPERTIES,
+          query: GET_RELATED_NODES,
           variables: {
             submissionID: "fake-submission-id",
             nodeType: "file",
             nodeID: "fake-node-id",
             relationship: "parent",
             relatedNodeType: "sample",
+            propertiesOnly: true,
           },
         },
         result: {
@@ -294,13 +305,14 @@ describe("RelatedNodes", () => {
     const newMocks = [
       {
         request: {
-          query: GET_RELATED_NODE_PROPERTIES,
+          query: GET_RELATED_NODES,
           variables: {
             submissionID: "fake-submission-id",
             nodeType: "child-node-type",
             nodeID: "fake-node-id",
             relationship: "child",
             relatedNodeType: "child-node-type",
+            propertiesOnly: true,
           },
         },
         result: {

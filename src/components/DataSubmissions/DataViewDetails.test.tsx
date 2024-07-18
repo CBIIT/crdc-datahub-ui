@@ -4,7 +4,7 @@ import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import DataViewDetails from "./DataViewDetails";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
-import { GET_NODE_DETAIL, GET_RELATED_NODE_PROPERTIES, GET_RELATED_NODES } from "../../graphql";
+import { GET_NODE_DETAIL, GET_RELATED_NODES } from "../../graphql";
 
 const mocks: MockedResponse[] = [
   {
@@ -28,13 +28,14 @@ const mocks: MockedResponse[] = [
   },
   {
     request: {
-      query: GET_RELATED_NODE_PROPERTIES,
+      query: GET_RELATED_NODES,
       variables: {
         submissionID: "12345",
         nodeType: "Node1",
         nodeID: "ID1",
         relationship: "parent",
         relatedNodeType: "ParentType",
+        propertiesOnly: true,
       },
     },
     result: {
@@ -48,6 +49,8 @@ const mocks: MockedResponse[] = [
             "participant.study_participant_id",
           ],
           IDPropName: "sample_id",
+          nodes: null,
+          total: null,
         },
       },
     },
@@ -64,6 +67,7 @@ const mocks: MockedResponse[] = [
         first: 20,
         offset: 0,
         sortDirection: "asc",
+        propertiesOnly: false,
       },
     },
     result: {
