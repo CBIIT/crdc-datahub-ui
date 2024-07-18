@@ -197,7 +197,6 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       return;
     }
     handleSelectTab(firstTab.name, firstTab.relationship);
-    setCurrentTab(firstTab);
   }, [firstTab]);
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
