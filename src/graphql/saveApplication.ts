@@ -32,14 +32,24 @@ export type Input = {
    */
   application: {
     _id: string;
-    programName: Program["name"];
-    studyAbbreviation: Study["abbreviation"];
+    programName: string;
+    /**
+     * The Study Name of the Application
+     */
+    studyName: string;
+    /**
+     * The Study Abbreviation or Study Name if the abbreviation is null
+     */
+    studyAbbreviation: string;
     /**
      * Stringified JSON Application Questionnaire Data
      *
      * @see {@link QuestionnaireData}
      */
     questionnaireData: string;
+    /**
+     * Whether the data submission will contain controlled access data
+     */
     controlledAccess: boolean;
   };
 };

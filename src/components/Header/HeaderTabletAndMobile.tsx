@@ -5,7 +5,7 @@ import Logo from "./components/LogoMobile";
 import menuClearIcon from "../../assets/header/Menu_Cancel_Icon.svg";
 import rightArrowIcon from "../../assets/header/Right_Arrow.svg";
 import leftArrowIcon from "../../assets/header/Left_Arrow.svg";
-import { navMobileList, navbarSublists } from "../../config/globalHeaderData";
+import { NavBarSublist, navMobileList, navbarSublists } from "../../config/globalHeaderData";
 import { useAuthContext } from "../Contexts/AuthContext";
 import GenericAlert from "../GenericAlert";
 import APITokenDialog from "../../content/users/APITokenDialog";
@@ -123,24 +123,15 @@ const MenuArea = styled("div")({
   },
 });
 
-type NavbarMobileList = {
-  name: string;
-  link: string;
-  onClick?: () => void;
-  id: string;
-  className: string;
-  needsAuthentication?: boolean;
-}[];
-
 const Header = () => {
   const [navMobileDisplay, setNavMobileDisplay] = useState("none");
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
   const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
-  const navMobileListHookResult = useState(navMobileList);
-  const navbarMobileList: NavbarMobileList = navMobileListHookResult[0];
+  const navMobileListHookResult = useState<NavBarSublist[]>(navMobileList);
+  const navbarMobileList: NavBarSublist[] = navMobileListHookResult[0];
   const setNavbarMobileList = navMobileListHookResult[1];
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
-  const [restorePath, setRestorePath] = useState<string>(null);
+  const [restorePath, setRestorePath] = useState<string | null>(null);
 
   const authData = useAuthContext();
   const displayName = authData?.user?.firstName || "N/A";
@@ -148,7 +139,7 @@ const Header = () => {
   const location = useLocation();
 
   const handleLogout = async () => {
-    const logoutStatus = await authData.logout();
+    const logoutStatus = await authData.logout?.();
     if (logoutStatus) {
       navigate("/");
       setShowLogoutAlert(true);
@@ -327,7 +318,12 @@ const Header = () => {
                       <Link
                         id={navMobileItem.id}
                         to={navMobileItem.link}
-                        target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
+                        target={
+                          navMobileItem.link.startsWith("https://") ||
+                          navMobileItem.link.endsWith(".pdf")
+                            ? "_blank"
+                            : "_self"
+                        }
                       >
                         <div
                           role="button"
@@ -339,8 +335,6 @@ const Header = () => {
                               if (navMobileItem.name === "Logout") {
                                 handleLogout();
                                 setNavbarMobileList(navMobileList);
-                              } else {
-                                navigate(navMobileItem.link);
                               }
                             }
                           }}
@@ -349,8 +343,6 @@ const Header = () => {
                             if (navMobileItem.name === "Logout") {
                               handleLogout();
                               setNavbarMobileList(navMobileList);
-                            } else {
-                              navigate(navMobileItem.link);
                             }
                           }}
                         >
