@@ -1,5 +1,14 @@
 import { useEffect } from "react";
-import { Divider, Grid, Stack, styled, Typography } from "@mui/material";
+import {
+  Divider,
+  Stack,
+  styled,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
 import { GET_NODE_DETAIL, GetNodeDetailInput, GetNodeDetailResp } from "../../graphql";
@@ -14,15 +23,13 @@ const StyledSectionDivider = styled(Divider)(() => ({
     width: "2px",
     height: "103px",
     background: "#6CACDA",
-    marginLeft: "44px",
+    marginLeft: "33px",
     marginRight: "41.82px",
     marginTop: "2px",
   },
 }));
 
 const StyledNodeTypeWrapper = styled(Stack)(() => ({
-  width: "fit-content",
-  minWidth: "163px",
   maxWidth: "350px",
 }));
 
@@ -35,6 +42,7 @@ const StyledLabel = styled(Typography)(() => ({
   lineHeight: "19.6px",
   letterSpacing: "0.52px",
   textTransform: "uppercase",
+  whiteSpace: "nowrap",
 }));
 
 const StyledValue = styled(Typography)(() => ({
@@ -44,11 +52,11 @@ const StyledValue = styled(Typography)(() => ({
   fontStyle: "normal",
   fontWeight: 400,
   lineHeight: "19.6px",
+  wordWrap: "break-word",
 }));
 
 const StyledNodeTypeLabel = styled(Typography)(() => ({
   width: "100%",
-  maxWidth: "100%",
   color: "#929292",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "13px",
@@ -57,11 +65,12 @@ const StyledNodeTypeLabel = styled(Typography)(() => ({
   lineHeight: "27px",
   letterSpacing: "0.5px",
   textTransform: "uppercase",
+  whiteSpace: "nowrap",
 }));
 
 const StyledNodeTypeValue = styled(Typography)(() => ({
-  width: "max-content",
-  maxWidth: "100%",
+  width: "100%",
+  minWidth: "120px",
   color: "#0B7F99",
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   fontSize: "35px",
@@ -69,7 +78,13 @@ const StyledNodeTypeValue = styled(Typography)(() => ({
   fontWeight: 900,
   lineHeight: "30px",
   textTransform: "capitalize",
-  wordBreak: "break-word",
+  wordWrap: "break-word",
+}));
+
+const StyledTableCell = styled(TableCell)(() => ({
+  verticalAlign: "top",
+  padding: 0,
+  border: 0,
 }));
 
 type Props = {
@@ -121,28 +136,34 @@ const DataViewDetails = ({ submissionID, nodeType, nodeID }: Props) => {
           <StyledNodeTypeValue variant="h6">{nodeType}</StyledNodeTypeValue>
         </StyledNodeTypeWrapper>
         <StyledSectionDivider orientation="vertical" />
-        <Grid container flexDirection="row" rowSpacing="3px">
-          <Grid xs={2} item>
-            <StyledLabel variant="body1">{nodeType} ID</StyledLabel>
-          </Grid>
-          <Grid xs={10} item>
-            <StyledValue variant="body1">{nodeID}</StyledValue>
-          </Grid>
-
-          <Grid xs={2} item>
-            <StyledLabel variant="body1">Parent(s)</StyledLabel>
-          </Grid>
-          <Grid xs={10} item>
-            <StyledValue variant="body1">{parents}</StyledValue>
-          </Grid>
-
-          <Grid xs={2} item>
-            <StyledLabel variant="body1">Child(ren)</StyledLabel>
-          </Grid>
-          <Grid xs={10} item>
-            <StyledValue variant="body1">{children}</StyledValue>
-          </Grid>
-        </Grid>
+        <Table>
+          <TableBody>
+            <TableRow>
+              <StyledTableCell width="1%">
+                <StyledLabel pr={4}>{nodeType} ID</StyledLabel>
+              </StyledTableCell>
+              <StyledTableCell>
+                <StyledValue>{nodeID}</StyledValue>
+              </StyledTableCell>
+            </TableRow>
+            <TableRow>
+              <StyledTableCell width="1%">
+                <StyledLabel pr={4}>Parent(s)</StyledLabel>
+              </StyledTableCell>
+              <StyledTableCell>
+                <StyledValue>{parents}</StyledValue>
+              </StyledTableCell>
+            </TableRow>
+            <TableRow>
+              <StyledTableCell width="1%">
+                <StyledLabel pr={4}>Child(ren)</StyledLabel>
+              </StyledTableCell>
+              <StyledTableCell>
+                <StyledValue>{children}</StyledValue>
+              </StyledTableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </Stack>
 
       <RelatedNodes
