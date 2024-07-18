@@ -322,7 +322,7 @@ const SubmittedData: FC = () => {
     enqueueSnackbar(deleteSuccessMessage, { variant: "success" });
     setDeleteSuccessMessage(null);
 
-    tableRef.current?.refresh();
+    tableRef.current?.setPage(0, true);
     filterMethodRef.current?.refetch();
   }, [deletingData]);
 
