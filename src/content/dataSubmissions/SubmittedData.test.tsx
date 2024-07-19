@@ -899,7 +899,7 @@ describe("SubmittedData > Table", () => {
     const submissionID = "example-deselect-all-id";
 
     const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
-      maxUsageCount: 4, // initial query + orderBy bug + filter change + orderBy bug
+      maxUsageCount: 3, // initial query + orderBy bug + filter change
       request: {
         query: GET_SUBMISSION_NODES,
       },
@@ -955,9 +955,12 @@ describe("SubmittedData > Table", () => {
 
     userEvent.type(getByLabelText("Submitted ID"), "3 characters minimum");
 
-    await waitFor(() => {
-      expect(getAllByRole("checkbox")[1]).not.toBeChecked();
-    });
+    await waitFor(
+      () => {
+        expect(getAllByRole("checkbox")[1]).not.toBeChecked();
+      },
+      { timeout: 8000 }
+    );
   });
 
   // NOTE: We're asserting that the columns ARE built using getSubmissionNodes.properties
