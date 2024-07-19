@@ -899,7 +899,7 @@ describe("SubmittedData > Table", () => {
     const submissionID = "example-deselect-all-id";
 
     const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
-      maxUsageCount: 3, // initial query + orderBy bug + filter change
+      maxUsageCount: 4, // initial query + orderBy bug + filter change + orderBy bug
       request: {
         query: GET_SUBMISSION_NODES,
       },

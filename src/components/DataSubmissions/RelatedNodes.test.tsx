@@ -72,6 +72,7 @@ const mocks = [
         first: 20,
         offset: 0,
         sortDirection: "asc",
+        orderBy: "sample_id",
         propertiesOnly: false,
       },
     },
