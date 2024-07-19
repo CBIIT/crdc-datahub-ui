@@ -3,7 +3,7 @@ import { flushSync } from "react-dom";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { Alert, Checkbox, FormControlLabel, Stack, styled } from "@mui/material";
+import { Alert, Checkbox, FormControlLabel, Button, Stack, styled } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import {
   GET_SUBMISSION_NODES,
@@ -15,11 +15,12 @@ import SubmittedDataFilters, {
   FilterForm,
   FilterMethods,
 } from "../../components/DataSubmissions/SubmittedDataFilters";
-import { safeParse } from "../../utils";
+import { moveToFrontOfArray, safeParse } from "../../utils";
 import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
 import DataViewContext from "./Contexts/DataViewContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import DeleteNodeDataButton from "../../components/DataSubmissions/DeleteNodeDataButton";
+import DataViewDetailsDialog from "../../components/DataSubmissions/DataViewDetailsDialog";
 
 const StyledCheckbox = styled(Checkbox)({
   padding: 0,
@@ -71,6 +72,21 @@ const HeaderCheckbox = () => (
   </DataViewContext.Consumer>
 );
 
+const StyledFirstColumnButton = styled(Button)(() => ({
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "25px",
+  color: "#0B6CB1",
+  padding: 0,
+  margin: 0,
+  textDecoration: "underline",
+  "&:hover": {
+    backgroundColor: "transparent",
+  },
+}));
+
 type T = Pick<SubmissionNode, "nodeType" | "nodeID" | "status"> & {
   props: Record<string, string>;
 };
@@ -94,6 +110,7 @@ const SubmittedData: FC = () => {
   const [totalData, setTotalData] = useState<number>(0);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [deleteSuccessMessage, setDeleteSuccessMessage] = useState<string | null>(null);
+  const [selectedNode, setSelectedNode] = useState<T>(null);
 
   const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp, GetSubmissionNodesInput>(
     GET_SUBMISSION_NODES,
@@ -103,6 +120,76 @@ const SubmittedData: FC = () => {
     }
   );
 
+  const renderFirstColumnValue = (d: T, prop: string): React.ReactNode => (
+    <StyledFirstColumnButton variant="text" onClick={() => onClickFirstColumn(d)} disableRipple>
+      {d?.props?.[prop] || ""}
+    </StyledFirstColumnButton>
+  );
+
+  const onClickFirstColumn = (data: T) => {
+    setSelectedNode(data);
+  };
+
+  const handleCloseDialog = () => {
+    setSelectedNode(null);
+  };
+
+  const handleSetupColumns = (rawColumns: string[], keyColumn: string) => {
+    if (!rawColumns?.length) {
+      setLoading(false);
+    }
+
+    // move the keyColumn to the front of array, if it exists in rawColumns
+    const columnsClone = moveToFrontOfArray([...rawColumns], keyColumn);
+
+    const cols: Column<T>[] = columnsClone.map((prop: string, idx: number) => ({
+      label: prop,
+      renderValue: (d) =>
+        (idx === 0 && d.nodeType !== "data file"
+          ? renderFirstColumnValue(d, prop)
+          : d?.props?.[prop] || "") as React.ReactNode,
+      fieldKey: prop,
+      default: idx === 0 ? true : undefined,
+    }));
+
+    cols.unshift({
+      label: <HeaderCheckbox />,
+      renderValue: (d) => (
+        <DataViewContext.Consumer>
+          {({ selectedItems, handleToggleRow }) => (
+            <Stack direction="row" spacing={1}>
+              <FormControlLabel
+                control={
+                  <StyledCheckbox
+                    checked={selectedItems?.includes(d.nodeID)}
+                    onChange={() => handleToggleRow([d.nodeID])}
+                  />
+                }
+                label={<span style={visuallyHidden}>Select Row</span>}
+                sx={{ margin: 0 }}
+              />
+            </Stack>
+          )}
+        </DataViewContext.Consumer>
+      ),
+      sortDisabled: true,
+      fieldKey: "checkbox",
+    });
+
+    cols.push({
+      label: "Status",
+      renderValue: (d) => d?.status || "",
+      field: "status",
+    });
+
+    if (isEqual(cols, columns)) {
+      return;
+    }
+
+    setColumns(cols || []);
+  };
+
+  // TODO: Need to fix the double fetch due to orderBy change
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!_id) {
@@ -159,45 +246,7 @@ const SubmittedData: FC = () => {
 
     // Only update columns if the nodeType has changed or if there are no previous columns
     if (prevFilterRef.current.nodeType !== filterRef.current.nodeType || !columns.length) {
-      const cols: Column<T>[] = d.getSubmissionNodes.properties.map(
-        (prop: string, index: number) => ({
-          label: prop,
-          renderValue: (d) => d?.props?.[prop] || "",
-          fieldKey: prop,
-          default: index === 0 ? true : undefined,
-        })
-      );
-
-      cols.unshift({
-        label: <HeaderCheckbox />,
-        renderValue: (d) => (
-          <DataViewContext.Consumer>
-            {({ selectedItems, handleToggleRow }) => (
-              <Stack direction="row" spacing={1}>
-                <FormControlLabel
-                  control={
-                    <StyledCheckbox
-                      checked={selectedItems?.includes(d.nodeID)}
-                      onChange={() => handleToggleRow([d.nodeID])}
-                    />
-                  }
-                  label={<span style={visuallyHidden}>Select Row</span>}
-                  sx={{ margin: 0 }}
-                />
-              </Stack>
-            )}
-          </DataViewContext.Consumer>
-        ),
-        sortDisabled: true,
-        fieldKey: "checkbox",
-      });
-      cols.push({
-        label: "Status",
-        renderValue: (d) => d?.status || "",
-        field: "status",
-      });
-
-      setColumns(cols);
+      handleSetupColumns(d.getSubmissionNodes.properties, d.getSubmissionNodes.IDPropName);
     }
 
     prevFilterRef.current = filterRef.current;
@@ -357,6 +406,13 @@ const SubmittedData: FC = () => {
           tableProps={{ sx: { whiteSpace: "nowrap" } }}
         />
       </DataViewContext.Provider>
+      <DataViewDetailsDialog
+        submissionID={_id}
+        nodeType={selectedNode?.nodeType}
+        nodeID={selectedNode?.nodeID}
+        open={!!selectedNode}
+        onClose={handleCloseDialog}
+      />
     </>
   );
 };

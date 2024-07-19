@@ -75,6 +75,16 @@ export type {
 export { query as LIST_NODE_TYPES } from "./listSubmissionNodeTypes";
 export type { Response as ListNodeTypesResp } from "./listSubmissionNodeTypes";
 
+export { query as GET_NODE_DETAIL } from "./getNodeDetail";
+export type { Input as GetNodeDetailInput, Response as GetNodeDetailResp } from "./getNodeDetail";
+
+export { query as GET_RELATED_NODES } from "./getRelatedNodes";
+export type {
+  Input as GetRelatedNodesInput,
+  Response as GetRelatedNodesResp,
+  PropertiesOnlyResponse as GetRelatedNodesRespPropsOnly,
+} from "./getRelatedNodes";
+
 export { query as GET_SUBMISSION_NODES } from "./getSubmissionNodes";
 export type {
   Input as GetSubmissionNodesInput,

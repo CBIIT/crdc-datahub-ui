@@ -185,6 +185,7 @@ describe("SubmittedData > General", () => {
 
   it("should show an error message when 'Select All' failed to fetch all nodes (GraphQL)", async () => {
     const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 2, // initial query + orderBy bug
       request: {
         query: GET_SUBMISSION_NODES,
       },
@@ -193,6 +194,7 @@ describe("SubmittedData > General", () => {
         data: {
           getSubmissionNodes: {
             total: 200,
+            IDPropName: "col-xyz",
             properties: ["col-xyz"],
             nodes: Array(20).fill({
               nodeType: "example-node",
@@ -284,6 +286,7 @@ describe("SubmittedData > General", () => {
 
   it("should show an error message when 'Select All' failed to fetch all nodes (network)", async () => {
     const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 2, // initial query + orderBy bug
       request: {
         query: GET_SUBMISSION_NODES,
       },
@@ -293,6 +296,7 @@ describe("SubmittedData > General", () => {
           getSubmissionNodes: {
             total: 200,
             properties: ["col-xyz"],
+            IDPropName: "col-xyz",
             nodes: Array(20).fill({
               nodeType: "example-node",
               nodeID: "example-node-id",
@@ -437,6 +441,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 0,
+              IDPropName: null,
               properties: [],
               nodes: [],
             },
@@ -462,6 +467,7 @@ describe("SubmittedData > Table", () => {
     const mocks: MockedResponse[] = [
       mockSubmissionQuery,
       {
+        maxUsageCount: 2, // initial query + orderBy bug
         request: {
           query: GET_SUBMISSION_NODES,
         },
@@ -470,6 +476,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 1,
+              IDPropName: "col.2",
               properties: ["col.1", "col.2", "col.3"],
               nodes: [
                 {
@@ -509,6 +516,7 @@ describe("SubmittedData > Table", () => {
     const mocks: MockedResponse[] = [
       mockSubmissionQuery,
       {
+        maxUsageCount: 2, // initial query + orderBy bug
         request: {
           query: GET_SUBMISSION_NODES,
         },
@@ -517,6 +525,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 2,
+              IDPropName: "col-xyz",
               properties: ["col-xyz"],
               nodes: [
                 {
@@ -557,6 +566,7 @@ describe("SubmittedData > Table", () => {
     const submissionID = "example-checkbox-column-id";
 
     const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 2, // initial query + orderBy bug
       request: {
         query: GET_SUBMISSION_NODES,
       },
@@ -566,6 +576,7 @@ describe("SubmittedData > Table", () => {
           getSubmissionNodes: {
             total: 2,
             properties: ["col-xyz"],
+            IDPropName: "col-xyz",
             nodes: [
               {
                 nodeType: "example-node",
@@ -612,6 +623,7 @@ describe("SubmittedData > Table", () => {
 
   it("should fetch all nodes when the 'Select All' checkbox is clicked", async () => {
     const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 2, // initial query + orderBy bug
       request: {
         query: GET_SUBMISSION_NODES,
       },
@@ -621,6 +633,7 @@ describe("SubmittedData > Table", () => {
           getSubmissionNodes: {
             total: 200,
             properties: ["col-xyz"],
+            IDPropName: "col-xyz",
             nodes: Array(20).fill({
               nodeType: "example-node",
               nodeID: "example-node-id",
@@ -636,6 +649,7 @@ describe("SubmittedData > Table", () => {
 
     const mockMatcherAllNodes = jest.fn().mockImplementation(() => true);
     const getAllNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 1,
       request: {
         query: GET_SUBMISSION_NODES,
       },
@@ -685,6 +699,7 @@ describe("SubmittedData > Table", () => {
     const submissionID = "example-deselect-all-id";
 
     const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 2, // initial query + orderBy bug
       request: {
         query: GET_SUBMISSION_NODES,
       },
@@ -694,6 +709,7 @@ describe("SubmittedData > Table", () => {
           getSubmissionNodes: {
             total: 2,
             properties: ["col-xyz"],
+            IDPropName: "col-xyz",
             nodes: [
               {
                 nodeType: "example-node",
@@ -749,6 +765,7 @@ describe("SubmittedData > Table", () => {
     const submissionID = "example-deselect-all-id";
 
     const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 2, // initial query + orderBy bug
       request: {
         query: GET_SUBMISSION_NODES,
       },
@@ -758,6 +775,7 @@ describe("SubmittedData > Table", () => {
           getSubmissionNodes: {
             total: 2,
             properties: ["col-xyz"],
+            IDPropName: "col-xyz",
             nodes: [
               {
                 nodeType: "example-node",
@@ -813,6 +831,7 @@ describe("SubmittedData > Table", () => {
 
   it("should not fetch all nodes if the node count is less than the pagination count", async () => {
     const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 2, // initial query + orderBy bug
       request: {
         query: GET_SUBMISSION_NODES,
       },
@@ -822,6 +841,7 @@ describe("SubmittedData > Table", () => {
           getSubmissionNodes: {
             total: 19,
             properties: ["col-xyz"],
+            IDPropName: "col-xyz",
             nodes: Array(19).fill({
               nodeType: "example-node",
               nodeID: "example-node-id",
@@ -879,7 +899,7 @@ describe("SubmittedData > Table", () => {
     const submissionID = "example-deselect-all-id";
 
     const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
-      maxUsageCount: 2, // initial query + filter change
+      maxUsageCount: 3, // initial query + orderBy bug + filter change
       request: {
         query: GET_SUBMISSION_NODES,
       },
@@ -889,6 +909,7 @@ describe("SubmittedData > Table", () => {
           getSubmissionNodes: {
             total: 2,
             properties: ["col-xyz"],
+            IDPropName: "col-xyz",
             nodes: [
               {
                 nodeType: "example-node",
@@ -947,6 +968,7 @@ describe("SubmittedData > Table", () => {
     const mocks: MockedResponse[] = [
       mockSubmissionQuery,
       {
+        maxUsageCount: 2, // initial query + orderBy bug
         request: {
           query: GET_SUBMISSION_NODES,
         },
@@ -955,6 +977,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 2,
+              IDPropName: "good-col-1",
               properties: ["good-col-1", "good-col-2"],
               nodes: [
                 {
@@ -999,6 +1022,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 0,
+              IDPropName: null,
               properties: [],
               nodes: [],
             },

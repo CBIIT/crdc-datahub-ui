@@ -31,6 +31,7 @@ export const query = gql`
       sortDirection: $sortDirection
     ) {
       total
+      IDPropName @skip(if: $partial)
       properties @skip(if: $partial)
       nodes {
         nodeID
@@ -76,6 +77,11 @@ export type Response =
          * Total number of nodes in the submission.
          */
         total: number;
+        /**
+         * The ID/Key property of current node.
+         *
+         */
+        IDPropName: string;
         /**
          * The list of all node properties including parents
          */

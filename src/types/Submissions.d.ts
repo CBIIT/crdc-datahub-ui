@@ -313,3 +313,41 @@ type SubmissionNode = {
    */
   props: string;
 };
+
+type RelatedNodes = {
+  /**
+   * Total number of nodes in the submission.
+   */
+  total: number;
+  /**
+   * An array of nodes matching the queried node type
+   *
+   * @note Unused values are omitted from the query. See the type definition for additional fields.
+   */
+  nodes: Pick<SubmissionNode, "nodeType" | "nodeID" | "props" | "status">[];
+  /**
+   * The list of all node properties including parents
+   */
+  properties: string[];
+  /**
+   * The ID/Key property of current node.
+   * ex. "study_participant_id" for participant node
+   */
+  IDPropName: string;
+};
+
+type RelatedNode = {
+  nodeType: string;
+  total: number;
+};
+
+type NodeDetailResult = {
+  submissionID: string;
+  nodeType: string;
+  nodeID: string;
+  IDPropName: string;
+  parents: RelatedNode[]; // array of Related node contains nodeType and counts
+  children: RelatedNode[]; // array of Related node contains nodeType and counts
+};
+
+type NodeRelationship = "parent" | "child";

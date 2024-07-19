@@ -204,3 +204,49 @@ describe("compareStrings utility function", () => {
     expect(utils.compareStrings("Apple", "apple")).toBeGreaterThan(0);
   });
 });
+
+describe("moveToFrontOfArray utility function", () => {
+  test("moves key element to the front if it exists and is not at the front", () => {
+    const originalArray = ["a", "b", "c", "d"];
+    const keyElement = "c";
+    const expectedArray = ["c", "a", "b", "d"];
+    expect(utils.moveToFrontOfArray(originalArray, keyElement)).toEqual(expectedArray);
+  });
+
+  test("returns the same array if the key element is already at the front", () => {
+    const originalArray = ["c", "a", "b", "d"];
+    const keyElement = "c";
+    expect(utils.moveToFrontOfArray(originalArray, keyElement)).toEqual(originalArray);
+  });
+
+  test("returns the same array if the key element does not exist", () => {
+    const originalArray = ["a", "b", "c", "d"];
+    const keyElement = "e";
+    expect(utils.moveToFrontOfArray(originalArray, keyElement)).toEqual(originalArray);
+  });
+
+  test("returns an empty array if the input array is empty", () => {
+    const originalArray: string[] = [];
+    const keyElement = "a";
+    expect(utils.moveToFrontOfArray(originalArray, keyElement)).toEqual([]);
+  });
+
+  test("returns the original array if the key element is undefined or empty", () => {
+    const originalArray = ["a", "b", "c", "d"];
+    const keyElement = "";
+    expect(utils.moveToFrontOfArray(originalArray, keyElement)).toEqual(originalArray);
+  });
+
+  test("returns the original array if no key element is specified", () => {
+    const originalArray = ["a", "b", "c", "d"];
+    expect(utils.moveToFrontOfArray(originalArray, undefined as unknown as string)).toEqual(
+      originalArray
+    );
+  });
+
+  test("returns an empty array if both array and key are undefined", () => {
+    expect(
+      utils.moveToFrontOfArray(undefined as unknown as string[], undefined as unknown as string)
+    ).toEqual([]);
+  });
+});
