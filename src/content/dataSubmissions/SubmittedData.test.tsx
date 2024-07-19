@@ -193,6 +193,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 0,
+              IDPropName: null,
               properties: [],
               nodes: [],
             },
@@ -232,6 +233,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 2,
+              IDPropName: "col.2",
               properties: ["col.1", "col.2", "col.3"],
               nodes: [
                 {
@@ -250,6 +252,19 @@ describe("SubmittedData > Table", () => {
         },
       },
     ];
+    // TODO: Get columns separately to avoid retrieving same data twice as described below.
+    // Will make 2 requests, one for retrieving initial columns/data to get identity column
+    // and the other with orderBy set to the identity column or first column
+    mocks.push({
+      ...mocks[1],
+      request: {
+        ...mocks[1].request,
+        variables: {
+          ...mocks[1].request.variables,
+          orderBy: "col.2",
+        },
+      },
+    });
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
@@ -287,6 +302,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 2,
+              IDPropName: null,
               properties: ["col-xyz"],
               nodes: [
                 {
@@ -311,6 +327,19 @@ describe("SubmittedData > Table", () => {
         },
       },
     ];
+    // TODO: Get columns separately to avoid retrieving same data twice as described below.
+    // Will make 2 requests, one for retrieving initial columns/data to get identity column
+    // and the other with orderBy set to the identity column or first column
+    mocks.push({
+      ...mocks[1],
+      request: {
+        ...mocks[1].request,
+        variables: {
+          ...mocks[1].request.variables,
+          orderBy: "col-xyz",
+        },
+      },
+    });
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
@@ -348,6 +377,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 2,
+              IDPropName: "good-col-1",
               properties: ["good-col-1", "good-col-2"],
               nodes: [
                 {
@@ -398,6 +428,7 @@ describe("SubmittedData > Table", () => {
           data: {
             getSubmissionNodes: {
               total: 0,
+              IDPropName: null,
               properties: [],
               nodes: [],
             },
