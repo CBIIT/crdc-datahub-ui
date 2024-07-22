@@ -266,19 +266,14 @@ type SubmissionStatistic = {
   error: number;
 };
 
-type DataValidationResult = {
+type AsyncProcessResult = {
   /**
    * Whether the validation action was successfully queued.
    */
   success: boolean;
   /**
-   * The message returned by the validation.
+   * The message returned by the process.
    */
-  message: string;
-};
-
-type AsyncProcessResult = {
-  success: boolean;
   message: string;
 };
 
