@@ -72,8 +72,9 @@ export const query = gql`
       }
     }
 
-    listBatches(submissionID: $id, first: -1) {
+    batchStatusList: listBatches(submissionID: $id, first: -1) {
       batches {
+        _id
         status
       }
     }
@@ -101,7 +102,7 @@ export type Response = {
   /**
    * The full list of batches for the submission
    */
-  listBatches: {
-    batches: Pick<Batch, "status">[];
+  batchStatusList: {
+    batches: Pick<Batch, "_id" | "status">[];
   };
 };

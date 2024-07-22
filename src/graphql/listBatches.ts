@@ -53,8 +53,9 @@ export const query = gql`
         ...BatchFragment @skip(if: $partial)
       }
     }
-    fullStatusList: listBatches(submissionID: $submissionID, first: -1) {
+    batchStatusList: listBatches(submissionID: $submissionID, first: -1) {
       batches {
+        _id
         status
       }
     }
@@ -63,9 +64,18 @@ export const query = gql`
   ${BaseBatchFragment}
 `;
 
+export type Input = {
+  submissionID: string;
+  first?: number;
+  offset?: number;
+  orderBy?: keyof Batch;
+  sortDirection?: string;
+  partial?: boolean;
+};
+
 export type Response = {
   listBatches: ListBatches;
-  fullStatusList: {
-    batches: Pick<Batch, "status">[];
+  batchStatusList: {
+    batches: Pick<Batch, "_id" | "status">[];
   };
 };

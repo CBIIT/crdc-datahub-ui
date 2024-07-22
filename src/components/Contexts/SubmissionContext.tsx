@@ -120,7 +120,9 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
         d?.getSubmission?.metadataValidationStatus === "Validating" ||
         d?.getSubmission?.crossSubmissionStatus === "Validating";
       const isDeleting = d?.getSubmission?.deletingData === true;
-      const hasUploadingBatches = d?.listBatches?.batches?.some((b) => b.status === "Uploading");
+      const hasUploadingBatches = d?.batchStatusList?.batches?.some(
+        (b) => b.status === "Uploading"
+      );
 
       if (!isValidating && !hasUploadingBatches && !isDeleting) {
         stopApolloPolling();
@@ -159,7 +161,7 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     return {
       getSubmission: data?.getSubmission,
       submissionStats: { stats: sortedStats },
-      listBatches: data?.listBatches,
+      batchStatusList: data?.batchStatusList,
     };
   }, [data]);
 
