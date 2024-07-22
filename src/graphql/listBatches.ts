@@ -73,8 +73,13 @@ export type Input = {
   partial?: boolean;
 };
 
-export type Response = {
-  listBatches: ListBatches;
+export type Response<IsPartial = false> = {
+  listBatches: {
+    total: number;
+    batches: (IsPartial extends true
+      ? Pick<Batch, "_id" | "displayID" | "createdAt" | "updatedAt">
+      : Batch)[];
+  };
   batchStatusList: {
     batches: Pick<Batch, "_id" | "status">[];
   };

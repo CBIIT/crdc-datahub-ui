@@ -1,0 +1,359 @@
+import { FC, useMemo } from "react";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { GraphQLError } from "graphql";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "jest-axe";
+import { render, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import {
+  CrossValidationResultsInput,
+  CrossValidationResultsResp,
+  LIST_BATCHES,
+  LIST_NODE_TYPES,
+  ListBatchesInput,
+  ListBatchesResp,
+  ListNodeTypesInput,
+  ListNodeTypesResp,
+  SUBMISSION_CROSS_VALIDATION_RESULTS,
+} from "../../graphql";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../../components/Contexts/SubmissionContext";
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import CrossValidation from "./CrossValidation";
+
+// NOTE: We omit all properties that the component specifically depends on
+const baseSubmission: Submission = {
+  _id: "",
+  name: "",
+  submitterID: "",
+  submitterName: "",
+  organization: null,
+  dataCommons: "",
+  modelVersion: "",
+  studyAbbreviation: "",
+  dbGaPID: "",
+  bucketName: "",
+  rootPath: "",
+  fileErrors: [],
+  history: [],
+  otherSubmissions: null,
+  conciergeName: "",
+  conciergeEmail: "",
+  createdAt: "",
+  updatedAt: "",
+  intention: "New/Update",
+  dataType: "Metadata and Data Files",
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: ["metadata", "file"],
+  status: "New",
+  metadataValidationStatus: "New",
+  fileValidationStatus: "New",
+  crossSubmissionStatus: null,
+  studyID: "",
+  deletingData: false,
+};
+
+const baseCrossValidationResult: CrossValidationResult = {
+  submissionID: "",
+  type: "",
+  validationType: "metadata",
+  batchID: "",
+  displayID: 0,
+  submittedID: "",
+  severity: "Error",
+  uploadedDate: "",
+  validatedDate: "",
+  conflictingSubmissions: [],
+  errors: [],
+  warnings: [],
+};
+
+const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+  request: {
+    query: LIST_NODE_TYPES,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listSubmissionNodeTypes: [],
+    },
+  },
+};
+
+const batchesMock: MockedResponse<ListBatchesResp<true>, ListBatchesInput> = {
+  request: {
+    query: LIST_BATCHES,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listBatches: {
+        total: 0,
+        batches: null,
+      },
+      batchStatusList: {
+        batches: null,
+      },
+    },
+  },
+};
+
+type ParentProps = {
+  submission?: Partial<Submission>;
+  mocks?: MockedResponse[];
+  children: React.ReactNode;
+};
+
+const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: ParentProps) => {
+  const ctxValue: SubmissionCtxState = useMemo<SubmissionCtxState>(
+    () => ({
+      status: SubmissionCtxStatus.LOADED,
+      data: {
+        getSubmission: {
+          ...baseSubmission,
+          ...submission,
+        },
+        batchStatusList: {
+          batches: [],
+        },
+        submissionStats: { stats: [] },
+      },
+      error: null,
+    }),
+    [submission]
+  );
+
+  return (
+    <MemoryRouter basename="">
+      <MockedProvider mocks={mocks} showWarnings>
+        <SubmissionContext.Provider value={ctxValue}>
+          <SearchParamsProvider>{children}</SearchParamsProvider>
+        </SubmissionContext.Provider>
+      </MockedProvider>
+    </MemoryRouter>
+  );
+};
+
+describe("General", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should not have any accessibility violations", async () => {
+    const { container } = render(<CrossValidation />, {
+      wrapper: ({ children }) => <TestParent mocks={[]}>{children}</TestParent>,
+    });
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("should show an error message when the cross validation results cannot be fetched (network)", async () => {
+    const mocks: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
+      request: {
+        query: SUBMISSION_CROSS_VALIDATION_RESULTS,
+      },
+      variableMatcher: () => true,
+      error: new Error("Simulated network error"),
+    };
+
+    render(<CrossValidation />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[mocks, nodesMock, batchesMock]}
+          submission={{ _id: "test-network-error" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        expect.stringContaining("Unable to retrieve submission cross validation results."),
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should show an error message when the cross validation results cannot be fetched (GraphQL)", async () => {
+    const mocks: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
+      request: {
+        query: SUBMISSION_CROSS_VALIDATION_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        errors: [new GraphQLError("Simulated GraphQL error")],
+      },
+    };
+
+    render(<CrossValidation />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[mocks, nodesMock, batchesMock]}
+          submission={{ _id: "test-graphql-error" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        expect.stringContaining("Unable to retrieve submission cross validation results."),
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should not crash when no submission is available", async () => {
+    const { container } = render(<CrossValidation />, {
+      wrapper: ({ children }) => <TestParent>{children}</TestParent>,
+    });
+
+    expect(container).toBeInTheDocument();
+  });
+
+  it("should have a tooltip and link for each conflicting submission ID", async () => {
+    const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
+      request: {
+        query: SUBMISSION_CROSS_VALIDATION_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionCrossValidationResults: {
+            total: 2,
+            results: [
+              { ...baseCrossValidationResult, conflictingSubmissions: ["submission_ID_A32524X"] },
+              {
+                ...baseCrossValidationResult,
+                conflictingSubmissions: ["submission_ID_B291D34", "submission_ID_C181181"],
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByText, getByTestId, findByRole, queryByRole } = render(<CrossValidation />, {
+      wrapper: ({ children }) => (
+        <TestParent mocks={[mock, batchesMock, nodesMock]} submission={{ _id: "test-placeholder" }}>
+          {children}
+        </TestParent>
+      ),
+    });
+
+    // Wait for table to render
+    await waitFor(() => {
+      expect(getByTestId("conflicting-link-submission_ID_A32524X")).toBeInTheDocument();
+      expect(getByTestId("conflicting-link-submission_ID_B291D34")).toBeInTheDocument();
+      expect(getByTestId("conflicting-link-submission_ID_C181181")).toBeInTheDocument();
+    });
+
+    const firstLink = getByTestId("conflicting-link-submission_ID_A32524X");
+    expect(getByText(/2524X.../)).toBe(firstLink);
+    expect(firstLink).toHaveAttribute("href", "/data-submission/submission_ID_A32524X");
+    expect(firstLink).toHaveAttribute("target", "_blank");
+    userEvent.hover(firstLink);
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toHaveTextContent("submission_ID_A32524X");
+
+    userEvent.unhover(firstLink);
+    await waitFor(() => expect(queryByRole("tooltip")).not.toBeInTheDocument()); // Cleanup 1
+
+    const secondLink = getByTestId("conflicting-link-submission_ID_B291D34");
+    expect(getByText(/91D34.../)).toBe(secondLink);
+    expect(secondLink).toHaveAttribute("href", "/data-submission/submission_ID_B291D34");
+    expect(secondLink).toHaveAttribute("target", "_blank");
+    userEvent.hover(secondLink);
+    const tooltip2 = await findByRole("tooltip");
+    expect(tooltip2).toHaveTextContent("submission_ID_B291D34");
+
+    userEvent.unhover(secondLink);
+    await waitFor(() => expect(queryByRole("tooltip")).not.toBeInTheDocument()); // Cleanup 2
+
+    const thirdLink = getByTestId("conflicting-link-submission_ID_C181181");
+    expect(thirdLink).toHaveAttribute("href", "/data-submission/submission_ID_C181181");
+    expect(thirdLink).toHaveAttribute("target", "_blank");
+    userEvent.hover(thirdLink);
+    const tooltip3 = await findByRole("tooltip");
+    await waitFor(() => expect(tooltip3).toHaveTextContent("submission_ID_C181181"));
+  });
+});
+
+describe("Table", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should render the placeholder text when no data is available", async () => {
+    const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
+      request: {
+        query: SUBMISSION_CROSS_VALIDATION_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionCrossValidationResults: {
+            total: 0,
+            results: [],
+          },
+        },
+      },
+    };
+
+    const { getByText } = render(<CrossValidation />, {
+      wrapper: ({ children }) => (
+        <TestParent mocks={[mock, batchesMock, nodesMock]} submission={{ _id: "test-placeholder" }}>
+          {children}
+        </TestParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByText(/No cross-validation issues found/i)).toBeInTheDocument();
+    });
+  });
+
+  it("should have a default pagination count of 20 rows per page", async () => {
+    const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
+      request: {
+        query: SUBMISSION_CROSS_VALIDATION_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionCrossValidationResults: {
+            total: 0,
+            results: [],
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(<CrossValidation />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[mock, batchesMock, nodesMock]}
+          submission={{ _id: "test-pagination-count" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("generic-table-rows-per-page-top")).toHaveValue("20");
+      expect(getByTestId("generic-table-rows-per-page-bottom")).toHaveValue("20");
+    });
+  });
+});

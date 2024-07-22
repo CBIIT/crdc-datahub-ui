@@ -55,13 +55,19 @@ export { mutation as UPDATE_BATCH } from "./updateBatch";
 export type { Response as UpdateBatchResp } from "./updateBatch";
 
 export { query as LIST_BATCHES } from "./listBatches";
-export type { Response as ListBatchesResp } from "./listBatches";
+export type { Input as ListBatchesInput, Response as ListBatchesResp } from "./listBatches";
 
 export { query as LIST_LOGS } from "./listLogs";
 export type { Response as ListLogsResp } from "./listLogs";
 
 export { query as SUBMISSION_QC_RESULTS } from "./submissionQCResults";
 export type { Response as SubmissionQCResultsResp } from "./submissionQCResults";
+
+export { query as SUBMISSION_CROSS_VALIDATION_RESULTS } from "./submissionCrossValidationResults";
+export type {
+  Input as CrossValidationResultsInput,
+  Response as CrossValidationResultsResp,
+} from "./submissionCrossValidationResults";
 
 export { mutation as EXPORT_SUBMISSION } from "./exportSubmission";
 export type { Response as ExportSubmissionResp } from "./exportSubmission";
@@ -73,7 +79,10 @@ export type {
 } from "./validateSubmission";
 
 export { query as LIST_NODE_TYPES } from "./listSubmissionNodeTypes";
-export type { Response as ListNodeTypesResp } from "./listSubmissionNodeTypes";
+export type {
+  Input as ListNodeTypesInput,
+  Response as ListNodeTypesResp,
+} from "./listSubmissionNodeTypes";
 
 export { query as GET_NODE_DETAIL } from "./getNodeDetail";
 export type { Input as GetNodeDetailInput, Response as GetNodeDetailResp } from "./getNodeDetail";

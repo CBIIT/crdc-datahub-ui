@@ -185,10 +185,9 @@ export const csvColumns = {
 
 type Props = {
   submission: Submission;
-  refreshSubmission: () => void;
 };
 
-const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => {
+const QualityControl: FC<Props> = ({ submission }: Props) => {
   const { submissionId } = useParams();
   const { watch, control } = useForm<FilterForm>({
     defaultValues: {
@@ -315,11 +314,7 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
 
   useEffect(() => {
     tableRef.current?.refresh();
-  }, [
-    submission?.metadataValidationStatus,
-    submission?.fileValidationStatus,
-    submission?.crossSubmissionStatus,
-  ]);
+  }, [submission?.metadataValidationStatus, submission?.fileValidationStatus]);
 
   const handleFilterChange = (field: keyof FilterForm) => {
     setTouchedFilters((prev) => ({ ...prev, [field]: true }));
@@ -426,6 +421,7 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
           defaultRowsPerPage={20}
           defaultOrder="desc"
           position="both"
+          noContentText="No validation issues found"
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
           AdditionalActions={

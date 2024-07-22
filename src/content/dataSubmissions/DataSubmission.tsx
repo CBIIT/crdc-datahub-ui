@@ -39,6 +39,8 @@ import { DataUpload } from "../../components/DataSubmissions/DataUpload";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import DataActivity, { DataActivityRef } from "./DataActivity";
+import CrossValidation from "./CrossValidation";
+import { CrossValidateRoles } from "../../config/AuthRoles";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -203,6 +205,7 @@ const URLTabs = {
   UPLOAD_ACTIVITY: "upload-activity",
   VALIDATION_RESULTS: "validation-results",
   SUBMITTED_DATA: "data-view",
+  CROSS_VALIDATION_RESULTS: "cross-validation-results",
 };
 
 const submissionLockedStatuses: SubmissionStatus[] = [
@@ -233,8 +236,14 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const activityRef = useRef<DataActivityRef>(null);
   const hasUploadingBatches = useMemo<boolean>(
-    () => data?.listBatches?.batches?.some((b) => b.status === "Uploading"),
-    [data?.listBatches?.batches]
+    () => data?.batchStatusList?.batches?.some((b) => b.status === "Uploading"),
+    [data?.batchStatusList?.batches]
+  );
+  const crossValidationVisible: boolean = useMemo<boolean>(
+    () =>
+      CrossValidateRoles.includes(user?.role) &&
+      data?.getSubmission?.crossSubmissionStatus !== null,
+    [user?.role, data?.getSubmission?.crossSubmissionStatus]
   );
 
   const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(() => {
@@ -368,6 +377,14 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
                 to={`/data-submission/${submissionId}/${URLTabs.VALIDATION_RESULTS}`}
                 selected={tab === URLTabs.VALIDATION_RESULTS}
               />
+              {crossValidationVisible && (
+                <LinkTab
+                  value={URLTabs.CROSS_VALIDATION_RESULTS}
+                  label="Cross Validation Results"
+                  to={`/data-submission/${submissionId}/${URLTabs.CROSS_VALIDATION_RESULTS}`}
+                  selected={tab === URLTabs.CROSS_VALIDATION_RESULTS}
+                />
+              )}
               <LinkTab
                 value={URLTabs.SUBMITTED_DATA}
                 label="Data View"
@@ -380,11 +397,9 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
               {/* Primary Tab Content */}
               {tab === URLTabs.UPLOAD_ACTIVITY && <DataActivity ref={activityRef} />}
               {tab === URLTabs.VALIDATION_RESULTS && (
-                <QualityControl
-                  submission={data?.getSubmission}
-                  refreshSubmission={getSubmission}
-                />
+                <QualityControl submission={data?.getSubmission} />
               )}
+              {tab === URLTabs.CROSS_VALIDATION_RESULTS && <CrossValidation />}
               {tab === URLTabs.SUBMITTED_DATA && <SubmittedData />}
 
               {/* Return to Data Submission List Button */}

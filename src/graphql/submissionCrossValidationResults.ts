@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export const query = gql`
-  query submissionQCResults(
-    $id: ID!
+  query submissionCrossValidationResults(
+    $submissionID: ID!
     $nodeTypes: [String]
     $batchIDs: [ID]
     $severities: String
@@ -11,8 +11,8 @@ export const query = gql`
     $orderBy: String
     $sortDirection: String
   ) {
-    submissionQCResults(
-      _id: $id
+    submissionCrossValidationResults(
+      submissionID: $submissionID
       nodeTypes: $nodeTypes
       batchIDs: $batchIDs
       severities: $severities
@@ -40,11 +40,23 @@ export const query = gql`
           title
           description
         }
+        conflictingSubmissions
       }
     }
   }
 `;
 
+export type Input = {
+  submissionID: string;
+  nodeTypes?: string[];
+  batchIDs?: string[];
+  severities?: string;
+  first?: number;
+  offset?: number;
+  orderBy?: keyof CrossValidationResult;
+  sortDirection?: string;
+};
+
 export type Response = {
-  submissionQCResults: ValidationResult<QCResult>;
+  submissionCrossValidationResults: ValidationResult<CrossValidationResult>;
 };
