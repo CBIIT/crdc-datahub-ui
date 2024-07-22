@@ -11,6 +11,7 @@ import {
 } from "../../graphql";
 import { safeParse } from "../../utils";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import { CrossValidateRoles } from "../../config/AuthRoles";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -23,13 +24,6 @@ const StyledValidateButton = styled(LoadingButton)({
     minWidth: "137px",
   },
 });
-
-/**
- * The roles that are allowed to cross validate a submission.
- *
- * @note The button is only visible to users with these roles.
- */
-const CrossValidateRoles: User["role"][] = ["Data Curator", "Admin"];
 
 export type Props = {
   /**
