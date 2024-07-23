@@ -307,7 +307,7 @@ const SubmittedData: FC = () => {
         partial: true,
         ...filterRef.current,
       },
-    });
+    }).catch((e) => ({ error: e, data: null }));
 
     if (error || !d?.getSubmissionNodes) {
       enqueueSnackbar("Cannot select all rows. Unable to retrieve node data.", {
