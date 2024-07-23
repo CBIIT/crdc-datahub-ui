@@ -442,13 +442,52 @@ describe("SubmissionProvider", () => {
     });
 
     expect(mockStartPolling).toHaveBeenCalledWith(1000);
-    expect(result.current.isPolling).toBe(true);
 
     act(() => {
       stopPolling();
     });
 
     expect(mockStopPolling).toHaveBeenCalled();
-    expect(result.current.isPolling).toBe(false);
+  });
+
+  it("should set the status to POLLING when polling is active", async () => {
+    const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
+      {
+        request: {
+          query: GET_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmission: {
+              ...baseSubmission,
+              _id: "test-polling-id",
+            },
+            submissionStats: {
+              stats: [],
+            },
+            listBatches: {
+              batches: [],
+            },
+          },
+        },
+      },
+    ];
+
+    const { result } = renderHook(() => useSubmissionContext(), {
+      wrapper: ({ children }) => (
+        <TestParent mocks={mocks} _id="test-polling-id">
+          {children}
+        </TestParent>
+      ),
+    });
+
+    await waitFor(() => expect(result.current.status).toBe(SubmissionCtxStatus.LOADED));
+
+    act(() => {
+      result.current.startPolling(1000);
+    });
+
+    await waitFor(() => expect(result.current.status).toBe(SubmissionCtxStatus.POLLING));
   });
 });

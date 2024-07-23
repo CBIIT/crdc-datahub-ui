@@ -1,6 +1,8 @@
-import React, { FC, createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { FC, createContext, useCallback, useContext, useMemo, useState } from "react";
 import { ApolloError, ApolloQueryResult, useQuery } from "@apollo/client";
+import { cloneDeep, isEqual } from "lodash";
 import { GetSubmissionResp, GET_SUBMISSION, GetSubmissionInput } from "../../graphql";
+import { compareNodeStats } from "../../utils";
 
 export type SubmissionCtxState = {
   /**
@@ -15,10 +17,6 @@ export type SubmissionCtxState = {
    * The error returned by the query
    */
   error: ApolloError | null;
-  /**
-   * Whether the query is currently polling
-   */
-  isPolling: boolean;
   /**
    * Initiates polling for the query at the specified interval
    */
@@ -41,20 +39,10 @@ export type SubmissionCtxState = {
 
 export enum SubmissionCtxStatus {
   LOADING = "LOADING",
+  POLLING = "POLLING",
   LOADED = "LOADED",
   ERROR = "ERROR",
 }
-
-const initialState: SubmissionCtxState = {
-  status: SubmissionCtxStatus.LOADING,
-  data: null,
-  error: null,
-  isPolling: false,
-  startPolling: null,
-  stopPolling: null,
-  refetch: null,
-  updateQuery: null,
-};
 
 /**
  * Data Submission Context
@@ -93,6 +81,18 @@ type ProviderProps = {
 };
 
 /**
+ * A memoized version of the Submission Provider
+ *
+ * @note This is to prevent unnecessary re-renders when the context value hasn't changed
+ */
+const MemoedProvider = React.memo<{ value: SubmissionCtxState; children: React.ReactNode }>(
+  ({ value, children }) => (
+    <SubmissionContext.Provider value={value}>{children}</SubmissionContext.Provider>
+  ),
+  isEqual
+);
+
+/**
  * Data Submission Provider component
  *
  * @note This provider will automatically start polling if:
@@ -102,7 +102,6 @@ type ProviderProps = {
  * @returns React Context Provider
  */
 export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: ProviderProps) => {
-  const [state, setState] = useState<SubmissionCtxState>(initialState);
   const [isPolling, setIsPolling] = useState<boolean>(false);
 
   const {
@@ -136,6 +135,34 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     fetchPolicy: "cache-and-network",
   });
 
+  const status: SubmissionCtxStatus = useMemo<SubmissionCtxStatus>(() => {
+    if (error || (!loading && !data?.getSubmission?._id)) {
+      return SubmissionCtxStatus.ERROR;
+    }
+    if (isPolling) {
+      return SubmissionCtxStatus.POLLING;
+    }
+    if (loading) {
+      return SubmissionCtxStatus.LOADING;
+    }
+
+    return SubmissionCtxStatus.LOADED;
+  }, [loading, error, data, isPolling]);
+
+  const memoedData: GetSubmissionResp = useMemo<GetSubmissionResp>(() => {
+    let sortedStats = [];
+    if (Array.isArray(data?.submissionStats?.stats)) {
+      sortedStats = cloneDeep(data.submissionStats.stats);
+      sortedStats.sort(compareNodeStats);
+    }
+
+    return {
+      getSubmission: data?.getSubmission,
+      submissionStats: { stats: sortedStats },
+      listBatches: data?.listBatches,
+    };
+  }, [data]);
+
   /**
    * Wrapper function to start polling for the submission
    */
@@ -155,34 +182,18 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     setIsPolling(false);
   }, [stopApolloPolling]);
 
-  useEffect(() => {
-    if (loading) {
-      setState({
-        ...state,
-        status: SubmissionCtxStatus.LOADING,
-      });
-      return;
-    }
-    if (error || !data?.getSubmission?._id) {
-      setState({
-        ...state,
-        status: SubmissionCtxStatus.ERROR,
-        error,
-      });
-      return;
-    }
-
-    setState({
-      status: SubmissionCtxStatus.LOADED,
-      data,
+  const value: SubmissionCtxState = useMemo<SubmissionCtxState>(
+    () => ({
+      status,
+      data: memoedData,
       error,
-      isPolling,
       startPolling,
       stopPolling,
       refetch,
       updateQuery,
-    });
-  }, [loading, error, data, isPolling, startPolling, stopPolling, refetch, updateQuery]);
+    }),
+    [status, memoedData, error, startPolling, stopPolling, refetch, updateQuery]
+  );
 
-  return <SubmissionContext.Provider value={state}>{children}</SubmissionContext.Provider>;
+  return <MemoedProvider value={value}>{children}</MemoedProvider>;
 };
