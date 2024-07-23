@@ -446,11 +446,16 @@ const GenericTable = <T,>(
           {columns?.length > 0 && (
             <TableHeadComponent>
               <TableRow>
-                {columns.map((col: Column<T>) => (
+                {columns.map((col: Column<T>, index: number) => (
                   <TableHeaderCellComponent
-                    key={col.label.toString()}
+                    key={typeof col.label === "string" ? col.label : `column_${index}`}
                     sx={col.sx}
-                    data-testid={`generic-table-header-${col.label.toString()}`}
+                    data-testid={`generic-table-header-${
+                      (typeof col.label === "string" ? col.label : null) ||
+                      (typeof col.fieldKey === "string" ? col.fieldKey : null) ||
+                      (typeof col.field === "string" ? col.field : null) ||
+                      `column_${index}`
+                    }`}
                   >
                     {!col.sortDisabled ? (
                       <TableSortLabel

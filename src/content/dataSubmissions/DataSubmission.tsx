@@ -202,7 +202,7 @@ const StyledFlowContainer = styled(Box)({
 const URLTabs = {
   UPLOAD_ACTIVITY: "upload-activity",
   VALIDATION_RESULTS: "validation-results",
-  SUBMITTED_DATA: "submitted-data",
+  SUBMITTED_DATA: "data-view",
 };
 
 const submissionLockedStatuses: SubmissionStatus[] = [
@@ -370,7 +370,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
               />
               <LinkTab
                 value={URLTabs.SUBMITTED_DATA}
-                label="Submitted Data"
+                label="Data View"
                 to={`/data-submission/${submissionId}/${URLTabs.SUBMITTED_DATA}`}
                 selected={tab === URLTabs.SUBMITTED_DATA}
               />
@@ -385,12 +385,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
                   refreshSubmission={getSubmission}
                 />
               )}
-              {tab === URLTabs.SUBMITTED_DATA && (
-                <SubmittedData
-                  submissionId={submissionId}
-                  submissionName={data?.getSubmission?.name}
-                />
-              )}
+              {tab === URLTabs.SUBMITTED_DATA && <SubmittedData />}
 
               {/* Return to Data Submission List Button */}
               <BackButton

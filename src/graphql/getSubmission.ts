@@ -26,6 +26,7 @@ export const query = gql`
       validationEnded
       validationScope
       validationType
+      deletingData
       fileErrors {
         submissionID
         type

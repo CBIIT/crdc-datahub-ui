@@ -15,6 +15,7 @@ type Submission = {
   metadataValidationStatus: ValidationStatus;
   fileValidationStatus: ValidationStatus;
   crossSubmissionStatus: CrossSubmissionStatus;
+  deletingData: boolean;
   /**
    * The date and time when the validation process started.
    *

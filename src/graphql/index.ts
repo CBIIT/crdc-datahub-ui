@@ -100,6 +100,12 @@ export type { Response as DeleteOrphanedFileResp } from "./deleteOrphanedFile";
 export { mutation as DELETE_ALL_ORPHANED_FILES } from "./deleteAllOrphanedFiles";
 export type { Response as DeleteAllOrphanedFilesResp } from "./deleteAllOrphanedFiles";
 
+export { mutation as DELETE_DATA_RECORDS } from "./deleteDataRecords";
+export type {
+  Input as DeleteDataRecordsInput,
+  Response as DeleteDataRecordsResp,
+} from "./deleteDataRecords";
+
 export { query as RETRIEVE_CLI_CONFIG } from "./retrieveCLIConfig";
 export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
 

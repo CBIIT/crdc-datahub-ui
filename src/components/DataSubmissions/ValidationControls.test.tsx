@@ -51,6 +51,7 @@ const baseSubmission: Omit<
   validationScope: "New",
   validationType: ["metadata", "file"],
   studyID: "",
+  deletingData: false,
 };
 
 const baseAuthCtx: AuthCtxState = {

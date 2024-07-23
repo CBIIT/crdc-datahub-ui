@@ -120,10 +120,10 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
         d?.getSubmission?.fileValidationStatus === "Validating" ||
         d?.getSubmission?.metadataValidationStatus === "Validating" ||
         d?.getSubmission?.crossSubmissionStatus === "Validating";
-
+      const isDeleting = d?.getSubmission?.deletingData === true;
       const hasUploadingBatches = d?.listBatches?.batches?.some((b) => b.status === "Uploading");
 
-      if (!isValidating && !hasUploadingBatches) {
+      if (!isValidating && !hasUploadingBatches && !isDeleting) {
         stopApolloPolling();
         setIsPolling(false);
       } else {
