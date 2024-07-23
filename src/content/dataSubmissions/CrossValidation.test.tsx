@@ -254,13 +254,17 @@ describe("General", () => {
 
     // Wait for table to render
     await waitFor(() => {
-      expect(getByTestId("conflicting-link-submission_ID_A32524X")).toBeInTheDocument();
-      expect(getByTestId("conflicting-link-submission_ID_B291D34")).toBeInTheDocument();
-      expect(getByTestId("conflicting-link-submission_ID_C181181")).toBeInTheDocument();
+      expect(getByTestId("conflicting-submission-submission_ID_A32524X")).toBeInTheDocument();
+      expect(getByTestId("conflicting-submission-submission_ID_B291D34")).toBeInTheDocument();
+      expect(getByTestId("conflicting-submission-submission_ID_C181181")).toBeInTheDocument();
     });
 
+    // Scenario 1 – One conflicting submission
+    const firstSub = getByTestId("conflicting-submission-submission_ID_A32524X");
+    expect(getByText(/2524X/).parentElement).toBe(firstSub);
+    expect(firstSub).toHaveTextContent("...2524X");
+
     const firstLink = getByTestId("conflicting-link-submission_ID_A32524X");
-    expect(getByText(/2524X.../)).toBe(firstLink);
     expect(firstLink).toHaveAttribute("href", "/data-submission/submission_ID_A32524X");
     expect(firstLink).toHaveAttribute("target", "_blank");
     userEvent.hover(firstLink);
@@ -268,10 +272,14 @@ describe("General", () => {
     expect(tooltip).toHaveTextContent("submission_ID_A32524X");
 
     userEvent.unhover(firstLink);
-    await waitFor(() => expect(queryByRole("tooltip")).not.toBeInTheDocument()); // Cleanup 1
+    await waitFor(() => expect(queryByRole("tooltip")).not.toBeInTheDocument());
+
+    // Scenario 2 – Multiple conflicting submissions
+    const secondSub = getByTestId("conflicting-submission-submission_ID_B291D34");
+    expect(getByText(/91D34/).parentElement).toBe(secondSub);
+    expect(secondSub).toHaveTextContent("...91D34");
 
     const secondLink = getByTestId("conflicting-link-submission_ID_B291D34");
-    expect(getByText(/91D34.../)).toBe(secondLink);
     expect(secondLink).toHaveAttribute("href", "/data-submission/submission_ID_B291D34");
     expect(secondLink).toHaveAttribute("target", "_blank");
     userEvent.hover(secondLink);
@@ -279,14 +287,18 @@ describe("General", () => {
     expect(tooltip2).toHaveTextContent("submission_ID_B291D34");
 
     userEvent.unhover(secondLink);
-    await waitFor(() => expect(queryByRole("tooltip")).not.toBeInTheDocument()); // Cleanup 2
+    await waitFor(() => expect(queryByRole("tooltip")).not.toBeInTheDocument());
+
+    const thirdSub = getByTestId("conflicting-submission-submission_ID_C181181");
+    expect(getByText(/81181/).parentElement).toBe(thirdSub);
+    expect(thirdSub).toHaveTextContent("...81181");
 
     const thirdLink = getByTestId("conflicting-link-submission_ID_C181181");
     expect(thirdLink).toHaveAttribute("href", "/data-submission/submission_ID_C181181");
     expect(thirdLink).toHaveAttribute("target", "_blank");
     userEvent.hover(thirdLink);
     const tooltip3 = await findByRole("tooltip");
-    await waitFor(() => expect(tooltip3).toHaveTextContent("submission_ID_C181181"));
+    expect(tooltip3).toHaveTextContent("submission_ID_C181181");
   });
 });
 

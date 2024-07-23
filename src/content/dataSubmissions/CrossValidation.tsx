@@ -81,14 +81,15 @@ const columns: Column<CrossValidationResult>[] = [
     label: "Conflicting Submission",
     renderValue: (data) =>
       data?.conflictingSubmissions?.map((_id) => (
-        <div key={_id}>
+        <div key={_id} data-testid={`conflicting-submission-${_id}`}>
+          {" ..."}
           <StyledFormTooltip title={_id}>
             <Link
               to={`/data-submission/${_id}`}
               target="_blank"
               data-testid={`conflicting-link-${_id}`}
             >
-              {_id.slice(-5)}...
+              {_id.slice(-5)}
             </Link>
           </StyledFormTooltip>
         </div>
