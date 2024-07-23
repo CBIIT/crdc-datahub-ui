@@ -517,3 +517,75 @@ describe("Table", () => {
     });
   });
 });
+
+describe("Table Actions", () => {
+  it("should enable the export button when there are results to export", async () => {
+    const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
+      request: {
+        query: SUBMISSION_CROSS_VALIDATION_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionCrossValidationResults: {
+            total: 1,
+            results: [{ ...baseCrossValidationResult }],
+          },
+        },
+      },
+    };
+
+    const { getAllByTestId } = render(<CrossValidation />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[mock, batchesMock, nodesMock]}
+          submission={{ _id: "test-enabled-export" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    await waitFor(() => {
+      const buttons = getAllByTestId("export-cross-validation-button"); // Top and bottom action buttons
+
+      expect(buttons[0]).toBeEnabled();
+      expect(buttons[1]).toBeEnabled();
+    });
+  });
+
+  it("should disable the export button when there are no results to export", async () => {
+    const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
+      request: {
+        query: SUBMISSION_CROSS_VALIDATION_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionCrossValidationResults: {
+            total: 0,
+            results: [],
+          },
+        },
+      },
+    };
+
+    const { getAllByTestId } = render(<CrossValidation />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[mock, batchesMock, nodesMock]}
+          submission={{ _id: "test-disabled-export" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    await waitFor(() => {
+      const buttons = getAllByTestId("export-cross-validation-button"); // Top and bottom action buttons
+
+      expect(buttons[0]).toBeDisabled();
+      expect(buttons[1]).toBeDisabled();
+    });
+  });
+});

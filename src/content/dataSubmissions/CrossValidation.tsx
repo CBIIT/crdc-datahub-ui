@@ -17,6 +17,7 @@ import { useSubmissionContext } from "../../components/Contexts/SubmissionContex
 import CrossValidationFilters, {
   FilterForm,
 } from "../../components/DataSubmissions/CrossValidationFilters";
+import { ExportCrossValidationButton } from "../../components/DataSubmissions/ExportCrossValidationButton";
 import StyledFormTooltip from "../../components/StyledFormComponents/StyledTooltip";
 
 const StyledErrorDetailsButton = styled(Button)({
@@ -262,6 +263,15 @@ const CrossValidation: FC = () => {
     [handleOpenErrorDialog]
   );
 
+  const Actions = useMemo<React.ReactNode>(
+    () => (
+      <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
+        <ExportCrossValidationButton fields={csvColumns} disabled={totalData <= 0} />
+      </Stack>
+    ),
+    [totalData]
+  );
+
   useEffect(() => {
     tableRef.current?.refresh();
   }, [crossSubmissionStatus]);
@@ -280,6 +290,7 @@ const CrossValidation: FC = () => {
           defaultOrder="desc"
           position="both"
           noContentText="No cross-validation issues found"
+          AdditionalActions={Actions}
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchData}
           containerProps={{ sx: { marginBottom: "8px" } }}

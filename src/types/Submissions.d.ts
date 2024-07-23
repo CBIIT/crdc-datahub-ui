@@ -236,7 +236,7 @@ type QCResult = {
   batchID: string;
   displayID: number;
   submittedID: string;
-  severity: "Error" | "Warning"; // [Error, Warning]
+  severity: "Error" | "Warning";
   uploadedDate: string; // batch.updatedAt
   validatedDate: string;
   errors: ErrorMessage[];
