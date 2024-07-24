@@ -160,16 +160,10 @@ const TestParent: FC<ParentProps> = ({
 );
 
 describe("Accessibility", () => {
-  const handleCreate = jest.fn();
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   it("should have no violations", async () => {
     const { container, getByRole } = render(
       <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <CreateDataSubmissionDialog onCreate={handleCreate} />
+        <CreateDataSubmissionDialog onCreate={undefined} />
       </TestParent>
     );
 
