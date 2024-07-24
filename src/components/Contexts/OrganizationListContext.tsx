@@ -88,10 +88,10 @@ export const OrganizationProvider: FC<ProviderProps> = ({ preload, children }: P
 
     const sortedOrganizations = data?.listOrganizations?.sort(
       (a, b) => a.name?.localeCompare(b.name)
-    );
+    ) as Partial<Organization>[];
 
     const activeOrganizations = sortedOrganizations?.filter(
-      (org: Organization) => org.status === "Active"
+      (org: Partial<Organization>) => org.status === "Active"
     );
 
     setState({
