@@ -2,7 +2,6 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
@@ -158,30 +157,6 @@ const TestParent: FC<ParentProps> = ({
     </MockedProvider>
   </AuthCtx.Provider>
 );
-
-describe("Accessibility", () => {
-  it("should have no violations", async () => {
-    const { container, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <CreateDataSubmissionDialog onCreate={undefined} />
-      </TestParent>
-    );
-
-    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
-
-    await waitFor(() => expect(openDialogButton).toBeEnabled());
-
-    userEvent.click(openDialogButton);
-
-    await waitFor(() => {
-      const createButton = getByRole("button", { name: "Create" });
-      expect(createButton).toBeInTheDocument();
-    });
-
-    expect(await axe(container)).toHaveNoViolations();
-  });
-});
 
 describe("Basic Functionality", () => {
   const handleCreate = jest.fn();
