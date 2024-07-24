@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -13,7 +13,6 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
@@ -23,15 +22,20 @@ import {
   ListApprovedStudiesOfMyOrgResp,
   LIST_APPROVED_STUDIES_OF_MY_ORG,
 } from "../../graphql";
-import RadioInput, { Option } from "../../components/DataSubmissions/RadioInput";
+import RadioInput, { Option } from "./RadioInput";
 import { DataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
-import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
-import StyledOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
-import StyledAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
-import StyledLabel from "../../components/StyledFormComponents/StyledLabel";
-import BaseStyledHelperText from "../../components/StyledFormComponents/StyledHelperText";
+import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
+import StyledSelect from "../StyledFormComponents/StyledSelect";
+import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
+import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
+import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
+import {
+  Status as OrgStatus,
+  useOrganizationListContext,
+} from "../Contexts/OrganizationListContext";
+import Tooltip from "../Tooltip";
 
 const CreateSubmissionDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -81,7 +85,7 @@ const StyledDialogContent = styled(DialogContent)({
   paddingBottom: "1px",
 });
 
-const StyledButton = styled(LoadingButton)({
+const StyledButton = styled(Button)({
   height: "51px",
   width: "261px",
   padding: "14px 20px",
@@ -196,12 +200,19 @@ const StyledOutlinedInputMultiline = styled(StyledOutlinedInput)({
   height: "96px",
 });
 
+const StyledTooltipWrapper = styled(Stack)({
+  position: "relative",
+  bottom: "30px",
+  right: "50px",
+});
+
 type Props = {
   onCreate: (data: CreateSubmissionInput) => void;
 };
 
 const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
-  const { user } = useAuthContext();
+  const { user, status: authStatus } = useAuthContext();
+  const { data: allOrgs, status: orgStatus } = useOrganizationListContext();
   const {
     handleSubmit,
     register,
@@ -243,6 +254,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
   const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
   const intention = watch("intention");
+
+  const userHasInactiveOrg = useMemo(() => {
+    const userOrg = allOrgs?.find((org) => org._id === user?.organization?.orgID);
+    return userOrg?.status === "Inactive";
+  }, [allOrgs, user]);
 
   const submissionTypeOptions: Option[] = [
     {
@@ -353,7 +369,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
   return (
     <>
-      <CreateSubmissionDialog open={creatingSubmission} scroll="body">
+      <CreateSubmissionDialog
+        open={creatingSubmission}
+        scroll="body"
+        data-testid="create-submission-dialog"
+      >
         <StyledDialogTitle>
           <StyledCloseDialogButton
             aria-label="close"
@@ -396,6 +416,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                           required
                           row
                           aria-describedby="submission-intention-helper-text"
+                          data-testid="create-data-submission-dialog-submission-type-input"
                         />
                       </Grid>
                     )}
@@ -421,6 +442,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                           required
                           row
                           aria-describedby="submission-data-type-helper-text"
+                          data-testid="create-data-submission-dialog-data-type-input"
                         />
                       </Grid>
                     )}
@@ -431,7 +453,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 </StyledField>
                 <StyledOrganizationField>
                   <StyledLabel id="organization">Organization</StyledLabel>
-                  <StyledOutlinedInput value={user.organization?.orgName} readOnly />
+                  <StyledOutlinedInput value={user?.organization?.orgName} readOnly />
                 </StyledOrganizationField>
                 <StyledField>
                   <StyledLabel id="dataCommons">
@@ -448,6 +470,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-data-commons-helper-text"
+                        data-testid="create-data-submission-dialog-data-commons-input"
                       >
                         {DataCommons.map((dc) => (
                           <MenuItem key={dc.name} value={dc.name}>
@@ -476,6 +499,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-study-abbreviation-helper-text"
+                        data-testid="create-data-submission-dialog-study-id-input"
                       >
                         {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((study) => (
                           <MenuItem key={study._id} value={study._id}>
@@ -501,6 +525,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     inputProps={{ maxLength: 50 }}
                     placeholder="Input dbGaP ID"
                     aria-describedby="submission-dbGaPID-helper-text"
+                    data-testid="create-data-submission-dialog-dbgap-id-input"
                   />
                   <StyledHelperText id="submission-dbGaPID-helper-text">
                     {errors?.dbGaPID?.message}
@@ -521,6 +546,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     placeholder="25 characters allowed"
                     inputProps={{ maxLength: 25 }}
                     aria-describedby="submission-name-helper-text"
+                    data-testid="create-data-submission-dialog-submission-name-input"
                   />
                   <StyledHelperText id="submission-name-helper-text">
                     {errors?.name?.message}
@@ -550,14 +576,30 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       </CreateSubmissionDialog>
 
       {orgOwnerOrSubmitter && (
-        <StyledButton
-          type="button"
-          onClick={handleOpenDialog}
-          sx={{ bottom: "30px", right: "50px" }}
-          disabled={!hasOrganizationAssigned}
-        >
-          Create a Data Submission
-        </StyledButton>
+        <StyledTooltipWrapper alignItems="center" justifyContent="flex-end">
+          <Tooltip
+            placement="top"
+            title="Your associated organization is inactive. You cannot create a data submission at this time."
+            open={undefined} // will use hoverListener to open
+            disableHoverListener={!userHasInactiveOrg}
+          >
+            <span>
+              <StyledButton
+                type="button"
+                variant="contained"
+                onClick={handleOpenDialog}
+                disabled={
+                  !hasOrganizationAssigned ||
+                  userHasInactiveOrg ||
+                  authStatus === AuthStatus.LOADING ||
+                  orgStatus === OrgStatus.LOADING
+                }
+              >
+                Create a Data Submission
+              </StyledButton>
+            </span>
+          </Tooltip>
+        </StyledTooltipWrapper>
       )}
     </>
   );
