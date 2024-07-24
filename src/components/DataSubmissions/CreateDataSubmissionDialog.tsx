@@ -514,7 +514,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                   </StyledHelperText>
                 </StyledField>
                 <StyledField>
-                  <StyledLabel id="dbGaPID">
+                  <StyledLabel id="dbGaPID" data-testid="dbGaP-id-label">
                     dbGaP ID
                     {isDbGapRequired && <StyledAsterisk />}
                   </StyledLabel>

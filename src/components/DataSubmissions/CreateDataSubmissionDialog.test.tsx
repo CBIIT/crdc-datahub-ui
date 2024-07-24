@@ -2,6 +2,7 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
 import {
@@ -90,6 +91,10 @@ const listOrgsMocks: MockedResponse<ListOrgsResp>[] = [
                 studyName: "study1",
                 studyAbbreviation: "SN",
               },
+              {
+                studyName: "study2",
+                studyAbbreviation: "CS",
+              },
             ],
             createdAt: "2023-10-06T19:19:04.183Z",
             updateAt: "2024-07-03T19:09:29.513Z",
@@ -146,7 +151,37 @@ const TestParent: FC<ParentProps> = ({
   </AuthCtx.Provider>
 );
 
-describe("CreateDataSubmissionDialog", () => {
+describe("Accessibility", () => {
+  const handleCreate = jest.fn();
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should have no violations", async () => {
+    const { container, getByRole } = render(
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+        <CreateDataSubmissionDialog onCreate={handleCreate} />
+      </TestParent>
+    );
+
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      const createButton = getByRole("button", { name: "Create" });
+      expect(createButton).toBeInTheDocument();
+    });
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
+
+describe("Basic Functionality", () => {
   const handleCreate = jest.fn();
 
   afterEach(() => {
@@ -247,5 +282,57 @@ describe("CreateDataSubmissionDialog", () => {
       expect(handleCreate).toHaveBeenCalledTimes(1);
       expect(createButton).not.toBeInTheDocument();
     });
+  });
+
+  it("should make dbGaP ID required if study is controlled access", async () => {
+    const { getByText, getByRole, getByTestId } = render(
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+        <CreateDataSubmissionDialog onCreate={handleCreate} />
+      </TestParent>
+    );
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
+      expect(studySelectInput).toBeInTheDocument();
+    });
+
+    // Simulate selecting study from dropdown
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    expect(studySelectButton).toBeInTheDocument();
+
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
+    });
+    userEvent.click(getByText("SN"));
+
+    // Non-Controlled study selected
+    expect(studySelectButton).toHaveTextContent("SN");
+
+    const dbGaPIDLabel = getByTestId("dbGaP-id-label");
+    expect(dbGaPIDLabel.textContent).toBe("dbGaP ID");
+
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
+    });
+    userEvent.click(getByText("CS"));
+
+    // Controlled study selected
+    expect(studySelectButton).toHaveTextContent("CS");
+
+    expect(dbGaPIDLabel.textContent).toBe("dbGaP ID*");
   });
 });
