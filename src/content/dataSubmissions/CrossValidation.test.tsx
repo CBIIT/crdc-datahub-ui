@@ -68,7 +68,7 @@ const baseCrossValidationResult: CrossValidationResult = {
   severity: "Error",
   uploadedDate: "",
   validatedDate: "",
-  conflictingSubmissions: [],
+  conflictingSubmission: "",
   errors: [],
   warnings: [],
 };
@@ -233,11 +233,9 @@ describe("General", () => {
           submissionCrossValidationResults: {
             total: 2,
             results: [
-              { ...baseCrossValidationResult, conflictingSubmissions: ["submission_ID_A32524X"] },
-              {
-                ...baseCrossValidationResult,
-                conflictingSubmissions: ["submission_ID_B291D34", "submission_ID_C181181"],
-              },
+              { ...baseCrossValidationResult, conflictingSubmission: "submission_ID_A32524X" },
+              { ...baseCrossValidationResult, conflictingSubmission: "submission_ID_B291D34" },
+              { ...baseCrossValidationResult, conflictingSubmission: "submission_ID_C181181" },
             ],
           },
         },

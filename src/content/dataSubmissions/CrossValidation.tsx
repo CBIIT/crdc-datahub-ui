@@ -79,22 +79,21 @@ const columns: Column<CrossValidationResult>[] = [
   },
   {
     label: "Conflicting Submission",
-    renderValue: (data) =>
-      data?.conflictingSubmissions?.map((_id) => (
-        <div key={_id} data-testid={`conflicting-submission-${_id}`}>
-          {" ..."}
-          <StyledFormTooltip title={_id}>
-            <Link
-              to={`/data-submission/${_id}`}
-              target="_blank"
-              data-testid={`conflicting-link-${_id}`}
-            >
-              {_id.slice(-5)}
-            </Link>
-          </StyledFormTooltip>
-        </div>
-      )),
-    field: "conflictingSubmissions",
+    renderValue: ({ conflictingSubmission: _id }) => (
+      <div key={_id} data-testid={`conflicting-submission-${_id}`}>
+        {" ..."}
+        <StyledFormTooltip title={_id}>
+          <Link
+            to={`/data-submission/${_id}`}
+            target="_blank"
+            data-testid={`conflicting-link-${_id}`}
+          >
+            {_id.slice(-5)}
+          </Link>
+        </StyledFormTooltip>
+      </div>
+    ),
+    field: "conflictingSubmission",
   },
   {
     label: "Severity",
@@ -148,7 +147,7 @@ export const csvColumns: Record<string, (CrossValidationResult) => string | numb
   "Batch ID": (d: CrossValidationResult) => d.displayID,
   "Node Type": (d: CrossValidationResult) => d.type,
   "Submitted Identifier": (d: CrossValidationResult) => d.submittedID,
-  "Conflicting Submission": (d: CrossValidationResult) => d.conflictingSubmissions.join(", "),
+  "Conflicting Submission": (d: CrossValidationResult) => d.conflictingSubmission,
   Severity: (d: CrossValidationResult) => d.severity,
   "Validated Date": (d: CrossValidationResult) =>
     FormatDate(d?.validatedDate, "MM-DD-YYYY [at] hh:mm A", ""),

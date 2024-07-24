@@ -40,7 +40,7 @@ export const query = gql`
           title
           description
         }
-        conflictingSubmissions
+        conflictingSubmission
       }
     }
   }

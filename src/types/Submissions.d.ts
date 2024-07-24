@@ -249,7 +249,10 @@ type QCResult = {
  * @note This currently is a near-carbon copy of `QCResult`.
  */
 type CrossValidationResult = QCResult & {
-  conflictingSubmissions: string[];
+  /**
+   * The ID of the submission that has conflicting data.
+   */
+  conflictingSubmission: string;
 };
 
 type ErrorMessage = {
