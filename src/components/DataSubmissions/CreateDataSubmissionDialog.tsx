@@ -377,12 +377,8 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
         <StyledDialogTitle>
           <StyledCloseDialogButton
             aria-label="close"
+            data-testid="create-submission-dialog-close-button"
             onClick={() => setCreatingSubmission(false)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setCreatingSubmission(false);
-              }
-            }}
           >
             <CloseIconSvg />
           </StyledCloseDialogButton>

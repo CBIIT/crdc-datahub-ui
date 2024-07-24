@@ -823,4 +823,35 @@ describe("Basic Functionality", () => {
 
     expect(nameInput).toHaveValue("");
   });
+
+  it("closes the dialog when the close button is clicked", async () => {
+    const { getByTestId, getByRole } = render(
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+        <CreateDataSubmissionDialog onCreate={handleCreate} />
+      </TestParent>
+    );
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
+      expect(studySelectInput).toBeInTheDocument();
+    });
+
+    const createButton = getByRole("button", { name: "Create" });
+
+    // Simulate clicking the close button
+    const closeButton = getByTestId("create-submission-dialog-close-button");
+    userEvent.click(closeButton);
+
+    await waitFor(() => {
+      expect(createButton).not.toBeInTheDocument();
+    });
+  });
 });
