@@ -454,11 +454,11 @@ describe("Basic Functionality", () => {
     expect(studySelectButton).toHaveTextContent("DB");
 
     const dbGaPIDLabel = getByTestId("dbGaP-id-label");
-    const dbGaPIDValue = getByTestId("create-data-submission-dialog-dbgap-id-input");
+    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
+    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
 
     expect(dbGaPIDLabel.textContent).toBe("dbGaP ID*");
-    // equals zero-width space for unknown reason
-    expect(dbGaPIDValue.textContent).toBe("​");
+    expect(dbGaPIDInput).toHaveValue("");
   });
 
   it("should show an error message when submission could not be created (network)", async () => {
@@ -746,5 +746,81 @@ describe("Basic Functionality", () => {
       const dataTypeInput = getByTestId("create-data-submission-dialog-data-type-input");
       expect(dataTypeInput).toHaveTextContent("Metadata Only");
     });
+  });
+
+  it("sets studyID to an empty string when not provided", async () => {
+    const { getByTestId, getByRole } = render(
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+        <CreateDataSubmissionDialog onCreate={handleCreate} />
+      </TestParent>
+    );
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+      const studySelectButton = within(
+        getByTestId("create-data-submission-dialog-study-id-input")
+      ).getByRole("button");
+      // MUI adds zero-width space
+      expect(studySelectButton.textContent).toBe("​");
+    });
+  });
+
+  it("sets dbGaPID to an empty string when not provided", async () => {
+    const { getByTestId, getByRole } = render(
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+        <CreateDataSubmissionDialog onCreate={handleCreate} />
+      </TestParent>
+    );
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
+      expect(studySelectInput).toBeInTheDocument();
+    });
+
+    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
+    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
+
+    expect(dbGaPIDInput).toHaveValue("");
+  });
+
+  it("sets name to an empty string when not provided", async () => {
+    const { getByTestId, getByRole } = render(
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+        <CreateDataSubmissionDialog onCreate={handleCreate} />
+      </TestParent>
+    );
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
+      expect(studySelectInput).toBeInTheDocument();
+    });
+
+    const nameWrapper = getByTestId("create-data-submission-dialog-submission-name-input");
+    const nameInput = within(nameWrapper).getByRole("textbox");
+
+    expect(nameInput).toHaveValue("");
   });
 });

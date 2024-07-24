@@ -410,7 +410,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                           {...field}
                           id="create-data-submission-dialog-submission-type"
                           label="Submission Type"
-                          value={field.value || ""}
+                          value={field.value}
                           options={submissionTypeOptions}
                           gridWidth={12}
                           required
@@ -436,7 +436,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                           {...field}
                           id="create-data-submission-dialog-data-type"
                           label="Data Type"
-                          value={field.value || ""}
+                          value={field.value}
                           options={submissionDataTypeOptions}
                           gridWidth={12}
                           required
@@ -467,7 +467,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     render={({ field }) => (
                       <StyledSelect
                         {...field}
-                        value={field.value || ""}
+                        value={field.value}
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-data-commons-helper-text"
                         data-testid="create-data-submission-dialog-data-commons-input"
