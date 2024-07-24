@@ -43,6 +43,13 @@ const listApprovedStudiesOfMyOrgMocks: MockedResponse<ListApprovedStudiesOfMyOrg
             dbGaPID: "phsTEST",
             controlledAccess: true,
           },
+          {
+            _id: "no-dbGaP-ID",
+            studyName: "controlled-study",
+            studyAbbreviation: "DB",
+            dbGaPID: null,
+            controlledAccess: true,
+          },
         ],
       },
     },
@@ -411,6 +418,49 @@ describe("Basic Functionality", () => {
     expect(dbGaPIDLabel.textContent).toBe("dbGaP ID*");
   });
 
+  it("sets dbGaPID to an empty string and isDbGapRequired to false when studyID is not found", async () => {
+    const { getByText, getByRole, getByTestId } = render(
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+        <CreateDataSubmissionDialog onCreate={handleCreate} />
+      </TestParent>
+    );
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
+      expect(studySelectInput).toBeInTheDocument();
+    });
+
+    // Simulate selecting study from dropdown
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    expect(studySelectButton).toBeInTheDocument();
+
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
+    });
+    userEvent.click(getByText("DB"));
+
+    expect(studySelectButton).toHaveTextContent("DB");
+
+    const dbGaPIDLabel = getByTestId("dbGaP-id-label");
+    const dbGaPIDValue = getByTestId("create-data-submission-dialog-dbgap-id-input");
+
+    expect(dbGaPIDLabel.textContent).toBe("dbGaP ID*");
+    // equals zero-width space for unknown reason
+    expect(dbGaPIDValue.textContent).toBe("​");
+  });
+
   it("should show an error message when submission could not be created (network)", async () => {
     const mocks: MockedResponse[] = [
       ...listApprovedStudiesOfMyOrgMocks,
@@ -633,6 +683,68 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(getByText("This field is required")).toBeInTheDocument();
+    });
+  });
+
+  it("sets dataType to 'Metadata and Data Files' when intention is 'New/Update'", async () => {
+    const { getByRole, getByTestId } = render(
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+        <CreateDataSubmissionDialog onCreate={handleCreate} />
+      </TestParent>
+    );
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
+      expect(studySelectInput).toBeInTheDocument();
+    });
+
+    // Simulate selecting 'New/Update' for intention
+    const intentionInput = getByTestId("create-data-submission-dialog-submission-type-input");
+    const newUpdateOption = within(intentionInput).getByText("New/Update");
+    userEvent.click(newUpdateOption);
+
+    await waitFor(() => {
+      const dataTypeInput = getByTestId("create-data-submission-dialog-data-type-input");
+      expect(dataTypeInput).toHaveTextContent("Metadata and Data Files");
+    });
+  });
+
+  it("sets dataType to 'Metadata Only' when intention is 'Delete'", async () => {
+    const { getByRole, getByTestId } = render(
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+        <CreateDataSubmissionDialog onCreate={handleCreate} />
+      </TestParent>
+    );
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
+      expect(studySelectInput).toBeInTheDocument();
+    });
+
+    // Simulate selecting 'Delete' for intention
+    const intentionInput = getByTestId("create-data-submission-dialog-submission-type-input");
+    const deleteOption = within(intentionInput).getByText("Delete");
+    userEvent.click(deleteOption);
+
+    await waitFor(() => {
+      const dataTypeInput = getByTestId("create-data-submission-dialog-data-type-input");
+      expect(dataTypeInput).toHaveTextContent("Metadata Only");
     });
   });
 });
