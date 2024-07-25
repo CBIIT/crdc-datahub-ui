@@ -158,3 +158,21 @@ export const moveToFrontOfArray = (array: string[], keyElement: string): string[
 
   return newArray;
 };
+
+/**
+ * Rearranges the order of specified keys in an array and appends the remaining keys to the end.
+ *
+ * @param {string[]} keysArray - The array of keys to be processed.
+ * @param {string[]} keyOrder - An array specifying the desired order of keys.
+ * @returns {string[]} A new array with keys in the specified order, followed by the remaining keys.
+ */
+export const rearrangeKeys = (keysArray: string[], keyOrder: string[]): string[] => {
+  if (!Array.isArray(keysArray) || !Array.isArray(keyOrder)) {
+    return keysArray || [];
+  }
+
+  const orderedKeys = keyOrder.filter((key) => keysArray.includes(key));
+  const remainingKeys = keysArray.filter((key) => !orderedKeys.includes(key));
+
+  return [...orderedKeys, ...remainingKeys];
+};
