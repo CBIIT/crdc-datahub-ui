@@ -15,7 +15,7 @@ import SubmittedDataFilters, {
   FilterForm,
   FilterMethods,
 } from "../../components/DataSubmissions/SubmittedDataFilters";
-import { moveToFrontOfArray, safeParse } from "../../utils";
+import { rearrangeKeys, safeParse } from "../../utils";
 import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
 import DataViewContext from "./Contexts/DataViewContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
@@ -82,6 +82,7 @@ const StyledFirstColumnButton = styled(Button)(() => ({
   padding: 0,
   margin: 0,
   textDecoration: "underline",
+  justifyContent: "flex-start",
   "&:hover": {
     backgroundColor: "transparent",
   },
@@ -135,22 +136,35 @@ const SubmittedData: FC = () => {
   };
 
   const handleSetupColumns = (rawColumns: string[], keyColumn: string) => {
-    if (!rawColumns?.length) {
+    if (!rawColumns?.length || !filterRef.current?.nodeType) {
       setLoading(false);
     }
 
-    // move the keyColumn to the front of array, if it exists in rawColumns
-    const columnsClone = moveToFrontOfArray([...rawColumns], keyColumn);
+    const dataFileColumnOrder = [keyColumn, "Status", "Orphaned"];
+    const metadataFileColumnOrder = [keyColumn, "Status"];
+    const columnOrder =
+      filterRef.current.nodeType === "data file" ? dataFileColumnOrder : metadataFileColumnOrder;
+    const orderedColumns = rearrangeKeys([...rawColumns, "Status"], columnOrder);
 
-    const cols: Column<T>[] = columnsClone.map((prop: string, idx: number) => ({
-      label: prop,
-      renderValue: (d) =>
-        (idx === 0 && d.nodeType !== "data file"
-          ? renderFirstColumnValue(d, prop)
-          : d?.props?.[prop] || "") as React.ReactNode,
-      fieldKey: prop,
-      default: idx === 0 ? true : undefined,
-    }));
+    const cols: Column<T>[] = orderedColumns?.map((prop: string, idx: number) => {
+      if (prop === "Status") {
+        return {
+          label: "Status",
+          renderValue: (d) => d?.status || "",
+          field: "status",
+        };
+      }
+
+      return {
+        label: prop,
+        renderValue: (d) =>
+          (idx === 0 && d.nodeType !== "data file"
+            ? renderFirstColumnValue(d, prop)
+            : d?.props?.[prop] || "") as React.ReactNode,
+        fieldKey: prop,
+        default: idx === 0 ? true : undefined,
+      };
+    });
 
     cols.unshift({
       label: <HeaderCheckbox />,
@@ -174,12 +188,6 @@ const SubmittedData: FC = () => {
       ),
       sortDisabled: true,
       fieldKey: "checkbox",
-    });
-
-    cols.push({
-      label: "Status",
-      renderValue: (d) => d?.status || "",
-      field: "status",
     });
 
     if (isEqual(cols, columns)) {
