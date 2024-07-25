@@ -207,7 +207,7 @@ const GenericTable = <T,>(
       return;
     }
     const newDefaultColumn = columns?.find((c) => c.default);
-    const fieldKey = newDefaultColumn?.fieldKey ?? newDefaultColumn.field?.toString();
+    const fieldKey = newDefaultColumn?.fieldKey ?? newDefaultColumn?.field?.toString();
 
     dispatch({ type: "SET_ORDER_BY", payload: fieldKey });
     dispatch({ type: "SET_SORT_DIRECTION", payload: defaultOrder });
