@@ -212,7 +212,7 @@ type Props = {
 
 const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const { user, status: authStatus } = useAuthContext();
-  const { data: allOrgs, status: orgStatus } = useOrganizationListContext();
+  const { status: orgStatus } = useOrganizationListContext();
   const {
     handleSubmit,
     register,
@@ -254,11 +254,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
   const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
   const intention = watch("intention");
-
-  const userHasInactiveOrg = useMemo(() => {
-    const userOrg = allOrgs?.find((org) => org._id === user?.organization?.orgID);
-    return userOrg?.status === "Inactive";
-  }, [allOrgs, user]);
+  const userHasInactiveOrg = useMemo(
+    () => user?.organization?.status === "Inactive",
+    [user?.organization?.status]
+  );
 
   const submissionTypeOptions: Option[] = [
     {
