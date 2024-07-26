@@ -510,7 +510,127 @@ describe("SubmittedData > Table", () => {
     expect(getByTestId("generic-table-header-col.3")).toBeInTheDocument();
   });
 
-  it("should append the 'Status' column to any node type", async () => {
+  it("should arrange columns correctly for 'data file' nodeType", async () => {
+    const submissionID = "example-dynamic-columns-id";
+
+    const mocks: MockedResponse[] = [
+      mockSubmissionQuery,
+      {
+        maxUsageCount: 2, // initial query + orderBy bug
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmissionNodes: {
+              total: 1,
+              IDPropName: "File Name",
+              properties: ["Orphaned", "File Size", "Uploaded Date/Time", "File Name"],
+              nodes: [
+                {
+                  nodeType: "data file",
+                  nodeID: "example-node-id",
+                  props: JSON.stringify({
+                    Orphaned: "value-1",
+                    "File Size": "value-2",
+                    "File Name": "value-3",
+                    "Uploaded Date/Time": "value-4",
+                  }),
+                  status: "New",
+                },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByTestId, getAllByTestId } = render(
+      <TestParent mocks={mocks} submissionId={submissionID} submissionName={undefined}>
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("generic-table-header-File Name")).toBeInTheDocument();
+    });
+
+    const headers = [
+      "Select All", // visually hidden
+      "File Name",
+      "Status",
+      "Orphaned",
+      "File Size",
+      "Uploaded Date/Time",
+    ];
+
+    const allHeaders = getAllByTestId(/generic-table-header-/);
+    allHeaders.forEach((header, idx) => {
+      expect(header).toHaveTextContent(headers[idx]);
+    });
+  });
+
+  it("should arrange columns correctly for all other nodeTypes", async () => {
+    const submissionID = "example-dynamic-columns-id";
+
+    const mocks: MockedResponse[] = [
+      mockSubmissionQuery,
+      {
+        maxUsageCount: 2, // initial query + orderBy bug
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmissionNodes: {
+              total: 1,
+              IDPropName: "col.2",
+              properties: ["col.1", "col.2", "col.3"],
+              nodes: [
+                {
+                  nodeType: "example-node",
+                  nodeID: "example-node-id",
+                  props: JSON.stringify({
+                    "col.1": "value-1",
+                    "col.2": "value-2",
+                    "col.3": "value-3",
+                  }),
+                  status: "New",
+                },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByTestId, getAllByTestId } = render(
+      <TestParent mocks={mocks} submissionId={submissionID} submissionName={undefined}>
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("generic-table-header-col.1")).toBeInTheDocument();
+    });
+
+    const headers = [
+      "Select All", // visually hidden
+      "col.2",
+      "Status",
+      "col.1",
+      "col.3",
+    ];
+
+    const allHeaders = getAllByTestId(/generic-table-header-/);
+    allHeaders.forEach((header, idx) => {
+      expect(header).toHaveTextContent(headers[idx]);
+    });
+  });
+
+  it("should add the 'Status' column to any node type", async () => {
     const submissionID = "example-status-column-id";
 
     const mocks: MockedResponse[] = [
