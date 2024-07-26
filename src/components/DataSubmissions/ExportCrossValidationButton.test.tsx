@@ -59,7 +59,7 @@ const baseCrossValidationResult: CrossValidationResult = {
   severity: "Error",
   uploadedDate: "",
   validatedDate: "",
-  conflictingSubmissions: [],
+  conflictingSubmission: "",
   errors: [],
   warnings: [],
 };
