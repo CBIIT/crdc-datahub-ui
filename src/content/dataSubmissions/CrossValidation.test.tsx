@@ -3,7 +3,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "jest-axe";
-import { render, waitFor } from "@testing-library/react";
+import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   CrossValidationResultsInput,
@@ -71,6 +71,14 @@ const baseCrossValidationResult: CrossValidationResult = {
   conflictingSubmission: "",
   errors: [],
   warnings: [],
+};
+
+const baseBatch = {
+  _id: "",
+  displayID: 0,
+  createdAt: "",
+  updatedAt: "",
+  __typename: "Batch",
 };
 
 const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
@@ -210,6 +218,148 @@ describe("General", () => {
         {
           variant: "error",
         }
+      );
+    });
+  });
+
+  it("should not send batchIDs or nodeTypes when the filter is set to 'All'", async () => {
+    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
+      request: {
+        query: SUBMISSION_CROSS_VALIDATION_RESULTS,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          submissionCrossValidationResults: {
+            total: 0,
+            results: [],
+          },
+        },
+      },
+    };
+
+    render(<CrossValidation />, {
+      wrapper: ({ children }) => (
+        <TestParent mocks={[mock, batchesMock, nodesMock]} submission={{ _id: "test-filters-1" }}>
+          {children}
+        </TestParent>
+      ),
+    });
+
+    // "All" is the default selection for all filters
+    expect(mockMatcher).not.toHaveBeenCalledWith(
+      expect.objectContaining({ batchIDs: expect.anything(), nodeTypes: expect.anything() })
+    );
+    expect(mockMatcher).toHaveBeenCalledWith(expect.objectContaining({ severities: "All" }));
+  });
+
+  // NOTE: This test heavily depends on CrossValidationFilters test-ids
+  it("should send batchIDs or nodeTypes when the filter is set to anything but 'All'", async () => {
+    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
+      maxUsageCount: 3, // Init + 2 Filter changes
+      request: {
+        query: SUBMISSION_CROSS_VALIDATION_RESULTS,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          submissionCrossValidationResults: {
+            total: 0,
+            results: [],
+          },
+        },
+      },
+    };
+
+    const nodesMockWithData: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+      request: {
+        query: LIST_NODE_TYPES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          listSubmissionNodeTypes: ["node-xyz"],
+        },
+      },
+    };
+
+    const batchesMockWithData: MockedResponse<ListBatchesResp<true>, ListBatchesInput> = {
+      request: {
+        query: LIST_BATCHES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          listBatches: {
+            total: 1,
+            batches: [
+              {
+                ...baseBatch,
+                _id: "batch-999",
+                displayID: 999,
+              },
+            ],
+          },
+          batchStatusList: {
+            batches: null, // NOTE: Required by type, but not used in the component
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(<CrossValidation />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[mock, batchesMockWithData, nodesMockWithData]}
+          submission={{ _id: "test-filters-2" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    const batchBox = within(getByTestId("cross-validation-batchID-filter")).getByRole("button");
+
+    userEvent.click(batchBox);
+
+    await waitFor(() => {
+      const muiSelectList = within(getByTestId("cross-validation-batchID-filter")).getByRole(
+        "listbox",
+        {
+          hidden: true,
+        }
+      );
+
+      expect(within(muiSelectList).getByTestId("batch-999")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("batch-999"));
+
+    const nodeBox = within(getByTestId("cross-validation-nodeType-filter")).getByRole("button");
+
+    userEvent.click(nodeBox);
+
+    await waitFor(() => {
+      const muiSelectList = within(getByTestId("cross-validation-nodeType-filter")).getByRole(
+        "listbox",
+        {
+          hidden: true,
+        }
+      );
+
+      expect(within(muiSelectList).getByTestId("nodeType-node-xyz")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("nodeType-node-xyz"));
+
+    await waitFor(() => {
+      expect(mockMatcher).toHaveBeenCalledWith(
+        expect.objectContaining({
+          batchIDs: ["batch-999"],
+          nodeTypes: ["node-xyz"],
+        })
       );
     });
   });

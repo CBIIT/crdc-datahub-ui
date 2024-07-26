@@ -80,18 +80,18 @@ const columns: Column<CrossValidationResult>[] = [
   {
     label: "Conflicting Submission",
     renderValue: ({ conflictingSubmission: _id }) => (
-      <div key={_id} data-testid={`conflicting-submission-${_id}`}>
-        {" ..."}
+      <span key={_id} data-testid={`conflicting-submission-${_id}`}>
         <StyledFormTooltip title={_id}>
           <Link
             to={`/data-submission/${_id}`}
             target="_blank"
             data-testid={`conflicting-link-${_id}`}
           >
-            {_id.slice(-5)}
+            ...
+            {_id?.slice(-5)}
           </Link>
         </StyledFormTooltip>
-      </div>
+      </span>
     ),
     field: "conflictingSubmission",
   },
@@ -214,6 +214,9 @@ const CrossValidation: FC = () => {
     try {
       setLoading(true);
 
+      const nodeTypeFilter = filterRef.current?.nodeTypes;
+      const batchIDFilter = filterRef.current?.batchIDs;
+
       const { data: d, error } = await crossValidationResults({
         variables: {
           submissionID: submissionId,
@@ -221,7 +224,9 @@ const CrossValidation: FC = () => {
           offset,
           sortDirection,
           orderBy: orderBy as keyof CrossValidationResult,
-          ...filterRef.current,
+          nodeTypes: nodeTypeFilter?.[0] === "All" ? undefined : nodeTypeFilter,
+          batchIDs: batchIDFilter?.[0] === "All" ? undefined : batchIDFilter,
+          severities: filterRef.current?.severities,
         },
         context: { clientName: "backend" },
         fetchPolicy: "no-cache",
