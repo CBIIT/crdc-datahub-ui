@@ -31,10 +31,6 @@ import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
-import {
-  Status as OrgStatus,
-  useOrganizationListContext,
-} from "../Contexts/OrganizationListContext";
 import Tooltip from "../Tooltip";
 
 const CreateSubmissionDialog = styled(Dialog)({
@@ -212,7 +208,6 @@ type Props = {
 
 const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const { user, status: authStatus } = useAuthContext();
-  const { status: orgStatus } = useOrganizationListContext();
   const {
     handleSubmit,
     register,
@@ -243,13 +238,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       fetchPolicy: "no-cache",
     }
   );
-  const { data: approvedStudiesData } = useQuery<ListApprovedStudiesOfMyOrgResp>(
-    LIST_APPROVED_STUDIES_OF_MY_ORG,
-    {
+  const { data: approvedStudiesData, loading: approvedStudiesLoading } =
+    useQuery<ListApprovedStudiesOfMyOrgResp>(LIST_APPROVED_STUDIES_OF_MY_ORG, {
       context: { clientName: "backend" },
       fetchPolicy: "cache-and-network",
-    }
-  );
+    });
 
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
   const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
@@ -587,7 +580,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                   !hasOrganizationAssigned ||
                   userHasInactiveOrg ||
                   authStatus === AuthStatus.LOADING ||
-                  orgStatus === OrgStatus.LOADING
+                  approvedStudiesLoading
                 }
               >
                 Create a Data Submission
