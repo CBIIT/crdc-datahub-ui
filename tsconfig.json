@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     "target": "es5",
+    // fix Type 'Element' is not assignable to type 'ReactNode TS warning
+    "paths": {
+        "react": ["./node_modules/@types/react"]
+    },
     "lib": [
       "dom",
       "dom.iterable",
@@ -8,9 +12,7 @@
     ],
     "allowJs": true,
     "checkJs": true,
-    // TODO – Re-enable this once the type issues in node_modules are resolved
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": false,
+    "skipLibCheck": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": false,

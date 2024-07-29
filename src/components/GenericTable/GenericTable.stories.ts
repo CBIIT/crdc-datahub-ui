@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import GenericTable from "./GenericTable";
+import GenericTable from "./index";
 
 const meta = {
   title: "Data Submissions / Generic Table",

@@ -56,6 +56,8 @@ export const CrossValidationButton: FC<Props> = ({ submission, ...props }) => {
 
   const { _id, status, crossSubmissionStatus, otherSubmissions } = submission || {};
   const parsedSubmissions = safeParse<OtherSubmissions>(otherSubmissions);
+  const hasOtherSubmissions =
+    parsedSubmissions?.Submitted?.length > 0 || parsedSubmissions?.Released?.length > 0;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(crossSubmissionStatus === "Validating");
@@ -122,7 +124,7 @@ export const CrossValidationButton: FC<Props> = ({ submission, ...props }) => {
   if (
     !user?.role ||
     !CrossValidateRoles.includes(user.role) ||
-    !parsedSubmissions?.Submitted?.length ||
+    !hasOtherSubmissions ||
     status !== "Submitted"
   ) {
     return null;

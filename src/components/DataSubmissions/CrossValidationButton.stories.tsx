@@ -44,10 +44,12 @@ export const Button: Story = {
       otherSubmissions: JSON.stringify({
         Submitted: ["1", "2"],
       }),
-    },
-    onValidate: (r) => {
-      // eslint-disable-next-line no-alert
-      window.alert(`Validate result ${r}`);
+      studyID: "",
+      deletingData: false,
+      validationStarted: "",
+      validationEnded: "",
+      validationScope: "New",
+      validationType: [],
     },
     variant: "contained",
     color: "info",

@@ -40,6 +40,12 @@ export const Button: Story = {
       updatedAt: "",
       crossSubmissionStatus: "New",
       otherSubmissions: "",
+      studyID: "",
+      deletingData: false,
+      validationStarted: "",
+      validationEnded: "",
+      validationScope: "New",
+      validationType: [],
     },
     fields: {
       "Batch ID": (d) => d.displayID,

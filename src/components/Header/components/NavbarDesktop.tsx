@@ -184,8 +184,8 @@ const LiSection = styled("li")({
     lineHeight: "40px",
     letterSpacing: "normal",
     textDecoration: "none",
-    margin: "0 45px 0 5px",
-    padding: "0 15px",
+    margin: "0 5px",
+    padding: "0 8px",
     userSelect: "none",
     background: "#1F4671",
     borderTop: "4px solid #5786FF",
@@ -470,7 +470,11 @@ const NavBar = () => {
                   return (
                     dropItem.link && (
                       <Link
-                        target={dropItem.link.startsWith("https://") ? "_blank" : "_self"}
+                        target={
+                          dropItem.link.startsWith("https://") || dropItem.link.endsWith(".pdf")
+                            ? "_blank"
+                            : "_self"
+                        }
                         id={dropItem.id}
                         to={dropItem.link}
                         className="dropdownItem"

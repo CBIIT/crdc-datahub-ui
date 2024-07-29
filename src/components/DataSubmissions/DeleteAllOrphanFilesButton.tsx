@@ -5,7 +5,7 @@ import { useMutation } from "@apollo/client";
 import { ReactComponent as DeleteAllFilesIcon } from "../../assets/icons/delete_all_files_icon.svg";
 import { DELETE_ALL_ORPHANED_FILES, DeleteAllOrphanedFilesResp } from "../../graphql";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
-import DeleteDialog from "../../content/dataSubmissions/DeleteDialog";
+import DeleteDialog from "../DeleteDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
 
 const StyledIconButton = styled(IconButton)(({ disabled }) => ({

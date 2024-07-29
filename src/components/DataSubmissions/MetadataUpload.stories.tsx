@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { MetadataUpload } from "./MetadataUpload";
+import MetadataUpload from "./MetadataUpload";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 
 const meta = {
@@ -53,6 +53,12 @@ const baseSubmission: Submission = {
   updatedAt: "",
   crossSubmissionStatus: "New",
   otherSubmissions: "",
+  studyID: "",
+  deletingData: false,
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: [],
 };
 
 export const Default: Story = {

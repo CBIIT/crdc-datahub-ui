@@ -101,7 +101,6 @@ const StyledSectionDivider = styled(Divider)(() => ({
     background: "#6CACDA",
     marginLeft: "44px",
     marginTop: "9px",
-    alignSelft: "flex-end",
   },
 }));
 

@@ -246,6 +246,7 @@ const ListingView: FC = () => {
         application: {
           _id: undefined,
           programName: "",
+          studyName: "",
           studyAbbreviation: "",
           questionnaireData: "{}",
           controlledAccess: false,

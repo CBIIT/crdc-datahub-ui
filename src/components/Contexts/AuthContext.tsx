@@ -1,6 +1,6 @@
 import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
-import { GET_MY_USER, GetMyUserResp } from "../../graphql";
+import { query as GET_USER, Response as GetUserResp } from "../../graphql/getMyUser";
 import env from "../../env";
 
 const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
@@ -121,7 +121,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => 
     : null;
   const [state, setState] = useState<ContextState>(cachedState || initialState);
 
-  const [getMyUser] = useLazyQuery<GetMyUserResp>(GET_MY_USER, {
+  const [getMyUser] = useLazyQuery<GetUserResp>(GET_USER, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });

@@ -6,11 +6,11 @@
     "@axe-core/react": "^4.9.0",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
-    "@graphiql/toolkit": "^0.9.1",
     "@jalik/form-parser": "^3.1.0",
     "@mui/icons-material": "^5.11.16",
     "@mui/lab": "^5.0.0-alpha.130",
     "@mui/material": "^5.13.1",
+    "@mui/utils": "^5.15.20",
     "@mui/x-date-pickers": "^6.8.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -19,7 +19,6 @@
     "@types/react-transition-group": "^4.4.10",
     "data-model-navigator": "github:CBIIT/Data-Model-Navigator#CRDC-DH",
     "dayjs": "^1.11.8",
-    "graphiql": "^3.3.1",
     "graphql": "^16.7.1",
     "graphql-tag": "^2.12.6",
     "jest-axe": "^8.0.0",
@@ -75,6 +74,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@chromatic-com/storybook": "^1.5.0",
     "@storybook/addon-a11y": "^8.1.5",
     "@storybook/addon-essentials": "^8.1.5",

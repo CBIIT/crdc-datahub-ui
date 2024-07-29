@@ -40,6 +40,7 @@ const baseSubmission: Submission = {
   validationEnded: "",
   validationScope: "New",
   validationType: [],
+  deletingData: false,
   fileErrors: [],
   history: [],
   conciergeName: "",
@@ -332,6 +333,70 @@ describe("SubmissionProvider", () => {
     expect(mockStartPolling).not.toHaveBeenCalled();
   });
 
+  it("should start polling if there is an ongoing deletion", async () => {
+    const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: 1,
+        request: {
+          query: GET_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmission: {
+              ...baseSubmission,
+              _id: "test-deleting-id",
+              deletingData: true,
+            },
+            submissionStats: {
+              stats: [],
+            },
+            listBatches: {
+              batches: [],
+            },
+          },
+        },
+      },
+    ];
+
+    render(<TestParent mocks={mocks} _id="test-deleting-id" />);
+
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
+    expect(mockStopPolling).not.toHaveBeenCalled();
+  });
+
+  it("should stop polling if there is no ongoing deletion", async () => {
+    const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: 1,
+        request: {
+          query: GET_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmission: {
+              ...baseSubmission,
+              _id: "test-deleting-id",
+              deletingData: false,
+            },
+            submissionStats: {
+              stats: [],
+            },
+            listBatches: {
+              batches: [],
+            },
+          },
+        },
+      },
+    ];
+
+    render(<TestParent mocks={mocks} _id="test-deleting-id" />);
+
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
+    expect(mockStartPolling).not.toHaveBeenCalled();
+  });
+
   it("should use the polling wrapper functions to start and stop polling", async () => {
     const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
       {
@@ -377,13 +442,52 @@ describe("SubmissionProvider", () => {
     });
 
     expect(mockStartPolling).toHaveBeenCalledWith(1000);
-    expect(result.current.isPolling).toBe(true);
 
     act(() => {
       stopPolling();
     });
 
     expect(mockStopPolling).toHaveBeenCalled();
-    expect(result.current.isPolling).toBe(false);
+  });
+
+  it("should set the status to POLLING when polling is active", async () => {
+    const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
+      {
+        request: {
+          query: GET_SUBMISSION,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmission: {
+              ...baseSubmission,
+              _id: "test-polling-id",
+            },
+            submissionStats: {
+              stats: [],
+            },
+            listBatches: {
+              batches: [],
+            },
+          },
+        },
+      },
+    ];
+
+    const { result } = renderHook(() => useSubmissionContext(), {
+      wrapper: ({ children }) => (
+        <TestParent mocks={mocks} _id="test-polling-id">
+          {children}
+        </TestParent>
+      ),
+    });
+
+    await waitFor(() => expect(result.current.status).toBe(SubmissionCtxStatus.LOADED));
+
+    act(() => {
+      result.current.startPolling(1000);
+    });
+
+    await waitFor(() => expect(result.current.status).toBe(SubmissionCtxStatus.POLLING));
   });
 });

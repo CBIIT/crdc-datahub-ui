@@ -23,7 +23,7 @@ import {
   ListApprovedStudiesOfMyOrgResp,
   LIST_APPROVED_STUDIES_OF_MY_ORG,
 } from "../../graphql";
-import RadioInput from "../../components/DataSubmissions/RadioInput";
+import RadioInput, { Option } from "../../components/DataSubmissions/RadioInput";
 import { DataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
@@ -244,22 +244,38 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
   const intention = watch("intention");
 
-  const submissionTypeOptions = [
-    { label: "New/Update", value: "New/Update", disabled: false },
-    { label: "Delete", value: "Delete", disabled: false },
+  const submissionTypeOptions: Option[] = [
+    {
+      label: "New/Update",
+      value: "New/Update",
+      disabled: false,
+      tooltipContent:
+        "Select this option to add new data or update existing data in the destination data commons.",
+    },
+    {
+      label: "Delete",
+      value: "Delete",
+      disabled: false,
+      tooltipContent:
+        "Select this option if you want to delete existing data from the destination data commons.",
+    },
   ];
 
-  const submissionDataTypeOptions: {
-    label: string;
-    value: SubmissionDataType;
-    disabled: boolean;
-  }[] = [
+  const submissionDataTypeOptions: Option[] = [
     {
       label: "Metadata and Data Files",
       value: "Metadata and Data Files",
       disabled: intention === "Delete",
+      tooltipContent:
+        "Select this option to create a submission that includes both metadata and data files.",
     },
-    { label: "Metadata Only", value: "Metadata Only", disabled: false },
+    {
+      label: "Metadata Only",
+      value: "Metadata Only",
+      disabled: false,
+      tooltipContent:
+        "Select this option to create a metadata-only submission. In this case, uploading data files is not permitted.",
+    },
   ];
 
   const handleOpenDialog = () => {

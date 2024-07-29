@@ -51,6 +51,7 @@ const baseSubmission: Omit<
   validationScope: "New",
   validationType: ["metadata", "file"],
   studyID: "",
+  deletingData: false,
 };
 
 const baseAuthCtx: AuthCtxState = {
@@ -63,7 +64,6 @@ const baseSubmissionCtx: SubmissionCtxState = {
   status: SubmissionCtxStatus.LOADING,
   data: null,
   error: null,
-  isPolling: false,
   startPolling: jest.fn(),
   stopPolling: jest.fn(),
   refetch: jest.fn(),
@@ -214,6 +214,7 @@ describe("Basic Functionality", () => {
             otherSubmissions: JSON.stringify({
               "In Progress": [],
               Submitted: ["submitted-id"],
+              Released: [],
             }),
           }}
         />
@@ -262,6 +263,7 @@ describe("Basic Functionality", () => {
             otherSubmissions: JSON.stringify({
               "In Progress": [],
               Submitted: ["submitted-id"],
+              Released: [],
             }),
           }}
         />
@@ -306,6 +308,7 @@ describe("Basic Functionality", () => {
             otherSubmissions: JSON.stringify({
               "In Progress": [],
               Submitted: ["submitted-id"],
+              Released: [],
             }),
           }}
         />
@@ -340,6 +343,7 @@ describe("Implementation Requirements", () => {
             otherSubmissions: JSON.stringify({
               "In Progress": [],
               Submitted: ["submitted-id"],
+              Released: [],
             }),
           }}
         />
@@ -361,6 +365,7 @@ describe("Implementation Requirements", () => {
             otherSubmissions: JSON.stringify({
               "In Progress": ["some-other-id"],
               Submitted: ["submitted-id"],
+              Released: [],
             }),
           }}
         />
@@ -380,6 +385,7 @@ describe("Implementation Requirements", () => {
       otherSubmissions: JSON.stringify({
         "In Progress": [],
         Submitted: ["submitted-id"],
+        Released: [],
       }),
     };
 
@@ -419,6 +425,30 @@ describe("Implementation Requirements", () => {
             otherSubmissions: JSON.stringify({
               "In Progress": [],
               Submitted: ["submitted-id", "another-submitted-id"],
+              Released: [],
+            }),
+          }}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("cross-validate-button")).toBeInTheDocument();
+    expect(getByTestId("cross-validate-button")).toBeEnabled();
+  });
+
+  it("should be enabled only if there are other related Released submissions", () => {
+    const { getByTestId } = render(
+      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+        <CrossValidationButton
+          submission={{
+            ...baseSubmission,
+            _id: "validating-test-id",
+            status: "Submitted",
+            crossSubmissionStatus: "New",
+            otherSubmissions: JSON.stringify({
+              "In Progress": [],
+              Submitted: [],
+              Released: ["submitted-id", "another-submitted-id"],
             }),
           }}
         />
@@ -441,6 +471,7 @@ describe("Implementation Requirements", () => {
             otherSubmissions: JSON.stringify({
               "In Progress": ["in-prog-id", "another-in-prog-id"],
               Submitted: [], // NOTE: This disables the button
+              Released: [],
             }),
           }}
         />
@@ -464,6 +495,7 @@ describe("Implementation Requirements", () => {
               otherSubmissions: JSON.stringify({
                 "In Progress": ["submitted-id", "another-submitted-id"],
                 Submitted: ["submitted-id", "another-submitted-id"],
+                Released: ["submitted-id", "another-submitted-id"],
               }),
             }}
           />
@@ -489,6 +521,7 @@ describe("Implementation Requirements", () => {
               otherSubmissions: JSON.stringify({
                 "In Progress": [],
                 Submitted: ["submitted-id", "another-submitted-id"],
+                Released: [],
               }),
             }}
           />
@@ -518,6 +551,7 @@ describe("Implementation Requirements", () => {
               "In Progress": [],
               // NOTE: Even with these values, the button should not render
               Submitted: ["submitted-id", "another-submitted-id"],
+              Released: ["x", "y", "z"],
             }),
           }}
         />
@@ -539,6 +573,7 @@ describe("Implementation Requirements", () => {
             otherSubmissions: JSON.stringify({
               "In Progress": [],
               Submitted: ["this-enables-the-button"],
+              Released: [],
             }),
           }}
         />
@@ -570,6 +605,7 @@ describe("Implementation Requirements", () => {
             otherSubmissions: JSON.stringify({
               "In Progress": [],
               Submitted: ["this-enables-the-button"],
+              Released: ["also-would-enable-the-button"],
             }),
           }}
         />

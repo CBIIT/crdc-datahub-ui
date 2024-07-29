@@ -41,6 +41,12 @@ const baseSubmission: Submission = {
   updatedAt: "",
   crossSubmissionStatus: "New",
   otherSubmissions: "",
+  studyID: "",
+  deletingData: false,
+  validationStarted: "",
+  validationEnded: "",
+  validationScope: "New",
+  validationType: [],
 };
 
 export const Summary: Story = {

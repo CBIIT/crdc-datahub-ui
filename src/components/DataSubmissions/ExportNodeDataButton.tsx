@@ -77,6 +77,7 @@ export const ExportNodeDataButton: React.FC<Props> = ({
         _id: submission?._id,
         sortDirection: "asc",
         nodeType,
+        status: "All",
         first: -1,
         offset: 0,
       },

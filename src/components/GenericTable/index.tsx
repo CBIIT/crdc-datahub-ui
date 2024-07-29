@@ -8,6 +8,7 @@ import {
   TableContainerProps,
   TableHead,
   TablePaginationProps,
+  TableProps,
   TableRow,
   TableSortLabel,
   Typography,
@@ -54,13 +55,10 @@ const StyledTableContainer = styled(TableContainer)({
   },
 });
 
-const StyledTable = styled(Table, {
-  shouldForwardProp: (p) => p !== "horizontalScroll",
-})<{ horizontalScroll: boolean }>(({ horizontalScroll }) => ({
-  whiteSpace: horizontalScroll ? "nowrap" : "initial",
-  display: horizontalScroll ? "block" : "table",
-  overflowX: horizontalScroll ? "auto" : "initial",
-}));
+const StyledTableWrapper = styled("div")({
+  overflowX: "auto",
+  width: "100%",
+});
 
 const StyledTableHead = styled(TableHead)({
   background: "#4D7C8F",
@@ -119,13 +117,14 @@ export type Props<T> = {
   total: number;
   loading?: boolean;
   disableUrlParams?: boolean;
-  horizontalScroll?: boolean;
   position?: PaginationPosition;
   noContentText?: string;
   defaultOrder?: Order;
   defaultRowsPerPage?: number;
   rowsPerPageOptions?: number[];
   paginationPlacement?: CSSProperties["justifyContent"];
+  delayedLoadingTimeMs?: number;
+  tableProps?: TableProps;
   containerProps?: TableContainerProps;
   numRowsNoContent?: number;
   AdditionalActions?: React.ReactNode;
@@ -146,13 +145,14 @@ const GenericTable = <T,>(
     total: initTotal = 0,
     loading,
     disableUrlParams = true,
-    horizontalScroll = false,
     position = "bottom",
     noContentText,
     defaultOrder = "desc",
     defaultRowsPerPage = 10,
     rowsPerPageOptions = [5, 10, 20, 50],
     paginationPlacement,
+    delayedLoadingTimeMs = 200,
+    tableProps,
     containerProps,
     numRowsNoContent = 10,
     AdditionalActions,
@@ -167,10 +167,15 @@ const GenericTable = <T,>(
   }: Props<T>,
   ref: React.Ref<TableMethods>
 ) => {
-  const showDelayedLoading = useDelayedLoading(loading, 200);
+  const showDelayedLoading = useDelayedLoading(
+    loading,
+    delayedLoadingTimeMs > 0 ? delayedLoadingTimeMs : 0
+  );
   const { searchParams, setSearchParams } = useSearchParamsContext();
-  const defaultColumn: Column<T> =
-    columns.find((c) => c.default) || columns.find((c) => c.fieldKey ?? c.field);
+  const defaultColumn: Column<T> = useMemo(
+    () => columns?.find((c) => c.default) || columns?.find((c) => c.fieldKey ?? c.field),
+    [columns]
+  );
   const initialTableParams: TableParams = {
     page: 0,
     perPage: defaultRowsPerPage,
@@ -192,6 +197,21 @@ const GenericTable = <T,>(
   const TableBodyCellComponent = CustomTableBodyCell || StyledTableCell;
   const orderByColumn = columns?.find((c) => (c.fieldKey ?? c.field?.toString()) === orderBy);
   const prevFetchRef = useRef<FetchListing<T>>(null);
+
+  useEffect(() => {
+    const isValidOrderBy = columns?.find((c) => (c.fieldKey ?? c.field?.toString()) === orderBy);
+    if (orderBy && isValidOrderBy) {
+      return;
+    }
+    if (loading || !paramsInitialized || !columns?.length || !defaultColumn) {
+      return;
+    }
+    const newDefaultColumn = columns?.find((c) => c.default);
+    const fieldKey = newDefaultColumn?.fieldKey ?? newDefaultColumn?.field?.toString();
+
+    dispatch({ type: "SET_ORDER_BY", payload: fieldKey });
+    dispatch({ type: "SET_SORT_DIRECTION", payload: defaultOrder });
+  }, [loading, paramsInitialized, orderBy, columns, defaultColumn]);
 
   useEffect(() => {
     if (loading) {
@@ -227,7 +247,7 @@ const GenericTable = <T,>(
       allUpdates.sortDirection = newSortDirection;
     }
 
-    const orderByColumn: Column<T> = columns.find((c) => newOrderBy === (c.fieldKey ?? c.field));
+    const orderByColumn: Column<T> = columns?.find((c) => newOrderBy === (c.fieldKey ?? c.field));
     if (orderByColumn) {
       allUpdates.orderBy = orderByColumn.fieldKey ?? orderByColumn.field?.toString();
     }
@@ -421,88 +441,95 @@ const GenericTable = <T,>(
       {(position === "top" || position === "both") && (
         <Pagination verticalPlacement="top" disabled={!data || loading || !paramsInitialized} />
       )}
-      <StyledTable horizontalScroll={horizontalScroll && total > 0}>
-        {columns?.length > 0 && (
-          <TableHeadComponent>
-            <TableRow>
-              {columns.map((col: Column<T>) => (
-                <TableHeaderCellComponent
-                  key={col.label.toString()}
-                  sx={col.sx}
-                  data-testid={`generic-table-header-${col.label.toString()}`}
-                >
-                  {!col.sortDisabled ? (
-                    <TableSortLabel
-                      active={orderByColumn === col}
-                      direction={orderByColumn === col ? sortDirection : "asc"}
-                      onClick={() => handleRequestSort(col)}
-                    >
-                      {col.label}
-                    </TableSortLabel>
-                  ) : (
-                    col.label
-                  )}
-                </TableHeaderCellComponent>
-              ))}
-            </TableRow>
-          </TableHeadComponent>
-        )}
-        <TableBody>
-          {(!paramsInitialized || showDelayedLoading) && (total === 0 || !data?.length)
-            ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
-                <StyledTableRow key={`loading_row_${idx}`}>
-                  <TableCell colSpan={columns.length} />
-                </StyledTableRow>
-              ))
-            : data?.map((d: T, idx: number) => {
-                const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
-                return (
-                  <TableRow tabIndex={-1} hover key={itemKey}>
-                    {columns.map((col: Column<T>) => (
-                      <TableBodyCellComponent
-                        key={`${itemKey}_${col.label}`}
-                        sx={{
-                          borderBottom:
-                            idx !== (data?.length ?? 0) - 1 ? "1px solid #6B7294" : "none",
-                        }}
-                        data-testid="table-body-cell-with-data"
-                      >
-                        {col.renderValue(d)}
-                      </TableBodyCellComponent>
-                    ))}
-                  </TableRow>
-                );
-              })}
-
-          {!showDelayedLoading &&
-            paramsInitialized &&
-            emptyRows > 0 &&
-            Array.from(Array(emptyRows).keys())?.map((row) => (
-              <StyledTableRow key={`empty_row_${row}`}>
-                <TableCell colSpan={columns.length} />
-              </StyledTableRow>
-            ))}
-
-          {/* No content message */}
-          {!showDelayedLoading &&
-            paramsInitialized &&
-            (!total || total === 0 || (total && !data?.length)) && (
-              <TableRow style={{ height: 46 * numRowsNoContent }}>
-                <TableCell colSpan={columns.length}>
-                  <Typography
-                    variant="body1"
-                    align="center"
-                    fontSize={18}
-                    fontWeight={500}
-                    color="#757575"
+      <StyledTableWrapper className="generic-table-wrapper">
+        <Table className="generic-table" {...tableProps} data-testid="generic-table">
+          {columns?.length > 0 && (
+            <TableHeadComponent>
+              <TableRow>
+                {columns.map((col: Column<T>, index: number) => (
+                  <TableHeaderCellComponent
+                    key={typeof col.label === "string" ? col.label : `column_${index}`}
+                    sx={col.sx}
+                    data-testid={`generic-table-header-${
+                      (typeof col.label === "string" ? col.label : null) ||
+                      (typeof col.fieldKey === "string" ? col.fieldKey : null) ||
+                      (typeof col.field === "string" ? col.field : null) ||
+                      `column_${index}`
+                    }`}
                   >
-                    {noContentText || "No existing data was found"}
-                  </Typography>
-                </TableCell>
+                    {!col.sortDisabled ? (
+                      <TableSortLabel
+                        active={orderByColumn === col}
+                        direction={orderByColumn === col ? sortDirection : "asc"}
+                        onClick={() => handleRequestSort(col)}
+                      >
+                        {col.label}
+                      </TableSortLabel>
+                    ) : (
+                      col.label
+                    )}
+                  </TableHeaderCellComponent>
+                ))}
               </TableRow>
-            )}
-        </TableBody>
-      </StyledTable>
+            </TableHeadComponent>
+          )}
+          <TableBody>
+            {(!paramsInitialized || showDelayedLoading) && (total === 0 || !data?.length)
+              ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
+                  <StyledTableRow key={`loading_row_${idx}`}>
+                    <TableCell colSpan={columns?.length} />
+                  </StyledTableRow>
+                ))
+              : data?.map((d: T, idx: number) => {
+                  const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
+                  return (
+                    <TableRow tabIndex={-1} hover key={itemKey}>
+                      {columns?.map((col: Column<T>) => (
+                        <TableBodyCellComponent
+                          key={`${itemKey}_${col.label}`}
+                          sx={{
+                            borderBottom:
+                              idx !== (data?.length ?? 0) - 1 ? "1px solid #6B7294" : "none",
+                          }}
+                          data-testid="table-body-cell-with-data"
+                        >
+                          {col.renderValue(d)}
+                        </TableBodyCellComponent>
+                      ))}
+                    </TableRow>
+                  );
+                })}
+
+            {!showDelayedLoading &&
+              paramsInitialized &&
+              emptyRows > 0 &&
+              Array.from(Array(emptyRows).keys())?.map((row) => (
+                <StyledTableRow key={`empty_row_${row}`}>
+                  <TableCell colSpan={columns?.length} />
+                </StyledTableRow>
+              ))}
+
+            {/* No content message */}
+            {!showDelayedLoading &&
+              paramsInitialized &&
+              (!total || total === 0 || (total && !data?.length)) && (
+                <TableRow style={{ height: 46 * numRowsNoContent }}>
+                  <TableCell colSpan={columns?.length}>
+                    <Typography
+                      variant="body1"
+                      align="center"
+                      fontSize={18}
+                      fontWeight={500}
+                      color="#757575"
+                    >
+                      {noContentText || "No existing data was found"}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+          </TableBody>
+        </Table>
+      </StyledTableWrapper>
       {(position === "bottom" || position === "both") && (
         <Pagination verticalPlacement="bottom" disabled={!data || loading || !paramsInitialized} />
       )}

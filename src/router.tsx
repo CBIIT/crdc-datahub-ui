@@ -47,7 +47,6 @@ const DataSubmissions = Loader(lazy(() => import("./content/dataSubmissions/Cont
 const Users = Loader(lazy(() => import("./content/users/Controller")));
 const DMN = Loader(lazy(() => import("./content/modelNavigator/Controller")));
 const Organizations = Loader(lazy(() => import("./content/organizations/Controller")));
-const Playground = Loader(lazy(() => import("./content/playground/Controller")));
 const Status404 = Loader(lazy(() => import("./content/status/Page404")));
 
 const routes: RouteObject[] = [
@@ -136,10 +135,6 @@ const routes: RouteObject[] = [
             redirectName="Organization Management"
           />
         ),
-      },
-      {
-        path: "/playground",
-        element: <Playground />,
       },
       {
         path: "*",

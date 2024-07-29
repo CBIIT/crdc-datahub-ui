@@ -115,6 +115,66 @@ describe("GenericTable", () => {
     });
   });
 
+  describe("Test-Driven Feature Support", () => {
+    it("uses the column `label` as the table header testid if it's a string", () => {
+      const { getByTestId } = setup({
+        ...defaultProps,
+        columns: [
+          {
+            label: "Label-XYZ",
+            renderValue: (item: (typeof mockData)[0]) => item.role,
+          },
+        ],
+      });
+
+      expect(getByTestId("generic-table-header-Label-XYZ")).toBeInTheDocument();
+    });
+
+    it("uses the column `fieldKey` as the table header testid if `label` is not a string", () => {
+      const { getByTestId } = setup({
+        ...defaultProps,
+        columns: [
+          {
+            label: <div>Label-XYZ</div>,
+            fieldKey: "mock-fieldKey",
+            renderValue: (item: (typeof mockData)[0]) => item.role,
+          },
+        ],
+      });
+
+      expect(getByTestId("generic-table-header-mock-fieldKey")).toBeInTheDocument();
+    });
+
+    it("uses the column `field` as the table header testid if `label` is not a string", () => {
+      const { getByTestId } = setup({
+        ...defaultProps,
+        columns: [
+          {
+            label: <div>Label-XYZ</div>,
+            field: "role",
+            renderValue: (item: (typeof mockData)[0]) => item.role,
+          },
+        ],
+      });
+
+      expect(getByTestId("generic-table-header-role")).toBeInTheDocument();
+    });
+
+    it("uses the column index as the table header testid if `label` is not a string", () => {
+      const { getByTestId } = setup({
+        ...defaultProps,
+        columns: [
+          {
+            label: <div>Label-XYZ</div>,
+            renderValue: (item: (typeof mockData)[0]) => item.role,
+          },
+        ],
+      });
+
+      expect(getByTestId("generic-table-header-column_0")).toBeInTheDocument();
+    });
+  });
+
   describe("Row and Page Interaction", () => {
     it("updates rows per page", () => {
       const { getByLabelText } = setup();
@@ -136,18 +196,13 @@ describe("GenericTable", () => {
   });
 
   describe("Style Application", () => {
-    it("applies horizontal scroll styles when enabled", () => {
-      const { container } = setup({ ...defaultProps, horizontalScroll: true });
-      expect(container.querySelector("table")).toHaveStyle("white-space: nowrap");
-      expect(container.querySelector("table")).toHaveStyle("display: block");
-      expect(container.querySelector("table")).toHaveStyle("overflow-x: auto");
-    });
+    it("applies tableProps to the table element", () => {
+      const { container } = setup({
+        ...defaultProps,
+        tableProps: { sx: { backgroundColor: "red" } },
+      });
 
-    it("does not apply horizontal scroll styles when disabled", () => {
-      const { container } = setup({ ...defaultProps, horizontalScroll: false });
-      expect(container.querySelector("table")).toHaveStyle("white-space: initial");
-      expect(container.querySelector("table")).toHaveStyle("display: table");
-      expect(container.querySelector("table")).toHaveStyle("overflow-x: initial");
+      expect(container.querySelector("table")).toHaveStyle("background-color: red");
     });
 
     it("applies borderBottom style conditionally based on row position", () => {
@@ -194,11 +249,6 @@ describe("GenericTable", () => {
   });
 
   describe("Visual and Interaction Features", () => {
-    it("checks styled component properties when horizontal scroll is enabled", () => {
-      const { container } = setup({ ...defaultProps, horizontalScroll: true });
-      expect(container.querySelector(".MuiTable-root")).toHaveStyle("display: block");
-    });
-
     it("renders top and bottom pagination when position is both", () => {
       const { getByTestId } = setup({ ...defaultProps, position: "both" });
       const topPagination = getByTestId("generic-table-rows-per-page-top");

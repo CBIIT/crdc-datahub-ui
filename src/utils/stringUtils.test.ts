@@ -204,3 +204,105 @@ describe("compareStrings utility function", () => {
     expect(utils.compareStrings("Apple", "apple")).toBeGreaterThan(0);
   });
 });
+
+describe("moveToFrontOfArray utility function", () => {
+  test("moves key element to the front if it exists and is not at the front", () => {
+    const originalArray = ["a", "b", "c", "d"];
+    const keyElement = "c";
+    const expectedArray = ["c", "a", "b", "d"];
+    expect(utils.moveToFrontOfArray(originalArray, keyElement)).toEqual(expectedArray);
+  });
+
+  test("returns the same array if the key element is already at the front", () => {
+    const originalArray = ["c", "a", "b", "d"];
+    const keyElement = "c";
+    expect(utils.moveToFrontOfArray(originalArray, keyElement)).toEqual(originalArray);
+  });
+
+  test("returns the same array if the key element does not exist", () => {
+    const originalArray = ["a", "b", "c", "d"];
+    const keyElement = "e";
+    expect(utils.moveToFrontOfArray(originalArray, keyElement)).toEqual(originalArray);
+  });
+
+  test("returns an empty array if the input array is empty", () => {
+    const originalArray: string[] = [];
+    const keyElement = "a";
+    expect(utils.moveToFrontOfArray(originalArray, keyElement)).toEqual([]);
+  });
+
+  test("returns the original array if the key element is undefined or empty", () => {
+    const originalArray = ["a", "b", "c", "d"];
+    const keyElement = "";
+    expect(utils.moveToFrontOfArray(originalArray, keyElement)).toEqual(originalArray);
+  });
+
+  test("returns the original array if no key element is specified", () => {
+    const originalArray = ["a", "b", "c", "d"];
+    expect(utils.moveToFrontOfArray(originalArray, undefined as unknown as string)).toEqual(
+      originalArray
+    );
+  });
+
+  test("returns an empty array if both array and key are undefined", () => {
+    expect(
+      utils.moveToFrontOfArray(undefined as unknown as string[], undefined as unknown as string)
+    ).toEqual([]);
+  });
+});
+
+describe("rearrangeKeys utility function", () => {
+  it("should rearrange keys based on keyOrder and append remaining keys", () => {
+    const keysArray = ["id", "name", "age", "gender"];
+    const keyOrder = ["name", "age"];
+    const result = utils.rearrangeKeys(keysArray, keyOrder);
+    expect(result).toEqual(["name", "age", "id", "gender"]);
+  });
+
+  it("should handle when keyOrder is empty", () => {
+    const keysArray = ["id", "name", "age", "gender"];
+    const keyOrder: string[] = [];
+    const result = utils.rearrangeKeys(keysArray, keyOrder);
+    expect(result).toEqual(["id", "name", "age", "gender"]);
+  });
+
+  it("should handle when keysArray is empty", () => {
+    const keysArray: string[] = [];
+    const keyOrder = ["name", "age"];
+    const result = utils.rearrangeKeys(keysArray, keyOrder);
+    expect(result).toEqual([]);
+  });
+
+  it("should handle when keyOrder has keys not in keysArray", () => {
+    const keysArray = ["id", "name", "age", "gender"];
+    const keyOrder = ["name", "age", "notInArray"];
+    const result = utils.rearrangeKeys(keysArray, keyOrder);
+    expect(result).toEqual(["name", "age", "id", "gender"]);
+  });
+
+  it("should keep the order of keys not in keyOrder as they appear in keysArray", () => {
+    const keysArray = ["id", "name", "age", "gender", "email"];
+    const keyOrder = ["name", "age"];
+    const result = utils.rearrangeKeys(keysArray, keyOrder);
+    expect(result).toEqual(["name", "age", "id", "gender", "email"]);
+  });
+
+  it("should return keysArray if keyOrder is null or undefined", () => {
+    const keysArray = ["id", "name", "age", "gender"];
+    expect(utils.rearrangeKeys(keysArray, null as unknown as string[])).toEqual(keysArray);
+    expect(utils.rearrangeKeys(keysArray, undefined as unknown as string[])).toEqual(keysArray);
+  });
+
+  it("should return empty array if keysArray is null or undefined", () => {
+    const keyOrder = ["name", "age"];
+    expect(utils.rearrangeKeys(null as unknown as string[], keyOrder)).toEqual([]);
+    expect(utils.rearrangeKeys(undefined as unknown as string[], keyOrder)).toEqual([]);
+  });
+
+  it("should maintain order of keys not specified in keyOrder", () => {
+    const keysArray = ["id", "name", "age", "gender", "email"];
+    const keyOrder = ["gender", "name"];
+    const result = utils.rearrangeKeys(keysArray, keyOrder);
+    expect(result).toEqual(["gender", "name", "id", "age", "email"]);
+  });
+});

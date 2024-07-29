@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useId, forwardRef } from "react";
+import React, { useState, useRef, useEffect, useId, forwardRef, ReactNode } from "react";
 import {
   Grid,
   FormControl,
@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { updateInputValidity } from "../../utils";
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const GridStyled = styled(Grid, {
   shouldForwardProp: (prop) => prop !== "containerWidth",
@@ -76,10 +77,11 @@ const StyledFormControlLabel = styled(FormControlLabel)(() => ({
   },
 }));
 
-type Option = {
+export type Option = {
   label: string;
   value: string;
   disabled?: boolean;
+  tooltipContent?: string | ReactNode;
 };
 
 type Props = {
@@ -173,9 +175,8 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
               {options?.map((option: Option, idx: number) => {
                 const isFirstOption = idx === 0;
 
-                return (
+                return !option.tooltipContent ? (
                   <StyledFormControlLabel
-                    key={`${option.label}-${option.value}}`}
                     value={option.value}
                     label={option.label}
                     color="#1D91AB"
@@ -188,6 +189,25 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
                       />
                     }
                   />
+                ) : (
+                  <StyledTooltip
+                    key={`${option.label}-${option.value}}`}
+                    title={option.tooltipContent}
+                  >
+                    <StyledFormControlLabel
+                      value={option.value}
+                      label={option.label}
+                      color="#1D91AB"
+                      control={
+                        <StyledRadioButton
+                          id={id.concat(`-${option.label}-radio-button`)}
+                          readOnly={readOnly || option.disabled}
+                          disabled={option.disabled}
+                          {...(isFirstOption && { inputRef: radioGroupInputRef })}
+                        />
+                      }
+                    />
+                  </StyledTooltip>
                 );
               })}
             </RadioGroup>

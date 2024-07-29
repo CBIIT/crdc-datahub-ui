@@ -30,7 +30,7 @@ export const query = gql`
 `;
 
 export type Response = {
-  getApplication: Application & {
+  getApplication: Omit<Application, "questionnaireData"> & {
     questionnaireData: string; // Cast to QuestionnaireData
   };
 };

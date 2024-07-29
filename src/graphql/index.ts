@@ -75,6 +75,16 @@ export type {
 export { query as LIST_NODE_TYPES } from "./listSubmissionNodeTypes";
 export type { Response as ListNodeTypesResp } from "./listSubmissionNodeTypes";
 
+export { query as GET_NODE_DETAIL } from "./getNodeDetail";
+export type { Input as GetNodeDetailInput, Response as GetNodeDetailResp } from "./getNodeDetail";
+
+export { query as GET_RELATED_NODES } from "./getRelatedNodes";
+export type {
+  Input as GetRelatedNodesInput,
+  Response as GetRelatedNodesResp,
+  PropertiesOnlyResponse as GetRelatedNodesRespPropsOnly,
+} from "./getRelatedNodes";
+
 export { query as GET_SUBMISSION_NODES } from "./getSubmissionNodes";
 export type {
   Input as GetSubmissionNodesInput,
@@ -90,13 +100,16 @@ export type { Response as DeleteOrphanedFileResp } from "./deleteOrphanedFile";
 export { mutation as DELETE_ALL_ORPHANED_FILES } from "./deleteAllOrphanedFiles";
 export type { Response as DeleteAllOrphanedFilesResp } from "./deleteAllOrphanedFiles";
 
+export { mutation as DELETE_DATA_RECORDS } from "./deleteDataRecords";
+export type {
+  Input as DeleteDataRecordsInput,
+  Response as DeleteDataRecordsResp,
+} from "./deleteDataRecords";
+
 export { query as RETRIEVE_CLI_CONFIG } from "./retrieveCLIConfig";
 export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
 
 // User Profile
-export { query as GET_MY_USER } from "./getMyUser";
-export type { Response as GetMyUserResp } from "./getMyUser";
-
 export { query as GET_USER } from "./getUser";
 export type { Response as GetUserResp } from "./getUser";
 
