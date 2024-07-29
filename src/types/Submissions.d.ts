@@ -80,7 +80,7 @@ type CrossSubmissionStatus = Exclude<ValidationStatus, "Warning">;
  * @example ```{ "Submitted": ["abc-0001", "xyz-0002"], "In Progress": ["bge-0003"] }```
  */
 type OtherSubmissions = {
-  [key in Extract<SubmissionStatus, "In Progress" | "Submitted">]: string[];
+  [key in Extract<SubmissionStatus, "In Progress" | "Submitted" | "Released">]: string[];
 };
 
 type SubmissionStatus =

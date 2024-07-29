@@ -137,12 +137,14 @@ export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
   }
 
   // Scenario 1: All other submissions are "In Progress", allow release with alert
-  if (parsedSubmissions?.Submitted?.length === 0 && parsedSubmissions["In Progress"]?.length > 0) {
+  const hasRelatedSubmitted = parsedSubmissions?.Submitted?.length > 0;
+  const hasRelatedReleased = parsedSubmissions?.Released?.length > 0;
+  if (!hasRelatedSubmitted && !hasRelatedReleased && parsedSubmissions["In Progress"]?.length > 0) {
     return { disable: false, requireAlert: true };
   }
 
-  // Scenario 2: More than one other "Submitted" submission exists, disable release entirely
-  if (parsedSubmissions?.Submitted?.length > 0) {
+  // Scenario 2: More than one other Submitted/Released submission exists, disable release entirely
+  if (hasRelatedSubmitted || hasRelatedReleased) {
     return { disable: true, requireAlert: false };
   }
 

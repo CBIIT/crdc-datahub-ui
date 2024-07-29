@@ -721,6 +721,7 @@ describe("shouldDisableRelease", () => {
       otherSubmissions: JSON.stringify({
         "In Progress": [],
         Submitted: [],
+        Released: [],
       }),
     });
 
@@ -728,13 +729,14 @@ describe("shouldDisableRelease", () => {
     expect(result.requireAlert).toBe(false);
   });
 
-  it("should allow release with alert when other submissions are In Progress and there are no Submitted submissions", () => {
+  it("should allow release with alert when other submissions are In Progress and there are no related submissions", () => {
     const result: ReleaseInfo = utils.shouldDisableRelease({
       ...baseSubmission,
       crossSubmissionStatus: null,
       otherSubmissions: JSON.stringify({
         "In Progress": ["ABC-123", "XYZ-456"],
         Submitted: [],
+        Released: [],
       }),
     });
 
@@ -743,7 +745,7 @@ describe("shouldDisableRelease", () => {
   });
 
   it.each<CrossSubmissionStatus>(["Passed"])(
-    "should allow release when crossSubmissionStatus is %s and other submissions exist",
+    "should allow release when crossSubmissionStatus is %s even if other submissions exist",
     (status) => {
       const result: ReleaseInfo = utils.shouldDisableRelease({
         ...baseSubmission,
@@ -751,6 +753,7 @@ describe("shouldDisableRelease", () => {
         otherSubmissions: JSON.stringify({
           "In Progress": ["ABC-123", "XYZ-456"],
           Submitted: ["DEF-456", "GHI-789"],
+          Released: ["JKL-012", "MNO-345"],
         }),
       });
 
@@ -774,6 +777,7 @@ describe("shouldDisableRelease", () => {
         otherSubmissions: JSON.stringify({
           "In Progress": ["ABC-123", "XYZ-456"],
           Submitted: ["DEF-456", "GHI-789"],
+          Released: ["JKL-012", "MNO-345"],
         }),
       });
 
@@ -781,6 +785,36 @@ describe("shouldDisableRelease", () => {
       expect(result.requireAlert).toBe(false);
     }
   );
+
+  it("should not allow release when cross validation has not run and there are Submitted submissions", () => {
+    const result: ReleaseInfo = utils.shouldDisableRelease({
+      ...baseSubmission,
+      crossSubmissionStatus: null,
+      otherSubmissions: JSON.stringify({
+        "In Progress": ["ABC-123", "XYZ-456"],
+        Submitted: ["JKL-012", "MNO-345"],
+        Released: null,
+      }),
+    });
+
+    expect(result.disable).toBe(true);
+    expect(result.requireAlert).toBe(false);
+  });
+
+  it("should not allow release when cross validation has not run and there are Released submissions", () => {
+    const result: ReleaseInfo = utils.shouldDisableRelease({
+      ...baseSubmission,
+      crossSubmissionStatus: null,
+      otherSubmissions: JSON.stringify({
+        "In Progress": ["ABC-123", "XYZ-456"],
+        Submitted: null,
+        Released: ["JKL-012", "MNO-345"],
+      }),
+    });
+
+    expect(result.disable).toBe(true);
+    expect(result.requireAlert).toBe(false);
+  });
 
   it("should not throw an exception when Submission is null", () => {
     expect(() => utils.shouldDisableRelease(null as Submission)).not.toThrow();
