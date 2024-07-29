@@ -14,6 +14,7 @@ export const query = gql`
       organization {
         orgID
         orgName
+        status
         createdAt
         updateAt
       }

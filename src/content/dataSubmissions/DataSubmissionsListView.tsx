@@ -19,7 +19,7 @@ import PageBanner from "../../components/PageBanner";
 import { FormatDate } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
-import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
+import CreateDataSubmissionDialog from "../../components/DataSubmissions/CreateDataSubmissionDialog";
 import {
   Status as OrgStatus,
   useOrganizationListContext,
