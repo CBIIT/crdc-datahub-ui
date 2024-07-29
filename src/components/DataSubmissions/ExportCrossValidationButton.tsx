@@ -6,14 +6,15 @@ import { useSnackbar } from "notistack";
 import dayjs from "dayjs";
 import { unparse } from "papaparse";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
-import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
+import {
+  CrossValidationResultsInput,
+  CrossValidationResultsResp,
+  SUBMISSION_CROSS_VALIDATION_RESULTS,
+} from "../../graphql";
 import { downloadBlob, filterAlphaNumeric, unpackValidationSeverities } from "../../utils";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
 
 export type Props = {
-  /**
-   * The full Data Submission object to export validation results for
-   */
-  submission: Submission;
   /**
    * The K:V pair of the fields that should be exported where
    * `key` is the column header and `value` is a function
@@ -21,7 +22,7 @@ export type Props = {
    *
    * @example { "Batch ID": (d) => d.displayID }
    */
-  fields: Record<string, (row: QCResult) => string | number>;
+  fields: Record<string, (row: CrossValidationResult) => string | number>;
 } & IconButtonProps;
 
 const StyledIconButton = styled(IconButton)({
@@ -35,30 +36,34 @@ const StyledTooltip = styled(StyledFormTooltip)({
 });
 
 /**
- * Provides the button and supporting functionality to export the validation results of a submission.
+ * Provides the button and supporting functionality to
+ * export the cross validation results of a submission.
  *
  * @returns {React.FC} The export validation button.
  */
-export const ExportValidationButton: React.FC<Props> = ({
-  submission,
+export const ExportCrossValidationButton: React.FC<Props> = ({
   fields,
   disabled,
   ...buttonProps
 }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
+  const { data } = useSubmissionContext();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-  });
+  const [getData] = useLazyQuery<CrossValidationResultsResp, CrossValidationResultsInput>(
+    SUBMISSION_CROSS_VALIDATION_RESULTS,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const handleClick = async () => {
     setLoading(true);
 
-    const { data: d, error } = await submissionQCResults({
+    const { data: d, error } = await getData({
       variables: {
-        id: submission?._id,
+        submissionID: data?.getSubmission?._id,
         sortDirection: "asc",
         orderBy: "displayID",
         first: -1,
@@ -68,16 +73,16 @@ export const ExportValidationButton: React.FC<Props> = ({
       fetchPolicy: "no-cache",
     });
 
-    if (error || !d?.submissionQCResults?.results) {
-      enqueueSnackbar("Unable to retrieve submission quality control results.", {
+    if (error || !d?.submissionCrossValidationResults?.results) {
+      enqueueSnackbar("Unable to retrieve cross validation results.", {
         variant: "error",
       });
       setLoading(false);
       return;
     }
 
-    if (!d?.submissionQCResults?.results.length) {
-      enqueueSnackbar("There are no validation results to export.", {
+    if (!d?.submissionCrossValidationResults?.results.length) {
+      enqueueSnackbar("There are no cross validation results to export.", {
         variant: "error",
       });
       setLoading(false);
@@ -85,9 +90,16 @@ export const ExportValidationButton: React.FC<Props> = ({
     }
 
     try {
-      const filteredName = filterAlphaNumeric(submission.name?.trim()?.replaceAll(" ", "-"), "-");
-      const filename = `${filteredName}-${dayjs().format("YYYY-MM-DDTHHmmss")}.csv`;
-      const unpacked = unpackValidationSeverities<QCResult>(d.submissionQCResults.results);
+      const filteredName = filterAlphaNumeric(
+        data?.getSubmission?.name?.trim()?.replaceAll(" ", "-"),
+        "-"
+      );
+      const filename = `${filteredName}-cross-validation-results-${dayjs().format(
+        "YYYY-MM-DD"
+      )}.csv`;
+      const unpacked = unpackValidationSeverities<CrossValidationResult>(
+        d.submissionCrossValidationResults.results
+      );
       const fieldset = Object.entries(fields);
       const csvArray = [];
 
@@ -103,7 +115,7 @@ export const ExportValidationButton: React.FC<Props> = ({
 
       downloadBlob(unparse(csvArray), filename, "text/csv");
     } catch (err) {
-      enqueueSnackbar(`Unable to export validation results. Error: ${err}`, {
+      enqueueSnackbar(`Unable to export cross validation results. Error: ${err}`, {
         variant: "error",
       });
     }
@@ -113,21 +125,16 @@ export const ExportValidationButton: React.FC<Props> = ({
 
   return (
     <StyledTooltip
-      title={
-        <span>
-          Export all validation issues for this data <br />
-          submission to a CSV file
-        </span>
-      }
+      title="Export all cross validation issues to a CSV file"
       placement="top"
-      data-testid="export-validation-tooltip"
+      data-testid="export-cross-validation-tooltip"
     >
       <span>
         <StyledIconButton
           onClick={handleClick}
           disabled={loading || disabled}
-          data-testid="export-validation-button"
-          aria-label="Export validation results"
+          data-testid="export-cross-validation-button"
+          aria-label="Export cross validation results"
           {...buttonProps}
         >
           <CloudDownload />
