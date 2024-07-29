@@ -213,9 +213,20 @@ type RecordParentNode = {
   parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
 };
 
-type QCResults = {
+/**
+ * Represents a validation result returned by a validation API endpoint.
+ *
+ * e.g. Quality Control, Cross Submission, etc.
+ */
+type ValidationResult<ResultType> = {
+  /**
+   * The total number of results available of this type.
+   */
   total: number;
-  results: QCResult[];
+  /**
+   * A generic collection of validation results.
+   */
+  results: ResultType[];
 };
 
 type QCResult = {
@@ -230,6 +241,18 @@ type QCResult = {
   validatedDate: string;
   errors: ErrorMessage[];
   warnings: ErrorMessage[];
+};
+
+/**
+ * Represents a Cross Submission validation result.
+ *
+ * @note This currently is a near-carbon copy of `QCResult`.
+ */
+type CrossValidationResult = QCResult & {
+  /**
+   * The ID of the submission that has conflicting data.
+   */
+  conflictingSubmission: string;
 };
 
 type ErrorMessage = {
@@ -266,19 +289,14 @@ type SubmissionStatistic = {
   error: number;
 };
 
-type DataValidationResult = {
+type AsyncProcessResult = {
   /**
    * Whether the validation action was successfully queued.
    */
   success: boolean;
   /**
-   * The message returned by the validation.
+   * The message returned by the process.
    */
-  message: string;
-};
-
-type AsyncProcessResult = {
-  success: boolean;
   message: string;
 };
 

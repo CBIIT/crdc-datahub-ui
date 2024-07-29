@@ -9,5 +9,5 @@ export const mutation = gql`
 `;
 
 export type Response = {
-  deleteOrphanedFile: DataValidationResult;
+  deleteOrphanedFile: AsyncProcessResult;
 };

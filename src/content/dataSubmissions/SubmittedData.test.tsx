@@ -70,7 +70,7 @@ const TestParent: FC<ParentProps> = ({
         submissionStats: {
           stats: [],
         },
-        listBatches: null,
+        batchStatusList: null,
       },
     }),
     [submissionId, submissionName, deletingData]
