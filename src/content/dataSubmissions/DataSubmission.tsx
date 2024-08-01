@@ -396,9 +396,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
             <StyledMainContentArea>
               {/* Primary Tab Content */}
               {tab === URLTabs.UPLOAD_ACTIVITY && <DataActivity ref={activityRef} />}
-              {tab === URLTabs.VALIDATION_RESULTS && (
-                <QualityControl submission={data?.getSubmission} />
-              )}
+              {tab === URLTabs.VALIDATION_RESULTS && <QualityControl />}
               {tab === URLTabs.CROSS_VALIDATION_RESULTS && <CrossValidation />}
               {tab === URLTabs.SUBMITTED_DATA && <SubmittedData />}
 
