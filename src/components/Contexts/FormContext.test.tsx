@@ -47,6 +47,7 @@ const baseQuestionnaireData: QuestionnaireData = {
     lastName: "",
     position: "",
     email: "",
+    ORCID: "",
     institution: "",
     address: "",
   },

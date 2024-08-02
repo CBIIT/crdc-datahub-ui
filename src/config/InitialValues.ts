@@ -18,6 +18,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
     lastName: "",
     position: "",
     email: "",
+    ORCID: "",
     institution: "",
     address: "",
   },

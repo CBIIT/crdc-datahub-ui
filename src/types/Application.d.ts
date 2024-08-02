@@ -79,6 +79,7 @@ type PI = {
   lastName: string;
   position: string;
   email: string;
+  ORCID: string;
   institution: string;
   address: string;
 };
