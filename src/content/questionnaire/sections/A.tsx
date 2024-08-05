@@ -195,7 +195,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="pi[ORCID]"
           value={pi?.ORCID}
           placeholder="e.g. 0000-0001-2345-6789"
-          validate={isValidORCID}
+          validate={(val) => val?.length === 0 || isValidORCID(val)}
           filter={formatORCIDInput}
           errorText="Please provide a valid ORCID"
           readOnly={readOnlyInputs}
