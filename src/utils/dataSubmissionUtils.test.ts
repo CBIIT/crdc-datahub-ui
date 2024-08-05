@@ -31,6 +31,7 @@ const baseSubmission: Submission = {
   validationScope: "New",
   validationType: ["metadata", "file"],
   studyID: "",
+  deletingData: false,
 };
 
 describe("General Submit", () => {
@@ -550,7 +551,7 @@ describe("unpackQCResultSeverities cases", () => {
     ];
     const results: QCResult[] = [{ ...baseResult, errors, warnings }];
 
-    const unpackedResults = utils.unpackQCResultSeverities(results);
+    const unpackedResults = utils.unpackValidationSeverities(results);
 
     expect(unpackedResults.length).toEqual(4);
     expect(unpackedResults).toEqual([
@@ -582,7 +583,7 @@ describe("unpackQCResultSeverities cases", () => {
     });
     const results: QCResult[] = [{ ...baseResult, errors, warnings }];
 
-    expect(utils.unpackQCResultSeverities(results).length).toEqual(1998);
+    expect(utils.unpackValidationSeverities(results).length).toEqual(1998);
   });
 
   it("should unpack an array of only warnings", () => {
@@ -592,7 +593,7 @@ describe("unpackQCResultSeverities cases", () => {
     ];
     const results: QCResult[] = [{ ...baseResult, errors: [], warnings }];
 
-    const unpackedResults = utils.unpackQCResultSeverities(results);
+    const unpackedResults = utils.unpackValidationSeverities(results);
 
     expect(unpackedResults.length).toEqual(2);
     expect(unpackedResults).toEqual([
@@ -618,7 +619,7 @@ describe("unpackQCResultSeverities cases", () => {
     ];
     const results: QCResult[] = [{ ...baseResult, errors, warnings: [] }];
 
-    const unpackedResults = utils.unpackQCResultSeverities(results);
+    const unpackedResults = utils.unpackValidationSeverities(results);
 
     expect(unpackedResults.length).toEqual(2);
     expect(unpackedResults).toEqual([
@@ -642,7 +643,7 @@ describe("unpackQCResultSeverities cases", () => {
       warnings,
     });
 
-    const unpackedResults = utils.unpackQCResultSeverities(results);
+    const unpackedResults = utils.unpackValidationSeverities(results);
 
     // 10 errors and 5 warnings per result with 10K results, 150K total
     expect(unpackedResults.length).toEqual(150000);
@@ -651,12 +652,12 @@ describe("unpackQCResultSeverities cases", () => {
   });
 
   it("should return an empty array when given an empty array", () => {
-    expect(utils.unpackQCResultSeverities([])).toEqual([]);
+    expect(utils.unpackValidationSeverities([])).toEqual([]);
   });
 
   it("should return an empty array when there are no errors or warnings", () => {
     const results = [{ ...baseResult, errors: [], warnings: [] }];
-    expect(utils.unpackQCResultSeverities(results)).toEqual([]);
+    expect(utils.unpackValidationSeverities(results)).toEqual([]);
   });
 });
 
@@ -720,6 +721,7 @@ describe("shouldDisableRelease", () => {
       otherSubmissions: JSON.stringify({
         "In Progress": [],
         Submitted: [],
+        Released: [],
       }),
     });
 
@@ -727,13 +729,14 @@ describe("shouldDisableRelease", () => {
     expect(result.requireAlert).toBe(false);
   });
 
-  it("should allow release with alert when other submissions are In Progress and there are no Submitted submissions", () => {
+  it("should allow release with alert when other submissions are In Progress and there are no related submissions", () => {
     const result: ReleaseInfo = utils.shouldDisableRelease({
       ...baseSubmission,
       crossSubmissionStatus: null,
       otherSubmissions: JSON.stringify({
         "In Progress": ["ABC-123", "XYZ-456"],
         Submitted: [],
+        Released: [],
       }),
     });
 
@@ -742,7 +745,7 @@ describe("shouldDisableRelease", () => {
   });
 
   it.each<CrossSubmissionStatus>(["Passed"])(
-    "should allow release when crossSubmissionStatus is %s and other submissions exist",
+    "should allow release when crossSubmissionStatus is %s even if other submissions exist",
     (status) => {
       const result: ReleaseInfo = utils.shouldDisableRelease({
         ...baseSubmission,
@@ -750,6 +753,7 @@ describe("shouldDisableRelease", () => {
         otherSubmissions: JSON.stringify({
           "In Progress": ["ABC-123", "XYZ-456"],
           Submitted: ["DEF-456", "GHI-789"],
+          Released: ["JKL-012", "MNO-345"],
         }),
       });
 
@@ -773,6 +777,7 @@ describe("shouldDisableRelease", () => {
         otherSubmissions: JSON.stringify({
           "In Progress": ["ABC-123", "XYZ-456"],
           Submitted: ["DEF-456", "GHI-789"],
+          Released: ["JKL-012", "MNO-345"],
         }),
       });
 
@@ -780,6 +785,36 @@ describe("shouldDisableRelease", () => {
       expect(result.requireAlert).toBe(false);
     }
   );
+
+  it("should not allow release when cross validation has not run and there are Submitted submissions", () => {
+    const result: ReleaseInfo = utils.shouldDisableRelease({
+      ...baseSubmission,
+      crossSubmissionStatus: null,
+      otherSubmissions: JSON.stringify({
+        "In Progress": ["ABC-123", "XYZ-456"],
+        Submitted: ["JKL-012", "MNO-345"],
+        Released: null,
+      }),
+    });
+
+    expect(result.disable).toBe(true);
+    expect(result.requireAlert).toBe(false);
+  });
+
+  it("should not allow release when cross validation has not run and there are Released submissions", () => {
+    const result: ReleaseInfo = utils.shouldDisableRelease({
+      ...baseSubmission,
+      crossSubmissionStatus: null,
+      otherSubmissions: JSON.stringify({
+        "In Progress": ["ABC-123", "XYZ-456"],
+        Submitted: null,
+        Released: ["JKL-012", "MNO-345"],
+      }),
+    });
+
+    expect(result.disable).toBe(true);
+    expect(result.requireAlert).toBe(false);
+  });
 
   it("should not throw an exception when Submission is null", () => {
     expect(() => utils.shouldDisableRelease(null as Submission)).not.toThrow();

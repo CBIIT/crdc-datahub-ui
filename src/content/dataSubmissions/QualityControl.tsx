@@ -1,12 +1,12 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { useParams } from "react-router-dom";
 import { cloneDeep, isEqual } from "lodash";
 import { Box, Button, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useSnackbar } from "notistack";
 import {
   LIST_BATCHES,
+  ListBatchesInput,
   ListBatchesResp,
   SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
@@ -19,6 +19,7 @@ import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
+import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 
 type FilterForm = {
   /**
@@ -183,13 +184,9 @@ export const csvColumns = {
   },
 };
 
-type Props = {
-  submission: Submission;
-  refreshSubmission: () => void;
-};
-
-const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => {
-  const { submissionId } = useParams();
+const QualityControl: FC = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  const { data: submissionData } = useSubmissionContext();
   const { watch, control } = useForm<FilterForm>({
     defaultValues: {
       batchID: "All",
@@ -197,7 +194,11 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
       severity: "All",
     },
   });
-  const { enqueueSnackbar } = useSnackbar();
+  const {
+    _id: submissionId,
+    metadataValidationStatus,
+    fileValidationStatus,
+  } = submissionData?.getSubmission || {};
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<QCResult[]>([]);
@@ -223,7 +224,7 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: batchData } = useQuery<ListBatchesResp>(LIST_BATCHES, {
+  const { data: batchData } = useQuery<ListBatchesResp<true>, ListBatchesInput>(LIST_BATCHES, {
     variables: {
       submissionID: submissionId,
       first: -1,
@@ -233,6 +234,7 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
       sortDirection: "asc",
     },
     context: { clientName: "backend" },
+    skip: !submissionId,
     fetchPolicy: "cache-and-network",
   });
 
@@ -256,7 +258,6 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
-      enqueueSnackbar("Invalid submission ID provided.", { variant: "error" });
       return;
     }
     if (!force && data?.length > 0 && isEqual(fetchListing, prevData)) {
@@ -299,6 +300,23 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
     setSelectedRow(data);
   };
 
+  const handleFilterChange = (field: keyof FilterForm) => {
+    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const Actions = useMemo<React.ReactNode>(
+    () => (
+      <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
+        <ExportValidationButton
+          submission={submissionData?.getSubmission}
+          fields={csvColumns}
+          disabled={totalData <= 0}
+        />
+      </Stack>
+    ),
+    [submissionData?.getSubmission, totalData]
+  );
+
   const providerValue = useMemo(
     () => ({
       handleOpenErrorDialog,
@@ -315,15 +333,7 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
 
   useEffect(() => {
     tableRef.current?.refresh();
-  }, [
-    submission?.metadataValidationStatus,
-    submission?.fileValidationStatus,
-    submission?.crossSubmissionStatus,
-  ]);
-
-  const handleFilterChange = (field: keyof FilterForm) => {
-    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
-  };
+  }, [metadataValidationStatus, fileValidationStatus]);
 
   return (
     <>
@@ -337,10 +347,10 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  value={field.value}
                   /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
                   MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                   inputProps={{ id: "batchID-filter" }}
+                  data-testid="quality-control-batchID-filter"
                   onChange={(e) => {
                     field.onChange(e);
                     handleFilterChange("batchID");
@@ -348,7 +358,7 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
                 >
                   <MenuItem value="All">All</MenuItem>
                   {batchData?.listBatches?.batches?.map((batch) => (
-                    <MenuItem key={batch._id} value={batch._id}>
+                    <MenuItem key={batch._id} value={batch._id} data-testid={batch._id}>
                       {batch.displayID}
                       {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
                     </MenuItem>
@@ -368,10 +378,10 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  value={field.value}
                   /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
                   MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                   inputProps={{ id: "nodeType-filter" }}
+                  data-testid="quality-control-nodeType-filter"
                   onChange={(e) => {
                     field.onChange(e);
                     handleFilterChange("nodeType");
@@ -379,7 +389,7 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
                 >
                   <MenuItem value="All">All</MenuItem>
                   {nodeTypes?.map((nodeType) => (
-                    <MenuItem key={nodeType} value={nodeType}>
+                    <MenuItem key={nodeType} value={nodeType} data-testid={`nodeType-${nodeType}`}>
                       {nodeType.toLowerCase()}
                     </MenuItem>
                   ))}
@@ -398,10 +408,10 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  value={field.value}
                   /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
                   MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                   inputProps={{ id: "severity-filter" }}
+                  data-testid="quality-control-severity-filter"
                   onChange={(e) => {
                     field.onChange(e);
                     handleFilterChange("severity");
@@ -426,17 +436,10 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
           defaultRowsPerPage={20}
           defaultOrder="desc"
           position="both"
+          noContentText="No validation issues found. Either no validation has been conducted yet, or all issues have been resolved."
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
-          AdditionalActions={
-            <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
-              <ExportValidationButton
-                submission={submission}
-                fields={csvColumns}
-                disabled={totalData <= 0}
-              />
-            </Stack>
-          }
+          AdditionalActions={Actions}
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </QCResultsContext.Provider>
@@ -457,6 +460,4 @@ const QualityControl: FC<Props> = ({ submission, refreshSubmission }: Props) => 
   );
 };
 
-export default React.memo<Props>(QualityControl, (prevProps, nextProps) =>
-  isEqual(prevProps, nextProps)
-);
+export default React.memo(QualityControl);

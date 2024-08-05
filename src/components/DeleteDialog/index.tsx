@@ -81,7 +81,7 @@ type Props = {
   confirmText?: string;
   onClose: () => void;
   onConfirm: () => void;
-} & Omit<DialogProps, "onClose">;
+} & Omit<DialogProps, "onClose" | "title">;
 
 const DeleteDialog = ({
   header = "Remove Data",
@@ -93,7 +93,7 @@ const DeleteDialog = ({
   open,
   ...rest
 }: Props) => (
-  <StyledDialog open={open} onClose={onClose} title="" {...rest}>
+  <StyledDialog open={open} onClose={onClose} title="" data-testid="delete-dialog" {...rest}>
     <StyledCloseDialogButton
       onClick={onClose}
       aria-label="close"

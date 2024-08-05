@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import { unparse } from "papaparse";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import { SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
-import { downloadBlob, filterAlphaNumeric, unpackQCResultSeverities } from "../../utils";
+import { downloadBlob, filterAlphaNumeric, unpackValidationSeverities } from "../../utils";
 
 export type Props = {
   /**
@@ -87,7 +87,7 @@ export const ExportValidationButton: React.FC<Props> = ({
     try {
       const filteredName = filterAlphaNumeric(submission.name?.trim()?.replaceAll(" ", "-"), "-");
       const filename = `${filteredName}-${dayjs().format("YYYY-MM-DDTHHmmss")}.csv`;
-      const unpacked = unpackQCResultSeverities(d.submissionQCResults.results);
+      const unpacked = unpackValidationSeverities<QCResult>(d.submissionQCResults.results);
       const fieldset = Object.entries(fields);
       const csvArray = [];
 

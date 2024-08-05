@@ -40,6 +40,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   metadataValidationStatus: "New",
   fileValidationStatus: "New",
   studyID: "",
+  deletingData: false,
 };
 
 type ParentProps = {
@@ -71,12 +72,11 @@ describe("General", () => {
         submissionStats: {
           stats: [],
         },
-        listBatches: {
+        batchStatusList: {
           batches: [],
         },
       },
       error: null,
-      isPolling: false,
     });
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
@@ -91,7 +91,7 @@ describe("General", () => {
               total: 0,
               batches: [],
             },
-            fullStatusList: {
+            batchStatusList: {
               batches: [],
             },
           },
@@ -117,10 +117,9 @@ describe("General", () => {
           ...baseSubmission,
         },
         submissionStats: null,
-        listBatches: null,
+        batchStatusList: null,
       },
       error: null,
-      isPolling: false,
       refetch: null,
     });
 
@@ -154,10 +153,9 @@ describe("General", () => {
           ...baseSubmission,
         },
         submissionStats: null,
-        listBatches: null,
+        batchStatusList: null,
       },
       error: null,
-      isPolling: false,
       refetch: null,
     });
 
@@ -189,7 +187,6 @@ describe("General", () => {
       status: SubmissionCtxStatus.LOADED,
       data: null,
       error: null,
-      isPolling: false,
     });
 
     const { container } = render(<DataActivity />, {
@@ -216,12 +213,11 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        listBatches: {
+        batchStatusList: {
           batches: [],
         },
       },
       error: null,
-      isPolling: false,
     });
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
@@ -236,7 +232,7 @@ describe("Table", () => {
               total: 0,
               batches: [],
             },
-            fullStatusList: {
+            batchStatusList: {
               batches: [],
             },
           },
@@ -272,12 +268,11 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        listBatches: {
+        batchStatusList: {
           batches: [],
         },
       },
       error: null,
-      isPolling: false,
       refetch: mockRefetch,
     });
 
@@ -293,9 +288,10 @@ describe("Table", () => {
               total: 0,
               batches: [], // NOTE: This shouldn't really be empty, but it's fine for this test
             },
-            fullStatusList: {
+            batchStatusList: {
               batches: [
                 {
+                  _id: "batch-001",
                   status: "Uploading",
                 },
               ],
@@ -317,7 +313,7 @@ describe("Table", () => {
   it("should not refetch the submission if the submission is already polling", async () => {
     const mockRefetch = jest.fn();
     jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
+      status: SubmissionCtxStatus.POLLING,
       data: {
         getSubmission: {
           _id: "refetching-submission-test",
@@ -326,12 +322,11 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        listBatches: {
+        batchStatusList: {
           batches: [],
         },
       },
       error: null,
-      isPolling: true, // NOTE: This is the only difference
       refetch: mockRefetch,
     });
 
@@ -347,9 +342,10 @@ describe("Table", () => {
               total: 0,
               batches: [], // NOTE: This shouldn't really be empty, but it's fine for this test
             },
-            fullStatusList: {
+            batchStatusList: {
               batches: [
                 {
+                  _id: "batch-001",
                   status: "Uploading",
                 },
               ],
@@ -379,12 +375,11 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        listBatches: {
+        batchStatusList: {
           batches: [],
         },
       },
       error: null,
-      isPolling: false,
     });
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
@@ -399,7 +394,7 @@ describe("Table", () => {
               total: 0,
               batches: [],
             },
-            fullStatusList: {
+            batchStatusList: {
               batches: [],
             },
           },

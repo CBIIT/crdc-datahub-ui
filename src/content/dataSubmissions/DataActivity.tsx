@@ -14,7 +14,10 @@ import { useSnackbar } from "notistack";
 import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
 import GenericTable, { Column } from "../../components/GenericTable";
 import BatchTableContext from "./Contexts/BatchTableContext";
-import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
+import {
+  SubmissionCtxStatus,
+  useSubmissionContext,
+} from "../../components/Contexts/SubmissionContext";
 import { FormatDate } from "../../utils";
 import FileListDialog from "../../components/FileListDialog";
 import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
@@ -153,7 +156,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
   const {
     data: dataSubmission,
     refetch: getSubmission,
-    isPolling: isSubmissionPolling,
+    status: submissionStatus,
   } = useSubmissionContext();
   const { _id: submissionId } = dataSubmission?.getSubmission || {};
 
@@ -175,7 +178,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
     onCompleted: (data: ListBatchesResp) => {
       setData(data.listBatches.batches);
       setTotalData(data.listBatches.total);
-      setHasUploadingBatches(data.fullStatusList.batches.some((b) => b.status === "Uploading"));
+      setHasUploadingBatches(data.batchStatusList.batches.some((b) => b.status === "Uploading"));
     },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
@@ -230,7 +233,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
           throw new Error("Unable to retrieve batch data.");
         }
 
-        const hasUploading = newBatchFiles.fullStatusList?.batches?.some(
+        const hasUploading = newBatchFiles.batchStatusList?.batches?.some(
           (b) => b.status === "Uploading"
         );
 
@@ -275,7 +278,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
       startPollingFn(1000);
 
       // If the submission is not polling, refetch to kick-off polling
-      if (!isSubmissionPolling) {
+      if (submissionStatus !== SubmissionCtxStatus.POLLING) {
         getSubmission();
       }
     }

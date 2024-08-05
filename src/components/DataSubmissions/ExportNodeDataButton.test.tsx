@@ -82,6 +82,7 @@ describe("Basic Functionality", () => {
             data: {
               getSubmissionNodes: {
                 total: 1,
+                IDPropName: null,
                 properties: [],
                 nodes: [{ nodeType, nodeID: "example-node-id", props: "", status: null }],
               },
@@ -192,6 +193,7 @@ describe("Basic Functionality", () => {
           data: {
             getSubmissionNodes: {
               total: 0,
+              IDPropName: null,
               properties: [],
               nodes: [],
             },
@@ -234,6 +236,7 @@ describe("Basic Functionality", () => {
           data: {
             getSubmissionNodes: {
               total: 1,
+              IDPropName: null,
               properties: [],
               nodes: [
                 {
@@ -403,6 +406,7 @@ describe("Implementation Requirements", () => {
             data: {
               getSubmissionNodes: {
                 total: 1,
+                IDPropName: "a",
                 properties: ["a"],
                 nodes: [
                   {

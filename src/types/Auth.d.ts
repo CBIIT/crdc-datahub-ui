@@ -37,6 +37,7 @@ type UserInput = {
 type OrgInfo = {
   orgID: string;
   orgName: string;
+  status: "Active" | "Inactive";
   createdAt: string; // 2023-05-01T09:23:30Z, ISO data time format
   updateAt: string; // 2023-05-01T09:23:30Z  ISO data time format
 };

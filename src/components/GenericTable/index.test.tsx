@@ -115,6 +115,66 @@ describe("GenericTable", () => {
     });
   });
 
+  describe("Test-Driven Feature Support", () => {
+    it("uses the column `label` as the table header testid if it's a string", () => {
+      const { getByTestId } = setup({
+        ...defaultProps,
+        columns: [
+          {
+            label: "Label-XYZ",
+            renderValue: (item: (typeof mockData)[0]) => item.role,
+          },
+        ],
+      });
+
+      expect(getByTestId("generic-table-header-Label-XYZ")).toBeInTheDocument();
+    });
+
+    it("uses the column `fieldKey` as the table header testid if `label` is not a string", () => {
+      const { getByTestId } = setup({
+        ...defaultProps,
+        columns: [
+          {
+            label: <div>Label-XYZ</div>,
+            fieldKey: "mock-fieldKey",
+            renderValue: (item: (typeof mockData)[0]) => item.role,
+          },
+        ],
+      });
+
+      expect(getByTestId("generic-table-header-mock-fieldKey")).toBeInTheDocument();
+    });
+
+    it("uses the column `field` as the table header testid if `label` is not a string", () => {
+      const { getByTestId } = setup({
+        ...defaultProps,
+        columns: [
+          {
+            label: <div>Label-XYZ</div>,
+            field: "role",
+            renderValue: (item: (typeof mockData)[0]) => item.role,
+          },
+        ],
+      });
+
+      expect(getByTestId("generic-table-header-role")).toBeInTheDocument();
+    });
+
+    it("uses the column index as the table header testid if `label` is not a string", () => {
+      const { getByTestId } = setup({
+        ...defaultProps,
+        columns: [
+          {
+            label: <div>Label-XYZ</div>,
+            renderValue: (item: (typeof mockData)[0]) => item.role,
+          },
+        ],
+      });
+
+      expect(getByTestId("generic-table-header-column_0")).toBeInTheDocument();
+    });
+  });
+
   describe("Row and Page Interaction", () => {
     it("updates rows per page", () => {
       const { getByLabelText } = setup();

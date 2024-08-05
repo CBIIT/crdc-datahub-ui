@@ -55,13 +55,19 @@ export { mutation as UPDATE_BATCH } from "./updateBatch";
 export type { Response as UpdateBatchResp } from "./updateBatch";
 
 export { query as LIST_BATCHES } from "./listBatches";
-export type { Response as ListBatchesResp } from "./listBatches";
+export type { Input as ListBatchesInput, Response as ListBatchesResp } from "./listBatches";
 
 export { query as LIST_LOGS } from "./listLogs";
 export type { Response as ListLogsResp } from "./listLogs";
 
 export { query as SUBMISSION_QC_RESULTS } from "./submissionQCResults";
 export type { Response as SubmissionQCResultsResp } from "./submissionQCResults";
+
+export { query as SUBMISSION_CROSS_VALIDATION_RESULTS } from "./submissionCrossValidationResults";
+export type {
+  Input as CrossValidationResultsInput,
+  Response as CrossValidationResultsResp,
+} from "./submissionCrossValidationResults";
 
 export { mutation as EXPORT_SUBMISSION } from "./exportSubmission";
 export type { Response as ExportSubmissionResp } from "./exportSubmission";
@@ -73,7 +79,20 @@ export type {
 } from "./validateSubmission";
 
 export { query as LIST_NODE_TYPES } from "./listSubmissionNodeTypes";
-export type { Response as ListNodeTypesResp } from "./listSubmissionNodeTypes";
+export type {
+  Input as ListNodeTypesInput,
+  Response as ListNodeTypesResp,
+} from "./listSubmissionNodeTypes";
+
+export { query as GET_NODE_DETAIL } from "./getNodeDetail";
+export type { Input as GetNodeDetailInput, Response as GetNodeDetailResp } from "./getNodeDetail";
+
+export { query as GET_RELATED_NODES } from "./getRelatedNodes";
+export type {
+  Input as GetRelatedNodesInput,
+  Response as GetRelatedNodesResp,
+  PropertiesOnlyResponse as GetRelatedNodesRespPropsOnly,
+} from "./getRelatedNodes";
 
 export { query as GET_SUBMISSION_NODES } from "./getSubmissionNodes";
 export type {
@@ -89,6 +108,12 @@ export type { Response as DeleteOrphanedFileResp } from "./deleteOrphanedFile";
 
 export { mutation as DELETE_ALL_ORPHANED_FILES } from "./deleteAllOrphanedFiles";
 export type { Response as DeleteAllOrphanedFilesResp } from "./deleteAllOrphanedFiles";
+
+export { mutation as DELETE_DATA_RECORDS } from "./deleteDataRecords";
+export type {
+  Input as DeleteDataRecordsInput,
+  Response as DeleteDataRecordsResp,
+} from "./deleteDataRecords";
 
 export { query as RETRIEVE_CLI_CONFIG } from "./retrieveCLIConfig";
 export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
