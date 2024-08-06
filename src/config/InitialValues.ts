@@ -7,6 +7,7 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   updatedAt: "",
   submittedDate: "",
   history: [],
+  ORCID: "",
   programName: "",
   studyAbbreviation: "",
 };

@@ -6,6 +6,7 @@ type Application = {
   updatedAt: string; // YYYY-MM-DDTHH:MM:SSZ format
   submittedDate: string; // YYYY-MM-DDTHH:MM:SSZ format
   history: HistoryEvent[];
+  ORCID: string;
   // Applicant Details
   applicant: Applicant;
   organization: Pick<Organization, "_id" | "name">;
