@@ -328,3 +328,108 @@ describe("mapOrganizationStudyToId cases", () => {
     expect(() => utils.mapOrganizationStudyToId(study, undefined)).not.toThrow();
   });
 });
+
+describe("isValidORCID cases", () => {
+  it("should return true for a valid ORCID", () => {
+    expect(utils.isValidORCID("0000-0002-1825-0097")).toBe(true);
+  });
+
+  it("should return true for a valid ORCID with 'X' as the last character", () => {
+    expect(utils.isValidORCID("0000-0002-1825-009X")).toBe(true);
+  });
+
+  it("should return false for an ORCID with less than 19 characters", () => {
+    expect(utils.isValidORCID("0000-0002-1825-009")).toBe(false);
+  });
+
+  it("should return false for an ORCID with more than 19 characters", () => {
+    expect(utils.isValidORCID("0000-0002-1825-0097X")).toBe(false);
+  });
+
+  it("should return false for an ORCID with invalid characters", () => {
+    expect(utils.isValidORCID("0000-0002-1825-00!7")).toBe(false);
+  });
+
+  it("should return false for an ORCID with 'X' not as the last character", () => {
+    expect(utils.isValidORCID("0000-0002-182X-0097")).toBe(false);
+  });
+
+  it("should return false for an ORCID with incorrect hyphen placement", () => {
+    expect(utils.isValidORCID("0000-0002-182500-97")).toBe(false);
+  });
+
+  it("should return false if the input is not a string", () => {
+    expect(utils.isValidORCID(123456789012e34 as unknown as string)).toBe(false);
+  });
+
+  it("should return false for an empty string", () => {
+    expect(utils.isValidORCID("")).toBe(false);
+  });
+
+  it("should return false for a string with spaces", () => {
+    expect(utils.isValidORCID("0000 0002 1825 0097")).toBe(false);
+  });
+
+  it("should return false for a string with special characters", () => {
+    expect(utils.isValidORCID("0000-0002-1825-009@")).toBe(false);
+  });
+
+  it("should return false for a string with mixed case 'x' in the middle", () => {
+    expect(utils.isValidORCID("0000-000X-1825-0097")).toBe(false);
+  });
+  it("should return false for a null or undefined value", () => {
+    expect(utils.isValidORCID(null as unknown as string)).toBe(false);
+    expect(utils.isValidORCID(undefined as unknown as string)).toBe(false);
+  });
+});
+
+describe("formatORCIDInput cases", () => {
+  it("should format a valid ORCID without hyphens", () => {
+    expect(utils.formatORCIDInput("0000000218250097")).toBe("0000-0002-1825-0097");
+  });
+
+  it("should format a valid ORCID with hyphens", () => {
+    expect(utils.formatORCIDInput("0000-0002-1825-0097")).toBe("0000-0002-1825-0097");
+  });
+
+  it("should convert lowercase 'x' to uppercase 'X'", () => {
+    expect(utils.formatORCIDInput("000000021825009x")).toBe("0000-0002-1825-009X");
+  });
+
+  it("should remove invalid characters and format the input", () => {
+    expect(utils.formatORCIDInput("0000-0002-1825-00!7")).toBe("0000-0002-1825-007");
+  });
+
+  it("should limit input to 16 valid characters and format correctly", () => {
+    expect(utils.formatORCIDInput("00000002182500971234")).toBe("0000-0002-1825-0097");
+  });
+
+  it("should return an empty string for an empty input", () => {
+    expect(utils.formatORCIDInput("")).toBe("");
+  });
+
+  it("should handle input with no valid characters", () => {
+    expect(utils.formatORCIDInput("!!!")).toBe("");
+  });
+
+  it("should correctly format input with spaces", () => {
+    expect(utils.formatORCIDInput("0000 0002 1825 0097")).toBe("0000-0002-1825-0097");
+  });
+
+  it("should correctly format input with mixed case 'x' in the middle", () => {
+    expect(utils.formatORCIDInput("0000-000X-1825-0097")).toBe("0000-000X-1825-0097");
+  });
+
+  it("should handle a string that starts with invalid characters", () => {
+    expect(utils.formatORCIDInput("!!0000000218250097")).toBe("0000-0002-1825-0097");
+  });
+
+  it("should handle a string that ends with invalid characters", () => {
+    expect(utils.formatORCIDInput("0000000218250097!!")).toBe("0000-0002-1825-0097");
+  });
+
+  it("should return an empty string when the input is null or undefined", () => {
+    expect(utils.formatORCIDInput(null)).toBe("");
+    expect(utils.formatORCIDInput(undefined)).toBe("");
+  });
+});

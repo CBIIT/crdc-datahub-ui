@@ -250,6 +250,7 @@ const ListingView: FC = () => {
           studyAbbreviation: "",
           questionnaireData: "{}",
           controlledAccess: false,
+          ORCID: "",
         },
       },
     }).catch((e) => ({ data: null, errors: e }));

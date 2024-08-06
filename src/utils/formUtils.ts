@@ -164,3 +164,54 @@ export const mapOrganizationStudyToId = (
     )?._id || ""
   );
 };
+
+/**
+ * Validates an ORCID string. An ORCID must consist of exactly four groups of four alphanumeric characters,
+ * with each group separated by a hyphen. Only digits and the letter 'X' are allowed
+ * as characters. The letter 'X' is only allowed as the final character.
+ *
+ * @see https://gist.github.com/asencis/644f174855899b873131c2cabcebeb87?permalink_comment_id=4210539#gistcomment-4210539
+ * @param {string} id The ORCID string to validate.
+ * @returns {boolean} Returns true if the string is a valid ORCID, false otherwise.
+ */
+export const isValidORCID = (id: string): boolean => {
+  if (typeof id !== "string" || id?.length !== 19) {
+    return false;
+  }
+
+  const idPattern = /^(\d{4}-){3}\d{3}(\d|X)$/;
+  return idPattern.test(id);
+};
+
+/**
+ * Filters and formats input for an ORCID as the user types. This function will automatically insert hyphens
+ * after every group (4 characters), uppercase any 'x' typed by the user, and ensures that only numeric
+ * characters and 'X' are allowed. If the user types more than 16 valid characters or places them
+ * incorrectly, those characters are ignored.
+ *
+ * @param {string} input The current raw input string from the user.
+ * @returns {string} The formatted ORCID string following the validation rules.
+ */
+export const formatORCIDInput = (input: string): string => {
+  if (!input?.length) {
+    return "";
+  }
+
+  const ORCID_LENGTH = 16;
+  const GROUP_SIZE = 4;
+  const DISALLOWED_CHARS_REGEX = /[^0-9X]/g; // Everything except 0-9 digits or character "X"
+
+  const formattedInput = input
+    .toUpperCase()
+    .replace(DISALLOWED_CHARS_REGEX, "")
+    .substring(0, ORCID_LENGTH);
+
+  // Split into groups of 4 and join with hyphens
+  return formattedInput.split("").reduce((acc, curr, idx) => {
+    if (idx > 0 && idx % GROUP_SIZE === 0) {
+      acc += "-";
+    }
+
+    return acc + curr;
+  }, "");
+};

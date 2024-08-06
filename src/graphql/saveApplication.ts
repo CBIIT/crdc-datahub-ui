@@ -8,6 +8,7 @@ export const mutation = gql`
       createdAt
       updatedAt
       submittedDate
+      ORCID
       history {
         status
         reviewComment
@@ -51,6 +52,10 @@ export type Input = {
      * Whether the data submission will contain controlled access data
      */
     controlledAccess: boolean;
+    /**
+     * The Open Researcher and Contributor ID
+     */
+    ORCID?: string;
   };
 };
 
