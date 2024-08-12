@@ -9,16 +9,15 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { Link, LinkProps } from "react-router-dom";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import env from "../../env";
+import PackageTable from "./PackageTable";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
     maxWidth: "none",
     borderRadius: "8px",
-    width: "731px !important",
-    padding: "47px 59px 71px 54px",
+    width: "740px !important",
+    padding: "47px 53px 71px",
     border: "2px solid #0B7F99",
     background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
     boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
@@ -32,7 +31,7 @@ const StyledHeader = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "900 !important",
   lineHeight: "30px !important",
-  marginBottom: "50px !important",
+  marginBottom: "51px !important",
 });
 
 const StyledDialogContent = styled(DialogContent)({
@@ -45,7 +44,7 @@ const StyledBodyText = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "400 !important",
   lineHeight: "19.6px !important",
-  marginBottom: "28px !important",
+  marginBottom: "37px !important",
   letterSpacing: "unset !important",
 });
 
@@ -62,14 +61,10 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 const StyledDialogActions = styled(DialogActions)({
   padding: "0 !important",
   justifyContent: "center",
+  marginTop: "68px !important",
 });
 
-const StyledButton = styled(Button)<{
-  component?: React.ComponentType;
-  to?: LinkProps["to"];
-  target?: LinkProps["target"];
-  download?: LinkProps["download"];
-}>({
+const StyledButton = styled(Button)({
   width: "128px",
   height: "42px",
   padding: "12px 60px !important",
@@ -86,8 +81,6 @@ const StyledButton = styled(Button)<{
   letterSpacing: "0.32px",
   textTransform: "none !important" as "none",
   alignSelf: "center",
-  margin: "0 15px !important",
-  marginTop: "45px !important",
   "&:hover": {
     background: "transparent !important",
   },
@@ -118,23 +111,18 @@ const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest
     <StyledDialogContent>
       <StyledBodyText id="uploader-cli-body" variant="body1">
         The Uploader CLI is a command-line interface tool provided for directly uploading data
-        submission files from your workstation to the Data Hub cloud storage. To download the tool
-        and accompanying instructions, click on the Download button below.
+        submission files from your workstation to the Data Hub cloud storage.
+        <br />
+        <br />
+        To download the tool and accompanying instructions, select from the provided download
+        options:
       </StyledBodyText>
+
+      <PackageTable />
     </StyledDialogContent>
     <StyledDialogActions>
       <StyledButton data-testid="uploader-cli-close-button" variant="outlined" onClick={onClose}>
         Close
-      </StyledButton>
-      <StyledButton
-        component={Link}
-        data-testid="uploader-cli-dialog-download-button"
-        variant="outlined"
-        target="_self"
-        to={env?.REACT_APP_UPLOADER_CLI}
-        download
-      >
-        Download
       </StyledButton>
     </StyledDialogActions>
   </StyledDialog>
