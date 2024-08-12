@@ -11,22 +11,19 @@ const packageConfig: PackageConfig[] = [
   {
     packageType: "Source",
     platform: "Any",
-    fileName: env?.REACT_APP_UPLOADER_CLI?.split("/")?.pop() ?? "crdc-datahub-cli-uploader.zip",
+    fileName: env?.REACT_APP_UPLOADER_CLI?.split("/")?.pop() || "",
     downloadURL: env?.REACT_APP_UPLOADER_CLI,
   },
   {
     packageType: "Binary",
     platform: "Windows x64",
-    fileName:
-      env?.REACT_APP_UPLOADER_CLI_WINDOWS?.split("/")?.pop() ??
-      "crdc-datahub-cli-uploader-windows.zip",
+    fileName: env?.REACT_APP_UPLOADER_CLI_WINDOWS?.split("/")?.pop() || "",
     downloadURL: env?.REACT_APP_UPLOADER_CLI_WINDOWS,
   },
   {
     packageType: "Source",
     platform: "MacOS x64",
-    fileName:
-      env?.REACT_APP_UPLOADER_CLI_MAC?.split("/")?.pop() ?? "crdc-datahub-cli-uploader-mac.zip",
+    fileName: env?.REACT_APP_UPLOADER_CLI_MAC?.split("/")?.pop() || "",
     downloadURL: env?.REACT_APP_UPLOADER_CLI_MAC,
   },
 ];

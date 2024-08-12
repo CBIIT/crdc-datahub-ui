@@ -71,32 +71,35 @@ const PackageTable = () => (
         </TableRow>
       </StyledTableHead>
       <StyledTableBody>
-        {packageConfig.map((pkg) => (
-          <TableRow key={`package_${pkg.fileName}`}>
+        {packageConfig.map((pkg, idx) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <TableRow key={`package_${idx}_${pkg.fileName}`}>
             <TableCell data-testid={`package-type-${pkg.fileName}`}>{pkg.packageType}</TableCell>
             <TableCell data-testid={`package-platform-${pkg.fileName}`}>{pkg.platform}</TableCell>
             <TableCell>
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <StyledDownload
-                  to={pkg.downloadURL}
-                  target="_self"
-                  download={pkg.fileName}
-                  aria-label={pkg.fileName}
-                  data-testid={`package-table-text-download-${pkg.fileName}`}
-                >
-                  {pkg.fileName}
-                </StyledDownload>
-                <IconButton
-                  href={pkg.downloadURL}
-                  target="_self"
-                  download={pkg.fileName}
-                  aria-label={pkg.fileName}
-                  data-testid={`package-table-icon-download-${pkg.fileName}`}
-                  sx={{ p: 0 }}
-                >
-                  <DownloadIcon />
-                </IconButton>
-              </Stack>
+              {pkg.downloadURL && (
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <StyledDownload
+                    to={pkg.downloadURL}
+                    target="_self"
+                    download={pkg.fileName}
+                    aria-label={pkg.fileName}
+                    data-testid={`package-table-text-download-${pkg.fileName}`}
+                  >
+                    {pkg.fileName}
+                  </StyledDownload>
+                  <IconButton
+                    href={pkg.downloadURL}
+                    target="_self"
+                    download={pkg.fileName}
+                    aria-label={pkg.fileName}
+                    data-testid={`package-table-icon-download-${pkg.fileName}`}
+                    sx={{ p: 0 }}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </Stack>
+              )}
             </TableCell>
           </TableRow>
         ))}
