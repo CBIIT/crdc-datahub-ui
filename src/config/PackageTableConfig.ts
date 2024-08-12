@@ -21,7 +21,7 @@ const packageConfig: PackageConfig[] = [
     downloadURL: env?.REACT_APP_UPLOADER_CLI_WINDOWS,
   },
   {
-    packageType: "Source",
+    packageType: "Binary",
     platform: "MacOS x64",
     fileName: env?.REACT_APP_UPLOADER_CLI_MAC?.split("/")?.pop() || "",
     downloadURL: env?.REACT_APP_UPLOADER_CLI_MAC,
