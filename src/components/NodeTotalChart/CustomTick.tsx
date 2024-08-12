@@ -19,7 +19,9 @@ const CustomTick = ({ x, y, payload, labelLength = 8 }) => {
     <g transform={`translate(${x},${y})`}>
       <g transform="rotate(65), translate(-4, 7)">
         <StyledText>
-          {tickLabel?.length > labelLength ? `${tickLabel.slice(0, labelLength)}...` : tickLabel}
+          {tickLabel?.length > labelLength
+            ? `${tickLabel.slice(0, labelLength).trim()}...`
+            : tickLabel}
         </StyledText>
       </g>
     </g>

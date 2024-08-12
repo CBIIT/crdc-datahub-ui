@@ -2,11 +2,16 @@ import { render } from "@testing-library/react";
 import { axe } from "jest-axe";
 import CustomTick from "./CustomTick";
 
-const mockTitleCase = jest.fn().mockImplementation((str) => str);
+const mockTitleCase = jest.fn();
 jest.mock("../../utils", () => ({
   ...jest.requireActual("../../utils"),
   titleCase: (...args) => mockTitleCase(...args),
 }));
+
+const originalTitleCase = jest.requireActual("../../utils").titleCase;
+beforeEach(() => {
+  mockTitleCase.mockImplementation(originalTitleCase);
+});
 
 const TestParent = ({ children }) => <svg>{children}</svg>;
 
@@ -50,4 +55,35 @@ describe("Implementation Requirements", () => {
 
     expect(mockTitleCase).toHaveBeenCalledWith(output);
   });
+
+  it("should render the tick label with the correct text", async () => {
+    const { findByText } = render(<CustomTick x={0} y={25} payload={{ value: "node1" }} />, {
+      wrapper: TestParent,
+    });
+
+    expect(await findByText("Node1")).toBeInTheDocument();
+  });
+
+  it.each<[input: string, expected: string, maxLen: number]>([
+    // Default label lengths
+    ["node1", "Node1", 8],
+    ["sample", "Sample", 8],
+    ["genomic_info", "Genomic...", 8],
+    ["multiple_under_scores", "Multiple...", 8],
+    // Non-default label lengths
+    ["hello world", "Hello...", 5],
+    ["long node name", "Long Node Name", 20],
+  ])(
+    "should render the original tick label %p as %p if it exceeds the label length of %p",
+    async (input, expected, maxLength) => {
+      const { findByText } = render(
+        <CustomTick x={0} y={25} payload={{ value: input }} labelLength={maxLength} />,
+        {
+          wrapper: TestParent,
+        }
+      );
+
+      expect(await findByText(expected)).toBeInTheDocument();
+    }
+  );
 });
