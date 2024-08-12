@@ -1,6 +1,7 @@
 import { styled } from "@mui/material";
+import { titleCase } from "../../utils";
 
-const StyledLabel = styled("tspan")({
+const StyledText = styled("text")({
   fontFamily: "Roboto",
   fontSize: "11px",
   fontWeight: 400,
@@ -8,20 +9,19 @@ const StyledLabel = styled("tspan")({
   textTransform: "capitalize",
   overflow: "hidden",
   userSelect: "none",
+  textAnchor: "start",
 });
 
-const CustomTick = ({ x, y, payload }) => {
-  const textLines = payload.value?.replace(/_/g, " ").split(" ");
+const CustomTick = ({ x, y, payload, labelLength = 8 }) => {
+  const tickLabel: string = titleCase(payload?.value?.replace(/_/g, " "));
 
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} dy={6}>
-        {textLines.map((tspan, index) => (
-          <StyledLabel key={tspan} textAnchor="middle" x={0} dy={6 * index + 8}>
-            {tspan}
-          </StyledLabel>
-        ))}
-      </text>
+      <g transform="rotate(65), translate(-4, 7)">
+        <StyledText>
+          {tickLabel?.length > labelLength ? `${tickLabel.slice(0, labelLength)}...` : tickLabel}
+        </StyledText>
+      </g>
     </g>
   );
 };
