@@ -29,7 +29,7 @@ const StyledTableContainer = styled(TableContainer)({
 });
 
 const StyledTableHead = styled(TableHead)({
-  "& .MuiTableCell-head": {
+  "&.MuiTableHead-root .MuiTableCell-head": {
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontWeight: 700,
     fontSize: "16px",
@@ -40,13 +40,16 @@ const StyledTableHead = styled(TableHead)({
 });
 
 const StyledTableBody = styled(TableBody)({
-  "& .MuiTableCell-body": {
+  "&.MuiTableBody-root .MuiTableCell-body": {
     fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontWeight: 400,
     fontSize: "16px",
     lineHeight: "24px",
     color: "#083A50",
     padding: "8px 16px",
+    "& .MuiIconButton-root": {
+      padding: 0,
+    },
   },
 });
 
@@ -94,7 +97,6 @@ const PackageTable = () => (
                     download={pkg.fileName}
                     aria-label={pkg.fileName}
                     data-testid={`package-table-icon-download-${pkg.fileName}`}
-                    sx={{ p: 0 }}
                   >
                     <DownloadIcon />
                   </IconButton>

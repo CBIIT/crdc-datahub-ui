@@ -32,6 +32,7 @@ const StyledHeader = styled(Typography)({
   fontWeight: "900 !important",
   lineHeight: "30px !important",
   marginBottom: "51px !important",
+  letterSpacing: "normal !important",
 });
 
 const StyledDialogContent = styled(DialogContent)({
