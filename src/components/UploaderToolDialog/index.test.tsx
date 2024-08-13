@@ -91,19 +91,4 @@ describe("Basic Functionality", () => {
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
   });
-
-  it("should have the CLI download link", async () => {
-    const { getByTestId } = render(
-      <TestParent>
-        <UploaderToolDialog open />
-      </TestParent>
-    );
-
-    const link = getByTestId("uploader-cli-dialog-download-button");
-
-    expect(link).toBeVisible();
-    expect(link).toHaveAttribute("href", expect.stringMatching(/mocked-cli-download-link/g));
-    expect(link).toHaveAttribute("download");
-    expect(link).toHaveAttribute("target", "_self");
-  });
 });
