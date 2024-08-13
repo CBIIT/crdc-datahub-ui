@@ -1,6 +1,6 @@
 {
   "name": "crdc-datahub-ui",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "dependencies": {
     "@apollo/client": "^3.9.8",
     "@axe-core/react": "^4.9.0",
