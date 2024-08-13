@@ -100,37 +100,23 @@ export const calculateMaxDomain = (dataMax: number): number => {
  * A utility function to compute the approximate width of a text element
  * rendered on an SVG canvas.
  *
+ * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
  * @param text The text to measure
- * @param fontSize The font size of the text element
- * @param fontFamily The font family of the text element
+ * @param font The font descriptor for the text element
  * @returns The computed width of the text element or 0 if the width is not available
  */
-export const calculateTextWidth = (
-  text: string,
-  fontSize = "12px",
-  fontFamily = "Arial"
-): number => {
-  if (typeof text !== "string" || text.length === 0) {
+export const calculateTextWidth = (text, font = "normal 11px Arial") => {
+  if (!text || typeof text !== "string" || text.length === 0) {
     return 0;
   }
 
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
   try {
-    const svgCanvas = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    const textNode = document.createElementNS("http://www.w3.org/2000/svg", "text");
-
-    svgCanvas.setAttribute("display", "hidden");
-    textNode.setAttribute("x", "0");
-    textNode.setAttribute("y", "0");
-    textNode.setAttribute("font-size", fontSize);
-    textNode.setAttribute("font-family", fontFamily);
-    textNode.textContent = text;
-
-    svgCanvas.appendChild(textNode);
-    document.body.appendChild(svgCanvas);
-    const { width } = textNode.getBBox();
-    document.body.removeChild(svgCanvas);
-
-    return width || 0;
+    context.font = font;
+    const { width } = context.measureText(text);
+    return typeof width === "number" && width > 0 ? width : 0;
   } catch (e) {
     return 0;
   }

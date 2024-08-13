@@ -36,7 +36,8 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => {
   );
 
   const shouldRotateLabels = useMemo<boolean>(
-    () => data?.some(({ label }) => calculateTextWidth(label, "11px", "Roboto") > computedBarWidth),
+    () =>
+      data?.some(({ label }) => calculateTextWidth(label, "400 11px Roboto") > computedBarWidth),
     [data, computedBarWidth]
   );
 
