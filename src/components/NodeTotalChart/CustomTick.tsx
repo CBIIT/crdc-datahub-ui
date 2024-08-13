@@ -1,6 +1,6 @@
 import { styled } from "@mui/material";
 import { isEqual } from "lodash";
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { titleCase } from "../../utils";
 
 const StyledTSpan = styled("tspan")({
@@ -23,24 +23,36 @@ const StyledTSpan = styled("tspan")({
  *   characters (`labelLength`) will be trimmed and replaced with an ellipsis.
  * - If `false`, the tick label will be displayed in multiple lines
  *   denoted by spaces in the label string.
- * @note Details on how the tooltip is implemented:
- * - TODO...
- *
  * @returns {React.FC}
  */
-const CustomTick = ({ x, y, payload, labelLength = 7, angled = false }) => {
+const CustomTick = ({
+  x,
+  y,
+  payload,
+  labelLength = 7,
+  angled = false,
+  handleMouseEnter = null,
+  handleMouseLeave = null,
+}) => {
+  const label: string = titleCase(payload?.value?.replace(/_/g, " ")?.trim() || "");
   const labelLines: string[] = useMemo<string[]>(() => {
-    const label: string = payload?.value?.replace(/_/g, " ") || "";
-
     if (angled) {
       return [label.length > labelLength ? `${label.slice(0, labelLength).trim()}...` : label];
     }
 
     return label.split(" ");
-  }, [angled, payload, labelLength]);
+  }, [label, angled, labelLength]);
+
+  const onMouseEnter = useCallback(() => {
+    handleMouseEnter?.({ x, y, label: titleCase(label) });
+  }, [x, y, label, handleMouseEnter]);
+
+  const onMouseLeave = useCallback(() => {
+    handleMouseLeave?.();
+  }, [x, y, label, handleMouseLeave]);
 
   return (
-    <g transform={`translate(${x},${y})`}>
+    <g transform={`translate(${x},${y})`} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
       <g transform={angled ? "rotate(65), translate(-4, 7)" : undefined}>
         <text>
           {labelLines.map((tickLabel, index) => (
@@ -51,7 +63,7 @@ const CustomTick = ({ x, y, payload, labelLength = 7, angled = false }) => {
               y={0}
               dy={6 + index * 12} // Start + (index * line height)
             >
-              {titleCase(tickLabel)}
+              {tickLabel}
             </StyledTSpan>
           ))}
         </text>

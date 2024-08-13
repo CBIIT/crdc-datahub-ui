@@ -1,5 +1,6 @@
-import { render } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
+import userEvent from "@testing-library/user-event";
 import CustomTick from "./CustomTick";
 
 const mockTitleCase = jest.fn();
@@ -42,11 +43,11 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   it.each<[input: string, expected: string]>([
-    ["node_name", "node na..."],
+    ["node_name", "node name"],
     ["", ""],
-    [" long node name ", "long n..."],
-    ["genomic_info", "genomic..."],
-    ["multiple_under_scores", "multipl..."],
+    [" long node name ", "long node name"],
+    ["genomic_info", "genomic info"],
+    ["multiple_under_scores", "multiple under scores"],
     [null, ""],
   ])("should call titleCase after reformatting %p to %p", (input, output) => {
     render(<CustomTick x={0} y={25} payload={{ value: input }} angled />, {
@@ -115,5 +116,51 @@ describe("Implementation Requirements", () => {
 
     const text = container.querySelector("text");
     expect(text.children).toHaveLength(3);
+  });
+
+  it("should call onMouseEnter when the mouse enters the tick label", async () => {
+    const handleMouseEnter = jest.fn();
+    const { container } = render(
+      <CustomTick
+        x={226}
+        y={19}
+        payload={{ value: "my node" }}
+        handleMouseEnter={handleMouseEnter}
+      />,
+      {
+        wrapper: TestParent,
+      }
+    );
+
+    const g = container.querySelector("g");
+    userEvent.hover(g);
+
+    await waitFor(() => {
+      expect(handleMouseEnter).toHaveBeenCalledWith(
+        expect.objectContaining({ label: "My Node", x: 226, y: 19 })
+      );
+    });
+  });
+
+  it("should call onMouseLeave when the mouse leaves the tick label", async () => {
+    const handleMouseLeave = jest.fn();
+    const { container } = render(
+      <CustomTick
+        x={226}
+        y={19}
+        payload={{ value: "my node" }}
+        handleMouseLeave={handleMouseLeave}
+      />,
+      {
+        wrapper: TestParent,
+      }
+    );
+
+    const g = container.querySelector("g");
+    userEvent.unhover(g);
+
+    await waitFor(() => {
+      expect(handleMouseLeave).toHaveBeenCalled();
+    });
   });
 });

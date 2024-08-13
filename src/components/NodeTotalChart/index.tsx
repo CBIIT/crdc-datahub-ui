@@ -1,7 +1,8 @@
-import { FC, useMemo } from "react";
+import { FC, useCallback, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Box, styled } from "@mui/material";
-import NodeTooltip from "./Tooltip";
+import BarTooltip from "./BarTooltip";
+import LabelToolTip from "./LabelTooltip";
 import CustomTick from "./CustomTick";
 import ActiveBar from "./ActiveBar";
 import { calculateMaxDomain, calculateTextWidth, formatTick } from "../../utils";
@@ -30,6 +31,10 @@ const StyledChartContainer = styled(Box)({
  * @returns {React.FC<Props>}
  */
 const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => {
+  const [tooltipData, setTooltipData] = useState<{ label: string; x: number; y: number } | null>(
+    null
+  );
+
   const computedBarWidth = useMemo<number>(
     () => (482 - 8 * data.length) / data.length,
     [data.length]
@@ -40,6 +45,21 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => {
       data?.some(({ label }) => calculateTextWidth(label, "400 11px Roboto") > computedBarWidth),
     [data, computedBarWidth]
   );
+
+  const handleLabelEnter = useCallback(
+    (e) => {
+      if (!shouldRotateLabels) {
+        return;
+      }
+
+      setTooltipData({ ...e, y: e.y + 30 });
+    },
+    [shouldRotateLabels]
+  );
+
+  const handleLabelLeave = useCallback(() => {
+    setTooltipData(null);
+  }, []);
 
   return (
     <StyledChartContainer>
@@ -56,7 +76,7 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => {
           overflow="visible"
         >
           <CartesianGrid stroke="#E1E1E1" strokeWidth="0.6px" vertical={false} />
-          <Tooltip content={<NodeTooltip normalized={normalize} />} cursor={false} />
+          <Tooltip content={<BarTooltip normalized={normalize} />} cursor={false} />
           <YAxis
             type="number"
             axisLine={false}
@@ -71,7 +91,14 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => {
             axisLine={false}
             tickLine={false}
             // eslint-disable-next-line react/no-unstable-nested-components
-            tick={(p) => <CustomTick {...p} angled={shouldRotateLabels} />}
+            tick={(p) => (
+              <CustomTick
+                {...p}
+                angled={shouldRotateLabels}
+                handleMouseEnter={handleLabelEnter}
+                handleMouseLeave={handleLabelLeave}
+              />
+            )}
             interval={0}
             allowDataOverflow
             allowDuplicatedCategory
@@ -82,6 +109,17 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => {
           <Bar dataKey="Warning" fill="#FFC700" stackId="primary" activeBar={ActiveBar} />
         </BarChart>
       </ResponsiveContainer>
+      {tooltipData && (
+        <Tooltip
+          content={<LabelToolTip />}
+          label={tooltipData.label}
+          wrapperStyle={{
+            visibility: "visible",
+            transform: `translate(${tooltipData.x}px, ${tooltipData.y}px)`,
+          }}
+          active
+        />
+      )}
     </StyledChartContainer>
   );
 };
