@@ -1,10 +1,10 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Box, styled } from "@mui/material";
 import NodeTooltip from "./Tooltip";
 import CustomTick from "./CustomTick";
 import ActiveBar from "./ActiveBar";
-import { calculateMaxDomain, formatTick } from "../../utils";
+import { calculateMaxDomain, calculateTextWidth, formatTick } from "../../utils";
 
 type Props = {
   /**
@@ -29,47 +29,60 @@ const StyledChartContainer = styled(Box)({
  * @param {Props} props
  * @returns {React.FC<Props>}
  */
-const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => (
-  <StyledChartContainer>
-    <ResponsiveContainer height="100%" width="100%">
-      <BarChart
-        layout="horizontal"
-        data={data}
-        stackOffset={normalize ? "expand" : "none"}
-        maxBarSize={53}
-        barCategoryGap="8px"
-        barGap="8px"
-        aria-label="Node Total background"
-        // @ts-ignore - `overflow` is not in the type definition for BarChart
-        overflow="visible"
-      >
-        <CartesianGrid stroke="#E1E1E1" strokeWidth="0.6px" vertical={false} />
-        <Tooltip content={<NodeTooltip normalized={normalize} />} cursor={false} />
-        <YAxis
-          type="number"
-          axisLine={false}
-          tickFormatter={(tick) => formatTick(tick, normalize)}
-          domain={normalize ? [0, "dataMax"] : [0, calculateMaxDomain]}
-          interval={0}
-          tickMargin={4}
-        />
-        <XAxis
-          type="category"
-          dataKey="label"
-          axisLine={false}
-          tickLine={false}
-          tick={CustomTick}
-          interval={0}
-          allowDataOverflow
-          allowDuplicatedCategory
-        />
-        <Bar dataKey="New" fill="#4D90D3" stackId="primary" activeBar={ActiveBar} />
-        <Bar dataKey="Passed" fill="#32E69A" stackId="primary" activeBar={ActiveBar} />
-        <Bar dataKey="Error" fill="#D65219" stackId="primary" activeBar={ActiveBar} />
-        <Bar dataKey="Warning" fill="#FFC700" stackId="primary" activeBar={ActiveBar} />
-      </BarChart>
-    </ResponsiveContainer>
-  </StyledChartContainer>
-);
+const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => {
+  const computedBarWidth = useMemo<number>(
+    () => (482 - 8 * data.length) / data.length,
+    [data.length]
+  );
+
+  const shouldRotateLabels = useMemo<boolean>(
+    () => data?.some(({ label }) => calculateTextWidth(label, "11px", "Roboto") > computedBarWidth),
+    [data, computedBarWidth]
+  );
+
+  return (
+    <StyledChartContainer>
+      <ResponsiveContainer height="100%" width="100%">
+        <BarChart
+          layout="horizontal"
+          data={data}
+          stackOffset={normalize ? "expand" : "none"}
+          maxBarSize={53}
+          barCategoryGap="8px"
+          barGap="8px"
+          aria-label="Node Total background"
+          // @ts-ignore - `overflow` is not in the type definition for BarChart
+          overflow="visible"
+        >
+          <CartesianGrid stroke="#E1E1E1" strokeWidth="0.6px" vertical={false} />
+          <Tooltip content={<NodeTooltip normalized={normalize} />} cursor={false} />
+          <YAxis
+            type="number"
+            axisLine={false}
+            tickFormatter={(tick) => formatTick(tick, normalize)}
+            domain={normalize ? [0, "dataMax"] : [0, calculateMaxDomain]}
+            interval={0}
+            tickMargin={4}
+          />
+          <XAxis
+            type="category"
+            dataKey="label"
+            axisLine={false}
+            tickLine={false}
+            // eslint-disable-next-line react/no-unstable-nested-components
+            tick={(p) => <CustomTick {...p} angled={shouldRotateLabels} />}
+            interval={0}
+            allowDataOverflow
+            allowDuplicatedCategory
+          />
+          <Bar dataKey="New" fill="#4D90D3" stackId="primary" activeBar={ActiveBar} />
+          <Bar dataKey="Passed" fill="#32E69A" stackId="primary" activeBar={ActiveBar} />
+          <Bar dataKey="Error" fill="#D65219" stackId="primary" activeBar={ActiveBar} />
+          <Bar dataKey="Warning" fill="#FFC700" stackId="primary" activeBar={ActiveBar} />
+        </BarChart>
+      </ResponsiveContainer>
+    </StyledChartContainer>
+  );
+};
 
 export default NodeTotalChart;

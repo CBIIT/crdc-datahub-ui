@@ -95,3 +95,16 @@ describe("calculateMaxDomain cases", () => {
     expect(utils.calculateMaxDomain(10)).toBe(10);
   });
 });
+
+describe("calculateTextWidth cases", () => {
+  it("should handle empty text", () => {
+    expect(utils.calculateTextWidth("")).toBe(0);
+  });
+
+  it.each([null, undefined, 0, NaN, Infinity, -Infinity])(
+    "should handle non-string types (%s)",
+    (text) => {
+      expect(utils.calculateTextWidth(text as unknown as string)).toBe(0);
+    }
+  );
+});

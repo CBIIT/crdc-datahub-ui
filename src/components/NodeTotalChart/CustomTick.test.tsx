@@ -42,14 +42,14 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   it.each<[input: string, expected: string]>([
-    ["node_name", "node name"],
+    ["node_name", "node na..."],
     ["", ""],
-    [" long node name ", " long node name "],
-    ["genomic_info", "genomic info"],
-    ["multiple_under_scores", "multiple under scores"],
-    [null, undefined], // NOTE: short-circuiting null results in undefined
+    [" long node name ", "long n..."],
+    ["genomic_info", "genomic..."],
+    ["multiple_under_scores", "multipl..."],
+    [null, ""],
   ])("should call titleCase after reformatting %p to %p", (input, output) => {
-    render(<CustomTick x={0} y={25} payload={{ value: input }} />, {
+    render(<CustomTick x={0} y={25} payload={{ value: input }} angled />, {
       wrapper: TestParent,
     });
 
@@ -77,7 +77,7 @@ describe("Implementation Requirements", () => {
     "should render the original tick label %p as %p if it exceeds the label length of %p",
     async (input, expected, maxLength) => {
       const { findByText } = render(
-        <CustomTick x={0} y={25} payload={{ value: input }} labelLength={maxLength} />,
+        <CustomTick x={0} y={25} payload={{ value: input }} labelLength={maxLength} angled />,
         {
           wrapper: TestParent,
         }
@@ -86,4 +86,34 @@ describe("Implementation Requirements", () => {
       expect(await findByText(expected)).toBeInTheDocument();
     }
   );
+
+  it("should rotate the tick label by 65 degrees if `angled` is specified", async () => {
+    const { container } = render(<CustomTick x={0} y={25} payload={{ value: "node1" }} angled />, {
+      wrapper: TestParent,
+    });
+
+    const text = container.querySelector("text");
+    expect(text.parentElement).toHaveAttribute("transform", "rotate(65), translate(-4, 7)");
+  });
+
+  it("should not rotate the tick label if `angled` is not specified", async () => {
+    const { container } = render(<CustomTick x={0} y={25} payload={{ value: "node1" }} />, {
+      wrapper: TestParent,
+    });
+
+    const text = container.querySelector("text");
+    expect(text.parentElement).not.toHaveAttribute("transform");
+  });
+
+  it("should break the tick label into multiple lines if `angled` is not specified", async () => {
+    const { container } = render(
+      <CustomTick x={0} y={25} payload={{ value: "long node name" }} />,
+      {
+        wrapper: TestParent,
+      }
+    );
+
+    const text = container.querySelector("text");
+    expect(text.children).toHaveLength(3);
+  });
 });
