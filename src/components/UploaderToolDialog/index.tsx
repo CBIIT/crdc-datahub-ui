@@ -53,7 +53,7 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
   position: "absolute !important" as "absolute",
   right: "21px",
   top: "11px",
-  padding: "10px",
+  padding: "10px !important",
   "& svg": {
     color: "#44627C",
   },
