@@ -30,7 +30,7 @@ export const headerData = {
 
 export const navMobileList = [
   {
-    name: "Return to CRDC",
+    name: "Back to CRDC",
     link: "https://datacommons.cancer.gov/submit",
     id: "navbar-dropdown-join-crdc-data-hub",
     className: "navMobileItem",
