@@ -7,6 +7,14 @@ import CustomTick from "./CustomTick";
 import ActiveBar from "./ActiveBar";
 import { calculateMaxDomain, calculateTextWidth, formatTick } from "../../utils";
 
+const StyledChartContainer = styled(Box, {
+  shouldForwardProp: (p) => p !== "height" && p !== "width",
+})(({ width, height }) => ({
+  overflow: "visible",
+  width: `${width}px`,
+  height: `${height}px`,
+}));
+
 type Props = {
   /**
    * The data to display in the pie chart
@@ -16,13 +24,21 @@ type Props = {
    * If true, the data bars will be normalized to 100%
    */
   normalize?: boolean;
+  /**
+   * The width of the gap between the bars in pixels
+   *
+   * @default 8
+   */
+  barGapPx?: number;
+  /**
+   * The width of the full chart container in pixels
+   */
+  containerWidthPx?: number;
+  /**
+   * The height of the full chart container in pixels
+   */
+  containerHeightPx?: number;
 };
-
-const StyledChartContainer = styled(Box)({
-  overflow: "visible",
-  width: "482px",
-  height: "246px",
-});
 
 /**
  * Builds a summary of node states (passed, new, ...) chart for the node statistics
@@ -30,13 +46,19 @@ const StyledChartContainer = styled(Box)({
  * @param {Props} props
  * @returns {React.FC<Props>}
  */
-const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => {
+const NodeTotalChart: FC<Props> = ({
+  data,
+  normalize = true,
+  barGapPx = 8,
+  containerWidthPx = 482,
+  containerHeightPx = 246,
+}) => {
   const [tooltipData, setTooltipData] = useState<{ label: string; x: number; y: number } | null>(
     null
   );
 
   const computedBarWidth = useMemo<number>(
-    () => (482 - 8 * data.length) / data.length,
+    () => (containerWidthPx - barGapPx * data.length) / data.length,
     [data.length]
   );
 
@@ -48,6 +70,7 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => {
 
   const handleLabelEnter = useCallback(
     (e) => {
+      // Ignore tooltip if labels are not rotated
       if (!shouldRotateLabels) {
         return;
       }
@@ -62,15 +85,15 @@ const NodeTotalChart: FC<Props> = ({ data, normalize = true }) => {
   }, []);
 
   return (
-    <StyledChartContainer>
+    <StyledChartContainer height={containerHeightPx} width={containerWidthPx}>
       <ResponsiveContainer height="100%" width="100%">
         <BarChart
           layout="horizontal"
           data={data}
           stackOffset={normalize ? "expand" : "none"}
           maxBarSize={53}
-          barCategoryGap="8px"
-          barGap="8px"
+          barCategoryGap={`${barGapPx}px`}
+          barGap={`${barGapPx}px`}
           aria-label="Node Total background"
           // @ts-ignore - `overflow` is not in the type definition for BarChart
           overflow="visible"
