@@ -95,3 +95,41 @@ describe("calculateMaxDomain cases", () => {
     expect(utils.calculateMaxDomain(10)).toBe(10);
   });
 });
+
+describe("calculateTextWidth cases", () => {
+  it("should short-circuit an empty string", () => {
+    expect(utils.calculateTextWidth("")).toBe(0);
+  });
+
+  it.each([null, undefined, 0, NaN, Infinity, -Infinity])(
+    "should handle non-string types (%s) without error",
+    (text) => {
+      expect(utils.calculateTextWidth(text as unknown as string)).toBe(0);
+    }
+  );
+
+  it("should safely return 0 when the width could not be calculated", () => {
+    jest.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValueOnce(null); // NOTE: This causes an exception
+    expect(utils.calculateTextWidth("This should not have a width")).toBe(0);
+  });
+
+  it("should return the computed width of the text element", () => {
+    jest.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValueOnce({
+      font: "",
+      measureText: (text) => ({ width: text.length }),
+    } as CanvasRenderingContext2D);
+
+    const width = utils.calculateTextWidth("HelloWorld", "Arial", "11px", "normal");
+    expect(width).toBe(10);
+  });
+
+  it("should fall back to 0 when the width is not valid", () => {
+    jest.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValueOnce({
+      font: "",
+      measureText: (text) => ({ width: text.length * -25 }),
+    } as CanvasRenderingContext2D);
+
+    const width = utils.calculateTextWidth("HelloWorld", "Arial", "11px", "normal");
+    expect(width).toBe(0);
+  });
+});
