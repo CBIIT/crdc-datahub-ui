@@ -39,7 +39,7 @@ const config = {
     "prettier/prettier": "error",
 
     "max-len": "off",
-    "no-console": "warn",
+    "no-console": ["warn", { allow: ["error"] }],
     "no-param-reassign": "off",
     "object-curly-newline": "off",
     "no-underscore-dangle": ["off"],

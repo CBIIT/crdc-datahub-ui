@@ -105,7 +105,7 @@ describe("fetchManifest cases", () => {
 
     await utils.fetchManifest();
 
-    expect(fetch).toHaveBeenCalledWith(`${MODEL_FILE_REPO}prod/content.json`);
+    expect(fetch).toHaveBeenCalledWith(`${MODEL_FILE_REPO}prod/cache/content.json`);
   });
 });
 
@@ -125,10 +125,10 @@ describe("buildAssetUrls cases", () => {
     const result = utils.buildAssetUrls(dc);
 
     expect(result).toEqual({
-      model: `${MODEL_FILE_REPO}prod/test-name/1.0/model-file`,
-      props: `${MODEL_FILE_REPO}prod/test-name/1.0/prop-file`,
-      readme: `${MODEL_FILE_REPO}prod/test-name/1.0/readme-file`,
-      loading_file: `${MODEL_FILE_REPO}prod/test-name/1.0/loading-file-zip-name`,
+      model: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/model-file`,
+      props: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/prop-file`,
+      readme: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/readme-file`,
+      loading_file: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/loading-file-zip-name`,
     });
   });
 
