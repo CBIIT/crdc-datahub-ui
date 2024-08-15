@@ -25,11 +25,23 @@ type AppEnv = {
    */
   REACT_APP_DEV_TIER: string;
   /**
-   * Fully-qualified URL to the Uploader CLI zip download
+   * Fully-qualified URL to the source package Uploader CLI zip download
    *
    * @example "https://github.com/CBIIT/crdc-datahub-cli-uploader/releases/download/1.0.0/crdc-datahub-cli-uploader.zip"
    */
   REACT_APP_UPLOADER_CLI: string;
+  /**
+   * Fully-qualified URL to the binary Windows Uploader CLI zip download
+   *
+   * @example "https://github.com/CBIIT/crdc-datahub-cli-uploader/releases/download/1.0.0/crdc-datahub-cli-uploader-windows.zip"
+   */
+  REACT_APP_UPLOADER_CLI_WINDOWS: string;
+  /**
+   * Fully-qualified URL to the binary MacOS Uploader CLI zip download
+   *
+   * @example "https://github.com/CBIIT/crdc-datahub-cli-uploader/releases/download/1.0.0/crdc-datahub-cli-uploader-mac.zip"
+   */
+  REACT_APP_UPLOADER_CLI_MAC: string;
   /**
    * Google Analytic (GA4) Tracking ID
    *
