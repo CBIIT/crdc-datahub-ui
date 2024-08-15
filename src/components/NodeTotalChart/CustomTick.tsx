@@ -53,7 +53,7 @@ const CustomTick = ({
 
   return (
     <g transform={`translate(${x},${y})`} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-      <g transform={angled ? "rotate(65), translate(-4, 7)" : undefined}>
+      <g transform={angled ? "rotate(65)" : undefined}>
         <text>
           {labelLines.map((tickLabel, index) => (
             <StyledTSpan
