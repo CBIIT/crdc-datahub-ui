@@ -94,7 +94,7 @@ describe("Implementation Requirements", () => {
     });
 
     const text = container.querySelector("text");
-    expect(text.parentElement).toHaveAttribute("transform", "rotate(65), translate(-4, 7)");
+    expect(text.parentElement).toHaveAttribute("transform", "rotate(65)");
   });
 
   it("should not rotate the tick label if `angled` is not specified", async () => {

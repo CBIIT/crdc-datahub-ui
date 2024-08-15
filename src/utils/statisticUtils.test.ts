@@ -119,7 +119,7 @@ describe("calculateTextWidth cases", () => {
       measureText: (text) => ({ width: text.length }),
     } as CanvasRenderingContext2D);
 
-    const width = utils.calculateTextWidth("HelloWorld", "normal 11px Arial");
+    const width = utils.calculateTextWidth("HelloWorld", "Arial", "11px", "normal");
     expect(width).toBe(10);
   });
 
@@ -129,7 +129,7 @@ describe("calculateTextWidth cases", () => {
       measureText: (text) => ({ width: text.length * -25 }),
     } as CanvasRenderingContext2D);
 
-    const width = utils.calculateTextWidth("HelloWorld", "normal 11px Arial");
+    const width = utils.calculateTextWidth("HelloWorld", "Arial", "11px", "normal");
     expect(width).toBe(0);
   });
 });
