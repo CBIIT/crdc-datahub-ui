@@ -153,3 +153,7 @@ export type { Response as GrantTokenResp } from "./grantToken";
 
 export { query as LIST_APPROVED_STUDIES_OF_MY_ORG } from "./listApprovedStudiesOfMyOrganization";
 export type { Response as ListApprovedStudiesOfMyOrgResp } from "./listApprovedStudiesOfMyOrganization";
+
+// Operation Dashboard
+export { query as GET_DASHBOARD_URL } from "./getDashboardURL";
+export type { Response as GetDashboardURLResp } from "./getDashboardURL";

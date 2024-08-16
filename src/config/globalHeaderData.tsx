@@ -66,6 +66,13 @@ export const navMobileList: NavBarItem[] = [
     id: "navbar-dropdown-model-navigator",
     className: "navMobileItem clickable",
   },
+  // TODO: Hidden for non-Fed, curator, or admins
+  {
+    name: "Operation Dashboard",
+    link: "/operation-dashboard",
+    id: "navbar-dropdown-operation-dashboard",
+    className: "navMobileItem",
+  },
 ];
 
 export const navbarSublists: Record<string, NavBarSubItem[]> = {

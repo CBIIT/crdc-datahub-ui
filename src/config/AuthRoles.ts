@@ -45,3 +45,8 @@ export const OrgAssignmentMap: Record<RoleSubset, Organization["name"]> = {
  * Defines a list of roles that are allowed to interact with Cross Validation.
  */
 export const CrossValidateRoles: User["role"][] = ["Admin", "Data Curator"];
+
+/**
+ * Defines a list of roles that are allowed to interact with the Operation Dashboard.
+ */
+export const DashboardRoles: User["role"][] = ["Admin", "Data Curator", "Federal Lead"];
