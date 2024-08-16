@@ -4,7 +4,14 @@ import usaFlagSmall from "../assets/header/us_flag_small.svg";
 import { DataCommons } from "./DataCommons";
 import ApiInstructions from "../assets/pdf/CRDC_Data_Submission_API_Instructions.pdf";
 
-export interface NavBarSublist {
+export type NavBarItem = {
+  name: string;
+  link: string;
+  id: string;
+  className: string;
+};
+
+export type NavBarSubItem = {
   name: string;
   link?: string;
   text?: string;
@@ -12,7 +19,7 @@ export interface NavBarSublist {
   id?: string;
   onClick?: () => void;
   needsAuthentication?: boolean;
-}
+};
 
 export const DataSubmissionInstructionsLink =
   "https://datacommons.cancer.gov/data-submission-instructions";
@@ -28,7 +35,7 @@ export const headerData = {
   usaFlagSmallAltText: "usaFlagSmall",
 };
 
-export const navMobileList = [
+export const navMobileList: NavBarItem[] = [
   {
     name: "Back to CRDC",
     link: "https://datacommons.cancer.gov/submit",
@@ -61,7 +68,7 @@ export const navMobileList = [
   },
 ];
 
-export const navbarSublists: Record<string, NavBarSublist[]> = {
+export const navbarSublists: Record<string, NavBarSubItem[]> = {
   // Example of how to do a navMobileSubTitle and subtext
   // Home: [
   //   {
