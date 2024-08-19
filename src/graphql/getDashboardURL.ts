@@ -8,6 +8,10 @@ export const query = gql`
   }
 `;
 
+export type Input = {
+  type: string;
+};
+
 export type Response = {
   getDashboardURL: {
     url: string;

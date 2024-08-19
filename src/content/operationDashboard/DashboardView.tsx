@@ -57,7 +57,7 @@ const DashboardView: FC<DashboardViewProps> = ({
   const [, setSearchParams] = useSearchParams();
 
   return (
-    <Box>
+    <Box data-testid="operation-dashboard-container">
       {/* TODO: Loading also tied in with iframe loading? */}
       {loading && <SuspenseLoader />}
       <StyledViewHeader>
@@ -75,7 +75,7 @@ const DashboardView: FC<DashboardViewProps> = ({
       </StyledViewHeader>
       <StyledFrameContainer>
         {/* TODO: Put a placeholder if loading? and remove hardcoded url */}
-        <StyledFrame title="metric view" src={url || "http://localhost:4010"} />
+        {url ? <StyledFrame title="metric view" src={url} /> : null}
       </StyledFrameContainer>
     </Box>
   );

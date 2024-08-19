@@ -156,4 +156,7 @@ export type { Response as ListApprovedStudiesOfMyOrgResp } from "./listApprovedS
 
 // Operation Dashboard
 export { query as GET_DASHBOARD_URL } from "./getDashboardURL";
-export type { Response as GetDashboardURLResp } from "./getDashboardURL";
+export type {
+  Input as GetDashboardURLInput,
+  Response as GetDashboardURLResp,
+} from "./getDashboardURL";

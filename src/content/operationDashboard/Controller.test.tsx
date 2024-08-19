@@ -1,1 +1,244 @@
-describe("Basic Functionality", () => {});
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { FC, useMemo } from "react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { render, waitFor } from "@testing-library/react";
+import { GraphQLError } from "graphql";
+import Controller from "./Controller";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../../components/Contexts/AuthContext";
+import { GET_DASHBOARD_URL, GetDashboardURLInput, GetDashboardURLResp } from "../../graphql";
+
+// NOTE: Omitting fields depended on by the component
+const baseUser: Omit<User, "role"> = {
+  _id: "",
+  firstName: "",
+  lastName: "",
+  userStatus: "Active",
+  IDP: "nih",
+  email: "",
+  organization: null,
+  dataCommons: [],
+  createdAt: "",
+  updateAt: "",
+};
+
+type ParentProps = {
+  role: User["role"];
+  initialEntry?: string;
+  mocks?: MockedResponse[];
+  ctxStatus?: AuthContextStatus;
+  children: React.ReactNode;
+};
+
+const TestParent: FC<ParentProps> = ({
+  role,
+  initialEntry = "/dashboard",
+  mocks = [],
+  ctxStatus = AuthContextStatus.LOADED,
+  children,
+}: ParentProps) => {
+  const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
+    () => ({
+      status: ctxStatus,
+      isLoggedIn: role !== null,
+      user: { ...baseUser, role },
+    }),
+    [role, ctxStatus]
+  );
+
+  return (
+    <MockedProvider mocks={mocks} showWarnings>
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <Routes>
+          <Route
+            path="/dashboard"
+            element={<AuthContext.Provider value={baseAuthCtx}>{children}</AuthContext.Provider>}
+          />
+          <Route path="/" element={<div>Root Page</div>} />
+        </Routes>
+      </MemoryRouter>
+    </MockedProvider>
+  );
+};
+
+describe("Basic Functionality", () => {
+  it("should render the page without crashing", async () => {
+    const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
+      request: {
+        query: GET_DASHBOARD_URL,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getDashboardURL: {
+            url: "https://example.com",
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(<Controller />, {
+      wrapper: (p) => <TestParent role="Admin" mocks={[mock]} {...p} />,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("operation-dashboard-container")).toBeInTheDocument();
+    });
+  });
+
+  it.todo("should refetch the URL when the type changes");
+
+  it("should default to the 'Submission' type if none is provided", async () => {
+    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
+      request: {
+        query: GET_DASHBOARD_URL,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          getDashboardURL: {
+            url: "https://example.com",
+          },
+        },
+      },
+    };
+
+    render(<Controller />, {
+      wrapper: (p) => <TestParent role="Admin" mocks={[mock]} {...p} />,
+    });
+
+    expect(mockMatcher).toHaveBeenCalledWith({ type: "Submission" });
+  });
+
+  it("should use the 'type' query parameter if provided", async () => {
+    // NOTE: We're ignoring MUI warnings about out-of-range values.
+    // Once we have other options available besides 'Submission', we can remove the out-of-range value.
+    jest.spyOn(console, "warn").mockImplementation((e) => {
+      if (!e.includes("out-of-range value")) {
+        throw new Error(e);
+      }
+    });
+
+    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
+      request: {
+        query: GET_DASHBOARD_URL,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          getDashboardURL: {
+            url: "https://example.com",
+          },
+        },
+      },
+    };
+
+    render(<Controller />, {
+      wrapper: (p) => (
+        <TestParent
+          role="Admin"
+          initialEntry="/dashboard?type=Organization"
+          mocks={[mock]}
+          {...p}
+        />
+      ),
+    });
+
+    expect(mockMatcher).toHaveBeenCalledWith({ type: "Organization" });
+
+    jest.restoreAllMocks();
+  });
+
+  it("should show a loading spinner when the AuthCtx is loading", async () => {
+    const { getByLabelText } = render(<Controller />, {
+      wrapper: (p) => <TestParent role={null} ctxStatus={AuthContextStatus.LOADING} {...p} />,
+    });
+
+    await waitFor(() => {
+      expect(getByLabelText("Content Loader")).toBeInTheDocument();
+    });
+  });
+
+  it.each<User["role"]>([
+    "User",
+    "Submitter",
+    "Organization Owner",
+    "Data Commons POC",
+    "fake role" as User["role"], // Asserting that a whitelist is used instead of a blacklist
+  ])("should redirect the user role %p to the home page", (role) => {
+    const { getByText } = render(<Controller />, {
+      wrapper: (p) => <TestParent role={role} {...p} />,
+    });
+
+    expect(getByText("Root Page")).toBeInTheDocument();
+  });
+
+  it("should show an error message when the URL cannot be fetched (GraphQL)", async () => {
+    const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
+      request: {
+        query: GET_DASHBOARD_URL,
+      },
+      variableMatcher: () => true,
+      result: {
+        errors: [new GraphQLError("Simulated GraphQL error")],
+      },
+    };
+
+    render(<Controller />, {
+      wrapper: (p) => <TestParent role="Admin" mocks={[mock]} {...p} />,
+    });
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Simulated GraphQL error", {
+        variant: "error",
+      });
+    });
+  });
+
+  it("should show an error message when the URL cannot be fetched (Network)", async () => {
+    const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
+      request: {
+        query: GET_DASHBOARD_URL,
+      },
+      variableMatcher: () => true,
+      error: new Error("Simulated network error"),
+    };
+
+    render(<Controller />, {
+      wrapper: (p) => <TestParent role="Admin" mocks={[mock]} {...p} />,
+    });
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Simulated network error", {
+        variant: "error",
+      });
+    });
+  });
+
+  it("should not crash if the URL is not provided", async () => {
+    const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
+      request: {
+        query: GET_DASHBOARD_URL,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getDashboardURL: null,
+        },
+      },
+    };
+
+    const { getByTestId } = render(<Controller />, {
+      wrapper: (p) => <TestParent role="Admin" mocks={[mock]} {...p} />,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("operation-dashboard-container")).toBeInTheDocument();
+    });
+  });
+});

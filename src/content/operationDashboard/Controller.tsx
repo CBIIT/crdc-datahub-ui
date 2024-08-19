@@ -1,9 +1,10 @@
 import { useQuery } from "@apollo/client";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { GET_DASHBOARD_URL, GetDashboardURLResp } from "../../graphql";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
+import { GET_DASHBOARD_URL, GetDashboardURLInput, GetDashboardURLResp } from "../../graphql";
+import { Status, useAuthContext } from "../../components/Contexts/AuthContext";
+import SuspenseLoader from "../../components/SuspenseLoader";
 import { DashboardRoles } from "../../config/AuthRoles";
 import DashboardView from "./DashboardView";
 
@@ -13,25 +14,36 @@ import DashboardView from "./DashboardView";
  * @returns {JSX.Element} The OperationDashboard component.
  */
 const DashboardController = () => {
-  const { user } = useAuthContext();
+  const { user, status: authStatus } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const [searchParams] = useSearchParams({ type: "Submission" });
 
   const canAccessPage = useMemo<boolean>(
-    () => user?.role && DashboardRoles.includes(user.role),
-    [user?.role]
+    () => authStatus === Status.LOADED && user?.role && DashboardRoles.includes(user.role),
+    [authStatus, user?.role]
   );
 
-  const { data, error, loading, refetch } = useQuery<GetDashboardURLResp>(GET_DASHBOARD_URL, {
-    variables: { type: "Submission" },
-    skip: !canAccessPage || !searchParams.get("type"),
-    onError: (e) =>
-      enqueueSnackbar(`Unable to generate the dashboard. Err: ${e}`, { variant: "error" }),
-  });
+  const { data, error, loading } = useQuery<GetDashboardURLResp, GetDashboardURLInput>(
+    GET_DASHBOARD_URL,
+    {
+      variables: { type: searchParams.get("type") },
+      skip: !canAccessPage || !searchParams.get("type"),
+      onError: (e) =>
+        enqueueSnackbar(e?.message, {
+          variant: "error",
+        }),
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
-  useEffect(() => {
-    refetch();
-  }, [searchParams.get("type")]);
+  // TODO: Refetch only when the type changes
+  // useEffect(() => {
+  //   refetch();
+  // }, [searchParams.get("type")]);
+
+  if (authStatus === Status.LOADING) {
+    return <SuspenseLoader />;
+  }
 
   if (!canAccessPage) {
     return <Navigate to="/" />;
