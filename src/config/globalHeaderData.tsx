@@ -2,7 +2,7 @@ import Logo from "../assets/header/Portal_Logo.svg";
 import LogoSmall from "../assets/header/Portal_Logo_Small.svg";
 import usaFlagSmall from "../assets/header/us_flag_small.svg";
 import { DataCommons } from "./DataCommons";
-import ApiInstructions from "../assets/pdf/API_Instructions_Documentation.pdf";
+import ApiInstructions from "../assets/pdf/CRDC_Data_Submission_API_Instructions.pdf";
 
 export interface NavBarSublist {
   name: string;
@@ -15,7 +15,7 @@ export interface NavBarSublist {
 }
 
 export const DataSubmissionInstructionsLink =
-  "https://datacommons.cancer.gov/sites/default/files/2024-07/CRDC%20Data%20Submission%20Instructions%202024.pdf";
+  "https://datacommons.cancer.gov/data-submission-instructions";
 
 // globalHeaderLogo image 468x100
 // globalHeaderImage: image 2200x100
@@ -30,7 +30,7 @@ export const headerData = {
 
 export const navMobileList = [
   {
-    name: "Return to CRDC",
+    name: "Back to CRDC",
     link: "https://datacommons.cancer.gov/submit",
     id: "navbar-dropdown-join-crdc-data-hub",
     className: "navMobileItem",
@@ -83,7 +83,7 @@ export const navbarSublists: Record<string, NavBarSublist[]> = {
   Documentations: [
     {
       name: "Submission Request Instructions",
-      link: "https://datacommons.cancer.gov/sites/default/files/2024-07/CRDC%20Submission%20Request%20Instructions%202024.pdf",
+      link: "https://datacommons.cancer.gov/submission-request-instructions",
       text: "",
       id: "submission-request-instructions",
       className: "navMobileSubItem",

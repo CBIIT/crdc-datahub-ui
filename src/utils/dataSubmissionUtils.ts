@@ -49,16 +49,19 @@ export const shouldDisableSubmit = (submission: Submission, userRole: User["role
 };
 
 /**
- * Unpacks the Warning and Error severities from the original QCResult into duplicates of the original QCResult
+ * Unpacks the Warning and Error severities from the original normal validation or cross validation
+ * result into duplicates of the original array
  *
  * @example
- *  - Original QCResult: { severity: "error", errors: [error1, error2], warnings: [warning1, warning2] }
- *  - Unpacked QCResults: [{ severity: "error", errors: [error1] }, { severity: "error", errors: [error2] }, ...
- * @param results - The QC results to unpack
- * @returns A new array of QCResults
+ *  - Original: { severity: "error", errors: [error1, error2], warnings: [warning1, warning2] }
+ *  - Unpacked: [{ severity: "error", errors: [error1] }, { severity: "error", errors: [error2] }, ...
+ * @param results - The validation results to unpack
+ * @returns A new array of validation results
  */
-export const unpackQCResultSeverities = (results: QCResult[]): QCResult[] => {
-  const unpackedResults: QCResult[] = [];
+export const unpackValidationSeverities = <T extends QCResult | CrossValidationResult>(
+  results: T[]
+): T[] => {
+  const unpackedResults: T[] = [];
 
   // Iterate through each result and push the errors and warnings into separate results
   results.forEach(({ errors, warnings, ...result }) => {
@@ -68,7 +71,7 @@ export const unpackQCResultSeverities = (results: QCResult[]): QCResult[] => {
         severity: "Error",
         errors: [error],
         warnings: [],
-      });
+      } as T);
     });
     warnings.forEach((warning) => {
       unpackedResults.push({
@@ -76,7 +79,7 @@ export const unpackQCResultSeverities = (results: QCResult[]): QCResult[] => {
         severity: "Warning",
         errors: [],
         warnings: [warning],
-      });
+      } as T);
     });
   });
 

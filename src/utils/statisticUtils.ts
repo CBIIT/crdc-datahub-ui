@@ -95,3 +95,36 @@ export const calculateMaxDomain = (dataMax: number): number => {
 
   return Math.ceil(dataMax / 10) * 10;
 };
+
+/**
+ * A utility function to compute the approximate width of a text element
+ * rendered on an SVG canvas.
+ *
+ * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+ * @param text The text to measure
+ * @param fontFamily The font family of the text element
+ * @param fontSize The font size of the text element
+ * @param fontWeight The font weight of the text element
+ * @returns The computed width of the text element or 0 if the width is not available
+ */
+export const calculateTextWidth = (
+  text,
+  fontFamily = "Arial",
+  fontSize = "11px",
+  fontWeight = "normal"
+) => {
+  if (!text || typeof text !== "string" || text.length === 0) {
+    return 0;
+  }
+
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  try {
+    context.font = `${fontWeight} ${fontSize} ${fontFamily}`;
+    const { width } = context.measureText(text);
+    return typeof width === "number" && width > 0 ? width : 0;
+  } catch (e) {
+    return 0;
+  }
+};

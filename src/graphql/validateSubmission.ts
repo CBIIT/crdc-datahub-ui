@@ -15,5 +15,5 @@ export type Input = {
 };
 
 export type Response = {
-  validateSubmission: Pick<DataValidationResult, "success">;
+  validateSubmission: Pick<AsyncProcessResult, "success">;
 };

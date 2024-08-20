@@ -1,5 +1,6 @@
 import { Box, Stack, Typography, styled } from "@mui/material";
-import { CSSProperties, FC, useMemo } from "react";
+import { isEqual } from "lodash";
+import { CSSProperties, FC, memo, useMemo } from "react";
 import { TooltipProps } from "recharts";
 
 const StyledContainer = styled(Box)({
@@ -54,7 +55,7 @@ type Props = {
   normalized: boolean;
 } & TooltipProps<number, SeriesLabel>;
 
-const Tooltip: FC<Props> = ({ active, payload, label, normalized }: Props) => {
+const BarTooltip: FC<Props> = ({ active, payload, label, normalized }: Props) => {
   if (!active || !label || !payload?.length) {
     return null;
   }
@@ -90,4 +91,4 @@ const Tooltip: FC<Props> = ({ active, payload, label, normalized }: Props) => {
   );
 };
 
-export default Tooltip;
+export default memo(BarTooltip, isEqual);

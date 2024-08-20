@@ -11,7 +11,7 @@ const InfoIcon = styled("div")(() => ({
 }));
 
 const StyledTooltip = styled((props: TooltipProps) => (
-  <MuiToolTip classes={{ popper: props.className }} {...props} />
+  <MuiToolTip classes={{ popper: props?.className }} {...props} />
 ))(() => ({
   "& .MuiTooltip-tooltip": {
     maxWidth: "412px",

@@ -91,7 +91,7 @@ describe("useSubmissionContext", () => {
           data: {
             getSubmission: null,
             submissionStats: null,
-            listBatches: null,
+            batchStatusList: null,
           },
         },
       },
@@ -151,7 +151,7 @@ describe("SubmissionProvider", () => {
           data: {
             getSubmission: null,
             submissionStats: null,
-            listBatches: null,
+            batchStatusList: null,
           },
         },
       },
@@ -178,7 +178,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            listBatches: {
+            batchStatusList: {
               batches: [],
             },
           },
@@ -213,7 +213,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            listBatches: {
+            batchStatusList: {
               batches: [],
             },
           },
@@ -249,7 +249,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            listBatches: {
+            batchStatusList: {
               batches: [],
             },
           },
@@ -280,9 +280,10 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            listBatches: {
+            batchStatusList: {
               batches: [
                 {
+                  _id: "batch-0001",
                   status: "Uploading",
                 },
               ],
@@ -315,9 +316,10 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            listBatches: {
+            batchStatusList: {
               batches: [
                 {
+                  _id: "batch-0001",
                   status: "Uploaded",
                 },
               ],
@@ -351,7 +353,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            listBatches: {
+            batchStatusList: {
               batches: [],
             },
           },
@@ -383,7 +385,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            listBatches: {
+            batchStatusList: {
               batches: [],
             },
           },
@@ -413,9 +415,10 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            listBatches: {
+            batchStatusList: {
               batches: [
                 {
+                  _id: "batch-0001",
                   status: "Uploaded",
                 },
               ],
@@ -466,7 +469,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            listBatches: {
+            batchStatusList: {
               batches: [],
             },
           },

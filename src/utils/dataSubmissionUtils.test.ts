@@ -551,7 +551,7 @@ describe("unpackQCResultSeverities cases", () => {
     ];
     const results: QCResult[] = [{ ...baseResult, errors, warnings }];
 
-    const unpackedResults = utils.unpackQCResultSeverities(results);
+    const unpackedResults = utils.unpackValidationSeverities(results);
 
     expect(unpackedResults.length).toEqual(4);
     expect(unpackedResults).toEqual([
@@ -583,7 +583,7 @@ describe("unpackQCResultSeverities cases", () => {
     });
     const results: QCResult[] = [{ ...baseResult, errors, warnings }];
 
-    expect(utils.unpackQCResultSeverities(results).length).toEqual(1998);
+    expect(utils.unpackValidationSeverities(results).length).toEqual(1998);
   });
 
   it("should unpack an array of only warnings", () => {
@@ -593,7 +593,7 @@ describe("unpackQCResultSeverities cases", () => {
     ];
     const results: QCResult[] = [{ ...baseResult, errors: [], warnings }];
 
-    const unpackedResults = utils.unpackQCResultSeverities(results);
+    const unpackedResults = utils.unpackValidationSeverities(results);
 
     expect(unpackedResults.length).toEqual(2);
     expect(unpackedResults).toEqual([
@@ -619,7 +619,7 @@ describe("unpackQCResultSeverities cases", () => {
     ];
     const results: QCResult[] = [{ ...baseResult, errors, warnings: [] }];
 
-    const unpackedResults = utils.unpackQCResultSeverities(results);
+    const unpackedResults = utils.unpackValidationSeverities(results);
 
     expect(unpackedResults.length).toEqual(2);
     expect(unpackedResults).toEqual([
@@ -643,7 +643,7 @@ describe("unpackQCResultSeverities cases", () => {
       warnings,
     });
 
-    const unpackedResults = utils.unpackQCResultSeverities(results);
+    const unpackedResults = utils.unpackValidationSeverities(results);
 
     // 10 errors and 5 warnings per result with 10K results, 150K total
     expect(unpackedResults.length).toEqual(150000);
@@ -652,12 +652,12 @@ describe("unpackQCResultSeverities cases", () => {
   });
 
   it("should return an empty array when given an empty array", () => {
-    expect(utils.unpackQCResultSeverities([])).toEqual([]);
+    expect(utils.unpackValidationSeverities([])).toEqual([]);
   });
 
   it("should return an empty array when there are no errors or warnings", () => {
     const results = [{ ...baseResult, errors: [], warnings: [] }];
-    expect(utils.unpackQCResultSeverities(results)).toEqual([]);
+    expect(utils.unpackValidationSeverities(results)).toEqual([]);
   });
 });
 

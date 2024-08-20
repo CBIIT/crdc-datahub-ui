@@ -7,6 +7,7 @@ type LegendFilter = {
 };
 
 type BarChartDataset = {
+  label: string;
   New: number;
   Passed: number;
   Error: number;

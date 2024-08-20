@@ -178,7 +178,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
     onCompleted: (data: ListBatchesResp) => {
       setData(data.listBatches.batches);
       setTotalData(data.listBatches.total);
-      setHasUploadingBatches(data.fullStatusList.batches.some((b) => b.status === "Uploading"));
+      setHasUploadingBatches(data.batchStatusList.batches.some((b) => b.status === "Uploading"));
     },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
@@ -233,7 +233,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
           throw new Error("Unable to retrieve batch data.");
         }
 
-        const hasUploading = newBatchFiles.fullStatusList?.batches?.some(
+        const hasUploading = newBatchFiles.batchStatusList?.batches?.some(
           (b) => b.status === "Uploading"
         );
 

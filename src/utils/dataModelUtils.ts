@@ -13,7 +13,7 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
   }
 
   const response = await fetch(
-    `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/content.json`
+    `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/content.json`
   ).catch(() => null);
   const parsed = await response?.json().catch(() => null);
   if (response && parsed) {
@@ -31,19 +31,19 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
  * @returns ModelAssetUrls
  */
 export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
-  model: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.[
+  model: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
     "current-version"
   ]}/${dc?.assets?.["model-file"]}`,
-  props: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.[
+  props: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
     "current-version"
   ]}/${dc?.assets?.["prop-file"]}`,
   readme: dc?.assets?.["readme-file"]
-    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.[
+    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
         "current-version"
       ]}/${dc?.assets?.["readme-file"]}`
     : null,
   loading_file: dc?.assets?.["loading-file"]
-    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/${dc?.name}/${dc?.assets?.[
+    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
         "current-version"
       ]}/${dc?.assets?.["loading-file"]}`
     : null,

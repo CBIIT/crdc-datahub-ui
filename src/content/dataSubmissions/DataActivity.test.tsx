@@ -72,7 +72,7 @@ describe("General", () => {
         submissionStats: {
           stats: [],
         },
-        listBatches: {
+        batchStatusList: {
           batches: [],
         },
       },
@@ -91,7 +91,7 @@ describe("General", () => {
               total: 0,
               batches: [],
             },
-            fullStatusList: {
+            batchStatusList: {
               batches: [],
             },
           },
@@ -117,7 +117,7 @@ describe("General", () => {
           ...baseSubmission,
         },
         submissionStats: null,
-        listBatches: null,
+        batchStatusList: null,
       },
       error: null,
       refetch: null,
@@ -153,7 +153,7 @@ describe("General", () => {
           ...baseSubmission,
         },
         submissionStats: null,
-        listBatches: null,
+        batchStatusList: null,
       },
       error: null,
       refetch: null,
@@ -213,7 +213,7 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        listBatches: {
+        batchStatusList: {
           batches: [],
         },
       },
@@ -232,7 +232,7 @@ describe("Table", () => {
               total: 0,
               batches: [],
             },
-            fullStatusList: {
+            batchStatusList: {
               batches: [],
             },
           },
@@ -268,7 +268,7 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        listBatches: {
+        batchStatusList: {
           batches: [],
         },
       },
@@ -288,9 +288,10 @@ describe("Table", () => {
               total: 0,
               batches: [], // NOTE: This shouldn't really be empty, but it's fine for this test
             },
-            fullStatusList: {
+            batchStatusList: {
               batches: [
                 {
+                  _id: "batch-001",
                   status: "Uploading",
                 },
               ],
@@ -321,7 +322,7 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        listBatches: {
+        batchStatusList: {
           batches: [],
         },
       },
@@ -341,9 +342,10 @@ describe("Table", () => {
               total: 0,
               batches: [], // NOTE: This shouldn't really be empty, but it's fine for this test
             },
-            fullStatusList: {
+            batchStatusList: {
               batches: [
                 {
+                  _id: "batch-001",
                   status: "Uploading",
                 },
               ],
@@ -373,7 +375,7 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        listBatches: {
+        batchStatusList: {
           batches: [],
         },
       },
@@ -392,7 +394,7 @@ describe("Table", () => {
               total: 0,
               batches: [],
             },
-            fullStatusList: {
+            batchStatusList: {
               batches: [],
             },
           },

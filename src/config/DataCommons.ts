@@ -6,10 +6,10 @@ import GenericLogo from "../assets/modelNavigator/Generic_Logo.png";
  * The URL of the Data Commons Model Repo
  *
  * Model Data:
- * - `[dev_tier]/[model_name]/[model_version]/`
+ * - `[dev_tier]/cache/[model_name]/[model_version]/`
  *
  * Content Manifest:
- * - `[dev_tier]/content.json`
+ * - `[dev_tier]/cache/content.json`
  */
 export const MODEL_FILE_REPO = "https://raw.githubusercontent.com/CBIIT/crdc-datahub-models/";
 

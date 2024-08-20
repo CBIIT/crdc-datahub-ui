@@ -6,6 +6,10 @@ export const query = gql`
   }
 `;
 
+export type Input = {
+  _id: string;
+};
+
 export type Response = {
   listSubmissionNodeTypes: string[];
 };

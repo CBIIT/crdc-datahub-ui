@@ -25,5 +25,5 @@ export type Input = {
 };
 
 export type Response = {
-  deleteDataRecords: DataValidationResult;
+  deleteDataRecords: AsyncProcessResult;
 };

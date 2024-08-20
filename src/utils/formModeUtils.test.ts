@@ -14,6 +14,7 @@ describe("getFormMode tests based on provided requirements", () => {
     organization: {
       orgID: "org1",
       orgName: "TestOrg",
+      status: "Active",
       createdAt: "2023-05-01T09:23:30Z",
       updateAt: "2023-05-02T09:23:30Z",
     },
