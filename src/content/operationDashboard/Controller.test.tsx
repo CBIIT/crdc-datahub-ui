@@ -89,8 +89,6 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it.todo("should refetch the URL when the type changes");
-
   it("should default to the 'Submission' type if none is provided", async () => {
     const mockMatcher = jest.fn().mockImplementation(() => true);
     const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
@@ -241,4 +239,7 @@ describe("Basic Functionality", () => {
       expect(getByTestId("operation-dashboard-container")).toBeInTheDocument();
     });
   });
+
+  // NOTE: Disabled until we have more than one type available
+  // it("should refetch the URL when the type changes");
 });

@@ -36,11 +36,6 @@ const DashboardController = () => {
     }
   );
 
-  // TODO: Refetch only when the type changes
-  // useEffect(() => {
-  //   refetch();
-  // }, [searchParams.get("type")]);
-
   if (authStatus === Status.LOADING) {
     return <SuspenseLoader />;
   }
