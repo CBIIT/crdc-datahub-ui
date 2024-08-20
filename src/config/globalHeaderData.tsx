@@ -4,23 +4,6 @@ import usaFlagSmall from "../assets/header/us_flag_small.svg";
 import { DataCommons } from "./DataCommons";
 import ApiInstructions from "../assets/pdf/CRDC_Data_Submission_API_Instructions.pdf";
 
-export type NavBarItem = {
-  name: string;
-  link: string;
-  id: string;
-  className: string;
-};
-
-export type NavBarSubItem = {
-  name: string;
-  link?: string;
-  text?: string;
-  className: string;
-  id?: string;
-  onClick?: () => void;
-  needsAuthentication?: boolean;
-};
-
 export const DataSubmissionInstructionsLink =
   "https://datacommons.cancer.gov/data-submission-instructions";
 
@@ -66,31 +49,20 @@ export const navMobileList: NavBarItem[] = [
     id: "navbar-dropdown-model-navigator",
     className: "navMobileItem clickable",
   },
-  // TODO: Hidden for non-Fed, curator, or admins
   {
     name: "Operation Dashboard",
     link: "/operation-dashboard",
     id: "navbar-dropdown-operation-dashboard",
     className: "navMobileItem",
+    roles: ["Admin", "Data Curator", "Federal Lead"],
   },
 ];
 
 export const navbarSublists: Record<string, NavBarSubItem[]> = {
-  // Example of how to do a navMobileSubTitle and subtext
-  // Home: [
-  //   {
-  //     name: 'Explore ##',
-  //     link: '',
-  //     text: 'testText',
-  //     className: 'navMobileSubTitle',
-  //   },
-  // ],
-  //
-  // To make it a link, the className has to be navMobileSubItem
   "Model Navigator": DataCommons.map((dc) => ({
+    id: `model-navigator-${dc.name}`,
     name: `${dc.name} Model`,
     link: `/model-navigator/${dc.name}`,
-    text: "",
     className: "navMobileSubItem",
   })),
 
@@ -98,21 +70,18 @@ export const navbarSublists: Record<string, NavBarSubItem[]> = {
     {
       name: "Submission Request Instructions",
       link: "https://datacommons.cancer.gov/submission-request-instructions",
-      text: "",
       id: "submission-request-instructions",
       className: "navMobileSubItem",
     },
     {
       name: "Data Submission Instructions",
       link: DataSubmissionInstructionsLink,
-      text: "",
       id: "data-submission-instructions",
       className: "navMobileSubItem",
     },
     {
       name: "API Instructions",
       link: ApiInstructions,
-      text: "",
       id: "api-instructions",
       className: "navMobileSubItem",
     },
