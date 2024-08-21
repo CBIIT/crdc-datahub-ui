@@ -722,6 +722,8 @@ describe("shouldDisableRelease", () => {
         "In Progress": [],
         Submitted: [],
         Released: [],
+        Rejected: [],
+        Withdrawn: [],
       }),
     });
 
@@ -729,20 +731,26 @@ describe("shouldDisableRelease", () => {
     expect(result.requireAlert).toBe(false);
   });
 
-  it("should allow release with alert when other submissions are In Progress and there are no related submissions", () => {
-    const result: ReleaseInfo = utils.shouldDisableRelease({
-      ...baseSubmission,
-      crossSubmissionStatus: null,
-      otherSubmissions: JSON.stringify({
-        "In Progress": ["ABC-123", "XYZ-456"],
-        Submitted: [],
-        Released: [],
-      }),
-    });
+  it.each<SubmissionStatus>(["In Progress", "Rejected", "Withdrawn"])(
+    "should allow release with alert when other submissions are %s and there are no related submissions",
+    (status) => {
+      const existingSubmissions = ["ABC-123", "XYZ-456"];
+      const result: ReleaseInfo = utils.shouldDisableRelease({
+        ...baseSubmission,
+        crossSubmissionStatus: null,
+        otherSubmissions: JSON.stringify({
+          "In Progress": status === "In Progress" ? existingSubmissions : [],
+          Submitted: [],
+          Released: [],
+          Rejected: status === "Rejected" ? existingSubmissions : [],
+          Withdrawn: status === "Withdrawn" ? existingSubmissions : [],
+        }),
+      });
 
-    expect(result.disable).toBe(false);
-    expect(result.requireAlert).toBe(true);
-  });
+      expect(result.disable).toBe(false);
+      expect(result.requireAlert).toBe(true);
+    }
+  );
 
   it.each<CrossSubmissionStatus>(["Passed"])(
     "should allow release when crossSubmissionStatus is %s even if other submissions exist",
@@ -754,6 +762,8 @@ describe("shouldDisableRelease", () => {
           "In Progress": ["ABC-123", "XYZ-456"],
           Submitted: ["DEF-456", "GHI-789"],
           Released: ["JKL-012", "MNO-345"],
+          Rejected: ["PQR-678", "STU-901"],
+          Withdrawn: ["VWX-234", "YZA-567"],
         }),
       });
 
@@ -778,6 +788,8 @@ describe("shouldDisableRelease", () => {
           "In Progress": ["ABC-123", "XYZ-456"],
           Submitted: ["DEF-456", "GHI-789"],
           Released: ["JKL-012", "MNO-345"],
+          Rejected: ["PQR-678", "STU-901"],
+          Withdrawn: ["VWX-234", "YZA-567"],
         }),
       });
 
@@ -794,6 +806,8 @@ describe("shouldDisableRelease", () => {
         "In Progress": ["ABC-123", "XYZ-456"],
         Submitted: ["JKL-012", "MNO-345"],
         Released: null,
+        Rejected: [],
+        Withdrawn: [],
       }),
     });
 
@@ -809,6 +823,8 @@ describe("shouldDisableRelease", () => {
         "In Progress": ["ABC-123", "XYZ-456"],
         Submitted: null,
         Released: ["JKL-012", "MNO-345"],
+        Rejected: [],
+        Withdrawn: [],
       }),
     });
 
