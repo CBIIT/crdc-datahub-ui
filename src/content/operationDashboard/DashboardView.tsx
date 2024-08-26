@@ -1,4 +1,4 @@
-import { Box, FormControl, MenuItem, styled } from "@mui/material";
+import { Box, FormControl, MenuItem, styled, Typography } from "@mui/material";
 import { isEqual } from "lodash";
 import { FC, memo, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -9,6 +9,7 @@ import {
 } from "amazon-quicksight-embedding-sdk";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import SuspenseLoader from "../../components/SuspenseLoader";
+import bannerSvg from "../../assets/banner/submission_banner.png";
 
 export type DashboardViewProps = {
   url: string;
@@ -17,11 +18,16 @@ export type DashboardViewProps = {
 };
 
 const StyledViewHeader = styled(Box)({
+  background: `url(${bannerSvg})`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  width: "100%",
+  height: "296px",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  marginBottom: "15px",
-  marginTop: "15px",
+  marginBottom: "-130px",
+  marginTop: "0px",
 });
 
 const StyledFormControl = styled(FormControl)({
@@ -30,6 +36,8 @@ const StyledFormControl = styled(FormControl)({
   alignItems: "center",
   gap: "15px",
   width: "300px",
+  marginBottom: "auto",
+  marginTop: "57px",
 });
 
 const StyledInlineLabel = styled("label")({
@@ -38,7 +46,23 @@ const StyledInlineLabel = styled("label")({
 });
 
 const StyledFrameContainer = styled(Box)({
+  borderRadius: "6px",
+  border: "1px solid #E0E0E0",
+  background: "#fff",
   position: "relative",
+  margin: "0 auto",
+  marginBottom: "57px",
+  maxWidth: "calc(100% - 64px)",
+  boxShadow:
+    "0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)",
+});
+
+const StyledPlaceholder = styled(Typography)({
+  margin: "100px auto",
+  textAlign: "center",
+  userSelect: "none",
+  fontSize: "16px",
+  color: "#5C5C5C",
 });
 
 /**
@@ -53,7 +77,7 @@ const DashboardView: FC<DashboardViewProps> = ({
   loading,
 }: DashboardViewProps) => {
   const [, setSearchParams] = useSearchParams();
-  const [, setEmbeddedDashboard] = useState<DashboardExperience>(null);
+  const [embeddedDashboard, setEmbeddedDashboard] = useState<DashboardExperience>(null);
   const [embeddingContext, setEmbeddingContext] = useState<EmbeddingContext>(null);
   const dashboardElementRef = useRef<HTMLDivElement>(null);
 
@@ -100,11 +124,15 @@ const DashboardView: FC<DashboardViewProps> = ({
             MenuProps={{ disablePortal: true }}
             inputProps={{ id: "dashboard-type" }}
           >
+            <MenuItem value="" />
             <MenuItem value="Submission">Data Submissions Metrics</MenuItem>
           </StyledSelect>
         </StyledFormControl>
       </StyledViewHeader>
       <StyledFrameContainer>
+        {!embeddedDashboard && (
+          <StyledPlaceholder variant="body1">Please select a metric to visualize</StyledPlaceholder>
+        )}
         <div ref={dashboardElementRef} />
       </StyledFrameContainer>
     </Box>
