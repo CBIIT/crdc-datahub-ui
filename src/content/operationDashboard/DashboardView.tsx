@@ -1,7 +1,12 @@
 import { Box, FormControl, MenuItem, styled } from "@mui/material";
 import { isEqual } from "lodash";
-import { FC, memo } from "react";
+import { FC, memo, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import {
+  createEmbeddingContext,
+  DashboardExperience,
+  EmbeddingContext,
+} from "amazon-quicksight-embedding-sdk";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import SuspenseLoader from "../../components/SuspenseLoader";
 
@@ -36,13 +41,6 @@ const StyledFrameContainer = styled(Box)({
   position: "relative",
 });
 
-const StyledFrame = styled("iframe")({
-  width: "100%",
-  // TODO: compute the height of the iframe to make it dynamic
-  minHeight: "calc(100vh - 209px)",
-  border: "none",
-});
-
 /**
  * The view for the OperationDashboard component.
  *
@@ -55,10 +53,43 @@ const DashboardView: FC<DashboardViewProps> = ({
   loading,
 }: DashboardViewProps) => {
   const [, setSearchParams] = useSearchParams();
+  const [, setEmbeddedDashboard] = useState<DashboardExperience>(null);
+  const [embeddingContext, setEmbeddingContext] = useState<EmbeddingContext>(null);
+  const dashboardElementRef = useRef<HTMLDivElement>(null);
+
+  const createContext = async () => {
+    const context = await createEmbeddingContext();
+    setEmbeddingContext(context);
+  };
+
+  const createEmbed = async () => {
+    const options = {
+      url,
+      container: dashboardElementRef.current,
+      height: "500px",
+      width: "600px",
+    };
+
+    const dashboardExperience = await embeddingContext.embedDashboard(options);
+    setEmbeddedDashboard(dashboardExperience);
+  };
+
+  useEffect(() => {
+    if (!url) {
+      return;
+    }
+
+    createContext();
+  }, [url]);
+
+  useEffect(() => {
+    if (embeddingContext) {
+      createEmbed();
+    }
+  }, [embeddingContext]);
 
   return (
     <Box data-testid="operation-dashboard-container">
-      {/* TODO: Loading also tied in with iframe loading? */}
       {loading && <SuspenseLoader />}
       <StyledViewHeader>
         <StyledFormControl>
@@ -74,8 +105,7 @@ const DashboardView: FC<DashboardViewProps> = ({
         </StyledFormControl>
       </StyledViewHeader>
       <StyledFrameContainer>
-        {/* TODO: Put a placeholder if loading? and remove hardcoded url */}
-        {url ? <StyledFrame title="metric view" src={url} /> : null}
+        <div ref={dashboardElementRef} />
       </StyledFrameContainer>
     </Box>
   );
