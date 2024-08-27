@@ -11,6 +11,13 @@ import {
 } from "../../components/Contexts/AuthContext";
 import { GET_DASHBOARD_URL, GetDashboardURLInput, GetDashboardURLResp } from "../../graphql";
 
+const mockUsePageTitle = jest.fn();
+jest.mock("../../hooks/usePageTitle", () => ({
+  ...jest.requireActual("../../hooks/usePageTitle"),
+  __esModule: true,
+  default: (p) => mockUsePageTitle(p),
+}));
+
 // NOTE: Omitting fields depended on by the component
 const baseUser: Omit<User, "role"> = {
   _id: "",
@@ -65,6 +72,30 @@ const TestParent: FC<ParentProps> = ({
 };
 
 describe("Basic Functionality", () => {
+  it("should set the page title", async () => {
+    const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
+      request: {
+        query: GET_DASHBOARD_URL,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getDashboardURL: {
+            url: "https://example.com",
+          },
+        },
+      },
+    };
+
+    render(<Controller />, {
+      wrapper: (p) => <TestParent role="Admin" mocks={[mock]} {...p} />,
+    });
+
+    await waitFor(() => {
+      expect(mockUsePageTitle).toHaveBeenCalledWith("Operation Dashboard");
+    });
+  });
+
   it("should render the page without crashing", async () => {
     const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
       request: {

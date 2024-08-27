@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import { GET_DASHBOARD_URL, GetDashboardURLInput, GetDashboardURLResp } from "../../graphql";
+import usePageTitle from "../../hooks/usePageTitle";
 import { Status, useAuthContext } from "../../components/Contexts/AuthContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { DashboardRoles } from "../../config/AuthRoles";
@@ -14,6 +15,8 @@ import DashboardView from "./DashboardView";
  * @returns {JSX.Element} The OperationDashboard component.
  */
 const DashboardController = () => {
+  usePageTitle("Operation Dashboard");
+
   const { user, status: authStatus } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const [searchParams] = useSearchParams({ type: "Submission" });
