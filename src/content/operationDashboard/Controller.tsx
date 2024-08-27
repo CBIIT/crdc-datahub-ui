@@ -35,7 +35,7 @@ const DashboardController = () => {
         enqueueSnackbar(e?.message, {
           variant: "error",
         }),
-      fetchPolicy: "cache-and-network",
+      fetchPolicy: "no-cache",
     }
   );
 

@@ -1,11 +1,11 @@
-import { Box, FormControl, MenuItem, styled, Typography } from "@mui/material";
+import { Box, FormControl, MenuItem, SelectChangeEvent, styled, Typography } from "@mui/material";
 import { isEqual } from "lodash";
 import { FC, memo, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   createEmbeddingContext,
   DashboardExperience,
-  EmbeddingContext,
+  FrameOptions,
 } from "amazon-quicksight-embedding-sdk";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import SuspenseLoader from "../../components/SuspenseLoader";
@@ -78,24 +78,26 @@ const DashboardView: FC<DashboardViewProps> = ({
 }: DashboardViewProps) => {
   const [, setSearchParams] = useSearchParams();
   const [embeddedDashboard, setEmbeddedDashboard] = useState<DashboardExperience>(null);
-  const [embeddingContext, setEmbeddingContext] = useState<EmbeddingContext>(null);
   const dashboardElementRef = useRef<HTMLDivElement>(null);
 
-  const createContext = async () => {
-    const context = await createEmbeddingContext();
-    setEmbeddingContext(context);
+  const handleDashboardChange = (e: SelectChangeEvent) => {
+    setSearchParams({ type: e.target.value });
+    dashboardElementRef.current.innerHTML = "";
+    setEmbeddedDashboard(null);
   };
 
   const createEmbed = async () => {
-    const options = {
+    const options: FrameOptions = {
       url,
       container: dashboardElementRef.current,
-      height: "500px",
-      width: "600px",
+      height: "1200px",
+      width: "100%",
     };
 
-    const dashboardExperience = await embeddingContext.embedDashboard(options);
-    setEmbeddedDashboard(dashboardExperience);
+    const context = await createEmbeddingContext();
+    const dashboard = await context.embedDashboard(options);
+
+    setEmbeddedDashboard(dashboard);
   };
 
   useEffect(() => {
@@ -103,14 +105,8 @@ const DashboardView: FC<DashboardViewProps> = ({
       return;
     }
 
-    createContext();
+    createEmbed();
   }, [url]);
-
-  useEffect(() => {
-    if (embeddingContext) {
-      createEmbed();
-    }
-  }, [embeddingContext]);
 
   return (
     <Box data-testid="operation-dashboard-container">
@@ -120,7 +116,7 @@ const DashboardView: FC<DashboardViewProps> = ({
           <StyledInlineLabel htmlFor="dashboard-type">Metrics</StyledInlineLabel>
           <StyledSelect
             value={currentType}
-            onChange={(e) => setSearchParams({ type: e.target.value as string })}
+            onChange={handleDashboardChange}
             MenuProps={{ disablePortal: true }}
             inputProps={{ id: "dashboard-type" }}
           >

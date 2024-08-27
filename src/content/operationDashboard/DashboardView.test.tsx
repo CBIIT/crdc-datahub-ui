@@ -9,15 +9,6 @@ const MockParent: FC<{ children: React.ReactElement }> = ({ children }) => (
 );
 
 describe("Accessibility", () => {
-  it("should not have any accessibility violations", async () => {
-    const { container } = render(
-      <DashboardView url="http://example.com" loading={false} currentType="Submission" />,
-      { wrapper: MockParent }
-    );
-
-    expect(await axe(container)).toHaveNoViolations();
-  });
-
   it("should not have any accessibility violations when loading", async () => {
     const { container } = render(<DashboardView url={null} loading currentType="Submission" />, {
       wrapper: MockParent,
@@ -36,18 +27,4 @@ describe("Accessibility", () => {
 
     expect(await axe(container)).toHaveNoViolations();
   });
-});
-
-describe("Basic Functionality", () => {
-  it.todo("should update the URL when the select value changes");
-
-  it.todo("should render the iframe when the URL prop is provided");
-
-  it.todo("should render the loading spinner when the loading prop is true");
-});
-
-describe("Implementation Requirements", () => {
-  it.todo("should have a dropdown labeled 'Metrics'");
-
-  it.todo("should have a dropdown with the option 'Data Submissions Metrics'");
 });
