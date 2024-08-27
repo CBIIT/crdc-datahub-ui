@@ -136,10 +136,16 @@ export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
     return { disable: false, requireAlert: false };
   }
 
-  // Scenario 1: All other submissions are "In Progress", allow release with alert
+  // Scenario 1: All other submissions are "In Progress", "Rejected", or "Withdrawn", allow release with alert
   const hasRelatedSubmitted = parsedSubmissions?.Submitted?.length > 0;
   const hasRelatedReleased = parsedSubmissions?.Released?.length > 0;
-  if (!hasRelatedSubmitted && !hasRelatedReleased && parsedSubmissions["In Progress"]?.length > 0) {
+
+  const hasRelatedInProgress = parsedSubmissions?.["In Progress"]?.length > 0;
+  const hasRelatedRejected = parsedSubmissions?.Rejected?.length > 0;
+  const hasRelatedWithdrawn = parsedSubmissions?.Withdrawn?.length > 0;
+  const allowRelatedWithAlert = hasRelatedInProgress || hasRelatedRejected || hasRelatedWithdrawn;
+
+  if (!hasRelatedSubmitted && !hasRelatedReleased && allowRelatedWithAlert) {
     return { disable: false, requireAlert: true };
   }
 
