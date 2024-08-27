@@ -120,7 +120,6 @@ const DashboardView: FC<DashboardViewProps> = ({
             MenuProps={{ disablePortal: true }}
             inputProps={{ id: "dashboard-type" }}
           >
-            <MenuItem value="" />
             <MenuItem value="Submission">Data Submissions Metrics</MenuItem>
           </StyledSelect>
         </StyledFormControl>
