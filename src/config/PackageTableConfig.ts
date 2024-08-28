@@ -23,8 +23,14 @@ const packageConfig: PackageConfig[] = [
   {
     packageType: "Binary",
     platform: "MacOS x64",
-    fileName: env?.REACT_APP_UPLOADER_CLI_MAC?.split("/")?.pop() || "",
-    downloadURL: env?.REACT_APP_UPLOADER_CLI_MAC,
+    fileName: env?.REACT_APP_UPLOADER_CLI_MAC_X64?.split("/")?.pop() || "",
+    downloadURL: env?.REACT_APP_UPLOADER_CLI_MAC_X64,
+  },
+  {
+    packageType: "Binary",
+    platform: "MacOS ARM",
+    fileName: env?.REACT_APP_UPLOADER_CLI_MAC_ARM?.split("/")?.pop() || "",
+    downloadURL: env?.REACT_APP_UPLOADER_CLI_MAC_ARM,
   },
 ];
 
