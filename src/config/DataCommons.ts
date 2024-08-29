@@ -18,6 +18,112 @@ export const MODEL_FILE_REPO = "https://raw.githubusercontent.com/CBIIT/crdc-dat
  */
 export const DataCommons: DataCommon[] = [
   {
+    name: "CCDI",
+    assets: null,
+    configuration: {
+      pageTitle: "CCDI Data Model",
+      titleIconSrc: GenericLogo,
+      pdfConfig: {
+        fileType: "pdf",
+        prefix: "CCDI_",
+        downloadPrefix: "CCDI_",
+        fileTransferManifestName: "CCDI_",
+        iconSrc: logo,
+        footnote: "https://hub.datacommons.cancer.gov/model-navigator/CCDI",
+        landscape: true,
+      },
+      facetFilterSearchData: [
+        {
+          groupName: "Category",
+          datafield: "category",
+          section: "Filter By Nodes",
+          tooltip: "category",
+          show: true,
+          checkboxItems: [
+            { name: "Administrative", isChecked: false, group: "category" },
+            { name: "Analysis", isChecked: false, group: "category" },
+            { name: "Biospecimen", isChecked: false, group: "category" },
+            { name: "Case", isChecked: false, group: "category" },
+            { name: "Clinical", isChecked: false, group: "category" },
+            { name: "Clinical_Trial", isChecked: false, group: "category" },
+            { name: "Data_File", isChecked: false, group: "category" },
+            { name: "Study", isChecked: false, group: "category" },
+          ],
+        },
+        {
+          groupName: "Assignment",
+          datafield: "assignment",
+          section: "Filter By Nodes",
+          tooltip: "assignment",
+          show: true,
+          checkboxItems: [
+            { name: "Core", isChecked: false, group: "assignment" },
+            { name: "Extended", isChecked: false, group: "assignment" },
+          ],
+        },
+        {
+          groupName: "Class",
+          datafield: "class",
+          section: "Filter By Nodes",
+          tooltip: "class",
+          show: true,
+          checkboxItems: [
+            { name: "Primary", isChecked: false, group: "class" },
+            { name: "Secondary", isChecked: false, group: "class" },
+          ],
+        },
+        {
+          groupName: "Inclusion",
+          datafield: "inclusion",
+          section: "Filter By Property",
+          tooltip: "inclusion",
+          show: true,
+          checkboxItems: [
+            { name: "Optional", isChecked: false, group: "optional" },
+            { name: "Preferred", isChecked: false, group: "preferred" },
+            { name: "Required", isChecked: false, group: "required" },
+          ],
+        },
+        {
+          groupName: "UI Display",
+          datafield: "uiDisplay",
+          section: "Filter By Property",
+          tooltip: "inclusion",
+          show: true,
+          checkboxItems: [
+            { name: "no", isChecked: false, group: "no" },
+            { name: "yes", isChecked: false, group: "yes" },
+          ],
+        },
+      ],
+      facetFilterSectionVariables: {
+        "Filter By Nodes": {
+          color: "#0D71A3",
+          checkBoxColorsOne: "#E3F4FD",
+          checkBoxColorsTwo: "#f0f8ff",
+          checkBoxBorderColor: "#0D71A3",
+          height: "7px",
+          isExpanded: true,
+        },
+        "Filter By Relationship": {
+          color: "#FF9742",
+          checkBoxColorsOne: "#FF9742",
+          checkBoxColorsTwo: "#FF9742",
+          height: "7px",
+          isExpanded: true,
+        },
+        "Filter By Property": {
+          color: "#0D71A3",
+          checkBoxColorsOne: "#E3F4FD",
+          checkBoxColorsTwo: "#f0f8ff",
+          checkBoxBorderColor: "#0D71A3",
+          height: "7px",
+          isExpanded: true,
+        },
+      },
+    },
+  },
+  {
     name: "CDS",
     assets: null,
     configuration: {
