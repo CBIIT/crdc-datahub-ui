@@ -87,11 +87,16 @@ const DashboardView: FC<DashboardViewProps> = ({
   };
 
   const createEmbed = async () => {
+    if (!url || embeddedDashboard) {
+      return;
+    }
+
     const options: FrameOptions = {
       url,
       container: dashboardElementRef.current,
       height: "1200px",
       width: "100%",
+      withIframePlaceholder: true,
     };
 
     const context = await createEmbeddingContext();
