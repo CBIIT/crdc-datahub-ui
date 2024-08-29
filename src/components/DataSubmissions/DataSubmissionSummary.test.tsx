@@ -189,7 +189,6 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
         { dateTime: "2023-01-06T10:00:00Z", status: "Submitted" },
         { dateTime: "2023-01-07T10:00:00Z", status: "Released" },
         { dateTime: "2023-01-08T10:00:00Z", status: "Completed" },
-        { dateTime: "2023-01-09T10:00:00Z", status: "Archived" },
       ],
     };
 
@@ -198,14 +197,12 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
     fireEvent.click(getByText("Full History"));
 
     const elements = getAllByTestId("history-item");
-    expect(elements[0]).toHaveTextContent(/ARCHIVED/i);
-    expect(elements[0]).toHaveTextContent("1/9/2023");
-    expect(elements[1]).toHaveTextContent(/COMPLETED/i);
-    expect(elements[1]).toHaveTextContent("1/8/2023");
-    expect(elements[2]).toHaveTextContent(/RELEASED/i);
-    expect(elements[2]).toHaveTextContent("1/7/2023");
-    expect(elements[8]).toHaveTextContent(/NEW/i);
-    expect(elements[8]).toHaveTextContent("1/1/2023");
+    expect(elements[0]).toHaveTextContent(/COMPLETED/i);
+    expect(elements[0]).toHaveTextContent("1/8/2023");
+    expect(elements[1]).toHaveTextContent(/RELEASED/i);
+    expect(elements[1]).toHaveTextContent("1/7/2023");
+    expect(elements[7]).toHaveTextContent(/NEW/i);
+    expect(elements[7]).toHaveTextContent("1/1/2023");
   });
 
   it("closes the History dialog with the close button", async () => {

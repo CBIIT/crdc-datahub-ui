@@ -94,7 +94,6 @@ type SubmissionStatus =
   | "Withdrawn"
   | "Rejected"
   | "Completed"
-  | "Archived"
   | "Canceled"
   | "Deleted";
 
@@ -105,8 +104,7 @@ type SubmissionAction =
   | "Reject"
   | "Resume" // Rejected => In Progress
   | "Complete"
-  | "Cancel"
-  | "Archive";
+  | "Cancel";
 
 type SubmissionIntention = "New/Update" | "Delete";
 

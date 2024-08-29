@@ -203,7 +203,6 @@ const statusValues: SubmissionStatus[] = [
   "Withdrawn",
   "Rejected",
   "Completed",
-  "Archived",
   "Canceled",
   "Deleted",
 ];

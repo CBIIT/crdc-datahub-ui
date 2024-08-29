@@ -5,7 +5,6 @@ import Released from "../../assets/history/dataSubmission/released.svg";
 import Withdrawn from "../../assets/history/dataSubmission/withdrawn.svg";
 import Rejected from "../../assets/history/dataSubmission/rejected.svg";
 import Completed from "../../assets/history/dataSubmission/completed.svg";
-import Archived from "../../assets/history/dataSubmission/archived.svg";
 import Canceled from "../../assets/history/dataSubmission/canceled.svg";
 import { IconType } from "../Shared/HistoryDialog";
 
@@ -22,7 +21,6 @@ const HistoryIconMap: IconType<SubmissionStatus> = {
   Withdrawn,
   Rejected,
   Completed,
-  Archived,
   Canceled,
 } as IconType<SubmissionStatus>;
 

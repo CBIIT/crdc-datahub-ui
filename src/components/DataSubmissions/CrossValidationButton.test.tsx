@@ -590,7 +590,6 @@ describe("Implementation Requirements", () => {
     "Withdrawn",
     "Released",
     "Completed",
-    "Archived",
     "Canceled",
     "fake status" as Submission["status"],
   ])("should never be visible for the Submission status of '%s'", (status) => {
