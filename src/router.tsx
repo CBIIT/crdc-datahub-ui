@@ -1,53 +1,25 @@
-import { Suspense, lazy, FC, ReactElement, useEffect } from "react";
-import { RouteObject, useNavigate } from "react-router-dom";
+import { lazy } from "react";
+import { RouteObject } from "react-router-dom";
 import Layout from "./layouts";
-import SuspenseLoader from "./components/SuspenseLoader";
-import { useAuthContext } from "./components/Contexts/AuthContext";
 import withTracking from "./components/Hocs/withTracking";
-
-const Loader = (Component) => (props) => (
-  <Suspense fallback={<SuspenseLoader />}>
-    <Component {...props} />
-  </Suspense>
-);
-
-type RequireAuthProps = {
-  component: ReactElement;
-  redirectPath: string;
-  redirectName: string;
-};
-
-const RequireAuth: FC<RequireAuthProps> = ({
-  component,
-  redirectPath,
-  redirectName,
-}: RequireAuthProps) => {
-  const authenticated = useAuthContext().isLoggedIn;
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!authenticated) {
-      navigate("/", { state: { path: redirectPath, name: redirectName } });
-    }
-  }, [authenticated]);
-  if (authenticated) {
-    return component;
-  }
-  return null;
-};
+import LazyLoader from "./components/LazyLoader";
+import RequireAuth from "./components/RequireAuth";
 
 // Layouts
 const MainLayout = withTracking(Layout);
 
 // Pages
-const Home = Loader(lazy(() => import("./content")));
-const Login = Loader(lazy(() => import("./content/login/Controller")));
-const Questionnaire = Loader(lazy(() => import("./content/questionnaire/Controller")));
-const DataSubmissions = Loader(lazy(() => import("./content/dataSubmissions/Controller")));
-const Users = Loader(lazy(() => import("./content/users/Controller")));
-const DMN = Loader(lazy(() => import("./content/modelNavigator/Controller")));
-const Organizations = Loader(lazy(() => import("./content/organizations/Controller")));
-const Status404 = Loader(lazy(() => import("./content/status/Page404")));
+const Home = LazyLoader(lazy(() => import("./content")));
+const Login = LazyLoader(lazy(() => import("./content/login/Controller")));
+const Questionnaire = LazyLoader(lazy(() => import("./content/questionnaire/Controller")));
+const DataSubmissions = LazyLoader(lazy(() => import("./content/dataSubmissions/Controller")));
+const Users = LazyLoader(lazy(() => import("./content/users/Controller")));
+const DMN = LazyLoader(lazy(() => import("./content/modelNavigator/Controller")));
+const Organizations = LazyLoader(lazy(() => import("./content/organizations/Controller")));
+const Status404 = LazyLoader(lazy(() => import("./content/status/Page404")));
+const OperationDashboard = LazyLoader(
+  lazy(() => import("./content/operationDashboard/Controller"))
+);
 
 const routes: RouteObject[] = [
   {
@@ -133,6 +105,16 @@ const routes: RouteObject[] = [
             component={<Organizations />}
             redirectPath="/organizations"
             redirectName="Organization Management"
+          />
+        ),
+      },
+      {
+        path: "/operation-dashboard",
+        element: (
+          <RequireAuth
+            component={<OperationDashboard />}
+            redirectPath="/operation-dashboard"
+            redirectName="Operation Dashboard"
           />
         ),
       },
