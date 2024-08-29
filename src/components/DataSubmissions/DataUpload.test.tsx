@@ -1,12 +1,17 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { act, render, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { DataUpload } from "./DataUpload";
+import {
+  Context as AuthCtx,
+  ContextState as AuthCtxState,
+  Status as AuthStatus,
+} from "../Contexts/AuthContext";
 import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
+import { DataUpload } from "./DataUpload";
 
 jest.mock("../../env", () => ({
   ...jest.requireActual("../../env"),
@@ -51,16 +56,44 @@ const baseSubmission: Omit<Submission, "_id"> = {
   deletingData: false,
 };
 
+const baseUser: User = {
+  _id: "",
+  firstName: "",
+  lastName: "",
+  userStatus: "Active",
+  role: "Submitter", // NOTE: This base role allows for all actions
+  IDP: "nih",
+  email: "",
+  organization: null,
+  dataCommons: null,
+  createdAt: "",
+  updateAt: "",
+};
+
 type ParentProps = {
   mocks?: MockedResponse[];
+  role?: User["role"];
   children: React.ReactNode;
 };
 
-const TestParent: FC<ParentProps> = ({ mocks = [], children }) => (
-  <MockedProvider mocks={mocks} addTypename={false}>
-    <MemoryRouter basename="">{children}</MemoryRouter>
-  </MockedProvider>
-);
+const TestParent: FC<ParentProps> = ({ mocks = [], role = "Submitter", children }) => {
+  const authCtxState: AuthCtxState = useMemo<AuthCtxState>(
+    () => ({
+      status: AuthStatus.LOADED,
+      isLoggedIn: true,
+      user: { ...baseUser, role },
+    }),
+    [role]
+  );
+
+  return (
+    <MockedProvider mocks={mocks} addTypename={false}>
+      <AuthCtx.Provider value={authCtxState}>
+        <MemoryRouter basename="">{children}</MemoryRouter>
+      </AuthCtx.Provider>
+    </MockedProvider>
+  );
+};
 
 describe("Accessibility", () => {
   it("should have no violations", async () => {
@@ -202,6 +235,46 @@ describe("Implementation Requirements", () => {
 
     expect(getByText(/download configuration file/i)).toBeVisible();
     expect(button).toBeVisible();
+  });
+
+  it.each<User["role"]>(["Submitter", "Organization Owner"])(
+    "should enable the Uploader CLI download button for '%s' role",
+    async (role) => {
+      const { getByTestId } = render(
+        <DataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "config-download-role-check",
+            dataType: "Metadata and Data Files", // NOTE: Required for the button to show
+          }}
+        />,
+        { wrapper: (p) => <TestParent {...p} role={role} /> }
+      );
+
+      expect(getByTestId("uploader-cli-config-button")).toBeEnabled();
+    }
+  );
+
+  it.each<User["role"]>([
+    "Admin",
+    "Data Curator",
+    "Data Commons POC",
+    "Federal Lead",
+    "User",
+    "fake role" as User["role"], // NOTE: asserting that a whitelist of allowed roles is used instead of a blacklist
+  ])("should disable the Uploader CLI download button for '%s' role", async (role) => {
+    const { getByTestId } = render(
+      <DataUpload
+        submission={{
+          ...baseSubmission,
+          _id: "config-download-role-check",
+          dataType: "Metadata and Data Files", // NOTE: Required for the button to show
+        }}
+      />,
+      { wrapper: (p) => <TestParent {...p} role={role} /> }
+    );
+
+    expect(getByTestId("uploader-cli-config-button")).toBeDisabled();
   });
 
   it("should render alt CLI footer when 'Metadata Only' dataType", async () => {

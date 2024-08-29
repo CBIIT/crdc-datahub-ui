@@ -15,6 +15,7 @@ import GenericAlert, { AlertState } from "../../components/GenericAlert";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon.svg";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
+import { GenerateApiTokenRoles } from "../../config/AuthRoles";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -140,8 +141,6 @@ const StyledCloseButton = styled(Button)({
   },
 });
 
-const canGenerateTokenRoles: User["role"][] = ["Submitter", "Organization Owner"];
-
 type Props = {
   title?: string;
   message?: string;
@@ -181,7 +180,7 @@ const APITokenDialog: FC<Props> = ({
   };
 
   const generateToken = async () => {
-    if (!canGenerateTokenRoles.includes(user?.role)) {
+    if (!GenerateApiTokenRoles.includes(user?.role)) {
       onGenerateTokenError();
       return;
     }

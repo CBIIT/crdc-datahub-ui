@@ -45,3 +45,10 @@ export const OrgAssignmentMap: Record<RoleSubset, Organization["name"]> = {
  * Defines a list of roles that are allowed to interact with Cross Validation.
  */
 export const CrossValidateRoles: User["role"][] = ["Admin", "Data Curator"];
+
+/**
+ * Defines a list of roles that are allowed to generate an API token.
+ *
+ * @note This also directly defines the roles that are allowed to generate a CLI config.
+ */
+export const GenerateApiTokenRoles: User["role"][] = ["Organization Owner", "Submitter"];
