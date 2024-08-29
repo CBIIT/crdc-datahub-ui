@@ -42,17 +42,19 @@ const TestParent: FC<ParentProps> = ({ children }) => (
 
 describe("Accessibility", () => {
   it("should have no violations (no files)", async () => {
-    const { container } = render(
+    const { container, getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} />
       </TestParent>
     );
 
+    await waitFor(() => expect(getByTestId("file-list-dialog")).toBeVisible());
+
     expect(await axe(container)).toHaveNoViolations();
   });
 
   it("should have no violations (with files)", async () => {
-    const { container } = render(
+    const { container, getByTestId } = render(
       <TestParent>
         <Dialog
           open
@@ -68,6 +70,8 @@ describe("Accessibility", () => {
         />
       </TestParent>
     );
+
+    await waitFor(() => expect(getByTestId("file-list-dialog")).toBeVisible());
 
     expect(await axe(container)).toHaveNoViolations();
   });
