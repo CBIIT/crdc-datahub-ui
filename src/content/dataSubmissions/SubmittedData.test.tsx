@@ -390,11 +390,14 @@ describe("SubmittedData > General", () => {
       "All selected nodes are currently being deleted. Please wait..."
     );
 
-    rerender(
-      <TestParent mocks={[]} submissionId="sub-delete-alert" deletingData={false}>
-        <SubmittedData />
-      </TestParent>
-    );
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    act(() => {
+      rerender(
+        <TestParent mocks={[]} submissionId="sub-delete-alert" deletingData={false}>
+          <SubmittedData />
+        </TestParent>
+      );
+    });
 
     await waitFor(() => {
       expect(getByTestId("submitted-data-deletion-alert")).not.toBeVisible();
