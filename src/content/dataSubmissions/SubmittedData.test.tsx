@@ -3,7 +3,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "jest-axe";
-import { render, waitFor } from "@testing-library/react";
+import { act, render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SubmittedData from "./SubmittedData";
 import {
@@ -333,7 +333,10 @@ describe("SubmittedData > General", () => {
       expect(getAllByRole("checkbox")).toHaveLength(21);
     });
 
-    userEvent.click(getAllByRole("checkbox")[0]); // click 'Select All' checkbox
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    act(() => {
+      userEvent.click(getAllByRole("checkbox")[0]); // click 'Select All' checkbox
+    });
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
