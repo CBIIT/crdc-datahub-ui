@@ -44,6 +44,7 @@ const StyledSelect = styled(Select, {
   // Input
   "& .MuiInputBase-input": {
     backgroundColor: "#fff",
+    borderRadius: "8px",
     color: "#083A50 !important",
     fontWeight: 400,
     fontSize: "16px",
