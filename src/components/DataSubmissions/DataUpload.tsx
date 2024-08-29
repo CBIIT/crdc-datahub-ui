@@ -9,6 +9,8 @@ import { downloadBlob, filterAlphaNumeric } from "../../utils";
 import FlowWrapper from "./FlowWrapper";
 import UploaderToolDialog from "../UploaderToolDialog";
 import UploaderConfigDialog, { InputForm } from "../UploaderConfigDialog";
+import { useAuthContext } from "../Contexts/AuthContext";
+import { GenerateApiTokenRoles } from "../../config/AuthRoles";
 
 export type Props = {
   /**
@@ -62,6 +64,7 @@ const StyledOpenInNewIcon = styled(OpenInNewIcon)({
  */
 export const DataUpload: FC<Props> = ({ submission }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuthContext();
   const { _id, name } = submission || {};
 
   const [cliDialogOpen, setCLIDialogOpen] = useState<boolean>(false);
@@ -105,6 +108,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
 
     return (
       <StyledDownloadButton
+        disabled={!GenerateApiTokenRoles.includes(user?.role)}
         onClick={() => setConfigDialogOpen(true)}
         variant="contained"
         color="info"
@@ -113,7 +117,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
         Download Configuration File
       </StyledDownloadButton>
     );
-  }, [submission?.dataType]);
+  }, [submission?.dataType, user?.role]);
 
   return (
     <FlowWrapper index={2} title="Upload Data Files" actions={Actions}>

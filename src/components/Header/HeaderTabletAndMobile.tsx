@@ -6,6 +6,7 @@ import menuClearIcon from "../../assets/header/Menu_Cancel_Icon.svg";
 import rightArrowIcon from "../../assets/header/Right_Arrow.svg";
 import leftArrowIcon from "../../assets/header/Left_Arrow.svg";
 import { NavBarSublist, navMobileList, navbarSublists } from "../../config/globalHeaderData";
+import { GenerateApiTokenRoles } from "../../config/AuthRoles";
 import { useAuthContext } from "../Contexts/AuthContext";
 import GenericAlert from "../GenericAlert";
 import APITokenDialog from "../../content/users/APITokenDialog";
@@ -184,7 +185,7 @@ const Header = () => {
       className: "navMobileSubItem",
     });
   }
-  if (authData?.user?.role === "Submitter" || authData?.user?.role === "Organization Owner") {
+  if (authData?.user?.role && GenerateApiTokenRoles.includes(authData?.user?.role)) {
     navbarSublists[displayName].splice(1, 0, {
       name: "API Token",
       onClick: () => setOpenAPITokenDialog(true),

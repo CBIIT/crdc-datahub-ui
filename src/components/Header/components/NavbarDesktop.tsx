@@ -4,6 +4,7 @@ import { Button, styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
+import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
 import APITokenDialog from "../../../content/users/APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
 
@@ -541,8 +542,7 @@ const NavBar = () => {
                 </Link>
               </span>
             )}
-            {(authData?.user?.role === "Submitter" ||
-              authData?.user?.role === "Organization Owner") && (
+            {authData?.user?.role && GenerateApiTokenRoles.includes(authData?.user?.role) ? (
               <span className="dropdownItem">
                 <Button
                   id="navbar-dropdown-item-name-api-token"
@@ -552,7 +552,7 @@ const NavBar = () => {
                   API Token
                 </Button>
               </span>
-            )}
+            ) : null}
             <span
               id="navbar-dropdown-item-name-logout"
               role="button"
