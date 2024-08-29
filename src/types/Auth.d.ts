@@ -8,9 +8,8 @@ type User = {
     | "Submitter"
     | "Organization Owner"
     | "Federal Lead"
-    // | "Concierge"
+    | "Federal Monitor"
     | "Data Curator"
-    // | "DC_OWNER"
     | "Data Commons POC"
     | "Admin";
   IDP: "nih" | "login.gov";

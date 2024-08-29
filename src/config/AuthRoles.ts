@@ -1,5 +1,5 @@
 /**
- * Defines a list of valid user roles.
+ * Defines a list of valid user roles that can be assigned.
  *
  * @type {User["role"][]}
  */
@@ -11,9 +11,6 @@ export const Roles: User["role"][] = [
   "Data Curator",
   "Data Commons POC",
   "Admin",
-  // TODO: Disabled in MVP-1
-  // "Concierge",
-  // "DC_OWNER",
 ];
 
 /**
@@ -49,4 +46,9 @@ export const CrossValidateRoles: User["role"][] = ["Admin", "Data Curator"];
 /**
  * Defines a list of roles that are allowed to interact with the Operation Dashboard.
  */
-export const DashboardRoles: User["role"][] = ["Admin", "Data Curator", "Federal Lead"];
+export const DashboardRoles: User["role"][] = [
+  "Admin",
+  "Data Curator",
+  "Federal Lead",
+  "Federal Monitor",
+];
