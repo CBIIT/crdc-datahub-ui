@@ -4,6 +4,18 @@ import "@testing-library/jest-dom";
 import "jest-axe/extend-expect";
 import "jest-canvas-mock";
 import failOnConsole from "jest-fail-on-console";
+import crypto from "crypto";
+
+/**
+ * Makes the global.crypto.getRandomValues function available in Jest
+ *
+ * @see https://stackoverflow.com/a/63749793
+ */
+Object.defineProperty(global, "crypto", {
+  value: {
+    getRandomValues: (arr) => crypto.randomBytes(arr.length),
+  },
+});
 
 /**
  * Mocks the enqueueSnackbar function from notistack for testing
