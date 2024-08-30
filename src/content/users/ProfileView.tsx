@@ -1,17 +1,7 @@
 import { FC, useEffect, useMemo, useState } from "react";
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import {
-  Alert,
-  Box,
-  Container,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  Stack,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Box, Container, MenuItem, Stack, Typography, styled } from "@mui/material";
 import { cloneDeep } from "lodash";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -24,19 +14,25 @@ import {
   useOrganizationListContext,
 } from "../../components/Contexts/OrganizationListContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
-import { OrgAssignmentMap, OrgRequiredRoles, Roles } from "../../config/AuthRoles";
+import { OrgAssignmentMap, Roles } from "../../config/AuthRoles";
 import {
   EDIT_USER,
   EditUserResp,
   GET_USER,
+  GetUserInput,
   GetUserResp,
+  LIST_APPROVED_STUDIES,
+  ListApprovedStudiesResp,
   UPDATE_MY_USER,
   UpdateMyUserResp,
 } from "../../graphql";
-import { formatIDP, getEditableFields } from "../../utils";
+import { formatIDP } from "../../utils";
 import { DataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
+import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import useProfileFields from "../../hooks/useProfileFields";
 
 type Props = {
   _id: User["_id"];
@@ -92,14 +88,16 @@ const StyledHeaderText = styled(Typography)({
   fontWeight: 700,
 });
 
-const StyledField = styled("div")({
+const StyledField = styled("div", { shouldForwardProp: (p) => p !== "visible" })<{
+  visible?: boolean;
+}>(({ visible = true }) => ({
   marginBottom: "10px",
   minHeight: "41px",
-  display: "flex",
+  display: visible ? "flex" : "none",
   alignItems: "center",
   justifyContent: "flex-start",
   fontSize: "18px",
-});
+}));
 
 const StyledLabel = styled("span")({
   color: "#356AAD",
@@ -110,39 +108,10 @@ const StyledLabel = styled("span")({
 
 const BaseInputStyling = {
   width: "363px",
-  borderRadius: "8px",
-  backgroundColor: "#fff",
-  color: "#083A50",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "18px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .MuiList-root": {
-    padding: 0,
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
 };
 
-const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
-
-const StyledSelect = styled(Select)(BaseInputStyling);
+const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
+const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
@@ -170,6 +139,17 @@ const StyledTitleBox = styled(Box)({
   width: "100%",
 });
 
+const StyledSelectionCount = styled(Typography)({
+  fontSize: "16px",
+  fontWeight: 600,
+  color: "#666666",
+  width: "200px",
+  position: "absolute",
+  left: "373px",
+  transform: "translateY(-50%)",
+  top: "50%",
+});
+
 /**
  * User Profile View Component
  *
@@ -191,26 +171,17 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [user, setUser] = useState<User | null>(
     isSelf && viewType === "profile" ? { ...currentUser } : null
   );
-  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
-  const userOrg = orgData?.find((org) => org._id === user?.organization?.orgID);
   const [orgList, setOrgList] = useState<Partial<Organization>[]>(undefined);
-  const role = watch("role");
-  const orgFieldDisabled = useMemo(
-    () => !OrgRequiredRoles.includes(role) && role !== "User",
-    [role]
-  );
-  const dcFieldDisabled = useMemo(() => role !== "Data Commons POC", [role]);
-  const displayDataCommons =
-    (viewType === "profile" && user?.role === "Data Commons POC") ||
-    (viewType === "users" && !dcFieldDisabled);
-  const fieldset = useMemo(
-    () => getEditableFields(currentUser, user, viewType),
-    [user?._id, _id, currentUser?.role, viewType]
-  );
+
+  const roleField = watch("role");
+  const studiesField = watch("studies");
+  const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
+
+  const userOrg = orgData?.find((org) => org._id === user?.organization?.orgID);
   const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
 
-  const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
+  const [getUser] = useLazyQuery<GetUserResp, GetUserInput>(GET_USER, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -225,26 +196,23 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     fetchPolicy: "no-cache",
   });
 
-  useEffect(() => {
-    if (!user || orgStatus === OrgStatus.LOADING) {
-      return;
-    }
-    if (userOrg?.status === "Inactive") {
-      setOrgList(
-        [...activeOrganizations, userOrg].sort((a, b) => a.name?.localeCompare(b.name || ""))
-      );
-      return;
-    }
+  const { data: approvedStudies } = useQuery<ListApprovedStudiesResp>(LIST_APPROVED_STUDIES, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+    skip: fieldset["studies"] !== "UNLOCKED",
+  });
 
-    setOrgList(activeOrganizations || []);
-  }, [activeOrganizations, userOrg, user, orgStatus]);
+  // TODO: This is temporary until the API supports sorting natively
+  const sortedStudies = useMemo<ApprovedStudy[]>(
+    () =>
+      cloneDeep(approvedStudies?.listApprovedStudies)?.sort((a, b) =>
+        a.studyName.localeCompare(b.studyName)
+      ) || [],
+    [approvedStudies]
+  );
 
-  /**
-   * Updates the default form values after save or initial fetch
-   *
-   * @param data FormInput
-   */
-  const setFormValues = (data: FormInput, fields = fieldset) => {
+  // TODO: can we refactor and remove this?
+  const setFormValues = (data: FormInput, fields = Object.keys(fieldset)) => {
     const resetData = {};
 
     fields.forEach((field) => {
@@ -270,7 +238,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       setSaving(false);
 
       if (errors || !d?.updateMyUser) {
-        setError(errors || "Unable to save profile changes");
+        enqueueSnackbar(errors || "Unable to save profile changes", { variant: "error" });
         return;
       }
 
@@ -283,13 +251,14 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
           organization: data.organization.orgID,
           role: data.role,
           status: data.userStatus,
+          studies: data.studies,
           dataCommons: data.dataCommons,
         },
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
 
       if (errors || !d?.editUser) {
-        setError(errors || "Unable to save profile changes");
+        enqueueSnackbar(errors || "Unable to save user profile changes", { variant: "error" });
         return;
       }
 
@@ -303,23 +272,19 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       }
     }
 
-    setError(null);
     enqueueSnackbar("All changes have been saved", { variant: "success" });
-
     if (viewType === "users") {
       navigate(manageUsersPageUrl);
+    } else {
+      setFormValues(data);
     }
-
-    setFormValues(data);
   };
 
   useEffect(() => {
-    setError(null);
-
     // No action needed if viewing own profile, using cached data
     if (isSelf && viewType === "profile") {
       setUser({ ...currentUser });
-      setFormValues(currentUser, getEditableFields(currentUser, currentUser, viewType));
+      setFormValues(currentUser);
       return;
     }
 
@@ -339,19 +304,33 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   }, [_id]);
 
   useEffect(() => {
-    if (!orgFieldDisabled || !OrgAssignmentMap[role]) {
+    if (fieldset.organization === "DISABLED" || !OrgAssignmentMap[roleField]) {
       return;
     }
 
-    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[role])?._id;
+    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[roleField])?._id;
     setValue("organization.orgID", expectedOrg || "");
-  }, [orgFieldDisabled, role, user, orgData]);
+  }, [fieldset.organization === "DISABLED", roleField, user, orgData]);
 
   useEffect(() => {
-    if (role === "User" && (formState?.dirtyFields as EditUserInput)?.role) {
+    if (!user || orgStatus === OrgStatus.LOADING) {
+      return;
+    }
+    if (userOrg?.status === "Inactive") {
+      setOrgList(
+        [...activeOrganizations, userOrg].sort((a, b) => a.name?.localeCompare(b.name || ""))
+      );
+      return;
+    }
+
+    setOrgList(activeOrganizations || []);
+  }, [activeOrganizations, userOrg, user, orgStatus]);
+
+  useEffect(() => {
+    if (roleField === "User" && (formState?.dirtyFields as EditUserInput)?.role) {
       setValue("organization.orgID", "");
     }
-  }, [role]);
+  }, [roleField]);
 
   if (
     !user ||
@@ -387,12 +366,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
             </StyledHeader>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-              {error && (
-                <Alert sx={{ mb: 2, p: 2, width: "100%" }} severity="error">
-                  {error || "An unknown API error occurred."}
-                </Alert>
-              )}
-
               <StyledField>
                 <StyledLabel>Account Type</StyledLabel>
                 {formatIDP(user.IDP)}
@@ -403,7 +376,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="firstNameLabel">First name</StyledLabel>
-                {fieldset.includes("firstName") ? (
+                {["UNLOCKED", "DISABLED"].includes(fieldset.firstName) ? (
                   <StyledTextField
                     {...register("firstName", { required: true })}
                     size="small"
@@ -416,7 +389,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="lastNameLabel">Last name</StyledLabel>
-                {fieldset.includes("lastName") ? (
+                {["UNLOCKED", "DISABLED"].includes(fieldset.lastName) ? (
                   <StyledTextField
                     {...register("lastName", { required: true })}
                     size="small"
@@ -429,40 +402,33 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="userRoleLabel">Role</StyledLabel>
-                {fieldset.includes("role") ? (
-                  <Stack
-                    direction="column"
-                    justifyContent="flex-start"
-                    alignItems="flex-start"
-                    spacing={1}
-                  >
-                    <Controller
-                      name="role"
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field }) => (
-                        <StyledSelect
-                          {...field}
-                          size="small"
-                          MenuProps={{ disablePortal: true }}
-                          inputProps={{ "aria-labelledby": "userRoleLabel" }}
-                        >
-                          {Roles.map((role) => (
-                            <MenuItem key={role} value={role}>
-                              {role}
-                            </MenuItem>
-                          ))}
-                        </StyledSelect>
-                      )}
-                    />
-                  </Stack>
+                {["UNLOCKED", "DISABLED"].includes(fieldset.role) ? (
+                  <Controller
+                    name="role"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        size="small"
+                        MenuProps={{ disablePortal: true }}
+                        inputProps={{ "aria-labelledby": "userRoleLabel" }}
+                      >
+                        {Roles.map((role) => (
+                          <MenuItem key={role} value={role}>
+                            {role}
+                          </MenuItem>
+                        ))}
+                      </StyledSelect>
+                    )}
+                  />
                 ) : (
                   user?.role
                 )}
               </StyledField>
               <StyledField>
                 <StyledLabel id="userStatusLabel">Account Status</StyledLabel>
-                {fieldset.includes("userStatus") ? (
+                {["UNLOCKED", "DISABLED"].includes(fieldset.userStatus) ? (
                   <Controller
                     name="userStatus"
                     control={control}
@@ -486,7 +452,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="userOrganizationLabel">Organization</StyledLabel>
-                {fieldset.includes("organization") ? (
+                {["UNLOCKED", "DISABLED"].includes(fieldset.organization) ? (
                   <Controller
                     name="organization.orgID"
                     control={control}
@@ -496,7 +462,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         size="small"
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
-                        disabled={orgFieldDisabled}
+                        disabled={fieldset.organization === "DISABLED"}
                         inputProps={{
                           "aria-labelledby": "userOrganizationLabel",
                         }}
@@ -514,9 +480,43 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   user?.organization?.orgName
                 )}
               </StyledField>
-              <StyledField sx={{ display: displayDataCommons ? "block" : "none" }}>
+              <StyledField visible={fieldset.studies !== "HIDDEN"}>
+                <StyledLabel id="userStudies">Studies</StyledLabel>
+                {["UNLOCKED", "DISABLED"].includes(fieldset.studies) ? (
+                  <div style={{ position: "relative" }}>
+                    <Controller
+                      name="studies"
+                      control={control}
+                      rules={{ required: false }}
+                      render={({ field }) => (
+                        <StyledSelect
+                          {...field}
+                          size="small"
+                          value={field.value || []}
+                          disabled={fieldset.studies === "DISABLED"}
+                          MenuProps={{ disablePortal: true }}
+                          inputProps={{ "aria-labelledby": "userStudies" }}
+                          multiple
+                        >
+                          {sortedStudies?.map(({ _id, studyName }) => (
+                            <MenuItem key={_id} value={_id}>
+                              {studyName}
+                            </MenuItem>
+                          ))}
+                        </StyledSelect>
+                      )}
+                    />
+                    {studiesField?.length > 1 && (
+                      <StyledSelectionCount>
+                        * {studiesField?.length} Studies selected
+                      </StyledSelectionCount>
+                    )}
+                  </div>
+                ) : null}
+              </StyledField>
+              <StyledField visible={fieldset.dataCommons !== "HIDDEN"}>
                 <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
-                {fieldset.includes("dataCommons") ? (
+                {["UNLOCKED", "DISABLED"].includes(fieldset.dataCommons) ? (
                   <Controller
                     name="dataCommons"
                     control={control}
@@ -526,7 +526,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         {...field}
                         size="small"
                         value={field.value || []}
-                        disabled={dcFieldDisabled}
+                        disabled={fieldset.dataCommons === "DISABLED"}
                         MenuProps={{ disablePortal: true }}
                         inputProps={{ "aria-labelledby": "userDataCommons" }}
                         multiple
@@ -550,7 +550,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                {fieldset?.length > 0 && (
+                {Object.values(fieldset).some((fieldState) => fieldState === "UNLOCKED") && (
                   <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
                     Save
                   </StyledButton>

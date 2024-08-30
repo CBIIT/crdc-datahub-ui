@@ -6,6 +6,7 @@ export const mutation = gql`
     $organization: String
     $status: String
     $role: String
+    $studies: [String]
     $dataCommons: [String]
   ) {
     editUser(
@@ -13,11 +14,14 @@ export const mutation = gql`
       organization: $organization
       status: $status
       role: $role
+      studies: $studies
       dataCommons: $dataCommons
     ) {
       userStatus
       role
       dataCommons
+      # TODO: Uncomment
+      # studies
       organization {
         orgID
         orgName

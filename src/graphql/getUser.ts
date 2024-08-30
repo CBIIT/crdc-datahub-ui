@@ -13,6 +13,8 @@ export const query = gql`
       createdAt
       updateAt
       dataCommons
+      # TODO: Uncomment
+      # studies
       organization {
         orgID
         orgName
@@ -22,6 +24,10 @@ export const query = gql`
     }
   }
 `;
+
+export type Input = {
+  userID: string;
+};
 
 export type Response = {
   getUser: User;

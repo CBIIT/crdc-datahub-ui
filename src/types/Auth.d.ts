@@ -36,7 +36,7 @@ type User = {
    *
    * @see {@link ApprovedStudy}
    */
-  studies?: string[]; // TODO: This is nullable, we need to check if BE always returns this field
+  studies: string[] | null;
   /**
    * The SSO IDP used to login
    */
