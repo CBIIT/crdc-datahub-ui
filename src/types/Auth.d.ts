@@ -1,24 +1,73 @@
 type User = {
+  /**
+   * The UUIDv4 identifier of the user account
+   */
   _id: string;
+  /**
+   * The user's first name
+   */
   firstName: string;
-  lastName: string;
-  userStatus: "Active" | "Inactive" | "Disabled";
-  role:
-    | "User"
-    | "Submitter"
-    | "Organization Owner"
-    | "Federal Lead"
-    | "Federal Monitor"
-    | "Data Curator"
-    | "Data Commons POC"
-    | "Admin";
-  IDP: "nih" | "login.gov";
+  /**
+   * The user's last name
+   */
+  lastName: string | null;
+  /**
+   * The current user role
+   *
+   * @see {@link UserRole}
+   */
+  role: UserRole;
+  /**
+   * The user's email address
+   */
   email: string;
+  /**
+   * The user's organization if assigned, null otherwise
+   *
+   * @see {@link OrgInfo}
+   */
   organization: OrgInfo | null;
+  /**
+   * List of data commons that the user has access to
+   */
   dataCommons: string[];
-  createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
-  updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
+  /**
+   * A list of studyIDs that the user is assigned to
+   *
+   * @see {@link ApprovedStudy}
+   */
+  studies?: string[]; // TODO: This is nullable, we need to check if BE always returns this field
+  /**
+   * The SSO IDP used to login
+   */
+  IDP: "nih" | "login.gov";
+  /**
+   * The current account status for the user
+   */
+  userStatus: "Active" | "Inactive" | "Disabled";
+  /**
+   * The last update date of the user object
+   *
+   * @note ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
+   */
+  updateAt: string;
+  /**
+   * The date of user creation
+   *
+   * @note ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
+   */
+  createdAt: string;
 };
+
+type UserRole =
+  | "User"
+  | "Submitter"
+  | "Organization Owner"
+  | "Federal Monitor"
+  | "Federal Lead"
+  | "Data Curator"
+  | "Data Commons POC"
+  | "Admin";
 
 type UserInfo = {
   userID: User["_id"];
@@ -48,7 +97,8 @@ type EditUserInput = {
     orgID: OrgInfo["orgID"];
   };
   dataCommons: User["dataCommons"];
-  role: User["role"];
+  studies: User["studies"];
+  role: UserRole;
 };
 
 type Organization = {
