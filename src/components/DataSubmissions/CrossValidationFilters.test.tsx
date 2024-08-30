@@ -37,6 +37,7 @@ const baseSubmission: Submission = {
   fileValidationStatus: "Error",
   crossSubmissionStatus: "Error",
   deletingData: false,
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",

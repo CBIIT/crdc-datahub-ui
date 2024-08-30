@@ -46,6 +46,7 @@ const baseSubmission: Submission = {
   status: "In Progress",
   crossSubmissionStatus: "Passed",
   otherSubmissions: "",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
