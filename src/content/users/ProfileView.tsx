@@ -304,7 +304,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   }, [_id]);
 
   useEffect(() => {
-    if (fieldset.organization === "DISABLED" || !OrgAssignmentMap[roleField]) {
+    if (fieldset.organization !== "DISABLED" || !OrgAssignmentMap[roleField]) {
       return;
     }
 
