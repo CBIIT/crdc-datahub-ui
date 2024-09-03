@@ -184,6 +184,14 @@ const Header = () => {
       className: "navMobileSubItem",
     });
   }
+  if (user?.role === "Admin") {
+    navbarSublists[displayName].splice(1, 0, {
+      name: "Manage Studies",
+      link: "/studies",
+      id: "navbar-dropdown-item-studies-manage",
+      className: "navMobileSubItem",
+    });
+  }
   if (user?.role && GenerateApiTokenRoles.includes(user?.role)) {
     navbarSublists[displayName].splice(1, 0, {
       name: "API Token",
