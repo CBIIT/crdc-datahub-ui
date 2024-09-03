@@ -17,6 +17,7 @@ import SuspenseLoader from "../../components/SuspenseLoader";
 import { OrgAssignmentMap, Roles } from "../../config/AuthRoles";
 import {
   EDIT_USER,
+  EditUserInput,
   EditUserResp,
   GET_USER,
   GetUserInput,
@@ -24,6 +25,7 @@ import {
   LIST_APPROVED_STUDIES,
   ListApprovedStudiesResp,
   UPDATE_MY_USER,
+  UpdateMyUserInput,
   UpdateMyUserResp,
 } from "../../graphql";
 import { formatIDP } from "../../utils";
@@ -39,7 +41,7 @@ type Props = {
   viewType: "users" | "profile";
 };
 
-type FormInput = UserInput | EditUserInput;
+type FormInput = UpdateMyUserInput["userInfo"] | EditUserInput;
 
 const StyledContainer = styled(Container)({
   marginBottom: "90px",
@@ -187,12 +189,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     fetchPolicy: "no-cache",
   });
 
-  const [updateMyUser] = useMutation<UpdateMyUserResp, { userInfo: UserInput }>(UPDATE_MY_USER, {
+  const [updateMyUser] = useMutation<UpdateMyUserResp, UpdateMyUserInput>(UPDATE_MY_USER, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const [editUser] = useMutation<EditUserResp>(EDIT_USER, {
+  const [editUser] = useMutation<EditUserResp, EditUserInput>(EDIT_USER, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -212,11 +214,11 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     [approvedStudies]
   );
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: FormInput) => {
     setSaving(true);
 
     // Save profile changes
-    if (isSelf && viewType === "profile") {
+    if (isSelf && viewType === "profile" && "firstName" in data && "lastName" in data) {
       const { data: d, errors } = await updateMyUser({
         variables: {
           userInfo: {
@@ -234,13 +236,13 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
       setData(d.updateMyUser);
       // Save user changes
-    } else {
+    } else if (viewType === "users" && "role" in data) {
       const { data: d, errors } = await editUser({
         variables: {
           userID: _id,
-          organization: data.organization.orgID,
+          organization: data.organization,
           role: data.role,
-          status: data.userStatus,
+          userStatus: data.userStatus,
           studies: data.studies,
           dataCommons: data.dataCommons,
         },
@@ -257,8 +259,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
         if (d.editUser.userStatus === "Inactive") {
           logout();
         }
-      } else {
-        setUser((prevUser) => ({ ...prevUser, ...d.editUser }));
       }
     }
 
@@ -297,7 +297,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     }
 
     const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[roleField])?._id;
-    setValue("organization.orgID", expectedOrg || "");
+    setValue("organization", expectedOrg || "");
   }, [fieldset.organization === "DISABLED", roleField, user, orgData]);
 
   useEffect(() => {
@@ -316,7 +316,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
   useEffect(() => {
     if (roleField === "User" && "role" in formState.dirtyFields && formState.dirtyFields.role) {
-      setValue("organization.orgID", "");
+      setValue("organization", "");
     }
   }, [roleField]);
 
@@ -442,7 +442,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 <StyledLabel id="userOrganizationLabel">Organization</StyledLabel>
                 {visibleFieldState.includes(fieldset.organization) ? (
                   <Controller
-                    name="organization.orgID"
+                    name="organization"
                     control={control}
                     render={({ field }) => (
                       <StyledSelect

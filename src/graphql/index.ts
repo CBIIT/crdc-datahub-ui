@@ -126,7 +126,7 @@ export { query as LIST_USERS } from "./listUsers";
 export type { Response as ListUsersResp } from "./listUsers";
 
 export { mutation as EDIT_USER } from "./editUser";
-export type { Response as EditUserResp } from "./editUser";
+export type { Input as EditUserInput, Response as EditUserResp } from "./editUser";
 
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";

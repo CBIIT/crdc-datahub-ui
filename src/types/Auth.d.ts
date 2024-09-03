@@ -69,26 +69,12 @@ type UserRole =
   | "Data Commons POC"
   | "Admin";
 
-type UserInput = {
-  firstName: string;
-  lastName: string;
-};
-
 type OrgInfo = {
   orgID: string;
   orgName: string;
   status: "Active" | "Inactive";
   createdAt: string; // 2023-05-01T09:23:30Z, ISO data time format
   updateAt: string; // 2023-05-01T09:23:30Z  ISO data time format
-};
-
-type EditUserInput = {
-  userID: User["_id"];
-  userStatus: User["userStatus"];
-  organization: Pick<OrgInfo, "orgID">;
-  dataCommons: User["dataCommons"];
-  studies: User["studies"];
-  role: UserRole;
 };
 
 type Organization = {

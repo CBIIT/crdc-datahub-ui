@@ -4,7 +4,7 @@ export const mutation = gql`
   mutation editUser(
     $userID: ID!
     $organization: String
-    $status: String
+    $userStatus: String
     $role: String
     $studies: [String]
     $dataCommons: [String]
@@ -12,7 +12,7 @@ export const mutation = gql`
     editUser(
       userID: $userID
       organization: $organization
-      status: $status
+      status: $userStatus
       role: $role
       studies: $studies
       dataCommons: $dataCommons
@@ -31,6 +31,11 @@ export const mutation = gql`
     }
   }
 `;
+
+export type Input = {
+  userID: User["_id"];
+  organization: string;
+} & Pick<User, "userStatus" | "role" | "dataCommons" | "studies">;
 
 export type Response = {
   editUser: Pick<User, "userStatus" | "role" | "dataCommons" | "organization">;
