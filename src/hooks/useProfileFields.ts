@@ -1,13 +1,16 @@
 import { useAuthContext } from "../components/Contexts/AuthContext";
 import { OrgRequiredRoles } from "../config/AuthRoles";
 
+/**
+ * Constrains the fields that this hook supports generating states for
+ */
 type EditableFields = Extends<
   keyof User,
   "firstName" | "lastName" | "role" | "userStatus" | "organization" | "studies" | "dataCommons"
 >;
 
 /**
- * Represents a field on the "User Profile" or "Edit User" page
+ * Represents a set of fields on the "User Profile" or "Edit User" page
  */
 export type ProfileFields = Record<EditableFields, FieldState>;
 
@@ -17,9 +20,9 @@ export type ProfileFields = Record<EditableFields, FieldState>;
  * - `HIDDEN` means the field is not visible to the user at all
  * - `DISABLED` means the field is visible but not editable
  * - `UNLOCKED` means the field is visible and editable
- * - `TEXT_ONLY` means the field is rendered as text only
+ * - `READ_ONLY` means the field is rendered as text only
  */
-export type FieldState = "HIDDEN" | "DISABLED" | "UNLOCKED" | "TEXT_ONLY";
+export type FieldState = "HIDDEN" | "DISABLED" | "UNLOCKED" | "READ_ONLY";
 
 /**
  * Determines which profile fields are visible, editable, and disabled for the current user
@@ -34,11 +37,11 @@ const useProfileFields = (
 ): Readonly<Partial<ProfileFields>> => {
   const { user } = useAuthContext();
   const fields: ProfileFields = {
-    firstName: "TEXT_ONLY",
-    lastName: "TEXT_ONLY",
-    role: "TEXT_ONLY",
-    userStatus: "TEXT_ONLY",
-    organization: "TEXT_ONLY",
+    firstName: "READ_ONLY",
+    lastName: "READ_ONLY",
+    role: "READ_ONLY",
+    userStatus: "READ_ONLY",
+    organization: "READ_ONLY",
     dataCommons: "HIDDEN",
     studies: "HIDDEN",
   };
@@ -70,7 +73,7 @@ const useProfileFields = (
 
   // Only applies to Data Commons POC
   if (profileOf?.role === "Data Commons POC") {
-    fields.dataCommons = user?.role === "Admin" ? "UNLOCKED" : "TEXT_ONLY";
+    fields.dataCommons = user?.role === "Admin" ? "UNLOCKED" : "READ_ONLY";
   } else {
     fields.dataCommons = "HIDDEN";
   }

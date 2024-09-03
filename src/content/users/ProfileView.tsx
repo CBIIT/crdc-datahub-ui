@@ -32,7 +32,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
-import useProfileFields from "../../hooks/useProfileFields";
+import useProfileFields, { FieldState } from "../../hooks/useProfileFields";
 
 type Props = {
   _id: User["_id"];
@@ -177,6 +177,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const roleField = watch("role");
   const studiesField = watch("studies");
   const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
+  const visibleFieldState: FieldState[] = ["UNLOCKED", "DISABLED"];
 
   const userOrg = orgData?.find((org) => org._id === user?.organization?.orgID);
   const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
@@ -376,7 +377,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="firstNameLabel">First name</StyledLabel>
-                {["UNLOCKED", "DISABLED"].includes(fieldset.firstName) ? (
+                {visibleFieldState.includes(fieldset.firstName) ? (
                   <StyledTextField
                     {...register("firstName", { required: true })}
                     size="small"
@@ -389,7 +390,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="lastNameLabel">Last name</StyledLabel>
-                {["UNLOCKED", "DISABLED"].includes(fieldset.lastName) ? (
+                {visibleFieldState.includes(fieldset.lastName) ? (
                   <StyledTextField
                     {...register("lastName", { required: true })}
                     size="small"
@@ -402,7 +403,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="userRoleLabel">Role</StyledLabel>
-                {["UNLOCKED", "DISABLED"].includes(fieldset.role) ? (
+                {visibleFieldState.includes(fieldset.role) ? (
                   <Controller
                     name="role"
                     control={control}
@@ -428,7 +429,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="userStatusLabel">Account Status</StyledLabel>
-                {["UNLOCKED", "DISABLED"].includes(fieldset.userStatus) ? (
+                {visibleFieldState.includes(fieldset.userStatus) ? (
                   <Controller
                     name="userStatus"
                     control={control}
@@ -452,7 +453,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="userOrganizationLabel">Organization</StyledLabel>
-                {["UNLOCKED", "DISABLED"].includes(fieldset.organization) ? (
+                {visibleFieldState.includes(fieldset.organization) ? (
                   <Controller
                     name="organization.orgID"
                     control={control}
@@ -482,7 +483,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField visible={fieldset.studies !== "HIDDEN"}>
                 <StyledLabel id="userStudies">Studies</StyledLabel>
-                {["UNLOCKED", "DISABLED"].includes(fieldset.studies) ? (
+                {visibleFieldState.includes(fieldset.studies) ? (
                   <div style={{ position: "relative" }}>
                     <Controller
                       name="studies"
@@ -516,7 +517,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField visible={fieldset.dataCommons !== "HIDDEN"}>
                 <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
-                {["UNLOCKED", "DISABLED"].includes(fieldset.dataCommons) ? (
+                {visibleFieldState.includes(fieldset.dataCommons) ? (
                   <Controller
                     name="dataCommons"
                     control={control}
