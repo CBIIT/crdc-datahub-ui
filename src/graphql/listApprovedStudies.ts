@@ -1,8 +1,22 @@
 import gql from "graphql-tag";
 
 export const query = gql`
-  query listApprovedStudies {
-    listApprovedStudies {
+  query listApprovedStudies(
+    $first: Int
+    $offset: Int
+    $orderBy: String
+    $sortDirection: String
+    $controlledAccess: String
+    $study: String
+  ) {
+    listApprovedStudies(
+      first: $first
+      offset: $offset
+      orderBy: $orderBy
+      sortDirection: $sortDirection
+      controlledAccess: $controlledAccess
+      study: $study
+    ) {
       _id
       studyName
       studyAbbreviation
@@ -11,6 +25,18 @@ export const query = gql`
   }
 `;
 
+export type Input = {
+  first?: number;
+  offset?: number;
+  orderBy?: string;
+  sortDirection?: Order;
+  controlledAccess?: ControlledAccess;
+  study?: string;
+};
+
 export type Response = {
-  listApprovedStudies: ApprovedStudy[];
+  listApprovedStudies: {
+    total: number;
+    studies: ApprovedStudy[];
+  };
 };
