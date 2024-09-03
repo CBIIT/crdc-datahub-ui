@@ -142,24 +142,10 @@ const StyledCloseButton = styled(Button)({
 });
 
 type Props = {
-  title?: string;
-  message?: string;
-  disableActions?: boolean;
-  loading?: boolean;
   onClose?: () => void;
-  onSubmit?: (reviewComment: string) => void;
 } & Omit<DialogProps, "onClose">;
 
-const APITokenDialog: FC<Props> = ({
-  title,
-  message,
-  disableActions,
-  loading,
-  onClose,
-  onSubmit,
-  open,
-  ...rest
-}) => {
+const APITokenDialog: FC<Props> = ({ onClose, open, ...rest }) => {
   const { user } = useAuthContext();
 
   const [tokens, setTokens] = useState<string[]>([]);
