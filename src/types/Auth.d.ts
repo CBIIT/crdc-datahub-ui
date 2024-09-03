@@ -69,14 +69,6 @@ type UserRole =
   | "Data Commons POC"
   | "Admin";
 
-type UserInfo = {
-  userID: User["_id"];
-  firstName: User["firstName"];
-  lastName: User["lastName"];
-  createdAt: User["createdAt"];
-  updateAt: User["updateAt"];
-};
-
 type UserInput = {
   firstName: string;
   lastName: string;
@@ -93,9 +85,7 @@ type OrgInfo = {
 type EditUserInput = {
   userID: User["_id"];
   userStatus: User["userStatus"];
-  organization: {
-    orgID: OrgInfo["orgID"];
-  };
+  organization: Pick<OrgInfo, "orgID">;
   dataCommons: User["dataCommons"];
   studies: User["studies"];
   role: UserRole;
@@ -111,9 +101,4 @@ type Organization = {
   studies: ApprovedStudy[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
-};
-
-type Tokens = {
-  tokens: string[];
-  message: string;
 };

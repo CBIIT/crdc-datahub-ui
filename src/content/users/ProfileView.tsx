@@ -200,7 +200,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const { data: approvedStudies } = useQuery<ListApprovedStudiesResp>(LIST_APPROVED_STUDIES, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
-    skip: fieldset["studies"] !== "UNLOCKED",
+    skip: fieldset.studies !== "UNLOCKED",
   });
 
   // TODO: This is temporary until the API supports sorting natively
@@ -211,17 +211,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       ) || [],
     [approvedStudies]
   );
-
-  // TODO: can we refactor and remove this?
-  const setFormValues = (data: FormInput, fields = Object.keys(fieldset)) => {
-    const resetData = {};
-
-    fields.forEach((field) => {
-      resetData[field] = cloneDeep(data[field]);
-    });
-
-    reset(resetData);
-  };
 
   const onSubmit = async (data) => {
     setSaving(true);
@@ -276,8 +265,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     enqueueSnackbar("All changes have been saved", { variant: "success" });
     if (viewType === "users") {
       navigate(manageUsersPageUrl);
-    } else {
-      setFormValues(data);
     }
   };
 
@@ -285,7 +272,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     // No action needed if viewing own profile, using cached data
     if (isSelf && viewType === "profile") {
       setUser({ ...currentUser });
-      setFormValues(currentUser);
+      reset(currentUser);
       return;
     }
 
@@ -300,7 +287,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       }
 
       setUser({ ...data?.getUser });
-      setFormValues(data?.getUser);
+      reset(data?.getUser);
     })();
   }, [_id]);
 
@@ -328,7 +315,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   }, [activeOrganizations, userOrg, user, orgStatus]);
 
   useEffect(() => {
-    if (roleField === "User" && (formState?.dirtyFields as EditUserInput)?.role) {
+    if (roleField === "User" && "role" in formState.dirtyFields && formState.dirtyFields.role) {
       setValue("organization.orgID", "");
     }
   }, [roleField]);
