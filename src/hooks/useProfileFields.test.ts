@@ -48,6 +48,21 @@ describe("Users View", () => {
     }
   );
 
+  it("should return READ_ONLY for all standard fields when a Organization Owner views the page", () => {
+    const user = { _id: "User-A", role: "Organization Owner" } as User;
+    const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role: "Submitter" };
+
+    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+
+    const { result } = renderHook(() => useProfileFields(profileOf, "users"));
+
+    expect(result.current.firstName).toBe("READ_ONLY");
+    expect(result.current.lastName).toBe("READ_ONLY");
+    expect(result.current.role).toBe("READ_ONLY");
+    expect(result.current.userStatus).toBe("READ_ONLY");
+    expect(result.current.organization).toBe("READ_ONLY");
+  });
+
   it.each<[FieldState, UserRole]>([
     ["HIDDEN", "User"],
     ["HIDDEN", "Submitter"],
