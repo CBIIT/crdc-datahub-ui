@@ -9,9 +9,9 @@ import {
 import ReduxThunk from "redux-thunk";
 import { createLogger } from "redux-logger";
 // import { useLazyQuery } from "@apollo/client";
-import { defaultTo, noop } from "lodash";
 import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from "../config/ModelNavigator";
 import { buildAssetUrls, buildBaseFilterContainers, buildFilterOptionsList } from "../utils";
+// import { LIST_INSTITUTIONS, ListInstitutionsResp } from "../graphql";
 
 export type Status = "waiting" | "loading" | "error" | "success";
 
@@ -35,10 +35,10 @@ const makeStore = (): Store => {
 
 /**
  * A function to parse the datalist and reolace enums with those returned from retrieveCde query
- *
+ * Commented out until api is ready
  * @params {void}
  */
-const updateEnums = (cdeMap, dataList, response = []) => {
+/* const updateEnums = (cdeMap, dataList, response = []) => {
   // const values = Array.from(cdeMap.values());
 
   const responseMap = new Map();
@@ -108,7 +108,7 @@ const updateEnums = (cdeMap, dataList, response = []) => {
   traverseAndReplace(newObj);
 
   return newObj;
-};
+}; */
 
 /**
  * A hook to build and populate the Redux store with DMN data
@@ -130,8 +130,7 @@ const useBuildReduxStore = (): [
       context: { clientName: "backend" },
       fetchPolicy: "cache-and-network",
     }
-  );
-  console.log("data from fe -->", data); */
+  ); */
 
   /**
    * Rebuilds the store from scratch
@@ -162,12 +161,7 @@ const useBuildReduxStore = (): [
     setStatus("loading");
 
     const assets = buildAssetUrls(datacommon);
-    const response = await getModelExploreData(
-      assets.model,
-      assets.props,
-      noop, // retrieveCDEs lazyQuery
-      updateEnums
-    )?.catch((e) => {
+    const response = await getModelExploreData(assets.model, assets.props)?.catch((e) => {
       console.error(e);
       return null;
     });
@@ -176,11 +170,22 @@ const useBuildReduxStore = (): [
       return;
     }
 
+    // let dictionary;
+    /* if (response.cdeMap) {
+      const deets = await getInstituitions();]]
+      if (deets?.data) {
+        dictionary = updateEnums(response?.cdeMap, response.data, []);
+      }
+    } else {
+      dictionary = response.data;
+    } */
+    const dictionary = response.data;
+
     store.dispatch({ type: "RECEIVE_VERSION_INFO", data: response.version });
 
     store.dispatch({
       type: "REACT_FLOW_GRAPH_DICTIONARY",
-      dictionary: response.data,
+      dictionary,
       pdfDownloadConfig: datacommon.configuration.pdfConfig,
       graphViewConfig,
     });
@@ -188,7 +193,7 @@ const useBuildReduxStore = (): [
     store.dispatch({
       type: "RECEIVE_DICTIONARY",
       payload: {
-        data: response.data,
+        data: dictionary,
         facetfilterConfig: {
           ...baseConfiguration,
           facetSearchData: datacommon.configuration.facetFilterSearchData,
