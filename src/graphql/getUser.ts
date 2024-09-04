@@ -13,8 +13,7 @@ export const query = gql`
       createdAt
       updateAt
       dataCommons
-      # TODO: Uncomment
-      # studies
+      studies
       organization {
         orgID
         orgName

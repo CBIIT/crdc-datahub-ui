@@ -7,8 +7,7 @@ export const mutation = gql`
       lastName
       userStatus
       role
-      # TODO: Uncomment
-      # studies
+      studies
       organization {
         orgID
         orgName

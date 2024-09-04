@@ -20,8 +20,7 @@ export const mutation = gql`
       userStatus
       role
       dataCommons
-      # TODO: Uncomment
-      # studies
+      studies
       organization {
         orgID
         orgName
