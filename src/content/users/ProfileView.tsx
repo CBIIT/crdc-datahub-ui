@@ -28,7 +28,7 @@ import {
   UpdateMyUserInput,
   UpdateMyUserResp,
 } from "../../graphql";
-import { formatIDP } from "../../utils";
+import { formatFullStudyName, formatIDP } from "../../utils";
 import { DataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
@@ -243,8 +243,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
           organization: data.organization,
           role: data.role,
           userStatus: data.userStatus,
-          studies: data.studies,
-          dataCommons: data.dataCommons,
+          studies: fieldset.studies !== "HIDDEN" ? data.studies : null,
+          dataCommons: fieldset.dataCommons !== "HIDDEN" ? data.dataCommons : null,
         },
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
@@ -272,7 +272,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     // No action needed if viewing own profile, using cached data
     if (isSelf && viewType === "profile") {
       setUser({ ...currentUser });
-      reset(currentUser);
+      reset({
+        ...currentUser,
+        organization: currentUser.organization?.orgID || "",
+      });
       return;
     }
 
@@ -287,7 +290,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       }
 
       setUser({ ...data?.getUser });
-      reset(data?.getUser);
+      reset({
+        ...data?.getUser,
+        organization: data?.getUser.organization?.orgID || "",
+      });
     })();
   }, [_id]);
 
@@ -425,7 +431,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                       <StyledSelect
                         {...field}
                         size="small"
-                        value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                         inputProps={{ "aria-labelledby": "userStatusLabel" }}
                       >
@@ -448,7 +453,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                       <StyledSelect
                         {...field}
                         size="small"
-                        value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                         disabled={fieldset.organization === "DISABLED"}
                         inputProps={{
@@ -486,9 +490,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                           inputProps={{ "aria-labelledby": "userStudies" }}
                           multiple
                         >
-                          {sortedStudies?.map(({ _id, studyName }) => (
+                          {sortedStudies?.map(({ _id, studyName, studyAbbreviation }) => (
                             <MenuItem key={_id} value={_id}>
-                              {studyName}
+                              {formatFullStudyName(studyName, studyAbbreviation)}
                             </MenuItem>
                           ))}
                         </StyledSelect>
