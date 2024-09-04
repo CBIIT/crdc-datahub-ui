@@ -73,7 +73,7 @@ const useProfileFields = (
 
   // Only applies to Data Commons POC
   if (profileOf?.role === "Data Commons POC") {
-    fields.dataCommons = user?.role === "Admin" ? "UNLOCKED" : "READ_ONLY";
+    fields.dataCommons = user?.role === "Admin" && viewType === "users" ? "UNLOCKED" : "READ_ONLY";
   } else {
     fields.dataCommons = "HIDDEN";
   }

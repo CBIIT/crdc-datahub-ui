@@ -196,4 +196,17 @@ describe("Profile View", () => {
       expect(result.current.studies).toBe("HIDDEN");
     }
   );
+
+  // NOTE: This scenario is obscure to reproduce, but if a Data Commons POC is changed
+  // to an Admin and refreshes their profile page, this field would appear unlocked
+  it("should return READ_ONLY for an Admin viewing a Data Commons POC profile", () => {
+    const user = { _id: "User-A", role: "Admin" } as User;
+    const profileOf: Pick<User, "_id" | "role"> = { _id: "Not-User-B", role: "Data Commons POC" };
+
+    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+
+    const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
+
+    expect(result.current.dataCommons).toBe("READ_ONLY");
+  });
 });
