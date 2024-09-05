@@ -212,7 +212,7 @@ const HistoryDialog = <T extends string>({
           {sortedHistory?.map(({ status, dateTime }, index) => (
             <StyledTimelineItem
               key={`history-item-${status}-${dateTime}}`}
-              data-testid="history-item"
+              data-testid={`history-item-${index}`}
             >
               <StyledTimelineSeparator>
                 <StyledTimelineDot />
@@ -223,13 +223,13 @@ const HistoryDialog = <T extends string>({
                   <StyledTypography
                     title={dateTime}
                     color={typeof getTextColor === "function" ? getTextColor(status) : "#FFF"}
-                    data-testid="history-item-date"
+                    data-testid={`history-item-${index}-date`}
                   >
                     {FormatDate(dateTime, "M/D/YYYY", "N/A")}
                   </StyledTypography>
                   <StyledTypography
                     color={typeof getTextColor === "function" ? getTextColor(status) : "#FFF"}
-                    data-testid="history-item-status"
+                    data-testid={`history-item-${index}-status`}
                   >
                     {status?.toString()?.toUpperCase()}
                   </StyledTypography>
@@ -251,7 +251,7 @@ const HistoryDialog = <T extends string>({
       <DialogActions>
         <StyledCloseButton
           id="close-full-history-button"
-          onClick={() => onClose()}
+          onClick={onClose}
           variant="outlined"
           size="large"
           aria-label="Close dialog"

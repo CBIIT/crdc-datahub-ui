@@ -197,15 +197,16 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 
     fireEvent.click(getByText("Full History"));
 
-    const elements = getAllByTestId("history-item");
-    expect(elements[0]).toHaveTextContent(/ARCHIVED/i);
-    expect(elements[0]).toHaveTextContent("1/9/2023");
-    expect(elements[1]).toHaveTextContent(/COMPLETED/i);
-    expect(elements[1]).toHaveTextContent("1/8/2023");
-    expect(elements[2]).toHaveTextContent(/RELEASED/i);
-    expect(elements[2]).toHaveTextContent("1/7/2023");
-    expect(elements[8]).toHaveTextContent(/NEW/i);
-    expect(elements[8]).toHaveTextContent("1/1/2023");
+    const dates = getAllByTestId(/history-item-\d-date/i);
+    const statuses = getAllByTestId(/history-item-\d-status/i);
+    expect(statuses[0]).toHaveTextContent(/ARCHIVED/i);
+    expect(dates[0]).toHaveTextContent("1/9/2023");
+    expect(statuses[1]).toHaveTextContent(/COMPLETED/i);
+    expect(dates[1]).toHaveTextContent("1/8/2023");
+    expect(statuses[2]).toHaveTextContent(/RELEASED/i);
+    expect(dates[2]).toHaveTextContent("1/7/2023");
+    expect(statuses[8]).toHaveTextContent(/NEW/i);
+    expect(dates[8]).toHaveTextContent("1/1/2023");
   });
 
   it("closes the History dialog with the close button", async () => {
@@ -238,7 +239,7 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
     fireEvent.click(getByText("Full History"));
 
     await waitFor(() => {
-      const items = getAllByTestId("history-item-date");
+      const items = getAllByTestId(/history-item-\d-date/);
       expect(new Date(items[0].textContent).getTime()).toBeGreaterThan(
         new Date(items[1].textContent).getTime()
       );
