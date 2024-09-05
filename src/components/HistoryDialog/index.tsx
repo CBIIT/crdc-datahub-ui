@@ -150,9 +150,6 @@ const StyledTypography = styled(Typography)<{ color: CSSProperties["color"] }>((
 const StyledAvatar = styled(Avatar)({
   background: "transparent",
   marginRight: "8px",
-  "&.MuiAvatar-root": {
-    marginLeft: "auto",
-  },
 });
 
 const StyledCloseButton = styled(Button)({
