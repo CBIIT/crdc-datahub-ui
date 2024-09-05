@@ -1,7 +1,6 @@
-import React from "react";
 import { styled } from "@mui/material";
-import Logo from "./components/LogoDesktop";
-import NavBar from "./components/NavbarDesktop";
+import Logo from "./LogoDesktop";
+import NavBar from "./NavbarDesktop";
 
 const HeaderBanner = styled("div")({
   width: "100%",
@@ -15,7 +14,7 @@ const HeaderContainer = styled("div")({
 });
 
 const Header = () => (
-  <HeaderBanner>
+  <HeaderBanner data-testid="navigation-header-desktop">
     <HeaderContainer>
       <Logo />
     </HeaderContainer>
