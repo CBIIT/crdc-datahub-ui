@@ -7,6 +7,7 @@ import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
 import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
 import { ReleaseInfo } from "../../utils";
+import Tooltip from "../../components/Tooltip";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -76,6 +77,11 @@ const StyledDialogText = styled(Typography)({
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   lineHeight: "19.6px",
 });
+
+const StyledTooltip = styled(Tooltip)(() => ({
+  alignSelf: "start",
+  marginTop: "3.5px",
+}));
 
 export type ActiveDialog =
   | "Submit"
@@ -231,28 +237,48 @@ const DataSubmissionActions = ({
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Action Buttons */}
       {canShowAction("Submit") ? (
-        <StyledLoadingButton
-          variant="contained"
-          color="primary"
-          onClick={() => onOpenDialog("Submit")}
-          loading={action === "Submit"}
-          disabled={submitActionButton?.disable || (action && action !== "Submit")}
+        <StyledTooltip
+          placement="top"
+          title="" // TODO: Update title
+          open={undefined} // will use hoverListener to open
+          disableHoverListener={!(submitActionButton?.disable || (action && action !== "Submit"))}
         >
-          {submitActionButton?.label || "Submit"}
-        </StyledLoadingButton>
+          <span>
+            <StyledLoadingButton
+              variant="contained"
+              color="primary"
+              onClick={() => onOpenDialog("Submit")}
+              loading={action === "Submit"}
+              disabled={submitActionButton?.disable || (action && action !== "Submit")}
+            >
+              {submitActionButton?.label || "Submit"}
+            </StyledLoadingButton>
+          </span>
+        </StyledTooltip>
       ) : null}
       {canShowAction("Release") ? (
-        <StyledLoadingButton
-          variant="contained"
-          color="primary"
-          onClick={() =>
-            onOpenDialog(releaseActionButton.requireAlert ? "ReleaseCrossValidation" : "Release")
-          }
-          loading={action === "Release"}
-          disabled={(action && action !== "Release") || releaseActionButton.disable}
+        <StyledTooltip
+          placement="top"
+          title="Run cross validation to enable the Release button" // TODO: Test
+          open={undefined} // will use hoverListener to open
+          disableHoverListener={!((action && action !== "Release") || releaseActionButton.disable)}
         >
-          Release
-        </StyledLoadingButton>
+          <span>
+            <StyledLoadingButton
+              variant="contained"
+              color="primary"
+              onClick={() =>
+                onOpenDialog(
+                  releaseActionButton.requireAlert ? "ReleaseCrossValidation" : "Release"
+                )
+              }
+              loading={action === "Release"}
+              disabled={(action && action !== "Release") || releaseActionButton.disable}
+            >
+              Release
+            </StyledLoadingButton>
+          </span>
+        </StyledTooltip>
       ) : null}
       {canShowAction("Complete") ? (
         <StyledLoadingButton
