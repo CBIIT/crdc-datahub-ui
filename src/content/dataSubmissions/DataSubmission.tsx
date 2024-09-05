@@ -2,8 +2,8 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { Alert, Box, Card, CardActions, CardContent, Container, Tabs, styled } from "@mui/material";
 import { useSnackbar, VariantType } from "notistack";
-import bannerPng from "../../assets/dataSubmissions/dashboard_banner.png";
-import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
+import bannerPng from "../../assets/banner/submission_banner.png";
+import summaryBannerPng from "../../assets/banner/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
 import { SUBMISSION_ACTION, SubmissionActionResp } from "../../graphql";
@@ -34,14 +34,9 @@ const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
   backgroundBlendMode: "luminosity, normal",
   backgroundSize: "cover",
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "top",
+  backgroundPosition: "center",
   width: "100%",
-  height: "295px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  position: "relative",
+  height: "296px",
   zIndex: 0,
 }));
 
@@ -138,7 +133,7 @@ const StyledWrapper = styled("div")({
 });
 
 const StyledCardContent = styled(CardContent)({
-  background: `url(${summaryBannerSvg})`,
+  background: `url(${summaryBannerPng})`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   backgroundPosition: "top",
