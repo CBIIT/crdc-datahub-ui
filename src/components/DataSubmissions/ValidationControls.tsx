@@ -19,6 +19,7 @@ import FlowWrapper from "./FlowWrapper";
 import { CrossValidationButton } from "./CrossValidationButton";
 import { ValidationStatus } from "./ValidationStatus";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import Tooltip from "../Tooltip";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -276,24 +277,45 @@ const ValidationControls: FC = () => {
               data-testid="validate-controls-validation-type"
               row
             >
-              <StyledRadioControl
-                value="metadata"
-                control={<StyledRadioButton readOnly={false} />}
-                label="Validate Metadata"
-                disabled={!canValidateMetadata}
-              />
-              <StyledRadioControl
-                value="file"
-                control={<StyledRadioButton readOnly={false} />}
-                label="Validate Data Files"
-                disabled={!canValidateFiles}
-              />
-              <StyledRadioControl
-                value="All"
-                control={<StyledRadioButton readOnly={false} />}
-                label="Both"
-                disabled={!canValidateFiles || !canValidateMetadata}
-              />
+              <Tooltip
+                placement="bottom"
+                title="Run validations on any metadata submission templates that have been uploaded."
+                open={undefined} // will use hoverListener to open
+                disableHoverListener={false}
+              >
+                <StyledRadioControl
+                  value="metadata"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="Validate Metadata"
+                  disabled={!canValidateMetadata}
+                />
+              </Tooltip>
+              <Tooltip
+                placement="bottom"
+                title="Run validations on any data files that have been uploaded."
+                open={undefined} // will use hoverListener to open
+                disableHoverListener={false}
+              >
+                <StyledRadioControl
+                  value="file"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="Validate Data Files"
+                  disabled={!canValidateFiles}
+                />
+              </Tooltip>
+              <Tooltip
+                placement="bottom"
+                title="Run validations on both data files and metadata submission templates that have been uploaded."
+                open={undefined} // will use hoverListener to open
+                disableHoverListener={false}
+              >
+                <StyledRadioControl
+                  value="All"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="Both"
+                  disabled={!canValidateFiles || !canValidateMetadata}
+                />
+              </Tooltip>
             </RadioGroup>
           </StyledRowContent>
         </StyledRow>
@@ -306,22 +328,36 @@ const ValidationControls: FC = () => {
               data-testid="validate-controls-validation-target"
               row
             >
-              <StyledRadioControl
-                value="New"
-                control={<StyledRadioButton readOnly={false} />}
-                label="New Uploaded Data"
-                disabled={
-                  (!canValidateFiles && !canValidateMetadata) ||
-                  // NOTE: No new data to validate if the submission is already submitted
-                  dataSubmission?.status === "Submitted"
-                }
-              />
-              <StyledRadioControl
-                value="All"
-                control={<StyledRadioButton readOnly={false} />}
-                label="All Uploaded Data"
-                disabled={!canValidateFiles && !canValidateMetadata}
-              />
+              <Tooltip
+                placement="bottom"
+                title="Run validations only on files that have not previously been validated."
+                open={undefined} // will use hoverListener to open
+                disableHoverListener={false}
+              >
+                <StyledRadioControl
+                  value="New"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="New Uploaded Data"
+                  disabled={
+                    (!canValidateFiles && !canValidateMetadata) ||
+                    // NOTE: No new data to validate if the submission is already submitted
+                    dataSubmission?.status === "Submitted"
+                  }
+                />
+              </Tooltip>
+              <Tooltip
+                placement="bottom"
+                title="Run validations on all files regardless of previous validations."
+                open={undefined} // will use hoverListener to open
+                disableHoverListener={false}
+              >
+                <StyledRadioControl
+                  value="All"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="All Uploaded Data"
+                  disabled={!canValidateFiles && !canValidateMetadata}
+                />
+              </Tooltip>
             </RadioGroup>
           </StyledRowContent>
         </StyledRow>
