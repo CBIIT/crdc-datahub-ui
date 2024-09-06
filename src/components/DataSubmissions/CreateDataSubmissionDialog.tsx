@@ -509,6 +509,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                   <StyledOutlinedInput
                     {...register("dbGaPID", {
                       required: isDbGapRequired ? "This field is required" : null,
+                      validate: isDbGapRequired ? validateEmpty : null,
                     })}
                     inputProps={{ maxLength: 50 }}
                     placeholder="Input dbGaP ID"

@@ -4,6 +4,7 @@ import { Button, styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
+import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
 import APITokenDialog from "../../../content/users/APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
 
@@ -296,35 +297,37 @@ const useOutsideAlerter = (ref1, ref2) => {
 };
 
 const NavBar = () => {
+  const { isLoggedIn, user, logout } = useAuthContext();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [clickedTitle, setClickedTitle] = useState("");
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
   const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
+  const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
+  const [restorePath, setRestorePath] = useState<string>(null);
   const dropdownSelection = useRef(null);
   const nameDropdownSelection = useRef(null);
+
   const clickableObject = navMobileList.filter(
     (item) => item.className === "navMobileItem clickable"
   );
   const clickableTitle = clickableObject.map((item) => item.name);
-  const navigate = useNavigate();
-  const authData = useAuthContext();
-  const location = useLocation();
-  const displayName = authData?.user?.firstName?.toUpperCase() || "N/A";
-  const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
-  const [restorePath, setRestorePath] = useState<string>(null);
+  const displayName = user?.firstName?.toUpperCase() || "N/A";
 
   clickableTitle.push(displayName);
 
   useOutsideAlerter(dropdownSelection, nameDropdownSelection);
 
   useEffect(() => {
-    if (!authData.isLoggedIn) {
+    if (!isLoggedIn) {
       setClickedTitle("");
     }
-  }, [authData]);
+  }, [isLoggedIn]);
 
   const handleLogout = async () => {
     setClickedTitle("");
-    const logoutStatus = await authData.logout();
+    const logoutStatus = await logout();
     if (logoutStatus) {
       navigate("/");
       setShowLogoutAlert(true);
@@ -345,11 +348,7 @@ const NavBar = () => {
       handleMenuClick(e);
     }
   };
-  type NavSubLinkData = {
-    name: string;
-    link: string;
-    className: string;
-  };
+
   function shouldBeUnderlined(item) {
     const linkName = item.name;
     const correctPath = window.location.pathname;
@@ -359,7 +358,7 @@ const NavBar = () => {
     if (navbarSublists[linkName] === undefined) {
       return false;
     }
-    const linkNames = Object.values(navbarSublists[linkName]).map((e: NavSubLinkData) => e.link);
+    const linkNames = Object.values(navbarSublists[linkName]).map((e: NavBarSubItem) => e.link);
     return linkNames.includes(correctPath);
   }
 
@@ -383,53 +382,55 @@ const NavBar = () => {
       </GenericAlert>
       <NavContainer>
         <UlContainer>
-          {navMobileList.map((navMobileItem, idx) => {
-            const navkey = `nav_${idx}`;
-            return navMobileItem.className === "navMobileItem" ? (
-              <LiSection key={navkey}>
-                <div className="navTitle directLink">
-                  <NavLink
-                    to={navMobileItem.link}
-                    target={navMobileItem.link.startsWith("https://") ? "_blank" : "_self"}
-                  >
+          {navMobileList.map((navItem) => {
+            // If the user is not logged in and the item requires a role, don't show it
+            if (Array.isArray(navItem?.roles) && !navItem.roles.includes(user?.role)) {
+              return null;
+            }
+
+            return (
+              <LiSection key={navItem.id}>
+                {navItem.className === "navMobileItem" ? (
+                  <div className="navTitle directLink">
+                    <NavLink
+                      to={navItem.link}
+                      target={navItem.link.startsWith("https://") ? "_blank" : "_self"}
+                    >
+                      <div
+                        id={navItem.id}
+                        onKeyDown={onKeyPressHandler}
+                        role="button"
+                        tabIndex={0}
+                        className={`navText directLink ${
+                          shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""
+                        }`}
+                        onClick={handleMenuClick}
+                      >
+                        {navItem.name}
+                      </div>
+                    </NavLink>
+                  </div>
+                ) : (
+                  <div className={clickedTitle === navItem.name ? "navTitleClicked" : "navTitle"}>
                     <div
-                      id={navMobileItem.id}
+                      id={navItem.id}
                       onKeyDown={onKeyPressHandler}
                       role="button"
                       tabIndex={0}
-                      className={`navText directLink ${
-                        shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""
-                      }`}
+                      className={`${
+                        clickedTitle === navItem.name ? "navText clicked" : "navText"
+                      } ${shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""}`}
                       onClick={handleMenuClick}
                     >
-                      {navMobileItem.name}
+                      {navItem.name}
                     </div>
-                  </NavLink>
-                </div>
-              </LiSection>
-            ) : (
-              <LiSection key={navkey}>
-                <div
-                  className={clickedTitle === navMobileItem.name ? "navTitleClicked" : "navTitle"}
-                >
-                  <div
-                    id={navMobileItem.id}
-                    onKeyDown={onKeyPressHandler}
-                    role="button"
-                    tabIndex={0}
-                    className={`${
-                      clickedTitle === navMobileItem.name ? "navText clicked" : "navText"
-                    } ${shouldBeUnderlined(navMobileItem) ? "shouldBeUnderlined" : ""}`}
-                    onClick={handleMenuClick}
-                  >
-                    {navMobileItem.name}
                   </div>
-                </div>
+                )}
               </LiSection>
             );
           })}
-          <LiSection className={`name-dropdown-li${authData?.isLoggedIn ? "" : " login-button"}`}>
-            {authData.isLoggedIn ? (
+          <LiSection className={`name-dropdown-li${isLoggedIn ? "" : " login-button"}`}>
+            {isLoggedIn ? (
               <div
                 id="navbar-dropdown-name-container"
                 className={clickedTitle === displayName ? "navTitleClicked" : "navTitle"}
@@ -500,7 +501,7 @@ const NavBar = () => {
             <span className="dropdownItem">
               <Link
                 id="navbar-dropdown-item-name-user-profile"
-                to={`/profile/${authData?.user?._id}`}
+                to={`/profile/${user?._id}`}
                 className="dropdownItem"
                 onClick={() => setClickedTitle("")}
               >
@@ -516,8 +517,7 @@ const NavBar = () => {
                 Uploader CLI Tool
               </Button>
             </span>
-            {(authData?.user?.role === "Admin" ||
-              authData?.user?.role === "Organization Owner") && (
+            {(user?.role === "Admin" || user?.role === "Organization Owner") && (
               <span className="dropdownItem">
                 <Link
                   id="navbar-dropdown-item-name-user-manage"
@@ -529,7 +529,7 @@ const NavBar = () => {
                 </Link>
               </span>
             )}
-            {authData?.user?.role === "Admin" && (
+            {user?.role === "Admin" && (
               <span className="dropdownItem">
                 <Link
                   id="navbar-dropdown-item-name-organization-manage"
@@ -541,8 +541,7 @@ const NavBar = () => {
                 </Link>
               </span>
             )}
-            {(authData?.user?.role === "Submitter" ||
-              authData?.user?.role === "Organization Owner") && (
+            {user?.role && GenerateApiTokenRoles.includes(user?.role) ? (
               <span className="dropdownItem">
                 <Button
                   id="navbar-dropdown-item-name-api-token"
@@ -552,7 +551,7 @@ const NavBar = () => {
                   API Token
                 </Button>
               </span>
-            )}
+            ) : null}
             <span
               id="navbar-dropdown-item-name-logout"
               role="button"
