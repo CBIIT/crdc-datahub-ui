@@ -167,7 +167,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
           questionnaireData: JSON.stringify(data),
           controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
+          openAccess: data?.accessTypes?.includes("Open Access") || false,
           ORCID: data?.pi?.ORCID,
+          PI: data?.pi?.firstName,
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));

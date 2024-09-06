@@ -53,9 +53,17 @@ export type Input = {
      */
     controlledAccess: boolean;
     /**
+     * Whether the data submission will contain open access data
+     */
+    openAccess: boolean;
+    /**
      * The Open Researcher and Contributor ID
      */
     ORCID?: string;
+    /**
+     * Principal Investigator's name
+     */
+    PI: string;
   };
 };
 
