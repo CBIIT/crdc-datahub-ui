@@ -28,7 +28,7 @@ import {
   UpdateMyUserInput,
   UpdateMyUserResp,
 } from "../../graphql";
-import { formatFullStudyName, formatIDP } from "../../utils";
+import { formatFullStudyName, formatIDP, formatStudySelectionValue } from "../../utils";
 import { DataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
@@ -488,6 +488,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                           disabled={fieldset.studies === "DISABLED"}
                           MenuProps={{ disablePortal: true }}
                           inputProps={{ "aria-labelledby": "userStudies" }}
+                          renderValue={(selected: string[]) =>
+                            formatStudySelectionValue(selected, sortedStudies)
+                          }
                           multiple
                         >
                           {sortedStudies?.map(({ _id, studyName, studyAbbreviation }) => (
