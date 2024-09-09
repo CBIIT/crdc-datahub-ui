@@ -27,7 +27,10 @@ const baseApplication: Omit<Application, "questionnaireData"> = {
   updatedAt: "",
   submittedDate: "",
   history: [],
+  controlledAccess: false,
+  openAccess: false,
   ORCID: "",
+  PI: "",
   applicant: {
     applicantID: "",
     applicantName: "",

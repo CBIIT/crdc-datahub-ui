@@ -10,6 +10,9 @@ type Application = {
   // Applicant Details
   applicant: Applicant;
   organization: Pick<Organization, "_id" | "name">;
+  PI: PI["firstName"]; // Principal Investigator's name
+  controlledAccess: boolean;
+  openAccess: boolean;
   // Sort Fields
   programName: Program["name"];
   studyAbbreviation: Study["abbreviation"];

@@ -7,9 +7,12 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   updatedAt: "",
   submittedDate: "",
   history: [],
+  controlledAccess: false,
+  openAccess: false,
   ORCID: "",
   programName: "",
   studyAbbreviation: "",
+  PI: "",
 };
 
 export const InitialQuestionnaire: QuestionnaireData = {

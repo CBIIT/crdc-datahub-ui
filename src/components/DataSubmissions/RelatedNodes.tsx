@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, styled, Tab, TabProps, Tabs } from "@mui/material";
+import { Box, styled, Tab, TabProps, Tabs, TabScrollButton } from "@mui/material";
 import { useLazyQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
 import { isEqual } from "lodash";
@@ -11,15 +11,16 @@ import {
 } from "../../graphql";
 import GenericTable, { Column } from "../GenericTable";
 import { capitalizeFirstLetter, moveToFrontOfArray, safeParse } from "../../utils";
+import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
+import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
 
 const StyledTabs = styled(Tabs)(() => ({
   position: "relative",
   display: "flex",
   alignItems: "flex-end",
   zIndex: 3,
-  paddingLeft: "43px",
-  paddingRight: "43px",
   marginTop: "59px",
+
   "& .MuiTabs-flexContainer": {
     justifyContent: "flex-start",
   },
@@ -34,6 +35,9 @@ const StyledTabs = styled(Tabs)(() => ({
     right: 0,
     borderBottom: "1.25px solid #00799E",
     zIndex: 1,
+  },
+  "& .MuiTabScrollButton-root": {
+    alignSelf: "center",
   },
 }));
 
@@ -72,6 +76,7 @@ const StyledTab = styled(Tab)<TabProps>(() => ({
     background: "#FFF",
   },
 }));
+
 const StyledContentWrapper = styled(Box)(() => ({
   display: "flex",
   alignItems: "center",
@@ -111,6 +116,32 @@ const StyledContentWrapper = styled(Box)(() => ({
     backgroundColor: "#66BCDE",
     borderBottom: "1px solid #6B7294",
   },
+}));
+
+const StyledScrollLeftIcon = styled(ChevronLeft)(() => ({
+  color: "#3D4551",
+  width: "16px",
+  height: "16px",
+}));
+
+const StyledScrollRightIcon = styled(ChevronRight)(() => ({
+  color: "#3D4551",
+  width: "16px",
+  height: "16px",
+}));
+
+const StyledTabScrollButton = styled(TabScrollButton)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  color: "#3D4551",
+  backgroundColor: theme.palette.action.hover,
+  borderRadius: "100%",
+  width: "24px",
+  height: "24px",
+  padding: "8px",
+  marginLeft: "21.5px",
+  marginRight: "21.5px",
 }));
 
 type T = Pick<SubmissionNode, "props" | "status">;
@@ -324,7 +355,26 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
 
   return (
     <>
-      <StyledTabs value={currentTab?.name || false} aria-label="Related nodes tabs">
+      <StyledTabs
+        value={currentTab?.name || false}
+        aria-label="Related nodes tabs"
+        variant="scrollable"
+        ScrollButtonComponent={StyledTabScrollButton}
+        allowScrollButtonsMobile
+        slots={{
+          StartScrollButtonIcon: StyledScrollLeftIcon,
+          EndScrollButtonIcon: StyledScrollRightIcon,
+        }}
+        slotProps={{
+          startScrollButtonIcon: {
+            "data-testid": "tabs-start-scroll-button-icon",
+          } as unknown,
+          endScrollButtonIcon: {
+            "data-testid": "tabs-end-scroll-button-icon",
+          } as unknown,
+        }}
+        scrollButtons
+      >
         {parentNodes?.map((parent, idx) => (
           <StyledTab
             key={`parent_node_tab_${parent.nodeType}`}
