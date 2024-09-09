@@ -92,4 +92,18 @@ describe("Implementation Requirements", () => {
       });
     });
   });
+
+  it("should show an error snackbar when there is an unknown error type", async () => {
+    render(<Header />, {
+      wrapper: (p) => (
+        <Parent error={["Some unknown representation of an error"] as unknown as string} {...p} />
+      ),
+    });
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("An unknown error occurred during login", {
+        variant: "error",
+      });
+    });
+  });
 });

@@ -12,11 +12,16 @@ const Header = () => {
   const tabletAndMobile = useMediaQuery("(max-width: 1024px)");
 
   useEffect(() => {
-    if (typeof authError !== "string") {
+    if (!authError) {
       return;
     }
 
-    enqueueSnackbar(authError, { variant: "error" });
+    enqueueSnackbar(
+      typeof authError === "string" && authError?.length > 0
+        ? authError
+        : "An unknown error occurred during login",
+      { variant: "error" }
+    );
   }, [authError]);
 
   return (
