@@ -7,7 +7,7 @@ import StatusBar from "./StatusBar";
 import StatusApproved from "../../assets/history/submissionRequest/StatusApproved.svg";
 import StatusRejected from "../../assets/history/submissionRequest/StatusRejected.svg";
 import { FormatDate } from "../../utils";
-import { HistoryIconMap } from "../../assets/history/submissionRequest";
+import { HistoryIconMap } from "./components/SubmissionRequestIconMap";
 
 type Props = {
   data: object;
@@ -372,8 +372,8 @@ describe("StatusBar > History Modal Tests", () => {
 
     fireEvent.click(getByText("Full History"));
 
-    expect(getByTestId("status-bar-history-item-0-icon")).toBeVisible();
-    expect(() => getByTestId("status-bar-history-item-1-icon")).toThrow();
+    expect(getByTestId("history-item-0-icon")).toBeVisible();
+    expect(() => getByTestId("history-item-1-icon")).toThrow();
   });
 
   it.each(Object.entries(HistoryIconMap))(
@@ -387,7 +387,7 @@ describe("StatusBar > History Modal Tests", () => {
 
       fireEvent.click(getByText("Full History"));
 
-      const icon = getByTestId("status-bar-history-item-0-icon");
+      const icon = getByTestId("history-item-0-icon");
 
       expect(icon).toBeVisible();
       expect(icon).toHaveAttribute("alt", `${status} icon`);
@@ -418,7 +418,7 @@ describe("StatusBar > History Modal Tests", () => {
 
     expect(queryByTestId("status-bar-history-dialog")).toBeVisible();
 
-    fireEvent.click(queryByTestId("status-bar-dialog-close"));
+    fireEvent.click(queryByTestId("history-dialog-close"));
 
     await waitFor(() => expect(queryByTestId("status-bar-history-dialog")).toBeNull());
   });
