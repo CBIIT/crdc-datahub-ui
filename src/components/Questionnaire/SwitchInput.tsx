@@ -8,11 +8,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { SwitchProps, Grid, Switch, FormHelperText, styled } from "@mui/material";
+import { SwitchProps, Grid, Switch, FormHelperText, styled, SxProps } from "@mui/material";
 import Tooltip from "../Tooltip";
 import { updateInputValidity } from "../../utils";
 
-const GridStyled = styled(Grid)({
+const GridStyled = styled(Grid, { shouldForwardProp: (p) => p !== "switchSx" })<{
+  switchSx: SxProps;
+}>(({ switchSx }) => ({
   "& .switchRoot": {
     width: "65px",
     height: "35px",
@@ -84,8 +86,10 @@ const GridStyled = styled(Grid)({
   "& .switchYesNoContainer": {
     display: "flex",
     alignItems: "center",
-    marginRight: "72px",
+    marginRight: "28px",
+    marginLeft: "auto",
     minHeight: "50px",
+    ...switchSx,
   },
   "& .tooltip": {
     alignSelf: "start",
@@ -103,7 +107,7 @@ const GridStyled = styled(Grid)({
     display: "flex",
     flexDirection: "column",
   },
-});
+}));
 
 const Container = styled("div", {
   shouldForwardProp: (prop) => prop !== "containerWidth",
@@ -138,6 +142,10 @@ type Props = {
   touchRequired?: boolean;
   graphQLValue?: string;
   containerWidth?: string;
+  /**
+   * Provides styling override for the switch container
+   */
+  switchSx?: SxProps;
 } & Omit<SwitchProps, "color">;
 
 const CustomSwitch: FC<Props> = ({
@@ -153,6 +161,7 @@ const CustomSwitch: FC<Props> = ({
   toggleContent,
   graphQLValue = "",
   isBoolean = false,
+  switchSx = {},
   containerWidth = "auto",
   touchRequired,
   readOnly,
@@ -212,7 +221,7 @@ const CustomSwitch: FC<Props> = ({
   }, [inputRef]);
 
   return (
-    <GridStyled md={gridWidth || 6} xs={12} item sx={sx}>
+    <GridStyled md={gridWidth || 6} xs={12} item sx={sx} switchSx={switchSx}>
       <Container containerWidth={containerWidth}>
         <div className="labelContainer">
           {label && (
