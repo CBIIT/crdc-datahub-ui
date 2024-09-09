@@ -1,6 +1,6 @@
 import React from "react";
 import { styled } from "@mui/material";
-import { headerData } from "../../config/globalHeaderData";
+import { headerData } from "../../../config/globalHeaderData";
 
 const BannerArea = styled("div")({
   flexDirection: "row",
@@ -35,7 +35,7 @@ const BannerContainer = styled("div")({
 });
 
 const USABanner = () => (
-  <BannerArea>
+  <BannerArea data-testid="navigation-flag-banner">
     <BannerContainer>
       <img src={headerData.usaFlagSmall} alt={headerData.usaFlagSmallAltText} />
       <div className="text">An official website of the United States government</div>
