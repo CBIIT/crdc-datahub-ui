@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { ElementType, useRef, useState } from "react";
+import { ElementType, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -13,17 +12,19 @@ import {
   TableHead,
 } from "@mui/material";
 import { Link, LinkProps, useLocation } from "react-router-dom";
+import { useLazyQuery } from "@apollo/client";
 import { Controller, useForm } from "react-hook-form";
 import PageBanner from "../../components/PageBanner";
 import usePageTitle from "../../hooks/usePageTitle";
-import {
-  Status as ApprovedStudiesStatus,
-  useApprovedStudiesListContext,
-} from "../../components/Contexts/ApprovedStudiesListContext";
 import StyledOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import GenericTable, { Column } from "../../components/GenericTable";
+import {
+  LIST_APPROVED_STUDIES,
+  ListApprovedStudiesInput,
+  ListApprovedStudiesResp,
+} from "../../graphql";
 
 const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   padding: "14px 20px",
@@ -187,7 +188,6 @@ const ListView = () => {
   usePageTitle("Manage Studies");
 
   const { state } = useLocation();
-  const { data, status: approvedStudiesStatus } = useApprovedStudiesListContext();
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const { watch, register, control, setValue } = useForm<FilterForm>({
     defaultValues: {
@@ -197,7 +197,9 @@ const ListView = () => {
     },
   });
 
-  const [dataset, setDataset] = useState<ApprovedStudy[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const [data, setData] = useState<ApprovedStudy[]>([]);
   const [count, setCount] = useState<number>(0);
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
@@ -206,6 +208,97 @@ const ListView = () => {
   const controlledAccessFilter = watch("controlledAccess");
   const tableRef = useRef<TableMethods>(null);
 
+  const [listSubmissions] = useLazyQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
+    LIST_APPROVED_STUDIES,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
+
+  const isControlledAccessFilterOption = (
+    controlledAccess: string
+  ): controlledAccess is FilterForm["controlledAccess"] =>
+    ["All", "Controlled", "Open"].includes(controlledAccess);
+
+  const handleControlledAccessChange = (controlledAccess: string) => {
+    if (controlledAccess === controlledAccessFilter) {
+      return;
+    }
+
+    if (isControlledAccessFilterOption(controlledAccess)) {
+      setValue("controlledAccess", controlledAccess);
+    }
+  };
+
+  useEffect(() => {
+    if (!data?.length) {
+      return;
+    }
+
+    const dbGaPID = searchParams.get("dbGaPID");
+    const study = searchParams.get("study");
+    const controlledAccess = searchParams.get("controlledAccess");
+
+    if (dbGaPID !== dbGaPIDFilter) {
+      setValue("dbGaPID", dbGaPID);
+    }
+    if (study !== studyFilter) {
+      setValue("study", study);
+    }
+    handleControlledAccessChange(controlledAccess);
+  }, [data, searchParams.get("organization"), searchParams.get("status")]);
+
+  useEffect(() => {
+    if (!touchedFilters.dbGaPID && !touchedFilters.study && !touchedFilters.controlledAccess) {
+      return;
+    }
+
+    if (dbGaPIDFilter && dbGaPIDFilter !== "All") {
+      searchParams.set("dbGaPID", dbGaPIDFilter);
+    } else if (dbGaPIDFilter === "All") {
+      searchParams.delete("dbGaPID");
+    }
+
+    setTablePage(0);
+    setSearchParams(searchParams);
+  }, [dbGaPIDFilter, studyFilter, controlledAccessFilter, touchedFilters]);
+
+  const setTablePage = (page: number) => {
+    tableRef.current?.setPage(page, true);
+  };
+
+  const handleFetchData = async (fetchListing: FetchListing<ApprovedStudy>, force: boolean) => {
+    const { first, offset, sortDirection, orderBy } = fetchListing || {};
+    try {
+      setLoading(true);
+
+      const { data: d, error } = await listSubmissions({
+        variables: {
+          first,
+          offset,
+          sortDirection,
+          orderBy,
+          dbGaPID: dbGaPIDFilter,
+          controlledAccess: controlledAccessFilter,
+          study: studyFilter,
+        },
+        context: { clientName: "backend" },
+        fetchPolicy: "no-cache",
+      });
+      if (error || !d?.listApprovedStudies) {
+        throw new Error("Unable to retrieve List Approved Studies results.");
+      }
+
+      setData(d.listApprovedStudies.studies);
+      setCount(d.listApprovedStudies.total);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFilterChange = (field: keyof FilterForm) => {
     setTouchedFilters((prev) => ({ ...prev, [field]: true }));
   };
@@ -213,7 +306,7 @@ const ListView = () => {
   return (
     <>
       <Container maxWidth="xl">
-        {(state?.error || approvedStudiesStatus === ApprovedStudiesStatus.ERROR) && (
+        {(state?.error || error) && (
           <Alert sx={{ mt: 2, mx: "auto", p: 2 }} severity="error">
             {state?.error || "An error occurred while loading the data."}
           </Alert>
@@ -287,14 +380,14 @@ const ListView = () => {
         <GenericTable
           ref={tableRef}
           columns={columns}
-          data={dataset || []}
+          data={data || []}
           total={count || 0}
-          loading={approvedStudiesStatus === ApprovedStudiesStatus.LOADING}
+          loading={loading}
           disableUrlParams={false}
           defaultRowsPerPage={20}
           defaultOrder="asc"
           setItemKey={(item, idx) => `${idx}_${item._id}`}
-          onFetchData={() => {}}
+          onFetchData={handleFetchData}
           containerProps={{ sx: { marginBottom: "8px", borderColor: "#083A50" } }}
           CustomTableHead={StyledTableHead}
           CustomTableHeaderCell={StyledHeaderCell}
