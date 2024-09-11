@@ -1,9 +1,7 @@
 import React, { FC } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import { ApprovedStudiesProvider } from "../../components/Contexts/ApprovedStudiesListContext";
 import ListView from "./ListView";
-// import OrganizationView from "./OrganizationView";
 
 /**
  * Renders the correct view based on the URL and permissions-tier
@@ -11,7 +9,7 @@ import ListView from "./ListView";
  * @param {void} props - React props
  * @returns {FC} - React component
  */
-const OrganizationController: FC = () => {
+const StudiesController: FC = () => {
   const { studyId } = useParams<{ studyId?: string }>();
   const { user } = useAuthContext();
   const isAdministrative = user?.role === "Admin";
@@ -21,14 +19,10 @@ const OrganizationController: FC = () => {
   }
 
   if (studyId) {
-    return null; // TODO:  <OrganizationView _id={studyId} />;
+    return null; // TODO:  <StudiesView _id={studyId} />;
   }
 
-  return (
-    <ApprovedStudiesProvider preload>
-      <ListView />
-    </ApprovedStudiesProvider>
-  );
+  return <ListView />;
 };
 
-export default OrganizationController;
+export default StudiesController;
