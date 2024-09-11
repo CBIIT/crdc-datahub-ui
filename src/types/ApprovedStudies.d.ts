@@ -22,6 +22,10 @@ type ApprovedStudy = {
    */
   controlledAccess: boolean;
   /**
+   * Boolean flag dictating whether the study has open access data
+   */
+  openAccess: boolean;
+  /**
    * Principal Investigator's name
    */
   PI: string;

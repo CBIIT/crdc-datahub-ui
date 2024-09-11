@@ -23,6 +23,11 @@ export const query = gql`
       studyName
       studyAbbreviation
       dbGaPID
+      controlledAccess
+      openAccess
+      PI
+      ORCID
+      createdAt
     }
   }
 `;
