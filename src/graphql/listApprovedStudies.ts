@@ -6,6 +6,7 @@ export const query = gql`
     $offset: Int
     $orderBy: String
     $sortDirection: String
+    $dbGaPID: String
     $controlledAccess: String
     $study: String
   ) {
@@ -14,6 +15,7 @@ export const query = gql`
       offset: $offset
       orderBy: $orderBy
       sortDirection: $sortDirection
+      dbGaPID: $dbGaPID
       controlledAccess: $controlledAccess
       study: $study
     ) {
@@ -30,6 +32,7 @@ export type Input = {
   offset?: number;
   orderBy?: string;
   sortDirection?: Order;
+  dbGaPID?: string;
   controlledAccess?: ControlledAccess;
   study?: string;
 };
