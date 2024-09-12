@@ -51,6 +51,7 @@ const StyledStatus = styled("span")<{
   marginLeft: !leftGap ? "6px !important" : null,
   marginRight: "10px !important",
   letterSpacing: "0.32px",
+  lineHeight: "22px",
   color: getColorScheme(status).color,
 }));
 

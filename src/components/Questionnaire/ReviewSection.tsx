@@ -23,7 +23,7 @@ const StyledTitle = styled(Typography)(() => ({
 }));
 
 const StyledDivider = styled(Divider)(() => ({
-  color: "#34A286",
+  background: "#34A286",
   marginLeft: "11px",
   flexGrow: 1,
 }));
