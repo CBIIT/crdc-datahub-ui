@@ -1,3 +1,4 @@
+import { ADMIN_OVERRIDE_CONDITIONS, SUBMIT_BUTTON_CONDITIONS } from "../config/SubmitButtonConfig";
 import { safeParse } from "./jsonUtils";
 
 export type SubmitInfo = {
@@ -6,46 +7,114 @@ export type SubmitInfo = {
 };
 
 /**
- * Determines whether submit for a submission should be disabled based on its validation statuses and user role
+ * Determines whether the submit button should be enabled based on the submission's properties and user role.
+ * For admins, it first checks if an admin override is allowed. If not an admin, it checks remaining conditions
+ * to determine if the submission can be enabled.
  *
- * @param {Submission} submission - The Data Submission
- * @param {User["role"]} userRole - The role of the user
- * @returns {SubmitInfo} Info indicating whether or not to disable submit, as well as if it is due to an admin override
+ * @param {Submission} submission - The submission object to evaluate.
+ * @param {User["role"]} userRole - The role of the user (e.g., Admin, Submitter).
+ * @returns {SubmitButtonResult} - Returns an object indicating whether the submit button is enabled,
+ * whether the admin override is in effect, and an optional tooltip explaining why it is disabled.
  */
-export const shouldDisableSubmit = (submission: Submission, userRole: User["role"]): SubmitInfo => {
-  if (!userRole) {
-    return { disable: true, isAdminOverride: false };
+export const shouldEnableSubmit = (
+  submission: Submission,
+  userRole: User["role"]
+): SubmitButtonResult => {
+  if (!submission || !userRole) {
+    return { enabled: false, isAdminOverride: false };
   }
-  const { metadataValidationStatus, fileValidationStatus, fileErrors, intention, dataType } =
-    submission;
 
+  // Check for potential Admin override
   const isAdmin = userRole === "Admin";
-  const isMissingBoth = !metadataValidationStatus && !fileValidationStatus;
-  const isMissingOne = !metadataValidationStatus || !fileValidationStatus;
-  const isValidating =
-    metadataValidationStatus === "Validating" || fileValidationStatus === "Validating";
-  const isDeleteIntention = intention === "Delete";
-  const hasNew = metadataValidationStatus === "New" || fileValidationStatus === "New";
-  const hasError = metadataValidationStatus === "Error" || fileValidationStatus === "Error";
-  const hasSubmissionLevelErrors = fileErrors?.length > 0;
-  const allowsMetadataOnly = isDeleteIntention || dataType === "Metadata Only";
+  if (isAdmin) {
+    const adminOverrideResult = shouldAllowAdminOverride(submission);
+    if (adminOverrideResult.enabled) {
+      return { ...adminOverrideResult };
+    }
+  }
 
-  const isAdminOverride =
-    isAdmin &&
-    !isValidating &&
-    !isMissingBoth &&
-    !hasNew &&
-    !hasSubmissionLevelErrors &&
-    (hasError || (isMissingOne && !allowsMetadataOnly));
-  const disable =
-    isValidating ||
-    isMissingBoth ||
-    hasNew ||
-    hasSubmissionLevelErrors ||
-    (isDeleteIntention && !metadataValidationStatus) ||
-    (userRole !== "Admin" && (hasError || (isMissingOne && !allowsMetadataOnly)));
+  // Skip required conditions already checked if user is Admin role
+  const failedCondition = SUBMIT_BUTTON_CONDITIONS.find((condition) => {
+    // isAdmin && condition.required ? false : !condition.check(submission);
+    if (isAdmin && condition.required) {
+      return false;
+    }
+    const preConditionMet = condition.preConditionCheck
+      ? condition.preConditionCheck(submission)
+      : true;
 
-  return { disable, isAdminOverride };
+    // Return true if preCondition is met and main condition fails
+    return preConditionMet && !condition.check(submission);
+  });
+
+  // If no failed conditions, enable submit
+  if (!failedCondition) {
+    return { enabled: true, isAdminOverride: false };
+  }
+
+  // Otherwise, disable submit and display tooltip if available
+  return { enabled: false, tooltip: failedCondition.tooltip, isAdminOverride: false };
+};
+
+/**
+ * Determines whether an admin override is allowed based on the submission's properties.
+ * First, it checks if the submission passes all required conditions, which cannot be bypassed.
+ * If the required conditions are met, it then checks for admin-specific conditions that
+ * allow an override.
+ * NOTE: It assumes the user's role is an Admin. It does NOT check this.
+ *
+ * @param {Submission} submission - The submission object to evaluate.
+ * @returns {SubmitButtonResult} - Returns an object indicating whether the admin override is allowed,
+ * and an optional tooltip explaining why the override is not allowed.
+ */
+export const shouldAllowAdminOverride = (submission: Submission): SubmitButtonResult => {
+  if (!submission) {
+    return { enabled: false, isAdminOverride: false };
+  }
+
+  // Check if can bypass current conditions
+  const requiredConditions = SUBMIT_BUTTON_CONDITIONS.filter((condition) => condition.required);
+  const failedRequiredCondition = requiredConditions.find((condition) => {
+    const preConditionMet = condition.preConditionCheck
+      ? condition.preConditionCheck(submission)
+      : true;
+
+    // Return true if preCondition is met and main condition fails
+    return preConditionMet && !condition.check(submission);
+  });
+
+  // If failed required condition, then disable submit buton and show tooltip if available
+  if (failedRequiredCondition) {
+    return {
+      enabled: false,
+      tooltip: failedRequiredCondition.tooltip,
+      isAdminOverride: false,
+      _identifier: failedRequiredCondition._identifier,
+    };
+  }
+
+  // Check if current conditions allow for an admin override
+  const overrideCondition = ADMIN_OVERRIDE_CONDITIONS.find((condition) => {
+    const preConditionMet = condition.preConditionCheck
+      ? condition.preConditionCheck(submission)
+      : true;
+
+    // Return true if preCondition is met and main condition passes
+    return preConditionMet && condition.check(submission);
+  });
+
+  // If Admin override, then enable submit button with tooltip if available
+  if (overrideCondition) {
+    return {
+      enabled: true,
+      tooltip: overrideCondition.tooltip,
+      isAdminOverride: true,
+      _identifier: overrideCondition._identifier,
+    };
+  }
+
+  // Otherwise disable submit button
+  return { enabled: false, isAdminOverride: false };
 };
 
 /**
