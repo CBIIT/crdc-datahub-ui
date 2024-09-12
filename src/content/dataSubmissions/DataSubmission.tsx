@@ -199,7 +199,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     }
 
     return shouldEnableSubmit(data.getSubmission, user?.role);
-  }, [data?.getSubmission, user, hasUploadingBatches]);
+  }, [data?.getSubmission, user, hasUploadingBatches, canSubmitRoles]);
   const releaseInfo: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
     [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
