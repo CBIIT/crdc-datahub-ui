@@ -8,6 +8,7 @@ import CustomDialog from "../../components/Shared/Dialog";
 import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
 import { ReleaseInfo } from "../../utils";
 import Tooltip from "../../components/Tooltip";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -253,7 +254,7 @@ const DataSubmissionActions = ({
       {canShowAction("Release") ? (
         <StyledTooltip
           placement="top"
-          title="Run cross validation to enable the Release button" // TODO: Test
+          title={TOOLTIP_TEXT.SUBMISSION_ACTIONS.RELEASE.DISABLED.NO_CROSS_VALIDATION}
           open={undefined} // will use hoverListener to open
           disableHoverListener={!((action && action !== "Release") || releaseActionButton.disable)}
         >

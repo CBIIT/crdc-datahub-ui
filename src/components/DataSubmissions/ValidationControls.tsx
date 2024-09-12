@@ -20,6 +20,7 @@ import { CrossValidationButton } from "./CrossValidationButton";
 import { ValidationStatus } from "./ValidationStatus";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import Tooltip from "../Tooltip";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -279,7 +280,7 @@ const ValidationControls: FC = () => {
             >
               <Tooltip
                 placement="bottom"
-                title="Run validations on any metadata submission templates that have been uploaded."
+                title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TYPE.VALIDATE_METADATA}
                 open={undefined} // will use hoverListener to open
                 disableHoverListener={false}
               >
@@ -292,7 +293,7 @@ const ValidationControls: FC = () => {
               </Tooltip>
               <Tooltip
                 placement="bottom"
-                title="Run validations on any data files that have been uploaded."
+                title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TYPE.VALIDATE_DATA_FILES}
                 open={undefined} // will use hoverListener to open
                 disableHoverListener={false}
               >
@@ -305,7 +306,7 @@ const ValidationControls: FC = () => {
               </Tooltip>
               <Tooltip
                 placement="bottom"
-                title="Run validations on both data files and metadata submission templates that have been uploaded."
+                title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TYPE.VALIDATE_BOTH}
                 open={undefined} // will use hoverListener to open
                 disableHoverListener={false}
               >
@@ -330,7 +331,7 @@ const ValidationControls: FC = () => {
             >
               <Tooltip
                 placement="bottom"
-                title="Run validations only on files that have not previously been validated."
+                title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TARGET.NEW_UPLOADED_DATA}
                 open={undefined} // will use hoverListener to open
                 disableHoverListener={false}
               >
@@ -347,7 +348,7 @@ const ValidationControls: FC = () => {
               </Tooltip>
               <Tooltip
                 placement="bottom"
-                title="Run validations on all files regardless of previous validations."
+                title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TARGET.ALL_UPLOADED_DATA}
                 open={undefined} // will use hoverListener to open
                 disableHoverListener={false}
               >
