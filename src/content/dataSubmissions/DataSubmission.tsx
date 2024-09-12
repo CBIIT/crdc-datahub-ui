@@ -16,7 +16,7 @@ import { useAuthContext } from "../../components/Contexts/AuthContext";
 import {
   ReleaseInfo,
   shouldDisableRelease,
-  shouldDisableSubmit,
+  shouldEnableSubmit,
 } from "../../utils/dataSubmissionUtils";
 import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
@@ -158,6 +158,8 @@ const submissionLockedStatuses: SubmissionStatus[] = [
   "Archived",
 ];
 
+const canSubmitRoles: User["role"][] = ["Submitter", "Organization Owner", "Data Curator", "Admin"];
+
 type Props = {
   submissionId: string;
   tab: string;
@@ -188,18 +190,15 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     [user?.role, data?.getSubmission?.crossSubmissionStatus]
   );
 
-  const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(() => {
-    const canSubmitRoles: User["role"][] = [
-      "Submitter",
-      "Organization Owner",
-      "Data Curator",
-      "Admin",
-    ];
-    if (!data?.getSubmission?._id || !canSubmitRoles.includes(user?.role) || hasUploadingBatches) {
-      return { disable: true, isAdminOverride: false };
+  const submitInfo: SubmitButtonResult = useMemo(() => {
+    if (!data?.getSubmission?._id || !canSubmitRoles.includes(user?.role)) {
+      return { enabled: false };
+    }
+    if (hasUploadingBatches) {
+      return { enabled: false };
     }
 
-    return shouldDisableSubmit(data.getSubmission, user?.role);
+    return shouldEnableSubmit(data.getSubmission, user?.role);
   }, [data?.getSubmission, user, hasUploadingBatches]);
   const releaseInfo: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
@@ -330,10 +329,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}
-              submitActionButton={{
-                disable: submitInfo?.disable,
-                label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
-              }}
+              submitActionButton={submitInfo}
               releaseActionButton={releaseInfo}
               onError={(message: string) => enqueueSnackbar(message, { variant: "error" })}
             />

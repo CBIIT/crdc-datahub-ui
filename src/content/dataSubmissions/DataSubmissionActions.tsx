@@ -80,7 +80,6 @@ const StyledDialogText = styled(Typography)({
 
 const StyledTooltip = styled(Tooltip)(() => ({
   alignSelf: "start",
-  marginTop: "3.5px",
 }));
 
 export type ActiveDialog =
@@ -142,14 +141,9 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
 };
 
-type SubmitActionButton = {
-  label: "Submit" | "Admin Submit";
-  disable: boolean;
-};
-
 type Props = {
   submission: Submission;
-  submitActionButton: SubmitActionButton;
+  submitActionButton: SubmitButtonResult;
   releaseActionButton: ReleaseInfo;
   onAction: (action: SubmissionAction, reviewComment?: string) => Promise<void>;
   onError: (message: string) => void;
@@ -239,9 +233,9 @@ const DataSubmissionActions = ({
       {canShowAction("Submit") ? (
         <StyledTooltip
           placement="top"
-          title="" // TODO: Update title
+          title={submitActionButton?.tooltip}
           open={undefined} // will use hoverListener to open
-          disableHoverListener={!(submitActionButton?.disable || (action && action !== "Submit"))}
+          disableHoverListener={!submitActionButton?.tooltip || (action && action !== "Submit")}
         >
           <span>
             <StyledLoadingButton
@@ -249,9 +243,9 @@ const DataSubmissionActions = ({
               color="primary"
               onClick={() => onOpenDialog("Submit")}
               loading={action === "Submit"}
-              disabled={submitActionButton?.disable || (action && action !== "Submit")}
+              disabled={!submitActionButton?.enabled || (action && action !== "Submit")}
             >
-              {submitActionButton?.label || "Submit"}
+              {submitActionButton?.isAdminOverride ? "Admin Submit" : "Submit"}
             </StyledLoadingButton>
           </span>
         </StyledTooltip>
@@ -338,7 +332,7 @@ const DataSubmissionActions = ({
 
       {/* Submit Dialog */}
       <StyledDialog
-        open={currentDialog === "Submit" && submitActionButton.label === "Submit"}
+        open={currentDialog === "Submit" && !submitActionButton.isAdminOverride}
         onClose={onCloseDialog}
         title="Submit Data Submission"
         actions={
@@ -366,7 +360,7 @@ const DataSubmissionActions = ({
 
       {/* Admin Submit Dialog */}
       <StyledDialog
-        open={currentDialog === "Submit" && submitActionButton.label === "Admin Submit"}
+        open={currentDialog === "Submit" && submitActionButton.isAdminOverride}
         onClose={onCloseDialog}
         title="Admin Submit Data Submission"
         actions={
