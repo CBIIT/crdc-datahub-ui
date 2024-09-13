@@ -39,7 +39,7 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
     _identifier: "Validation should not currently be running",
     check: (s) =>
       s.metadataValidationStatus !== "Validating" && s.fileValidationStatus !== "Validating",
-    tooltip: undefined,
+    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.VALIDATION_RUNNING,
     required: true,
   },
   {
@@ -100,13 +100,13 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
  */
 export const ADMIN_OVERRIDE_CONDITIONS: AdminOverrideCondition[] = [
   {
-    _identifier: "Submission has validation errors",
+    _identifier: "Admin Override - Submission has validation errors",
     check: (s) => s.metadataValidationStatus === "Error" || s.fileValidationStatus === "Error",
     tooltip: undefined,
   },
   {
     _identifier:
-      "Submission is missing either metadata or data files for 'Metadata and Data Files' submissions",
+      "Admin Override - Submission is missing either metadata or data files for 'Metadata and Data Files' submissions",
     check: (s) =>
       (!!s.metadataValidationStatus && !s.fileValidationStatus) ||
       (!s.metadataValidationStatus && !!s.fileValidationStatus),

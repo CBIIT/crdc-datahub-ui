@@ -518,7 +518,7 @@ describe("shouldAllowAdminOverride", () => {
     };
     const result = utils.shouldAllowAdminOverride(submission);
     expect(result._identifier).toBe(
-      "Submission is missing either metadata or data files for 'Metadata and Data Files' submissions"
+      "Admin Override - Submission is missing either metadata or data files for 'Metadata and Data Files' submissions"
     );
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);

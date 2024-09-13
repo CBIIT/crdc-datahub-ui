@@ -25,6 +25,8 @@ export const TOOLTIP_TEXT = {
     },
     SUBMIT: {
       DISABLED: {
+        VALIDATION_RUNNING:
+          "The validation is currently in progress. All uploaded data must be validation must be fixed before the submission button is enabled.",
         VALIDATION_ERRORS:
           "All Error validation results must be fixed before the submission button is enabled.",
         MISSING_DATA_FILE:
