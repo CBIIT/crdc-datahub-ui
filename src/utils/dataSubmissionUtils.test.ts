@@ -443,6 +443,18 @@ describe("Admin Submit", () => {
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
+
+  it("should disable submit if user is Admin and required condition fails", () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      dataType: "Metadata and Data Files",
+      metadataValidationStatus: "Passed",
+      fileValidationStatus: "New",
+    };
+    const result = utils.shouldEnableSubmit(submission, "Admin");
+    expect(result.enabled).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
+  });
 });
 
 describe("Submit > Submission Type/Intention", () => {
