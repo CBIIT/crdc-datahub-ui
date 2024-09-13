@@ -13,5 +13,7 @@ export const query = gql`
 `;
 
 export type Response = {
-  listActiveCurators: UserInfo[];
+  listActiveCurators: (Pick<User, "firstName" | "lastName" | "createdAt" | "updateAt"> & {
+    userID: User["_id"];
+  })[];
 };
