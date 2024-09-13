@@ -35,10 +35,6 @@ export const shouldEnableSubmit = (
 
   // Skip required conditions already checked if user is Admin role
   const failedCondition = SUBMIT_BUTTON_CONDITIONS.find((condition) => {
-    // isAdmin && condition.required ? false : !condition.check(submission);
-    if (isAdmin && condition.required) {
-      return false;
-    }
     const preConditionMet = condition.preConditionCheck
       ? condition.preConditionCheck(submission)
       : true;
@@ -53,7 +49,12 @@ export const shouldEnableSubmit = (
   }
 
   // Otherwise, disable submit and display tooltip if available
-  return { enabled: false, tooltip: failedCondition.tooltip, isAdminOverride: false };
+  return {
+    enabled: false,
+    tooltip: failedCondition.tooltip,
+    isAdminOverride: false,
+    _identifier: failedCondition._identifier,
+  };
 };
 
 /**
