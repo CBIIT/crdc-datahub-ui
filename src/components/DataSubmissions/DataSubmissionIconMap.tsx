@@ -6,7 +6,7 @@ import Withdrawn from "../../assets/history/dataSubmission/withdrawn.svg";
 import Rejected from "../../assets/history/dataSubmission/rejected.svg";
 import Completed from "../../assets/history/dataSubmission/completed.svg";
 import Canceled from "../../assets/history/dataSubmission/canceled.svg";
-import { IconType } from "../Shared/HistoryDialog";
+import { IconType } from "../HistoryDialog";
 
 /**
  * Map of ApplicationStatus to Icon for History Modal

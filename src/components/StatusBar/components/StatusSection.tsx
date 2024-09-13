@@ -2,7 +2,7 @@ import { CSSProperties, FC, useMemo, useState } from "react";
 import { Avatar, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useFormContext } from "../../Contexts/FormContext";
-import { StatusIconMap } from "../../../assets/history/submissionRequest";
+import { StatusIconMap } from "./SubmissionRequestIconMap";
 import { SortHistory } from "../../../utils";
 import ReviewCommentsDialog from "../../Shared/ReviewCommentsDialog";
 
@@ -51,6 +51,7 @@ const StyledStatus = styled("span")<{
   marginLeft: !leftGap ? "6px !important" : null,
   marginRight: "10px !important",
   letterSpacing: "0.32px",
+  lineHeight: "22px",
   color: getColorScheme(status).color,
 }));
 

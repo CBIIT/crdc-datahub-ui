@@ -1,28 +1,15 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
-import {
-  Alert,
-  Box,
-  Card,
-  CardActions,
-  CardContent,
-  Container,
-  IconButton,
-  Stack,
-  Tabs,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Alert, Box, Card, CardActions, CardContent, Container, Tabs, styled } from "@mui/material";
 import { useSnackbar, VariantType } from "notistack";
-import bannerPng from "../../assets/dataSubmissions/dashboard_banner.png";
-import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
+import bannerPng from "../../assets/banner/submission_banner.png";
+import summaryBannerPng from "../../assets/banner/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
 import { SUBMISSION_ACTION, SubmissionActionResp } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
-import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
 import ValidationStatistics from "../../components/DataSubmissions/ValidationStatistics";
 import ValidationControls from "../../components/DataSubmissions/ValidationControls";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
@@ -41,19 +28,15 @@ import { useSubmissionContext } from "../../components/Contexts/SubmissionContex
 import DataActivity, { DataActivityRef } from "./DataActivity";
 import CrossValidation from "./CrossValidation";
 import { CrossValidateRoles } from "../../config/AuthRoles";
+import CopyAdornment from "../../components/DataSubmissions/CopyAdornment";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
   backgroundBlendMode: "luminosity, normal",
   backgroundSize: "cover",
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "top",
+  backgroundPosition: "center",
   width: "100%",
-  height: "295px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  position: "relative",
+  height: "296px",
   zIndex: 0,
 }));
 
@@ -150,52 +133,11 @@ const StyledWrapper = styled("div")({
 });
 
 const StyledCardContent = styled(CardContent)({
-  background: `url(${summaryBannerSvg})`,
+  background: `url(${summaryBannerPng})`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   backgroundPosition: "top",
 });
-
-const StyledCopyWrapper = styled(Stack)(() => ({
-  height: "42px",
-  width: "fit-content",
-  minWidth: "342px",
-  padding: "11px 20px",
-  borderRadius: "8px 8px 0px 0px",
-  borderTop: "1.25px solid #6DADDB",
-  borderRight: "1.25px solid #6DADDB",
-  borderLeft: "1.25px solid #6DADDB",
-  background: "#EAF5F8",
-}));
-
-const StyledCopyLabel = styled(Typography)(() => ({
-  color: "#125868",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "12px",
-  fontStyle: "normal",
-  fontWeight: 800,
-  lineHeight: "19.6px",
-  letterSpacing: "0.24px",
-  textTransform: "uppercase",
-}));
-
-const StyledCopyValue = styled(Typography)(() => ({
-  color: "#125868",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 400,
-  lineHeight: "19.6px",
-  letterSpacing: "0.32px",
-}));
-
-const StyledCopyIDButton = styled(IconButton)(() => ({
-  color: "#000000",
-  padding: 0,
-  "&.MuiIconButton-root.Mui-disabled": {
-    color: "#B0B0B0",
-  },
-}));
 
 const StyledFlowContainer = styled(Box)({
   padding: "27px 59px 59px 60px",
@@ -308,13 +250,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     [enqueueSnackbar, handleBatchRefresh, getSubmission]
   );
 
-  const handleCopyID = () => {
-    if (!submissionId) {
-      return;
-    }
-    navigator.clipboard.writeText(submissionId);
-  };
-
   useEffect(() => {
     if (!submissionId) {
       setError("Invalid submission ID provided.");
@@ -327,23 +262,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     <StyledWrapper>
       <StyledBanner bannerSrc={bannerPng} />
       <StyledBannerContentContainer maxWidth="xl">
-        <StyledCopyWrapper direction="row" spacing={1.625} alignItems="center">
-          <StyledCopyLabel id="data-submission-id-label" variant="body1">
-            SUBMISSION ID:
-          </StyledCopyLabel>
-          <StyledCopyValue id="data-submission-id-value" variant="body1">
-            {submissionId}
-          </StyledCopyValue>
-          {submissionId && (
-            <StyledCopyIDButton
-              id="data-submission-copy-id-button"
-              onClick={handleCopyID}
-              aria-label="Copy ID"
-            >
-              <CopyIconSvg />
-            </StyledCopyIDButton>
-          )}
-        </StyledCopyWrapper>
+        <CopyAdornment _id={submissionId} />
         <StyledCard>
           <StyledCardContent>
             {error && <StyledAlert severity="error">Oops! An error occurred. {error}</StyledAlert>}
