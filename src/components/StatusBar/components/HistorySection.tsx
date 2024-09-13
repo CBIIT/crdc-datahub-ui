@@ -31,6 +31,7 @@ const StyledDate = styled("span")({
   fontFamily: "Public Sans",
   textTransform: "uppercase",
   color: "#2E5481",
+  lineHeight: "22px",
   marginRight: "10px !important",
 });
 

@@ -11,6 +11,7 @@ export const query = gql`
       IDP
       email
       dataCommons
+      studies
       organization {
         orgID
         orgName

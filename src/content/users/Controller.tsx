@@ -4,6 +4,7 @@ import { useAuthContext } from "../../components/Contexts/AuthContext";
 import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
 import ListView from "./ListView";
 import ProfileView from "./ProfileView";
+import { CanManageUsers } from "../../config/AuthRoles";
 
 type Props = {
   type: "users" | "profile";
@@ -44,7 +45,7 @@ const UserController = ({ type }: Props) => {
   const { userId } = useParams();
   const { user } = useAuthContext();
   const { _id, role } = user || {};
-  const isAdministrative = role === "Admin" || role === "Organization Owner";
+  const isAdministrative = role && CanManageUsers.includes(role);
 
   // Accounts can only view their own "profile", redirect to it
   if ((type === "profile" && userId !== _id) || (type === "users" && !isAdministrative)) {

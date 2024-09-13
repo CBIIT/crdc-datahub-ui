@@ -128,6 +128,7 @@ const baseUser: Omit<User, "role"> = {
     createdAt: "2023-10-06T19:19:04.183Z",
     updateAt: "2024-07-03T19:09:29.513Z",
   },
+  studies: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",
