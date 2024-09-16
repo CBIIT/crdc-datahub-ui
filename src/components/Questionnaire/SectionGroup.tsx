@@ -97,7 +97,7 @@ const SectionGroup: FC<Props> = ({
     <StyledHeader xs={12} item>
       <Stack direction="column" alignItems="flex-start">
         {title && (
-          <StyledTitle variant="h5">
+          <StyledTitle variant="h3">
             {title}
             {required ? <StyledAsterisk className="asterisk">*</StyledAsterisk> : ""}
             {error ? <StyledError className="asterisk">{error}</StyledError> : ""}

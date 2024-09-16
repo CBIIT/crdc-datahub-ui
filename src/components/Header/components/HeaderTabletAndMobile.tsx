@@ -9,7 +9,7 @@ import { navMobileList, navbarSublists } from "../../../config/globalHeaderData"
 import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
-import APITokenDialog from "../../../content/users/APITokenDialog";
+import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
 
 const HeaderBanner = styled("div")({
