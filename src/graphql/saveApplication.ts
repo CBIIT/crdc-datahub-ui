@@ -9,6 +9,9 @@ export const mutation = gql`
       updatedAt
       submittedDate
       ORCID
+      openAccess
+      controlledAccess
+      PI
       history {
         status
         reviewComment
