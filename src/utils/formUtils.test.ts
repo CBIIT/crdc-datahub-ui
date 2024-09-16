@@ -225,6 +225,12 @@ describe("formatFullStudyName cases", () => {
     const result = utils.formatFullStudyName(studyName, studyAbbreviation);
     expect(result).toBe("Study Name");
   });
+
+  it("should return an empty string if the study name is not a string", () => {
+    const studyName = 12345 as unknown as string;
+    const result = utils.formatFullStudyName(studyName, "");
+    expect(result).toBe("");
+  });
 });
 
 describe("mapOrganizationStudyToId cases", () => {
@@ -431,5 +437,72 @@ describe("formatORCIDInput cases", () => {
   it("should return an empty string when the input is null or undefined", () => {
     expect(utils.formatORCIDInput(null)).toBe("");
     expect(utils.formatORCIDInput(undefined)).toBe("");
+  });
+});
+
+describe("renderStudySelectionValue cases", () => {
+  const baseStudy: ApprovedStudy = {
+    _id: "",
+    studyName: "",
+    studyAbbreviation: "",
+    dbGaPID: "",
+    controlledAccess: false,
+  };
+
+  it("should return the fallback value if studyIds is not an array", () => {
+    const result = utils.formatStudySelectionValue(null, [baseStudy], "fallback");
+    expect(result).toBe("fallback");
+  });
+
+  it("should return the fallback value if approvedStudies is not an array", () => {
+    const result = utils.formatStudySelectionValue(["1"], null, "fallback");
+    expect(result).toBe("fallback");
+  });
+
+  it("should return the fallback value if studyIds is empty", () => {
+    const result = utils.formatStudySelectionValue([], [baseStudy], "fallback");
+    expect(result).toBe("fallback");
+  });
+
+  it("should return the fallback value if approvedStudies is empty", () => {
+    const result = utils.formatStudySelectionValue(["1"], [], "fallback");
+    expect(result).toBe("fallback");
+  });
+
+  it("should return the fallback value if no matching study is found", () => {
+    const studies = [
+      { _id: "1", studyName: "Study 1", studyAbbreviation: "S1" },
+      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
+    ] as ApprovedStudy[];
+
+    const result = utils.formatStudySelectionValue(["3"], studies, "fallback");
+    expect(result).toBe("fallback");
+  });
+
+  it("should sort the approved studies by name and return the first element", () => {
+    const studies = [
+      { _id: "3", studyName: "Study C", studyAbbreviation: "SA" }, // actual 3
+      { _id: "2", studyName: "Study A", studyAbbreviation: "SA" }, // actual 1
+      { _id: "1", studyName: "Study B", studyAbbreviation: "SB" }, // actual 2
+    ] as ApprovedStudy[];
+
+    const result = utils.formatStudySelectionValue(["3", "2"], studies, "fallback");
+    expect(result).toBe("Study A (SA)");
+  });
+
+  it("should filter out studies with formatted names", () => {
+    const studies = [
+      { _id: "1", studyName: "", studyAbbreviation: "" },
+      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
+      { _id: "3", studyName: "Study 3", studyAbbreviation: "S3" },
+    ] as ApprovedStudy[];
+
+    const result = utils.formatStudySelectionValue(["1", "2", "3"], studies, "fallback");
+    expect(result).toBe("Study 2 (S2)");
+  });
+
+  it("should use the default fallback value if none is provided", () => {
+    const result = utils.formatStudySelectionValue([], []);
+    expect(result).toBe("");
   });
 });

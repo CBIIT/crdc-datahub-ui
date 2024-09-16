@@ -11,10 +11,10 @@ import {
 } from "@mui/material";
 import { useMutation } from "@apollo/client";
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
-import GenericAlert, { AlertState } from "../../components/GenericAlert";
+import GenericAlert, { AlertState } from "../GenericAlert";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon.svg";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
+import { useAuthContext } from "../Contexts/AuthContext";
 import { GenerateApiTokenRoles } from "../../config/AuthRoles";
 
 const StyledDialog = styled(Dialog)({
@@ -142,24 +142,10 @@ const StyledCloseButton = styled(Button)({
 });
 
 type Props = {
-  title?: string;
-  message?: string;
-  disableActions?: boolean;
-  loading?: boolean;
   onClose?: () => void;
-  onSubmit?: (reviewComment: string) => void;
 } & Omit<DialogProps, "onClose">;
 
-const APITokenDialog: FC<Props> = ({
-  title,
-  message,
-  disableActions,
-  loading,
-  onClose,
-  onSubmit,
-  open,
-  ...rest
-}) => {
+const APITokenDialog: FC<Props> = ({ onClose, open, ...rest }) => {
   const { user } = useAuthContext();
 
   const [tokens, setTokens] = useState<string[]>([]);

@@ -19,7 +19,7 @@ import {
 import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
 import { query, Response } from "../../graphql/listApplications";
-import bannerSvg from "../../assets/banner/list_banner.svg";
+import bannerSvg from "../../assets/banner/submission_banner.png";
 import PageBanner from "../../components/PageBanner";
 import { FormatDate } from "../../utils";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
