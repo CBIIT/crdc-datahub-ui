@@ -60,3 +60,13 @@ export const DashboardRoles: UserRole[] = [
   "Federal Lead",
   "Federal Monitor",
 ];
+
+/**
+ * Defines a list of roles that are allowed to submit a Data Submission
+ */
+export const SubmitDataSubmissionRoles: UserRole[] = [
+  "Submitter",
+  "Organization Owner",
+  "Data Curator",
+  "Admin",
+];

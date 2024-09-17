@@ -27,7 +27,7 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import DataActivity, { DataActivityRef } from "./DataActivity";
 import CrossValidation from "./CrossValidation";
-import { CrossValidateRoles } from "../../config/AuthRoles";
+import { CrossValidateRoles, SubmitDataSubmissionRoles } from "../../config/AuthRoles";
 import CopyAdornment from "../../components/DataSubmissions/CopyAdornment";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
@@ -158,8 +158,6 @@ const submissionLockedStatuses: SubmissionStatus[] = [
   "Archived",
 ];
 
-const canSubmitRoles: User["role"][] = ["Submitter", "Organization Owner", "Data Curator", "Admin"];
-
 type Props = {
   submissionId: string;
   tab: string;
@@ -191,7 +189,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   );
 
   const submitInfo: SubmitButtonResult = useMemo(() => {
-    if (!data?.getSubmission?._id || !canSubmitRoles.includes(user?.role)) {
+    if (!data?.getSubmission?._id || !SubmitDataSubmissionRoles.includes(user?.role)) {
       return { enabled: false };
     }
     if (hasUploadingBatches) {
@@ -199,7 +197,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     }
 
     return shouldEnableSubmit(data.getSubmission, user?.role);
-  }, [data?.getSubmission, user, hasUploadingBatches, canSubmitRoles]);
+  }, [data?.getSubmission, user, hasUploadingBatches, SubmitDataSubmissionRoles]);
   const releaseInfo: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
     [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
