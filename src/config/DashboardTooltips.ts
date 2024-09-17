@@ -20,15 +20,16 @@ export const TOOLTIP_TEXT = {
   SUBMISSION_ACTIONS: {
     RELEASE: {
       DISABLED: {
-        NO_CROSS_VALIDATION: "Run cross validation to enable the Release button.",
+        NO_CROSS_VALIDATION:
+          "Multiple active data submissions detected for the same study. Please run cross-validation before releasing each submission individually.",
       },
     },
     SUBMIT: {
       DISABLED: {
         VALIDATION_RUNNING:
-          "The validation is currently in progress. All uploaded data must be validation must be fixed before the submission button is enabled.",
-        VALIDATION_ERRORS:
-          "All Error validation results must be fixed before the submission button is enabled.",
+          "Validation is in progress. Please wait until it completes and address any issues before submitting.",
+        NEW_DATA_OR_VALIDATION_ERRORS:
+          "There are new data entries or validation issues that need to be resolved.",
         MISSING_DATA_FILE:
           "There are no data files for this submission. Please upload the appropriate data files and validate to enable the Submit button.",
       },
