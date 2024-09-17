@@ -12,13 +12,13 @@ export type SubmitInfo = {
  * to determine if the submission can be enabled.
  *
  * @param {Submission} submission - The submission object to evaluate.
- * @param {User["role"]} userRole - The role of the user (e.g., Admin, Submitter).
+ * @param {UserRole} userRole - The role of the user (e.g., Admin, Submitter).
  * @returns {SubmitButtonResult} - Returns an object indicating whether the submit button is enabled,
  * whether the admin override is in effect, and an optional tooltip explaining why it is disabled.
  */
 export const shouldEnableSubmit = (
   submission: Submission,
-  userRole: User["role"]
+  userRole: UserRole
 ): SubmitButtonResult => {
   if (!submission || !userRole) {
     return { enabled: false, isAdminOverride: false };
