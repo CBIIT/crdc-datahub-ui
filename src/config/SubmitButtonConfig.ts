@@ -45,13 +45,13 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
   {
     _identifier: "Metadata and Data File should not have 'New' status",
     check: (s) => s.metadataValidationStatus !== "New" && s.fileValidationStatus !== "New",
-    tooltip: undefined,
+    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
     required: true,
   },
   {
     _identifier: "Submission should not have submission level errors, such as orphaned files",
     check: (s) => !s.fileErrors?.length,
-    tooltip: undefined,
+    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
     required: true,
   },
   {
@@ -59,14 +59,14 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
     _identifier: "Metadata validation should be initialized for 'Delete' intention",
     preConditionCheck: (s) => s.intention === "Delete",
     check: (s) => !!s.metadataValidationStatus,
-    tooltip: undefined,
+    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
     required: false,
   },
   {
     _identifier: "Metadata validation should be initialized for 'Metadata Only' submissions",
     preConditionCheck: (s) => s.dataType === "Metadata Only",
     check: (s) => !!s.metadataValidationStatus,
-    tooltip: undefined,
+    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
     required: false,
   },
   {
@@ -82,13 +82,13 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
       "Metadata validation should be initialized for 'Metadata and Data Files' submissions",
     preConditionCheck: (s) => s.dataType === "Metadata and Data Files",
     check: (s) => !!s.metadataValidationStatus,
-    tooltip: undefined,
+    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
     required: false,
   },
   {
     _identifier: "There should be no validation errors for metadata or data files",
     check: (s) => s.metadataValidationStatus !== "Error" && s.fileValidationStatus !== "Error",
-    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.VALIDATION_ERRORS,
+    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
     required: false,
   },
 ];
