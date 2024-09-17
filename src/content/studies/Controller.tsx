@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import ListView from "./ListView";
+import StudyView from "./StudyView";
 
 /**
  * Renders the correct view based on the URL and permissions-tier
@@ -19,7 +20,7 @@ const StudiesController: FC = () => {
   }
 
   if (studyId) {
-    return null; // TODO:  <StudiesView _id={studyId} />;
+    return <StudyView _id={studyId} />;
   }
 
   return <ListView />;
