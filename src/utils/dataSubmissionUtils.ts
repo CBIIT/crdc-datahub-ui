@@ -1,11 +1,6 @@
 import { ADMIN_OVERRIDE_CONDITIONS, SUBMIT_BUTTON_CONDITIONS } from "../config/SubmitButtonConfig";
 import { safeParse } from "./jsonUtils";
 
-export type SubmitInfo = {
-  disable: boolean;
-  isAdminOverride: boolean;
-};
-
 /**
  * Determines whether the submit button should be enabled based on the submission's properties and user role.
  * For admins, it first checks if an admin override is allowed. If not an admin, it checks remaining conditions
