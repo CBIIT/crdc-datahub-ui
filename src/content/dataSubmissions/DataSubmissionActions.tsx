@@ -79,10 +79,6 @@ const StyledDialogText = styled(Typography)({
   lineHeight: "19.6px",
 });
 
-const StyledTooltip = styled(Tooltip)(() => ({
-  alignSelf: "start",
-}));
-
 export type ActiveDialog =
   | "Submit"
   | "Release"
@@ -232,7 +228,7 @@ const DataSubmissionActions = ({
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Action Buttons */}
       {canShowAction("Submit") ? (
-        <StyledTooltip
+        <Tooltip
           placement="top"
           title={submitActionButton?.tooltip}
           open={undefined} // will use hoverListener to open
@@ -249,10 +245,10 @@ const DataSubmissionActions = ({
               {submitActionButton?.isAdminOverride ? "Admin Submit" : "Submit"}
             </StyledLoadingButton>
           </span>
-        </StyledTooltip>
+        </Tooltip>
       ) : null}
       {canShowAction("Release") ? (
-        <StyledTooltip
+        <Tooltip
           placement="top"
           title={TOOLTIP_TEXT.SUBMISSION_ACTIONS.RELEASE.DISABLED.NO_CROSS_VALIDATION}
           open={undefined} // will use hoverListener to open
@@ -273,7 +269,7 @@ const DataSubmissionActions = ({
               Release
             </StyledLoadingButton>
           </span>
-        </StyledTooltip>
+        </Tooltip>
       ) : null}
       {canShowAction("Complete") ? (
         <StyledLoadingButton
