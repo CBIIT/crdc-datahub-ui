@@ -35,6 +35,16 @@ export const OrgAssignmentMap: Record<RoleSubset, string> = {
 };
 
 /**
+ * Defines a list of roles that are allowed to interact with regular Validation.
+ */
+export const ValidateRoles: UserRole[] = [
+  "Submitter",
+  "Organization Owner",
+  "Data Curator",
+  "Admin",
+];
+
+/**
  * Defines a list of roles that are allowed to interact with Cross Validation.
  */
 export const CrossValidateRoles: UserRole[] = ["Admin", "Data Curator"];

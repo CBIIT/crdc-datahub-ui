@@ -28,6 +28,7 @@ import { ValidationStatus } from "./ValidationStatus";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
+import { ValidateRoles } from "../../config/AuthRoles";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -74,24 +75,14 @@ const StyledRadioControl = styled(FormControlLabel)({
 });
 
 /**
- * Base set of user roles that can validate a submission.
- */
-const BaseValidateRoles: User["role"][] = [
-  "Submitter",
-  "Data Curator",
-  "Organization Owner",
-  "Admin",
-];
-
-/**
  * A map from Submission Status to the user roles that can validate the submission for that status.
  *
  * @note All of the permission logic really should be refactored into a hook or otherwise.
  */
-const ValidateMap: Partial<Record<Submission["status"], User["role"][]>> = {
-  "In Progress": BaseValidateRoles,
-  Withdrawn: BaseValidateRoles,
-  Rejected: BaseValidateRoles,
+const ValidateMap: Partial<Record<Submission["status"], UserRole[]>> = {
+  "In Progress": ValidateRoles,
+  Withdrawn: ValidateRoles,
+  Rejected: ValidateRoles,
   Submitted: ["Data Curator", "Admin"],
 };
 
