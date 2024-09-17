@@ -1,6 +1,13 @@
 import React, { FC, ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
-import { FormControlLabel, RadioGroup, Stack, Typography, styled } from "@mui/material";
+import {
+  FormControlLabel,
+  RadioGroup,
+  Stack,
+  TooltipProps,
+  Typography,
+  styled,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
@@ -19,8 +26,8 @@ import FlowWrapper from "./FlowWrapper";
 import { CrossValidationButton } from "./CrossValidationButton";
 import { ValidationStatus } from "./ValidationStatus";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
-import Tooltip from "../Tooltip";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -87,6 +94,24 @@ const ValidateMap: Partial<Record<Submission["status"], User["role"][]>> = {
   Rejected: BaseValidateRoles,
   Submitted: ["Data Curator", "Admin"],
 };
+
+const CustomTooltip = (props: TooltipProps) => (
+  <StyledTooltip
+    {...props}
+    slotProps={{
+      popper: {
+        modifiers: [
+          {
+            name: "offset",
+            options: {
+              offset: [0, -14],
+            },
+          },
+        ],
+      },
+    }}
+  />
+);
 
 /**
  * Provides the UI for validating a data submission's assets.
@@ -278,7 +303,7 @@ const ValidationControls: FC = () => {
               data-testid="validate-controls-validation-type"
               row
             >
-              <Tooltip
+              <CustomTooltip
                 placement="bottom"
                 title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TYPE.VALIDATE_METADATA}
                 open={undefined} // will use hoverListener to open
@@ -290,8 +315,8 @@ const ValidationControls: FC = () => {
                   label="Validate Metadata"
                   disabled={!canValidateMetadata}
                 />
-              </Tooltip>
-              <Tooltip
+              </CustomTooltip>
+              <CustomTooltip
                 placement="bottom"
                 title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TYPE.VALIDATE_DATA_FILES}
                 open={undefined} // will use hoverListener to open
@@ -303,8 +328,8 @@ const ValidationControls: FC = () => {
                   label="Validate Data Files"
                   disabled={!canValidateFiles}
                 />
-              </Tooltip>
-              <Tooltip
+              </CustomTooltip>
+              <CustomTooltip
                 placement="bottom"
                 title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TYPE.VALIDATE_BOTH}
                 open={undefined} // will use hoverListener to open
@@ -316,7 +341,7 @@ const ValidationControls: FC = () => {
                   label="Both"
                   disabled={!canValidateFiles || !canValidateMetadata}
                 />
-              </Tooltip>
+              </CustomTooltip>
             </RadioGroup>
           </StyledRowContent>
         </StyledRow>
@@ -329,7 +354,7 @@ const ValidationControls: FC = () => {
               data-testid="validate-controls-validation-target"
               row
             >
-              <Tooltip
+              <CustomTooltip
                 placement="bottom"
                 title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TARGET.NEW_UPLOADED_DATA}
                 open={undefined} // will use hoverListener to open
@@ -345,8 +370,8 @@ const ValidationControls: FC = () => {
                     dataSubmission?.status === "Submitted"
                   }
                 />
-              </Tooltip>
-              <Tooltip
+              </CustomTooltip>
+              <CustomTooltip
                 placement="bottom"
                 title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TARGET.ALL_UPLOADED_DATA}
                 open={undefined} // will use hoverListener to open
@@ -358,7 +383,7 @@ const ValidationControls: FC = () => {
                   label="All Uploaded Data"
                   disabled={!canValidateFiles && !canValidateMetadata}
                 />
-              </Tooltip>
+              </CustomTooltip>
             </RadioGroup>
           </StyledRowContent>
         </StyledRow>
