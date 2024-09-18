@@ -194,7 +194,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
     let color: string;
     switch (status) {
-      case "Archived":
+      case "Completed":
         color = "#10EBA9";
         break;
       case "Rejected":

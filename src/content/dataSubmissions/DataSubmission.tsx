@@ -155,7 +155,6 @@ const submissionLockedStatuses: SubmissionStatus[] = [
   "Released",
   "Completed",
   "Canceled",
-  "Archived",
 ];
 
 type Props = {

@@ -100,8 +100,7 @@ type ActionKey =
   | "SubmittedReject"
   | "ReleasedReject"
   | "Complete"
-  | "Cancel"
-  | "Archive";
+  | "Cancel";
 
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
@@ -131,10 +130,6 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   Cancel: {
     roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
     statuses: ["New", "In Progress", "Rejected"],
-  },
-  Archive: {
-    roles: ["Data Curator", "Admin"],
-    statuses: ["Completed"],
   },
 };
 
@@ -280,17 +275,6 @@ const DataSubmissionActions = ({
           disabled={action && action !== "Complete"}
         >
           Complete
-        </StyledLoadingButton>
-      ) : null}
-      {canShowAction("Archive") ? (
-        <StyledLoadingButton
-          variant="contained"
-          color="primary"
-          onClick={() => handleOnAction("Archive")}
-          loading={action === "Archive"}
-          disabled={action && action !== "Archive"}
-        >
-          Archive
         </StyledLoadingButton>
       ) : null}
       {canShowAction("Withdraw") ? (

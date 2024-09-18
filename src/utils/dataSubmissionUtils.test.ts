@@ -27,6 +27,7 @@ const baseSubmission: Submission = {
   dataType: "Metadata and Data Files",
   createdAt: "",
   updatedAt: "",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",

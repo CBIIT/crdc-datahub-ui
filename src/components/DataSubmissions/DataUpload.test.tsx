@@ -48,6 +48,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   updatedAt: "",
   crossSubmissionStatus: null,
   otherSubmissions: null,
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
