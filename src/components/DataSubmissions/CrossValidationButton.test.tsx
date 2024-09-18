@@ -46,6 +46,7 @@ const baseSubmission: Omit<
   updatedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
@@ -591,7 +592,6 @@ describe("Implementation Requirements", () => {
     "Withdrawn",
     "Released",
     "Completed",
-    "Archived",
     "Canceled",
     "fake status" as Submission["status"],
   ])("should never be visible for the Submission status of '%s'", (status) => {

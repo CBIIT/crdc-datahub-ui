@@ -10,7 +10,7 @@ type Application = {
   // Applicant Details
   applicant: Applicant;
   organization: Pick<Organization, "_id" | "name">;
-  PI: PI["firstName"]; // Principal Investigator's name
+  PI: string; // Principal Investigator's full name "<first name> <last name>"
   controlledAccess: boolean;
   openAccess: boolean;
   // Sort Fields

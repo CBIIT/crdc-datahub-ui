@@ -189,7 +189,6 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
         { dateTime: "2023-01-06T10:00:00Z", status: "Submitted" },
         { dateTime: "2023-01-07T10:00:00Z", status: "Released" },
         { dateTime: "2023-01-08T10:00:00Z", status: "Completed" },
-        { dateTime: "2023-01-09T10:00:00Z", status: "Archived" },
       ],
     };
 
@@ -199,14 +198,12 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 
     const dates = getAllByTestId(/history-item-\d-date/i);
     const statuses = getAllByTestId(/history-item-\d-status/i);
-    expect(statuses[0]).toHaveTextContent(/ARCHIVED/i);
-    expect(dates[0]).toHaveTextContent("1/9/2023");
-    expect(statuses[1]).toHaveTextContent(/COMPLETED/i);
-    expect(dates[1]).toHaveTextContent("1/8/2023");
-    expect(statuses[2]).toHaveTextContent(/RELEASED/i);
-    expect(dates[2]).toHaveTextContent("1/7/2023");
-    expect(statuses[8]).toHaveTextContent(/NEW/i);
-    expect(dates[8]).toHaveTextContent("1/1/2023");
+    expect(statuses[0]).toHaveTextContent(/COMPLETED/i);
+    expect(dates[0]).toHaveTextContent("1/8/2023");
+    expect(statuses[1]).toHaveTextContent(/RELEASED/i);
+    expect(dates[1]).toHaveTextContent("1/7/2023");
+    expect(statuses[7]).toHaveTextContent(/NEW/i);
+    expect(dates[7]).toHaveTextContent("1/1/2023");
   });
 
   it("closes the History dialog with the close button", async () => {

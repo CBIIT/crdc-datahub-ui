@@ -157,6 +157,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     };
 
     setState((prevState) => ({ ...prevState, status: Status.SAVING }));
+    const fullPIName = `${data?.pi?.firstName || ""} ${data?.pi?.lastName || ""}`.trim();
 
     const { data: d, errors } = await saveApp({
       variables: {
@@ -169,7 +170,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
           openAccess: data?.accessTypes?.includes("Open Access") || false,
           ORCID: data?.pi?.ORCID,
-          PI: data?.pi?.firstName,
+          PI: fullPIName,
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));
