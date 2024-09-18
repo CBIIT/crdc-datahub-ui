@@ -118,8 +118,8 @@ const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest
     <StyledDialogContent>
       <StyledBodyText id="uploader-cli-body" variant="body1">
         The Uploader CLI is a command-line interface tool provided for directly uploading data
-        submission files from your workstation to the Data Hub cloud storage. To download the tool
-        and accompanying instructions, click on the Download button below.
+        submission files from your workstation to the CRDC Submission Portal cloud storage. To
+        download the tool and accompanying instructions, click on the Download button below.
       </StyledBodyText>
     </StyledDialogContent>
     <StyledDialogActions>
