@@ -19,7 +19,7 @@ const usePageTitle = (title: string, restore = true): void => {
     }
 
     return () => {
-      document.title = "CRDC DataHub";
+      document.title = "CRDC Submission Portal";
     };
   }, []);
 };
