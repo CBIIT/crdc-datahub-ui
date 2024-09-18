@@ -372,3 +372,10 @@ type NodeDetailResult = {
 };
 
 type NodeRelationship = "parent" | "child";
+
+type SubmitButtonResult = {
+  enabled: boolean;
+  isAdminOverride?: boolean;
+  tooltip?: string;
+  _identifier?: string;
+};
