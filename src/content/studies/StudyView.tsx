@@ -1,11 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Container, MenuItem, Stack, styled, Typography } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  Container,
+  FormControlLabel,
+  FormGroup,
+  IconButton,
+  MenuItem,
+  Stack,
+  styled,
+  Typography,
+} from "@mui/material";
 import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import profileIcon from "../../assets/icons/profile_icon.svg";
+import studyIcon from "../../assets/icons/study_icon.svg";
 import usePageTitle from "../../hooks/usePageTitle";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
@@ -13,6 +24,40 @@ import { FieldState } from "../../hooks/useProfileFields";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import { formatORCIDInput, isValidORCID } from "../../utils";
 import StyledHelperText from "../../components/StyledFormComponents/StyledHelperText";
+import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import infoCircleIcon from "../../assets/icons/info_circle.svg";
+import Tooltip from "../../components/Tooltip";
+import options from "../../config/AccessTypesConfig";
+
+const InfoIcon = styled("div")(() => ({
+  backgroundImage: `url(${infoCircleIcon})`,
+  backgroundSize: "contain",
+  backgroundRepeat: "no-repeat",
+  width: "12px",
+  height: "12px",
+}));
+
+const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
+  outline: "2px solid #1D91AB",
+  outlineOffset: -2,
+  width: "24px",
+  height: "24px",
+  backgroundColor: readOnly ? "#E5EEF4" : "initial",
+  color: "#083A50",
+  cursor: readOnly ? "not-allowed" : "pointer",
+}));
+
+const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
+  backgroundImage: `url(${CheckboxCheckedIconSvg})`,
+  backgroundSize: "auto",
+  backgroundRepeat: "no-repeat",
+  width: "24px",
+  height: "24px",
+  backgroundColor: readOnly ? "#E5EEF4" : "initial",
+  color: "#1D91AB",
+  cursor: readOnly ? "not-allowed" : "pointer",
+}));
 
 const StyledContainer = styled(Container)({
   marginBottom: "90px",
@@ -68,16 +113,60 @@ const StyledField = styled("div", { shouldForwardProp: (p) => p !== "visible" })
   minHeight: "41px",
   display: visible ? "flex" : "none",
   alignItems: "center",
-  justifyContent: "flex-start",
+  justifyContent: "space-between",
+  gap: "40px",
   fontSize: "18px",
 }));
 
 const StyledLabel = styled("span")({
   color: "#356AAD",
   fontWeight: "700",
-  marginRight: "40px",
   minWidth: "127px",
 });
+
+const StyledAccessTypesLabel = styled("span")({
+  display: "flex",
+  flexDirection: "column",
+  color: "#356AAD",
+  fontWeight: 700,
+  minWidth: "127px",
+});
+
+const StyledAccessTypesDescription = styled("span")(() => ({
+  fontWeight: 400,
+  fontSize: "16px",
+}));
+
+const StyledCheckboxFormGroup = styled(FormGroup)(() => ({
+  width: "363px",
+}));
+
+const StyledFormControlLabel = styled(FormControlLabel)(() => ({
+  width: "363px",
+  marginRight: 0,
+  pointerEvents: "none",
+  marginLeft: "-10px",
+  "& .MuiButtonBase-root ": {
+    pointerEvents: "all",
+  },
+  "& .MuiFormControlLabel-label": {
+    fontWeight: 700,
+    fontSize: "16px",
+    lineHeight: "19.6px",
+    minHeight: "20px",
+    color: "#083A50",
+  },
+}));
+
+const StyledCheckbox = styled(Checkbox)(({ readOnly }) => ({
+  cursor: readOnly ? "not-allowed" : "pointer",
+  "&.MuiCheckbox-root": {
+    padding: "10px",
+  },
+  "& .MuiSvgIcon-root": {
+    fontSize: "24px",
+  },
+}));
 
 const BaseInputStyling = {
   width: "363px",
@@ -112,20 +201,22 @@ const StyledTitleBox = styled(Box)({
   width: "100%",
 });
 
-const StyledSelectionCount = styled(Typography)({
-  fontSize: "16px",
-  fontWeight: 600,
-  color: "#666666",
-  width: "200px",
-  position: "absolute",
-  left: "373px",
-  transform: "translateY(-50%)",
-  top: "50%",
-});
+const TooltipIcon = styled(InfoIcon)`
+  font-size: 12px;
+  color: inherit;
+`;
+
+const TooltipButton = styled(IconButton)(() => ({
+  padding: 0,
+  fontSize: "12px",
+  verticalAlign: "top",
+  marginLeft: "6px",
+  color: "#000000",
+}));
 
 type FormInput = Pick<
   ApprovedStudy,
-  "studyName" | "studyAbbreviation" | "PI" | "dbGaPID" | "ORCID"
+  "studyName" | "studyAbbreviation" | "PI" | "dbGaPID" | "ORCID" | "openAccess" | "controlledAccess"
 >;
 
 type Props = {
@@ -133,25 +224,33 @@ type Props = {
 };
 
 const StudyView: FC<Props> = ({ _id }: Props) => {
-  usePageTitle(`${_id ? "Edit" : "Add"} Approved Study ${_id || ""}`.trim());
+  usePageTitle(`${!!_id && _id !== "new" ? "Edit" : "Add"} Study ${_id || ""}`.trim());
   const navigate = useNavigate();
   const { lastSearchParams } = useSearchParamsContext();
-  const { handleSubmit, register, reset, watch, setValue, control, formState } =
-    useForm<FormInput>();
+  const {
+    handleSubmit,
+    register,
+    reset,
+    watch,
+    getValues,
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm<FormInput>({ mode: "onSubmit", reValidateMode: "onBlur" }); // TODO: FIX
 
   const [saving, setSaving] = useState<boolean>(false);
+  const [ORCID, setORCID] = useState<string>("");
 
-  const manageStudiesPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
+  const manageStudiesPageUrl = `/studies${lastSearchParams?.["/studies"] ?? ""}`;
 
   const onSubmit = async (data: FormInput) => {};
 
   const handleORCIDInputChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    field: ControllerRenderProps<FormInput, "ORCID">
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const inputValue = event.target.value || "";
     const formattedValue = formatORCIDInput(inputValue);
-    field.onChange(formattedValue);
+    setORCID(formattedValue);
   };
 
   return (
@@ -160,7 +259,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       <StyledContainer maxWidth="lg">
         <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
           <StyledProfileIcon>
-            <img src={profileIcon} alt="profile icon" />
+            <img src={studyIcon} alt="profile icon" />
           </StyledProfileIcon>
 
           <StyledContentStack
@@ -170,13 +269,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
             spacing={2}
           >
             <StyledTitleBox>
-              <StyledPageTitle variant="h1">
-                {`${_id ? "Edit" : "Add"} Approved Study`}
-              </StyledPageTitle>
+              <StyledPageTitle variant="h1">{`${
+                !!_id && _id !== "new" ? "Edit" : "Add"
+              } Study`}</StyledPageTitle>
             </StyledTitleBox>
-            <StyledHeader>
-              <StyledHeaderText variant="h2">Header Text</StyledHeaderText>
-            </StyledHeader>
 
             <form onSubmit={handleSubmit(onSubmit)}>
               <StyledField>
@@ -191,9 +287,60 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               <StyledField>
                 <StyledLabel id="studyAbbreviationLabel">Acronym</StyledLabel>
                 <StyledTextField
-                  {...(register("studyAbbreviation"), { setValueAs: (val) => val?.trim() })}
+                  {...register("studyAbbreviation", { setValueAs: (val) => val?.trim() })}
                   size="small"
                   inputProps={{ "aria-labelledby": "studyAbbreviationLabel" }}
+                />
+              </StyledField>
+              <StyledField>
+                <StyledAccessTypesLabel id="accessTypesLabel">
+                  Access Types{" "}
+                  <StyledAccessTypesDescription>
+                    (Select all that apply):
+                  </StyledAccessTypesDescription>
+                </StyledAccessTypesLabel>
+                <Stack direction="column">
+                  <StyledCheckboxFormGroup>
+                    <StyledFormControlLabel
+                      {...register("openAccess", { setValueAs: (val) => Boolean(val) })}
+                      control={
+                        <StyledCheckbox checkedIcon={<CheckedIcon />} icon={<UncheckedIcon />} />
+                      }
+                      label={
+                        <>
+                          Open Access
+                          <Tooltip
+                            title={options.find((opt) => opt.label === "Open Access")?.tooltipText}
+                          />
+                        </>
+                      }
+                    />
+                    <StyledFormControlLabel
+                      {...register("controlledAccess", { setValueAs: (val) => Boolean(val) })}
+                      control={
+                        <StyledCheckbox checkedIcon={<CheckedIcon />} icon={<UncheckedIcon />} />
+                      }
+                      label={
+                        <>
+                          Controlled Access
+                          <Tooltip
+                            title={
+                              options.find((opt) => opt.label === "Controlled Access")?.tooltipText
+                            }
+                          />
+                        </>
+                      }
+                    />
+                  </StyledCheckboxFormGroup>
+                </Stack>
+              </StyledField>
+              <StyledField>
+                <StyledLabel id="dbGaPIDLabel">dbGaPID</StyledLabel>
+                <StyledTextField
+                  {...register("dbGaPID", { required: true, setValueAs: (val) => val?.trim() })}
+                  size="small"
+                  required
+                  inputProps={{ "aria-labelledby": "dbGaPIDLabel" }}
                 />
               </StyledField>
               <StyledField>
@@ -207,34 +354,32 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="orcidLabel">ORCID</StyledLabel>
-                <Controller
-                  name="ORCID"
-                  control={control}
-                  rules={{
-                    required: "This field is required",
-                    validate: (val) => {
-                      if (!val || val.length === 0) {
-                        return true;
-                      }
-                      return isValidORCID(val) || "Please provide a valid ORCID";
-                    },
-                  }}
-                  render={({ field, fieldState: { error } }) => (
-                    <Stack direction="column">
+                <Stack direction="column">
+                  <Controller
+                    name="ORCID"
+                    control={control}
+                    rules={{
+                      required: true,
+                      validate: (val) => {
+                        if (val?.trim()?.length === 0) {
+                          return true;
+                        }
+                        return isValidORCID(val) || "Please provide a valid ORCID";
+                      },
+                    }}
+                    render={({ field }) => (
                       <StyledTextField
                         {...field}
-                        value={field.value}
+                        value={ORCID}
+                        onChange={handleORCIDInputChange}
                         size="small"
                         required
-                        inputProps={{ "aria-labelledby": "orcidLabel" }}
                         placeholder="e.g. 0000-0001-2345-6789"
-                        onChange={(event) => handleORCIDInputChange(event, field)}
-                        error={!!error}
+                        inputProps={{ "aria-labelledby": "orcidLabel" }}
                       />
-                      <StyledHelperText id="ORCID-helper-text">{error?.message}</StyledHelperText>
-                    </Stack>
-                  )}
-                />
+                    )}
+                  />
+                </Stack>
               </StyledField>
 
               <StyledButtonStack
