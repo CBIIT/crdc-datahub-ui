@@ -1,5 +1,6 @@
+import { SUBMIT_BUTTON_CONDITIONS, SubmitButtonCondition } from "../config/SubmitButtonConfig";
 import * as utils from "./dataSubmissionUtils";
-import { ReleaseInfo, SubmitInfo } from "./dataSubmissionUtils";
+import { ReleaseInfo } from "./dataSubmissionUtils";
 
 const baseSubmission: Submission = {
   _id: "1234",
@@ -42,8 +43,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Error",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -53,8 +54,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Error",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -64,8 +65,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -75,8 +76,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Error",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -86,8 +87,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Warning",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -98,8 +99,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -109,8 +110,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -120,8 +121,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, undefined);
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, undefined);
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -131,8 +132,8 @@ describe("General Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -142,20 +143,21 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
   it("should enable submit when file validation is null and intention is 'Delete'", () => {
     const submission: Submission = {
       ...baseSubmission,
+      dataType: "Metadata Only",
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
       intention: "Delete",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -166,8 +168,8 @@ describe("General Submit", () => {
       fileValidationStatus: null,
       intention: "New/Update",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -178,8 +180,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Passed",
       intention: "Delete",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -190,8 +192,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Error",
       intention: "Delete",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -201,8 +203,8 @@ describe("General Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: null,
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -212,8 +214,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Validating",
       fileValidationStatus: "Validating",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -223,8 +225,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Validating",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -234,8 +236,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Validating",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -245,8 +247,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "New",
       fileValidationStatus: "New",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -256,8 +258,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "New",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -267,8 +269,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "New",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -278,8 +280,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Warning",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -289,19 +291,19 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
 
   it('should allow submit when metadata validations is in "Passed" state', () => {
     const submission: Submission = {
       ...baseSubmission,
-      metadataValidationStatus: "Warning",
+      metadataValidationStatus: "Passed",
       fileValidationStatus: "Warning",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -311,109 +313,71 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Warning",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(true);
+    expect(result.isAdminOverride).toBe(false);
+  });
+
+  it("should disable submit when submission is null", () => {
+    const result = utils.shouldEnableSubmit(null, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 });
 
 describe("Admin Submit", () => {
-  it("should allow submit with isAdminOverride when there are validation errors", () => {
+  it("should allow admin override with validation errors", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Error",
       fileValidationStatus: "Error",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Admin");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
 
-  it("should allow submit without isAdminOverride when there are no validation errors", () => {
+  it("should enable submit without admin override when there are no validation errors", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Admin");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
 
-  it("should allow submit with isAdminOverride but null data files", () => {
+  it("should allow admin override when metadata is passed but file validation is null", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Admin");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
 
-  it("should allow submit without isAdminOverride but null data files with 'Metadata Only' dataType", () => {
-    const submission: Submission = {
-      ...baseSubmission,
-      dataType: "Metadata Only",
-      metadataValidationStatus: "Passed",
-      fileValidationStatus: null,
-    };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
-    expect(result.isAdminOverride).toBe(false);
-  });
-
-  it("should allow submit with isAdminOverride but null metadata", () => {
-    const submission: Submission = {
-      ...baseSubmission,
-      metadataValidationStatus: null,
-      fileValidationStatus: "Passed",
-    };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
-    expect(result.isAdminOverride).toBe(true);
-  });
-
-  it("should disable submit without isAdminOverride when null metadata and null data files", () => {
+  it("should not enable submit when both validations are null", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: null,
       fileValidationStatus: null,
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(true);
-    expect(result.isAdminOverride).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Admin");
+    expect(result.enabled).toBe(false);
   });
 
-  it('should allow submit without isAdminOverride when both validations are in "Warning" state', () => {
-    const submission: Submission = {
-      ...baseSubmission,
-      metadataValidationStatus: "Warning",
-      fileValidationStatus: "Warning",
-    };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
-    expect(result.isAdminOverride).toBe(false);
-  });
-
-  it('should allow submit with isAdminOverride when metadata validation is "Warning" and file validation is "Error"', () => {
-    const submission: Submission = {
-      ...baseSubmission,
-      metadataValidationStatus: "Warning",
-      fileValidationStatus: "Error",
-    };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
-    expect(result.isAdminOverride).toBe(true);
-  });
-  it('should allow submit with isAdminOverride when metadata validation is "Error" and file validation is "Warning"', () => {
+  it("should allow admin override when file validation is null and intention is 'Delete'", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Error",
-      fileValidationStatus: "Warning",
+      fileValidationStatus: null,
+      intention: "Delete",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Admin");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
 
@@ -438,8 +402,8 @@ describe("Admin Submit", () => {
         },
       ],
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Admin");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -464,8 +428,8 @@ describe("Admin Submit", () => {
         },
       ],
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -476,45 +440,130 @@ describe("Admin Submit", () => {
       fileValidationStatus: null,
       intention: "Delete",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Admin");
+    expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
 
-  it("should allow submit without isAdminOverride when metadata validation is 'Passed', file validation is null, and intention is 'Delete'", () => {
+  it("should disable submit if user is Admin and required condition fails", () => {
     const submission: Submission = {
       ...baseSubmission,
+      dataType: "Metadata and Data Files",
       metadataValidationStatus: "Passed",
-      fileValidationStatus: null,
-      intention: "Delete",
+      fileValidationStatus: "New",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldEnableSubmit(submission, "Admin");
+    expect(result.enabled).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
+  });
+});
+
+describe("Submit > Submission Type/Intention", () => {
+  it("should disable submit without isAdminOverride when intention is Delete", () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      intention: "Delete",
+      metadataValidationStatus: "Error",
+      fileValidationStatus: "Error",
+    };
+    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    expect(result.enabled).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
+  });
+});
+
+describe("shouldAllowAdminOverride", () => {
+  beforeEach(() => {
+    const customConditions: SubmitButtonCondition[] = [
+      {
+        _identifier: "test-identifier-1",
+        preConditionCheck: (s) => s._id === "test-id-1",
+        check: (s) => s.name === "test-name-1",
+        required: true,
+      },
+      {
+        _identifier: "test-identifier-2",
+        preConditionCheck: (s) => s._id === "test-id-2",
+        check: (s) => s.name === "test-name-2",
+        required: true,
+      },
+    ];
+
+    // Push the custom conditions for the test
+    customConditions.forEach((condition) => SUBMIT_BUTTON_CONDITIONS.push(condition));
+  });
+
+  afterEach(() => {
+    // Restore original ADMIN_OVERRIDE_CONDITIONS
+    SUBMIT_BUTTON_CONDITIONS.splice(-2, 2);
+  });
+
+  it("should disable submit without isAdminOverride when submission is null", () => {
+    const result = utils.shouldAllowAdminOverride(null);
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
-  it("should allow submit without isAdminOverride when metadata validation is 'Passed', file validation is null, and dataType is 'Metadata Only'", () => {
+  it("should disable submit without isAdminOverride when submission is undefined", () => {
+    const result = utils.shouldAllowAdminOverride(undefined);
+    expect(result.enabled).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
+  });
+
+  it("should check condition if preConditionCheck is met", () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      dataType: "Metadata and Data Files",
+      metadataValidationStatus: "Passed",
+      fileValidationStatus: null,
+    };
+    const result = utils.shouldAllowAdminOverride(submission);
+    expect(result._identifier).toBe(
+      "Admin Override - Submission is missing either metadata or data files for 'Metadata and Data Files' submissions"
+    );
+    expect(result.enabled).toBe(true);
+    expect(result.isAdminOverride).toBe(true);
+  });
+
+  it("should skip condition if preConditionCheck is not met", () => {
     const submission: Submission = {
       ...baseSubmission,
       dataType: "Metadata Only",
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Admin");
-    expect(result.disable).toBe(false);
+    const result = utils.shouldAllowAdminOverride(submission);
+    expect(result._identifier).toBe(undefined);
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
-});
 
-describe("Submit > Submission Type/Intention", () => {
-  it("should enable submit without isAdminOverride when intention is Delete", () => {
+  it("should not allow admin override if a required condition is not met", () => {
     const submission: Submission = {
       ...baseSubmission,
-      metadataValidationStatus: "Error",
-      fileValidationStatus: "Error",
+      dataType: "Metadata and Data Files",
+      metadataValidationStatus: "Passed",
+      fileValidationStatus: "Validating",
     };
-    const result: SubmitInfo = utils.shouldDisableSubmit(submission, "Submitter");
-    expect(result.disable).toBe(true);
+    const result = utils.shouldAllowAdminOverride(submission);
+    expect(result._identifier).toBe("Validation should not currently be running");
+    expect(result.enabled).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
+  });
+
+  it("should not allow admin override if preConditionCheck is met but main condition fails", () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      _id: "test-id-1",
+      name: "test-name-fail",
+      dataType: "Metadata and Data Files",
+      metadataValidationStatus: "Passed",
+      fileValidationStatus: "Passed",
+    };
+
+    const result = utils.shouldAllowAdminOverride(submission);
+    expect(result._identifier).toBe("test-identifier-1");
+    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 });
