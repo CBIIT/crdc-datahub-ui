@@ -64,7 +64,7 @@ export type Input = {
      */
     ORCID?: string;
     /**
-     * Principal Investigator's name
+     * Principal Investigator's full name "<first name> <last name>"
      */
     PI: string;
   };
