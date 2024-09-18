@@ -3,11 +3,11 @@ import usePageTitle from "./usePageTitle";
 
 describe("Basic Functionality", () => {
   beforeEach(() => {
-    document.title = "CRDC DataHub";
+    document.title = "CRDC Submission Portal";
   });
 
   it("should set the document title on mount", () => {
-    expect(document.title).toBe("CRDC DataHub");
+    expect(document.title).toBe("CRDC Submission Portal");
 
     renderHook(() => usePageTitle("New Title"));
 
@@ -31,7 +31,7 @@ describe("Basic Functionality", () => {
     expect(document.title).toBe("Test Title");
 
     unmount();
-    expect(document.title).toBe("CRDC DataHub");
+    expect(document.title).toBe("CRDC Submission Portal");
   });
 
   it("should restore the document title on unmount if restore is not provided", () => {
@@ -39,7 +39,7 @@ describe("Basic Functionality", () => {
     expect(document.title).toBe("Page XYZ");
 
     unmount();
-    expect(document.title).toBe("CRDC DataHub");
+    expect(document.title).toBe("CRDC Submission Portal");
   });
 
   it("should not restore the document title on unmount if restore is false", () => {

@@ -16,7 +16,7 @@ import { useAuthContext } from "../../components/Contexts/AuthContext";
 import {
   ReleaseInfo,
   shouldDisableRelease,
-  shouldDisableSubmit,
+  shouldEnableSubmit,
 } from "../../utils/dataSubmissionUtils";
 import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
@@ -27,7 +27,7 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import DataActivity, { DataActivityRef } from "./DataActivity";
 import CrossValidation from "./CrossValidation";
-import { CrossValidateRoles } from "../../config/AuthRoles";
+import { CrossValidateRoles, SubmitDataSubmissionRoles } from "../../config/AuthRoles";
 import CopyAdornment from "../../components/DataSubmissions/CopyAdornment";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
@@ -155,7 +155,6 @@ const submissionLockedStatuses: SubmissionStatus[] = [
   "Released",
   "Completed",
   "Canceled",
-  "Archived",
 ];
 
 type Props = {
@@ -188,19 +187,16 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     [user?.role, data?.getSubmission?.crossSubmissionStatus]
   );
 
-  const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(() => {
-    const canSubmitRoles: User["role"][] = [
-      "Submitter",
-      "Organization Owner",
-      "Data Curator",
-      "Admin",
-    ];
-    if (!data?.getSubmission?._id || !canSubmitRoles.includes(user?.role) || hasUploadingBatches) {
-      return { disable: true, isAdminOverride: false };
+  const submitInfo: SubmitButtonResult = useMemo(() => {
+    if (!data?.getSubmission?._id || !SubmitDataSubmissionRoles.includes(user?.role)) {
+      return { enabled: false };
+    }
+    if (hasUploadingBatches) {
+      return { enabled: false };
     }
 
-    return shouldDisableSubmit(data.getSubmission, user?.role);
-  }, [data?.getSubmission, user, hasUploadingBatches]);
+    return shouldEnableSubmit(data.getSubmission, user?.role);
+  }, [data?.getSubmission, user, hasUploadingBatches, SubmitDataSubmissionRoles]);
   const releaseInfo: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
     [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
@@ -330,10 +326,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}
-              submitActionButton={{
-                disable: submitInfo?.disable,
-                label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
-              }}
+              submitActionButton={submitInfo}
               releaseActionButton={releaseInfo}
               onError={(message: string) => enqueueSnackbar(message, { variant: "error" })}
             />

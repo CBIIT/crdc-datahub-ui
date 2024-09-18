@@ -36,6 +36,7 @@ const baseSubmission: Submission = {
   metadataValidationStatus: "New",
   fileValidationStatus: "New",
   crossSubmissionStatus: "New",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",

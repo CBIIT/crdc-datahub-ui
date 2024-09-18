@@ -43,6 +43,7 @@ const BaseSubmission: Submission = {
   createdAt: "",
   updatedAt: "",
   studyID: "",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",

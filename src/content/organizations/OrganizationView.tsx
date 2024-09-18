@@ -163,7 +163,7 @@ const StyledTitleBox = styled(Box)({
 /**
  * Data Submission statuses that reflect an inactive submission
  */
-const inactiveSubmissionStatus: SubmissionStatus[] = ["Completed", "Archived"];
+const inactiveSubmissionStatus: SubmissionStatus[] = ["Completed"];
 
 /**
  * Edit/Create Organization View Component
