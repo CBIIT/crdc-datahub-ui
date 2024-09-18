@@ -1,13 +1,13 @@
-# CRDC Data Hub
+# CRDC Submission Portal
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Coverage Status](https://coveralls.io/repos/github/CBIIT/crdc-datahub-ui/badge.svg?branch=main)](https://coveralls.io/github/CBIIT/crdc-datahub-ui?branch=main)
 
-CRDC Data Hub is a React application designed to provide a user-friendly interface for accessing and managing data using various technologies and tools. This project utilizes Node `20.11`, TypeScript, React `v18`, Material-UI `v5`, GraphQL, and Apollo.
+The CRDC Submission Portal is a React application designed to provide a user-friendly interface for accessing and managing data using various technologies and tools. This project utilizes Node `20.11`, TypeScript, React `v18`, Material-UI `v5`, GraphQL, and Apollo.
 
 ## Installation
 
-To run the CRDC Data Hub project locally, follow these steps:
+To run the CRDC Submission Portal project locally, follow these steps:
 
 1. Clone the repository
 2. Navigate to the project directory

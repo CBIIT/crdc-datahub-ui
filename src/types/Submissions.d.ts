@@ -17,6 +17,10 @@ type Submission = {
   crossSubmissionStatus: CrossSubmissionStatus;
   deletingData: boolean;
   /**
+   * Indicates whether the submission has been archived.
+   */
+  archived: boolean;
+  /**
    * The date and time when the validation process started.
    *
    * @note ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
@@ -94,7 +98,6 @@ type SubmissionStatus =
   | "Withdrawn"
   | "Rejected"
   | "Completed"
-  | "Archived"
   | "Canceled"
   | "Deleted";
 
@@ -105,8 +108,7 @@ type SubmissionAction =
   | "Reject"
   | "Resume" // Rejected => In Progress
   | "Complete"
-  | "Cancel"
-  | "Archive";
+  | "Cancel";
 
 type SubmissionIntention = "New/Update" | "Delete";
 
@@ -373,4 +375,11 @@ type NodeDetailResult = {
 
 type NodeRelationship = "parent" | "child";
 
-type ControlledAccess = "All" | "Controlled" | "Open";
+type SubmitButtonResult = {
+  enabled: boolean;
+  isAdminOverride?: boolean;
+  tooltip?: string;
+  _identifier?: string;
+};
+
+type AccessType = "All" | "Controlled" | "Open";

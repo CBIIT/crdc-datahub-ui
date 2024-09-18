@@ -124,10 +124,10 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
       {submission?.dataType === "Metadata and Data Files" ? (
         <>
           <StyledBox data-testid="uploader-cli-footer">
-            The CLI Tool is used to upload data files to DataHub and requires a configuration file
-            to work. The CLI Tools is a one-time download however the configuration file needs to be
-            customized for each submission. You can either edit the example configuration files
-            found in the{" "}
+            The CLI Tool is used to upload data files to CRDC Submission Portal and requires a
+            configuration file to work. The CLI Tools is a one-time download however the
+            configuration file needs to be customized for each submission. You can either edit the
+            example configuration files found in the{" "}
             <StyledToolButton
               onClick={() => setCLIDialogOpen(true)}
               data-testid="uploader-cli-download-button"

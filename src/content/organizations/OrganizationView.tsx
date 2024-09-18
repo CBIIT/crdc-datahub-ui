@@ -164,7 +164,7 @@ const StyledTitleBox = styled(Box)({
 /**
  * Data Submission statuses that reflect an inactive submission
  */
-const inactiveSubmissionStatus: SubmissionStatus[] = ["Completed", "Archived"];
+const inactiveSubmissionStatus: SubmissionStatus[] = ["Completed"];
 
 /**
  * Edit/Create Organization View Component
@@ -215,7 +215,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     ListApprovedStudiesInput
   >(LIST_APPROVED_STUDIES, {
     variables: {
-      controlledAccess: "All",
+      // show all access types
+      controlledAccess: true,
+      openAccess: true,
       first: -1,
       offset: 0,
     },

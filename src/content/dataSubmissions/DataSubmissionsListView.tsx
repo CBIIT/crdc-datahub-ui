@@ -115,7 +115,7 @@ const StyledInlineLabel = styled("label")({
   fontWeight: "700",
 });
 
-const StyledDeletedText = styled(Box)(({ theme }) => ({
+const StyledDisabledText = styled(Box)(({ theme }) => ({
   color: theme.palette.text.disabled,
 }));
 
@@ -128,8 +128,8 @@ const columns: Column<T>[] = [
   {
     label: "Submission Name",
     renderValue: (a) =>
-      a.status === "Deleted" ? (
-        <StyledDeletedText>{a.name}</StyledDeletedText>
+      a.status === "Deleted" || a.archived === true ? (
+        <StyledDisabledText>{a.name}</StyledDisabledText>
       ) : (
         <Link to={`/data-submission/${a._id}/upload-activity`}>{a.name}</Link>
       ),
@@ -203,7 +203,6 @@ const statusValues: SubmissionStatus[] = [
   "Withdrawn",
   "Rejected",
   "Completed",
-  "Archived",
   "Canceled",
   "Deleted",
 ];

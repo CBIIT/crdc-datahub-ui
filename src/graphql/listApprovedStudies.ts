@@ -8,6 +8,7 @@ export const query = gql`
     $sortDirection: String
     $dbGaPID: String
     $controlledAccess: String
+    $openAccess: String
     $study: String
   ) {
     listApprovedStudies(
@@ -17,6 +18,7 @@ export const query = gql`
       sortDirection: $sortDirection
       dbGaPID: $dbGaPID
       controlledAccess: $controlledAccess
+      openAccess: $openAccess
       study: $study
     ) {
       _id
@@ -38,7 +40,8 @@ export type Input = {
   orderBy?: string;
   sortDirection?: Order;
   dbGaPID?: string;
-  controlledAccess?: ControlledAccess;
+  controlledAccess?: boolean;
+  openAccess?: boolean;
   study?: string;
 };
 

@@ -8,6 +8,9 @@ export const query = gql`
       createdAt
       updatedAt
       submittedDate
+      openAccess
+      controlledAccess
+      PI
       history {
         status
         reviewComment

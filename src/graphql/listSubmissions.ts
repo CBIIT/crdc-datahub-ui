@@ -31,6 +31,7 @@ export const query = gql`
         dbGaPID
         modelVersion
         status
+        archived
         conciergeName
         createdAt
         updatedAt
