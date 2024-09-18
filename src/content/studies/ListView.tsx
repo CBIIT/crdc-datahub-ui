@@ -270,7 +270,6 @@ const ListView = () => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     try {
       setLoading(true);
-      console.log(accessTypeFilter);
 
       const { data: d, error } = await listSubmissions({
         variables: {
