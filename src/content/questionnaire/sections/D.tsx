@@ -282,7 +282,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           inputID="section-d-targeted-data-submission-delivery-date"
           label="Targeted Data Submission Delivery Date"
           name="targetedSubmissionDate"
-          tooltipText="The date that transfer of data from the submitter to DataHub is expected to begin."
+          tooltipText="The date that transfer of data from the submitter to CRDC Submission Portal is expected to begin."
           initialValue={data.targetedSubmissionDate}
           gridWidth={6}
           disablePast
