@@ -9,6 +9,9 @@ export const mutation = gql`
       updatedAt
       submittedDate
       ORCID
+      openAccess
+      controlledAccess
+      PI
       history {
         status
         reviewComment
@@ -53,9 +56,17 @@ export type Input = {
      */
     controlledAccess: boolean;
     /**
+     * Whether the data submission will contain open access data
+     */
+    openAccess: boolean;
+    /**
      * The Open Researcher and Contributor ID
      */
     ORCID?: string;
+    /**
+     * Principal Investigator's full name "<first name> <last name>"
+     */
+    PI: string;
   };
 };
 
