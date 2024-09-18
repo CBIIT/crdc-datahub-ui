@@ -373,4 +373,4 @@ type NodeDetailResult = {
 
 type NodeRelationship = "parent" | "child";
 
-type ControlledAccess = "All" | "Controlled" | "Open";
+type AccessType = "All" | "Controlled" | "Open";

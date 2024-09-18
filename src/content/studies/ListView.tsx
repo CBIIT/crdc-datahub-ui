@@ -116,7 +116,7 @@ const StyledActionButton = styled(Button)(
 type FilterForm = {
   study: string;
   dbGaPID: string;
-  controlledAccess: ControlledAccess;
+  accessType: AccessType;
 };
 
 type TouchedState = { [K in keyof FilterForm]: boolean };
@@ -124,7 +124,7 @@ type TouchedState = { [K in keyof FilterForm]: boolean };
 const initialTouchedFields: TouchedState = {
   study: false,
   dbGaPID: false,
-  controlledAccess: false,
+  accessType: false,
 };
 
 const columns: Column<ApprovedStudy>[] = [
@@ -193,7 +193,7 @@ const ListView = () => {
     defaultValues: {
       study: "",
       dbGaPID: "",
-      controlledAccess: "All",
+      accessType: "All",
     },
   });
 
@@ -205,7 +205,7 @@ const ListView = () => {
 
   const studyFilter = watch("study");
   const dbGaPIDFilter = watch("dbGaPID");
-  const controlledAccessFilter = watch("controlledAccess");
+  const accessTypeFilter = watch("accessType");
   const tableRef = useRef<TableMethods>(null);
 
   const [listSubmissions] = useLazyQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
@@ -216,18 +216,16 @@ const ListView = () => {
     }
   );
 
-  const isControlledAccessFilterOption = (
-    controlledAccess: string
-  ): controlledAccess is FilterForm["controlledAccess"] =>
-    ["All", "Controlled", "Open"].includes(controlledAccess);
+  const isAccessTypeFilterOption = (accessType: string): accessType is FilterForm["accessType"] =>
+    ["All", "Controlled", "Open"].includes(accessType);
 
-  const handleControlledAccessChange = (controlledAccess: string) => {
-    if (controlledAccess === controlledAccessFilter) {
+  const handleAccessTypeChange = (accessType: string) => {
+    if (accessType === accessTypeFilter) {
       return;
     }
 
-    if (isControlledAccessFilterOption(controlledAccess)) {
-      setValue("controlledAccess", controlledAccess);
+    if (isAccessTypeFilterOption(accessType)) {
+      setValue("accessType", accessType);
     }
   };
 
@@ -238,7 +236,7 @@ const ListView = () => {
 
     const dbGaPID = searchParams.get("dbGaPID");
     const study = searchParams.get("study");
-    const controlledAccess = searchParams.get("controlledAccess");
+    const accessType = searchParams.get("accessType");
 
     if (dbGaPID !== dbGaPIDFilter) {
       setValue("dbGaPID", dbGaPID);
@@ -246,11 +244,11 @@ const ListView = () => {
     if (study !== studyFilter) {
       setValue("study", study);
     }
-    handleControlledAccessChange(controlledAccess);
+    handleAccessTypeChange(accessType);
   }, [data, searchParams.get("organization"), searchParams.get("status")]);
 
   useEffect(() => {
-    if (!touchedFilters.dbGaPID && !touchedFilters.study && !touchedFilters.controlledAccess) {
+    if (!touchedFilters.dbGaPID && !touchedFilters.study && !touchedFilters.accessType) {
       return;
     }
 
@@ -262,7 +260,7 @@ const ListView = () => {
 
     setTablePage(0);
     setSearchParams(searchParams);
-  }, [dbGaPIDFilter, studyFilter, controlledAccessFilter, touchedFilters]);
+  }, [dbGaPIDFilter, studyFilter, accessTypeFilter, touchedFilters]);
 
   const setTablePage = (page: number) => {
     tableRef.current?.setPage(page, true);
@@ -272,6 +270,7 @@ const ListView = () => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     try {
       setLoading(true);
+      console.log(accessTypeFilter);
 
       const { data: d, error } = await listSubmissions({
         variables: {
@@ -280,7 +279,8 @@ const ListView = () => {
           sortDirection,
           orderBy,
           dbGaPID: dbGaPIDFilter,
-          controlledAccess: controlledAccessFilter,
+          controlledAccess: accessTypeFilter === "Controlled" || accessTypeFilter === "All",
+          openAccess: accessTypeFilter === "Open" || accessTypeFilter === "All",
           study: studyFilter,
         },
         context: { clientName: "backend" },
@@ -355,17 +355,17 @@ const ListView = () => {
           <StyledInlineLabel htmlFor="status-filter">Access Type</StyledInlineLabel>
           <StyledFormControl>
             <Controller
-              name="controlledAccess"
+              name="accessType"
               control={control}
               render={({ field }) => (
                 <StyledSelect
                   {...field}
                   value={field.value}
                   MenuProps={{ disablePortal: true }}
-                  inputProps={{ id: "controlledAccess-filter" }}
+                  inputProps={{ id: "accessType-filter" }}
                   onChange={(e) => {
                     field.onChange(e);
-                    handleFilterChange("controlledAccess");
+                    handleFilterChange("accessType");
                   }}
                 >
                   <MenuItem value="All">All</MenuItem>
