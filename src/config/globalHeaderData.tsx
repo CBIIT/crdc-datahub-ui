@@ -48,7 +48,7 @@ export const navMobileList = [
     className: "navMobileItem",
   },
   {
-    name: "Documentations",
+    name: "Documentation",
     link: "#",
     id: "navbar-dropdown-documentation",
     className: "navMobileItem clickable",
@@ -80,7 +80,7 @@ export const navbarSublists: Record<string, NavBarSublist[]> = {
     className: "navMobileSubItem",
   })),
 
-  Documentations: [
+  Documentation: [
     {
       name: "Submission Request Instructions",
       link: "https://datacommons.cancer.gov/submission-request-instructions",
