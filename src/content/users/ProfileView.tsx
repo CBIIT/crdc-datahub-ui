@@ -443,7 +443,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   user.userStatus
                 )}
               </StyledField>
-              <StyledField>
+              <StyledField visible={fieldset.organization !== "HIDDEN"}>
                 <StyledLabel id="userOrganizationLabel">Organization</StyledLabel>
                 {visibleFieldState.includes(fieldset.organization) ? (
                   <Controller
