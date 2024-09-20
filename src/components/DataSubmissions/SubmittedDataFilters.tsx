@@ -4,7 +4,12 @@ import { cloneDeep, debounce, isEqual } from "lodash";
 import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { compareNodeStats } from "../../utils";
-import { GetSubmissionNodesInput, SUBMISSION_STATS, SubmissionStatsResp } from "../../graphql";
+import {
+  GetSubmissionNodesInput,
+  SUBMISSION_STATS,
+  SubmissionStatsInput,
+  SubmissionStatsResp,
+} from "../../graphql";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 import StyledInput from "../StyledFormComponents/StyledOutlinedInput";
 
@@ -66,18 +71,20 @@ const SubmittedDataFilters = forwardRef<FilterMethods, FilterProps>(
       debounce((form: FilterForm) => onChange?.(form), 500)
     ).current;
 
-    const { data, refetch } = useQuery<SubmissionStatsResp>(SUBMISSION_STATS, {
-      variables: { id: submissionId },
-      context: { clientName: "backend" },
-      skip: !submissionId,
-      fetchPolicy: "cache-and-network",
-    });
+    const { data, refetch } = useQuery<SubmissionStatsResp, SubmissionStatsInput>(
+      SUBMISSION_STATS,
+      {
+        variables: { id: submissionId },
+        context: { clientName: "backend" },
+        skip: !submissionId,
+        fetchPolicy: "cache-and-network",
+      }
+    );
 
     const nodeTypes = useMemo(
       () =>
         cloneDeep(data?.submissionStats?.stats)
           ?.sort(compareNodeStats)
-          ?.reverse()
           ?.map((stat) => stat.nodeName),
       [data?.submissionStats?.stats]
     );
