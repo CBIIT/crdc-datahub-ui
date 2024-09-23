@@ -4,7 +4,6 @@ describe("parseReleaseVersion cases", () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.spyOn(console, "error").mockImplementation();
     jest.resetModules();
 
     // Reset the environment variables back to their original values
@@ -46,9 +45,6 @@ describe("parseReleaseVersion cases", () => {
     const { parseReleaseVersion } = require("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringMatching(/is not set or is not a string/i)
-    );
   });
 
   it("should return N/A when REACT_APP_FE_VERSION is not a string", () => {
@@ -56,9 +52,6 @@ describe("parseReleaseVersion cases", () => {
     const { parseReleaseVersion } = require("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringMatching(/is not set or is not a string/i)
-    );
   });
 
   it("should return N/A when REACT_APP_FE_VERSION is not in the expected format (1/3)", () => {
@@ -66,9 +59,6 @@ describe("parseReleaseVersion cases", () => {
     const { parseReleaseVersion } = require("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringMatching(/is not in the expected format/i)
-    );
   });
 
   it("should return N/A when REACT_APP_FE_VERSION is not in the expected format (2/3)", () => {
@@ -76,9 +66,6 @@ describe("parseReleaseVersion cases", () => {
     const { parseReleaseVersion } = require("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringMatching(/is not in the expected format/i)
-    );
   });
 
   it("should return N/A when REACT_APP_FE_VERSION is not in the expected format (3/3)", () => {
@@ -86,23 +73,68 @@ describe("parseReleaseVersion cases", () => {
     const { parseReleaseVersion } = require("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringMatching(/is not in the expected format/i)
-    );
   });
 
   it("should return N/A when unable to get release version from build tag", () => {
     process.env.REACT_APP_FE_VERSION = "0.0.0.000";
 
     // NOTE: Previous safety checks should prevent this from happening,
-    // so we're just mocking some improper match behavior here
+    // so we're just mocking some improper `match` behavior here
     jest.spyOn(String.prototype, "match").mockReturnValueOnce([undefined, undefined]);
 
     const { parseReleaseVersion } = require("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringMatching(/unable to get release version from build tag/i)
+  });
+});
+
+describe("buildReleaseNotesUrl cases", () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+
+    // Reset the environment variables back to their original values
+    process.env = { ...originalEnv };
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("should return the correct URL when REACT_APP_FE_VERSION is valid", () => {
+    process.env.REACT_APP_FE_VERSION = "3.1.0.472";
+    const { buildReleaseNotesUrl } = require("./envUtils");
+
+    expect(buildReleaseNotesUrl()).toBe(
+      "https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/tags/3.1.0.472/README.md"
+    );
+  });
+
+  it("should return the fallback URL when REACT_APP_FE_VERSION is not set", () => {
+    delete process.env.REACT_APP_FE_VERSION;
+    const { buildReleaseNotesUrl } = require("./envUtils");
+
+    expect(buildReleaseNotesUrl()).toBe(
+      "https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/heads/main/README.md"
+    );
+  });
+
+  it("should return the fallback URL when REACT_APP_FE_VERSION is not a string", () => {
+    process.env.REACT_APP_FE_VERSION = 0 as unknown as string; // NOTE: Env variables can officially only be strings
+    const { buildReleaseNotesUrl } = require("./envUtils");
+
+    expect(buildReleaseNotesUrl()).toBe(
+      "https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/heads/main/README.md"
+    );
+  });
+
+  it("should return the fallback URL when REACT_APP_FE_VERSION is not in the expected format", () => {
+    process.env.REACT_APP_FE_VERSION = "invalid";
+    const { buildReleaseNotesUrl } = require("./envUtils");
+
+    expect(buildReleaseNotesUrl()).toBe(
+      "https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/heads/main/README.md"
     );
   });
 });

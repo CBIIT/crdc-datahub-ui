@@ -60,4 +60,8 @@ type AppEnv = {
    * @example "mvp-2.213"
    */
   REACT_APP_FE_VERSION: string;
+  /**
+   * The deployment environment the app is running in
+   */
+  NODE_ENV?: "test" | "development" | "production";
 };
