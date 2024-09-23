@@ -1,5 +1,8 @@
 name: Jest
 
+env:
+  REACT_APP_FE_VERSION: ${{ vars.REACT_APP_FE_VERSION }}
+
 on:
   workflow_dispatch:
   push:
