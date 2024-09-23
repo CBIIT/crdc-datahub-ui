@@ -3,7 +3,7 @@ import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { Button, styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
-import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
+import { navMobileList, navbarSublists } from "../../../config/HeaderConfig";
 import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";

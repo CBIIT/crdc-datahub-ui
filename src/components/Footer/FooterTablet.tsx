@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { styled } from "@mui/material";
-import FooterData from "../../config/globalFooterData";
+import FooterData from "../../config/FooterConfig";
 
 const FooterStyled = styled("footer")({
   backgroundColor: "#1B496E",
@@ -85,13 +85,14 @@ const FooterLinksContainer = styled("div")({
   "& .footItemSubtitle": {
     marginBottom: "10px",
     maxWidth: "290px",
-  },
-  "& .footItemLink": {
     fontFamily: "Open Sans",
     color: "#FFFFFF",
     fontWeight: 400,
     fontSize: "16px",
     lineHeight: "22px",
+  },
+  "& .footItemLink": {
+    color: "inherit",
     textDecoration: "none",
     "&:hover": {
       textDecoration: "underline",
@@ -233,35 +234,39 @@ const FooterTablet = () => {
       <FooterStyled role="contentinfo">
         <FooterContainer>
           <FooterLinksContainer>
-            {FooterData.link_sections.map((linkItem, linkidx) => {
-              const linkkey = `link_${linkidx}`;
-              return (
-                <div className="footItem" key={linkkey}>
-                  <div className="footItemTitle">{linkItem.title}</div>
-                  {linkItem.items.map((item, itemidx) => {
-                    const itemkey = `item_${itemidx}`;
+            {FooterData.link_sections.map((linkItem) => (
+              <div className="footItem" key={`link_${linkItem.title}`}>
+                <div className="footItemTitle">{linkItem.title}</div>
+                {linkItem.items.map((item) => {
+                  if (typeof item?.link !== "string") {
                     return (
-                      <div className="footItemSubtitle" key={itemkey}>
-                        {item.link.includes("http") ? (
-                          <a
-                            className="footItemLink"
-                            href={item.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {item.text}
-                          </a>
-                        ) : (
-                          <a className="footItemLink" href={item.link}>
-                            {item.text}
-                          </a>
-                        )}
+                      <div className="footItemSubtitle" key={item?.text}>
+                        {item.text}
                       </div>
                     );
-                  })}
-                </div>
-              );
-            })}
+                  }
+
+                  return (
+                    <div className="footItemSubtitle" key={`item_${item.text}`}>
+                      {item.link.includes("http") ? (
+                        <a
+                          className="footItemLink"
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {item.text}
+                        </a>
+                      ) : (
+                        <a className="footItemLink" href={item.link}>
+                          {item.text}
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
           </FooterLinksContainer>
           <FooterEmailSignupContainer
             onSubmit={handleSubmit}
