@@ -102,7 +102,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
   };
 
   const Actions: ReactElement = useMemo(() => {
-    if (submission?.dataType === "Metadata Only") {
+    if (submission?.dataType !== "Metadata and Data Files") {
       return null;
     }
 
