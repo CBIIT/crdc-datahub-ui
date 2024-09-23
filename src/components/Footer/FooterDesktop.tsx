@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { styled } from "@mui/material";
+import { Link } from "react-router-dom";
 import FooterData from "../../config/FooterConfig";
 
 const FooterStyled = styled("div")({
@@ -248,9 +249,9 @@ const FooterDesktop = () => {
                           {item.text}
                         </a>
                       ) : (
-                        <a className="footItemLink" href={item.link}>
+                        <Link className="footItemLink" to={item.link}>
                           {item.text}
-                        </a>
+                        </Link>
                       )}
                     </div>
                   );
