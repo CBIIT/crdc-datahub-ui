@@ -157,6 +157,32 @@ describe("Basic Functionality", () => {
       expect(manifestInput).toHaveValue("");
     });
   });
+
+  it("should trim whitespace from the input fields before submitting", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.type(
+      getByTestId("uploader-config-dialog-input-data-folder"),
+      "C:/Users/me/my-data-folder   "
+    );
+    userEvent.type(
+      getByTestId("uploader-config-dialog-input-manifest"),
+      "C:/Users/me/my-manifest.tsv   "
+    );
+
+    userEvent.click(getByTestId("uploader-config-dialog-download-button"));
+
+    await waitFor(() => {
+      expect(mockDownload).toHaveBeenCalledWith({
+        dataFolder: "C:/Users/me/my-data-folder",
+        manifest: "C:/Users/me/my-manifest.tsv",
+      });
+    });
+  });
 });
 
 describe("Implementation Requirements", () => {
@@ -178,6 +204,56 @@ describe("Implementation Requirements", () => {
 
     await waitFor(() => {
       expect(queryAllByText(/This field is required/)).toHaveLength(2);
+    });
+
+    expect(mockDownload).not.toHaveBeenCalled();
+  });
+
+  it("should not accept whitespace-only input for the Data Files Folder", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), " ".repeat(10));
+    userEvent.type(
+      getByTestId("uploader-config-dialog-input-manifest"),
+      "C:/someUser/someFolder/someManifest.tsv"
+    );
+
+    userEvent.click(getByTestId("uploader-config-dialog-download-button"));
+
+    await waitFor(() => {
+      expect(getByTestId("uploader-config-dialog-error-data-folder")).toBeVisible();
+      expect(getByTestId("uploader-config-dialog-error-data-folder")).toHaveTextContent(
+        /This field is required/
+      );
+    });
+
+    expect(mockDownload).not.toHaveBeenCalled();
+  });
+
+  it("should not accept whitespace-only input for the Manifest File", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.type(
+      getByTestId("uploader-config-dialog-input-data-folder"),
+      "C:/someUser/someFolder/someDataFolder"
+    );
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), " ".repeat(10));
+
+    userEvent.click(getByTestId("uploader-config-dialog-download-button"));
+
+    await waitFor(() => {
+      expect(getByTestId("uploader-config-dialog-error-manifest")).toBeVisible();
+      expect(getByTestId("uploader-config-dialog-error-manifest")).toHaveTextContent(
+        /This field is required/
+      );
     });
 
     expect(mockDownload).not.toHaveBeenCalled();

@@ -168,38 +168,48 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
               Full Path to Data Files Folder
               <StyledAsterisk />
               <Tooltip
-                title="Enter the full path for the Data Files folder on your local machine or S3 bucket"
+                title="Enter the full path for the Data Files folder on your local machine or S3 bucket."
                 open={undefined}
                 disableHoverListener={false}
                 data-testid="data-folder-input-tooltip"
               />
             </StyledLabel>
             <StyledOutlinedInput
-              {...register("dataFolder", { required: "This field is required" })}
+              {...register("dataFolder", {
+                required: "This field is required",
+                setValueAs: (v: string) => v?.trim(),
+              })}
               placeholder="/Users/me/my-data-files-folder"
               data-testid="uploader-config-dialog-input-data-folder"
               inputProps={{ "aria-labelledby": "data-folder-input-label" }}
             />
-            <StyledHelperText>{errors?.dataFolder?.message}</StyledHelperText>
+            <StyledHelperText data-testid="uploader-config-dialog-error-data-folder">
+              {errors?.dataFolder?.message}
+            </StyledHelperText>
           </Box>
           <Box>
             <StyledLabel id="manifest-input-label">
               Full Path to Manifest File
               <StyledAsterisk />
               <Tooltip
-                title="Enter the full path for the File Manifest on your local machine or S3 bucket"
+                title="Enter the full path for the File Manifest on your local machine or S3 bucket."
                 open={undefined}
                 disableHoverListener={false}
                 data-testid="manifest-input-tooltip"
               />
             </StyledLabel>
             <StyledOutlinedInput
-              {...register("manifest", { required: "This field is required" })}
+              {...register("manifest", {
+                required: "This field is required",
+                setValueAs: (v: string) => v?.trim(),
+              })}
               placeholder="/Users/me/my-metadata-folder/my-file-manifest.tsv"
               data-testid="uploader-config-dialog-input-manifest"
               inputProps={{ "aria-labelledby": "manifest-input-label" }}
             />
-            <StyledHelperText>{errors?.manifest?.message}</StyledHelperText>
+            <StyledHelperText data-testid="uploader-config-dialog-error-manifest">
+              {errors?.manifest?.message}
+            </StyledHelperText>
           </Box>
         </StyledForm>
       </StyledDialogContent>
