@@ -98,7 +98,7 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it("should call the onDownload function when the 'Download' button is clicked", async () => {
+  it("should call the onDownload function when the 'Download' button is clicked with a valid form", async () => {
     const { getByTestId } = render(
       <TestParent>
         <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
@@ -106,6 +106,9 @@ describe("Basic Functionality", () => {
     );
 
     expect(mockDownload).not.toHaveBeenCalled();
+
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
 
     userEvent.click(getByTestId("uploader-config-dialog-download-button"));
 
@@ -152,6 +155,151 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(dataFolderInput).toHaveValue("");
       expect(manifestInput).toHaveValue("");
+    });
+  });
+
+  it("should trim whitespace from the input fields before submitting", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.type(
+      getByTestId("uploader-config-dialog-input-data-folder"),
+      "C:/Users/me/my-data-folder   "
+    );
+    userEvent.type(
+      getByTestId("uploader-config-dialog-input-manifest"),
+      "C:/Users/me/my-manifest.tsv   "
+    );
+
+    userEvent.click(getByTestId("uploader-config-dialog-download-button"));
+
+    await waitFor(() => {
+      expect(mockDownload).toHaveBeenCalledWith({
+        dataFolder: "C:/Users/me/my-data-folder",
+        manifest: "C:/Users/me/my-manifest.tsv",
+      });
+    });
+  });
+});
+
+describe("Implementation Requirements", () => {
+  const mockDownload = jest.fn();
+  const mockOnClose = jest.fn();
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it("should not submit the form if any of the inputs are invalid", async () => {
+    const { getByTestId, queryAllByText } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("uploader-config-dialog-download-button"));
+
+    await waitFor(() => {
+      expect(queryAllByText(/This field is required/)).toHaveLength(2);
+    });
+
+    expect(mockDownload).not.toHaveBeenCalled();
+  });
+
+  it("should not accept whitespace-only input for the Data Files Folder", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), " ".repeat(10));
+    userEvent.type(
+      getByTestId("uploader-config-dialog-input-manifest"),
+      "C:/someUser/someFolder/someManifest.tsv"
+    );
+
+    userEvent.click(getByTestId("uploader-config-dialog-download-button"));
+
+    await waitFor(() => {
+      expect(getByTestId("uploader-config-dialog-error-data-folder")).toBeVisible();
+      expect(getByTestId("uploader-config-dialog-error-data-folder")).toHaveTextContent(
+        /This field is required/
+      );
+    });
+
+    expect(mockDownload).not.toHaveBeenCalled();
+  });
+
+  it("should not accept whitespace-only input for the Manifest File", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.type(
+      getByTestId("uploader-config-dialog-input-data-folder"),
+      "C:/someUser/someFolder/someDataFolder"
+    );
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), " ".repeat(10));
+
+    userEvent.click(getByTestId("uploader-config-dialog-download-button"));
+
+    await waitFor(() => {
+      expect(getByTestId("uploader-config-dialog-error-manifest")).toBeVisible();
+      expect(getByTestId("uploader-config-dialog-error-manifest")).toHaveTextContent(
+        /This field is required/
+      );
+    });
+
+    expect(mockDownload).not.toHaveBeenCalled();
+  });
+
+  it("should have a tooltip on the Data Files Folder input", async () => {
+    const { getByTestId, findByRole } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.hover(getByTestId("data-folder-input-tooltip"));
+
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent(
+      "Enter the full path for the Data Files folder on your local machine or S3 bucket"
+    );
+
+    userEvent.unhover(getByTestId("data-folder-input-tooltip"));
+
+    await waitFor(() => {
+      expect(tooltip).not.toBeVisible();
+    });
+  });
+
+  it("should have a tooltip on the Manifest File input", async () => {
+    const { getByTestId, findByRole } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.hover(getByTestId("manifest-input-tooltip"));
+
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent(
+      "Enter the full path for the File Manifest on your local machine or S3 bucket"
+    );
+
+    userEvent.unhover(getByTestId("manifest-input-tooltip"));
+
+    await waitFor(() => {
+      expect(tooltip).not.toBeVisible();
     });
   });
 });
