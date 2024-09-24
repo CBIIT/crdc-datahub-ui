@@ -25,6 +25,7 @@ const LoggingWrapper = (level: LogLevel, message: string, ...optionalParams: unk
   const timestamp = new Date().toISOString();
   switch (level) {
     case "error":
+      // eslint-disable-next-line no-console
       console.error(`[ERROR] [${timestamp}] ${message}`, ...optionalParams);
       break;
   }
