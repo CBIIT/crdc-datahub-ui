@@ -9,6 +9,7 @@ type Props<C extends { hideable?: boolean }> = {
   columns: C[];
   columnVisibilityModel: ColumnVisibilityModel;
   icon?: ReactNode;
+  sortAlphabetically?: boolean;
   getColumnKey: (column: C) => string;
   getColumnLabel: (column: C) => string;
   onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
@@ -27,6 +28,7 @@ const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
   columns,
   columnVisibilityModel,
   icon,
+  sortAlphabetically = true,
   getColumnKey,
   getColumnLabel,
   onColumnVisibilityModelChange,
@@ -51,6 +53,7 @@ const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
         open={Boolean(anchorEl)}
         columns={columns}
         columnVisibilityModel={columnVisibilityModel}
+        sortAlphabetically={sortAlphabetically}
         onColumnVisibilityModelChange={onColumnVisibilityModelChange}
         onClose={handleClosePopper}
         getColumnKey={getColumnKey}

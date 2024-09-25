@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useMemo } from "react";
 import {
   Popper,
   Paper,
@@ -126,6 +126,7 @@ type Props<C extends { hideable?: boolean }> = {
   open: boolean;
   columns: C[];
   columnVisibilityModel: ColumnVisibilityModel;
+  sortAlphabetically?: boolean;
   onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
   onClose: () => void;
   getColumnKey: (column: C) => string;
@@ -145,6 +146,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
   open,
   columns,
   columnVisibilityModel,
+  sortAlphabetically = true,
   onColumnVisibilityModelChange,
   onClose,
   getColumnKey,
@@ -202,6 +204,18 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
     onColumnVisibilityModelChange(resetModel);
   };
 
+  const sortedColumns = useMemo(() => {
+    if (!sortAlphabetically) {
+      return columns;
+    }
+
+    return [...columns].sort((a, b) => {
+      const labelA = getColumnLabel(a)?.toLowerCase();
+      const labelB = getColumnLabel(b)?.toLowerCase();
+      return labelA?.localeCompare(labelB);
+    });
+  }, [columns, getColumnLabel, sortAlphabetically]);
+
   // Filter hideable columns for computing 'allChecked' state
   const hideableColumns = columns.filter((column) => column.hideable !== false);
 
@@ -230,7 +244,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
           <StyledColumnList>
             <StyledTitle>Column Filter Types</StyledTitle>
 
-            {columns?.map((column) => {
+            {sortedColumns?.map((column) => {
               const key = getColumnKey(column);
               const isHideable = column.hideable !== false;
               return (
