@@ -13,7 +13,6 @@ type Props<C extends { hideable?: boolean }> = {
   getColumnKey: (column: C) => string;
   getColumnLabel: (column: C) => string;
   onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
-  // Removed localStorageKey as it's not needed here
 };
 
 /**
@@ -45,7 +44,11 @@ const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
 
   return (
     <>
-      <IconButton onClick={handleOpenPopper} aria-label="Manage columns button">
+      <IconButton
+        onClick={handleOpenPopper}
+        aria-label="Manage columns button"
+        data-testid="column-visibility-button"
+      >
         {icon ?? <TableColumnsIcon />}
       </IconButton>
       <ColumnVisibilityPopper
