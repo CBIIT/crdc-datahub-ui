@@ -30,6 +30,7 @@ import StyledSelectFormComponent from "../../components/StyledFormComponents/Sty
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import ColumnVisibilityButton from "../../components/GenericTable/ColumnVisibilityButton";
 
 type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
 
@@ -149,6 +150,7 @@ const columns: Column<T>[] = [
         </Link>
       ),
     field: "name",
+    hideable: false,
     sx: {
       width: "139px",
     },
@@ -157,6 +159,7 @@ const columns: Column<T>[] = [
     label: "Submitter",
     renderValue: (a) => <TruncatedText text={a.submitterName} />,
     field: "submitterName",
+    hideable: true,
     sx: {
       width: "102px",
     },
@@ -165,6 +168,7 @@ const columns: Column<T>[] = [
     label: "Data Commons",
     renderValue: (a) => a.dataCommons,
     field: "dataCommons",
+    hideable: true,
     sx: {
       width: "94px",
     },
@@ -173,6 +177,7 @@ const columns: Column<T>[] = [
     label: "Type",
     renderValue: (a) => a.intention,
     field: "intention",
+    hideable: true,
     sx: {
       width: "96px",
     },
@@ -181,6 +186,7 @@ const columns: Column<T>[] = [
     label: "DM Version",
     renderValue: (a) => a.modelVersion,
     field: "modelVersion",
+    hideable: true,
     sx: {
       width: "79px",
     },
@@ -194,16 +200,21 @@ const columns: Column<T>[] = [
     label: "Study",
     renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
     field: "studyAbbreviation",
+    hideable: true,
   },
+
   {
     label: "dbGaP ID",
     renderValue: (a) => <TruncatedText text={a.dbGaPID} />,
     field: "dbGaPID",
+    hideable: true,
   },
+
   {
     label: "Status",
     renderValue: (a) => a.status,
     field: "status",
+    hideable: true,
     sx: {
       width: "87px",
     },
@@ -212,7 +223,9 @@ const columns: Column<T>[] = [
     label: "Primary Contact",
     renderValue: (a) => <TruncatedText text={a.conciergeName} />,
     field: "conciergeName",
+    hideable: true,
   },
+
   {
     label: "Created Date",
     renderValue: (a) =>
@@ -224,6 +237,7 @@ const columns: Column<T>[] = [
         ""
       ),
     field: "createdAt",
+    hideable: true,
     sx: {
       width: "92px",
     },
@@ -239,6 +253,7 @@ const columns: Column<T>[] = [
         ""
       ),
     field: "updatedAt",
+    hideable: true,
     default: true,
     sx: {
       width: "108px",
@@ -503,6 +518,13 @@ const ListingView: FC = () => {
                 )}
               />
             </StyledFormControl>
+
+            <ColumnVisibilityButton
+              columns={columns}
+              localStroageKey="dataSubmissionListColumns"
+              getColumnKey={(column) => column.fieldKey ?? column.field}
+              getColumnLabel={(column) => column.label?.toString()}
+            />
           </StyledFilterContainer>
 
           <GenericTable
