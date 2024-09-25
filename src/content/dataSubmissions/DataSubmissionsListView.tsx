@@ -31,6 +31,7 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import ColumnVisibilityButton from "../../components/GenericTable/ColumnVisibilityButton";
+import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 
 type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
 
@@ -295,6 +296,14 @@ const ListingView: FC = () => {
       status: "All",
     },
   });
+  const { columnVisibilityModel, setColumnVisibilityModel, visibleColumns } = useColumnVisibility<
+    Column<T>
+  >({
+    columns,
+    getColumnKey: (c) => c.fieldKey ?? c.field,
+    localStorageKey: "dataSubmissionListColumns",
+  });
+
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
@@ -521,15 +530,16 @@ const ListingView: FC = () => {
 
             <ColumnVisibilityButton
               columns={columns}
-              localStroageKey="dataSubmissionListColumns"
               getColumnKey={(column) => column.fieldKey ?? column.field}
               getColumnLabel={(column) => column.label?.toString()}
+              columnVisibilityModel={columnVisibilityModel}
+              onColumnVisibilityModelChange={setColumnVisibilityModel}
             />
           </StyledFilterContainer>
 
           <GenericTable
             ref={tableRef}
-            columns={columns}
+            columns={visibleColumns}
             data={data || []}
             total={totalData || 0}
             loading={
