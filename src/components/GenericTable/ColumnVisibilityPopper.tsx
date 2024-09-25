@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useMemo } from "react";
+import React, { ChangeEvent, InputHTMLAttributes, useMemo } from "react";
 import {
   Popper,
   Paper,
@@ -155,8 +155,9 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
   /**
    * Handles the change event for individual column checkboxes.
    * Ensures non-hideable columns remain checked.
-   * @param key - The unique key of the column.
-   * @param isHideable - Indicates if the column is hideable.
+   *
+   * @param key - The unique key of the column
+   * @param isHideable - Indicates if the column is hideable
    */
   const handleCheckboxChange =
     (key: string, isHideable: boolean) =>
@@ -174,7 +175,8 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
   /**
    * Handles the "Show/Hide All" checkbox change event.
    * Toggles visibility of all hideable columns.
-   * @param event - The change event from the checkbox.
+   *
+   * @param event - The change event from the checkbox
    */
   const handleToggleAll = (event: ChangeEvent<HTMLInputElement>): void => {
     const isChecked = event.target.checked;
@@ -230,18 +232,23 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
   });
 
   return (
-    <Popper open={open} anchorEl={anchorEl} placement="bottom-start">
+    <Popper
+      open={open}
+      anchorEl={anchorEl}
+      placement="bottom-start"
+      data-testid="column-visibility-popper"
+    >
       <ClickAwayListener onClickAway={onClose}>
         <StyledPaper elevation={8}>
           <StyledCloseDialogButton
             aria-label="close"
-            data-testid="create-submission-dialog-close-button"
+            data-testid="column-visibility-popper-close-button"
             onClick={onClose}
           >
             <CloseIconSvg />
           </StyledCloseDialogButton>
 
-          <StyledColumnList>
+          <StyledColumnList data-testid="column-list">
             <StyledTitle>Column Filter Types</StyledTitle>
 
             {sortedColumns?.map((column) => {
@@ -257,6 +264,11 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
                       icon={<UncheckedIcon />}
                       checkedIcon={<CheckedIcon />}
                       disabled={!isHideable}
+                      inputProps={
+                        {
+                          "data-testid": `checkbox-${key}`,
+                        } as InputHTMLAttributes<HTMLInputElement>
+                      }
                     />
                   }
                   label={getColumnLabel(column)}
@@ -275,11 +287,20 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
                   onChange={handleToggleAll}
                   icon={<UncheckedIcon />}
                   checkedIcon={<CheckedIcon />}
+                  inputProps={
+                    {
+                      "data-testid": "toggle-all-checkbox",
+                    } as InputHTMLAttributes<HTMLInputElement>
+                  }
                 />
               }
               label="Show/Hide All"
             />
-            <StyledIconButton onClick={handleReset} disabled={!anyHidden}>
+            <StyledIconButton
+              onClick={handleReset}
+              disabled={!anyHidden}
+              data-testid="reset-button"
+            >
               <StyledRefreshIcon />
             </StyledIconButton>
           </StyledFooter>
