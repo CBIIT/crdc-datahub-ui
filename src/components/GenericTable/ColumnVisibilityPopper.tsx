@@ -239,7 +239,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
       data-testid="column-visibility-popper"
     >
       <ClickAwayListener onClickAway={onClose}>
-        <StyledPaper elevation={8}>
+        <StyledPaper elevation={8} role="presentation">
           <StyledCloseDialogButton
             aria-label="close"
             data-testid="column-visibility-popper-close-button"
