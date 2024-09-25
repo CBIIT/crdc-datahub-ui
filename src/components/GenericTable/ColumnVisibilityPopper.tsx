@@ -135,6 +135,7 @@ type Props<C extends { hideable?: boolean }> = {
 /**
  * A popper component that allows users to toggle the visibility of table columns.
  * Supports non-hideable columns by disabling their checkboxes and labels.
+ *
  * @template C - The type of the column objects
  * @param {Props} props
  * @returns {JSX.Element}

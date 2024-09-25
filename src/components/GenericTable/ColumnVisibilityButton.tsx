@@ -1,45 +1,37 @@
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { IconButton } from "@mui/material";
 import { ReactComponent as TableColumnsIcon } from "../../assets/icons/table_columns_icon.svg";
 import ColumnVisibilityPopper from "./ColumnVisibilityPopper";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 type ColumnVisibilityModel = { [key: string]: boolean };
 
 type Props<C extends { hideable?: boolean }> = {
   columns: C[];
-  localStroageKey: string;
+  columnVisibilityModel: ColumnVisibilityModel;
+  icon?: ReactNode;
   getColumnKey: (column: C) => string;
   getColumnLabel: (column: C) => string;
+  onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
+  // Removed localStorageKey as it's not needed here
 };
 
 /**
  * A component that renders a button to toggle the ColumnVisibilityPopper.
- * It manages the anchor element and stores the column visibility settings in localStorage.
+ * It receives the columnVisibilityModel from the parent component.
+ *
  * @template C - The type of the column objects
  * @param {Props} props
  * @returns {JSX.Element}
  */
 const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
   columns,
-  localStroageKey,
+  columnVisibilityModel,
+  icon,
   getColumnKey,
   getColumnLabel,
+  onColumnVisibilityModelChange,
 }: Props<C>): JSX.Element => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-
-  // Initialize the default visibility model (all columns visible)
-  const defaultVisibilityModel = columns.reduce<ColumnVisibilityModel>((model, column) => {
-    const key = getColumnKey(column);
-    model[key] = true;
-    return model;
-  }, {});
-
-  // Use localStorage to store the visibility model
-  const [columnVisibilityModel, setColumnVisibilityModel] = useLocalStorage<ColumnVisibilityModel>(
-    localStroageKey,
-    defaultVisibilityModel
-  );
 
   const handleOpenPopper = (event: React.MouseEvent<HTMLElement>): void => {
     setAnchorEl(event.currentTarget);
@@ -49,21 +41,17 @@ const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
     setAnchorEl(null);
   };
 
-  const handleColumnVisibilityChange = (model: ColumnVisibilityModel): void => {
-    setColumnVisibilityModel(model);
-  };
-
   return (
     <>
       <IconButton onClick={handleOpenPopper} aria-label="Manage columns button">
-        <TableColumnsIcon />
+        {icon ?? <TableColumnsIcon />}
       </IconButton>
       <ColumnVisibilityPopper
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         columns={columns}
         columnVisibilityModel={columnVisibilityModel}
-        onColumnVisibilityModelChange={handleColumnVisibilityChange}
+        onColumnVisibilityModelChange={onColumnVisibilityModelChange}
         onClose={handleClosePopper}
         getColumnKey={getColumnKey}
         getColumnLabel={getColumnLabel}
