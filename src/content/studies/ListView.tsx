@@ -25,6 +25,8 @@ import {
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
+import { FormatDate } from "../../utils";
+import { formatAccessTypes } from "../../utils/studyUtils";
 
 const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   padding: "14px 20px",
@@ -74,7 +76,7 @@ const StyledInlineLabel = styled("label")({
 
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#fff !important",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
@@ -89,7 +91,7 @@ const StyledHeaderCell = styled(TableCell)({
 });
 
 const StyledTableCell = styled(TableCell)({
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
@@ -146,7 +148,7 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "Access Type",
-    renderValue: (a) => a.controlledAccess,
+    renderValue: (a) => formatAccessTypes(a.controlledAccess, a.openAccess),
     field: "controlledAccess",
   },
   {
@@ -161,7 +163,7 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "Created Date",
-    renderValue: (a) => a.createdAt,
+    renderValue: (a) => FormatDate(a.createdAt, "M/D/YYYY h:mm A"),
     field: "createdAt",
   },
   {
@@ -278,8 +280,7 @@ const ListView = () => {
           sortDirection,
           orderBy,
           dbGaPID: dbGaPIDFilter,
-          controlledAccess: accessTypeFilter === "Controlled" || accessTypeFilter === "All",
-          openAccess: accessTypeFilter === "Open" || accessTypeFilter === "All",
+          controlledAccess: accessTypeFilter,
           study: studyFilter,
         },
         context: { clientName: "backend" },
