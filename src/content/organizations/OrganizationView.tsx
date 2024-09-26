@@ -216,7 +216,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   >(LIST_APPROVED_STUDIES, {
     variables: {
       // show all access types
-      controlledAccess: true,
+      controlledAccess: "All",
       openAccess: true,
       first: -1,
       offset: 0,
