@@ -26,7 +26,7 @@ const StyledViewHeader = styled(Box)({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  marginBottom: "-130px",
+  marginBottom: "-178px",
   marginTop: "0px",
 });
 
@@ -37,7 +37,7 @@ const StyledFormControl = styled(FormControl)({
   gap: "15px",
   width: "300px",
   marginBottom: "auto",
-  marginTop: "57px",
+  marginTop: "37px",
 });
 
 const StyledInlineLabel = styled("label")({

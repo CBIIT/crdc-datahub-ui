@@ -101,7 +101,10 @@ export type {
 } from "./getSubmissionNodes";
 
 export { query as SUBMISSION_STATS } from "./submissionStats";
-export type { Response as SubmissionStatsResp } from "./submissionStats";
+export type {
+  Input as SubmissionStatsInput,
+  Response as SubmissionStatsResp,
+} from "./submissionStats";
 
 export { mutation as DELETE_ORPHANED_FILE } from "./deleteOrphanedFile";
 export type { Response as DeleteOrphanedFileResp } from "./deleteOrphanedFile";
