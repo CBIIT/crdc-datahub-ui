@@ -43,13 +43,10 @@ describe("fetchReleaseNotes", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("should handle fetch errors", async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error("Network error"));
+  it("should forward fetch errors", async () => {
+    global.fetch = jest.fn().mockRejectedValue(new Error("Test network error"));
 
-    const result = await utils.fetchReleaseNotes();
-
-    expect(result).toBeInstanceOf(Error);
-    expect((result as Error).message).toBe("Network error");
+    await expect(utils.fetchReleaseNotes()).rejects.toThrow("Test network error");
   });
 
   it("should handle non-200 HTTP responses", async () => {
@@ -58,10 +55,9 @@ describe("fetchReleaseNotes", () => {
       status: 404,
     });
 
-    const result = await utils.fetchReleaseNotes();
-
-    expect(result).toBeInstanceOf(Error);
-    expect((result as Error).message).toBe("Failed to fetch release notes: 404");
+    await expect(utils.fetchReleaseNotes()).rejects.toThrow(
+      "Failed to fetch release notes: HTTP Error 404"
+    );
   });
 
   it("should handle an empty release notes document", async () => {
@@ -71,22 +67,16 @@ describe("fetchReleaseNotes", () => {
       text: jest.fn().mockResolvedValue(""),
     });
 
-    const result = await utils.fetchReleaseNotes();
-
-    expect(result).toBeInstanceOf(Error);
-    expect((result as Error).message).toBe("Release notes document is empty.");
+    await expect(utils.fetchReleaseNotes()).rejects.toThrow("Release notes document is empty.");
   });
 
-  it("should handle an error thrown while retrieving the response text", async () => {
+  it("should  handle an error thrown while retrieving the response text", async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       status: 200,
       text: jest.fn().mockRejectedValue(new Error("some mock text error")),
     });
 
-    const result = await utils.fetchReleaseNotes();
-
-    expect(result).toBeInstanceOf(Error);
-    expect((result as Error).message).toBe("Release notes document is empty.");
+    await expect(utils.fetchReleaseNotes()).rejects.toThrow("some mock text error");
   });
 });

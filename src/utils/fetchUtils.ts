@@ -6,25 +6,23 @@ import { buildReleaseNotesUrl } from "./envUtils";
  * @see Utilizes {@link buildReleaseNotesUrl} to build the URL to fetch the release notes document.
  * @note Handles caching the release notes document in {@link sessionStorage}.
  * @param signal An optional AbortSignal to cancel the fetch request
- * @returns The release notes document as a string or an Error object
+ * @returns The release notes document as a string
+ * @throws An error if the fetch request fails
  */
-export const fetchReleaseNotes = async (signal?: AbortSignal): Promise<string | Error> => {
+export const fetchReleaseNotes = async (signal?: AbortSignal): Promise<string> => {
   if (sessionStorage.getItem("releaseNotes")) {
     return sessionStorage.getItem("releaseNotes");
   }
 
   const url: string = buildReleaseNotesUrl();
-  const response = await fetch(url, { method: "GET", signal }).catch((err: Error) => err);
-  if (response instanceof Error) {
-    return response;
-  }
+  const response = await fetch(url, { method: "GET", signal });
   if (!response.ok || response.status !== 200) {
-    return new Error(`Failed to fetch release notes: ${response.status}`);
+    throw new Error(`Failed to fetch release notes: HTTP Error ${response.status}`);
   }
 
-  const md = await response.text().catch(() => null);
+  const md = await response.text();
   if (!md || md.length === 0) {
-    return new Error("Release notes document is empty.");
+    throw new Error("Release notes document is empty.");
   }
 
   sessionStorage.setItem("releaseNotes", md);

@@ -19,29 +19,25 @@ const ReleaseNotesController = (): React.ReactNode => {
   const [document, setDocument] = useState<string | null>(null);
   const isFetchingRef = useRef<boolean>(false);
 
-  useEffect(() => {
-    if (document && document.length > 0) {
-      return;
-    }
+  const fetchNotes = async () => {
+    isFetchingRef.current = true;
 
-    if (isFetchingRef.current) {
-      return;
-    }
-
-    (async () => {
-      isFetchingRef.current = true;
+    try {
       const result = await fetchReleaseNotes();
-      isFetchingRef.current = false;
-
-      if (result instanceof Error) {
-        Logger.error("ReleaseNotesController:", result);
-        enqueueSnackbar("Unable to load release notes.", { variant: "error" });
-        navigate("/");
-        return;
-      }
-
       setDocument(result);
-    })();
+    } catch (error) {
+      Logger.error("ReleaseNotesController:", error);
+      enqueueSnackbar("Unable to load release notes.", { variant: "error" });
+      navigate("/");
+    } finally {
+      isFetchingRef.current = false;
+    }
+  };
+
+  useEffect(() => {
+    if (!isFetchingRef.current) {
+      fetchNotes();
+    }
   }, []);
 
   if (!document) {
