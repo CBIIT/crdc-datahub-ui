@@ -1,15 +1,22 @@
-import { Box, styled } from "@mui/material";
+import { Container, styled } from "@mui/material";
 import { memo } from "react";
 import Markdown from "react-markdown";
 
-const StyledFrameContainer = styled(Box)({
+const StyledFrameContainer = styled(Container)({
+  marginTop: "30px",
+  marginBottom: "30px",
+});
+
+const StyledMarkdownBox = styled("div")({
   borderRadius: "6px",
   border: "1px solid #E0E0E0",
   background: "#fff",
+  boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
   position: "relative",
-  padding: "0 12px",
-  margin: "30px auto",
-  maxWidth: "calc(100% - 64px)",
+  padding: "6px 72px",
+  "& h1:first-of-type": {
+    textAlign: "center",
+  },
 });
 
 type NotesViewProps = {
@@ -26,9 +33,11 @@ type NotesViewProps = {
  * @returns {JSX.Element} The ReleaseNotes component.
  */
 const NotesView = ({ md }: NotesViewProps): JSX.Element => (
-  <StyledFrameContainer>
-    <Markdown data-testid="release-notes-markdown">{md}</Markdown>
+  <StyledFrameContainer maxWidth="xl">
+    <StyledMarkdownBox>
+      <Markdown data-testid="release-notes-markdown">{md}</Markdown>
+    </StyledMarkdownBox>
   </StyledFrameContainer>
 );
 
-export default memo<NotesViewProps>(NotesView, (prev, next) => prev.md === next.md);
+export default memo<NotesViewProps>(NotesView);
