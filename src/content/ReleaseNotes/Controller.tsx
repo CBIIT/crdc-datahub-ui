@@ -1,6 +1,4 @@
 import { memo, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSnackbar } from "notistack";
 import usePageTitle from "../../hooks/usePageTitle";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import NotesView from "./NotesView";
@@ -14,33 +12,36 @@ import { Logger, fetchReleaseNotes } from "../../utils";
 const ReleaseNotesController = (): React.ReactNode => {
   usePageTitle("Release Notes");
 
-  const navigate = useNavigate();
-  const { enqueueSnackbar } = useSnackbar();
   const [document, setDocument] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const isFetchingRef = useRef<boolean>(false);
 
   const fetchNotes = async () => {
+    if (isFetchingRef.current) {
+      return;
+    }
+
     isFetchingRef.current = true;
+    setLoading(true);
 
     try {
       const result = await fetchReleaseNotes();
       setDocument(result);
-    } catch (error) {
-      Logger.error("ReleaseNotesController:", error);
-      enqueueSnackbar("Unable to load release notes.", { variant: "error" });
-      navigate("/");
-    } finally {
       isFetchingRef.current = false;
+    } catch (error) {
+      Logger.error("ReleaseNotesController: Unable to fetch release notes.", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!isFetchingRef.current) {
+    if (!document) {
       fetchNotes();
     }
   }, []);
 
-  if (!document) {
+  if (loading) {
     return <SuspenseLoader />;
   }
 

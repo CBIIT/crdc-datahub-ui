@@ -1,4 +1,4 @@
-import { Container, styled } from "@mui/material";
+import { Alert, Container, styled } from "@mui/material";
 import { memo } from "react";
 import Markdown from "react-markdown";
 
@@ -19,9 +19,14 @@ const StyledMarkdownBox = styled("div")({
   },
 });
 
+const StyledError = styled(Alert)({
+  marginTop: "20px",
+  marginBottom: "20px",
+});
+
 type NotesViewProps = {
   /**
-   * A valid markdown string to render as the Release Notes.
+   * A valid markdown string to render as the Release Notes or `null` if the markdown is not available.
    */
   md: string | null;
 };
@@ -35,7 +40,13 @@ type NotesViewProps = {
 const NotesView = ({ md }: NotesViewProps): JSX.Element => (
   <StyledFrameContainer maxWidth="xl">
     <StyledMarkdownBox>
-      <Markdown data-testid="release-notes-markdown">{md}</Markdown>
+      {md ? (
+        <Markdown data-testid="release-notes-markdown">{md}</Markdown>
+      ) : (
+        <StyledError severity="error" data-testid="release-notes-error">
+          An error occurred while loading the Release Notes
+        </StyledError>
+      )}
     </StyledMarkdownBox>
   </StyledFrameContainer>
 );

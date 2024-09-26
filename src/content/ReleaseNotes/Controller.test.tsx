@@ -1,7 +1,8 @@
 import { act, render, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { FC } from "react";
+import { Logger } from "../../utils";
 import Controller from "./Controller";
+
+jest.spyOn(Logger, "error").mockImplementation(() => jest.fn());
 
 const mockFetchReleaseNotes = jest.fn();
 jest.mock("../../utils", () => ({
@@ -16,23 +17,6 @@ jest.mock("../../hooks/usePageTitle", () => ({
   default: (...p) => mockUsePageTitle(...p),
 }));
 
-type ParentProps = {
-  initialEntry?: string;
-  children: React.ReactNode;
-};
-
-const TestParent: FC<ParentProps> = ({
-  initialEntry = "/release-notes",
-  children,
-}: ParentProps) => (
-  <MemoryRouter initialEntries={[initialEntry]}>
-    <Routes>
-      <Route path="/release-notes" element={children} />
-      <Route path="/" element={<div>Root Page</div>} />
-    </Routes>
-  </MemoryRouter>
-);
-
 describe("Basic Functionality", () => {
   afterEach(() => {
     jest.resetAllMocks();
@@ -40,9 +24,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should set the page title 'Release Notes'", async () => {
-    render(<Controller />, {
-      wrapper: TestParent,
-    });
+    render(<Controller />);
 
     await waitFor(() => {
       expect(mockUsePageTitle).toHaveBeenCalledWith("Release Notes");
@@ -50,6 +32,8 @@ describe("Basic Functionality", () => {
   });
 
   it("should render the loader when fetching release notes", async () => {
+    jest.useFakeTimers();
+
     mockFetchReleaseNotes.mockImplementation(
       () =>
         new Promise((resolve) => {
@@ -59,9 +43,7 @@ describe("Basic Functionality", () => {
         })
     );
 
-    const { getByLabelText } = render(<Controller />, {
-      wrapper: TestParent,
-    });
+    const { getByLabelText } = render(<Controller />);
 
     await waitFor(() => {
       expect(getByLabelText("Content Loader")).toBeInTheDocument();
@@ -69,9 +51,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should fetch release notes on mount", async () => {
-    render(<Controller />, {
-      wrapper: TestParent,
-    });
+    render(<Controller />);
 
     await waitFor(() => {
       expect(mockFetchReleaseNotes).toHaveBeenCalledTimes(1);
@@ -90,9 +70,7 @@ describe("Basic Functionality", () => {
         })
     );
 
-    const { getByText, queryByText } = render(<Controller />, {
-      wrapper: TestParent,
-    });
+    const { getByText, queryByText } = render(<Controller />);
 
     expect(queryByText(/Mock Markdown Data/)).not.toBeInTheDocument();
 
@@ -105,64 +83,30 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it("should show an error message banner when release notes fail to fetch", async () => {
+  it("should report the error if fetching release notes fails", async () => {
     jest.useFakeTimers();
 
     mockFetchReleaseNotes.mockImplementation(
       () =>
         new Promise((_, reject) => {
           setTimeout(() => {
-            reject(new Error("Some error from a utility function"));
+            reject(new Error("Something bad happened"));
           }, 500);
         })
     );
 
-    const { queryByText } = render(<Controller />, {
-      wrapper: TestParent,
-    });
-
-    expect(queryByText(/Mock Error/)).not.toBeInTheDocument();
-
-    act(() => {
-      jest.advanceTimersByTime(500); // Trigger promise rejection
-    });
+    render(<Controller />);
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to load release notes.", {
-        variant: "error",
-      });
-    });
-  });
-
-  it("should navigate to the home page when release notes fail to fetch", async () => {
-    jest.useFakeTimers();
-
-    mockFetchReleaseNotes.mockImplementation(
-      () =>
-        new Promise((_, reject) => {
-          setTimeout(() => {
-            reject(new Error("Mock fetch error"));
-          }, 500);
-        })
-    );
-
-    const { getByText } = render(<Controller />, {
-      wrapper: TestParent,
-    });
-
-    act(() => {
-      jest.advanceTimersByTime(500); // Trigger promise rejection
-    });
-
-    await waitFor(() => {
-      expect(getByText(/Root Page/)).toBeInTheDocument();
+      expect(Logger.error).toHaveBeenCalledWith(
+        "ReleaseNotesController: Unable to fetch release notes.",
+        new Error("Something bad happened")
+      );
     });
   });
 
   it("should not fetch release notes if they are already loaded (double render)", async () => {
-    const { rerender } = render(<Controller />, {
-      wrapper: TestParent,
-    });
+    const { rerender } = render(<Controller />);
 
     await waitFor(() => {
       expect(mockFetchReleaseNotes).toHaveBeenCalledTimes(1);
@@ -171,34 +115,5 @@ describe("Basic Functionality", () => {
     rerender(<Controller />);
 
     expect(mockFetchReleaseNotes).toHaveBeenCalledTimes(1); // One initial fetch only
-  });
-
-  it("should not fetch release notes if they are currently being fetched", async () => {
-    jest.useFakeTimers();
-
-    mockFetchReleaseNotes.mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          setTimeout(() => {
-            resolve("# Mock Markdown Data");
-          }, 500);
-        })
-    );
-
-    const { rerender } = render(<Controller />, {
-      wrapper: TestParent,
-    });
-
-    await waitFor(() => {
-      expect(mockFetchReleaseNotes).toHaveBeenCalledTimes(1);
-    });
-
-    act(() => {
-      jest.advanceTimersByTime(250); // Halfway through the fetch
-    });
-
-    rerender(<Controller />);
-
-    expect(mockFetchReleaseNotes).toHaveBeenCalledTimes(1); // Still only one fetch
   });
 });
