@@ -117,7 +117,7 @@ const StyledSelect = styled(Select)(baseTextFieldStyles);
 
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#fff !important",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
@@ -132,7 +132,7 @@ const StyledHeaderCell = styled(TableCell)({
 });
 
 const StyledTableCell = styled(TableCell)({
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
