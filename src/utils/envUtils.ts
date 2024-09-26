@@ -56,8 +56,8 @@ export const buildReleaseNotesUrl = (): string => {
     typeof REACT_APP_FE_VERSION === "string" &&
     ReleaseRegex.test(REACT_APP_FE_VERSION)
   ) {
-    return `https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/tags/${REACT_APP_FE_VERSION}/README.md`; // TODO: Change to the release notes file
+    return `https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/tags/${REACT_APP_FE_VERSION}/CHANGELOG.md`;
   }
 
-  return "https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/heads/main/README.md"; // TODO: Change to the release notes file
+  return "https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/heads/main/CHANGELOG.md";
 };
