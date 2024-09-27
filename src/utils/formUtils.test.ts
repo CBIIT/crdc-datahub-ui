@@ -447,6 +447,11 @@ describe("renderStudySelectionValue cases", () => {
     studyAbbreviation: "",
     dbGaPID: "",
     controlledAccess: false,
+    originalOrg: "",
+    openAccess: false,
+    PI: "",
+    ORCID: "",
+    createdAt: "",
   };
 
   it("should return the fallback value if studyIds is not an array", () => {

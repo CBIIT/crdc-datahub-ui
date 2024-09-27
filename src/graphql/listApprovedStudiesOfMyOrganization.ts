@@ -13,5 +13,5 @@ export const query = gql`
 `;
 
 export type Response = {
-  listApprovedStudiesOfMyOrganization: ApprovedStudy[];
+  listApprovedStudiesOfMyOrganization: ApprovedStudyOfMyOrganization[];
 };
