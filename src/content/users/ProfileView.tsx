@@ -200,6 +200,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   });
 
   const { data: approvedStudies } = useQuery<ListApprovedStudiesResp>(LIST_APPROVED_STUDIES, {
+    variables: {
+      // show all access types
+      controlledAccess: "All",
+      first: -1,
+      offset: 0,
+    },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
     skip: fieldset.studies !== "UNLOCKED",
@@ -208,7 +214,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   // TODO: This is temporary until the API supports sorting natively
   const sortedStudies = useMemo<ApprovedStudy[]>(
     () =>
-      cloneDeep(approvedStudies?.listApprovedStudies)?.sort((a, b) =>
+      cloneDeep(approvedStudies?.listApprovedStudies?.studies)?.sort((a, b) =>
         a.studyName.localeCompare(b.studyName)
       ) || [],
     [approvedStudies]
