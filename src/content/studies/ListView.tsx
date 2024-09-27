@@ -27,6 +27,7 @@ import {
 } from "../../graphql";
 import { FormatDate } from "../../utils";
 import { formatAccessTypes } from "../../utils/studyUtils";
+import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 
 const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   padding: "14px 20px",
@@ -85,24 +86,30 @@ const StyledHeaderCell = styled(TableCell)({
   "& .MuiSvgIcon-root,  & .MuiButtonBase-root": {
     color: "#fff !important",
   },
-  "&:last-of-type": {
-    textAlign: "center",
-  },
 });
 
 const StyledTableCell = styled(TableCell)({
   fontSize: "14px",
   color: "#083A50 !important",
+  textAlign: "left",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
   },
-  "&:last-of-type": {
-    textAlign: "center",
-  },
+});
+
+const StyledLink = styled(Link)({
+  textDecoration: "none",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "100px",
 });
 
 const StyledActionButton = styled(Button)(
   ({ bg, text, border }: { bg: string; text: string; border: string }) => ({
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     background: `${bg} !important`,
     borderRadius: "8px",
     border: `2px solid ${border}`,
@@ -135,11 +142,17 @@ const columns: Column<ApprovedStudy>[] = [
     renderValue: (a) => a.studyName,
     field: "studyName",
     default: true,
+    sx: {
+      width: "278px",
+    },
   },
   {
     label: "Acronym",
     renderValue: (a) => a.studyAbbreviation,
     field: "studyAbbreviation",
+    sx: {
+      width: "208px",
+    },
   },
   {
     label: "dbGaPID",
@@ -149,12 +162,18 @@ const columns: Column<ApprovedStudy>[] = [
   {
     label: "Access Type",
     renderValue: (a) => formatAccessTypes(a.controlledAccess, a.openAccess),
-    field: "controlledAccess",
+    fieldKey: "accessType",
+    sx: {
+      width: "140px",
+    },
   },
   {
     label: "Principal Investigator",
     renderValue: (a) => a.PI,
     field: "PI",
+    sx: {
+      width: "197px",
+    },
   },
   {
     label: "ORCID",
@@ -165,6 +184,9 @@ const columns: Column<ApprovedStudy>[] = [
     label: "Created Date",
     renderValue: (a) => FormatDate(a.createdAt, "M/D/YYYY h:mm A"),
     field: "createdAt",
+    sx: {
+      width: "167px",
+    },
   },
   {
     label: (
@@ -173,11 +195,11 @@ const columns: Column<ApprovedStudy>[] = [
       </Stack>
     ),
     renderValue: (a) => (
-      <Link to={`/studies/${a?.["_id"]}`}>
+      <StyledLink to={`/studies/${a?.["_id"]}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
-      </Link>
+      </StyledLink>
     ),
     sortDisabled: true,
     sx: {
@@ -190,6 +212,7 @@ const ListView = () => {
   usePageTitle("Manage Studies");
 
   const { state } = useLocation();
+  const { status: authStatus } = useAuthContext();
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const { watch, register, control, setValue } = useForm<FilterForm>({
     defaultValues: {
@@ -247,17 +270,32 @@ const ListView = () => {
       setValue("study", study);
     }
     handleAccessTypeChange(accessType);
-  }, [data, searchParams.get("organization"), searchParams.get("status")]);
+  }, [
+    data,
+    searchParams.get("dbGaPID"),
+    searchParams.get("study"),
+    searchParams.get("accessType"),
+  ]);
 
   useEffect(() => {
     if (!touchedFilters.dbGaPID && !touchedFilters.study && !touchedFilters.accessType) {
       return;
     }
 
-    if (dbGaPIDFilter && dbGaPIDFilter !== "All") {
+    if (dbGaPIDFilter) {
       searchParams.set("dbGaPID", dbGaPIDFilter);
-    } else if (dbGaPIDFilter === "All") {
+    } else {
       searchParams.delete("dbGaPID");
+    }
+    if (studyFilter) {
+      searchParams.set("study", studyFilter);
+    } else {
+      searchParams.delete("study");
+    }
+    if (accessTypeFilter && accessTypeFilter !== "All") {
+      searchParams.set("accessType", accessTypeFilter);
+    } else if (accessTypeFilter === "All") {
+      searchParams.delete("accessType");
     }
 
     setTablePage(0);
@@ -382,7 +420,7 @@ const ListView = () => {
           columns={columns}
           data={data || []}
           total={count || 0}
-          loading={loading}
+          loading={loading || authStatus === AuthStatus.LOADING}
           disableUrlParams={false}
           defaultRowsPerPage={20}
           defaultOrder="asc"
