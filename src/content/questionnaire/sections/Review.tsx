@@ -62,6 +62,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
     approveFormRef,
     inquireFormRef,
     rejectFormRef,
+    exportButtonRef,
     getFormObjectRef,
   } = refs;
 
@@ -106,6 +107,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
 
     saveFormRef.current.style.display = "none";
     nextButtonRef.current.style.display = "none";
+    exportButtonRef.current.style.display = "flex";
 
     if (formMode === "Review") {
       approveFormRef.current.style.display = "flex";

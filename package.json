@@ -24,6 +24,7 @@
     "graphql-tag": "^2.12.6",
     "jest-axe": "^8.0.0",
     "jest-fail-on-console": "^3.3.0",
+    "jspdf": "^2.5.2",
     "lodash": "^4.17.21",
     "notistack": "^3.0.1",
     "papaparse": "^5.4.1",
