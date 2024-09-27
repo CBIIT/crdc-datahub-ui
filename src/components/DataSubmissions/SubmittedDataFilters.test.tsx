@@ -4,7 +4,7 @@ import UserEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import SubmittedDataFilters from "./SubmittedDataFilters";
-import { SUBMISSION_STATS, SubmissionStatsResp } from "../../graphql";
+import { SUBMISSION_STATS, SubmissionStatsInput, SubmissionStatsResp } from "../../graphql";
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -44,7 +44,7 @@ describe("SubmittedDataFilters cases", () => {
 
   it("should handle an empty array of node types without errors", async () => {
     const _id = "example-empty-results";
-    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+    const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
           query: SUBMISSION_STATS,
@@ -70,9 +70,9 @@ describe("SubmittedDataFilters cases", () => {
   });
 
   // NOTE: The sorting function `compareNodeStats` is already heavily tested, this is just a sanity check
-  it("should sort the node types by count in descending order", async () => {
+  it("should sort the node types by count in ascending order", async () => {
     const _id = "example-sorting-by-count-id";
-    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+    const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
           query: SUBMISSION_STATS,
@@ -109,20 +109,20 @@ describe("SubmittedDataFilters cases", () => {
         hidden: true,
       });
 
-      // The order of the nodes should be N-1 < N-2 < N-3
+      // The order of the nodes should be N-3, N-2, N-1
       expect(muiSelectList).toBeInTheDocument();
-      expect(muiSelectList.innerHTML.search("N-1")).toBeLessThan(
+      expect(muiSelectList.innerHTML.search("N-3")).toBeLessThan(
         muiSelectList.innerHTML.search("N-2")
       );
       expect(muiSelectList.innerHTML.search("N-2")).toBeLessThan(
-        muiSelectList.innerHTML.search("N-3")
+        muiSelectList.innerHTML.search("N-1")
       );
     });
   });
 
   it("should select the first sorted node type in the by default", async () => {
     const _id = "example-select-first-node-id";
-    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+    const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
           query: SUBMISSION_STATS,
@@ -135,8 +135,8 @@ describe("SubmittedDataFilters cases", () => {
             submissionStats: {
               stats: [
                 { ...baseStatistic, nodeName: "SECOND", total: 3 },
-                { ...baseStatistic, nodeName: "FIRST", total: 999 },
-                { ...baseStatistic, nodeName: "THIRD", total: 1 },
+                { ...baseStatistic, nodeName: "THIRD", total: 999 },
+                { ...baseStatistic, nodeName: "FIRST", total: 1 },
               ],
             },
           },
@@ -158,7 +158,7 @@ describe("SubmittedDataFilters cases", () => {
   // NOTE: This test used to be the inverse, but we now want to ensure that Data Files are shown
   // Data Files are a special case, as they're common across all Data Models / Data Commons
   it("should show the nodeType 'data file' if present", async () => {
-    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+    const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
           query: SUBMISSION_STATS,
@@ -197,7 +197,7 @@ describe("SubmittedDataFilters cases", () => {
   });
 
   it("should always visually render the nodeName as lowercase", async () => {
-    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+    const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
           query: SUBMISSION_STATS,
@@ -236,7 +236,7 @@ describe("SubmittedDataFilters cases", () => {
 
   it("should immediately dispatch NodeType and Status filter changes", async () => {
     const mockOnChange = jest.fn();
-    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+    const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
           query: SUBMISSION_STATS,
@@ -283,7 +283,7 @@ describe("SubmittedDataFilters cases", () => {
 
   it("should debounce the submittedID field input", async () => {
     const mockOnChange = jest.fn();
-    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+    const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
           query: SUBMISSION_STATS,
@@ -327,7 +327,7 @@ describe("SubmittedDataFilters cases", () => {
 
   it("should dispatch an empty submittedID field input immediately", async () => {
     const mockOnChange = jest.fn();
-    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+    const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
           query: SUBMISSION_STATS,
@@ -376,7 +376,7 @@ describe("SubmittedDataFilters cases", () => {
 
   it("should not dispatch a submittedID field with less than 3 characters", async () => {
     const mockOnChange = jest.fn();
-    const mocks: MockedResponse<SubmissionStatsResp>[] = [
+    const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
           query: SUBMISSION_STATS,

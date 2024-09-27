@@ -4,7 +4,7 @@ import { isEqual } from "lodash";
 import SubmissionHeaderProperty, { StyledValue } from "./SubmissionHeaderProperty";
 import Tooltip from "./Tooltip";
 import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
-import HistoryDialog from "../Shared/HistoryDialog";
+import HistoryDialog from "../HistoryDialog";
 import DataSubmissionIconMap from "./DataSubmissionIconMap";
 import ReviewCommentsDialog from "../Shared/ReviewCommentsDialog";
 import { SortHistory } from "../../utils";
@@ -194,7 +194,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
     let color: string;
     switch (status) {
-      case "Archived":
+      case "Completed":
         color = "#10EBA9";
         break;
       case "Rejected":

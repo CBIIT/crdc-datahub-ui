@@ -1,12 +1,13 @@
 /**
- * Defines a list of valid user roles that can be assigned.
+ * Defines a list of valid user roles that can be assigned to a user.
  *
- * @type {User["role"][]}
+ * @see {@link UserRole}
  */
-export const Roles: User["role"][] = [
+export const Roles: UserRole[] = [
   "User",
   "Submitter",
   "Organization Owner",
+  "Federal Monitor",
   "Federal Lead",
   "Data Curator",
   "Data Commons POC",
@@ -15,33 +16,42 @@ export const Roles: User["role"][] = [
 
 /**
  * Defines a list of roles that are required to have an
- * organization assigned to them. This unlocks the org dropdown.
- *
- * @type {User["role"][]}
+ * organization assigned to them. This unlocks the Organization assignment dropdown.
  */
-export const OrgRequiredRoles: User["role"][] = [
-  "Submitter",
-  "Organization Owner",
-  "Data Commons POC",
-];
+export const OrgRequiredRoles: UserRole[] = ["Submitter", "Organization Owner", "Data Commons POC"];
 
 /**
  * A map of the roles that are required to be pre-assigned
- * to a specific organization in the database. This locks the org dropdown.
+ * to a specific organization in the database. This locks the Organization assignment dropdown.
  *
- * NOTE: This depends on the organizations existing in the database.
+ * @note This requires that an organization with the specified name exists in the database.
  */
-type RoleSubset = Extends<User["role"], "Admin" | "Data Curator" | "Federal Lead">;
-export const OrgAssignmentMap: Record<RoleSubset, Organization["name"]> = {
+type RoleSubset = Extends<UserRole, "Admin" | "Federal Lead" | "Federal Monitor">;
+export const OrgAssignmentMap: Record<RoleSubset, string> = {
   Admin: "FNL",
-  "Data Curator": "FNL",
   "Federal Lead": "NCI",
+  "Federal Monitor": "NCI",
 };
+
+/**
+ * Defines a list of roles that are allowed to interact with regular Validation.
+ */
+export const ValidateRoles: UserRole[] = [
+  "Submitter",
+  "Organization Owner",
+  "Data Curator",
+  "Admin",
+];
 
 /**
  * Defines a list of roles that are allowed to interact with Cross Validation.
  */
-export const CrossValidateRoles: User["role"][] = ["Admin", "Data Curator"];
+export const CrossValidateRoles: UserRole[] = ["Admin", "Data Curator"];
+
+/**
+ * Defines a list of roles that can, at a minimum, view profiles of other users.
+ */
+export const CanManageUsers: UserRole[] = ["Admin", "Organization Owner"];
 
 /**
  * Defines a list of roles that are allowed to generate an API token.
@@ -53,9 +63,19 @@ export const GenerateApiTokenRoles: User["role"][] = ["Organization Owner", "Sub
 /**
  * Defines a list of roles that are allowed to interact with the Operation Dashboard.
  */
-export const DashboardRoles: User["role"][] = [
+export const DashboardRoles: UserRole[] = [
   "Admin",
   "Data Curator",
   "Federal Lead",
   "Federal Monitor",
+];
+
+/**
+ * Defines a list of roles that are allowed to submit a Data Submission
+ */
+export const SubmitDataSubmissionRoles: UserRole[] = [
+  "Submitter",
+  "Organization Owner",
+  "Data Curator",
+  "Admin",
 ];

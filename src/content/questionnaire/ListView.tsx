@@ -19,7 +19,7 @@ import {
 import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
 import { query, Response } from "../../graphql/listApplications";
-import bannerSvg from "../../assets/banner/list_banner.svg";
+import bannerSvg from "../../assets/banner/submission_banner.png";
 import PageBanner from "../../components/PageBanner";
 import { FormatDate } from "../../utils";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
@@ -72,7 +72,7 @@ const StyledTableHead = styled(TableHead)({
 
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#fff !important",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
@@ -87,7 +87,7 @@ const StyledHeaderCell = styled(TableCell)({
 });
 
 const StyledTableCell = styled(TableCell)({
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
@@ -250,7 +250,9 @@ const ListingView: FC = () => {
           studyAbbreviation: "",
           questionnaireData: "{}",
           controlledAccess: false,
+          openAccess: false,
           ORCID: "",
+          PI: "",
         },
       },
     }).catch((e) => ({ data: null, errors: e }));

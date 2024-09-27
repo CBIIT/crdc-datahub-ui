@@ -46,6 +46,7 @@ const baseSubmission: Omit<
   updatedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
@@ -78,6 +79,7 @@ const baseUser: Omit<User, "role"> = {
   IDP: "nih",
   email: "",
   organization: null,
+  studies: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",
@@ -1048,7 +1050,6 @@ describe("Implementation Requirements", () => {
     "Submitted",
     "Released",
     "Completed",
-    "Archived",
     "Canceled",
     "fake status" as SubmissionStatus,
   ])("should be disabled when the Submission status is '%s'", (status) => {

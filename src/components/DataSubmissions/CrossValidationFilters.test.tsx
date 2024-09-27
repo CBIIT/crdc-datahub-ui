@@ -7,11 +7,11 @@ import { GraphQLError } from "graphql";
 import Filters from "./CrossValidationFilters";
 import {
   LIST_BATCHES,
-  LIST_NODE_TYPES,
+  SUBMISSION_STATS,
   ListBatchesInput,
   ListBatchesResp,
-  ListNodeTypesInput,
-  ListNodeTypesResp,
+  SubmissionStatsInput,
+  SubmissionStatsResp,
 } from "../../graphql";
 import {
   SubmissionContext,
@@ -37,6 +37,7 @@ const baseSubmission: Submission = {
   fileValidationStatus: "Error",
   crossSubmissionStatus: "Error",
   deletingData: false,
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
@@ -109,14 +110,16 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should handle empty nodes and batches without issues", async () => {
-    const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          listSubmissionNodeTypes: [],
+          submissionStats: {
+            stats: [],
+          },
         },
       },
     };
@@ -148,9 +151,9 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should handle GraphQL errors when fetching nodes without issues", async () => {
-    const graphqlErrorNodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const graphqlErrorNodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
@@ -186,9 +189,9 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should handle network errors when fetching nodes without issues", async () => {
-    const networkErrorNodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const networkErrorNodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       error: new Error("Network Error"),
@@ -222,14 +225,16 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should handle GraphQL errors when fetching batches without issues", async () => {
-    const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          listSubmissionNodeTypes: [],
+          submissionStats: {
+            stats: [],
+          },
         },
       },
     };
@@ -253,14 +258,16 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should handle network errors when fetching batches without issues", async () => {
-    const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          listSubmissionNodeTypes: [],
+          submissionStats: {
+            stats: [],
+          },
         },
       },
     };
@@ -282,14 +289,16 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should sort the batch filter by displayID in ascending order", async () => {
-    const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          listSubmissionNodeTypes: [],
+          submissionStats: {
+            stats: [],
+          },
         },
       },
     };
@@ -350,14 +359,41 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should sort the node names alphabetically in descending order", async () => {
-    const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          listSubmissionNodeTypes: ["node-3", "node-1", "node-2"],
+          submissionStats: {
+            stats: [
+              {
+                nodeName: "node-3",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+              {
+                nodeName: "node-1",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+              {
+                nodeName: "node-2",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+            ],
+          },
         },
       },
     };
@@ -411,14 +447,41 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should always visually render the nodeName as lowercase", async () => {
-    const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          listSubmissionNodeTypes: ["NODE_NAME", "Upper_Case", "lower_case"],
+          submissionStats: {
+            stats: [
+              {
+                nodeName: "NODE_NAME",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+              {
+                nodeName: "Upper_Case",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+              {
+                nodeName: "lower_case",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+            ],
+          },
         },
       },
     };
@@ -461,14 +524,16 @@ describe("CrossValidationFilters cases", () => {
 
   it("should immediately dispatch Batch ID filter changes", async () => {
     const mockOnChange = jest.fn();
-    const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          listSubmissionNodeTypes: [],
+          submissionStats: {
+            stats: [],
+          },
         },
       },
     };
@@ -527,14 +592,33 @@ describe("CrossValidationFilters cases", () => {
 
   it("should immediately dispatch NodeID ID filter changes", async () => {
     const mockOnChange = jest.fn();
-    const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          listSubmissionNodeTypes: ["enrollment", "study"],
+          submissionStats: {
+            stats: [
+              {
+                nodeName: "study",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+              {
+                nodeName: "enrollment",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+            ],
+          },
         },
       },
     };
@@ -590,14 +674,16 @@ describe("CrossValidationFilters cases", () => {
 
   it("should immediately dispatch Severity filter changes", async () => {
     const mockOnChange = jest.fn();
-    const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          listSubmissionNodeTypes: [],
+          submissionStats: {
+            stats: [],
+          },
         },
       },
     };

@@ -1,17 +1,7 @@
 import { FC, useEffect, useMemo, useState } from "react";
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import {
-  Alert,
-  Box,
-  Container,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  Stack,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Box, Container, MenuItem, Stack, Typography, styled } from "@mui/material";
 import { cloneDeep } from "lodash";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -24,26 +14,34 @@ import {
   useOrganizationListContext,
 } from "../../components/Contexts/OrganizationListContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
-import { OrgAssignmentMap, OrgRequiredRoles, Roles } from "../../config/AuthRoles";
+import { OrgAssignmentMap, Roles } from "../../config/AuthRoles";
 import {
   EDIT_USER,
+  EditUserInput,
   EditUserResp,
   GET_USER,
+  GetUserInput,
   GetUserResp,
+  LIST_APPROVED_STUDIES,
+  ListApprovedStudiesResp,
   UPDATE_MY_USER,
+  UpdateMyUserInput,
   UpdateMyUserResp,
 } from "../../graphql";
-import { formatIDP, getEditableFields } from "../../utils";
+import { formatFullStudyName, formatIDP, formatStudySelectionValue } from "../../utils";
 import { DataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
+import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import useProfileFields, { FieldState } from "../../hooks/useProfileFields";
 
 type Props = {
   _id: User["_id"];
   viewType: "users" | "profile";
 };
 
-type FormInput = UserInput | EditUserInput;
+type FormInput = UpdateMyUserInput["userInfo"] | EditUserInput;
 
 const StyledContainer = styled(Container)({
   marginBottom: "90px",
@@ -92,14 +90,16 @@ const StyledHeaderText = styled(Typography)({
   fontWeight: 700,
 });
 
-const StyledField = styled("div")({
+const StyledField = styled("div", { shouldForwardProp: (p) => p !== "visible" })<{
+  visible?: boolean;
+}>(({ visible = true }) => ({
   marginBottom: "10px",
   minHeight: "41px",
-  display: "flex",
+  display: visible ? "flex" : "none",
   alignItems: "center",
   justifyContent: "flex-start",
   fontSize: "18px",
-});
+}));
 
 const StyledLabel = styled("span")({
   color: "#356AAD",
@@ -110,39 +110,10 @@ const StyledLabel = styled("span")({
 
 const BaseInputStyling = {
   width: "363px",
-  borderRadius: "8px",
-  backgroundColor: "#fff",
-  color: "#083A50",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "18px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .MuiList-root": {
-    padding: 0,
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
 };
 
-const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
-
-const StyledSelect = styled(Select)(BaseInputStyling);
+const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
+const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
@@ -170,6 +141,17 @@ const StyledTitleBox = styled(Box)({
   width: "100%",
 });
 
+const StyledSelectionCount = styled(Typography)({
+  fontSize: "16px",
+  fontWeight: 600,
+  color: "#666666",
+  width: "200px",
+  position: "absolute",
+  left: "373px",
+  transform: "translateY(-50%)",
+  top: "50%",
+});
+
 /**
  * User Profile View Component
  *
@@ -191,39 +173,138 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [user, setUser] = useState<User | null>(
     isSelf && viewType === "profile" ? { ...currentUser } : null
   );
-  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
-  const userOrg = orgData?.find((org) => org._id === user?.organization?.orgID);
   const [orgList, setOrgList] = useState<Partial<Organization>[]>(undefined);
-  const role = watch("role");
-  const orgFieldDisabled = useMemo(
-    () => !OrgRequiredRoles.includes(role) && role !== "User",
-    [role]
-  );
-  const dcFieldDisabled = useMemo(() => role !== "Data Commons POC", [role]);
-  const displayDataCommons =
-    (viewType === "profile" && user?.role === "Data Commons POC") ||
-    (viewType === "users" && !dcFieldDisabled);
-  const fieldset = useMemo(
-    () => getEditableFields(currentUser, user, viewType),
-    [user?._id, _id, currentUser?.role, viewType]
-  );
+
+  const roleField = watch("role");
+  const studiesField = watch("studies");
+  const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
+  const visibleFieldState: FieldState[] = ["UNLOCKED", "DISABLED"];
+
+  const userOrg = orgData?.find((org) => org._id === user?.organization?.orgID);
   const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
 
-  const [getUser] = useLazyQuery<GetUserResp>(GET_USER, {
+  const [getUser] = useLazyQuery<GetUserResp, GetUserInput>(GET_USER, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const [updateMyUser] = useMutation<UpdateMyUserResp, { userInfo: UserInput }>(UPDATE_MY_USER, {
+  const [updateMyUser] = useMutation<UpdateMyUserResp, UpdateMyUserInput>(UPDATE_MY_USER, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const [editUser] = useMutation<EditUserResp>(EDIT_USER, {
+  const [editUser] = useMutation<EditUserResp, EditUserInput>(EDIT_USER, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
+
+  const { data: approvedStudies } = useQuery<ListApprovedStudiesResp>(LIST_APPROVED_STUDIES, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+    skip: fieldset.studies !== "UNLOCKED",
+  });
+
+  // TODO: This is temporary until the API supports sorting natively
+  const sortedStudies = useMemo<ApprovedStudy[]>(
+    () =>
+      cloneDeep(approvedStudies?.listApprovedStudies)?.sort((a, b) =>
+        a.studyName.localeCompare(b.studyName)
+      ) || [],
+    [approvedStudies]
+  );
+
+  const onSubmit = async (data: FormInput) => {
+    setSaving(true);
+
+    // Save profile changes
+    if (isSelf && viewType === "profile" && "firstName" in data && "lastName" in data) {
+      const { data: d, errors } = await updateMyUser({
+        variables: {
+          userInfo: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+          },
+        },
+      }).catch((e) => ({ errors: e?.message, data: null }));
+      setSaving(false);
+
+      if (errors || !d?.updateMyUser) {
+        enqueueSnackbar(errors || "Unable to save profile changes", { variant: "error" });
+        return;
+      }
+
+      setData(d.updateMyUser);
+      // Save user changes
+    } else if (viewType === "users" && "role" in data) {
+      const { data: d, errors } = await editUser({
+        variables: {
+          userID: _id,
+          organization: data.organization,
+          role: data.role,
+          userStatus: data.userStatus,
+          studies: fieldset.studies !== "HIDDEN" ? data.studies : null,
+          dataCommons: fieldset.dataCommons !== "HIDDEN" ? data.dataCommons : null,
+        },
+      }).catch((e) => ({ errors: e?.message, data: null }));
+      setSaving(false);
+
+      if (errors || !d?.editUser) {
+        enqueueSnackbar(errors || "Unable to save user profile changes", { variant: "error" });
+        return;
+      }
+
+      if (isSelf) {
+        setData(d.editUser);
+        if (d.editUser.userStatus === "Inactive") {
+          logout();
+        }
+      }
+    }
+
+    enqueueSnackbar("All changes have been saved", { variant: "success" });
+    if (viewType === "users") {
+      navigate(manageUsersPageUrl);
+    }
+  };
+
+  useEffect(() => {
+    // No action needed if viewing own profile, using cached data
+    if (isSelf && viewType === "profile") {
+      setUser({ ...currentUser });
+      reset({
+        ...currentUser,
+        organization: currentUser.organization?.orgID || "",
+      });
+      return;
+    }
+
+    (async () => {
+      const { data, error } = await getUser({ variables: { userID: _id } });
+
+      if (error || !data?.getUser) {
+        navigate(manageUsersPageUrl, {
+          state: { error: "Unable to fetch user data" },
+        });
+        return;
+      }
+
+      setUser({ ...data?.getUser });
+      reset({
+        ...data?.getUser,
+        organization: data?.getUser.organization?.orgID || "",
+      });
+    })();
+  }, [_id]);
+
+  useEffect(() => {
+    if (fieldset.organization !== "DISABLED" || !OrgAssignmentMap[roleField]) {
+      return;
+    }
+
+    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[roleField])?._id;
+    setValue("organization", expectedOrg || "");
+  }, [fieldset.organization === "DISABLED", roleField, user, orgData]);
 
   useEffect(() => {
     if (!user || orgStatus === OrgStatus.LOADING) {
@@ -239,119 +320,11 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     setOrgList(activeOrganizations || []);
   }, [activeOrganizations, userOrg, user, orgStatus]);
 
-  /**
-   * Updates the default form values after save or initial fetch
-   *
-   * @param data FormInput
-   */
-  const setFormValues = (data: FormInput, fields = fieldset) => {
-    const resetData = {};
-
-    fields.forEach((field) => {
-      resetData[field] = cloneDeep(data[field]);
-    });
-
-    reset(resetData);
-  };
-
-  const onSubmit = async (data) => {
-    setSaving(true);
-
-    // Save profile changes
-    if (isSelf && viewType === "profile") {
-      const { data: d, errors } = await updateMyUser({
-        variables: {
-          userInfo: {
-            firstName: data.firstName,
-            lastName: data.lastName,
-          },
-        },
-      }).catch((e) => ({ errors: e?.message, data: null }));
-      setSaving(false);
-
-      if (errors || !d?.updateMyUser) {
-        setError(errors || "Unable to save profile changes");
-        return;
-      }
-
-      setData(d.updateMyUser);
-      // Save user changes
-    } else {
-      const { data: d, errors } = await editUser({
-        variables: {
-          userID: _id,
-          organization: data.organization.orgID,
-          role: data.role,
-          status: data.userStatus,
-          dataCommons: data.dataCommons,
-        },
-      }).catch((e) => ({ errors: e?.message, data: null }));
-      setSaving(false);
-
-      if (errors || !d?.editUser) {
-        setError(errors || "Unable to save profile changes");
-        return;
-      }
-
-      if (isSelf) {
-        setData(d.editUser);
-        if (d.editUser.userStatus === "Inactive") {
-          logout();
-        }
-      } else {
-        setUser((prevUser) => ({ ...prevUser, ...d.editUser }));
-      }
-    }
-
-    setError(null);
-    enqueueSnackbar("All changes have been saved", { variant: "success" });
-
-    if (viewType === "users") {
-      navigate(manageUsersPageUrl);
-    }
-
-    setFormValues(data);
-  };
-
   useEffect(() => {
-    setError(null);
-
-    // No action needed if viewing own profile, using cached data
-    if (isSelf && viewType === "profile") {
-      setUser({ ...currentUser });
-      setFormValues(currentUser, getEditableFields(currentUser, currentUser, viewType));
-      return;
+    if (roleField === "User" && "role" in formState.dirtyFields && formState.dirtyFields.role) {
+      setValue("organization", "");
     }
-
-    (async () => {
-      const { data, error } = await getUser({ variables: { userID: _id } });
-
-      if (error || !data?.getUser) {
-        navigate(manageUsersPageUrl, {
-          state: { error: "Unable to fetch user data" },
-        });
-        return;
-      }
-
-      setUser({ ...data?.getUser });
-      setFormValues(data?.getUser);
-    })();
-  }, [_id]);
-
-  useEffect(() => {
-    if (!orgFieldDisabled || !OrgAssignmentMap[role]) {
-      return;
-    }
-
-    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[role])?._id;
-    setValue("organization.orgID", expectedOrg || "");
-  }, [orgFieldDisabled, role, user, orgData]);
-
-  useEffect(() => {
-    if (role === "User" && (formState?.dirtyFields as EditUserInput)?.role) {
-      setValue("organization.orgID", "");
-    }
-  }, [role]);
+  }, [roleField]);
 
   if (
     !user ||
@@ -387,12 +360,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
             </StyledHeader>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-              {error && (
-                <Alert sx={{ mb: 2, p: 2, width: "100%" }} severity="error">
-                  {error || "An unknown API error occurred."}
-                </Alert>
-              )}
-
               <StyledField>
                 <StyledLabel>Account Type</StyledLabel>
                 {formatIDP(user.IDP)}
@@ -403,7 +370,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="firstNameLabel">First name</StyledLabel>
-                {fieldset.includes("firstName") ? (
+                {visibleFieldState.includes(fieldset.firstName) ? (
                   <StyledTextField
                     {...register("firstName", { required: true })}
                     size="small"
@@ -416,7 +383,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="lastNameLabel">Last name</StyledLabel>
-                {fieldset.includes("lastName") ? (
+                {visibleFieldState.includes(fieldset.lastName) ? (
                   <StyledTextField
                     {...register("lastName", { required: true })}
                     size="small"
@@ -429,40 +396,33 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="userRoleLabel">Role</StyledLabel>
-                {fieldset.includes("role") ? (
-                  <Stack
-                    direction="column"
-                    justifyContent="flex-start"
-                    alignItems="flex-start"
-                    spacing={1}
-                  >
-                    <Controller
-                      name="role"
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field }) => (
-                        <StyledSelect
-                          {...field}
-                          size="small"
-                          MenuProps={{ disablePortal: true }}
-                          inputProps={{ "aria-labelledby": "userRoleLabel" }}
-                        >
-                          {Roles.map((role) => (
-                            <MenuItem key={role} value={role}>
-                              {role}
-                            </MenuItem>
-                          ))}
-                        </StyledSelect>
-                      )}
-                    />
-                  </Stack>
+                {visibleFieldState.includes(fieldset.role) ? (
+                  <Controller
+                    name="role"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        size="small"
+                        MenuProps={{ disablePortal: true }}
+                        inputProps={{ "aria-labelledby": "userRoleLabel" }}
+                      >
+                        {Roles.map((role) => (
+                          <MenuItem key={role} value={role}>
+                            {role}
+                          </MenuItem>
+                        ))}
+                      </StyledSelect>
+                    )}
+                  />
                 ) : (
                   user?.role
                 )}
               </StyledField>
               <StyledField>
                 <StyledLabel id="userStatusLabel">Account Status</StyledLabel>
-                {fieldset.includes("userStatus") ? (
+                {visibleFieldState.includes(fieldset.userStatus) ? (
                   <Controller
                     name="userStatus"
                     control={control}
@@ -471,7 +431,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                       <StyledSelect
                         {...field}
                         size="small"
-                        value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                         inputProps={{ "aria-labelledby": "userStatusLabel" }}
                       >
@@ -484,19 +443,18 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   user.userStatus
                 )}
               </StyledField>
-              <StyledField>
+              <StyledField visible={fieldset.organization !== "HIDDEN"}>
                 <StyledLabel id="userOrganizationLabel">Organization</StyledLabel>
-                {fieldset.includes("organization") ? (
+                {visibleFieldState.includes(fieldset.organization) ? (
                   <Controller
-                    name="organization.orgID"
+                    name="organization"
                     control={control}
                     render={({ field }) => (
                       <StyledSelect
                         {...field}
                         size="small"
-                        value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
-                        disabled={orgFieldDisabled}
+                        disabled={fieldset.organization === "DISABLED"}
                         inputProps={{
                           "aria-labelledby": "userOrganizationLabel",
                         }}
@@ -514,9 +472,46 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   user?.organization?.orgName
                 )}
               </StyledField>
-              <StyledField sx={{ display: displayDataCommons ? "block" : "none" }}>
+              <StyledField visible={fieldset.studies !== "HIDDEN"}>
+                <StyledLabel id="userStudies">Studies</StyledLabel>
+                {visibleFieldState.includes(fieldset.studies) ? (
+                  <div style={{ position: "relative" }}>
+                    <Controller
+                      name="studies"
+                      control={control}
+                      rules={{ required: false }}
+                      render={({ field }) => (
+                        <StyledSelect
+                          {...field}
+                          size="small"
+                          value={field.value || []}
+                          disabled={fieldset.studies === "DISABLED"}
+                          MenuProps={{ disablePortal: true }}
+                          inputProps={{ "aria-labelledby": "userStudies" }}
+                          renderValue={(selected: string[]) =>
+                            formatStudySelectionValue(selected, sortedStudies)
+                          }
+                          multiple
+                        >
+                          {sortedStudies?.map(({ _id, studyName, studyAbbreviation }) => (
+                            <MenuItem key={_id} value={_id}>
+                              {formatFullStudyName(studyName, studyAbbreviation)}
+                            </MenuItem>
+                          ))}
+                        </StyledSelect>
+                      )}
+                    />
+                    {studiesField?.length > 1 && (
+                      <StyledSelectionCount>
+                        * {studiesField?.length} Studies selected
+                      </StyledSelectionCount>
+                    )}
+                  </div>
+                ) : null}
+              </StyledField>
+              <StyledField visible={fieldset.dataCommons !== "HIDDEN"}>
                 <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
-                {fieldset.includes("dataCommons") ? (
+                {visibleFieldState.includes(fieldset.dataCommons) ? (
                   <Controller
                     name="dataCommons"
                     control={control}
@@ -526,7 +521,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         {...field}
                         size="small"
                         value={field.value || []}
-                        disabled={dcFieldDisabled}
+                        disabled={fieldset.dataCommons === "DISABLED"}
                         MenuProps={{ disablePortal: true }}
                         inputProps={{ "aria-labelledby": "userDataCommons" }}
                         multiple
@@ -550,7 +545,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                {fieldset?.length > 0 && (
+                {Object.values(fieldset).some((fieldState) => fieldState === "UNLOCKED") && (
                   <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
                     Save
                   </StyledButton>

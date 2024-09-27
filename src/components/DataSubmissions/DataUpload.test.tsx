@@ -48,6 +48,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   updatedAt: "",
   crossSubmissionStatus: null,
   otherSubmissions: null,
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
@@ -65,6 +66,7 @@ const baseUser: User = {
   IDP: "nih",
   email: "",
   organization: null,
+  studies: null,
   dataCommons: null,
   createdAt: "",
   updateAt: "",
@@ -148,7 +150,9 @@ describe("Basic Functionality", () => {
     // Open the dialog
     userEvent.click(getByTestId("uploader-cli-config-button"));
 
-    // Skip filling the fields and click the download button
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
+
     userEvent.click(getByText("Download"));
 
     await waitFor(() => {
@@ -183,7 +187,9 @@ describe("Basic Functionality", () => {
     // Open the dialog
     userEvent.click(getByTestId("uploader-cli-config-button"));
 
-    // Skip filling the fields and click the download button
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
+
     userEvent.click(getByText("Download"));
 
     await waitFor(() => {
@@ -193,6 +199,61 @@ describe("Basic Functionality", () => {
           variant: "error",
         }
       );
+    });
+  });
+
+  it("should hide the CLI Configuration dialog when onClose is called", async () => {
+    const { getByTestId, findAllByRole, queryByRole } = render(
+      <TestParent mocks={[]}>
+        <DataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "hide-config-dialog-on-close",
+            dataType: "Metadata and Data Files",
+          }}
+        />
+      </TestParent>
+    );
+
+    // Open the dialog
+    userEvent.click(getByTestId("uploader-cli-config-button"));
+
+    const dialog = await findAllByRole("presentation");
+
+    expect(dialog[1]).toBeVisible();
+
+    // Close the dialog
+    userEvent.click(dialog[1]);
+
+    await waitFor(() => {
+      expect(queryByRole("dialog")).not.toBeInTheDocument();
+    });
+  });
+
+  it("should hide the Uploader CLI dialog when onClose is called", async () => {
+    const { getByTestId, findAllByRole, queryByRole } = render(
+      <TestParent mocks={[]}>
+        <DataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "hide-cli-dialog-on-close",
+          }}
+        />
+      </TestParent>
+    );
+
+    // Open the dialog
+    userEvent.click(getByTestId("uploader-cli-download-button"));
+
+    const dialog = await findAllByRole("presentation");
+
+    expect(dialog[1]).toBeVisible();
+
+    // Close the dialog
+    userEvent.click(dialog[1]);
+
+    await waitFor(() => {
+      expect(queryByRole("dialog")).not.toBeInTheDocument();
     });
   });
 });
@@ -332,7 +393,9 @@ describe("Implementation Requirements", () => {
       userEvent.click(getByTestId("uploader-cli-config-button"));
     });
 
-    // Skip filling the fields and click the download button
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
+
     // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
     await act(async () => {
       userEvent.click(getByText("Download"));
@@ -378,7 +441,9 @@ describe("Implementation Requirements", () => {
       // Open the dialog
       userEvent.click(getByTestId("uploader-cli-config-button"));
 
-      // Skip filling the fields and click the download button
+      userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+      userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
+
       userEvent.click(getByText("Download"));
 
       await waitFor(() => {

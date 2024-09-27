@@ -5,7 +5,7 @@ import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
 import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
-import APITokenDialog from "../../../content/users/APITokenDialog";
+import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
 
 const Nav = styled("div")({
@@ -93,7 +93,7 @@ const LiSection = styled("li")({
     color: "#585C65",
     fontFamily: "poppins",
     fontSize: "17px",
-    fontWeight: 700,
+    fontWeight: 600,
     lineHeight: "40px",
     letterSpacing: "normal",
     textDecoration: "none",
@@ -181,7 +181,7 @@ const LiSection = styled("li")({
     color: "#FFFFFF",
     fontFamily: "poppins",
     fontSize: "17px",
-    fontWeight: 700,
+    fontWeight: 600,
     lineHeight: "40px",
     letterSpacing: "normal",
     textDecoration: "none",

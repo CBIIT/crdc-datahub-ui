@@ -10,5 +10,8 @@ export const mutation = gql`
 `;
 
 export type Response = {
-  grantToken: Tokens;
+  grantToken: {
+    tokens: string[];
+    message: string;
+  };
 };

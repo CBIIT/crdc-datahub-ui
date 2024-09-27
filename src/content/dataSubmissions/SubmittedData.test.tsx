@@ -11,6 +11,7 @@ import {
   GetSubmissionNodesInput,
   GetSubmissionNodesResp,
   SUBMISSION_STATS,
+  SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
@@ -34,6 +35,7 @@ const baseUser: User = {
   IDP: "nih",
   email: "",
   organization: null,
+  studies: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",
@@ -99,7 +101,7 @@ describe("SubmittedData > General", () => {
     error: 0,
   };
 
-  const mockSubmissionQuery = {
+  const mockSubmissionQuery: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
     request: {
       query: SUBMISSION_STATS,
     },
@@ -409,7 +411,7 @@ describe("SubmittedData > Table", () => {
     error: 0,
   };
 
-  const mockSubmissionQuery: MockedResponse<SubmissionStatsResp> = {
+  const mockSubmissionQuery: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
     request: {
       query: SUBMISSION_STATS,
     },

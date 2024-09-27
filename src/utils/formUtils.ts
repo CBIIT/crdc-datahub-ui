@@ -120,13 +120,15 @@ export const programToSelectOption = (program: ProgramOption): SelectOption => (
  * Formats an Approved Study Name and Abbreviation into a single string.
  * If the abbreviation is provided and not equal to the name, it will be included in parentheses.
  *
- * @example Alphabetic Study (AS)
- * @example Alphabetic Study
+ * @note The study name, at a minimum, should be provided.
  * @param studyName The full name of the study
  * @param studyAbbreviation The abbreviation of the study
  * @returns The formatted study name
  */
 export const formatFullStudyName = (studyName: string, studyAbbreviation: string): string => {
+  if (typeof studyName !== "string") {
+    return "";
+  }
   if (studyAbbreviation === studyName) {
     return studyName.trim();
   }
@@ -214,4 +216,37 @@ export const formatORCIDInput = (input: string): string => {
 
     return acc + curr;
   }, "");
+};
+
+/**
+ * Given an array of Study IDs, return the first Formatted Study Name from the list of approved studies, sorted by the Study Name.
+ *
+ * @note MUI shows the first SELECTED item by default, this will show the first SORTED item
+ * @see {@link formatFullStudyName} for the formatting implementation
+ * @param studyIds Array of Study IDs
+ * @param approvedStudies List of approved studies, ideally containing the studies in studyIds
+ * @returns The first formatted study name from the list of approved studies
+ */
+export const formatStudySelectionValue = (
+  studyIds: string[],
+  approvedStudies: ApprovedStudy[],
+  fallback = ""
+): string => {
+  if (!Array.isArray(studyIds) || !Array.isArray(approvedStudies)) {
+    return fallback;
+  }
+  if (studyIds.length === 0 || approvedStudies.length === 0) {
+    return fallback;
+  }
+
+  const mappedStudies: string[] = studyIds
+    .map((studyID) => {
+      const study: ApprovedStudy = approvedStudies?.find((s) => s?._id === studyID);
+
+      return formatFullStudyName(study?.studyName, study?.studyAbbreviation);
+    })
+    .filter((study) => typeof study === "string" && study.length > 0)
+    .sort((a: string, b: string) => a.localeCompare(b));
+
+  return mappedStudies.length > 0 ? mappedStudies[0] : fallback;
 };

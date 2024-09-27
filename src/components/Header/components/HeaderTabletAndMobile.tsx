@@ -1,16 +1,16 @@
 import React, { HTMLProps, useEffect, useState } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { styled } from "@mui/material";
-import Logo from "./components/LogoMobile";
-import menuClearIcon from "../../assets/header/Menu_Cancel_Icon.svg";
-import rightArrowIcon from "../../assets/header/Right_Arrow.svg";
-import leftArrowIcon from "../../assets/header/Left_Arrow.svg";
-import { navMobileList, navbarSublists } from "../../config/globalHeaderData";
-import { GenerateApiTokenRoles } from "../../config/AuthRoles";
-import { useAuthContext } from "../Contexts/AuthContext";
-import GenericAlert from "../GenericAlert";
-import APITokenDialog from "../../content/users/APITokenDialog";
-import UploaderToolDialog from "../UploaderToolDialog";
+import Logo from "./LogoMobile";
+import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg";
+import rightArrowIcon from "../../../assets/header/Right_Arrow.svg";
+import leftArrowIcon from "../../../assets/header/Left_Arrow.svg";
+import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
+import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
+import { useAuthContext } from "../../Contexts/AuthContext";
+import GenericAlert from "../../GenericAlert";
+import APITokenDialog from "../../APITokenDialog";
+import UploaderToolDialog from "../../UploaderToolDialog";
 
 const HeaderBanner = styled("div")({
   width: "100%",
@@ -212,7 +212,7 @@ const Header = () => {
       <GenericAlert open={showLogoutAlert}>
         <span>You have been logged out.</span>
       </GenericAlert>
-      <HeaderBanner>
+      <HeaderBanner data-testid="navigation-header-mobile">
         <HeaderContainer>
           <Logo />
           <div className="headerLowerContainer">

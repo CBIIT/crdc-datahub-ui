@@ -15,6 +15,13 @@ export const query = gql`
   }
 `;
 
+export type Input = {
+  /**
+   * The ID of the submission to get statistics for
+   */
+  id: string;
+};
+
 export type Response = {
   /**
    * The node statistics for the submission

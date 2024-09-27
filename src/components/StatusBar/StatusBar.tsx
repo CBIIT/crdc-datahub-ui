@@ -29,11 +29,11 @@ const StyledTitle = styled(Typography)({
 const StatusBar: FC = () => (
   <StyledStack direction="row" justifyContent="space-between">
     <Stack direction="row" spacing={2} alignItems="center">
-      <StyledTitle variant="body1">Status:</StyledTitle>
+      <StyledTitle variant="h3">Status:</StyledTitle>
       <StatusSection />
     </Stack>
     <Stack direction="row" spacing={2} alignItems="center">
-      <StyledTitle variant="body1">Last updated:</StyledTitle>
+      <StyledTitle variant="h3">Last updated:</StyledTitle>
       <HistorySection />
     </Stack>
   </StyledStack>

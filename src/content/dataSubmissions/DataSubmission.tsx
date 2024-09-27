@@ -1,35 +1,22 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
-import {
-  Alert,
-  Box,
-  Card,
-  CardActions,
-  CardContent,
-  Container,
-  IconButton,
-  Stack,
-  Tabs,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Alert, Box, Card, CardActions, CardContent, Container, Tabs, styled } from "@mui/material";
 import { useSnackbar, VariantType } from "notistack";
-import bannerPng from "../../assets/dataSubmissions/dashboard_banner.png";
-import summaryBannerSvg from "../../assets/dataSubmissions/summary_banner.png";
+import bannerPng from "../../assets/banner/submission_banner.png";
+import summaryBannerPng from "../../assets/banner/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
 import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
 import { SUBMISSION_ACTION, SubmissionActionResp } from "../../graphql";
 import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
 import DataSubmissionActions from "./DataSubmissionActions";
 import QualityControl from "./QualityControl";
-import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
 import ValidationStatistics from "../../components/DataSubmissions/ValidationStatistics";
 import ValidationControls from "../../components/DataSubmissions/ValidationControls";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import {
   ReleaseInfo,
   shouldDisableRelease,
-  shouldDisableSubmit,
+  shouldEnableSubmit,
 } from "../../utils/dataSubmissionUtils";
 import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
@@ -40,20 +27,16 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import DataActivity, { DataActivityRef } from "./DataActivity";
 import CrossValidation from "./CrossValidation";
-import { CrossValidateRoles } from "../../config/AuthRoles";
+import { CrossValidateRoles, SubmitDataSubmissionRoles } from "../../config/AuthRoles";
+import CopyAdornment from "../../components/DataSubmissions/CopyAdornment";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
   backgroundBlendMode: "luminosity, normal",
   backgroundSize: "cover",
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "top",
+  backgroundPosition: "center",
   width: "100%",
-  height: "295px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  position: "relative",
+  height: "296px",
   zIndex: 0,
 }));
 
@@ -150,52 +133,11 @@ const StyledWrapper = styled("div")({
 });
 
 const StyledCardContent = styled(CardContent)({
-  background: `url(${summaryBannerSvg})`,
+  background: `url(${summaryBannerPng})`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   backgroundPosition: "top",
 });
-
-const StyledCopyWrapper = styled(Stack)(() => ({
-  height: "42px",
-  width: "fit-content",
-  minWidth: "342px",
-  padding: "11px 20px",
-  borderRadius: "8px 8px 0px 0px",
-  borderTop: "1.25px solid #6DADDB",
-  borderRight: "1.25px solid #6DADDB",
-  borderLeft: "1.25px solid #6DADDB",
-  background: "#EAF5F8",
-}));
-
-const StyledCopyLabel = styled(Typography)(() => ({
-  color: "#125868",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "12px",
-  fontStyle: "normal",
-  fontWeight: 800,
-  lineHeight: "19.6px",
-  letterSpacing: "0.24px",
-  textTransform: "uppercase",
-}));
-
-const StyledCopyValue = styled(Typography)(() => ({
-  color: "#125868",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  fontSize: "16px",
-  fontStyle: "normal",
-  fontWeight: 400,
-  lineHeight: "19.6px",
-  letterSpacing: "0.32px",
-}));
-
-const StyledCopyIDButton = styled(IconButton)(() => ({
-  color: "#000000",
-  padding: 0,
-  "&.MuiIconButton-root.Mui-disabled": {
-    color: "#B0B0B0",
-  },
-}));
 
 const StyledFlowContainer = styled(Box)({
   padding: "27px 59px 59px 60px",
@@ -213,7 +155,6 @@ const submissionLockedStatuses: SubmissionStatus[] = [
   "Released",
   "Completed",
   "Canceled",
-  "Archived",
 ];
 
 type Props = {
@@ -246,19 +187,16 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     [user?.role, data?.getSubmission?.crossSubmissionStatus]
   );
 
-  const submitInfo: { disable: boolean; isAdminOverride: boolean } = useMemo(() => {
-    const canSubmitRoles: User["role"][] = [
-      "Submitter",
-      "Organization Owner",
-      "Data Curator",
-      "Admin",
-    ];
-    if (!data?.getSubmission?._id || !canSubmitRoles.includes(user?.role) || hasUploadingBatches) {
-      return { disable: true, isAdminOverride: false };
+  const submitInfo: SubmitButtonResult = useMemo(() => {
+    if (!data?.getSubmission?._id || !SubmitDataSubmissionRoles.includes(user?.role)) {
+      return { enabled: false };
+    }
+    if (hasUploadingBatches) {
+      return { enabled: false };
     }
 
-    return shouldDisableSubmit(data.getSubmission, user?.role);
-  }, [data?.getSubmission, user, hasUploadingBatches]);
+    return shouldEnableSubmit(data.getSubmission, user?.role);
+  }, [data?.getSubmission, user, hasUploadingBatches, SubmitDataSubmissionRoles]);
   const releaseInfo: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
     [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
@@ -309,13 +247,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     [enqueueSnackbar, handleBatchRefresh, getSubmission]
   );
 
-  const handleCopyID = () => {
-    if (!submissionId) {
-      return;
-    }
-    navigator.clipboard.writeText(submissionId);
-  };
-
   useEffect(() => {
     if (!submissionId) {
       setError("Invalid submission ID provided.");
@@ -328,23 +259,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     <StyledWrapper>
       <StyledBanner bannerSrc={bannerPng} />
       <StyledBannerContentContainer maxWidth="xl">
-        <StyledCopyWrapper direction="row" spacing={1.625} alignItems="center">
-          <StyledCopyLabel id="data-submission-id-label" variant="body1">
-            SUBMISSION ID:
-          </StyledCopyLabel>
-          <StyledCopyValue id="data-submission-id-value" variant="body1">
-            {submissionId}
-          </StyledCopyValue>
-          {submissionId && (
-            <StyledCopyIDButton
-              id="data-submission-copy-id-button"
-              onClick={handleCopyID}
-              aria-label="Copy ID"
-            >
-              <CopyIconSvg />
-            </StyledCopyIDButton>
-          )}
-        </StyledCopyWrapper>
+        <CopyAdornment _id={submissionId} />
         <StyledCard>
           <StyledCardContent>
             {error && <StyledAlert severity="error">Oops! An error occurred. {error}</StyledAlert>}
@@ -411,10 +326,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
             <DataSubmissionActions
               submission={data?.getSubmission}
               onAction={updateSubmissionAction}
-              submitActionButton={{
-                disable: submitInfo?.disable,
-                label: submitInfo?.isAdminOverride ? "Admin Submit" : "Submit",
-              }}
+              submitActionButton={submitInfo}
               releaseActionButton={releaseInfo}
               onError={(message: string) => enqueueSnackbar(message, { variant: "error" })}
             />

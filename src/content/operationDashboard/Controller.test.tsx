@@ -30,6 +30,7 @@ const baseUser: Omit<User, "role"> = {
   dataCommons: [],
   createdAt: "",
   updateAt: "",
+  studies: null,
 };
 
 type ParentProps = {

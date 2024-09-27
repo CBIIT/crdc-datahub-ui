@@ -1,37 +1,73 @@
 type User = {
+  /**
+   * The UUIDv4 identifier of the user account
+   */
   _id: string;
+  /**
+   * The user's first name
+   */
   firstName: string;
-  lastName: string;
-  userStatus: "Active" | "Inactive" | "Disabled";
-  role:
-    | "User"
-    | "Submitter"
-    | "Organization Owner"
-    | "Federal Lead"
-    | "Federal Monitor"
-    | "Data Curator"
-    | "Data Commons POC"
-    | "Admin";
-  IDP: "nih" | "login.gov";
+  /**
+   * The user's last name
+   */
+  lastName: string | null;
+  /**
+   * The current user role
+   *
+   * @see {@link UserRole}
+   */
+  role: UserRole;
+  /**
+   * The user's email address
+   */
   email: string;
+  /**
+   * The user's organization if assigned, null otherwise
+   *
+   * @see {@link OrgInfo}
+   */
   organization: OrgInfo | null;
+  /**
+   * List of data commons that the user has access to
+   */
   dataCommons: string[];
-  createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
-  updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
+  /**
+   * A list of studyIDs that the user is assigned to
+   *
+   * @see {@link ApprovedStudy}
+   */
+  studies: string[] | null;
+  /**
+   * The SSO IDP used to login
+   */
+  IDP: "nih" | "login.gov";
+  /**
+   * The current account status for the user
+   */
+  userStatus: "Active" | "Inactive" | "Disabled";
+  /**
+   * The last update date of the user object
+   *
+   * @note ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
+   */
+  updateAt: string;
+  /**
+   * The date of user creation
+   *
+   * @note ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
+   */
+  createdAt: string;
 };
 
-type UserInfo = {
-  userID: User["_id"];
-  firstName: User["firstName"];
-  lastName: User["lastName"];
-  createdAt: User["createdAt"];
-  updateAt: User["updateAt"];
-};
-
-type UserInput = {
-  firstName: string;
-  lastName: string;
-};
+type UserRole =
+  | "User"
+  | "Submitter"
+  | "Organization Owner"
+  | "Federal Monitor"
+  | "Federal Lead"
+  | "Data Curator"
+  | "Data Commons POC"
+  | "Admin";
 
 type OrgInfo = {
   orgID: string;
@@ -39,16 +75,6 @@ type OrgInfo = {
   status: "Active" | "Inactive";
   createdAt: string; // 2023-05-01T09:23:30Z, ISO data time format
   updateAt: string; // 2023-05-01T09:23:30Z  ISO data time format
-};
-
-type EditUserInput = {
-  userID: User["_id"];
-  userStatus: User["userStatus"];
-  organization: {
-    orgID: OrgInfo["orgID"];
-  };
-  dataCommons: User["dataCommons"];
-  role: User["role"];
 };
 
 type Organization = {
@@ -61,9 +87,4 @@ type Organization = {
   studies: ApprovedStudy[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
-};
-
-type Tokens = {
-  tokens: string[];
-  message: string;
 };

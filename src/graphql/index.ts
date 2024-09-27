@@ -27,7 +27,7 @@ export { query as GET_APP } from "./getApplication";
 export type { Response as GetAppResp } from "./getApplication";
 
 export { mutation as UPDATE_MY_USER } from "./updateMyUser";
-export type { Response as UpdateMyUserResp } from "./updateMyUser";
+export type { Input as UpdateMyUserInput, Response as UpdateMyUserResp } from "./updateMyUser";
 
 export { query as LIST_INSTITUTIONS } from "./listInstitutions";
 export type { Response as ListInstitutionsResp } from "./listInstitutions";
@@ -101,7 +101,10 @@ export type {
 } from "./getSubmissionNodes";
 
 export { query as SUBMISSION_STATS } from "./submissionStats";
-export type { Response as SubmissionStatsResp } from "./submissionStats";
+export type {
+  Input as SubmissionStatsInput,
+  Response as SubmissionStatsResp,
+} from "./submissionStats";
 
 export { mutation as DELETE_ORPHANED_FILE } from "./deleteOrphanedFile";
 export type { Response as DeleteOrphanedFileResp } from "./deleteOrphanedFile";
@@ -120,13 +123,13 @@ export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
 
 // User Profile
 export { query as GET_USER } from "./getUser";
-export type { Response as GetUserResp } from "./getUser";
+export type { Input as GetUserInput, Response as GetUserResp } from "./getUser";
 
 export { query as LIST_USERS } from "./listUsers";
 export type { Response as ListUsersResp } from "./listUsers";
 
 export { mutation as EDIT_USER } from "./editUser";
-export type { Response as EditUserResp } from "./editUser";
+export type { Input as EditUserInput, Response as EditUserResp } from "./editUser";
 
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";

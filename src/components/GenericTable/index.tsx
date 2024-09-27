@@ -48,10 +48,10 @@ const StyledTableContainer = styled(TableContainer)({
     background: "#E3EEF9",
   },
   "& .MuiTableCell-root:first-of-type": {
-    paddingLeft: "40.44px",
+    paddingLeft: "24px",
   },
   "& .MuiTableCell-root:last-of-type": {
-    paddingRight: "40.44px",
+    paddingRight: "24px",
   },
 });
 
@@ -72,7 +72,7 @@ const StyledTableRow = styled(TableRow)({
 
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
-  fontSize: "16px",
+  fontSize: "14px",
   lineHeight: "16px",
   color: "#fff !important",
   padding: "22px 53px 22px 16px",
@@ -89,7 +89,7 @@ const StyledHeaderCell = styled(TableCell)({
 });
 
 const StyledTableCell = styled(TableCell)({
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#083A50 !important",
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
