@@ -255,10 +255,6 @@ const ListView = () => {
   };
 
   useEffect(() => {
-    if (!data?.length) {
-      return;
-    }
-
     const dbGaPID = searchParams.get("dbGaPID");
     const study = searchParams.get("study");
     const accessType = searchParams.get("accessType");
@@ -297,7 +293,6 @@ const ListView = () => {
     } else if (accessTypeFilter === "All") {
       searchParams.delete("accessType");
     }
-
     setTablePage(0);
     setSearchParams(searchParams);
   }, [dbGaPIDFilter, studyFilter, accessTypeFilter, touchedFilters]);
