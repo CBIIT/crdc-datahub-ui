@@ -156,6 +156,8 @@ describe("Basic Functionality", () => {
   });
 
   it("should display an error message on failed export", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => null);
+
     mockGenerate.mockRejectedValue(new Error("mock error"));
 
     const { getByTestId } = render(<ExportRequestButton />, {

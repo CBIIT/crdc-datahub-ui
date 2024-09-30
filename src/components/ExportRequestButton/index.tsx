@@ -54,9 +54,12 @@ const ExportRequestButton = forwardRef<HTMLButtonElement, ExportRequestButtonPro
       setLoading(true);
 
       try {
-        // TODO: use document response
-        await GenerateDocument(data);
+        const printRegion: HTMLElement = document.querySelector("[data-pdf-print-region]");
+
+        await GenerateDocument(data, printRegion);
       } catch (error) {
+        console.error("ExportRequestButton", error);
+
         enqueueSnackbar("An error occurred while exporting the Submission Request to PDF.", {
           variant: "error",
         });

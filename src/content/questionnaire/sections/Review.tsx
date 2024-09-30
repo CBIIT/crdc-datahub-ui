@@ -720,7 +720,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
         </ReviewDataListing>
       </ReviewSection>
 
-      <StyledDivider />
+      <StyledDivider data-print="false" />
     </FormContainer>
   );
 };
