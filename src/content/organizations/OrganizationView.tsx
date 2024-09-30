@@ -32,6 +32,7 @@ import {
   ListCuratorsResp,
   EditOrgInput,
   CreateOrgInput,
+  ListApprovedStudiesInput,
 } from "../../graphql";
 import ConfirmDialog from "../../components/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -209,13 +210,19 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: approvedStudies, refetch: refetchStudies } = useQuery<ListApprovedStudiesResp>(
-    LIST_APPROVED_STUDIES,
-    {
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-    }
-  );
+  const { data: approvedStudies, refetch: refetchStudies } = useQuery<
+    ListApprovedStudiesResp,
+    ListApprovedStudiesInput
+  >(LIST_APPROVED_STUDIES, {
+    variables: {
+      // show all access types
+      controlledAccess: "All",
+      first: -1,
+      offset: 0,
+    },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+  });
 
   const [getOrganization] = useLazyQuery<GetOrgResp>(GET_ORG, {
     context: { clientName: "backend" },
@@ -304,7 +311,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const handlePreSubmit = (data: FormInput) => {
     if (_id !== "new") {
       const studyMap: { [_id: string]: ApprovedStudy["studyAbbreviation"] } = {};
-      approvedStudies?.listApprovedStudies?.forEach(({ _id, studyAbbreviation }) => {
+      approvedStudies?.listApprovedStudies?.studies?.forEach(({ _id, studyAbbreviation }) => {
         studyMap[_id] = studyAbbreviation;
       });
 
@@ -354,10 +361,10 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       }
 
       // No studies or original request did not complete. Refetch
-      let studyList: ApprovedStudy[] = approvedStudies?.listApprovedStudies;
+      let studyList: ApprovedStudy[] = approvedStudies?.listApprovedStudies?.studies;
       if (!studyList?.length) {
         const { data } = await refetchStudies();
-        studyList = data?.listApprovedStudies;
+        studyList = data?.listApprovedStudies?.studies;
       }
 
       setOrganization(data?.getOrganization);
@@ -463,7 +470,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       inputProps={{ "aria-labelledby": "studiesLabel" }}
                       multiple
                     >
-                      {approvedStudies?.listApprovedStudies?.map(
+                      {approvedStudies?.listApprovedStudies?.studies?.map(
                         ({ _id, studyName, studyAbbreviation }) => (
                           <MenuItem key={_id} value={_id}>
                             {formatFullStudyName(studyName, studyAbbreviation)}
