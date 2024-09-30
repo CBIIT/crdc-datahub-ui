@@ -122,6 +122,7 @@ const columns: Column<ApprovedStudy>[] = [
     label: "Access Type",
     renderValue: (a) => formatAccessTypes(a.controlledAccess, a.openAccess),
     fieldKey: "accessType",
+    sortDisabled: true,
     sx: {
       width: "140px",
     },
