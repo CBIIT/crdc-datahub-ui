@@ -8,10 +8,16 @@ import {
 } from "data-model-navigator";
 import ReduxThunk from "redux-thunk";
 import { createLogger } from "redux-logger";
-// import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
+import { defaultTo } from "lodash";
 import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from "../config/ModelNavigator";
-import { buildAssetUrls, buildBaseFilterContainers, buildFilterOptionsList } from "../utils";
-// import { LIST_INSTITUTIONS, ListInstitutionsResp } from "../graphql";
+import {
+  buildAssetUrls,
+  buildBaseFilterContainers,
+  buildFilterOptionsList,
+  updateEnums,
+} from "../utils";
+import { RETRIEVE_CDEs, RetrieveCDEsInput, RetrieveCDEsResp } from "../graphql";
 
 export type Status = "waiting" | "loading" | "error" | "success";
 
@@ -34,83 +40,6 @@ const makeStore = (): Store => {
 };
 
 /**
- * A function to parse the datalist and reolace enums with those returned from retrieveCde query
- * Commented out until api is ready
- * @params {void}
- */
-/* const updateEnums = (cdeMap, dataList, response = []) => {
-  // const values = Array.from(cdeMap.values());
-
-  const responseMap = new Map();
-
-  defaultTo(response, []).forEach((item) =>
-    responseMap.set(`${item.CDECode}.${item.CDEVersion}`, item)
-  );
-
-  const resultMap = new Map();
-
-  cdeMap.forEach((_, key) => {
-    const [, cdeCodeAndVersion] = key.split(";");
-    const item = responseMap.get(cdeCodeAndVersion);
-
-    if (item) {
-      resultMap.set(key, item);
-    }
-  });
-
-  const newObj = JSON.parse(JSON.stringify(dataList));
-
-  const mapKeyPrefixes = new Map();
-  for (const mapKey of resultMap.keys()) {
-    const prefix = mapKey.split(";")[0];
-    mapKeyPrefixes.set(prefix, mapKey);
-  }
-
-  function traverseAndReplace(node, parentKey = "") {
-    if (typeof node !== "object" || node === null) {
-      return;
-    }
-
-    if (node.properties) {
-      for (const key in node.properties) {
-        if (Object.hasOwn(node.properties, key)) {
-          const fullKey = `${parentKey}.${key}`.replace(/^\./, "");
-          if (mapKeyPrefixes.has(fullKey)) {
-            const mapFullKey = mapKeyPrefixes.get(fullKey);
-            const mapData = resultMap.get(mapFullKey);
-
-            if (mapData && mapData.permissibleValues && mapData.permissibleValues.length > 0) {
-              node.properties[key].enum = mapData.permissibleValues;
-            } else {
-              node.properties[key].enum = [
-                "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
-              ];
-            }
-          } else if (
-            !Object.hasOwn(node.properties[key], "enum") ||
-            node.properties[key].enum.length === 0
-          ) {
-            node.properties[key].enum = [
-              "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
-            ];
-          }
-        }
-      }
-    }
-
-    for (const subKey in node) {
-      if (Object.hasOwn(node, subKey)) {
-        traverseAndReplace(node[subKey], `${parentKey}.${subKey}`);
-      }
-    }
-  }
-
-  traverseAndReplace(newObj);
-
-  return newObj;
-}; */
-
-/**
  * A hook to build and populate the Redux store with DMN data
  *
  * @params {void}
@@ -123,14 +52,13 @@ const useBuildReduxStore = (): [
   const [status, setStatus] = useState<Status>("waiting");
   const [store, setStore] = useState<Store>(makeStore());
 
-  // will call retrieveCDEs here
-  /* const [getInstituitions, { data, loading, error }] = useLazyQuery<ListInstitutionsResp>(
-    LIST_INSTITUTIONS,
-    {
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-    }
-  ); */
+  const [retrieveCDEs, { error: retrieveCDEsError }] = useLazyQuery<
+    RetrieveCDEsResp,
+    RetrieveCDEsInput
+  >(RETRIEVE_CDEs, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+  });
 
   /**
    * Rebuilds the store from scratch
@@ -161,6 +89,7 @@ const useBuildReduxStore = (): [
     setStatus("loading");
 
     const assets = buildAssetUrls(datacommon);
+
     const response = await getModelExploreData(assets.model, assets.props)?.catch((e) => {
       console.error(e);
       return null;
@@ -170,16 +99,30 @@ const useBuildReduxStore = (): [
       return;
     }
 
-    // let dictionary;
-    /* if (response.cdeMap) {
-      const deets = await getInstituitions();]]
-      if (deets?.data) {
-        dictionary = updateEnums(response?.cdeMap, response.data, []);
+    let dictionary;
+    const { cdeMap, data: dataList } = response;
+
+    if (cdeMap) {
+      const cdeInfo: CDEInfo[] = Array.from(response.cdeMap.values());
+      try {
+        const CDEs = await retrieveCDEs({
+          variables: {
+            cdeInfo,
+          },
+        });
+
+        if (retrieveCDEsError) {
+          dictionary = updateEnums(cdeMap, dataList, [], true);
+        } else {
+          const retrievedCDEs = defaultTo(CDEs.data.retrieveCDEs, []);
+          dictionary = updateEnums(cdeMap, dataList, retrievedCDEs);
+        }
+      } catch (error) {
+        dictionary = updateEnums(cdeMap, dataList, [], true);
       }
     } else {
-      dictionary = response.data;
-    } */
-    const dictionary = response.data;
+      dictionary = dataList;
+    }
 
     store.dispatch({ type: "RECEIVE_VERSION_INFO", data: response.version });
 
