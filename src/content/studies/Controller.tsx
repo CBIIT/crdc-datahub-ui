@@ -19,7 +19,7 @@ const StudiesController: FC = () => {
   }
 
   if (studyId) {
-    return null; // TODO:  <StudiesView _id={studyId} />;
+    return null;
   }
 
   return <ListView />;
