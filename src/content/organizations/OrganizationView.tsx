@@ -217,7 +217,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     variables: {
       // show all access types
       controlledAccess: "All",
-      openAccess: true,
       first: -1,
       offset: 0,
     },

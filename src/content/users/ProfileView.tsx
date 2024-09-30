@@ -200,6 +200,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   });
 
   const { data: approvedStudies } = useQuery<ListApprovedStudiesResp>(LIST_APPROVED_STUDIES, {
+    variables: {
+      // show all access types
+      controlledAccess: "All",
+      first: -1,
+      offset: 0,
+    },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
     skip: fieldset.studies !== "UNLOCKED",
