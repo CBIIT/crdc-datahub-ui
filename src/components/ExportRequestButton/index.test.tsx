@@ -16,11 +16,21 @@ jest.mock("./pdf/Generate", () => ({
   GenerateDocument: (...args) => mockGenerate(...args),
 }));
 
+const mockDownloadBlob = jest.fn();
+jest.mock("../../utils", () => ({
+  ...jest.requireActual("../../utils"),
+  downloadBlob: (...args) => mockDownloadBlob(...args),
+}));
+
 type TestParentProps = {
   /**
    * The status of the form context.
    */
   formStatus?: FormStatus;
+  /**
+   * The form data to provide to the form context.
+   */
+  formData?: Partial<Application>;
   /**
    * The role of the "current user" viewing the element
    */
@@ -33,19 +43,23 @@ type TestParentProps = {
 
 const TestParent: FC<TestParentProps> = ({
   formStatus = FormStatus.LOADED,
+  formData = {},
   userRole = "User",
   children,
 }: TestParentProps) => {
   const formValue = useMemo<FormContextState>(
     () => ({
       status: formStatus,
-      // NOTE: This component does not use any data, so we're just using the initial values here.
       data:
         formStatus === FormStatus.LOADED
-          ? { ...InitialApplication, questionnaireData: { ...InitialQuestionnaire } }
+          ? {
+              ...InitialApplication,
+              ...formData,
+              questionnaireData: { ...InitialQuestionnaire, ...formData?.questionnaireData },
+            }
           : null,
     }),
-    [formStatus]
+    [formStatus, formData]
   );
 
   const authValue = useMemo<ContextState>(
@@ -217,5 +231,110 @@ describe("Implementation Requirements", () => {
     });
 
     expect(getByTestId("export-submission-request-button")).toBeEnabled();
+  });
+
+  it("should format the PDF filename as 'CRDCSubmissionPortal-Request-{studyAbbr}-{submittedDate}.pdf'", async () => {
+    const mockFormObject: Partial<Application> = {
+      status: "Submitted",
+      updatedAt: "2024-09-30T09:10:00.000Z",
+      submittedDate: "2024-09-30T09:10:00.000Z",
+      questionnaireData: {
+        ...InitialQuestionnaire,
+        study: {
+          ...InitialQuestionnaire.study,
+          abbreviation: "TEST",
+          name: "Test Study",
+        },
+      },
+      history: [],
+    };
+
+    const { getByTestId } = render(<ExportRequestButton />, {
+      wrapper: (p) => (
+        <TestParent formStatus={FormStatus.LOADED} formData={mockFormObject} {...p} />
+      ),
+    });
+
+    userEvent.click(getByTestId("export-submission-request-button"));
+
+    await waitFor(() => {
+      expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
+      expect(mockDownloadBlob).toHaveBeenCalledWith(
+        undefined,
+        "CRDCSubmissionPortal-Request-TEST-2024-09-30.pdf",
+        "application/pdf"
+      );
+    });
+  });
+
+  it.each(["", null, undefined])(
+    "should fallback to the study name if the abbreviation is not provided",
+    async (abbreviation) => {
+      const mockFormObject: Partial<Application> = {
+        status: "Submitted",
+        updatedAt: "2024-09-30T09:10:00.000Z",
+        submittedDate: "2024-09-30T09:10:00.000Z",
+        questionnaireData: {
+          ...InitialQuestionnaire,
+          study: {
+            ...InitialQuestionnaire.study,
+            abbreviation,
+            name: "Test Study",
+          },
+        },
+        history: [],
+      };
+
+      const { getByTestId } = render(<ExportRequestButton />, {
+        wrapper: (p) => (
+          <TestParent formStatus={FormStatus.LOADED} formData={mockFormObject} {...p} />
+        ),
+      });
+
+      userEvent.click(getByTestId("export-submission-request-button"));
+
+      await waitFor(() => {
+        expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
+        expect(mockDownloadBlob).toHaveBeenCalledWith(
+          undefined,
+          "CRDCSubmissionPortal-Request-Test Study-2024-09-30.pdf",
+          "application/pdf"
+        );
+      });
+    }
+  );
+
+  it("should use the updatedAt date if the status is 'In Progress'", async () => {
+    const mockFormObject: Partial<Application> = {
+      status: "In Progress",
+      updatedAt: "2024-09-30T09:10:00.000Z",
+      submittedDate: "2024-10-22T14:10:00.000Z",
+      questionnaireData: {
+        ...InitialQuestionnaire,
+        study: {
+          ...InitialQuestionnaire.study,
+          abbreviation: "TEST",
+          name: "Test Study",
+        },
+      },
+      history: [],
+    };
+
+    const { getByTestId } = render(<ExportRequestButton />, {
+      wrapper: (p) => (
+        <TestParent formStatus={FormStatus.LOADED} formData={mockFormObject} {...p} />
+      ),
+    });
+
+    userEvent.click(getByTestId("export-submission-request-button"));
+
+    await waitFor(() => {
+      expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
+      expect(mockDownloadBlob).toHaveBeenCalledWith(
+        undefined,
+        "CRDCSubmissionPortal-Request-TEST-2024-09-30.pdf",
+        "application/pdf"
+      );
+    });
   });
 });

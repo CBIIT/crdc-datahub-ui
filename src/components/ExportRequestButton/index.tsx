@@ -5,6 +5,7 @@ import { ReactComponent as DownloadIcon } from "../../assets/icons/download_icon
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import { GenerateDocument } from "./pdf/Generate";
+import { downloadBlob, FormatDate } from "../../utils";
 
 const StyledTooltip = styled(StyledFormTooltip)({
   marginLeft: "0 !important",
@@ -55,8 +56,17 @@ const ExportRequestButton = forwardRef<HTMLButtonElement, ExportRequestButtonPro
 
       try {
         const printRegion: HTMLElement = document.querySelector("[data-pdf-print-region]");
+        const pdfBlob = await GenerateDocument(data, printRegion);
 
-        await GenerateDocument(data, printRegion);
+        const studyAbbr =
+          data?.questionnaireData?.study?.abbreviation || data?.questionnaireData?.study?.name;
+        const submittedDate =
+          data?.status === "In Progress"
+            ? FormatDate(data?.updatedAt, "YYYY-MM-DD")
+            : FormatDate(data?.submittedDate, "YYYY-MM-DD");
+        const filename = `CRDCSubmissionPortal-Request-${studyAbbr}-${submittedDate}.pdf`;
+
+        downloadBlob(pdfBlob, filename, "application/pdf");
       } catch (error) {
         console.error("ExportRequestButton", error);
 
