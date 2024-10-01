@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
+    "downlevelIteration": true,
     // fix Type 'Element' is not assignable to type 'ReactNode TS warning
     "paths": {
         "react": ["./node_modules/@types/react"]
