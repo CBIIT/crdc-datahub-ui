@@ -50,8 +50,7 @@ const writeHeader = (doc: JsPDF, request: Application): number => {
   const RIGHT_EDGE = doc.internal.pageSize.width - BASE_MARGIN;
   let y = BASE_MARGIN;
 
-  // TODO: Fine tune the aspect ratio
-  doc.addImage(Logo, "JPEG", BASE_MARGIN, y, 300, 56);
+  doc.addImage(Logo, "JPEG", BASE_MARGIN, y, 278, 56);
   y += 63;
 
   // Submitter name
@@ -60,26 +59,25 @@ const writeHeader = (doc: JsPDF, request: Application): number => {
   doc.line(BASE_MARGIN, (y += 15), RIGHT_EDGE, y);
   doc.setFont("Nunito", "normal", 800);
   doc.setTextColor(...COLOR_FIELD_BASE);
-  doc.setFontSize(10); // TODO: figure the font size out
+  doc.setFontSize(10);
   doc.text("SUBMITTER'S NAME", CONTENT_MARGIN, (y += 15));
   doc.setFont("Nunito", "normal", 700);
-  doc.setFontSize(14); // TODO: figure the font size out
+  doc.setFontSize(14);
   doc.setTextColor(...COLOR_EMAIL);
   doc.text(applicant.applicantName, CONTENT_MARGIN + 85, (y += 1));
   doc.line(BASE_MARGIN, (y += 10), RIGHT_EDGE, y);
-
   y += 24;
 
   // Study name and abbreviation
   doc.setFont("Nunito", "normal", 600);
   doc.setTextColor(...COLOR_BASE);
-  doc.setFontSize(10); // TODO: figure the font size out
-  doc.text("STUDY NAME", CONTENT_MARGIN, y); // TODO: using study name instead of the text from the requirements.
+  doc.setFontSize(10);
+  doc.text("STUDY NAME", CONTENT_MARGIN, y);
 
   const formattedName = formatFullStudyName(study?.name, study?.abbreviation);
-  const splitName = doc.splitTextToSize(formattedName, RIGHT_EDGE - CONTENT_MARGIN); // TODO: test this
+  const splitName = doc.splitTextToSize(formattedName, RIGHT_EDGE - CONTENT_MARGIN);
   doc.setFont("Nunito", "normal", 400);
-  doc.setFontSize(12); // TODO: figure the font size out
+  doc.setFontSize(12);
   doc.setTextColor(...COLOR_FIELD_BASE);
   doc.text(splitName, CONTENT_MARGIN + 85, y);
   y += splitName.length * 8 + 10;
@@ -87,11 +85,11 @@ const writeHeader = (doc: JsPDF, request: Application): number => {
   // Submitted Date
   doc.setFont("Nunito", "normal", 600);
   doc.setTextColor(...COLOR_BASE);
-  doc.setFontSize(10); // TODO: figure the font size out
+  doc.setFontSize(10);
   doc.text("SUBMITTED DATE", CONTENT_MARGIN, y);
 
   doc.setFont("Nunito", "normal", 400);
-  doc.setFontSize(12); // TODO: figure the font size out
+  doc.setFontSize(12);
   doc.setTextColor(...COLOR_FIELD_BASE);
   doc.text(formattedSubmittedDate, CONTENT_MARGIN + 85, y);
   y += 18;
@@ -99,16 +97,16 @@ const writeHeader = (doc: JsPDF, request: Application): number => {
   // Status
   doc.setFont("Nunito", "normal", 600);
   doc.setTextColor(...COLOR_BASE);
-  doc.setFontSize(10); // TODO: figure the font size out
+  doc.setFontSize(10);
   doc.text("STATUS", CONTENT_MARGIN, y);
 
   doc.setFont("Nunito", "normal", 400);
-  doc.setFontSize(12); // TODO: figure the font size out
+  doc.setFontSize(12);
   doc.setTextColor(...COLOR_FIELD_BASE);
   doc.text(status, CONTENT_MARGIN + 85, y);
   y += 24;
 
-  // Click to view
+  // Click to view (text)
   doc.setFont("Nunito", "normal", 400);
   doc.setFontSize(12);
   doc.setTextColor(...COLOR_FIELD_BASE);
@@ -116,6 +114,7 @@ const writeHeader = (doc: JsPDF, request: Application): number => {
     align: "left",
   });
 
+  // Click to view (overlapping link)
   doc.setTextColor(...COLOR_HYPERLINK);
   doc.textWithLink("here", CONTENT_MARGIN + 22, y, {
     url: `${env.REACT_APP_NIH_REDIRECT_URL}/submission/${request._id}`,
@@ -216,7 +215,6 @@ export const GenerateDocument = async (
 
         writeFooters(doc);
         resolve(doc.output("blob"));
-        // doc.output("dataurlnewwindow");
       },
       html2canvas: {
         scale: 0.5,
