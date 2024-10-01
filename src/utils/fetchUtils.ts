@@ -10,8 +10,9 @@ import { buildReleaseNotesUrl } from "./envUtils";
  * @throws An error if the fetch request fails
  */
 export const fetchReleaseNotes = async (signal?: AbortSignal): Promise<string> => {
-  if (sessionStorage.getItem("releaseNotes")) {
-    return sessionStorage.getItem("releaseNotes");
+  const cachedNotes = sessionStorage.getItem("releaseNotes");
+  if (cachedNotes) {
+    return cachedNotes;
   }
 
   const url: string = buildReleaseNotesUrl();

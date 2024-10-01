@@ -17,8 +17,13 @@ export type LogLevel = "error";
  * @returns void
  */
 const LoggingWrapper = (level: LogLevel, message: string, ...optionalParams: unknown[]): void => {
-  // Skip logging in a test environment.
+  // Skip logging in a testing context.
   if (env?.NODE_ENV === "test") {
+    return;
+  }
+
+  // Skip logging on stage or production environments.
+  if (env?.REACT_APP_DEV_TIER === "prod" || env?.REACT_APP_DEV_TIER === "stage") {
     return;
   }
 
