@@ -21,7 +21,13 @@ export const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
     binary += String.fromCharCode(bytes[i]);
   }
 
-  return window.btoa(binary);
+  try {
+    return window.btoa(binary);
+  } catch (e) {
+    console.error("arrayBufferToBase64: Failed to convert buffer to base64", e);
+  }
+
+  return "";
 };
 
 /**
@@ -36,7 +42,8 @@ export const loadFont = async (
   doc: jsPDF,
   { src, family, style, fontWeight }: FontResource
 ): Promise<void> => {
-  if (!src) {
+  if (!src || !family || !style || !fontWeight) {
+    console.error("loadFont: Invalid font resource");
     return;
   }
 
