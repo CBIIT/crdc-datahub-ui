@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Typography, styled } from "@mui/material";
 import { Link } from "react-router-dom";
-import { DataSubmissionInstructionsLink } from "../../config/globalHeaderData";
+import { DataSubmissionInstructionsLink } from "../../config/HeaderConfig";
 
 const StyledText = styled(Typography)({
   fontFamily: "Nunito",
