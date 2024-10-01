@@ -381,3 +381,5 @@ type SubmitButtonResult = {
   tooltip?: string;
   _identifier?: string;
 };
+
+type AccessType = "All" | "Controlled" | "Open";

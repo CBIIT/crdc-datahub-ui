@@ -145,7 +145,10 @@ export { query as LIST_CURATORS } from "./listActiveCurators";
 export type { Response as ListCuratorsResp } from "./listActiveCurators";
 
 export { query as LIST_APPROVED_STUDIES } from "./listApprovedStudies";
-export type { Response as ListApprovedStudiesResp } from "./listApprovedStudies";
+export type {
+  Input as ListApprovedStudiesInput,
+  Response as ListApprovedStudiesResp,
+} from "./listApprovedStudies";
 
 export { mutation as CREATE_ORG } from "./createOrganization";
 export type { Input as CreateOrgInput, Response as CreateOrgResp } from "./createOrganization";
