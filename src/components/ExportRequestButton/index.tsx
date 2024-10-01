@@ -14,7 +14,7 @@ const StyledTooltip = styled(StyledFormTooltip)({
   },
 });
 
-const StyledButton = styled(Button)({
+const StyledButton = styled(Button)(({ theme }) => ({
   "&.MuiButton-root": {
     display: "flex",
     justifyContent: "center",
@@ -26,11 +26,11 @@ const StyledButton = styled(Button)({
     fontStyle: "normal",
     lineHeight: "24px",
     letterSpacing: "0.32px",
-    "& .MuiSvgIcon-root": {
-      fontSize: "20px",
-    },
   },
-});
+  "&.Mui-disabled svg": {
+    opacity: theme.palette.action.disabledOpacity,
+  },
+}));
 
 const StyledDownloadIcon = styled(DownloadIcon)({
   color: "#000000",
@@ -56,7 +56,11 @@ const ExportRequestButton = forwardRef<HTMLButtonElement, ExportRequestButtonPro
 
       try {
         const printRegion: HTMLElement = document.querySelector("[data-pdf-print-region]");
-        const pdfBlob = await GenerateDocument(data, printRegion);
+        if (!printRegion) {
+          throw new Error("Unable to locate the print region for the PDF.");
+        }
+
+        const pdfBlob = await GenerateDocument(data, printRegion.cloneNode(true) as HTMLElement);
 
         const studyAbbr =
           data?.questionnaireData?.study?.abbreviation || data?.questionnaireData?.study?.name;

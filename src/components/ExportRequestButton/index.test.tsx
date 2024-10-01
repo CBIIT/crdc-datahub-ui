@@ -36,6 +36,10 @@ type TestParentProps = {
    */
   userRole?: UserRole;
   /**
+   * The element to use as the print region for the PDF.
+   */
+  printRegion?: React.ReactNode;
+  /**
    * The children to render within the test parent.
    */
   children: React.ReactNode;
@@ -45,6 +49,7 @@ const TestParent: FC<TestParentProps> = ({
   formStatus = FormStatus.LOADED,
   formData = {},
   userRole = "User",
+  printRegion = <div data-pdf-print-region="1" />,
   children,
 }: TestParentProps) => {
   const formValue = useMemo<FormContextState>(
@@ -73,7 +78,10 @@ const TestParent: FC<TestParentProps> = ({
 
   return (
     <AuthCtx.Provider value={authValue}>
-      <FormContext.Provider value={formValue}>{children}</FormContext.Provider>
+      <FormContext.Provider value={formValue}>
+        {printRegion}
+        {children}
+      </FormContext.Provider>
     </AuthCtx.Provider>
   );
 };
@@ -176,6 +184,21 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(<ExportRequestButton />, {
       wrapper: (p) => <TestParent {...p} />,
+    });
+
+    userEvent.click(getByTestId("export-submission-request-button"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "An error occurred while exporting the Submission Request to PDF.",
+        { variant: "error" }
+      );
+    });
+  });
+
+  it("should display an error message if no print region is found", async () => {
+    const { getByTestId } = render(<ExportRequestButton />, {
+      wrapper: (p) => <TestParent printRegion={null} {...p} />,
     });
 
     userEvent.click(getByTestId("export-submission-request-button"));

@@ -168,7 +168,10 @@ const writeFooters = (doc: JsPDF): void => {
 /**
  * A function to generate a PDF document from a submission request.
  *
+ * @note This function temporarily modifies the width of the print region to ensure the
+ *  content fits within the page.
  * @param request The submission request to generate a PDF from.
+ * @param printRegion The region to print to the PDF.
  * @returns {Promise<URL>} A promise that resolves when the PDF is generated.
  * @throws {Error} If the submission request is invalid.
  */
@@ -197,10 +200,7 @@ export const GenerateDocument = async (
     creator: "crdc-datahub-ui",
   });
 
-  for (const font of fonts) {
-    // eslint-disable-next-line no-await-in-loop -- we need to wait for each font to load
-    await loadFont(doc, font);
-  }
+  await Promise.allSettled(fonts.map((font) => loadFont(doc, font)));
 
   return new Promise((resolve) => {
     const y = writeHeader(doc, request);
