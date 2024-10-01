@@ -5,7 +5,7 @@ import Logo from "./LogoMobile";
 import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg";
 import rightArrowIcon from "../../../assets/header/Right_Arrow.svg";
 import leftArrowIcon from "../../../assets/header/Left_Arrow.svg";
-import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
+import { navMobileList, navbarSublists } from "../../../config/HeaderConfig";
 import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
