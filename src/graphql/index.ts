@@ -32,6 +32,9 @@ export type { Input as UpdateMyUserInput, Response as UpdateMyUserResp } from ".
 export { query as LIST_INSTITUTIONS } from "./listInstitutions";
 export type { Response as ListInstitutionsResp } from "./listInstitutions";
 
+export { query as RETRIEVE_CDEs } from "./retrieveCDEs";
+export type { Response as RetrieveCDEsResp, Input as RetrieveCDEsInput } from "./retrieveCDEs";
+
 // Data Submissions
 export { mutation as CREATE_SUBMISSION } from "./createSubmission";
 export type {
