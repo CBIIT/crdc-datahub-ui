@@ -16,6 +16,7 @@ import {
   buildBaseFilterContainers,
   buildFilterOptionsList,
   updateEnums,
+  Logger,
 } from "../utils";
 import { RETRIEVE_CDEs, RetrieveCDEsInput, RetrieveCDEsResp } from "../graphql";
 
@@ -91,7 +92,7 @@ const useBuildReduxStore = (): [
     const assets = buildAssetUrls(datacommon);
 
     const response = await getModelExploreData(assets.model, assets.props)?.catch((e) => {
-      console.error(e);
+      Logger.error(e);
       return null;
     });
     if (!response?.data || !response?.version) {

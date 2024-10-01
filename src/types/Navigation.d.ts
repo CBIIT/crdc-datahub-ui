@@ -69,3 +69,75 @@ type NavBarSubItem = {
    */
   onClick?: () => void;
 };
+
+type FooterConfiguration = {
+  /**
+   * The image source of the footer logo
+   *
+   * @note The ideal image size 310x80 px
+   */
+  footerLogoImage: string;
+  /**
+   * The alt text of the footer logo
+   */
+  footerLogoAltText: string;
+  /**
+   * The hyperlink of the footer logo
+   */
+  footerLogoHyperlink: string;
+  /**
+   * The static text displayed on the footer
+   */
+  footerStaticText: string;
+  /**
+   * An array of footer columns
+   */
+  link_sections: FooterColumnSection[];
+  /**
+   * The follow us links
+   *
+   * @TODO Refactor this to use {@link FooterLinkItem}
+   */
+  followUs_links: FooterFollowUsLink[];
+  /**
+   * An array of Contact Us links
+   */
+  contact_links: FooterLinkItem[];
+  /**
+   * An array of Anchor Links
+   */
+  global_footer_links: FooterLinkItem[];
+};
+
+/**
+ * Represents a independent column section of the footer
+ */
+type FooterColumnSection = {
+  /**
+   * Section title
+   */
+  title: string;
+  /**
+   * The items in the section
+   */
+  items: FooterLinkItem[];
+};
+
+type FooterLinkItem = {
+  /**
+   * The text to be displayed on the link
+   */
+  text: string;
+  /**
+   * The fully-qualified URL of the link or the relative path
+   *
+   * @note Omission of this field will render the item as a non-clickable text
+   */
+  link?: string;
+};
+
+type FooterFollowUsLink = {
+  img: string;
+  link: string;
+  description: string;
+};

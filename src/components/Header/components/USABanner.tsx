@@ -1,6 +1,6 @@
 import React from "react";
 import { styled } from "@mui/material";
-import { headerData } from "../../../config/globalHeaderData";
+import { headerData } from "../../../config/HeaderConfig";
 
 const BannerArea = styled("div")({
   flexDirection: "row",
