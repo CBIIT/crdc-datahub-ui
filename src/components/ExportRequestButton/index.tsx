@@ -5,7 +5,7 @@ import { ReactComponent as DownloadIcon } from "../../assets/icons/download_icon
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import { GenerateDocument } from "./pdf/Generate";
-import { downloadBlob, FormatDate } from "../../utils";
+import { downloadBlob, FormatDate, Logger } from "../../utils";
 
 const StyledTooltip = styled(StyledFormTooltip)({
   marginLeft: "0 !important",
@@ -68,7 +68,7 @@ const ExportRequestButton = forwardRef<HTMLButtonElement, ExportRequestButtonPro
 
         downloadBlob(pdfBlob, filename, "application/pdf");
       } catch (error) {
-        console.error("ExportRequestButton", error);
+        Logger.error("ExportRequestButton", error);
 
         enqueueSnackbar("An error occurred while exporting the Submission Request to PDF.", {
           variant: "error",

@@ -1,5 +1,6 @@
 import type { jsPDF } from "jspdf";
 import type { FontResource } from "./Fonts";
+import { Logger } from "../../../utils";
 
 /**
  * Convert an ArrayBuffer to a base64 string
@@ -9,7 +10,7 @@ import type { FontResource } from "./Fonts";
  */
 export const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
   if (!buffer || !(buffer instanceof ArrayBuffer)) {
-    console.error("arrayBufferToBase64: Invalid buffer received");
+    Logger.error("arrayBufferToBase64: Invalid buffer received");
     return "";
   }
 
@@ -24,7 +25,7 @@ export const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
   try {
     return window.btoa(binary);
   } catch (e) {
-    console.error("arrayBufferToBase64: Failed to convert buffer to base64", e);
+    Logger.error("arrayBufferToBase64: Failed to convert buffer to base64", e);
   }
 
   return "";
@@ -43,13 +44,13 @@ export const loadFont = async (
   { src, family, style, fontWeight }: FontResource
 ): Promise<void> => {
   if (!src || !family || !style || !fontWeight) {
-    console.error("loadFont: Invalid font resource");
+    Logger.error("loadFont: Invalid font resource");
     return;
   }
 
   const response = await fetch(src, { cache: "force-cache" }).catch(() => null);
   if (!response || !response.ok) {
-    console.error(`loadFont: Failed to fetch font ${family}`);
+    Logger.error(`loadFont: Failed to fetch font ${family}`);
     return;
   }
 
@@ -59,6 +60,6 @@ export const loadFont = async (
     doc.addFileToVFS(family, contentString);
     doc.addFont(family, family, style, fontWeight);
   } else {
-    console.error(`loadFont: Failed to base64 font ${family}`);
+    Logger.error(`loadFont: Failed to base64 font ${family}`);
   }
 };
