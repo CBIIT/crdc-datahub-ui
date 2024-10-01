@@ -9,7 +9,12 @@ import {
 import ReduxThunk from "redux-thunk";
 import { createLogger } from "redux-logger";
 import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from "../config/ModelNavigator";
-import { buildAssetUrls, buildBaseFilterContainers, buildFilterOptionsList } from "../utils";
+import {
+  buildAssetUrls,
+  buildBaseFilterContainers,
+  buildFilterOptionsList,
+  Logger,
+} from "../utils";
 
 export type Status = "waiting" | "loading" | "error" | "success";
 
@@ -74,7 +79,7 @@ const useBuildReduxStore = (): [
 
     const assets = buildAssetUrls(datacommon);
     const response = await getModelExploreData(assets.model, assets.props)?.catch((e) => {
-      console.error(e);
+      Logger.error(e);
       return null;
     });
     if (!response?.data || !response?.version) {
