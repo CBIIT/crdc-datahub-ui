@@ -5,29 +5,86 @@ type Submission = {
   submitterName: string; // <first name> <last name>
   organization: Pick<Organization, "_id" | "name">; // Organization
   dataCommons: string;
-  modelVersion: string; // for future use
+  modelVersion: string;
+  studyID: string;
   studyAbbreviation: string;
   dbGaPID: string; // # aka. phs number
   bucketName: string; // # populated from organization
   rootPath: string; // # a submission folder will be created under this path, default is / or "" meaning root folder
-  status: SubmissionStatus; // [New, In Progress, Submitted, Released, Canceled, Transferred, Completed, Archived]
-  metadataValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
-  fileValidationStatus: ValidationStatus; // [New, Validating, Passed, Error, Warning]
-  fileErrors: QCResult[]; // holds submission level file errors, e.g., extra files in S3 folder
+  status: SubmissionStatus;
+  metadataValidationStatus: ValidationStatus;
+  fileValidationStatus: ValidationStatus;
+  crossSubmissionStatus: CrossSubmissionStatus;
+  deletingData: boolean;
+  /**
+   * The date and time when the validation process started.
+   *
+   * @note ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+   */
+  validationStarted: string;
+  /**
+   * The date and time when the validation process ended.
+   *
+   * @note ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+   */
+  validationEnded: string;
+  /**
+   * The last performed validation action scope.
+   *
+   * @see {@link ValidationTarget} for more information.
+   */
+  validationScope: ValidationTarget;
+  /**
+   * The last performed validation action type.
+   *
+   * @see {@link ValidationType} for more information.
+   */
+  validationType: ValidationType[];
+  /**
+   * Holds submission level file errors, e.g., extra files in S3 folder
+   */
+  fileErrors: QCResult[];
   history: SubmissionHistoryEvent[];
   conciergeName: string; // Concierge name
   conciergeEmail: string; // Concierge email
+  intention: SubmissionIntention;
+  dataType: SubmissionDataType;
+  /**
+   * A JSON string containing information for related submissions. Mapped by SubmissionStatus, related by studyAbbreviation.
+   *
+   * @see OtherSubmissions
+   */
+  otherSubmissions: string;
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
 /**
- * The status of a Metadata or Files in a submission.
+ * The status of the validation action for a Submission.
  *
  * @note `null` indicates that the type has not been uploaded yet.
  * @note `New` indicates that the type has been uploaded but not validated yet.
  */
 type ValidationStatus = null | "New" | "Validating" | "Passed" | "Error" | "Warning";
+
+/**
+ * The status of the cross-submission validation action for a Submission.
+ *
+ * @note Value of `null` or `Warning` does not represent a valid state and can be ignored.
+ */
+type CrossSubmissionStatus = Exclude<ValidationStatus, "Warning">;
+
+/**
+ * A parsed version of the `otherSubmissions` field in a Submission object.  *
+ *
+ * @example ```{ "Submitted": ["abc-0001", "xyz-0002"], "In Progress": ["bge-0003"] }```
+ */
+type OtherSubmissions = {
+  [key in Extends<
+    SubmissionStatus,
+    "In Progress" | "Submitted" | "Released" | "Rejected" | "Withdrawn"
+  >]: string[];
+};
 
 type SubmissionStatus =
   | "New"
@@ -38,7 +95,8 @@ type SubmissionStatus =
   | "Rejected"
   | "Completed"
   | "Archived"
-  | "Canceled";
+  | "Canceled"
+  | "Deleted";
 
 type SubmissionAction =
   | "Submit"
@@ -50,15 +108,9 @@ type SubmissionAction =
   | "Cancel"
   | "Archive";
 
-type FileInfo = {
-  filePrefix: string; // prefix/path within S3 bucket
-  fileName: string;
-  size: number;
-  status: string; // [New, Uploaded, Failed]
-  errors: [string];
-  createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-  updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-};
+type SubmissionIntention = "New/Update" | "Delete";
+
+type SubmissionDataType = "Metadata Only" | "Metadata and Data Files";
 
 type FileInput = {
   fileName: string;
@@ -85,24 +137,14 @@ type BatchFileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;
   size: number;
-  nodeType: string
+  nodeType: string;
   status: string; // [New, Uploaded, Failed]
   errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-  updatedAt: string // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
+  updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
 type BatchStatus = "Uploading" | "Uploaded" | "Failed";
-
-/**
- * The intention of the metadata upload.
- *
- * @note In MVP-2.1.0, the previous values were:
- *  - `New` => `Add`
- *  - `Update` => `Add/Change`
- *  - `Delete` => `Remove`
- */
-type MetadataIntention = "Add" | "Add/Change" | "Remove";
 
 type UploadType = "metadata" | "data file";
 
@@ -111,10 +153,6 @@ type Batch = {
   displayID: number;
   submissionID: string; // parent
   type: UploadType;
-  /**
-   * See {@link MetadataIntention} for more information.
-   */
-  metadataIntention: MetadataIntention;
   fileCount: number; // calculated by BE
   files: BatchFileInfo[];
   status: BatchStatus;
@@ -129,7 +167,6 @@ type NewBatch = {
   bucketName?: string; // S3 bucket of the submission, for file batch / CLI use
   filePrefix?: string; // prefix/path within S3 bucket, for file batch / CLI use
   type: UploadType;
-  metadataIntention: MetadataIntention;
   fileCount: number; // calculated by BE
   files: FileURL[];
   status: BatchStatus; // [New, Uploaded, Upload Failed, Loaded, Rejected] Loaded and Rejected are for metadata batch only
@@ -152,14 +189,14 @@ type TempCredentials = {
 type SubmissionHistoryEvent = HistoryBase<SubmissionStatus>;
 
 type ListLogFiles = {
-  logFiles: LogFile[]
+  logFiles: LogFile[];
 };
 
 type LogFile = {
   fileName: string;
   uploadType: UploadType;
   downloadUrl: string; // s3 presigned download url of the file
-  fileSize: number // size in byte
+  fileSize: number; // size in byte
 };
 
 type S3FileInfo = {
@@ -173,15 +210,26 @@ type S3FileInfo = {
   updatedAt: string;
 };
 
-type ParentNode = {
+type RecordParentNode = {
   parentType: string; // node type of the parent node, e.g. "study"
   parentIDPropName: string; // ID property name can be used to identify parent node, e.g., "study_id"
   parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
 };
 
-type QCResults = {
+/**
+ * Represents a validation result returned by a validation API endpoint.
+ *
+ * e.g. Quality Control, Cross Submission, etc.
+ */
+type ValidationResult<ResultType> = {
+  /**
+   * The total number of results available of this type.
+   */
   total: number;
-  results: QCResult[];
+  /**
+   * A generic collection of validation results.
+   */
+  results: ResultType[];
 };
 
 type QCResult = {
@@ -191,11 +239,23 @@ type QCResult = {
   batchID: string;
   displayID: number;
   submittedID: string;
-  severity: "Error" | "Warning"; // [Error, Warning]
+  severity: "Error" | "Warning";
   uploadedDate: string; // batch.updatedAt
   validatedDate: string;
   errors: ErrorMessage[];
   warnings: ErrorMessage[];
+};
+
+/**
+ * Represents a Cross Submission validation result.
+ *
+ * @note This currently is a near-carbon copy of `QCResult`.
+ */
+type CrossValidationResult = QCResult & {
+  /**
+   * The ID of the submission that has conflicting data.
+   */
+  conflictingSubmission: string;
 };
 
 type ErrorMessage = {
@@ -217,7 +277,7 @@ type DataRecord = {
   nodeType: string; // type of the node, in "type" column of the file
   nodeID: string; // ID of the node, for example: "cds-case-99907"
   // props: Properties; // properties of the node
-  parents: ParentNode[];
+  parents: RecordParentNode[];
   // relationshipProps: [RelationshipProperty] # for future use
   // rawData: RawData
   s3FileInfo: S3FileInfo; // only for "file" types, should be null for other nodes
@@ -232,28 +292,83 @@ type SubmissionStatistic = {
   error: number;
 };
 
-type DataValidationResult = {
+type AsyncProcessResult = {
   /**
    * Whether the validation action was successfully queued.
    */
   success: boolean;
   /**
-   * The message returned by the validation.
+   * The message returned by the process.
    */
-  message: string;
-};
-
-type AsyncProcessResult = {
-  success: boolean;
   message: string;
 };
 
 /**
  * The type of Data Validation to perform.
  */
-type ValidationType = "Metadata" | "Files" | "All";
+type ValidationType = "metadata" | "file" | "cross-submission";
 
 /**
  * The target of Data Validation action.
  */
 type ValidationTarget = "New" | "All";
+
+/**
+ * Represents a node returned from the getSubmissionNodes API
+ *
+ * @note Not the same thing as `SubmissionStatistic`
+ */
+type SubmissionNode = {
+  submissionID: string;
+  nodeType: string;
+  nodeID: string;
+  status: ValidationStatus;
+  createdAt: string;
+  updatedAt: string;
+  validatedAt: string;
+  lineNumber: number;
+  /**
+   * The node properties as a JSON string.
+   *
+   * @see JSON.parse
+   */
+  props: string;
+};
+
+type RelatedNodes = {
+  /**
+   * Total number of nodes in the submission.
+   */
+  total: number;
+  /**
+   * An array of nodes matching the queried node type
+   *
+   * @note Unused values are omitted from the query. See the type definition for additional fields.
+   */
+  nodes: Pick<SubmissionNode, "nodeType" | "nodeID" | "props" | "status">[];
+  /**
+   * The list of all node properties including parents
+   */
+  properties: string[];
+  /**
+   * The ID/Key property of current node.
+   * ex. "study_participant_id" for participant node
+   */
+  IDPropName: string;
+};
+
+type RelatedNode = {
+  nodeType: string;
+  total: number;
+};
+
+type NodeDetailResult = {
+  submissionID: string;
+  nodeType: string;
+  nodeID: string;
+  IDPropName: string;
+  parents: RelatedNode[]; // array of Related node contains nodeType and counts
+  children: RelatedNode[]; // array of Related node contains nodeType and counts
+};
+
+type NodeRelationship = "parent" | "child";

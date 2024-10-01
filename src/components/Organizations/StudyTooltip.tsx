@@ -1,7 +1,7 @@
-import React, { ElementType, FC } from 'react';
-import { Typography, styled } from '@mui/material';
-import Tooltip from '../Tooltip';
-import { formatFullStudyName } from '../../utils';
+import React, { ElementType, FC } from "react";
+import { Typography, styled } from "@mui/material";
+import Tooltip from "../Tooltip";
+import { formatFullStudyName } from "../../utils";
 
 type Props = {
   _id: Organization["_id"];
@@ -17,7 +17,7 @@ const StyledStudyCount = styled(Typography)<{ component: ElementType }>(({ theme
 const TooltipBody: FC<Props> = ({ _id, studies }) => (
   <Typography variant="body1">
     {studies?.map(({ studyName, studyAbbreviation }) => (
-      <React.Fragment key={`${_id}_study_${studyName}`}>
+      <React.Fragment key={`${_id}_study_${studyName}_abbrev_${studyAbbreviation}`}>
         {formatFullStudyName(studyName, studyAbbreviation)}
         <br />
       </React.Fragment>
@@ -41,9 +41,7 @@ const StudyTooltip: FC<Props> = ({ _id, studies }) => (
     arrow
   >
     <StyledStudyCount variant="body2" component="span">
-      other
-      {" "}
-      {studies.length - 1}
+      other {studies.length - 1}
     </StyledStudyCount>
   </Tooltip>
 );

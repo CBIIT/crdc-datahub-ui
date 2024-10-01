@@ -5,7 +5,8 @@
  * @param {string} str - The string to capitalize.
  * @returns {string} - The capitalized string or an empty string if the input is empty.
  */
-export const capitalizeFirstLetter = (str: string): string => (str ? str[0].toUpperCase() + str.slice(1) : "");
+export const capitalizeFirstLetter = (str: string): string =>
+  str ? str[0].toUpperCase() + str.slice(1) : "";
 
 /**
  * Capitalizes the first letter of each word in a given string.
@@ -19,7 +20,11 @@ export const titleCase = (str: string): string => {
     return "";
   }
 
-  return str.toLowerCase().split(" ").map((word) => capitalizeFirstLetter(word)).join(" ");
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => capitalizeFirstLetter(word))
+    .join(" ");
 };
 
 /**
@@ -75,7 +80,13 @@ export const filterAlphaNumeric = (input: string, extraChars = ""): string => {
   // The base regex matches alphanumeric characters.
   // We add the `extraChars` by splitting it into individual characters, escaping each one, and then joining with "|".
   // This ensures characters with special meaning in regex (like ".") are treated as literal characters.
-  const pattern = new RegExp(`[^a-zA-Z0-9${extraChars.split("").map((char) => `\\${char}`).join("|")}]`, 'g');
+  const pattern = new RegExp(
+    `[^a-zA-Z0-9${extraChars
+      .split("")
+      .map((char) => `\\${char}`)
+      .join("|")}]`,
+    "g"
+  );
 
   // We replace characters that don't match the allowed set with an empty string.
   return input?.replace(pattern, "") || "";
@@ -93,10 +104,75 @@ export const filterPositiveIntegerString = (input: string): string => {
   }
 
   const nonIntegerPattern = /[^0-9]/g;
-  const filtered = input.replace(nonIntegerPattern, '');
+  const filtered = input.replace(nonIntegerPattern, "");
 
   // Remove leading zeros using a regular expression
-  const noLeadingZeros = filtered.replace(/^0+/, '');
+  const noLeadingZeros = filtered.replace(/^0+/, "");
 
   return noLeadingZeros || "";
+};
+
+/**
+ * Compares two string values for sorting in an array. Non-empty strings are sorted
+ * alphabetically, and `null` or empty strings are placed at the beginning.
+ *
+ * @param {string | null} a - The first string to compare.
+ * @param {string | null} b - The second string to compare.
+ * @returns {number} - A negative number if `a` should come before `b`, a positive number
+ * if `a` should come after `b`, or zero if they are considered equal for sorting purposes.
+ */
+export const compareStrings = (a: string | null, b: string | null): number => {
+  if (a === b) return 0;
+  if (!a || a === "") return -1;
+  if (!b || b === "") return 1;
+
+  return a.localeCompare(b);
+};
+
+/**
+ * Moves the specified key element to the front of the array.
+ * If the key element does not exist in the array, the original array is returned.
+ *
+ * @param {string[]} array - The array of strings to be reordered.
+ * @param {string} keyElement - The key element to move to the front of the array.
+ * @returns {string[]} A new array with the key element moved to the front if present.
+ */
+export const moveToFrontOfArray = (array: string[], keyElement: string): string[] => {
+  if (!array?.length) {
+    return [];
+  }
+  if (!keyElement?.length) {
+    return array;
+  }
+
+  const index = array.indexOf(keyElement);
+
+  // Return original array if keyElement is not found or already at the first position
+  if (index <= 0) {
+    return array;
+  }
+
+  const newArray = [...array];
+  newArray.splice(index, 1);
+  newArray.unshift(keyElement);
+
+  return newArray;
+};
+
+/**
+ * Rearranges the order of specified keys in an array and appends the remaining keys to the end.
+ *
+ * @param {string[]} keysArray - The array of keys to be processed.
+ * @param {string[]} keyOrder - An array specifying the desired order of keys.
+ * @returns {string[]} A new array with keys in the specified order, followed by the remaining keys.
+ */
+export const rearrangeKeys = (keysArray: string[], keyOrder: string[]): string[] => {
+  if (!Array.isArray(keysArray) || !Array.isArray(keyOrder)) {
+    return keysArray || [];
+  }
+
+  const orderedKeys = keyOrder.filter((key) => keysArray.includes(key));
+  const remainingKeys = keysArray.filter((key) => !orderedKeys.includes(key));
+
+  return [...orderedKeys, ...remainingKeys];
 };

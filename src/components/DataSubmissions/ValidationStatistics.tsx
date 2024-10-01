@@ -1,12 +1,12 @@
-import React, { FC, useMemo, useState } from 'react';
-import { cloneDeep, isEqual } from 'lodash';
-import { Stack, StackProps, Tab, Tabs, Typography, styled } from '@mui/material';
-import ContentCarousel from '../Carousel';
-import NodeTotalChart from '../NodeTotalChart';
-import MiniPieChart from '../NodeChart';
-import SuspenseLoader from '../SuspenseLoader';
-import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from '../../utils';
-import StatisticLegend from './StatisticLegend';
+import React, { FC, useMemo, useState } from "react";
+import { cloneDeep, isEqual } from "lodash";
+import { Stack, StackProps, Tab, Tabs, Typography, styled } from "@mui/material";
+import ContentCarousel from "../Carousel";
+import NodeTotalChart from "../NodeTotalChart";
+import MiniPieChart from "../NodeChart";
+import SuspenseLoader from "../SuspenseLoader";
+import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from "../../utils";
+import StatisticLegend from "./StatisticLegend";
 import blurredDataVisualizationSvg from "../../assets/dataSubmissions/blurred_data_visualization.svg";
 
 type Props = {
@@ -26,7 +26,7 @@ const StyledChartArea = styled(Stack, {
   width: "100%",
   position: "relative",
   "& > *": {
-    zIndex: 10
+    zIndex: 10,
   },
   "&::before": {
     position: "absolute",
@@ -116,23 +116,32 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   const [tabValue, setTabValue] = useState<"count" | "percentage">("count");
 
   const disabledSeries: SeriesLabel[] = filters.filter((f) => f.disabled).map((f) => f.label);
-  const dataset: SubmissionStatistic[] = useMemo(() => cloneDeep(statistics || []).sort(compareNodeStats), [statistics]);
-  const primaryChartSeries: BarChartDataset[] = useMemo(() => buildPrimaryChartSeries(dataset, disabledSeries), [dataset, disabledSeries]);
+  const dataset: SubmissionStatistic[] = useMemo(
+    () => cloneDeep(statistics || []).sort(compareNodeStats),
+    [statistics]
+  );
+  const primaryChartSeries: BarChartDataset[] = useMemo(
+    () => buildPrimaryChartSeries(dataset, disabledSeries),
+    [dataset, disabledSeries]
+  );
 
   const handleFilterChange = (filter: LegendFilter) => {
     const newFilters = filters.map((f) => {
-      if (f.label === filter.label) { return { ...f, disabled: !f.disabled }; }
+      if (f.label === filter.label) {
+        return { ...f, disabled: !f.disabled };
+      }
       return f;
     });
 
     setFilters(newFilters);
   };
 
-  const handleViewByChange = (_: React.SyntheticEvent, newValue: "count" | "percentage") => setTabValue(newValue);
+  const handleViewByChange = (_: React.SyntheticEvent, newValue: "count" | "percentage") =>
+    setTabValue(newValue);
 
   if (!dataSubmission || !dataset) {
     return (
-      <StyledChartArea direction="row">
+      <StyledChartArea direction="row" data-testid="statistics-loader-container">
         <SuspenseLoader fullscreen={false} />
       </StyledChartArea>
     );
@@ -140,7 +149,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
 
   if (!dataset?.some((s) => s.total > 0)) {
     return (
-      <StyledChartArea direction="row" hasNoData>
+      <StyledChartArea direction="row" data-testid="statistics-empty-container" hasNoData>
         <StyledNoData variant="h6">
           This is the data submission visualization section which displays validation results for
           uploaded data. After uploading and validating the data (see below), the visualization
@@ -151,7 +160,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   }
 
   return (
-    <StyledChartArea direction="row">
+    <StyledChartArea direction="row" data-testid="statistics-charts-container">
       <Stack direction="column" alignItems="center" flex={1}>
         <StyledSectionTitle variant="h6">Summary Total</StyledSectionTitle>
         <NodeTotalChart data={primaryChartSeries} normalize={tabValue === "percentage"} />
@@ -162,13 +171,15 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
       </Stack>
       <Stack direction="column" alignItems="center" flex={1} height={344}>
         <StyledSectionTitle variant="h6">
-          Individual Node Types
-          {" "}
-          {`(${dataset.length})`}
+          Individual Node Types {`(${dataset.length})`}
         </StyledSectionTitle>
         {/* NOTE: The transform is derived from the difference of Chart width and
             chart container width which is 50px on each side (100px) */}
-        <ContentCarousel additionalTransfrom={dataset.length > 3 ? 100 : 0} locked={dataset.length <= 3}>
+        <ContentCarousel
+          key={`carousel_${dataset.length}`}
+          additionalTransfrom={dataset.length > 3 ? 100 : 0}
+          locked={dataset.length <= 3}
+        >
           {dataset?.map((stat) => (
             <MiniPieChart
               key={stat.nodeName}
@@ -186,4 +197,6 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   );
 };
 
-export default React.memo<Props>(DataSubmissionStatistics, (prevProps, nextProps) => isEqual(prevProps, nextProps));
+export default React.memo<Props>(DataSubmissionStatistics, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+);

@@ -1,7 +1,7 @@
-import React, { FC } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Button, ButtonProps, styled } from '@mui/material';
+import React, { FC } from "react";
+import { useNavigate } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Button, ButtonProps, styled } from "@mui/material";
 
 const StyledBackButton = styled(Button)(() => ({
   color: "#2E5481",
@@ -10,11 +10,11 @@ const StyledBackButton = styled(Button)(() => ({
   fontFamily: "'Nunito', 'Rubik', sans-serif",
   lineHeight: "19.6px",
   "&:hover": {
-    background: "transparent"
+    background: "transparent",
   },
   "& svg": {
-    marginRight: "4px"
-  }
+    marginRight: "4px",
+  },
 }));
 
 type Props = {

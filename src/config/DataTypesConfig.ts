@@ -5,43 +5,43 @@
 const DataTypes = {
   clinicalTrial: {
     name: "clinicalTrial",
-    label: "Clinical"
+    label: "Clinical",
   },
   genomics: {
     name: "genomics",
-    label: "Genomics"
+    label: "Genomics",
   },
   proteomics: {
     name: "proteomics",
-    label: "Proteomics"
+    label: "Proteomics",
   },
   imaging: {
     name: "imaging",
-    label: "Imaging"
+    label: "Imaging",
   },
   demographicData: {
     name: "demographicData",
-    label: "Demographic Data"
+    label: "Demographic Data",
   },
   relapseRecurrenceData: {
     name: "relapseRecurrenceData",
-    label: "Relapse/Recurrence Data"
+    label: "Relapse/Recurrence Data",
   },
   diagnosisData: {
     name: "diagnosisData",
-    label: "Diagnosis Data"
+    label: "Diagnosis Data",
   },
   outcomeData: {
     name: "outcomeData",
-    label: "Outcome Data"
+    label: "Outcome Data",
   },
   treatmentData: {
     name: "treatmentData",
-    label: "Treatment Data"
+    label: "Treatment Data",
   },
   biospecimenData: {
     name: "biospecimenData",
-    label: "Biospecimen Data"
+    label: "Biospecimen Data",
   },
 } as const;
 

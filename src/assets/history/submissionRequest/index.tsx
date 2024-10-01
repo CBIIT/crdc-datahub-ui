@@ -16,7 +16,7 @@ export type IconType = {
  *
  * @see ApplicationStatus
  */
-export const HistoryIconMap : IconType = {
+export const HistoryIconMap: IconType = {
   New,
   Submitted,
   Rejected,
@@ -30,7 +30,7 @@ export const HistoryIconMap : IconType = {
  *
  * @see ApplicationStatus
  */
-export const StatusIconMap : IconType = {
+export const StatusIconMap: IconType = {
   Rejected: StatusRejected,
   Approved: StatusApproved,
 };

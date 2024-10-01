@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useId, forwardRef, ReactNode } from "react";
 import {
   Grid,
   FormControl,
@@ -11,7 +11,8 @@ import {
   GridProps,
 } from "@mui/material";
 import { updateInputValidity } from "../../utils";
-import StyledRadioButton from '../Questionnaire/StyledRadioButton';
+import StyledRadioButton from "../Questionnaire/StyledRadioButton";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const GridStyled = styled(Grid, {
   shouldForwardProp: (prop) => prop !== "containerWidth",
@@ -56,13 +57,14 @@ const StyledFormLabel = styled("label")(() => ({
 }));
 
 const StyledAsterisk = styled("span")(() => ({
+  marginLeft: "2px",
   marginRight: "2px",
   color: "#C93F08",
 }));
 
 const StyledFormControlLabel = styled(FormControlLabel)(() => ({
   "&.MuiFormControlLabel-root": {
-    paddingRight: "10px",
+    paddingRight: "5px",
     marginRight: "2px",
   },
   "& .MuiFormControlLabel-label": {
@@ -75,10 +77,11 @@ const StyledFormControlLabel = styled(FormControlLabel)(() => ({
   },
 }));
 
-type Option = {
+export type Option = {
   label: string;
   value: string;
   disabled?: boolean;
+  tooltipContent?: string | ReactNode;
 };
 
 type Props = {
@@ -93,112 +96,129 @@ type Props = {
   required?: boolean;
   readOnly?: boolean;
   gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
+  parentProps?: GridProps;
 } & RadioGroupProps;
 
-const RadioYesNoInput: FC<Props> = ({
-  label,
-  name,
-  gridWidth,
-  containerWidth,
-  value,
-  options,
-  id,
-  inline,
-  helpText,
-  required,
-  readOnly,
-  ...rest
-}) => {
-  const [val, setVal] = useState<string>(
-    value?.toString() === "" || value?.toString() === undefined
-      ? null
-      : value?.toString()
-  );
-  const [error, setError] = useState(false);
-  const radioGroupInputRef = useRef<HTMLInputElement>(null);
+const RadioInput = forwardRef<HTMLDivElement, Props>(
+  (
+    {
+      label,
+      name,
+      gridWidth,
+      containerWidth,
+      value,
+      options,
+      id,
+      inline,
+      helpText,
+      required,
+      readOnly,
+      parentProps,
+      ...rest
+    },
+    ref
+  ) => {
+    const radioId = id || useId();
+    const [val, setVal] = useState<string>(
+      value?.toString() === "" || value?.toString() === undefined ? null : value?.toString()
+    );
+    const [error, setError] = useState(false);
+    const radioGroupInputRef = useRef<HTMLInputElement>(null);
 
-  const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (readOnly) {
-      return;
-    }
-    const newValue = (event.target as HTMLInputElement).value;
-    setVal(newValue === "" ? null : newValue);
-    setError(false);
-  };
-
-  useEffect(() => {
-    if (required && val === null) {
-      updateInputValidity(radioGroupInputRef, "Please select an option");
-    } else {
-      updateInputValidity(radioGroupInputRef);
-    }
-  }, [val]);
-
-  useEffect(() => {
-    const invalid = () => setError(true);
-
-    radioGroupInputRef.current?.addEventListener("invalid", invalid);
-    return () => {
-      radioGroupInputRef.current?.removeEventListener("invalid", invalid);
+    const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (readOnly) {
+        return;
+      }
+      const newValue = (event.target as HTMLInputElement).value;
+      setVal(newValue === "" ? null : newValue);
+      setError(false);
     };
-  }, [radioGroupInputRef]);
 
-  useEffect(() => {
-    setVal(value?.toString() ?? null);
-  }, [value]);
+    useEffect(() => {
+      if (required && val === null) {
+        updateInputValidity(radioGroupInputRef, "Please select an option");
+      } else {
+        updateInputValidity(radioGroupInputRef);
+      }
+    }, [val]);
 
-  return (
-    <GridStyled
-      md={gridWidth || 6}
-      xs={12}
-      item
-      containerWidth={containerWidth}
-    >
-      <FormControl className="formControl" error={error}>
-        <Stack
-          direction={inline ? "row" : "column"}
-          alignItems={inline ? "center" : "initial"}
-        >
-          <StyledFormLabel>
-            {label}
-            {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
-          </StyledFormLabel>
-          <RadioGroup
-            name={name}
-            value={val}
-            onChange={onChangeWrapper}
-            id={id}
-            data-type="string"
-            {...rest}
-          >
-            {options?.map((option: Option, idx: number) => {
-              const isFirstOption = idx === 0;
+    useEffect(() => {
+      const invalid = () => setError(true);
 
-              return (
-                <StyledFormControlLabel
-                  key={`${option.label}-${option.value}}`}
-                  value={option.value}
-                  label={option.label}
-                  color="#1D91AB"
-                  control={(
-                    <StyledRadioButton
-                      id={id.concat(`-${option.label}-radio-button`)}
-                      readOnly={readOnly || option.disabled}
-                      disabled={option.disabled}
-                      {...(isFirstOption && { inputRef: radioGroupInputRef })}
+      radioGroupInputRef.current?.addEventListener("invalid", invalid);
+      return () => {
+        radioGroupInputRef.current?.removeEventListener("invalid", invalid);
+      };
+    }, [radioGroupInputRef]);
+
+    useEffect(() => {
+      setVal(value?.toString() ?? null);
+    }, [value]);
+
+    return (
+      <GridStyled md={gridWidth || 6} xs={12} item containerWidth={containerWidth} {...parentProps}>
+        <FormControl className="formControl" error={error}>
+          <Stack direction={inline ? "row" : "column"} alignItems={inline ? "center" : "initial"}>
+            <StyledFormLabel className="radio-label" htmlFor={radioId}>
+              {label}
+              {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+            </StyledFormLabel>
+            <RadioGroup
+              ref={ref}
+              name={name}
+              value={val}
+              onChange={onChangeWrapper}
+              id={radioId}
+              data-type="string"
+              {...rest}
+            >
+              {options?.map((option: Option, idx: number) => {
+                const isFirstOption = idx === 0;
+
+                return !option.tooltipContent ? (
+                  <StyledFormControlLabel
+                    value={option.value}
+                    label={option.label}
+                    color="#1D91AB"
+                    control={
+                      <StyledRadioButton
+                        id={id.concat(`-${option.label}-radio-button`)}
+                        readOnly={readOnly || option.disabled}
+                        disabled={option.disabled}
+                        {...(isFirstOption && { inputRef: radioGroupInputRef })}
+                      />
+                    }
+                  />
+                ) : (
+                  <StyledTooltip
+                    key={`${option.label}-${option.value}}`}
+                    title={option.tooltipContent}
+                  >
+                    <StyledFormControlLabel
+                      value={option.value}
+                      label={option.label}
+                      color="#1D91AB"
+                      control={
+                        <StyledRadioButton
+                          id={id.concat(`-${option.label}-radio-button`)}
+                          readOnly={readOnly || option.disabled}
+                          disabled={option.disabled}
+                          {...(isFirstOption && { inputRef: radioGroupInputRef })}
+                        />
+                      }
                     />
-                  )}
-                />
-              );
-            })}
-          </RadioGroup>
-        </Stack>
-        <FormHelperText className={(!readOnly && error ? "" : "displayNone") || ""}>
-          {(!readOnly && error ? "This field is required" : null) || " "}
-        </FormHelperText>
-      </FormControl>
-    </GridStyled>
-  );
-};
+                  </StyledTooltip>
+                );
+              })}
+            </RadioGroup>
+          </Stack>
+          <FormHelperText className={(!readOnly && error ? "" : "displayNone") || ""}>
+            {(!readOnly && error ? "This field is required" : null) || " "}
+          </FormHelperText>
+        </FormControl>
+      </GridStyled>
+    );
+  }
+);
 
-export default RadioYesNoInput;
+export default RadioInput;

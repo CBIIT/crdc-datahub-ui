@@ -6,7 +6,7 @@ import {
   Tooltip,
   TooltipProps,
   styled,
-  Paper
+  Paper,
 } from "@mui/material";
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
 import { fileTypeExtensions } from "../../config/FileTypeConfig";
@@ -55,7 +55,7 @@ const StyledTableCell = styled(TableCell)(() => ({
   padding: "0",
   "& .MuiStack-root": {
     width: "auto",
-  }
+  },
 }));
 
 const StyledPaper = styled(Paper)(() => ({
@@ -63,34 +63,34 @@ const StyledPaper = styled(Paper)(() => ({
   border: "1px solid #6B7294",
   marginTop: "2px",
   "& .MuiAutocomplete-listbox": {
-    padding: 0
+    padding: 0,
   },
   "& .MuiAutocomplete-option[aria-selected='true']": {
     color: "#083A50",
-    background: "#FFFFFF"
+    background: "#FFFFFF",
   },
   "& .MuiAutocomplete-option": {
     padding: "0 10px",
     height: "35px",
     color: "#083A50",
-    background: "#FFFFFF"
+    background: "#FFFFFF",
   },
   "& .MuiAutocomplete-option:hover": {
     backgroundColor: "#3E7E6D",
-    color: "#FFFFFF"
+    color: "#FFFFFF",
   },
   "& .MuiAutocomplete-option.Mui-focused": {
     backgroundColor: "#3E7E6D !important",
-    color: "#FFFFFF"
+    color: "#FFFFFF",
   },
 }));
 
-const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : boolean }) => ({
+const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: boolean }) => ({
   "& .MuiInputBase-root": {
     backgroundColor: readOnly ? "#E5EEF4" : "#FFFFFF",
     "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
-      display: 'flex',
-      alignItems: 'center',
+      display: "flex",
+      alignItems: "center",
       padding: 0,
     },
     "& .MuiInputBase-input": {
@@ -104,7 +104,7 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : bo
     "& ::placeholder": {
       color: "#87878C",
       fontWeight: 400,
-      opacity: 1
+      opacity: 1,
     },
     "& .MuiAutocomplete-endAdornment": {
       right: "8px",
@@ -210,14 +210,14 @@ const TableAutocompleteInput: FC<Props> = ({
       <StyledTableCell>
         <StyledAutocomplete
           sx={{
-          "& .MuiInputBase-input": {
-            fontWeight: 400,
-            fontSize: "16px",
-            fontFamily: "'Nunito', 'Rubik', sans-serif",
-            padding: "0 !important",
-            height: "20px",
-          },
-        }}
+            "& .MuiInputBase-input": {
+              fontWeight: 400,
+              fontSize: "16px",
+              fontFamily: "'Nunito', 'Rubik', sans-serif",
+              padding: "0 !important",
+              height: "20px",
+            },
+          }}
           id={inputID.concat("-type")}
           size="small"
           value={typeVal || ""}
@@ -227,24 +227,24 @@ const TableAutocompleteInput: FC<Props> = ({
           freeSolo
           PaperComponent={StyledPaper}
           slotProps={{
-          popper: {
-            disablePortal: true,
-            sx: {
-              top: "-2px !important",
-              zIndex: "2000"
-            },
-            modifiers: [
-              {
-                // disables popper from flipping above the input when out of screen room
-                name: "flip",
-                enabled: false,
-                options: {
-                  fallbackPlacements: [],
-                },
+            popper: {
+              disablePortal: true,
+              sx: {
+                top: "-2px !important",
+                zIndex: "2000",
               },
-            ],
-          },
-        }}
+              modifiers: [
+                {
+                  // disables popper from flipping above the input when out of screen room
+                  name: "flip",
+                  enabled: false,
+                  options: {
+                    fallbackPlacements: [],
+                  },
+                },
+              ],
+            },
+          }}
           renderInput={(p) => (
             <StyledTooltip
               title="Missing required field"
@@ -253,7 +253,9 @@ const TableAutocompleteInput: FC<Props> = ({
               disableFocusListener
               disableTouchListener
               open={showFileTypeEror}
-              slotProps={{ tooltip: { style: { marginTop: "4px !important" } } }}
+              slotProps={{
+                tooltip: { style: { marginTop: "4px !important" } },
+              }}
             >
               <TextField
                 {...p}
@@ -265,10 +267,14 @@ const TableAutocompleteInput: FC<Props> = ({
                 inputRef={fileTypeRef}
                 InputProps={{ ...p.InputProps, disableUnderline: true }}
                 // eslint-disable-next-line react/jsx-no-duplicate-props
-                inputProps={{ ...p.inputProps, maxLength: 30, "aria-label": "File type" }}
+                inputProps={{
+                  ...p.inputProps,
+                  maxLength: 30,
+                  "aria-label": "File type",
+                }}
               />
             </StyledTooltip>
-        )}
+          )}
           {...rest}
         />
       </StyledTableCell>
@@ -296,7 +302,7 @@ const TableAutocompleteInput: FC<Props> = ({
               disablePortal: true,
               sx: {
                 top: "-2px !important",
-                zIndex: "2000"
+                zIndex: "2000",
               },
               modifiers: [
                 {
@@ -328,8 +334,12 @@ const TableAutocompleteInput: FC<Props> = ({
                 variant="standard"
                 inputRef={fileExtensionRef}
                 InputProps={{ ...p.InputProps, disableUnderline: true }}
-              // eslint-disable-next-line react/jsx-no-duplicate-props
-                inputProps={{ ...p.inputProps, maxLength: 10, "aria-label": "File extension" }}
+                // eslint-disable-next-line react/jsx-no-duplicate-props
+                inputProps={{
+                  ...p.inputProps,
+                  maxLength: 10,
+                  "aria-label": "File extension",
+                }}
               />
             </StyledTooltip>
           )}

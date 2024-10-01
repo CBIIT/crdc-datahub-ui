@@ -11,7 +11,7 @@ const InfoIcon = styled("div")(() => ({
 }));
 
 const StyledTooltip = styled((props: TooltipProps) => (
-  <MuiToolTip classes={{ popper: props.className }} {...props} />
+  <MuiToolTip classes={{ popper: props?.className }} {...props} />
 ))(() => ({
   "& .MuiTooltip-tooltip": {
     maxWidth: "412px",
@@ -25,7 +25,7 @@ const StyledTooltip = styled((props: TooltipProps) => (
     fontFamily: "'Inter', 'Rubik', sans-serif",
     fontSize: "16px",
     lineHeight: "19px",
-    boxShadow: "0px 4px 10px 0px rgba(0, 0, 0, 0.15)"
+    boxShadow: "0px 4px 10px 0px rgba(0, 0, 0, 0.15)",
   },
 }));
 
@@ -33,8 +33,8 @@ const TooltipButton = styled(IconButton)(() => ({
   padding: 0,
   fontSize: "12px",
   verticalAlign: "top",
-  marginLeft: '6px',
-  color: '#000000',
+  marginLeft: "6px",
+  color: "#000000",
 }));
 
 const TooltipIcon = styled(InfoIcon)`

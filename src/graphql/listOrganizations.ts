@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const query = gql`
   query listOrganizations {
@@ -18,5 +18,9 @@ export const query = gql`
 `;
 
 export type Response = {
-  listOrganizations: Pick<Organization, "_id" | "name" | "status" | "conciergeName" | "studies" | "createdAt" | "updateAt">[];
+  listOrganizations: Array<
+    Pick<Organization, "_id" | "name" | "status" | "conciergeName" | "createdAt" | "updateAt"> & {
+      studies: Pick<Organization["studies"][number], "studyName" | "studyAbbreviation">[];
+    }
+  >;
 };

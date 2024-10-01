@@ -142,7 +142,7 @@ const CheckboxInput: FC<Props> = ({
       )}
       <StyledFormControlLabel
         value={val}
-        control={(
+        control={
           <StyledCheckbox
             name={name}
             icon={<UncheckedIcon readOnly={readOnly} />}
@@ -152,13 +152,13 @@ const CheckboxInput: FC<Props> = ({
             readOnly={readOnly}
             {...rest}
           />
-        )}
-        label={(
+        }
+        label={
           <>
             {inputLabel}
             {inputLabelTooltipText && <Tooltip title={inputLabelTooltipText} />}
           </>
-        )}
+        }
         labelPlacement="end"
       />
       {error && <FormHelperText>{error ? helperText : " "}</FormHelperText>}

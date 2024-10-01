@@ -1,61 +1,42 @@
-import React, { FC, useMemo, useState, useRef } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Alert, Container, Stack, styled,
-  Table, TableBody, TableCell,
-  TableContainer, TableHead,
-  TablePagination, TableRow,
-  TableSortLabel, Typography,
-  Dialog, DialogTitle, FormControl,
-  Select, MenuItem,
+  Alert,
+  Container,
+  Stack,
+  styled,
+  TableCell,
+  TableHead,
+  FormControl,
+  MenuItem,
+  Box,
 } from "@mui/material";
-import { LoadingButton } from '@mui/lab';
-import { useMutation, useQuery } from '@apollo/client';
-import { query, Response } from '../../graphql/listSubmissions';
-import { query as approvedStudiesQuery, Response as approvedStudiesRespone } from "../../graphql/listApprovedStudiesOfMyOrganization";
-import { query as listOrganizationsQuery, Response as listOrganizationsResponse } from "../../graphql/listOrganizations";
-import bannerSvg from "../../assets/banner/data_submissions_banner.png";
-import PageBanner from '../../components/PageBanner';
-import { FormatDate } from '../../utils';
-import { useAuthContext } from '../../components/Contexts/AuthContext';
-import { mutation as CREATE_SUBMISSION, Response as CreateSubmissionResp } from '../../graphql/createSubmission';
-import SelectInput from "../../components/Questionnaire/SelectInput";
-import TextInput from "../../components/Questionnaire/TextInput";
-import GenericAlert from '../../components/GenericAlert';
-import { DataCommons } from '../../config/DataCommons';
-import SuspenseLoader from '../../components/SuspenseLoader';
-import usePageTitle from '../../hooks/usePageTitle';
+import { useSnackbar } from "notistack";
+import { useLazyQuery } from "@apollo/client";
+import { Controller, useForm } from "react-hook-form";
+import bannerSvg from "../../assets/banner/submission_banner.png";
+import PageBanner from "../../components/PageBanner";
+import { FormatDate } from "../../utils";
+import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
+import usePageTitle from "../../hooks/usePageTitle";
+import CreateDataSubmissionDialog from "../../components/DataSubmissions/CreateDataSubmissionDialog";
+import {
+  Status as OrgStatus,
+  useOrganizationListContext,
+} from "../../components/Contexts/OrganizationListContext";
+import GenericTable, { Column } from "../../components/GenericTable";
+import { LIST_SUBMISSIONS, ListSubmissionsResp } from "../../graphql";
+import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
-type T = Submission;
+type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
 
-type Column = {
-  label: string;
-  value: (a: T, user: User) => string | boolean | number | React.ReactNode;
-  field?: string;
-  default?: true;
+type FilterForm = {
+  organization: string;
+  status: Submission["status"] | "All";
 };
 
-const StyledButton = styled(LoadingButton)({
-  height: "51px",
-  width: "261px",
-  padding: "14px 20px",
-  fontWeight: 700,
-  fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  letterSpacing: "2%",
-  lineHeight: "20.14px",
-  borderRadius: "8px",
-  color: "#fff",
-  textTransform: "none",
-  borderColor: "#005EA2 !important",
-  background: "#005EA2 !important",
-  marginRight: "25px",
-
-  "&.Mui-disabled": {
-    cursor: "not-allowed",
-    pointerEvents: "all",
-  },
-});
+type TouchedState = { [K in keyof FilterForm]: boolean };
 
 const StyledBannerBody = styled(Stack)({
   marginTop: "-20px",
@@ -65,27 +46,19 @@ const StyledContainer = styled(Container)({
   marginTop: "-62px",
 });
 
-const StyledTableContainer = styled(TableContainer)({
-  borderRadius: "8px",
-  border: "1px solid #083A50",
-  marginBottom: "25px",
-  position: "relative",
-});
-
-const OrganizationStatusContainer = styled('div')({
-  height: "45px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-start",
-  paddingLeft: "6px",
+const StyledTableHead = styled(TableHead)({
+  background: "#083A50",
+  borderTop: "1px solid #6B7294",
+  borderBottom: "1px solid #6B7294",
 });
 
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
   fontSize: "16px",
+  lineHeight: "16px",
   color: "#fff !important",
   "&.MuiTableCell-root": {
-    padding: "8px 8px",
+    padding: "15px 8px 17px",
     color: "#fff !important",
   },
   "& .MuiSvgIcon-root,  & .MuiButtonBase-root": {
@@ -108,203 +81,133 @@ const StyledTableCell = styled(TableCell)({
   },
 });
 
-const StyledInlineLabel = styled('label')({
-  paddingLeft: "10px",
-  fontWeight: "700",
-  fontSize: "16px",
+const StyledSelect = styled(StyledSelectFormComponent)({
+  width: "310px",
+});
+
+const StyledFilterTableWrapper = styled(Box)({
+  borderRadius: "8px",
+  background: "#FFF",
+  border: "1px solid #6CACDA",
+  marginBottom: "25px",
+});
+
+const StyledFilterContainer = styled(Box)({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  gap: "52px",
+  paddingTop: "18px",
+  paddingBottom: "18px",
+  paddingLeft: "29px",
 });
 
 const StyledFormControl = styled(FormControl)({
-  margin: "10px 0",
-  minWidth: "0",
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  gap: "15px",
+  minWidth: "250px",
 });
 
-const baseTextFieldStyles = {
-  borderRadius: "8px",
-  minWidth: "300px",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "16px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .Mui-disabled": {
-    cursor: "not-allowed",
-  },
-  "& .Mui-readOnly.MuiOutlinedInput-input:read-only": {
-    backgroundColor: "#E5EEF4",
-    color: "#083A50",
-    cursor: "not-allowed",
-    borderRadius: "8px",
-  },
-  "& .MuiList-root": {
-    padding: "0 !important",
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
+const StyledInlineLabel = styled("label")({
+  padding: 0,
+  fontWeight: "700",
+});
+
+const StyledDeletedText = styled(Box)(({ theme }) => ({
+  color: theme.palette.text.disabled,
+}));
+
+const initialTouchedFields: TouchedState = {
+  organization: false,
+  status: false,
 };
 
-const StyledSelect = styled(Select)(baseTextFieldStyles);
-
-const columns: Column[] = [
+const columns: Column<T>[] = [
   {
     label: "Submission Name",
-    value: (a) => <Link to={`/data-submission/${a._id}/data-activity`}>{a.name}</Link>,
+    renderValue: (a) =>
+      a.status === "Deleted" ? (
+        <StyledDeletedText>{a.name}</StyledDeletedText>
+      ) : (
+        <Link to={`/data-submission/${a._id}/upload-activity`}>{a.name}</Link>
+      ),
     field: "name",
   },
   {
     label: "Submitter",
-    value: (a) => a.submitterName,
+    renderValue: (a) => a.submitterName,
     field: "submitterName",
   },
   {
     label: "Data Commons",
-    value: (a) => a.dataCommons,
+    renderValue: (a) => a.dataCommons,
     field: "dataCommons",
   },
   {
+    label: "Type",
+    renderValue: (a) => a.intention,
+    field: "intention",
+  },
+  {
     label: "DM Version",
-    value: (a) => a.modelVersion,
+    renderValue: (a) => a.modelVersion,
     field: "modelVersion",
   },
   {
     label: "Organization",
-    value: (a) => a.organization.name,
-    field: "organization.name",
+    renderValue: (a) => a.organization.name,
+    fieldKey: "organization.name",
   },
   {
     label: "Study",
-    value: (a) => a.studyAbbreviation,
+    renderValue: (a) => a.studyAbbreviation,
     field: "studyAbbreviation",
   },
   {
     label: "dbGaP ID",
-    value: (a) => a.dbGaPID,
+    renderValue: (a) => a.dbGaPID,
     field: "dbGaPID",
   },
   {
     label: "Status",
-    value: (a) => a.status,
+    renderValue: (a) => a.status,
     field: "status",
   },
   {
     label: "Primary Contact",
-    value: (a) => a.conciergeName,
+    renderValue: (a) => a.conciergeName,
     field: "conciergeName",
   },
   {
     label: "Created Date",
-    value: (a) => (a.createdAt ? FormatDate(a.createdAt, "M/D/YYYY h:mm A") : ""),
+    renderValue: (a) => (a.createdAt ? FormatDate(a.createdAt, "M/D/YYYY h:mm A") : ""),
     field: "createdAt",
   },
   {
     label: "Last Updated",
-    value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
+    renderValue: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
     field: "updatedAt",
     default: true,
   },
 ];
 
-const CreateSubmissionDialog = styled(Dialog)`
-  .MuiDialog-paper {
-    width: 725px;
-    height: fit-content;
-    border-radius: 8px;
-    border: 2px solid #5AB8FF;
-    background: #F2F6FA;
-    max-width: none;
-    max-height: none;
-    overflow: hidden;
-  }
-  .closeIcon {
-    cursor: pointer;
-    text-align: end;
-    width: fit-content;
-    float: right;
-  }
-  .create-a-submission-header-container {
-    left: 75px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-  }
-  #create-a-submission-title {
-    font-family: Nunito Sans;
-    font-size: 45px;
-    font-weight: 800;
-    line-height: 40px;
-    letter-spacing: -1.5px;
-    text-align: left;
-    color: #1873BD;
-    position: relative;
-  }
-  .optional-helper-text {
-    padding-top: 20px;
-    font-family: Inter;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 22px;
-    letter-spacing: 0em;
-    text-align: left;
-    width: 445px;
-  }
-  .inputs-container{
-    align-self: center;
-    width: 485px;
-    height: 450px;
-    margin-top: 25px;
-    font-family: Nunito;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 20px;
-    letter-spacing: 0em;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-  }
-  .dialogButton{
-    display: flex;
-    width: 128px;
-    height: 50.59000015258789px;
-    padding: 12px 36.5px 14.59000015258789px 36.5px;
-    justify-content: center;
-    align-items: center;
-    border-radius: 8px;
-    border: 1px solid #000;
-    text-decoration: none;
-    color: rgba(0, 0, 0, 0.87);
-    margin-top: 50px;
-    margin-left: 7px;
-    margin-right: 7px;
-    margin-bottom: 40px;
-    align-self: center;
-    cursor: pointer;
-  }
-  .createSubmissionError {
-    color: #C93F08;
-    text-align: center;
-    margin-bottom: 30px;
-    margin-top: -20px;
-  }
-  .invisible{
-    display: none;
-  }
-`;
-const statusValues: string[] = ["All", "New", "In Progress", "Submitted", "Released", "Withdrawn", "Rejected", "Completed", "Archived", "Canceled"];
-const statusOptionArray: SelectOption[] = statusValues.map((v) => ({ label: v, value: v }));
+const blockOrgChangeRoles: User["role"][] = ["Organization Owner", "Submitter", "User"];
+
+const statusValues: SubmissionStatus[] = [
+  "New",
+  "In Progress",
+  "Submitted",
+  "Released",
+  "Withdrawn",
+  "Rejected",
+  "Completed",
+  "Archived",
+  "Canceled",
+  "Deleted",
+];
+
 /**
  * View for List of Questionnaire/Submissions
  *
@@ -314,145 +217,177 @@ const ListingView: FC = () => {
   usePageTitle("Data Submission List");
 
   const { state } = useLocation();
-  const { user } = useAuthContext();
-
-  const [order, setOrder] = useState<"asc" | "desc">("desc");
-  const [orderBy, setOrderBy] = useState<Column>(
-    columns.find((c) => c.default)
-    || columns.find((c) => c.field)
-  );
-
+  const { user, status: authStatus } = useAuthContext();
+  const { enqueueSnackbar } = useSnackbar();
+  const { status: orgStatus, activeOrganizations } = useOrganizationListContext();
+  const { searchParams, setSearchParams } = useSearchParamsContext();
   // Only org owners/submitters with organizations assigned can create data submissions
-  const orgOwnerOrSubmitter = (user?.role === "Organization Owner" || user?.role === "Submitter");
-  const hasOrganizationAssigned = (user?.organization !== null && user?.organization?.orgID !== null);
-  const shouldHaveAllFilter = (user?.role === "Admin" || user?.role === "Federal Lead" || user?.role === "Data Curator" || user?.role === "Data Commons POC");
-  const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(10);
-  const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
-  const [dataCommons, setDataCommons] = useState<string>("CDS");
-  const [study, setStudy] = useState<string>("All");
-  const [dbgapid, setDbgapid] = useState<string>(null);
-  const [createSubmissionError, setCreateSubmissionError] = useState<boolean>(false);
-  // eslint-disable-next-line no-nested-ternary
-  const [organizationFilter, setOrganizationFilter] = useState<string>(shouldHaveAllFilter ? "All" : (hasOrganizationAssigned ? user.organization?.orgName : "All"));
-  const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [submissionName, setSubmissionName] = useState<string>(null);
-  const [submissionCreatedSuccessfullyAlert, setSubmissionCreatedSuccessfullyAlert] = useState<boolean>(false);
-  const createSubmissionDialogFormRef = useRef<HTMLFormElement>();
-
-  const { data: approvedStudiesData } = useQuery<approvedStudiesRespone>(approvedStudiesQuery, {
-    variables: {
+  const { watch, control, setValue } = useForm<FilterForm>({
+    defaultValues: {
+      organization: "All",
+      status: "All",
     },
-    context: { clientName: 'backend' },
-    fetchPolicy: "no-cache",
+  });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const [data, setData] = useState<T[]>([]);
+  const [totalData, setTotalData] = useState<number>(0);
+  const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
+  const canChangeOrgs = !blockOrgChangeRoles.includes(user?.role);
+  const orgFilter = watch("organization");
+  const statusFilter = watch("status");
+  const tableRef = useRef<TableMethods>(null);
+
+  const [listSubmissions, { refetch }] = useLazyQuery<ListSubmissionsResp>(LIST_SUBMISSIONS, {
+    variables: { status: statusFilter },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
   });
 
-  const { data: allOrganizations } = useQuery<listOrganizationsResponse>(listOrganizationsQuery, {
-    variables: {
-    },
-    context: { clientName: 'backend' },
-    fetchPolicy: "no-cache",
-  });
+  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
+    const { first, offset, sortDirection, orderBy } = fetchListing || {};
+    try {
+      setLoading(true);
 
-  const { data, loading, error, refetch } = useQuery<Response>(query, {
-    variables: {
-      first: perPage,
-      offset: page * perPage,
-      sortDirection: order.toUpperCase(),
-      orderBy: orderBy.field,
-      organization: (organizationFilter !== "All" ? allOrganizations?.listOrganizations?.find((org) => org.name === organizationFilter)?._id : "All"),
-      status: statusFilter,
-    },
-    context: { clientName: 'backend' },
-    fetchPolicy: "no-cache",
-  });
-  const [createDataSubmission] = useMutation<CreateSubmissionResp, { studyAbbreviation: string, dataCommons: string, name: string, dbGaPID: string }>(CREATE_SUBMISSION, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  });
+      if (!activeOrganizations?.length) {
+        return;
+      }
 
-  // eslint-disable-next-line arrow-body-style
-  const emptyRows = useMemo(() => {
-    return (page > 0 && data?.listSubmissions?.total)
-      ? Math.max(0, (1 + page) * perPage - (data?.listSubmissions?.total || 0))
-      : 0;
-  }, [data]);
-
-  const handleRequestSort = (column: Column) => {
-    setOrder(orderBy === column && order === "asc" ? "desc" : "asc");
-    setOrderBy(column);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-  const onCreateSubmissionButtonClick = async () => {
-    setCreatingSubmission(true);
-    setDataCommons("CDS");
-    setStudy(null);
-    setSubmissionName(null);
-    setDbgapid(null);
-  };
-  const onDialogCreate = async () => {
-    const valid = createSubmissionDialogFormRef.current.checkValidity();
-    if (valid) {
-      createSubmission();
+      const organization = activeOrganizations?.find((org) => org._id === orgFilter);
+      const { data: d, error } = await listSubmissions({
+        variables: {
+          first,
+          offset,
+          sortDirection,
+          orderBy,
+          organization: organization?._id ?? "All",
+          status: statusFilter,
+        },
+        context: { clientName: "backend" },
+        fetchPolicy: "no-cache",
+      });
+      if (error || !d?.listSubmissions) {
+        throw new Error("Unable to retrieve Data Submission List results.");
+      }
+      setData(d.listSubmissions.submissions);
+      setTotalData(d.listSubmissions.total);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
     }
   };
-  const createSubmission = async () => {
-    await createDataSubmission({
-      variables: {
-        studyAbbreviation: study,
-        dataCommons,
-        name: submissionName,
-        dbGaPID: dbgapid,
+
+  const isValidOrg = (orgId: string) =>
+    orgId && !!activeOrganizations?.find((org) => org._id === orgId);
+  const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
+    ["All", ...statusValues].includes(status);
+
+  const handleOrganizationChange = (organizationId: string) => {
+    if (organizationId === orgFilter) {
+      return;
+    }
+
+    if (!canChangeOrgs && isValidOrg(user?.organization?.orgID)) {
+      setValue("organization", user.organization.orgID);
+    } else if (canChangeOrgs && isValidOrg(organizationId)) {
+      setValue("organization", organizationId);
+    }
+  };
+
+  const handleStatusChange = (status: string) => {
+    if (status === statusFilter) {
+      return;
+    }
+
+    if (isStatusFilterOption(status)) {
+      setValue("status", status);
+    }
+  };
+
+  useEffect(() => {
+    if (!activeOrganizations?.length) {
+      return;
+    }
+
+    const organizationId = searchParams.get("organization");
+    const status = searchParams.get("status");
+
+    handleStatusChange(status);
+    handleOrganizationChange(organizationId);
+  }, [
+    activeOrganizations,
+    canChangeOrgs,
+    searchParams.get("organization"),
+    searchParams.get("status"),
+  ]);
+
+  useEffect(() => {
+    if (!touchedFilters.organization && !touchedFilters.status) {
+      return;
+    }
+
+    if (canChangeOrgs && orgFilter && orgFilter !== "All") {
+      searchParams.set("organization", orgFilter);
+    } else if (orgFilter === "All") {
+      searchParams.delete("organization");
+    }
+    if (statusFilter && statusFilter !== "All") {
+      searchParams.set("status", statusFilter);
+    } else if (statusFilter === "All") {
+      searchParams.delete("status");
+    }
+
+    setTablePage(0);
+    setSearchParams(searchParams);
+  }, [orgFilter, statusFilter, touchedFilters]);
+
+  const setTablePage = (page: number) => {
+    tableRef.current?.setPage(page, true);
+  };
+
+  const handleOnCreateSubmission = async () => {
+    if (!activeOrganizations?.length) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const { data: d } = await refetch();
+      if (error || !d?.listSubmissions) {
+        throw new Error("Unable to retrieve Data Submission List results.");
       }
-    }).then(() => {
-      refetch();
-      setSubmissionCreatedSuccessfullyAlert(true);
-      setTimeout(() => setSubmissionCreatedSuccessfullyAlert(false), 10000);
-      setCreatingSubmission(false);
-      setCreateSubmissionError(false);
-    })
-    .catch(() => {
-      setCreateSubmissionError(true);
+      setData(d.listSubmissions.submissions);
+      setTotalData(d.listSubmissions.total);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+
+    enqueueSnackbar("Data Submission Created Successfully", {
+      variant: "success",
     });
   };
 
-  const organizationNames: SelectOption[] = allOrganizations?.listOrganizations?.map((org) => ({ label: org.name, value: org.name }));
-  organizationNames?.unshift({ label: "All", value: "All" });
-  const approvedStudiesAbbrvList = approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((v) => ({ label: v.studyAbbreviation, value: v.studyAbbreviation }));
-  const approvedStudiesMapToDbGaPID = {};
-  approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((v) => (approvedStudiesMapToDbGaPID[v.studyAbbreviation] = v.dbGaPID));
+  const handleFilterChange = (field: keyof FilterForm) => {
+    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
+  };
+
   return (
     <>
-      <GenericAlert open={submissionCreatedSuccessfullyAlert}>
-        <span>
-          Data Submission Created Successfully
-        </span>
-      </GenericAlert>
       <PageBanner
         title="Data Submission List"
         subTitle="Below is a list of data submissions that are associated with your account. Please click on any of the data submissions to review or continue work."
         padding="57px 0 0 25px"
-        body={(
+        body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             {/* NOTE For MVP-2: Organization Owners are just Users */}
             {/* Create a submission only available to org owners and submitters that have organizations assigned */}
-            {orgOwnerOrSubmitter && (
-              <StyledButton
-                type="button"
-                onClick={onCreateSubmissionButtonClick}
-                loading={creatingSubmission}
-                sx={{ bottom: "30px", right: "50px" }}
-                disabled={!hasOrganizationAssigned}
-              >
-                Create a Data Submission
-              </StyledButton>
-            )}
+            <CreateDataSubmissionDialog onCreate={handleOnCreateSubmission} />
           </StyledBannerBody>
-        )}
+        }
         bannerSrc={bannerSvg}
       />
       <StyledContainer maxWidth="xl">
@@ -461,211 +396,91 @@ const ListingView: FC = () => {
             {state?.error || "An error occurred while loading the data."}
           </Alert>
         )}
+        <StyledFilterTableWrapper>
+          <StyledFilterContainer>
+            <StyledFormControl>
+              <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
+              <Controller
+                name="organization"
+                control={control}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    value={field.value}
+                    MenuProps={{ disablePortal: true }}
+                    inputProps={{ id: "organization-filter" }}
+                    readOnly={!canChangeOrgs}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleFilterChange("organization");
+                    }}
+                  >
+                    <MenuItem value="All">All</MenuItem>
+                    {activeOrganizations?.map((org) => (
+                      <MenuItem key={org._id} value={org._id}>
+                        {org.name}
+                      </MenuItem>
+                    ))}
+                  </StyledSelect>
+                )}
+              />
+            </StyledFormControl>
+            <StyledFormControl>
+              <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    value={field.value}
+                    MenuProps={{ disablePortal: true }}
+                    inputProps={{ id: "status-filter" }}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleFilterChange("status");
+                    }}
+                  >
+                    <MenuItem value="All">All</MenuItem>
+                    {statusValues.map((value) => (
+                      <MenuItem key={`submission_status_${value}`} value={value}>
+                        {value}
+                      </MenuItem>
+                    ))}
+                  </StyledSelect>
+                )}
+              />
+            </StyledFormControl>
+          </StyledFilterContainer>
 
-        <StyledTableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell colSpan={12}>
-                  <OrganizationStatusContainer>
-                    <StyledInlineLabel htmlFor="data-submissions-table-organization">Organization</StyledInlineLabel>
-                    <StyledFormControl>
-                      <StyledSelect
-                        sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
-                        value={organizationFilter}
-                        MenuProps={{ disablePortal: true }}
-                        inputProps={{ id: "data-submissions-table-organization" }}
-                        readOnly={orgOwnerOrSubmitter || user?.role === "User"}
-                        onChange={(e) => setOrganizationFilter(e.target.value as unknown as string)}
-                      >
-                        {organizationNames?.map(({ value, label }) => (<MenuItem key={value} value={value}>{label}</MenuItem>))}
-                      </StyledSelect>
-                    </StyledFormControl>
-                    <StyledInlineLabel htmlFor="data-submissions-table-status">Status</StyledInlineLabel>
-                    <StyledFormControl>
-                      <StyledSelect
-                        sx={{ minWidth: "300px", marginLeft: "24px", marginRight: "64px" }}
-                        value={statusFilter}
-                        MenuProps={{ disablePortal: true }}
-                        inputProps={{ id: "data-submissions-table-status" }}
-                        onChange={(e) => setStatusFilter(e.target.value as unknown as string)}
-                      >
-                        {statusOptionArray.map(({ value, label }) => (<MenuItem key={value} value={value}>{label}</MenuItem>))}
-                      </StyledSelect>
-                    </StyledFormControl>
-                  </OrganizationStatusContainer>
-                </TableCell>
-              </TableRow>
-              <TableRow sx={{ background: "#083A50" }}>
-                {columns.map((col: Column, index) => (
-                  <StyledHeaderCell sx={{ paddingLeft: (index === 0 ? "32px !important" : "") }} key={col.label}>
-                    {col.field ? (
-                      <TableSortLabel
-                        active={orderBy === col}
-                        direction={orderBy === col ? order : "asc"}
-                        onClick={() => handleRequestSort(col)}
-                      >
-                        {col.label}
-                      </TableSortLabel>
-                    ) : (
-                      col.label
-                    )}
-                  </StyledHeaderCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading && (
-                <TableRow>
-                  <TableCell>
-                    <SuspenseLoader fullscreen={false} />
-                  </TableCell>
-                </TableRow>
-              )}
-              {data?.listSubmissions?.submissions?.map((d: T, index) => (
-                <TableRow sx={{ background: (index % 2 === 0 ? "#fff" : "#E3EEF9") }} tabIndex={-1} hover key={d["_id"]}>
-                  {columns.map((col: Column, index) => (
-                    <StyledTableCell sx={{ paddingLeft: (index === 0 ? "32px !important" : "") }} key={`${d["_id"]}_${col.label}`}>
-                      {col.value(d, user)}
-                    </StyledTableCell>
-                  ))}
-                </TableRow>
-              ))}
-
-              {/* Fill the difference between perPage and count to prevent height changes */}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={columns.length} />
-                </TableRow>
-              )}
-
-              {/* No content message */}
-              {(!data?.listSubmissions?.total || data?.listSubmissions?.total === 0) && (
-                <TableRow style={{ height: 53 * 10 }}>
-                  <TableCell colSpan={columns.length}>
-                    <Typography
-                      variant="h6"
-                      align="center"
-                      fontSize={18}
-                      color="#757575"
-                    >
-                      There are no data submissions associated with your account
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 20, 50]}
-            component="div"
-            count={data?.listSubmissions?.total || 0}
-            rowsPerPage={perPage}
-            page={page}
-            onPageChange={(e, newPage) => setPage(newPage)}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{
-              disabled: perPage === -1
-                || !data?.listSubmissions
-                || data?.listSubmissions?.total === 0
-                || data?.listSubmissions?.total <= (page + 1) * perPage
-                || emptyRows > 0
-                || loading
+          <GenericTable
+            ref={tableRef}
+            columns={columns}
+            data={data || []}
+            total={totalData || 0}
+            loading={
+              loading || orgStatus === OrgStatus.LOADING || authStatus === AuthStatus.LOADING
+            }
+            defaultRowsPerPage={10}
+            defaultOrder="desc"
+            disableUrlParams={false}
+            position="bottom"
+            noContentText="There are no data submissions associated with your account"
+            onFetchData={handleFetchData}
+            containerProps={{
+              sx: {
+                marginBottom: "8px",
+                border: 0,
+                borderTopLeftRadius: 0,
+                borderTopRightRadius: 0,
+              },
             }}
-            SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
-            backIconButtonProps={{ disabled: page === 0 || loading }}
+            CustomTableHead={StyledTableHead}
+            CustomTableHeaderCell={StyledHeaderCell}
+            CustomTableBodyCell={StyledTableCell}
           />
-        </StyledTableContainer>
+        </StyledFilterTableWrapper>
       </StyledContainer>
-      <CreateSubmissionDialog open={creatingSubmission}>
-        <DialogTitle>
-          <div
-            role="button"
-            className="closeIcon"
-            onClick={() => {
-              setCreatingSubmission(false);
-              setCreateSubmissionError(false);
-            }}
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setCreatingSubmission(false);
-                setCreateSubmissionError(false);
-              }
-            }}
-          >
-            <img style={{ height: 10, marginBottom: 2 }} src="https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/LocalFindCaseDeleteIcon.svg" alt="close icon" />
-          </div>
-        </DialogTitle>
-        <div className="create-a-submission-header-container">
-          <div id="create-a-submission-title"> Create a Data Submission</div>
-          <div className="optional-helper-text">
-            Please fill out the form below to start your data submission
-          </div>
-        </div>
-        <div className="inputs-container">
-          <form ref={createSubmissionDialogFormRef}>
-            <TextInput value={user.organization?.orgName} label="Organization" readOnly />
-            <SelectInput
-              options={DataCommons.map((dc) => ({ label: dc.name, value: dc.name }))}
-              label="Data Commons"
-              required
-              value={dataCommons}
-              onChange={(value: string) => setDataCommons(value)}
-            />
-            <SelectInput
-              options={approvedStudiesAbbrvList}
-              label="Study"
-              required
-              value={study}
-              onChange={(value: string) => {
-                setStudy(value);
-                setDbgapid(approvedStudiesMapToDbGaPID[value]);
-              }}
-            />
-            <TextInput
-              value={dbgapid}
-              parentStateSetter={(newVal) => setDbgapid(newVal)}
-              maxLength={50}
-              label="dbGaP ID"
-              placeholder="Input dbGaP ID"
-            />
-            <TextInput
-              value={submissionName}
-              parentStateSetter={(newVal) => setSubmissionName(newVal)}
-              maxLength={25}
-              multiline
-              rows={2}
-              required
-              label="Submission Name"
-              placeholder="25 characters allowed"
-              validate={(v: string) => v?.trim()?.length > 0}
-            />
-          </form>
-
-        </div>
-        <div
-          role="button"
-          tabIndex={0}
-          id="createSubmissionDialogCreateButton"
-          className="dialogButton"
-          onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      onDialogCreate();
-                    }
-                }}
-          onClick={() => onDialogCreate()}
-        >
-          <strong>Create</strong>
-        </div>
-        <div className={createSubmissionError ? "createSubmissionError" : "invisible"}>
-          Unable to create this data submission. If the problem persists please contact
-          <br />
-          <a href="mailto:ncicrdchelpdesk@mail.nih.gov">
-            ncicrdchelpdesk@mail.nih.gov
-          </a>
-        </div>
-      </CreateSubmissionDialog>
     </>
   );
 };

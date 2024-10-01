@@ -46,5 +46,5 @@ export const query = gql`
 `;
 
 export type Response = {
-  submissionQCResults: QCResults;
+  submissionQCResults: ValidationResult<QCResult>;
 };

@@ -1,10 +1,9 @@
-import React, { FC } from 'react';
-import '@testing-library/jest-dom';
-import { GraphQLError } from 'graphql';
-import { render, waitFor } from '@testing-library/react';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import { AuthProvider, Status as AuthStatus, useAuthContext } from './AuthContext';
-import { query as GET_MY_USER } from '../../graphql/getMyUser';
+import React, { FC } from "react";
+import { GraphQLError } from "graphql";
+import { render, waitFor } from "@testing-library/react";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { AuthProvider, Status as AuthStatus, useAuthContext } from "./AuthContext";
+import { query as GET_MY_USER } from "../../graphql/getMyUser";
 
 type Props = {
   mocks?: MockedResponse[];
@@ -26,24 +25,24 @@ const TestChild: FC = () => {
 
       {/* User Data */}
       {user?._id && <div data-testid="user-id">{user._id}</div>}
-      {(typeof user?.firstName === "string") && <div data-testid="first-name">{user.firstName}</div>}
-      {(typeof user?.lastName === "string") && <div data-testid="last-name">{user.lastName}</div>}
+      {typeof user?.firstName === "string" && <div data-testid="first-name">{user.firstName}</div>}
+      {typeof user?.lastName === "string" && <div data-testid="last-name">{user.lastName}</div>}
     </>
   );
 };
 
-const TestParent: FC<Props> = ({ mocks, children } : Props) => (
+const TestParent: FC<Props> = ({ mocks, children }: Props) => (
   <MockedProvider mocks={mocks}>
-    <AuthProvider>
-      {children ?? <TestChild />}
-    </AuthProvider>
+    <AuthProvider>{children ?? <TestChild />}</AuthProvider>
   </MockedProvider>
 );
 
 describe("AuthContext > useAuthContext Tests", () => {
   it("should throw an exception when used outside of a AuthProvider", () => {
     jest.spyOn(console, "error").mockImplementation(() => {});
-    expect(() => render(<TestChild />)).toThrow("AuthContext cannot be used outside of the AuthProvider component");
+    expect(() => render(<TestChild />)).toThrow(
+      "AuthContext cannot be used outside of the AuthProvider component"
+    );
     jest.spyOn(console, "error").mockRestore();
   });
 });
@@ -64,30 +63,32 @@ describe("AuthContext > AuthProvider Tests", () => {
       lastName: "User",
     };
 
-    const mocks = [{
-      request: {
-        query: GET_MY_USER,
-      },
-      result: {
-        data: {
-          getMyUser: {
-            ...userData,
+    const mocks = [
+      {
+        request: {
+          query: GET_MY_USER,
+        },
+        result: {
+          data: {
+            getMyUser: {
+              ...userData,
+            },
           },
         },
       },
-    }];
+    ];
 
     localStorage.setItem("userDetails", JSON.stringify(userData));
 
-    const screen = render(<TestParent mocks={mocks} />);
+    const { findByTestId, getByTestId } = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
-    expect(screen.getByTestId("isLoggedIn").textContent).toEqual("true");
-    expect(screen.getByTestId("user-id").textContent).toEqual(userData._id);
-    expect(screen.getByTestId("first-name").textContent).toEqual(userData.firstName);
-    expect(screen.getByTestId("last-name").textContent).toEqual(userData.lastName);
+    expect(getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
+    expect(getByTestId("isLoggedIn").textContent).toEqual("true");
+    expect(getByTestId("user-id").textContent).toEqual(userData._id);
+    expect(getByTestId("first-name").textContent).toEqual(userData.firstName);
+    expect(getByTestId("last-name").textContent).toEqual(userData.lastName);
   });
 
   it("should successfully verify the cached user with the BE service", async () => {
@@ -97,27 +98,29 @@ describe("AuthContext > AuthProvider Tests", () => {
       lastName: "Lastname with spaces",
     };
 
-    const mocks = [{
-      request: {
-        query: GET_MY_USER,
-      },
-      result: {
-        data: {
-          getMyUser: {
-            ...userData,
+    const mocks = [
+      {
+        request: {
+          query: GET_MY_USER,
+        },
+        result: {
+          data: {
+            getMyUser: {
+              ...userData,
+            },
           },
         },
       },
-    }];
+    ];
 
     localStorage.setItem("userDetails", JSON.stringify(userData));
 
-    const screen = render(<TestParent mocks={mocks} />);
+    const { findByTestId, getByTestId } = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
-    expect(screen.getByTestId("isLoggedIn").textContent).toEqual("true");
+    expect(getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
+    expect(getByTestId("isLoggedIn").textContent).toEqual("true");
   });
 
   it("should update the localStorage cache when the user is verified", async () => {
@@ -127,29 +130,38 @@ describe("AuthContext > AuthProvider Tests", () => {
       lastName: "Lastname with spaces",
     };
 
-    const mocks = [{
-      request: {
-        query: GET_MY_USER,
-      },
-      result: {
-        data: {
-          getMyUser: {
-            ...userData,
-            firstName: "The API updated my first name",
+    const mocks = [
+      {
+        request: {
+          query: GET_MY_USER,
+        },
+        result: {
+          data: {
+            getMyUser: {
+              ...userData,
+              firstName: "The API updated my first name",
+            },
           },
         },
       },
-    }];
+    ];
 
     localStorage.setItem("userDetails", JSON.stringify(userData));
 
-    const screen = render(<TestParent mocks={mocks} />);
+    const { getByTestId } = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() => expect(screen.getByTestId("first-name").textContent).toEqual(mocks[0].result.data.getMyUser.firstName));
-    await waitFor(() => {
-      const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
-      expect(cachedUser.firstName).toEqual(mocks[0].result.data.getMyUser.firstName);
-    }, { timeout: 1000 });
+    await waitFor(() =>
+      expect(getByTestId("first-name").textContent).toEqual(
+        mocks[0].result.data.getMyUser.firstName
+      )
+    );
+    await waitFor(
+      () => {
+        const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
+        expect(cachedUser.firstName).toEqual(mocks[0].result.data.getMyUser.firstName);
+      },
+      { timeout: 1000 }
+    );
   });
 
   it("should logout the user if the BE API call fails", async () => {
@@ -159,28 +171,33 @@ describe("AuthContext > AuthProvider Tests", () => {
       lastName: "Lastname",
     };
 
-    const mocks = [{
-      request: {
-        query: GET_MY_USER,
+    const mocks = [
+      {
+        request: {
+          query: GET_MY_USER,
+        },
+        result: {
+          data: null,
+          errors: [new GraphQLError("A user must be logged in to perform this action")],
+        },
       },
-      result: {
-        data: null,
-        errors: [new GraphQLError("A user must be logged in to perform this action")],
-      },
-    }];
+    ];
 
     localStorage.setItem("userDetails", JSON.stringify(userData));
 
-    const screen = render(<TestParent mocks={mocks} />);
+    const { findByTestId, getByTestId } = render(<TestParent mocks={mocks} />);
 
-    await waitFor(() => expect(screen.getByTestId("status")).toBeInTheDocument());
+    await findByTestId("status");
 
-    expect(screen.getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
+    expect(getByTestId("status").textContent).toEqual(AuthStatus.LOADED);
 
-    await waitFor(() => expect(screen.getByTestId("isLoggedIn").textContent).toEqual("false"));
+    await waitFor(() => expect(getByTestId("isLoggedIn").textContent).toEqual("false"));
 
-    await waitFor(() => {
-      expect(localStorage.getItem("userDetails")).toBeNull();
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(localStorage.getItem("userDetails")).toBeNull();
+      },
+      { timeout: 1000 }
+    );
   });
 });

@@ -1,6 +1,6 @@
 import React from "react";
 import { styled } from "@mui/material";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import { headerData } from "../../../config/globalHeaderData";
 
 const LogoArea = styled("div")({

@@ -34,13 +34,7 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const Repository: FC<Props> = ({
-  idPrefix = "",
-  index,
-  repository,
-  readOnly,
-  onDelete,
-}: Props) => {
+const Repository: FC<Props> = ({ idPrefix = "", index, repository, readOnly, onDelete }: Props) => {
   const { status } = useFormContext();
 
   const { name, studyID, dataTypesSubmitted, otherDataTypesSubmitted } = repository || {};
@@ -76,7 +70,10 @@ const Repository: FC<Props> = ({
           id={idPrefix.concat(`repository-${index}-data-types-submitted`)}
           label="Data Type(s) Submitted"
           name={`study[repositories][${index}][dataTypesSubmitted]`}
-          options={repositoryDataTypesOptions.map((option) => ({ label: option.label, value: option.name }))}
+          options={repositoryDataTypesOptions.map((option) => ({
+            label: option.label,
+            value: option.name,
+          }))}
           placeholder="Select types"
           value={dataTypesSubmitted}
           multiple

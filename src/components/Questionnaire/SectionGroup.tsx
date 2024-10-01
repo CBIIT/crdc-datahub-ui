@@ -1,8 +1,5 @@
 import React, { FC } from "react";
-import {
-  Box, Grid, Stack,
-  Typography, styled
-} from "@mui/material";
+import { Box, Grid, Stack, Typography, styled } from "@mui/material";
 
 const StyledGrid = styled(Grid)({
   marginTop: "46px",
@@ -52,23 +49,23 @@ const StyledBeginAdornment = styled(Box)({
   paddingTop: "25px",
 });
 
-const StyledAsterisk = styled('span')({
-    color: "#C93F08",
-    marginLeft: "2px",
+const StyledAsterisk = styled("span")({
+  color: "#C93F08",
+  marginLeft: "2px",
 });
 
-const StyledError = styled('div')({
+const StyledError = styled("div")({
   color: "#C93F08",
   textTransform: "none",
-  fontFamily: 'Nunito',
-  fontWeight: '400',
-  fontSize: '0.75rem',
-  lineHeight: '1.66',
-  textAlign: 'left',
-  marginTop: '3px',
-  marginRight: '14px',
-  marginBottom: '0',
-  minHeight: '20px',
+  fontFamily: "Nunito",
+  fontWeight: "400",
+  fontSize: "0.75rem",
+  lineHeight: "1.66",
+  textAlign: "left",
+  marginTop: "3px",
+  marginRight: "14px",
+  marginBottom: "0",
+  minHeight: "20px",
 });
 
 type Props = {
@@ -89,7 +86,12 @@ type Props = {
  */
 const SectionGroup: FC<Props> = ({
   children,
-  title, description, endButton, beginButton, required, error,
+  title,
+  description,
+  endButton,
+  beginButton,
+  required,
+  error,
 }) => (
   <StyledGrid container rowSpacing={0} columnSpacing={1.5}>
     <StyledHeader xs={12} item>
@@ -102,11 +104,7 @@ const SectionGroup: FC<Props> = ({
           </StyledTitle>
         )}
         <Stack direction="row" alignItems="flex-start" justifyContent="space-between" width="100%">
-          {description && (
-            <StyledDescription variant="body1">
-              {description}
-            </StyledDescription>
-          )}
+          {description && <StyledDescription variant="body1">{description}</StyledDescription>}
           {beginButton && <StyledBeginAdornment>{beginButton}</StyledBeginAdornment>}
         </Stack>
       </Stack>

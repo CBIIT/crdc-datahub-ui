@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const query = gql`
   query getApplication($id: ID!) {
-    getApplication(_id : $id) {
+    getApplication(_id: $id) {
       _id
       status
       createdAt
@@ -30,7 +30,7 @@ export const query = gql`
 `;
 
 export type Response = {
-  getApplication: Application & {
+  getApplication: Omit<Application, "questionnaireData"> & {
     questionnaireData: string; // Cast to QuestionnaireData
   };
 };

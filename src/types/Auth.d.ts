@@ -37,18 +37,19 @@ type UserInput = {
 type OrgInfo = {
   orgID: string;
   orgName: string;
+  status: "Active" | "Inactive";
   createdAt: string; // 2023-05-01T09:23:30Z, ISO data time format
   updateAt: string; // 2023-05-01T09:23:30Z  ISO data time format
 };
 
 type EditUserInput = {
   userID: User["_id"];
-  userStatus: User['userStatus'];
+  userStatus: User["userStatus"];
   organization: {
-    orgID: OrgInfo['orgID'];
+    orgID: OrgInfo["orgID"];
   };
-  dataCommons: User['dataCommons'];
-  role: User['role'];
+  dataCommons: User["dataCommons"];
+  role: User["role"];
 };
 
 type Organization = {
@@ -58,16 +59,9 @@ type Organization = {
   conciergeID: string | null;
   conciergeName: string | null;
   conciergeEmail: string | null;
-  studies: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">[];
+  studies: ApprovedStudy[];
   createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
   updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
-};
-
-type EditOrganizationInput = {
-  name: Organization["name"];
-  conciergeID: User["_id"];
-  studies: Pick<ApprovedStudy, "studyName" | "studyAbbreviation">[];
-  status: Organization["status"];
 };
 
 type Tokens = {

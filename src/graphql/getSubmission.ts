@@ -13,6 +13,7 @@ export const query = gql`
       }
       dataCommons
       modelVersion
+      studyID
       studyAbbreviation
       dbGaPID
       bucketName
@@ -20,6 +21,12 @@ export const query = gql`
       status
       metadataValidationStatus
       fileValidationStatus
+      crossSubmissionStatus
+      validationStarted
+      validationEnded
+      validationScope
+      validationType
+      deletingData
       fileErrors {
         submissionID
         type
@@ -47,6 +54,9 @@ export const query = gql`
       }
       conciergeName
       conciergeEmail
+      intention
+      dataType
+      otherSubmissions
       createdAt
       updatedAt
     }
@@ -61,12 +71,38 @@ export const query = gql`
         error
       }
     }
+
+    batchStatusList: listBatches(submissionID: $id, first: -1) {
+      batches {
+        _id
+        status
+      }
+    }
   }
 `;
 
+export type Input = {
+  /**
+   * The submission ID
+   */
+  id: string;
+};
+
 export type Response = {
+  /**
+   * The submission object
+   */
   getSubmission: Submission;
+  /**
+   * The node statistics for the submission
+   */
   submissionStats: {
     stats: SubmissionStatistic[];
+  };
+  /**
+   * The full list of batches for the submission
+   */
+  batchStatusList: {
+    batches: Pick<Batch, "_id" | "status">[];
   };
 };

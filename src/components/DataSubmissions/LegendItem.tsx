@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { Box, Stack, Typography, styled } from '@mui/material';
+import { FC } from "react";
+import { Box, Stack, Typography, styled } from "@mui/material";
 
 type Props = {
   color: string;
@@ -8,7 +8,9 @@ type Props = {
   onClick?: () => void;
 };
 
-const StyledStack = styled(Stack, { shouldForwardProp: (p) => p !== "disabled" })<{ disabled: boolean }>(({ disabled }) => ({
+const StyledStack = styled(Stack, {
+  shouldForwardProp: (p) => p !== "disabled",
+})<{ disabled: boolean }>(({ disabled }) => ({
   opacity: disabled ? 0.4 : 1,
   textDecoration: disabled ? "line-through" : "none",
   cursor: "pointer",
@@ -23,7 +25,9 @@ const StyledLabel = styled(Typography)({
   color: "#383838",
 });
 
-const StyledColorBox = styled(Box, { shouldForwardProp: (p) => p !== "color" })<{ color: string }>(({ color }) => ({
+const StyledColorBox = styled(Box, {
+  shouldForwardProp: (p) => p !== "color",
+})<{ color: string }>(({ color }) => ({
   width: "22px",
   height: "9px",
   background: color,
@@ -40,12 +44,7 @@ const StyledColorBox = styled(Box, { shouldForwardProp: (p) => p !== "color" })<
  * @returns {React.FC<Props>}
  */
 const LegendItem: FC<Props> = ({ color, label, disabled, onClick }: Props) => (
-  <StyledStack
-    direction="row"
-    alignItems="center"
-    disabled={disabled}
-    onClick={() => onClick?.()}
-  >
+  <StyledStack direction="row" alignItems="center" disabled={disabled} onClick={() => onClick?.()}>
     <StyledColorBox color={color} />
     <StyledLabel>{label}</StyledLabel>
   </StyledStack>

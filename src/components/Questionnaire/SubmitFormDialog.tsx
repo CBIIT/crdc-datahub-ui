@@ -4,7 +4,7 @@ import { FC } from "react";
 import Dialog from "../Shared/Dialog";
 
 const StyledSubmitLoadingButton = styled(LoadingButton)(() => ({
-  color: "#0B7F99"
+  color: "#0B7F99",
 }));
 
 type Props = {
@@ -33,8 +33,11 @@ const SubmitFormDialog: FC<Props> = ({
     open={open}
     onClose={onClose}
     title={title || "Submit Request"}
-    message={message || "Once your submission request is submitted for review, no further changes can be made. Are you sure you want to proceed?"}
-    actions={(
+    message={
+      message ||
+      "Once your submission request is submitted for review, no further changes can be made. Are you sure you want to proceed?"
+    }
+    actions={
       <>
         <Button onClick={onCancel} disabled={disableActions}>
           Cancel
@@ -48,7 +51,7 @@ const SubmitFormDialog: FC<Props> = ({
           Confirm to Submit
         </StyledSubmitLoadingButton>
       </>
-    )}
+    }
     {...rest}
   />
 );

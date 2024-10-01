@@ -4,14 +4,22 @@ import { cloneDeep } from "lodash";
 import { styled } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import dayjs from "dayjs";
-import programOptions, { NotApplicableProgram, OptionalProgram } from "../../../config/ProgramConfig";
+import programOptions, {
+  NotApplicableProgram,
+  OptionalProgram,
+} from "../../../config/ProgramConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import Publication from "../../../components/Questionnaire/Publication";
 import Repository from "../../../components/Questionnaire/Repository";
-import { filterAlphaNumeric, findProgram, mapObjectWithKey, programToSelectOption } from "../../../utils";
+import {
+  filterAlphaNumeric,
+  findProgram,
+  mapObjectWithKey,
+  programToSelectOption,
+} from "../../../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
@@ -23,7 +31,7 @@ import SelectInput from "../../../components/Questionnaire/SelectInput";
 import SectionMetadata from "../../../config/SectionMetadata";
 
 const StyledProxyCheckbox = styled("input")({
-  display: "none !important"
+  display: "none !important",
 });
 
 export type KeyedPublication = {
@@ -49,41 +57,50 @@ export type KeyedFunding = {
  * @returns {JSX.Element}
  */
 const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
-  const { status, data: { questionnaireData: data } } = useFormContext();
+  const {
+    status,
+    data: { questionnaireData: data },
+  } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const { B: SectionBMetadata } = SectionMetadata;
 
   const [program, setProgram] = useState<Program>(data.program);
   const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(data.program));
   const [study] = useState<Study>(data.study);
-  const [publications, setPublications] = useState<KeyedPublication[]>(data.study?.publications?.map(mapObjectWithKey) || []);
-  const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
-  const [repositories, setRepositories] = useState<KeyedRepository[]>(data.study?.repositories?.map(mapObjectWithKey) || []);
-  const [fundings, setFundings] = useState<KeyedFunding[]>(data.study?.funding?.map(mapObjectWithKey) || []);
-  const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(data.study?.isDbGapRegistered);
+  const [publications, setPublications] = useState<KeyedPublication[]>(
+    data.study?.publications?.map(mapObjectWithKey) || []
+  );
+  const [plannedPublications, setPlannedPublications] = useState<KeyedPlannedPublication[]>(
+    data.study?.plannedPublications?.map(mapObjectWithKey) || []
+  );
+  const [repositories, setRepositories] = useState<KeyedRepository[]>(
+    data.study?.repositories?.map(mapObjectWithKey) || []
+  );
+  const [fundings, setFundings] = useState<KeyedFunding[]>(
+    data.study?.funding?.map(mapObjectWithKey) || []
+  );
+  const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(
+    data.study?.isDbGapRegistered
+  );
   const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
 
   const programKeyRef = useRef(new Date().getTime());
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const {
-    nextButtonRef, saveFormRef, submitFormRef, approveFormRef, inquireFormRef, rejectFormRef, getFormObjectRef,
+    nextButtonRef,
+    saveFormRef,
+    submitFormRef,
+    approveFormRef,
+    inquireFormRef,
+    rejectFormRef,
+    getFormObjectRef,
   } = refs;
 
-  useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) { return; }
-
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    getFormObjectRef.current = getFormObject;
-  }, [refs]);
-
   const getFormObject = (): FormObject | null => {
-    if (!formRef.current) { return null; }
+    if (!formRef.current) {
+      return null;
+    }
 
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
@@ -106,9 +123,10 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.study.repositories = [];
     }
 
-     // Reset planned publications if the user has not entered any planned publications
-     // Also reset expectedDate when invalid to avoid form submission unsaved changes warning
-    combinedData.study.plannedPublications = combinedData.study.plannedPublications?.map((plannedPublication) => ({
+    // Reset planned publications if the user has not entered any planned publications
+    // Also reset expectedDate when invalid to avoid form submission unsaved changes warning
+    combinedData.study.plannedPublications =
+      combinedData.study.plannedPublications?.map((plannedPublication) => ({
         ...plannedPublication,
         expectedDate: dayjs(plannedPublication.expectedDate).isValid()
           ? plannedPublication.expectedDate
@@ -137,7 +155,13 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
     // if not applicable, clear fields and set notApplicable property
     if (newProgram?.name === NotApplicableProgram?.name) {
-      setProgram({ name: "", abbreviation: "", description: "", notApplicable: true, isCustom: false });
+      setProgram({
+        name: "",
+        abbreviation: "",
+        description: "",
+        notApplicable: true,
+        isCustom: false,
+      });
       return;
     }
 
@@ -148,7 +172,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         abbreviation: "",
         description: "",
         notApplicable: false,
-        isCustom: true
+        isCustom: true,
       });
       return;
     }
@@ -159,7 +183,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       abbreviation: newProgram?.abbreviation || "",
       description: newProgram?.description || "",
       notApplicable: false,
-      isCustom: false
+      isCustom: false,
     });
   };
 
@@ -178,7 +202,12 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addPublication = () => {
     setPublications([
       ...publications,
-      { key: `${publications.length}_${new Date().getTime()}`, title: "", pubmedID: "", DOI: "" },
+      {
+        key: `${publications.length}_${new Date().getTime()}`,
+        title: "",
+        pubmedID: "",
+        DOI: "",
+      },
     ]);
   };
 
@@ -199,7 +228,11 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addPlannedPublication = () => {
     setPlannedPublications([
       ...plannedPublications,
-      { key: `${plannedPublications.length}_${new Date().getTime()}`, title: "", expectedDate: dayjs().format("MM/DD/YYYY") },
+      {
+        key: `${plannedPublications.length}_${new Date().getTime()}`,
+        title: "",
+        expectedDate: dayjs().format("MM/DD/YYYY"),
+      },
     ]);
   };
 
@@ -220,7 +253,13 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addRepository = () => {
     setRepositories([
       ...repositories,
-      { key: `${repositories.length}_${new Date().getTime()}`, name: "", studyID: "", dataTypesSubmitted: [], otherDataTypesSubmitted: "" },
+      {
+        key: `${repositories.length}_${new Date().getTime()}`,
+        name: "",
+        studyID: "",
+        dataTypesSubmitted: [],
+        otherDataTypesSubmitted: "",
+      },
     ]);
   };
 
@@ -241,7 +280,13 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const addFunding = () => {
     setFundings([
       ...fundings,
-      { key: `${fundings.length}_${new Date().getTime()}`, agency: "", grantNumbers: "", nciProgramOfficer: "", nciGPA: "" },
+      {
+        key: `${fundings.length}_${new Date().getTime()}`,
+        agency: "",
+        grantNumbers: "",
+        nciProgramOfficer: "",
+        nciGPA: "",
+      },
     ]);
   };
 
@@ -255,18 +300,29 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   useEffect(() => {
+    if (!saveFormRef.current || !submitFormRef.current) {
+      return;
+    }
+
+    nextButtonRef.current.style.display = "flex";
+    saveFormRef.current.style.display = "flex";
+    submitFormRef.current.style.display = "none";
+    approveFormRef.current.style.display = "none";
+    inquireFormRef.current.style.display = "none";
+    rejectFormRef.current.style.display = "none";
+    getFormObjectRef.current = getFormObject;
+  }, [refs]);
+
+  useEffect(() => {
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
   const readOnlyProgram = readOnlyInputs || !programOption?.editable;
-  const predefinedProgram = programOption && !programOption.editable && !programOption.notApplicable;
+  const predefinedProgram =
+    programOption && !programOption.editable && !programOption.notApplicable;
 
   return (
-    <FormContainer
-      ref={formContainerRef}
-      formRef={formRef}
-      description={SectionOption.title}
-    >
+    <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
       {/* Program Registration Section */}
       <SectionGroup
         title={SectionBMetadata.sections.PROGRAM_INFORMATION.title}
@@ -303,7 +359,9 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="program[abbreviation]"
           value={predefinedProgram ? programOption?.abbreviation : program?.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
-          onChange={(e) => { e.target.value = e.target.value.toUpperCase(); }}
+          onChange={(e) => {
+            e.target.value = e.target.value.toUpperCase();
+          }}
           maxLength={100}
           placeholder="100 characters allowed"
           hideValidation={readOnlyProgram}
@@ -328,7 +386,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <StyledProxyCheckbox
           value={program?.notApplicable?.toString()}
-          onChange={() => { }}
+          onChange={() => {}}
           className="input"
           name="program[notApplicable]"
           type="checkbox"
@@ -339,7 +397,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         />
         <StyledProxyCheckbox
           value={program?.isCustom?.toString()}
-          onChange={() => { }}
+          onChange={() => {}}
           className="input"
           name="program[isCustom]"
           type="checkbox"
@@ -373,7 +431,9 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="study[abbreviation]"
           value={study.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
-          onChange={(e) => { e.target.value = e.target.value.toUpperCase(); }}
+          onChange={(e) => {
+            e.target.value = e.target.value.toUpperCase();
+          }}
           maxLength={20}
           placeholder="20 characters allowed"
           readOnly={readOnlyInputs}
@@ -402,7 +462,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       <SectionGroup
         title={SectionBMetadata.sections.FUNDING_AGENCY.title}
         description={SectionBMetadata.sections.FUNDING_AGENCY.description}
-        endButton={(
+        endButton={
           <AddRemoveButton
             id="section-b-add-funding-agency-button"
             label="Add Agency"
@@ -410,7 +470,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             onClick={addFunding}
             disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
-        )}
+        }
       >
         <TransitionGroupWrapper
           items={fundings}
@@ -422,7 +482,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               onDelete={() => removeFunding(funding.key)}
               readOnly={readOnlyInputs}
             />
-        )}
+          )}
         />
       </SectionGroup>
 
@@ -448,7 +508,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={dbGaPPPHSNumber}
           onChange={(e) => setDbGaPPPHSNumber(e.target.value || "")}
           maxLength={50}
-          placeholder={"Ex/ \"phs002529.v1.p1\". 50 characters allowed"}
+          placeholder={'Ex/ "phs002529.v1.p1". 50 characters allowed'}
           gridWidth={12}
           readOnly={readOnlyInputs || !isDbGapRegistered}
           required={isDbGapRegistered}
@@ -459,7 +519,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       <SectionGroup
         title={SectionBMetadata.sections.EXISTING_PUBLICATIONS.title}
         description={SectionBMetadata.sections.EXISTING_PUBLICATIONS.description}
-        endButton={(
+        endButton={
           <AddRemoveButton
             id="section-b-add-publication-button"
             label="Add Existing Publication"
@@ -467,7 +527,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             onClick={addPublication}
             disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
-        )}
+        }
       >
         <TransitionGroupWrapper
           items={publications}
@@ -487,7 +547,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       <SectionGroup
         title={SectionBMetadata.sections.PLANNED_PUBLICATIONS.title}
         description={SectionBMetadata.sections.PLANNED_PUBLICATIONS.description}
-        endButton={(
+        endButton={
           <AddRemoveButton
             id="section-b-add-planned-publication-button"
             label="Add Planned Publication"
@@ -495,7 +555,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             onClick={addPlannedPublication}
             disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
-        )}
+        }
       >
         <TransitionGroupWrapper
           items={plannedPublications}
@@ -509,14 +569,13 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             />
           )}
         />
-
       </SectionGroup>
 
       {/* Study Repositories */}
       <SectionGroup
         title={SectionBMetadata.sections.REPOSITORY.title}
         description={SectionBMetadata.sections.REPOSITORY.description}
-        endButton={(
+        endButton={
           <AddRemoveButton
             id="section-b-add-repository-button"
             label="Add Repository"
@@ -524,7 +583,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             onClick={addRepository}
             disabled={readOnlyInputs || status === FormStatus.SAVING}
           />
-        )}
+        }
       >
         <TransitionGroupWrapper
           items={repositories}

@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const query = gql`
   query getMyUser {
@@ -14,6 +14,7 @@ export const query = gql`
       organization {
         orgID
         orgName
+        status
         createdAt
         updateAt
       }

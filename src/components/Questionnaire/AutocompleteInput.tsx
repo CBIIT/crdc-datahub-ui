@@ -12,7 +12,7 @@ import {
 import { ReactNode, SyntheticEvent, useEffect, useId, useRef, useState } from "react";
 import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
 import Tooltip from "../Tooltip";
-import { updateInputValidity } from '../../utils';
+import { updateInputValidity } from "../../utils";
 
 const StyledFormControl = styled(FormControl)(() => ({
   height: "100%",
@@ -41,8 +41,8 @@ const StyledFormControl = styled(FormControl)(() => ({
     color: "#083A50",
   },
   "& .MuiAutocomplete-root .MuiAutocomplete-endAdornment": {
-    top: '50%',
-    transform: 'translateY(-50%)',
+    top: "50%",
+    transform: "translateY(-50%)",
     right: "12px",
   },
   "& .MuiAutocomplete-popupIndicator": {
@@ -96,11 +96,11 @@ const StyledAsterisk = styled("span")(() => ({
   marginLeft: "2px",
 }));
 
-const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : boolean }) => ({
+const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: boolean }) => ({
   "& .MuiInputBase-root": {
     "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
-      display: 'flex',
-      alignItems: 'center',
+      display: "flex",
+      alignItems: "center",
       padding: 0,
     },
     "& .MuiOutlinedInput-input:read-only": {
@@ -119,7 +119,7 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly } : { readOnly? : bo
     },
     "& .MuiAutocomplete-clearIndicator": {
       visibility: "hidden !important",
-      position: "absolute"
+      position: "absolute",
     },
   },
 }));
@@ -189,10 +189,7 @@ const AutocompleteInput = <T,>({
     setError(false);
   };
 
-  const onInputChangeWrapper = (
-    event: SyntheticEvent,
-    newValue: string,
-  ): void => {
+  const onInputChangeWrapper = (event: SyntheticEvent, newValue: string): void => {
     processValue(newValue as unknown as T);
     setError(false);
   };

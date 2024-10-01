@@ -2,11 +2,11 @@ import React, { FC } from "react";
 import { Grid, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
-import institutionConfig from "../../config/InstitutionConfig";
 import TextInput from "./TextInput";
 import AddRemoveButton from "./AddRemoveButton";
 import AutocompleteInput from "./AutocompleteInput";
-import { filterForNumbers, validateEmail } from '../../utils';
+import { filterForNumbers, validateEmail } from "../../utils";
+import { useInstitutionList } from "../Contexts/InstitutionListContext";
 
 const GridContainer = styled(Grid)({
   border: "0.5px solid #DCDCDC !important",
@@ -28,12 +28,16 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly, onDelete }: Props) => {
+const AdditionalContact: FC<Props> = ({
+  idPrefix = "",
+  index,
+  contact,
+  readOnly,
+  onDelete,
+}: Props) => {
   const { status } = useFormContext();
-  const {
-    firstName, lastName, email,
-    phone, position, institution,
-  } = contact;
+  const { data: institutionList } = useInstitutionList();
+  const { firstName, lastName, email, phone, position, institution } = contact;
 
   return (
     <GridContainer container>
@@ -85,7 +89,7 @@ const AdditionalContact: FC<Props> = ({ idPrefix = "", index, contact, readOnly,
           label="Institution"
           name={`additionalContacts[${index}][institution]`}
           value={institution || ""}
-          options={institutionConfig}
+          options={institutionList}
           placeholder="Enter or Select an Institution"
           validate={(v: string) => v?.trim()?.length > 0}
           required

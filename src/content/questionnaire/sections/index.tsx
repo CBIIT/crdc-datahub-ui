@@ -15,7 +15,7 @@ type Props = Omit<FormSectionProps, "SectionOption"> & {
  * @param {Props} props
  * @returns {FunctionComponentElement} - Section component
  */
-export default ({ section, ...rest }: Props) => {
+const SectionMap = ({ section, ...rest }: Props) => {
   const sectionName = section.toUpperCase();
   const sectionConfig = config[sectionName];
 
@@ -23,7 +23,7 @@ export default ({ section, ...rest }: Props) => {
   if (typeof sectionConfig !== "undefined" && sectionConfig.component) {
     return createElement(sectionConfig.component, {
       SectionOption: sectionConfig,
-      ...rest
+      ...rest,
     });
   }
 
@@ -31,3 +31,5 @@ export default ({ section, ...rest }: Props) => {
   // Note: Validation should prevent this from ever happening
   return createElement(() => <div>Oops! Form section not found</div>);
 };
+
+export default SectionMap;

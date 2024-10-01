@@ -1,17 +1,12 @@
 import React, { FC, useEffect, useId, useState, useRef } from "react";
-import {
-  Input,
-  InputProps,
-  Tooltip,
-  TooltipProps,
-  styled,
-} from "@mui/material";
+import { Input, InputProps, Tooltip, TooltipProps, styled } from "@mui/material";
 import useFormMode from "../../hooks/useFormMode";
-import { updateInputValidity } from '../../utils';
-/*
-*Pass in a regex pattern if you want this field to have custom validation checking
-*/
+import { updateInputValidity } from "../../utils";
+
 type Props = {
+  /**
+   * Pass in a regex pattern if you want this field to have custom validation checking
+   */
   pattern?: string;
   patternValidityMessage?: string;
   maxLength?: number;
@@ -40,7 +35,7 @@ const StyledInput = styled(Input)(() => ({
       fontSize: "16px",
       fontFamily: "'Nunito', 'Rubik', sans-serif",
       height: "20px",
-      width: "100%"
+      width: "100%",
     },
     "& ::placeholder": {
       color: "#87878C",
@@ -53,7 +48,7 @@ const StyledInput = styled(Input)(() => ({
       color: "#083A50",
       cursor: "not-allowed",
     },
-  }
+  },
 }));
 
 /**
@@ -86,7 +81,7 @@ const TableTextInput: FC<Props> = ({
   const [showError, setShowError] = useState<boolean>(false);
   useEffect(() => {
     const invalid = () => {
-        setShowError(true);
+      setShowError(true);
     };
 
     inputRef.current?.addEventListener("invalid", invalid);
@@ -104,7 +99,10 @@ const TableTextInput: FC<Props> = ({
       newVal = newVal.slice(0, maxLength);
     }
     if (!newVal.match(regex)) {
-      updateInputValidity(inputRef, patternValidityMessage || "Please enter input in the correct format");
+      updateInputValidity(
+        inputRef,
+        patternValidityMessage || "Please enter input in the correct format"
+      );
     } else {
       updateInputValidity(inputRef);
     }
@@ -135,7 +133,6 @@ const TableTextInput: FC<Props> = ({
         readOnly={readOnlyInputs || readOnly}
       />
     </StyledTooltip>
-
   );
 };
 

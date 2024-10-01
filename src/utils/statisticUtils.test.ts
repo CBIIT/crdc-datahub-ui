@@ -61,25 +61,28 @@ describe("compareNodeStats cases", () => {
   });
 });
 
-describe('calculateMaxDomain cases', () => {
-  it.each([-1, NaN, undefined, 0, Infinity, -Infinity])('should default to 1 when dataMax is invalid (%s)', (dataMax) => {
-    expect(utils.calculateMaxDomain(dataMax)).toBe(1);
-  });
+describe("calculateMaxDomain cases", () => {
+  it.each([-1, NaN, undefined, 0, Infinity, -Infinity])(
+    "should default to 1 when dataMax is invalid (%s)",
+    (dataMax) => {
+      expect(utils.calculateMaxDomain(dataMax)).toBe(1);
+    }
+  );
 
-  it('should round up to the nearest 1,000 when dataMax above 1,000', () => {
+  it("should round up to the nearest 1,000 when dataMax above 1,000", () => {
     expect(utils.calculateMaxDomain(1001)).toBe(2000);
     expect(utils.calculateMaxDomain(2500)).toBe(3000);
     expect(utils.calculateMaxDomain(10000)).toBe(10000);
     expect(utils.calculateMaxDomain(23949)).toBe(24000);
   });
 
-  it('should round up to the nearest 100 when dataMax is between 100 and 1,000', () => {
+  it("should round up to the nearest 100 when dataMax is between 100 and 1,000", () => {
     expect(utils.calculateMaxDomain(101)).toBe(200);
     expect(utils.calculateMaxDomain(550)).toBe(600);
     expect(utils.calculateMaxDomain(1000)).toBe(1000);
   });
 
-  it('should round up to the nearest 10 when dataMax is between 10 and 100', () => {
+  it("should round up to the nearest 10 when dataMax is between 10 and 100", () => {
     expect(utils.calculateMaxDomain(11)).toBe(20);
     expect(utils.calculateMaxDomain(55)).toBe(60);
     expect(utils.calculateMaxDomain(99)).toBe(100);
@@ -90,5 +93,43 @@ describe('calculateMaxDomain cases', () => {
     expect(utils.calculateMaxDomain(1)).toBe(10);
     expect(utils.calculateMaxDomain(5)).toBe(10);
     expect(utils.calculateMaxDomain(10)).toBe(10);
+  });
+});
+
+describe("calculateTextWidth cases", () => {
+  it("should short-circuit an empty string", () => {
+    expect(utils.calculateTextWidth("")).toBe(0);
+  });
+
+  it.each([null, undefined, 0, NaN, Infinity, -Infinity])(
+    "should handle non-string types (%s) without error",
+    (text) => {
+      expect(utils.calculateTextWidth(text as unknown as string)).toBe(0);
+    }
+  );
+
+  it("should safely return 0 when the width could not be calculated", () => {
+    jest.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValueOnce(null); // NOTE: This causes an exception
+    expect(utils.calculateTextWidth("This should not have a width")).toBe(0);
+  });
+
+  it("should return the computed width of the text element", () => {
+    jest.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValueOnce({
+      font: "",
+      measureText: (text) => ({ width: text.length }),
+    } as CanvasRenderingContext2D);
+
+    const width = utils.calculateTextWidth("HelloWorld", "Arial", "11px", "normal");
+    expect(width).toBe(10);
+  });
+
+  it("should fall back to 0 when the width is not valid", () => {
+    jest.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValueOnce({
+      font: "",
+      measureText: (text) => ({ width: text.length * -25 }),
+    } as CanvasRenderingContext2D);
+
+    const width = utils.calculateTextWidth("HelloWorld", "Arial", "11px", "normal");
+    expect(width).toBe(0);
   });
 });

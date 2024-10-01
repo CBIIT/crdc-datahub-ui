@@ -51,7 +51,7 @@ const ApproveFormDialog: FC<Props> = ({
       open={open}
       onClose={onClose}
       title={title || "Approve Submission Request"}
-      actions={(
+      actions={
         <>
           <Button onClick={handleOnCancel} disabled={disableActions}>
             Cancel
@@ -65,7 +65,7 @@ const ApproveFormDialog: FC<Props> = ({
             Confirm to Approve
           </LoadingButton>
         </>
-      )}
+      }
       {...rest}
     >
       <TextInput

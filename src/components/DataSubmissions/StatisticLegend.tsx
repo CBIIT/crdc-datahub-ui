@@ -1,6 +1,6 @@
-import { FC } from 'react';
-import { Stack, Typography, styled } from '@mui/material';
-import LegendItem from './LegendItem';
+import { FC } from "react";
+import { Stack, Typography, styled } from "@mui/material";
+import LegendItem from "./LegendItem";
 
 export type Props = {
   filters: LegendFilter[];

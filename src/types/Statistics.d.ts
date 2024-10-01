@@ -1,4 +1,4 @@
-type SeriesLabel = 'New' | 'Passed' | 'Error' | 'Warning';
+type SeriesLabel = "New" | "Passed" | "Error" | "Warning";
 
 type LegendFilter = {
   label: SeriesLabel;
@@ -7,6 +7,7 @@ type LegendFilter = {
 };
 
 type BarChartDataset = {
+  label: string;
   New: number;
   Passed: number;
   Error: number;

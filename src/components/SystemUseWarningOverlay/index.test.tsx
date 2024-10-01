@@ -1,19 +1,15 @@
-import 'jest-axe/extend-expect';
-
-import { axe } from 'jest-axe';
-import { render, waitFor } from '@testing-library/react';
-import OverlayWindow from './OverlayWindow';
+import { axe } from "jest-axe";
+import { render } from "@testing-library/react";
+import OverlayWindow from "./OverlayWindow";
 
 beforeEach(() => {
   window.localStorage.clear();
 });
 
-it('should not have any accessibility violations', async () => {
-  const { container } = render(<OverlayWindow />);
+it("should not have any accessibility violations", async () => {
+  const { container, findByTestId } = render(<OverlayWindow />);
 
-  await waitFor(() => container.querySelector("#alert-dialog-title"));
+  await findByTestId("system-use-warning-dialog");
 
-  const results = await axe(container);
-
-  expect(results).toHaveNoViolations();
+  expect(await axe(container)).toHaveNoViolations();
 });

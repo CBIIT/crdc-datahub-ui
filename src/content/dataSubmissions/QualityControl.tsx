@@ -1,17 +1,33 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { useParams } from "react-router-dom";
-import { isEqual } from "lodash";
-import { Box, Button, FormControl, MenuItem, Select, styled } from "@mui/material";
-import { Controller, useForm } from 'react-hook-form';
-import { LIST_BATCHES, LIST_NODE_TYPES, ListBatchesResp, ListNodeTypesResp, SUBMISSION_QC_RESULTS, SubmissionQCResultsResp } from "../../graphql";
-import GenericTable, { Column, FetchListing, TableMethods } from "../../components/DataSubmissions/GenericTable";
-import { FormatDate, titleCase } from "../../utils";
-import ErrorDialog from "./ErrorDialog";
+import { cloneDeep, isEqual } from "lodash";
+import { Box, Button, FormControl, MenuItem, Stack, styled } from "@mui/material";
+import { Controller, useForm } from "react-hook-form";
+import { useSnackbar } from "notistack";
+import {
+  LIST_BATCHES,
+  ListBatchesInput,
+  ListBatchesResp,
+  SUBMISSION_QC_RESULTS,
+  SUBMISSION_STATS,
+  SubmissionQCResultsResp,
+  SubmissionStatsResp,
+} from "../../graphql";
+import GenericTable, { Column } from "../../components/GenericTable";
+import { FormatDate, compareNodeStats, titleCase } from "../../utils";
+import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
 import QCResultsContext from "./Contexts/QCResultsContext";
+import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
+import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
+import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 
 type FilterForm = {
-  nodeType: string | "All";
+  /**
+   * The node type to filter by.
+   *
+   * @default "All"
+   */
+  nodeType: string;
   batchID: number | "All";
   severity: QCResult["severity"] | "All";
 };
@@ -36,7 +52,7 @@ const StyledErrorDetailsButton = styled(Button)({
 const StyledNodeType = styled(Box)({
   display: "flex",
   alignItems: "center",
-  textTransform: "capitalize"
+  textTransform: "capitalize",
 });
 
 const StyledSeverity = styled(Box)({
@@ -46,67 +62,51 @@ const StyledSeverity = styled(Box)({
 });
 
 const StyledBreakAll = styled(Box)({
-  wordBreak: "break-all"
+  wordBreak: "break-all",
 });
 
 const StyledFilterContainer = styled(Box)({
   display: "flex",
   alignItems: "center",
-  justifyContent: "flex-start",
-  marginBottom: "19px",
-  paddingLeft: "24px",
+  justifyContent: "space-between",
+  marginBottom: "21px",
+  paddingLeft: "26px",
+  paddingRight: "35px",
 });
 
 const StyledFormControl = styled(FormControl)({
-  margin: "10px",
-  marginRight: "15px",
-  minWidth: "250px",
+  minWidth: "231px",
 });
 
-const StyledInlineLabel = styled('label')({
-  padding: "0 10px",
-  fontWeight: "700"
+const StyledInlineLabel = styled("label")({
+  color: "#083A50",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontWeight: 700,
+  fontSize: "16px",
+  fontStyle: "normal",
+  lineHeight: "19.6px",
+  paddingRight: "10px",
 });
 
-const baseTextFieldStyles = {
-  borderRadius: "8px",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "16px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow: "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .Mui-disabled": {
-    cursor: "not-allowed",
-  },
-  "& .MuiList-root": {
-    padding: "0 !important",
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
+const StyledIssuesTextWrapper = styled(Box)({
+  whiteSpace: "nowrap",
+  wordBreak: "break-word",
+});
+
+type TouchedState = { [K in keyof FilterForm]: boolean };
+
+const initialTouchedFields: TouchedState = {
+  nodeType: false,
+  batchID: false,
+  severity: false,
 };
-
-const StyledSelect = styled(Select)(baseTextFieldStyles);
 
 const columns: Column<QCResult>[] = [
   {
     label: "Batch ID",
     renderValue: (data) => <StyledBreakAll>{data?.displayID}</StyledBreakAll>,
     field: "displayID",
-    default: true
+    default: true,
   },
   {
     label: "Node Type",
@@ -117,71 +117,114 @@ const columns: Column<QCResult>[] = [
     label: "Submitted Identifier",
     renderValue: (data) => <StyledBreakAll>{data?.submittedID}</StyledBreakAll>,
     field: "submittedID",
+    sx: {
+      width: "20%",
+    },
   },
   {
     label: "Severity",
-    renderValue: (data) => <StyledSeverity color={data?.severity === "Error" ? "#B54717" : "#8D5809"}>{data?.severity}</StyledSeverity>,
+    renderValue: (data) => (
+      <StyledSeverity color={data?.severity === "Error" ? "#B54717" : "#8D5809"}>
+        {data?.severity}
+      </StyledSeverity>
+    ),
     field: "severity",
   },
   {
     label: "Validated Date",
-    renderValue: (data) => (data?.validatedDate ? `${FormatDate(data?.validatedDate, "MM-DD-YYYY [at] hh:mm A")}` : ""),
+    renderValue: (data) =>
+      data?.validatedDate ? `${FormatDate(data?.validatedDate, "MM-DD-YYYY [at] hh:mm A")}` : "",
     field: "validatedDate",
   },
   {
     label: "Issues",
-    renderValue: (data) => (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
-      <QCResultsContext.Consumer>
-        {({ handleOpenErrorDialog }) => (
-          <>
-            <span>{data.errors?.length > 0 ? data.errors[0].title : data.warnings[0]?.title }</span>
-            {" "}
-            <StyledErrorDetailsButton
-              onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
-              variant="text"
-              disableRipple
-              disableTouchRipple
-              disableFocusRipple
-            >
-              See details
-            </StyledErrorDetailsButton>
-          </>
-        )}
-      </QCResultsContext.Consumer>
-    ),
+    renderValue: (data) =>
+      (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
+        <QCResultsContext.Consumer>
+          {({ handleOpenErrorDialog }) => (
+            <Stack direction="row">
+              <StyledIssuesTextWrapper>
+                <span>
+                  {data.errors?.length > 0 ? data.errors[0].title : data.warnings[0]?.title}.
+                </span>{" "}
+                <StyledErrorDetailsButton
+                  onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
+                  variant="text"
+                  disableRipple
+                  disableTouchRipple
+                  disableFocusRipple
+                >
+                  See details.
+                </StyledErrorDetailsButton>
+              </StyledIssuesTextWrapper>
+            </Stack>
+          )}
+        </QCResultsContext.Consumer>
+      ),
     sortDisabled: true,
+    sx: {
+      width: "38%",
+    },
   },
 ];
 
-type Props = {
-  submission: Submission;
+// CSV columns used for exporting table data
+export const csvColumns = {
+  "Batch ID": (d: QCResult) => d.displayID,
+  "Node Type": (d: QCResult) => d.type,
+  "Submitted Identifier": (d: QCResult) => d.submittedID,
+  Severity: (d: QCResult) => d.severity,
+  "Validated Date": (d: QCResult) => FormatDate(d?.validatedDate, "MM-DD-YYYY [at] hh:mm A", ""),
+  Issues: (d: QCResult) => {
+    const value = d.errors[0]?.description ?? d.warnings[0]?.description;
+
+    // NOTE: The ErrorMessage descriptions contain non-standard double quotes
+    // that don't render correctly in Excel. This replaces them with standard double quotes.
+    return value.replaceAll(/[“”‟〞＂]/g, `"`);
+  },
 };
 
-const QualityControl: FC<Props> = ({ submission }: Props) => {
-  const { submissionId } = useParams();
-  const { watch, control } = useForm<FilterForm>();
+const QualityControl: FC = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  const { data: submissionData } = useSubmissionContext();
+  const { watch, control } = useForm<FilterForm>({
+    defaultValues: {
+      batchID: "All",
+      nodeType: "All",
+      severity: "All",
+    },
+  });
+  const {
+    _id: submissionId,
+    metadataValidationStatus,
+    fileValidationStatus,
+  } = submissionData?.getSubmission || {};
 
   const [loading, setLoading] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [error, setError] = useState<string>(null);
   const [data, setData] = useState<QCResult[]>([]);
   const [prevData, setPrevData] = useState<FetchListing<QCResult>>(null);
   const [totalData, setTotalData] = useState(0);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
+  const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
+  const nodeTypeFilter = watch("nodeType");
+  const batchIDFilter = watch("batchID");
+  const severityFilter = watch("severity");
   const tableRef = useRef<TableMethods>(null);
 
-  const errorDescriptions = selectedRow?.errors?.map((error) => `(Error) ${error.description}`) ?? [];
-  const warningDescriptions = selectedRow?.warnings?.map((warning) => `(Warning) ${warning.description}`) ?? [];
+  const errorDescriptions =
+    selectedRow?.errors?.map((error) => `(Error) ${error.description}`) ?? [];
+  const warningDescriptions =
+    selectedRow?.warnings?.map((warning) => `(Warning) ${warning.description}`) ?? [];
   const allDescriptions = [...errorDescriptions, ...warningDescriptions];
 
   const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
     variables: { id: submissionId },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'cache-and-network',
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
   });
 
-  const { data: batchData } = useQuery<ListBatchesResp>(LIST_BATCHES, {
+  const { data: batchData } = useQuery<ListBatchesResp<true>, ListBatchesInput>(LIST_BATCHES, {
     variables: {
       submissionID: submissionId,
       first: -1,
@@ -190,20 +233,31 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
       orderBy: "displayID",
       sortDirection: "asc",
     },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'cache-and-network',
+    context: { clientName: "backend" },
+    skip: !submissionId,
+    fetchPolicy: "cache-and-network",
   });
 
-  const { data: nodeTypes } = useQuery<ListNodeTypesResp>(LIST_NODE_TYPES, {
-    variables: { _id: submissionId, },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'cache-and-network',
+  const { data: submissionStats } = useQuery<SubmissionStatsResp>(SUBMISSION_STATS, {
+    variables: { id: submissionId },
+    context: { clientName: "backend" },
+    skip: !submissionId,
+    fetchPolicy: "cache-and-network",
   });
+
+  const nodeTypes = useMemo(
+    () =>
+      cloneDeep(submissionStats?.submissionStats?.stats)
+        ?.filter((stat) => stat.error > 0 || stat.warning > 0)
+        ?.sort(compareNodeStats)
+        ?.reverse()
+        ?.map((stat) => stat.nodeName),
+    [submissionStats?.submissionStats?.stats]
+  );
 
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     if (!submissionId) {
-      setError("Invalid submission ID provided.");
       return;
     }
     if (!force && data?.length > 0 && isEqual(fetchListing, prevData)) {
@@ -215,8 +269,6 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
     try {
       setLoading(true);
 
-      const nodeType = watch("nodeType");
-      const batchID = watch("batchID");
       const { data: d, error } = await submissionQCResults({
         variables: {
           submissionID: submissionId,
@@ -224,21 +276,20 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
           offset,
           sortDirection,
           orderBy,
-          nodeTypes: !nodeType || nodeType === "All" ? undefined : [watch("nodeType")],
-          batchIDs: !batchID || batchID === "All" ? undefined : [watch("batchID")],
+          nodeTypes: !nodeTypeFilter || nodeTypeFilter === "All" ? undefined : [nodeTypeFilter],
+          batchIDs: !batchIDFilter || batchIDFilter === "All" ? undefined : [batchIDFilter],
           severities: watch("severity") || "All",
         },
-        context: { clientName: 'backend' },
-        fetchPolicy: 'no-cache'
+        context: { clientName: "backend" },
+        fetchPolicy: "no-cache",
       });
       if (error || !d?.submissionQCResults) {
         throw new Error("Unable to retrieve submission quality control results.");
-        return;
       }
       setData(d.submissionQCResults.results);
       setTotalData(d.submissionQCResults.total);
     } catch (err) {
-      setError(err?.toString());
+      enqueueSnackbar(err?.toString(), { variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -249,86 +300,131 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
     setSelectedRow(data);
   };
 
-  const providerValue = useMemo(() => ({
-    handleOpenErrorDialog
-  }), [handleOpenErrorDialog]);
+  const handleFilterChange = (field: keyof FilterForm) => {
+    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const Actions = useMemo<React.ReactNode>(
+    () => (
+      <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
+        <ExportValidationButton
+          submission={submissionData?.getSubmission}
+          fields={csvColumns}
+          disabled={totalData <= 0}
+        />
+      </Stack>
+    ),
+    [submissionData?.getSubmission, totalData]
+  );
+
+  const providerValue = useMemo(
+    () => ({
+      handleOpenErrorDialog,
+    }),
+    [handleOpenErrorDialog]
+  );
 
   useEffect(() => {
+    if (!touchedFilters.nodeType && !touchedFilters.batchID && !touchedFilters.severity) {
+      return;
+    }
     tableRef.current?.setPage(0, true);
-  }, [watch("nodeType"), watch("batchID"), watch("severity")]);
+  }, [nodeTypeFilter, batchIDFilter, severityFilter]);
 
   useEffect(() => {
     tableRef.current?.refresh();
-  }, [submission?.metadataValidationStatus, submission?.fileValidationStatus]);
+  }, [metadataValidationStatus, fileValidationStatus]);
 
   return (
     <>
       <StyledFilterContainer>
-        <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="nodeType"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                defaultValue="All"
-                value={field.value || "All"}
-                MenuProps={{ disablePortal: true }}
-                inputProps={{ id: "nodeType-filter" }}
-              >
-                <MenuItem value="All">All</MenuItem>
-                {nodeTypes?.listSubmissionNodeTypes?.map((nodeType) => (
-                  <MenuItem key={nodeType} value={nodeType}>{nodeType}</MenuItem>
-                ))}
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-        <StyledInlineLabel htmlFor="batchID-filter">Batch ID</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="batchID"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                defaultValue="All"
-                value={field.value || "All"}
-                MenuProps={{ disablePortal: true }}
-                inputProps={{ id: "batchID-filter" }}
-              >
-                <MenuItem value="All">All</MenuItem>
-                {batchData?.listBatches?.batches?.map((batch) => (
-                  <MenuItem key={batch._id} value={batch._id}>
-                    {batch.displayID}
-                    {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
-                  </MenuItem>
-                ))}
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-        <StyledInlineLabel htmlFor="severity-filter">Severity</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="severity"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                defaultValue="All"
-                value={field.value || "All"}
-                MenuProps={{ disablePortal: true }}
-                inputProps={{ id: "severity-filter" }}
-              >
-                <MenuItem value="All">All</MenuItem>
-                <MenuItem value="Error">Error</MenuItem>
-                <MenuItem value="Warning">Warning</MenuItem>
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="batchID-filter">Batch ID</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="batchID"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                  inputProps={{ id: "batchID-filter" }}
+                  data-testid="quality-control-batchID-filter"
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("batchID");
+                  }}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {batchData?.listBatches?.batches?.map((batch) => (
+                    <MenuItem key={batch._id} value={batch._id} data-testid={batch._id}>
+                      {batch.displayID}
+                      {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
+                    </MenuItem>
+                  ))}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
+
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="nodeType"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                  inputProps={{ id: "nodeType-filter" }}
+                  data-testid="quality-control-nodeType-filter"
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("nodeType");
+                  }}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  {nodeTypes?.map((nodeType) => (
+                    <MenuItem key={nodeType} value={nodeType} data-testid={`nodeType-${nodeType}`}>
+                      {nodeType.toLowerCase()}
+                    </MenuItem>
+                  ))}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
+
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+          <StyledInlineLabel htmlFor="severity-filter">Severity</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="severity"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                  MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                  inputProps={{ id: "severity-filter" }}
+                  data-testid="quality-control-severity-filter"
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("severity");
+                  }}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  <MenuItem value="Error">Error</MenuItem>
+                  <MenuItem value="Warning">Warning</MenuItem>
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
       </StyledFilterContainer>
       <QCResultsContext.Provider value={providerValue}>
         <GenericTable
@@ -339,21 +435,29 @@ const QualityControl: FC<Props> = ({ submission }: Props) => {
           loading={loading}
           defaultRowsPerPage={20}
           defaultOrder="desc"
+          position="both"
+          noContentText="No validation issues found. Either no validation has been conducted yet, or all issues have been resolved."
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
+          AdditionalActions={Actions}
+          containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </QCResultsContext.Provider>
-      <ErrorDialog
+      <ErrorDetailsDialog
         open={openErrorDialog}
         onClose={() => setOpenErrorDialog(false)}
         header={null}
         title="Validation Issues"
-        nodeInfo={`For ${titleCase(selectedRow?.type)}${selectedRow?.type?.toLocaleLowerCase() !== "data file" ? " Node" : ""} ID ${selectedRow?.submittedID}`}
+        nodeInfo={`For ${titleCase(selectedRow?.type)}${
+          selectedRow?.type?.toLocaleLowerCase() !== "data file" ? " Node" : ""
+        } ID ${selectedRow?.submittedID}`}
         errors={allDescriptions}
-        errorCount={`${allDescriptions?.length || 0} ${allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"}`}
+        errorCount={`${allDescriptions?.length || 0} ${
+          allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"
+        }`}
       />
     </>
   );
 };
 
-export default React.memo<Props>(QualityControl, (prevProps, nextProps) => isEqual(prevProps, nextProps));
+export default React.memo(QualityControl);

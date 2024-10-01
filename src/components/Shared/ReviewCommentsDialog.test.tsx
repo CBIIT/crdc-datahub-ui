@@ -1,11 +1,6 @@
-import "@testing-library/jest-dom";
-import "jest-axe/extend-expect";
-
-import { ThemeProvider } from "@mui/material";
-import { CSSProperties } from "react";
+import { ThemeProvider, rgbToHex } from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
 import { render, fireEvent, waitFor } from "@testing-library/react";
-import { act } from "react-dom/test-utils";
 import { axe } from "jest-axe";
 import ReviewCommentsDialog from "./ReviewCommentsDialog";
 import theme from "../../theme";
@@ -15,18 +10,10 @@ type Props<T, H> = {
   status?: T;
   lastReview: HistoryBase<H>;
   title: string;
-  getColorScheme?: (status: T) => CSSProperties;
   onClose?: () => void;
 };
 
-const BaseComponent = <T, H>({
-  open,
-  status,
-  lastReview,
-  title,
-  getColorScheme,
-  onClose,
-}: Props<T, H>) => (
+const BaseComponent = <T, H>({ open, status, lastReview, title, onClose }: Props<T, H>) => (
   <ThemeProvider theme={theme}>
     <BrowserRouter>
       <ReviewCommentsDialog
@@ -35,7 +22,6 @@ const BaseComponent = <T, H>({
         lastReview={lastReview}
         status={status}
         title={title}
-        getColorScheme={getColorScheme}
       />
     </BrowserRouter>
   </ThemeProvider>
@@ -45,7 +31,7 @@ const mockLastReview: HistoryBase<unknown> = {
   dateTime: "2023-01-01T00:00:00Z",
   reviewComment: "This is a mock comment",
   status: undefined,
-  userID: ""
+  userID: "",
 };
 
 describe("ReviewCommentsDialog Accessibility Tests", () => {
@@ -58,7 +44,7 @@ describe("ReviewCommentsDialog Accessibility Tests", () => {
         reviewComment: "",
         dateTime: "",
         userID: "",
-      }
+      },
     };
 
     const { container } = render(<BaseComponent {...data} />);
@@ -71,7 +57,7 @@ describe("ReviewCommentsDialog Accessibility Tests", () => {
     const data = {
       open: true,
       title: "Title",
-      lastReview: mockLastReview
+      lastReview: mockLastReview,
     };
 
     const { container } = render(<BaseComponent {...data} />);
@@ -87,7 +73,7 @@ describe("ReviewCommentsDialog Tests", () => {
       open: true,
       title: "",
       lastReview: mockLastReview,
-      onClose: () => {}
+      onClose: () => {},
     };
 
     const { getByText } = render(<BaseComponent {...data} />);
@@ -101,14 +87,11 @@ describe("ReviewCommentsDialog Tests", () => {
       open: true,
       title: "",
       lastReview: mockLastReview,
-      onClose: () => {}
+      onClose: () => {},
     };
     const { getByText } = render(<BaseComponent {...data} />);
 
-    expect(getByText(/Based on submission from/)).toHaveAttribute(
-      "title",
-      mockLastReview.dateTime
-    );
+    expect(getByText(/Based on submission from/)).toHaveAttribute("title", mockLastReview.dateTime);
   });
 
   it("closes the dialog when the close button is clicked", async () => {
@@ -117,14 +100,12 @@ describe("ReviewCommentsDialog Tests", () => {
       open: true,
       title: "",
       lastReview: mockLastReview,
-      onClose: mockClose
+      onClose: mockClose,
     };
 
     const { getByTestId } = render(<BaseComponent {...data} />);
 
-    act(() => {
-      fireEvent.click(getByTestId("review-comments-dialog-close"));
-    });
+    fireEvent.click(getByTestId("review-comments-dialog-close"));
 
     await waitFor(() => expect(mockClose).toHaveBeenCalled());
   });
@@ -134,7 +115,7 @@ describe("ReviewCommentsDialog Tests", () => {
       open: false,
       title: "",
       lastReview: mockLastReview,
-      onClose: () => {}
+      onClose: () => {},
     };
 
     const { queryByTestId, queryByText } = render(<BaseComponent {...data} />);
@@ -156,11 +137,10 @@ describe("ReviewCommentsDialog Tests", () => {
     expect(getByText(customTitle)).toBeInTheDocument();
   });
 
-  it("has correct status passed through prop", () => {
-    const mockGetColorScheme = jest.fn().mockImplementation((status) => ({
-      color: status === "Approved" ? "#0D6E87" : "#E25C22",
-      background: status === "Approved" ? "#CDEAF0" : "#FFDBCB",
-    }));
+  it("renders the title with correct color", () => {
+    const mockGetColorScheme = jest
+      .fn()
+      .mockImplementation((status) => (status === "Approved" ? "#0D6E87" : "#E25C22"));
 
     const data = {
       open: true,
@@ -168,11 +148,34 @@ describe("ReviewCommentsDialog Tests", () => {
       status: "Approved",
       lastReview: mockLastReview,
       onClose: () => {},
-      getColorScheme: mockGetColorScheme,
     };
 
-    render(<BaseComponent {...data} />);
+    const { getByTestId } = render(<BaseComponent {...data} />);
+    const styles = getComputedStyle(getByTestId("review-comments-dialog-title"));
 
-    expect(mockGetColorScheme).toHaveBeenCalledWith("Approved");
+    expect(rgbToHex(styles.color).toUpperCase()).toBe(
+      mockGetColorScheme(data.status).toUpperCase()
+    );
+  });
+
+  it("renders the dialog border with correct color", () => {
+    const mockGetColorScheme = jest
+      .fn()
+      .mockImplementation((status) => (status === "Approved" ? "#0D6E87" : "#E25C22"));
+
+    const data = {
+      open: true,
+      title: "",
+      status: "Approved",
+      lastReview: mockLastReview,
+      onClose: () => {},
+    };
+
+    const { getByTestId } = render(<BaseComponent {...data} />);
+    const styles = getComputedStyle(getByTestId("review-comments-dialog-paper"));
+
+    expect(rgbToHex(styles.borderColor).toUpperCase()).toBe(
+      mockGetColorScheme(data.status).toUpperCase()
+    );
   });
 });

@@ -9,17 +9,17 @@ type ModelNavigatorConfig = {
    *
    * e.g. "CRDC Data Model Navigator"
    */
-  pageTitle: string,
+  pageTitle: string;
   /**
    * The icon to display in the title of the Data Model Navigator page
    */
-  titleIconSrc?: string,
+  titleIconSrc?: string;
   /**
    * Provides a title to the README modal popup
    *
    * @default "Understanding the Data Model"
    */
-  readMeTitle?: string,
+  readMeTitle?: string;
   pdfConfig?: {
     [key: string]: unknown;
     /**
@@ -42,11 +42,11 @@ type ModelNavigatorConfig = {
      * @note The portrait mode is broken ATM.
      */
     landscape?: boolean;
-  },
-  facetFilterSearchData: FacetSearchData[],
+  };
+  facetFilterSearchData: FacetSearchData[];
   facetFilterSectionVariables: {
     [key: string]: unknown;
-  },
+  };
 };
 
 /**

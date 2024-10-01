@@ -1,9 +1,9 @@
-import { FC, useState } from 'react';
-import { styled } from '@mui/material';
-import Carousel, { CarouselProps } from 'react-multi-carousel';
-import 'react-multi-carousel/lib/styles.css';
-import CustomLeftArrow from './CustomLeftArrow';
-import CustomRightArrow from './CustomRightArrow';
+import { FC, useState } from "react";
+import { styled } from "@mui/material";
+import Carousel, { CarouselProps } from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
+import CustomLeftArrow from "./CustomLeftArrow";
+import CustomRightArrow from "./CustomRightArrow";
 
 type Props = {
   children: React.ReactNode;
@@ -20,8 +20,8 @@ const sizing = {
   },
 };
 
-const StyledWrapper = styled('div', {
-  shouldForwardProp: (p) => p !== "showLeftFade" && p !== "showRightFade"
+const StyledWrapper = styled("div", {
+  shouldForwardProp: (p) => p !== "showLeftFade" && p !== "showRightFade",
 })<{ showLeftFade: boolean; showRightFade: boolean }>(({ showLeftFade, showRightFade }) => ({
   maxWidth: "700px",
   minWidth: "464px", // NOTE: Without a min-width, the carousel collapses to 0px wide

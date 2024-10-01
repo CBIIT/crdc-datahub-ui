@@ -1,10 +1,9 @@
-import { Suspense, lazy, FC, ReactElement, useEffect } from 'react';
-import { RouteObject } from 'react-router';
-import { useNavigate } from 'react-router-dom';
-import Layout from './layouts';
-import SuspenseLoader from './components/SuspenseLoader';
-import { useAuthContext } from './components/Contexts/AuthContext';
-import withTracking from './components/Hocs/withTracking';
+import { Suspense, lazy, FC, ReactElement, useEffect } from "react";
+import { RouteObject, useNavigate } from "react-router-dom";
+import Layout from "./layouts";
+import SuspenseLoader from "./components/SuspenseLoader";
+import { useAuthContext } from "./components/Contexts/AuthContext";
+import withTracking from "./components/Hocs/withTracking";
 
 const Loader = (Component) => (props) => (
   <Suspense fallback={<SuspenseLoader />}>
@@ -18,7 +17,11 @@ type RequireAuthProps = {
   redirectName: string;
 };
 
-const RequireAuth: FC<RequireAuthProps> = ({ component, redirectPath, redirectName }: RequireAuthProps) => {
+const RequireAuth: FC<RequireAuthProps> = ({
+  component,
+  redirectPath,
+  redirectName,
+}: RequireAuthProps) => {
   const authenticated = useAuthContext().isLoggedIn;
   const navigate = useNavigate();
 
@@ -37,68 +40,108 @@ const RequireAuth: FC<RequireAuthProps> = ({ component, redirectPath, redirectNa
 const MainLayout = withTracking(Layout);
 
 // Pages
-const Home = Loader(lazy(() => import('./content')));
-const Login = Loader(lazy(() => import('./content/login/Controller')));
-const Questionnaire = Loader(lazy(() => import('./content/questionnaire/Controller')));
-const DataSubmissions = Loader(lazy(() => import('./content/dataSubmissions/Controller')));
-const Users = Loader(lazy(() => import('./content/users/Controller')));
-const DMN = Loader(lazy(() => import('./content/modelNavigator/Controller')));
-const Organizations = Loader(lazy(() => import('./content/organizations/Controller')));
-
-// Status Pages
-const Status404 = Loader(lazy(() => import('./content/status/Page404')));
+const Home = Loader(lazy(() => import("./content")));
+const Login = Loader(lazy(() => import("./content/login/Controller")));
+const Questionnaire = Loader(lazy(() => import("./content/questionnaire/Controller")));
+const DataSubmissions = Loader(lazy(() => import("./content/dataSubmissions/Controller")));
+const Users = Loader(lazy(() => import("./content/users/Controller")));
+const DMN = Loader(lazy(() => import("./content/modelNavigator/Controller")));
+const Organizations = Loader(lazy(() => import("./content/organizations/Controller")));
+const Status404 = Loader(lazy(() => import("./content/status/Page404")));
 
 const routes: RouteObject[] = [
   {
-    path: '',
+    path: "",
     element: <MainLayout />,
     children: [
       {
-        path: '/:redirect?',
-        element: <Home />
+        path: "/",
+        element: <Home />,
       },
       {
-        path: '/login',
-        element: <Login />
+        path: "/login",
+        element: <Login />,
       },
       {
-        path: '/submissions',
-        element: <RequireAuth component={<Questionnaire />} redirectPath="/submissions" redirectName="Submission Requests" />
+        path: "/submissions",
+        element: (
+          <RequireAuth
+            component={<Questionnaire />}
+            redirectPath="/submissions"
+            redirectName="Submission Requests"
+          />
+        ),
       },
       {
-        path: '/data-submissions',
-        element: <RequireAuth component={<DataSubmissions />} redirectPath="/data-submissions" redirectName="Data Submissions" />
+        path: "/data-submissions",
+        element: (
+          <RequireAuth
+            component={<DataSubmissions />}
+            redirectPath="/data-submissions"
+            redirectName="Data Submissions"
+          />
+        ),
       },
       {
-        path: '/data-submission/:submissionId/:tab?',
-        element: <RequireAuth component={<DataSubmissions />} redirectPath="/data-submission" redirectName="Data Submission" />
+        path: "/data-submission/:submissionId/:tab?",
+        element: (
+          <RequireAuth
+            component={<DataSubmissions />}
+            redirectPath="/data-submission"
+            redirectName="Data Submission"
+          />
+        ),
       },
       {
-        path: '/submission/:appId/:section?',
-        element: <Questionnaire />
+        path: "/submission/:appId/:section?",
+        element: (
+          <RequireAuth
+            component={<Questionnaire />}
+            redirectPath="/submissions"
+            redirectName="Submission Requests"
+          />
+        ),
       },
       {
-        path: '/users/:userId?',
-        element: <RequireAuth component={<Users key="users-view" type="users" />} redirectPath="/users" redirectName="User Management" />
+        path: "/users/:userId?",
+        element: (
+          <RequireAuth
+            component={<Users key="users-view" type="users" />}
+            redirectPath="/users"
+            redirectName="User Management"
+          />
+        ),
       },
       {
-        path: '/profile/:userId?',
-        element: <RequireAuth component={<Users key="profile-view" type="profile" />} redirectPath="/profile" redirectName="User Profile" />
+        path: "/profile/:userId?",
+        element: (
+          <RequireAuth
+            component={<Users key="profile-view" type="profile" />}
+            redirectPath="/profile"
+            redirectName="User Profile"
+          />
+        ),
       },
       {
-        path: '/model-navigator/:dataCommon',
-        element: <DMN />
+        path: "/model-navigator/:dataCommon",
+        element: <DMN />,
       },
       {
-        path: '/organizations/:orgId?',
-        element: <RequireAuth component={<Organizations />} redirectPath="/organizations" redirectName="Organization Management" />
+        path: "/organizations/:orgId?",
+        element: (
+          <RequireAuth
+            component={<Organizations />}
+            redirectPath="/organizations"
+            redirectName="Organization Management"
+          />
+        ),
       },
       {
-        path: '*',
-        element: <Status404 />
+        path: "*",
+        element: <Status404 />,
       },
-    ]
-  }
+    ],
+  },
 ];
 
 export default routes;

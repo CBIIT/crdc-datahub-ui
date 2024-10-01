@@ -1,16 +1,11 @@
-import React, {
-  FC,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { useQuery } from '@apollo/client';
-import { LIST_ORGS, ListOrgsResp } from '../../graphql';
+import React, { FC, createContext, useContext, useEffect, useState } from "react";
+import { useQuery } from "@apollo/client";
+import { LIST_ORGS, ListOrgsResp } from "../../graphql";
 
 export type ContextState = {
   status: Status;
   data: Partial<Organization>[];
+  activeOrganizations: Partial<Organization>[];
 };
 
 export enum Status {
@@ -19,7 +14,11 @@ export enum Status {
   ERROR = "ERROR",
 }
 
-const initialState: ContextState = { status: Status.LOADING, data: null };
+const initialState: ContextState = {
+  status: Status.LOADING,
+  data: [],
+  activeOrganizations: [],
+};
 
 /**
  * Organization List Context
@@ -47,7 +46,9 @@ export const useOrganizationListContext = (): ContextState => {
   const context = useContext<ContextState>(Context);
 
   if (!context) {
-    throw new Error("OrganizationListContext cannot be used outside of the OrganizationProvider component");
+    throw new Error(
+      "OrganizationListContext cannot be used outside of the OrganizationProvider component"
+    );
   }
 
   return context;
@@ -55,7 +56,6 @@ export const useOrganizationListContext = (): ContextState => {
 
 type ProviderProps = {
   preload: boolean;
-  filterInactive?: boolean;
   children: React.ReactNode;
 };
 
@@ -66,33 +66,40 @@ type ProviderProps = {
  * @param {ProviderProps} props
  * @returns {JSX.Element} Context provider
  */
-export const OrganizationProvider: FC<ProviderProps> = ({ preload, filterInactive, children } : ProviderProps) => {
+export const OrganizationProvider: FC<ProviderProps> = ({ preload, children }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
-  const { data, loading, error } = preload ? useQuery<ListOrgsResp>(LIST_ORGS, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
-  }) : { data: null, loading: false, error: null };
+  const { data, loading, error } = preload
+    ? useQuery<ListOrgsResp>(LIST_ORGS, {
+        context: { clientName: "backend" },
+        fetchPolicy: "no-cache",
+      })
+    : { data: null, loading: false, error: null };
 
   useEffect(() => {
     if (loading) {
-      setState({ status: Status.LOADING, data: null });
+      setState({ status: Status.LOADING, data: [], activeOrganizations: [] });
       return;
     }
     if (error) {
-      setState({ status: Status.ERROR, data: null });
+      setState({ status: Status.ERROR, data: [], activeOrganizations: [] });
       return;
     }
 
+    const sortedOrganizations = data?.listOrganizations?.sort(
+      (a, b) => a.name?.localeCompare(b.name)
+    ) as Partial<Organization>[];
+
+    const activeOrganizations = sortedOrganizations?.filter(
+      (org: Partial<Organization>) => org.status === "Active"
+    );
+
     setState({
       status: Status.LOADED,
-      data: data?.listOrganizations?.filter((org: Organization) => (filterInactive ? org.status === 'Active' : true)) || [],
+      data: sortedOrganizations || [],
+      activeOrganizations: activeOrganizations || [],
     });
   }, [loading, error, data]);
 
-  return (
-    <Context.Provider value={state}>
-      {children}
-    </Context.Provider>
-  );
+  return <Context.Provider value={state}>{children}</Context.Provider>;
 };

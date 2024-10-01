@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 // The base Batch model used for all listBatches queries
 const BaseBatchFragment = gql`
@@ -15,7 +15,6 @@ const FullBatchFragment = gql`
   fragment BatchFragment on Batch {
     submissionID
     type
-    metadataIntention
     fileCount
     files {
       nodeType
@@ -54,8 +53,9 @@ export const query = gql`
         ...BatchFragment @skip(if: $partial)
       }
     }
-    fullStatusList: listBatches(submissionID: $submissionID, first: -1) {
+    batchStatusList: listBatches(submissionID: $submissionID, first: -1) {
       batches {
+        _id
         status
       }
     }
@@ -64,9 +64,23 @@ export const query = gql`
   ${BaseBatchFragment}
 `;
 
-export type Response = {
-  listBatches: ListBatches;
-  fullStatusList: {
-    batches: Pick<Batch, 'status'>[];
+export type Input = {
+  submissionID: string;
+  first?: number;
+  offset?: number;
+  orderBy?: keyof Batch;
+  sortDirection?: string;
+  partial?: boolean;
+};
+
+export type Response<IsPartial = false> = {
+  listBatches: {
+    total: number;
+    batches: (IsPartial extends true
+      ? Pick<Batch, "_id" | "displayID" | "createdAt" | "updatedAt">
+      : Batch)[];
+  };
+  batchStatusList: {
+    batches: Pick<Batch, "_id" | "status">[];
   };
 };

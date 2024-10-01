@@ -1,9 +1,9 @@
 import React from "react";
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import NavigatorView from "./NavigatorView";
-import ErrorBoundary from '../../components/ErrorBoundary';
-import { DataCommonProvider } from '../../components/Contexts/DataCommonContext';
-import usePageTitle from '../../hooks/usePageTitle';
+import ErrorBoundary from "../../components/ErrorBoundary";
+import { DataCommonProvider } from "../../components/Contexts/DataCommonContext";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const ModelNavigatorController: React.FC = () => {
   usePageTitle("Model Navigator");

@@ -6,21 +6,12 @@ import {
   Navigate,
 } from "react-router-dom";
 import { isEqual, cloneDeep } from "lodash";
-import {
-  Alert,
-  Container,
-  Divider,
-  Stack,
-  styled,
-} from "@mui/material";
+import { Container, Divider, Stack, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { useSnackbar } from 'notistack';
+import { useSnackbar } from "notistack";
 import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
-import {
-  Status as FormStatus,
-  useFormContext,
-} from "../../components/Contexts/FormContext";
+import { Status as FormStatus, useFormContext } from "../../components/Contexts/FormContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import StatusBar from "../../components/StatusBar/StatusBar";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
@@ -34,12 +25,8 @@ import RejectFormDialog from "../../components/Questionnaire/RejectFormDialog";
 import ApproveFormDialog from "../../components/Questionnaire/ApproveFormDialog";
 import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
-import {
-  Status as AuthStatus,
-  useAuthContext,
-} from "../../components/Contexts/AuthContext";
-import ErrorCodes from "../../config/ErrorCodes";
-import usePageTitle from '../../hooks/usePageTitle';
+import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -65,13 +52,6 @@ const StyledDivider = styled(Divider)({
 
 const StyledContentWrapper = styled(Stack)({
   paddingBottom: "75px",
-});
-
-const StyledAlert = styled(Alert)({
-  fontWeight: 400,
-  fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  scrollMarginTop: "64px",
 });
 
 const StyledContent = styled(Stack)({
@@ -151,27 +131,43 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const FormView: FC<Props> = ({ section } : Props) => {
+const FormView: FC<Props> = ({ section }: Props) => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const { status, data, setData, submitData, approveForm, inquireForm, rejectForm, reopenForm, reviewForm, error } = useFormContext();
+  const {
+    status,
+    data,
+    setData,
+    submitData,
+    approveForm,
+    inquireForm,
+    rejectForm,
+    reopenForm,
+    reviewForm,
+    error,
+  } = useFormContext();
   const { user, status: authStatus } = useAuthContext();
-  const [activeSection, setActiveSection] = useState<string>(validateSection(section) ? section : "A");
+  const { formMode, readOnlyInputs } = useFormMode();
+
+  const [activeSection, setActiveSection] = useState<string>(
+    validateSection(section) ? section : "A"
+  );
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
   const [openSubmitDialog, setOpenSubmitDialog] = useState<boolean>(false);
   const [openApproveDialog, setOpenApproveDialog] = useState<boolean>(false);
   const [openInquireDialog, setOpenInquireDialog] = useState<boolean>(false);
   const [openRejectDialog, setOpenRejectDialog] = useState<boolean>(false);
-  const [hasError, setHasError] = useState<boolean>(false);
-  const { formMode, readOnlyInputs } = useFormMode();
   const [allSectionsComplete, setAllSectionsComplete] = useState<boolean>(false);
 
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
-  const prevSection = sectionKeys[sectionIndex - 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex - 1]}` : null;
-  const nextSection = sectionKeys[sectionIndex + 1] ? `/submission/${data?.['_id']}/${sectionKeys[sectionIndex + 1]}` : null;
+  const prevSection = sectionKeys[sectionIndex - 1]
+    ? `/submission/${data?.["_id"]}/${sectionKeys[sectionIndex - 1]}`
+    : null;
+  const nextSection = sectionKeys[sectionIndex + 1]
+    ? `/submission/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}`
+    : null;
   const isSectionD = activeSection === "D";
-  const errorAlertRef = useRef(null);
   const formContentRef = useRef(null);
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
@@ -189,91 +185,16 @@ const FormView: FC<Props> = ({ section } : Props) => {
 
   usePageTitle(`Submission Request ${data?._id || ""}`);
 
-  useEffect(() => {
-    const formLoaded = status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
-    const invalidFormAuth = formMode === "Unauthorized" || authStatus === AuthStatus.ERROR || !user;
+  /**
+   * Determines if the form has unsaved changes.
+   *
+   * @returns {boolean} true if the form has unsaved changes, false otherwise
+   */
+  const isDirty = (): boolean => {
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
-    if (formLoaded && invalidFormAuth) {
-      navigate("/");
-    }
-  }, [formMode, navigate, status, authStatus, user, data]);
-
-  useEffect(() => {
-    const isComplete = isAllSectionsComplete();
-    setAllSectionsComplete(isComplete);
-  }, [status, data]);
-
-  useEffect(() => {
-    if (hasError && errorAlertRef?.current) {
-      errorAlertRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [hasError, errorAlertRef]);
-
-  useEffect(() => {
-    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
-      return;
-    }
-    if (!hasReopenedFormRef.current && data?.status === "Inquired" && formMode === "Edit") {
-      handleReopenForm();
-      hasReopenedFormRef.current = true;
-    }
-  }, [status, authStatus, formMode, data?.status]);
-
-  useEffect(() => {
-    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
-      return;
-    }
-    if (!hasUpdatedReviewStatusRef.current && data?.status === "Submitted" && formMode === "Review") {
-      handleReviewForm();
-      hasUpdatedReviewStatusRef.current = true;
-    }
-  }, [status, authStatus, formMode, data?.status]);
-
-  // Intercept React Router navigation actions with unsaved changes
-  const blocker: Blocker = useBlocker(() => {
-    // if unauthorized, skip blocker and redirect away
-    if (formMode === "Unauthorized" && status === FormStatus.LOADED && authStatus === AuthStatus.LOADED) {
-      return false;
-    }
-    if (!isDirty() || readOnlyInputs) {
-      return false;
-    }
-
-    // If there are no validation errors, save form data without a prompt
-    const { ref } = refs.getFormObjectRef.current?.() || {};
-    if (ref?.current?.checkValidity() === true) {
-      saveForm();
-      return false;
-    }
-
-    setBlockedNavigate(true);
-    return true;
-  });
-
-  // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
-  useEffect(() => {
-    const unloadHandler = (event: BeforeUnloadEvent) => {
-      if (!isDirty()) {
-        return;
-      }
-
-      // If there are no validation errors, save form data without a prompt
-      const { ref } = refs.getFormObjectRef.current?.() || {};
-      if (ref?.current?.checkValidity() === true) {
-        saveForm();
-        return;
-      }
-
-      event.preventDefault();
-      event.returnValue = 'You have unsaved form changes. Are you sure you want to leave?';
-    };
-
-    window.addEventListener('beforeunload', unloadHandler);
-
-    return () => {
-      window.removeEventListener('beforeunload', unloadHandler);
-    };
-  });
+    return ref && (!data || !isEqual(data.questionnaireData, newData));
+  };
 
   useEffect(() => {
     const newSection = validateSection(section) ? section : "A";
@@ -287,22 +208,14 @@ const FormView: FC<Props> = ({ section } : Props) => {
     }
 
     // form has not been created
-    if (!data?.questionnaireData || data?.questionnaireData?.sections?.length !== Object.keys(map).length - 1) {
+    if (
+      !data?.questionnaireData ||
+      data?.questionnaireData?.sections?.length !== Object.keys(map).length - 1
+    ) {
       return false;
     }
 
     return data?.questionnaireData?.sections?.every((section) => section.status === "Completed");
-  };
-
-  /**
-   * Determines if the form has unsaved changes.
-   *
-   * @returns {boolean} true if the form has unsaved changes, false otherwise
-   */
-  const isDirty = () : boolean => {
-    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
-
-    return ref && (!data || !isEqual(data.questionnaireData, newData));
   };
 
   /**
@@ -323,12 +236,14 @@ const FormView: FC<Props> = ({ section } : Props) => {
     try {
       const r = await submitData();
       setOpenSubmitDialog(false);
-      navigate('/submissions');
-      setHasError(false);
+      navigate("/submissions");
+
       return r;
     } catch (err) {
       setOpenSubmitDialog(false);
-      setHasError(true);
+      enqueueSnackbar("An error occurred while submitting the form. Please try again.", {
+        variant: "error",
+      });
       return false;
     }
   };
@@ -348,19 +263,19 @@ const FormView: FC<Props> = ({ section } : Props) => {
       return false;
     }
 
-    try {
-      const res = await approveForm(reviewComment, true);
-      setOpenApproveDialog(false);
-      if (res) {
-        setHasError(false);
-        navigate('/submissions');
-      }
-      return res;
-    } catch (err) {
-      setOpenApproveDialog(false);
-      setHasError(true);
-      return false;
+    const res = await approveForm(reviewComment, true);
+    setOpenApproveDialog(false);
+    if (res?.status === "success") {
+      navigate("/submissions");
+    } else {
+      enqueueSnackbar(
+        res.errorMessage || "An error occurred while approving the form. Please try again.",
+        {
+          variant: "error",
+        }
+      );
     }
+    return res.status === "success";
   };
 
   /**
@@ -379,47 +294,45 @@ const FormView: FC<Props> = ({ section } : Props) => {
       return false;
     }
 
-    try {
-      const res = await inquireForm(reviewComment);
-      setOpenInquireDialog(false);
-      navigate('/submissions');
-      setHasError(false);
-      return res;
-    } catch (err) {
-      setOpenInquireDialog(false);
-      setHasError(true);
-      return false;
+    const res = await inquireForm(reviewComment);
+    if (!res) {
+      enqueueSnackbar("An error occurred while inquiring the form. Please try again.", {
+        variant: "error",
+      });
+    } else {
+      navigate("/submissions");
     }
+    setOpenInquireDialog(false);
+    return res;
   };
 
-    /**
+  /**
    * submit the reject comment from the form submission to the database.
    *
    *
    * @returns {Promise<boolean>} true if the reject submission was successful, false otherwise
    */
-    const submitRejectForm = async (reviewComment: string): Promise<string | boolean> => {
-      if (formMode !== "Review") {
-        return false;
-      }
-      const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
+  const submitRejectForm = async (reviewComment: string): Promise<string | boolean> => {
+    if (formMode !== "Review") {
+      return false;
+    }
+    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
-      if (!ref?.current || !newData) {
-        return false;
-      }
+    if (!ref?.current || !newData) {
+      return false;
+    }
 
-      try {
-        const res = await rejectForm(reviewComment);
-        setOpenRejectDialog(false);
-        navigate('/submissions');
-        setHasError(false);
-        return res;
-      } catch (err) {
-        setOpenRejectDialog(false);
-        setHasError(true);
-        return false;
-      }
-    };
+    const res = await rejectForm(reviewComment);
+    if (!res) {
+      enqueueSnackbar("An error occurred while rejecting the form. Please try again.", {
+        variant: "error",
+      });
+    } else {
+      navigate("/submissions");
+    }
+    setOpenRejectDialog(false);
+    return res;
+  };
 
   /**
    * Reopen the form when it has already been inquired
@@ -438,14 +351,15 @@ const FormView: FC<Props> = ({ section } : Props) => {
       return false;
     }
 
-    try {
-      const res = await reopenForm();
-      setHasError(false);
-      return res;
-    } catch (err) {
-      setHasError(true);
-      return false;
+    const res = await reopenForm();
+    if (!res) {
+      navigate("/submissions", {
+        state: {
+          error: "An error occurred while marking the form as In Progress. Please try again.",
+        },
+      });
     }
+    return res;
   };
 
   /**
@@ -464,14 +378,15 @@ const FormView: FC<Props> = ({ section } : Props) => {
       return false;
     }
 
-    try {
-      const res = await reviewForm();
-      setHasError(false);
-      return res;
-    } catch (err) {
-      setHasError(true);
-      return false;
+    const res = await reviewForm();
+    if (!res) {
+      navigate("/submissions", {
+        state: {
+          error: "An error occurred while marking the form as In Review. Please try again.",
+        },
+      });
     }
+    return res;
   };
 
   /**
@@ -486,8 +401,8 @@ const FormView: FC<Props> = ({ section } : Props) => {
   const saveForm = async (): Promise<SaveForm> => {
     if (readOnlyInputs || formMode !== "Edit") {
       return {
-        status: 'failed',
-        errorMessage: null
+        status: "failed",
+        errorMessage: null,
       };
     }
 
@@ -495,17 +410,18 @@ const FormView: FC<Props> = ({ section } : Props) => {
 
     if (!ref?.current || !newData) {
       return {
-        status: 'failed',
-        errorMessage: null
+        status: "failed",
+        errorMessage: null,
       };
     }
 
     // Update section status
-    if (newData?.sections?.length !== Object.keys(map).length - 1) { // Not including review section
+    if (newData?.sections?.length !== Object.keys(map).length - 1) {
+      // Not including review section
       newData.sections = cloneDeep(InitialSections);
     }
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
-    const currentSection : Section = newData.sections.find((s) => s.name === activeSection);
+    const currentSection: Section = newData.sections.find((s) => s.name === activeSection);
     if (currentSection) {
       currentSection.status = newStatus;
     } else {
@@ -513,36 +429,76 @@ const FormView: FC<Props> = ({ section } : Props) => {
     }
 
     // Skip state update if there are no changes
-    if (!isEqual(data.questionnaireData, newData) || error === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
+    if (!isEqual(data.questionnaireData, newData)) {
       const res = await setData(newData);
-      if (res?.status === "failed" && res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
-        enqueueSnackbar("The Study Abbreviation already existed in the system. Your changes were unable to be saved.", { variant: 'error' });
+      if (res?.status === "failed" && !!res?.errorMessage) {
+        enqueueSnackbar(
+          `An error occurred while saving the ${map[activeSection].title} section. ${res.errorMessage}`,
+          {
+            variant: "error",
+          }
+        );
       } else {
-        enqueueSnackbar(`Your changes for the ${map[activeSection].title} section have been successfully saved.`, { variant: 'success' });
+        enqueueSnackbar(
+          `Your changes for the ${map[activeSection].title} section have been successfully saved.`,
+          {
+            variant: "success",
+          }
+        );
       }
 
-      if (!blockedNavigate && res?.status === "success" && data["_id"] === "new" && res.id !== data?.['_id']) {
+      if (
+        !blockedNavigate &&
+        res?.status === "success" &&
+        data["_id"] === "new" &&
+        res.id !== data?.["_id"]
+      ) {
         // NOTE: This currently triggers a form data refetch, which is not ideal
         navigate(`/submission/${res.id}/${activeSection}`, { replace: true });
       }
 
       if (res?.status === "success") {
         return {
-          status: 'success',
-          id: res.id
+          status: "success",
+          id: res.id,
         };
       }
       return {
-        status: 'failed',
-        errorMessage: res?.errorMessage
+        status: "failed",
+        errorMessage: res?.errorMessage,
       };
     }
 
     return {
-      status: 'success',
-      id: data?.["_id"]
+      status: "success",
+      id: data?.["_id"],
     };
   };
+
+  // Intercept React Router navigation actions with unsaved changes
+  const blocker: Blocker = useBlocker(() => {
+    // if unauthorized, skip blocker and redirect away
+    if (
+      formMode === "Unauthorized" &&
+      status === FormStatus.LOADED &&
+      authStatus === AuthStatus.LOADED
+    ) {
+      return false;
+    }
+    if (!isDirty() || readOnlyInputs) {
+      return false;
+    }
+
+    // If there are no validation errors, save form data without a prompt
+    const { ref } = refs.getFormObjectRef.current?.() || {};
+    if (ref?.current?.checkValidity() === true) {
+      saveForm();
+      return false;
+    }
+
+    setBlockedNavigate(true);
+    return true;
+  });
 
   const areSectionsValid = (): boolean => {
     if (status === FormStatus.LOADING) {
@@ -556,12 +512,13 @@ const FormView: FC<Props> = ({ section } : Props) => {
     }
 
     const sectionsClone = cloneDeep(data?.questionnaireData?.sections);
-    if (sectionsClone?.length !== Object.keys(map).length - 1) { // Not including review section
+    if (sectionsClone?.length !== Object.keys(map).length - 1) {
+      // Not including review section
       return false;
     }
 
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
-    const currentSection : Section = sectionsClone.find((s) => s.name === activeSection);
+    const currentSection: Section = sectionsClone.find((s) => s.name === activeSection);
     if (currentSection) {
       currentSection.status = newStatus;
     } else {
@@ -587,18 +544,19 @@ const FormView: FC<Props> = ({ section } : Props) => {
     setBlockedNavigate(false);
 
     // if invalid data, then block navigation
-    if ((isNavigatingToReviewSection && ((res?.status === "success" && !res?.id) || !areSectionsValid()))) {
-      return;
-    }
-    // if duplicate study error, then block navigation
-    if (res?.status === "failed" && res?.errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
+    if (
+      isNavigatingToReviewSection &&
+      ((res?.status === "success" && !res?.id) || !areSectionsValid())
+    ) {
       return;
     }
 
     blocker.proceed?.();
     if (res?.status === "success" && res.id) {
       // NOTE: This currently triggers a form data refetch, which is not ideal
-      navigate(blocker.location.pathname.replace("new", res.id), { replace: true });
+      navigate(blocker.location.pathname.replace("new", res.id), {
+        replace: true,
+      });
     }
   };
 
@@ -641,6 +599,7 @@ const FormView: FC<Props> = ({ section } : Props) => {
     }
     setOpenRejectDialog(true);
   };
+
   const handleCloseApproveFormDialog = () => {
     setOpenApproveDialog(false);
   };
@@ -670,17 +629,82 @@ const FormView: FC<Props> = ({ section } : Props) => {
     navigate(nextSection);
   };
 
+  // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
+  useEffect(() => {
+    const unloadHandler = (event: BeforeUnloadEvent) => {
+      if (!isDirty()) {
+        return;
+      }
+
+      // If there are no validation errors, save form data without a prompt
+      const { ref } = refs.getFormObjectRef.current?.() || {};
+      if (ref?.current?.checkValidity() === true) {
+        saveForm();
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue = "You have unsaved form changes. Are you sure you want to leave?";
+    };
+
+    window.addEventListener("beforeunload", unloadHandler);
+
+    return () => {
+      window.removeEventListener("beforeunload", unloadHandler);
+    };
+  });
+
+  useEffect(() => {
+    const formLoaded = status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
+    const invalidFormAuth = formMode === "Unauthorized" || authStatus === AuthStatus.ERROR || !user;
+
+    if (formLoaded && invalidFormAuth) {
+      navigate("/");
+    }
+  }, [formMode, navigate, status, authStatus, user, data]);
+
+  useEffect(() => {
+    const isComplete = isAllSectionsComplete();
+    setAllSectionsComplete(isComplete);
+  }, [status, data]);
+
+  useEffect(() => {
+    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
+      return;
+    }
+    if (!hasReopenedFormRef.current && data?.status === "Inquired" && formMode === "Edit") {
+      handleReopenForm();
+      hasReopenedFormRef.current = true;
+    }
+  }, [status, authStatus, formMode, data?.status]);
+
+  useEffect(() => {
+    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
+      return;
+    }
+    if (
+      !hasUpdatedReviewStatusRef.current &&
+      data?.status === "Submitted" &&
+      formMode === "Review"
+    ) {
+      handleReviewForm();
+      hasUpdatedReviewStatusRef.current = true;
+    }
+  }, [status, authStatus, formMode, data?.status]);
+
+  // Show loading spinner if the form is still loading
   if (status === FormStatus.LOADING || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
   }
 
-  // hide content while being re-routed
+  // Hide form content if the user is unauthorized
   if (authStatus === AuthStatus.ERROR) {
     return null;
   }
 
-  if ((status === FormStatus.ERROR && error !== ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) || !data) {
-    return <Navigate to="/submissions" state={{ error: error || 'Unknown error' }} />;
+  // Redirect to ListView if no data is found and the form is in the error state
+  if (status === FormStatus.ERROR && !data?._id) {
+    return <Navigate to="/submissions" state={{ error: error || "Unknown error" }} />;
   }
 
   return (
@@ -693,11 +717,7 @@ const FormView: FC<Props> = ({ section } : Props) => {
 
       <StyledContainer ref={formContentRef} maxWidth="xl">
         <StyledContentWrapper direction="row" justifyContent="center">
-          <StyledSidebar
-            direction="row"
-            justifyContent="center"
-            alignSelf="flex-start"
-          >
+          <StyledSidebar direction="row" justifyContent="center" alignSelf="flex-start">
             <ProgressBar section={activeSection} />
             <StyledDivider orientation="vertical" />
           </StyledSidebar>
@@ -705,16 +725,9 @@ const FormView: FC<Props> = ({ section } : Props) => {
           <StyledContent direction="column" spacing={5}>
             <StatusBar />
 
-            {hasError && <StyledAlert ref={errorAlertRef} severity="error">Oops! An error occurred. Please refresh the page or try again later.</StyledAlert>}
-
             <Section section={activeSection} refs={refs} />
 
-            <StyledControls
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-              spacing={2}
-            >
+            <StyledControls direction="row" justifyContent="center" alignItems="center" spacing={2}>
               <StyledLoadingButton
                 id="submission-form-back-button"
                 variant="contained"
@@ -787,7 +800,11 @@ const FormView: FC<Props> = ({ section } : Props) => {
                 type="button"
                 ref={refs.nextButtonRef}
                 onClick={handleNextClick}
-                disabled={status === FormStatus.SAVING || !nextSection || (isSectionD && !allSectionsComplete)}
+                disabled={
+                  status === FormStatus.SAVING ||
+                  !nextSection ||
+                  (isSectionD && !allSectionsComplete)
+                }
                 size="large"
                 endIcon={<ChevronRight />}
               >

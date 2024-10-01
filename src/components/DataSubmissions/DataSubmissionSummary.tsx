@@ -1,16 +1,7 @@
-import {
-  Button,
-  Divider,
-  Grid,
-  Stack,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Button, Divider, Grid, Stack, Typography, styled } from "@mui/material";
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { isEqual } from "lodash";
-import SubmissionHeaderProperty, {
-  StyledValue,
-} from "./SubmissionHeaderProperty";
+import SubmissionHeaderProperty, { StyledValue } from "./SubmissionHeaderProperty";
 import Tooltip from "./Tooltip";
 import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
 import HistoryDialog from "../Shared/HistoryDialog";
@@ -29,8 +20,8 @@ const StyledSubmissionTitle = styled(Typography)(() => ({
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   fontSize: "13px",
   fontStyle: "normal",
-  fontWeight: 400,
-  lineHeight: "27px",
+  fontWeight: 600,
+  lineHeight: "26px",
   letterSpacing: "0.5px",
   textTransform: "uppercase",
 }));
@@ -75,9 +66,9 @@ const StyledReviewCommentsButton = styled(Button)(() => ({
       backgroundColor: "#FFF",
       borderColor: "#B3B3B3",
       color: "#B1B1B1",
-      fontWeight: 700
-    }
-  }
+      fontWeight: 700,
+    },
+  },
 }));
 
 const StyledHistoryButton = styled(Button)(() => ({
@@ -98,7 +89,7 @@ const StyledHistoryButton = styled(Button)(() => ({
       borderColor: "#B3B3B3",
       color: "#004A80",
     },
-  }
+  },
 }));
 
 const StyledSectionDivider = styled(Divider)(() => ({
@@ -110,7 +101,6 @@ const StyledSectionDivider = styled(Divider)(() => ({
     background: "#6CACDA",
     marginLeft: "44px",
     marginTop: "9px",
-    alignSelft: "flex-end"
   },
 }));
 
@@ -120,13 +110,13 @@ const StyledSubmitterName = styled(StyledValue)(() => ({
   textOverflow: "ellipsis",
   maxWidth: "100%",
   lineHeight: "19.6px",
-  flexShrink: 1
+  flexShrink: 1,
 }));
 
 const StyledConciergeName = styled(StyledValue)(() => ({
   maxWidth: "100%",
   lineHeight: "19.6px",
-  flexShrink: 1
+  flexShrink: 1,
 }));
 
 const StyledTooltipSubmitterName = styled(StyledValue)(() => ({
@@ -143,7 +133,7 @@ const StyledGridContainer = styled(Grid)(({ theme }) => ({
   "&.MuiGrid-container": {
     marginLeft: "45px",
     width: "100%",
-    overflow: "hidden"
+    overflow: "hidden",
   },
   "& .MuiGrid-item:nth-of-type(2n + 1)": {
     paddingLeft: 0,
@@ -152,7 +142,7 @@ const StyledGridContainer = styled(Grid)(({ theme }) => ({
     "& .MuiGrid-item": {
       paddingLeft: 0,
     },
-  }
+  },
 }));
 
 type Props = {
@@ -164,9 +154,10 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const [reviewCommentsDialogOpen, setReviewCommentsDialogOpen] = useState<boolean>(false);
   const [hasEllipsis, setHasEllipsis] = useState(false);
   const lastReview = useMemo(
-    () => SortHistory(dataSubmission?.history).find(
+    () =>
+      SortHistory(dataSubmission?.history).find(
         (h: HistoryBase<SubmissionStatus>) => h.status === "Rejected" && h.reviewComment?.length > 0
-    ),
+      ),
     [dataSubmission]
   );
   const textRef = useRef<HTMLParagraphElement | null>(null);
@@ -207,7 +198,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         color = "#10EBA9";
         break;
       case "Rejected":
-        color = "#FF7A42";
+        color = "#FFA985";
         break;
       default:
         color = "#FFF";
@@ -218,14 +209,11 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
 
   return (
     <StyledSummaryWrapper>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        spacing={7.125}
-      >
+      <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={7.125}>
         <Stack direction="column" minWidth="192px">
-          <StyledSubmissionTitle variant="h6">STATUS</StyledSubmissionTitle>
+          <StyledSubmissionTitle variant="h6">
+            SUBMISSION TYPE: {dataSubmission?.intention}
+          </StyledSubmissionTitle>
           <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
             {dataSubmission?.status}
           </StyledSubmissionStatus>
@@ -250,56 +238,46 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
 
         <StyledSectionDivider orientation="vertical" />
 
-        <StyledGridContainer container flexDirection={{ xs: "column", lg: "row" }} rowSpacing={2} columnSpacing={{ xs: 0, lg: 8.25 }}>
+        <StyledGridContainer
+          container
+          flexDirection={{ xs: "column", lg: "row" }}
+          rowSpacing={2}
+          columnSpacing={{ xs: 0, lg: 8.25 }}
+        >
           <SubmissionHeaderProperty
             label="Submission Name"
-            value={(
+            value={
               <Stack direction="row" alignItems="center" sx={{ minWidth: 0, flexWrap: "nowrap" }}>
                 {hasEllipsis ? (
                   <Tooltip
                     title="Submission Name"
-                    body={(
+                    body={
                       <StyledTooltipSubmitterName variant="body2">
                         {dataSubmission?.name}
                       </StyledTooltipSubmitterName>
-                    )}
+                    }
                     disableHoverListener
                   >
-                    <StyledSubmitterName ref={textRef}>
-                      {dataSubmission?.name}
-                    </StyledSubmitterName>
+                    <StyledSubmitterName ref={textRef}>{dataSubmission?.name}</StyledSubmitterName>
                   </Tooltip>
                 ) : (
-                  <StyledSubmitterName ref={textRef}>
-                    {dataSubmission?.name}
-                  </StyledSubmitterName>
+                  <StyledSubmitterName ref={textRef}>{dataSubmission?.name}</StyledSubmitterName>
                 )}
               </Stack>
-            )}
+            }
           />
-          <SubmissionHeaderProperty
-            label="Submitter"
-            value={dataSubmission?.submitterName}
-          />
-          <SubmissionHeaderProperty
-            label="Study"
-            value={dataSubmission?.studyAbbreviation}
-          />
-          <SubmissionHeaderProperty
-            label="Data Commons"
-            value={dataSubmission?.dataCommons}
-          />
+          <SubmissionHeaderProperty label="Submitter" value={dataSubmission?.submitterName} />
+          <SubmissionHeaderProperty label="Study" value={dataSubmission?.studyAbbreviation} />
+          <SubmissionHeaderProperty label="Data Commons" value={dataSubmission?.dataCommons} />
           <SubmissionHeaderProperty
             label="Organization"
             value={dataSubmission?.organization?.name}
           />
           <SubmissionHeaderProperty
             label="Primary Contact"
-            value={(
+            value={
               <Stack direction="row" alignItems="center" spacing={1.375}>
-                <StyledConciergeName>
-                  {dataSubmission?.conciergeName}
-                </StyledConciergeName>
+                <StyledConciergeName>{dataSubmission?.conciergeName}</StyledConciergeName>
                 {dataSubmission?.conciergeName && dataSubmission?.conciergeEmail && (
                   <a
                     href={`mailto:${dataSubmission?.conciergeEmail}`}
@@ -309,7 +287,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
                   </a>
                 )}
               </Stack>
-            )}
+            }
           />
         </StyledGridContainer>
       </Stack>
@@ -332,4 +310,6 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   );
 };
 
-export default React.memo<Props>(DataSubmissionSummary, (prevProps, nextProps) => isEqual(prevProps, nextProps));
+export default React.memo<Props>(DataSubmissionSummary, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+);

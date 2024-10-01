@@ -2,15 +2,15 @@ import { Divider, Grid, Stack, Typography, styled } from "@mui/material";
 import { FC, ReactNode } from "react";
 
 const GridContainer = styled(Grid)(() => ({
- "&:not(:first-of-type)": {
+  "&:not(:first-of-type)": {
     marginTop: "25px",
- },
- "&:first-of-type": {
-  paddingTop: "25px"
- },
- "& .review-section-header + .MuiGrid-root.MuiGrid-item": {
-  marginTop: "0 !important"
- }
+  },
+  "&:first-of-type": {
+    paddingTop: "25px",
+  },
+  "& .review-section-header + .MuiGrid-root.MuiGrid-item": {
+    marginTop: "0 !important",
+  },
 }));
 
 const StyledTitle = styled(Typography)(() => ({
@@ -39,7 +39,11 @@ const ReviewSection: FC<Props> = ({ idPrefix, title, divider = true, children })
   <GridContainer container rowSpacing={3.125} columnSpacing={0}>
     <Grid className="review-section-header" xs={12} item sx={{ padding: "0 !important" }}>
       <Stack direction="row" alignItems="center">
-        {title && <StyledTitle id={idPrefix.concat("-section-header-title")} variant="h6">{title}</StyledTitle>}
+        {title && (
+          <StyledTitle id={idPrefix.concat("-section-header-title")} variant="h6">
+            {title}
+          </StyledTitle>
+        )}
         {divider && <StyledDivider />}
       </Stack>
     </Grid>

@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
-import { styled } from "@mui/system";
 import {
+  styled,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -66,26 +66,14 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
   children,
   ...rest
 }) => (
-  <StyledDialog
-    open={open}
-    onClose={onClose}
-    {...rest}
-  >
-    {title && (
-      <StyledDialogTitle>{title}</StyledDialogTitle>
-    )}
+  <StyledDialog open={open} onClose={onClose} {...rest}>
+    {title && <StyledDialogTitle>{title}</StyledDialogTitle>}
     {message && (
       <StyledDialogContent>
-        <StyledDialogContentText>
-          {message}
-        </StyledDialogContentText>
+        <StyledDialogContentText>{message}</StyledDialogContentText>
       </StyledDialogContent>
     )}
-    {children && (
-      <StyledDialogContent>
-        {children}
-      </StyledDialogContent>
-    )}
+    {children && <StyledDialogContent>{children}</StyledDialogContent>}
     {actions && <StyledDialogActions>{actions}</StyledDialogActions>}
   </StyledDialog>
 );

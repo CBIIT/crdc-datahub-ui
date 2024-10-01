@@ -1,12 +1,5 @@
-import React, {
-  FC,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
+import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { merge, cloneDeep } from "lodash";
 import {
   APPROVE_APP,
@@ -27,10 +20,10 @@ import {
   ReviewAppResp,
   SaveAppResp,
   SubmitAppResp,
+  ApproveAppInput,
+  SaveAppInput,
 } from "../../graphql";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
-import ErrorCodes from "../../config/ErrorCodes";
-import sectionMetadata from "../../config/SectionMetadata";
 
 export type SetDataReturnType =
   | { status: "success"; id: string }
@@ -42,7 +35,7 @@ export type ContextState = {
   submitData?: () => Promise<string | boolean>;
   reopenForm?: () => Promise<string | boolean>;
   reviewForm?: () => Promise<string | boolean>;
-  approveForm?: (comment: string, wholeProgram: boolean) => Promise<string | boolean>;
+  approveForm?: (comment: string, wholeProgram: boolean) => Promise<SetDataReturnType>;
   inquireForm?: (comment: string) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
   setData?: (Application) => Promise<SetDataReturnType>;
@@ -100,59 +93,58 @@ type ProviderProps = {
  * @param {ProviderProps} props - Form context provider props
  * @returns {JSX.Element} - Form context provider
  */
-export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps) => {
+export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [getApp] = useLazyQuery<GetAppResp>(GET_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
-  const [saveApp] = useMutation<SaveAppResp, { application: ApplicationInput }>(SAVE_APP, {
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+  const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [submitApp] = useMutation<SubmitAppResp>(SUBMIT_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [reviewApp] = useMutation<ReviewAppResp>(REVIEW_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [reopenApp] = useMutation<ReopenAppResp>(REOPEN_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
-  const [approveApp] = useMutation<ApproveAppResp>(APPROVE_APP, {
-    variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+  const [approveApp] = useMutation<ApproveAppResp, ApproveAppInput>(APPROVE_APP, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [inquireApp] = useMutation<InquireAppResp>(INQUIRE_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const [rejectApp] = useMutation<RejectAppResp>(REJECT_APP, {
     variables: { id },
-    context: { clientName: 'backend' },
-    fetchPolicy: 'no-cache'
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
   });
 
   const setData = async (data: QuestionnaireData): Promise<SetDataReturnType> => {
@@ -160,96 +152,62 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       ...state,
       data: {
         ...state.data,
-        questionnaireData: data
-      }
+        questionnaireData: data,
+      },
     };
 
     setState((prevState) => ({ ...prevState, status: Status.SAVING }));
 
-    try {
-      const { data: d, errors } = await saveApp({
-        variables: {
-          application: {
-            _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
-            programName: data?.program?.name,
-            studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
-            questionnaireData: JSON.stringify(data),
-          }
-        }
+    const { data: d, errors } = await saveApp({
+      variables: {
+        application: {
+          _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
+          programName: data?.program?.name,
+          studyName: data?.study?.name,
+          studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
+          questionnaireData: JSON.stringify(data),
+          controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
+        },
+      },
+    }).catch((e) => ({ data: null, errors: [e] }));
+
+    if (errors || !d?.saveApplication?.["_id"]) {
+      const errorMessage = errors?.[0]?.message || "An unknown GraphQL Error occurred";
+
+      setState({
+        ...newState,
+        status: Status.ERROR,
+        error: errorMessage,
       });
-
-      if (errors) {
-        setState({ ...newState, status: Status.ERROR, error: "An unknown GraphQL Error occured" });
-        return {
-          status: "failed",
-          errorMessage: "An unknown GraphQL Error occured"
-        };
-      }
-
-      if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
-        newState.data = {
-          ...newState.data,
-          _id: d.saveApplication["_id"],
-          applicant: d?.saveApplication?.applicant,
-          organization: d?.saveApplication?.organization,
-        };
-      }
-
-      newState.data = {
-        ...newState.data,
-        status: d?.saveApplication?.status,
-        updatedAt: d?.saveApplication?.updatedAt,
-        createdAt: d?.saveApplication?.createdAt,
-        submittedDate: d?.saveApplication?.submittedDate,
-        history: d?.saveApplication?.history
-      };
-
-      if (!d?.saveApplication?.["_id"]) {
-        setState({ ...newState, status: Status.ERROR, error: "An unknown issue occured" });
-        return {
-          status: "failed",
-          errorMessage: "An unknown issue occured"
-        };
-      }
-
-      setState({ ...newState, status: Status.LOADED, error: null });
-      return {
-        status: "success",
-        id: d.saveApplication["_id"]
-      };
-    } catch (error) {
-      let errorMessage: string;
-      if (error instanceof ApolloError) {
-        errorMessage = error.message;
-      } else {
-        errorMessage = String(error);
-      }
-
-      let newErrorState = state;
-      // If duplicate study abbrev error, then prevent section from being completed
-      if (errorMessage === ErrorCodes.DUPLICATE_STUDY_ABBREVIATION) {
-        const newSections = state?.data?.questionnaireData?.sections?.map((section) => (section.name === sectionMetadata.B.id ? {
-          ...section,
-          status: "In Progress"
-        } as Section : section));
-        newErrorState = {
-          ...state,
-          data: {
-            ...state?.data,
-            questionnaireData: {
-              ...state?.data?.questionnaireData,
-              sections: newSections
-            }
-          }
-        };
-      }
-
-      setState({ ...newErrorState, status: Status.ERROR, error: errorMessage });
       return {
         status: "failed",
-        errorMessage
+        errorMessage,
       };
     }
+
+    if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
+      newState.data = {
+        ...newState.data,
+        _id: d.saveApplication["_id"],
+        applicant: d?.saveApplication?.applicant,
+        organization: d?.saveApplication?.organization,
+      };
+    }
+
+    newState.data = {
+      ...newState.data,
+      status: d?.saveApplication?.status,
+      updatedAt: d?.saveApplication?.updatedAt,
+      createdAt: d?.saveApplication?.createdAt,
+      submittedDate: d?.saveApplication?.submittedDate,
+      history: d?.saveApplication?.history,
+    };
+
+    setState({ ...newState, status: Status.LOADED, error: null });
+    return {
+      status: "success",
+      id: d.saveApplication["_id"],
+    };
   };
 
   const submitData = async () => {
@@ -257,8 +215,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
 
     const { data: res, errors } = await submitApp({
       variables: {
-        _id: state?.data["_id"]
-      }
+        _id: state?.data["_id"],
+      },
     });
 
     if (errors) {
@@ -271,24 +229,40 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
   };
 
   // Here we approve the form to the API with a comment and wholeProgram
-  const approveForm = async (comment: string, wholeProgram: boolean) => {
+  const approveForm = async (
+    comment: string,
+    wholeProgram: boolean
+  ): Promise<SetDataReturnType> => {
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
+
+    const institutions: string[] = [
+      state?.data?.questionnaireData?.pi?.institution,
+      state?.data?.questionnaireData?.primaryContact?.institution,
+      ...(state?.data?.questionnaireData?.additionalContacts?.map((c) => c?.institution) || []),
+    ].filter((i) => !!i && typeof i === "string");
 
     const { data: res, errors } = await approveApp({
       variables: {
-        _id: state?.data["_id"],
+        id: state?.data?.["_id"],
         comment,
-        wholeProgram
-      }
-    });
+        wholeProgram,
+        institutions,
+      },
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.approveApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
-      return false;
+      return {
+        status: "failed",
+        errorMessage: errors?.[0]?.message || "An unknown GraphQL Error occurred",
+      };
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.approveApplication?.["_id"] || false;
+    return {
+      status: "success",
+      id: res?.approveApplication?.["_id"],
+    };
   };
 
   // Here we set the form to inquired through the API with a comment
@@ -298,17 +272,17 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     const { data: res, errors } = await inquireApp({
       variables: {
         _id: state?.data["_id"],
-        comment
-      }
-    });
+        comment,
+      },
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.inquireApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.inquireApplication?.["_id"] || false;
+    return res?.inquireApplication?.["_id"];
   };
 
   // Here we reject the form to the API with a comment
@@ -318,17 +292,17 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     const { data: res, errors } = await rejectApp({
       variables: {
         _id: state?.data["_id"],
-        comment
-      }
-    });
+        comment,
+      },
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.rejectApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.rejectApplication?.["_id"] || false;
+    return res?.rejectApplication?.["_id"];
   };
 
   // Updating form status from Submitted to In Review
@@ -338,10 +312,10 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     const { data: res, errors } = await reviewApp({
       variables: {
         _id: state?.data["_id"],
-      }
-    });
+      },
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.reviewApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
@@ -354,7 +328,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       },
       status: Status.LOADED,
     }));
-    return res?.reviewApplication?.["_id"] || false;
+    return res?.reviewApplication?.["_id"];
   };
 
   // Reopen a form when it has been rejected and they submit an updated form
@@ -364,10 +338,10 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     const { data: res, errors } = await reopenApp({
       variables: {
         _id: state?.data["_id"],
-      }
-    });
+      },
+    }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors) {
+    if (errors || !res?.reopenApplication?.["_id"]) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
@@ -376,16 +350,20 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
       ...prevState,
       data: {
         ...prevState?.data,
-        ...res?.reopenApplication
+        ...res?.reopenApplication,
       },
       status: Status.LOADED,
     }));
-    return res?.reopenApplication?.["_id"] || false;
+    return res?.reopenApplication?.["_id"];
   };
 
   useEffect(() => {
     if (!id || !id.trim()) {
-      setState({ status: Status.ERROR, data: null, error: "Invalid application ID provided" });
+      setState({
+        status: Status.ERROR,
+        data: null,
+        error: "Invalid application ID provided",
+      });
       return;
     }
 
@@ -415,12 +393,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
 
       const { data: d, error } = await getApp();
       if (error || !d?.getApplication?.questionnaireData) {
-        setState({ status: Status.ERROR, data: null, error: "An unknown API or GraphQL error occurred" });
+        setState({
+          status: Status.ERROR,
+          data: null,
+          error: "An unknown API or GraphQL error occurred",
+        });
         return;
       }
 
       const { getApplication } = d;
-      const questionnaireData: QuestionnaireData = JSON.parse(getApplication?.questionnaireData || null);
+      const questionnaireData: QuestionnaireData = JSON.parse(
+        getApplication?.questionnaireData || null
+      );
 
       // Check if we need to autofill the PI details
       const sectionA: Section = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
@@ -440,9 +424,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
         data: {
           ...merge(cloneDeep(InitialApplication), d?.getApplication),
           questionnaireData: {
-            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData)
+            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
           },
-        }
+        },
       });
     })();
   }, [id]);
@@ -461,9 +445,5 @@ export const FormProvider: FC<ProviderProps> = ({ children, id } : ProviderProps
     [state]
   );
 
-  return (
-    <Context.Provider value={value}>
-      {children}
-    </Context.Provider>
-  );
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };

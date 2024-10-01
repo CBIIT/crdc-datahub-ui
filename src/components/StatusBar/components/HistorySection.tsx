@@ -9,13 +9,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import {
-  Timeline,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineDot,
-  TimelineContent,
-} from "@mui/lab";
+import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineContent } from "@mui/lab";
 import { styled } from "@mui/material/styles";
 import { useFormContext } from "../../Contexts/FormContext";
 import { HistoryIconMap } from "../../../assets/history/submissionRequest";
@@ -32,7 +26,9 @@ const getStatusColor = (status: ApplicationStatus): CSSProperties["color"] => {
     case "Approved":
       return "#10EBA9";
     case "Rejected":
-      return "#E25C22";
+      return "#FFA985";
+    case "In Review":
+      return "#4DC9FF";
     default:
       return "#fff";
   }
@@ -65,7 +61,7 @@ const StyledButton = styled(Button)({
       borderColor: "#004A80",
       color: "#004A80",
     },
-  }
+  },
 });
 
 const StyledDialog = styled(Dialog)({
@@ -276,9 +272,7 @@ const HistorySection: FC = () => {
                         <StyledTypography title={dateTime}>
                           {FormatDate(dateTime, "M/D/YYYY", "N/A")}
                         </StyledTypography>
-                        <StyledTypography status={status}>
-                          {status?.toUpperCase()}
-                        </StyledTypography>
+                        <StyledTypography status={status}>{status?.toUpperCase()}</StyledTypography>
                         {index === 0 && HistoryIconMap[status] && (
                           <StyledAvatar>
                             <img

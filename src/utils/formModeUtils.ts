@@ -18,13 +18,12 @@ export const FormModes = {
  * @param {Application} data - The current application/submission
  * @returns {FormMode} - Form mode corresponding to the given form status and user.
  */
-const _getFormModeForUser = (
-  user: User,
-  data: Application
-): FormMode => {
+const _getFormModeForUser = (user: User, data: Application): FormMode => {
   const { status: formStatus } = data || {};
   const formBelongsToUser = data?.applicant?.applicantID === user?.["_id"];
-  const isStatusViewOnlyForUser = ["Submitted", "In Review", "Approved", "Rejected"].includes(formStatus);
+  const isStatusViewOnlyForUser = ["Submitted", "In Review", "Approved", "Rejected"].includes(
+    formStatus
+  );
 
   if (formStatus !== "New" && !formBelongsToUser) {
     return FormModes.UNAUTHORIZED;
@@ -65,10 +64,7 @@ const _getFormModeForFederalLead = (data: Application): FormMode => {
  * @param {Application} data - The current application/submission
  * @returns {FormMode} - Form mode corresponding to the given form status and organization owner.
  */
-const _getFormModeForOrgOwner = (
-  user: User,
-  data: Application
-): FormMode => {
+const _getFormModeForOrgOwner = (user: User, data: Application): FormMode => {
   const { status: formStatus } = data || {};
   const formBelongsToUser = data?.applicant?.applicantID === user?.["_id"];
 
@@ -93,10 +89,7 @@ const _getFormModeForOrgOwner = (
  * @param {Application} data - The current application/submission
  * @returns {FormMode} - Updated form mode based on role, organization role, and form status
  */
-export const getFormMode = (
-  user: User,
-  data: Application,
-): FormMode => {
+export const getFormMode = (user: User, data: Application): FormMode => {
   if (!user?.role || !data) {
     return FormModes.UNAUTHORIZED;
   }

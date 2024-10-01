@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const mutation = gql`
   mutation validateSubmission($_id: ID!, $types: [String], $scope: String) {
@@ -8,6 +8,12 @@ export const mutation = gql`
   }
 `;
 
+export type Input = {
+  _id: string;
+  types?: ValidationType[];
+  scope?: ValidationTarget;
+};
+
 export type Response = {
-  validateSubmission: Pick<DataValidationResult, 'success'>;
+  validateSubmission: Pick<AsyncProcessResult, "success">;
 };

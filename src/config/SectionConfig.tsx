@@ -1,8 +1,8 @@
 import A from "../content/questionnaire/sections/A";
-import B from '../content/questionnaire/sections/B';
+import B from "../content/questionnaire/sections/B";
 import C from "../content/questionnaire/sections/C";
-import D from '../content/questionnaire/sections/D';
-import Review from '../content/questionnaire/sections/Review';
+import D from "../content/questionnaire/sections/D";
+import Review from "../content/questionnaire/sections/Review";
 import sectionMetadata from "./SectionMetadata";
 
 /**
@@ -36,6 +36,11 @@ const sections: SectionConfig = {
   },
 };
 
-export const InitialSections: Section[] = Object.keys(sections)?.slice(0, -1)?.map((sectionKey) => ({ name: sections[sectionKey].id, status: "Not Started" }));
+export const InitialSections: Section[] = Object.keys(sections)
+  ?.slice(0, -1)
+  ?.map((sectionKey) => ({
+    name: sections[sectionKey].id,
+    status: "Not Started",
+  }));
 
 export default sections;

@@ -75,10 +75,8 @@ const StyledOutlinedInput = styled(OutlinedInput, {
     },
     "& .MuiInputBase-inputMultiline": {
       resize: resize ? "vertical" : "none",
-      minHeight:
-        resize && rowHeight ? `${(+rows || +minRows || 1) * rowHeight}px` : 0,
-      maxHeight:
-        resize && maxRows && rowHeight ? `${+maxRows * rowHeight}px` : "none",
+      minHeight: resize && rowHeight ? `${(+rows || +minRows || 1) * rowHeight}px` : 0,
+      maxHeight: resize && maxRows && rowHeight ? `${+maxRows * rowHeight}px` : "none",
     },
     "&.MuiInputBase-multiline .MuiInputBase-input": {
       lineHeight: `${rowHeight}px`,
@@ -219,7 +217,8 @@ const TextInput: FC<Props> = ({
   }, [value]);
 
   /* MUI sets the height for multiline input using inline styling. Needs to be overwritten to have a working minHeight */
-  const customInputProps = resize && multiline
+  const customInputProps =
+    resize && multiline
       ? { style: { height: `${(+rows || 1) * ROW_HEIGHT}px`, overflow: "auto" } }
       : {};
 

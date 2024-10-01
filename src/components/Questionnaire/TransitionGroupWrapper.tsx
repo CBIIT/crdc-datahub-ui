@@ -2,7 +2,7 @@ import { Collapse, Grid, styled } from "@mui/material";
 import { TransitionGroup } from "react-transition-group";
 
 const StyledGridWrapper = styled(Grid)(() => ({
-  marginBottom: "24px"
+  marginBottom: "24px",
 }));
 
 type WithKey = { key: string };
@@ -23,10 +23,7 @@ type Props<T extends WithKey> = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const TransitionGroupWrapper = <T extends WithKey>({
-  items,
-  renderItem,
-}: Props<T>) => {
+const TransitionGroupWrapper = <T extends WithKey>({ items, renderItem }: Props<T>) => {
   if (!items?.length) {
     return null;
   }
