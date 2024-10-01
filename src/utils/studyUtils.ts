@@ -9,7 +9,7 @@
  *          - Returns "Open" if only open access is enabled.
  *          - Returns an empty string if neither is enabled.
  */
-export const formatAccessTypes = (controlledAccess: boolean, openAccess: boolean) => {
+export const formatAccessTypes = (controlledAccess: boolean, openAccess: boolean): string => {
   const properties: AccessType[] = [];
   if (typeof controlledAccess === "boolean" && controlledAccess === true) {
     properties.push("Controlled");
