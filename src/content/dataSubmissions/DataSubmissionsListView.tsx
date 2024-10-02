@@ -379,19 +379,23 @@ const ListingView: FC = () => {
       return;
     }
 
+    const newSearchParams = new URLSearchParams(searchParams);
+
     if (canChangeOrgs && orgFilter && orgFilter !== "All") {
-      searchParams.set("organization", orgFilter);
+      newSearchParams.set("organization", orgFilter);
     } else if (orgFilter === "All") {
-      searchParams.delete("organization");
+      newSearchParams.delete("organization");
     }
     if (statusFilter && statusFilter !== "All") {
-      searchParams.set("status", statusFilter);
+      newSearchParams.set("status", statusFilter);
     } else if (statusFilter === "All") {
-      searchParams.delete("status");
+      newSearchParams.delete("status");
     }
 
     setTablePage(0);
-    setSearchParams(searchParams);
+    if (newSearchParams?.toString() !== searchParams?.toString()) {
+      setSearchParams(newSearchParams);
+    }
   }, [orgFilter, statusFilter, touchedFilters]);
 
   const setTablePage = (page: number) => {

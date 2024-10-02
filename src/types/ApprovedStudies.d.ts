@@ -45,3 +45,5 @@ type ApprovedStudyOfMyOrganization = Pick<
   ApprovedStudy,
   "_id" | "studyName" | "studyAbbreviation" | "dbGaPID" | "controlledAccess"
 >;
+
+type AccessType = "All" | "Controlled" | "Open";

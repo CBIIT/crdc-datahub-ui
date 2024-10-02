@@ -219,6 +219,8 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       controlledAccess: "All",
       first: -1,
       offset: 0,
+      orderBy: "studyName",
+      sortDirection: "asc",
     },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
