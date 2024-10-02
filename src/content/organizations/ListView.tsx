@@ -331,24 +331,28 @@ const ListingView: FC = () => {
       return;
     }
 
+    const newSearchParams = new URLSearchParams(searchParams);
+
     if (orgFilter) {
-      searchParams.set("organization", orgFilter);
+      newSearchParams.set("organization", orgFilter);
     } else {
-      searchParams.delete("organization");
+      newSearchParams.delete("organization");
     }
     if (studyFilter) {
-      searchParams.set("study", studyFilter);
+      newSearchParams.set("study", studyFilter);
     } else {
-      searchParams.delete("study");
+      newSearchParams.delete("study");
     }
     if (statusFilter && statusFilter !== "All") {
-      searchParams.set("status", statusFilter);
+      newSearchParams.set("status", statusFilter);
     } else if (statusFilter === "All") {
-      searchParams.delete("status");
+      newSearchParams.delete("status");
     }
 
     setTablePage(0);
-    setSearchParams(searchParams);
+    if (newSearchParams?.toString() !== searchParams?.toString()) {
+      setSearchParams(newSearchParams);
+    }
   }, [orgFilter, studyFilter, statusFilter]);
 
   const setTablePage = (page: number) => {

@@ -541,6 +541,18 @@ const NavBar = () => {
                 </Link>
               </span>
             )}
+            {user?.role === "Admin" && (
+              <span className="dropdownItem">
+                <Link
+                  id="navbar-dropdown-item-name-studies-manage"
+                  to="/studies"
+                  className="dropdownItem"
+                  onClick={() => setClickedTitle("")}
+                >
+                  Manage Studies
+                </Link>
+              </span>
+            )}
             {user?.role && GenerateApiTokenRoles.includes(user?.role) ? (
               <span className="dropdownItem">
                 <Button

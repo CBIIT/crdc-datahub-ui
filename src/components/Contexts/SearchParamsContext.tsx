@@ -51,6 +51,9 @@ export const SearchParamsProvider: React.FC<ProviderProps> = ({ children }) => {
   }, [location]);
 
   const setSearchParams: SetURLSearchParams = (newSearchParams, options = {}) => {
+    if (!setSearchParamsBase) {
+      return;
+    }
     setSearchParamsBase(newSearchParams, { replace: true, ...options });
   };
 
