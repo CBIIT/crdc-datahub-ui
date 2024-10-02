@@ -15,6 +15,7 @@ const Questionnaire = LazyLoader(lazy(() => import("./content/questionnaire/Cont
 const DataSubmissions = LazyLoader(lazy(() => import("./content/dataSubmissions/Controller")));
 const Users = LazyLoader(lazy(() => import("./content/users/Controller")));
 const DMN = LazyLoader(lazy(() => import("./content/modelNavigator/Controller")));
+const ReleaseNotes = LazyLoader(lazy(() => import("./content/ReleaseNotes/Controller")));
 const Organizations = LazyLoader(lazy(() => import("./content/organizations/Controller")));
 const Studies = LazyLoader(lazy(() => import("./content/studies/Controller")));
 const Status404 = LazyLoader(lazy(() => import("./content/status/Page404")));
@@ -34,6 +35,14 @@ const routes: RouteObject[] = [
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/model-navigator/:dataCommon",
+        element: <DMN />,
+      },
+      {
+        path: "/release-notes",
+        element: <ReleaseNotes />,
       },
       {
         path: "/submissions",
@@ -94,10 +103,6 @@ const routes: RouteObject[] = [
             redirectName="User Profile"
           />
         ),
-      },
-      {
-        path: "/model-navigator/:dataCommon",
-        element: <DMN />,
       },
       {
         path: "/organizations/:orgId?",

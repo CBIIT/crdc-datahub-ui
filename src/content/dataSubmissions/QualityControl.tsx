@@ -11,6 +11,7 @@ import {
   SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
   SubmissionQCResultsResp,
+  SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
 import GenericTable, { Column } from "../../components/GenericTable";
@@ -238,19 +239,21 @@ const QualityControl: FC = () => {
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: submissionStats } = useQuery<SubmissionStatsResp>(SUBMISSION_STATS, {
-    variables: { id: submissionId },
-    context: { clientName: "backend" },
-    skip: !submissionId,
-    fetchPolicy: "cache-and-network",
-  });
+  const { data: submissionStats } = useQuery<SubmissionStatsResp, SubmissionStatsInput>(
+    SUBMISSION_STATS,
+    {
+      variables: { id: submissionId },
+      context: { clientName: "backend" },
+      skip: !submissionId,
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
-  const nodeTypes = useMemo(
+  const nodeTypes = useMemo<string[]>(
     () =>
       cloneDeep(submissionStats?.submissionStats?.stats)
         ?.filter((stat) => stat.error > 0 || stat.warning > 0)
         ?.sort(compareNodeStats)
-        ?.reverse()
         ?.map((stat) => stat.nodeName),
     [submissionStats?.submissionStats?.stats]
   );

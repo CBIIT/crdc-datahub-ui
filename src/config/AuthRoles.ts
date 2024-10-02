@@ -26,10 +26,9 @@ export const OrgRequiredRoles: UserRole[] = ["Submitter", "Organization Owner", 
  *
  * @note This requires that an organization with the specified name exists in the database.
  */
-type RoleSubset = Extends<UserRole, "Admin" | "Data Curator" | "Federal Lead" | "Federal Monitor">;
+type RoleSubset = Extends<UserRole, "Admin" | "Federal Lead" | "Federal Monitor">;
 export const OrgAssignmentMap: Record<RoleSubset, string> = {
   Admin: "FNL",
-  "Data Curator": "FNL",
   "Federal Lead": "NCI",
   "Federal Monitor": "NCI",
 };

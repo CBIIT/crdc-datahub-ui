@@ -9,11 +9,11 @@ import {
   CrossValidationResultsInput,
   CrossValidationResultsResp,
   LIST_BATCHES,
-  LIST_NODE_TYPES,
+  SUBMISSION_STATS,
   ListBatchesInput,
   ListBatchesResp,
-  ListNodeTypesInput,
-  ListNodeTypesResp,
+  SubmissionStatsInput,
+  SubmissionStatsResp,
   SUBMISSION_CROSS_VALIDATION_RESULTS,
 } from "../../graphql";
 import {
@@ -82,14 +82,16 @@ const baseBatch = {
   __typename: "Batch",
 };
 
-const nodesMock: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
   request: {
-    query: LIST_NODE_TYPES,
+    query: SUBMISSION_STATS,
   },
   variableMatcher: () => true,
   result: {
     data: {
-      listSubmissionNodeTypes: [],
+      submissionStats: {
+        stats: [],
+      },
     },
   },
 };
@@ -274,14 +276,25 @@ describe("General", () => {
       },
     };
 
-    const nodesMockWithData: MockedResponse<ListNodeTypesResp, ListNodeTypesInput> = {
+    const nodesMockWithData: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
-        query: LIST_NODE_TYPES,
+        query: SUBMISSION_STATS,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          listSubmissionNodeTypes: ["node-xyz"],
+          submissionStats: {
+            stats: [
+              {
+                nodeName: "node-xyz",
+                total: 1,
+                new: 0,
+                passed: 1,
+                warning: 0,
+                error: 0,
+              },
+            ],
+          },
         },
       },
     };

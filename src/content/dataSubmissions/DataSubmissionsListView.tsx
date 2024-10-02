@@ -28,6 +28,8 @@ import GenericTable, { Column } from "../../components/GenericTable";
 import { LIST_SUBMISSIONS, ListSubmissionsResp } from "../../graphql";
 import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import TruncatedText from "../../components/TruncatedText";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 
 type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
 
@@ -54,15 +56,19 @@ const StyledTableHead = styled(TableHead)({
 
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
-  fontSize: "16px",
+  fontSize: "14px",
   lineHeight: "16px",
   color: "#fff !important",
   "&.MuiTableCell-root": {
-    padding: "15px 8px 17px",
+    padding: "15px 4px 17px",
+    color: "#fff !important",
+    // whiteSpace: "nowrap",
+  },
+  "& .MuiSvgIcon-root, & .MuiButtonBase-root": {
     color: "#fff !important",
   },
-  "& .MuiSvgIcon-root,  & .MuiButtonBase-root": {
-    color: "#fff !important",
+  "& .MuiSvgIcon-root": {
+    marginRight: 0,
   },
   "&:last-of-type": {
     paddingRight: "4px",
@@ -70,11 +76,12 @@ const StyledHeaderCell = styled(TableCell)({
 });
 
 const StyledTableCell = styled(TableCell)({
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
-    padding: "8px 8px",
+    padding: "14px 8px 12px",
     overflowWrap: "anywhere",
+    whiteSpace: "nowrap",
   },
   "&:last-of-type": {
     paddingRight: "4px",
@@ -119,6 +126,10 @@ const StyledDisabledText = styled(Box)(({ theme }) => ({
   color: theme.palette.text.disabled,
 }));
 
+const StyledDateTooltip = styled(StyledTooltip)(() => ({
+  cursor: "pointer",
+}));
+
 const initialTouchedFields: TouchedState = {
   organization: false,
   status: false,
@@ -129,67 +140,109 @@ const columns: Column<T>[] = [
     label: "Submission Name",
     renderValue: (a) =>
       a.status === "Deleted" || a.archived === true ? (
-        <StyledDisabledText>{a.name}</StyledDisabledText>
+        <StyledDisabledText>
+          <TruncatedText text={a.name} />
+        </StyledDisabledText>
       ) : (
-        <Link to={`/data-submission/${a._id}/upload-activity`}>{a.name}</Link>
+        <Link to={`/data-submission/${a._id}/upload-activity`}>
+          <TruncatedText text={a.name} underline={false} />
+        </Link>
       ),
     field: "name",
+    sx: {
+      width: "139px",
+    },
   },
   {
     label: "Submitter",
-    renderValue: (a) => a.submitterName,
+    renderValue: (a) => <TruncatedText text={a.submitterName} />,
     field: "submitterName",
+    sx: {
+      width: "102px",
+    },
   },
   {
     label: "Data Commons",
     renderValue: (a) => a.dataCommons,
     field: "dataCommons",
+    sx: {
+      width: "94px",
+    },
   },
   {
     label: "Type",
     renderValue: (a) => a.intention,
     field: "intention",
+    sx: {
+      width: "96px",
+    },
   },
   {
     label: "DM Version",
     renderValue: (a) => a.modelVersion,
     field: "modelVersion",
+    sx: {
+      width: "79px",
+    },
   },
   {
     label: "Organization",
-    renderValue: (a) => a.organization.name,
+    renderValue: (a) => <TruncatedText text={a.organization.name} />,
     fieldKey: "organization.name",
   },
   {
     label: "Study",
-    renderValue: (a) => a.studyAbbreviation,
+    renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
     field: "studyAbbreviation",
   },
   {
     label: "dbGaP ID",
-    renderValue: (a) => a.dbGaPID,
+    renderValue: (a) => <TruncatedText text={a.dbGaPID} />,
     field: "dbGaPID",
   },
   {
     label: "Status",
     renderValue: (a) => a.status,
     field: "status",
+    sx: {
+      width: "87px",
+    },
   },
   {
     label: "Primary Contact",
-    renderValue: (a) => a.conciergeName,
+    renderValue: (a) => <TruncatedText text={a.conciergeName} />,
     field: "conciergeName",
   },
   {
     label: "Created Date",
-    renderValue: (a) => (a.createdAt ? FormatDate(a.createdAt, "M/D/YYYY h:mm A") : ""),
+    renderValue: (a) =>
+      a.createdAt ? (
+        <StyledDateTooltip title={FormatDate(a.createdAt, "M/D/YYYY h:mm A")} placement="top">
+          <span>{FormatDate(a.createdAt, "M/D/YYYY")}</span>
+        </StyledDateTooltip>
+      ) : (
+        ""
+      ),
     field: "createdAt",
+    sx: {
+      width: "92px",
+    },
   },
   {
     label: "Last Updated",
-    renderValue: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
+    renderValue: (a) =>
+      a.updatedAt ? (
+        <StyledDateTooltip title={FormatDate(a.updatedAt, "M/D/YYYY h:mm A")} placement="top">
+          <span>{FormatDate(a.updatedAt, "M/D/YYYY")}</span>
+        </StyledDateTooltip>
+      ) : (
+        ""
+      ),
     field: "updatedAt",
     default: true,
+    sx: {
+      width: "108px",
+    },
   },
 ];
 
@@ -326,19 +379,23 @@ const ListingView: FC = () => {
       return;
     }
 
+    const newSearchParams = new URLSearchParams(searchParams);
+
     if (canChangeOrgs && orgFilter && orgFilter !== "All") {
-      searchParams.set("organization", orgFilter);
+      newSearchParams.set("organization", orgFilter);
     } else if (orgFilter === "All") {
-      searchParams.delete("organization");
+      newSearchParams.delete("organization");
     }
     if (statusFilter && statusFilter !== "All") {
-      searchParams.set("status", statusFilter);
+      newSearchParams.set("status", statusFilter);
     } else if (statusFilter === "All") {
-      searchParams.delete("status");
+      newSearchParams.delete("status");
     }
 
     setTablePage(0);
-    setSearchParams(searchParams);
+    if (newSearchParams?.toString() !== searchParams?.toString()) {
+      setSearchParams(newSearchParams);
+    }
   }, [orgFilter, statusFilter, touchedFilters]);
 
   const setTablePage = (page: number) => {

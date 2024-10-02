@@ -1,10 +1,13 @@
 import { axe } from "jest-axe";
 import { render } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
 import Footer from "./index";
 
-it("should not have any accessibility violations", async () => {
-  const { container } = render(<Footer />);
-  const results = await axe(container);
+describe("Footer", () => {
+  it("should not have any accessibility violations", async () => {
+    const { container } = render(<Footer />, { wrapper: (p) => <BrowserRouter {...p} /> });
+    const results = await axe(container);
 
-  expect(results).toHaveNoViolations();
+    expect(results).toHaveNoViolations();
+  });
 });

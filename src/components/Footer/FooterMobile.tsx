@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { styled } from "@mui/material";
-import FooterData from "../../config/globalFooterData";
+import { Link } from "react-router-dom";
+import FooterData from "../../config/FooterConfig";
 
 const FooterStyled = styled("footer")({
   backgroundColor: "#1B496E",
@@ -89,7 +90,7 @@ const FooterLinksContainer = styled("div")({
     fontSize: "16px",
     lineHeight: "22px",
     textDecoration: "none",
-    "&:hover": {
+    "& a:hover": {
       textDecoration: "underline",
     },
   },
@@ -119,7 +120,7 @@ const FooterLinksContainer = styled("div")({
     display: "none",
     zIndex: 1,
   },
-  "& .dropdown-content a": {
+  "& .dropdown-content a, & .dropdown-content span": {
     color: "white",
     padding: "0 0 1rem 1rem",
     textDecoration: "none",
@@ -278,13 +279,13 @@ const FooterMobile = () => {
       <FooterStyled role="contentinfo">
         <FooterContainer>
           <FooterLinksContainer>
-            {FooterData.link_sections.map((linkItem, linkidx) => {
-              const linkkey = `link_${linkidx}`;
+            {FooterData.link_sections.map((linkItem) => {
+              const linkKey = `link_${linkItem.title}`;
               return (
-                <div className="dropdown" key={linkkey}>
-                  <button type="button" onClick={() => handleDropdown(linkkey)} className="dropbtn">
+                <div className="dropdown" key={linkKey}>
+                  <button type="button" onClick={() => handleDropdown(linkKey)} className="dropbtn">
                     <svg
-                      id={`${linkkey}Arrow`}
+                      id={`${linkKey}Arrow`}
                       className="arrow"
                       xmlns="http://www.w3.org/2000/svg"
                       width="20"
@@ -298,13 +299,21 @@ const FooterMobile = () => {
                     </svg>
                     {linkItem.title}
                   </button>
-                  <div id={`${linkkey}Dropdown`} className="dropdown-content">
-                    {linkItem.items.map((item, itemidx) => {
-                      const itemkey = `item_${itemidx}`;
+                  <div id={`${linkKey}Dropdown`} className="dropdown-content">
+                    {linkItem.items.map((item) => {
+                      const itemKey = `item_${item.text}`;
+                      if (typeof item?.link !== "string") {
+                        return (
+                          <span className="footItemLink" key={itemKey}>
+                            {item.text}
+                          </span>
+                        );
+                      }
+
                       return item.link.includes("http") ? (
                         <a
                           className="footItemLink"
-                          key={itemkey}
+                          key={itemKey}
                           href={item.link}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -312,9 +321,9 @@ const FooterMobile = () => {
                           {item.text}
                         </a>
                       ) : (
-                        <a className="footItemLink" key={itemkey} href={item.link}>
+                        <Link className="footItemLink" key={itemKey} to={item.link}>
                           {item.text}
-                        </a>
+                        </Link>
                       );
                     })}
                   </div>

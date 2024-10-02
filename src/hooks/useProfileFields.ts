@@ -72,10 +72,15 @@ const useProfileFields = (
   }
 
   // Only applies to Data Commons POC
-  if (profileOf?.role === "Data Commons POC") {
+  if (profileOf?.role === "Data Commons POC" || profileOf?.role === "Data Curator") {
     fields.dataCommons = user?.role === "Admin" && viewType === "users" ? "UNLOCKED" : "READ_ONLY";
   } else {
     fields.dataCommons = "HIDDEN";
+  }
+
+  // Only applies to Data Curator
+  if (profileOf?.role === "Data Curator") {
+    fields.organization = "HIDDEN";
   }
 
   return fields;

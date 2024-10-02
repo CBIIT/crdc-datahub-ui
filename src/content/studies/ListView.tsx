@@ -1,30 +1,19 @@
-import { ElementType, useEffect, useRef, useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  Container,
-  FormControl,
-  MenuItem,
-  Stack,
-  styled,
-  TableCell,
-  TableHead,
-} from "@mui/material";
+import { ElementType, useRef, useState } from "react";
+import { Alert, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
 import { Link, LinkProps, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
-import { Controller, useForm } from "react-hook-form";
 import PageBanner from "../../components/PageBanner";
 import usePageTitle from "../../hooks/usePageTitle";
-import StyledOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
-import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
-import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import GenericTable, { Column } from "../../components/GenericTable";
 import {
   LIST_APPROVED_STUDIES,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
+import { FormatDate } from "../../utils";
+import { formatAccessTypes } from "../../utils/studyUtils";
+import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
+import ApprovedStudyFilters from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
 
 const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   padding: "14px 20px",
@@ -49,32 +38,13 @@ const StyledContainer = styled(Container)({
   marginTop: "-180px",
   paddingBottom: "90px",
 });
-
-const StyledFilterContainer = styled(Box)({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-start",
-  paddingBottom: "10px",
-});
-
 const StyledTableHead = styled(TableHead)({
   background: "#083A50",
 });
 
-const StyledFormControl = styled(FormControl)({
-  margin: "10px",
-  marginRight: "15px",
-  minWidth: "250px",
-});
-
-const StyledInlineLabel = styled("label")({
-  padding: "0 10px",
-  fontWeight: "700",
-});
-
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#fff !important",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
@@ -83,24 +53,30 @@ const StyledHeaderCell = styled(TableCell)({
   "& .MuiSvgIcon-root,  & .MuiButtonBase-root": {
     color: "#fff !important",
   },
-  "&:last-of-type": {
-    textAlign: "center",
-  },
 });
 
 const StyledTableCell = styled(TableCell)({
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#083A50 !important",
+  textAlign: "left",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
   },
-  "&:last-of-type": {
-    textAlign: "center",
-  },
+});
+
+const StyledLink = styled(Link)({
+  textDecoration: "none",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "100px",
 });
 
 const StyledActionButton = styled(Button)(
   ({ bg, text, border }: { bg: string; text: string; border: string }) => ({
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     background: `${bg} !important`,
     borderRadius: "8px",
     border: `2px solid ${border}`,
@@ -119,25 +95,23 @@ type FilterForm = {
   accessType: AccessType;
 };
 
-type TouchedState = { [K in keyof FilterForm]: boolean };
-
-const initialTouchedFields: TouchedState = {
-  study: false,
-  dbGaPID: false,
-  accessType: false,
-};
-
 const columns: Column<ApprovedStudy>[] = [
   {
     label: "Name",
     renderValue: (a) => a.studyName,
     field: "studyName",
     default: true,
+    sx: {
+      width: "278px",
+    },
   },
   {
     label: "Acronym",
     renderValue: (a) => a.studyAbbreviation,
     field: "studyAbbreviation",
+    sx: {
+      width: "208px",
+    },
   },
   {
     label: "dbGaPID",
@@ -146,13 +120,20 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "Access Type",
-    renderValue: (a) => a.controlledAccess,
-    field: "controlledAccess",
+    renderValue: (a) => formatAccessTypes(a.controlledAccess, a.openAccess),
+    fieldKey: "accessType",
+    sortDisabled: true,
+    sx: {
+      width: "140px",
+    },
   },
   {
     label: "Principal Investigator",
     renderValue: (a) => a.PI,
     field: "PI",
+    sx: {
+      width: "197px",
+    },
   },
   {
     label: "ORCID",
@@ -161,8 +142,11 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "Created Date",
-    renderValue: (a) => a.createdAt,
+    renderValue: (a) => FormatDate(a.createdAt, "M/D/YYYY h:mm A"),
     field: "createdAt",
+    sx: {
+      width: "167px",
+    },
   },
   {
     label: (
@@ -171,11 +155,11 @@ const columns: Column<ApprovedStudy>[] = [
       </Stack>
     ),
     renderValue: (a) => (
-      <Link to={`/studies/${a?.["_id"]}`}>
+      <StyledLink to={`/studies/${a?.["_id"]}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
-      </Link>
+      </StyledLink>
     ),
     sortDisabled: true,
     sx: {
@@ -188,24 +172,18 @@ const ListView = () => {
   usePageTitle("Manage Studies");
 
   const { state } = useLocation();
-  const { searchParams, setSearchParams } = useSearchParamsContext();
-  const { watch, register, control, setValue } = useForm<FilterForm>({
-    defaultValues: {
-      study: "",
-      dbGaPID: "",
-      accessType: "All",
-    },
-  });
+  const { status: authStatus } = useAuthContext();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<ApprovedStudy[]>([]);
   const [count, setCount] = useState<number>(0);
-  const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
+  const filtersRef = useRef<FilterForm>({
+    study: "",
+    dbGaPID: "",
+    accessType: "All",
+  });
 
-  const studyFilter = watch("study");
-  const dbGaPIDFilter = watch("dbGaPID");
-  const accessTypeFilter = watch("accessType");
   const tableRef = useRef<TableMethods>(null);
 
   const [listSubmissions] = useLazyQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
@@ -216,58 +194,13 @@ const ListView = () => {
     }
   );
 
-  const isAccessTypeFilterOption = (accessType: string): accessType is FilterForm["accessType"] =>
-    ["All", "Controlled", "Open"].includes(accessType);
-
-  const handleAccessTypeChange = (accessType: string) => {
-    if (accessType === accessTypeFilter) {
-      return;
-    }
-
-    if (isAccessTypeFilterOption(accessType)) {
-      setValue("accessType", accessType);
-    }
-  };
-
-  useEffect(() => {
-    if (!data?.length) {
-      return;
-    }
-
-    const dbGaPID = searchParams.get("dbGaPID");
-    const study = searchParams.get("study");
-    const accessType = searchParams.get("accessType");
-
-    if (dbGaPID !== dbGaPIDFilter) {
-      setValue("dbGaPID", dbGaPID);
-    }
-    if (study !== studyFilter) {
-      setValue("study", study);
-    }
-    handleAccessTypeChange(accessType);
-  }, [data, searchParams.get("organization"), searchParams.get("status")]);
-
-  useEffect(() => {
-    if (!touchedFilters.dbGaPID && !touchedFilters.study && !touchedFilters.accessType) {
-      return;
-    }
-
-    if (dbGaPIDFilter && dbGaPIDFilter !== "All") {
-      searchParams.set("dbGaPID", dbGaPIDFilter);
-    } else if (dbGaPIDFilter === "All") {
-      searchParams.delete("dbGaPID");
-    }
-
-    setTablePage(0);
-    setSearchParams(searchParams);
-  }, [dbGaPIDFilter, studyFilter, accessTypeFilter, touchedFilters]);
-
-  const setTablePage = (page: number) => {
-    tableRef.current?.setPage(page, true);
-  };
-
   const handleFetchData = async (fetchListing: FetchListing<ApprovedStudy>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
+
+    if (!filtersRef.current) {
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -277,10 +210,9 @@ const ListView = () => {
           offset,
           sortDirection,
           orderBy,
-          dbGaPID: dbGaPIDFilter,
-          controlledAccess: accessTypeFilter === "Controlled" || accessTypeFilter === "All",
-          openAccess: accessTypeFilter === "Open" || accessTypeFilter === "All",
-          study: studyFilter,
+          dbGaPID: filtersRef.current.dbGaPID,
+          controlledAccess: filtersRef.current.accessType,
+          study: filtersRef.current.study,
         },
         context: { clientName: "backend" },
         fetchPolicy: "no-cache",
@@ -298,8 +230,13 @@ const ListView = () => {
     }
   };
 
-  const handleFilterChange = (field: keyof FilterForm) => {
-    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
+  const setTablePage = (page: number) => {
+    tableRef.current?.setPage(page, true);
+  };
+
+  const handleOnFiltersChange = (data: FilterForm) => {
+    filtersRef.current = data;
+    setTablePage(0);
   };
 
   return (
@@ -326,62 +263,14 @@ const ListView = () => {
       />
 
       <StyledContainer maxWidth="xl">
-        <StyledFilterContainer>
-          <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
-          <StyledFormControl>
-            <StyledOutlinedInput
-              {...register("study", {
-                onChange: (e) => handleFilterChange("study"),
-                setValueAs: (val) => val?.trim(),
-              })}
-              placeholder="Enter a Study"
-              id="study-filter"
-              required
-            />
-          </StyledFormControl>
-          <StyledInlineLabel htmlFor="dbGaPID-filter">dbGaPID</StyledInlineLabel>
-          <StyledFormControl>
-            <StyledOutlinedInput
-              {...register("dbGaPID", {
-                onChange: (e) => handleFilterChange("dbGaPID"),
-                setValueAs: (val) => val?.trim(),
-              })}
-              placeholder="Enter a dbGaPID"
-              id="dbGaPID-filter"
-              required
-            />
-          </StyledFormControl>
-          <StyledInlineLabel htmlFor="status-filter">Access Type</StyledInlineLabel>
-          <StyledFormControl>
-            <Controller
-              name="accessType"
-              control={control}
-              render={({ field }) => (
-                <StyledSelect
-                  {...field}
-                  value={field.value}
-                  MenuProps={{ disablePortal: true }}
-                  inputProps={{ id: "accessType-filter" }}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    handleFilterChange("accessType");
-                  }}
-                >
-                  <MenuItem value="All">All</MenuItem>
-                  <MenuItem value="Controlled">Controlled</MenuItem>
-                  <MenuItem value="Open">Open</MenuItem>
-                </StyledSelect>
-              )}
-            />
-          </StyledFormControl>
-        </StyledFilterContainer>
+        <ApprovedStudyFilters onChange={handleOnFiltersChange} />
 
         <GenericTable
           ref={tableRef}
           columns={columns}
           data={data || []}
           total={count || 0}
-          loading={loading}
+          loading={loading || authStatus === AuthStatus.LOADING}
           disableUrlParams={false}
           defaultRowsPerPage={20}
           defaultOrder="asc"

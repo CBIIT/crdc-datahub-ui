@@ -216,10 +216,11 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   >(LIST_APPROVED_STUDIES, {
     variables: {
       // show all access types
-      controlledAccess: true,
-      openAccess: true,
+      controlledAccess: "All",
       first: -1,
       offset: 0,
+      orderBy: "studyName",
+      sortDirection: "asc",
     },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",

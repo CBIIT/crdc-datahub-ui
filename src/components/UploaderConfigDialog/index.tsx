@@ -11,9 +11,13 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
+import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
+import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
+import Tooltip from "../Tooltip";
+import StyledHelperText from "../StyledFormComponents/StyledHelperText";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -65,7 +69,7 @@ const StyledCloseDialogButton = styled(IconButton)({
 const StyledForm = styled("form")({
   display: "flex",
   flexDirection: "column",
-  gap: "28px",
+  gap: "8px",
   margin: "0 auto",
   marginTop: "28px",
   maxWidth: "484px",
@@ -117,13 +121,14 @@ type Props = {
  * @returns {React.FC<Props>}
  */
 const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest }) => {
-  const { reset, register, getValues } = useForm<InputForm>();
+  const { reset, register, handleSubmit, formState } = useForm<InputForm>();
+  const { errors } = formState;
 
   const [downloading, setDownloading] = useState<boolean>(false);
 
-  const handleDownload = async () => {
+  const onSubmit = async (data: InputForm) => {
     setDownloading(true);
-    await onDownload(getValues());
+    await onDownload(data);
     setDownloading(false);
   };
 
@@ -151,33 +156,60 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
         data-testid="uploader-config-dialog-header"
         variant="h1"
       >
-        Download
-        <br />
-        Configuration File
+        Download Configuration File
       </StyledHeader>
       <StyledDialogContent>
         <StyledBodyText data-testid="uploader-config-dialog-body" variant="body1">
-          Please provide the full pathway to the data files on your local system and to the file
-          manifest.
+          Please provide the full path to the data files and to the file manifest.
         </StyledBodyText>
-        <StyledForm onSubmit={handleDownload}>
+        <StyledForm onSubmit={handleSubmit(onSubmit)} id="uploader-config-dialog-form">
           <Box>
-            <StyledLabel id="data-folder-input-label">Local Path of Data Files Folder</StyledLabel>
+            <StyledLabel id="data-folder-input-label">
+              Full Path to Data Files Folder
+              <StyledAsterisk />
+              <Tooltip
+                title="Enter the full path for the Data Files folder on your local machine or S3 bucket."
+                open={undefined}
+                disableHoverListener={false}
+                data-testid="data-folder-input-tooltip"
+              />
+            </StyledLabel>
             <StyledOutlinedInput
-              {...register("dataFolder", { required: true })}
+              {...register("dataFolder", {
+                required: "This field is required",
+                setValueAs: (v: string) => v?.trim(),
+              })}
               placeholder="/Users/me/my-data-files-folder"
               data-testid="uploader-config-dialog-input-data-folder"
               inputProps={{ "aria-labelledby": "data-folder-input-label" }}
             />
+            <StyledHelperText data-testid="uploader-config-dialog-error-data-folder">
+              {errors?.dataFolder?.message}
+            </StyledHelperText>
           </Box>
           <Box>
-            <StyledLabel id="manifest-input-label">Local Path of Manifest File</StyledLabel>
+            <StyledLabel id="manifest-input-label">
+              Full Path to Manifest File
+              <StyledAsterisk />
+              <Tooltip
+                title="Enter the full path for the File Manifest on your local machine or S3 bucket."
+                open={undefined}
+                disableHoverListener={false}
+                data-testid="manifest-input-tooltip"
+              />
+            </StyledLabel>
             <StyledOutlinedInput
-              {...register("manifest", { required: true })}
+              {...register("manifest", {
+                required: "This field is required",
+                setValueAs: (v: string) => v?.trim(),
+              })}
               placeholder="/Users/me/my-metadata-folder/my-file-manifest.tsv"
               data-testid="uploader-config-dialog-input-manifest"
               inputProps={{ "aria-labelledby": "manifest-input-label" }}
             />
+            <StyledHelperText data-testid="uploader-config-dialog-error-manifest">
+              {errors?.manifest?.message}
+            </StyledHelperText>
           </Box>
         </StyledForm>
       </StyledDialogContent>
@@ -192,7 +224,8 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
         <StyledButton
           data-testid="uploader-config-dialog-download-button"
           variant="outlined"
-          onClick={handleDownload}
+          type="submit"
+          form="uploader-config-dialog-form"
           loading={downloading}
         >
           Download
@@ -202,4 +235,4 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
   );
 };
 
-export default UploaderConfigDialog;
+export default React.memo<Props>(UploaderConfigDialog, isEqual);

@@ -1,8 +1,7 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Box, Container, MenuItem, Stack, Typography, styled } from "@mui/material";
-import { cloneDeep } from "lodash";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -23,6 +22,7 @@ import {
   GetUserInput,
   GetUserResp,
   LIST_APPROVED_STUDIES,
+  ListApprovedStudiesInput,
   ListApprovedStudiesResp,
   UPDATE_MY_USER,
   UpdateMyUserInput,
@@ -199,19 +199,21 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     fetchPolicy: "no-cache",
   });
 
-  const { data: approvedStudies } = useQuery<ListApprovedStudiesResp>(LIST_APPROVED_STUDIES, {
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-    skip: fieldset.studies !== "UNLOCKED",
-  });
-
-  // TODO: This is temporary until the API supports sorting natively
-  const sortedStudies = useMemo<ApprovedStudy[]>( // TODO: FIX with new API structure
-    () =>
-      cloneDeep(approvedStudies?.listApprovedStudies?.studies)?.sort((a, b) =>
-        a.studyName.localeCompare(b.studyName)
-      ) || [],
-    [approvedStudies]
+  const { data: approvedStudies } = useQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
+    LIST_APPROVED_STUDIES,
+    {
+      variables: {
+        // show all access types
+        controlledAccess: "All",
+        first: -1,
+        offset: 0,
+        orderBy: "studyName",
+        sortDirection: "asc",
+      },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+      skip: fieldset.studies !== "UNLOCKED",
+    }
   );
 
   const onSubmit = async (data: FormInput) => {
@@ -443,7 +445,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   user.userStatus
                 )}
               </StyledField>
-              <StyledField>
+              <StyledField visible={fieldset.organization !== "HIDDEN"}>
                 <StyledLabel id="userOrganizationLabel">Organization</StyledLabel>
                 {visibleFieldState.includes(fieldset.organization) ? (
                   <Controller
@@ -489,15 +491,20 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                           MenuProps={{ disablePortal: true }}
                           inputProps={{ "aria-labelledby": "userStudies" }}
                           renderValue={(selected: string[]) =>
-                            formatStudySelectionValue(selected, sortedStudies)
+                            formatStudySelectionValue(
+                              selected,
+                              approvedStudies?.listApprovedStudies?.studies
+                            )
                           }
                           multiple
                         >
-                          {sortedStudies?.map(({ _id, studyName, studyAbbreviation }) => (
-                            <MenuItem key={_id} value={_id}>
-                              {formatFullStudyName(studyName, studyAbbreviation)}
-                            </MenuItem>
-                          ))}
+                          {approvedStudies?.listApprovedStudies?.studies?.map(
+                            ({ _id, studyName, studyAbbreviation }) => (
+                              <MenuItem key={_id} value={_id}>
+                                {formatFullStudyName(studyName, studyAbbreviation)}
+                              </MenuItem>
+                            )
+                          )}
                         </StyledSelect>
                       )}
                     />
