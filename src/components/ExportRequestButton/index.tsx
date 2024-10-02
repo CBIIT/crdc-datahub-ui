@@ -14,26 +14,8 @@ const StyledTooltip = styled(StyledFormTooltip)({
   },
 });
 
-const StyledButton = styled(Button)(({ theme }) => ({
-  "&.MuiButton-root": {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minWidth: "128px",
-    padding: "10px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    fontSize: "16px",
-    fontStyle: "normal",
-    lineHeight: "24px",
-    letterSpacing: "0.32px",
-  },
-  "&.Mui-disabled svg": {
-    opacity: theme.palette.action.disabledOpacity,
-  },
-}));
-
 const StyledDownloadIcon = styled(DownloadIcon)({
-  color: "#000000",
+  color: "inherit",
   marginLeft: "10px",
 });
 
@@ -89,7 +71,7 @@ const ExportRequestButton = forwardRef<HTMLButtonElement, ExportRequestButtonPro
         data-testid="export-submission-request-tooltip"
       >
         <span>
-          <StyledButton
+          <Button
             onClick={handleClick}
             disabled={loading || disabled || status !== FormStatus.LOADED}
             data-testid="export-submission-request-button"
@@ -102,7 +84,7 @@ const ExportRequestButton = forwardRef<HTMLButtonElement, ExportRequestButtonPro
             {...buttonProps}
           >
             PDF <StyledDownloadIcon />
-          </StyledButton>
+          </Button>
         </span>
       </StyledTooltip>
     );
