@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { FC, useMemo, useState } from "react";
+import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -8,42 +7,35 @@ import {
   Container,
   FormControlLabel,
   FormGroup,
-  IconButton,
-  MenuItem,
   Stack,
   styled,
   Typography,
 } from "@mui/material";
-import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
-import { useMutation } from "@apollo/client";
+import { cloneDeep } from "lodash";
+import { Controller, useForm } from "react-hook-form";
+import { useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
+import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
 import studyIcon from "../../assets/icons/study_icon.svg";
 import usePageTitle from "../../hooks/usePageTitle";
-import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
-import { FieldState } from "../../hooks/useProfileFields";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import { formatORCIDInput, isValidORCID } from "../../utils";
-import StyledHelperText from "../../components/StyledFormComponents/StyledHelperText";
 import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg";
-import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
-import infoCircleIcon from "../../assets/icons/info_circle.svg";
 import Tooltip from "../../components/Tooltip";
 import options from "../../config/AccessTypesConfig";
 import {
   CREATE_APPROVED_STUDY,
   CreateApprovedStudyInput,
   CreateApprovedStudyResp,
+  GET_APPROVED_STUDY,
+  GetApprovedStudyInput,
+  GetApprovedStudyResp,
+  UPDATE_APPROVED_STUDY,
+  UpdateApprovedStudyInput,
+  UpdateApprovedStudyResp,
 } from "../../graphql";
-
-const InfoIcon = styled("div")(() => ({
-  backgroundImage: `url(${infoCircleIcon})`,
-  backgroundSize: "contain",
-  backgroundRepeat: "no-repeat",
-  width: "12px",
-  height: "12px",
-}));
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outline: "2px solid #1D91AB",
@@ -97,20 +89,6 @@ const StyledProfileIcon = styled("div")({
     zIndex: 2,
     filter: "drop-shadow(10px 13px 9px rgba(0, 0, 0, 0.35))",
   },
-});
-
-const StyledHeader = styled("div")({
-  textAlign: "left",
-  width: "100%",
-  marginTop: "-34px !important",
-  marginBottom: "41px !important",
-});
-
-const StyledHeaderText = styled(Typography)({
-  fontSize: "26px",
-  lineHeight: "35px",
-  color: "#083A50",
-  fontWeight: 700,
 });
 
 const StyledField = styled("div", { shouldForwardProp: (p) => p !== "visible" })<{
@@ -180,7 +158,6 @@ const BaseInputStyling = {
 };
 
 const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
-const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
@@ -208,19 +185,6 @@ const StyledTitleBox = styled(Box)({
   width: "100%",
 });
 
-const TooltipIcon = styled(InfoIcon)`
-  font-size: 12px;
-  color: inherit;
-`;
-
-const TooltipButton = styled(IconButton)(() => ({
-  padding: 0,
-  fontSize: "12px",
-  verticalAlign: "top",
-  marginLeft: "6px",
-  color: "#000000",
-}));
-
 type FormInput = Pick<
   ApprovedStudy,
   "studyName" | "studyAbbreviation" | "PI" | "dbGaPID" | "ORCID" | "openAccess" | "controlledAccess"
@@ -233,24 +197,59 @@ type Props = {
 const StudyView: FC<Props> = ({ _id }: Props) => {
   usePageTitle(`${!!_id && _id !== "new" ? "Edit" : "Add"} Study ${_id || ""}`.trim());
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
-  const {
-    handleSubmit,
-    register,
-    reset,
-    watch,
-    getValues,
-    setValue,
-    control,
-    formState: { errors },
-  } = useForm<FormInput>({ mode: "onSubmit", reValidateMode: "onSubmit" });
+  const { handleSubmit, register, watch, control, reset, setValue } = useForm<FormInput>({
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
+    defaultValues: {
+      studyName: "",
+      studyAbbreviation: "",
+      PI: "",
+      dbGaPID: "",
+      ORCID: "",
+      openAccess: false,
+      controlledAccess: false,
+    },
+  });
   const isControlled = watch("controlledAccess");
 
   const [saving, setSaving] = useState<boolean>(false);
-  const [ORCID, setORCID] = useState<string>("");
   const [error, setError] = useState(null);
 
+  const editableFields: (keyof FormInput)[] = [
+    "studyName",
+    "studyAbbreviation",
+    "PI",
+    "dbGaPID",
+    "ORCID",
+    "openAccess",
+    "controlledAccess",
+  ];
   const manageStudiesPageUrl = `/studies${lastSearchParams?.["/studies"] ?? ""}`;
+
+  const { loading: retrievingStudy } = useQuery<GetApprovedStudyResp, GetApprovedStudyInput>(
+    GET_APPROVED_STUDY,
+    {
+      variables: { _id },
+      skip: !_id || _id === "new",
+      onCompleted: (data) => setFormValues(data?.getApprovedStudy),
+      onError: (error) =>
+        navigate(manageStudiesPageUrl, {
+          state: { error: error.message || "Unable to fetch study." },
+        }),
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
+
+  const [updateApprovedStudy] = useMutation<UpdateApprovedStudyResp, UpdateApprovedStudyInput>(
+    UPDATE_APPROVED_STUDY,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const [createApprovedStudy] = useMutation<CreateApprovedStudyResp, CreateApprovedStudyInput>(
     CREATE_APPROVED_STUDY,
@@ -292,13 +291,47 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       setSaving(false);
 
       if (errors || !d?.createApprovedStudy?._id) {
-        setError(errors || "Unable to create approved study");
+        setError(errors || "Unable to create approved study.");
         return;
       }
+      enqueueSnackbar("This study has been successfully added.", {
+        variant: "default",
+      });
+    } else {
+      const { data: d, errors } = await updateApprovedStudy({
+        variables: { studyID: _id, ...variables },
+      }).catch((e) => ({ errors: e?.message, data: null }));
+      setSaving(false);
+
+      if (errors || !d?.updateApprovedStudy) {
+        setError(errors || "Unable to save changes");
+        return;
+      }
+
+      enqueueSnackbar("All changes have been saved", { variant: "default" });
+      setFormValues(d.updateApprovedStudy);
     }
 
     setError(null);
     navigate(manageStudiesPageUrl);
+  };
+
+  /**
+   * Updates the default form values after save or initial fetch
+   *
+   * @param data FormInput
+   */
+  const setFormValues = (data: FormInput, fields = editableFields) => {
+    const resetData = {};
+
+    fields.forEach((field) => {
+      if (data?.[field] === null) {
+        return;
+      }
+      resetData[field] = cloneDeep(data[field]);
+    });
+
+    reset(resetData);
   };
 
   const handleORCIDInputChange = (
@@ -306,7 +339,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   ) => {
     const inputValue = event.target.value || "";
     const formattedValue = formatORCIDInput(inputValue);
-    setORCID(formattedValue);
+    setValue("ORCID", formattedValue);
   };
 
   return (
@@ -364,9 +397,20 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 <Stack direction="column">
                   <StyledCheckboxFormGroup>
                     <StyledFormControlLabel
-                      {...register("openAccess", { setValueAs: (val) => Boolean(val) })}
                       control={
-                        <StyledCheckbox checkedIcon={<CheckedIcon />} icon={<UncheckedIcon />} />
+                        <Controller
+                          name="openAccess"
+                          control={control}
+                          render={({ field }) => (
+                            <StyledCheckbox
+                              {...field}
+                              checked={field.value}
+                              onChange={field.onChange}
+                              checkedIcon={<CheckedIcon />}
+                              icon={<UncheckedIcon />}
+                            />
+                          )}
+                        />
                       }
                       label={
                         <>
@@ -378,9 +422,20 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                       }
                     />
                     <StyledFormControlLabel
-                      {...register("controlledAccess", { setValueAs: (val) => Boolean(val) })}
                       control={
-                        <StyledCheckbox checkedIcon={<CheckedIcon />} icon={<UncheckedIcon />} />
+                        <Controller
+                          name="controlledAccess"
+                          control={control}
+                          render={({ field }) => (
+                            <StyledCheckbox
+                              {...field}
+                              checked={field.value}
+                              onChange={field.onChange}
+                              checkedIcon={<CheckedIcon />}
+                              icon={<UncheckedIcon />}
+                            />
+                          )}
+                        />
                       }
                       label={
                         <>
@@ -428,7 +483,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                     render={({ field }) => (
                       <StyledTextField
                         {...field}
-                        value={ORCID}
+                        value={field.value}
                         onChange={(e) => {
                           field.onChange(e);
                           handleORCIDInputChange(e);
@@ -449,7 +504,12 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
+                <StyledButton
+                  type="submit"
+                  loading={saving || retrievingStudy}
+                  txt="#14634F"
+                  border="#26B893"
+                >
                   Save
                 </StyledButton>
                 <StyledButton
