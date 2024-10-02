@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Alert,
   Box,
   Checkbox,
   Container,
@@ -14,6 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
+import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import bannerSvg from "../../assets/banner/profile_banner.png";
 import studyIcon from "../../assets/icons/study_icon.svg";
@@ -29,6 +31,11 @@ import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import infoCircleIcon from "../../assets/icons/info_circle.svg";
 import Tooltip from "../../components/Tooltip";
 import options from "../../config/AccessTypesConfig";
+import {
+  CREATE_APPROVED_STUDY,
+  CreateApprovedStudyInput,
+  CreateApprovedStudyResp,
+} from "../../graphql";
 
 const InfoIcon = styled("div")(() => ({
   backgroundImage: `url(${infoCircleIcon})`,
@@ -236,14 +243,63 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     setValue,
     control,
     formState: { errors },
-  } = useForm<FormInput>({ mode: "onSubmit", reValidateMode: "onBlur" }); // TODO: FIX
+  } = useForm<FormInput>({ mode: "onSubmit", reValidateMode: "onSubmit" });
+  const isControlled = watch("controlledAccess");
 
   const [saving, setSaving] = useState<boolean>(false);
   const [ORCID, setORCID] = useState<string>("");
+  const [error, setError] = useState(null);
 
   const manageStudiesPageUrl = `/studies${lastSearchParams?.["/studies"] ?? ""}`;
 
-  const onSubmit = async (data: FormInput) => {};
+  const [createApprovedStudy] = useMutation<CreateApprovedStudyResp, CreateApprovedStudyInput>(
+    CREATE_APPROVED_STUDY,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
+
+  const handlePreSubmit = (data: FormInput) => {
+    // shouldn't ever happen
+    if (!data) {
+      setError("Invalid form values provided.");
+      return;
+    }
+    if (!isValidORCID(data.ORCID)) {
+      setError("Invalid ORCID format.");
+      return;
+    }
+    if (!data.controlledAccess && !data.openAccess) {
+      setError("Invalid Access Type. Please select at least one Access Type.");
+      return;
+    }
+
+    setError(null);
+    onSubmit(data);
+  };
+
+  const onSubmit = async (data: FormInput) => {
+    setSaving(true);
+
+    const variables = { ...data, name: data.studyName, acronym: data.studyAbbreviation };
+
+    if (_id === "new") {
+      const { data: d, errors } = await createApprovedStudy({ variables }).catch((e) => ({
+        errors: e?.message,
+        data: null,
+      }));
+      setSaving(false);
+
+      if (errors || !d?.createApprovedStudy?._id) {
+        setError(errors || "Unable to create approved study");
+        return;
+      }
+    }
+
+    setError(null);
+    navigate(manageStudiesPageUrl);
+  };
 
   const handleORCIDInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -274,7 +330,13 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               } Study`}</StyledPageTitle>
             </StyledTitleBox>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(handlePreSubmit)}>
+              {error && (
+                <Alert sx={{ mb: 2, p: 2, width: "100%" }} severity="error">
+                  {error || "An unknown API error occurred."}
+                </Alert>
+              )}
+
               <StyledField>
                 <StyledLabel id="studyNameLabel">Name</StyledLabel>
                 <StyledTextField
@@ -337,9 +399,12 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               <StyledField>
                 <StyledLabel id="dbGaPIDLabel">dbGaPID</StyledLabel>
                 <StyledTextField
-                  {...register("dbGaPID", { required: true, setValueAs: (val) => val?.trim() })}
+                  {...register("dbGaPID", {
+                    required: isControlled === true,
+                    setValueAs: (val) => val?.trim(),
+                  })}
                   size="small"
-                  required
+                  required={isControlled === true}
                   inputProps={{ "aria-labelledby": "dbGaPIDLabel" }}
                 />
               </StyledField>
@@ -349,6 +414,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   {...register("PI", { required: true, setValueAs: (val) => val?.trim() })}
                   size="small"
                   required
+                  placeholder="Enter <first name> <last name>"
                   inputProps={{ "aria-labelledby": "piLabel" }}
                 />
               </StyledField>
@@ -358,20 +424,15 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   <Controller
                     name="ORCID"
                     control={control}
-                    rules={{
-                      required: true,
-                      validate: (val) => {
-                        if (val?.trim()?.length === 0) {
-                          return true;
-                        }
-                        return isValidORCID(val) || "Please provide a valid ORCID";
-                      },
-                    }}
+                    rules={{ required: "This field is required" }}
                     render={({ field }) => (
                       <StyledTextField
                         {...field}
                         value={ORCID}
-                        onChange={handleORCIDInputChange}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          handleORCIDInputChange(e);
+                        }}
                         size="small"
                         required
                         placeholder="e.g. 0000-0001-2345-6789"
