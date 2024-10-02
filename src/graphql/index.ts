@@ -165,6 +165,12 @@ export type {
   Response as UpdateApprovedStudyResp,
 } from "./updateApprovedStudy";
 
+export { query as GET_APPROVED_STUDY } from "./getApprovedStudy";
+export type {
+  Input as GetApprovedStudyInput,
+  Response as GetApprovedStudyResp,
+} from "./getApprovedStudy";
+
 export { mutation as CREATE_ORG } from "./createOrganization";
 export type { Input as CreateOrgInput, Response as CreateOrgResp } from "./createOrganization";
 
