@@ -79,7 +79,7 @@ const StyledTableCell = styled(TableCell)({
   fontSize: "14px",
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
-    padding: "14px 8px 12px",
+    padding: "14px 4px 12px",
     overflowWrap: "anywhere",
     whiteSpace: "nowrap",
   },
@@ -212,6 +212,12 @@ const columns: Column<T>[] = [
     label: "Primary Contact",
     renderValue: (a) => <TruncatedText text={a.conciergeName} />,
     field: "conciergeName",
+  },
+  {
+    label: "Node Count",
+    renderValue: (a) =>
+      new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(a.nodeCount || 0),
+    field: "nodeCount",
   },
   {
     label: "Created Date",
