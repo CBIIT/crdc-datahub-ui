@@ -49,6 +49,7 @@ const baseSubmission: Submission = {
   intention: "New/Update",
   dataType: "Metadata Only",
   otherSubmissions: "",
+  nodeCount: 0,
   createdAt: "",
   updatedAt: "",
   studyID: "",
