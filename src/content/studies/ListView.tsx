@@ -256,7 +256,7 @@ const ListView = () => {
         body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             <StyledButton component={Link} to="/studies/new">
-              Add Approved Study
+              Add Study
             </StyledButton>
           </StyledBannerBody>
         }
