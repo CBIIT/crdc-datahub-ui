@@ -57,6 +57,7 @@ export const query = gql`
       intention
       dataType
       otherSubmissions
+      nodeCount
       createdAt
       updatedAt
     }

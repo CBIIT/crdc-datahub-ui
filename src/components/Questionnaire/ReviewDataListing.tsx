@@ -34,7 +34,11 @@ const ReviewDataListing = ({ idPrefix, title, description, hideTitle, children }
           </StyledTitle>
         )}
         {description && (
-          <StyledDescription id={idPrefix.concat(`-section-description`)} variant="body1">
+          <StyledDescription
+            id={idPrefix.concat(`-section-description`)}
+            variant="body1"
+            data-print="false"
+          >
             {description}
           </StyledDescription>
         )}

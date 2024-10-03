@@ -59,6 +59,10 @@ type Submission = {
    * @see OtherSubmissions
    */
   otherSubmissions: string;
+  /**
+   * The total number of nodes in the Submission
+   */
+  nodeCount: number;
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };

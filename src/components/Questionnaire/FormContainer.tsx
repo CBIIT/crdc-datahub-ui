@@ -91,12 +91,14 @@ const FormContainer = forwardRef<HTMLDivElement, Props>(
           <ArrowBackIcon fontSize="small" />
           Return to all Submissions
         </StyledButton>
-        <StyledTitleGroup>
-          <StyledSectionTitle variant="h2">{description}</StyledSectionTitle>
-        </StyledTitleGroup>
-        <StyledForm id={id} ref={formRef} onSubmit={(e) => e.preventDefault()}>
-          {children}
-        </StyledForm>
+        <div data-pdf-print-region="true">
+          <StyledTitleGroup>
+            <StyledSectionTitle variant="h2">{description}</StyledSectionTitle>
+          </StyledTitleGroup>
+          <StyledForm id={id} ref={formRef} onSubmit={(e) => e.preventDefault()}>
+            {children}
+          </StyledForm>
+        </div>
       </StyledFormContainer>
     );
   }

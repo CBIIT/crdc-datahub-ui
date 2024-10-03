@@ -12,6 +12,7 @@ type FormSectionProps = {
     approveFormRef: React.RefObject<HTMLButtonElement>;
     inquireFormRef: React.RefObject<HTMLButtonElement>;
     rejectFormRef: React.RefObject<HTMLButtonElement>;
+    exportButtonRef: React.RefObject<HTMLButtonElement>;
     getFormObjectRef: React.MutableRefObject<(() => FormObject | null) | null>;
   };
   SectionOption: SectionOption;
