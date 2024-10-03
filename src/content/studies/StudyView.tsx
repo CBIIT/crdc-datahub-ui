@@ -91,17 +91,15 @@ const StyledProfileIcon = styled("div")({
   },
 });
 
-const StyledField = styled("div", { shouldForwardProp: (p) => p !== "visible" })<{
-  visible?: boolean;
-}>(({ visible = true }) => ({
+const StyledField = styled("div")({
   marginBottom: "10px",
   minHeight: "41px",
-  display: visible ? "flex" : "none",
+  display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
   gap: "40px",
   fontSize: "18px",
-}));
+});
 
 const StyledLabel = styled("span")({
   color: "#356AAD",
@@ -143,15 +141,14 @@ const StyledFormControlLabel = styled(FormControlLabel)(() => ({
   },
 }));
 
-const StyledCheckbox = styled(Checkbox)(({ readOnly }) => ({
-  cursor: readOnly ? "not-allowed" : "pointer",
+const StyledCheckbox = styled(Checkbox)({
   "&.MuiCheckbox-root": {
     padding: "10px",
   },
   "& .MuiSvgIcon-root": {
     fontSize: "24px",
   },
-}));
+});
 
 const BaseInputStyling = {
   width: "363px",
@@ -195,7 +192,8 @@ type Props = {
 };
 
 const StudyView: FC<Props> = ({ _id }: Props) => {
-  usePageTitle(`${!!_id && _id !== "new" ? "Edit" : "Add"} Study ${_id || ""}`.trim());
+  const isNew = _id && _id === "new";
+  usePageTitle(`${!isNew && _id ? "Edit" : "Add"} Study ${!isNew && _id ? _id : ""}`.trim());
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
@@ -236,7 +234,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       onCompleted: (data) => setFormValues(data?.getApprovedStudy),
       onError: (error) =>
         navigate(manageStudiesPageUrl, {
-          state: { error: error.message || "Unable to fetch study." },
+          state: { error: error?.message || "Unable to fetch study." },
         }),
       context: { clientName: "backend" },
       fetchPolicy: "no-cache",
@@ -260,16 +258,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   );
 
   const handlePreSubmit = (data: FormInput) => {
-    // shouldn't ever happen
-    if (!data) {
-      setError("Invalid form values provided.");
-      return;
-    }
-    if (!isValidORCID(data.ORCID)) {
+    if (!isValidORCID(data?.ORCID)) {
       setError("Invalid ORCID format.");
       return;
     }
-    if (!data.controlledAccess && !data.openAccess) {
+    if (!data?.controlledAccess && !data?.openAccess) {
       setError("Invalid Access Type. Please select at least one Access Type.");
       return;
     }
@@ -281,7 +274,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
 
-    const variables = { ...data, name: data.studyName, acronym: data.studyAbbreviation };
+    const variables: CreateApprovedStudyInput | UpdateApprovedStudyInput = {
+      ...data,
+      name: data.studyName,
+      acronym: data.studyAbbreviation,
+    };
 
     if (_id === "new") {
       const { data: d, errors } = await createApprovedStudy({ variables }).catch((e) => ({
@@ -308,7 +305,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
         return;
       }
 
-      enqueueSnackbar("All changes have been saved", { variant: "default" });
+      enqueueSnackbar("All changes have been saved.", { variant: "default" });
       setFormValues(d.updateApprovedStudy);
     }
 
@@ -337,7 +334,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   const handleORCIDInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const inputValue = event.target.value || "";
+    const inputValue = event?.target?.value;
     const formattedValue = formatORCIDInput(inputValue);
     setValue("ORCID", formattedValue);
   };
@@ -363,9 +360,13 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               } Study`}</StyledPageTitle>
             </StyledTitleBox>
 
-            <form onSubmit={handleSubmit(handlePreSubmit)}>
+            <form onSubmit={handleSubmit(handlePreSubmit)} data-testid="study-form">
               {error && (
-                <Alert sx={{ mb: 2, p: 2, width: "100%" }} severity="error">
+                <Alert
+                  sx={{ mb: 2, p: 2, width: "100%" }}
+                  severity="error"
+                  data-testid="alert-error-message"
+                >
                   {error || "An unknown API error occurred."}
                 </Alert>
               )}
@@ -376,7 +377,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   {...register("studyName", { required: true, setValueAs: (val) => val?.trim() })}
                   size="small"
                   required
-                  inputProps={{ "aria-labelledby": "studyNameLabel" }}
+                  disabled={saving || retrievingStudy}
+                  inputProps={{
+                    "aria-labelledby": "studyNameLabel",
+                    "data-testid": "studyName-input",
+                  }}
                 />
               </StyledField>
               <StyledField>
@@ -384,7 +389,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 <StyledTextField
                   {...register("studyAbbreviation", { setValueAs: (val) => val?.trim() })}
                   size="small"
-                  inputProps={{ "aria-labelledby": "studyAbbreviationLabel" }}
+                  disabled={saving || retrievingStudy}
+                  inputProps={{
+                    "aria-labelledby": "studyAbbreviationLabel",
+                    "data-testid": "studyAbbreviation-input",
+                  }}
                 />
               </StyledField>
               <StyledField>
@@ -406,8 +415,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                               {...field}
                               checked={field.value}
                               onChange={field.onChange}
-                              checkedIcon={<CheckedIcon />}
-                              icon={<UncheckedIcon />}
+                              checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
+                              icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
+                              disabled={saving || retrievingStudy}
+                              inputProps={{ "data-testid": "openAccess-checkbox" } as unknown}
                             />
                           )}
                         />
@@ -431,8 +442,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                               {...field}
                               checked={field.value}
                               onChange={field.onChange}
-                              checkedIcon={<CheckedIcon />}
-                              icon={<UncheckedIcon />}
+                              checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
+                              icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
+                              disabled={saving || retrievingStudy}
+                              inputProps={{ "data-testid": "controlledAccess-checkbox" } as unknown}
                             />
                           )}
                         />
@@ -460,7 +473,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   })}
                   size="small"
                   required={isControlled === true}
-                  inputProps={{ "aria-labelledby": "dbGaPIDLabel" }}
+                  disabled={saving || retrievingStudy}
+                  inputProps={{ "aria-labelledby": "dbGaPIDLabel", "data-testid": "dbGaPID-input" }}
                 />
               </StyledField>
               <StyledField>
@@ -469,8 +483,9 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   {...register("PI", { required: true, setValueAs: (val) => val?.trim() })}
                   size="small"
                   required
+                  disabled={saving || retrievingStudy}
                   placeholder="Enter <first name> <last name>"
-                  inputProps={{ "aria-labelledby": "piLabel" }}
+                  inputProps={{ "aria-labelledby": "piLabel", "data-testid": "PI-input" }}
                 />
               </StyledField>
               <StyledField>
@@ -490,8 +505,12 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                         }}
                         size="small"
                         required
+                        disabled={saving || retrievingStudy}
                         placeholder="e.g. 0000-0001-2345-6789"
-                        inputProps={{ "aria-labelledby": "orcidLabel" }}
+                        inputProps={{
+                          "aria-labelledby": "orcidLabel",
+                          "data-testid": "ORCID-input",
+                        }}
                       />
                     )}
                   />
@@ -505,6 +524,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 spacing={1}
               >
                 <StyledButton
+                  data-testid="save-button"
                   type="submit"
                   loading={saving || retrievingStudy}
                   txt="#14634F"
@@ -513,6 +533,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   Save
                 </StyledButton>
                 <StyledButton
+                  data-testid="cancel-button"
                   type="button"
                   onClick={() => navigate(manageStudiesPageUrl)}
                   txt="#666666"
