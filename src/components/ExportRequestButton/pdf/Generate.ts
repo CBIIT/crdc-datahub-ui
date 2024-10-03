@@ -225,6 +225,7 @@ export const GenerateDocument = async (
 
           return false;
         },
+        logging: false,
       },
       autoPaging: "text",
       x: 0,
