@@ -340,7 +340,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   };
 
   return (
-    <>
+    <Box data-testid="study-view-container">
       <StyledBanner />
       <StyledContainer maxWidth="lg">
         <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
@@ -546,7 +546,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           </StyledContentStack>
         </Stack>
       </StyledContainer>
-    </>
+    </Box>
   );
 };
 

@@ -5,7 +5,6 @@ import { ApolloError } from "@apollo/client";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import StudyView from "./StudyView";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   GET_APPROVED_STUDY,
@@ -14,6 +13,7 @@ import {
   GetApprovedStudyResp,
   GetApprovedStudyInput,
 } from "../../graphql";
+import StudyView from "./StudyView";
 
 const mockUsePageTitle = jest.fn();
 jest.mock("../../hooks/usePageTitle", () => ({
