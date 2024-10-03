@@ -216,7 +216,7 @@ const columns: Column<T>[] = [
   {
     label: "Node Count",
     renderValue: (a) =>
-      new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(a.nodeCount || 0),
+      Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(a.nodeCount || 0),
     field: "nodeCount",
   },
   {
