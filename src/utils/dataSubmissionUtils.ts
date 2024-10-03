@@ -159,7 +159,11 @@ export const unpackValidationSeverities = <T extends QCResult | CrossValidationR
  * @param contentType the content type
  * @returns void
  */
-export const downloadBlob = (content: string, filename: string, contentType: string): void => {
+export const downloadBlob = (
+  content: string | Blob,
+  filename: string,
+  contentType: string
+): void => {
   const blob = new Blob([content], { type: contentType });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");

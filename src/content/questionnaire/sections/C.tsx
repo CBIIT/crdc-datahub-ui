@@ -40,6 +40,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     approveFormRef,
     inquireFormRef,
     rejectFormRef,
+    exportButtonRef,
     getFormObjectRef,
   } = refs;
   const { C: SectionCMetadata } = SectionMetadata;
@@ -121,6 +122,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     approveFormRef.current.style.display = "none";
     inquireFormRef.current.style.display = "none";
     rejectFormRef.current.style.display = "none";
+    exportButtonRef.current.style.display = "none";
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 

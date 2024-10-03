@@ -63,6 +63,10 @@ const StyledDownload = styled(Link)({
   marginRight: "8px",
 });
 
+const StyledDownloadIcon = styled(DownloadIcon)({
+  color: "#365F71",
+});
+
 const PackageTable = () => (
   <StyledTableContainer data-testid="package-table-container">
     <Table>
@@ -98,7 +102,7 @@ const PackageTable = () => (
                     aria-label={pkg.fileName}
                     data-testid={`package-table-icon-download-${pkg.fileName}`}
                   >
-                    <DownloadIcon />
+                    <StyledDownloadIcon />
                   </IconButton>
                 </Stack>
               )}
