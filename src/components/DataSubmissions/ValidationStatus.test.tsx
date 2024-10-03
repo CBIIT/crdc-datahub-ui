@@ -40,6 +40,7 @@ const BaseSubmission: Omit<
   updatedAt: "",
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
 };
 
 type TestParentProps = {

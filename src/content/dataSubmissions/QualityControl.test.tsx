@@ -55,6 +55,7 @@ const baseSubmission: Submission = {
   crossSubmissionStatus: null,
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
 };
 
 const baseQCResult: QCResult = {
