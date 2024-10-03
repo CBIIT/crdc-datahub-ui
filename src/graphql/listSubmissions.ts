@@ -33,6 +33,7 @@ export const query = gql`
         status
         archived
         conciergeName
+        nodeCount
         createdAt
         updatedAt
         intention
