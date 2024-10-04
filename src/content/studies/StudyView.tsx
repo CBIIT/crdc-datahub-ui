@@ -339,6 +339,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     setValue("ORCID", formattedValue);
   };
 
+  if (retrievingStudy) {
+    return <SuspenseLoader />;
+  }
+
   return (
     <Box data-testid="study-view-container">
       <StyledBanner />
