@@ -36,6 +36,7 @@ import {
   UpdateApprovedStudyInput,
   UpdateApprovedStudyResp,
 } from "../../graphql";
+import SuspenseLoader from "../../components/SuspenseLoader";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outline: "2px solid #1D91AB",
