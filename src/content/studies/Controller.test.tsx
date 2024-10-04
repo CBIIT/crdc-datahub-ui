@@ -125,14 +125,14 @@ describe("StudiesController", () => {
   });
 
   it("should show a loading spinner when the AuthCtx is loading", async () => {
-    const { getByLabelText } = render(
+    const { getByTestId } = render(
       <TestParent role="Admin" ctxStatus={AuthContextStatus.LOADING}>
         <StudiesController />
       </TestParent>
     );
 
     await waitFor(() => {
-      expect(getByLabelText("Content Loader")).toBeInTheDocument();
+      expect(getByTestId("studies-suspense-loader")).toBeInTheDocument();
     });
   });
 
