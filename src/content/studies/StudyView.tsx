@@ -414,7 +414,6 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                             <StyledCheckbox
                               {...field}
                               checked={field.value}
-                              onChange={field.onChange}
                               checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
                               icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
                               disabled={saving || retrievingStudy}
