@@ -341,7 +341,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   };
 
   if (retrievingStudy) {
-    return <SuspenseLoader />;
+    return <SuspenseLoader data-testid="study-view-suspense-loader" />;
   }
 
   return (

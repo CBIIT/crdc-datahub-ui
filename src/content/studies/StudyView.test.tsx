@@ -124,6 +124,40 @@ describe("StudyView Component", () => {
     });
   });
 
+  it("should show a loading spinner while retrieving approved study is loading", async () => {
+    const getApprovedStudyMock = {
+      request: {
+        query: GET_APPROVED_STUDY,
+        variables: { _id: "test-id" },
+      },
+      result: {
+        data: {
+          getApprovedStudy: {
+            _id: "test-id",
+            studyName: "Test Study",
+            studyAbbreviation: "TS",
+            PI: "John Doe",
+            dbGaPID: "db123456",
+            ORCID: "0000-0001-2345-6789",
+            openAccess: true,
+            controlledAccess: false,
+          },
+        },
+      },
+      delay: 1000,
+    };
+
+    const { getByTestId } = render(
+      <TestParent mocks={[getApprovedStudyMock]}>
+        <StudyView _id="test-id" />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("study-view-suspense-loader")).toBeInTheDocument();
+    });
+  });
+
   it("renders all input fields correctly", () => {
     const { getByTestId } = render(
       <TestParent>
