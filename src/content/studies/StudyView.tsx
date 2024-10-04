@@ -382,7 +382,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   {...register("studyName", { required: true, setValueAs: (val) => val?.trim() })}
                   size="small"
                   required
-                  disabled={saving || retrievingStudy}
+                  disabled={retrievingStudy}
+                  readOnly={saving}
                   inputProps={{
                     "aria-labelledby": "studyNameLabel",
                     "data-testid": "studyName-input",
@@ -394,7 +395,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 <StyledTextField
                   {...register("studyAbbreviation", { setValueAs: (val) => val?.trim() })}
                   size="small"
-                  disabled={saving || retrievingStudy}
+                  disabled={retrievingStudy}
+                  readOnly={saving}
                   inputProps={{
                     "aria-labelledby": "studyAbbreviationLabel",
                     "data-testid": "studyAbbreviation-input",
@@ -476,7 +478,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   })}
                   size="small"
                   required={isControlled === true}
-                  disabled={saving || retrievingStudy}
+                  disabled={retrievingStudy}
+                  readOnly={saving}
                   inputProps={{ "aria-labelledby": "dbGaPIDLabel", "data-testid": "dbGaPID-input" }}
                 />
               </StyledField>
@@ -486,7 +489,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   {...register("PI", { required: true, setValueAs: (val) => val?.trim() })}
                   size="small"
                   required
-                  disabled={saving || retrievingStudy}
+                  disabled={retrievingStudy}
+                  readOnly={saving}
                   placeholder="Enter <first name> <last name>"
                   inputProps={{ "aria-labelledby": "piLabel", "data-testid": "PI-input" }}
                 />
@@ -507,7 +511,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                         }}
                         size="small"
                         required
-                        disabled={saving || retrievingStudy}
+                        disabled={retrievingStudy}
+                        readOnly={saving}
                         placeholder="e.g. 0000-0001-2345-6789"
                         inputProps={{
                           "aria-labelledby": "orcidLabel",
