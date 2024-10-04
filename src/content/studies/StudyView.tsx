@@ -11,7 +11,6 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { cloneDeep } from "lodash";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
@@ -216,15 +215,6 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState(null);
 
-  const editableFields: (keyof FormInput)[] = [
-    "studyName",
-    "studyAbbreviation",
-    "PI",
-    "dbGaPID",
-    "ORCID",
-    "openAccess",
-    "controlledAccess",
-  ];
   const manageStudiesPageUrl = `/studies${lastSearchParams?.["/studies"] ?? ""}`;
 
   const { loading: retrievingStudy } = useQuery<GetApprovedStudyResp, GetApprovedStudyInput>(
@@ -232,7 +222,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     {
       variables: { _id },
       skip: !_id || _id === "new",
-      onCompleted: (data) => setFormValues(data?.getApprovedStudy),
+      onCompleted: (data) => resetForm({ ...data?.getApprovedStudy }),
       onError: (error) =>
         navigate(manageStudiesPageUrl, {
           state: { error: error?.message || "Unable to fetch study." },
@@ -257,6 +247,30 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       fetchPolicy: "no-cache",
     }
   );
+
+  /**
+   * Reset the form values, and preventing invalid
+   * properties from being set
+   */
+  const resetForm = ({
+    studyName,
+    studyAbbreviation,
+    controlledAccess,
+    openAccess,
+    dbGaPID,
+    PI,
+    ORCID,
+  }: FormInput) => {
+    reset({
+      studyName,
+      studyAbbreviation,
+      controlledAccess,
+      openAccess,
+      dbGaPID,
+      PI,
+      ORCID,
+    });
+  };
 
   const handlePreSubmit = (data: FormInput) => {
     if (!isValidORCID(data?.ORCID)) {
@@ -307,29 +321,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       }
 
       enqueueSnackbar("All changes have been saved.", { variant: "default" });
-      setFormValues(d.updateApprovedStudy);
+      resetForm({ ...d.updateApprovedStudy });
     }
 
     setError(null);
     navigate(manageStudiesPageUrl);
-  };
-
-  /**
-   * Updates the default form values after save or initial fetch
-   *
-   * @param data FormInput
-   */
-  const setFormValues = (data: FormInput, fields = editableFields) => {
-    const resetData = {};
-
-    fields.forEach((field) => {
-      if (data?.[field] === null) {
-        return;
-      }
-      resetData[field] = cloneDeep(data[field]);
-    });
-
-    reset(resetData);
   };
 
   const handleORCIDInputChange = (
