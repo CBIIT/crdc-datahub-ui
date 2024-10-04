@@ -40,6 +40,7 @@ const baseSubmission: Omit<
   validationType: ["metadata", "file"],
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
 };
 
 const baseContext: ContextState = {

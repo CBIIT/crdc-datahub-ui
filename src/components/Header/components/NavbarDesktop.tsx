@@ -3,7 +3,7 @@ import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { Button, styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
-import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
+import { navMobileList, navbarSublists } from "../../../config/HeaderConfig";
 import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
@@ -538,6 +538,18 @@ const NavBar = () => {
                   onClick={() => setClickedTitle("")}
                 >
                   Manage Organizations
+                </Link>
+              </span>
+            )}
+            {user?.role === "Admin" && (
+              <span className="dropdownItem">
+                <Link
+                  id="navbar-dropdown-item-name-studies-manage"
+                  to="/studies"
+                  className="dropdownItem"
+                  onClick={() => setClickedTitle("")}
+                >
+                  Manage Studies
                 </Link>
               </span>
             )}

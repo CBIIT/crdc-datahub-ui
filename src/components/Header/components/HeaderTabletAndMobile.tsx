@@ -5,7 +5,7 @@ import Logo from "./LogoMobile";
 import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg";
 import rightArrowIcon from "../../../assets/header/Right_Arrow.svg";
 import leftArrowIcon from "../../../assets/header/Left_Arrow.svg";
-import { navMobileList, navbarSublists } from "../../../config/globalHeaderData";
+import { navMobileList, navbarSublists } from "../../../config/HeaderConfig";
 import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
@@ -181,6 +181,14 @@ const Header = () => {
       name: "Manage Organizations",
       link: "/organizations",
       id: "navbar-dropdown-item-organization-manage",
+      className: "navMobileSubItem",
+    });
+  }
+  if (user?.role === "Admin") {
+    navbarSublists[displayName].splice(1, 0, {
+      name: "Manage Studies",
+      link: "/studies",
+      id: "navbar-dropdown-item-studies-manage",
       className: "navMobileSubItem",
     });
   }

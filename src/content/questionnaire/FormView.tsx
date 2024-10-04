@@ -27,6 +27,7 @@ import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
+import ExportRequestButton from "../../components/ExportRequestButton";
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -173,13 +174,14 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const hasReopenedFormRef = useRef(false);
   const hasUpdatedReviewStatusRef = useRef(false);
 
-  const refs = {
+  const refs: FormSectionProps["refs"] = {
     saveFormRef: createRef<HTMLButtonElement>(),
     submitFormRef: createRef<HTMLButtonElement>(),
     nextButtonRef: createRef<HTMLButtonElement>(),
     approveFormRef: createRef<HTMLButtonElement>(),
     inquireFormRef: createRef<HTMLButtonElement>(),
     rejectFormRef: createRef<HTMLButtonElement>(),
+    exportButtonRef: createRef<HTMLButtonElement>(),
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
 
@@ -810,6 +812,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
               >
                 Next
               </StyledLoadingButton>
+              <ExportRequestButton ref={refs.exportButtonRef} disabled={!allSectionsComplete} />
             </StyledControls>
           </StyledContent>
         </StyledContentWrapper>

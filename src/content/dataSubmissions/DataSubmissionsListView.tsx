@@ -81,7 +81,7 @@ const StyledTableCell = styled(TableCell)({
   fontSize: "14px",
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
-    padding: "14px 8px 12px",
+    padding: "14px 4px 12px",
     overflowWrap: "anywhere",
     whiteSpace: "nowrap",
   },
@@ -227,6 +227,12 @@ const columns: Column<T>[] = [
     hideable: true,
   },
 
+  {
+    label: "Node Count",
+    renderValue: (a) =>
+      Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(a.nodeCount || 0),
+    field: "nodeCount",
+  },
   {
     label: "Created Date",
     renderValue: (a) =>
@@ -403,19 +409,23 @@ const ListingView: FC = () => {
       return;
     }
 
+    const newSearchParams = new URLSearchParams(searchParams);
+
     if (canChangeOrgs && orgFilter && orgFilter !== "All") {
-      searchParams.set("organization", orgFilter);
+      newSearchParams.set("organization", orgFilter);
     } else if (orgFilter === "All") {
-      searchParams.delete("organization");
+      newSearchParams.delete("organization");
     }
     if (statusFilter && statusFilter !== "All") {
-      searchParams.set("status", statusFilter);
+      newSearchParams.set("status", statusFilter);
     } else if (statusFilter === "All") {
-      searchParams.delete("status");
+      newSearchParams.delete("status");
     }
 
     setTablePage(0);
-    setSearchParams(searchParams);
+    if (newSearchParams?.toString() !== searchParams?.toString()) {
+      setSearchParams(newSearchParams);
+    }
   }, [orgFilter, statusFilter, touchedFilters]);
 
   const setTablePage = (page: number) => {

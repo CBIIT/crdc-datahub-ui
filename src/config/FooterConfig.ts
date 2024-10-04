@@ -3,9 +3,9 @@ import twitterIcon from "../assets/footer/Twitter_Logo.svg";
 import facebookIcon from "../assets/footer/Facebook_Logo.svg";
 import youtubeIcon from "../assets/footer/Youtube_Logo.svg";
 import linkedInIcon from "../assets/footer/LinkedIn_Logo.svg";
-// footerLogoImage ideal image size 310x80 px
+import { parseReleaseVersion } from "../utils";
 
-const FooterConfig = {
+const FooterConfig: FooterConfiguration = {
   footerLogoImage:
     "https://raw.githubusercontent.com/cbiit/datacommons-assets/main/bento/images/icons/png/footerlogo.png",
   footerLogoAltText: "Footer Logo",
@@ -59,6 +59,18 @@ const FooterConfig = {
         {
           text: "HHS Vulnerability Disclosure",
           link: "https://www.hhs.gov/vulnerability-disclosure-policy/index.html",
+        },
+      ],
+    },
+    {
+      title: "System Info",
+      items: [
+        {
+          text: "Release Notes",
+          link: "/release-notes",
+        },
+        {
+          text: `Current Version: ${parseReleaseVersion()}`,
         },
       ],
     },

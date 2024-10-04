@@ -49,6 +49,7 @@ const BaseSubmission: Submission = {
   validationScope: "New",
   validationType: [],
   deletingData: false,
+  nodeCount: 0,
 };
 
 const baseAuthCtx: AuthContextState = {

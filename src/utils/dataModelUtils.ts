@@ -1,5 +1,7 @@
+import { defaultTo } from "lodash";
 import { MODEL_FILE_REPO } from "../config/DataCommons";
 import env from "../env";
+import { RetrieveCDEsResp } from "../graphql";
 
 /**
  * Fetch the tracked Data Model content manifest.
@@ -101,4 +103,100 @@ export const buildFilterOptionsList = (dc: DataCommon): string[] => {
 
     return [...a, ...searchData.checkboxItems.map((item) => item?.name?.toLowerCase())];
   }, []);
+};
+
+/**
+ * A function to parse the datalist and reolace enums with those returned from retrieveCde query
+ * Commented out until api is ready
+ * @params {void}
+ */
+export const updateEnums = (
+  cdeMap: Map<string, CDEInfo[]>,
+  dataList,
+  response: RetrieveCDEsResp["retrieveCDEs"] = [],
+  apiError = false
+) => {
+  const responseMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0]> = new Map();
+
+  defaultTo(response, []).forEach((item) =>
+    responseMap.set(`${item.CDECode}.${item.CDEVersion}`, item)
+  );
+
+  const resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0]> = new Map();
+  const mapKeyPrefixes: Map<string, string> = new Map();
+  const mapKeyPrefixesNoValues: Map<string, string> = new Map();
+
+  cdeMap.forEach((_, key) => {
+    const [prefix, cdeCodeAndVersion] = key.split(";");
+    const item = responseMap.get(cdeCodeAndVersion);
+
+    if (item) {
+      resultMap.set(key, item);
+      mapKeyPrefixes.set(prefix, key);
+    } else {
+      mapKeyPrefixesNoValues.set(prefix, key);
+    }
+  });
+
+  const newObj = JSON.parse(JSON.stringify(dataList));
+
+  traverseAndReplace(newObj, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
+
+  return newObj;
+};
+
+export const traverseAndReplace = (
+  node,
+  resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0]>,
+  mapKeyPrefixes: Map<string, string>,
+  mapKeyPrefixesNoValues: Map<string, string>,
+  apiError: boolean,
+  parentKey = ""
+) => {
+  if (typeof node !== "object" || node === null) return;
+
+  if (node.properties) {
+    for (const key in node.properties) {
+      if (Object.hasOwn(node.properties, key)) {
+        const fullKey = `${parentKey}.${key}`.replace(/^\./, "");
+        const prefixMatch = mapKeyPrefixes.get(fullKey);
+        const noValuesMatch = mapKeyPrefixesNoValues.get(fullKey);
+        const fallbackMessage = [
+          "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
+        ];
+
+        if (prefixMatch) {
+          const mapFullKey = resultMap.get(prefixMatch);
+          if (
+            mapFullKey &&
+            mapFullKey.PermissibleValues &&
+            mapFullKey.PermissibleValues.length > 0
+          ) {
+            node.properties[key].enum = mapFullKey.PermissibleValues;
+          } else {
+            node.properties[key].enum = fallbackMessage;
+          }
+        }
+
+        if (noValuesMatch) {
+          if (apiError || !node.properties[key].enum) {
+            node.properties[key].enum = fallbackMessage;
+          }
+        }
+      }
+    }
+  }
+
+  for (const subKey in node) {
+    if (Object.hasOwn(node, subKey)) {
+      traverseAndReplace(
+        node[subKey],
+        resultMap,
+        mapKeyPrefixes,
+        mapKeyPrefixesNoValues,
+        apiError,
+        `${parentKey}.${subKey}`
+      );
+    }
+  }
 };
