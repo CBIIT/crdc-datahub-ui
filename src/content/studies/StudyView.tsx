@@ -493,7 +493,6 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   <Controller
                     name="ORCID"
                     control={control}
-                    rules={{ required: "This field is required" }}
                     render={({ field }) => (
                       <StyledTextField
                         {...field}
