@@ -273,7 +273,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   };
 
   const handlePreSubmit = (data: FormInput) => {
-    if (!isValidORCID(data?.ORCID)) {
+    if (data.ORCID && !isValidORCID(data?.ORCID)) {
       setError("Invalid ORCID format.");
       return;
     }
@@ -506,7 +506,6 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                           handleORCIDInputChange(e);
                         }}
                         size="small"
-                        required
                         disabled={retrievingStudy}
                         readOnly={saving}
                         placeholder="e.g. 0000-0001-2345-6789"
