@@ -509,7 +509,7 @@ describe("StudyView Component", () => {
     // Wait for the checkboxes to become disabled
     await waitFor(() => {
       expect(openAccessCheckbox).toBeDisabled();
-      const controlledAccessCheckbox = getByTestId("openAccess-checkbox") as HTMLInputElement;
+      const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
       expect(controlledAccessCheckbox).toBeDisabled();
     });
 
