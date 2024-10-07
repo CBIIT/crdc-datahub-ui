@@ -46,7 +46,10 @@ export { query as GET_SUBMISSION } from "./getSubmission";
 export type { Input as GetSubmissionInput, Response as GetSubmissionResp } from "./getSubmission";
 
 export { query as LIST_SUBMISSIONS } from "./listSubmissions";
-export type { Response as ListSubmissionsResp } from "./listSubmissions";
+export type {
+  Input as ListSubmissionsInput,
+  Response as ListSubmissionsResp,
+} from "./listSubmissions";
 
 export { mutation as SUBMISSION_ACTION } from "./submissionAction";
 export type { Response as SubmissionActionResp } from "./submissionAction";
