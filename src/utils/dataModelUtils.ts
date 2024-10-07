@@ -166,22 +166,17 @@ export const traverseAndReplace = (
         ];
 
         if (prefixMatch) {
-          const mapFullKey = resultMap.get(prefixMatch);
-          if (
-            mapFullKey &&
-            mapFullKey.PermissibleValues &&
-            mapFullKey.PermissibleValues.length > 0
-          ) {
-            node.properties[key].enum = mapFullKey.PermissibleValues;
-          } else {
+          const resultMapEntry = resultMap.get(prefixMatch);
+
+          if (resultMapEntry?.PermissibleValues?.length && node.properties[key].enum) {
+            node.properties[key].enum = resultMapEntry.PermissibleValues;
+          } else if (resultMapEntry?.PermissibleValues?.length === 0 && node.properties[key].enum) {
             node.properties[key].enum = fallbackMessage;
           }
         }
 
-        if (noValuesMatch) {
-          if (apiError || !node.properties[key].enum) {
-            node.properties[key].enum = fallbackMessage;
-          }
+        if (noValuesMatch && apiError && node.properties[key].enum) {
+          node.properties[key].enum = fallbackMessage;
         }
       }
     }
