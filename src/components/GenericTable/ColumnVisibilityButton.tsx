@@ -1,7 +1,19 @@
 import React, { ReactNode, useState } from "react";
-import { IconButton } from "@mui/material";
+import { IconButton, Stack, styled } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ReactComponent as TableColumnsIcon } from "../../assets/icons/table_columns_icon.svg";
 import ColumnVisibilityPopper from "./ColumnVisibilityPopper";
+
+const StyledIconButton = styled(IconButton)({
+  padding: 0,
+  paddingLeft: "3px",
+});
+
+const StyledExpandMoreIcon = styled(ExpandMoreIcon)({
+  color: "#000",
+  fontSize: "18px",
+  alignSelf: "flex-end",
+});
 
 type ColumnVisibilityModel = { [key: string]: boolean };
 
@@ -44,13 +56,21 @@ const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
 
   return (
     <>
-      <IconButton
+      <StyledIconButton
         onClick={handleOpenPopper}
         aria-label="Manage columns button"
         data-testid="column-visibility-button"
+        disableTouchRipple
+        disableRipple
+        disableFocusRipple
       >
-        {icon ?? <TableColumnsIcon />}
-      </IconButton>
+        {icon ?? (
+          <Stack direction="row">
+            <TableColumnsIcon />
+            <StyledExpandMoreIcon />
+          </Stack>
+        )}
+      </StyledIconButton>
       <ColumnVisibilityPopper
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
