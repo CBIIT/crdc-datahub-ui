@@ -1,5 +1,5 @@
 import { ElementType, useRef, useState } from "react";
-import { Alert, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
+import { Alert, Box, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
 import { Link, LinkProps, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import PageBanner from "../../components/PageBanner";
@@ -240,7 +240,7 @@ const ListView = () => {
   };
 
   return (
-    <>
+    <Box data-testid="list-studies-container">
       <Container maxWidth="xl">
         {(state?.error || error) && (
           <Alert sx={{ mt: 2, mx: "auto", p: 2 }} severity="error">
@@ -256,7 +256,7 @@ const ListView = () => {
         body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             <StyledButton component={Link} to="/studies/new">
-              Add Approved Study
+              Add Study
             </StyledButton>
           </StyledBannerBody>
         }
@@ -282,7 +282,7 @@ const ListView = () => {
           CustomTableBodyCell={StyledTableCell}
         />
       </StyledContainer>
-    </>
+    </Box>
   );
 };
 
