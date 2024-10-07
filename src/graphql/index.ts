@@ -153,6 +153,24 @@ export type {
   Response as ListApprovedStudiesResp,
 } from "./listApprovedStudies";
 
+export { mutation as CREATE_APPROVED_STUDY } from "./createApprovedStudy";
+export type {
+  Input as CreateApprovedStudyInput,
+  Response as CreateApprovedStudyResp,
+} from "./createApprovedStudy";
+
+export { mutation as UPDATE_APPROVED_STUDY } from "./updateApprovedStudy";
+export type {
+  Input as UpdateApprovedStudyInput,
+  Response as UpdateApprovedStudyResp,
+} from "./updateApprovedStudy";
+
+export { query as GET_APPROVED_STUDY } from "./getApprovedStudy";
+export type {
+  Input as GetApprovedStudyInput,
+  Response as GetApprovedStudyResp,
+} from "./getApprovedStudy";
+
 export { mutation as CREATE_ORG } from "./createOrganization";
 export type { Input as CreateOrgInput, Response as CreateOrgResp } from "./createOrganization";
 
