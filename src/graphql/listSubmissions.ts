@@ -46,43 +46,30 @@ export const query = gql`
         updatedAt
         intention
       }
-    }
-
-    listSubmitters: listSubmissions(
-      organization: $organization
-      status: $status
-      dataCommons: $dataCommons
-      name: $name
-      dbGaPID: $dbGaPID
-      first: -1
-      offset: 0
-      orderBy: "submitterName"
-      sortDirection: "asc"
-    ) {
-      submissions {
-        submitterName
-      }
+      submitterNames
+      dataCommons
     }
   }
 `;
 
 export type Input = {
-  organization: string;
-  status: Submission["status"] | "All";
-  dataCommons: DataCommon;
-  name: string;
-  dbGaPID: string;
-  submitterName: string;
+  organization?: string;
+  status?: Submission["status"] | "All";
+  dataCommons?: string;
+  name?: string;
+  dbGaPID?: string;
+  submitterName?: string;
+  first: number;
+  offset: number;
+  orderBy: string;
+  sortDirection: Order;
 };
 
 export type Response = {
   listSubmissions: {
     total: number;
     submissions: Omit<Submission, "submitterID" | "bucketName" | "rootPath" | "history">[];
-  };
-  listSubmitters: {
-    submissions: {
-      submitterName: string;
-    };
+    submitterNames: string[];
+    dataCommons: string[];
   };
 };
