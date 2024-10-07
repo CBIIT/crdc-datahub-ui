@@ -482,9 +482,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               <StyledField>
                 <StyledLabel id="piLabel">PI Name</StyledLabel>
                 <StyledTextField
-                  {...register("PI", { required: true, setValueAs: (val) => val?.trim() })}
+                  {...register("PI", { setValueAs: (val) => val?.trim() })}
                   size="small"
-                  required
                   disabled={retrievingStudy}
                   readOnly={saving}
                   placeholder="Enter <first name> <last name>"
