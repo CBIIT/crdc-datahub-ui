@@ -88,7 +88,8 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: bool
     "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
       display: "flex",
       alignItems: "center",
-      padding: "12px 30px 12px 12px !important",
+      padding: "10.5px 30px 10.5px 12px !important",
+      height: "44px",
       ...(readOnly
         ? {
             backgroundColor: "#E5EEF4",
@@ -97,16 +98,9 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: bool
         : {}),
     },
     "& .MuiInputBase-input": {
-      fontWeight: 400,
-      fontSize: "16px",
-      fontFamily: "'Nunito', 'Rubik', sans-serif",
       padding: "0 !important",
       height: "20px",
       cursor: readOnly ? "not-allowed !important" : "initial",
-    },
-    "& .MuiAutocomplete-clearIndicator": {
-      visibility: "hidden !important",
-      position: "absolute",
     },
   },
 }));
