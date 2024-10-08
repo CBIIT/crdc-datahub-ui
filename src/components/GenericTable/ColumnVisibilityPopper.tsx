@@ -15,6 +15,10 @@ import {
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
+const StyledPopper = styled(Popper)({
+  zIndex: 100,
+});
+
 const StyledResetButton = styled(Button)(({ theme }) => ({
   color: "#083A50",
   fontSize: "16px",
@@ -234,7 +238,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
   });
 
   return (
-    <Popper
+    <StyledPopper
       open={open}
       anchorEl={anchorEl}
       placement="bottom-start"
@@ -309,7 +313,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
           </StyledFooter>
         </StyledPaper>
       </ClickAwayListener>
-    </Popper>
+    </StyledPopper>
   );
 };
 
