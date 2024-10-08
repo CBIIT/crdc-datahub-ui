@@ -260,14 +260,19 @@ const DataSubmissionListFilters = ({
       }
       // If value is cleared, call the onChange immediately
       if (isDebounceField && formValue[name]?.length === 0) {
+        debouncedOnChangeRef.cancel();
         onChange?.(formValue);
+        return;
       }
 
       // Immediately call the onChange if the change is not a debounce field
       onChange?.(formValue);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      debouncedOnChangeRef.cancel();
+      subscription.unsubscribe();
+    };
   }, [watch, debouncedOnChangeRef]);
 
   const isValidOrg = (orgId: string) =>
