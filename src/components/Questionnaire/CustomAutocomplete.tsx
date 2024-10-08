@@ -89,12 +89,12 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: bool
       display: "flex",
       alignItems: "center",
       padding: "12px 30px 12px 12px !important",
-    },
-    "& .MuiOutlinedInput-input:read-only": {
-      backgroundColor: "#E5EEF4",
-      color: "#083A50",
-      cursor: "not-allowed",
-      borderRadius: "8px",
+      ...(readOnly
+        ? {
+            backgroundColor: "#E5EEF4",
+            cursor: "not-allowed",
+          }
+        : {}),
     },
     "& .MuiInputBase-input": {
       fontWeight: 400,
