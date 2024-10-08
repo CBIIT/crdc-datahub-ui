@@ -15,6 +15,10 @@ const StyledExpandMoreIcon = styled(ExpandMoreIcon)({
   alignSelf: "flex-end",
 });
 
+const StyledTableColumnsIcon = styled(TableColumnsIcon)({
+  color: "#346798",
+});
+
 type ColumnVisibilityModel = { [key: string]: boolean };
 
 type Props<C extends { hideable?: boolean }> = {
@@ -66,7 +70,7 @@ const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
       >
         {icon ?? (
           <Stack direction="row">
-            <TableColumnsIcon />
+            <StyledTableColumnsIcon />
             <StyledExpandMoreIcon />
           </Stack>
         )}
