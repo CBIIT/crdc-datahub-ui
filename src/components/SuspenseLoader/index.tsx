@@ -1,5 +1,5 @@
 import { Box, CircularProgress, styled } from "@mui/material";
-import { FC } from "react";
+import { ComponentProps, FC } from "react";
 
 type Props = {
   /**
@@ -8,7 +8,7 @@ type Props = {
    * @default true
    */
   fullscreen?: boolean;
-};
+} & ComponentProps<typeof CircularProgress>;
 
 const StyledBox = styled(Box, {
   shouldForwardProp: (p) => p !== "fullscreen",
@@ -22,9 +22,9 @@ const StyledBox = styled(Box, {
   zIndex: "9999",
 }));
 
-const SuspenseLoader: FC<Props> = ({ fullscreen = true }: Props) => (
+const SuspenseLoader: FC<Props> = ({ fullscreen = true, ...rest }: Props) => (
   <StyledBox display="flex" alignItems="center" justifyContent="center" fullscreen={fullscreen}>
-    <CircularProgress size={64} disableShrink thickness={3} aria-label="Content Loader" />
+    <CircularProgress size={64} disableShrink thickness={3} aria-label="Content Loader" {...rest} />
   </StyledBox>
 );
 
