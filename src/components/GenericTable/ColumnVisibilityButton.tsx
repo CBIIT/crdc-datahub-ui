@@ -3,6 +3,7 @@ import { IconButton, Stack, styled } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ReactComponent as TableColumnsIcon } from "../../assets/icons/table_columns_icon.svg";
 import ColumnVisibilityPopper from "./ColumnVisibilityPopper";
+import Tooltip from "../Tooltip";
 
 const StyledIconButton = styled(IconButton)({
   padding: 0,
@@ -60,21 +61,28 @@ const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
 
   return (
     <>
-      <StyledIconButton
-        onClick={handleOpenPopper}
-        aria-label="Manage columns button"
-        data-testid="column-visibility-button"
-        disableTouchRipple
-        disableRipple
-        disableFocusRipple
+      <Tooltip
+        open={undefined}
+        title="View filterable columns."
+        placement="top"
+        disableHoverListener={false}
       >
-        {icon ?? (
-          <Stack direction="row">
-            <StyledTableColumnsIcon />
-            <StyledExpandMoreIcon />
-          </Stack>
-        )}
-      </StyledIconButton>
+        <StyledIconButton
+          onClick={handleOpenPopper}
+          aria-label="Manage columns button"
+          data-testid="column-visibility-button"
+          disableTouchRipple
+          disableRipple
+          disableFocusRipple
+        >
+          {icon ?? (
+            <Stack direction="row">
+              <StyledTableColumnsIcon />
+              <StyledExpandMoreIcon />
+            </Stack>
+          )}
+        </StyledIconButton>
+      </Tooltip>
       <ColumnVisibilityPopper
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}

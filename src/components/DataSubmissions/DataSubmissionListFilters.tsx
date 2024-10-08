@@ -12,6 +12,7 @@ import { useAuthContext } from "../Contexts/AuthContext";
 import { canViewOtherOrgRoles } from "../../config/AuthRoles";
 import { Column } from "../GenericTable";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
+import Tooltip from "../Tooltip";
 
 const StyledFilters = styled("div")({
   paddingTop: "19px",
@@ -46,7 +47,7 @@ const StyledTextField = styled(StyledTextFieldFormComponent)({
 
 const StyledRefreshIcon = styled(RefreshIcon)({
   transform: "scale(-1, 1)",
-  color: "#327E8F",
+  color: "#346798",
   fontSize: "31px",
 });
 
@@ -522,13 +523,20 @@ const DataSubmissionListFilters = ({
         {/* Action Buttons */}
         <ActionButtonsContainer>
           <StyledActionWrapper>
-            <StyledIconButton
-              onClick={handleResetFilters}
-              data-testid="reset-filters-button"
-              aria-label="Reset filters button"
+            <Tooltip
+              open={undefined}
+              title="Reset filters."
+              placement="top"
+              disableHoverListener={false}
             >
-              <StyledRefreshIcon />
-            </StyledIconButton>
+              <StyledIconButton
+                onClick={handleResetFilters}
+                data-testid="reset-filters-button"
+                aria-label="Reset filters button"
+              >
+                <StyledRefreshIcon />
+              </StyledIconButton>
+            </Tooltip>
           </StyledActionWrapper>
           <StyledActionWrapper>
             <ColumnVisibilityButton
