@@ -287,15 +287,9 @@ const ListingView: FC = () => {
         variables: {
           organization: organization ?? "All",
           status: status ?? "All",
-          ...(dc &&
-            dc !== "All" && {
-              dataCommons: dc,
-            }),
-          ...(submitterName &&
-            submitterName !== "All" && {
-              submitterName,
-            }),
-          ...(name && name !== "All" && { name }),
+          dataCommons: dc ?? "All",
+          submitterName: submitterName ?? "All",
+          ...(name && { name }),
           ...(dbGaPID && { dbGaPID }),
           first,
           offset,
