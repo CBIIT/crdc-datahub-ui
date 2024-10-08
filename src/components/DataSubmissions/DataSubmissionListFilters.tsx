@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { FormControl, IconButton, MenuItem, Grid, Box, styled, Stack } from "@mui/material";
-import { debounce } from "lodash";
+import { debounce, isEqual } from "lodash";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Controller, useForm } from "react-hook-form";
 import StyledSelectFormComponent from "../StyledFormComponents/StyledSelect";
@@ -149,7 +149,6 @@ const DataSubmissionListFilters = ({
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
   const canViewOtherOrgs = canViewOtherOrgRoles.includes(user?.role);
-  const serializedSearchParams = searchParams?.toString();
   const debounceAfter3CharsInputs: FilterFormKey[] = ["name", "dbGaPID"];
   const debouncedOnChangeRef = useRef(
     debounce((form: FilterForm) => onChange?.(form), 500)
@@ -162,7 +161,7 @@ const DataSubmissionListFilters = ({
 
     const organizationId = searchParams.get("organization");
     const status = searchParams.get("status");
-    const dataCommon = searchParams.get("dataCommon");
+    const dataCommon = searchParams.get("dataCommons");
     const name = searchParams.get("name");
     const dbGaPID = searchParams.get("dbGaPID");
     const submitterName = searchParams.get("submitterName");
@@ -170,23 +169,29 @@ const DataSubmissionListFilters = ({
     handleStatusChange(status);
     handleOrganizationChange(organizationId);
 
-    if (dataCommon !== dataCommonsFilter && isDataCommonsFilterOption(dataCommon)) {
+    if (dataCommon && dataCommon !== dataCommonsFilter) {
       setValue("dataCommons", dataCommon);
     }
-    if (submitterName !== submitterNameFilter && isSubmitterNameFilterOption(submitterName)) {
+    if (submitterName && submitterName !== submitterNameFilter) {
       setValue("submitterName", submitterName);
     }
-    if (name !== nameFilter) {
+    if (name && name !== nameFilter) {
       setValue("name", name);
     }
-    if (dbGaPID !== dbGaPIDFilter) {
+    if (dbGaPID && dbGaPID !== dbGaPIDFilter) {
       setValue("dbGaPID", dbGaPID);
     }
 
     if (Object.values(touchedFilters).every((filter) => !filter)) {
       onChange?.(getValues());
     }
-  }, [activeOrganizations, canViewOtherOrgs, serializedSearchParams]);
+  }, [
+    activeOrganizations,
+    submitterNames,
+    dataCommons,
+    canViewOtherOrgs,
+    searchParams?.toString(),
+  ]);
 
   useEffect(() => {
     if (Object.values(touchedFilters).every((filter) => !filter)) {
@@ -271,12 +276,6 @@ const DataSubmissionListFilters = ({
   const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
     ["All", ...statusValues].includes(status);
 
-  const isDataCommonsFilterOption = (dataCommon: string): boolean =>
-    ["All", ...dataCommons].includes(dataCommon);
-
-  const isSubmitterNameFilterOption = (submitterName: string): boolean =>
-    ["All", ...submitterNames].includes(submitterName);
-
   const handleOrganizationChange = (organizationId: string) => {
     if (organizationId === orgFilter) {
       return;
@@ -304,17 +303,19 @@ const DataSubmissionListFilters = ({
   };
 
   const handleResetFilters = () => {
-    reset();
+    const newSearchParams = new URLSearchParams(searchParams);
     searchParams.delete("organization");
     searchParams.delete("status");
     searchParams.delete("dataCommons");
     searchParams.delete("name");
     searchParams.delete("dbGaPID");
     searchParams.delete("submitterName");
+    setSearchParams(newSearchParams);
+    reset();
   };
 
   return (
-    <StyledFilters>
+    <StyledFilters data-testid="data-submission-list-filters">
       <Stack direction="row" alignItems="center" gap="12px">
         <Grid container spacing={2} rowSpacing="9px">
           <Grid item xs={4}>
@@ -328,16 +329,26 @@ const DataSubmissionListFilters = ({
                     {...field}
                     value={field.value}
                     MenuProps={{ disablePortal: true }}
-                    inputProps={{ id: "organization-filter" }}
-                    readOnly={!canViewOtherOrgRoles.includes(user?.role)}
+                    inputProps={{
+                      id: "organization-filter",
+                      "data-testid": "organization-select-input",
+                    }}
+                    data-testid="organization-select"
+                    disabled={!canViewOtherOrgs}
                     onChange={(e) => {
                       field.onChange(e);
                       handleFilterChange("organization");
                     }}
                   >
-                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="All" data-testid="organization-option-All">
+                      All
+                    </MenuItem>
                     {activeOrganizations?.map((org) => (
-                      <MenuItem key={org._id} value={org._id}>
+                      <MenuItem
+                        key={org._id}
+                        value={org._id}
+                        data-testid={`organization-option-${org._id}`}
+                      >
                         {org.name}
                       </MenuItem>
                     ))}
@@ -358,15 +369,22 @@ const DataSubmissionListFilters = ({
                     {...field}
                     value={field.value}
                     MenuProps={{ disablePortal: true }}
-                    inputProps={{ id: "status-filter" }}
+                    inputProps={{ id: "status-filter", "data-testid": "status-select-input" }}
+                    data-testid="status-select"
                     onChange={(e) => {
                       field.onChange(e);
                       handleFilterChange("status");
                     }}
                   >
-                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="All" data-testid="status-option-All">
+                      All
+                    </MenuItem>
                     {statusValues.map((value) => (
-                      <MenuItem key={`submission_status_${value}`} value={value}>
+                      <MenuItem
+                        key={`submission_status_${value}`}
+                        value={value}
+                        data-testid={`status-option-${value}`}
+                      >
                         {value}
                       </MenuItem>
                     ))}
@@ -389,17 +407,23 @@ const DataSubmissionListFilters = ({
                 render={({ field }) => (
                   <StyledSelect
                     {...field}
-                    value={field.value}
+                    value={dataCommons?.length ? field.value : "All"}
                     MenuProps={{ disablePortal: true }}
-                    inputProps={{ id: "data-commons-filter" }}
+                    inputProps={{
+                      id: "data-commons-filter",
+                      "data-testid": "data-commons-select-input",
+                    }}
+                    data-testid="data-commons-select"
                     onChange={(e) => {
                       field.onChange(e);
                       handleFilterChange("dataCommons");
                     }}
                   >
-                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="All" data-testid="data-commons-option-All">
+                      All
+                    </MenuItem>
                     {dataCommons?.map((dc) => (
-                      <MenuItem key={dc} value={dc}>
+                      <MenuItem key={dc} value={dc} data-testid={`data-commons-option-${dc}`}>
                         {dc}
                       </MenuItem>
                     ))}
@@ -411,7 +435,7 @@ const DataSubmissionListFilters = ({
 
           <Grid item xs={4}>
             <StyledFormControl>
-              <StyledInlineLabel htmlFor="submission-name-filter">
+              <StyledInlineLabel id="submission-name-filter">
                 Submission
                 <br />
                 Name
@@ -423,7 +447,10 @@ const DataSubmissionListFilters = ({
                 })}
                 size="small"
                 placeholder="Enter Name"
-                inputProps={{ "aria-labelledby": "submission-name-filter" }}
+                inputProps={{
+                  "aria-labelledby": "submission-name-filter",
+                  "data-testid": "submission-name-input",
+                }}
                 required
               />
             </StyledFormControl>
@@ -431,14 +458,17 @@ const DataSubmissionListFilters = ({
 
           <Grid item xs={4}>
             <StyledFormControl>
-              <StyledInlineLabel htmlFor="dbGaPID-filter">dbGaP ID</StyledInlineLabel>
+              <StyledInlineLabel id="dbGaPID-filter">dbGaP ID</StyledInlineLabel>
               <StyledTextField
                 {...register("dbGaPID", {
                   setValueAs: (val) => val?.trim(),
                   onChange: () => handleFilterChange("dbGaPID"),
                 })}
                 size="small"
-                inputProps={{ "aria-labelledby": "dbGaPID-filter" }}
+                inputProps={{
+                  "aria-labelledby": "dbGaPID-filter",
+                  "data-testid": "dbGaPID-input",
+                }}
                 required
               />
             </StyledFormControl>
@@ -453,17 +483,27 @@ const DataSubmissionListFilters = ({
                 render={({ field }) => (
                   <StyledSelect
                     {...field}
-                    value={field.value}
+                    value={submitterNames?.length ? field.value : "All"}
                     MenuProps={{ disablePortal: true }}
-                    inputProps={{ id: "submitter-name-filter" }}
+                    inputProps={{
+                      id: "submitter-name-filter",
+                      "data-testid": "submitter-name-select-input",
+                    }}
+                    data-testid="submitter-name-select"
                     onChange={(e) => {
                       field.onChange(e);
                       handleFilterChange("submitterName");
                     }}
                   >
-                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="All" data-testid="submitter-name-option-All">
+                      All
+                    </MenuItem>
                     {submitterNames?.map((submitter) => (
-                      <MenuItem key={`submitter_${submitter}`} value={submitter}>
+                      <MenuItem
+                        key={`submitter_${submitter}`}
+                        value={submitter}
+                        data-testid={`submitter-name-option-${submitter}`}
+                      >
                         {submitter}
                       </MenuItem>
                     ))}
@@ -477,7 +517,11 @@ const DataSubmissionListFilters = ({
         {/* Action Buttons */}
         <ActionButtonsContainer>
           <StyledActionWrapper>
-            <StyledIconButton onClick={handleResetFilters}>
+            <StyledIconButton
+              onClick={handleResetFilters}
+              data-testid="reset-filters-button"
+              aria-label="Reset filters button"
+            >
               <StyledRefreshIcon />
             </StyledIconButton>
           </StyledActionWrapper>
@@ -488,6 +532,7 @@ const DataSubmissionListFilters = ({
               getColumnLabel={(column) => column.label?.toString()}
               columnVisibilityModel={columnVisibilityModel}
               onColumnVisibilityModelChange={onColumnVisibilityModelChange}
+              data-testid="column-visibility-button"
             />
           </StyledActionWrapper>
         </ActionButtonsContainer>
@@ -496,4 +541,4 @@ const DataSubmissionListFilters = ({
   );
 };
 
-export default DataSubmissionListFilters;
+export default memo(DataSubmissionListFilters, isEqual);

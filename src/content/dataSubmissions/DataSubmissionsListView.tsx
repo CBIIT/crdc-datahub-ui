@@ -1,6 +1,7 @@
 import React, { FC, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Alert, Container, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
+import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import { useLazyQuery } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
@@ -273,16 +274,22 @@ const ListingView: FC = () => {
         return;
       }
 
-      const { organization, status, submitterName, name, dbGaPID, dataCommons } =
-        filtersRef.current;
+      const {
+        organization,
+        status,
+        submitterName,
+        name,
+        dbGaPID,
+        dataCommons: dc,
+      } = filtersRef.current;
 
       const { data: d, error } = await listSubmissions({
         variables: {
           organization: organization ?? "All",
           status: status ?? "All",
-          ...(dataCommons &&
-            dataCommons !== "All" && {
-              dataCommons,
+          ...(dc &&
+            dc !== "All" && {
+              dataCommons: dc,
             }),
           ...(submitterName &&
             submitterName !== "All" && {
@@ -343,6 +350,10 @@ const ListingView: FC = () => {
   };
 
   const handleOnFiltersChange = (data: FilterForm) => {
+    if (isEqual(data, filtersRef.current)) {
+      return;
+    }
+
     filtersRef.current = data;
     setTablePage(0);
   };
