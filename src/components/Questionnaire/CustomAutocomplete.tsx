@@ -4,7 +4,6 @@ import {
   AutocompleteProps,
   AutocompleteValue,
   FormControl,
-  FormHelperText,
   Grid,
   TextField,
   styled,
@@ -13,8 +12,11 @@ import { ReactNode, SyntheticEvent, useEffect, useId, useRef, useState } from "r
 import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
 import Tooltip from "../Tooltip";
 import { updateInputValidity } from "../../utils";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
+import StyledHelperText from "../StyledFormComponents/StyledHelperText";
+import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 
-const StyledFormControl = styled(FormControl)(() => ({
+const StyledFormControl = styled(FormControl)({
   height: "100%",
   justifyContent: "end",
   "& .MuiFormHelperText-root.Mui-error": {
@@ -79,21 +81,7 @@ const StyledFormControl = styled(FormControl)(() => ({
       color: "#FFFFFF",
     },
   },
-}));
-
-const StyledFormLabel = styled("label")(() => ({
-  fontWeight: 700,
-  fontSize: "16px",
-  lineHeight: "19.6px",
-  minHeight: "20px",
-  color: "#083A50",
-  marginBottom: "4px",
-}));
-
-const StyledAsterisk = styled("span")(() => ({
-  color: "#C93F08",
-  marginLeft: "2px",
-}));
+});
 
 const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: boolean }) => ({
   "& .MuiInputBase-root": {
@@ -125,12 +113,6 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: bool
 
 const ProxySelect = styled("select")({
   display: "none",
-});
-
-const StyledFormHelperText = styled(FormHelperText)({
-  marginLeft: 0,
-  marginTop: "4px",
-  minHeight: "20px",
 });
 
 export type CustomProps = {
@@ -265,11 +247,11 @@ const CustomAutocomplete = ({
   return (
     <Grid md={gridWidth || 6} xs={12} item>
       <StyledFormControl fullWidth error={error}>
-        <StyledFormLabel htmlFor={id} id={`${id}-label`}>
+        <StyledLabel htmlFor={id} id={`${id}-label`}>
           {label}
-          {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
+          {required ? <StyledAsterisk /> : ""}
           {tooltipText && <Tooltip placement="right" title={tooltipText} />}
-        </StyledFormLabel>
+        </StyledLabel>
         <StyledAutocomplete
           value={val}
           onChange={onChangeWrapper}
@@ -308,7 +290,7 @@ const CustomAutocomplete = ({
           )}
           {...rest}
         />
-        <StyledFormHelperText>{!readOnly && error ? helperText : " "}</StyledFormHelperText>
+        <StyledHelperText>{!readOnly && error ? helperText : " "}</StyledHelperText>
       </StyledFormControl>
       <ProxySelect name={name} aria-labelledby={`${id}-label`} multiple hidden>
         {val.map((v) => (
