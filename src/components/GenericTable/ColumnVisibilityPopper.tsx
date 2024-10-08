@@ -10,17 +10,19 @@ import {
   ClickAwayListener,
   Typography,
   IconButton,
+  Button,
 } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
-const StyledRefreshIcon = styled(RefreshIcon)({
-  transform: "scale(-1, 1)",
-  color: "#327E8F",
-});
-
-const StyledIconButton = styled(IconButton)(({ theme }) => ({
+const StyledResetButton = styled(Button)(({ theme }) => ({
+  color: "#083A50",
+  fontSize: "16px",
+  fontFamily: "'Nunito', 'Rubik', sans-serif",
+  fontStyle: "normal",
+  fontWeight: 700,
+  lineHeight: "19.6px",
+  padding: 0,
   "&.Mui-disabled": {
     opacity: theme.palette.action.disabledOpacity,
   },
@@ -113,7 +115,7 @@ const StyledFooter = styled(Stack)({
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "4px 8px 4px 13px",
+  padding: "16px 8px 20px 13px",
   borderTop: "1px solid #375F9A",
   marginLeft: "12px",
   marginRight: "12px",
@@ -249,7 +251,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
           </StyledCloseDialogButton>
 
           <StyledColumnList data-testid="column-list">
-            <StyledTitle>Column Filter Types</StyledTitle>
+            <StyledTitle>Displayed Columns</StyledTitle>
 
             {sortedColumns?.map((column) => {
               const key = getColumnKey(column);
@@ -294,15 +296,16 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
                   }
                 />
               }
-              label="Show/Hide All"
+              label="Show All"
             />
-            <StyledIconButton
+            <StyledResetButton
+              variant="text"
               onClick={handleReset}
               disabled={!anyHidden}
               data-testid="reset-button"
             >
-              <StyledRefreshIcon />
-            </StyledIconButton>
+              RESET
+            </StyledResetButton>
           </StyledFooter>
         </StyledPaper>
       </ClickAwayListener>
