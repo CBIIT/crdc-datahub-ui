@@ -457,7 +457,7 @@ const DataSubmissionListFilters = ({
                   onChange: () => handleFilterChange("name"),
                 })}
                 size="small"
-                placeholder="Enter Name"
+                placeholder="Minimum 3 characters required"
                 inputProps={{
                   "aria-labelledby": "submission-name-filter",
                   "data-testid": "submission-name-input",
@@ -476,6 +476,7 @@ const DataSubmissionListFilters = ({
                   onChange: () => handleFilterChange("dbGaPID"),
                 })}
                 size="small"
+                placeholder="Minimum 3 characters required"
                 inputProps={{
                   "aria-labelledby": "dbGaPID-filter",
                   "data-testid": "dbGaPID-input",
