@@ -311,7 +311,6 @@ describe("DataSubmissionListFilters Component", () => {
 
     userEvent.click(within(dataCommonsSelectList).getByTestId("data-commons-option-DataCommon1"));
 
-    // Change some filters
     userEvent.type(getByTestId("submission-name-input"), "Test Submission");
     userEvent.type(getByTestId("dbGaPID-input"), "12345");
 
@@ -792,12 +791,10 @@ describe("DataSubmissionListFilters Component", () => {
       </TestParent>
     );
 
-    // Initially, the select should have the default value "All"
     await waitFor(() => {
       expect(getByTestId("data-commons-select-input")).toHaveValue("All");
     });
 
-    // Change the dataCommons select to "DataCommon1"
     const dataCommonsSelect = within(getByTestId("data-commons-select")).getByRole("button");
     userEvent.click(dataCommonsSelect);
 
@@ -842,7 +839,6 @@ describe("DataSubmissionListFilters Component", () => {
       expect(getByTestId("submitter-name-select-input")).toHaveValue("All");
     });
 
-    // Attempt to open the select and verify options
     const submitterNameSelect = within(getByTestId("submitter-name-select")).getByRole("button");
     userEvent.click(submitterNameSelect);
 
@@ -876,12 +872,10 @@ describe("DataSubmissionListFilters Component", () => {
       </TestParent>
     );
 
-    // Initially, the select should have the default value "All"
     await waitFor(() => {
       expect(getByTestId("submitter-name-select-input")).toHaveValue("All");
     });
 
-    // Change the submitterNames select to "Submitter1"
     const submitterNameSelect = within(getByTestId("submitter-name-select")).getByRole("button");
     userEvent.click(submitterNameSelect);
 
