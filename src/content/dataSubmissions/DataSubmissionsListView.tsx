@@ -391,7 +391,7 @@ const ListingView: FC = () => {
             loading={
               loading || orgStatus === OrgStatus.LOADING || authStatus === AuthStatus.LOADING
             }
-            defaultRowsPerPage={10}
+            defaultRowsPerPage={20}
             defaultOrder="desc"
             disableUrlParams={false}
             position="bottom"
