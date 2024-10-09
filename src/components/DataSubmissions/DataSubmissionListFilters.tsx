@@ -95,6 +95,15 @@ const statusValues: SubmissionStatus[] = [
   "Deleted",
 ];
 
+const defaultValues: FilterForm = {
+  organization: "All",
+  status: "All",
+  dataCommons: "All",
+  name: "",
+  dbGaPID: "",
+  submitterName: "All",
+};
+
 type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
 
 export type FilterForm = Pick<
@@ -129,14 +138,7 @@ const DataSubmissionListFilters = ({
   const { activeOrganizations } = useOrganizationListContext();
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const { control, register, watch, reset, setValue, getValues } = useForm<FilterForm>({
-    defaultValues: {
-      organization: "All",
-      status: "All",
-      dataCommons: "All",
-      name: "",
-      dbGaPID: "",
-      submitterName: "All",
-    },
+    defaultValues,
   });
   const [
     statusFilter,
@@ -317,7 +319,10 @@ const DataSubmissionListFilters = ({
     searchParams.delete("dbGaPID");
     searchParams.delete("submitterName");
     setSearchParams(newSearchParams);
-    reset();
+    reset({
+      ...defaultValues,
+      organization: canViewOtherOrgs ? "All" : user?.organization?.orgID,
+    });
   };
 
   return (
@@ -340,7 +345,7 @@ const DataSubmissionListFilters = ({
                       "data-testid": "organization-select-input",
                     }}
                     data-testid="organization-select"
-                    disabled={!canViewOtherOrgs}
+                    readOnly={!canViewOtherOrgs}
                     onChange={(e) => {
                       field.onChange(e);
                       handleFilterChange("organization");

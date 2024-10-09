@@ -242,7 +242,7 @@ describe("DataSubmissionListFilters Component", () => {
     const organizationSelectInput = getByTestId("organization-select");
 
     const button = within(organizationSelectInput).getByRole("button");
-    expect(button).toHaveAttribute("aria-disabled", "true");
+    expect(button).toHaveClass("Mui-readOnly");
   });
 
   it("resets all filters and clears URL searchParams when reset button is clicked", async () => {
