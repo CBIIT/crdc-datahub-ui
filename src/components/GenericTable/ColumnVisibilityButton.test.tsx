@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import ColumnVisibilityButton from "./ColumnVisibilityButton";
@@ -174,12 +174,7 @@ describe("ColumnVisibilityButton", () => {
         />
       );
 
-      await waitFor(() => {
-        expect(getByTestId("column-visibility-button")).toBeInTheDocument();
-      });
-
-      const button = getByTestId("column-visibility-button");
-      userEvent.click(button);
+      userEvent.click(getByTestId("column-visibility-button"));
 
       expect(await axe(container)).toHaveNoViolations();
     });
