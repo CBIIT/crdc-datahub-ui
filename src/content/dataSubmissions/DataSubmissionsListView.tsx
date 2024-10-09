@@ -348,7 +348,7 @@ const ListingView: FC = () => {
       return;
     }
 
-    filtersRef.current = data;
+    filtersRef.current = { ...data };
     setTablePage(0);
   };
 

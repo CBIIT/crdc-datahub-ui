@@ -158,6 +158,21 @@ const DataSubmissionListFilters = ({
   ).current;
 
   useEffect(() => {
+    // Reset submitterName filter if it is no longer a valid option
+    // due to other filters changing
+    if (
+      submitterNameFilter !== "All" &&
+      Object.values(touchedFilters).some((filter) => filter) &&
+      !submitterNames?.includes(submitterNameFilter)
+    ) {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("submitterName");
+      setSearchParams(newSearchParams);
+      setValue("submitterName", "All");
+    }
+  }, [submitterNames, submitterNameFilter, touchedFilters]);
+
+  useEffect(() => {
     if (!activeOrganizations?.length) {
       return;
     }
@@ -495,7 +510,7 @@ const DataSubmissionListFilters = ({
                 render={({ field }) => (
                   <StyledSelect
                     {...field}
-                    value={submitterNames?.length ? field.value : "All"}
+                    value={submitterNames?.includes(field.value) ? field.value : "All"}
                     MenuProps={{ disablePortal: true }}
                     inputProps={{
                       id: "submitter-name-filter",
