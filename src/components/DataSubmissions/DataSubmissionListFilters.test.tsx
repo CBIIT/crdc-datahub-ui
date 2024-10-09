@@ -345,6 +345,7 @@ describe("DataSubmissionListFilters Component", () => {
           name: "Test Submission",
           dbGaPID: "12345",
           submitterName: "Submitter1",
+          dataCommons: "DataCommon1",
         })
       );
     });
@@ -395,6 +396,8 @@ describe("DataSubmissionListFilters Component", () => {
         })
       );
     });
+
+    userEvent.clear(getByTestId("submission-name-input"));
   });
 
   it("does not call additional onChange before entering 3 characters in 'name' input", async () => {
@@ -429,6 +432,7 @@ describe("DataSubmissionListFilters Component", () => {
 
     // Only initial call was made
     expect(mockOnChange).toHaveBeenCalledTimes(1);
+    userEvent.clear(getByTestId("submission-name-input"));
   });
 
   it("debounces onChange after entering 3 characters in 'dbGaPID' input", async () => {
@@ -456,6 +460,8 @@ describe("DataSubmissionListFilters Component", () => {
         })
       );
     });
+
+    userEvent.clear(getByTestId("dbGaPID-input"));
   });
 
   it("does not call onChange before entering 3 characters in 'dbGaPID' input", async () => {
@@ -490,6 +496,7 @@ describe("DataSubmissionListFilters Component", () => {
 
     // Only initial call was made
     expect(mockOnChange).toHaveBeenCalledTimes(1);
+    userEvent.clear(getByTestId("dbGaPID-input"));
   });
 
   it("calls onChange immediately when clearing 'name' input", async () => {
@@ -601,5 +608,300 @@ describe("DataSubmissionListFilters Component", () => {
         })
       );
     });
+
+    userEvent.clear(getByTestId("submission-name-input"));
+    userEvent.clear(getByTestId("dbGaPID-input"));
+  });
+
+  it("initializes form fields based on searchParams", async () => {
+    const initialEntries = [
+      "/?organization=Org1&status=Submitted&dataCommons=DataCommon1&name=Test&dbGaPID=123&submitterName=Submitter1",
+    ];
+
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId } = render(
+      <TestParent initialEntries={initialEntries} userRole="Admin">
+        <DataSubmissionListFilters
+          columns={columns}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("Org1");
+      expect(getByTestId("status-select-input")).toHaveValue("Submitted");
+      expect(getByTestId("data-commons-select-input")).toHaveValue("DataCommon1");
+      expect(getByTestId("submission-name-input")).toHaveValue("Test");
+      expect(getByTestId("dbGaPID-input")).toHaveValue("123");
+      expect(getByTestId("submitter-name-select-input")).toHaveValue("Submitter1");
+    });
+
+    expect(mockOnChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organization: "Org1",
+        status: "Submitted",
+        dataCommons: "DataCommon1",
+        name: "Test",
+        dbGaPID: "123",
+        submitterName: "Submitter1",
+      })
+    );
+
+    userEvent.clear(getByTestId("dbGaPID-input"));
+    userEvent.clear(getByTestId("submission-name-input"));
+  });
+
+  it("initializes form fields to default when searchParams are empty", async () => {
+    const initialEntries = ["/"];
+
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId } = render(
+      <TestParent initialEntries={initialEntries} userRole="Admin">
+        <DataSubmissionListFilters
+          columns={columns}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("All");
+      expect(getByTestId("status-select-input")).toHaveValue("All");
+      expect(getByTestId("data-commons-select-input")).toHaveValue("All");
+      expect(getByTestId("submission-name-input")).toHaveValue("");
+      expect(getByTestId("dbGaPID-input")).toHaveValue("");
+      expect(getByTestId("submitter-name-select-input")).toHaveValue("All");
+    });
+
+    expect(mockOnChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organization: "All",
+        status: "All",
+        dataCommons: "All",
+        name: "",
+        dbGaPID: "",
+        submitterName: "All",
+      })
+    );
+  });
+
+  it("calls onChange with getValues when all filters are not touched on initial render", async () => {
+    const initialEntries = ["/"];
+
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    render(
+      <TestParent initialEntries={initialEntries} userRole="Admin">
+        <DataSubmissionListFilters
+          columns={columns}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(mockOnChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          organization: "All",
+          status: "All",
+          dataCommons: "All",
+          name: "",
+          dbGaPID: "",
+          submitterName: "All",
+        })
+      );
+    });
+  });
+
+  it("sets dataCommons select to 'All' when dataCommons prop is empty", async () => {
+    const initialEntries = ["/"];
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId, findByRole } = render(
+      <TestParent initialEntries={initialEntries} userRole="Admin">
+        <DataSubmissionListFilters
+          columns={columns}
+          submitterNames={submitterNames}
+          dataCommons={[]} // Empty dataCommons
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    userEvent.clear(getByTestId("dbGaPID-input"));
+    userEvent.clear(getByTestId("submission-name-input"));
+
+    await waitFor(() => {
+      expect(getByTestId("data-commons-select-input")).toHaveValue("All");
+      expect(getByTestId("data-commons-select")).toBeInTheDocument();
+      expect(within(getByTestId("data-commons-select")).getByRole("button")).toBeInTheDocument();
+    });
+
+    const button = within(getByTestId("data-commons-select")).getByRole("button");
+    userEvent.click(button);
+
+    const dataCommonsList = await findByRole("listbox", { hidden: true });
+    await waitFor(async () => {
+      expect(within(dataCommonsList).getByTestId("data-commons-option-All")).toBeInTheDocument();
+      expect(
+        within(dataCommonsList).queryByTestId("data-commons-option-DataCommon1")
+      ).not.toBeInTheDocument();
+      expect(
+        within(dataCommonsList).queryByTestId("data-commons-option-DataCommon2")
+      ).not.toBeInTheDocument();
+    });
+
+    userEvent.click(button);
+  });
+
+  it("sets dataCommons select to field.value when dataCommons prop is non-empty", async () => {
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId, getByRole } = render(
+      <TestParent>
+        <DataSubmissionListFilters
+          columns={columns}
+          submitterNames={submitterNames}
+          dataCommons={["DataCommon1", "DataCommon2"]} // Non-empty dataCommons
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    // Initially, the select should have the default value "All"
+    await waitFor(() => {
+      expect(getByTestId("data-commons-select-input")).toHaveValue("All");
+    });
+
+    // Change the dataCommons select to "DataCommon1"
+    const dataCommonsSelect = within(getByTestId("data-commons-select")).getByRole("button");
+    userEvent.click(dataCommonsSelect);
+
+    const dataCommonsList = within(getByRole("listbox", { hidden: true }));
+
+    await waitFor(() => {
+      expect(dataCommonsList.getByTestId("data-commons-option-DataCommon1")).toBeInTheDocument();
+      expect(dataCommonsList.getByTestId("data-commons-option-DataCommon2")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("data-commons-option-DataCommon1"));
+
+    await waitFor(() => {
+      expect(getByTestId("data-commons-select-input")).toHaveValue("DataCommon1");
+    });
+
+    expect(mockOnChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dataCommons: "DataCommon1",
+      })
+    );
+  });
+
+  it("sets submitterNames select to 'All' when submitterNames prop is empty", async () => {
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId, getByRole } = render(
+      <TestParent>
+        <DataSubmissionListFilters
+          columns={columns}
+          submitterNames={[]} // Empty submitterNames
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("submitter-name-select-input")).toHaveValue("All");
+    });
+
+    // Attempt to open the select and verify options
+    const submitterNameSelect = within(getByTestId("submitter-name-select")).getByRole("button");
+    userEvent.click(submitterNameSelect);
+
+    const submitterNameList = within(getByRole("listbox", { hidden: true }));
+
+    await waitFor(() => {
+      expect(submitterNameList.getByTestId("submitter-name-option-All")).toBeInTheDocument();
+      expect(
+        submitterNameList.queryByTestId("submitter-name-option-Submitter1")
+      ).not.toBeInTheDocument();
+      expect(
+        submitterNameList.queryByTestId("submitter-name-option-Submitter2")
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it("sets submitterNames select to field.value when submitterNames prop is non-empty", async () => {
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId, getByRole } = render(
+      <TestParent>
+        <DataSubmissionListFilters
+          columns={columns}
+          submitterNames={["Submitter1", "Submitter2"]} // Non-empty submitterNames
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    // Initially, the select should have the default value "All"
+    await waitFor(() => {
+      expect(getByTestId("submitter-name-select-input")).toHaveValue("All");
+    });
+
+    // Change the submitterNames select to "Submitter1"
+    const submitterNameSelect = within(getByTestId("submitter-name-select")).getByRole("button");
+    userEvent.click(submitterNameSelect);
+
+    const submitterNameList = within(getByRole("listbox", { hidden: true }));
+
+    await waitFor(() => {
+      expect(submitterNameList.getByTestId("submitter-name-option-Submitter1")).toBeInTheDocument();
+      expect(submitterNameList.getByTestId("submitter-name-option-Submitter2")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("submitter-name-option-Submitter1"));
+
+    await waitFor(() => {
+      expect(getByTestId("submitter-name-select-input")).toHaveValue("Submitter1");
+    });
+
+    expect(mockOnChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        submitterName: "Submitter1",
+      })
+    );
   });
 });
