@@ -319,10 +319,12 @@ const ListingView: FC = () => {
     if (isStatusFilterOption(status) && status !== statusFilter) {
       setValue("status", status);
     }
+
+    setTablePage(0);
   }, [
     data,
     searchParams.get("organization"),
-    searchParams.get("role"),
+    searchParams.get("study"),
     searchParams.get("status"),
   ]);
 
@@ -349,7 +351,6 @@ const ListingView: FC = () => {
       newSearchParams.delete("status");
     }
 
-    setTablePage(0);
     if (newSearchParams?.toString() !== searchParams?.toString()) {
       setSearchParams(newSearchParams);
     }

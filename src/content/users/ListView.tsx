@@ -283,7 +283,7 @@ const ListingView: FC = () => {
   };
 
   useEffect(() => {
-    if (user.role !== "Organization Owner") {
+    if (user?.role !== "Organization Owner") {
       return;
     }
 
@@ -315,6 +315,8 @@ const ListingView: FC = () => {
     if (isStatusFilterOption(status) && status !== statusFilter) {
       setValue("status", status);
     }
+
+    setTablePage(0);
   }, [
     activeOrganizations,
     searchParams.get("organization"),
@@ -345,7 +347,6 @@ const ListingView: FC = () => {
       newSearchParams.delete("status");
     }
 
-    setTablePage(0);
     if (newSearchParams?.toString() !== searchParams?.toString()) {
       setSearchParams(newSearchParams);
     }
