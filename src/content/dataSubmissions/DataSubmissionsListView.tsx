@@ -304,8 +304,8 @@ const ListingView: FC = () => {
       }
 
       setData(d.listSubmissions.submissions);
-      setSubmitterNames(d.listSubmissions.submitterNames);
-      setDataCommons(d.listSubmissions.dataCommons);
+      setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
+      setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
     } catch (err) {
       setError(true);
