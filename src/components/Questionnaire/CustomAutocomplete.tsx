@@ -272,7 +272,7 @@ const CustomAutocomplete = ({
               inputRef={inputRef}
               placeholder={val?.length > 0 ? undefined : placeholder}
               id={id}
-              onFocus={() => setHasFocus(true)}
+              onFocus={() => !readOnly && setHasFocus(true)}
               onBlur={handleInputBlur}
               onKeyDown={(event) => {
                 // Prevent backspace from clearing input tags
