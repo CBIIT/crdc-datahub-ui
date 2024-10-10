@@ -3,6 +3,18 @@ import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import ColumnVisibilityButton from "./ColumnVisibilityButton";
 
+const columns: Column[] = [
+  { field: "name", label: "Name", hideable: false },
+  { field: "age", label: "Age" },
+  { field: "email", label: "Email" },
+];
+
+const getColumnKey = (column: Column) => column.fieldKey ?? column.field;
+const getColumnLabel = (column: Column) => column.label;
+
+let columnVisibilityModel: { [key: string]: boolean };
+let setColumnVisibilityModel: jest.Mock;
+
 type Column = {
   field: string;
   fieldKey?: string;
@@ -10,19 +22,50 @@ type Column = {
   hideable?: boolean;
 };
 
+describe("Accessibility", () => {
+  beforeEach(() => {
+    columnVisibilityModel = {
+      name: true,
+      age: true,
+      email: true,
+    };
+    setColumnVisibilityModel = jest.fn((model) => {
+      columnVisibilityModel = model;
+    });
+  });
+
+  it("should not have accessibility violations when closed", async () => {
+    const { container } = render(
+      <ColumnVisibilityButton
+        columns={columns}
+        columnVisibilityModel={columnVisibilityModel}
+        getColumnKey={getColumnKey}
+        getColumnLabel={getColumnLabel}
+        onColumnVisibilityModelChange={setColumnVisibilityModel}
+      />
+    );
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("should not have accessibility violations when open", async () => {
+    const { container, getByTestId } = render(
+      <ColumnVisibilityButton
+        columns={columns}
+        columnVisibilityModel={columnVisibilityModel}
+        getColumnKey={getColumnKey}
+        getColumnLabel={getColumnLabel}
+        onColumnVisibilityModelChange={setColumnVisibilityModel}
+      />
+    );
+
+    userEvent.click(getByTestId("column-visibility-button"));
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
+
 describe("ColumnVisibilityButton", () => {
-  const columns: Column[] = [
-    { field: "name", label: "Name", hideable: false },
-    { field: "age", label: "Age" },
-    { field: "email", label: "Email" },
-  ];
-
-  const getColumnKey = (column: Column) => column.fieldKey ?? column.field;
-  const getColumnLabel = (column: Column) => column.label;
-
-  let columnVisibilityModel: { [key: string]: boolean };
-  let setColumnVisibilityModel: jest.Mock;
-
   beforeEach(() => {
     columnVisibilityModel = {
       name: true,
@@ -145,38 +188,6 @@ describe("ColumnVisibilityButton", () => {
       name: true,
       age: false,
       email: true,
-    });
-  });
-
-  describe("Accessibility", () => {
-    it("should not have accessibility violations when closed", async () => {
-      const { container } = render(
-        <ColumnVisibilityButton
-          columns={columns}
-          columnVisibilityModel={columnVisibilityModel}
-          getColumnKey={getColumnKey}
-          getColumnLabel={getColumnLabel}
-          onColumnVisibilityModelChange={setColumnVisibilityModel}
-        />
-      );
-
-      expect(await axe(container)).toHaveNoViolations();
-    });
-
-    it("should not have accessibility violations when open", async () => {
-      const { container, getByTestId } = render(
-        <ColumnVisibilityButton
-          columns={columns}
-          columnVisibilityModel={columnVisibilityModel}
-          getColumnKey={getColumnKey}
-          getColumnLabel={getColumnLabel}
-          onColumnVisibilityModelChange={setColumnVisibilityModel}
-        />
-      );
-
-      userEvent.click(getByTestId("column-visibility-button"));
-
-      expect(await axe(container)).toHaveNoViolations();
     });
   });
 });
