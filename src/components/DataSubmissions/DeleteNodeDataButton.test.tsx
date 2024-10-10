@@ -330,9 +330,35 @@ describe("Implementation Requirements", () => {
     userEvent.hover(getByTestId("delete-node-data-button"));
 
     const tooltip = await findByRole("tooltip");
-    expect(tooltip).toBeInTheDocument();
-    expect(tooltip).toHaveTextContent("Delete all selected nodes from this data submission");
+    expect(tooltip).toBeInTheDocument(); // NOTE: We don't care about the tooltip content here, see below
+
+    userEvent.unhover(getByTestId("delete-node-data-button"));
+
+    await waitFor(() => {
+      expect(tooltip).not.toBeInTheDocument();
+    });
   });
+
+  it.each<[nodeType: string, content: string]>([
+    ["data file", "Delete all the selected data files from this data submission"],
+    ["random metadata", "Delete all the selected records from this data submission"],
+  ])(
+    "should customize the tooltip text for metadata vs data files",
+    async (nodeType, tooltipText) => {
+      const { getByTestId, findByRole } = render(
+        <Button nodeType={nodeType} selectedItems={["1 item ID"]} />,
+        {
+          wrapper: TestParent,
+        }
+      );
+
+      userEvent.hover(getByTestId("delete-node-data-button"));
+
+      const tooltip = await findByRole("tooltip");
+      expect(tooltip).toBeInTheDocument();
+      expect(tooltip).toHaveTextContent(tooltipText);
+    }
+  );
 
   it("should have a tooltip when the delete button is disabled with an ongoing deletion", async () => {
     const { getByTestId, findByRole } = render(<Button nodeType="test" selectedItems={[]} />, {

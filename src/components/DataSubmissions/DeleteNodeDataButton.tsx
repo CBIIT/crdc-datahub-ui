@@ -54,10 +54,17 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
   const { user } = useAuthContext();
   const { _id, deletingData } = data?.getSubmission || {};
 
-  const tooltipText =
-    deletingData === true
-      ? "Delete action unavailable while another delete operation is in progress"
-      : "Delete all selected nodes from this data submission";
+  const tooltipText = useMemo<string>(() => {
+    if (deletingData === true) {
+      return "Delete action unavailable while another delete operation is in progress";
+    }
+
+    if (nodeType?.toLowerCase() === "data file") {
+      return "Delete all the selected data files from this data submission";
+    }
+
+    return "Delete all the selected records from this data submission";
+  }, [deletingData, nodeType]);
 
   const content = useMemo(() => {
     const nodeTerm: string = selectedItems.length > 1 ? "nodes" : "node";
