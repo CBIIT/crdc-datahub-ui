@@ -238,12 +238,12 @@ const DataSubmissionListFilters = ({
       newSearchParams.delete("submitterName");
     }
 
-    if (nameFilter) {
+    if (nameFilter?.length >= 3) {
       newSearchParams.set("name", nameFilter);
     } else {
       newSearchParams.delete("name");
     }
-    if (dbGaPIDFilter) {
+    if (dbGaPIDFilter?.length >= 3) {
       newSearchParams.set("dbGaPID", dbGaPIDFilter);
     } else {
       newSearchParams.delete("dbGaPID");
