@@ -1,8 +1,6 @@
 import { useMemo } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 
-type ColumnVisibilityModel = { [key: string]: boolean };
-
 type Column<C> = C & { hideable?: boolean };
 
 type UseColumnVisibilityParams<C> = {

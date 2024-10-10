@@ -125,8 +125,6 @@ const StyledFooter = styled(Stack)({
   marginRight: "12px",
 });
 
-type ColumnVisibilityModel = { [key: string]: boolean };
-
 type Props<C extends { hideable?: boolean }> = {
   anchorEl: HTMLElement | null;
   open: boolean;

@@ -115,8 +115,6 @@ type FilterFormKey = keyof FilterForm;
 
 type TouchedState = { [K in FilterFormKey]: boolean };
 
-type ColumnVisibilityModel = { [key: string]: boolean };
-
 type Props = {
   columns: Column<T>[];
   submitterNames: string[];

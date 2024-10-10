@@ -29,3 +29,5 @@ type TableState<T> = {
 } & TableParams;
 
 type FilterFunction<T> = (item: T) => boolean;
+
+type ColumnVisibilityModel = { [key: string]: boolean };

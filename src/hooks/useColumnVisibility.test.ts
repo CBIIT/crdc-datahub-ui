@@ -4,7 +4,6 @@ import { useLocalStorage } from "./useLocalStorage";
 
 jest.mock("./useLocalStorage");
 
-type ColumnVisibilityModel = { [key: string]: boolean };
 type Column<C> = C & { hideable?: boolean };
 
 interface ColumnType {

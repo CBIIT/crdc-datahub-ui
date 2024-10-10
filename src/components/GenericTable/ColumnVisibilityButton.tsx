@@ -20,8 +20,6 @@ const StyledTableColumnsIcon = styled(TableColumnsIcon)({
   color: "#346798",
 });
 
-type ColumnVisibilityModel = { [key: string]: boolean };
-
 type Props<C extends { hideable?: boolean }> = {
   columns: C[];
   columnVisibilityModel: ColumnVisibilityModel;
