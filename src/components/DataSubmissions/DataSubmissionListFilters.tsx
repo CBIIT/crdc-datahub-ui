@@ -13,6 +13,7 @@ import { canViewOtherOrgRoles } from "../../config/AuthRoles";
 import { Column } from "../GenericTable";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
 import Tooltip from "../Tooltip";
+import { isStringLengthBetween } from "../../utils";
 
 const StyledFilters = styled("div")({
   paddingTop: "19px",
@@ -152,7 +153,7 @@ const DataSubmissionListFilters = ({
   const canViewOtherOrgs = canViewOtherOrgRoles.includes(user?.role);
   const debounceAfter3CharsInputs: FilterFormKey[] = ["name", "dbGaPID"];
   const debouncedOnChangeRef = useRef(
-    debounce((form: FilterForm) => onChange?.(form), 500)
+    debounce((form: FilterForm) => handleFormChange(form), 500)
   ).current;
 
   useEffect(() => {
@@ -199,7 +200,7 @@ const DataSubmissionListFilters = ({
     }
 
     if (Object.values(touchedFilters).every((filter) => !filter)) {
-      onChange?.(getValues());
+      handleFormChange(getValues());
     }
   }, [
     activeOrganizations,
@@ -272,17 +273,18 @@ const DataSubmissionListFilters = ({
       }
       // Do nothing if values has between 0 and 3 (exclusive) characters
       if (isDebounceField && formValue[name]?.length > 0) {
+        debouncedOnChangeRef.cancel();
         return;
       }
       // If value is cleared, call the onChange immediately
       if (isDebounceField && formValue[name]?.length === 0) {
         debouncedOnChangeRef.cancel();
-        onChange?.(formValue);
+        handleFormChange(formValue);
         return;
       }
 
       // Immediately call the onChange if the change is not a debounce field
-      onChange?.(formValue);
+      handleFormChange(formValue);
     });
 
     return () => {
@@ -317,6 +319,20 @@ const DataSubmissionListFilters = ({
     if (isStatusFilterOption(status)) {
       setValue("status", status);
     }
+  };
+
+  const handleFormChange = (form: FilterForm) => {
+    if (!onChange || !form) {
+      return;
+    }
+
+    const newForm: FilterForm = {
+      ...form,
+      name: form.name?.length >= 3 ? form.name : "",
+      dbGaPID: form.dbGaPID?.length >= 3 ? form.dbGaPID : "",
+    };
+
+    onChange(newForm);
   };
 
   const handleFilterChange = (field: FilterFormKey) => {
@@ -468,6 +484,8 @@ const DataSubmissionListFilters = ({
                 {...register("name", {
                   setValueAs: (val) => val?.trim(),
                   onChange: () => handleFilterChange("name"),
+                  onBlur: (e) =>
+                    isStringLengthBetween(e?.target?.value, 0, 3) && setValue("name", ""),
                 })}
                 size="small"
                 placeholder="Minimum 3 characters required"
@@ -487,6 +505,8 @@ const DataSubmissionListFilters = ({
                 {...register("dbGaPID", {
                   setValueAs: (val) => val?.trim(),
                   onChange: () => handleFilterChange("dbGaPID"),
+                  onBlur: (e) =>
+                    isStringLengthBetween(e?.target?.value, 0, 3) && setValue("dbGaPID", ""),
                 })}
                 size="small"
                 placeholder="Minimum 3 characters required"
