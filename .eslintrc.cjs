@@ -21,7 +21,7 @@ const config = {
     ecmaFeatures: {
       jsx: true,
     },
-    ecmaVersion: 11,
+    ecmaVersion: 2015,
     project: "./tsconfig.json",
     sourceType: "module",
   },

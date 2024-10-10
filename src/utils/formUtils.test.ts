@@ -511,3 +511,29 @@ describe("renderStudySelectionValue cases", () => {
     expect(result).toBe("");
   });
 });
+
+describe("validateEmoji cases", () => {
+  it("should return null for a string without emojis", () => {
+    expect(utils.validateEmoji("This is a test string")).toBe(null);
+  });
+
+  it("should return null for a string containing numbers", () => {
+    expect(utils.validateEmoji("Test123 string with numbers 456 789 101112")).toBe(null);
+  });
+
+  it("should return an error message for a string with emojis and other characters", () => {
+    expect(utils.validateEmoji("This is a test string 😊 with emojis")).toEqual(expect.any(String));
+  });
+
+  it("should return an error message for a string with only emojis", () => {
+    expect(utils.validateEmoji("😊😊😊😊😊")).toEqual(expect.any(String));
+  });
+
+  // NOTE: We're testing various different types of emojis here
+  it.each<string>(["😊", "👨🏿‍🎤", "🔴", "1️⃣", "🇵🇷"])(
+    "should return an error message for a string with emojis",
+    (value) => {
+      expect(utils.validateEmoji(value)).toEqual(expect.any(String));
+    }
+  );
+});

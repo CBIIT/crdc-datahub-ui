@@ -896,4 +896,124 @@ describe("Basic Functionality", () => {
       expect(createButton).not.toBeInTheDocument();
     });
   });
+
+  it("should show an error if the Submission Name contains emojis", async () => {
+    const { getByTestId, getByRole, getByText } = render(
+      <CreateDataSubmissionDialog onCreate={handleCreate} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            mocks={baseMocks}
+            authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("create-data-submission-dialog-study-id-input")).toBeEnabled();
+    });
+
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    expect(studySelectButton).toBeInTheDocument();
+
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
+    });
+    userEvent.click(getByText("SN"));
+
+    expect(studySelectButton).toHaveTextContent("SN");
+
+    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
+    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
+    userEvent.type(dbGaPIDInput, "001");
+
+    const submissionNameWrapper = getByTestId(
+      "create-data-submission-dialog-submission-name-input"
+    );
+    const submissionNameInput = within(submissionNameWrapper).getByRole("textbox");
+    userEvent.type(submissionNameInput, "😁 Emojis are not valid 😁");
+
+    userEvent.click(getByText("Create"));
+
+    await waitFor(() => {
+      expect(getByText("This field contains invalid characters")).toBeInTheDocument();
+    });
+  });
+
+  it("should show an error if the dbGaP ID contains emojis", async () => {
+    const { getByTestId, getByRole, getByText } = render(
+      <CreateDataSubmissionDialog onCreate={handleCreate} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            mocks={baseMocks}
+            authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    expect(openDialogButton).toBeInTheDocument();
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("create-data-submission-dialog-study-id-input")).toBeEnabled();
+    });
+
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    expect(studySelectButton).toBeInTheDocument();
+
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
+    });
+    userEvent.click(getByText("SN"));
+
+    expect(studySelectButton).toHaveTextContent("SN");
+
+    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
+    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
+    userEvent.type(dbGaPIDInput, "🚧");
+
+    const submissionNameWrapper = getByTestId(
+      "create-data-submission-dialog-submission-name-input"
+    );
+    const submissionNameInput = within(submissionNameWrapper).getByRole("textbox");
+    userEvent.type(submissionNameInput, "this is a valid name");
+
+    userEvent.click(getByText("Create"));
+
+    await waitFor(() => {
+      expect(getByText("This field contains invalid characters")).toBeInTheDocument();
+    });
+  });
 });
