@@ -239,7 +239,16 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
     <StyledPopper
       open={open}
       anchorEl={anchorEl}
-      placement="bottom-start"
+      placement="bottom-end"
+      modifiers={[
+        {
+          name: "flip",
+          enabled: false,
+          options: {
+            fallbackPlacements: [],
+          },
+        },
+      ]}
       data-testid="column-visibility-popper"
     >
       <ClickAwayListener onClickAway={onClose}>
