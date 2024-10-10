@@ -59,7 +59,7 @@ describe("Accessibility", () => {
       />
     );
 
-    userEvent.click(getByTestId("column-visibility-button"));
+    userEvent.click(getByTestId("column-visibility-button"), null, { skipHover: true });
 
     await waitFor(() => {
       expect(getByTestId("column-visibility-popper")).toBeVisible();
