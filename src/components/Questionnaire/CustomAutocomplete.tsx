@@ -90,12 +90,10 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: bool
       alignItems: "center",
       padding: "10.5px 30px 10.5px 12px !important",
       height: "44px",
-      ...(readOnly
-        ? {
-            backgroundColor: "#E5EEF4",
-            cursor: "not-allowed",
-          }
-        : {}),
+      ...(readOnly && {
+        backgroundColor: "#E5EEF4",
+        cursor: "not-allowed",
+      }),
     },
     "& .MuiInputBase-input": {
       padding: "0 !important",
@@ -286,9 +284,16 @@ const CustomAutocomplete = ({
         />
         <StyledHelperText>{!readOnly && error ? helperText : " "}</StyledHelperText>
       </StyledFormControl>
-      <ProxySelect name={name} aria-labelledby={`${id}-label`} multiple hidden>
+      <ProxySelect
+        name={name}
+        value={val}
+        aria-labelledby={`${id}-label`}
+        onChange={() => {}}
+        multiple
+        hidden
+      >
         {val.map((v) => (
-          <option key={v} value={v} aria-label={v} selected />
+          <option key={v} value={v} aria-label={v} />
         ))}
       </ProxySelect>
     </Grid>
