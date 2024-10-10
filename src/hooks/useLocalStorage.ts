@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Logger } from "../utils";
 
 /**
@@ -35,6 +35,18 @@ export const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T)
       Logger.error(error?.toString());
     }
   };
+
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === key) {
+        setStoredValue(JSON.parse(event.newValue));
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [key, initialValue]);
 
   return [storedValue, setValue];
 };
