@@ -79,3 +79,15 @@ export const SubmitDataSubmissionRoles: UserRole[] = [
   "Data Curator",
   "Admin",
 ];
+
+/**
+ * Defines a list of roles that are allowed to view Data Submissions
+ * outside of their organization
+ */
+export const canViewOtherOrgRoles: UserRole[] = [
+  "Admin",
+  "Data Commons POC",
+  "Data Curator",
+  "Federal Lead",
+  "Federal Monitor",
+];
