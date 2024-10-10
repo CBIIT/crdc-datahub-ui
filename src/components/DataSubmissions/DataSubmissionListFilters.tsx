@@ -304,8 +304,12 @@ const DataSubmissionListFilters = ({
       return;
     }
 
-    if (!canViewOtherOrgs && isValidOrg(user?.organization?.orgID)) {
-      setValue("organization", user.organization.orgID);
+    if (
+      !canViewOtherOrgs &&
+      isValidOrg(user?.organization?.orgID) &&
+      user?.organization?.orgID !== orgFilter
+    ) {
+      setValue("organization", user?.organization?.orgID);
     } else if (canViewOtherOrgs && isValidOrg(organizationId)) {
       setValue("organization", organizationId);
     }
