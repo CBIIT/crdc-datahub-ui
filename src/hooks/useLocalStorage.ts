@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Logger } from "../utils";
 
 /**
  * Custom hook to manage state synchronized with localStorage.
@@ -15,6 +16,7 @@ export const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T)
       const item = window.localStorage.getItem(key);
       return item ? (JSON.parse(item) as T) : initialValue;
     } catch (error) {
+      Logger.error(error?.toString());
       return initialValue;
     }
   });
@@ -30,7 +32,7 @@ export const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T)
         window.localStorage.setItem(key, JSON.stringify(value));
       }
     } catch (error) {
-      // Do nothing
+      Logger.error(error?.toString());
     }
   };
 
