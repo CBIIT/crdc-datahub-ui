@@ -32,6 +32,7 @@ import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
 import Tooltip from "../Tooltip";
+import { validateEmoji } from "../../utils";
 
 const CreateSubmissionDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -332,7 +333,8 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     createSubmission(data);
   };
 
-  const validateEmpty = (value: string) => (!value?.trim() ? "This field is required" : null);
+  const validateEmpty = (value: string): string | null =>
+    !value?.trim() ? "This field is required" : null;
 
   useEffect(() => {
     if (intention === "New/Update") {
@@ -508,8 +510,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                   </StyledLabel>
                   <StyledOutlinedInput
                     {...register("dbGaPID", {
-                      required: isDbGapRequired ? "This field is required" : null,
-                      validate: isDbGapRequired ? validateEmpty : null,
+                      validate: {
+                        empty: isDbGapRequired ? validateEmpty : () => null,
+                        emoji: validateEmoji,
+                      },
                     })}
                     inputProps={{ maxLength: 50 }}
                     placeholder="Input dbGaP ID"
@@ -528,7 +532,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                   <StyledOutlinedInputMultiline
                     {...register("name", {
                       maxLength: 25,
-                      validate: validateEmpty,
+                      validate: {
+                        empty: validateEmpty,
+                        emoji: validateEmoji,
+                      },
                     })}
                     multiline
                     rows={3}
