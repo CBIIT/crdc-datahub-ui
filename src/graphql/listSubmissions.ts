@@ -54,7 +54,7 @@ export const query = gql`
 
 export type Input = {
   organization?: string;
-  status?: Submission["status"] | "All";
+  status?: SubmissionStatus | "All";
   dataCommons?: string;
   name?: string;
   dbGaPID?: string;
