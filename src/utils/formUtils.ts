@@ -129,7 +129,7 @@ export const formatFullStudyName = (studyName: string, studyAbbreviation: string
   if (typeof studyName !== "string") {
     return "";
   }
-  if (studyAbbreviation === studyName) {
+  if (studyAbbreviation?.toLowerCase() === studyName?.toLowerCase()) {
     return studyName.trim();
   }
   if (studyAbbreviation && studyAbbreviation.length > 0) {

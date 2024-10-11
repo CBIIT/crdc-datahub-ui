@@ -206,6 +206,14 @@ describe("formatFullStudyName cases", () => {
     expect(result).toBe("Study Name");
   });
 
+  it("should ignore casing when comparing the study name and abbreviation", () => {
+    const equalValuesWithDifferentCasing = utils.formatFullStudyName("study name", "STUDY NAME");
+    expect(equalValuesWithDifferentCasing).toBe("study name");
+
+    const equalValuesWithDifferentCasing2 = utils.formatFullStudyName("STUDY NAME", "study name");
+    expect(equalValuesWithDifferentCasing2).toBe("STUDY NAME");
+  });
+
   it("should remove extra spaces from the study name", () => {
     const studyName = "   Study Name   ";
     const result = utils.formatFullStudyName(studyName, "");
