@@ -64,6 +64,13 @@ type ManifestAssets = {
    */
   "readme-file": string;
   /**
+   * The relative URL for the Model Navigator logo.
+   *
+   * @example "model-navigator-logo.png"
+   * @since 3.1.0
+   */
+  "model-navigator-logo"?: string | null;
+  /**
    * The pre-zipped example loading file.
    *
    * @example "cds-model-loading.zip"
