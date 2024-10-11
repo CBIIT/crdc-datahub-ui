@@ -60,7 +60,7 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
     preConditionCheck: (s) => s.intention === "Delete",
     check: (s) => !!s.metadataValidationStatus,
     tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
-    required: false,
+    required: true,
   },
   {
     _identifier: "Metadata validation should be initialized for 'Metadata Only' submissions",
