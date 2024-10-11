@@ -10,4 +10,5 @@ window.injectedEnv = {
   REACT_APP_GA_TRACKING_ID: "",
   REACT_APP_FE_VERSION: "",
   REACT_APP_BACKEND_API: "",
+  REACT_APP_HIDDEN_MODELS: "",
 };
