@@ -668,7 +668,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
               idPrefix="review-clinical-data-types-other-clinical-data-types"
               gridWidth={12}
               label="Other Clinical Data types"
-              value={data.clinicalData?.otherDataTypes?.split(",")}
+              value={data.clinicalData?.otherDataTypes}
               valuePlacement="bottom"
               delimiter="|"
               isList

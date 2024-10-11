@@ -176,3 +176,23 @@ export const rearrangeKeys = (keysArray: string[], keyOrder: string[]): string[]
 
   return [...orderedKeys, ...remainingKeys];
 };
+
+/**
+ * Checks if the length of a given string is between the specified minimum and maximum values.
+ *
+ * @param str - The string to check. Can be null or undefined.
+ * @param minLength - The minimum allowable length of the string.
+ * @param maxLength - The maximum allowable length of the string.
+ * @returns True if the string's length is strictly between minLength and maxLength, exclusive; otherwise, false.
+ */
+export const isStringLengthBetween = (
+  str: string,
+  minLength: number,
+  maxLength: number
+): boolean => {
+  if (typeof str !== "string") {
+    return false;
+  }
+
+  return str?.length > minLength && str?.length < maxLength;
+};

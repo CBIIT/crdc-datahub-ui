@@ -250,3 +250,20 @@ export const formatStudySelectionValue = (
 
   return mappedStudies.length > 0 ? mappedStudies[0] : fallback;
 };
+
+/**
+ * Provides a validation function to test against a string for invalid characters.
+ *
+ * @param value The input string to validate
+ * @returns A string if the value contains invalid characters, otherwise null
+ */
+export const validateEmoji = (value: string): string | null => {
+  const EmojiRegex =
+    /(?![*#0-9]+)[\p{Emoji}\p{Emoji_Modifier}\p{Emoji_Component}\p{Emoji_Modifier_Base}\p{Emoji_Presentation}]/u;
+
+  if (EmojiRegex.test(value)) {
+    return "This field contains invalid characters";
+  }
+
+  return null;
+};

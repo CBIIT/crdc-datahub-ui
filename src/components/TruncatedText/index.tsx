@@ -18,6 +18,7 @@ const StyledTextWrapper = styled("span", {
   textDecorationStyle: "dashed",
   textUnderlineOffset: "4px",
   cursor: truncated ? "pointer" : "inherit",
+  width: "fit-content",
 }));
 
 type Props = {

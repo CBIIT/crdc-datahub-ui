@@ -107,6 +107,7 @@ export type Column<T> = {
   fieldKey?: string; // optional, used for custom unique identifier while sorting
   default?: true;
   sortDisabled?: boolean;
+  hideable?: boolean; // Indicates whether or not the column can be hidden or not
   comparator?: (a: T, b: T) => number;
   sx?: TableCellProps["sx"];
 };

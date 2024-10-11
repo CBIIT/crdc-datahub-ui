@@ -294,7 +294,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
       <HistoryDialog
         open={historyDialogOpen}
         onClose={handleOnHistoryDialogClose}
-        preTitle="Data Submission Request"
+        preTitle="Data Submission"
         title="Submission History"
         history={dataSubmission?.history}
         iconMap={DataSubmissionIconMap}

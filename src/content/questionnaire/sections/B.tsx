@@ -19,6 +19,7 @@ import {
   findProgram,
   mapObjectWithKey,
   programToSelectOption,
+  validateEmoji,
 } from "../../../utils";
 import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
@@ -422,6 +423,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={study.name}
           maxLength={100}
           placeholder="100 characters allowed"
+          validate={(input: string) => !validateEmoji(input)}
           readOnly={readOnlyInputs}
           hideValidation={readOnlyInputs}
           tooltipText="A descriptive name that will be used to identify the study."
