@@ -150,7 +150,7 @@ describe("buildAssetUrls cases", () => {
     expect(result.readme).toEqual(null);
   });
 
-  it("should use GenericModelLogo if model-navigator-logo is not provided", () => {
+  it("should use GenericModelLogo if model-navigator-logo is not defined", () => {
     const dc: DataCommon = {
       name: "test-name",
       assets: {
@@ -159,6 +159,25 @@ describe("buildAssetUrls cases", () => {
         "prop-file": "prop-file",
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
+        // "model-navigator-logo" - not defined, aka no logo
+      } as ManifestAssets,
+    } as DataCommon;
+
+    const result = utils.buildAssetUrls(dc);
+
+    expect(result.navigator_icon).toEqual("genericLogo.png");
+  });
+
+  it("should use GenericModelLogo if the model-navigator-logo is an empty string", () => {
+    const dc: DataCommon = {
+      name: "test-name",
+      assets: {
+        "current-version": "1.0",
+        "model-file": "model-file",
+        "prop-file": "prop-file",
+        "readme-file": "readme-file",
+        "loading-file": "loading-file-zip-name",
+        "model-navigator-logo": "", // empty string - aka no logo
       } as ManifestAssets,
     } as DataCommon;
 
@@ -176,7 +195,7 @@ describe("buildAssetUrls cases", () => {
         "prop-file": "prop-file",
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
-        "model-navigator-logo": "custom-logo.png",
+        "model-navigator-logo": "custom-logo.png", // defined - must exist
       } as ManifestAssets,
     } as DataCommon;
 
