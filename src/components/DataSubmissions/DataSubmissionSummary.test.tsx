@@ -104,7 +104,7 @@ describe("Basic Functionality", () => {
     expect(getByText("Test Intention")).toBeVisible(); // Not truncated
     expect(getByText("Submitter...")).toBeVisible();
     expect(getByText("AAAAAAAAAA...")).toBeVisible();
-    expect(getByText("Test Commo...")).toBeVisible();
+    expect(getByText("Test Commons")).toBeVisible(); // Not truncated
     expect(getByText("Test Organ...")).toBeVisible();
     expect(getByText("Test Conci...")).toBeVisible();
 

@@ -254,7 +254,11 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             }
           />
           <SubmissionHeaderProperty label="Study" value={dataSubmission?.studyAbbreviation} />
-          <SubmissionHeaderProperty label="Data Commons" value={dataSubmission?.dataCommons} />
+          <SubmissionHeaderProperty
+            label="Data Commons"
+            value={dataSubmission?.dataCommons}
+            truncateAfter={false}
+          />
           <SubmissionHeaderProperty
             label="Organization"
             value={dataSubmission?.organization?.name}
