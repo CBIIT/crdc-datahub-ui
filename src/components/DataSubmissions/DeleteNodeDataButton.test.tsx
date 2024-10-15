@@ -50,6 +50,7 @@ const BaseSubmission: Submission = {
   validationType: [],
   deletingData: false,
   nodeCount: 0,
+  collaborators: [],
 };
 
 const baseAuthCtx: AuthContextState = {

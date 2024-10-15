@@ -53,6 +53,7 @@ const baseSubmission: Submission = {
   createdAt: "",
   updatedAt: "",
   studyID: "",
+  collaborators: [],
 };
 
 const TestChild: FC = () => {
