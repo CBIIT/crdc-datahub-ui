@@ -219,7 +219,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           container
           flexDirection={{ xs: "column", lg: "row" }}
           rowSpacing={2}
-          columnSpacing={{ xs: 0 }}
+          columnSpacing={0}
         >
           <SubmissionHeaderProperty label="Submission Name" value={dataSubmission?.name} />
           <SubmissionHeaderProperty

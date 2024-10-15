@@ -390,8 +390,14 @@ type SubmitButtonResult = {
   _identifier?: string;
 };
 
+/**
+ * Represents the permissions a collaborator can have in a submission
+ */
 type CollaboratorPermissions = "Can View" | "Can Edit";
 
+/**
+ * Represents a submitter that can view/edit another submitter's submission
+ */
 type Collaborator = {
   collaboratorID: string;
   collaboratorName: string;
