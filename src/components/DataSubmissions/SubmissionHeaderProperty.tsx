@@ -34,7 +34,7 @@ const SubmissionHeaderProperty = ({ label, value, truncateAfter = 10 }: Props) =
       <StyledLabel variant="body1">{label}</StyledLabel>
       <Box flexGrow={1} overflow="hidden">
         {typeof value === "string" ? (
-          <StyledValue variant="body1">
+          <StyledValue variant="body1" data-testid="property-value">
             {truncateAfter && truncateAfter > 0 ? (
               <TruncatedText
                 text={value}
