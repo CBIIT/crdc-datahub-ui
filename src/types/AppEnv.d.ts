@@ -61,6 +61,13 @@ type AppEnv = {
    */
   REACT_APP_FE_VERSION: string;
   /**
+   * A CSV string of Data Commons to hide from the UI
+   *
+   * @note Can be a string of 0 or more Data Commons
+   * @since 3.1.0
+   */
+  REACT_APP_HIDDEN_MODELS: string;
+  /**
    * The deployment environment the app is running in
    */
   NODE_ENV?: "test" | "development" | "production";
