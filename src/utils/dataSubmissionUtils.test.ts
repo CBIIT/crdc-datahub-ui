@@ -349,15 +349,15 @@ describe("Admin Submit", () => {
     expect(result.isAdminOverride).toBe(false);
   });
 
-  it("should allow admin override when metadata is passed but file validation is null", () => {
+  it("should not allow admin override when metadata is passed but file validation is null", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
     const result = utils.shouldEnableSubmit(submission, "Admin");
-    expect(result.enabled).toBe(true);
-    expect(result.isAdminOverride).toBe(true);
+    expect(result.enabled).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
   });
 
   it("should not enable submit when both validations are null", () => {
@@ -373,6 +373,7 @@ describe("Admin Submit", () => {
   it("should allow admin override when file validation is null and intention is 'Delete'", () => {
     const submission: Submission = {
       ...baseSubmission,
+      dataType: "Metadata Only",
       metadataValidationStatus: "Error",
       fileValidationStatus: null,
       intention: "Delete",
@@ -437,6 +438,7 @@ describe("Admin Submit", () => {
   it("should allow submit with isAdminOverride when metadata validation is 'Error', file validation is null, and intention is 'Delete'", () => {
     const submission: Submission = {
       ...baseSubmission,
+      dataType: "Metadata Only",
       metadataValidationStatus: "Error",
       fileValidationStatus: null,
       intention: "Delete",
@@ -514,14 +516,12 @@ describe("shouldAllowAdminOverride", () => {
   it("should check condition if preConditionCheck is met", () => {
     const submission: Submission = {
       ...baseSubmission,
-      dataType: "Metadata and Data Files",
-      metadataValidationStatus: "Passed",
+      dataType: "Metadata Only",
+      metadataValidationStatus: "Error",
       fileValidationStatus: null,
     };
     const result = utils.shouldAllowAdminOverride(submission);
-    expect(result._identifier).toBe(
-      "Admin Override - Submission is missing either metadata or data files for 'Metadata and Data Files' submissions"
-    );
+    expect(result._identifier).toBe("Admin Override - Submission has validation errors");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
