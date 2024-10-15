@@ -235,13 +235,21 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
                 placement="top"
                 title="Click to add new collaborators or view existing ones."
                 disableHoverListener={false}
-                data-testid="collaborators-button-tooltip"
+                slotProps={{
+                  tooltip: { "data-testid": "collaborators-button-tooltip" } as unknown,
+                }}
               >
-                <StyledCollaboratorsButton variant="text">
-                  {Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
-                    numCollaborators
-                  )}
-                </StyledCollaboratorsButton>
+                <span>
+                  <StyledCollaboratorsButton
+                    variant="text"
+                    disabled={!dataSubmission}
+                    data-testid="collaborators-button"
+                  >
+                    {Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
+                      numCollaborators
+                    )}
+                  </StyledCollaboratorsButton>
+                </span>
               </StyledTooltip>
             }
           />
