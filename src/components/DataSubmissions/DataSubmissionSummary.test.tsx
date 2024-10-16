@@ -48,9 +48,9 @@ describe("DataSubmissionSummary Accessibility Tests", () => {
 describe("Basic Functionality", () => {
   it("renders all property labels and corresponding values", () => {
     const dataSubmission: RecursivePartial<Submission> = {
-      name: "Test Submission",
-      intention: "Test Intention" as SubmissionIntention,
-      submitterName: "Submitter Test",
+      name: "Test Submission AAAAAA",
+      intention: "Test Intention AAAAAA" as SubmissionIntention,
+      submitterName: "Submitter Test AAAAAA",
       collaborators: [
         {
           collaboratorID: "col-1",
@@ -77,13 +77,13 @@ describe("Basic Functionality", () => {
           permission: "Can View",
         },
       ],
-      studyAbbreviation: "AAAAAAAAAAA",
-      dataCommons: "Test Commons",
+      studyAbbreviation: "AAAAAAAAAAAAAAAAA",
+      dataCommons: "Test Commons AAAAAA",
       organization: {
         _id: "",
-        name: "Test Organization",
+        name: "Test Organization AAAAAA",
       },
-      conciergeName: "Test Concierge",
+      conciergeName: "Test Concierge AAAAAA",
       conciergeEmail: "concierge@test.com",
     };
 
@@ -100,13 +100,13 @@ describe("Basic Functionality", () => {
     expect(getByText("Primary Contact")).toBeVisible();
 
     // Check values
-    expect(getByText("Test Submi...")).toBeVisible();
-    expect(getByText("Test Intention")).toBeVisible(); // Not truncated
-    expect(getByText("Submitter...")).toBeVisible();
-    expect(getByText("AAAAAAAAAA...")).toBeVisible();
-    expect(getByText("Test Commons")).toBeVisible(); // Not truncated
-    expect(getByText("Test Organ...")).toBeVisible();
-    expect(getByText("Test Conci...")).toBeVisible();
+    expect(getByText("Test Submission...")).toBeVisible();
+    expect(getByText("Test Intention AAAAAA")).toBeVisible(); // Not truncated
+    expect(getByText("Submitter Test A...")).toBeVisible();
+    expect(getByText("AAAAAAAAAAAAAAAA...")).toBeVisible();
+    expect(getByText("Test Commons AAAAAA")).toBeVisible(); // Not truncated
+    expect(getByText("Test Organizatio...")).toBeVisible();
+    expect(getByText("Test Concierge A...")).toBeVisible();
 
     expect(getByText("2")).toBeVisible();
 
@@ -179,7 +179,7 @@ describe("Basic Functionality", () => {
     const { getByText, getByLabelText } = render(<BaseComponent dataSubmission={dataSubmission} />);
 
     expect(getByText("Primary Contact")).toBeVisible();
-    expect(getByText("Test Conci...")).toBeVisible();
+    expect(getByText("Test Concierge")).toBeVisible();
 
     const emailLink = getByLabelText("Email Primary Contact");
     expect(emailLink).toBeVisible();
@@ -197,7 +197,7 @@ describe("Basic Functionality", () => {
     );
 
     expect(getByText("Primary Contact")).toBeVisible();
-    expect(getByText("Test Conci...")).toBeVisible();
+    expect(getByText("Test Concierge")).toBeVisible();
 
     const emailLink = queryByLabelText("Email Primary Contact");
     expect(emailLink).toBeNull();
@@ -212,7 +212,6 @@ describe("DataSubmissionSummary Memoization Tests", () => {
 
     const renderSpy = jest.fn();
 
-    // Create a wrapper component that increments the renderSpy
     const MemoizedComponent = ({ dataSubmission }: Props) => {
       React.useEffect(() => {
         renderSpy();
@@ -220,7 +219,6 @@ describe("DataSubmissionSummary Memoization Tests", () => {
       return <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />;
     };
 
-    // Wrap the MemoizedComponent with React.memo and custom comparison
     const MemoizedComponentWithMemo = React.memo(MemoizedComponent, (prevProps, nextProps) =>
       isEqual(prevProps, nextProps)
     );
@@ -233,7 +231,6 @@ describe("DataSubmissionSummary Memoization Tests", () => {
 
     expect(renderSpy).toHaveBeenCalledTimes(1);
 
-    // Re-render with the same props
     rerender(
       <BrowserRouter>
         <MemoizedComponentWithMemo dataSubmission={dataSubmission} />

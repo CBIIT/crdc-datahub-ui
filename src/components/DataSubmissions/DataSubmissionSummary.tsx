@@ -270,7 +270,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
                 <StyledConciergeName>
                   <TruncatedText
                     text={dataSubmission?.conciergeName}
-                    maxCharacters={10}
+                    maxCharacters={16}
                     underline={false}
                     ellipsis
                   />
