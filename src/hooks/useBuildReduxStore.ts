@@ -148,7 +148,7 @@ const useBuildReduxStore = (): [
         },
         pageConfig: {
           title: datacommon.configuration.pageTitle,
-          iconSrc: datacommon.configuration?.titleIconSrc,
+          iconSrc: assets.navigator_icon,
         },
         readMeConfig: {
           readMeUrl: assets.readme,

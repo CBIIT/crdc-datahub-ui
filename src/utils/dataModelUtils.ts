@@ -2,6 +2,7 @@ import { defaultTo } from "lodash";
 import { MODEL_FILE_REPO } from "../config/DataCommons";
 import env from "../env";
 import { RetrieveCDEsResp } from "../graphql";
+import GenericModelLogo from "../assets/modelNavigator/genericLogo.png";
 
 /**
  * Fetch the tracked Data Model content manifest.
@@ -49,6 +50,11 @@ export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
         "current-version"
       ]}/${dc?.assets?.["loading-file"]}`
     : null,
+  navigator_icon: dc?.assets?.["model-navigator-logo"]
+    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
+        "current-version"
+      ]}/${dc?.assets?.["model-navigator-logo"]}`
+    : GenericModelLogo,
 });
 
 /**
