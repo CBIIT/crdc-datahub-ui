@@ -401,6 +401,6 @@ type CollaboratorPermissions = "Can View" | "Can Edit";
 type Collaborator = {
   collaboratorID: string;
   collaboratorName: string;
-  Organization: OrgInfo;
+  Organization: Pick<OrgInfo, "orgID" | "orgName">;
   permission: CollaboratorPermissions;
 };

@@ -64,9 +64,6 @@ export const query = gql`
         Organization {
           orgID
           orgName
-          status
-          createdAt
-          updateAt
         }
         permission
       }

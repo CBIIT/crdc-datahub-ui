@@ -58,9 +58,6 @@ describe("Basic Functionality", () => {
           Organization: {
             orgID: "",
             orgName: "",
-            status: "Active",
-            createdAt: "",
-            updateAt: "",
           },
           permission: "Can View",
         },
@@ -70,9 +67,6 @@ describe("Basic Functionality", () => {
           Organization: {
             orgID: "",
             orgName: "",
-            status: "Active",
-            createdAt: "",
-            updateAt: "",
           },
           permission: "Can View",
         },
@@ -124,9 +118,6 @@ describe("Basic Functionality", () => {
           Organization: {
             orgID: "",
             orgName: "",
-            status: "Active",
-            createdAt: "",
-            updateAt: "",
           },
           permission: "Can View",
         },
@@ -136,9 +127,6 @@ describe("Basic Functionality", () => {
           Organization: {
             orgID: "",
             orgName: "",
-            status: "Active",
-            createdAt: "",
-            updateAt: "",
           },
           permission: "Can View",
         },
@@ -148,9 +136,6 @@ describe("Basic Functionality", () => {
           Organization: {
             orgID: "",
             orgName: "",
-            status: "Active",
-            createdAt: "",
-            updateAt: "",
           },
           permission: "Can View",
         },
