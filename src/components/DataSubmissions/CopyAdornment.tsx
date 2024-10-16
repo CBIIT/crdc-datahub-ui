@@ -68,7 +68,7 @@ const CopyAdornment: FC<Props> = ({ _id }) => {
   };
 
   return (
-    <StyledCopyWrapper direction="row" spacing={1.625} alignItems="center">
+    <StyledCopyWrapper direction="row" gap="13px" alignItems="center">
       <StyledCopyLabel data-testid="data-submission-id-label" variant="body1">
         SUBMISSION ID:
       </StyledCopyLabel>

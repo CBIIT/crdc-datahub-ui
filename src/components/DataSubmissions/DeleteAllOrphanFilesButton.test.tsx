@@ -54,6 +54,7 @@ const baseSubmission: Submission = {
   studyID: "",
   deletingData: false,
   nodeCount: 0,
+  collaborators: [],
 };
 
 const baseContext: ContextState = {

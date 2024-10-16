@@ -58,6 +58,7 @@ describe("ExportValidationButton cases", () => {
     studyID: "",
     deletingData: false,
     nodeCount: 0,
+    collaborators: [],
   };
 
   const baseQCResult: Omit<QCResult, "submissionID"> = {

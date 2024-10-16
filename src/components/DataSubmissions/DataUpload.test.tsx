@@ -56,6 +56,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   studyID: "",
   deletingData: false,
   nodeCount: 0,
+  collaborators: [],
 };
 
 const baseUser: User = {
