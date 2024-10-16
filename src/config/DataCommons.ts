@@ -1,6 +1,4 @@
-import logo from "../assets/modelNavigator/Logo.jpg";
-import CDSLogo from "../assets/modelNavigator/CDS_Logo.png";
-import GenericLogo from "../assets/modelNavigator/Generic_Logo.png";
+import logo from "../assets/header/Logo.jpg";
 import { getFilteredDataCommons } from "../utils/envUtils";
 
 /**
@@ -23,7 +21,6 @@ const DataCommons: DataCommon[] = [
     assets: null,
     configuration: {
       pageTitle: "CCDI Data Model",
-      titleIconSrc: GenericLogo,
       pdfConfig: {
         fileType: "pdf",
         prefix: "CCDI_",
@@ -129,7 +126,6 @@ const DataCommons: DataCommon[] = [
     assets: null,
     configuration: {
       pageTitle: "CDS Data Model",
-      titleIconSrc: CDSLogo,
       pdfConfig: {
         fileType: "pdf",
         prefix: "CDS_",
@@ -235,7 +231,6 @@ const DataCommons: DataCommon[] = [
     assets: null,
     configuration: {
       pageTitle: "CTDC Data Model",
-      titleIconSrc: GenericLogo,
       pdfConfig: {
         fileType: "pdf",
         prefix: "CTDC_",
