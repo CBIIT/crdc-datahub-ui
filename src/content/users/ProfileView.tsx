@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Box, Container, MenuItem, Stack, Typography, styled } from "@mui/material";
@@ -35,6 +35,7 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import useProfileFields, { FieldState } from "../../hooks/useProfileFields";
+import AccessRequest from "../../components/AccessRequest";
 
 type Props = {
   _id: User["_id"];
@@ -183,6 +184,14 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
   const userOrg = orgData?.find((org) => org._id === user?.organization?.orgID);
   const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
+
+  const canRequestRole: boolean = useMemo<boolean>(() => {
+    if (viewType !== "profile" || _id !== currentUser._id) {
+      return false;
+    }
+
+    return true;
+  }, [user, _id, currentUser, viewType]);
 
   const [getUser] = useLazyQuery<GetUserResp, GetUserInput>(GET_USER, {
     context: { clientName: "backend" },
@@ -419,7 +428,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     )}
                   />
                 ) : (
-                  user?.role
+                  <>
+                    {user?.role}
+                    {canRequestRole && <AccessRequest />}
+                  </>
                 )}
               </StyledField>
               <StyledField>
