@@ -12,7 +12,7 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: bool
   // Base input
   "& .MuiInputBase-input": {
     backgroundColor: "#fff",
-    padding: "12px 30px 12px 12px !important",
+    padding: "10.5px 30px 10.5px 12px !important",
     minHeight: "20px !important",
     ...(readOnly && {
       backgroundColor: "#E5EEF4",
