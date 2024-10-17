@@ -2,27 +2,87 @@ import React, { FC, useMemo } from "react";
 import userEvent from "@testing-library/user-event";
 import { render, waitFor } from "@testing-library/react";
 import { isEqual } from "lodash";
-import { BrowserRouter } from "react-router-dom";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { MemoryRouter } from "react-router-dom";
 import { axe } from "jest-axe";
 import DataSubmissionSummary from "./DataSubmissionSummary";
 import HistoryIconMap from "./DataSubmissionIconMap";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../Contexts/AuthContext";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../Contexts/SubmissionContext";
 
-type Props = {
-  dataSubmission: RecursivePartial<Submission>;
+const baseAuthCtx: AuthContextState = {
+  status: AuthContextStatus.LOADED,
+  isLoggedIn: false,
+  user: null,
 };
 
-const BaseComponent: FC<Props> = ({ dataSubmission = {} }: Props) => {
-  const value = useMemo(
+const baseUser: User = {
+  _id: "",
+  firstName: "",
+  lastName: "",
+  userStatus: "Active",
+  role: null,
+  IDP: "nih",
+  email: "",
+  organization: null,
+  studies: null,
+  dataCommons: [],
+  createdAt: "",
+  updateAt: "",
+};
+
+const baseSubmissionCtx: SubmissionCtxState = {
+  status: SubmissionCtxStatus.LOADING,
+  data: null,
+  error: null,
+  startPolling: jest.fn(),
+  stopPolling: jest.fn(),
+  refetch: jest.fn(),
+  updateQuery: jest.fn(),
+};
+
+type SummaryProps = {
+  dataSubmission: Submission;
+};
+
+type Props = {
+  children: React.ReactNode;
+  mocks?: MockedResponse[];
+  role?: UserRole;
+  submissionCtxState?: SubmissionCtxState;
+};
+
+const BaseComponent: FC<Props> = ({
+  role = "Submitter",
+  submissionCtxState = baseSubmissionCtx,
+  mocks = [],
+  children,
+}) => {
+  const authState = useMemo<AuthContextState>(
     () => ({
-      dataSubmission: dataSubmission as Submission,
+      ...baseAuthCtx,
+      isLoggedIn: true,
+      user: { ...baseUser, role },
     }),
-    [dataSubmission]
+    [role]
   );
 
   return (
-    <BrowserRouter>
-      <DataSubmissionSummary dataSubmission={value.dataSubmission} />
-    </BrowserRouter>
+    <MockedProvider mocks={mocks}>
+      <AuthContext.Provider value={authState}>
+        <SubmissionContext.Provider value={submissionCtxState}>
+          <MemoryRouter basename="">{children}</MemoryRouter>
+        </SubmissionContext.Provider>
+      </AuthContext.Provider>
+    </MockedProvider>
   );
 };
 
@@ -39,7 +99,11 @@ describe("DataSubmissionSummary Accessibility Tests", () => {
       ],
     };
 
-    const { container } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { container } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -81,7 +145,11 @@ describe("Basic Functionality", () => {
       conciergeEmail: "concierge@test.com",
     };
 
-    const { getByText, getByLabelText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByText, getByLabelText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     // Check labels
     expect(getByText("Submission Name")).toBeVisible();
@@ -142,7 +210,11 @@ describe("Basic Functionality", () => {
       ],
     };
 
-    const { getByTestId } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByTestId } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     // Hover to trigger the tooltip
     userEvent.hover(getByTestId("collaborators-button"));
@@ -161,7 +233,11 @@ describe("Basic Functionality", () => {
       conciergeEmail: "concierge@test.com",
     };
 
-    const { getByText, getByLabelText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByText, getByLabelText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     expect(getByText("Primary Contact")).toBeVisible();
     expect(getByText("Test Concierge")).toBeVisible();
@@ -178,7 +254,9 @@ describe("Basic Functionality", () => {
     };
 
     const { getByText, queryByLabelText } = render(
-      <BaseComponent dataSubmission={dataSubmission} />
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
     );
 
     expect(getByText("Primary Contact")).toBeVisible();
@@ -197,7 +275,7 @@ describe("DataSubmissionSummary Memoization Tests", () => {
 
     const renderSpy = jest.fn();
 
-    const MemoizedComponent = ({ dataSubmission }: Props) => {
+    const MemoizedComponent = ({ dataSubmission }: SummaryProps) => {
       React.useEffect(() => {
         renderSpy();
       });
@@ -209,17 +287,17 @@ describe("DataSubmissionSummary Memoization Tests", () => {
     );
 
     const { rerender } = render(
-      <BrowserRouter>
-        <MemoizedComponentWithMemo dataSubmission={dataSubmission} />
-      </BrowserRouter>
+      <BaseComponent>
+        <MemoizedComponentWithMemo dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
     );
 
     expect(renderSpy).toHaveBeenCalledTimes(1);
 
     rerender(
-      <BrowserRouter>
-        <MemoizedComponentWithMemo dataSubmission={dataSubmission} />
-      </BrowserRouter>
+      <BaseComponent>
+        <MemoizedComponentWithMemo dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
     );
 
     // renderSpy should not have been called again
@@ -237,7 +315,7 @@ describe("DataSubmissionSummary Memoization Tests", () => {
 
     const renderSpy = jest.fn();
 
-    const MemoizedComponent = ({ dataSubmission }: Props) => {
+    const MemoizedComponent = ({ dataSubmission }: SummaryProps) => {
       React.useEffect(() => {
         renderSpy();
       });
@@ -249,18 +327,18 @@ describe("DataSubmissionSummary Memoization Tests", () => {
     );
 
     const { rerender } = render(
-      <BrowserRouter>
-        <MemoizedComponentWithMemo dataSubmission={dataSubmission} />
-      </BrowserRouter>
+      <BaseComponent>
+        <MemoizedComponentWithMemo dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
     );
 
     expect(renderSpy).toHaveBeenCalledTimes(1);
 
     // Re-render with different props
     rerender(
-      <BrowserRouter>
-        <MemoizedComponentWithMemo dataSubmission={newDataSubmission} />
-      </BrowserRouter>
+      <BaseComponent>
+        <MemoizedComponentWithMemo dataSubmission={newDataSubmission as Submission} />
+      </BaseComponent>
     );
 
     // renderSpy should have been called again
@@ -281,7 +359,11 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
       ],
     };
 
-    const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
     expect(getByText("Review Comments")).toBeVisible();
   });
 
@@ -297,7 +379,11 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
       ],
     };
 
-    const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     userEvent.click(getByText("Review Comments"));
 
@@ -324,7 +410,11 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
       ],
     };
 
-    const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     userEvent.click(getByText("Review Comments"));
 
@@ -346,13 +436,17 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
       ],
     };
 
-    const { getByText, queryByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByText, getByTestId, queryByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     userEvent.click(getByText("Review Comments"));
 
     await waitFor(() => expect(getByText("Comment for closing test")).toBeVisible());
 
-    userEvent.click(getByText("Close"));
+    userEvent.click(getByTestId("review-comments-dialog-close"));
 
     await waitFor(() => expect(queryByText("Comment for closing test")).not.toBeInTheDocument());
   });
@@ -370,7 +464,9 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
     };
 
     const { getByText, queryByText, getByTestId } = render(
-      <BaseComponent dataSubmission={dataSubmission} />
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
     );
 
     userEvent.click(getByText("Review Comments"));
@@ -398,7 +494,11 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
       ],
     };
 
-    const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
     expect(getByText("Full History")).toBeVisible();
   });
 
@@ -410,7 +510,11 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
       ],
     };
 
-    const { getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     userEvent.click(getByText("Full History"));
 
@@ -434,7 +538,11 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
       ],
     };
 
-    const { getAllByTestId, getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getAllByTestId, getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     userEvent.click(getByText("Full History"));
 
@@ -453,7 +561,11 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
       history: [{ dateTime: "2023-11-30T11:26:01Z", status: "Submitted" }],
     };
 
-    const { getByText, queryByTestId } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByText, queryByTestId } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     userEvent.click(getByText("Full History"));
 
@@ -473,7 +585,11 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
       ],
     };
 
-    const { getByText, getAllByTestId } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByText, getAllByTestId } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     userEvent.click(getByText("Full History"));
 
@@ -496,7 +612,11 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
       ],
     };
 
-    const { getByTestId, getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+    const { getByTestId, getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
 
     userEvent.click(getByText("Full History"));
 
@@ -511,7 +631,11 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
         history: [{ dateTime: "2023-11-24T01:25:45Z", status: status as SubmissionStatus }],
       };
 
-      const { getByTestId, getByText } = render(<BaseComponent dataSubmission={dataSubmission} />);
+      const { getByTestId, getByText } = render(
+        <BaseComponent>
+          <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+        </BaseComponent>
+      );
 
       userEvent.click(getByText("Full History"));
 

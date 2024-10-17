@@ -9,6 +9,7 @@ import ReviewCommentsDialog from "../Shared/ReviewCommentsDialog";
 import { SortHistory } from "../../utils";
 import TruncatedText from "../TruncatedText";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
+import CollaboratorsDialog from "./CollaboratorsDialog";
 
 const StyledSummaryWrapper = styled("div")(() => ({
   borderRadius: "8px 8px 0px 0px",
@@ -302,6 +303,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         title="Data Submission"
         lastReview={lastReview}
       />
+      <CollaboratorsDialog open onClose={() => {}} onConfirm={() => {}} />
     </StyledSummaryWrapper>
   );
 };
