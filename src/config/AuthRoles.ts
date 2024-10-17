@@ -91,3 +91,8 @@ export const canViewOtherOrgRoles: UserRole[] = [
   "Federal Lead",
   "Federal Monitor",
 ];
+
+/**
+ * A set of user roles that are allowed to request a role change from their profile.
+ */
+export const CanRequestRoleChange: UserRole[] = ["User", "Submitter", "Organization Owner"];
