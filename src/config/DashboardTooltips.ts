@@ -35,6 +35,12 @@ export const TOOLTIP_TEXT = {
       },
     },
   },
+  COLLABORATORS_DIALOG: {
+    PERMISSIONS: {
+      CAN_VIEW: "Grant the collaborator view access to this data submission.",
+      CAN_EDIT: "Grant the collaborator edit access to this data submission.",
+    },
+  },
 } as const;
 
 export type TooltipText = typeof TOOLTIP_TEXT;
