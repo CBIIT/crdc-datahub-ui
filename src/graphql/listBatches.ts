@@ -26,6 +26,8 @@ const FullBatchFragment = gql`
       createdAt
       updatedAt
     }
+    submitterID
+    submitterName
     status
     errors
   }
