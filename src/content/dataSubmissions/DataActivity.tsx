@@ -21,6 +21,11 @@ import {
 import { FormatDate } from "../../utils";
 import FileListDialog from "../../components/FileListDialog";
 import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+
+const StyledDateTooltip = styled(StyledTooltip)({
+  cursor: "pointer",
+});
 
 const StyledRejectedStatus = styled("div")({
   color: "#B54717",
@@ -107,13 +112,23 @@ const columns: Column<Batch>[] = [
   },
   {
     label: "Uploaded Date",
-    renderValue: (data) =>
-      data?.createdAt ? `${FormatDate(data.createdAt, "MM-DD-YYYY [at] hh:mm A")}` : "",
+    renderValue: (data) => (
+      <StyledDateTooltip title={FormatDate(data.createdAt, "M/D/YYYY h:mm A")} placement="top">
+        <span data-testid={`activity-uploaded-date-${data?._id}`}>
+          {FormatDate(data.createdAt, "M/D/YYYY")}
+        </span>
+      </StyledDateTooltip>
+    ),
     field: "createdAt",
     default: true,
     sx: {
-      minWidth: "240px",
+      minWidth: "92px",
     },
+  },
+  {
+    label: "Uploaded By",
+    renderValue: (data) => data?.submitterName || "",
+    field: "submitterName",
   },
   {
     label: "Upload Errors",
