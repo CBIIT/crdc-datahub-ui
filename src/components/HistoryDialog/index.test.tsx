@@ -153,6 +153,45 @@ describe("Implementation Requirements", () => {
     ).toHaveAttribute("title", "2024-09-05T14:45:00Z");
   });
 
+  it("should render the name for each history item if provided", () => {
+    const history: HistoryBase<MockStatuses>[] = [
+      {
+        status: "uploaded",
+        dateTime: "2024-09-25T14:45:00Z",
+        userID: "test",
+        userName: "Test User",
+      },
+      {
+        status: "downloaded",
+        dateTime: "2024-09-11T14:45:00Z",
+        userID: "test",
+        userName: "Another User",
+      },
+    ];
+
+    const { getByTestId } = render(<HistoryDialog {...BaseProps} history={history} />);
+
+    expect(
+      within(getByTestId("history-item-0")).getByTestId("history-item-0-name")
+    ).toHaveTextContent("Test User");
+
+    expect(
+      within(getByTestId("history-item-1")).getByTestId("history-item-1-name")
+    ).toHaveTextContent("Another User");
+  });
+
+  it("should not render the name for each history item if not provided", () => {
+    const history: HistoryBase<MockStatuses>[] = [
+      { status: "uploaded", dateTime: "2024-09-25T14:45:00Z", userID: "test" },
+      { status: "downloaded", dateTime: "2024-09-11T14:45:00Z", userID: "test" },
+    ];
+
+    const { queryByTestId } = render(<HistoryDialog {...BaseProps} history={history} />);
+
+    expect(queryByTestId("history-item-0-name")).not.toBeInTheDocument();
+    expect(queryByTestId("history-item-1-name")).not.toBeInTheDocument();
+  });
+
   it("should fallback to #FFF if getTextColor is not a function", () => {
     const history: HistoryBase<MockStatuses>[] = [
       { status: "uploaded", dateTime: "2024-09-05T14:45:00Z", userID: "test", reviewComment: "" },

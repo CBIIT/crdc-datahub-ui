@@ -1,17 +1,15 @@
-import { CSSProperties, useMemo } from "react";
+import { CSSProperties, memo, useCallback, useMemo } from "react";
 import {
-  Avatar,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogProps,
   DialogTitle,
-  Stack,
   Typography,
+  Grid,
+  styled,
 } from "@mui/material";
-import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineContent } from "@mui/lab";
-import { styled } from "@mui/material/styles";
 import { FormatDate, SortHistory } from "../../utils";
 
 const StyledDialog = styled(Dialog)({
@@ -32,7 +30,6 @@ const StyledDialogTitle = styled(DialogTitle)({
 const StyledPreTitle = styled("p")({
   color: "#D5DAE7",
   fontSize: "13px",
-  fontFamily: "Nunito Sans",
   lineHeight: "27px",
   letterSpacing: "0.5px",
   textTransform: "uppercase",
@@ -51,109 +48,22 @@ const StyledTitle = styled("p")({
 const StyledDialogContent = styled(DialogContent)({
   marginTop: "20px",
   marginBottom: "22px",
+  overflowY: "visible",
 });
 
-const StyledTimelineItem = styled(TimelineItem)({
-  alignItems: "center",
-  "&::before": {
-    flex: "0",
-    padding: "0",
-    paddingLeft: "55px",
-  },
-  // Add vertical separator line between timeline items
-  "&:not(:last-of-type)::after": {
-    content: '" "',
-    height: "1px",
-    left: "0",
-    right: "0",
-    bottom: "0",
-    position: "absolute",
-    background: "#375F9A",
-  },
-  // Add vertical lines between timeline item dots (top)
-  "&:not(:first-of-type) .MuiTimelineSeparator-root::before": {
-    content: '" "',
-    width: "6px",
-    background: "#fff",
-    top: "0",
-    bottom: "50%",
-    right: "50%",
-    position: "absolute",
-    transform: "translateX(50%)",
-    zIndex: "1",
-  },
-  // Add vertical lines between timeline item dots (bottom)
-  "&:not(:last-of-type) .MuiTimelineSeparator-root::after": {
-    content: '" "',
-    width: "6px",
-    background: "#fff",
-    top: "50%",
-    bottom: "0",
-    right: "50%",
-    position: "absolute",
-    transform: "translateX(50%)",
-    zIndex: "1",
-  },
-});
-
-const StyledTimelineSeparator = styled(TimelineSeparator)({
-  position: "relative",
-  minHeight: "70px",
-});
-
-const StyledTimelineDot = styled(TimelineDot)({
-  background: "#fff",
-  borderWidth: "4px",
-  margin: "0",
-  zIndex: "2",
+const StyledIcon = styled("div")({
   position: "absolute",
   top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-});
-
-const StyledTimelineVerticalLine = styled("span")({
-  width: "60px",
-  height: "2px",
-  background: "#fff",
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  "&::after": {
-    content: '" "',
-    width: "6px",
-    height: "6px",
-    borderRadius: "50%",
-    background: "#fff",
-    top: "50%",
-    bottom: "0",
-    right: "0",
-    position: "absolute",
-    transform: "translateY(-50%)",
-    zIndex: "1",
+  transform: "translateY(-50%)",
+  lineHeight: "0",
+  "& img": {
+    WebkitUserDrag: "none",
   },
-});
-
-const StyledTimelineContent = styled(TimelineContent)({
-  marginLeft: "60px",
-  paddingRight: 0,
-  color: "#fff",
-});
-
-const StyledTypography = styled(Typography)<{ color: CSSProperties["color"] }>(({ color }) => ({
-  lineHeight: "2.5",
-  minWidth: "100px",
-  textAlign: "left",
-  color,
-}));
-
-const StyledAvatar = styled(Avatar)({
-  background: "transparent",
-  marginRight: "8px",
 });
 
 const StyledCloseButton = styled(Button)({
   minWidth: "137px",
+  fontSize: "16px",
   fontWeight: "700",
   borderRadius: "8px",
   textTransform: "none",
@@ -167,6 +77,106 @@ const StyledCloseButton = styled(Button)({
   },
 });
 
+const StyledGridHeader = styled(Grid)({
+  borderBottom: "0.5px solid #375F9A",
+  paddingBottom: "8px",
+  marginBottom: "4px",
+});
+
+const StyledHistoryHeader = styled(Typography)({
+  fontFamily: "Public Sans",
+  fontWeight: "300",
+  fontSize: "8px",
+  textAlign: "center",
+  textTransform: "uppercase",
+  color: "#9FB3D1",
+  userSelect: "none",
+});
+
+const StyledGridEventItem = styled(Grid)({
+  padding: "20px 0",
+  borderBottom: "0.5px solid #375F9A",
+  alignItems: "center",
+});
+
+const StyledHistoryItem = styled(Typography)<{
+  color: CSSProperties["color"];
+  textAlign?: CSSProperties["textAlign"];
+}>(({ textAlign = "center", color }) => ({
+  fontFamily: "Public Sans",
+  fontWeight: "400",
+  fontSize: "13px",
+  letterSpacing: "0.0025em",
+  userSelect: "none",
+  textAlign,
+  color,
+}));
+
+const VerticalDot = styled("div")({
+  position: "absolute",
+  top: "50%",
+  left: "0px",
+  transform: "translateY(-50%)",
+  content: '""',
+  width: "16px",
+  height: "16px",
+  borderRadius: "50%",
+  background: "white",
+});
+
+const TopConnector = styled("div")({
+  content: '""',
+  position: "absolute",
+  left: "5px",
+  bottom: "0",
+  width: "6px",
+  height: "30px", // TODO: Rows can be different heights and this should be dynamic
+  background: "white",
+});
+
+const BottomConnector = styled("div")({
+  content: '""',
+  position: "absolute",
+  left: "5px",
+  top: "0",
+  width: "6px",
+  height: "30px", // TODO: Rows can be different heights and this should be dynamic
+  background: "white",
+});
+
+const HorizontalLine = styled("div")({
+  // Primary horizontal line
+  position: "absolute",
+  top: "50%",
+  left: "0px",
+  transform: "translateY(-50%)",
+  content: '""',
+  width: "68px",
+  height: "1px",
+  background: "white",
+  // End dot adornment
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    top: "50%",
+    right: "0px",
+    transform: "translateY(-50%)",
+    width: "5px",
+    height: "5px",
+    borderRadius: "50%",
+    background: "white",
+  },
+});
+
+type EventItem = {
+  color: string;
+  icon: string | null;
+  status: string;
+  date: string;
+  nameColor: string;
+  name: string | null;
+};
+
 export type IconType<T extends string> = Record<T, string>;
 
 type Props<T extends string> = {
@@ -179,9 +189,9 @@ type Props<T extends string> = {
 } & DialogProps;
 
 /**
- * Status Bar History Section
+ * A generic history dialog component that displays a list of history transitions.
  *
- * @returns {JSX.Element}
+ * @returns {JSX.Element} The history dialog component
  */
 const HistoryDialog = <T extends string>({
   preTitle,
@@ -192,8 +202,42 @@ const HistoryDialog = <T extends string>({
   open,
   onClose,
   ...rest
-}: Props<T>) => {
-  const sortedHistory = useMemo(() => SortHistory(history), [history]);
+}: Props<T>): JSX.Element => {
+  const getColor = useCallback(
+    (status: T) => {
+      if (typeof getTextColor === "function") {
+        return getTextColor(status);
+      }
+
+      return "#FFF";
+    },
+    [getTextColor]
+  );
+
+  const events = useMemo<EventItem[]>(() => {
+    const result: EventItem[] = [];
+    const sorted = SortHistory(history);
+
+    sorted.forEach((item, index) => {
+      const { status, dateTime, ...others } = item;
+
+      result.push({
+        color: getColor(status),
+        icon: index === 0 && iconMap[status] ? iconMap[status] : null,
+        status: status || "",
+        date: dateTime,
+        name: "userName" in others ? others.userName : null,
+        nameColor: index === 0 ? getColor(status) : "#97B5CE",
+      });
+    });
+
+    return result;
+  }, [history, iconMap, getColor]);
+
+  const eventHasNames: boolean = useMemo<boolean>(
+    () => events.some((event) => event.name !== null),
+    [events]
+  );
 
   return (
     <StyledDialog
@@ -208,53 +252,80 @@ const HistoryDialog = <T extends string>({
         <StyledTitle>{title}</StyledTitle>
       </StyledDialogTitle>
       <StyledDialogContent>
-        <Timeline position="right">
-          {sortedHistory?.map(({ status, dateTime }, index) => (
-            <StyledTimelineItem
-              key={`history-item-${status}-${dateTime}}`}
-              data-testid={`history-item-${index}`}
-            >
-              <StyledTimelineSeparator>
-                <StyledTimelineDot />
-                <StyledTimelineVerticalLine />
-              </StyledTimelineSeparator>
-              <StyledTimelineContent>
-                <Stack direction="row" alignContent="center" spacing={1} paddingRight={0}>
-                  <StyledTypography
-                    title={dateTime}
-                    color={typeof getTextColor === "function" ? getTextColor(status) : "#FFF"}
-                    data-testid={`history-item-${index}-date`}
-                  >
-                    {FormatDate(dateTime, "M/D/YYYY", "N/A")}
-                  </StyledTypography>
-                  <StyledTypography
-                    color={typeof getTextColor === "function" ? getTextColor(status) : "#FFF"}
-                    data-testid={`history-item-${index}-status`}
-                  >
-                    {status?.toString()?.toUpperCase()}
-                  </StyledTypography>
-                  {index === 0 && iconMap && iconMap[status] && (
-                    <StyledAvatar>
-                      <img
-                        src={iconMap[status]}
-                        alt={`${status} icon`}
-                        data-testid={`history-item-${index}-icon`}
-                      />
-                    </StyledAvatar>
-                  )}
-                </Stack>
-              </StyledTimelineContent>
-            </StyledTimelineItem>
-          ))}
-        </Timeline>
+        <StyledGridHeader container columnSpacing={3}>
+          <Grid item xs={2} />
+          <Grid item xs={3}>
+            <StyledHistoryHeader>Status</StyledHistoryHeader>
+          </Grid>
+          <Grid item xs={3}>
+            <StyledHistoryHeader>Date</StyledHistoryHeader>
+          </Grid>
+          {eventHasNames && (
+            <Grid item xs={3}>
+              <StyledHistoryHeader>User</StyledHistoryHeader>
+            </Grid>
+          )}
+          {/* TODO: fine tune spacing when no name column is shown */}
+          <Grid item xs={eventHasNames ? 1 : 4} />
+        </StyledGridHeader>
+        {events?.map(({ status, date, color, name, nameColor, icon }, index) => (
+          <StyledGridEventItem
+            container
+            key={`history-event-${date}`}
+            data-testid={`history-item-${index}`}
+            columnSpacing={3}
+          >
+            <Grid item xs={2}>
+              <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                {index !== 0 && <TopConnector />}
+                <VerticalDot />
+                <HorizontalLine />
+                {index !== events.length - 1 && <BottomConnector />}
+              </div>
+            </Grid>
+            <Grid item xs={3}>
+              <StyledHistoryItem
+                color={color}
+                textAlign="left"
+                data-testid={`history-item-${index}-status`}
+              >
+                {status?.toUpperCase()}
+              </StyledHistoryItem>
+            </Grid>
+            <Grid item xs={3}>
+              <StyledHistoryItem
+                color={color}
+                title={date}
+                data-testid={`history-item-${index}-date`}
+              >
+                {FormatDate(date, "M/D/YYYY", "N/A")}
+              </StyledHistoryItem>
+            </Grid>
+            {eventHasNames && (
+              <Grid item xs={3} data-testid={`history-item-${index}-name`}>
+                <StyledHistoryItem color={nameColor}>{name}</StyledHistoryItem>
+              </Grid>
+            )}
+            {/* TODO: fine tune spacing when no name column is shown */}
+            <Grid item xs={eventHasNames ? 1 : 4} sx={{ position: "relative" }}>
+              {icon && (
+                <StyledIcon>
+                  <img
+                    src={icon}
+                    alt={`${status} icon`}
+                    data-testid={`history-item-${index}-icon`}
+                  />
+                </StyledIcon>
+              )}
+            </Grid>
+          </StyledGridEventItem>
+        ))}
       </StyledDialogContent>
       <DialogActions>
         <StyledCloseButton
-          id="close-full-history-button"
           onClick={onClose}
           variant="outlined"
           size="large"
-          aria-label="Close dialog"
           data-testid="history-dialog-close"
         >
           Close
@@ -264,4 +335,5 @@ const HistoryDialog = <T extends string>({
   );
 };
 
-export default HistoryDialog;
+// TODO: type this
+export default memo(HistoryDialog);
