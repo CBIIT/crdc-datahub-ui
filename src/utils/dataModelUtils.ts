@@ -176,6 +176,7 @@ export const traverseAndReplace = (
           if (PermissibleValues?.length && property.enum) {
             property.enum = PermissibleValues;
             property.CDEFullName = CDEFullName;
+            property.CDECode = CDECode;
             property.CDEPublicID = getCDEPublicID(CDECode, CDEVersion);
             property.CDEVersion = CDEVersion;
             property.CDEOrigin = "caDSR";
