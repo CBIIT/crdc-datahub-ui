@@ -52,6 +52,7 @@ const baseSubmission: Submission = {
   nodeCount: 0,
   createdAt: "",
   updatedAt: "",
+  collaborators: [],
 };
 
 const baseBatch = {

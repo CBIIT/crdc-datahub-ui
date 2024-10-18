@@ -41,6 +41,7 @@ const BaseSubmission: Omit<
   studyID: "",
   deletingData: false,
   nodeCount: 0,
+  collaborators: [],
 };
 
 type TestParentProps = {

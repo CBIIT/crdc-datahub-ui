@@ -60,14 +60,14 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
     preConditionCheck: (s) => s.intention === "Delete",
     check: (s) => !!s.metadataValidationStatus,
     tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
-    required: false,
+    required: true,
   },
   {
     _identifier: "Metadata validation should be initialized for 'Metadata Only' submissions",
     preConditionCheck: (s) => s.dataType === "Metadata Only",
     check: (s) => !!s.metadataValidationStatus,
     tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
-    required: false,
+    required: true,
   },
   {
     _identifier:
@@ -75,7 +75,7 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
     preConditionCheck: (s) => s.dataType === "Metadata and Data Files",
     check: (s) => !!s.fileValidationStatus,
     tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.MISSING_DATA_FILE,
-    required: false,
+    required: true,
   },
   {
     _identifier:
@@ -83,7 +83,7 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
     preConditionCheck: (s) => s.dataType === "Metadata and Data Files",
     check: (s) => !!s.metadataValidationStatus,
     tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
-    required: false,
+    required: true,
   },
   {
     _identifier: "There should be no validation errors for metadata or data files",
@@ -102,15 +102,6 @@ export const ADMIN_OVERRIDE_CONDITIONS: AdminOverrideCondition[] = [
   {
     _identifier: "Admin Override - Submission has validation errors",
     check: (s) => s.metadataValidationStatus === "Error" || s.fileValidationStatus === "Error",
-    tooltip: undefined,
-  },
-  {
-    _identifier:
-      "Admin Override - Submission is missing either metadata or data files for 'Metadata and Data Files' submissions",
-    check: (s) =>
-      (!!s.metadataValidationStatus && !s.fileValidationStatus) ||
-      (!s.metadataValidationStatus && !!s.fileValidationStatus),
-    preConditionCheck: (s) => s.dataType === "Metadata and Data Files",
     tooltip: undefined,
   },
 ];

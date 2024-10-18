@@ -11,10 +11,6 @@ type ModelNavigatorConfig = {
    */
   pageTitle: string;
   /**
-   * The icon to display in the title of the Data Model Navigator page
-   */
-  titleIconSrc?: string;
-  /**
    * Provides a title to the README modal popup
    *
    * @default "Understanding the Data Model"
@@ -51,6 +47,8 @@ type ModelNavigatorConfig = {
 
 /**
  * This is an object that contains the fully qualified URLs for the Data Model assets.
+ *
+ * @note This is just an internal concept, it's not used outside of the UI or within dependencies.
  */
 type ModelAssetUrls = {
   /**
@@ -70,6 +68,13 @@ type ModelAssetUrls = {
    * The URL for the Data Model Loading files zip
    */
   loading_file: string;
+  /**
+   * The URL for the Data Model Navigator logo
+   *
+   * @see Related to {@link ManifestAssets} "model-navigator-logo"
+   * @since 3.1.0
+   */
+  navigator_icon: string;
 };
 
 type FacetSearchData = {

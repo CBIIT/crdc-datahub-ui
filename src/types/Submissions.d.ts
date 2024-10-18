@@ -63,6 +63,10 @@ type Submission = {
    * The total number of nodes in the Submission
    */
   nodeCount: number;
+  /**
+   * A list of additional submitters who can view and/or edit the submission
+   */
+  collaborators: Collaborator[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
@@ -384,4 +388,19 @@ type SubmitButtonResult = {
   isAdminOverride?: boolean;
   tooltip?: string;
   _identifier?: string;
+};
+
+/**
+ * Represents the permissions a collaborator can have in a submission
+ */
+type CollaboratorPermissions = "Can View" | "Can Edit";
+
+/**
+ * Represents a submitter that can view/edit another submitter's submission
+ */
+type Collaborator = {
+  collaboratorID: string;
+  collaboratorName: string;
+  Organization: Pick<OrgInfo, "orgID" | "orgName">;
+  permission: CollaboratorPermissions;
 };

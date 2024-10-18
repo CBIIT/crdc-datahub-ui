@@ -3,7 +3,7 @@ import { loadFont } from "./utils";
 import fonts from "./Fonts";
 import { FormatDate, formatFullStudyName } from "../../../utils";
 import env from "../../../env";
-import Logo from "../../../assets/modelNavigator/Logo.jpg";
+import Logo from "../../../assets/header/Logo.jpg";
 import {
   COLOR_HR,
   COLOR_FIELD_BASE,

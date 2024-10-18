@@ -129,6 +129,7 @@ describe("buildAssetUrls cases", () => {
       props: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/prop-file`,
       readme: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/readme-file`,
       loading_file: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/loading-file-zip-name`,
+      navigator_icon: expect.any(String),
     });
   });
 
@@ -147,6 +148,62 @@ describe("buildAssetUrls cases", () => {
     const result = utils.buildAssetUrls(dc);
 
     expect(result.readme).toEqual(null);
+  });
+
+  it("should use GenericModelLogo if model-navigator-logo is not defined", () => {
+    const dc: DataCommon = {
+      name: "test-name",
+      assets: {
+        "current-version": "1.0",
+        "model-file": "model-file",
+        "prop-file": "prop-file",
+        "readme-file": "readme-file",
+        "loading-file": "loading-file-zip-name",
+        // "model-navigator-logo" - not defined, aka no logo
+      } as ManifestAssets,
+    } as DataCommon;
+
+    const result = utils.buildAssetUrls(dc);
+
+    expect(result.navigator_icon).toEqual("genericLogo.png");
+  });
+
+  it("should use GenericModelLogo if the model-navigator-logo is an empty string", () => {
+    const dc: DataCommon = {
+      name: "test-name",
+      assets: {
+        "current-version": "1.0",
+        "model-file": "model-file",
+        "prop-file": "prop-file",
+        "readme-file": "readme-file",
+        "loading-file": "loading-file-zip-name",
+        "model-navigator-logo": "", // empty string - aka no logo
+      } as ManifestAssets,
+    } as DataCommon;
+
+    const result = utils.buildAssetUrls(dc);
+
+    expect(result.navigator_icon).toEqual("genericLogo.png");
+  });
+
+  it("should use model-navigator-logo if provided in the content manifest", () => {
+    const dc: DataCommon = {
+      name: "test-name",
+      assets: {
+        "current-version": "1.0",
+        "model-file": "model-file",
+        "prop-file": "prop-file",
+        "readme-file": "readme-file",
+        "loading-file": "loading-file-zip-name",
+        "model-navigator-logo": "custom-logo.png", // defined - must exist
+      } as ManifestAssets,
+    } as DataCommon;
+
+    const result = utils.buildAssetUrls(dc);
+
+    expect(result.navigator_icon).toEqual(
+      `${MODEL_FILE_REPO}prod/cache/test-name/1.0/custom-logo.png`
+    );
   });
 
   it("should not throw an exception if dealing with invalid data", () => {
