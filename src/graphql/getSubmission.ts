@@ -51,6 +51,7 @@ export const query = gql`
         reviewComment
         dateTime
         userID
+        userName
       }
       conciergeName
       conciergeEmail
