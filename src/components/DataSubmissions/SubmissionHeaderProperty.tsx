@@ -1,5 +1,6 @@
 import { Box, Grid, Stack, Typography, styled } from "@mui/material";
-import { FC } from "react";
+import { memo } from "react";
+import TruncatedText from "../TruncatedText";
 
 const StyledLabel = styled(Typography)(() => ({
   color: "#000000",
@@ -24,17 +25,33 @@ export const StyledValue = styled(Typography)(() => ({
 type Props = {
   label: string;
   value: string | JSX.Element;
+  truncateAfter?: number | false;
 };
 
-const SubmissionHeaderProperty: FC<Props> = ({ label, value }) => (
+const SubmissionHeaderProperty = ({ label, value, truncateAfter = 16 }: Props) => (
   <Grid lg={6} xs={12} item>
     <Stack direction="row" alignItems="center" width="100%" maxWidth="100%" spacing={2.75}>
       <StyledLabel variant="body1">{label}</StyledLabel>
       <Box flexGrow={1} overflow="hidden">
-        {typeof value === "string" ? <StyledValue variant="body1">{value}</StyledValue> : value}
+        {typeof value === "string" ? (
+          <StyledValue variant="body1" data-testid="property-value">
+            {truncateAfter && truncateAfter > 0 ? (
+              <TruncatedText
+                text={value}
+                maxCharacters={truncateAfter}
+                underline={false}
+                ellipsis
+              />
+            ) : (
+              value
+            )}
+          </StyledValue>
+        ) : (
+          value
+        )}
       </Box>
     </Stack>
   </Grid>
 );
 
-export default SubmissionHeaderProperty;
+export default memo(SubmissionHeaderProperty);

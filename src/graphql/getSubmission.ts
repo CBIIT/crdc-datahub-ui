@@ -58,6 +58,15 @@ export const query = gql`
       dataType
       otherSubmissions
       nodeCount
+      collaborators {
+        collaboratorID
+        collaboratorName
+        Organization {
+          orgID
+          orgName
+        }
+        permission
+      }
       createdAt
       updatedAt
     }
