@@ -124,6 +124,9 @@ const StyledRadioGroup = styled(RadioGroup)({
   "& .MuiFormControlLabel-root": {
     margin: 0,
   },
+  "& .MuiFormControlLabel-asterisk": {
+    display: "none",
+  },
 });
 
 const StyledRadioButton = styled(StyledFormRadioButton)({
@@ -222,22 +225,22 @@ const CollaboratorsTable = ({
             </StyledTableHeaderRow>
           </TableHead>
           <TableBody>
-            {currentCollaborators?.map((collaborator) => (
-              <StyledTableRow key={collaborator?.collaboratorID}>
+            {currentCollaborators?.map((collaborator, idx) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <StyledTableRow key={`collaborator_${idx}`}>
                 <StyledNameCell width="24.8%">
                   <StyledSelect
-                    value={collaborator.collaboratorID}
+                    value={collaborator.collaboratorID || ""}
                     onChange={(e) =>
-                      handleUpdateCollaborator(collaborator.collaboratorID, {
+                      handleUpdateCollaborator(idx, {
                         collaboratorID: e?.target?.value as string,
                         permission: collaborator.permission,
                       })
                     }
-                    displayEmpty
                     autoFocus
                     MenuProps={{ disablePortal: true }}
                     renderValue={(val: string) => {
-                      if (!collaborator) {
+                      if (!val) {
                         return "";
                       }
 
@@ -250,11 +253,13 @@ const CollaboratorsTable = ({
                         />
                       );
                     }}
+                    required
                   >
                     {[collaborator, ...remainingPotentialCollaborators]
+                      ?.filter((collaborator) => !!collaborator?.collaboratorID)
                       ?.sort((a, b) => a.collaboratorName?.localeCompare(b.collaboratorName))
                       ?.map((pc) => (
-                        <MenuItem key={pc.collaboratorID} value={pc.collaboratorID}>
+                        <MenuItem key={pc.collaboratorID} value={pc.collaboratorID} hidden>
                           {pc.collaboratorName}
                         </MenuItem>
                       ))}
@@ -273,7 +278,7 @@ const CollaboratorsTable = ({
                     <StyledRadioGroup
                       value={collaborator?.permission || ""}
                       onChange={(e, val: CollaboratorPermissions) =>
-                        handleUpdateCollaborator(collaborator?.collaboratorID, {
+                        handleUpdateCollaborator(idx, {
                           collaboratorID: collaborator?.collaboratorID,
                           permission: val,
                         })
@@ -288,7 +293,7 @@ const CollaboratorsTable = ({
                       >
                         <StyledRadioControl
                           value="Can View"
-                          control={<StyledRadioButton readOnly={false} />}
+                          control={<StyledRadioButton readOnly={false} required />}
                           label="Can View"
                         />
                       </CustomTooltip>
@@ -299,7 +304,7 @@ const CollaboratorsTable = ({
                       >
                         <StyledRadioControl
                           value="Can Edit"
-                          control={<StyledRadioButton readOnly={false} />}
+                          control={<StyledRadioButton readOnly={false} required />}
                           label="Can Edit"
                         />
                       </CustomTooltip>
@@ -310,7 +315,7 @@ const CollaboratorsTable = ({
                   <StyledTableCell width="13.44%">
                     <Stack direction="row" justifyContent="center" alignItems="center">
                       <StyledRemoveButton
-                        onClick={() => handleRemoveCollaborator(collaborator?.collaboratorID)}
+                        onClick={() => handleRemoveCollaborator(idx)}
                         aria-label="Remove row"
                       >
                         <RemoveIconSvg />

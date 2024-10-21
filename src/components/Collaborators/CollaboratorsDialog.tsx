@@ -1,5 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
+import { isEqual } from "lodash";
 import { useMutation, useQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
@@ -101,26 +102,14 @@ const StyledDescription = styled(Typography)({
 });
 
 type Props = {
-  header?: string;
-  description?: string;
-  closeText?: string;
-  confirmText?: string;
   onClose: () => void;
   onConfirm: () => void;
 } & Omit<DialogProps, "onClose" | "title">;
 
-const CollaboratorsDialog = ({
-  closeText = "Cancel",
-  confirmText = "Confirm to Remove",
-  onClose,
-  onConfirm,
-  open,
-  ...rest
-}: Props) => {
+const CollaboratorsDialog = ({ onClose, onConfirm, open, ...rest }: Props) => {
   const { data: submission, status: submissionStatus } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
 
-  const [, setLoading] = useState<boolean>(false); // TODO:
   const [collaborators, setCollaborators] = useState<
     Pick<Collaborator, "collaboratorID" | "permission">[]
   >([]);
@@ -144,9 +133,10 @@ const CollaboratorsDialog = ({
     fetchPolicy: "no-cache",
   });
 
-  const handleOnSave = async () => {
+  const handleOnSave = async (event) => {
+    event.preventDefault();
+
     try {
-      setLoading(true);
       const { data: d, errors } = await editSubmissionCollaborators({
         variables: {
           submissionID: submission?.getSubmission?._id,
@@ -159,13 +149,12 @@ const CollaboratorsDialog = ({
       }
 
       enqueueSnackbar("All collaborator changes have been saved successfully.");
+      onClose?.();
     } catch (err) {
       Logger.error(`CollaboratorDialog: ${err?.toString()}`);
       enqueueSnackbar("Unable to edit submission collaborators.", {
         variant: "error",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -177,10 +166,16 @@ const CollaboratorsDialog = ({
       )
       ?.map((c) => ({ collaboratorID: c.collaboratorID, permission: c.permission }));
 
+    if (isEqual(filteredCollaborators, collaborators)) {
+      return;
+    }
     setCollaborators(filteredCollaborators);
   };
 
-  const handleOnCancel = () => {};
+  const handleOnCancel = () => {
+    setCollaborators([]);
+    onClose?.();
+  };
 
   return (
     <StyledDialog
@@ -209,52 +204,54 @@ const CollaboratorsDialog = ({
         vulputate neque. Sodales felis etiam pellentesque a pretium mauris.
       </StyledDescription>
 
-      <CollaboratorsTable
-        collaborators={submission?.getSubmission?.collaborators}
-        potentialCollaborators={listPotentialCollaboratorsResp?.listPotentialCollaborators ?? []}
-        loading={
-          listPotentialCollaboratorsLoading || submissionStatus === SubmissionCtxStatus.LOADING
-        }
-        onCollaboratorsChange={handleOnCollaboratorsChange}
-      />
+      <form id="manage-collaborators-dialog-form" onSubmit={handleOnSave}>
+        <CollaboratorsTable
+          collaborators={submission?.getSubmission?.collaborators}
+          potentialCollaborators={listPotentialCollaboratorsResp?.listPotentialCollaborators ?? []}
+          loading={
+            listPotentialCollaboratorsLoading || submissionStatus === SubmissionCtxStatus.LOADING
+          }
+          onCollaboratorsChange={handleOnCollaboratorsChange}
+        />
 
-      <Stack
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-        spacing={2}
-        marginTop="58px"
-      >
-        <StyledSaveButton
-          variant="contained"
-          color="success"
-          onClick={handleOnSave}
-          aria-label="Save changes button"
-          data-testid="collaborators-dialog-save-button"
+        <Stack
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+          spacing={2}
+          marginTop="58px"
         >
-          Save
-        </StyledSaveButton>
-        <StyledCancelButton
-          variant="contained"
-          color="error"
-          onClick={handleOnCancel}
-          aria-label="Cancel button"
-          data-testid="collaborators-dialog-cancel-button"
-        >
-          Cancel
-        </StyledCancelButton>
-        <StyledCloseButton
-          variant="contained"
-          color="info"
-          onClick={onClose}
-          aria-label="Close button"
-          data-testid="collaborators-dialog-close-button"
-        >
-          Close
-        </StyledCloseButton>
-      </Stack>
+          <StyledSaveButton
+            variant="contained"
+            color="success"
+            type="submit"
+            aria-label="Save changes button"
+            data-testid="collaborators-dialog-save-button"
+          >
+            Save
+          </StyledSaveButton>
+          <StyledCancelButton
+            variant="contained"
+            color="error"
+            onClick={handleOnCancel}
+            aria-label="Cancel button"
+            data-testid="collaborators-dialog-cancel-button"
+          >
+            Cancel
+          </StyledCancelButton>
+          <StyledCloseButton
+            variant="contained"
+            color="info"
+            onClick={onClose}
+            aria-label="Close button"
+            data-testid="collaborators-dialog-close-button"
+          >
+            Close
+          </StyledCloseButton>
+        </Stack>
+      </form>
     </StyledDialog>
   );
 };
 
-export default CollaboratorsDialog;
+export default React.memo(CollaboratorsDialog, isEqual);

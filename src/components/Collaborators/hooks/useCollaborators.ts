@@ -1,4 +1,4 @@
-import { uniqueId } from "lodash";
+import { isEqual } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import { formatName } from "../../../utils";
 
@@ -25,8 +25,8 @@ type UseCollaboratorsReturn = {
   currentCollaborators: Collaborator[];
   remainingPotentialCollaborators: Collaborator[];
   handleAddCollaborator: () => void;
-  handleRemoveCollaborator: (collaboratorID: string) => void;
-  handleUpdateCollaborator: (collaboratorID: string, newCollaborator: CollaboratorInput) => void;
+  handleRemoveCollaborator: (collaboratorIdx: number) => void;
+  handleUpdateCollaborator: (collaboratorIdx: number, newCollaborator: CollaboratorInput) => void;
 };
 
 const useCollaborators = ({
@@ -34,10 +34,11 @@ const useCollaborators = ({
   potentialCollaborators,
   onCollaboratorsChange,
 }: UseCollaboratorsParams): UseCollaboratorsReturn => {
-  const [currentCollaborators, setCurrentCollaborators] = useState<Collaborator[]>([]);
-  const [, setEmptyCollaborators] = useState<Collaborator[]>([]); // TODO:
+  const [currentCollaborators, setCurrentCollaborators] = useState<Collaborator[]>([
+    { collaboratorID: "" } as Collaborator,
+  ]);
 
-  const emptyIdPrefix = "empty-collaborator-";
+  useEffect(() => {}, [currentCollaborators]);
 
   useEffect(() => {
     const mappedCollaborators = collaborators?.map((collaborator) => {
@@ -52,8 +53,10 @@ const useCollaborators = ({
     });
 
     if (!mappedCollaborators?.length) {
-      const newEmptyCollaborator = createEmptyCollaborator();
-      setCurrentCollaborators([newEmptyCollaborator]);
+      return;
+    }
+
+    if (isEqual(mappedCollaborators, currentCollaborators)) {
       return;
     }
 
@@ -65,7 +68,7 @@ const useCollaborators = ({
   }, [currentCollaborators]);
 
   const remainingPotentialCollaborators = useMemo(() => {
-    const currentCollaboratorIDs = currentCollaborators?.map((c) => c.collaboratorID);
+    const currentCollaboratorIDs = [...currentCollaborators]?.map((c) => c.collaboratorID);
 
     return potentialCollaborators
       ?.filter((pc) => !currentCollaboratorIDs?.includes(pc._id))
@@ -74,9 +77,7 @@ const useCollaborators = ({
   }, [currentCollaborators, potentialCollaborators]);
 
   const createEmptyCollaborator = (): Collaborator => {
-    const id = uniqueId(emptyIdPrefix);
-    const newEmptyCollaborator = { collaboratorID: id } as Collaborator;
-    setEmptyCollaborators((prevCollaborators) => [...prevCollaborators, newEmptyCollaborator]);
+    const newEmptyCollaborator = { collaboratorID: "" } as Collaborator;
     return newEmptyCollaborator;
   };
 
@@ -84,24 +85,19 @@ const useCollaborators = ({
     setCurrentCollaborators((prev) => [...prev, createEmptyCollaborator()]);
   };
 
-  const handleRemoveCollaborator = (collaboratorID: string) => {
-    if (collaboratorID.startsWith(emptyIdPrefix)) {
-      setEmptyCollaborators(
-        (prevCollaborators) =>
-          prevCollaborators?.filter(
-            (collaborator) => collaborator.collaboratorID === collaboratorID
-          )
-      );
+  const handleRemoveCollaborator = (collaboratorIdx: number) => {
+    const currentCollaborator: Collaborator = currentCollaborators[collaboratorIdx];
+
+    if (!currentCollaborator) {
+      return;
     }
 
     setCurrentCollaborators((prev) => {
       const newCollaborators = prev?.filter(
-        (collaborator) => collaborator.collaboratorID !== collaboratorID
+        (collaborator) => collaborator.collaboratorID !== currentCollaborator.collaboratorID
       );
 
       if (!newCollaborators?.length) {
-        const newEmptyCollaborator = createEmptyCollaborator();
-        setEmptyCollaborators([newEmptyCollaborator]);
         return [createEmptyCollaborator()];
       }
 
@@ -109,41 +105,37 @@ const useCollaborators = ({
     });
   };
 
-  const handleUpdateCollaborator = (collaboratorID: string, newCollaborator: CollaboratorInput) => {
-    if (!collaboratorID || (!newCollaborator?.collaboratorID && !newCollaborator?.permission)) {
+  const handleUpdateCollaborator = (
+    collaboratorIdx: number,
+    newCollaborator: CollaboratorInput
+  ) => {
+    if (
+      isNaN(collaboratorIdx) ||
+      (!newCollaborator?.collaboratorID && !newCollaborator?.permission)
+    ) {
       return;
     }
 
-    if (
-      collaboratorID.startsWith(emptyIdPrefix) &&
-      !newCollaborator.collaboratorID.startsWith(emptyIdPrefix)
-    ) {
-      setEmptyCollaborators((prevCollaborators) =>
-        prevCollaborators.filter((collaborator) => collaborator.collaboratorID === collaboratorID)
-      );
-    }
+    const currentCollaborator: Collaborator = currentCollaborators[collaboratorIdx];
 
     const potentialCollaborator = potentialCollaborators?.find(
       (pc) => pc._id === newCollaborator?.collaboratorID
     );
 
-    if (!potentialCollaborator && !newCollaborator?.collaboratorID.startsWith(emptyIdPrefix)) {
+    if (!currentCollaborator && !potentialCollaborator && !newCollaborator?.collaboratorID) {
       return;
     }
 
-    setCurrentCollaborators(
-      (prevCollaborators) =>
-        prevCollaborators?.map((prevCollaborator) => {
-          if (prevCollaborator?.collaboratorID !== collaboratorID) {
-            return prevCollaborator;
-          }
+    setCurrentCollaborators((prevCollaborators) => {
+      const collaboratorsClone = [...prevCollaborators];
 
-          return {
-            ...userToCollaborator(potentialCollaborator),
-            ...newCollaborator,
-          };
-        })
-    );
+      collaboratorsClone[collaboratorIdx] = {
+        ...userToCollaborator(potentialCollaborator),
+        ...newCollaborator,
+      };
+
+      return collaboratorsClone;
+    });
   };
 
   return {
