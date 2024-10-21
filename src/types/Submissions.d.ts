@@ -404,3 +404,8 @@ type Collaborator = {
   Organization: Pick<OrgInfo, "orgID" | "orgName">;
   permission: CollaboratorPermissions;
 };
+
+/**
+ * Modifiable collaborator fields
+ */
+type CollaboratorInput = Pick<Collaborator, "collaboratorID" | "permission">;
