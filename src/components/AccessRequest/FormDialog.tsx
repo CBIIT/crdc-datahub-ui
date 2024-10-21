@@ -95,6 +95,11 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
   const { data } = useQuery<ListOrgNamesResp>(LIST_ORG_NAMES, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-first",
+    onError: () => {
+      enqueueSnackbar("Unable to fetch organization list. Please try again.", {
+        variant: "error",
+      });
+    },
   });
 
   const [requestAccess] = useMutation<RequestAccessResp, RequestAccessInput>(REQUEST_ACCESS, {
