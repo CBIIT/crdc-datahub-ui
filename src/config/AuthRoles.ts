@@ -91,3 +91,8 @@ export const canViewOtherOrgRoles: UserRole[] = [
   "Federal Lead",
   "Federal Monitor",
 ];
+
+/**
+ * Defines a list
+ */
+export const canModifyCollaboratorsRoles: UserRole[] = ["Submitter", "Organization Owner"];
