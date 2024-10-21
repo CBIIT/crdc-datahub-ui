@@ -73,6 +73,8 @@ type Props = {
   onClose: () => void;
 } & Omit<DialogProps, "onClose">;
 
+const RoleOptions: UserRole[] = ["Submitter", "Organization Owner"];
+
 /**
  * Provides a dialog for users to request access to a specific role.
  *
@@ -85,8 +87,7 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
 
   const { handleSubmit, register, control, formState } = useForm<InputForm>({
     defaultValues: {
-      // TODO: reqs say no pre-selected defaults but verbally said to pre-select user's current info
-      role: ["Submitter", "Organization Owner"].includes(user.role) ? user.role : "Submitter",
+      role: RoleOptions.includes(user.role) ? user.role : "Submitter",
       organization: user?.organization?.orgName || "",
     },
   });
@@ -96,7 +97,7 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
     context: { clientName: "backend" },
     fetchPolicy: "cache-first",
     onError: () => {
-      enqueueSnackbar("Unable to fetch organization list. Please try again.", {
+      enqueueSnackbar("Unable to retrieve organization list.", {
         variant: "error",
       });
     },
@@ -115,8 +116,18 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
     [data]
   );
 
-  const onSubmit: SubmitHandler<InputForm> = async (variables: InputForm) => {
-    const { data, errors } = await requestAccess({ variables }).catch((e) => ({
+  const onSubmit: SubmitHandler<InputForm> = async ({
+    role,
+    organization,
+    additionalInfo,
+  }: InputForm) => {
+    const { data, errors } = await requestAccess({
+      variables: {
+        role,
+        organization: organization?.trim(),
+        additionalInfo,
+      },
+    }).catch((e) => ({
       data: null,
       errors: e,
     }));
@@ -181,10 +192,14 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                   {...field}
                   size="small"
                   MenuProps={{ disablePortal: true }}
+                  data-testid="access-request-role-field"
                   inputProps={{ "aria-labelledby": "role-input-label" }}
                 >
-                  <MenuItem value="Submitter">Submitter</MenuItem>
-                  <MenuItem value="Organization Owner">Organization Owner</MenuItem>
+                  {RoleOptions.map((role) => (
+                    <MenuItem key={role} value={role}>
+                      {role}
+                    </MenuItem>
+                  ))}
                 </StyledSelect>
               )}
             />
@@ -213,12 +228,13 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                 <StyledAutocomplete
                   {...field}
                   options={sortedOrgs}
-                  onChange={(_, data) => field.onChange(data)}
-                  onInputChange={(_, data) => field.onChange(data)}
+                  onChange={(_, data: string) => field.onChange(data.trim())}
+                  onInputChange={(_, data: string) => field.onChange(data.trim())}
                   renderInput={(params) => (
                     // TODO: placeholder text is missing
                     <TextField {...params} placeholder="TODO: placeholder" />
                   )}
+                  data-testid="access-request-organization-field"
                   freeSolo
                 />
               )}
@@ -242,10 +258,13 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
             <StyledOutlinedInput
               {...register("additionalInfo", {
                 setValueAs: (v: string) => v?.trim(),
-                maxLength: 200,
+                validate: {
+                  maxLength: (v: string) =>
+                    v.length > 200 ? "Maximum of 200 characters allowed" : null,
+                },
               })}
               placeholder="Maximum of 200 characters"
-              data-testid="uploader-config-dialog-input-additionalInfo"
+              data-testid="access-request-additionalInfo-field"
               inputProps={{ "aria-labelledby": "additionalInfo-input-label" }}
               multiline
               rows={3}
