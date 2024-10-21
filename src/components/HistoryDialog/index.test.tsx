@@ -1,5 +1,5 @@
 import { axe } from "jest-axe";
-import { render, within } from "@testing-library/react";
+import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import HistoryDialog, { IconType } from "./index";
 
@@ -178,6 +178,71 @@ describe("Implementation Requirements", () => {
     expect(
       within(getByTestId("history-item-1")).getByTestId("history-item-1-name")
     ).toHaveTextContent("Another User");
+  });
+
+  it("should truncate the name if it exceeds 14 characters and render a tooltip", async () => {
+    const history: HistoryBase<MockStatuses>[] = [
+      {
+        status: "uploaded",
+        dateTime: "2024-09-25T14:45:00Z",
+        userID: "test",
+        userName: "This is 15 Char",
+      },
+    ];
+
+    const { getByTestId, getByRole, getByText } = render(
+      <HistoryDialog {...BaseProps} history={history} />
+    );
+
+    expect(
+      within(getByTestId("history-item-0")).getByTestId("history-item-0-name")
+    ).toHaveTextContent("This is 15 Cha...");
+
+    userEvent.hover(getByText("This is 15 Cha..."));
+
+    await waitFor(() => {
+      expect(getByRole("tooltip")).toBeInTheDocument();
+    });
+
+    expect(getByText("This is 15 Char")).toBeInTheDocument();
+  });
+
+  // NOTE: This test will fail if the name is truncated as it would query for the wrong element
+  it("should render all names but the first with a dimmed text color", () => {
+    const history: HistoryBase<MockStatuses>[] = [
+      {
+        status: "uploaded",
+        dateTime: "2024-09-25T14:45:00Z",
+        userID: "test",
+        userName: "Top Entry",
+      },
+      {
+        status: "downloaded",
+        dateTime: "2024-09-11T14:45:00Z",
+        userID: "test",
+        userName: "Second Entry",
+      },
+      {
+        status: "error",
+        dateTime: "2024-09-05T14:45:00Z",
+        userID: "test",
+        userName: "Third Entry",
+      },
+    ];
+
+    const { getByTestId } = render(<HistoryDialog {...BaseProps} history={history} />);
+
+    expect(within(getByTestId("history-item-0")).getByTestId("history-item-0-name")).toHaveStyle(
+      "color: RGBA(255, 255, 255, 1)"
+    );
+
+    expect(within(getByTestId("history-item-1")).getByTestId("history-item-1-name")).toHaveStyle({
+      color: "RGBA(151, 181, 206, 1)",
+    });
+
+    expect(within(getByTestId("history-item-2")).getByTestId("history-item-2-name")).toHaveStyle({
+      color: "RGBA(151, 181, 206, 1)",
+    });
   });
 
   it("should not render the name for each history item if not provided", () => {

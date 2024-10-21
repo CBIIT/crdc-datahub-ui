@@ -1,4 +1,4 @@
-import { CSSProperties, memo, useCallback, useMemo } from "react";
+import React, { CSSProperties, memo, useCallback, useMemo } from "react";
 import {
   Button,
   Dialog,
@@ -11,6 +11,7 @@ import {
   styled,
 } from "@mui/material";
 import { FormatDate, SortHistory } from "../../utils";
+import TruncatedText from "../TruncatedText";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -70,8 +71,6 @@ const StyledCloseButton = styled(Button)({
   color: "#fff",
   borderColor: "#fff",
   margin: "0 auto",
-  padding: "10px",
-  lineHeight: "24px",
   "&:hover": {
     borderColor: "#fff",
   },
@@ -83,7 +82,7 @@ const StyledGridHeader = styled(Grid)({
   marginBottom: "4px",
 });
 
-const StyledHistoryHeader = styled(Typography)({
+const StyledHistoryHeader = styled(Typography)<React.CSSProperties>((styles) => ({
   fontFamily: "Public Sans",
   fontWeight: "300",
   fontSize: "8px",
@@ -91,26 +90,36 @@ const StyledHistoryHeader = styled(Typography)({
   textTransform: "uppercase",
   color: "#9FB3D1",
   userSelect: "none",
-});
+  ...styles,
+}));
 
 const StyledGridEventItem = styled(Grid)({
-  padding: "20px 0",
+  padding: "17px 0",
   borderBottom: "0.5px solid #375F9A",
   alignItems: "center",
 });
 
-const StyledHistoryItem = styled(Typography)<{
-  color: CSSProperties["color"];
-  textAlign?: CSSProperties["textAlign"];
-}>(({ textAlign = "center", color }) => ({
+const BaseItemTypographyStyles: React.CSSProperties = {
   fontFamily: "Public Sans",
   fontWeight: "400",
   fontSize: "13px",
   letterSpacing: "0.0025em",
   userSelect: "none",
-  textAlign,
-  color,
-}));
+};
+
+const StyledHistoryItem = styled(Typography)<React.CSSProperties>(
+  ({ textAlign = "center", color = "inherit" }) => ({
+    ...BaseItemTypographyStyles,
+    textAlign,
+    color,
+  })
+);
+
+const DotContainer = styled("div")({
+  position: "relative",
+  width: "100%",
+  height: "100%",
+});
 
 const VerticalDot = styled("div")({
   position: "absolute",
@@ -130,7 +139,7 @@ const TopConnector = styled("div")({
   left: "5px",
   bottom: "0",
   width: "6px",
-  height: "30px", // TODO: Rows can be different heights and this should be dynamic
+  height: "27px",
   background: "white",
 });
 
@@ -140,7 +149,7 @@ const BottomConnector = styled("div")({
   left: "5px",
   top: "0",
   width: "6px",
-  height: "30px", // TODO: Rows can be different heights and this should be dynamic
+  height: "27px",
   background: "white",
 });
 
@@ -255,7 +264,9 @@ const HistoryDialog = <T extends string>({
         <StyledGridHeader container columnSpacing={3}>
           <Grid item xs={2} />
           <Grid item xs={3}>
-            <StyledHistoryHeader>Status</StyledHistoryHeader>
+            <StyledHistoryHeader textAlign="left" paddingLeft="12px">
+              Status
+            </StyledHistoryHeader>
           </Grid>
           <Grid item xs={3}>
             <StyledHistoryHeader>Date</StyledHistoryHeader>
@@ -265,8 +276,7 @@ const HistoryDialog = <T extends string>({
               <StyledHistoryHeader>User</StyledHistoryHeader>
             </Grid>
           )}
-          {/* TODO: fine tune spacing when no name column is shown */}
-          <Grid item xs={eventHasNames ? 1 : 4} />
+          <Grid item xs={1} />
         </StyledGridHeader>
         {events?.map(({ status, date, color, name, nameColor, icon }, index) => (
           <StyledGridEventItem
@@ -276,12 +286,12 @@ const HistoryDialog = <T extends string>({
             columnSpacing={3}
           >
             <Grid item xs={2}>
-              <div style={{ position: "relative", width: "100%", height: "100%" }}>
+              <DotContainer>
                 {index !== 0 && <TopConnector />}
                 <VerticalDot />
                 <HorizontalLine />
                 {index !== events.length - 1 && <BottomConnector />}
-              </div>
+              </DotContainer>
             </Grid>
             <Grid item xs={3}>
               <StyledHistoryItem
@@ -303,11 +313,20 @@ const HistoryDialog = <T extends string>({
             </Grid>
             {eventHasNames && (
               <Grid item xs={3} data-testid={`history-item-${index}-name`}>
-                <StyledHistoryItem color={nameColor}>{name}</StyledHistoryItem>
+                <StyledHistoryItem>
+                  <TruncatedText
+                    text={name}
+                    maxCharacters={14}
+                    wrapperStyles={{
+                      ...BaseItemTypographyStyles,
+                      margin: "0 auto",
+                      color: nameColor,
+                    }}
+                  />
+                </StyledHistoryItem>
               </Grid>
             )}
-            {/* TODO: fine tune spacing when no name column is shown */}
-            <Grid item xs={eventHasNames ? 1 : 4} sx={{ position: "relative" }}>
+            <Grid item xs={1} sx={{ position: "relative" }}>
               {icon && (
                 <StyledIcon>
                   <img
@@ -326,6 +345,7 @@ const HistoryDialog = <T extends string>({
           onClick={onClose}
           variant="outlined"
           size="large"
+          color="info"
           data-testid="history-dialog-close"
         >
           Close
@@ -335,5 +355,4 @@ const HistoryDialog = <T extends string>({
   );
 };
 
-// TODO: type this
-export default memo(HistoryDialog);
+export default memo(HistoryDialog) as typeof HistoryDialog;
