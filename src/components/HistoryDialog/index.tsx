@@ -76,13 +76,13 @@ const StyledCloseButton = styled(Button)({
   },
 });
 
-const StyledGridHeader = styled(Grid)({
+const StyledHeaderRow = styled(Grid)({
   borderBottom: "0.5px solid #375F9A",
   paddingBottom: "8px",
   marginBottom: "4px",
 });
 
-const StyledHistoryHeader = styled(Typography)<React.CSSProperties>((styles) => ({
+const StyledHeaderItem = styled(Typography)<React.CSSProperties>((styles) => ({
   fontFamily: "Public Sans",
   fontWeight: "300",
   fontSize: "8px",
@@ -93,7 +93,11 @@ const StyledHistoryHeader = styled(Typography)<React.CSSProperties>((styles) => 
   ...styles,
 }));
 
-const StyledGridEventItem = styled(Grid)({
+const HeaderGap = styled("div")({
+  height: "40px",
+});
+
+const StyledEventRow = styled(Grid)({
   padding: "17px 0",
   borderBottom: "0.5px solid #375F9A",
   alignItems: "center",
@@ -107,7 +111,7 @@ const BaseItemTypographyStyles: React.CSSProperties = {
   userSelect: "none",
 };
 
-const StyledHistoryItem = styled(Typography)<React.CSSProperties>(
+const StyledEventItem = styled(Typography)<React.CSSProperties>(
   ({ textAlign = "center", color = "inherit" }) => ({
     ...BaseItemTypographyStyles,
     textAlign,
@@ -189,11 +193,38 @@ type EventItem = {
 export type IconType<T extends string> = Record<T, string>;
 
 type Props<T extends string> = {
+  /**
+   * The prefix to show before the dialog title
+   */
   preTitle: string;
+  /**
+   * The title of the dialog
+   */
   title: string;
+  /**
+   * The history items to display
+   *
+   * @see {@link HistoryBase}
+   */
   history: HistoryBase<T>[];
+  /**
+   * A map of icons to display for each status
+   *
+   * @note If iconMap[status] is undefined, no icon will be displayed
+   */
   iconMap: IconType<T>;
+  /**
+   * Boolean indicator of whether to render the headers of each column
+   */
+  showHeaders?: boolean;
+  /**
+   * A function to determine the text color of the status
+   */
   getTextColor: (status: T) => CSSProperties["color"];
+  /**
+   * A function to call when the dialog is requested to close by an event,
+   * e.g. Close button click, backdrop click, or escape key press
+   */
   onClose: () => void;
 } & DialogProps;
 
@@ -207,8 +238,9 @@ const HistoryDialog = <T extends string>({
   title,
   history,
   iconMap,
-  getTextColor,
   open,
+  showHeaders = true,
+  getTextColor,
   onClose,
   ...rest
 }: Props<T>): JSX.Element => {
@@ -261,30 +293,36 @@ const HistoryDialog = <T extends string>({
         <StyledTitle>{title}</StyledTitle>
       </StyledDialogTitle>
       <StyledDialogContent>
-        <StyledGridHeader container columnSpacing={3}>
-          <Grid item xs={2} />
-          <Grid item xs={3}>
-            <StyledHistoryHeader textAlign="left" paddingLeft="12px">
-              Status
-            </StyledHistoryHeader>
-          </Grid>
-          <Grid item xs={3}>
-            <StyledHistoryHeader>Date</StyledHistoryHeader>
-          </Grid>
-          {eventHasNames && (
+        {showHeaders ? (
+          <StyledHeaderRow container columnSpacing={3} data-testid="history-dialog-header-row">
+            {/* Spacing for the DotContainer */}
+            <Grid item xs={2} />
             <Grid item xs={3}>
-              <StyledHistoryHeader>User</StyledHistoryHeader>
+              <StyledHeaderItem textAlign="left" paddingLeft="12px">
+                Status
+              </StyledHeaderItem>
             </Grid>
-          )}
-          <Grid item xs={1} />
-        </StyledGridHeader>
+            <Grid item xs={3}>
+              <StyledHeaderItem>Date</StyledHeaderItem>
+            </Grid>
+            {eventHasNames && (
+              <Grid item xs={3}>
+                <StyledHeaderItem>User</StyledHeaderItem>
+              </Grid>
+            )}
+            <Grid item xs={1} />
+          </StyledHeaderRow>
+        ) : (
+          <HeaderGap />
+        )}
         {events?.map(({ status, date, color, name, nameColor, icon }, index) => (
-          <StyledGridEventItem
+          <StyledEventRow
             container
             key={`history-event-${date}`}
             data-testid={`history-item-${index}`}
             columnSpacing={3}
           >
+            {!eventHasNames && <Grid item xs={1.5} />}
             <Grid item xs={2}>
               <DotContainer>
                 {index !== 0 && <TopConnector />}
@@ -294,26 +332,26 @@ const HistoryDialog = <T extends string>({
               </DotContainer>
             </Grid>
             <Grid item xs={3}>
-              <StyledHistoryItem
+              <StyledEventItem
                 color={color}
                 textAlign="left"
                 data-testid={`history-item-${index}-status`}
               >
                 {status?.toUpperCase()}
-              </StyledHistoryItem>
+              </StyledEventItem>
             </Grid>
             <Grid item xs={3}>
-              <StyledHistoryItem
+              <StyledEventItem
                 color={color}
                 title={date}
                 data-testid={`history-item-${index}-date`}
               >
                 {FormatDate(date, "M/D/YYYY", "N/A")}
-              </StyledHistoryItem>
+              </StyledEventItem>
             </Grid>
             {eventHasNames && (
               <Grid item xs={3} data-testid={`history-item-${index}-name`}>
-                <StyledHistoryItem>
+                <StyledEventItem>
                   <TruncatedText
                     text={name}
                     maxCharacters={14}
@@ -323,10 +361,18 @@ const HistoryDialog = <T extends string>({
                       color: nameColor,
                     }}
                   />
-                </StyledHistoryItem>
+                </StyledEventItem>
               </Grid>
             )}
-            <Grid item xs={1} sx={{ position: "relative" }}>
+            <Grid
+              item
+              xs={1}
+              sx={{
+                position: "relative",
+                marginLeft: eventHasNames ? "0" : "auto",
+                marginRight: eventHasNames ? "0" : "24px",
+              }}
+            >
               {icon && (
                 <StyledIcon>
                   <img
@@ -337,7 +383,7 @@ const HistoryDialog = <T extends string>({
                 </StyledIcon>
               )}
             </Grid>
-          </StyledGridEventItem>
+          </StyledEventRow>
         ))}
       </StyledDialogContent>
       <DialogActions>

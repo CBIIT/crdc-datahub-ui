@@ -76,6 +76,18 @@ describe("Basic Functionality", () => {
 
     expect(getTextColor).toHaveBeenCalledWith("uploaded");
   });
+
+  it("should not render the headers if showHeaders is false", () => {
+    const { queryByTestId, getByTestId, rerender } = render(
+      <HistoryDialog {...BaseProps} showHeaders={false} />
+    );
+
+    expect(queryByTestId("history-dialog-header-row")).not.toBeInTheDocument();
+
+    rerender(<HistoryDialog {...BaseProps} showHeaders />);
+
+    expect(getByTestId("history-dialog-header-row")).toBeInTheDocument();
+  });
 });
 
 describe("Implementation Requirements", () => {
