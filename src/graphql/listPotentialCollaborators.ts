@@ -6,6 +6,10 @@ export const query = gql`
       _id
       firstName
       lastName
+      organization {
+        orgID
+        orgName
+      }
     }
   }
 `;
@@ -15,5 +19,5 @@ export type Input = {
 };
 
 export type Response = {
-  listPotentialCollaborators: Pick<User, "_id" | "firstName" | "lastName">[];
+  listPotentialCollaborators: Pick<User, "_id" | "firstName" | "lastName" | "organization">[];
 };
