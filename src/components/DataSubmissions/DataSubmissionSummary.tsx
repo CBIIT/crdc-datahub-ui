@@ -9,7 +9,7 @@ import ReviewCommentsDialog from "../Shared/ReviewCommentsDialog";
 import { SortHistory } from "../../utils";
 import TruncatedText from "../TruncatedText";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
-import CollaboratorsDialog from "./CollaboratorsDialog";
+import { CollaboratorsDialog } from "../Collaborators";
 
 const StyledSummaryWrapper = styled("div")(() => ({
   borderRadius: "8px 8px 0px 0px",
@@ -144,6 +144,7 @@ type Props = {
 const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const [historyDialogOpen, setHistoryDialogOpen] = useState<boolean>(false);
   const [reviewCommentsDialogOpen, setReviewCommentsDialogOpen] = useState<boolean>(false);
+  const [collaboratorsDialogOpen, setCollaboratorsDialogOpen] = useState<boolean>(false);
 
   const numCollaborators = dataSubmission?.collaborators?.length || 0;
   const lastReview = useMemo(
@@ -168,6 +169,14 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
 
   const handleOnReviewCommentsDialogClose = () => {
     setReviewCommentsDialogOpen(false);
+  };
+
+  const handleOnCollaboratorsDialogOpen = () => {
+    setCollaboratorsDialogOpen(true);
+  };
+
+  const handleOnCollaboratorsDialogClose = () => {
+    setCollaboratorsDialogOpen(false);
   };
 
   const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
@@ -241,6 +250,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
                 <span>
                   <StyledCollaboratorsButton
                     variant="text"
+                    onClick={handleOnCollaboratorsDialogOpen}
                     disabled={!dataSubmission}
                     data-testid="collaborators-button"
                   >
@@ -303,7 +313,11 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         title="Data Submission"
         lastReview={lastReview}
       />
-      <CollaboratorsDialog open onClose={() => {}} onConfirm={() => {}} />
+      <CollaboratorsDialog
+        open={collaboratorsDialogOpen}
+        onClose={handleOnCollaboratorsDialogClose}
+        onConfirm={handleOnCollaboratorsDialogClose}
+      />
     </StyledSummaryWrapper>
   );
 };
