@@ -140,13 +140,13 @@ const StyledRemoveButton = styled(IconButton)({
 
 const StyledSelect = styled(StyledFormSelect)({
   "&.MuiInputBase-root": {
-    paddingTop: "9px",
-    paddingBottom: "9px",
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   "& .MuiInputBase-input": {
     lineHeight: "20px",
-    paddingTop: 0,
-    paddingBottom: 0,
+    paddingTop: "9px",
+    paddingBottom: "9px",
     height: "100%",
     borderRadius: 0,
     boxSizing: "border-box",
