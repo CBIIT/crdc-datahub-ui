@@ -137,14 +137,30 @@ const StyledEmailWrapper = styled("a")({
   lineHeight: "19.6px",
 });
 
+const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
+  let color: string;
+  switch (status) {
+    case "Completed":
+      color = "#10EBA9";
+      break;
+    case "Rejected":
+      color = "#FFA985";
+      break;
+    default:
+      color = "#FFF";
+  }
+
+  return color;
+};
+
+type DialogOptions = "history" | "review comments" | "collaborators" | null;
+
 type Props = {
   dataSubmission: Submission;
 };
 
 const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
-  const [historyDialogOpen, setHistoryDialogOpen] = useState<boolean>(false);
-  const [reviewCommentsDialogOpen, setReviewCommentsDialogOpen] = useState<boolean>(false);
-  const [collaboratorsDialogOpen, setCollaboratorsDialogOpen] = useState<boolean>(false);
+  const [openDialog, setOpenDialog] = useState<DialogOptions>(null);
 
   const numCollaborators = dataSubmission?.collaborators?.length || 0;
   const lastReview = useMemo(
@@ -155,44 +171,12 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
     [dataSubmission]
   );
 
-  const handleOnHistoryDialogOpen = () => {
-    setHistoryDialogOpen(true);
+  const handleOpenDialog = (dialog: DialogOptions) => {
+    setOpenDialog(dialog);
   };
 
-  const handleOnHistoryDialogClose = () => {
-    setHistoryDialogOpen(false);
-  };
-
-  const handleOnReviewCommentsDialogOpen = () => {
-    setReviewCommentsDialogOpen(true);
-  };
-
-  const handleOnReviewCommentsDialogClose = () => {
-    setReviewCommentsDialogOpen(false);
-  };
-
-  const handleOnCollaboratorsDialogOpen = () => {
-    setCollaboratorsDialogOpen(true);
-  };
-
-  const handleOnCollaboratorsDialogClose = () => {
-    setCollaboratorsDialogOpen(false);
-  };
-
-  const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
-    let color: string;
-    switch (status) {
-      case "Completed":
-        color = "#10EBA9";
-        break;
-      case "Rejected":
-        color = "#FFA985";
-        break;
-      default:
-        color = "#FFF";
-    }
-
-    return color;
+  const handleCloseDialog = () => {
+    setOpenDialog(null);
   };
 
   return (
@@ -206,7 +190,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             <StyledReviewCommentsButton
               variant="contained"
               color="info"
-              onClick={handleOnReviewCommentsDialogOpen}
+              onClick={() => handleOpenDialog("review comments")}
               disabled={!lastReview}
             >
               Review Comments
@@ -214,7 +198,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             <StyledHistoryButton
               variant="contained"
               color="info"
-              onClick={handleOnHistoryDialogOpen}
+              onClick={() => handleOpenDialog("history")}
             >
               Full History
             </StyledHistoryButton>
@@ -250,7 +234,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
                 <span>
                   <StyledCollaboratorsButton
                     variant="text"
-                    onClick={handleOnCollaboratorsDialogOpen}
+                    onClick={() => handleOpenDialog("collaborators")}
                     disabled={!dataSubmission}
                     data-testid="collaborators-button"
                   >
@@ -299,8 +283,8 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         </StyledGridContainer>
       </Stack>
       <HistoryDialog
-        open={historyDialogOpen}
-        onClose={handleOnHistoryDialogClose}
+        open={openDialog === "history"}
+        onClose={handleCloseDialog}
         preTitle="Data Submission"
         title="Submission History"
         history={dataSubmission?.history}
@@ -308,15 +292,15 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         getTextColor={getHistoryTextColorFromStatus}
       />
       <ReviewCommentsDialog
-        open={reviewCommentsDialogOpen}
-        onClose={handleOnReviewCommentsDialogClose}
+        open={openDialog === "review comments"}
+        onClose={handleCloseDialog}
         title="Data Submission"
         lastReview={lastReview}
       />
       <CollaboratorsDialog
-        open={collaboratorsDialogOpen}
-        onClose={handleOnCollaboratorsDialogClose}
-        onConfirm={handleOnCollaboratorsDialogClose}
+        open={openDialog === "collaborators"}
+        onClose={handleCloseDialog}
+        onConfirm={handleCloseDialog}
       />
     </StyledSummaryWrapper>
   );
