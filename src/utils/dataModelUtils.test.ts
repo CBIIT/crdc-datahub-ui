@@ -17,8 +17,7 @@ describe("fetchManifest cases", () => {
   it("should return manifest from sessionStorage if it exists", async () => {
     const fakeManifest: DataModelManifest = {
       CDS: {
-        "model-file": "cds-model.yaml",
-        "prop-file": "cds-model-props.yaml",
+        "model-files": ["cds-model.yaml", "cds-model-props.yaml"],
         "readme-file": "cds-model-readme.md",
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
@@ -36,8 +35,7 @@ describe("fetchManifest cases", () => {
   it("should fetch manifest from server if it does not exist in sessionStorage", async () => {
     const fakeManifest: DataModelManifest = {
       CDS: {
-        "model-file": "cds-model.yaml",
-        "prop-file": "cds-model-props.yaml",
+        "model-files": ["cds-model.yaml", "cds-model-props.yaml"],
         "readme-file": "cds-model-readme.md",
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
@@ -58,8 +56,7 @@ describe("fetchManifest cases", () => {
   it("should cache manifest in sessionStorage after fetching", async () => {
     const fakeManifest: DataModelManifest = {
       CDS: {
-        "model-file": "cds-model.yaml",
-        "prop-file": "cds-model-props.yaml",
+        "model-files": ["cds-model.yaml", "cds-model-props.yaml"],
         "readme-file": "cds-model-readme.md",
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
@@ -115,8 +112,7 @@ describe("buildAssetUrls cases", () => {
       name: "test-name",
       assets: {
         "current-version": "1.0",
-        "model-file": "model-file",
-        "prop-file": "prop-file",
+        "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
       } as ManifestAssets,
@@ -125,12 +121,51 @@ describe("buildAssetUrls cases", () => {
     const result = utils.buildAssetUrls(dc);
 
     expect(result).toEqual({
-      model: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/model-file`,
-      props: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/prop-file`,
+      model_files: [
+        `${MODEL_FILE_REPO}prod/cache/test-name/1.0/model-file`,
+        `${MODEL_FILE_REPO}prod/cache/test-name/1.0/prop-file`,
+      ],
       readme: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/readme-file`,
       loading_file: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/loading-file-zip-name`,
       navigator_icon: expect.any(String),
     });
+  });
+
+  it("should include every model file in the model_files array", () => {
+    const dc: DataCommon = {
+      name: "test-name",
+      assets: {
+        "current-version": "1.0",
+        "model-files": ["model-file", "prop-file", "other-file", "fourth-file"],
+        "readme-file": "readme-file",
+        "loading-file": "loading-file-zip-name",
+      } as ManifestAssets,
+    } as DataCommon;
+
+    const result = utils.buildAssetUrls(dc);
+
+    expect(result.model_files).toEqual([
+      `${MODEL_FILE_REPO}prod/cache/test-name/1.0/model-file`,
+      `${MODEL_FILE_REPO}prod/cache/test-name/1.0/prop-file`,
+      `${MODEL_FILE_REPO}prod/cache/test-name/1.0/other-file`,
+      `${MODEL_FILE_REPO}prod/cache/test-name/1.0/fourth-file`,
+    ]);
+  });
+
+  it("should handle empty model-files array", () => {
+    const dc: DataCommon = {
+      name: "test-name",
+      assets: {
+        "current-version": "1.0",
+        "model-files": [],
+        "readme-file": "readme-file",
+        "loading-file": "loading-file-zip-name",
+      } as ManifestAssets,
+    } as DataCommon;
+
+    const result = utils.buildAssetUrls(dc);
+
+    expect(result.model_files).toEqual([]);
   });
 
   const readMeValues = ["", null, undefined, false];
@@ -139,8 +174,7 @@ describe("buildAssetUrls cases", () => {
       name: "test-name",
       assets: {
         "current-version": "1.0",
-        "model-file": "model-file",
-        "prop-file": "prop-file",
+        "model-files": ["model-file", "prop-file"],
         "readme-file": readme,
       } as ManifestAssets,
     } as DataCommon;
@@ -155,8 +189,7 @@ describe("buildAssetUrls cases", () => {
       name: "test-name",
       assets: {
         "current-version": "1.0",
-        "model-file": "model-file",
-        "prop-file": "prop-file",
+        "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
         // "model-navigator-logo" - not defined, aka no logo
@@ -173,8 +206,7 @@ describe("buildAssetUrls cases", () => {
       name: "test-name",
       assets: {
         "current-version": "1.0",
-        "model-file": "model-file",
-        "prop-file": "prop-file",
+        "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
         "model-navigator-logo": "", // empty string - aka no logo
@@ -191,8 +223,7 @@ describe("buildAssetUrls cases", () => {
       name: "test-name",
       assets: {
         "current-version": "1.0",
-        "model-file": "model-file",
-        "prop-file": "prop-file",
+        "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
         "model-navigator-logo": "custom-logo.png", // defined - must exist

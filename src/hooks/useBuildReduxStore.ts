@@ -91,7 +91,11 @@ const useBuildReduxStore = (): [
 
     const assets = buildAssetUrls(datacommon);
 
-    const response = await getModelExploreData(assets.model, assets.props)?.catch((e) => {
+    // TODO: This is a very temporary work-around until DMN supports N != 2 files
+    const modelFile = assets.model_files[0];
+    const propFile = assets.model_files.length > 1 ? assets.model_files[1] : assets.model_files[0];
+
+    const response = await getModelExploreData(modelFile, propFile)?.catch((e) => {
       Logger.error(e);
       return null;
     });
