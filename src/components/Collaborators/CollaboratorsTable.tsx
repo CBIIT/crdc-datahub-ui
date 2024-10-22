@@ -258,9 +258,9 @@ const CollaboratorsTable = ({
                     {[collaborator, ...remainingPotentialCollaborators]
                       ?.filter((collaborator) => !!collaborator?.collaboratorID)
                       ?.sort((a, b) => a.collaboratorName?.localeCompare(b.collaboratorName))
-                      ?.map((pc) => (
-                        <MenuItem key={pc.collaboratorID} value={pc.collaboratorID} hidden>
-                          {pc.collaboratorName}
+                      ?.map((c) => (
+                        <MenuItem key={c.collaboratorID} value={c.collaboratorID}>
+                          {c.collaboratorName}
                         </MenuItem>
                       ))}
                   </StyledSelect>
