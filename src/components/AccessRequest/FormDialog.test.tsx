@@ -72,7 +72,7 @@ describe("Accessibility", () => {
           listOrganizations: [],
         },
       },
-      variableMatcher: () => true,
+      delay: 5000, // NOTE: Without this, the test throws an ACT warning and fails
     };
 
     const { container } = render(<FormDialog open onClose={mockOnClose} />, {
@@ -331,7 +331,6 @@ describe("Basic Functionality", () => {
           },
         },
       },
-      delay: 1000,
     };
 
     const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
@@ -344,6 +343,10 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(getByTestId("access-request-dialog-submit-button")).toBeDisabled();
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("access-request-dialog-submit-button")).not.toBeDisabled();
     });
   });
 });
@@ -383,24 +386,6 @@ describe("Implementation Requirements", () => {
     });
   });
 
-  it("should have a tooltip on the 'Organization' input", async () => {
-    const { getByTestId, findByRole } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock]}>{children}</MockParent>,
-    });
-
-    userEvent.hover(getByTestId("organization-input-tooltip"));
-
-    const tooltip = await findByRole("tooltip");
-    expect(tooltip).toBeInTheDocument();
-    expect(tooltip).toHaveTextContent("FAIL ON PURPOSE");
-
-    userEvent.unhover(getByTestId("organization-input-tooltip"));
-
-    await waitFor(() => {
-      expect(tooltip).not.toBeInTheDocument();
-    });
-  });
-
   it("should have a tooltip on the 'Additional Info' input", async () => {
     const { getByTestId, findByRole } = render(<FormDialog open onClose={jest.fn()} />, {
       wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock]}>{children}</MockParent>,
@@ -410,7 +395,9 @@ describe("Implementation Requirements", () => {
 
     const tooltip = await findByRole("tooltip");
     expect(tooltip).toBeInTheDocument();
-    expect(tooltip).toHaveTextContent("FAIL ON PURPOSE");
+    expect(tooltip).toHaveTextContent(
+      "Provide details such as your host institution or lab, along with the study or program you are submitting data for, to help us determine your associated organization."
+    );
 
     userEvent.unhover(getByTestId("additionalInfo-input-tooltip"));
 

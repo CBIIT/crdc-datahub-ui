@@ -178,7 +178,6 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                 // TODO: no requirements were given for the tooltip content
                 title="TODO: we need the tooltip content"
                 open={undefined}
-                // TODO: hover or click? hover is consistent
                 disableHoverListener={false}
                 data-testid="role-input-tooltip"
               />
@@ -211,14 +210,6 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
             <StyledLabel id="organization-input-label">
               Organization
               <StyledAsterisk />
-              <Tooltip
-                // TODO: no requirements were given for the tooltip content
-                title="TODO: we need the tooltip content"
-                open={undefined}
-                // TODO: hover or click? hover is consistent
-                disableHoverListener={false}
-                data-testid="organization-input-tooltip"
-              />
             </StyledLabel>
             <Controller
               name="organization"
@@ -231,8 +222,10 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                   onChange={(_, data: string) => field.onChange(data.trim())}
                   onInputChange={(_, data: string) => field.onChange(data.trim())}
                   renderInput={(params) => (
-                    // TODO: placeholder text is missing
-                    <TextField {...params} placeholder="TODO: placeholder" />
+                    <TextField
+                      {...params}
+                      placeholder="Enter your organization or Select one from the list"
+                    />
                   )}
                   data-testid="access-request-organization-field"
                   freeSolo
@@ -247,10 +240,8 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
             <StyledLabel id="additionalInfo-input-label">
               Additional Info
               <Tooltip
-                // TODO: no requirements were given for the tooltip content
-                title="TODO: we need the tooltip content"
+                title="Provide details such as your host institution or lab, along with the study or program you are submitting data for, to help us determine your associated organization."
                 open={undefined}
-                // TODO: hover or click? hover is consistent
                 disableHoverListener={false}
                 data-testid="additionalInfo-input-tooltip"
               />
