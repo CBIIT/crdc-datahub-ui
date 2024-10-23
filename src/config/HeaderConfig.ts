@@ -62,7 +62,7 @@ export const navMobileList: NavBarItem[] = [
 export const navbarSublists: Record<string, NavBarSubItem[]> = {
   "Model Navigator": DataCommons.map((dc) => ({
     id: `model-navigator-${dc.name}`,
-    name: `${dc.name} Model`,
+    name: `${dc.name}${dc.name.indexOf("Model") === -1 ? " Model" : ""}`,
     link: `/model-navigator/${dc.name}`,
     className: "navMobileSubItem",
   })),
