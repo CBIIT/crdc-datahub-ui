@@ -332,6 +332,42 @@ const DataCommons: DataCommon[] = [
     },
   },
   {
+    name: "Hidden Model",
+    assets: null,
+    configuration: {
+      pageTitle: "Hidden Data Model",
+      pdfConfig: {
+        fileType: "pdf",
+        prefix: "Hidden Model_",
+        downloadPrefix: "Hidden Model_",
+        fileTransferManifestName: "Hidden Model_",
+        iconSrc: logo,
+        footnote: "https://hub.datacommons.cancer.gov/model-navigator/Hidden Model",
+        landscape: true,
+      },
+      facetFilterSearchData: [
+        {
+          groupName: "Category",
+          datafield: "category",
+          section: "Filter By Nodes",
+          tooltip: "category",
+          show: true,
+          checkboxItems: [{ name: "Administrative", isChecked: false, group: "category" }],
+        },
+      ],
+      facetFilterSectionVariables: {
+        "Filter By Nodes": {
+          color: "#0D71A3",
+          checkBoxColorsOne: "#E3F4FD",
+          checkBoxColorsTwo: "#f0f8ff",
+          checkBoxBorderColor: "#0D71A3",
+          height: "7px",
+          isExpanded: true,
+        },
+      },
+    },
+  },
+  {
     name: "ICDC",
     assets: null,
     configuration: {
