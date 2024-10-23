@@ -238,6 +238,7 @@ const CollaboratorsTable = ({
                       })
                     }
                     autoFocus
+                    placeholderText="Select Name"
                     MenuProps={{ disablePortal: true }}
                     renderValue={(val: string) => {
                       if (!val) {
