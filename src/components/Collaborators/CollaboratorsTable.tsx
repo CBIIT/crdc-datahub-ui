@@ -132,7 +132,7 @@ const StyledRadioGroup = styled(RadioGroup)({
   },
   "& .MuiSelect-select .notranslate": {
     display: "inline-block",
-    minHeight: "20px",
+    minHeight: "38px",
   },
 });
 
@@ -149,8 +149,10 @@ const StyledSelect = styled(StyledFormSelect)({
   "&.MuiInputBase-root": {
     paddingTop: 0,
     paddingBottom: 0,
+    display: "block",
   },
   "& .MuiInputBase-input": {
+    minHeight: "38px !important",
     lineHeight: "20px",
     paddingTop: "9px",
     paddingBottom: "9px",
