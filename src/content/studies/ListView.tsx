@@ -118,7 +118,7 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "dbGaPID",
-    renderValue: (a) => <TruncatedText text={a.dbGaPID} />,
+    renderValue: (a) => <TruncatedText text={a.dbGaPID} maxCharacters={15} />,
     field: "dbGaPID",
   },
   {
