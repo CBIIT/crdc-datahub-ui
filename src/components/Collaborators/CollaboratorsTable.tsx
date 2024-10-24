@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   FormControlLabel,
   IconButton,
@@ -27,6 +27,7 @@ import SuspenseLoader from "../SuspenseLoader";
 import useCollaborators from "./hooks/useCollaborators";
 import { Status, useAuthContext } from "../Contexts/AuthContext";
 import { canModifyCollaboratorsRoles } from "../../config/AuthRoles";
+import { SubmissionCtxStatus, useSubmissionContext } from "../Contexts/SubmissionContext";
 
 const StyledTableContainer = styled(TableContainer)(() => ({
   borderRadius: "8px !important",
@@ -73,8 +74,8 @@ const StyledTableRow = styled(TableRow)(() => ({
     borderBottom: "1px solid #6B7294",
     "&:last-child": {
       borderBottom: "none",
-      "& .MuiOutlinedInput-notchedOutline": {
-        borderBottomLeftRadius: "8px",
+      "& .MuiOutlinedInput-notchedOutline, & .MuiSelect-select": {
+        borderBottomLeftRadius: "8px !important",
       },
     },
   },
@@ -134,6 +135,10 @@ const StyledRadioGroup = styled(RadioGroup)({
     display: "inline-block",
     minHeight: "38px",
   },
+  "& .MuiRadio-root.Mui-disabled .radio-icon": {
+    background: "#FFF !important",
+    opacity: 0.4,
+  },
 });
 
 const StyledRadioButton = styled(StyledFormRadioButton)({
@@ -167,6 +172,9 @@ const StyledSelect = styled(StyledFormSelect)({
   },
   "& .MuiSelect-nativeInput": {
     padding: 0,
+  },
+  "& .Mui-readOnly.MuiOutlinedInput-input:read-only": {
+    borderRadius: 0,
   },
 });
 
@@ -211,8 +219,16 @@ const CollaboratorsTable = ({
     handleUpdateCollaborator,
   } = useCollaborators({ collaborators, potentialCollaborators, onCollaboratorsChange });
   const { user, status } = useAuthContext();
+  const { data: submission, status: submissionStatus } = useSubmissionContext();
 
-  if (loading || status === Status.LOADING) {
+  const canModifyCollaborators = useMemo(
+    () =>
+      canModifyCollaboratorsRoles.includes(user?.role) &&
+      (submission?.getSubmission?.submitterID === user?._id || user?.role === "Organization Owner"),
+    [canModifyCollaboratorsRoles, user, submission?.getSubmission?.submitterID]
+  );
+
+  if (loading || status === Status.LOADING || submissionStatus === SubmissionCtxStatus.LOADING) {
     return <SuspenseLoader fullscreen={false} data-testid="collaborators-table-suspense-loader" />;
   }
 
@@ -228,7 +244,7 @@ const CollaboratorsTable = ({
                 Organization
               </StyledTableHeaderCell>
               <StyledTableHeaderCell sx={{ textAlign: "center" }}>Access</StyledTableHeaderCell>
-              {canModifyCollaboratorsRoles.includes(user?.role) && (
+              {canModifyCollaborators && (
                 <StyledTableHeaderCell sx={{ textAlign: "center" }}>Remove</StyledTableHeaderCell>
               )}
             </StyledTableHeaderRow>
@@ -263,6 +279,7 @@ const CollaboratorsTable = ({
                         />
                       );
                     }}
+                    readOnly={!canModifyCollaborators}
                     required
                   >
                     {[collaborator, ...remainingPotentialCollaborators]
@@ -306,8 +323,8 @@ const CollaboratorsTable = ({
                           value="Can View"
                           control={
                             <StyledRadioButton
-                              readOnly={!canModifyCollaboratorsRoles.includes(user?.role)}
-                              disabled={!canModifyCollaboratorsRoles.includes(user?.role)}
+                              readOnly={!canModifyCollaborators}
+                              disabled={!canModifyCollaborators}
                               required
                             />
                           }
@@ -324,8 +341,8 @@ const CollaboratorsTable = ({
                           value="Can Edit"
                           control={
                             <StyledRadioButton
-                              readOnly={!canModifyCollaboratorsRoles.includes(user?.role)}
-                              disabled={!canModifyCollaboratorsRoles.includes(user?.role)}
+                              readOnly={!canModifyCollaborators}
+                              disabled={!canModifyCollaborators}
                               required
                             />
                           }
@@ -335,7 +352,7 @@ const CollaboratorsTable = ({
                     </StyledRadioGroup>
                   </Stack>
                 </StyledTableCell>
-                {canModifyCollaboratorsRoles.includes(user?.role) && (
+                {canModifyCollaborators && (
                   <StyledTableCell width="13.44%">
                     <Stack direction="row" justifyContent="center" alignItems="center">
                       <StyledRemoveButton
@@ -360,14 +377,13 @@ const CollaboratorsTable = ({
         startIcon={<AddCircleIcon />}
         onClick={handleAddCollaborator}
         disabled={
-          !canModifyCollaboratorsRoles.includes(user?.role) ||
-          currentCollaborators?.length === potentialCollaborators?.length
+          !canModifyCollaborators || currentCollaborators?.length === potentialCollaborators?.length
         }
         tooltipProps={{
           placement: "top",
           title: TOOLTIP_TEXT.COLLABORATORS_DIALOG.ACTIONS.ADD_COLLABORATOR_DISABLED,
           disableHoverListener:
-            canModifyCollaboratorsRoles.includes(user?.role) &&
+            canModifyCollaborators &&
             currentCollaborators?.length !== potentialCollaborators?.length,
         }}
       />
