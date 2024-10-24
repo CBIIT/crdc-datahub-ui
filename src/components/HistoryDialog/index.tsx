@@ -7,9 +7,9 @@ import {
   DialogProps,
   DialogTitle,
   Typography,
-  Grid,
   styled,
 } from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
 import { FormatDate, SortHistory } from "../../utils";
 import TruncatedText from "../TruncatedText";
 
@@ -17,7 +17,7 @@ const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
     borderRadius: "8px",
     boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
-    padding: "28px 24px",
+    padding: "22px 24px 54px 24px",
     width: "567px !important",
     border: "2px solid #388DEE",
     background: "#2E4D7B",
@@ -46,11 +46,15 @@ const StyledTitle = styled("p")({
   margin: "0",
 });
 
-const StyledDialogContent = styled(DialogContent)({
-  marginTop: "20px",
-  marginBottom: "22px",
+const StyledDialogContent = styled(DialogContent, { shouldForwardProp: (p) => p !== "headerRow" })<{
+  headerRow: boolean;
+}>(({ headerRow }) => ({
+  marginTop: headerRow ? "53px" : "74px",
+  marginBottom: "35px",
+  paddingLeft: "37px",
+  paddingRight: "37px",
   overflowY: "visible",
-});
+}));
 
 const StyledIcon = styled("div")({
   position: "absolute",
@@ -93,10 +97,6 @@ const StyledHeaderItem = styled(Typography)<React.CSSProperties>((styles) => ({
   ...styles,
 }));
 
-const HeaderGap = styled("div")({
-  height: "40px",
-});
-
 const StyledEventRow = styled(Grid)({
   padding: "17px 0",
   borderBottom: "0.5px solid #375F9A",
@@ -109,6 +109,7 @@ const BaseItemTypographyStyles: React.CSSProperties = {
   fontSize: "13px",
   letterSpacing: "0.0025em",
   userSelect: "none",
+  whiteSpace: "nowrap",
 };
 
 const StyledEventItem = styled(Typography)<React.CSSProperties>(
@@ -123,6 +124,7 @@ const DotContainer = styled("div")({
   position: "relative",
   width: "100%",
   height: "100%",
+  zIndex: 999,
 });
 
 const VerticalDot = styled("div")({
@@ -292,28 +294,26 @@ const HistoryDialog = <T extends string>({
         <StyledPreTitle>{preTitle}</StyledPreTitle>
         <StyledTitle>{title}</StyledTitle>
       </StyledDialogTitle>
-      <StyledDialogContent>
-        {showHeaders ? (
+      <StyledDialogContent headerRow={showHeaders}>
+        {showHeaders && (
           <StyledHeaderRow container columnSpacing={3} data-testid="history-dialog-header-row">
             {/* Spacing for the DotContainer */}
-            <Grid item xs={2} />
-            <Grid item xs={3}>
+            <Grid xs={2} />
+            <Grid xs={3}>
               <StyledHeaderItem textAlign="left" paddingLeft="12px">
                 Status
               </StyledHeaderItem>
             </Grid>
-            <Grid item xs={3}>
+            <Grid xs={3}>
               <StyledHeaderItem>Date</StyledHeaderItem>
             </Grid>
             {eventHasNames && (
-              <Grid item xs={3}>
+              <Grid xs={3}>
                 <StyledHeaderItem>User</StyledHeaderItem>
               </Grid>
             )}
-            <Grid item xs={1} />
+            <Grid xs={1} />
           </StyledHeaderRow>
-        ) : (
-          <HeaderGap />
         )}
         {events?.map(({ status, date, color, name, nameColor, icon }, index) => (
           <StyledEventRow
@@ -322,8 +322,8 @@ const HistoryDialog = <T extends string>({
             data-testid={`history-item-${index}`}
             columnSpacing={3}
           >
-            {!eventHasNames && <Grid item xs={1.5} />}
-            <Grid item xs={2}>
+            {!eventHasNames && <Grid xs={1.5} />}
+            <Grid xs={2}>
               <DotContainer>
                 {index !== 0 && <TopConnector />}
                 <VerticalDot />
@@ -331,7 +331,7 @@ const HistoryDialog = <T extends string>({
                 {index !== events.length - 1 && <BottomConnector />}
               </DotContainer>
             </Grid>
-            <Grid item xs={3}>
+            <Grid xs={3}>
               <StyledEventItem
                 color={color}
                 textAlign="left"
@@ -340,7 +340,7 @@ const HistoryDialog = <T extends string>({
                 {status?.toUpperCase()}
               </StyledEventItem>
             </Grid>
-            <Grid item xs={3}>
+            <Grid xs={3}>
               <StyledEventItem
                 color={color}
                 title={date}
@@ -350,7 +350,7 @@ const HistoryDialog = <T extends string>({
               </StyledEventItem>
             </Grid>
             {eventHasNames && (
-              <Grid item xs={3} data-testid={`history-item-${index}-name`}>
+              <Grid xs={3} data-testid={`history-item-${index}-name`}>
                 <StyledEventItem>
                   <TruncatedText
                     text={name}
@@ -365,7 +365,6 @@ const HistoryDialog = <T extends string>({
               </Grid>
             )}
             <Grid
-              item
               xs={1}
               sx={{
                 position: "relative",
