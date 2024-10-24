@@ -49,6 +49,7 @@ const StyledTitle = styled("p")({
 const StyledDialogContent = styled(DialogContent, { shouldForwardProp: (p) => p !== "headerRow" })<{
   headerRow: boolean;
 }>(({ headerRow }) => ({
+  "--border-bottom-width": "0.5px",
   marginTop: headerRow ? "53px" : "74px",
   marginBottom: "35px",
   paddingLeft: "37px",
@@ -81,7 +82,7 @@ const StyledCloseButton = styled(Button)({
 });
 
 const StyledHeaderRow = styled(Grid)({
-  borderBottom: "0.5px solid #375F9A",
+  borderBottom: "var(--border-bottom-width) solid #375F9A",
   paddingBottom: "8px",
   marginBottom: "4px",
 });
@@ -99,7 +100,7 @@ const StyledHeaderItem = styled(Typography)<React.CSSProperties>((styles) => ({
 
 const StyledEventRow = styled(Grid)({
   padding: "17px 0",
-  borderBottom: "0.5px solid #375F9A",
+  borderBottom: "var(--border-bottom-width) solid #375F9A",
   alignItems: "center",
 });
 
@@ -145,7 +146,7 @@ const TopConnector = styled("div")({
   left: "5px",
   bottom: "0",
   width: "6px",
-  height: "27px",
+  height: "calc(27px + var(--border-bottom-width) / 2)",
   background: "white",
 });
 
@@ -155,7 +156,7 @@ const BottomConnector = styled("div")({
   left: "5px",
   top: "0",
   width: "6px",
-  height: "27px",
+  height: "calc(27px + var(--border-bottom-width) / 2)",
   background: "white",
 });
 
