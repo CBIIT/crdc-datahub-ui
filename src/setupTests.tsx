@@ -7,16 +7,6 @@ import failOnConsole from "jest-fail-on-console";
 import crypto from "crypto";
 
 /**
- * Mocks the MUI Fade component for testing.
- *
- * @note If the default fade type is changed, this must be updated to match.
- */
-jest.mock("@mui/material", () => ({
-  ...jest.requireActual("@mui/material"),
-  Fade: jest.fn(({ children }) => children),
-}));
-
-/**
  * Makes the global.crypto.getRandomValues function available in Jest
  *
  * @see https://stackoverflow.com/a/63749793
