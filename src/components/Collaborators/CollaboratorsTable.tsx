@@ -262,7 +262,7 @@ const CollaboratorsTable = ({
                         permission: collaborator.permission,
                       })
                     }
-                    autoFocus
+                    autoFocus={canModifyCollaborators}
                     placeholderText="Select Name"
                     MenuProps={{ disablePortal: true }}
                     renderValue={(val: string) => {

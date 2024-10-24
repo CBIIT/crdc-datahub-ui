@@ -184,6 +184,8 @@ const CollaboratorsDialog = ({ onClose, onConfirm, open, ...rest }: Props) => {
       title=""
       aria-label="Data Submission Collaborators dialog"
       data-testid="collaborators-dialog"
+      scroll="body"
+      aria-hidden={open}
       {...rest}
     >
       <StyledCloseDialogButton
