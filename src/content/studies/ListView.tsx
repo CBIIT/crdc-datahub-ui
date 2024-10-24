@@ -14,6 +14,8 @@ import { FormatDate } from "../../utils";
 import { formatAccessTypes } from "../../utils/studyUtils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import ApprovedStudyFilters from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
+import TruncatedText from "../../components/TruncatedText";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 
 const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   padding: "14px 20px",
@@ -89,6 +91,10 @@ const StyledActionButton = styled(Button)(
   })
 );
 
+const StyledDateTooltip = styled(StyledTooltip)(() => ({
+  cursor: "pointer",
+}));
+
 type FilterForm = {
   study: string;
   dbGaPID: string;
@@ -98,16 +104,13 @@ type FilterForm = {
 const columns: Column<ApprovedStudy>[] = [
   {
     label: "Name",
-    renderValue: (a) => a.studyName,
+    renderValue: (a) => <TruncatedText text={a.studyName} />,
     field: "studyName",
     default: true,
-    sx: {
-      width: "278px",
-    },
   },
   {
     label: "Acronym",
-    renderValue: (a) => a.studyAbbreviation,
+    renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
     field: "studyAbbreviation",
     sx: {
       width: "208px",
@@ -115,7 +118,7 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "dbGaPID",
-    renderValue: (a) => a.dbGaPID,
+    renderValue: (a) => <TruncatedText text={a.dbGaPID} maxCharacters={15} />,
     field: "dbGaPID",
   },
   {
@@ -129,11 +132,8 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "Principal Investigator",
-    renderValue: (a) => a.PI,
+    renderValue: (a) => <TruncatedText text={a.PI} />,
     field: "PI",
-    sx: {
-      width: "197px",
-    },
   },
   {
     label: "ORCID",
@@ -142,11 +142,15 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "Created Date",
-    renderValue: (a) => FormatDate(a.createdAt, "M/D/YYYY h:mm A"),
+    renderValue: (a) =>
+      a.createdAt ? (
+        <StyledDateTooltip title={FormatDate(a.createdAt, "M/D/YYYY h:mm A")} placement="top">
+          <span>{FormatDate(a.createdAt, "M/D/YYYY")}</span>
+        </StyledDateTooltip>
+      ) : (
+        ""
+      ),
     field: "createdAt",
-    sx: {
-      width: "167px",
-    },
   },
   {
     label: (
