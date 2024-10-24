@@ -2,6 +2,11 @@ import { isEqual } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import { formatName } from "../../../utils";
 
+const defaultEmptyCollaborator: Collaborator = {
+  collaboratorID: "",
+  permission: "Can View",
+} as Collaborator;
+
 const userToCollaborator = (
   user: Partial<User>,
   permission?: CollaboratorPermissions
@@ -35,10 +40,8 @@ const useCollaborators = ({
   onCollaboratorsChange,
 }: UseCollaboratorsParams): UseCollaboratorsReturn => {
   const [currentCollaborators, setCurrentCollaborators] = useState<Collaborator[]>([
-    { collaboratorID: "" } as Collaborator,
+    { ...defaultEmptyCollaborator },
   ]);
-
-  useEffect(() => {}, [currentCollaborators]);
 
   useEffect(() => {
     const mappedCollaborators = collaborators?.map((collaborator) => {
@@ -77,7 +80,7 @@ const useCollaborators = ({
   }, [currentCollaborators, potentialCollaborators]);
 
   const createEmptyCollaborator = (): Collaborator => {
-    const newEmptyCollaborator = { collaboratorID: "" } as Collaborator;
+    const newEmptyCollaborator = { ...defaultEmptyCollaborator };
     return newEmptyCollaborator;
   };
 
