@@ -123,9 +123,16 @@ const StyledRadioGroup = styled(RadioGroup)({
   gap: "14px",
   "& .MuiFormControlLabel-root": {
     margin: 0,
+    "&.Mui-disabled": {
+      cursor: "not-allowed",
+    },
   },
   "& .MuiFormControlLabel-asterisk": {
     display: "none",
+  },
+  "& .MuiSelect-select .notranslate": {
+    display: "inline-block",
+    minHeight: "20px",
   },
 });
 
@@ -291,10 +298,17 @@ const CollaboratorsTable = ({
                         placement="top"
                         title={TOOLTIP_TEXT.COLLABORATORS_DIALOG.PERMISSIONS.CAN_VIEW}
                         disableHoverListener={false}
+                        disableInteractive
                       >
                         <StyledRadioControl
                           value="Can View"
-                          control={<StyledRadioButton readOnly={false} required />}
+                          control={
+                            <StyledRadioButton
+                              readOnly={!canModifyCollaboratorsRoles.includes(user?.role)}
+                              disabled={!canModifyCollaboratorsRoles.includes(user?.role)}
+                              required
+                            />
+                          }
                           label="Can View"
                         />
                       </CustomTooltip>
@@ -302,10 +316,17 @@ const CollaboratorsTable = ({
                         placement="top"
                         title={TOOLTIP_TEXT.COLLABORATORS_DIALOG.PERMISSIONS.CAN_EDIT}
                         disableHoverListener={false}
+                        disableInteractive
                       >
                         <StyledRadioControl
                           value="Can Edit"
-                          control={<StyledRadioButton readOnly={false} required />}
+                          control={
+                            <StyledRadioButton
+                              readOnly={!canModifyCollaboratorsRoles.includes(user?.role)}
+                              disabled={!canModifyCollaboratorsRoles.includes(user?.role)}
+                              required
+                            />
+                          }
                           label="Can Edit"
                         />
                       </CustomTooltip>
@@ -329,13 +350,24 @@ const CollaboratorsTable = ({
           </TableBody>
         </Table>
       </StyledTableContainer>
+
       <AddRemoveButton
         id="add-collaborator-button"
         label="Add Collaborator"
         placement="start"
         startIcon={<AddCircleIcon />}
         onClick={handleAddCollaborator}
-        disabled={currentCollaborators?.length === potentialCollaborators?.length}
+        disabled={
+          !canModifyCollaboratorsRoles.includes(user?.role) ||
+          currentCollaborators?.length === potentialCollaborators?.length
+        }
+        tooltipProps={{
+          placement: "top",
+          title: TOOLTIP_TEXT.COLLABORATORS_DIALOG.ACTIONS.ADD_COLLABORATOR_DISABLED,
+          disableHoverListener:
+            canModifyCollaboratorsRoles.includes(user?.role) &&
+            currentCollaborators?.length !== potentialCollaborators?.length,
+        }}
       />
     </>
   );

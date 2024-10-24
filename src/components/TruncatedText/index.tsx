@@ -73,6 +73,7 @@ const TruncatedText: FC<Props> = ({
       placement="top"
       title={tooltipText || text || ""}
       disableHoverListener={!isTruncated}
+      disableInteractive
       data-testid="truncated-text-tooltip"
     >
       <StyledTextWrapper
