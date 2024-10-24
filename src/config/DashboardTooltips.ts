@@ -40,6 +40,10 @@ export const TOOLTIP_TEXT = {
       CAN_VIEW: "Grant the collaborator view access to this data submission.",
       CAN_EDIT: "Grant the collaborator edit access to this data submission.",
     },
+    ACTIONS: {
+      ADD_COLLABORATOR_DISABLED:
+        "Unable to add a collaborator at this time. No submitters are available to collaborate with.",
+    },
   },
 } as const;
 
