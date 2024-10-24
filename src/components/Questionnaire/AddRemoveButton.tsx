@@ -1,5 +1,6 @@
-import { Button, ButtonProps, Stack, StackProps, styled } from "@mui/material";
+import { Button, ButtonProps, Stack, StackProps, styled, TooltipProps } from "@mui/material";
 import { FC } from "react";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const ActionButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== "textColor" && prop !== "iconColor",
@@ -31,14 +32,40 @@ const ActionButton = styled(Button, {
   }
 `;
 
+const CustomTooltip = (props: TooltipProps) => (
+  <StyledTooltip
+    {...props}
+    slotProps={{
+      popper: {
+        modifiers: [
+          {
+            name: "offset",
+            options: {
+              offset: [0, -2],
+            },
+          },
+        ],
+      },
+    }}
+  />
+);
+
 type Props = ButtonProps & {
   label?: string;
   placement?: StackProps["justifyContent"];
   iconColor?: string;
   textColor?: string;
+  tooltipProps?: Omit<TooltipProps, "children">;
 };
 
-const AddRemoveButton: FC<Props> = ({ label, placement = "end", disabled, onClick, ...rest }) => {
+const AddRemoveButton: FC<Props> = ({
+  label,
+  placement = "end",
+  disabled,
+  onClick,
+  tooltipProps,
+  ...rest
+}) => {
   const onClickWrapper = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     if (disabled) {
       return;
@@ -50,17 +77,21 @@ const AddRemoveButton: FC<Props> = ({ label, placement = "end", disabled, onClic
 
   return (
     <Stack direction="row" justifyContent={placement} alignItems="center">
-      <ActionButton
-        variant="outlined"
-        type="button"
-        size="small"
-        onClick={onClickWrapper}
-        disableRipple
-        disabled={disabled}
-        {...rest}
-      >
-        {label}
-      </ActionButton>
+      <CustomTooltip title="" {...tooltipProps}>
+        <span>
+          <ActionButton
+            variant="outlined"
+            type="button"
+            size="small"
+            onClick={onClickWrapper}
+            disableRipple
+            disabled={disabled}
+            {...rest}
+          >
+            {label}
+          </ActionButton>
+        </span>
+      </CustomTooltip>
     </Stack>
   );
 };
