@@ -210,12 +210,12 @@ export const formatName = (firstName?: string, lastName?: string): string => {
   const trimmedLastName = typeof lastName === "string" ? lastName?.trim() : "";
 
   if (trimmedFirstName && trimmedLastName) {
-    return `${trimmedLastName}, ${trimmedFirstName}`.trim();
+    return `${trimmedLastName}, ${trimmedFirstName}`;
   }
-  if (trimmedLastName?.trim()) {
+  if (trimmedLastName) {
     return trimmedLastName;
   }
-  if (trimmedFirstName?.trim()) {
+  if (trimmedFirstName) {
     return trimmedFirstName;
   }
   return "";
