@@ -23,7 +23,13 @@ const StyledListItem = styled("li")({
 });
 
 type Props = {
+  /**
+   * The ID of the organization to which the studies belong
+   */
   _id: Organization["_id"];
+  /**
+   * The list of studies to display in the tooltip
+   */
   studies: Organization["studies"];
 };
 
@@ -55,7 +61,7 @@ const StudyTooltip: FC<Props> = ({ _id, studies }) => {
       disableHoverListener={false}
       arrow
     >
-      <StyledStudyCount variant="body2" component="span">
+      <StyledStudyCount variant="body2" component="span" data-testid={`studies-content-${_id}`}>
         other {studies.length - 1}
       </StyledStudyCount>
     </Tooltip>
