@@ -1,7 +1,7 @@
 import React, { ElementType, FC, memo, useMemo } from "react";
 import { Typography, styled } from "@mui/material";
-import Tooltip from "../Tooltip";
-import { formatFullStudyName } from "../../utils";
+import Tooltip from "../../Tooltip";
+import { formatFullStudyName } from "../../../utils";
 
 const StyledStudyCount = styled(Typography)<{ component: ElementType }>(({ theme }) => ({
   textDecoration: "underline",

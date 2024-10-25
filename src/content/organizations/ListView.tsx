@@ -21,7 +21,7 @@ import {
   Status as OrgStatus,
 } from "../../components/Contexts/OrganizationListContext";
 import usePageTitle from "../../hooks/usePageTitle";
-import StudyTooltip from "../../components/Organizations/StudyTooltip";
+import StudyTooltip from "../../components/AdminPortal/Organizations/StudyTooltip";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { sortData } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
