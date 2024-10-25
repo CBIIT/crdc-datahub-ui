@@ -93,6 +93,7 @@ const HistorySection: FC = () => {
             getTextColor={getStatusColor}
             open={open}
             onClose={() => setOpen(false)}
+            showHeaders={false}
             data-testid="status-bar-history-dialog"
           />
         </>
