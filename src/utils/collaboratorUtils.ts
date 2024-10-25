@@ -3,9 +3,9 @@ import { formatName } from "./stringUtils";
 /**
  * Converts a user object to a collaborator object
  *
- * @param user Partial user object
- * @param permission Collaborator permission
- * @returns Collaborator object
+ * @param {User} user Partial user object
+ * @param {CollaboratorPermissions} permission Collaborator permission
+ * @returns {Collaborator} Collaborator object
  */
 export const userToCollaborator = (
   user: Partial<User>,
