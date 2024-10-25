@@ -124,7 +124,7 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
    * @returns {Collaborator[]} The array of collaborators
    */
   const mapSubmissionCollaborators = useCallback((): Collaborator[] => {
-    if (!submissionData?.getSubmission?.collaborators?.length || !potentialCollaborators.length) {
+    if (!submissionData?.getSubmission?.collaborators?.length || !potentialCollaborators?.length) {
       return [];
     }
 
@@ -174,7 +174,9 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
    * @returns void
    */
   const loadPotentialCollaborators = useCallback(() => {
-    if (!submissionID) return;
+    if (!submissionID) {
+      return;
+    }
     setLoading(true);
     loadPotentialCollaboratorsQuery({ variables: { submissionID } });
   }, [submissionID, loadPotentialCollaboratorsQuery]);
@@ -187,8 +189,8 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
     const currentCollaboratorIDs = currentCollaborators.map((c) => c.collaboratorID);
 
     return potentialCollaborators
-      .filter((pc) => !currentCollaboratorIDs.includes(pc.collaboratorID))
-      .sort((a, b) => a.collaboratorName.localeCompare(b.collaboratorName));
+      ?.filter((pc) => !currentCollaboratorIDs.includes(pc.collaboratorID))
+      ?.sort((a, b) => a.collaboratorName.localeCompare(b.collaboratorName));
   }, [currentCollaborators, potentialCollaborators]);
 
   /**
@@ -222,7 +224,7 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
     setCurrentCollaborators((prev) => {
       const newCollaborators = prev.filter((_, index) => index !== collaboratorIdx);
 
-      if (!newCollaborators.length) {
+      if (!newCollaborators?.length) {
         return [createEmptyCollaborator()];
       }
 
