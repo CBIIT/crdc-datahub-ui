@@ -206,14 +206,17 @@ export const isStringLengthBetween = (
  * @returns The formatted name.
  */
 export const formatName = (firstName?: string, lastName?: string): string => {
-  if (firstName && lastName) {
-    return `${lastName}, ${firstName}`.trim();
+  const trimmedFirstName = typeof firstName === "string" ? firstName?.trim() : "";
+  const trimmedLastName = typeof lastName === "string" ? lastName?.trim() : "";
+
+  if (trimmedFirstName && trimmedLastName) {
+    return `${trimmedLastName}, ${trimmedFirstName}`.trim();
   }
-  if (lastName) {
-    return lastName.trim();
+  if (trimmedLastName?.trim()) {
+    return trimmedLastName;
   }
-  if (firstName) {
-    return firstName.trim();
+  if (trimmedFirstName?.trim()) {
+    return trimmedFirstName;
   }
   return "";
 };
