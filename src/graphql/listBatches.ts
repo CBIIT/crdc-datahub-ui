@@ -26,6 +26,7 @@ const FullBatchFragment = gql`
       createdAt
       updatedAt
     }
+    submitterName
     status
     errors
   }
@@ -78,7 +79,7 @@ export type Response<IsPartial = false> = {
     total: number;
     batches: (IsPartial extends true
       ? Pick<Batch, "_id" | "displayID" | "createdAt" | "updatedAt">
-      : Batch)[];
+      : Omit<Batch, "submitterID">)[];
   };
   batchStatusList: {
     batches: Pick<Batch, "_id" | "status">[];
