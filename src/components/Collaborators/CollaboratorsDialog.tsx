@@ -1,20 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
-import { useMutation, useQuery } from "@apollo/client";
-import { useSnackbar } from "notistack";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import CollaboratorsTable from "./CollaboratorsTable";
-import { SubmissionCtxStatus, useSubmissionContext } from "../Contexts/SubmissionContext";
-import {
-  EDIT_SUBMISSION_COLLABORATORS,
-  EditSubmissionCollaboratorsInput,
-  EditSubmissionCollaboratorsResp,
-  LIST_POTENTIAL_COLLABORATORS,
-  ListPotentialCollaboratorsInput,
-  ListPotentialCollaboratorsResp,
-} from "../../graphql";
-import { Logger } from "../../utils";
+
+import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -103,77 +94,35 @@ const StyledDescription = styled(Typography)({
 
 type Props = {
   onClose: () => void;
-  onConfirm: () => void;
+  onSave: (collaborators: Collaborator[]) => void;
 } & Omit<DialogProps, "onClose" | "title">;
 
-const CollaboratorsDialog = ({ onClose, onConfirm, open, ...rest }: Props) => {
-  const { data: submission, status: submissionStatus } = useSubmissionContext();
-  const { enqueueSnackbar } = useSnackbar();
+const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
+  const { updateQuery } = useSubmissionContext();
+  const { saveCollaborators, loadPotentialCollaborators, resetCollaborators, loading } =
+    useCollaboratorsContext();
 
-  const [collaborators, setCollaborators] = useState<
-    Pick<Collaborator, "collaboratorID" | "permission">[]
-  >([]);
-
-  const { data: listPotentialCollaboratorsResp, loading: listPotentialCollaboratorsLoading } =
-    useQuery<ListPotentialCollaboratorsResp, ListPotentialCollaboratorsInput>(
-      LIST_POTENTIAL_COLLABORATORS,
-      {
-        variables: { submissionID: submission?.getSubmission?._id },
-        context: { clientName: "backend" },
-        skip: !submission?.getSubmission?._id,
-        fetchPolicy: "cache-and-network",
-      }
-    );
-
-  const [editSubmissionCollaborators] = useMutation<
-    EditSubmissionCollaboratorsResp,
-    EditSubmissionCollaboratorsInput
-  >(EDIT_SUBMISSION_COLLABORATORS, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  useEffect(() => {
+    loadPotentialCollaborators();
+  }, [loadPotentialCollaborators]);
 
   const handleOnSave = async (event) => {
     event.preventDefault();
 
-    try {
-      const { data: d, errors } = await editSubmissionCollaborators({
-        variables: {
-          submissionID: submission?.getSubmission?._id,
-          collaborators,
-        },
-      });
+    const newCollaborators = await saveCollaborators();
+    updateQuery((prev) => ({
+      ...prev,
+      getSubmission: {
+        ...prev?.getSubmission,
+        collaborators: newCollaborators,
+      },
+    }));
 
-      if (errors || !d?.editSubmissionCollaborators) {
-        throw new Error();
-      }
-
-      enqueueSnackbar("All collaborator changes have been saved successfully.");
-      onClose?.();
-    } catch (err) {
-      Logger.error(`CollaboratorDialog: ${err?.toString()}`);
-      enqueueSnackbar("Unable to edit submission collaborators.", {
-        variant: "error",
-      });
-    }
+    onSave?.(newCollaborators);
   };
 
-  const handleOnCollaboratorsChange = (collaborators: Collaborator[]) => {
-    const filteredCollaborators: CollaboratorInput[] = collaborators
-      ?.filter(
-        (c) =>
-          c.collaboratorID && !c.collaboratorID.startsWith("empty-collaborator-") && c.permission
-      )
-      ?.map((c) => ({ collaboratorID: c.collaboratorID, permission: c.permission }));
-
-    if (isEqual(filteredCollaborators, collaborators)) {
-      return;
-    }
-    setCollaborators(filteredCollaborators);
-  };
-
-  const handleOnCancel = () => {
-    setCollaborators([]);
+  const handleOnCancel = async () => {
+    resetCollaborators();
     onClose?.();
   };
 
@@ -207,14 +156,7 @@ const CollaboratorsDialog = ({ onClose, onConfirm, open, ...rest }: Props) => {
       </StyledDescription>
 
       <form id="manage-collaborators-dialog-form" onSubmit={handleOnSave}>
-        <CollaboratorsTable
-          collaborators={submission?.getSubmission?.collaborators}
-          potentialCollaborators={listPotentialCollaboratorsResp?.listPotentialCollaborators ?? []}
-          loading={
-            listPotentialCollaboratorsLoading || submissionStatus === SubmissionCtxStatus.LOADING
-          }
-          onCollaboratorsChange={handleOnCollaboratorsChange}
-        />
+        <CollaboratorsTable />
 
         <Stack
           direction="row"
@@ -227,6 +169,7 @@ const CollaboratorsDialog = ({ onClose, onConfirm, open, ...rest }: Props) => {
             variant="contained"
             color="success"
             type="submit"
+            disabled={loading}
             aria-label="Save changes button"
             data-testid="collaborators-dialog-save-button"
           >
@@ -236,6 +179,7 @@ const CollaboratorsDialog = ({ onClose, onConfirm, open, ...rest }: Props) => {
             variant="contained"
             color="error"
             onClick={handleOnCancel}
+            disabled={loading}
             aria-label="Cancel button"
             data-testid="collaborators-dialog-cancel-button"
           >

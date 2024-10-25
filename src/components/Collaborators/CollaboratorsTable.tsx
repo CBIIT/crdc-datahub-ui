@@ -23,11 +23,10 @@ import { ReactComponent as RemoveIconSvg } from "../../assets/icons/remove_icon.
 import AddRemoveButton from "../Questionnaire/AddRemoveButton";
 import TruncatedText from "../TruncatedText";
 import StyledFormSelect from "../StyledFormComponents/StyledSelect";
-import SuspenseLoader from "../SuspenseLoader";
-import useCollaborators from "./hooks/useCollaborators";
 import { Status, useAuthContext } from "../Contexts/AuthContext";
 import { canModifyCollaboratorsRoles } from "../../config/AuthRoles";
-import { SubmissionCtxStatus, useSubmissionContext } from "../Contexts/SubmissionContext";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 
 const StyledTableContainer = styled(TableContainer)(() => ({
   borderRadius: "8px !important",
@@ -145,10 +144,13 @@ const StyledRadioButton = styled(StyledFormRadioButton)({
   padding: "0 7px 0 0",
 });
 
-const StyledRemoveButton = styled(IconButton)({
+const StyledRemoveButton = styled(IconButton)(({ theme }) => ({
   color: "#C05239",
   padding: "5px",
-});
+  "&.Mui-disabled": {
+    opacity: theme.palette.action.disabledOpacity,
+  },
+}));
 
 const StyledSelect = styled(StyledFormSelect)({
   "&.MuiInputBase-root": {
@@ -196,30 +198,18 @@ const CustomTooltip = (props: TooltipProps) => (
   />
 );
 
-type Props = {
-  collaborators: Collaborator[];
-  potentialCollaborators: Pick<User, "_id" | "firstName" | "lastName" | "organization">[];
-  loading?: boolean;
-  onCollaboratorsChange: (
-    collaborators: Pick<Collaborator, "collaboratorID" | "permission">[]
-  ) => void;
-};
-
-const CollaboratorsTable = ({
-  collaborators,
-  potentialCollaborators,
-  loading,
-  onCollaboratorsChange,
-}: Props) => {
+const CollaboratorsTable = () => {
+  const { user, status } = useAuthContext();
+  const { data: submission } = useSubmissionContext();
   const {
     currentCollaborators,
     remainingPotentialCollaborators,
+    maxCollaborators,
     handleAddCollaborator,
     handleRemoveCollaborator,
     handleUpdateCollaborator,
-  } = useCollaborators({ collaborators, potentialCollaborators, onCollaboratorsChange });
-  const { user, status } = useAuthContext();
-  const { data: submission, status: submissionStatus } = useSubmissionContext();
+    loading,
+  } = useCollaboratorsContext();
 
   const canModifyCollaborators = useMemo(
     () =>
@@ -228,9 +218,7 @@ const CollaboratorsTable = ({
     [canModifyCollaboratorsRoles, user, submission?.getSubmission?.submitterID]
   );
 
-  if (loading || status === Status.LOADING || submissionStatus === SubmissionCtxStatus.LOADING) {
-    return <SuspenseLoader fullscreen={false} data-testid="collaborators-table-suspense-loader" />;
-  }
+  const isLoading = loading || status === Status.LOADING;
 
   return (
     <>
@@ -279,8 +267,8 @@ const CollaboratorsTable = ({
                         />
                       );
                     }}
-                    readOnly={!canModifyCollaborators}
-                    required
+                    readOnly={isLoading || !canModifyCollaborators}
+                    required={currentCollaborators?.length > 1}
                   >
                     {[collaborator, ...remainingPotentialCollaborators]
                       ?.filter((collaborator) => !!collaborator?.collaboratorID)
@@ -323,8 +311,8 @@ const CollaboratorsTable = ({
                           value="Can View"
                           control={
                             <StyledRadioButton
-                              readOnly={!canModifyCollaborators}
-                              disabled={!canModifyCollaborators}
+                              readOnly={isLoading || !canModifyCollaborators}
+                              disabled={isLoading || !canModifyCollaborators}
                               required
                             />
                           }
@@ -341,8 +329,8 @@ const CollaboratorsTable = ({
                           value="Can Edit"
                           control={
                             <StyledRadioButton
-                              readOnly={!canModifyCollaborators}
-                              disabled={!canModifyCollaborators}
+                              readOnly={isLoading || !canModifyCollaborators}
+                              disabled={isLoading || !canModifyCollaborators}
                               required
                             />
                           }
@@ -357,6 +345,7 @@ const CollaboratorsTable = ({
                     <Stack direction="row" justifyContent="center" alignItems="center">
                       <StyledRemoveButton
                         onClick={() => handleRemoveCollaborator(idx)}
+                        disabled={isLoading}
                         aria-label="Remove row"
                       >
                         <RemoveIconSvg />
@@ -377,14 +366,14 @@ const CollaboratorsTable = ({
         startIcon={<AddCircleIcon />}
         onClick={handleAddCollaborator}
         disabled={
-          !canModifyCollaborators || currentCollaborators?.length === potentialCollaborators?.length
+          isLoading || !canModifyCollaborators || currentCollaborators?.length === maxCollaborators
         }
         tooltipProps={{
           placement: "top",
           title: TOOLTIP_TEXT.COLLABORATORS_DIALOG.ACTIONS.ADD_COLLABORATOR_DISABLED,
           disableHoverListener:
-            canModifyCollaborators &&
-            currentCollaborators?.length !== potentialCollaborators?.length,
+            canModifyCollaborators && currentCollaborators?.length !== maxCollaborators,
+          disableInteractive: true,
         }}
       />
     </>
