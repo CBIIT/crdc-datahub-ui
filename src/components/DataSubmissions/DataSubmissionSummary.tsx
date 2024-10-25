@@ -10,6 +10,7 @@ import { SortHistory } from "../../utils";
 import TruncatedText from "../TruncatedText";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import { CollaboratorsDialog } from "../Collaborators";
+import { CollaboratorsProvider } from "../Contexts/CollaboratorsContext";
 
 const StyledSummaryWrapper = styled("div")(() => ({
   borderRadius: "8px 8px 0px 0px",
@@ -297,11 +298,13 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         title="Data Submission"
         lastReview={lastReview}
       />
-      <CollaboratorsDialog
-        open={openDialog === "collaborators"}
-        onClose={handleCloseDialog}
-        onConfirm={handleCloseDialog}
-      />
+      <CollaboratorsProvider>
+        <CollaboratorsDialog
+          open={openDialog === "collaborators"}
+          onClose={handleCloseDialog}
+          onSave={handleCloseDialog}
+        />
+      </CollaboratorsProvider>
     </StyledSummaryWrapper>
   );
 };
