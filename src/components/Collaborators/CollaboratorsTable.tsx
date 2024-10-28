@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import {
   FormControlLabel,
   IconButton,
@@ -23,9 +23,6 @@ import { ReactComponent as RemoveIconSvg } from "../../assets/icons/remove_icon.
 import AddRemoveButton from "../Questionnaire/AddRemoveButton";
 import TruncatedText from "../TruncatedText";
 import StyledFormSelect from "../StyledFormComponents/StyledSelect";
-import { Status, useAuthContext } from "../Contexts/AuthContext";
-import { canModifyCollaboratorsRoles } from "../../config/AuthRoles";
-import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 
 const StyledTableContainer = styled(TableContainer)(() => ({
@@ -198,9 +195,14 @@ const CustomTooltip = (props: TooltipProps) => (
   />
 );
 
-const CollaboratorsTable = () => {
-  const { user, status } = useAuthContext();
-  const { data: submission } = useSubmissionContext();
+type Props = {
+  /**
+   * Indicates whether the table will allow edititing of collaborators
+   */
+  isEdit: boolean;
+};
+
+const CollaboratorsTable = ({ isEdit }: Props) => {
   const {
     currentCollaborators,
     remainingPotentialCollaborators,
@@ -210,15 +212,6 @@ const CollaboratorsTable = () => {
     handleUpdateCollaborator,
     loading,
   } = useCollaboratorsContext();
-
-  const canModifyCollaborators = useMemo(
-    () =>
-      canModifyCollaboratorsRoles.includes(user?.role) &&
-      (submission?.getSubmission?.submitterID === user?._id || user?.role === "Organization Owner"),
-    [canModifyCollaboratorsRoles, user, submission?.getSubmission?.submitterID]
-  );
-
-  const isLoading = loading || status === Status.LOADING;
 
   return (
     <>
@@ -236,7 +229,7 @@ const CollaboratorsTable = () => {
               <StyledTableHeaderCell sx={{ textAlign: "center" }} data-testid="header-access">
                 Access
               </StyledTableHeaderCell>
-              {canModifyCollaborators && (
+              {isEdit && (
                 <StyledTableHeaderCell sx={{ textAlign: "center" }} data-testid="header-remove">
                   Remove
                 </StyledTableHeaderCell>
@@ -256,7 +249,7 @@ const CollaboratorsTable = () => {
                         permission: collaborator.permission,
                       })
                     }
-                    autoFocus={canModifyCollaborators}
+                    autoFocus={isEdit}
                     placeholderText="Select Name"
                     MenuProps={{ disablePortal: true }}
                     data-testid={`collaborator-select-${idx}`}
@@ -271,7 +264,7 @@ const CollaboratorsTable = () => {
                         ellipsis
                       />
                     )}
-                    readOnly={isLoading || !canModifyCollaborators}
+                    readOnly={loading || !isEdit}
                     required={currentCollaborators?.length > 1}
                   >
                     {[collaborator, ...remainingPotentialCollaborators]
@@ -315,8 +308,8 @@ const CollaboratorsTable = () => {
                           value="Can View"
                           control={
                             <StyledRadioButton
-                              readOnly={isLoading || !canModifyCollaborators}
-                              disabled={isLoading || !canModifyCollaborators}
+                              readOnly={loading || !isEdit}
+                              disabled={loading || !isEdit}
                               required
                             />
                           }
@@ -333,8 +326,8 @@ const CollaboratorsTable = () => {
                           value="Can Edit"
                           control={
                             <StyledRadioButton
-                              readOnly={isLoading || !canModifyCollaborators}
-                              disabled={isLoading || !canModifyCollaborators}
+                              readOnly={loading || !isEdit}
+                              disabled={loading || !isEdit}
                               required
                             />
                           }
@@ -344,12 +337,12 @@ const CollaboratorsTable = () => {
                     </StyledRadioGroup>
                   </Stack>
                 </StyledTableCell>
-                {canModifyCollaborators && (
+                {isEdit && (
                   <StyledTableCell width="13.44%">
                     <Stack direction="row" justifyContent="center" alignItems="center">
                       <StyledRemoveButton
                         onClick={() => handleRemoveCollaborator(idx)}
-                        disabled={isLoading}
+                        disabled={loading}
                         data-testid={`remove-collaborator-button-${idx}`}
                         aria-label="Remove row"
                       >
@@ -370,14 +363,11 @@ const CollaboratorsTable = () => {
         placement="start"
         startIcon={<AddCircleIcon />}
         onClick={handleAddCollaborator}
-        disabled={
-          isLoading || !canModifyCollaborators || currentCollaborators?.length === maxCollaborators
-        }
+        disabled={loading || !isEdit || currentCollaborators?.length === maxCollaborators}
         tooltipProps={{
           placement: "top",
           title: TOOLTIP_TEXT.COLLABORATORS_DIALOG.ACTIONS.ADD_COLLABORATOR_DISABLED,
-          disableHoverListener:
-            canModifyCollaborators && currentCollaborators?.length !== maxCollaborators,
+          disableHoverListener: isEdit && currentCollaborators?.length !== maxCollaborators,
           disableInteractive: true,
         }}
         data-testid="add-collaborator-button"

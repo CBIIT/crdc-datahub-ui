@@ -1,13 +1,8 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 import { axe } from "jest-axe";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthStatus,
-  useAuthContext,
-} from "../Contexts/AuthContext";
+import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
 import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import CollaboratorsDialog from "./CollaboratorsDialog";
@@ -75,35 +70,15 @@ const mockLoadPotentialCollaborators = jest.fn();
 const mockResetCollaborators = jest.fn();
 const mockUpdateQuery = jest.fn();
 
-const baseAuthCtx: AuthContextState = {
-  status: AuthStatus.LOADED,
-  isLoggedIn: true,
-  user: null,
-};
-
 type Props = {
-  role?: UserRole;
   children: React.ReactNode;
 };
 
-const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
-  const authState = useMemo<AuthContextState>(
-    () => ({
-      ...baseAuthCtx,
-      isLoggedIn: true,
-      user: { ...mockUser, role },
-    }),
-    [role]
-  );
-
-  return (
-    <MockedProvider mocks={[]}>
-      <AuthContext.Provider value={authState}>
-        <CollaboratorsProvider>{children}</CollaboratorsProvider>
-      </AuthContext.Provider>
-    </MockedProvider>
-  );
-};
+const TestParent: React.FC<Props> = ({ children }) => (
+  <MockedProvider mocks={[]}>
+    <CollaboratorsProvider>{children}</CollaboratorsProvider>
+  </MockedProvider>
+);
 
 describe("CollaboratorsDialog Accessibility Tests", () => {
   beforeEach(() => {
@@ -202,6 +177,14 @@ describe("CollaboratorsDialog Component", () => {
   });
 
   it("calls onClose when Close button is clicked", () => {
+    mockUseAuthContext.mockReturnValue({
+      user: {
+        ...mockUser,
+        role: "Admin",
+      },
+      status: AuthStatus.LOADED,
+    });
+
     const mockOnClose = jest.fn();
     const { getByTestId } = render(
       <TestParent>
@@ -276,11 +259,9 @@ describe("CollaboratorsDialog Component", () => {
 
     const saveButton = getByTestId("collaborators-dialog-save-button");
     const cancelButton = getByTestId("collaborators-dialog-cancel-button");
-    const closeButton = getByTestId("collaborators-dialog-close-button");
 
     expect(saveButton).toBeDisabled();
     expect(cancelButton).toBeDisabled();
-    expect(closeButton).toBeEnabled(); // Close button is not disabled when loading
   });
 
   it("updates submission data correctly when previous data exists", async () => {
@@ -380,5 +361,80 @@ describe("CollaboratorsDialog Component", () => {
       expect(mockUpdateQuery).toHaveBeenCalled();
       expect(mockOnSave).toHaveBeenCalledWith(mockCollaborators);
     });
+  });
+
+  it.each<UserRole>([
+    "User",
+    "Admin",
+    "Data Curator",
+    "Data Commons POC",
+    "Federal Lead",
+    "Federal Monitor",
+    "invalid-role" as UserRole,
+  ])("should disable inputs when user is role %s", (role) => {
+    mockUseAuthContext.mockReturnValue({
+      user: {
+        ...mockUser,
+        role,
+      },
+      status: AuthStatus.LOADED,
+    });
+
+    const mockOnClose = jest.fn();
+    const { getByTestId, queryByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+      </TestParent>
+    );
+
+    expect(queryByTestId("collaborators-dialog-save-button")).not.toBeInTheDocument();
+    expect(queryByTestId("collaborators-dialog-cancel-button")).not.toBeInTheDocument();
+    expect(getByTestId("collaborators-dialog-close-button")).toBeInTheDocument();
+  });
+
+  it.each<UserRole>(["Submitter", "Organization Owner"])(
+    "should enable inputs when user is role %s",
+    (role) => {
+      mockUseAuthContext.mockReturnValue({
+        user: {
+          ...mockUser,
+          role,
+        },
+        status: AuthStatus.LOADED,
+      });
+
+      const mockOnClose = jest.fn();
+      const { getByTestId, queryByTestId } = render(
+        <TestParent>
+          <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+        </TestParent>
+      );
+
+      expect(getByTestId("collaborators-dialog-save-button")).toBeInTheDocument();
+      expect(getByTestId("collaborators-dialog-cancel-button")).toBeInTheDocument();
+      expect(queryByTestId("collaborators-dialog-close-button")).not.toBeInTheDocument();
+    }
+  );
+
+  it("allows modification when user is Organization Owner regardless of submitterID", () => {
+    mockUseAuthContext.mockReturnValue({
+      user: { ...mockUser, role: "Organization Owner", _id: "user-99" },
+      status: AuthStatus.LOADED,
+    });
+
+    mockUseSubmissionContext.mockReturnValue({
+      data: { getSubmission: { ...mockSubmission, submitterID: "user-1" } },
+    });
+
+    const mockOnClose = jest.fn();
+    const { getByTestId, queryByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+      </TestParent>
+    );
+
+    expect(getByTestId("collaborators-dialog-save-button")).toBeInTheDocument();
+    expect(getByTestId("collaborators-dialog-cancel-button")).toBeInTheDocument();
+    expect(queryByTestId("collaborators-dialog-close-button")).not.toBeInTheDocument();
   });
 });

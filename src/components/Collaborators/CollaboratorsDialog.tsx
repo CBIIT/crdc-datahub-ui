@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import CollaboratorsTable from "./CollaboratorsTable";
 import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import { canModifyCollaboratorsRoles } from "../../config/AuthRoles";
+import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -97,7 +99,8 @@ type Props = {
 } & Omit<DialogProps, "onClose" | "title">;
 
 const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
-  const { updateQuery } = useSubmissionContext();
+  const { user, status } = useAuthContext();
+  const { data: submission, updateQuery } = useSubmissionContext();
   const { saveCollaborators, loadPotentialCollaborators, resetCollaborators, loading } =
     useCollaboratorsContext();
 
@@ -124,6 +127,15 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
     resetCollaborators();
     onClose?.();
   };
+
+  const canModifyCollaborators = useMemo(
+    () =>
+      canModifyCollaboratorsRoles.includes(user?.role) &&
+      (submission?.getSubmission?.submitterID === user?._id || user?.role === "Organization Owner"),
+    [canModifyCollaboratorsRoles, user, submission?.getSubmission?.submitterID]
+  );
+
+  const isLoading = loading || status === AuthStatus.LOADING;
 
   return (
     <StyledDialog
@@ -155,7 +167,7 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
       </StyledDescription>
 
       <form id="manage-collaborators-dialog-form" onSubmit={handleOnSave}>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit={canModifyCollaborators} />
 
         <Stack
           direction="row"
@@ -164,35 +176,40 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
           spacing={2}
           marginTop="58px"
         >
-          <StyledSaveButton
-            variant="contained"
-            color="success"
-            type="submit"
-            disabled={loading}
-            aria-label="Save changes button"
-            data-testid="collaborators-dialog-save-button"
-          >
-            Save
-          </StyledSaveButton>
-          <StyledCancelButton
-            variant="contained"
-            color="error"
-            onClick={handleOnCancel}
-            disabled={loading}
-            aria-label="Cancel button"
-            data-testid="collaborators-dialog-cancel-button"
-          >
-            Cancel
-          </StyledCancelButton>
-          <StyledCloseButton
-            variant="contained"
-            color="info"
-            onClick={onClose}
-            aria-label="Close button"
-            data-testid="collaborators-dialog-close-button"
-          >
-            Close
-          </StyledCloseButton>
+          {canModifyCollaborators ? (
+            <>
+              <StyledSaveButton
+                variant="contained"
+                color="success"
+                type="submit"
+                disabled={isLoading}
+                aria-label="Save changes button"
+                data-testid="collaborators-dialog-save-button"
+              >
+                Save
+              </StyledSaveButton>
+              <StyledCancelButton
+                variant="contained"
+                color="error"
+                onClick={handleOnCancel}
+                disabled={isLoading}
+                aria-label="Cancel button"
+                data-testid="collaborators-dialog-cancel-button"
+              >
+                Cancel
+              </StyledCancelButton>
+            </>
+          ) : (
+            <StyledCloseButton
+              variant="contained"
+              color="info"
+              onClick={onClose}
+              aria-label="Close button"
+              data-testid="collaborators-dialog-close-button"
+            >
+              Close
+            </StyledCloseButton>
+          )}
         </Stack>
       </form>
     </StyledDialog>

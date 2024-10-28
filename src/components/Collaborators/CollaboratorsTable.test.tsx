@@ -153,7 +153,7 @@ describe("CollaboratorsTable Accessibility Tests", () => {
   it("has no accessibility violations", async () => {
     const { container } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -189,7 +189,7 @@ describe("CollaboratorsTable Component", () => {
   it("renders table headers correctly", () => {
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -202,7 +202,7 @@ describe("CollaboratorsTable Component", () => {
   it("renders collaborators correctly", () => {
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -226,7 +226,7 @@ describe("CollaboratorsTable Component", () => {
   it("calls handleRemoveCollaborator when remove button is clicked", () => {
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -239,7 +239,7 @@ describe("CollaboratorsTable Component", () => {
   it("calls handleAddCollaborator when add collaborator button is clicked", () => {
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -262,7 +262,7 @@ describe("CollaboratorsTable Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -283,7 +283,7 @@ describe("CollaboratorsTable Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -297,15 +297,10 @@ describe("CollaboratorsTable Component", () => {
     expect(addButton).toBeDisabled();
   });
 
-  it("does not render remove button when canModifyCollaborators is false", () => {
-    mockUseAuthContext.mockReturnValue({
-      user: { ...mockUser, role: "Viewer" },
-      status: AuthStatus.LOADED,
-    });
-
+  it("does not render remove button when isEdit is false", () => {
     const { queryByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit={false} />
       </TestParent>
     );
 
@@ -316,7 +311,7 @@ describe("CollaboratorsTable Component", () => {
   it("calls handleUpdateCollaborator when collaborator select changes", () => {
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -333,7 +328,7 @@ describe("CollaboratorsTable Component", () => {
   it("calls handleUpdateCollaborator when permission changes", () => {
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -350,7 +345,7 @@ describe("CollaboratorsTable Component", () => {
   it("renders permission tooltips correctly", async () => {
     const { getByText, getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -370,14 +365,9 @@ describe("CollaboratorsTable Component", () => {
   });
 
   it("renders disabled add collaborator button tooltip correctly", async () => {
-    mockUseAuthContext.mockReturnValue({
-      user: { ...mockUser, role: "invalid-role" },
-      status: AuthStatus.LOADED,
-    });
-
     const { getByText, getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit={false} />
       </TestParent>
     );
 
@@ -415,7 +405,7 @@ describe("CollaboratorsTable Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -423,15 +413,10 @@ describe("CollaboratorsTable Component", () => {
     expect(collaboratorSelect).toHaveValue("");
   });
 
-  it("disables inputs when user cannot modify collaborators", () => {
-    mockUseAuthContext.mockReturnValue({
-      user: { ...mockUser, role: "invalid-role" },
-      status: AuthStatus.LOADED,
-    });
-
+  it("disables inputs when user isEdit is false", () => {
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit={false} />
       </TestParent>
     );
 
@@ -440,78 +425,6 @@ describe("CollaboratorsTable Component", () => {
 
     const addButton = getByTestId("add-collaborator-button");
     expect(addButton).toBeDisabled();
-  });
-
-  it.each<UserRole>([
-    "User",
-    "Admin",
-    "Data Curator",
-    "Data Commons POC",
-    "Federal Lead",
-    "Federal Monitor",
-    "invalid-role" as UserRole,
-  ])("should disable inputs when user is role %s", (role) => {
-    mockUseAuthContext.mockReturnValue({
-      user: { ...mockUser, role },
-      status: AuthStatus.LOADED,
-    });
-
-    const { getByTestId } = render(
-      <TestParent>
-        <CollaboratorsTable />
-      </TestParent>
-    );
-
-    const collaboratorSelect = within(getByTestId("collaborator-select-0")).getByRole("button");
-    expect(collaboratorSelect).toHaveClass("Mui-readOnly");
-
-    const addButton = getByTestId("add-collaborator-button");
-    expect(addButton).toBeDisabled();
-  });
-
-  it.each<UserRole>(["Submitter", "Organization Owner"])(
-    "should enable inputs when user is role %s",
-    (role) => {
-      mockUseAuthContext.mockReturnValue({
-        user: { ...mockUser, role },
-        status: AuthStatus.LOADED,
-      });
-
-      const { getByTestId } = render(
-        <TestParent>
-          <CollaboratorsTable />
-        </TestParent>
-      );
-
-      const collaboratorSelect = within(getByTestId("collaborator-select-0")).getByRole("button");
-      expect(collaboratorSelect).not.toHaveClass("Mui-readOnly");
-
-      const addButton = getByTestId("add-collaborator-button");
-      expect(addButton).toBeEnabled();
-    }
-  );
-
-  it("allows modification when user is Organization Owner regardless of submitterID", () => {
-    mockUseAuthContext.mockReturnValue({
-      user: { ...mockUser, role: "Organization Owner", _id: "user-99" },
-      status: AuthStatus.LOADED,
-    });
-
-    mockUseSubmissionContext.mockReturnValue({
-      data: { getSubmission: { ...mockSubmission, submitterID: "user-1" } },
-    });
-
-    const { getByTestId } = render(
-      <TestParent role="Organization Owner">
-        <CollaboratorsTable />
-      </TestParent>
-    );
-
-    expect(getByTestId("header-remove")).toBeInTheDocument();
-    expect(getByTestId("remove-collaborator-button-0")).toBeInTheDocument();
-
-    const addButton = getByTestId("add-collaborator-button");
-    expect(addButton).toBeEnabled();
   });
 
   it("renders the correct number of collaborator rows", () => {
@@ -539,7 +452,7 @@ describe("CollaboratorsTable Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -548,25 +461,6 @@ describe("CollaboratorsTable Component", () => {
 
     expect(collaboratorRow0).toBeInTheDocument();
     expect(collaboratorRow1).toBeInTheDocument();
-  });
-
-  it("handles undefined user role correctly", () => {
-    mockUseAuthContext.mockReturnValue({
-      user: { ...mockUser, role: undefined },
-      status: AuthStatus.LOADED,
-    });
-
-    const { queryByTestId } = render(
-      <TestParent>
-        <CollaboratorsTable />
-      </TestParent>
-    );
-
-    expect(queryByTestId("header-remove")).toBeNull();
-    expect(queryByTestId("remove-collaborator-button-0")).toBeNull();
-
-    const addButton = queryByTestId("add-collaborator-button");
-    expect(addButton).toBeDisabled();
   });
 
   it("returns empty string in renderValue when value is falsy", () => {
@@ -594,7 +488,7 @@ describe("CollaboratorsTable Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -628,7 +522,7 @@ describe("CollaboratorsTable Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -662,7 +556,7 @@ describe("CollaboratorsTable Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
@@ -696,7 +590,7 @@ describe("CollaboratorsTable Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsTable />
+        <CollaboratorsTable isEdit />
       </TestParent>
     );
 
