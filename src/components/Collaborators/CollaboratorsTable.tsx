@@ -222,25 +222,31 @@ const CollaboratorsTable = () => {
 
   return (
     <>
-      <StyledTableContainer>
+      <StyledTableContainer data-testid="collaborators-table-container">
         <Table>
           <TableHead>
-            <StyledTableHeaderRow>
-              <StyledTableHeaderCell>Collaborator</StyledTableHeaderCell>
-              <StyledTableHeaderCell>
+            <StyledTableHeaderRow data-testid="table-header-row">
+              <StyledTableHeaderCell data-testid="header-collaborator">
+                Collaborator
+              </StyledTableHeaderCell>
+              <StyledTableHeaderCell data-testid="header-organization">
                 Collaborator <br />
                 Organization
               </StyledTableHeaderCell>
-              <StyledTableHeaderCell sx={{ textAlign: "center" }}>Access</StyledTableHeaderCell>
+              <StyledTableHeaderCell sx={{ textAlign: "center" }} data-testid="header-access">
+                Access
+              </StyledTableHeaderCell>
               {canModifyCollaborators && (
-                <StyledTableHeaderCell sx={{ textAlign: "center" }}>Remove</StyledTableHeaderCell>
+                <StyledTableHeaderCell sx={{ textAlign: "center" }} data-testid="header-remove">
+                  Remove
+                </StyledTableHeaderCell>
               )}
             </StyledTableHeaderRow>
           </TableHead>
           <TableBody>
             {currentCollaborators?.map((collaborator, idx) => (
               // eslint-disable-next-line react/no-array-index-key
-              <StyledTableRow key={`collaborator_${idx}`}>
+              <StyledTableRow key={`collaborator_${idx}`} data-testid={`collaborator-row-${idx}`}>
                 <StyledNameCell width="24.8%">
                   <StyledSelect
                     value={collaborator.collaboratorID || ""}
@@ -253,20 +259,18 @@ const CollaboratorsTable = () => {
                     autoFocus={canModifyCollaborators}
                     placeholderText="Select Name"
                     MenuProps={{ disablePortal: true }}
-                    renderValue={(val: string) => {
-                      if (!val) {
-                        return "";
-                      }
-
-                      return (
-                        <TruncatedText
-                          text={collaborator.collaboratorName ?? " "}
-                          maxCharacters={10}
-                          underline={false}
-                          ellipsis
-                        />
-                      );
+                    data-testid={`collaborator-select-${idx}`}
+                    inputProps={{
+                      "data-testid": `collaborator-select-${idx}-input`,
                     }}
+                    renderValue={() => (
+                      <TruncatedText
+                        text={collaborator.collaboratorName ?? " "}
+                        maxCharacters={10}
+                        underline={false}
+                        ellipsis
+                      />
+                    )}
                     readOnly={isLoading || !canModifyCollaborators}
                     required={currentCollaborators?.length > 1}
                   >
@@ -280,7 +284,7 @@ const CollaboratorsTable = () => {
                       ))}
                   </StyledSelect>
                 </StyledNameCell>
-                <StyledTableCell width="24%">
+                <StyledTableCell width="24%" data-testid={`collaborator-org-${idx}`}>
                   <TruncatedText
                     text={collaborator?.Organization?.orgName}
                     maxCharacters={10}
@@ -288,7 +292,7 @@ const CollaboratorsTable = () => {
                     ellipsis
                   />
                 </StyledTableCell>
-                <StyledTableCell width="37.76%">
+                <StyledTableCell width="37.76%" data-testid={`collaborator-access-${idx}`}>
                   <Stack direction="row" justifyContent="center" alignItems="center">
                     <StyledRadioGroup
                       value={collaborator?.permission || ""}
@@ -298,7 +302,7 @@ const CollaboratorsTable = () => {
                           permission: val,
                         })
                       }
-                      data-testid="collaborator-permissions"
+                      data-testid={`collaborator-permissions-${idx}`}
                       row
                     >
                       <CustomTooltip
@@ -346,6 +350,7 @@ const CollaboratorsTable = () => {
                       <StyledRemoveButton
                         onClick={() => handleRemoveCollaborator(idx)}
                         disabled={isLoading}
+                        data-testid={`remove-collaborator-button-${idx}`}
                         aria-label="Remove row"
                       >
                         <RemoveIconSvg />
@@ -375,6 +380,7 @@ const CollaboratorsTable = () => {
             canModifyCollaborators && currentCollaborators?.length !== maxCollaborators,
           disableInteractive: true,
         }}
+        data-testid="add-collaborator-button"
       />
     </>
   );
