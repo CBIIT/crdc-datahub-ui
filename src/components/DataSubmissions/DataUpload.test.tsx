@@ -14,7 +14,7 @@ import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 import { DataUpload } from "./DataUpload";
 
 jest.mock("../../env", () => ({
-  ...jest.requireActual("../../env"),
+  ...process.env,
   REACT_APP_BACKEND_API: "mocked-backend-api-url",
 }));
 

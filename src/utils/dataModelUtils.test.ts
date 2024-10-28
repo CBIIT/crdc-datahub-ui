@@ -4,7 +4,7 @@ import * as utils from "./dataModelUtils";
 global.fetch = jest.fn();
 
 jest.mock("../env", () => ({
-  ...jest.requireActual("../env"),
+  ...process.env,
   REACT_APP_DEV_TIER: undefined,
 }));
 
