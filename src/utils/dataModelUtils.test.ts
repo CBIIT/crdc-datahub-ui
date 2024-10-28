@@ -242,6 +242,20 @@ describe("buildAssetUrls cases", () => {
     expect(() => utils.buildAssetUrls({} as DataCommon)).not.toThrow();
     expect(() => utils.buildAssetUrls(undefined)).not.toThrow();
   });
+
+  it("should not throw an exception if `model_files` is not defined", () => {
+    const dc: DataCommon = {
+      name: "test-name",
+      assets: {
+        "current-version": "1.0",
+        "readme-file": "readme-file",
+        "loading-file": "loading-file-zip-name",
+      } as ManifestAssets,
+    } as DataCommon;
+
+    expect(() => utils.buildAssetUrls(dc)).not.toThrow();
+    expect(utils.buildAssetUrls(dc)).toEqual(expect.objectContaining({ model_files: [] }));
+  });
 });
 
 describe("buildBaseFilterContainers tests", () => {

@@ -35,7 +35,7 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
  */
 export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
   model_files:
-    dc?.assets?.["model-files"].map(
+    dc?.assets?.["model-files"]?.map(
       (file) =>
         `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
           "current-version"
