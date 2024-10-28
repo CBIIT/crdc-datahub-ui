@@ -738,4 +738,80 @@ describe("CrossValidationFilters cases", () => {
       })
     ); // Called without advancing timers
   });
+
+  it("should filter out the 'Data File' node type if present", async () => {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
+      request: {
+        query: SUBMISSION_STATS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionStats: {
+            stats: [
+              {
+                nodeName: "study",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+              {
+                nodeName: "enrollment",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+              {
+                nodeName: "data file",
+                total: 0,
+                new: 0,
+                passed: 0,
+                warning: 0,
+                error: 0,
+              },
+            ],
+          },
+        },
+      },
+    };
+    const batchesMock: MockedResponse<ListBatchesResp<true>, ListBatchesInput> = {
+      request: {
+        query: LIST_BATCHES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          listBatches: {
+            total: 0,
+            batches: [],
+          },
+          batchStatusList: {
+            batches: null,
+          },
+        },
+      },
+    };
+
+    const { getByTestId, queryByTestId } = render(
+      <TestParent mocks={[batchesMock, nodesMock]} submissionId="test-immediate-dispatch">
+        <Filters />
+      </TestParent>
+    );
+
+    const muiSelectBox = within(getByTestId("cross-validation-nodeType-filter")).getByRole(
+      "button"
+    );
+
+    userEvent.click(muiSelectBox);
+
+    await waitFor(() => {
+      expect(getByTestId("nodeType-study")).toBeInTheDocument();
+      expect(getByTestId("nodeType-enrollment")).toBeInTheDocument();
+      expect(queryByTestId("nodeType-data file")).not.toBeInTheDocument();
+    });
+  });
 });
