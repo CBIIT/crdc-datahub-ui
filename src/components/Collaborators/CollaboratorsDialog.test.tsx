@@ -1,0 +1,349 @@
+import React, { useMemo } from "react";
+import { render, fireEvent, waitFor } from "@testing-library/react";
+import { MockedProvider } from "@apollo/client/testing";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthStatus,
+  useAuthContext,
+} from "../Contexts/AuthContext";
+import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import CollaboratorsDialog from "./CollaboratorsDialog";
+
+jest.mock("../Contexts/AuthContext", () => ({
+  ...jest.requireActual("../Contexts/AuthContext"),
+  useAuthContext: jest.fn(),
+}));
+
+jest.mock("../Contexts/CollaboratorsContext", () => ({
+  ...jest.requireActual("../Contexts/CollaboratorsContext"),
+  useCollaboratorsContext: jest.fn(),
+}));
+
+jest.mock("../Contexts/SubmissionContext", () => ({
+  ...jest.requireActual("../Contexts/SubmissionContext"),
+  useSubmissionContext: jest.fn(),
+}));
+
+const mockUseAuthContext = useAuthContext as jest.Mock;
+const mockUseCollaboratorsContext = useCollaboratorsContext as jest.Mock;
+const mockUseSubmissionContext = useSubmissionContext as jest.Mock;
+
+const mockUser: User = {
+  _id: "user-1",
+  role: "Submitter",
+  email: "user1@example.com",
+  firstName: "John",
+  lastName: "Doe",
+  organization: {
+    orgID: "org-1",
+    orgName: "Organization 1",
+    status: "Active",
+    createdAt: "",
+    updateAt: "",
+  },
+  dataCommons: [],
+  studies: [],
+  IDP: "nih",
+  userStatus: "Active",
+  updateAt: "",
+  createdAt: "",
+};
+
+const mockSubmission = {
+  _id: "submission-1",
+  submitterID: "user-1",
+  collaborators: [],
+};
+
+const mockCollaborators = [
+  {
+    collaboratorID: "user-2",
+    collaboratorName: "Jane Smith",
+    permission: "Can View",
+    Organization: {
+      orgID: "org-2",
+      orgName: "Organization 2",
+    },
+  },
+];
+
+const mockSaveCollaborators = jest.fn();
+const mockLoadPotentialCollaborators = jest.fn();
+const mockResetCollaborators = jest.fn();
+const mockUpdateQuery = jest.fn();
+
+const baseAuthCtx: AuthContextState = {
+  status: AuthStatus.LOADED,
+  isLoggedIn: true,
+  user: null,
+};
+
+type Props = {
+  role?: UserRole;
+  children: React.ReactNode;
+};
+
+const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
+  const authState = useMemo<AuthContextState>(
+    () => ({
+      ...baseAuthCtx,
+      isLoggedIn: true,
+      user: { ...mockUser, role },
+    }),
+    [role]
+  );
+
+  return (
+    <MockedProvider mocks={[]}>
+      <AuthContext.Provider value={authState}>
+        <CollaboratorsProvider>{children}</CollaboratorsProvider>
+      </AuthContext.Provider>
+    </MockedProvider>
+  );
+};
+
+describe("CollaboratorsDialog Component", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    mockUseAuthContext.mockReturnValue({
+      user: mockUser,
+      status: AuthStatus.LOADED,
+    });
+
+    mockUseSubmissionContext.mockReturnValue({
+      data: { getSubmission: mockSubmission },
+      updateQuery: mockUpdateQuery,
+    });
+
+    mockUseCollaboratorsContext.mockReturnValue({
+      saveCollaborators: mockSaveCollaborators,
+      loadPotentialCollaborators: mockLoadPotentialCollaborators,
+      resetCollaborators: mockResetCollaborators,
+      loading: false,
+    });
+  });
+
+  it("renders the dialog when open is true", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={jest.fn()} onSave={jest.fn()} />
+      </TestParent>
+    );
+
+    expect(getByTestId("collaborators-dialog")).toBeInTheDocument();
+    expect(getByTestId("collaborators-dialog-header")).toHaveTextContent(
+      "Data SubmissionCollaborators" // line break between "Submission" and "Collaborators" text
+    );
+    expect(getByTestId("collaborators-dialog-description")).toHaveTextContent(
+      "Lorem ipsum odor amet,"
+    );
+  });
+
+  it("does not render the dialog when open is false", () => {
+    const { queryByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open={false} onClose={jest.fn()} onSave={jest.fn()} />
+      </TestParent>
+    );
+
+    expect(queryByTestId("collaborators-dialog")).toBeNull();
+  });
+
+  it("calls onClose when close icon is clicked", () => {
+    const mockOnClose = jest.fn();
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+      </TestParent>
+    );
+
+    const closeButton = getByTestId("collaborators-dialog-close-icon-button");
+    fireEvent.click(closeButton);
+
+    expect(mockOnClose).toHaveBeenCalled();
+  });
+
+  it("calls onClose when Close button is clicked", () => {
+    const mockOnClose = jest.fn();
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+      </TestParent>
+    );
+
+    const closeButton = getByTestId("collaborators-dialog-close-button");
+    fireEvent.click(closeButton);
+
+    expect(mockOnClose).toHaveBeenCalled();
+  });
+
+  it("calls onSave when Save button is clicked", async () => {
+    const mockOnSave = jest.fn();
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={jest.fn()} onSave={mockOnSave} />
+      </TestParent>
+    );
+
+    mockSaveCollaborators.mockResolvedValue(mockCollaborators);
+
+    const saveButton = getByTestId("collaborators-dialog-save-button");
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockSaveCollaborators).toHaveBeenCalled();
+      expect(mockOnSave).toHaveBeenCalledWith(mockCollaborators);
+      expect(mockUpdateQuery).toHaveBeenCalled();
+    });
+  });
+
+  it("calls resetCollaborators and onClose when Cancel button is clicked", () => {
+    const mockOnClose = jest.fn();
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+      </TestParent>
+    );
+
+    const cancelButton = getByTestId("collaborators-dialog-cancel-button");
+    fireEvent.click(cancelButton);
+
+    expect(mockResetCollaborators).toHaveBeenCalled();
+    expect(mockOnClose).toHaveBeenCalled();
+  });
+
+  it("loads potential collaborators on mount", () => {
+    render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={jest.fn()} onSave={jest.fn()} />
+      </TestParent>
+    );
+
+    expect(mockLoadPotentialCollaborators).toHaveBeenCalled();
+  });
+
+  it("disables buttons when loading", () => {
+    mockUseCollaboratorsContext.mockReturnValue({
+      saveCollaborators: mockSaveCollaborators,
+      loadPotentialCollaborators: mockLoadPotentialCollaborators,
+      resetCollaborators: mockResetCollaborators,
+      loading: true,
+    });
+
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={jest.fn()} onSave={jest.fn()} />
+      </TestParent>
+    );
+
+    const saveButton = getByTestId("collaborators-dialog-save-button");
+    const cancelButton = getByTestId("collaborators-dialog-cancel-button");
+    const closeButton = getByTestId("collaborators-dialog-close-button");
+
+    expect(saveButton).toBeDisabled();
+    expect(cancelButton).toBeDisabled();
+    expect(closeButton).toBeEnabled(); // Close button is not disabled when loading
+  });
+
+  it("updates submission data correctly when previous data exists", async () => {
+    const mockOnSave = jest.fn();
+
+    mockUpdateQuery.mockImplementation((callback) => {
+      const prev = { getSubmission: { otherData: "test" } };
+      const result = callback(prev);
+      expect(result).toEqual({
+        ...prev,
+        getSubmission: {
+          ...prev.getSubmission,
+          collaborators: mockCollaborators,
+        },
+      });
+    });
+
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={jest.fn()} onSave={mockOnSave} />
+      </TestParent>
+    );
+
+    mockSaveCollaborators.mockResolvedValue(mockCollaborators);
+
+    const saveButton = getByTestId("collaborators-dialog-save-button");
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockSaveCollaborators).toHaveBeenCalled();
+      expect(mockUpdateQuery).toHaveBeenCalled();
+      expect(mockOnSave).toHaveBeenCalledWith(mockCollaborators);
+    });
+  });
+
+  it("updates submission data correctly when previous data is undefined", async () => {
+    const mockOnSave = jest.fn();
+
+    mockUpdateQuery.mockImplementation((callback) => {
+      const prev = undefined;
+      const result = callback(prev);
+      expect(result).toEqual({
+        ...prev,
+        getSubmission: {
+          ...prev?.getSubmission,
+          collaborators: mockCollaborators,
+        },
+      });
+    });
+
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={jest.fn()} onSave={mockOnSave} />
+      </TestParent>
+    );
+
+    mockSaveCollaborators.mockResolvedValue(mockCollaborators);
+
+    const saveButton = getByTestId("collaborators-dialog-save-button");
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockSaveCollaborators).toHaveBeenCalled();
+      expect(mockUpdateQuery).toHaveBeenCalled();
+      expect(mockOnSave).toHaveBeenCalledWith(mockCollaborators);
+    });
+  });
+
+  it("updates submission data correctly when getSubmission is undefined", async () => {
+    const mockOnSave = jest.fn();
+
+    mockUpdateQuery.mockImplementation((callback) => {
+      const prev = { getSubmission: undefined };
+      const result = callback(prev);
+      expect(result).toEqual({
+        ...prev,
+        getSubmission: {
+          ...prev.getSubmission,
+          collaborators: mockCollaborators,
+        },
+      });
+    });
+
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={jest.fn()} onSave={mockOnSave} />
+      </TestParent>
+    );
+
+    mockSaveCollaborators.mockResolvedValue(mockCollaborators);
+
+    const saveButton = getByTestId("collaborators-dialog-save-button");
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockSaveCollaborators).toHaveBeenCalled();
+      expect(mockUpdateQuery).toHaveBeenCalled();
+      expect(mockOnSave).toHaveBeenCalledWith(mockCollaborators);
+    });
+  });
+});

@@ -3,7 +3,6 @@ import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } fr
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import CollaboratorsTable from "./CollaboratorsTable";
-
 import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 
