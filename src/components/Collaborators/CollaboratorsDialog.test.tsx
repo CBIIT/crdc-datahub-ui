@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
+import { axe } from "jest-axe";
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
@@ -103,6 +104,40 @@ const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
     </MockedProvider>
   );
 };
+
+describe("CollaboratorsDialog Accessibility Tests", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    mockUseAuthContext.mockReturnValue({
+      user: mockUser,
+      status: AuthStatus.LOADED,
+    });
+
+    mockUseSubmissionContext.mockReturnValue({
+      data: { getSubmission: mockSubmission },
+      updateQuery: mockUpdateQuery,
+    });
+
+    mockUseCollaboratorsContext.mockReturnValue({
+      saveCollaborators: mockSaveCollaborators,
+      loadPotentialCollaborators: mockLoadPotentialCollaborators,
+      resetCollaborators: mockResetCollaborators,
+      loading: false,
+    });
+  });
+
+  it("has no accessibility violations", async () => {
+    const { container } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={jest.fn()} onSave={jest.fn()} />
+      </TestParent>
+    );
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+});
 
 describe("CollaboratorsDialog Component", () => {
   beforeEach(() => {

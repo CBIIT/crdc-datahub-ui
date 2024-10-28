@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { render, fireEvent, within, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
+import { axe } from "jest-axe";
 import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import {
   Context as AuthContext,
@@ -124,6 +125,42 @@ const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
     </MockedProvider>
   );
 };
+
+describe("CollaboratorsTable Accessibility Tests", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    mockUseAuthContext.mockReturnValue({
+      user: mockUser,
+      status: AuthStatus.LOADED,
+    });
+
+    mockUseSubmissionContext.mockReturnValue({
+      data: { getSubmission: mockSubmission },
+    });
+
+    mockUseCollaboratorsContext.mockReturnValue({
+      currentCollaborators: mockCollaborators,
+      remainingPotentialCollaborators: mockRemainingPotentialCollaborators,
+      maxCollaborators: 5,
+      handleAddCollaborator: mockHandleAddCollaborator,
+      handleRemoveCollaborator: mockHandleRemoveCollaborator,
+      handleUpdateCollaborator: mockHandleUpdateCollaborator,
+      loading: false,
+    });
+  });
+
+  it("has no accessibility violations", async () => {
+    const { container } = render(
+      <TestParent>
+        <CollaboratorsTable />
+      </TestParent>
+    );
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+});
 
 describe("CollaboratorsTable Component", () => {
   beforeEach(() => {
