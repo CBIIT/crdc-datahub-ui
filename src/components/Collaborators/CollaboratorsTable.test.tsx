@@ -31,101 +31,101 @@ const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseSubmissionContext = useSubmissionContext as jest.Mock;
 const mockUseCollaboratorsContext = useCollaboratorsContext as jest.Mock;
 
-describe("CollaboratorsTable Component", () => {
-  const mockUser: User = {
-    _id: "user-1",
-    role: "Submitter",
-    email: "user1@example.com",
-    firstName: "John",
-    lastName: "Doe",
-    organization: {
-      orgID: "org-1",
-      orgName: "Organization 1",
-      status: "Active",
-      createdAt: "",
-      updateAt: "",
-    },
-    dataCommons: [],
-    studies: [],
-    IDP: "nih",
-    userStatus: "Active",
-    updateAt: "",
+const mockUser: User = {
+  _id: "user-1",
+  role: "Submitter",
+  email: "user1@example.com",
+  firstName: "John",
+  lastName: "Doe",
+  organization: {
+    orgID: "org-1",
+    orgName: "Organization 1",
+    status: "Active",
     createdAt: "",
-  };
+    updateAt: "",
+  },
+  dataCommons: [],
+  studies: [],
+  IDP: "nih",
+  userStatus: "Active",
+  updateAt: "",
+  createdAt: "",
+};
 
-  const mockSubmission: Submission = {
-    _id: "submission-1",
-    submitterID: "user-1",
-    collaborators: [],
-  } as Submission;
+const mockSubmission: Submission = {
+  _id: "submission-1",
+  submitterID: "user-1",
+  collaborators: [],
+} as Submission;
 
-  const mockCollaborators: Collaborator[] = [
-    {
-      collaboratorID: "user-2",
-      collaboratorName: "Jane Smith",
-      permission: "Can View",
-      Organization: {
-        orgID: "org-2",
-        orgName: "Organization 2",
-      },
+const mockCollaborators: Collaborator[] = [
+  {
+    collaboratorID: "user-2",
+    collaboratorName: "Jane Smith",
+    permission: "Can View",
+    Organization: {
+      orgID: "org-2",
+      orgName: "Organization 2",
     },
-  ];
+  },
+];
 
-  const mockRemainingPotentialCollaborators: Collaborator[] = [
-    {
-      collaboratorID: "user-3",
-      collaboratorName: "Bob Johnson",
-      permission: "Can View",
-      Organization: {
-        orgID: "org-3",
-        orgName: "Organization 3",
-      },
+const mockRemainingPotentialCollaborators: Collaborator[] = [
+  {
+    collaboratorID: "user-3",
+    collaboratorName: "Bob Johnson",
+    permission: "Can View",
+    Organization: {
+      orgID: "org-3",
+      orgName: "Organization 3",
     },
-    {
-      collaboratorID: "user-4",
-      collaboratorName: "Alice Williams",
-      permission: "Can View",
-      Organization: {
-        orgID: "org-4",
-        orgName: "Organization 4",
-      },
+  },
+  {
+    collaboratorID: "user-4",
+    collaboratorName: "Alice Williams",
+    permission: "Can View",
+    Organization: {
+      orgID: "org-4",
+      orgName: "Organization 4",
     },
-  ];
+  },
+];
 
-  const mockHandleAddCollaborator = jest.fn();
-  const mockHandleRemoveCollaborator = jest.fn();
-  const mockHandleUpdateCollaborator = jest.fn();
+const mockHandleAddCollaborator = jest.fn();
+const mockHandleRemoveCollaborator = jest.fn();
+const mockHandleUpdateCollaborator = jest.fn();
 
-  const baseAuthCtx: AuthContextState = {
-    status: AuthStatus.LOADED,
-    isLoggedIn: false,
-    user: null,
-  };
+const baseAuthCtx: AuthContextState = {
+  status: AuthStatus.LOADED,
+  isLoggedIn: false,
+  user: null,
+};
 
-  type Props = {
-    role?: UserRole;
-    children: React.ReactNode;
-  };
+type Props = {
+  role?: UserRole;
+  children: React.ReactNode;
+};
 
-  const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
-    const authState = useMemo<AuthContextState>(
-      () => ({
-        ...baseAuthCtx,
-        isLoggedIn: true,
-        user: { ...mockUser, role },
-      }),
-      [role]
-    );
+const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
+  const authState = useMemo<AuthContextState>(
+    () => ({
+      ...baseAuthCtx,
+      isLoggedIn: true,
+      user: { ...mockUser, role },
+    }),
+    [role]
+  );
 
-    return (
-      <MockedProvider mocks={[]}>
-        <AuthContext.Provider value={authState}>
-          <CollaboratorsProvider>{children}</CollaboratorsProvider>
-        </AuthContext.Provider>
-      </MockedProvider>
-    );
-  };
+  return (
+    <MockedProvider mocks={[]}>
+      <AuthContext.Provider value={authState}>
+        <CollaboratorsProvider>{children}</CollaboratorsProvider>
+      </AuthContext.Provider>
+    </MockedProvider>
+  );
+};
 
+describe("CollaboratorsTable Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
