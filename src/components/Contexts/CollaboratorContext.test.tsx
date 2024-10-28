@@ -245,6 +245,7 @@ const TestParent: React.FC<TestParentProps> = ({ mocks = [], children }) => (
 describe("CollaboratorsContext", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it("should initialize with default current collaborator", () => {
@@ -260,6 +261,12 @@ describe("CollaboratorsContext", () => {
 
   it("should load potential collaborators", async () => {
     const mocks = [listPotentialCollaboratorsMock];
+    mockSubmissionData = {
+      getSubmission: {
+        ...dummySubmissionData.getSubmission,
+        collaborators: [],
+      },
+    };
 
     const { getByTestId } = render(<TestParent mocks={mocks} />);
 
@@ -269,10 +276,14 @@ describe("CollaboratorsContext", () => {
       expect(getByTestId("loading").textContent).toBe("false");
     });
 
-    const remainingCollaborators = JSON.parse(
-      getByTestId("remaining-potential-collaborators").textContent || "[]"
-    );
-    expect(remainingCollaborators.length).toBe(3);
+    await waitFor(() => {
+      const remainingCollaborators = JSON.parse(
+        getByTestId("remaining-potential-collaborators").textContent || "[]"
+      );
+      expect(remainingCollaborators.length).toEqual(mockPotentialCollaborators.length);
+    });
+
+    mockSubmissionData = dummySubmissionData;
   });
 
   it("should add a collaborator", async () => {
