@@ -647,3 +647,25 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
     }
   );
 });
+
+describe("DataSubmissionSummary Collaborators Dialog Tests", () => {
+  it("closes the Collaborators dialog with the close button", async () => {
+    const dataSubmission: RecursivePartial<Submission> = {
+      history: [{ dateTime: "2023-11-30T11:26:01Z", status: "Submitted" }],
+    };
+
+    const { getByTestId, queryByTestId } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
+
+    userEvent.click(getByTestId("collaborators-button"));
+
+    await waitFor(() => expect(getByTestId("collaborators-dialog")).toBeVisible());
+
+    userEvent.click(getByTestId("collaborators-dialog-close-icon-button"));
+
+    await waitFor(() => expect(queryByTestId("collaborators-dialog")).not.toBeInTheDocument());
+  });
+});
