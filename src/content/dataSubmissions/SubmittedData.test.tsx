@@ -3,7 +3,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "jest-axe";
-import { render, waitFor } from "@testing-library/react";
+import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SubmittedData from "./SubmittedData";
 import {
@@ -27,7 +27,7 @@ import {
 } from "../../components/Contexts/AuthContext";
 
 const baseUser: User = {
-  _id: "",
+  _id: "current-user",
   firstName: "",
   lastName: "",
   userStatus: "Active",
@@ -51,6 +51,8 @@ type ParentProps = {
   mocks?: MockedResponse[];
   submissionId?: string;
   submissionName?: string;
+  submitterID?: string;
+  collaborators?: Collaborator[];
   deletingData?: boolean;
   children: React.ReactNode;
 };
@@ -59,6 +61,8 @@ const TestParent: FC<ParentProps> = ({
   mocks,
   submissionId,
   submissionName,
+  submitterID,
+  collaborators = [],
   deletingData = false,
   children,
 }: ParentProps) => {
@@ -68,7 +72,13 @@ const TestParent: FC<ParentProps> = ({
       error: null,
       isPolling: false,
       data: {
-        getSubmission: { _id: submissionId, name: submissionName, deletingData } as Submission,
+        getSubmission: {
+          _id: submissionId,
+          name: submissionName,
+          submitterID,
+          collaborators,
+          deletingData,
+        } as Submission,
         submissionStats: {
           stats: [],
         },
@@ -740,6 +750,124 @@ describe("SubmittedData > Table", () => {
 
     await waitFor(() => {
       expect(getAllByRole("checkbox")).toHaveLength(3); // header + 2 rows
+    });
+  });
+
+  it("should disable the checkboxes when collaborator does not have 'Can Edit' permissions", async () => {
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 2, // initial query + orderBy bug
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 200,
+            properties: ["col-xyz"],
+            IDPropName: "col-xyz",
+            nodes: Array(20).fill({
+              nodeType: "example-node",
+              nodeID: "example-node-id",
+              props: JSON.stringify({
+                "col-xyz": "value-for-column-xyz",
+              }),
+              status: "New",
+            }),
+          },
+        },
+      },
+    };
+
+    const { getAllByRole, getAllByTestId, getByTestId } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock]}
+        submissionId="example-select-all-id"
+        submissionName={undefined}
+        submitterID="some-other-user"
+        collaborators={[
+          {
+            collaboratorID: baseUser._id,
+            collaboratorName: "",
+            Organization: baseUser.organization,
+            permission: "Can View",
+          },
+        ]}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      const headerCheckbox = within(getByTestId("header-checkbox")).getByRole("checkbox");
+      const rowCheckbox = getAllByTestId("row-checkbox");
+
+      expect(headerCheckbox).toBeDisabled();
+      rowCheckbox.forEach((checkbox) =>
+        expect(within(checkbox).getByRole("checkbox")).toBeDisabled()
+      );
+
+      const checkboxes = getAllByRole("checkbox");
+      checkboxes.forEach((checkbox) => expect(checkbox).toBeDisabled());
+    });
+  });
+
+  it("should enable the checkboxes when collaborator has 'Can Edit' permissions", async () => {
+    const getNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
+      maxUsageCount: 2, // initial query + orderBy bug
+      request: {
+        query: GET_SUBMISSION_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          getSubmissionNodes: {
+            total: 200,
+            properties: ["col-xyz"],
+            IDPropName: "col-xyz",
+            nodes: Array(20).fill({
+              nodeType: "example-node",
+              nodeID: "example-node-id",
+              props: JSON.stringify({
+                "col-xyz": "value-for-column-xyz",
+              }),
+              status: "New",
+            }),
+          },
+        },
+      },
+    };
+
+    const { getAllByRole, getAllByTestId, getByTestId } = render(
+      <TestParent
+        mocks={[mockSubmissionQuery, getNodesMock]}
+        submissionId="example-select-all-id"
+        submissionName={undefined}
+        submitterID="some-other-user"
+        collaborators={[
+          {
+            collaboratorID: baseUser._id,
+            collaboratorName: "",
+            Organization: baseUser.organization,
+            permission: "Can Edit",
+          },
+        ]}
+      >
+        <SubmittedData />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      const headerCheckbox = within(getByTestId("header-checkbox")).getByRole("checkbox");
+      const rowCheckbox = getAllByTestId("row-checkbox");
+
+      expect(headerCheckbox).toBeEnabled();
+      rowCheckbox.forEach((checkbox) =>
+        expect(within(checkbox).getByRole("checkbox")).toBeEnabled()
+      );
+
+      const checkboxes = getAllByRole("checkbox");
+      checkboxes.forEach((checkbox) => expect(checkbox).toBeEnabled());
     });
   });
 
