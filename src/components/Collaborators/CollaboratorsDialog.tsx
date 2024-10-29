@@ -108,8 +108,10 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
   const canModifyCollaborators = useMemo(
     () =>
       canModifyCollaboratorsRoles.includes(user?.role) &&
-      (submission?.getSubmission?.submitterID === user?._id || user?.role === "Organization Owner"),
-    [canModifyCollaboratorsRoles, user, submission?.getSubmission?.submitterID]
+      (submission?.getSubmission?.submitterID === user?._id ||
+        (user?.role === "Organization Owner" &&
+          user?.organization?.orgID === submission?.getSubmission?.organization?._id)),
+    [canModifyCollaboratorsRoles, user, submission?.getSubmission]
   );
 
   useEffect(() => {
