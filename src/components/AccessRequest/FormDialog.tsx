@@ -214,9 +214,10 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                   options={sortedOrgs}
                   onChange={(_, data: string) => field.onChange(data.trim())}
                   onInputChange={(_, data: string) => field.onChange(data.trim())}
-                  renderInput={(params) => (
+                  renderInput={({ inputProps, ...params }) => (
                     <TextField
                       {...params}
+                      inputProps={{ "aria-labelledby": "organization-input-label", ...inputProps }}
                       placeholder="Enter your organization or Select one from the list"
                     />
                   )}
