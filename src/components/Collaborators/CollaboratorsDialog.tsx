@@ -115,12 +115,12 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
   );
 
   useEffect(() => {
-    if (!open) {
+    if (!open || !canModifyCollaborators) {
       return;
     }
 
     loadPotentialCollaborators();
-  }, [open]);
+  }, [open, loadPotentialCollaborators, canModifyCollaborators]);
 
   const handleOnSave = async (event) => {
     event.preventDefault();

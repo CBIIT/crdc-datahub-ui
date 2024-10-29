@@ -363,11 +363,11 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
         placement="start"
         startIcon={<AddCircleIcon />}
         onClick={handleAddCollaborator}
-        disabled={loading || !isEdit || currentCollaborators?.length === maxCollaborators}
+        disabled={loading || !isEdit || currentCollaborators?.length >= maxCollaborators}
         tooltipProps={{
           placement: "top",
           title: TOOLTIP_TEXT.COLLABORATORS_DIALOG.ACTIONS.ADD_COLLABORATOR_DISABLED,
-          disableHoverListener: isEdit && currentCollaborators?.length !== maxCollaborators,
+          disableHoverListener: isEdit && currentCollaborators?.length >= maxCollaborators,
           disableInteractive: true,
         }}
         data-testid="add-collaborator-button"

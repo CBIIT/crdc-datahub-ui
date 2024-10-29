@@ -16,10 +16,26 @@ const dummySubmissionData = {
   getSubmission: {
     _id: "submission-id-123",
     collaborators: [
-      { collaboratorID: "user-1", permission: "Can Edit" },
-      { collaboratorID: "user-2", permission: "Can View" },
+      {
+        collaboratorID: "user-1",
+        permission: "Can Edit",
+        collaboratorName: "Smith, Alice",
+        Organization: {
+          orgID: "org-1",
+          orgName: "Org 1",
+        },
+      },
+      {
+        collaboratorID: "user-2",
+        permission: "Can View",
+        collaboratorName: "Johnson, Bob",
+        Organization: {
+          orgID: "org-2",
+          orgName: "Org 2",
+        },
+      },
     ],
-  },
+  } as Submission,
 };
 
 let mockSubmissionData = dummySubmissionData;
@@ -255,8 +271,11 @@ describe("CollaboratorsContext", () => {
       getByTestId("current-collaborators").textContent || "[]"
     );
 
-    expect(currentCollaborators.length).toBe(1);
-    expect(currentCollaborators[0].collaboratorID).toBe("");
+    expect(currentCollaborators.length).toBe(
+      dummySubmissionData.getSubmission.collaborators.length
+    );
+    expect(currentCollaborators[0].collaboratorID).toBe("user-1");
+    expect(currentCollaborators[1].collaboratorID).toBe("user-2");
   });
 
   it("should load potential collaborators", async () => {
@@ -291,12 +310,18 @@ describe("CollaboratorsContext", () => {
 
     const { getByTestId } = render(<TestParent mocks={mocks} />);
 
-    expect(JSON.parse(getByTestId("current-collaborators").textContent || "[]").length).toBe(1);
+    userEvent.click(getByTestId("load-potential-collaborators-button"));
+
+    expect(JSON.parse(getByTestId("current-collaborators").textContent || "[]").length).toBe(
+      dummySubmissionData.getSubmission.collaborators.length
+    );
 
     fireEvent.click(getByTestId("add-collaborator-button"));
 
     await waitFor(() => {
-      expect(JSON.parse(getByTestId("current-collaborators").textContent || "[]").length).toBe(2);
+      expect(JSON.parse(getByTestId("current-collaborators").textContent || "[]").length).toBe(
+        dummySubmissionData.getSubmission.collaborators.length + 1
+      );
     });
   });
 
@@ -335,18 +360,24 @@ describe("CollaboratorsContext", () => {
     const { getByTestId } = render(<TestParent />);
 
     let currentCollaborators = JSON.parse(getByTestId("current-collaborators").textContent || "[]");
-    expect(currentCollaborators.length).toBe(1);
+    expect(currentCollaborators.length).toBe(
+      dummySubmissionData.getSubmission.collaborators.length
+    );
 
     userEvent.click(getByTestId("add-collaborator-button"));
-    userEvent.click(getByTestId("add-collaborator-button")); // Now length 3
+    userEvent.click(getByTestId("add-collaborator-button")); // Now length 4
 
     currentCollaborators = JSON.parse(getByTestId("current-collaborators").textContent || "[]");
-    expect(currentCollaborators.length).toBe(3);
+    expect(currentCollaborators.length).toBe(
+      dummySubmissionData.getSubmission.collaborators.length + 2
+    );
 
     userEvent.click(getByTestId("remove-collaborator-1-button"));
 
     currentCollaborators = JSON.parse(getByTestId("current-collaborators").textContent || "[]");
-    expect(currentCollaborators.length).toBe(2);
+    expect(currentCollaborators.length).toBe(
+      dummySubmissionData.getSubmission.collaborators.length + 1
+    );
 
     expect(currentCollaborators[0]).toBeDefined();
     expect(currentCollaborators[1]).toBeDefined();
@@ -370,7 +401,17 @@ describe("CollaboratorsContext", () => {
 
     const { getByTestId } = render(<TestParent mocks={mocks} />);
 
+    // Remove user-2
+    userEvent.click(getByTestId("remove-collaborator-button"));
+
     userEvent.click(getByTestId("update-collaborator-button"));
+
+    const currentCollaborators = JSON.parse(
+      getByTestId("current-collaborators").textContent || "[]"
+    );
+
+    expect(currentCollaborators[0].collaboratorID).toBe("user-3");
+    expect(currentCollaborators[0].permission).toBe("Can Edit");
 
     userEvent.click(getByTestId("save-collaborators-button"));
 
@@ -388,11 +429,8 @@ describe("CollaboratorsContext", () => {
     > = {
       request: {
         query: EDIT_SUBMISSION_COLLABORATORS,
-        variables: {
-          submissionID: "submission-id-123",
-          collaborators: [{ collaboratorID: "user-3", permission: "Can Edit" }],
-        },
       },
+      variableMatcher: () => true,
       error: new Error("Failed to save collaborators."),
     };
 
@@ -422,7 +460,8 @@ describe("CollaboratorsContext", () => {
       getByTestId("current-collaborators").textContent || "[]"
     );
 
-    expect(currentCollaborators[0].collaboratorID).toBe("");
+    expect(currentCollaborators[0].collaboratorID).toBe("user-1");
+    expect(currentCollaborators[1].collaboratorID).toBe("user-2");
   });
 
   it("should throw an error when useCollaboratorsContext is used outside of CollaboratorsProvider", () => {
@@ -520,7 +559,9 @@ describe("CollaboratorsContext", () => {
     const testSubmissionData = {
       getSubmission: {
         _id: null,
-        collaborators: [{ collaboratorID: "user-4", permission: "Can Edit" }],
+        collaborators: [
+          { collaboratorID: "user-4", permission: "Can Edit", collaboratorName: "Doe, John" },
+        ],
       } as Submission,
     };
 
@@ -534,6 +575,10 @@ describe("CollaboratorsContext", () => {
       expect(getByTestId("loading").textContent).toBe("false");
     });
 
+    fireEvent.click(getByTestId("add-collaborator-button"));
+    fireEvent.click(getByTestId("add-collaborator-button"));
+    fireEvent.click(getByTestId("add-collaborator-button"));
+
     userEvent.click(getByTestId("reset-collaborators-button"));
 
     await waitFor(() => {
@@ -541,10 +586,10 @@ describe("CollaboratorsContext", () => {
         getByTestId("current-collaborators").textContent || "[]"
       );
 
-      // Should load only an empty collaborator row
-      expect(currentCollaborators[0].collaboratorID).toBe("");
-      expect(currentCollaborators[0].permission).toBe("Can View");
-      expect(currentCollaborators[0].collaboratorName).toBeUndefined();
+      // Should reset back to initial getSubmission collaborators
+      expect(currentCollaborators[0].collaboratorID).toBe("user-4");
+      expect(currentCollaborators[0].permission).toBe("Can Edit");
+      expect(currentCollaborators[0].collaboratorName).toBe("Doe, John");
       expect(currentCollaborators[0].Organization).toBeUndefined();
     });
 
@@ -592,14 +637,18 @@ describe("CollaboratorsContext", () => {
     const initialCollaborators = JSON.parse(
       getByTestId("current-collaborators").textContent || "[]"
     );
-    expect(initialCollaborators.length).toBe(1);
+    expect(initialCollaborators.length).toBe(
+      dummySubmissionData.getSubmission.collaborators.length
+    );
 
     userEvent.click(getByTestId("remove-collaborator-invalid-button"));
 
     const currentCollaborators = JSON.parse(
       getByTestId("current-collaborators").textContent || "[]"
     );
-    expect(currentCollaborators.length).toBe(1);
+    expect(currentCollaborators.length).toBe(
+      dummySubmissionData.getSubmission.collaborators.length
+    );
   });
 
   it("should reset to default collaborator when all collaborators are removed", () => {
@@ -611,8 +660,12 @@ describe("CollaboratorsContext", () => {
       getByTestId("current-collaborators").textContent || "[]"
     );
 
-    expect(currentCollaborators.length).toBe(1);
-    expect(currentCollaborators[0].collaboratorID).toBe("");
+    expect(currentCollaborators.length).toBe(
+      dummySubmissionData.getSubmission.collaborators.length - 1
+    );
+    expect(currentCollaborators[0].collaboratorID).toBe(
+      dummySubmissionData.getSubmission.collaborators[1].collaboratorID
+    );
   });
 
   it("should not update collaborator if input is invalid in handleUpdateCollaborator", () => {
@@ -649,15 +702,15 @@ describe("CollaboratorsContext", () => {
   });
 
   it("should handle missing data in saveCollaborators", async () => {
-    const mocks = [
+    const mocks: MockedResponse<
+      EditSubmissionCollaboratorsResp,
+      EditSubmissionCollaboratorsInput
+    >[] = [
       {
         request: {
           query: EDIT_SUBMISSION_COLLABORATORS,
-          variables: {
-            submissionID: "submission-id-123",
-            collaborators: [{ collaboratorID: "user-3", permission: "Can Edit" }],
-          },
         },
+        variableMatcher: () => true,
         result: {
           data: null,
         },
