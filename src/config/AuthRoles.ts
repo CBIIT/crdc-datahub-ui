@@ -96,3 +96,14 @@ export const canViewOtherOrgRoles: UserRole[] = [
  * Defines a list
  */
 export const canModifyCollaboratorsRoles: UserRole[] = ["Submitter", "Organization Owner"];
+
+/**
+ * The users with permission to delete data nodes from a submission.
+ *
+ */
+export const canDeleteDataNodesRoles: UserRole[] = [
+  "Submitter",
+  "Organization Owner",
+  "Data Curator",
+  "Admin",
+];
