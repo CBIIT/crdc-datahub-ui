@@ -266,6 +266,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                     )}
                     readOnly={loading || !isEdit}
                     required={currentCollaborators?.length > 1}
+                    aria-label="Collaborator dropdown"
                   >
                     {[collaborator, ...remainingPotentialCollaborators]
                       ?.filter((collaborator) => !!collaborator?.collaboratorID)
