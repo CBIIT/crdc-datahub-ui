@@ -104,9 +104,21 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
   const { saveCollaborators, loadPotentialCollaborators, resetCollaborators, loading } =
     useCollaboratorsContext();
 
+  const isLoading = loading || status === AuthStatus.LOADING;
+  const canModifyCollaborators = useMemo(
+    () =>
+      canModifyCollaboratorsRoles.includes(user?.role) &&
+      (submission?.getSubmission?.submitterID === user?._id || user?.role === "Organization Owner"),
+    [canModifyCollaboratorsRoles, user, submission?.getSubmission?.submitterID]
+  );
+
   useEffect(() => {
+    if (!open) {
+      return;
+    }
+
     loadPotentialCollaborators();
-  }, [loadPotentialCollaborators]);
+  }, [open]);
 
   const handleOnSave = async (event) => {
     event.preventDefault();
@@ -127,15 +139,6 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
     resetCollaborators();
     onClose?.();
   };
-
-  const canModifyCollaborators = useMemo(
-    () =>
-      canModifyCollaboratorsRoles.includes(user?.role) &&
-      (submission?.getSubmission?.submitterID === user?._id || user?.role === "Organization Owner"),
-    [canModifyCollaboratorsRoles, user, submission?.getSubmission?.submitterID]
-  );
-
-  const isLoading = loading || status === AuthStatus.LOADING;
 
   return (
     <StyledDialog
