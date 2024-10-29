@@ -368,24 +368,6 @@ describe("Implementation Requirements", () => {
     jest.resetAllMocks();
   });
 
-  it("should have a tooltip on the 'Role' input", async () => {
-    const { getByTestId, findByRole } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock]}>{children}</MockParent>,
-    });
-
-    userEvent.hover(getByTestId("role-input-tooltip"));
-
-    const tooltip = await findByRole("tooltip");
-    expect(tooltip).toBeInTheDocument();
-    expect(tooltip).toHaveTextContent("FAIL ON PURPOSE");
-
-    userEvent.unhover(getByTestId("role-input-tooltip"));
-
-    await waitFor(() => {
-      expect(tooltip).not.toBeInTheDocument();
-    });
-  });
-
   it("should have a tooltip on the 'Additional Info' input", async () => {
     const { getByTestId, findByRole } = render(<FormDialog open onClose={jest.fn()} />, {
       wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock]}>{children}</MockParent>,

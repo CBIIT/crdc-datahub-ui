@@ -174,13 +174,6 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
             <StyledLabel id="role-input-label">
               Role
               <StyledAsterisk />
-              <Tooltip
-                // TODO: no requirements were given for the tooltip content
-                title="TODO: we need the tooltip content"
-                open={undefined}
-                disableHoverListener={false}
-                data-testid="role-input-tooltip"
-              />
             </StyledLabel>
             <Controller
               name="role"
