@@ -86,7 +86,8 @@ const CrossValidationFilters = forwardRef<null, FilterProps>(({ onChange }, ref)
     () =>
       cloneDeep(submissionStats?.submissionStats?.stats)
         ?.sort(compareNodeStats)
-        ?.map((stat) => stat.nodeName),
+        ?.map((stat) => stat.nodeName)
+        .filter((nodeType) => nodeType?.toLowerCase() !== "data file"),
     [submissionStats?.submissionStats?.stats]
   );
 
