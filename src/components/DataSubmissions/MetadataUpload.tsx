@@ -106,7 +106,11 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
   const isSubmissionOwner = submission?.submitterID === user?._id;
-  const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
+  const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
+  const canUpload =
+    (collaborator && collaborator.permission === "Can Edit") ||
+    UploadRoles.includes(user?.role) ||
+    isSubmissionOwner;
   const acceptedExtensions = [".tsv", ".txt"];
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
