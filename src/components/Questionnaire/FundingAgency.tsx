@@ -5,7 +5,7 @@ import TextInput from "./TextInput";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import fundingAgencyOptions from "../../config/FundingConfig";
 import Autocomplete from "./AutocompleteInput";
-import AddRemoveButton from "./AddRemoveButton";
+import AddRemoveButton from "../AddRemoveButton";
 
 const GridContainer = styled(Grid)(() => ({
   border: "0.5px solid #DCDCDC !important",

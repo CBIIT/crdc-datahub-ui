@@ -21,7 +21,7 @@ import {
   programToSelectOption,
   validateEmoji,
 } from "../../../utils";
-import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";

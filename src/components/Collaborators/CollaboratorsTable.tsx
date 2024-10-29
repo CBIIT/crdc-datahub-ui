@@ -20,7 +20,7 @@ import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import StyledFormRadioButton from "../Questionnaire/StyledRadioButton";
 import { ReactComponent as RemoveIconSvg } from "../../assets/icons/remove_icon.svg";
-import AddRemoveButton from "../Questionnaire/AddRemoveButton";
+import AddRemoveButton from "../AddRemoveButton";
 import TruncatedText from "../TruncatedText";
 import StyledFormSelect from "../StyledFormComponents/StyledSelect";
 import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
