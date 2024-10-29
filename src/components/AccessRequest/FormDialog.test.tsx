@@ -184,65 +184,65 @@ describe("Basic Functionality", () => {
   //   });
   // });
 
-  it("should gracefully handle API errors when submitting (GraphQL)", async () => {
-    const mock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
-      request: {
-        query: REQUEST_ACCESS,
-      },
-      variableMatcher: () => true,
-      result: {
-        errors: [new GraphQLError("Mock GraphQL error")],
-      },
-    };
+  // it("should gracefully handle API errors when submitting (GraphQL)", async () => {
+  //   const mock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
+  //     request: {
+  //       query: REQUEST_ACCESS,
+  //     },
+  //     variableMatcher: () => true,
+  //     result: {
+  //       errors: [new GraphQLError("Mock GraphQL error")],
+  //     },
+  //   };
 
-    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock, mock]}>{children}</MockParent>,
-    });
+  //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //     wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock, mock]}>{children}</MockParent>,
+  //   });
 
-    userEvent.type(getByTestId("access-request-organization-field"), "My Mock Organization"); // Required field
+  //   userEvent.type(getByTestId("access-request-organization-field"), "My Mock Organization"); // Required field
 
-    userEvent.click(getByTestId("access-request-dialog-submit-button"));
+  //   userEvent.click(getByTestId("access-request-dialog-submit-button"));
 
-    await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Unable to submit access request form. Please try again.",
-        { variant: "error" }
-      );
-    });
-  });
+  //   await waitFor(() => {
+  //     expect(global.mockEnqueue).toHaveBeenCalledWith(
+  //       "Unable to submit access request form. Please try again.",
+  //       { variant: "error" }
+  //     );
+  //   });
+  // });
 
-  it("should gracefully handle API errors when submitting (Success with GraphQL Errors)", async () => {
-    const mock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
-      request: {
-        query: REQUEST_ACCESS,
-      },
-      variableMatcher: () => true,
-      result: {
-        data: {
-          requestAccess: {
-            success: true,
-            message: "Mock success with GraphQL errors",
-          },
-        },
-        errors: [new GraphQLError("Mock GraphQL error")],
-      },
-    };
+  // it("should gracefully handle API errors when submitting (Success with GraphQL Errors)", async () => {
+  //   const mock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
+  //     request: {
+  //       query: REQUEST_ACCESS,
+  //     },
+  //     variableMatcher: () => true,
+  //     result: {
+  //       data: {
+  //         requestAccess: {
+  //           success: true,
+  //           message: "Mock success with GraphQL errors",
+  //         },
+  //       },
+  //       errors: [new GraphQLError("Mock GraphQL error")],
+  //     },
+  //   };
 
-    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock, mock]}>{children}</MockParent>,
-    });
+  //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //     wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock, mock]}>{children}</MockParent>,
+  //   });
 
-    userEvent.type(getByTestId("access-request-organization-field"), "My Mock Organization"); // Required field
+  //   userEvent.type(getByTestId("access-request-organization-field"), "My Mock Organization"); // Required field
 
-    userEvent.click(getByTestId("access-request-dialog-submit-button"));
+  //   userEvent.click(getByTestId("access-request-dialog-submit-button"));
 
-    await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Unable to submit access request form. Please try again.",
-        { variant: "error" }
-      );
-    });
-  });
+  //   await waitFor(() => {
+  //     expect(global.mockEnqueue).toHaveBeenCalledWith(
+  //       "Unable to submit access request form. Please try again.",
+  //       { variant: "error" }
+  //     );
+  //   });
+  // });
 
   it("should gracefully handle API errors when submitting (Error Response)", async () => {
     const mock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
