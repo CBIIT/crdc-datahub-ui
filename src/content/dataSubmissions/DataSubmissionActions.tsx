@@ -154,6 +154,8 @@ const DataSubmissionActions = ({
   const [action, setAction] = useState<SubmissionAction | null>(null);
   const [reviewComment, setReviewComment] = useState("");
 
+  const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
+
   const [exportSubmission] = useMutation<ExportSubmissionResp>(EXPORT_SUBMISSION, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -235,7 +237,11 @@ const DataSubmissionActions = ({
               color="primary"
               onClick={() => onOpenDialog("Submit")}
               loading={action === "Submit"}
-              disabled={!submitActionButton?.enabled || (action && action !== "Submit")}
+              disabled={
+                (collaborator && collaborator.permission !== "Can Edit") ||
+                !submitActionButton?.enabled ||
+                (action && action !== "Submit")
+              }
             >
               {submitActionButton?.isAdminOverride ? "Admin Submit" : "Submit"}
             </StyledLoadingButton>
@@ -283,7 +289,10 @@ const DataSubmissionActions = ({
           color="error"
           onClick={() => onOpenDialog("Withdraw")}
           loading={action === "Withdraw"}
-          disabled={action && action !== "Withdraw"}
+          disabled={
+            (collaborator && collaborator.permission !== "Can Edit") ||
+            (action && action !== "Withdraw")
+          }
         >
           Withdraw
         </StyledLoadingButton>
@@ -305,7 +314,10 @@ const DataSubmissionActions = ({
           color="error"
           onClick={() => onOpenDialog("Cancel")}
           loading={action === "Cancel"}
-          disabled={action && action !== "Cancel"}
+          disabled={
+            (collaborator && collaborator.permission !== "Can Edit") ||
+            (action && action !== "Cancel")
+          }
         >
           Cancel
         </StyledLoadingButton>
