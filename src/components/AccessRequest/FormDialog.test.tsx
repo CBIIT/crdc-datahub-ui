@@ -425,18 +425,40 @@ describe("Implementation Requirements", () => {
   });
 
   it("should limit 'Additional Info' to 200 characters", async () => {
+    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const submitMock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
+      request: {
+        query: REQUEST_ACCESS,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          requestAccess: {
+            success: true,
+            message: "Mock success",
+          },
+        },
+      },
+    };
+
     const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock]}>{children}</MockParent>,
+      wrapper: ({ children }) => (
+        <MockParent mocks={[emptyOrgMock, submitMock]}>{children}</MockParent>
+      ),
     });
+
+    userEvent.type(getByTestId("access-request-organization-field"), "  My Mock Organization  ");
 
     userEvent.type(getByTestId("access-request-additionalInfo-field"), "x".repeat(350));
 
     userEvent.click(getByTestId("access-request-dialog-submit-button"));
 
     await waitFor(() => {
-      expect(getByTestId("access-request-dialog-error-additionalInfo")).toHaveTextContent(
-        "Maximum of 200 characters allowed"
-      );
+      expect(mockMatcher).toHaveBeenCalledWith({
+        role: expect.any(String),
+        organization: expect.any(String),
+        additionalInfo: "x".repeat(200),
+      });
     });
   });
 

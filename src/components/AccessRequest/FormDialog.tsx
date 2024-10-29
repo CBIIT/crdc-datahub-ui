@@ -249,7 +249,7 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
               })}
               placeholder="Maximum of 200 characters"
               data-testid="access-request-additionalInfo-field"
-              inputProps={{ "aria-labelledby": "additionalInfo-input-label" }}
+              inputProps={{ "aria-labelledby": "additionalInfo-input-label", maxLength: 200 }}
               multiline
               rows={3}
             />
