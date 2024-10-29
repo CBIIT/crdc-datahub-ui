@@ -119,6 +119,8 @@ const ValidationControls: FC = () => {
   const [uploadType, setUploadType] = useState<ValidationTarget>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const collaborator = dataSubmission?.collaborators?.find((c) => c.collaboratorID === user?._id);
+
   const isValidating = useMemo<boolean>(
     () =>
       dataSubmission?.fileValidationStatus === "Validating" ||
@@ -135,9 +137,12 @@ const ValidationControls: FC = () => {
     if (permissionMap.includes(user.role) === false) {
       return false;
     }
+    if (collaborator && collaborator.permission !== "Can Edit") {
+      return false;
+    }
 
     return dataSubmission?.metadataValidationStatus !== null;
-  }, [user?.role, dataSubmission?.metadataValidationStatus, dataSubmission?.status]);
+  }, [user?.role, dataSubmission?.metadataValidationStatus, dataSubmission?.status, collaborator]);
 
   const canValidateFiles: boolean = useMemo(() => {
     const permissionMap = ValidateMap[dataSubmission?.status];
@@ -150,9 +155,12 @@ const ValidationControls: FC = () => {
     if (dataSubmission.intention === "Delete" || dataSubmission.dataType === "Metadata Only") {
       return false;
     }
+    if (collaborator && collaborator.permission !== "Can Edit") {
+      return false;
+    }
 
     return dataSubmission?.fileValidationStatus !== null;
-  }, [user?.role, dataSubmission?.fileValidationStatus, dataSubmission?.status]);
+  }, [user?.role, dataSubmission?.fileValidationStatus, dataSubmission?.status, collaborator]);
 
   const [validateSubmission] = useMutation<ValidateSubmissionResp, ValidateSubmissionInput>(
     VALIDATE_SUBMISSION,
@@ -229,7 +237,11 @@ const ValidationControls: FC = () => {
         <StyledValidateButton
           variant="contained"
           color="info"
-          disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
+          disabled={
+            (!canValidateFiles && !canValidateMetadata) ||
+            isValidating ||
+            (collaborator && collaborator.permission !== "Can Edit")
+          }
           loading={isLoading}
           onClick={handleValidateFiles}
           data-testid="validate-controls-validate-button"
@@ -246,6 +258,7 @@ const ValidationControls: FC = () => {
       canValidateMetadata,
       isValidating,
       isLoading,
+      collaborator,
     ]
   );
 
