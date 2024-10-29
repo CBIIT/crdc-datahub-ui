@@ -93,7 +93,7 @@ export const canViewOtherOrgRoles: UserRole[] = [
 ];
 
 /**
- * Defines a list
+ * Defines a list of roles that can modify collaborators in a Data Submission
  */
 export const canModifyCollaboratorsRoles: UserRole[] = ["Submitter", "Organization Owner"];
 

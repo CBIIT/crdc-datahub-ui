@@ -1,6 +1,6 @@
 import { Button, ButtonProps, Stack, StackProps, styled, TooltipProps } from "@mui/material";
 import { FC } from "react";
-import StyledTooltip from "../StyledFormComponents/StyledTooltip";
+import StyledTooltip from "./StyledFormComponents/StyledTooltip";
 
 const ActionButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== "textColor" && prop !== "iconColor",

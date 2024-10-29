@@ -20,7 +20,7 @@ import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import StyledFormRadioButton from "../Questionnaire/StyledRadioButton";
 import { ReactComponent as RemoveIconSvg } from "../../assets/icons/remove_icon.svg";
-import AddRemoveButton from "../Questionnaire/AddRemoveButton";
+import AddRemoveButton from "../AddRemoveButton";
 import TruncatedText from "../TruncatedText";
 import StyledFormSelect from "../StyledFormComponents/StyledSelect";
 import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
@@ -266,6 +266,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                     )}
                     readOnly={loading || !isEdit}
                     required={currentCollaborators?.length > 1}
+                    aria-label="Collaborator dropdown"
                   >
                     {[collaborator, ...remainingPotentialCollaborators]
                       ?.filter((collaborator) => !!collaborator?.collaboratorID)
@@ -363,11 +364,11 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
         placement="start"
         startIcon={<AddCircleIcon />}
         onClick={handleAddCollaborator}
-        disabled={loading || !isEdit || currentCollaborators?.length === maxCollaborators}
+        disabled={loading || !isEdit || currentCollaborators?.length >= maxCollaborators}
         tooltipProps={{
           placement: "top",
           title: TOOLTIP_TEXT.COLLABORATORS_DIALOG.ACTIONS.ADD_COLLABORATOR_DISABLED,
-          disableHoverListener: isEdit && currentCollaborators?.length !== maxCollaborators,
+          disableHoverListener: isEdit && currentCollaborators?.length >= maxCollaborators,
           disableInteractive: true,
         }}
         data-testid="add-collaborator-button"

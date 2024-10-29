@@ -3,7 +3,7 @@ import { Grid, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import TextInput from "./TextInput";
-import AddRemoveButton from "./AddRemoveButton";
+import AddRemoveButton from "../AddRemoveButton";
 import AutocompleteInput from "./AutocompleteInput";
 import { filterForNumbers, validateEmail } from "../../utils";
 import { useInstitutionList } from "../Contexts/InstitutionListContext";

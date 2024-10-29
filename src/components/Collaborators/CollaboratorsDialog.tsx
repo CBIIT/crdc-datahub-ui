@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
@@ -101,15 +101,36 @@ type Props = {
 const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
   const { user, status } = useAuthContext();
   const { data: submission, updateQuery } = useSubmissionContext();
-  const { saveCollaborators, loadPotentialCollaborators, resetCollaborators, loading } =
-    useCollaboratorsContext();
+  const {
+    saveCollaborators,
+    loadPotentialCollaborators,
+    resetCollaborators,
+    loading: collaboratorLoading,
+  } = useCollaboratorsContext();
+
+  const loadingRef = useRef<boolean>(false);
+  const isLoading = loadingRef.current || collaboratorLoading || status === AuthStatus.LOADING;
+  const canModifyCollaborators = useMemo(
+    () =>
+      canModifyCollaboratorsRoles.includes(user?.role) &&
+      (submission?.getSubmission?.submitterID === user?._id ||
+        (user?.role === "Organization Owner" &&
+          user?.organization?.orgID === submission?.getSubmission?.organization?._id)),
+    [canModifyCollaboratorsRoles, user, submission?.getSubmission]
+  );
 
   useEffect(() => {
+    if (!open || !canModifyCollaborators) {
+      return;
+    }
+
     loadPotentialCollaborators();
-  }, [loadPotentialCollaborators]);
+  }, [open, loadPotentialCollaborators, canModifyCollaborators]);
 
   const handleOnSave = async (event) => {
     event.preventDefault();
+
+    loadingRef.current = true;
 
     const newCollaborators = await saveCollaborators();
     updateQuery((prev) => ({
@@ -121,21 +142,14 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
     }));
 
     onSave?.(newCollaborators);
+
+    loadingRef.current = false;
   };
 
   const handleOnCancel = async () => {
     resetCollaborators();
     onClose?.();
   };
-
-  const canModifyCollaborators = useMemo(
-    () =>
-      canModifyCollaboratorsRoles.includes(user?.role) &&
-      (submission?.getSubmission?.submitterID === user?._id || user?.role === "Organization Owner"),
-    [canModifyCollaboratorsRoles, user, submission?.getSubmission?.submitterID]
-  );
-
-  const isLoading = loading || status === AuthStatus.LOADING;
 
   return (
     <StyledDialog

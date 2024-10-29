@@ -119,54 +119,23 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
   });
 
   /**
-   * Maps the submission's collaborators to include additional details from potential collaborators
-   *
-   * @returns {Collaborator[]} The array of collaborators
-   */
-  const mapSubmissionCollaborators = useCallback((): Collaborator[] => {
-    if (!submissionData?.getSubmission?.collaborators?.length || !potentialCollaborators?.length) {
-      return [];
-    }
-
-    const mappedCollaborators = submissionData.getSubmission.collaborators.map((collaborator) => {
-      const potentialCollaborator = potentialCollaborators.find(
-        (pc) => pc.collaboratorID === collaborator.collaboratorID
-      );
-
-      if (potentialCollaborator) {
-        return {
-          ...collaborator,
-          collaboratorName: potentialCollaborator.collaboratorName,
-          Organization: potentialCollaborator.Organization,
-        };
-      }
-
-      return collaborator;
-    });
-
-    return mappedCollaborators;
-  }, [submissionData, potentialCollaborators]);
-
-  /**
    * Resets the current collaborators to the mapped submission collaborators or to a default
    * collaborator if none exist
    *
    * @returns void
    */
   const resetCollaborators = useCallback(() => {
-    const mappedCollaborators = mapSubmissionCollaborators();
-
-    const newCollaborators =
-      mappedCollaborators?.length > 0 ? mappedCollaborators : [{ ...defaultEmptyCollaborator }];
-
-    if (!isEqual(newCollaborators, currentCollaborators)) {
-      setCurrentCollaborators(newCollaborators);
+    const collaborators = submissionData?.getSubmission?.collaborators || [];
+    if (isEqual(collaborators, currentCollaborators)) {
+      return;
     }
-  }, [mapSubmissionCollaborators, currentCollaborators]);
+
+    setCurrentCollaborators(collaborators);
+  }, [currentCollaborators, submissionData]);
 
   useEffect(() => {
     resetCollaborators();
-  }, [mapSubmissionCollaborators]);
+  }, [potentialCollaborators, submissionData]);
 
   /**
    * Loads potential collaborators from API
