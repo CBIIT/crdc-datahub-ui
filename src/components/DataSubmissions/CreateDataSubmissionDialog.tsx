@@ -32,7 +32,7 @@ import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
 import Tooltip from "../Tooltip";
-import { validateEmoji } from "../../utils";
+import { Logger, validateEmoji } from "../../utils";
 
 const CreateSubmissionDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -88,7 +88,6 @@ const StyledButton = styled(Button)({
   padding: "14px 20px",
   fontWeight: 700,
   fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   letterSpacing: "2%",
   lineHeight: "20.14px",
   borderRadius: "8px",
@@ -134,7 +133,6 @@ const StyledDialogButton = styled(Button)({
   letterSpacing: "2%",
   fontWeight: 700,
   fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
 });
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
@@ -152,7 +150,6 @@ const StyledFormWrapper = styled(Box)(() => ({
   width: "485px",
   minHeight: "450px",
   marginTop: "24px",
-  fontFamily: "'Nunito'",
   fontSize: "16px",
   fontWeight: 700,
   lineHeight: "20px",
@@ -195,6 +192,7 @@ const StyledHelperText = styled(BaseStyledHelperText)({
 
 const StyledOutlinedInputMultiline = styled(StyledOutlinedInput)({
   height: "96px",
+  alignItems: "flex-start",
 });
 
 const StyledTooltipWrapper = styled(Stack)({
@@ -239,6 +237,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       fetchPolicy: "no-cache",
     }
   );
+
   const { data: approvedStudiesData, loading: approvedStudiesLoading } =
     useQuery<ListApprovedStudiesOfMyOrgResp>(LIST_APPROVED_STUDIES_OF_MY_ORG, {
       context: { clientName: "backend" },
@@ -324,8 +323,9 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
           });
         }
       })
-      .catch(() => {
+      .catch((e) => {
         setError(true);
+        Logger.error("Error creating submission", e);
       });
   };
 
@@ -443,7 +443,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 </StyledField>
                 <StyledOrganizationField>
                   <StyledLabel id="organization">Organization</StyledLabel>
-                  <StyledOutlinedInput value={user?.organization?.orgName} readOnly />
+                  <StyledOutlinedInput
+                    value={user?.organization?.orgName}
+                    inputProps={{ "aria-labelledby": "organization" }}
+                    readOnly
+                  />
                 </StyledOrganizationField>
                 <StyledField>
                   <StyledLabel id="dataCommons">
@@ -460,6 +464,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                         value={field.value}
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-data-commons-helper-text"
+                        inputProps={{ "aria-labelledby": "dataCommons" }}
                         data-testid="create-data-submission-dialog-data-commons-input"
                       >
                         {DataCommons.map((dc) => (
@@ -489,6 +494,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                         value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                         aria-describedby="submission-study-abbreviation-helper-text"
+                        inputProps={{ "aria-labelledby": "study" }}
                         data-testid="create-data-submission-dialog-study-id-input"
                       >
                         {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((study) => (
@@ -515,7 +521,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                         emoji: validateEmoji,
                       },
                     })}
-                    inputProps={{ maxLength: 50 }}
+                    inputProps={{ maxLength: 50, "aria-labelledby": "dbGaPID" }}
                     placeholder="Input dbGaP ID"
                     aria-describedby="submission-dbGaPID-helper-text"
                     data-testid="create-data-submission-dialog-dbgap-id-input"
@@ -537,10 +543,9 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                         emoji: validateEmoji,
                       },
                     })}
-                    multiline
                     rows={3}
                     placeholder="25 characters allowed"
-                    inputProps={{ maxLength: 25 }}
+                    inputProps={{ maxLength: 25, "aria-labelledby": "submissionName" }}
                     aria-describedby="submission-name-helper-text"
                     data-testid="create-data-submission-dialog-submission-name-input"
                   />

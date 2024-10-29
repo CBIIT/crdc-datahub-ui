@@ -34,12 +34,13 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
  * @returns ModelAssetUrls
  */
 export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
-  model: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
-    "current-version"
-  ]}/${dc?.assets?.["model-file"]}`,
-  props: `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
-    "current-version"
-  ]}/${dc?.assets?.["prop-file"]}`,
+  model_files:
+    dc?.assets?.["model-files"]?.map(
+      (file) =>
+        `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
+          "current-version"
+        ]}/${file}`
+    ) || [],
   readme: dc?.assets?.["readme-file"]
     ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
         "current-version"
@@ -159,6 +160,9 @@ export const traverseAndReplace = (
   apiError: boolean,
   parentKey = ""
 ) => {
+  const getCDEPublicID = (cdeCode, cdeVersion) =>
+    `https://cadsr.cancer.gov/onedata/dmdirect/NIH/NCI/CO/CDEDD?filter=CDEDD.ITEM_ID=${cdeCode}%20and%20ver_nr=${cdeVersion}`;
+
   if (typeof node !== "object" || node === null) return;
 
   if (node.properties) {
@@ -167,22 +171,29 @@ export const traverseAndReplace = (
         const fullKey = `${parentKey}.${key}`.replace(/^\./, "");
         const prefixMatch = mapKeyPrefixes.get(fullKey);
         const noValuesMatch = mapKeyPrefixesNoValues.get(fullKey);
+        const property = node.properties[key];
         const fallbackMessage = [
           "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
         ];
 
         if (prefixMatch) {
-          const resultMapEntry = resultMap.get(prefixMatch);
+          const { CDECode, CDEFullName, CDEVersion, PermissibleValues } =
+            resultMap.get(prefixMatch);
 
-          if (resultMapEntry?.PermissibleValues?.length && node.properties[key].enum) {
-            node.properties[key].enum = resultMapEntry.PermissibleValues;
-          } else if (resultMapEntry?.PermissibleValues?.length === 0 && node.properties[key].enum) {
-            node.properties[key].enum = fallbackMessage;
+          if (PermissibleValues?.length && property.enum) {
+            property.enum = PermissibleValues;
+            property.CDEFullName = CDEFullName;
+            property.CDECode = CDECode;
+            property.CDEPublicID = getCDEPublicID(CDECode, CDEVersion);
+            property.CDEVersion = CDEVersion;
+            property.CDEOrigin = "caDSR";
+          } else if (PermissibleValues?.length === 0 && property.enum) {
+            property.enum = fallbackMessage;
           }
         }
 
-        if (noValuesMatch && apiError && node.properties[key].enum) {
-          node.properties[key].enum = fallbackMessage;
+        if (noValuesMatch && apiError && property.enum) {
+          property.enum = fallbackMessage;
         }
       }
     }

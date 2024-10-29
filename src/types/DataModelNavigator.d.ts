@@ -52,13 +52,10 @@ type ModelNavigatorConfig = {
  */
 type ModelAssetUrls = {
   /**
-   * The URL to the Data Model file
+   * An array of fully-qualified URLs to the Data Model files.
+   * Arbitrary length, but must have at least one item.
    */
-  model: string;
-  /**
-   * The URL to the Data Model properties file
-   */
-  props: string;
+  model_files: string[];
   /**
    * The URL to the Data Model README file
    * If this is null, the README button will not be displayed
