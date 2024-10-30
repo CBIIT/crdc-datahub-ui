@@ -34,7 +34,7 @@ import {
   CreateOrgInput,
   ListApprovedStudiesInput,
 } from "../../graphql";
-import ConfirmDialog from "../../components/Organizations/ConfirmDialog";
+import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
 import { formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";

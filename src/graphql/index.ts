@@ -127,6 +127,18 @@ export type {
 export { query as RETRIEVE_CLI_CONFIG } from "./retrieveCLIConfig";
 export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
 
+export { query as LIST_POTENTIAL_COLLABORATORS } from "./listPotentialCollaborators";
+export type {
+  Input as ListPotentialCollaboratorsInput,
+  Response as ListPotentialCollaboratorsResp,
+} from "./listPotentialCollaborators";
+
+export { mutation as EDIT_SUBMISSION_COLLABORATORS } from "./editSubmissionCollaborators";
+export type {
+  Input as EditSubmissionCollaboratorsInput,
+  Response as EditSubmissionCollaboratorsResp,
+} from "./editSubmissionCollaborators";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Input as GetUserInput, Response as GetUserResp } from "./getUser";
@@ -137,9 +149,15 @@ export type { Response as ListUsersResp } from "./listUsers";
 export { mutation as EDIT_USER } from "./editUser";
 export type { Input as EditUserInput, Response as EditUserResp } from "./editUser";
 
+export { mutation as REQUEST_ACCESS } from "./requestAccess";
+export type { Input as RequestAccessInput, Response as RequestAccessResp } from "./requestAccess";
+
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";
 export type { Response as ListOrgsResp } from "./listOrganizations";
+
+export { query as LIST_ORG_NAMES } from "./listOrganizationNames";
+export type { Response as ListOrgNamesResp } from "./listOrganizationNames";
 
 export { query as GET_ORG } from "./getOrganization";
 export type { Response as GetOrgResp } from "./getOrganization";

@@ -1,5 +1,4 @@
 import {
-  Autocomplete,
   AutocompleteChangeReason,
   AutocompleteProps,
   AutocompleteValue,
@@ -9,12 +8,12 @@ import {
   styled,
 } from "@mui/material";
 import { ReactNode, SyntheticEvent, useEffect, useId, useRef, useState } from "react";
-import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
 import Tooltip from "../Tooltip";
 import { updateInputValidity } from "../../utils";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import StyledHelperText from "../StyledFormComponents/StyledHelperText";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
+import StyledAutocomplete from "../StyledFormComponents/StyledAutocomplete";
 
 const StyledFormControl = styled(FormControl)({
   height: "100%",
@@ -22,86 +21,11 @@ const StyledFormControl = styled(FormControl)({
   "& .MuiFormHelperText-root.Mui-error": {
     color: "#D54309 !important",
   },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderRadius: "8px",
-    borderColor: "#6B7294",
-  },
-  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D !important",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .Mui-error fieldset": {
-    borderColor: "#D54309 !important",
-  },
-  "& .MuiInputBase-input::placeholder": {
-    color: "#87878C",
-    fontWeight: 400,
-    opacity: 1,
-  },
-  "& .MuiAutocomplete-input": {
-    color: "#083A50",
-  },
-  "& .MuiAutocomplete-root .MuiAutocomplete-endAdornment": {
-    top: "50%",
-    transform: "translateY(-50%)",
-    right: "12px",
-  },
-  "& .MuiAutocomplete-popupIndicator": {
-    marginRight: "1px",
-  },
-  "& .MuiAutocomplete-popupIndicatorOpen": {
-    transform: "none",
-  },
-  "& .MuiPaper-root": {
-    borderRadius: "8px",
-    border: "1px solid #6B7294",
-    marginTop: "2px",
-    "& .MuiAutocomplete-listbox": {
-      padding: 0,
-      overflow: "auto",
-      maxHeight: "300px",
-    },
-    "& .MuiAutocomplete-option[aria-selected='true']": {
-      backgroundColor: "#3E7E6D",
-      color: "#FFFFFF",
-    },
-    "& .MuiAutocomplete-option": {
-      padding: "7.5px 10px",
-      minHeight: "35px",
-      color: "#083A50",
-      background: "#FFFFFF",
-    },
-    "& .MuiAutocomplete-option:hover": {
-      backgroundColor: "#3E7E6D",
-      color: "#FFFFFF",
-    },
-    "& .MuiAutocomplete-option.Mui-focused": {
-      backgroundColor: "#3E7E6D !important",
-      color: "#FFFFFF",
-    },
-  },
 });
 
-const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: boolean }) => ({
-  "& .MuiInputBase-root": {
-    "&.MuiAutocomplete-inputRoot.MuiInputBase-root": {
-      display: "flex",
-      alignItems: "center",
-      padding: "10.5px 30px 10.5px 12px !important",
-      height: "44px",
-      ...(readOnly && {
-        backgroundColor: "#E5EEF4",
-        cursor: "not-allowed",
-      }),
-    },
-    "& .MuiInputBase-input": {
-      padding: "0 !important",
-      height: "20px",
-      cursor: readOnly ? "not-allowed !important" : "initial",
-    },
-  },
-}));
+const StyledTag = styled("div")({
+  paddingLeft: "12px",
+});
 
 const ProxySelect = styled("select")({
   display: "none",
@@ -256,14 +180,11 @@ const CustomAutocomplete = ({
             }
 
             if (value.length === 1) {
-              return value[0];
+              return <StyledTag>{value[0]}</StyledTag>;
             }
 
-            return tagText(value);
+            return <StyledTag>{tagText(value)}</StyledTag>;
           }}
-          forcePopupIcon
-          popupIcon={<DropdownArrowsIconSvg />}
-          slotProps={{ popper: { disablePortal: true } }}
           renderInput={(params) => (
             <TextField
               {...params}

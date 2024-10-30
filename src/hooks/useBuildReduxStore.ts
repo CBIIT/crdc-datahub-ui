@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { createStore, applyMiddleware, combineReducers, Store } from "redux";
+import { createStore, combineReducers, Store } from "redux";
 import {
   ddgraph,
   moduleReducers as submission,
   versionInfo,
   getModelExploreData,
 } from "data-model-navigator";
-import ReduxThunk from "redux-thunk";
-import { createLogger } from "redux-logger";
 import { useLazyQuery } from "@apollo/client";
 import { defaultTo } from "lodash";
 import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from "../config/ModelNavigator";
@@ -20,16 +18,17 @@ import {
 } from "../utils";
 import { RETRIEVE_CDEs, RetrieveCDEsInput, RetrieveCDEsResp } from "../graphql";
 
-export type Status = "waiting" | "loading" | "error" | "success";
+export type ReduxStoreStatus = "waiting" | "loading" | "error" | "success";
+
+export type ReduxStoreResult = [
+  { status: ReduxStoreStatus; store: Store },
+  () => void,
+  (assets: DataCommon) => void,
+];
 
 const makeStore = (): Store => {
   const reducers = { ddgraph, versionInfo, submission };
-  const loggerMiddleware = createLogger();
-
-  const newStore = createStore(
-    combineReducers(reducers),
-    applyMiddleware(ReduxThunk, loggerMiddleware)
-  );
+  const newStore = createStore(combineReducers(reducers));
 
   // @ts-ignore
   newStore.injectReducer = (key, reducer) => {
@@ -45,12 +44,8 @@ const makeStore = (): Store => {
  *
  * @params {void}
  */
-const useBuildReduxStore = (): [
-  { status: Status; store: Store },
-  () => void,
-  (assets: DataCommon) => void,
-] => {
-  const [status, setStatus] = useState<Status>("waiting");
+const useBuildReduxStore = (): ReduxStoreResult => {
+  const [status, setStatus] = useState<ReduxStoreStatus>("waiting");
   const [store, setStore] = useState<Store>(makeStore());
 
   const [retrieveCDEs, { error: retrieveCDEsError }] = useLazyQuery<
@@ -90,8 +85,7 @@ const useBuildReduxStore = (): [
     setStatus("loading");
 
     const assets = buildAssetUrls(datacommon);
-
-    const response = await getModelExploreData(assets.model, assets.props)?.catch((e) => {
+    const response = await getModelExploreData(...assets.model_files)?.catch((e) => {
       Logger.error(e);
       return null;
     });
