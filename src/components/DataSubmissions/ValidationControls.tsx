@@ -237,11 +237,7 @@ const ValidationControls: FC = () => {
         <StyledValidateButton
           variant="contained"
           color="info"
-          disabled={
-            (!canValidateFiles && !canValidateMetadata) ||
-            isValidating ||
-            (collaborator && collaborator.permission !== "Can Edit")
-          }
+          disabled={(!canValidateFiles && !canValidateMetadata) || isValidating}
           loading={isLoading}
           onClick={handleValidateFiles}
           data-testid="validate-controls-validate-button"
@@ -258,7 +254,6 @@ const ValidationControls: FC = () => {
       canValidateMetadata,
       isValidating,
       isLoading,
-      collaborator,
     ]
   );
 
