@@ -1,3 +1,4 @@
+import { axe } from "jest-axe";
 import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import HistoryDialog, { IconType } from "./index";
@@ -20,14 +21,13 @@ const BaseProps: React.ComponentProps<typeof HistoryDialog> = {
   onClose: () => {},
 };
 
-// TODO: Fix this failing in CI
-// describe("Accessibility", () => {
-//   it("should have no violations", async () => {
-//     const { container } = render(<HistoryDialog {...BaseProps} />);
+describe("Accessibility", () => {
+  it("should have no violations", async () => {
+    const { container } = render(<HistoryDialog {...BaseProps} />);
 
-//     expect(await axe(container)).toHaveNoViolations();
-//   });
-// });
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
 
 describe("Basic Functionality", () => {
   it("should render without crashing", () => {
