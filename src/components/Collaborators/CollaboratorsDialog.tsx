@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
@@ -158,7 +158,7 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
       }}
       data-testid="collaborators-dialog"
       scroll="body"
-      aria-hidden={open}
+      aria-hidden={!open}
       {...rest}
     >
       <StyledCloseDialogButton
