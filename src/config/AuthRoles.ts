@@ -96,3 +96,8 @@ export const canViewOtherOrgRoles: UserRole[] = [
  * Defines a list of roles that can modify collaborators in a Data Submission
  */
 export const canModifyCollaboratorsRoles: UserRole[] = ["Submitter", "Organization Owner"];
+
+/**
+ * A set of user roles that are allowed to request a role change from their profile.
+ */
+export const CanRequestRoleChange: UserRole[] = ["User", "Submitter", "Organization Owner"];

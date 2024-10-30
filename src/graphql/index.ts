@@ -149,9 +149,15 @@ export type { Response as ListUsersResp } from "./listUsers";
 export { mutation as EDIT_USER } from "./editUser";
 export type { Input as EditUserInput, Response as EditUserResp } from "./editUser";
 
+export { mutation as REQUEST_ACCESS } from "./requestAccess";
+export type { Input as RequestAccessInput, Response as RequestAccessResp } from "./requestAccess";
+
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";
 export type { Response as ListOrgsResp } from "./listOrganizations";
+
+export { query as LIST_ORG_NAMES } from "./listOrganizationNames";
+export type { Response as ListOrgNamesResp } from "./listOrganizationNames";
 
 export { query as GET_ORG } from "./getOrganization";
 export type { Response as GetOrgResp } from "./getOrganization";
