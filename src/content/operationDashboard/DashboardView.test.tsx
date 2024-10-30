@@ -1,12 +1,47 @@
 import { render } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { MemoryRouter } from "react-router-dom";
-import { FC } from "react";
+import { FC, useMemo } from "react";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../../components/Contexts/AuthContext";
 import DashboardView from "./DashboardView";
 
-const MockParent: FC<{ children: React.ReactElement }> = ({ children }) => (
-  <MemoryRouter basename="/">{children}</MemoryRouter>
-);
+const baseUser: Omit<User, "role"> = {
+  _id: "",
+  firstName: "",
+  lastName: "",
+  userStatus: "Active",
+  IDP: "nih",
+  email: "",
+  organization: null,
+  dataCommons: [],
+  createdAt: "",
+  updateAt: "",
+  studies: null,
+};
+
+const MockParent: FC<{ role?: UserRole; children: React.ReactElement }> = ({
+  role = "Admin",
+  children,
+}) => {
+  const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
+    () => ({
+      status: AuthContextStatus.LOADED,
+      isLoggedIn: role !== null,
+      user: { ...baseUser, role },
+    }),
+    [role]
+  );
+
+  return (
+    <AuthContext.Provider value={baseAuthCtx}>
+      <MemoryRouter basename="/">{children}</MemoryRouter>
+    </AuthContext.Provider>
+  );
+};
 
 describe("Accessibility", () => {
   it("should not have any accessibility violations when loading", async () => {
