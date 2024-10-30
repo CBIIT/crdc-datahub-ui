@@ -107,3 +107,8 @@ export const canDeleteDataNodesRoles: UserRole[] = [
   "Data Curator",
   "Admin",
 ];
+
+/**
+ * Defines a list of roles that can upload metadata to a Data Submission
+ */
+export const canUploadMetadataRoles: UserRole[] = ["Submitter", "Organization Owner"];
