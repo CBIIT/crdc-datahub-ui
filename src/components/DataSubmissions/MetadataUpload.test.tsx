@@ -796,4 +796,77 @@ describe("Implementation Requirements", () => {
 
     expect(getByTestId("metadata-upload-file-select-button")).toBeDisabled();
   });
+
+  it("should disable the 'Choose Files' and 'Upload' buttons when collaborator does not have 'Can Edit' permissions", () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{
+          ...baseContext,
+          user: { ...baseUser, _id: "collaborator-user", role: "Submitter" },
+        }}
+      >
+        <MetadataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "id-readonly-choose-files",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+            submitterID: "some-other-user",
+            collaborators: [
+              {
+                collaboratorID: "collaborator-user",
+                collaboratorName: "",
+                Organization: null,
+                permission: "Can View",
+              },
+            ],
+          }}
+          onCreateBatch={jest.fn()}
+          onUpload={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("metadata-upload-file-select-button")).toBeDisabled();
+    expect(getByTestId("metadata-upload-file-upload-button")).toBeDisabled();
+  });
+
+  it("should enable the 'Choose Files' and 'Upload' buttons when collaborator has 'Can Edit' permissions", () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{
+          ...baseContext,
+          user: { ...baseUser, _id: "collaborator-user", role: "Submitter" },
+        }}
+      >
+        <MetadataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "id-readonly-choose-files",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+            submitterID: "some-other-user",
+            collaborators: [
+              {
+                collaboratorID: "collaborator-user",
+                collaboratorName: "",
+                Organization: null,
+                permission: "Can Edit",
+              },
+            ],
+          }}
+          onCreateBatch={jest.fn()}
+          onUpload={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("metadata-upload-file-select-button")).toBeEnabled();
+    expect(getByTestId("metadata-upload-file-upload-button")).toBeDisabled();
+
+    const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
+    userEvent.upload(getByTestId("metadata-upload-file-input"), file);
+
+    expect(getByTestId("metadata-upload-file-upload-button")).toBeEnabled();
+  });
 });

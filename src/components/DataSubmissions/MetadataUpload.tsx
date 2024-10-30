@@ -9,6 +9,7 @@ import Tooltip from "../Tooltip";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
 import FlowWrapper from "./FlowWrapper";
+import { canUploadMetadataRoles } from "../../config/AuthRoles";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -83,8 +84,6 @@ const StyledTooltip = styled(Tooltip)(() => ({
   marginTop: "3.5px",
 }));
 
-const UploadRoles: User["role"][] = ["Organization Owner"]; // and submission owner
-
 type Props = {
   submission: Submission;
   readOnly?: boolean;
@@ -106,7 +105,12 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
   const isSubmissionOwner = submission?.submitterID === user?._id;
-  const canUpload = UploadRoles.includes(user?.role) || isSubmissionOwner;
+  const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
+  const canUpload =
+    isSubmissionOwner ||
+    (canUploadMetadataRoles.includes(user?.role) &&
+      collaborator &&
+      collaborator.permission === "Can Edit");
   const acceptedExtensions = [".tsv", ".txt"];
 
   const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {

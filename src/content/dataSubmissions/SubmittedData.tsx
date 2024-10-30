@@ -3,7 +3,15 @@ import { flushSync } from "react-dom";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { Alert, Checkbox, FormControlLabel, Button, Stack, styled } from "@mui/material";
+import {
+  Alert,
+  Checkbox,
+  FormControlLabel,
+  Button,
+  Stack,
+  styled,
+  CheckboxProps,
+} from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import {
   GET_SUBMISSION_NODES,
@@ -21,6 +29,7 @@ import DataViewContext from "./Contexts/DataViewContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import DeleteNodeDataButton from "../../components/DataSubmissions/DeleteNodeDataButton";
 import DataViewDetailsDialog from "../../components/DataSubmissions/DataViewDetailsDialog";
+import { useAuthContext } from "../../components/Contexts/AuthContext";
 
 const StyledCheckbox = styled(Checkbox)({
   padding: 0,
@@ -35,7 +44,9 @@ const StyledAlert = styled(Alert, { shouldForwardProp: (p) => p !== "visible" })
   display: visible ? "flex" : "none",
 }));
 
-const HeaderCheckbox = () => (
+type HeaderCheckboxProps = CheckboxProps;
+
+const HeaderCheckbox = (props: HeaderCheckboxProps) => (
   <DataViewContext.Consumer>
     {({ selectedItems, totalData, isFetchingAllData, handleToggleAll, handleToggleRow }) => {
       const isChecked = selectedItems.length === totalData;
@@ -58,6 +69,7 @@ const HeaderCheckbox = () => (
           <FormControlLabel
             control={
               <StyledCheckbox
+                {...props}
                 onChange={handleOnChange}
                 checked={isChecked || isFetchingAllData.current}
                 indeterminate={isIntermediate && !isFetchingAllData.current}
@@ -93,6 +105,7 @@ type T = Pick<SubmissionNode, "nodeType" | "nodeID" | "status"> & {
 };
 
 const SubmittedData: FC = () => {
+  const { user } = useAuthContext();
   const { data: dataSubmission, refetch: refetchSubmission, updateQuery } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
   const { _id, name, deletingData } = dataSubmission?.getSubmission || {};
@@ -112,6 +125,10 @@ const SubmittedData: FC = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [deleteSuccessMessage, setDeleteSuccessMessage] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<T>(null);
+
+  const collaborator = dataSubmission?.getSubmission?.collaborators?.find(
+    (c) => c.collaboratorID === user?._id
+  );
 
   const [getSubmissionNodes] = useLazyQuery<GetSubmissionNodesResp, GetSubmissionNodesInput>(
     GET_SUBMISSION_NODES,
@@ -167,7 +184,12 @@ const SubmittedData: FC = () => {
     });
 
     cols.unshift({
-      label: <HeaderCheckbox />,
+      label: (
+        <HeaderCheckbox
+          disabled={collaborator && collaborator.permission !== "Can Edit"}
+          data-testid="header-checkbox"
+        />
+      ),
       renderValue: (d) => (
         <DataViewContext.Consumer>
           {({ selectedItems, handleToggleRow }) => (
@@ -177,6 +199,8 @@ const SubmittedData: FC = () => {
                   <StyledCheckbox
                     checked={selectedItems?.includes(d.nodeID)}
                     onChange={() => handleToggleRow([d.nodeID])}
+                    disabled={collaborator && collaborator.permission !== "Can Edit"}
+                    data-testid="row-checkbox"
                   />
                 }
                 label={<span style={visuallyHidden}>Select Row</span>}
