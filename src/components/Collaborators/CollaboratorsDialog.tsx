@@ -108,8 +108,7 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
     loading: collaboratorLoading,
   } = useCollaboratorsContext();
 
-  const loadingRef = useRef<boolean>(false);
-  const isLoading = loadingRef.current || collaboratorLoading || status === AuthStatus.LOADING;
+  const isLoading = collaboratorLoading || status === AuthStatus.LOADING;
   const canModifyCollaborators = useMemo(
     () =>
       canModifyCollaboratorsRoles.includes(user?.role) &&
@@ -130,8 +129,6 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
   const handleOnSave = async (event) => {
     event.preventDefault();
 
-    loadingRef.current = true;
-
     const newCollaborators = await saveCollaborators();
     updateQuery((prev) => ({
       ...prev,
@@ -142,8 +139,6 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
     }));
 
     onSave?.(newCollaborators);
-
-    loadingRef.current = false;
   };
 
   const handleOnCancel = async () => {
@@ -200,7 +195,7 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
                 variant="contained"
                 color="success"
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !open}
                 aria-label="Save changes button"
                 data-testid="collaborators-dialog-save-button"
               >
@@ -210,7 +205,7 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
                 variant="contained"
                 color="error"
                 onClick={handleOnCancel}
-                disabled={isLoading}
+                disabled={isLoading || !open}
                 aria-label="Cancel button"
                 data-testid="collaborators-dialog-cancel-button"
               >
