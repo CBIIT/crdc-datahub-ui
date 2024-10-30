@@ -127,6 +127,18 @@ export type {
 export { query as RETRIEVE_CLI_CONFIG } from "./retrieveCLIConfig";
 export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
 
+export { query as LIST_POTENTIAL_COLLABORATORS } from "./listPotentialCollaborators";
+export type {
+  Input as ListPotentialCollaboratorsInput,
+  Response as ListPotentialCollaboratorsResp,
+} from "./listPotentialCollaborators";
+
+export { mutation as EDIT_SUBMISSION_COLLABORATORS } from "./editSubmissionCollaborators";
+export type {
+  Input as EditSubmissionCollaboratorsInput,
+  Response as EditSubmissionCollaboratorsResp,
+} from "./editSubmissionCollaborators";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
 export type { Input as GetUserInput, Response as GetUserResp } from "./getUser";

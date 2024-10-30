@@ -3,7 +3,7 @@ import { Grid, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import TextInput from "./TextInput";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
-import AddRemoveButton from "./AddRemoveButton";
+import AddRemoveButton from "../AddRemoveButton";
 import DatePickerInput from "./DatePickerInput";
 
 const GridContainer = styled(Grid)(() => ({

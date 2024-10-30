@@ -18,8 +18,24 @@ const mockService = new HttpLink({
   },
 });
 
+const cache = new InMemoryCache({
+  typePolicies: {
+    Submission: {
+      keyFields: ["_id"],
+      fields: {
+        collaborators: {
+          merge: false,
+        },
+      },
+    },
+    Collaborator: {
+      keyFields: ["collaboratorID"],
+    },
+  },
+});
+
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache,
   defaultOptions,
   link: ApolloLink.split(
     (operation) => operation.getContext().clientName === "mockService",

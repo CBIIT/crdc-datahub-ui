@@ -15,7 +15,7 @@ import {
   filterPositiveIntegerString,
   reshapeCheckboxGroupOptions,
 } from "../../../utils";
-import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
 import { fileTypeOptions } from "../../../config/FileTypeConfig";
 import TableTextInput from "../../../components/Questionnaire/TableTextInput";
