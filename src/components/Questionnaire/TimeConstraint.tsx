@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Grid, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
-import AddRemoveButton from "./AddRemoveButton";
+import AddRemoveButton from "../AddRemoveButton";
 import TextInput from "./TextInput";
 import DatePickerInput from "./DatePickerInput";
 

@@ -91,3 +91,8 @@ export const canViewOtherOrgRoles: UserRole[] = [
   "Federal Lead",
   "Federal Monitor",
 ];
+
+/**
+ * Defines a list of roles that can modify collaborators in a Data Submission
+ */
+export const canModifyCollaboratorsRoles: UserRole[] = ["Submitter", "Organization Owner"];
