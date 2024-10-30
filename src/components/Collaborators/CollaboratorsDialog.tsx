@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
@@ -108,8 +108,7 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
     loading: collaboratorLoading,
   } = useCollaboratorsContext();
 
-  const loadingRef = useRef<boolean>(false);
-  const isLoading = loadingRef.current || collaboratorLoading || status === AuthStatus.LOADING;
+  const isLoading = collaboratorLoading || status === AuthStatus.LOADING;
   const canModifyCollaborators = useMemo(
     () =>
       canModifyCollaboratorsRoles.includes(user?.role) &&
@@ -130,8 +129,6 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
   const handleOnSave = async (event) => {
     event.preventDefault();
 
-    loadingRef.current = true;
-
     const newCollaborators = await saveCollaborators();
     updateQuery((prev) => ({
       ...prev,
@@ -142,8 +139,6 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
     }));
 
     onSave?.(newCollaborators);
-
-    loadingRef.current = false;
   };
 
   const handleOnCancel = async () => {
@@ -153,13 +148,17 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
 
   return (
     <StyledDialog
+      id="collaborator-dialog"
       open={open}
       onClose={onClose}
       title=""
       aria-label="Data Submission Collaborators dialog"
+      PaperProps={{
+        "aria-labelledby": "collaborator-dialog",
+      }}
       data-testid="collaborators-dialog"
       scroll="body"
-      aria-hidden={open}
+      aria-hidden={!open}
       {...rest}
     >
       <StyledCloseDialogButton
@@ -196,7 +195,7 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
                 variant="contained"
                 color="success"
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !open}
                 aria-label="Save changes button"
                 data-testid="collaborators-dialog-save-button"
               >
@@ -206,7 +205,7 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
                 variant="contained"
                 color="error"
                 onClick={handleOnCancel}
-                disabled={isLoading}
+                disabled={isLoading || !open}
                 aria-label="Cancel button"
                 data-testid="collaborators-dialog-cancel-button"
               >
