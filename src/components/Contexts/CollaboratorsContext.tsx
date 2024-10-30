@@ -119,6 +119,13 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
   });
 
   /**
+   * Creates a new empty collaborator object
+   *
+   * @returns {Collaborator} An empty Collaborator with "Can View" permission
+   */
+  const createEmptyCollaborator = (): Collaborator => ({ ...defaultEmptyCollaborator });
+
+  /**
    * Resets the current collaborators to the mapped submission collaborators or to a default
    * collaborator if none exist
    *
@@ -134,7 +141,7 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
     }
 
     setCurrentCollaborators(collaborators);
-  }, [currentCollaborators, submissionData]);
+  }, [currentCollaborators, submissionData, createEmptyCollaborator]);
 
   useEffect(() => {
     resetCollaborators();
@@ -164,13 +171,6 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
       ?.filter((pc) => !currentCollaboratorIDs.includes(pc.collaboratorID))
       ?.sort((a, b) => a.collaboratorName.localeCompare(b.collaboratorName));
   }, [currentCollaborators, potentialCollaborators]);
-
-  /**
-   * Creates a new empty collaborator object
-   *
-   * @returns {Collaborator} An empty Collaborator with "Can View" permission
-   */
-  const createEmptyCollaborator = (): Collaborator => ({ ...defaultEmptyCollaborator });
 
   /**
    * Adds a new empty collaborator to the list
