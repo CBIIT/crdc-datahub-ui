@@ -125,7 +125,10 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
    * @returns void
    */
   const resetCollaborators = useCallback(() => {
-    const collaborators = submissionData?.getSubmission?.collaborators || [];
+    const collaborators =
+      submissionData?.getSubmission?.collaborators?.length > 0
+        ? submissionData?.getSubmission?.collaborators
+        : [createEmptyCollaborator()];
     if (isEqual(collaborators, currentCollaborators)) {
       return;
     }
