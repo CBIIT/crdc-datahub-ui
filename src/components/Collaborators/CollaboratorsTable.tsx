@@ -219,18 +219,26 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
         <Table>
           <TableHead>
             <StyledTableHeaderRow data-testid="table-header-row">
-              <StyledTableHeaderCell data-testid="header-collaborator">
+              <StyledTableHeaderCell id="header-collaborator" data-testid="header-collaborator">
                 Collaborator
               </StyledTableHeaderCell>
-              <StyledTableHeaderCell data-testid="header-organization">
+              <StyledTableHeaderCell id="header-organization" data-testid="header-organization">
                 Collaborator <br />
                 Organization
               </StyledTableHeaderCell>
-              <StyledTableHeaderCell sx={{ textAlign: "center" }} data-testid="header-access">
+              <StyledTableHeaderCell
+                id="header-access"
+                sx={{ textAlign: "center" }}
+                data-testid="header-access"
+              >
                 Access
               </StyledTableHeaderCell>
               {isEdit && (
-                <StyledTableHeaderCell sx={{ textAlign: "center" }} data-testid="header-remove">
+                <StyledTableHeaderCell
+                  id="header-remove"
+                  sx={{ textAlign: "center" }}
+                  data-testid="header-remove"
+                >
                   Remove
                 </StyledTableHeaderCell>
               )}
@@ -255,6 +263,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                     data-testid={`collaborator-select-${idx}`}
                     inputProps={{
                       "data-testid": `collaborator-select-${idx}-input`,
+                      "aria-labelledby": "header-collaborator",
                     }}
                     renderValue={() => (
                       <TruncatedText
@@ -297,6 +306,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                         })
                       }
                       data-testid={`collaborator-permissions-${idx}`}
+                      aria-labelledby="header-access"
                       row
                     >
                       <CustomTooltip
@@ -365,6 +375,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
         startIcon={<AddCircleIcon />}
         onClick={handleAddCollaborator}
         disabled={loading || !isEdit || currentCollaborators?.length >= maxCollaborators}
+        aria-label="Add Collaborator"
         tooltipProps={{
           placement: "top",
           title: TOOLTIP_TEXT.COLLABORATORS_DIALOG.ACTIONS.ADD_COLLABORATOR_DISABLED,

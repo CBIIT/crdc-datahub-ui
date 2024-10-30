@@ -153,10 +153,14 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
 
   return (
     <StyledDialog
+      id="collaborator-dialog"
       open={open}
       onClose={onClose}
       title=""
       aria-label="Data Submission Collaborators dialog"
+      PaperProps={{
+        "aria-labelledby": "collaborator-dialog",
+      }}
       data-testid="collaborators-dialog"
       scroll="body"
       aria-hidden={open}
