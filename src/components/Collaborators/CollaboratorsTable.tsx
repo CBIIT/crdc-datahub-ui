@@ -246,8 +246,11 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
           </TableHead>
           <TableBody>
             {currentCollaborators?.map((collaborator, idx) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <StyledTableRow key={`collaborator_${idx}`} data-testid={`collaborator-row-${idx}`}>
+              <StyledTableRow
+                // eslint-disable-next-line react/no-array-index-key
+                key={`collaborator_${idx}_${collaborator.collaboratorID}`}
+                data-testid={`collaborator-row-${idx}`}
+              >
                 <StyledNameCell width="24.8%">
                   <StyledSelect
                     value={collaborator.collaboratorID || ""}
