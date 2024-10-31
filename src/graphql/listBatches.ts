@@ -20,7 +20,6 @@ const FullBatchFragment = gql`
       nodeType
       filePrefix
       fileName
-      size
       status
       errors
       createdAt

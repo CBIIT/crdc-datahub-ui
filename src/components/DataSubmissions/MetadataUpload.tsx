@@ -6,10 +6,17 @@ import { isEqual } from "lodash";
 import { VariantType } from "notistack";
 import { Button, Stack, Typography, styled } from "@mui/material";
 import Tooltip from "../Tooltip";
-import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
+import {
+  CREATE_BATCH,
+  CreateBatchInput,
+  CreateBatchResp,
+  UPDATE_BATCH,
+  UpdateBatchResp,
+} from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
 import FlowWrapper from "./FlowWrapper";
 import { canUploadMetadataRoles } from "../../config/AuthRoles";
+import { Logger } from "../../utils";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -113,7 +120,7 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
       collaborator.permission === "Can Edit");
   const acceptedExtensions = [".tsv", ".txt"];
 
-  const [createBatch] = useMutation<CreateBatchResp>(CREATE_BATCH, {
+  const [createBatch] = useMutation<CreateBatchResp, CreateBatchInput>(CREATE_BATCH, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -185,15 +192,11 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
     }
 
     try {
-      const formattedFiles: FileInput[] = Array.from(selectedFiles)?.map((file) => ({
-        fileName: file.name,
-        size: file.size,
-      }));
       const { data: batch, errors } = await createBatch({
         variables: {
           submissionID: submissionId,
           type: "metadata",
-          files: formattedFiles,
+          files: Array.from(selectedFiles)?.map((file) => file.name),
         },
       });
 
@@ -204,6 +207,7 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
       return batch?.createBatch;
     } catch (err) {
       // Unable to initiate upload process so all failed
+      Logger.error("Error creating new batch", err);
       onUploadFail(selectedFiles?.length);
       return null;
     }

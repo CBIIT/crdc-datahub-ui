@@ -122,11 +122,6 @@ type SubmissionIntention = "New/Update" | "Delete";
 
 type SubmissionDataType = "Metadata Only" | "Metadata and Data Files";
 
-type FileInput = {
-  fileName: string;
-  size: number;
-};
-
 type FileURL = {
   fileName: string;
   signedURL: string;
@@ -146,9 +141,8 @@ type UploadResult = {
 type BatchFileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;
-  size: number;
   nodeType: string;
-  status: string; // [New, Uploaded, Failed]
+  status: "New" | "Uploaded" | "Failed";
   errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
