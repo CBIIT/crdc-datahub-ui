@@ -211,7 +211,7 @@ describe("DataSubmissionListFilters Component", () => {
     });
   });
 
-  it("should allow non-admin users from changing the organization select", async () => {
+  it("allows non-admin users to select an organization", async () => {
     const { getByTestId } = render(
       <TestParent userRole="Submitter">
         <DataSubmissionListFilters
@@ -901,6 +901,85 @@ describe("DataSubmissionListFilters Component", () => {
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
         submitterName: "Submitter1",
+      })
+    );
+  });
+
+  it("sets organization select to 'All' when organizations prop is empty", async () => {
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId, getByRole } = render(
+      <TestParent>
+        <DataSubmissionListFilters
+          columns={columns}
+          organizations={[]}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("All");
+    });
+
+    const organizationSelect = within(getByTestId("organization-select")).getByRole("button");
+    userEvent.click(organizationSelect);
+
+    const organizationList = within(getByRole("listbox", { hidden: true }));
+
+    await waitFor(() => {
+      expect(organizationList.getByTestId("organization-option-All")).toBeInTheDocument();
+      expect(organizationList.queryByTestId("organization-option-Org1")).not.toBeInTheDocument();
+      expect(organizationList.queryByTestId("organization-option-Org2")).not.toBeInTheDocument();
+    });
+  });
+
+  it("sets organization select to field.value when organizations prop is non-empty", async () => {
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId, getByRole } = render(
+      <TestParent>
+        <DataSubmissionListFilters
+          columns={columns}
+          organizations={organizations}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("All");
+    });
+
+    const organizationSelect = within(getByTestId("organization-select")).getByRole("button");
+    userEvent.click(organizationSelect);
+
+    const organizationList = within(getByRole("listbox", { hidden: true }));
+
+    await waitFor(() => {
+      expect(organizationList.getByTestId("organization-option-Org1")).toBeInTheDocument();
+      expect(organizationList.getByTestId("organization-option-Org2")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("organization-option-Org1"));
+
+    await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("Org1");
+    });
+
+    expect(mockOnChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organization: "Org1",
       })
     );
   });
