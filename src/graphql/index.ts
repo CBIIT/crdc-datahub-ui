@@ -63,9 +63,6 @@ export type { Response as UpdateBatchResp } from "./updateBatch";
 export { query as LIST_BATCHES } from "./listBatches";
 export type { Input as ListBatchesInput, Response as ListBatchesResp } from "./listBatches";
 
-export { query as LIST_LOGS } from "./listLogs";
-export type { Response as ListLogsResp } from "./listLogs";
-
 export { query as SUBMISSION_QC_RESULTS } from "./submissionQCResults";
 export type { Response as SubmissionQCResultsResp } from "./submissionQCResults";
 
