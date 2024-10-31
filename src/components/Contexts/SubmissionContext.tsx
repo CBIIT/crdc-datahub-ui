@@ -2,7 +2,7 @@ import React, { FC, createContext, useCallback, useContext, useMemo, useState } 
 import { ApolloError, ApolloQueryResult, useQuery } from "@apollo/client";
 import { cloneDeep, isEqual } from "lodash";
 import { GetSubmissionResp, GET_SUBMISSION, GetSubmissionInput } from "../../graphql";
-import { compareNodeStats } from "../../utils";
+import { compareNodeStats, Logger } from "../../utils";
 
 export type SubmissionCtxState = {
   /**
@@ -131,6 +131,9 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
         startApolloPolling(1000);
         setIsPolling(true);
       }
+    },
+    onError: (e) => {
+      Logger.error("Error fetching submission data", e);
     },
     variables: { id: _id },
     context: { clientName: "backend" },

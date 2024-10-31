@@ -1,7 +1,8 @@
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef } from "react";
 import { useMutation } from "@apollo/client";
-import { Alert, Box, Card, CardActions, CardContent, Container, Tabs, styled } from "@mui/material";
+import { Box, Card, CardActions, CardContent, Container, Tabs, styled } from "@mui/material";
 import { useSnackbar, VariantType } from "notistack";
+import { useNavigate } from "react-router-dom";
 import bannerPng from "../../assets/banner/submission_banner.png";
 import summaryBannerPng from "../../assets/banner/summary_banner.png";
 import LinkTab from "../../components/DataSubmissions/LinkTab";
@@ -29,6 +30,7 @@ import DataActivity, { DataActivityRef } from "./DataActivity";
 import CrossValidation from "./CrossValidation";
 import { CrossValidateRoles, SubmitDataSubmissionRoles } from "../../config/AuthRoles";
 import CopyAdornment from "../../components/DataSubmissions/CopyAdornment";
+import { Logger } from "../../utils";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -120,14 +122,6 @@ const StyledTabs = styled(Tabs)(() => ({
   },
 }));
 
-const StyledAlert = styled(Alert)({
-  fontWeight: 400,
-  fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  lineHeight: "19.6px",
-  scrollMarginTop: "64px",
-});
-
 const StyledWrapper = styled("div")({
   background: "#FBFDFF",
 });
@@ -165,11 +159,11 @@ type Props = {
 const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY }) => {
   usePageTitle(`Data Submission ${submissionId || ""}`);
 
+  const navigate = useNavigate();
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
-  const { data, error: submissionError, refetch: getSubmission } = useSubmissionContext();
-  const [error, setError] = useState<string>(null);
+  const { data, error, refetch: getSubmission } = useSubmissionContext();
 
   const dataSubmissionListPageUrl = `/data-submissions${
     lastSearchParams?.["/data-submissions"] ?? ""
@@ -221,11 +215,12 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
         },
       });
       if (errors || !d?.submissionAction?._id) {
+        Logger.error("Submission Action Error", errors);
         throw new Error(`Error occurred while performing '${action}' submission action.`);
       }
       await getSubmission();
     } catch (err) {
-      setError(err?.toString());
+      enqueueSnackbar(err?.message, { variant: "error" });
     }
   };
 
@@ -249,11 +244,15 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
 
   useEffect(() => {
     if (!submissionId) {
-      setError("Invalid submission ID provided.");
-    } else if (submissionError) {
-      setError("Unable to retrieve submission data.");
+      navigate(dataSubmissionListPageUrl, {
+        state: { error: "Oops! An invalid Data Submission ID was provided." },
+      });
+    } else if (error) {
+      navigate(dataSubmissionListPageUrl, {
+        state: { error: "Oops! An error occurred while retrieving that Data Submission." },
+      });
     }
-  }, [submissionError]);
+  }, [error]);
 
   return (
     <StyledWrapper>
@@ -262,7 +261,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
         <CopyAdornment _id={submissionId} />
         <StyledCard>
           <StyledCardContent>
-            {error && <StyledAlert severity="error">Oops! An error occurred. {error}</StyledAlert>}
             <DataSubmissionSummary dataSubmission={data?.getSubmission} />
             <ValidationStatistics
               dataSubmission={data?.getSubmission}
