@@ -193,12 +193,6 @@ type ListBatches = {
   batches: Batch[];
 };
 
-type TempCredentials = {
-  accessKeyId: string;
-  secretAccessKey: string;
-  sessionToken: string;
-};
-
 type SubmissionHistoryEvent = HistoryBase<SubmissionStatus>;
 
 type S3FileInfo = {
