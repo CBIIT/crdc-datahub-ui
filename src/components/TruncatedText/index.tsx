@@ -51,6 +51,11 @@ type Props = {
    */
   ellipsis?: boolean;
   /**
+   * A boolean indicating whether or not the user
+   * can hover over the tooltip
+   */
+  disableInteractiveTooltip?: boolean;
+  /**
    * Optional custom styling to apply on the wrapper element
    */
   wrapperStyles?: React.CSSProperties;
@@ -69,6 +74,7 @@ const TruncatedText: FC<Props> = ({
   maxCharacters = 10,
   underline = true,
   ellipsis = true,
+  disableInteractiveTooltip = true,
   wrapperStyles = {},
 }: Props) => {
   const isTruncated = text?.length > maxCharacters;
@@ -81,7 +87,7 @@ const TruncatedText: FC<Props> = ({
       placement="top"
       title={tooltipText || text || ""}
       disableHoverListener={!isTruncated}
-      disableInteractive
+      disableInteractive={disableInteractiveTooltip}
       data-testid="truncated-text-tooltip"
     >
       <StyledTextWrapper
