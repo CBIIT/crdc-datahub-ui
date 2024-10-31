@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
-import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
 import { ReleaseInfo } from "../../utils";
 import Tooltip from "../../components/Tooltip";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
@@ -156,45 +154,12 @@ const DataSubmissionActions = ({
 
   const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
 
-  const [exportSubmission] = useMutation<ExportSubmissionResp>(EXPORT_SUBMISSION, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-
-  const handleExportSubmission = async (): Promise<boolean> => {
-    if (!submission?._id) {
-      return false;
-    }
-
-    try {
-      const { data: d, errors } = await exportSubmission({
-        variables: {
-          _id: submission._id,
-        },
-      });
-      if (errors || !d?.exportSubmission?.success) {
-        throw new Error();
-      }
-      return d.exportSubmission.success;
-    } catch (err) {
-      onError("Unable to export submission.");
-    }
-
-    return false;
-  };
-
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
       setCurrentDialog(null);
     }
     setAction(action);
-    if (action === "Release") {
-      const isExported = await handleExportSubmission();
-      if (!isExported) {
-        setAction(null);
-        return;
-      }
-    }
+
     if (typeof onAction === "function") {
       await onAction(action, reviewComment || null);
     }
