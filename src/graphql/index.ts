@@ -75,9 +75,6 @@ export type {
   Response as CrossValidationResultsResp,
 } from "./submissionCrossValidationResults";
 
-export { mutation as EXPORT_SUBMISSION } from "./exportSubmission";
-export type { Response as ExportSubmissionResp } from "./exportSubmission";
-
 export { mutation as VALIDATE_SUBMISSION } from "./validateSubmission";
 export type {
   Input as ValidateSubmissionInput,
