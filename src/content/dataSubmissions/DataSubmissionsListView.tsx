@@ -244,6 +244,7 @@ const ListingView: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [submitterNames, setSubmitterNames] = useState<string[]>([]);
   const [dataCommons, setDataCommons] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
@@ -304,6 +305,7 @@ const ListingView: FC = () => {
       }
 
       setData(d.listSubmissions.submissions);
+      setOrganizations(d.listSubmissions.organizations?.filter((org) => !!org.name.trim()));
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
@@ -376,6 +378,7 @@ const ListingView: FC = () => {
         <StyledFilterTableWrapper>
           <DataSubmissionListFilters
             columns={columns}
+            organizations={organizations}
             submitterNames={submitterNames}
             dataCommons={dataCommons}
             columnVisibilityModel={columnVisibilityModel}

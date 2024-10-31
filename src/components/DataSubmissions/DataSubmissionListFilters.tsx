@@ -6,10 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import StyledSelectFormComponent from "../StyledFormComponents/StyledSelect";
 import StyledTextFieldFormComponent from "../StyledFormComponents/StyledOutlinedInput";
 import ColumnVisibilityButton from "../GenericTable/ColumnVisibilityButton";
-import { useOrganizationListContext } from "../Contexts/OrganizationListContext";
 import { ListSubmissionsInput, ListSubmissionsResp } from "../../graphql";
-import { useAuthContext } from "../Contexts/AuthContext";
-import { canViewOtherOrgRoles } from "../../config/AuthRoles";
 import { Column } from "../GenericTable";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
 import Tooltip from "../Tooltip";
@@ -118,6 +115,7 @@ type TouchedState = { [K in FilterFormKey]: boolean };
 
 type Props = {
   columns: Column<T>[];
+  organizations: Organization[];
   submitterNames: string[];
   dataCommons: string[];
   columnVisibilityModel: ColumnVisibilityModel;
@@ -127,14 +125,13 @@ type Props = {
 
 const DataSubmissionListFilters = ({
   columns,
+  organizations,
   submitterNames,
   dataCommons,
   columnVisibilityModel,
   onColumnVisibilityModelChange,
   onChange,
 }: Props) => {
-  const { user } = useAuthContext();
-  const { activeOrganizations } = useOrganizationListContext();
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const { control, register, watch, reset, setValue, getValues } = useForm<FilterForm>({
     defaultValues,
@@ -150,7 +147,6 @@ const DataSubmissionListFilters = ({
 
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
-  const canViewOtherOrgs = canViewOtherOrgRoles.includes(user?.role);
   const debounceAfter3CharsInputs: FilterFormKey[] = ["name", "dbGaPID"];
   const debouncedOnChangeRef = useRef(
     debounce((form: FilterForm) => handleFormChange(form), 500)
@@ -172,7 +168,23 @@ const DataSubmissionListFilters = ({
   }, [submitterNames, submitterNameFilter, touchedFilters]);
 
   useEffect(() => {
-    if (!activeOrganizations?.length) {
+    // Reset organization filter if it is no longer a valid option
+    // due to other filters changing
+    const organizationIds = organizations?.map((org) => org._id);
+    if (
+      orgFilter !== "All" &&
+      Object.values(touchedFilters).some((filter) => filter) &&
+      !organizationIds?.includes(orgFilter)
+    ) {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("organization");
+      setSearchParams(newSearchParams);
+      setValue("organization", "All");
+    }
+  }, [organizations, orgFilter, touchedFilters]);
+
+  useEffect(() => {
+    if (!organizations?.length) {
       return;
     }
 
@@ -202,13 +214,7 @@ const DataSubmissionListFilters = ({
     if (Object.values(touchedFilters).every((filter) => !filter)) {
       handleFormChange(getValues());
     }
-  }, [
-    activeOrganizations,
-    submitterNames,
-    dataCommons,
-    canViewOtherOrgs,
-    searchParams?.toString(),
-  ]);
+  }, [organizations, submitterNames, dataCommons, searchParams?.toString()]);
 
   useEffect(() => {
     if (Object.values(touchedFilters).every((filter) => !filter)) {
@@ -217,7 +223,7 @@ const DataSubmissionListFilters = ({
 
     const newSearchParams = new URLSearchParams(searchParams);
 
-    if (canViewOtherOrgs && orgFilter && orgFilter !== "All") {
+    if (orgFilter && orgFilter !== "All") {
       newSearchParams.set("organization", orgFilter);
     } else if (orgFilter === "All") {
       newSearchParams.delete("organization");
@@ -293,8 +299,7 @@ const DataSubmissionListFilters = ({
     };
   }, [watch, debouncedOnChangeRef]);
 
-  const isValidOrg = (orgId: string) =>
-    orgId && !!activeOrganizations?.find((org) => org._id === orgId);
+  const isValidOrg = (orgId: string) => orgId && !!organizations?.find((org) => org._id === orgId);
 
   const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
     ["All", ...statusValues].includes(status);
@@ -304,13 +309,7 @@ const DataSubmissionListFilters = ({
       return;
     }
 
-    if (
-      !canViewOtherOrgs &&
-      isValidOrg(user?.organization?.orgID) &&
-      user?.organization?.orgID !== orgFilter
-    ) {
-      setValue("organization", user?.organization?.orgID);
-    } else if (canViewOtherOrgs && isValidOrg(organizationId)) {
+    if (isValidOrg(organizationId)) {
       setValue("organization", organizationId);
     }
   };
@@ -352,10 +351,7 @@ const DataSubmissionListFilters = ({
     searchParams.delete("dbGaPID");
     searchParams.delete("submitterName");
     setSearchParams(newSearchParams);
-    reset({
-      ...defaultValues,
-      organization: canViewOtherOrgs ? "All" : user?.organization?.orgID,
-    });
+    reset({ ...defaultValues });
   };
 
   return (
@@ -371,14 +367,17 @@ const DataSubmissionListFilters = ({
                 render={({ field }) => (
                   <StyledSelect
                     {...field}
-                    value={field.value}
+                    value={
+                      organizations?.map((org) => org._id)?.includes(field.value)
+                        ? field.value
+                        : "All"
+                    }
                     MenuProps={{ disablePortal: true }}
                     inputProps={{
                       id: "organization-filter",
                       "data-testid": "organization-select-input",
                     }}
                     data-testid="organization-select"
-                    readOnly={!canViewOtherOrgs}
                     onChange={(e) => {
                       field.onChange(e);
                       handleFilterChange("organization");
@@ -387,7 +386,7 @@ const DataSubmissionListFilters = ({
                     <MenuItem value="All" data-testid="organization-option-All">
                       All
                     </MenuItem>
-                    {activeOrganizations?.map((org) => (
+                    {organizations?.map((org) => (
                       <MenuItem
                         key={org._id}
                         value={org._id}
