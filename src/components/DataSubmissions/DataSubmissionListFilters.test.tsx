@@ -10,7 +10,6 @@ import {
   ContextState as AuthContextState,
   Status as AuthContextStatus,
 } from "../Contexts/AuthContext";
-import { useOrganizationListContext } from "../Contexts/OrganizationListContext";
 import { Column } from "../GenericTable";
 import { ListSubmissionsResp } from "../../graphql";
 
@@ -82,27 +81,14 @@ describe("DataSubmissionListFilters Component", () => {
 
   const submitterNames = ["Submitter1", "Submitter2"];
   const dataCommons = ["DataCommon1", "DataCommon2"];
+  const organizations: Organization[] = [
+    { _id: "Org1", name: "Organization 1" } as Organization,
+    { _id: "Org2", name: "Organization 2" } as Organization,
+  ];
   const columnVisibilityModel = { name: true, status: true };
 
   const mockOnChange = jest.fn();
   const mockOnColumnVisibilityModelChange = jest.fn();
-
-  beforeEach(() => {
-    // Set up default mock for useOrganizationListContext
-    (useOrganizationListContext as jest.Mock).mockReturnValue({
-      activeOrganizations: [
-        { _id: "Org1", name: "Organization 1" },
-        { _id: "Org2", name: "Organization 2" },
-      ],
-      status: "LOADED",
-      data: {
-        activeOrganizations: [
-          { _id: "Org1", name: "Organization 1" },
-          { _id: "Org2", name: "Organization 2" },
-        ],
-      },
-    });
-  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -114,6 +100,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent>
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -133,6 +120,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -162,6 +150,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent>
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -189,6 +178,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -221,11 +211,12 @@ describe("DataSubmissionListFilters Component", () => {
     });
   });
 
-  it("prevents non-admin users from changing the organization select", async () => {
+  it("should allow non-admin users from changing the organization select", async () => {
     const { getByTestId } = render(
       <TestParent userRole="Submitter">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -242,7 +233,7 @@ describe("DataSubmissionListFilters Component", () => {
     const organizationSelectInput = getByTestId("organization-select");
 
     const button = within(organizationSelectInput).getByRole("button");
-    expect(button).toHaveClass("Mui-readOnly");
+    expect(button).not.toHaveClass("Mui-readOnly");
   });
 
   it("resets all filters and clears URL searchParams when reset button is clicked", async () => {
@@ -250,6 +241,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -377,6 +369,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -404,6 +397,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -439,6 +433,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -468,6 +463,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -503,6 +499,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -540,6 +537,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -581,6 +579,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -624,6 +623,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent initialEntries={initialEntries} userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -667,6 +667,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent initialEntries={initialEntries} userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -707,6 +708,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent initialEntries={initialEntries} userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -739,6 +741,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent initialEntries={initialEntries} userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={[]} // Empty dataCommons
           columnVisibilityModel={columnVisibilityModel}
@@ -782,6 +785,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent>
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={["DataCommon1", "DataCommon2"]} // Non-empty dataCommons
           columnVisibilityModel={columnVisibilityModel}
@@ -826,6 +830,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent>
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={[]} // Empty submitterNames
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -863,6 +868,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent>
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={["Submitter1", "Submitter2"]} // Non-empty submitterNames
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
