@@ -3,6 +3,7 @@ import { MODEL_FILE_REPO } from "../config/DataCommons";
 import env from "../env";
 import { RetrieveCDEsResp } from "../graphql";
 import GenericModelLogo from "../assets/modelNavigator/genericLogo.png";
+import { Logger } from "./logger";
 
 /**
  * Fetch the tracked Data Model content manifest.
@@ -180,19 +181,30 @@ export const traverseAndReplace = (
           const { CDECode, CDEFullName, CDEVersion, PermissibleValues } =
             resultMap.get(prefixMatch);
 
-          if (PermissibleValues?.length && property.enum) {
+          // Populate CDE details
+          property.CDEFullName = CDEFullName;
+          property.CDECode = CDECode;
+          property.CDEPublicID = getCDEPublicID(CDECode, CDEVersion);
+          property.CDEVersion = CDEVersion;
+          property.CDEOrigin = "caDSR";
+
+          // Populate Permissible Values if available from API
+          if (Array.isArray(PermissibleValues) && PermissibleValues.length > 0) {
             property.enum = PermissibleValues;
-            property.CDEFullName = CDEFullName;
-            property.CDECode = CDECode;
-            property.CDEPublicID = getCDEPublicID(CDECode, CDEVersion);
-            property.CDEVersion = CDEVersion;
-            property.CDEOrigin = "caDSR";
-          } else if (PermissibleValues?.length === 0 && property.enum) {
-            property.enum = fallbackMessage;
+            // Permissible Values from API are empty, convert property to "string" type
+          } else if (
+            Array.isArray(PermissibleValues) &&
+            PermissibleValues.length === 0 &&
+            property.enum
+          ) {
+            delete property.enum;
+            property.type = "string";
           }
         }
 
-        if (noValuesMatch && apiError && property.enum) {
+        // API did not return any Permissible Values, populate with fallback message
+        if (noValuesMatch && property.enum) {
+          Logger.error("Unable to match CDE for property", node?.properties?.[key]);
           property.enum = fallbackMessage;
         }
       }

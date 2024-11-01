@@ -4,7 +4,7 @@ import * as utils from "./dataModelUtils";
 global.fetch = jest.fn();
 
 jest.mock("../env", () => ({
-  ...jest.requireActual("../env"),
+  ...process.env,
   REACT_APP_DEV_TIER: undefined,
 }));
 
@@ -404,7 +404,7 @@ describe("updateEnums", () => {
     ]);
   });
 
-  it("should use fallback message if permissable values are empty", () => {
+  it("should convert the property to a string if the permissible values is an empty array", () => {
     const response = [
       {
         ...CDEresponse,
@@ -414,9 +414,8 @@ describe("updateEnums", () => {
 
     const result = utils.updateEnums(cdeMap, dataList, response);
 
-    expect(result.program.properties["program_name"].enum).toEqual([
-      "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
-    ]);
+    expect(result.program.properties["program_name"].enum).not.toBeDefined();
+    expect(result.program.properties["program_name"].type).toEqual("string");
   });
 
   it("should return the enum from mdf or undefined if none when permissable values is null", () => {
@@ -430,6 +429,31 @@ describe("updateEnums", () => {
     const result = utils.updateEnums(cdeMap, dataList, response);
 
     expect(result.program.properties["program_name"].enum).toEqual(["enum one", "enum two"]);
+  });
+
+  it("should populate the CDE details in the property regardless of the permissible values", () => {
+    const emptyPvResult = utils.updateEnums(cdeMap, dataList, [CDEresponse]);
+
+    expect(emptyPvResult.program.properties["program_name"].CDEFullName).toEqual(
+      "Subject Legal Adult Or Pediatric Participant Type"
+    );
+    expect(emptyPvResult.program.properties["program_name"].CDECode).toEqual("11444542");
+    expect(emptyPvResult.program.properties["program_name"].CDEVersion).toEqual("1.00");
+    expect(emptyPvResult.program.properties["program_name"].CDEOrigin).toEqual("caDSR");
+
+    const nullPvResult = utils.updateEnums(cdeMap, dataList, [
+      {
+        ...CDEresponse,
+        PermissibleValues: null,
+      },
+    ]);
+
+    expect(nullPvResult.program.properties["program_name"].CDEFullName).toEqual(
+      "Subject Legal Adult Or Pediatric Participant Type"
+    );
+    expect(nullPvResult.program.properties["program_name"].CDECode).toEqual("11444542");
+    expect(nullPvResult.program.properties["program_name"].CDEVersion).toEqual("1.00");
+    expect(nullPvResult.program.properties["program_name"].CDEOrigin).toEqual("caDSR");
   });
 
   it("should apply fallback message when response is empty and apiError is true", () => {
