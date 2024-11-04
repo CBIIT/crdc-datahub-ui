@@ -305,7 +305,11 @@ const ListingView: FC = () => {
       }
 
       setData(d.listSubmissions.submissions);
-      setOrganizations(d.listSubmissions.organizations?.filter((org) => !!org.name.trim()));
+      setOrganizations(
+        d.listSubmissions.organizations
+          ?.filter((org) => !!org.name.trim())
+          ?.sort((a, b) => a.name?.localeCompare(b.name))
+      );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
