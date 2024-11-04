@@ -30,4 +30,11 @@ root.render(
   </React.StrictMode>
 );
 
-serviceWorker.unregister();
+serviceWorker.register({
+  onSuccess: (registration) => {
+    console.log("service worker registered", registration);
+  },
+  onUpdate: (registration) => {
+    console.log("service worker updated", registration);
+  },
+});
