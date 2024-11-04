@@ -288,6 +288,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           initialValue={data.targetedSubmissionDate}
           gridWidth={6}
           disablePast
+          required
           readOnly={readOnlyInputs}
         />
         <DatePickerInput
@@ -298,6 +299,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           initialValue={data.targetedReleaseDate}
           gridWidth={6}
           disablePast
+          required
           readOnly={readOnlyInputs}
         />
       </SectionGroup>
