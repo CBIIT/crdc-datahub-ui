@@ -32,7 +32,7 @@ const SubmissionHeaderProperty = ({ label, value, truncateAfter = 16 }: Props) =
   <Grid lg={6} xs={12} item>
     <Stack direction="row" alignItems="center" width="100%" maxWidth="100%" spacing={2.75}>
       <StyledLabel variant="body1">{label}</StyledLabel>
-      <Box flexGrow={1} overflow="hidden">
+      <Box flexGrow={1} overflow="hidden" lineHeight="16px">
         {typeof value === "string" ? (
           <StyledValue variant="body1" data-testid="property-value">
             {truncateAfter && truncateAfter > 0 ? (
@@ -41,6 +41,7 @@ const SubmissionHeaderProperty = ({ label, value, truncateAfter = 16 }: Props) =
                 maxCharacters={truncateAfter}
                 underline={false}
                 ellipsis
+                wrapperStyles={{ lineHeight: "19.6px" }}
               />
             ) : (
               value
