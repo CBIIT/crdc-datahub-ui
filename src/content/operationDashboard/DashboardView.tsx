@@ -1,15 +1,18 @@
 import { Box, FormControl, MenuItem, SelectChangeEvent, styled, Typography } from "@mui/material";
 import { isEqual } from "lodash";
-import { FC, memo, useEffect, useRef, useState } from "react";
+import { FC, memo, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   createEmbeddingContext,
+  DashboardContentOptions,
   DashboardExperience,
   FrameOptions,
 } from "amazon-quicksight-embedding-sdk";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import bannerSvg from "../../assets/banner/submission_banner.png";
+import { useAuthContext } from "../../components/Contexts/AuthContext";
+import { Logger } from "../../utils";
 
 export type DashboardViewProps = {
   url: string;
@@ -68,6 +71,8 @@ const StyledPlaceholder = styled(Typography)({
 /**
  * The view for the OperationDashboard component.
  *
+ * @note This component MUST be protected by authorization to ensure they have the correct role to access the dashboard.
+ *       This component assumes that the AuthState is already populated with the user info.
  * @param {DashboardViewProps} props The props for the component.
  * @returns {JSX.Element} The OperationDashboard component.
  */
@@ -76,9 +81,32 @@ const DashboardView: FC<DashboardViewProps> = ({
   currentType,
   loading,
 }: DashboardViewProps) => {
+  const { user } = useAuthContext();
+
   const [, setSearchParams] = useSearchParams();
   const [embeddedDashboard, setEmbeddedDashboard] = useState<DashboardExperience>(null);
   const dashboardElementRef = useRef<HTMLDivElement>(null);
+
+  const contentParameters = useMemo<DashboardContentOptions["parameters"]>(() => {
+    const { role, studies, dataCommons } = user || {};
+    const params: DashboardContentOptions["parameters"] = [];
+
+    if (role === "Federal Monitor" && Array.isArray(studies) && studies.length > 0) {
+      params.push({ Name: "studiesParameter", Values: studies });
+    } else if (role === "Federal Monitor") {
+      Logger.error("This role requires studies to be set but none were found.", studies);
+      params.push({ Name: "studiesParameter", Values: ["NO-CONTENT"] });
+    }
+
+    if (role === "Data Curator" && Array.isArray(dataCommons) && dataCommons.length > 0) {
+      params.push({ Name: "dataCommonsParameter", Values: dataCommons });
+    } else if (role === "Data Curator") {
+      Logger.error("This role requires dataCommons to be set but none were found.", dataCommons);
+      params.push({ Name: "dataCommonsParameter", Values: ["NO-CONTENT"] });
+    }
+
+    return params;
+  }, [user]);
 
   const handleDashboardChange = (e: SelectChangeEvent) => {
     setSearchParams({ type: e.target.value });
@@ -91,7 +119,7 @@ const DashboardView: FC<DashboardViewProps> = ({
       return;
     }
 
-    const options: FrameOptions = {
+    const frameConfig: FrameOptions = {
       url,
       container: dashboardElementRef.current,
       height: "1200px",
@@ -99,8 +127,12 @@ const DashboardView: FC<DashboardViewProps> = ({
       withIframePlaceholder: true,
     };
 
+    const contentConfig: DashboardContentOptions = {
+      parameters: contentParameters,
+    };
+
     const context = await createEmbeddingContext();
-    const dashboard = await context.embedDashboard(options);
+    const dashboard = await context.embedDashboard(frameConfig, contentConfig);
 
     setEmbeddedDashboard(dashboard);
   };
