@@ -361,25 +361,6 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
           </ReviewDataListing>
         ))}
 
-        <ReviewDataListing
-          idPrefix="review-dbGaP"
-          title={SectionMetadata.B.sections.DBGAP_REGISTRATION.title}
-          description={SectionMetadata.B.sections.DBGAP_REGISTRATION.description}
-        >
-          <ReviewDataListingProperty
-            idPrefix="review-dbGaP-registration"
-            label="HAS YOUR STUDY BEEN REGISTERED IN dbGaP?"
-            value={study.isDbGapRegistered ? "Yes" : "No"}
-            textTransform="none"
-          />
-          <ReviewDataListingProperty
-            idPrefix="review-dbGaP-phs-number"
-            label="dbGaP PHS NUMBER"
-            value={study.isDbGapRegistered ? study.dbGaPPPHSNumber : "NA"}
-            textTransform="none"
-          />
-        </ReviewDataListing>
-
         {publications?.map((publication: KeyedPublication, idx: number) => (
           <ReviewDataListing
             key={publication.key}
@@ -487,6 +468,25 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
             value={data.accessTypes}
             valuePlacement="bottom"
             isList
+          />
+        </ReviewDataListing>
+
+        <ReviewDataListing
+          idPrefix="review-dbGaP"
+          title={SectionMetadata.C.sections.DBGAP_REGISTRATION.title}
+          description={SectionMetadata.C.sections.DBGAP_REGISTRATION.description}
+        >
+          <ReviewDataListingProperty
+            idPrefix="review-dbGaP-registration"
+            label="HAS YOUR STUDY BEEN REGISTERED IN dbGaP?"
+            value={study.isDbGapRegistered ? "Yes" : "No"}
+            textTransform="none"
+          />
+          <ReviewDataListingProperty
+            idPrefix="review-dbGaP-phs-number"
+            label="dbGaP PHS NUMBER"
+            value={study.isDbGapRegistered ? study.dbGaPPPHSNumber : "NA"}
+            textTransform="none"
           />
         </ReviewDataListing>
 
