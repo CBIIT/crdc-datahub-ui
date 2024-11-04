@@ -7,6 +7,7 @@ import {
   DashboardContentOptions,
   DashboardExperience,
   FrameOptions,
+  ToolbarOptions,
 } from "amazon-quicksight-embedding-sdk";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import SuspenseLoader from "../../components/SuspenseLoader";
@@ -127,8 +128,13 @@ const DashboardView: FC<DashboardViewProps> = ({
       withIframePlaceholder: true,
     };
 
+    const toolbarOptions: ToolbarOptions = {
+      export: true,
+    };
+
     const contentConfig: DashboardContentOptions = {
       parameters: contentParameters,
+      toolbarOptions,
     };
 
     const context = await createEmbeddingContext();
