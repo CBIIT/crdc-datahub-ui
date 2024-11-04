@@ -10,10 +10,6 @@ import { FormatDate } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import CreateDataSubmissionDialog from "../../components/DataSubmissions/CreateDataSubmissionDialog";
-import {
-  Status as OrgStatus,
-  useOrganizationListContext,
-} from "../../components/Contexts/OrganizationListContext";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { LIST_SUBMISSIONS, ListSubmissionsInput, ListSubmissionsResp } from "../../graphql";
 import TruncatedText from "../../components/TruncatedText";
@@ -230,7 +226,6 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { status: authStatus } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { status: orgStatus, activeOrganizations } = useOrganizationListContext();
   // Only org owners/submitters with organizations assigned can create data submissions
 
   const { columnVisibilityModel, setColumnVisibilityModel, visibleColumns } = useColumnVisibility<
@@ -271,7 +266,7 @@ const ListingView: FC = () => {
     try {
       setLoading(true);
 
-      if (!activeOrganizations?.length || !filtersRef.current) {
+      if (!filtersRef.current) {
         return;
       }
 
@@ -325,10 +320,6 @@ const ListingView: FC = () => {
   };
 
   const handleOnCreateSubmission = async () => {
-    if (!activeOrganizations?.length) {
-      return;
-    }
-
     try {
       setLoading(true);
 
@@ -395,9 +386,7 @@ const ListingView: FC = () => {
             columns={visibleColumns}
             data={data || []}
             total={totalData || 0}
-            loading={
-              loading || orgStatus === OrgStatus.LOADING || authStatus === AuthStatus.LOADING
-            }
+            loading={loading || authStatus === AuthStatus.LOADING}
             defaultRowsPerPage={20}
             defaultOrder="desc"
             disableUrlParams={false}

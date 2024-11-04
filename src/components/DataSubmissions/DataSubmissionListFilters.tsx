@@ -184,10 +184,6 @@ const DataSubmissionListFilters = ({
   }, [organizations, orgFilter, touchedFilters]);
 
   useEffect(() => {
-    if (!organizations?.length) {
-      return;
-    }
-
     const organizationId = searchParams.get("organization");
     const status = searchParams.get("status");
     const dataCommon = searchParams.get("dataCommons");
