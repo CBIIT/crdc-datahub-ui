@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Alert, Container, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
 import { isEqual } from "lodash";
