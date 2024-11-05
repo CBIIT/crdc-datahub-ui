@@ -151,6 +151,9 @@ const DataSubmissionListFilters = ({
   const debouncedOnChangeRef = useRef(
     debounce((form: FilterForm) => handleFormChange(form), 500)
   ).current;
+  const debouncedDropdownRef = useRef(
+    debounce((form: FilterForm) => handleFormChange(form), 0)
+  ).current;
 
   useEffect(() => {
     // Reset submitterName filter if it is no longer a valid option
@@ -268,6 +271,12 @@ const DataSubmissionListFilters = ({
 
   useEffect(() => {
     const subscription = watch((formValue: FilterForm, { name }) => {
+      const isDebouncedDropdown = ["submitterName", "dataCommons", "organization"].includes(name);
+      if (isDebouncedDropdown) {
+        debouncedDropdownRef(formValue);
+        return;
+      }
+
       // Add debounce for input fields
       const isDebounceField = debounceAfter3CharsInputs.includes(name as FilterFormKey);
       // Debounce if value has at least 3 characters
