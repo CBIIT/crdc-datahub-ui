@@ -329,6 +329,13 @@ const ListingView: FC = () => {
         throw new Error("Unable to retrieve Data Submission List results.");
       }
       setData(d.listSubmissions.submissions);
+      setOrganizations(
+        d.listSubmissions.organizations
+          ?.filter((org) => !!org.name.trim())
+          ?.sort((a, b) => a.name?.localeCompare(b.name))
+      );
+      setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
+      setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
     } catch (err) {
       setError(true);
