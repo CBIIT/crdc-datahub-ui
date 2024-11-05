@@ -813,13 +813,12 @@ describe("DataSubmissionListFilters Component", () => {
 
     await waitFor(() => {
       expect(getByTestId("data-commons-select-input")).toHaveValue("DataCommon1");
+      expect(mockOnChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dataCommons: "DataCommon1",
+        })
+      );
     });
-
-    expect(mockOnChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        dataCommons: "DataCommon1",
-      })
-    );
   });
 
   it("sets submitterNames select to 'All' when submitterNames prop is empty", async () => {
@@ -896,13 +895,12 @@ describe("DataSubmissionListFilters Component", () => {
 
     await waitFor(() => {
       expect(getByTestId("submitter-name-select-input")).toHaveValue("Submitter1");
+      expect(mockOnChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          submitterName: "Submitter1",
+        })
+      );
     });
-
-    expect(mockOnChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        submitterName: "Submitter1",
-      })
-    );
   });
 
   it("sets organization select to 'All' when organizations prop is empty", async () => {
@@ -975,12 +973,11 @@ describe("DataSubmissionListFilters Component", () => {
 
     await waitFor(() => {
       expect(getByTestId("organization-select-input")).toHaveValue("Org1");
+      expect(mockOnChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          organization: "Org1",
+        })
+      );
     });
-
-    expect(mockOnChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        organization: "Org1",
-      })
-    );
   });
 });
