@@ -239,7 +239,7 @@ const ListingView: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [organizations, setOrganizations] = useState<Pick<Organization, "_id" | "name">[]>([]);
   const [submitterNames, setSubmitterNames] = useState<string[]>([]);
   const [dataCommons, setDataCommons] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);

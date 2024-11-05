@@ -73,7 +73,7 @@ export type Response = {
   listSubmissions: {
     total: number;
     submissions: Omit<Submission, "submitterID" | "bucketName" | "rootPath" | "history">[];
-    organizations: Organization[];
+    organizations: Pick<Organization, "_id" | "name">[];
     submitterNames: string[];
     dataCommons: string[];
   };

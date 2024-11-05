@@ -115,7 +115,7 @@ type TouchedState = { [K in FilterFormKey]: boolean };
 
 type Props = {
   columns: Column<T>[];
-  organizations: Organization[];
+  organizations: Pick<Organization, "_id" | "name">[];
   submitterNames: string[];
   dataCommons: string[];
   columnVisibilityModel: ColumnVisibilityModel;
