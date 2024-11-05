@@ -1,7 +1,7 @@
-import React, { FC, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Alert, Container, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
-import { isEqual } from "lodash";
+import { debounce, isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import { useLazyQuery } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
@@ -252,7 +252,6 @@ const ListingView: FC = () => {
     dbGaPID: "",
     submitterName: "All",
   });
-  const previousFilters = useRef<FilterForm>(filtersRef.current);
 
   const [listSubmissions, { refetch }] = useLazyQuery<ListSubmissionsResp, ListSubmissionsInput>(
     LIST_SUBMISSIONS,
@@ -354,14 +353,6 @@ const ListingView: FC = () => {
     }
 
     filtersRef.current = { ...data };
-
-    if (isEqual(filtersRef.current, previousFilters.current)) {
-      return;
-    }
-
-    // Necessary to avoid race-condition while filters are resetting
-    // and current page is not the first page
-    previousFilters.current = { ...filtersRef.current };
     setTablePage(0);
   };
 
