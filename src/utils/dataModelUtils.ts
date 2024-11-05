@@ -119,7 +119,7 @@ export const buildFilterOptionsList = (dc: DataCommon): string[] => {
  * @params {void}
  */
 export const updateEnums = (
-  cdeMap: Map<string, CDEInfo[]>,
+  cdeMap: Map<string, CDEInfo>,
   dataList,
   response: RetrieveCDEsResp["retrieveCDEs"] = [],
   apiError = false
@@ -130,16 +130,17 @@ export const updateEnums = (
     responseMap.set(`${item.CDECode}.${item.CDEVersion}`, item)
   );
 
-  const resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0]> = new Map();
+  const resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0] & { CDEOrigin: string }> =
+    new Map();
   const mapKeyPrefixes: Map<string, string> = new Map();
   const mapKeyPrefixesNoValues: Map<string, string> = new Map();
 
-  cdeMap.forEach((_, key) => {
+  cdeMap.forEach((val, key) => {
     const [prefix, cdeCodeAndVersion] = key.split(";");
     const item = responseMap.get(cdeCodeAndVersion);
 
     if (item) {
-      resultMap.set(key, item);
+      resultMap.set(key, { ...item, CDEOrigin: val?.CDEOrigin || "" });
       mapKeyPrefixes.set(prefix, key);
     } else {
       mapKeyPrefixesNoValues.set(prefix, key);
@@ -155,7 +156,7 @@ export const updateEnums = (
 
 export const traverseAndReplace = (
   node,
-  resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0]>,
+  resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0] & { CDEOrigin: string }>,
   mapKeyPrefixes: Map<string, string>,
   mapKeyPrefixesNoValues: Map<string, string>,
   apiError: boolean,
@@ -178,7 +179,7 @@ export const traverseAndReplace = (
         ];
 
         if (prefixMatch) {
-          const { CDECode, CDEFullName, CDEVersion, PermissibleValues } =
+          const { CDECode, CDEFullName, CDEVersion, CDEOrigin, PermissibleValues } =
             resultMap.get(prefixMatch);
 
           // Populate CDE details
@@ -186,7 +187,7 @@ export const traverseAndReplace = (
           property.CDECode = CDECode;
           property.CDEPublicID = getCDEPublicID(CDECode, CDEVersion);
           property.CDEVersion = CDEVersion;
-          property.CDEOrigin = "caDSR";
+          property.CDEOrigin = CDEOrigin;
 
           // Populate Permissible Values if available from API
           if (Array.isArray(PermissibleValues) && PermissibleValues.length > 0) {

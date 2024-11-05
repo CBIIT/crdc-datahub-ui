@@ -356,12 +356,11 @@ describe("updateEnums", () => {
   const cdeMap = new Map([
     [
       "program.program_name;11444542.1.00",
-      [
-        {
-          CDECode: "11444542",
-          CDEVersion: "1.00",
-        },
-      ],
+      {
+        CDECode: "11444542",
+        CDEVersion: "1.00",
+        CDEOrigin: "caDSR",
+      },
     ],
   ]);
 
@@ -456,6 +455,26 @@ describe("updateEnums", () => {
     expect(nullPvResult.program.properties["program_name"].CDEOrigin).toEqual("caDSR");
   });
 
+  // NOTE: this is a temporary solution until 3.2.0 supports alternate CDE origins
+  it("should populate the CDE Origin from the CDEMap provided by Model Navigator", () => {
+    const testMap = new Map([
+      [
+        "program.program_name;11444542.1.00",
+        {
+          CDECode: "11444542",
+          CDEVersion: "1.00",
+          CDEOrigin: "fake origin that is not caDSR",
+        },
+      ],
+    ]);
+
+    const result = utils.updateEnums(testMap, dataList, [CDEresponse]);
+
+    expect(result.program.properties["program_name"].CDEOrigin).toEqual(
+      "fake origin that is not caDSR"
+    );
+  });
+
   it("should apply fallback message when response is empty and apiError is true", () => {
     const result = utils.updateEnums(cdeMap, dataList, [], true);
 
@@ -492,6 +511,7 @@ describe("traverseAndReplace", () => {
         CDEFullName: "Subject Legal Adult Or Pediatric Participant Type",
         CDECode: "11524549",
         CDEVersion: "1.00",
+        CDEOrigin: "caDSR",
         PermissibleValues: ["Pediatric", "Adult - legal age"],
         createdAt: "2024-09-24T11:45:42.313Z",
         updatedAt: "2024-09-24T11:45:42.313Z",
