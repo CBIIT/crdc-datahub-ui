@@ -192,8 +192,10 @@ const DataSubmissionListFilters = ({
     const submitterName = searchParams.get("submitterName");
 
     handleStatusChange(status);
-    handleOrganizationChange(organizationId);
 
+    if (organizationId && organizationId !== orgFilter) {
+      setValue("organization", organizationId);
+    }
     if (dataCommon && dataCommon !== dataCommonsFilter) {
       setValue("dataCommons", dataCommon);
     }
@@ -295,20 +297,8 @@ const DataSubmissionListFilters = ({
     };
   }, [watch, debouncedOnChangeRef]);
 
-  const isValidOrg = (orgId: string) => orgId && !!organizations?.find((org) => org._id === orgId);
-
   const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
     ["All", ...statusValues].includes(status);
-
-  const handleOrganizationChange = (organizationId: string) => {
-    if (organizationId === orgFilter) {
-      return;
-    }
-
-    if (isValidOrg(organizationId)) {
-      setValue("organization", organizationId);
-    }
-  };
 
   const handleStatusChange = (status: string) => {
     if (status === statusFilter) {
