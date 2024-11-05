@@ -3,6 +3,7 @@ import { MODEL_FILE_REPO } from "../config/DataCommons";
 import env from "../env";
 import { RetrieveCDEsResp } from "../graphql";
 import GenericModelLogo from "../assets/modelNavigator/genericLogo.png";
+import { Logger } from "./logger";
 
 /**
  * Fetch the tracked Data Model content manifest.
@@ -118,7 +119,7 @@ export const buildFilterOptionsList = (dc: DataCommon): string[] => {
  * @params {void}
  */
 export const updateEnums = (
-  cdeMap: Map<string, CDEInfo[]>,
+  cdeMap: Map<string, CDEInfo>,
   dataList,
   response: RetrieveCDEsResp["retrieveCDEs"] = [],
   apiError = false
@@ -129,16 +130,17 @@ export const updateEnums = (
     responseMap.set(`${item.CDECode}.${item.CDEVersion}`, item)
   );
 
-  const resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0]> = new Map();
+  const resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0] & { CDEOrigin: string }> =
+    new Map();
   const mapKeyPrefixes: Map<string, string> = new Map();
   const mapKeyPrefixesNoValues: Map<string, string> = new Map();
 
-  cdeMap.forEach((_, key) => {
+  cdeMap.forEach((val, key) => {
     const [prefix, cdeCodeAndVersion] = key.split(";");
     const item = responseMap.get(cdeCodeAndVersion);
 
     if (item) {
-      resultMap.set(key, item);
+      resultMap.set(key, { ...item, CDEOrigin: val?.CDEOrigin || "" });
       mapKeyPrefixes.set(prefix, key);
     } else {
       mapKeyPrefixesNoValues.set(prefix, key);
@@ -154,7 +156,7 @@ export const updateEnums = (
 
 export const traverseAndReplace = (
   node,
-  resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0]>,
+  resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0] & { CDEOrigin: string }>,
   mapKeyPrefixes: Map<string, string>,
   mapKeyPrefixesNoValues: Map<string, string>,
   apiError: boolean,
@@ -177,22 +179,33 @@ export const traverseAndReplace = (
         ];
 
         if (prefixMatch) {
-          const { CDECode, CDEFullName, CDEVersion, PermissibleValues } =
+          const { CDECode, CDEFullName, CDEVersion, CDEOrigin, PermissibleValues } =
             resultMap.get(prefixMatch);
 
-          if (PermissibleValues?.length && property.enum) {
+          // Populate CDE details
+          property.CDEFullName = CDEFullName;
+          property.CDECode = CDECode;
+          property.CDEPublicID = getCDEPublicID(CDECode, CDEVersion);
+          property.CDEVersion = CDEVersion;
+          property.CDEOrigin = CDEOrigin;
+
+          // Populate Permissible Values if available from API
+          if (Array.isArray(PermissibleValues) && PermissibleValues.length > 0) {
             property.enum = PermissibleValues;
-            property.CDEFullName = CDEFullName;
-            property.CDECode = CDECode;
-            property.CDEPublicID = getCDEPublicID(CDECode, CDEVersion);
-            property.CDEVersion = CDEVersion;
-            property.CDEOrigin = "caDSR";
-          } else if (PermissibleValues?.length === 0 && property.enum) {
-            property.enum = fallbackMessage;
+            // Permissible Values from API are empty, convert property to "string" type
+          } else if (
+            Array.isArray(PermissibleValues) &&
+            PermissibleValues.length === 0 &&
+            property.enum
+          ) {
+            delete property.enum;
+            property.type = "string";
           }
         }
 
-        if (noValuesMatch && apiError && property.enum) {
+        // API did not return any Permissible Values, populate with fallback message
+        if (noValuesMatch && property.enum) {
+          Logger.error("Unable to match CDE for property", node?.properties?.[key]);
           property.enum = fallbackMessage;
         }
       }
