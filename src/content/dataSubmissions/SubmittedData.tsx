@@ -183,6 +183,17 @@ const SubmittedData: FC = () => {
         } as Column<T>;
       }
 
+      if (prop === "Orphaned") {
+        return {
+          label: "Orphaned",
+          renderValue: (d) => d?.props?.[prop] || "",
+          fieldKey: "Orphaned",
+          sx: {
+            width: "159px",
+          },
+        } as Column<T>;
+      }
+
       return {
         label: prop,
         renderValue: (d) =>
