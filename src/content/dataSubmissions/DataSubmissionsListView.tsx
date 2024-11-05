@@ -341,7 +341,13 @@ const ListingView: FC = () => {
     });
   };
 
-  useEffect(() => {
+  const handleOnFiltersChange = (data: FilterForm) => {
+    if (isEqual(data, filtersRef.current)) {
+      return;
+    }
+
+    filtersRef.current = { ...data };
+
     if (isEqual(filtersRef.current, previousFilters.current)) {
       return;
     }
@@ -350,14 +356,6 @@ const ListingView: FC = () => {
     // and current page is not the first page
     previousFilters.current = { ...filtersRef.current };
     setTablePage(0);
-  }, [filtersRef.current]);
-
-  const handleOnFiltersChange = (data: FilterForm) => {
-    if (isEqual(data, filtersRef.current)) {
-      return;
-    }
-
-    filtersRef.current = { ...data };
   };
 
   return (
