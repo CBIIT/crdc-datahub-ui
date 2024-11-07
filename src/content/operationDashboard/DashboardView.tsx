@@ -9,6 +9,7 @@ import {
   FrameOptions,
 } from "amazon-quicksight-embedding-sdk";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
+import StyledLabel from "../../components/StyledFormComponents/StyledLabel";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
@@ -20,45 +21,42 @@ export type DashboardViewProps = {
   loading: boolean;
 };
 
-const StyledViewHeader = styled(Box)({
+const StyledPageContainer = styled(Box)({
   background: `url(${bannerSvg})`,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
+  backgroundSize: "100% 296px",
+  backgroundPosition: "top",
+  backgroundRepeat: "no-repeat",
+  paddingBottom: "24px",
+});
+
+const StyledViewHeader = styled(Box)({
   width: "100%",
-  height: "296px",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  marginBottom: "-178px",
-  marginTop: "0px",
+  padding: "24px 0",
 });
 
 const StyledFormControl = styled(FormControl)({
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  gap: "15px",
-  width: "300px",
-  marginBottom: "auto",
-  marginTop: "37px",
+  width: "351px",
 });
 
-const StyledInlineLabel = styled("label")({
-  padding: 0,
-  fontWeight: "700",
+const CustomLabel = styled(StyledLabel)({
+  textAlign: "center",
 });
 
-const StyledFrameContainer = styled(Box)({
+const StyledFrameContainer = styled(Box)(({ theme }) => ({
   borderRadius: "6px",
   border: "1px solid #E0E0E0",
   background: "#fff",
   position: "relative",
   margin: "0 auto",
-  marginBottom: "57px",
   maxWidth: "calc(100% - 64px)",
-  boxShadow:
-    "0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)",
-});
+  boxShadow: theme.shadows[1],
+  "& .quicksight-iframe": {
+    borderRadius: "6px",
+  },
+}));
 
 const StyledPlaceholder = styled(Typography)({
   margin: "100px auto",
@@ -125,6 +123,7 @@ const DashboardView: FC<DashboardViewProps> = ({
       height: "1200px",
       width: "100%",
       withIframePlaceholder: true,
+      className: "quicksight-iframe",
     };
 
     const contentConfig: DashboardContentOptions = {
@@ -146,11 +145,11 @@ const DashboardView: FC<DashboardViewProps> = ({
   }, [url]);
 
   return (
-    <Box data-testid="operation-dashboard-container">
+    <StyledPageContainer data-testid="operation-dashboard-container">
       {loading && <SuspenseLoader />}
       <StyledViewHeader>
         <StyledFormControl>
-          <StyledInlineLabel htmlFor="dashboard-type">Metrics</StyledInlineLabel>
+          <CustomLabel htmlFor="dashboard-type">Metrics:</CustomLabel>
           <StyledSelect
             value={currentType}
             onChange={handleDashboardChange}
@@ -167,7 +166,7 @@ const DashboardView: FC<DashboardViewProps> = ({
         )}
         <div ref={dashboardElementRef} />
       </StyledFrameContainer>
-    </Box>
+    </StyledPageContainer>
   );
 };
 
