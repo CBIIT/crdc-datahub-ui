@@ -132,15 +132,26 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it("should forward the wrapperStyles prop to the text wrapper element", () => {
+  it("should forward the wrapperSx prop to the text wrapper element", () => {
     const { getByTestId } = render(
-      <TruncatedText text="Styled text" wrapperStyles={{ color: "red", marginTop: "90px" }} />
+      <TruncatedText text="Styled text" wrapperSx={{ color: "red", marginTop: "90px" }} />
     );
 
     const textWrapper = getByTestId("truncated-text-wrapper");
 
     expect(textWrapper).toHaveStyle("color: red");
     expect(textWrapper).toHaveStyle("margin-top: 90px");
+  });
+
+  it("should forward the labelSx prop to the text label element", () => {
+    const { getByTestId } = render(
+      <TruncatedText text="Styled text" labelSx={{ color: "red", marginTop: "90px" }} />
+    );
+
+    const textLabel = getByTestId("truncated-text-label");
+
+    expect(textLabel).toHaveStyle("color: red");
+    expect(textLabel).toHaveStyle("margin-top: 90px");
   });
 });
 
