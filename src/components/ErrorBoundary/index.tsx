@@ -48,7 +48,7 @@ class ErrorBoundary extends Component<Props, State> {
 
     if (hasError) {
       return (
-        <Alert sx={{ m: 3, p: 2 }} severity="error">
+        <Alert sx={{ m: 3, p: 2 }} severity="error" data-testid="error-boundary-alert">
           {errorMessage || "Error loading component."}
         </Alert>
       );
