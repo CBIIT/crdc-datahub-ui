@@ -21,6 +21,8 @@ import QCResultsContext from "./Contexts/QCResultsContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
 import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import TruncatedText from "../../components/TruncatedText";
 
 type FilterForm = {
   /**
@@ -57,7 +59,6 @@ const StyledNodeType = styled(Box)({
 });
 
 const StyledSeverity = styled(Box)({
-  minHeight: 76.5,
   display: "flex",
   alignItems: "center",
 });
@@ -94,6 +95,10 @@ const StyledIssuesTextWrapper = styled(Box)({
   wordBreak: "break-word",
 });
 
+const StyledDateTooltip = styled(StyledTooltip)(() => ({
+  cursor: "pointer",
+}));
+
 type TouchedState = { [K in keyof FilterForm]: boolean };
 
 const initialTouchedFields: TouchedState = {
@@ -108,19 +113,29 @@ const columns: Column<QCResult>[] = [
     renderValue: (data) => <StyledBreakAll>{data?.displayID}</StyledBreakAll>,
     field: "displayID",
     default: true,
+    sx: {
+      width: "122px",
+    },
   },
   {
     label: "Node Type",
-    renderValue: (data) => <StyledNodeType>{data?.type}</StyledNodeType>,
+    renderValue: (data) => (
+      <StyledNodeType>
+        <TruncatedText text={data?.type} maxCharacters={15} disableInteractiveTooltip={false} />
+      </StyledNodeType>
+    ),
     field: "type",
   },
   {
     label: "Submitted Identifier",
-    renderValue: (data) => <StyledBreakAll>{data?.submittedID}</StyledBreakAll>,
+    renderValue: (data) => (
+      <TruncatedText
+        text={data?.submittedID}
+        maxCharacters={15}
+        disableInteractiveTooltip={false}
+      />
+    ),
     field: "submittedID",
-    sx: {
-      width: "20%",
-    },
   },
   {
     label: "Severity",
@@ -130,12 +145,27 @@ const columns: Column<QCResult>[] = [
       </StyledSeverity>
     ),
     field: "severity",
+    sx: {
+      width: "148px",
+    },
   },
   {
     label: "Validated Date",
     renderValue: (data) =>
-      data?.validatedDate ? `${FormatDate(data?.validatedDate, "MM-DD-YYYY [at] hh:mm A")}` : "",
+      data.validatedDate ? (
+        <StyledDateTooltip
+          title={FormatDate(data.validatedDate, "M/D/YYYY h:mm A")}
+          placement="top"
+        >
+          <span>{FormatDate(data.validatedDate, "M/D/YYYY")}</span>
+        </StyledDateTooltip>
+      ) : (
+        ""
+      ),
     field: "validatedDate",
+    sx: {
+      width: "193px",
+    },
   },
   {
     label: "Issues",
@@ -145,9 +175,13 @@ const columns: Column<QCResult>[] = [
           {({ handleOpenErrorDialog }) => (
             <Stack direction="row">
               <StyledIssuesTextWrapper>
-                <span>
-                  {data.errors?.length > 0 ? data.errors[0].title : data.warnings[0]?.title}.
-                </span>{" "}
+                <TruncatedText
+                  text={`${data.errors?.[0]?.title || data.warnings?.[0]?.title}.`}
+                  maxCharacters={15}
+                  wrapperSx={{ display: "inline" }}
+                  labelSx={{ display: "inline" }}
+                  disableInteractiveTooltip={false}
+                />{" "}
                 <StyledErrorDetailsButton
                   onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
                   variant="text"
@@ -163,9 +197,6 @@ const columns: Column<QCResult>[] = [
         </QCResultsContext.Consumer>
       ),
     sortDisabled: true,
-    sx: {
-      width: "38%",
-    },
   },
 ];
 
