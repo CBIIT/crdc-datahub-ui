@@ -657,13 +657,13 @@ describe("Table", () => {
               {
                 ...baseQCResult,
                 displayID: 1,
-                type: "fake-node-01",
-                submittedID: "submitted-id-001",
+                type: "1-fake-long-node-01",
+                submittedID: "1-submitted-id-001",
                 severity: "Error",
                 validatedDate: "2023-05-22T12:52:00Z",
                 warnings: [
                   {
-                    title: "mock-warning-1",
+                    title: "mock-warning-title-1",
                     description: "mock-warning-description-1",
                   },
                 ],
@@ -671,8 +671,8 @@ describe("Table", () => {
               {
                 ...baseQCResult,
                 displayID: 2,
-                type: "fake-node-02",
-                submittedID: "submitted-id-002",
+                type: "2-fake-long-node-02",
+                submittedID: "2-submitted-id-002",
                 severity: "Warning",
                 validatedDate: "2024-07-31T11:27:00Z",
                 errors: [
@@ -697,15 +697,15 @@ describe("Table", () => {
     });
 
     await waitFor(() => {
-      expect(getByText("submitted-id-001")).toBeInTheDocument(); // Wait for the table to render
+      expect(getByText("1-submitted-id-...")).toBeInTheDocument();
+      expect(getByText("1-fake-long-nod...")).toBeInTheDocument();
     });
 
-    expect(getByText(/mock-warning-1/)).toBeInTheDocument();
+    expect(getByText("mock-warning-ti...")).toBeInTheDocument();
     expect(getByText(/mock-error-1/)).toBeInTheDocument();
-    expect(getByText(/fake-node-01/)).toBeInTheDocument();
-    expect(getByText(/fake-node-02/)).toBeInTheDocument();
-    expect(getByText(/05-22-2023 at 12:52 PM/)).toBeInTheDocument();
-    expect(getByText(/07-31-2024 at 11:27 AM/)).toBeInTheDocument();
+    expect(getByText("2-fake-long-nod...")).toBeInTheDocument();
+    expect(getByText("5/22/2023")).toBeInTheDocument();
+    expect(getByText("7/31/2024")).toBeInTheDocument();
   });
 
   it("should render the placeholder text when no data is available", async () => {

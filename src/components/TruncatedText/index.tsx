@@ -1,5 +1,5 @@
 import { FC, memo } from "react";
-import { styled } from "@mui/material";
+import { styled, SxProps } from "@mui/material";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledText = styled("span")(() => ({
@@ -11,18 +11,15 @@ const StyledText = styled("span")(() => ({
 }));
 
 const StyledTextWrapper = styled("span", {
-  shouldForwardProp: (p) => p !== "truncated" && p !== "underline" && p !== "styles",
-})<{ truncated: boolean; underline: boolean; styles: React.CSSProperties }>(
-  ({ truncated, underline, styles }) => ({
-    display: "block",
-    textDecoration: truncated && underline ? "underline" : "none",
-    textDecorationStyle: "dashed",
-    textUnderlineOffset: "4px",
-    cursor: truncated ? "pointer" : "inherit",
-    width: "fit-content",
-    ...styles,
-  })
-);
+  shouldForwardProp: (p) => p !== "truncated" && p !== "underline",
+})<{ truncated: boolean; underline: boolean }>(({ truncated, underline }) => ({
+  display: "block",
+  textDecoration: truncated && underline ? "underline" : "none",
+  textDecorationStyle: "dashed",
+  textUnderlineOffset: "4px",
+  cursor: truncated ? "pointer" : "inherit",
+  width: "fit-content",
+}));
 
 type Props = {
   /**
@@ -58,7 +55,11 @@ type Props = {
   /**
    * Optional custom styling to apply on the wrapper element
    */
-  wrapperStyles?: React.CSSProperties;
+  wrapperSx?: SxProps;
+  /**
+   * Optional custom styling to apply on the label element
+   */
+  labelSx?: SxProps;
 };
 
 /**
@@ -75,7 +76,8 @@ const TruncatedText: FC<Props> = ({
   underline = true,
   ellipsis = true,
   disableInteractiveTooltip = true,
-  wrapperStyles = {},
+  wrapperSx,
+  labelSx,
 }: Props) => {
   const isTruncated = text?.length > maxCharacters;
   const displayText = isTruncated
@@ -94,9 +96,11 @@ const TruncatedText: FC<Props> = ({
         truncated={isTruncated}
         underline={underline}
         data-testid="truncated-text-wrapper"
-        styles={wrapperStyles}
+        sx={wrapperSx}
       >
-        <StyledText data-testid="truncated-text-label">{displayText}</StyledText>
+        <StyledText data-testid="truncated-text-label" sx={labelSx}>
+          {displayText}
+        </StyledText>
       </StyledTextWrapper>
     </StyledTooltip>
   );
