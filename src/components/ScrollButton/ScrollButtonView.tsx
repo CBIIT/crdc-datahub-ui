@@ -75,6 +75,7 @@ const ScrollButton = () => {
 
   return (
     <StyledScrollButton
+      data-testid="scroll-top-button"
       type="button"
       ref={clickToTopRef}
       style={
