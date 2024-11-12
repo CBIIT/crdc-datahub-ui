@@ -8,6 +8,9 @@ const StyledLabel = styled(FormLabel)(() => ({
   minHeight: "20px",
   color: "#083A50",
   marginBottom: "4px",
+  "&.Mui-focused": {
+    color: "#083A50",
+  },
 }));
 
 export default StyledLabel;
