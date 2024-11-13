@@ -78,6 +78,9 @@ const StyledSelect = styled(Select, {
     boxShadow:
       "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
   },
+  "&.Mui-focused .MuiOutlinedInput-input:focus": {
+    borderRadius: "8px",
+  },
   // Border error
   "&.Mui-error fieldset": {
     borderColor: "#D54309 !important",

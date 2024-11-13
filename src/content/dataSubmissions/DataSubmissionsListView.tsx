@@ -10,10 +10,6 @@ import { FormatDate } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import CreateDataSubmissionDialog from "../../components/DataSubmissions/CreateDataSubmissionDialog";
-import {
-  Status as OrgStatus,
-  useOrganizationListContext,
-} from "../../components/Contexts/OrganizationListContext";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { LIST_SUBMISSIONS, ListSubmissionsInput, ListSubmissionsResp } from "../../graphql";
 import TruncatedText from "../../components/TruncatedText";
@@ -230,7 +226,6 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { status: authStatus } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { status: orgStatus, activeOrganizations } = useOrganizationListContext();
   // Only org owners/submitters with organizations assigned can create data submissions
 
   const { columnVisibilityModel, setColumnVisibilityModel, visibleColumns } = useColumnVisibility<
@@ -244,6 +239,7 @@ const ListingView: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
+  const [organizations, setOrganizations] = useState<Pick<Organization, "_id" | "name">[]>([]);
   const [submitterNames, setSubmitterNames] = useState<string[]>([]);
   const [dataCommons, setDataCommons] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
@@ -270,7 +266,7 @@ const ListingView: FC = () => {
     try {
       setLoading(true);
 
-      if (!activeOrganizations?.length || !filtersRef.current) {
+      if (!filtersRef.current) {
         return;
       }
 
@@ -304,6 +300,11 @@ const ListingView: FC = () => {
       }
 
       setData(d.listSubmissions.submissions);
+      setOrganizations(
+        d.listSubmissions.organizations
+          ?.filter((org) => !!org.name.trim())
+          ?.sort((a, b) => a.name?.localeCompare(b.name))
+      );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
@@ -319,10 +320,6 @@ const ListingView: FC = () => {
   };
 
   const handleOnCreateSubmission = async () => {
-    if (!activeOrganizations?.length) {
-      return;
-    }
-
     try {
       setLoading(true);
 
@@ -331,6 +328,13 @@ const ListingView: FC = () => {
         throw new Error("Unable to retrieve Data Submission List results.");
       }
       setData(d.listSubmissions.submissions);
+      setOrganizations(
+        d.listSubmissions.organizations
+          ?.filter((org) => !!org.name.trim())
+          ?.sort((a, b) => a.name?.localeCompare(b.name))
+      );
+      setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
+      setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
     } catch (err) {
       setError(true);
@@ -376,6 +380,7 @@ const ListingView: FC = () => {
         <StyledFilterTableWrapper>
           <DataSubmissionListFilters
             columns={columns}
+            organizations={organizations}
             submitterNames={submitterNames}
             dataCommons={dataCommons}
             columnVisibilityModel={columnVisibilityModel}
@@ -388,9 +393,7 @@ const ListingView: FC = () => {
             columns={visibleColumns}
             data={data || []}
             total={totalData || 0}
-            loading={
-              loading || orgStatus === OrgStatus.LOADING || authStatus === AuthStatus.LOADING
-            }
+            loading={loading || authStatus === AuthStatus.LOADING}
             defaultRowsPerPage={20}
             defaultOrder="desc"
             disableUrlParams={false}

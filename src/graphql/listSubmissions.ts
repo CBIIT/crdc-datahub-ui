@@ -46,6 +46,10 @@ export const query = gql`
         updatedAt
         intention
       }
+      organizations {
+        _id
+        name
+      }
       submitterNames
       dataCommons
     }
@@ -69,6 +73,7 @@ export type Response = {
   listSubmissions: {
     total: number;
     submissions: Omit<Submission, "submitterID" | "bucketName" | "rootPath" | "history">[];
+    organizations: Pick<Organization, "_id" | "name">[];
     submitterNames: string[];
     dataCommons: string[];
   };
