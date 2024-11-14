@@ -15,7 +15,7 @@ export const query = gql`
 `;
 
 export type Input = {
-  cdeInfo: CDEInfo[];
+  cdeInfo: Pick<CDEInfo, "CDECode" | "CDEVersion">[];
 };
 
 export type Response = {
