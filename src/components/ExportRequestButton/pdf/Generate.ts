@@ -75,12 +75,17 @@ const writeHeader = (doc: JsPDF, request: Application): number => {
   doc.text("STUDY NAME", CONTENT_MARGIN, y);
 
   const formattedName = formatFullStudyName(study?.name, study?.abbreviation);
-  const splitName = doc.splitTextToSize(formattedName, RIGHT_EDGE - CONTENT_MARGIN);
+  const maxNameWidth = RIGHT_EDGE - CONTENT_MARGIN - 85;
   doc.setFont("Nunito", "normal", 400);
   doc.setFontSize(12);
   doc.setTextColor(...COLOR_FIELD_BASE);
-  doc.text(splitName, CONTENT_MARGIN + 85, y);
-  y += splitName.length * 8 + 10;
+  doc.text(formattedName, CONTENT_MARGIN + 85, y, {
+    // NOTE – Take the full width of the page and subtract the margins/offsets
+    maxWidth: maxNameWidth,
+  });
+
+  const computedNameLines = doc.splitTextToSize(formattedName, maxNameWidth);
+  y += (computedNameLines?.length || 1) * 8 + 11;
 
   // Submitted Date
   doc.setFont("Nunito", "normal", 600);

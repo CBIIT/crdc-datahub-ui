@@ -63,9 +63,6 @@ export type { Response as UpdateBatchResp } from "./updateBatch";
 export { query as LIST_BATCHES } from "./listBatches";
 export type { Input as ListBatchesInput, Response as ListBatchesResp } from "./listBatches";
 
-export { query as LIST_LOGS } from "./listLogs";
-export type { Response as ListLogsResp } from "./listLogs";
-
 export { query as SUBMISSION_QC_RESULTS } from "./submissionQCResults";
 export type { Response as SubmissionQCResultsResp } from "./submissionQCResults";
 
@@ -108,12 +105,6 @@ export type {
   Input as SubmissionStatsInput,
   Response as SubmissionStatsResp,
 } from "./submissionStats";
-
-export { mutation as DELETE_ORPHANED_FILE } from "./deleteOrphanedFile";
-export type { Response as DeleteOrphanedFileResp } from "./deleteOrphanedFile";
-
-export { mutation as DELETE_ALL_ORPHANED_FILES } from "./deleteAllOrphanedFiles";
-export type { Response as DeleteAllOrphanedFilesResp } from "./deleteAllOrphanedFiles";
 
 export { mutation as DELETE_DATA_RECORDS } from "./deleteDataRecords";
 export type {

@@ -1,5 +1,5 @@
 import { FC, memo } from "react";
-import { styled } from "@mui/material";
+import { styled, SxProps } from "@mui/material";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledText = styled("span")(() => ({
@@ -11,18 +11,15 @@ const StyledText = styled("span")(() => ({
 }));
 
 const StyledTextWrapper = styled("span", {
-  shouldForwardProp: (p) => p !== "truncated" && p !== "underline" && p !== "styles",
-})<{ truncated: boolean; underline: boolean; styles: React.CSSProperties }>(
-  ({ truncated, underline, styles }) => ({
-    display: "block",
-    textDecoration: truncated && underline ? "underline" : "none",
-    textDecorationStyle: "dashed",
-    textUnderlineOffset: "4px",
-    cursor: truncated ? "pointer" : "inherit",
-    width: "fit-content",
-    ...styles,
-  })
-);
+  shouldForwardProp: (p) => p !== "truncated" && p !== "underline",
+})<{ truncated: boolean; underline: boolean }>(({ truncated, underline }) => ({
+  display: "block",
+  textDecoration: truncated && underline ? "underline" : "none",
+  textDecorationStyle: "dashed",
+  textUnderlineOffset: "4px",
+  cursor: truncated ? "pointer" : "inherit",
+  width: "fit-content",
+}));
 
 type Props = {
   /**
@@ -51,9 +48,18 @@ type Props = {
    */
   ellipsis?: boolean;
   /**
+   * A boolean indicating whether or not the user
+   * can hover over the tooltip
+   */
+  disableInteractiveTooltip?: boolean;
+  /**
    * Optional custom styling to apply on the wrapper element
    */
-  wrapperStyles?: React.CSSProperties;
+  wrapperSx?: SxProps;
+  /**
+   * Optional custom styling to apply on the label element
+   */
+  labelSx?: SxProps;
 };
 
 /**
@@ -69,7 +75,9 @@ const TruncatedText: FC<Props> = ({
   maxCharacters = 10,
   underline = true,
   ellipsis = true,
-  wrapperStyles = {},
+  disableInteractiveTooltip = true,
+  wrapperSx,
+  labelSx,
 }: Props) => {
   const isTruncated = text?.length > maxCharacters;
   const displayText = isTruncated
@@ -81,16 +89,18 @@ const TruncatedText: FC<Props> = ({
       placement="top"
       title={tooltipText || text || ""}
       disableHoverListener={!isTruncated}
-      disableInteractive
+      disableInteractive={disableInteractiveTooltip}
       data-testid="truncated-text-tooltip"
     >
       <StyledTextWrapper
         truncated={isTruncated}
         underline={underline}
         data-testid="truncated-text-wrapper"
-        styles={wrapperStyles}
+        sx={wrapperSx}
       >
-        <StyledText data-testid="truncated-text-label">{displayText}</StyledText>
+        <StyledText data-testid="truncated-text-label" sx={labelSx}>
+          {displayText}
+        </StyledText>
       </StyledTextWrapper>
     </StyledTooltip>
   );

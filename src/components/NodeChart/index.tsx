@@ -3,6 +3,8 @@ import { Box, Typography, styled } from "@mui/material";
 import { PieChart, Pie, Label, Cell } from "recharts";
 import { isEqual } from "lodash";
 import PieChartCenter from "./PieChartCenter";
+import TruncatedText from "../TruncatedText";
+import { capitalizeFirstLetter, titleCase } from "../../utils";
 
 type Props = {
   /**
@@ -21,14 +23,10 @@ type Props = {
 
 const StyledPieChartLabel = styled(Typography)({
   color: "#3D4551",
-  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   fontSize: "20px",
   fontWeight: 600,
   lineHeight: "21px",
-  textTransform: "capitalize",
   marginBottom: "12px",
-  textAlign: "center",
-  alignSelf: "center",
   userSelect: "none",
 });
 
@@ -53,16 +51,38 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
   const [hoveredSlice, setHoveredSlice] = useState<PieSectorDataItem>(null);
 
   const dataset: PieSectorDataItem[] = useMemo(() => data.filter(({ value }) => value > 0), [data]);
-  const onMouseOver = useCallback((data) => setHoveredSlice(data), []);
-  const onMouseLeave = useCallback(() => setHoveredSlice(null), []);
+
   const showDefaultCenter: boolean = useMemo(
     () => (dataset.length === 0 && hoveredSlice === null) || hoveredSlice?.value === 0,
     [dataset, hoveredSlice]
   );
 
+  const reformattedLabel = useMemo<string>(() => {
+    const replacedLabel = label?.replace(/_/g, " ") || "";
+
+    // If the label has no spaces, capitalize the first letter to avoid
+    // titleCase from performing a full title case conversion
+    if (replacedLabel?.indexOf(" ") === -1) {
+      return capitalizeFirstLetter(replacedLabel);
+    }
+
+    return titleCase(replacedLabel);
+  }, [label]);
+
+  const onMouseOver = useCallback((data) => setHoveredSlice(data), []);
+  const onMouseLeave = useCallback(() => setHoveredSlice(null), []);
+
   return (
     <StyledChartContainer>
-      {label && <StyledPieChartLabel>{label.replace(/_/g, " ")}</StyledPieChartLabel>}
+      {reformattedLabel && (
+        <StyledPieChartLabel>
+          <TruncatedText
+            text={reformattedLabel}
+            wrapperSx={{ margin: "0 auto" }}
+            maxCharacters={14}
+          />
+        </StyledPieChartLabel>
+      )}
       <PieChart width={150} height={150}>
         <Pie
           data={[{ value: 100 }]}
