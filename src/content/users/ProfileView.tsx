@@ -383,7 +383,11 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 <StyledLabel id="firstNameLabel">First name</StyledLabel>
                 {visibleFieldState.includes(fieldset.firstName) ? (
                   <StyledTextField
-                    {...register("firstName", { required: true, maxLength: 30 })}
+                    {...register("firstName", {
+                      required: true,
+                      maxLength: 30,
+                      setValueAs: (v: string) => v?.trim(),
+                    })}
                     inputProps={{ "aria-labelledby": "firstNameLabel", maxLength: 30 }}
                     size="small"
                     required
@@ -396,7 +400,11 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 <StyledLabel id="lastNameLabel">Last name</StyledLabel>
                 {visibleFieldState.includes(fieldset.lastName) ? (
                   <StyledTextField
-                    {...register("lastName", { required: true, maxLength: 30 })}
+                    {...register("lastName", {
+                      required: true,
+                      maxLength: 30,
+                      setValueAs: (v: string) => v?.trim(),
+                    })}
                     inputProps={{ "aria-labelledby": "lastNameLabel", maxLength: 30 }}
                     size="small"
                     required
