@@ -356,7 +356,7 @@ const HistoryDialog = <T extends string>({
                   <TruncatedText
                     text={name}
                     maxCharacters={14}
-                    wrapperStyles={{
+                    wrapperSx={{
                       ...BaseItemTypographyStyles,
                       margin: "0 auto",
                       color: nameColor,

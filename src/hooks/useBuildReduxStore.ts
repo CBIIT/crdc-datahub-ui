@@ -102,7 +102,7 @@ const useBuildReduxStore = (): ReduxStoreResult => {
       try {
         const CDEs = await retrieveCDEs({
           variables: {
-            cdeInfo,
+            cdeInfo: cdeInfo.map(({ CDECode, CDEVersion }) => ({ CDECode, CDEVersion })),
           },
         });
 
