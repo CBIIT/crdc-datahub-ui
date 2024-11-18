@@ -35,6 +35,12 @@ export type { Response as ListInstitutionsResp } from "./listInstitutions";
 export { query as RETRIEVE_CDEs } from "./retrieveCDEs";
 export type { Response as RetrieveCDEsResp, Input as RetrieveCDEsInput } from "./retrieveCDEs";
 
+export { query as LIST_APPLICATIONS } from "./listApplications";
+export type {
+  Response as ListApplicationsResp,
+  Input as ListApplicationsInput,
+} from "./listApplications";
+
 // Data Submissions
 export { mutation as CREATE_SUBMISSION } from "./createSubmission";
 export type {
