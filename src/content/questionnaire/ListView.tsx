@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from "react";
+import React, { FC, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -6,35 +6,32 @@ import {
   Button,
   Stack,
   styled,
-  Table,
-  TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
-  Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { useMutation, useQuery } from "@apollo/client";
-import { query, Response } from "../../graphql/listApplications";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import PageBanner from "../../components/PageBanner";
 import { FormatDate } from "../../utils";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
-import { SAVE_APP, SaveAppInput, SaveAppResp } from "../../graphql";
-import SuspenseLoader from "../../components/SuspenseLoader";
+import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
+import {
+  LIST_APPLICATIONS,
+  ListApplicationsInput,
+  ListApplicationsResp,
+  SAVE_APP,
+  SaveAppInput,
+  SaveAppResp,
+} from "../../graphql";
 import usePageTitle from "../../hooks/usePageTitle";
+import GenericTable, { Column } from "../../components/GenericTable";
+import QuestionnaireContext from "./Contexts/QuestionnaireContext";
+import TruncatedText from "../../components/TruncatedText";
+import { CanCreateSubmissionRequest } from "../../config/AuthRoles";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 
 type T = Omit<Application, "questionnaireData">;
-
-type Column = {
-  label: string;
-  value: (a: T, user: User) => React.ReactNode;
-  field?: string;
-  default?: true;
-};
 
 const StyledButton = styled(LoadingButton)({
   padding: "14px 20px",
@@ -111,78 +108,117 @@ const StyledActionButton = styled(Button)(
   })
 );
 
-const columns: Column[] = [
+const StyledDateTooltip = styled(StyledTooltip)(() => ({
+  cursor: "pointer",
+}));
+
+const columns: Column<T>[] = [
   {
     label: "Submitter Name",
-    value: (a) => a.applicant?.applicantName,
-    field: "applicant.applicantName",
+    renderValue: (a) => <TruncatedText text={a.applicant?.applicantName} />,
+    fieldKey: "applicant.applicantName",
   },
   {
     label: "Organization",
-    value: (a) => a?.organization?.name,
-    field: "organization.name",
+    renderValue: (a) => <TruncatedText text={a?.organization?.name} />,
+    fieldKey: "organization.name",
   },
   {
     label: "Study",
-    value: (a) => a.studyAbbreviation || "NA",
+    renderValue: (a) => (
+      <TruncatedText text={a.studyAbbreviation || "NA"} disableInteractiveTooltip={false} />
+    ),
     field: "studyAbbreviation",
   },
   {
     label: "Program",
-    value: (a) => a.programName || "NA",
+    renderValue: (a) => (
+      <TruncatedText text={a.programName || "NA"} disableInteractiveTooltip={false} />
+    ),
     field: "programName",
   },
   {
     label: "Status",
-    value: (a) => a.status,
+    renderValue: (a) => a.status,
     field: "status",
+    sx: {
+      width: "104px",
+    },
   },
   {
     label: "Submitted Date",
-    value: (a) => (a.submittedDate ? FormatDate(a.submittedDate, "M/D/YYYY h:mm A") : ""),
+    renderValue: (a) =>
+      a.submittedDate ? (
+        <StyledDateTooltip title={FormatDate(a.submittedDate, "M/D/YYYY h:mm A")} placement="top">
+          <span>{FormatDate(a.submittedDate, "M/D/YYYY")}</span>
+        </StyledDateTooltip>
+      ) : (
+        ""
+      ),
     field: "submittedDate",
     default: true,
+    sx: {
+      width: "161px",
+    },
   },
   {
     label: "Last Updated Date",
-    value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
+    renderValue: (a) =>
+      a.updatedAt ? (
+        <StyledDateTooltip title={FormatDate(a.updatedAt, "M/D/YYYY h:mm A")} placement="top">
+          <span>{FormatDate(a.updatedAt, "M/D/YYYY")}</span>
+        </StyledDateTooltip>
+      ) : (
+        ""
+      ),
     field: "updatedAt",
+    sx: {
+      width: "181px",
+    },
   },
   {
     label: "Action",
-    value: (a, user) => {
-      const role = user?.role;
+    renderValue: (a) => (
+      <QuestionnaireContext.Consumer>
+        {({ user }) => {
+          const role = user?.role;
 
-      if (
-        (role === "User" || role === "Submitter" || role === "Organization Owner") &&
-        a.applicant?.applicantID === user._id &&
-        ["New", "In Progress", "Inquired"].includes(a.status)
-      ) {
-        return (
-          <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-            <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
-              Resume
-            </StyledActionButton>
-          </Link>
-        );
-      }
-      if (role === "Federal Lead" && ["Submitted", "In Review"].includes(a.status)) {
-        return (
-          <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-            <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">
-              Review
-            </StyledActionButton>
-          </Link>
-        );
-      }
+          if (
+            (role === "User" || role === "Submitter" || role === "Organization Owner") &&
+            a.applicant?.applicantID === user._id &&
+            ["New", "In Progress", "Inquired"].includes(a.status)
+          ) {
+            return (
+              <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
+                <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
+                  Resume
+                </StyledActionButton>
+              </Link>
+            );
+          }
+          if (role === "Federal Lead" && ["Submitted", "In Review"].includes(a.status)) {
+            return (
+              <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
+                <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">
+                  Review
+                </StyledActionButton>
+              </Link>
+            );
+          }
 
-      return (
-        <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-          <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
-            View
-          </StyledActionButton>
-        </Link>
-      );
+          return (
+            <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
+              <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
+                View
+              </StyledActionButton>
+            </Link>
+          );
+        }}
+      </QuestionnaireContext.Consumer>
+    ),
+    sortDisabled: true,
+    sx: {
+      width: "140px",
     },
   },
 ];
@@ -197,47 +233,26 @@ const ListingView: FC = () => {
 
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { user } = useAuthContext();
+  const { user, status: authStatus } = useAuthContext();
 
-  const [order, setOrder] = useState<"asc" | "desc">("desc");
-  const [orderBy, setOrderBy] = useState<Column>(
-    columns.find((c) => c.default) || columns.find((c) => c.field)
-  );
-  const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(10);
   const [creatingApplication, setCreatingApplication] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const [data, setData] = useState<ListApplicationsResp["listApplications"]>(null);
 
-  const { data, loading, error } = useQuery<Response>(query, {
-    variables: {
-      first: perPage,
-      offset: page * perPage,
-      sortDirection: order.toUpperCase(),
-      orderBy: orderBy.field,
-    },
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  const tableRef = useRef<TableMethods>(null);
+
+  const [listApplications] = useLazyQuery<ListApplicationsResp, ListApplicationsInput>(
+    LIST_APPLICATIONS,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
   const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
-
-  // eslint-disable-next-line arrow-body-style
-  const emptyRows = useMemo(() => {
-    return page > 0 && data?.listApplications?.total
-      ? Math.max(0, (1 + page) * perPage - (data?.listApplications?.total || 0))
-      : 0;
-  }, [data]);
-
-  const handleRequestSort = (column: Column) => {
-    setOrder(orderBy === column && order === "asc" ? "desc" : "asc");
-    setOrderBy(column);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   const createApp = async () => {
     setCreatingApplication(true);
@@ -273,6 +288,35 @@ const ListingView: FC = () => {
     });
   };
 
+  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
+    const { first, offset, sortDirection, orderBy } = fetchListing || {};
+    try {
+      setLoading(true);
+
+      const { data: d, error } = await listApplications({
+        variables: {
+          first,
+          offset,
+          sortDirection,
+          orderBy,
+        },
+        context: { clientName: "backend" },
+        fetchPolicy: "no-cache",
+      });
+      if (error || !d?.listApplications) {
+        throw new Error("Unable to retrieve Data Submission List results.");
+      }
+
+      setData(d.listApplications);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const providerValue = useMemo(() => ({ user }), [user]);
+
   return (
     <>
       <PageBanner
@@ -281,9 +325,7 @@ const ListingView: FC = () => {
         padding="57px 0 0 25px"
         body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
-            {(user?.role === "User" ||
-              user?.role === "Submitter" ||
-              user?.role === "Organization Owner") && (
+            {CanCreateSubmissionRequest.includes(user?.role) && (
               <StyledButton type="button" onClick={createApp} loading={creatingApplication}>
                 Start a Submission Request
               </StyledButton>
@@ -301,86 +343,31 @@ const ListingView: FC = () => {
         )}
 
         <StyledTableContainer>
-          <Table>
-            <StyledTableHead>
-              <TableRow>
-                {columns.map((col: Column) => (
-                  <StyledHeaderCell key={col.label}>
-                    {col.field ? (
-                      <TableSortLabel
-                        active={orderBy === col}
-                        direction={orderBy === col ? order : "asc"}
-                        onClick={() => handleRequestSort(col)}
-                      >
-                        {col.label}
-                      </TableSortLabel>
-                    ) : (
-                      col.label
-                    )}
-                  </StyledHeaderCell>
-                ))}
-              </TableRow>
-            </StyledTableHead>
-            <TableBody>
-              {loading && (
-                <TableRow>
-                  <TableCell>
-                    <SuspenseLoader fullscreen={false} />
-                  </TableCell>
-                </TableRow>
-              )}
-              {data?.listApplications?.applications?.map((d: T) => (
-                <TableRow tabIndex={-1} hover key={d["_id"]}>
-                  {columns.map((col: Column) => (
-                    <StyledTableCell key={`${d["_id"]}_${col.label}`}>
-                      {col.value(d, user)}
-                    </StyledTableCell>
-                  ))}
-                </TableRow>
-              ))}
-
-              {/* Fill the difference between perPage and count to prevent height changes */}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={columns.length} />
-                </TableRow>
-              )}
-
-              {/* No content message */}
-              {(!data?.listApplications?.total || data?.listApplications?.total === 0) && (
-                <TableRow style={{ height: 53 * 10 }}>
-                  <TableCell colSpan={columns.length}>
-                    <Typography variant="h6" align="center" fontSize={18} color="#757575">
-                      There are no submission requests associated with your account
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 20, 50]}
-            component="div"
-            count={data?.listApplications?.total || 0}
-            rowsPerPage={perPage}
-            page={page}
-            onPageChange={(e, newPage) => setPage(newPage)}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{
-              disabled:
-                perPage === -1 ||
-                !data?.listApplications ||
-                data?.listApplications?.total === 0 ||
-                data?.listApplications?.total <= (page + 1) * perPage ||
-                emptyRows > 0 ||
-                loading,
-            }}
-            SelectProps={{
-              inputProps: { "aria-label": "rows per page" },
-              native: true,
-            }}
-            backIconButtonProps={{ disabled: page === 0 || loading }}
-          />
+          <QuestionnaireContext.Provider value={providerValue}>
+            <GenericTable
+              ref={tableRef}
+              columns={columns}
+              data={data?.applications || []}
+              total={data?.total || 0}
+              loading={loading || authStatus === AuthStatus.LOADING}
+              defaultRowsPerPage={20}
+              defaultOrder="desc"
+              position="bottom"
+              noContentText="There are no submission requests associated with your account"
+              onFetchData={handleFetchData}
+              containerProps={{
+                sx: {
+                  marginBottom: "8px",
+                  border: 0,
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 0,
+                },
+              }}
+              CustomTableHead={StyledTableHead}
+              CustomTableHeaderCell={StyledHeaderCell}
+              CustomTableBodyCell={StyledTableCell}
+            />
+          </QuestionnaireContext.Provider>
         </StyledTableContainer>
       </StyledContainer>
     </>
