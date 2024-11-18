@@ -221,9 +221,21 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
       return;
     }
 
-    const potentialCollaborator = potentialCollaborators.find(
+    let potentialCollaborator = potentialCollaborators.find(
       (pc) => pc.collaboratorID === newCollaborator?.collaboratorID
     );
+
+    const existingCollaborator = currentCollaborators.find(
+      (c) => c.collaboratorID === newCollaborator?.collaboratorID
+    );
+
+    if (!potentialCollaborator?.collaboratorID && existingCollaborator?.collaboratorID) {
+      Logger.error(
+        `CollaboratorsContext: The collaborator ${newCollaborator?.collaboratorID} is no longer a valid potential collaborator. Using existing collaborator instead.`,
+        existingCollaborator
+      );
+      potentialCollaborator = { ...existingCollaborator };
+    }
 
     setCurrentCollaborators((prevCollaborators) => {
       const collaboratorsClone = [...prevCollaborators];
