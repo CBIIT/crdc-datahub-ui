@@ -4,7 +4,6 @@ import { HelmetProvider } from "react-helmet-async";
 import { ApolloProvider } from "@apollo/client";
 import App from "./App";
 import client from "./client";
-import * as serviceWorker from "./serviceWorker";
 import { AuthProvider } from "./components/Contexts/AuthContext";
 import { AnalyticsProvider } from "./components/Contexts/AnalyticsContext";
 import env from "./env";
@@ -28,5 +27,3 @@ root.render(
     </ApolloProvider>
   </React.StrictMode>
 );
-
-serviceWorker.unregister();
