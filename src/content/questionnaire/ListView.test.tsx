@@ -163,7 +163,7 @@ describe("ListView Component", () => {
     "fake-role" as UserRole,
   ])("should not show the 'Start a Submission Request' button for '%s' role", (role) => {
     const { queryByText } = render(
-      <TestParent role={"fake-role" as UserRole}>
+      <TestParent role={role}>
         <ListView />
       </TestParent>
     );
