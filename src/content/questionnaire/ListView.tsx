@@ -184,7 +184,7 @@ const columns: Column<T>[] = [
           const role = user?.role;
 
           if (
-            (role === "User" || role === "Submitter" || role === "Organization Owner") &&
+            CanCreateSubmissionRequest.includes(role) &&
             a.applicant?.applicantID === user._id &&
             ["New", "In Progress", "Inquired"].includes(a.status)
           ) {
