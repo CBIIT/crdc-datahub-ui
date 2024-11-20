@@ -220,3 +220,13 @@ export const formatName = (firstName?: string, lastName?: string): string => {
   }
   return "";
 };
+
+/**
+ * Parses a number of seconds into a string formatted as "mm:ss".
+ *
+ * @note Supports a maximum of 59 minutes and 59 seconds.
+ * @param seconds The number of seconds to convert.
+ * @returns A string formatted as "mm:ss".
+ */
+export const secondsToMinuteString = (seconds: number) =>
+  new Date(seconds * 1000).toISOString().substring(14, 19);
