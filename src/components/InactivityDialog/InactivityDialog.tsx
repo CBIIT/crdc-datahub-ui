@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { Logger, secondsToMinuteString } from "../../utils";
+import CloseIcon from "../../assets/icons/close_icon.svg";
 
 const InactivityWarningDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -244,11 +245,7 @@ const InactivityDialog = () => {
               }
             }}
           >
-            <img
-              style={{ height: 10, marginBottom: 2 }}
-              src="https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/LocalFindCaseDeleteIcon.svg"
-              alt="close icon"
-            />
+            <img style={{ height: 10, marginBottom: 2 }} src={CloseIcon} alt="close icon" />
           </div>
         </DialogTitle>
         <SessionTimeoutContent>
