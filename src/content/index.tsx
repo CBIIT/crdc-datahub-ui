@@ -1,7 +1,7 @@
 import React, { FC, useState, useEffect } from "react";
 import { Dialog, styled } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
-import background from "../assets/loginPage/background.png";
+import background from "../assets/banner/login_banner.webp";
 import { useAuthContext } from "../components/Contexts/AuthContext";
 
 const LoginDialog = styled(Dialog)({
