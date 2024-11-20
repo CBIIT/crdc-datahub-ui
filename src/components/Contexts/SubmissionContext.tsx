@@ -147,7 +147,7 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     if (isPolling) {
       return SubmissionCtxStatus.POLLING;
     }
-    if (loading) {
+    if (loading && !data) {
       return SubmissionCtxStatus.LOADING;
     }
 
