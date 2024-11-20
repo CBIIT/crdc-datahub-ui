@@ -29,6 +29,13 @@ export const query = gql`
   }
 `;
 
+export type Input = {
+  first: number;
+  offset: number;
+  orderBy: string;
+  sortDirection: Order;
+};
+
 export type Response = {
   listApplications: {
     total: number;
