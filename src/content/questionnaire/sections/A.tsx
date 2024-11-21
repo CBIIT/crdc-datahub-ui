@@ -91,6 +91,9 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.primaryContact = null;
     }
 
+    // TODO: Remove in 3.2.0
+    combinedData.pi.ORCID = "";
+
     return { ref: formRef, data: combinedData };
   };
 
