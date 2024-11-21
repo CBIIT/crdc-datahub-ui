@@ -182,10 +182,6 @@ const StyledField = styled("div")({
   flexDirection: "column",
 });
 
-const StyledOrganizationField = styled(StyledField)({
-  marginBottom: "25px",
-});
-
 const StyledHelperText = styled(BaseStyledHelperText)({
   marginTop: "5px",
 });
@@ -441,14 +437,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     {errors?.intention?.message}
                   </StyledHelperText>
                 </StyledField>
-                <StyledOrganizationField>
-                  <StyledLabel id="organization">Organization</StyledLabel>
-                  <StyledOutlinedInput
-                    value={user?.organization?.orgName}
-                    inputProps={{ "aria-labelledby": "organization" }}
-                    readOnly
-                  />
-                </StyledOrganizationField>
                 <StyledField>
                   <StyledLabel id="dataCommons">
                     Data Commons

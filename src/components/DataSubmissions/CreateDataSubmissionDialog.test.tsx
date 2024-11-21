@@ -18,7 +18,6 @@ import {
   ListApprovedStudiesOfMyOrgResp,
   ListOrgsResp,
 } from "../../graphql";
-import { OrganizationProvider } from "../Contexts/OrganizationListContext";
 
 const listApprovedStudiesOfMyOrgMocks: MockedResponse<ListApprovedStudiesOfMyOrgResp>[] = [
   {
@@ -153,9 +152,7 @@ const TestParent: FC<ParentProps> = ({
 }) => (
   <AuthCtx.Provider value={authCtxState}>
     <MockedProvider mocks={mocks} addTypename={false}>
-      <OrganizationProvider preload>
-        <MemoryRouter>{children}</MemoryRouter>
-      </OrganizationProvider>
+      <MemoryRouter>{children}</MemoryRouter>
     </MockedProvider>
   </AuthCtx.Provider>
 );
@@ -189,7 +186,6 @@ describe("Basic Functionality", () => {
       ).toBeInTheDocument();
       expect(getByText("Submission Type")).toBeInTheDocument();
       expect(getByText("Data Type")).toBeInTheDocument();
-      expect(getByText("Organization")).toBeInTheDocument();
       expect(getByText("Data Commons")).toBeInTheDocument();
       expect(getByText("Study")).toBeInTheDocument();
       expect(getByText("dbGaP ID")).toBeInTheDocument();

@@ -2,7 +2,6 @@ import gql from "graphql-tag";
 
 export const query = gql`
   query listSubmissions(
-    $organization: String
     $status: String
     $dataCommons: String
     $name: String
@@ -14,7 +13,6 @@ export const query = gql`
     $sortDirection: String
   ) {
     listSubmissions(
-      organization: $organization
       status: $status
       dataCommons: $dataCommons
       name: $name
@@ -42,10 +40,6 @@ export const query = gql`
         updatedAt
         intention
       }
-      organizations {
-        _id
-        name
-      }
       submitterNames
       dataCommons
     }
@@ -53,7 +47,6 @@ export const query = gql`
 `;
 
 export type Input = {
-  organization?: string;
   status?: SubmissionStatus | "All";
   dataCommons?: string;
   name?: string;
@@ -72,7 +65,6 @@ export type Response = {
       Submission,
       "submitterID" | "bucketName" | "rootPath" | "history" | "organization"
     >[];
-    organizations: Pick<Organization, "_id" | "name">[];
     submitterNames: string[];
     dataCommons: string[];
   };
