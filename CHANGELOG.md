@@ -2,20 +2,17 @@
 
 ## 3.1.0 (Released 12/20/2024)
 
-- Integration with CDE/caDSR
-- Validate metadata against CDE Permissible Values
-- Data Hub Operations Dashboard using QuickSight
-- Support Uploader CLI binary distribution downloads
-- Support for CCDI Data Models and Submissions
-- Automated archiving of data submissions
-- CRDC_ID uniqueness identification in Data Hub
-- New Fed Monitor Role added
-- Support for the Standard MDF Model
-- Admin tool to manage studies
-- Uploader CLI bucket-to-bucket data upload
-- Make Data curators to be Data Commons associated
-- Collaborator support for data submissions
-- Submitter/Org Owner can request access
+- **CDE/caDSR Integration:** Submitted metadata is now validated against Common Data Element (CDE) Permissible Values.
+- **Data Hub Operations Dashboard:** Introduced a new dashboard for internal staff to monitor data submissions and operations effectively.
+- **CLI Binary Distribution:** The Uploader CLI now supports binary downloads for quicker setup.
+- **Automated Data Archiving:** All submitted data in Data Submissions are automatically archived upon completion.
+- **CRDC_ID Uniqueness Checks:** Verifies that CRDC_IDs are unique within the Data Hub, preventing duplication.
+- **Federal Monitor Role:** Add a new role for federal staff, allowing them to monitor and oversee data submissions within their assigned studies.
+- **Manage Study Admin Tool:** Administrators can now view, add, and edit registered studies directly within the Data Hub.
+- **Enhanced Data Upload CLI Tool:** The Uploader CLI now supports AWS bucket-to-bucket data uploads.
+- **Data Submission Collaborators:** Submitters can now add collaborators to work on their data submissions.
+- **Data Commons Data Curators:** Data Curators are now associated with specific Data Commons, ensuring they oversee only the data submissions assigned to their respective commons.
+- **Submission Access Requests:** Authenticated users can now request data submission access for their associated studies.
 
 ## 3.0.0 (Released 09/30/2024)
 
