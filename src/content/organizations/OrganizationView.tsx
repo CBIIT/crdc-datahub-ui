@@ -1,23 +1,13 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import {
-  Alert,
-  Box,
-  Container,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  Stack,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Alert, Box, Container, MenuItem, Stack, Typography, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { cloneDeep } from "lodash";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import profileIcon from "../../assets/icons/organization.svg";
+import programIcon from "../../assets/icons/program_icon.svg";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import {
   CREATE_ORG,
@@ -38,6 +28,8 @@ import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDia
 import usePageTitle from "../../hooks/usePageTitle";
 import { formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
+import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 
 type Props = {
   /**
@@ -101,39 +93,10 @@ const StyledLabel = styled("span")({
 
 const BaseInputStyling = {
   width: "363px",
-  borderRadius: "8px",
-  backgroundColor: "#fff",
-  color: "#083A50",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "18px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .MuiList-root": {
-    padding: 0,
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
 };
 
-const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
-
-const StyledSelect = styled(Select)(BaseInputStyling);
+const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
+const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
@@ -202,7 +165,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     return Object.keys(activeStudies) || [];
   }, [organization, dataSubmissions]);
 
-  const { handleSubmit, register, reset, control } = useForm<FormInput>();
+  const {
+    handleSubmit,
+    register,
+    reset,
+    formState: { errors },
+    control,
+  } = useForm<FormInput>();
   const editableFields: (keyof FormInput)[] = ["name", "conciergeID", "studies", "status"];
 
   const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
@@ -342,6 +311,8 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       setFormValues(
         {
           name: "",
+          abbreviation: "",
+          description: "",
           conciergeID: "",
           studies: [],
           status: "Active",
@@ -391,7 +362,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       <StyledContainer maxWidth="lg">
         <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
           <StyledProfileIcon>
-            <img src={profileIcon} alt="program icon" />
+            <img src={programIcon} alt="program icon" />
           </StyledProfileIcon>
 
           <StyledContentStack
@@ -420,8 +391,28 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 <StyledTextField
                   {...register("name", { required: true })}
                   size="small"
-                  required
                   inputProps={{ "aria-labelledby": "organizationName" }}
+                  error={!!errors.name}
+                  required
+                />
+              </StyledField>
+              <StyledField>
+                <StyledLabel id="abbreviationLabel">Abbreviation</StyledLabel>
+                <StyledTextField
+                  {...register("abbreviation", { required: true })}
+                  size="small"
+                  inputProps={{ "aria-labelledby": "abbreviationLabel" }}
+                  error={!!errors.abbreviation}
+                  required
+                />
+              </StyledField>
+              <StyledField>
+                <StyledLabel id="descriptionLabel">Description</StyledLabel>
+                <StyledTextField
+                  {...register("description", { required: false })}
+                  size="small"
+                  inputProps={{ "aria-labelledby": "descriptionLabel" }}
+                  error={!!errors.description}
                 />
               </StyledField>
               <StyledField>
@@ -444,6 +435,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                         inputProps={{
                           "aria-labelledby": "primaryContactLabel",
                         }}
+                        error={!!errors.conciergeID}
                       >
                         <MenuItem value={null}>{"<Not Set>"}</MenuItem>
                         {activeCurators?.listActiveCurators?.map(
@@ -470,6 +462,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       value={field.value || []}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{ "aria-labelledby": "studiesLabel" }}
+                      error={!!errors.studies}
                       multiple
                     >
                       {approvedStudies?.listApprovedStudies?.studies?.map(
@@ -496,6 +489,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       disabled={_id === "new"}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{ "aria-labelledby": "statusLabel" }}
+                      error={!!errors.status}
                     >
                       <MenuItem value="Active">Active</MenuItem>
                       <MenuItem value="Inactive">Inactive</MenuItem>

@@ -69,12 +69,11 @@ type ProviderProps = {
 export const OrganizationProvider: FC<ProviderProps> = ({ preload, children }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
-  const { data, loading, error } = preload
-    ? useQuery<ListOrgsResp>(LIST_ORGS, {
-        context: { clientName: "backend" },
-        fetchPolicy: "no-cache",
-      })
-    : { data: null, loading: false, error: null };
+  const { data, loading, error } = useQuery<ListOrgsResp>(LIST_ORGS, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+    skip: !preload,
+  });
 
   useEffect(() => {
     if (loading) {
