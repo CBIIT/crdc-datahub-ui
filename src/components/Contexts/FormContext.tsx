@@ -423,6 +423,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         };
       }
 
+      // TODO: Remove in 3.2.0
+      questionnaireData.pi.ORCID = "";
+
       setState({
         status: Status.LOADED,
         data: {
