@@ -184,7 +184,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
-  const manageOrgPageUrl = `/organizations${lastSearchParams?.["/organizations"] ?? ""}`;
+  const manageOrgPageUrl = `/programs${lastSearchParams?.["/programs"] ?? ""}`;
 
   const assignedStudies: string[] = useMemo(() => {
     const activeStudies = {};
@@ -272,13 +272,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       setSaving(false);
 
       if (errors || !d?.createOrganization?._id) {
-        setError(errors || "Unable to create organization");
+        setError(errors || "Unable to create program");
         return;
       }
 
       setOrganization(null);
       setDataSubmissions(null);
-      enqueueSnackbar("This organization has been successfully added.", {
+      enqueueSnackbar("This program has been successfully added.", {
         variant: "default",
       });
       reset();
@@ -357,7 +357,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       });
       if (error || !data?.getOrganization) {
         navigate(manageOrgPageUrl, {
-          state: { error: "Unable to fetch organization" },
+          state: { error: "Unable to fetch program" },
         });
         return;
       }
@@ -391,7 +391,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       <StyledContainer maxWidth="lg">
         <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
           <StyledProfileIcon>
-            <img src={profileIcon} alt="organization icon" />
+            <img src={profileIcon} alt="program icon" />
           </StyledProfileIcon>
 
           <StyledContentStack
@@ -402,7 +402,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
           >
             <StyledTitleBox>
               <StyledPageTitle variant="h1">
-                {_id !== "new" ? "Edit" : "Add"} Organization
+                {_id !== "new" ? "Edit" : "Add"} Program
               </StyledPageTitle>
             </StyledTitleBox>
 
@@ -415,7 +415,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
               <StyledField>
                 <StyledLabel id="organizationName">
-                  {_id !== "new" ? "Organization" : "Name"}
+                  {_id !== "new" ? "Program" : "Name"}
                 </StyledLabel>
                 <StyledTextField
                   {...register("name", { required: true })}

@@ -178,9 +178,9 @@ const Header = () => {
   }
   if (user?.role === "Admin") {
     navbarSublists[displayName].splice(1, 0, {
-      name: "Manage Organizations",
-      link: "/organizations",
-      id: "navbar-dropdown-item-organization-manage",
+      name: "Manage Programs",
+      link: "/programs",
+      id: "navbar-dropdown-item-program-manage",
       className: "navMobileSubItem",
     });
   }

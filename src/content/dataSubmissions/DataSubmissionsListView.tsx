@@ -19,7 +19,7 @@ import DataSubmissionListFilters, {
   FilterForm,
 } from "../../components/DataSubmissions/DataSubmissionListFilters";
 
-type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
+type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
 
 const StyledBannerBody = styled(Stack)({
   marginTop: "-20px",
@@ -140,11 +140,6 @@ const columns: Column<T>[] = [
     },
   },
   {
-    label: "Organization",
-    renderValue: (a) => <TruncatedText text={a.organization.name} />,
-    fieldKey: "organization.name",
-  },
-  {
     label: "Study",
     renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
     field: "studyAbbreviation",
@@ -226,7 +221,6 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { status: authStatus } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
-  // Only org owners/submitters with organizations assigned can create data submissions
 
   const { columnVisibilityModel, setColumnVisibilityModel, visibleColumns } = useColumnVisibility<
     Column<T>

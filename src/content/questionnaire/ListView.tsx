@@ -31,7 +31,7 @@ import TruncatedText from "../../components/TruncatedText";
 import { CanCreateSubmissionRequest } from "../../config/AuthRoles";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 
-type T = Omit<Application, "questionnaireData">;
+type T = ListApplicationsResp["listApplications"]["applications"][number];
 
 const StyledButton = styled(LoadingButton)({
   padding: "14px 20px",
@@ -117,11 +117,6 @@ const columns: Column<T>[] = [
     label: "Submitter Name",
     renderValue: (a) => <TruncatedText text={a.applicant?.applicantName} />,
     fieldKey: "applicant.applicantName",
-  },
-  {
-    label: "Organization",
-    renderValue: (a) => <TruncatedText text={a?.organization?.name} />,
-    fieldKey: "organization.name",
   },
   {
     label: "Study",

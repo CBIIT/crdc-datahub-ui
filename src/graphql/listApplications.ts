@@ -21,9 +21,6 @@ export const query = gql`
           applicantName
           applicantID
         }
-        organization {
-          name
-        }
       }
     }
   }
@@ -39,6 +36,6 @@ export type Input = {
 export type Response = {
   listApplications: {
     total: number;
-    applications: Omit<Application, "questionnaireData">[];
+    applications: Omit<Application, "questionnaireData" | "organization">[];
   };
 };
