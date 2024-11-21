@@ -44,7 +44,10 @@ const StyledTableContainer = styled(TableContainer)({
   marginBottom: "25px",
   position: "relative",
   overflow: "hidden",
-  "& .MuiTableRow-root:nth-of-type(2n)": {
+  "& .MuiTableBody-root .MuiTableRow-root:nth-of-type(odd)": {
+    background: "#FFF",
+  },
+  "& .MuiTableBody-root .MuiTableRow-root:nth-of-type(even)": {
     background: "#E3EEF9",
   },
   "& .MuiTableCell-root:first-of-type": {
