@@ -13,6 +13,7 @@ import {
 import { LoadingButton } from "@mui/lab";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
+import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
 import PageBanner from "../../components/PageBanner";
 import { FormatDate } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
@@ -30,6 +31,7 @@ import QuestionnaireContext from "./Contexts/QuestionnaireContext";
 import TruncatedText from "../../components/TruncatedText";
 import { CanCreateSubmissionRequest } from "../../config/AuthRoles";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import Tooltip from "../../components/Tooltip";
 
 type T = Omit<Application, "questionnaireData">;
 
@@ -112,6 +114,11 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
   cursor: "pointer",
 }));
 
+const StyledBellIcon = styled(BellIcon)({
+  width: "18px",
+  marginLeft: "5px",
+});
+
 const columns: Column<T>[] = [
   {
     label: "Submitter Name",
@@ -139,10 +146,29 @@ const columns: Column<T>[] = [
   },
   {
     label: "Status",
-    renderValue: (a) => a.status,
+    renderValue: ({ status, conditional, pendingConditions }) => {
+      if (!conditional || !pendingConditions?.length) {
+        return status;
+      }
+
+      return (
+        <Tooltip
+          title={pendingConditions?.join(", ")}
+          placement="top"
+          open={undefined}
+          disableHoverListener={false}
+          arrow
+        >
+          <Stack direction="row" alignItems="center" color="#D82F00">
+            <span>{status}</span>
+            <StyledBellIcon data-testid="pending-conditions-icon" />
+          </Stack>
+        </Tooltip>
+      );
+    },
     field: "status",
     sx: {
-      width: "104px",
+      width: "124px",
     },
   },
   {
