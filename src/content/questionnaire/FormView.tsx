@@ -144,7 +144,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
     inquireForm,
     rejectForm,
     reopenForm,
-    reviewForm,
     error,
   } = useFormContext();
   const { user, status: authStatus } = useAuthContext();
@@ -172,7 +171,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const formContentRef = useRef(null);
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
-  const hasUpdatedReviewStatusRef = useRef(false);
 
   const refs: FormSectionProps["refs"] = {
     saveFormRef: createRef<HTMLButtonElement>(),
@@ -358,33 +356,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
       navigate("/submissions", {
         state: {
           error: "An error occurred while marking the form as In Progress. Please try again.",
-        },
-      });
-    }
-    return res;
-  };
-
-  /**
-   * Set form to In Review when it has been submitted
-   *
-   *
-   * @returns {Promise<boolean>} true if the review submit was successful, false otherwise
-   */
-  const handleReviewForm = async (): Promise<string | boolean> => {
-    if (formMode !== "Review") {
-      return false;
-    }
-    const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
-
-    if (!ref?.current || !newData) {
-      return false;
-    }
-
-    const res = await reviewForm();
-    if (!res) {
-      navigate("/submissions", {
-        state: {
-          error: "An error occurred while marking the form as In Review. Please try again.",
         },
       });
     }
@@ -677,20 +648,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
     if (!hasReopenedFormRef.current && data?.status === "Inquired" && formMode === "Edit") {
       handleReopenForm();
       hasReopenedFormRef.current = true;
-    }
-  }, [status, authStatus, formMode, data?.status]);
-
-  useEffect(() => {
-    if (status !== FormStatus.LOADED && authStatus !== AuthStatus.LOADED) {
-      return;
-    }
-    if (
-      !hasUpdatedReviewStatusRef.current &&
-      data?.status === "Submitted" &&
-      formMode === "Review"
-    ) {
-      handleReviewForm();
-      hasUpdatedReviewStatusRef.current = true;
     }
   }, [status, authStatus, formMode, data?.status]);
 
