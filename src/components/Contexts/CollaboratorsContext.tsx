@@ -98,8 +98,21 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
   >(LIST_POTENTIAL_COLLABORATORS, {
     fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
-      setMaxCollaborators(data?.listPotentialCollaborators?.length || 0);
-      const collaborators = data?.listPotentialCollaborators?.map((user) =>
+      const potentialCollaboratorsIDs = (data?.listPotentialCollaborators || [])?.map(
+        (pc) => pc._id
+      );
+      const submissionCollaborators = submissionData?.getSubmission?.collaborators || [];
+
+      // Find collaborators in submission that are not in potential collaborators
+      const remaining = submissionCollaborators?.filter(
+        (c) => !potentialCollaboratorsIDs.includes(c.collaboratorID)
+      );
+
+      const totalPotential = data?.listPotentialCollaborators?.length || 0;
+      const totalRemaining = remaining?.length || 0;
+      setMaxCollaborators(totalPotential + totalRemaining);
+
+      const collaborators = (data?.listPotentialCollaborators || [])?.map((user) =>
         userToCollaborator(user)
       );
       setPotentialCollaborators(collaborators);
