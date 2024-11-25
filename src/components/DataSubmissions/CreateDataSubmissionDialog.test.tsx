@@ -63,7 +63,6 @@ const createSubmissionMocks: MockedResponse<CreateSubmissionResp>[] = [
         studyID: "study1",
         dataCommons: "CDS",
         name: "Test Submission",
-        dbGaPID: "phsTEST001",
         intention: "New/Update",
         dataType: "Metadata and Data Files",
       },
@@ -232,15 +231,6 @@ describe("Basic Functionality", () => {
 
     expect(studySelectButton).toHaveTextContent("SN");
 
-    // Simulate typing into dbGaPID input
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "001");
-
-    await waitFor(() => {
-      expect(dbGaPIDInput).toHaveValue("phsTEST001");
-    });
-
     // Simulate typing into Submission Name input
     const submissionNameWrapper = getByTestId(
       "create-data-submission-dialog-submission-name-input"
@@ -258,18 +248,10 @@ describe("Basic Functionality", () => {
     userEvent.click(createButton);
 
     await waitFor(() => {
-      expect(handleCreate).toHaveBeenCalledTimes(1);
       expect(createButton).not.toBeInTheDocument();
     });
 
-    expect(handleCreate).toHaveBeenCalledWith({
-      studyID: "study1",
-      dataCommons: "CDS",
-      name: "Test Submission",
-      dbGaPID: "phsTEST001",
-      intention: "New/Update",
-      dataType: "Metadata and Data Files",
-    });
+    expect(handleCreate).toHaveBeenCalledTimes(1);
   });
 
   it("should disable open dialog button and show tooltip if user has 'Inactive' org", async () => {
@@ -343,72 +325,7 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it("handles form submission without onCreate defined", async () => {
-    const { getByTestId, getByRole, getByText } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <CreateDataSubmissionDialog onCreate={undefined} />
-      </TestParent>
-    );
-    // Simulate opening dialog
-    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
-
-    await waitFor(() => expect(openDialogButton).toBeEnabled());
-
-    userEvent.click(openDialogButton);
-
-    await waitFor(() => {
-      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
-      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
-      expect(studySelectInput).toBeInTheDocument();
-    });
-
-    // Simulate selecting study from dropdown
-    const studySelectButton = within(
-      getByTestId("create-data-submission-dialog-study-id-input")
-    ).getByRole("button");
-    expect(studySelectButton).toBeInTheDocument();
-
-    userEvent.click(studySelectButton);
-
-    await waitFor(() => {
-      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
-    });
-    userEvent.click(getByText("SN"));
-
-    expect(studySelectButton).toHaveTextContent("SN");
-
-    // Simulate typing into dbGaPID input
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "001");
-
-    await waitFor(() => {
-      expect(dbGaPIDInput).toHaveValue("phsTEST001");
-    });
-
-    // Simulate typing into Submission Name input
-    const submissionNameWrapper = getByTestId(
-      "create-data-submission-dialog-submission-name-input"
-    );
-    const submissionNameInput = within(submissionNameWrapper).getByRole("textbox");
-    userEvent.type(submissionNameInput, "Test Submission");
-
-    await waitFor(() => {
-      expect(submissionNameInput).toHaveValue("Test Submission");
-    });
-
-    // Simulate creating the new data submission and closing the dialog
-    const createButton = getByRole("button", { name: "Create" });
-    expect(createButton).toBeInTheDocument();
-    userEvent.click(createButton);
-
-    await waitFor(() => {
-      expect(createButton).not.toBeInTheDocument();
-    });
-  });
-
-  it("should make dbGaP ID required if study is controlled access", async () => {
+  it("should only show the dbGaP ID if study is controlled access", async () => {
     const { getByText, getByRole, getByTestId } = render(
       <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
         <CreateDataSubmissionDialog onCreate={handleCreate} />
@@ -444,8 +361,7 @@ describe("Basic Functionality", () => {
     // Non-Controlled study selected
     expect(studySelectButton).toHaveTextContent("SN");
 
-    const dbGaPIDLabel = getByTestId("dbGaP-id-label");
-    expect(dbGaPIDLabel.textContent).toBe("dbGaP ID");
+    expect(getByTestId("dbGaP-id-label")).not.toBeVisible();
 
     userEvent.click(studySelectButton);
 
@@ -457,7 +373,7 @@ describe("Basic Functionality", () => {
     // Controlled study selected
     expect(studySelectButton).toHaveTextContent("CS");
 
-    expect(dbGaPIDLabel.textContent).toBe("dbGaP ID*");
+    expect(getByTestId("dbGaP-id-label")).toBeVisible();
   });
 
   it("sets dbGaPID to an empty string and isDbGapRequired to false when studyID is not found", async () => {
@@ -514,7 +430,6 @@ describe("Basic Functionality", () => {
             studyID: "study1",
             dataCommons: "CDS",
             name: "Test Submission",
-            dbGaPID: "phsTEST001",
             intention: "New/Update",
             dataType: "Metadata and Data Files",
           },
@@ -560,15 +475,6 @@ describe("Basic Functionality", () => {
 
     expect(studySelectButton).toHaveTextContent("SN");
 
-    // Simulate typing into dbGaPID input
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "001");
-
-    await waitFor(() => {
-      expect(dbGaPIDInput).toHaveValue("phsTEST001");
-    });
-
     // Simulate typing into Submission Name input
     const submissionNameWrapper = getByTestId(
       "create-data-submission-dialog-submission-name-input"
@@ -603,7 +509,6 @@ describe("Basic Functionality", () => {
             studyID: "study1",
             dataCommons: "CDS",
             name: "Test Submission",
-            dbGaPID: "phsTEST001",
             intention: "New/Update",
             dataType: "Metadata and Data Files",
           },
@@ -650,15 +555,6 @@ describe("Basic Functionality", () => {
     userEvent.click(getByText("SN"));
 
     expect(studySelectButton).toHaveTextContent("SN");
-
-    // Simulate typing into dbGaPID input
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "001");
-
-    await waitFor(() => {
-      expect(dbGaPIDInput).toHaveValue("phsTEST001");
-    });
 
     // Simulate typing into Submission Name input
     const submissionNameWrapper = getByTestId(
@@ -814,32 +710,6 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it("sets dbGaPID to an empty string when not provided", async () => {
-    const { getByTestId, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <CreateDataSubmissionDialog onCreate={handleCreate} />
-      </TestParent>
-    );
-    // Simulate opening dialog
-    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
-
-    await waitFor(() => expect(openDialogButton).toBeEnabled());
-
-    userEvent.click(openDialogButton);
-
-    await waitFor(() => {
-      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
-      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
-      expect(studySelectInput).toBeInTheDocument();
-    });
-
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-
-    expect(dbGaPIDInput).toHaveValue("");
-  });
-
   it("sets name to an empty string when not provided", async () => {
     const { getByTestId, getByRole } = render(
       <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
@@ -940,10 +810,6 @@ describe("Basic Functionality", () => {
 
     expect(studySelectButton).toHaveTextContent("SN");
 
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "001");
-
     const submissionNameWrapper = getByTestId(
       "create-data-submission-dialog-submission-name-input"
     );
@@ -956,64 +822,12 @@ describe("Basic Functionality", () => {
       expect(getByText("This field contains invalid characters")).toBeInTheDocument();
     });
   });
-
-  it("should show an error if the dbGaP ID contains emojis", async () => {
-    const { getByTestId, getByRole, getByText } = render(
-      <CreateDataSubmissionDialog onCreate={handleCreate} />,
-      {
-        wrapper: (p) => (
-          <TestParent
-            mocks={baseMocks}
-            authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
-            {...p}
-          />
-        ),
-      }
-    );
-
-    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
-
-    await waitFor(() => expect(openDialogButton).toBeEnabled());
-
-    userEvent.click(openDialogButton);
-
-    await waitFor(() => {
-      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(getByTestId("create-data-submission-dialog-study-id-input")).toBeEnabled();
-    });
-
-    const studySelectButton = within(
-      getByTestId("create-data-submission-dialog-study-id-input")
-    ).getByRole("button");
-    expect(studySelectButton).toBeInTheDocument();
-
-    userEvent.click(studySelectButton);
-
-    await waitFor(() => {
-      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
-    });
-    userEvent.click(getByText("SN"));
-
-    expect(studySelectButton).toHaveTextContent("SN");
-
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "🚧");
-
-    const submissionNameWrapper = getByTestId(
-      "create-data-submission-dialog-submission-name-input"
-    );
-    const submissionNameInput = within(submissionNameWrapper).getByRole("textbox");
-    userEvent.type(submissionNameInput, "this is a valid name");
-
-    userEvent.click(getByText("Create"));
-
-    await waitFor(() => {
-      expect(getByText("This field contains invalid characters")).toBeInTheDocument();
-    });
-  });
 });
+
+// TODO: Implement the following tests
+
+it.todo("should disable the Create button if dbGaP ID is required and not added to the study");
+
+it.todo("should show an alert icon next to dbGaPID if it is required and not added to the study");
+
+it.todo("should hide the dbGaPID field if controlledAccess is false");

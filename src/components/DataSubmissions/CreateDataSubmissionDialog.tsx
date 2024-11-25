@@ -202,7 +202,7 @@ const StyledTooltipWrapper = styled(Stack)({
 });
 
 type Props = {
-  onCreate: (data: CreateSubmissionInput) => void;
+  onCreate: () => void;
 };
 
 const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
@@ -212,7 +212,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     register,
     control,
     watch,
-    formState: { errors },
+    formState: { isSubmitting, errors },
     setValue,
     reset,
   } = useForm<CreateSubmissionInput>({
@@ -221,14 +221,15 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       studyID: "",
       intention: "New/Update",
       dataType: "Metadata and Data Files",
-      dbGaPID: "",
       name: "",
     },
   });
 
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
+
   const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
+  const [dbGaPID, setDbGaPID] = useState<string>("");
 
   const [createDataSubmission] = useMutation<CreateSubmissionResp, CreateSubmissionInput>(
     CREATE_SUBMISSION,
@@ -291,46 +292,23 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     setCreatingSubmission(true);
   };
 
-  const createSubmission = async ({
-    studyID,
-    dataCommons,
-    name,
-    dbGaPID,
-    intention,
-    dataType,
-  }: CreateSubmissionInput) => {
-    await createDataSubmission({
-      variables: {
-        studyID,
-        dataCommons,
-        name,
-        dbGaPID,
-        intention,
-        dataType,
-      },
-    })
-      .then(() => {
-        setCreatingSubmission(false);
-        setError(false);
-        if (onCreate) {
-          onCreate({
-            studyID,
-            dataCommons,
-            name,
-            dbGaPID,
-            intention,
-            dataType,
-          });
-        }
-      })
-      .catch((e) => {
-        setError(true);
-        Logger.error("Error creating submission", e);
-      });
-  };
+  const onSubmit: SubmitHandler<CreateSubmissionInput> = async (input) => {
+    const { data, errors } = await createDataSubmission({
+      variables: { ...input },
+    }).catch((e) => {
+      setError(true);
+      Logger.error("Error creating submission", e);
+      return { data: null, errors: e };
+    });
 
-  const onSubmit: SubmitHandler<CreateSubmissionInput> = (data) => {
-    createSubmission(data);
+    if (errors || !data?.createSubmission) {
+      setError(true);
+      return;
+    }
+
+    setCreatingSubmission(false);
+    setError(false);
+    onCreate();
   };
 
   const validateEmpty = (value: string): string | null =>
@@ -352,12 +330,12 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     );
 
     if (!studyID || !mappedStudy) {
-      setValue("dbGaPID", "");
+      setDbGaPID("");
       setIsDbGapRequired(false);
       return;
     }
 
-    setValue("dbGaPID", mappedStudy.dbGaPID || "");
+    setDbGaPID(mappedStudy.dbGaPID || "");
     setIsDbGapRequired(mappedStudy.controlledAccess);
   }, [watch("studyID")]);
 
@@ -509,26 +487,29 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     {errors?.studyID?.message}
                   </StyledHelperText>
                 </StyledField>
-                <StyledField>
+                <StyledField sx={{ display: isDbGapRequired ? "flex" : "none" }}>
                   <StyledLabel id="dbGaPID" data-testid="dbGaP-id-label">
                     dbGaP ID
-                    {isDbGapRequired && <StyledAsterisk />}
+                    <StyledAsterisk />
                   </StyledLabel>
-                  <StyledOutlinedInput
-                    {...register("dbGaPID", {
-                      validate: {
-                        empty: isDbGapRequired ? validateEmpty : () => null,
-                        emoji: validateEmoji,
-                      },
-                    })}
-                    inputProps={{ maxLength: 50, "aria-labelledby": "dbGaPID" }}
-                    placeholder="Input dbGaP ID"
-                    aria-describedby="submission-dbGaPID-helper-text"
-                    data-testid="create-data-submission-dialog-dbgap-id-input"
-                  />
-                  <StyledHelperText id="submission-dbGaPID-helper-text">
-                    {errors?.dbGaPID?.message}
-                  </StyledHelperText>
+                  <Tooltip
+                    title="dbGapID is required for controlled-access studies"
+                    open={undefined}
+                    disableHoverListener={false}
+                    placement="top"
+                    data-testid="dbGaPID-tooltip"
+                    arrow
+                  >
+                    <StyledOutlinedInput
+                      value={dbGaPID}
+                      inputProps={{ "aria-labelledby": "dbGaPID" }}
+                      placeholder="<Not Provided>"
+                      data-testid="create-data-submission-dialog-dbgap-id-input"
+                      disabled
+                    />
+                    {/* TODO: Need the icon from CRDCDH-1996 */}
+                  </Tooltip>
+                  <StyledHelperText />
                 </StyledField>
                 <StyledField>
                   <StyledLabel id="submissionName">
@@ -563,6 +544,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
             tabIndex={0}
             id="createSubmissionDialogCreateButton"
             form="create-submission-dialog-form"
+            disabled={(isDbGapRequired && !dbGaPID) || isSubmitting}
           >
             Create
           </StyledDialogButton>
