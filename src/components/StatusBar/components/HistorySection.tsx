@@ -83,7 +83,7 @@ const HistorySection: FC = () => {
 
       return ({ children }) => (
         <Tooltip
-          title={pendingConditions?.join(", ")}
+          title={pendingConditions?.join(" ")}
           placement="top"
           open={undefined}
           disableHoverListener={false}
