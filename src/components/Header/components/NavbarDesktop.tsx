@@ -336,10 +336,10 @@ const NavBar = () => {
   };
 
   const handleMenuClick = (e) => {
-    if (e.target.innerText === clickedTitle || !clickableTitle.includes(e.target.innerText)) {
+    if (e.target.textContent === clickedTitle || !clickableTitle.includes(e.target.textContent)) {
       setClickedTitle("");
     } else {
-      setClickedTitle(e.target.innerText);
+      setClickedTitle(e.target.textContent);
     }
   };
 
@@ -398,12 +398,12 @@ const NavBar = () => {
                     >
                       <div
                         id={navItem.id}
-                        onKeyDown={onKeyPressHandler}
                         role="button"
                         tabIndex={0}
                         className={`navText directLink ${
                           shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""
                         }`}
+                        onKeyDown={onKeyPressHandler}
                         onClick={handleMenuClick}
                       >
                         {navItem.name}
@@ -414,12 +414,12 @@ const NavBar = () => {
                   <div className={clickedTitle === navItem.name ? "navTitleClicked" : "navTitle"}>
                     <div
                       id={navItem.id}
-                      onKeyDown={onKeyPressHandler}
                       role="button"
                       tabIndex={0}
                       className={`${
                         clickedTitle === navItem.name ? "navText clicked" : "navText"
                       } ${shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""}`}
+                      onKeyDown={onKeyPressHandler}
                       onClick={handleMenuClick}
                     >
                       {navItem.name}
@@ -437,7 +437,6 @@ const NavBar = () => {
               >
                 <div
                   id="navbar-dropdown-name"
-                  onKeyDown={onKeyPressHandler}
                   role="button"
                   tabIndex={0}
                   className={
@@ -445,6 +444,7 @@ const NavBar = () => {
                       ? "navText displayName clicked"
                       : "navText displayName"
                   }
+                  onKeyDown={onKeyPressHandler}
                   onClick={handleMenuClick}
                 >
                   {displayName}
