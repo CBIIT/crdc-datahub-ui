@@ -114,9 +114,14 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
   cursor: "pointer",
 }));
 
+const StyledSpecialStatus = styled(Stack)({
+  color: "#D82F00",
+  fontWeight: 600,
+});
+
 const StyledBellIcon = styled(BellIcon)({
   width: "18px",
-  marginLeft: "5px",
+  marginLeft: "6px",
 });
 
 const columns: Column<T>[] = [
@@ -147,22 +152,22 @@ const columns: Column<T>[] = [
   {
     label: "Status",
     renderValue: ({ status, conditional, pendingConditions }) => {
-      if (!conditional || !pendingConditions?.length) {
+      if (!conditional || !pendingConditions?.length || status !== "Approved") {
         return status;
       }
 
       return (
         <Tooltip
-          title={pendingConditions?.join(", ")}
+          title={pendingConditions?.join(" ")}
           placement="top"
           open={undefined}
           disableHoverListener={false}
           arrow
         >
-          <Stack direction="row" alignItems="center" color="#D82F00">
+          <StyledSpecialStatus direction="row" alignItems="center">
             <span>{status}</span>
             <StyledBellIcon data-testid="pending-conditions-icon" />
-          </Stack>
+          </StyledSpecialStatus>
         </Tooltip>
       );
     },
