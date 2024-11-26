@@ -222,7 +222,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
     if (!ref?.current || !newData) {
-      console.log({ ref, newData });
       return false;
     }
 
