@@ -1,6 +1,5 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import {
-  Box,
   Button,
   Dialog,
   DialogActions,
@@ -145,14 +144,14 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
   },
 }));
 
-const StyledFormWrapper = styled(Box)(() => ({
+const StyledFormStack = styled(Stack)<{ component: React.ElementType }>({
   width: "485px",
   marginTop: "24px",
   "& .formControl": {
     marginTop: "0 !important",
     marginBottom: "0 !important",
   },
-}));
+});
 
 const StyledRadioInput = styled(RadioInput)(() => ({
   marginLeft: "2px",
@@ -355,181 +354,182 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
           </Stack>
         </StyledDialogTitle>
         <StyledDialogContent>
-          <StyledFormWrapper>
-            <form id="create-submission-dialog-form" onSubmit={handleSubmit(onSubmit)}>
-              <Stack direction="column">
-                <StyledField>
-                  <Controller
-                    name="intention"
-                    control={control}
-                    rules={{ required: "This field is required" }}
-                    render={({ field }) => (
-                      <Grid container>
-                        <StyledRadioInput
-                          {...field}
-                          id="create-data-submission-dialog-submission-type"
-                          label="Submission Type"
-                          value={field.value}
-                          options={submissionTypeOptions}
-                          gridWidth={12}
-                          aria-describedby="submission-intention-helper-text"
-                          data-testid="create-data-submission-dialog-submission-type-input"
-                          inline
-                          required
-                          row
-                        />
-                      </Grid>
-                    )}
-                  />
-                  <StyledHelperText id="submission-intention-helper-text">
-                    {errors?.intention?.message}
-                  </StyledHelperText>
-                </StyledField>
-                <StyledField>
-                  <Controller
-                    name="dataType"
-                    control={control}
-                    rules={{ required: "This field is required" }}
-                    render={({ field }) => (
-                      <Grid container>
-                        <StyledRadioInput
-                          {...field}
-                          id="create-data-submission-dialog-data-type"
-                          label="Data Type"
-                          value={field.value}
-                          options={submissionDataTypeOptions}
-                          gridWidth={12}
-                          aria-describedby="submission-data-type-helper-text"
-                          data-testid="create-data-submission-dialog-data-type-input"
-                          inline
-                          required
-                          row
-                        />
-                      </Grid>
-                    )}
-                  />
-                  <StyledHelperText id="submission-data-type-helper-text">
-                    {errors?.intention?.message}
-                  </StyledHelperText>
-                </StyledField>
-                <StyledOrganizationField>
-                  <StyledLabel id="organization">Organization</StyledLabel>
-                  <StyledOutlinedInput
-                    value={user?.organization?.orgName}
-                    inputProps={{ "aria-labelledby": "organization" }}
-                    readOnly
-                  />
-                </StyledOrganizationField>
-                <StyledField>
-                  <StyledLabel id="dataCommons">
-                    Data Commons
-                    <StyledAsterisk />
-                  </StyledLabel>
-                  <Controller
-                    name="dataCommons"
-                    control={control}
-                    rules={{ required: "This field is required" }}
-                    render={({ field }) => (
-                      <StyledSelect
-                        {...field}
-                        value={field.value}
-                        MenuProps={{ disablePortal: true }}
-                        aria-describedby="submission-data-commons-helper-text"
-                        inputProps={{ "aria-labelledby": "dataCommons" }}
-                        data-testid="create-data-submission-dialog-data-commons-input"
-                      >
-                        {DataCommons.map((dc) => (
-                          <MenuItem key={dc.name} value={dc.name}>
-                            {dc.name}
-                          </MenuItem>
-                        ))}
-                      </StyledSelect>
-                    )}
-                  />
-                  <StyledHelperText id="submission-data-commons-helper-text">
-                    {errors?.dataCommons?.message}
-                  </StyledHelperText>
-                </StyledField>
-                <StyledField>
-                  <StyledLabel id="study">
-                    Study
-                    <StyledAsterisk />
-                  </StyledLabel>
-                  <Controller
-                    name="studyID"
-                    control={control}
-                    rules={{ required: "This field is required" }}
-                    render={({ field }) => (
-                      <StyledSelect
-                        {...field}
-                        value={field.value || ""}
-                        MenuProps={{ disablePortal: true }}
-                        aria-describedby="submission-study-abbreviation-helper-text"
-                        inputProps={{ "aria-labelledby": "study" }}
-                        data-testid="create-data-submission-dialog-study-id-input"
-                      >
-                        {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((study) => (
-                          <MenuItem key={study._id} value={study._id}>
-                            {study.studyAbbreviation}
-                          </MenuItem>
-                        ))}
-                      </StyledSelect>
-                    )}
-                  />
-                  <StyledHelperText id="submission-study-abbreviation-helper-text">
-                    {errors?.studyID?.message}
-                  </StyledHelperText>
-                </StyledField>
-                <StyledField sx={{ display: isDbGapRequired ? "flex" : "none" }}>
-                  <StyledLabel id="dbGaPID" data-testid="dbGaP-id-label">
-                    dbGaP ID
-                    <StyledAsterisk />
-                  </StyledLabel>
-                  <Tooltip
-                    title="dbGapID is required for controlled-access studies"
-                    open={undefined}
-                    disableHoverListener={false}
-                    placement="top"
-                    data-testid="dbGaPID-tooltip"
-                    arrow
-                  >
-                    <StyledOutlinedInput
-                      value={dbGaPID}
-                      inputProps={{ "aria-labelledby": "dbGaPID" }}
-                      placeholder="<Not Provided>"
-                      data-testid="create-data-submission-dialog-dbgap-id-input"
-                      disabled
+          <StyledFormStack
+            direction="column"
+            component="form"
+            id="create-submission-dialog-form"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <StyledField>
+              <Controller
+                name="intention"
+                control={control}
+                rules={{ required: "This field is required" }}
+                render={({ field }) => (
+                  <Grid container>
+                    <StyledRadioInput
+                      {...field}
+                      id="create-data-submission-dialog-submission-type"
+                      label="Submission Type"
+                      value={field.value}
+                      options={submissionTypeOptions}
+                      gridWidth={12}
+                      aria-describedby="submission-intention-helper-text"
+                      data-testid="create-data-submission-dialog-submission-type-input"
+                      inline
+                      required
+                      row
                     />
-                    {/* TODO: Need the icon and tooltip from CRDCDH-1986 */}
-                  </Tooltip>
-                  <StyledHelperText />
-                </StyledField>
-                <StyledField>
-                  <StyledLabel id="submissionName">
-                    Submission Name
-                    <StyledAsterisk />
-                  </StyledLabel>
-                  <StyledOutlinedInputMultiline
-                    {...register("name", {
-                      maxLength: 25,
-                      validate: {
-                        empty: validateEmpty,
-                        emoji: validateEmoji,
-                      },
-                    })}
-                    rows={3}
-                    placeholder="25 characters allowed"
-                    inputProps={{ maxLength: 25, "aria-labelledby": "submissionName" }}
-                    aria-describedby="submission-name-helper-text"
-                    data-testid="create-data-submission-dialog-submission-name-input"
-                  />
-                  <StyledHelperText id="submission-name-helper-text">
-                    {errors?.name?.message}
-                  </StyledHelperText>
-                </StyledField>
-              </Stack>
-            </form>
-          </StyledFormWrapper>
+                  </Grid>
+                )}
+              />
+              <StyledHelperText id="submission-intention-helper-text">
+                {errors?.intention?.message}
+              </StyledHelperText>
+            </StyledField>
+            <StyledField>
+              <Controller
+                name="dataType"
+                control={control}
+                rules={{ required: "This field is required" }}
+                render={({ field }) => (
+                  <Grid container>
+                    <StyledRadioInput
+                      {...field}
+                      id="create-data-submission-dialog-data-type"
+                      label="Data Type"
+                      value={field.value}
+                      options={submissionDataTypeOptions}
+                      gridWidth={12}
+                      aria-describedby="submission-data-type-helper-text"
+                      data-testid="create-data-submission-dialog-data-type-input"
+                      inline
+                      required
+                      row
+                    />
+                  </Grid>
+                )}
+              />
+              <StyledHelperText id="submission-data-type-helper-text">
+                {errors?.intention?.message}
+              </StyledHelperText>
+            </StyledField>
+            <StyledOrganizationField>
+              <StyledLabel id="organization">Organization</StyledLabel>
+              <StyledOutlinedInput
+                value={user?.organization?.orgName}
+                inputProps={{ "aria-labelledby": "organization" }}
+                readOnly
+              />
+            </StyledOrganizationField>
+            <StyledField>
+              <StyledLabel id="dataCommons">
+                Data Commons
+                <StyledAsterisk />
+              </StyledLabel>
+              <Controller
+                name="dataCommons"
+                control={control}
+                rules={{ required: "This field is required" }}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    value={field.value}
+                    MenuProps={{ disablePortal: true }}
+                    aria-describedby="submission-data-commons-helper-text"
+                    inputProps={{ "aria-labelledby": "dataCommons" }}
+                    data-testid="create-data-submission-dialog-data-commons-input"
+                  >
+                    {DataCommons.map((dc) => (
+                      <MenuItem key={dc.name} value={dc.name}>
+                        {dc.name}
+                      </MenuItem>
+                    ))}
+                  </StyledSelect>
+                )}
+              />
+              <StyledHelperText id="submission-data-commons-helper-text">
+                {errors?.dataCommons?.message}
+              </StyledHelperText>
+            </StyledField>
+            <StyledField>
+              <StyledLabel id="study">
+                Study
+                <StyledAsterisk />
+              </StyledLabel>
+              <Controller
+                name="studyID"
+                control={control}
+                rules={{ required: "This field is required" }}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    value={field.value || ""}
+                    MenuProps={{ disablePortal: true }}
+                    aria-describedby="submission-study-abbreviation-helper-text"
+                    inputProps={{ "aria-labelledby": "study" }}
+                    data-testid="create-data-submission-dialog-study-id-input"
+                  >
+                    {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((study) => (
+                      <MenuItem key={study._id} value={study._id}>
+                        {study.studyAbbreviation}
+                      </MenuItem>
+                    ))}
+                  </StyledSelect>
+                )}
+              />
+              <StyledHelperText id="submission-study-abbreviation-helper-text">
+                {errors?.studyID?.message}
+              </StyledHelperText>
+            </StyledField>
+            <StyledField sx={{ display: isDbGapRequired ? "flex" : "none" }}>
+              <StyledLabel id="dbGaPID" data-testid="dbGaP-id-label">
+                dbGaP ID
+                <StyledAsterisk />
+              </StyledLabel>
+              <Tooltip
+                title="dbGapID is required for controlled-access studies"
+                open={undefined}
+                disableHoverListener={false}
+                placement="top"
+                data-testid="dbGaPID-tooltip"
+                arrow
+              >
+                <StyledOutlinedInput
+                  value={dbGaPID}
+                  inputProps={{ "aria-labelledby": "dbGaPID" }}
+                  placeholder="<Not Provided>"
+                  data-testid="create-data-submission-dialog-dbgap-id-input"
+                  disabled
+                />
+                {/* TODO: Need the icon and tooltip from CRDCDH-1986 */}
+              </Tooltip>
+              <StyledHelperText />
+            </StyledField>
+            <StyledField>
+              <StyledLabel id="submissionName">
+                Submission Name
+                <StyledAsterisk />
+              </StyledLabel>
+              <StyledOutlinedInputMultiline
+                {...register("name", {
+                  maxLength: 25,
+                  validate: {
+                    empty: validateEmpty,
+                    emoji: validateEmoji,
+                  },
+                })}
+                rows={3}
+                placeholder="25 characters allowed"
+                inputProps={{ maxLength: 25, "aria-labelledby": "submissionName" }}
+                aria-describedby="submission-name-helper-text"
+                data-testid="create-data-submission-dialog-submission-name-input"
+              />
+              <StyledHelperText id="submission-name-helper-text">
+                {errors?.name?.message}
+              </StyledHelperText>
+            </StyledField>
+          </StyledFormStack>
         </StyledDialogContent>
         <StyledDialogActions>
           <StyledDialogButton
