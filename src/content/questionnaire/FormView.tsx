@@ -1,4 +1,4 @@
-import React, { FC, createRef, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
   useNavigate,
   unstable_useBlocker as useBlocker,
@@ -28,6 +28,8 @@ import bannerPng from "../../assets/banner/submission_banner.png";
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import ExportRequestButton from "../../components/ExportRequestButton";
+import { CanSubmitSubmissionRequest } from "../../config/AuthRoles";
+import { Logger } from "../../utils";
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -173,13 +175,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const hasReopenedFormRef = useRef(false);
 
   const refs: FormSectionProps["refs"] = {
-    saveFormRef: createRef<HTMLButtonElement>(),
-    submitFormRef: createRef<HTMLButtonElement>(),
-    nextButtonRef: createRef<HTMLButtonElement>(),
-    approveFormRef: createRef<HTMLButtonElement>(),
-    inquireFormRef: createRef<HTMLButtonElement>(),
-    rejectFormRef: createRef<HTMLButtonElement>(),
-    exportButtonRef: createRef<HTMLButtonElement>(),
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
   };
 
@@ -224,12 +219,10 @@ const FormView: FC<Props> = ({ section }: Props) => {
    * @returns {Promise<boolean>} true if the submit was successful, false otherwise
    */
   const submitForm = async (): Promise<string | boolean> => {
-    if (readOnlyInputs || formMode !== "Edit") {
-      return false;
-    }
     const { ref, data: newData } = refs.getFormObjectRef.current?.() || {};
 
     if (!ref?.current || !newData) {
+      console.log({ ref, newData });
       return false;
     }
 
@@ -546,7 +539,11 @@ const FormView: FC<Props> = ({ section }: Props) => {
   };
 
   const handleSubmitForm = () => {
-    if (readOnlyInputs || formMode !== "Edit") {
+    if (!CanSubmitSubmissionRequest.includes(user?.role) || data?.status !== "In Progress") {
+      Logger.error("Invalid request to submit Submission Request form.", {
+        userRole: user?.role,
+        submissionStatus: data?.status,
+      });
       return;
     }
     setOpenSubmitDialog(true);
@@ -699,77 +696,87 @@ const FormView: FC<Props> = ({ section }: Props) => {
               >
                 Back
               </StyledLoadingButton>
-              <StyledLoadingButton
-                id="submission-form-save-button"
-                variant="contained"
-                color="success"
-                ref={refs.saveFormRef}
-                loading={status === FormStatus.SAVING}
-                onClick={() => saveForm()}
-                sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
-              >
-                Save
-              </StyledLoadingButton>
-              <StyledExtendedLoadingButton
-                id="submission-form-submit-button"
-                variant="contained"
-                color="primary"
-                type="submit"
-                ref={refs.submitFormRef}
-                size="large"
-                onClick={handleSubmitForm}
-                sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
-              >
-                Submit
-              </StyledExtendedLoadingButton>
-              <StyledExtendedLoadingButton
-                id="submission-form-approve-button"
-                variant="contained"
-                color="primary"
-                ref={refs.approveFormRef}
-                size="large"
-                onClick={handleApproveForm}
-              >
-                Approve
-              </StyledExtendedLoadingButton>
-              <StyledLoadingButton
-                id="submission-form-inquire-button"
-                variant="contained"
-                color="error"
-                ref={refs.inquireFormRef}
-                size="large"
-                onClick={handleInquireForm}
-              >
-                Request Additional Information
-              </StyledLoadingButton>
-              <StyledExtendedLoadingButton
-                id="submission-form-reject-button"
-                variant="contained"
-                color="error"
-                ref={refs.rejectFormRef}
-                size="large"
-                onClick={handleRejectForm}
-              >
-                Reject
-              </StyledExtendedLoadingButton>
-              <StyledLoadingButton
-                id="submission-form-next-button"
-                variant="contained"
-                color="info"
-                type="button"
-                ref={refs.nextButtonRef}
-                onClick={handleNextClick}
-                disabled={
-                  status === FormStatus.SAVING ||
-                  !nextSection ||
-                  (isSectionD && !allSectionsComplete)
-                }
-                size="large"
-                endIcon={<ChevronRight />}
-              >
-                Next
-              </StyledLoadingButton>
-              <ExportRequestButton ref={refs.exportButtonRef} disabled={!allSectionsComplete} />
+              {activeSection !== "REVIEW" && (
+                <StyledLoadingButton
+                  id="submission-form-save-button"
+                  variant="contained"
+                  color="success"
+                  loading={status === FormStatus.SAVING}
+                  onClick={() => saveForm()}
+                  sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
+                >
+                  Save
+                </StyledLoadingButton>
+              )}
+              {activeSection === "REVIEW" &&
+                CanSubmitSubmissionRequest.includes(user?.role) &&
+                data?.status === "In Progress" && (
+                  <StyledExtendedLoadingButton
+                    id="submission-form-submit-button"
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    size="large"
+                    onClick={handleSubmitForm}
+                    // sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
+                  >
+                    Submit
+                  </StyledExtendedLoadingButton>
+                )}
+              {activeSection === "REVIEW" && formMode === "Review" && (
+                <StyledExtendedLoadingButton
+                  id="submission-form-approve-button"
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  onClick={handleApproveForm}
+                >
+                  Approve
+                </StyledExtendedLoadingButton>
+              )}
+              {activeSection === "REVIEW" && formMode === "Review" && (
+                <>
+                  <StyledLoadingButton
+                    id="submission-form-inquire-button"
+                    variant="contained"
+                    color="error"
+                    size="large"
+                    onClick={handleInquireForm}
+                  >
+                    Request Additional Information
+                  </StyledLoadingButton>
+                  <StyledExtendedLoadingButton
+                    id="submission-form-reject-button"
+                    variant="contained"
+                    color="error"
+                    size="large"
+                    onClick={handleRejectForm}
+                  >
+                    Reject
+                  </StyledExtendedLoadingButton>
+                </>
+              )}
+              {activeSection !== "REVIEW" && (
+                <StyledLoadingButton
+                  id="submission-form-next-button"
+                  variant="contained"
+                  color="info"
+                  type="button"
+                  onClick={handleNextClick}
+                  disabled={
+                    status === FormStatus.SAVING ||
+                    !nextSection ||
+                    (isSectionD && !allSectionsComplete)
+                  }
+                  size="large"
+                  endIcon={<ChevronRight />}
+                >
+                  Next
+                </StyledLoadingButton>
+              )}
+              {activeSection === "REVIEW" && (
+                <ExportRequestButton disabled={!allSectionsComplete} />
+              )}
             </StyledControls>
           </StyledContent>
         </StyledContentWrapper>
