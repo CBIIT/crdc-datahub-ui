@@ -126,4 +126,4 @@ export const CanCreateSubmissionRequest: UserRole[] = ["User", "Submitter", "Org
 /**
  * A set of user roles that are allowed to Submit a Submission Request.
  */
-export const CanSubmitSubmissionRequest: UserRole[] = ["User", "Submitter", "Federal Lead"];
+export const CanSubmitSubmissionRequestRoles: UserRole[] = ["User", "Submitter", "Federal Lead"];

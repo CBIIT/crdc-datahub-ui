@@ -28,7 +28,7 @@ import bannerPng from "../../assets/banner/submission_banner.png";
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import ExportRequestButton from "../../components/ExportRequestButton";
-import { CanSubmitSubmissionRequest } from "../../config/AuthRoles";
+import { CanSubmitSubmissionRequestRoles } from "../../config/AuthRoles";
 import { Logger } from "../../utils";
 
 const StyledContainer = styled(Container)(() => ({
@@ -538,7 +538,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   };
 
   const handleSubmitForm = () => {
-    if (!CanSubmitSubmissionRequest.includes(user?.role) || data?.status !== "In Progress") {
+    if (!CanSubmitSubmissionRequestRoles.includes(user?.role) || data?.status !== "In Progress") {
       Logger.error("Invalid request to submit Submission Request form.", {
         userRole: user?.role,
         submissionStatus: data?.status,
@@ -695,20 +695,38 @@ const FormView: FC<Props> = ({ section }: Props) => {
               >
                 Back
               </StyledLoadingButton>
-              {activeSection !== "REVIEW" && (
+              {activeSection !== "REVIEW" && formMode === "Edit" && (
                 <StyledLoadingButton
                   id="submission-form-save-button"
                   variant="contained"
                   color="success"
                   loading={status === FormStatus.SAVING}
                   onClick={() => saveForm()}
-                  sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
                 >
                   Save
                 </StyledLoadingButton>
               )}
+              {activeSection !== "REVIEW" && (
+                <StyledLoadingButton
+                  id="submission-form-next-button"
+                  variant="contained"
+                  color="info"
+                  type="button"
+                  onClick={handleNextClick}
+                  disabled={
+                    status === FormStatus.SAVING ||
+                    !nextSection ||
+                    (isSectionD && !allSectionsComplete)
+                  }
+                  size="large"
+                  endIcon={<ChevronRight />}
+                >
+                  Next
+                </StyledLoadingButton>
+              )}
+
               {activeSection === "REVIEW" &&
-                CanSubmitSubmissionRequest.includes(user?.role) &&
+                CanSubmitSubmissionRequestRoles.includes(user?.role) &&
                 data?.status === "In Progress" && (
                   <StyledExtendedLoadingButton
                     id="submission-form-submit-button"
@@ -717,24 +735,22 @@ const FormView: FC<Props> = ({ section }: Props) => {
                     type="submit"
                     size="large"
                     onClick={handleSubmitForm}
-                    // sx={{ display: readOnlyInputs ? "none !important" : "flex" }}
                   >
                     Submit
                   </StyledExtendedLoadingButton>
                 )}
-              {activeSection === "REVIEW" && formMode === "Review" && (
-                <StyledExtendedLoadingButton
-                  id="submission-form-approve-button"
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  onClick={handleApproveForm}
-                >
-                  Approve
-                </StyledExtendedLoadingButton>
-              )}
+
               {activeSection === "REVIEW" && formMode === "Review" && (
                 <>
+                  <StyledExtendedLoadingButton
+                    id="submission-form-approve-button"
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    onClick={handleApproveForm}
+                  >
+                    Approve
+                  </StyledExtendedLoadingButton>
                   <StyledLoadingButton
                     id="submission-form-inquire-button"
                     variant="contained"
@@ -755,24 +771,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   </StyledExtendedLoadingButton>
                 </>
               )}
-              {activeSection !== "REVIEW" && (
-                <StyledLoadingButton
-                  id="submission-form-next-button"
-                  variant="contained"
-                  color="info"
-                  type="button"
-                  onClick={handleNextClick}
-                  disabled={
-                    status === FormStatus.SAVING ||
-                    !nextSection ||
-                    (isSectionD && !allSectionsComplete)
-                  }
-                  size="large"
-                  endIcon={<ChevronRight />}
-                >
-                  Next
-                </StyledLoadingButton>
-              )}
+
               {activeSection === "REVIEW" && (
                 <ExportRequestButton disabled={!allSectionsComplete} />
               )}
