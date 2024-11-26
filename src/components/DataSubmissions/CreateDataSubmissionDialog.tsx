@@ -146,17 +146,8 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledFormWrapper = styled(Box)(() => ({
-  alignSelf: "center",
   width: "485px",
-  minHeight: "450px",
   marginTop: "24px",
-  fontSize: "16px",
-  fontWeight: 700,
-  lineHeight: "20px",
-  letterSpacing: 0,
-  textAlign: "left",
-  display: "flex",
-  flexDirection: "column",
   "& .formControl": {
     marginTop: "0 !important",
     marginBottom: "0 !important",
@@ -381,10 +372,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                           value={field.value}
                           options={submissionTypeOptions}
                           gridWidth={12}
-                          required
-                          row
                           aria-describedby="submission-intention-helper-text"
                           data-testid="create-data-submission-dialog-submission-type-input"
+                          inline
+                          required
+                          row
                         />
                       </Grid>
                     )}
@@ -407,10 +399,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                           value={field.value}
                           options={submissionDataTypeOptions}
                           gridWidth={12}
-                          required
-                          row
                           aria-describedby="submission-data-type-helper-text"
                           data-testid="create-data-submission-dialog-data-type-input"
+                          inline
+                          required
+                          row
                         />
                       </Grid>
                     )}
@@ -507,7 +500,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                       data-testid="create-data-submission-dialog-dbgap-id-input"
                       disabled
                     />
-                    {/* TODO: Need the icon from CRDCDH-1996 */}
+                    {/* TODO: Need the icon and tooltip from CRDCDH-1986 */}
                   </Tooltip>
                   <StyledHelperText />
                 </StyledField>
