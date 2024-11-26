@@ -11,13 +11,7 @@ import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
 import AddRemoveButton from "../../../components/AddRemoveButton";
-import {
-  filterForNumbers,
-  formatORCIDInput,
-  isValidORCID,
-  mapObjectWithKey,
-  validateEmail,
-} from "../../../utils";
+import { filterForNumbers, mapObjectWithKey, validateEmail } from "../../../utils";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
@@ -96,6 +90,9 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (formObject.piAsPrimaryContact) {
       combinedData.primaryContact = null;
     }
+
+    // TODO: Remove in 3.2.0
+    combinedData.pi.ORCID = "";
 
     return { ref: formRef, data: combinedData };
   };
@@ -189,17 +186,6 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           validate={validateEmail}
           errorText="Please provide a valid email address"
           required
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-a-pi-orcid"
-          label="ORCID"
-          name="pi[ORCID]"
-          value={pi?.ORCID}
-          placeholder="e.g. 0000-0001-2345-6789"
-          validate={(val) => val?.length === 0 || isValidORCID(val)}
-          filter={formatORCIDInput}
-          errorText="Please provide a valid ORCID"
           readOnly={readOnlyInputs}
         />
         <AutocompleteInput
