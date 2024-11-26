@@ -24,9 +24,8 @@ export const query = gql`
         organization {
           name
         }
-        # TODO: Remove client fields when the backend is ready
-        conditional @client
-        pendingConditions @client
+        conditional
+        pendingConditions
       }
     }
   }

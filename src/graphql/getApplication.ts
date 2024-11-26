@@ -28,9 +28,8 @@ export const query = gql`
       programName
       studyAbbreviation
       questionnaireData
-      # TODO: Remove client fields when the backend is ready
-      conditional @client
-      pendingConditions @client
+      conditional
+      pendingConditions
     }
   }
 `;
