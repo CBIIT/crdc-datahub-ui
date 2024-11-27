@@ -501,7 +501,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                   inputProps={{ "aria-labelledby": "dbGaPID" }}
                   placeholder="<Not Provided>"
                   data-testid="create-data-submission-dialog-dbgap-id-input"
-                  disabled
+                  readOnly
                 />
               </Tooltip>
               {!dbGaPID && (
