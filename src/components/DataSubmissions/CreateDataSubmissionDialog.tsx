@@ -20,7 +20,7 @@ import {
   ListApprovedStudiesOfMyOrgResp,
   LIST_APPROVED_STUDIES_OF_MY_ORG,
 } from "../../graphql";
-import RadioInput, { Option } from "./RadioInput";
+import RadioInput, { RadioOption } from "./RadioInput";
 import { DataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
@@ -113,6 +113,7 @@ const StyledDialogActions = styled(DialogActions)({
 const StyledDialogError = styled(Typography)({
   color: "#c93f08",
   textAlign: "center",
+  marginTop: "25px",
 });
 
 const StyledDialogButton = styled(Button)({
@@ -247,7 +248,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     [user?.organization?.status]
   );
 
-  const submissionTypeOptions: Option[] = [
+  const submissionTypeOptions: RadioOption[] = [
     {
       label: "New/Update",
       value: "New/Update",
@@ -259,16 +260,22 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       label: "Delete",
       value: "Delete",
       disabled: false,
+      optionSx: {
+        marginLeft: "74.5px",
+      },
       tooltipContent:
         "Select this option if you want to delete existing data from the destination data commons.",
     },
   ];
 
-  const submissionDataTypeOptions: Option[] = [
+  const submissionDataTypeOptions: RadioOption[] = [
     {
       label: "Metadata and Data Files",
       value: "Metadata and Data Files",
       disabled: intention === "Delete",
+      optionSx: {
+        marginLeft: "38.2px",
+      },
       tooltipContent:
         "Select this option to create a submission that includes both metadata and data files.",
     },
@@ -364,7 +371,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
             id="create-submission-dialog-form"
             onSubmit={handleSubmit(onSubmit)}
           >
-            <StyledField>
+            <StyledField sx={{ marginRight: "-80px" }}>
               <Controller
                 name="intention"
                 control={control}
@@ -376,7 +383,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     label="Submission Type"
                     value={field.value}
                     options={submissionTypeOptions}
-                    aria-describedby="submission-intention-helper-text"
                     data-testid="create-data-submission-dialog-submission-type-input"
                     inline
                     required
@@ -385,7 +391,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 )}
               />
             </StyledField>
-            <StyledField>
+            <StyledField sx={{ marginRight: "-80px" }}>
               <Controller
                 name="dataType"
                 control={control}

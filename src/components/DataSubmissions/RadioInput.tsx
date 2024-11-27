@@ -6,6 +6,7 @@ import {
   RadioGroupProps,
   Stack,
   styled,
+  SxProps,
 } from "@mui/material";
 import { updateInputValidity } from "../../utils";
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
@@ -60,10 +61,11 @@ const StyledFormControlLabel = styled(FormControlLabel)(() => ({
   },
 }));
 
-export type Option = {
+export type RadioOption = {
   label: string;
   value: string;
   disabled?: boolean;
+  optionSx?: SxProps;
   tooltipContent: string | ReactNode;
 };
 
@@ -71,7 +73,7 @@ type Props = {
   label: string;
   name?: string;
   value: string | boolean;
-  options: Option[];
+  options: RadioOption[];
   id: string;
   inline?: boolean;
   helpText?: string;
@@ -124,7 +126,7 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
           id={radioId}
           {...rest}
         >
-          {options?.map((option: Option, idx: number) => (
+          {options?.map((option: RadioOption, idx: number) => (
             <StyledTooltip
               key={`${option.label}-${option.value}}`}
               title={option.tooltipContent}
@@ -133,6 +135,7 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
               <StyledFormControlLabel
                 value={option.value}
                 label={option.label}
+                sx={option.optionSx}
                 color="#1D91AB"
                 control={
                   <StyledRadioButton
