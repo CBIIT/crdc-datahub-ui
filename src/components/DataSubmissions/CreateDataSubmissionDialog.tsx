@@ -24,6 +24,7 @@ import {
 import RadioInput, { Option } from "./RadioInput";
 import { DataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
 import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
@@ -170,6 +171,7 @@ const StyledField = styled("div")({
   alignItems: "flex-start",
   justifyContent: "center",
   flexDirection: "column",
+  position: "relative",
 });
 
 const StyledOrganizationField = styled(StyledField)({
@@ -189,6 +191,13 @@ const StyledTooltipWrapper = styled(Stack)({
   position: "relative",
   bottom: "30px",
   right: "50px",
+});
+
+const StyledBellIcon = styled(BellIcon)({
+  width: "18px",
+  position: "absolute",
+  right: "-28px",
+  color: "#D82F00",
 });
 
 type Props = {
@@ -488,11 +497,11 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 <StyledAsterisk />
               </StyledLabel>
               <Tooltip
-                title="dbGapID is required for controlled-access studies"
+                title="dbGapID is required for controlled-access studies."
                 open={undefined}
                 disableHoverListener={false}
                 placement="top"
-                data-testid="dbGaPID-tooltip"
+                disableInteractive
                 arrow
               >
                 <StyledOutlinedInput
@@ -502,8 +511,26 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                   data-testid="create-data-submission-dialog-dbgap-id-input"
                   disabled
                 />
-                {/* TODO: Need the icon and tooltip from CRDCDH-1986 */}
               </Tooltip>
+              {!dbGaPID && (
+                <Tooltip
+                  title={
+                    <span>
+                      Please contact{" "}
+                      <a href="mailto:NCICRDC@mail.nih.gov" target="_blank" rel="noreferrer">
+                        NCICRDC@mail.nih.gov
+                      </a>{" "}
+                      to submit your dbGaP ID once you have registered your study on dbGap.
+                    </span>
+                  }
+                  open={undefined}
+                  disableHoverListener={false}
+                  placement="top"
+                  arrow
+                >
+                  <StyledBellIcon data-testid="pending-conditions-icon" />
+                </Tooltip>
+              )}
               <StyledHelperText />
             </StyledField>
             <StyledField>
@@ -535,7 +562,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
           <StyledDialogButton
             type="submit"
             tabIndex={0}
-            id="createSubmissionDialogCreateButton"
+            data-testid="create-data-submission-dialog-create-button"
             form="create-submission-dialog-form"
             disabled={(isDbGapRequired && !dbGaPID) || isSubmitting}
           >
@@ -556,7 +583,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
           <Tooltip
             placement="top"
             title="Your associated organization is inactive. You cannot create a data submission at this time."
-            open={undefined} // will use hoverListener to open
+            open={undefined}
             disableHoverListener={!userHasInactiveOrg}
           >
             <span>
