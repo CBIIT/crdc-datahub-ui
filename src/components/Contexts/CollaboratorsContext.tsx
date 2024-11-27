@@ -83,7 +83,6 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const [potentialCollaborators, setPotentialCollaborators] = useState<Collaborator[]>([]);
-  const [maxCollaborators, setMaxCollaborators] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<ApolloError | null>(null);
   const [currentCollaborators, setCurrentCollaborators] = useState<Collaborator[]>([
@@ -92,26 +91,27 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
 
   const submissionID = submissionData?.getSubmission?._id;
 
+  // Collaborators that are no longer considered a 'potential collaborator' from submission
+  const unavailableCollaborators = submissionData?.getSubmission?.collaborators
+    ?.map((c) => c.collaboratorID)
+    ?.filter((c) => !potentialCollaborators?.map((pc) => pc.collaboratorID)?.includes(c));
+
+  const maxCollaborators = useMemo(() => {
+    const totalPotential = potentialCollaborators?.length || 0;
+    const totalRemaining =
+      unavailableCollaborators?.filter(
+        (uc) => currentCollaborators?.map((c) => c.collaboratorID)?.includes(uc)
+      )?.length || 0;
+
+    return totalPotential + totalRemaining;
+  }, [unavailableCollaborators, currentCollaborators, potentialCollaborators]);
+
   const [loadPotentialCollaboratorsQuery] = useLazyQuery<
     ListPotentialCollaboratorsResp,
     ListPotentialCollaboratorsInput
   >(LIST_POTENTIAL_COLLABORATORS, {
     fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
-      const potentialCollaboratorsIDs = (data?.listPotentialCollaborators || [])?.map(
-        (pc) => pc._id
-      );
-      const submissionCollaborators = submissionData?.getSubmission?.collaborators || [];
-
-      // Find collaborators in submission that are not in potential collaborators
-      const remaining = submissionCollaborators?.filter(
-        (c) => !potentialCollaboratorsIDs.includes(c.collaboratorID)
-      );
-
-      const totalPotential = data?.listPotentialCollaborators?.length || 0;
-      const totalRemaining = remaining?.length || 0;
-      setMaxCollaborators(totalPotential + totalRemaining);
-
       const collaborators = (data?.listPotentialCollaborators || [])?.map((user) =>
         userToCollaborator(user)
       );
