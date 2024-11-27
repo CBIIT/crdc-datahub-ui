@@ -8,12 +8,8 @@ import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
 import profileIcon from "../../assets/icons/profile_icon.svg";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
-import {
-  Status as OrgStatus,
-  useOrganizationListContext,
-} from "../../components/Contexts/OrganizationListContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
-import { OrgAssignmentMap, Roles } from "../../config/AuthRoles";
+import { Roles } from "../../config/AuthRoles";
 import {
   EDIT_USER,
   EditUserInput,
@@ -164,25 +160,21 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const { data: orgData, activeOrganizations, status: orgStatus } = useOrganizationListContext();
   const { user: currentUser, setData, logout, status: authStatus } = useAuthContext();
   const { lastSearchParams } = useSearchParamsContext();
-  const { handleSubmit, register, reset, watch, setValue, control, formState } =
-    useForm<FormInput>();
+  const { handleSubmit, register, reset, watch, control } = useForm<FormInput>();
 
   const isSelf = _id === currentUser._id;
   const [user, setUser] = useState<User | null>(
     isSelf && viewType === "profile" ? { ...currentUser } : null
   );
   const [saving, setSaving] = useState<boolean>(false);
-  const [orgList, setOrgList] = useState<Partial<Organization>[]>(undefined);
 
   const roleField = watch("role");
   const studiesField = watch("studies");
   const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
   const visibleFieldState: FieldState[] = ["UNLOCKED", "DISABLED"];
 
-  const userOrg = orgData?.find((org) => org._id === user?.organization?.orgID);
   const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
 
   const canRequestRole: boolean = useMemo<boolean>(() => {
@@ -251,7 +243,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       const { data: d, errors } = await editUser({
         variables: {
           userID: _id,
-          organization: data.organization,
           role: data.role,
           userStatus: data.userStatus,
           studies: fieldset.studies !== "HIDDEN" ? data.studies : null,
@@ -285,7 +276,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       setUser({ ...currentUser });
       reset({
         ...currentUser,
-        organization: currentUser.organization?.orgID || "",
+        studies: currentUser.studies?.map((s: ApprovedStudy) => s?._id) || [],
       });
       return;
     }
@@ -303,46 +294,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       setUser({ ...data?.getUser });
       reset({
         ...data?.getUser,
-        organization: data?.getUser.organization?.orgID || "",
+        studies: data?.getUser?.studies?.map((s: ApprovedStudy) => s?._id) || [],
       });
     })();
   }, [_id]);
 
-  useEffect(() => {
-    if (fieldset.organization !== "DISABLED" || !OrgAssignmentMap[roleField]) {
-      return;
-    }
-
-    const expectedOrg = orgData?.find((org) => org.name === OrgAssignmentMap[roleField])?._id;
-    setValue("organization", expectedOrg || "");
-  }, [fieldset.organization === "DISABLED", roleField, user, orgData]);
-
-  useEffect(() => {
-    if (!user || orgStatus === OrgStatus.LOADING) {
-      return;
-    }
-    if (userOrg?.status === "Inactive") {
-      setOrgList(
-        [...activeOrganizations, userOrg].sort((a, b) => a.name?.localeCompare(b.name || ""))
-      );
-      return;
-    }
-
-    setOrgList(activeOrganizations || []);
-  }, [activeOrganizations, userOrg, user, orgStatus]);
-
-  useEffect(() => {
-    if (roleField === "User" && "role" in formState.dirtyFields && formState.dirtyFields.role) {
-      setValue("organization", "");
-    }
-  }, [roleField]);
-
-  if (
-    !user ||
-    orgStatus === OrgStatus.LOADING ||
-    authStatus === AuthStatus.LOADING ||
-    orgList === undefined
-  ) {
+  if (!user || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
   }
 
@@ -463,35 +420,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   />
                 ) : (
                   user.userStatus
-                )}
-              </StyledField>
-              <StyledField visible={fieldset.organization !== "HIDDEN"}>
-                <StyledLabel id="userOrganizationLabel">Organization</StyledLabel>
-                {visibleFieldState.includes(fieldset.organization) ? (
-                  <Controller
-                    name="organization"
-                    control={control}
-                    render={({ field }) => (
-                      <StyledSelect
-                        {...field}
-                        size="small"
-                        MenuProps={{ disablePortal: true }}
-                        disabled={fieldset.organization === "DISABLED"}
-                        inputProps={{
-                          "aria-labelledby": "userOrganizationLabel",
-                        }}
-                      >
-                        <MenuItem value="">{"<Not Set>"}</MenuItem>
-                        {orgList?.map((org) => (
-                          <MenuItem key={org._id} value={org._id}>
-                            {org.name}
-                          </MenuItem>
-                        ))}
-                      </StyledSelect>
-                    )}
-                  />
-                ) : (
-                  user?.organization?.orgName
                 )}
               </StyledField>
               <StyledField visible={fieldset.studies !== "HIDDEN"}>

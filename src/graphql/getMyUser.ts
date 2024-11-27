@@ -11,14 +11,8 @@ export const query = gql`
       IDP
       email
       dataCommons
+      # TODO: Request the study fields from the server
       studies
-      organization {
-        orgID
-        orgName
-        status
-        createdAt
-        updateAt
-      }
       createdAt
       updateAt
     }

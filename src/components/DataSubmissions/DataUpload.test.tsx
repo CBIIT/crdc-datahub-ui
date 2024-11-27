@@ -67,7 +67,6 @@ const baseUser: User = {
   role: "Submitter", // NOTE: This base role allows for all actions
   IDP: "nih",
   email: "",
-  organization: null,
   studies: null,
   dataCommons: null,
   createdAt: "",

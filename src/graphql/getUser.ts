@@ -13,13 +13,8 @@ export const query = gql`
       createdAt
       updateAt
       dataCommons
+      # TODO: Request the study fields from the server
       studies
-      organization {
-        orgID
-        orgName
-        createdAt
-        updateAt
-      }
     }
   }
 `;

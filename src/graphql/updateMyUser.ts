@@ -7,13 +7,8 @@ export const mutation = gql`
       lastName
       userStatus
       role
+      # TODO: query for subfields
       studies
-      organization {
-        orgID
-        orgName
-        createdAt
-        updateAt
-      }
     }
   }
 `;
@@ -26,5 +21,5 @@ export type Input = {
 };
 
 export type Response = {
-  updateMyUser: Pick<User, "firstName" | "lastName" | "userStatus" | "role" | "organization">;
+  updateMyUser: Pick<User, "firstName" | "lastName" | "userStatus" | "role" | "studies">;
 };

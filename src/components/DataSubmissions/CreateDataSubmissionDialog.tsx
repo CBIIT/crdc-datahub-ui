@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Button,
   Dialog,
@@ -170,10 +170,6 @@ const StyledField = styled("div")({
   position: "relative",
 });
 
-const StyledOrganizationField = styled(StyledField)({
-  marginBottom: "25px",
-});
-
 const StyledHelperText = styled(BaseStyledHelperText)({
   marginTop: "5px",
 });
@@ -241,13 +237,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     });
 
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
-  const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
   const intention = watch("intention");
-  const userHasInactiveOrg = useMemo(
-    () => user?.organization?.status === "Inactive",
-    [user?.organization?.status]
-  );
-
   const submissionTypeOptions: RadioOption[] = [
     {
       label: "New/Update",
@@ -415,14 +405,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 {errors?.intention?.message}
               </StyledHelperText>
             </StyledField>
-            <StyledOrganizationField>
-              <StyledLabel id="organization">Organization</StyledLabel>
-              <StyledOutlinedInput
-                value={user?.organization?.orgName}
-                inputProps={{ "aria-labelledby": "organization" }}
-                readOnly
-              />
-            </StyledOrganizationField>
             <StyledField>
               <StyledLabel id="dataCommons">
                 Data Commons
@@ -572,28 +554,14 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
       {orgOwnerOrSubmitter && (
         <StyledTooltipWrapper alignItems="center" justifyContent="flex-end">
-          <Tooltip
-            placement="top"
-            title="Your associated organization is inactive. You cannot create a data submission at this time."
-            open={undefined}
-            disableHoverListener={!userHasInactiveOrg}
+          <StyledButton
+            type="button"
+            variant="contained"
+            onClick={handleOpenDialog}
+            disabled={authStatus === AuthStatus.LOADING || approvedStudiesLoading}
           >
-            <span>
-              <StyledButton
-                type="button"
-                variant="contained"
-                onClick={handleOpenDialog}
-                disabled={
-                  !hasOrganizationAssigned ||
-                  userHasInactiveOrg ||
-                  authStatus === AuthStatus.LOADING ||
-                  approvedStudiesLoading
-                }
-              >
-                Create a Data Submission
-              </StyledButton>
-            </span>
-          </Tooltip>
+            Create a Data Submission
+          </StyledButton>
         </StyledTooltipWrapper>
       )}
     </>

@@ -1,7 +1,6 @@
-import React, { memo } from "react";
+import React from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
 import ListView from "./ListView";
 import ProfileView from "./ProfileView";
 import { CanManageUsers } from "../../config/AuthRoles";
@@ -9,14 +8,6 @@ import { CanManageUsers } from "../../config/AuthRoles";
 type Props = {
   type: "users" | "profile";
 };
-
-/**
- * A memoized version of OrganizationProvider
- * which caches data between ListView and ProfileView
- *
- * @see OrganizationProvider
- */
-const MemorizedProvider = memo(OrganizationProvider);
 
 /**
  * Renders the correct view based on the URL and permissions-tier
@@ -54,19 +45,11 @@ const UserController = ({ type }: Props) => {
 
   // Show list of users to Admin or Org Owner
   if (!userId && isAdministrative) {
-    return (
-      <MemorizedProvider preload>
-        <ListView />
-      </MemorizedProvider>
-    );
+    return <ListView />;
   }
 
   // Admin or Org Owner viewing a user's "Edit User" page or their own "Edit User" page
-  return (
-    <MemorizedProvider preload={isAdministrative && type === "users"}>
-      <ProfileView _id={userId} viewType={type} />
-    </MemorizedProvider>
-  );
+  return <ProfileView _id={userId} viewType={type} />;
 };
 
 export default UserController;
