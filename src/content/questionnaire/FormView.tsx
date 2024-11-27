@@ -538,7 +538,11 @@ const FormView: FC<Props> = ({ section }: Props) => {
   };
 
   const handleSubmitForm = () => {
-    if (!CanSubmitSubmissionRequestRoles.includes(user?.role) || data?.status !== "In Progress") {
+    if (
+      !CanSubmitSubmissionRequestRoles.includes(user?.role) ||
+      (data?.status !== "In Progress" &&
+        (data?.status !== "Inquired" || user?.role !== "Federal Lead"))
+    ) {
       Logger.error("Invalid request to submit Submission Request form.", {
         userRole: user?.role,
         submissionStatus: data?.status,
@@ -727,7 +731,8 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
               {activeSection === "REVIEW" &&
                 CanSubmitSubmissionRequestRoles.includes(user?.role) &&
-                data?.status === "In Progress" && (
+                (data?.status === "In Progress" ||
+                  (data?.status === "Inquired" && user?.role === "Federal Lead")) && (
                   <StyledExtendedLoadingButton
                     id="submission-form-submit-button"
                     variant="contained"
