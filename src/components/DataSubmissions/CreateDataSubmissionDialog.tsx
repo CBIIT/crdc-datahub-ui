@@ -5,7 +5,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid,
   IconButton,
   MenuItem,
   Stack,
@@ -375,26 +374,20 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 control={control}
                 rules={{ required: "This field is required" }}
                 render={({ field }) => (
-                  <Grid container>
-                    <StyledRadioInput
-                      {...field}
-                      id="create-data-submission-dialog-submission-type"
-                      label="Submission Type"
-                      value={field.value}
-                      options={submissionTypeOptions}
-                      gridWidth={12}
-                      aria-describedby="submission-intention-helper-text"
-                      data-testid="create-data-submission-dialog-submission-type-input"
-                      inline
-                      required
-                      row
-                    />
-                  </Grid>
+                  <StyledRadioInput
+                    {...field}
+                    id="create-data-submission-dialog-submission-type"
+                    label="Submission Type"
+                    value={field.value}
+                    options={submissionTypeOptions}
+                    aria-describedby="submission-intention-helper-text"
+                    data-testid="create-data-submission-dialog-submission-type-input"
+                    inline
+                    required
+                    row
+                  />
                 )}
               />
-              <StyledHelperText id="submission-intention-helper-text">
-                {errors?.intention?.message}
-              </StyledHelperText>
             </StyledField>
             <StyledField>
               <Controller
@@ -402,21 +395,18 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 control={control}
                 rules={{ required: "This field is required" }}
                 render={({ field }) => (
-                  <Grid container>
-                    <StyledRadioInput
-                      {...field}
-                      id="create-data-submission-dialog-data-type"
-                      label="Data Type"
-                      value={field.value}
-                      options={submissionDataTypeOptions}
-                      gridWidth={12}
-                      aria-describedby="submission-data-type-helper-text"
-                      data-testid="create-data-submission-dialog-data-type-input"
-                      inline
-                      required
-                      row
-                    />
-                  </Grid>
+                  <StyledRadioInput
+                    {...field}
+                    id="create-data-submission-dialog-data-type"
+                    label="Data Type"
+                    value={field.value}
+                    options={submissionDataTypeOptions}
+                    aria-describedby="submission-data-type-helper-text"
+                    data-testid="create-data-submission-dialog-data-type-input"
+                    inline
+                    required
+                    row
+                  />
                 )}
               />
               <StyledHelperText id="submission-data-type-helper-text">
