@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useId, forwardRef, ReactNode } from "react";
 import {
-  Grid,
   FormControl,
   FormControlLabel,
   RadioGroup,
@@ -14,11 +13,9 @@ import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import { StyledLabel } from "../Questionnaire/TextInput";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 
-const GridStyled = styled(Grid)({
-  "& .formControl": {
-    marginTop: "8px",
-    marginBottom: "4px",
-  },
+const StyledFormControl = styled(Stack)<{ component: React.ElementType }>({
+  marginTop: "0",
+  marginBottom: "0",
   "& .css-hsm3ra-MuiFormLabel-root": {
     color: "rgba(0, 0, 0, 0.6) !important",
   },
@@ -67,7 +64,7 @@ export type Option = {
   label: string;
   value: string;
   disabled?: boolean;
-  tooltipContent?: string | ReactNode;
+  tooltipContent: string | ReactNode;
 };
 
 type Props = {
@@ -82,8 +79,7 @@ type Props = {
 } & RadioGroupProps;
 
 /**
- * @deprecated Do not use this component, this is a legacy component copied from the Questionnaire with
- * many unused functionalities.
+ * @deprecated Do not use this component. It is deprecated and will be removed in a future release.
  */
 const RadioInput = forwardRef<HTMLDivElement, Props>(
   ({ label, name, value, options, id, inline, helpText, required, ...rest }, ref) => {
@@ -111,64 +107,46 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
     }, [value]);
 
     return (
-      <GridStyled md={12} xs={12} container>
-        <FormControl className="formControl">
-          <Stack direction={inline ? "row" : "column"} alignItems={inline ? "center" : "initial"}>
-            <StyledFormLabel className="radio-label" htmlFor={radioId}>
-              {label}
-              {required ? <StyledAsterisk /> : ""}
-            </StyledFormLabel>
-            <RadioGroup
-              ref={ref}
-              name={name}
-              value={val}
-              onChange={onChangeWrapper}
-              id={radioId}
-              {...rest}
+      <StyledFormControl
+        component={FormControl}
+        direction={inline ? "row" : "column"}
+        alignItems={inline ? "center" : "initial"}
+      >
+        <StyledFormLabel className="radio-label" htmlFor={radioId}>
+          {label}
+          {required ? <StyledAsterisk /> : ""}
+        </StyledFormLabel>
+        <RadioGroup
+          ref={ref}
+          name={name}
+          value={val}
+          onChange={onChangeWrapper}
+          id={radioId}
+          {...rest}
+        >
+          {options?.map((option: Option, idx: number) => (
+            <StyledTooltip
+              key={`${option.label}-${option.value}}`}
+              title={option.tooltipContent}
+              disableInteractive
             >
-              {options?.map((option: Option, idx: number) => {
-                const isFirstOption = idx === 0;
-
-                return !option.tooltipContent ? (
-                  <StyledFormControlLabel
-                    value={option.value}
-                    label={option.label}
-                    color="#1D91AB"
-                    control={
-                      <StyledRadioButton
-                        id={id.concat(`-${option.label}-radio-button`)}
-                        readOnly={option.disabled}
-                        disabled={option.disabled}
-                        {...(isFirstOption && { inputRef: radioGroupInputRef })}
-                      />
-                    }
+              <StyledFormControlLabel
+                value={option.value}
+                label={option.label}
+                color="#1D91AB"
+                control={
+                  <StyledRadioButton
+                    id={id.concat(`-${option.label}-radio-button`)}
+                    readOnly={option.disabled}
+                    disabled={option.disabled}
+                    {...(idx === 0 && { inputRef: radioGroupInputRef })}
                   />
-                ) : (
-                  <StyledTooltip
-                    key={`${option.label}-${option.value}}`}
-                    title={option.tooltipContent}
-                    disableInteractive
-                  >
-                    <StyledFormControlLabel
-                      value={option.value}
-                      label={option.label}
-                      color="#1D91AB"
-                      control={
-                        <StyledRadioButton
-                          id={id.concat(`-${option.label}-radio-button`)}
-                          readOnly={option.disabled}
-                          disabled={option.disabled}
-                          {...(isFirstOption && { inputRef: radioGroupInputRef })}
-                        />
-                      }
-                    />
-                  </StyledTooltip>
-                );
-              })}
-            </RadioGroup>
-          </Stack>
-        </FormControl>
-      </GridStyled>
+                }
+              />
+            </StyledTooltip>
+          ))}
+        </RadioGroup>
+      </StyledFormControl>
     );
   }
 );

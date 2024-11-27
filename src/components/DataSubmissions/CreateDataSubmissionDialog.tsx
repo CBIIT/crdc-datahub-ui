@@ -147,10 +147,6 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 const StyledFormStack = styled(Stack)<{ component: React.ElementType }>({
   width: "485px",
   marginTop: "24px",
-  "& .formControl": {
-    marginTop: "0 !important",
-    marginBottom: "0 !important",
-  },
 });
 
 const StyledRadioInput = styled(RadioInput)(() => ({
