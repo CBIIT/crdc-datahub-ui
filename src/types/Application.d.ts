@@ -18,6 +18,14 @@ type Application = {
   studyAbbreviation: Study["abbreviation"];
   // FE Questionnaire Data
   questionnaireData: QuestionnaireData;
+  /**
+   * A indicator to show if the application is conditionally approved.
+   */
+  conditional: boolean;
+  /**
+   * A list of conditions that need to be met before the application can be approved.
+   */
+  pendingConditions: string[];
 };
 
 type QuestionnaireData = {
