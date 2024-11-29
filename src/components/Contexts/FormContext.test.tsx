@@ -42,6 +42,8 @@ const baseApplication: Omit<Application, "questionnaireData"> = {
   },
   programName: "",
   studyAbbreviation: "",
+  conditional: false,
+  pendingConditions: [],
 };
 
 const baseQuestionnaireData: QuestionnaireData = {

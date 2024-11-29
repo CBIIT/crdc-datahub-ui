@@ -24,6 +24,8 @@ export const query = gql`
         organization {
           name
         }
+        conditional
+        pendingConditions
       }
     }
   }

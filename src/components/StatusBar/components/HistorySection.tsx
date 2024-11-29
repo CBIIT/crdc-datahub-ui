@@ -1,10 +1,12 @@
-import { CSSProperties, FC, useState } from "react";
-import { Button } from "@mui/material";
+import { CSSProperties, FC, useCallback, useState } from "react";
+import { Button, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useFormContext } from "../../Contexts/FormContext";
 import { HistoryIconMap } from "./SubmissionRequestIconMap";
+import { useFormContext } from "../../Contexts/FormContext";
 import { FormatDate } from "../../../utils";
 import HistoryDialog from "../../HistoryDialog";
+import { ReactComponent as BellIcon } from "../../../assets/icons/border_filled_bell_icon.svg";
+import Tooltip from "../../Tooltip";
 
 /**
  * Determines the text color for a History event based
@@ -56,6 +58,12 @@ const StyledButton = styled(Button)({
   },
 });
 
+const StyledBellIcon = styled(BellIcon)({
+  width: "18px",
+  marginLeft: "5px",
+  color: "#D82F00",
+});
+
 /**
  * Status Bar History Section
  *
@@ -63,9 +71,33 @@ const StyledButton = styled(Button)({
  */
 const HistorySection: FC = () => {
   const {
-    data: { updatedAt, history },
+    data: { updatedAt, history, conditional, pendingConditions },
   } = useFormContext();
   const [open, setOpen] = useState<boolean>(false);
+
+  const buildStatusWrapper = useCallback(
+    (status: ApplicationStatus): React.FC<{ children: React.ReactNode }> => {
+      if (!conditional || !pendingConditions?.length || status !== "Approved") {
+        return ({ children }) => <span>{children}</span>;
+      }
+
+      return ({ children }) => (
+        <Tooltip
+          title={pendingConditions?.join(" ")}
+          placement="top"
+          open={undefined}
+          disableHoverListener={false}
+          arrow
+        >
+          <Stack direction="row" alignItems="center">
+            {children}
+            <StyledBellIcon />
+          </Stack>
+        </Tooltip>
+      );
+    },
+    [conditional, pendingConditions]
+  );
 
   return (
     <>
@@ -91,6 +123,7 @@ const HistorySection: FC = () => {
             history={history}
             iconMap={HistoryIconMap}
             getTextColor={getStatusColor}
+            getStatusWrapper={buildStatusWrapper}
             open={open}
             onClose={() => setOpen(false)}
             showHeaders={false}
