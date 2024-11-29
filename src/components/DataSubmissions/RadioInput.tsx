@@ -1,27 +1,22 @@
 import React, { useState, useRef, useEffect, useId, forwardRef, ReactNode } from "react";
 import {
-  Grid,
   FormControl,
   FormControlLabel,
   RadioGroup,
   RadioGroupProps,
-  FormHelperText,
   Stack,
   styled,
-  GridProps,
+  SxProps,
 } from "@mui/material";
 import { updateInputValidity } from "../../utils";
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
+import { StyledLabel } from "../Questionnaire/TextInput";
+import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 
-const GridStyled = styled(Grid, {
-  shouldForwardProp: (prop) => prop !== "containerWidth",
-})<GridProps & { containerWidth?: string }>(({ containerWidth }) => ({
-  width: containerWidth,
-  "& .formControl": {
-    marginTop: "8px",
-    marginBottom: "4px",
-  },
+const StyledFormControl = styled(Stack)<{ component: React.ElementType }>({
+  marginTop: "0",
+  marginBottom: "0",
   "& .css-hsm3ra-MuiFormLabel-root": {
     color: "rgba(0, 0, 0, 0.6) !important",
   },
@@ -45,22 +40,11 @@ const GridStyled = styled(Grid, {
   "& .displayNone": {
     display: "none !important",
   },
-}));
+});
 
-const StyledFormLabel = styled("label")(() => ({
-  fontWeight: 700,
-  fontSize: "16px",
-  lineHeight: "19.6px",
-  minHeight: "20px",
-  color: "#083A50",
+const StyledFormLabel = styled(StyledLabel)({
   marginRight: "10px",
-}));
-
-const StyledAsterisk = styled("span")(() => ({
-  marginLeft: "2px",
-  marginRight: "2px",
-  color: "#C93F08",
-}));
+});
 
 const StyledFormControlLabel = styled(FormControlLabel)(() => ({
   "&.MuiFormControlLabel-root": {
@@ -77,61 +61,39 @@ const StyledFormControlLabel = styled(FormControlLabel)(() => ({
   },
 }));
 
-export type Option = {
+export type RadioOption = {
   label: string;
   value: string;
   disabled?: boolean;
-  tooltipContent?: string | ReactNode;
+  optionSx?: SxProps;
+  tooltipContent: string | ReactNode;
 };
 
 type Props = {
   label: string;
   name?: string;
-  containerWidth?: string;
   value: string | boolean;
-  options: Option[];
+  options: RadioOption[];
   id: string;
   inline?: boolean;
   helpText?: string;
   required?: boolean;
-  readOnly?: boolean;
-  gridWidth?: 2 | 4 | 6 | 8 | 10 | 12;
-  parentProps?: GridProps;
 } & RadioGroupProps;
 
+/**
+ * @deprecated Do not use this component. It is deprecated and will be removed in a future release.
+ */
 const RadioInput = forwardRef<HTMLDivElement, Props>(
-  (
-    {
-      label,
-      name,
-      gridWidth,
-      containerWidth,
-      value,
-      options,
-      id,
-      inline,
-      helpText,
-      required,
-      readOnly,
-      parentProps,
-      ...rest
-    },
-    ref
-  ) => {
+  ({ label, name, value, options, id, inline, helpText, required, ...rest }, ref) => {
     const radioId = id || useId();
     const [val, setVal] = useState<string>(
       value?.toString() === "" || value?.toString() === undefined ? null : value?.toString()
     );
-    const [error, setError] = useState(false);
     const radioGroupInputRef = useRef<HTMLInputElement>(null);
 
     const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (readOnly) {
-        return;
-      }
       const newValue = (event.target as HTMLInputElement).value;
       setVal(newValue === "" ? null : newValue);
-      setError(false);
     };
 
     useEffect(() => {
@@ -143,80 +105,51 @@ const RadioInput = forwardRef<HTMLDivElement, Props>(
     }, [val]);
 
     useEffect(() => {
-      const invalid = () => setError(true);
-
-      radioGroupInputRef.current?.addEventListener("invalid", invalid);
-      return () => {
-        radioGroupInputRef.current?.removeEventListener("invalid", invalid);
-      };
-    }, [radioGroupInputRef]);
-
-    useEffect(() => {
       setVal(value?.toString() ?? null);
     }, [value]);
 
     return (
-      <GridStyled md={gridWidth || 6} xs={12} item containerWidth={containerWidth} {...parentProps}>
-        <FormControl className="formControl" error={error}>
-          <Stack direction={inline ? "row" : "column"} alignItems={inline ? "center" : "initial"}>
-            <StyledFormLabel className="radio-label" htmlFor={radioId}>
-              {label}
-              {required ? <StyledAsterisk>*</StyledAsterisk> : ""}
-            </StyledFormLabel>
-            <RadioGroup
-              ref={ref}
-              name={name}
-              value={val}
-              onChange={onChangeWrapper}
-              id={radioId}
-              data-type="string"
-              {...rest}
+      <StyledFormControl
+        component={FormControl}
+        direction={inline ? "row" : "column"}
+        alignItems={inline ? "center" : "initial"}
+      >
+        <StyledFormLabel className="radio-label" htmlFor={radioId}>
+          {label}
+          {required ? <StyledAsterisk /> : ""}
+        </StyledFormLabel>
+        <RadioGroup
+          ref={ref}
+          name={name}
+          value={val}
+          onChange={onChangeWrapper}
+          id={radioId}
+          {...rest}
+        >
+          {options?.map((option: RadioOption, idx: number) => (
+            <StyledTooltip
+              key={`${option.label}-${option.value}}`}
+              title={option.tooltipContent}
+              disableInteractive
             >
-              {options?.map((option: Option, idx: number) => {
-                const isFirstOption = idx === 0;
-
-                return !option.tooltipContent ? (
-                  <StyledFormControlLabel
-                    value={option.value}
-                    label={option.label}
-                    color="#1D91AB"
-                    control={
-                      <StyledRadioButton
-                        id={id.concat(`-${option.label}-radio-button`)}
-                        readOnly={readOnly || option.disabled}
-                        disabled={option.disabled}
-                        {...(isFirstOption && { inputRef: radioGroupInputRef })}
-                      />
-                    }
+              <StyledFormControlLabel
+                value={option.value}
+                label={option.label}
+                sx={option.optionSx}
+                color="#1D91AB"
+                control={
+                  <StyledRadioButton
+                    id={id.concat(`-${option.label}-radio-button`)}
+                    readOnly={option.disabled}
+                    disabled={option.disabled}
+                    {...(idx === 0 && { inputRef: radioGroupInputRef })}
                   />
-                ) : (
-                  <StyledTooltip
-                    key={`${option.label}-${option.value}}`}
-                    title={option.tooltipContent}
-                  >
-                    <StyledFormControlLabel
-                      value={option.value}
-                      label={option.label}
-                      color="#1D91AB"
-                      control={
-                        <StyledRadioButton
-                          id={id.concat(`-${option.label}-radio-button`)}
-                          readOnly={readOnly || option.disabled}
-                          disabled={option.disabled}
-                          {...(isFirstOption && { inputRef: radioGroupInputRef })}
-                        />
-                      }
-                    />
-                  </StyledTooltip>
-                );
-              })}
-            </RadioGroup>
-          </Stack>
-          <FormHelperText className={(!readOnly && error ? "" : "displayNone") || ""}>
-            {(!readOnly && error ? "This field is required" : null) || " "}
-          </FormHelperText>
-        </FormControl>
-      </GridStyled>
+                }
+              />
+            </StyledTooltip>
+          ))}
+        </RadioGroup>
+      </StyledFormControl>
     );
   }
 );
