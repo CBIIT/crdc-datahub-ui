@@ -138,17 +138,6 @@ const StyledTitleBox = styled(Box)({
   width: "100%",
 });
 
-const StyledSelectionCount = styled(Typography)({
-  fontSize: "16px",
-  fontWeight: 600,
-  color: "#666666",
-  width: "200px",
-  position: "absolute",
-  left: "373px",
-  transform: "translateY(-50%)",
-  top: "50%",
-});
-
 /**
  * User Profile View Component
  *
@@ -171,7 +160,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
 
   const roleField = watch("role");
-  const studiesField = watch("studies");
   const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
   const visibleFieldState: FieldState[] = ["UNLOCKED", "DISABLED"];
 
@@ -402,43 +390,36 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               <StyledField visible={fieldset.studies !== "HIDDEN"}>
                 <StyledLabel id="userStudies">Studies</StyledLabel>
                 {visibleFieldState.includes(fieldset.studies) ? (
-                  <div style={{ position: "relative" }}>
-                    <Controller
-                      name="studies"
-                      control={control}
-                      rules={{ required: false }}
-                      render={({ field }) => (
-                        <StyledSelect
-                          {...field}
-                          size="small"
-                          value={field.value || []}
-                          disabled={fieldset.studies === "DISABLED"}
-                          MenuProps={{ disablePortal: true }}
-                          inputProps={{ "aria-labelledby": "userStudies" }}
-                          renderValue={(selected: string[]) =>
-                            formatStudySelectionValue(
-                              selected,
-                              approvedStudies?.listApprovedStudies?.studies
-                            )
-                          }
-                          multiple
-                        >
-                          {approvedStudies?.listApprovedStudies?.studies?.map(
-                            ({ _id, studyName, studyAbbreviation }) => (
-                              <MenuItem key={_id} value={_id}>
-                                {formatFullStudyName(studyName, studyAbbreviation)}
-                              </MenuItem>
-                            )
-                          )}
-                        </StyledSelect>
-                      )}
-                    />
-                    {studiesField?.length > 1 && (
-                      <StyledSelectionCount>
-                        * {studiesField?.length} Studies selected
-                      </StyledSelectionCount>
+                  <Controller
+                    name="studies"
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        size="small"
+                        value={field.value || []}
+                        disabled={fieldset.studies === "DISABLED"}
+                        MenuProps={{ disablePortal: true }}
+                        inputProps={{ "aria-labelledby": "userStudies" }}
+                        renderValue={(selected: string[]) =>
+                          formatStudySelectionValue(
+                            selected,
+                            approvedStudies?.listApprovedStudies?.studies
+                          )
+                        }
+                        multiple
+                      >
+                        {approvedStudies?.listApprovedStudies?.studies?.map(
+                          ({ _id, studyName, studyAbbreviation }) => (
+                            <MenuItem key={_id} value={_id}>
+                              {formatFullStudyName(studyName, studyAbbreviation)}
+                            </MenuItem>
+                          )
+                        )}
+                      </StyledSelect>
                     )}
-                  </div>
+                  />
                 ) : null}
               </StyledField>
               <StyledField>
