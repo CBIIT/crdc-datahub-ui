@@ -1,6 +1,6 @@
 // Submission Request
 export { mutation as REVIEW_APP } from "./reviewApplication";
-export type { Response as ReviewAppResp } from "./reviewApplication";
+export type { Response as ReviewAppResp, Input as ReviewAppInput } from "./reviewApplication";
 
 export { mutation as REOPEN_APP } from "./reopenApplication";
 export type { Response as ReopenAppResp } from "./reopenApplication";
