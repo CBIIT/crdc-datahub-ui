@@ -1,5 +1,5 @@
 import React, { FC, useMemo } from "react";
-import { Box, DialogProps, MenuItem, styled, TextField } from "@mui/material";
+import { Box, DialogProps, MenuItem, styled } from "@mui/material";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
@@ -9,7 +9,6 @@ import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.sv
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
-import Tooltip from "../Tooltip";
 import StyledHelperText from "../StyledFormComponents/StyledHelperText";
 import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
 import DefaultDialog from "../StyledDialogComponents/StyledDialog";
@@ -19,10 +18,10 @@ import StyledBodyText from "../StyledDialogComponents/StyledBodyText";
 import DefaultDialogActions from "../StyledDialogComponents/StyledDialogActions";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 import { useAuthContext } from "../Contexts/AuthContext";
-import StyledAutocomplete from "../StyledFormComponents/StyledAutocomplete";
 import {
-  LIST_ORG_NAMES,
-  ListOrgNamesResp,
+  LIST_APPROVED_STUDIES,
+  ListApprovedStudiesInput,
+  ListApprovedStudiesResp,
   REQUEST_ACCESS,
   RequestAccessInput,
   RequestAccessResp,
@@ -65,7 +64,7 @@ const StyledButton = styled(LoadingButton)({
 
 export type InputForm = {
   role: UserRole;
-  organization: string;
+  studies: string[];
   additionalInfo: string;
 };
 
@@ -88,43 +87,47 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
   const { handleSubmit, register, control, formState } = useForm<InputForm>({
     defaultValues: {
       role: RoleOptions.includes(user.role) ? user.role : "Submitter",
-      organization: user?.organization?.orgName || "",
+      studies: [],
+      additionalInfo: "",
     },
   });
   const { errors, isSubmitting } = formState;
 
-  const { data } = useQuery<ListOrgNamesResp>(LIST_ORG_NAMES, {
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-first",
-    onError: () => {
-      enqueueSnackbar("Unable to retrieve organization list.", {
-        variant: "error",
-      });
-    },
-  });
+  const { data } = useQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
+    LIST_APPROVED_STUDIES,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-first",
+      onError: () => {
+        enqueueSnackbar("Unable to retrieve approved studies list.", {
+          variant: "error",
+        });
+      },
+    }
+  );
 
   const [requestAccess] = useMutation<RequestAccessResp, RequestAccessInput>(REQUEST_ACCESS, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const sortedOrgs = useMemo<string[]>(
+  const sortedStudies = useMemo<string[]>(
     () =>
-      cloneDeep(data?.listOrganizations)
-        ?.map(({ name }) => name)
+      cloneDeep(data?.listApprovedStudies?.studies)
+        ?.map(({ studyName }) => studyName)
         ?.sort((a, b) => a.localeCompare(b)) || [],
     [data]
   );
 
   const onSubmit: SubmitHandler<InputForm> = async ({
     role,
-    organization,
+    studies,
     additionalInfo,
   }: InputForm) => {
     const { data, errors } = await requestAccess({
       variables: {
         role,
-        organization: organization?.trim(),
+        studies,
         additionalInfo,
       },
     }).catch((e) => ({
@@ -200,46 +203,40 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
             </StyledHelperText>
           </Box>
           <Box>
-            <StyledLabel id="organization-input-label">
-              Organization
+            <StyledLabel id="studies-input-label">
+              Studies
               <StyledAsterisk />
             </StyledLabel>
             <Controller
-              name="organization"
+              name="studies"
               control={control}
               rules={{ required: "This field is required" }}
               render={({ field }) => (
-                <StyledAutocomplete
+                <StyledSelect
                   {...field}
-                  options={sortedOrgs}
-                  onChange={(_, data: string) => field.onChange(data.trim())}
-                  onInputChange={(_, data: string) => field.onChange(data.trim())}
-                  renderInput={({ inputProps, ...params }) => (
-                    <TextField
-                      {...params}
-                      inputProps={{ "aria-labelledby": "organization-input-label", ...inputProps }}
-                      placeholder="Enter your organization or Select one from the list"
-                    />
-                  )}
-                  data-testid="access-request-organization-field"
-                  freeSolo
-                />
+                  size="small"
+                  MenuProps={{ disablePortal: true }}
+                  data-testid="access-request-studies-field"
+                  inputProps={{
+                    "aria-labelledby": "studies-input-label",
+                  }}
+                  placeholderText="Select one or more studies from the list"
+                  multiple
+                >
+                  {sortedStudies.map((study) => (
+                    <MenuItem key={study} value={study} data-testid={`studies-${study}`}>
+                      {study}
+                    </MenuItem>
+                  ))}
+                </StyledSelect>
               )}
             />
             <StyledHelperText data-testid="access-request-dialog-error-organization">
-              {errors?.organization?.message}
+              {errors?.studies?.message}
             </StyledHelperText>
           </Box>
           <Box>
-            <StyledLabel id="additionalInfo-input-label">
-              Additional Info
-              <Tooltip
-                title="Provide details such as your host institution or lab, along with the study or program you are submitting data for, to help us determine your associated organization."
-                open={undefined}
-                disableHoverListener={false}
-                data-testid="additionalInfo-input-tooltip"
-              />
-            </StyledLabel>
+            <StyledLabel id="additionalInfo-input-label">Additional Info</StyledLabel>
             <StyledOutlinedInput
               {...register("additionalInfo", {
                 setValueAs: (v: string) => v?.trim(),
