@@ -54,12 +54,13 @@ const useProfileFields = (
   if (user?.role === "Admin" && viewType === "users") {
     fields.role = "UNLOCKED";
     fields.userStatus = "UNLOCKED";
-  }
 
-  // Editable for Admin viewing Federal Monitor otherwise hidden
-  // even for a user viewing their own profile
-  if (user?.role === "Admin" && viewType === "users" && profileOf?.role === "Federal Monitor") {
-    fields.studies = "UNLOCKED";
+    // Editable for Admin viewing Federal Monitor or Submitter, otherwise hidden
+    // even for a user viewing their own profile
+    fields.studies =
+      profileOf?.role === "Submitter" || profileOf?.role === "Federal Monitor"
+        ? "UNLOCKED"
+        : "HIDDEN";
   }
 
   // Only applies to Data Commons POC
