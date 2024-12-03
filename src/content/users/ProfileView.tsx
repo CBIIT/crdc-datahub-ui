@@ -1,7 +1,7 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import { Box, Container, MenuItem, Stack, Typography, styled } from "@mui/material";
+import { Box, Container, MenuItem, Stack, TextField, Typography, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -30,6 +30,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import BaseAutocomplete from "../../components/StyledFormComponents/StyledAutocomplete";
 import useProfileFields, { FieldState } from "../../hooks/useProfileFields";
 import AccessRequest from "../../components/AccessRequest";
 
@@ -109,6 +110,7 @@ const BaseInputStyling = {
   width: "363px",
 };
 
+const StyledAutocomplete = styled(BaseAutocomplete)(BaseInputStyling);
 const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
 const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
@@ -138,6 +140,11 @@ const StyledTitleBox = styled(Box)({
   width: "100%",
 });
 
+const StyledTag = styled("div")({
+  position: "absolute",
+  paddingLeft: "12px",
+});
+
 /**
  * User Profile View Component
  *
@@ -158,6 +165,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     isSelf && viewType === "profile" ? { ...currentUser } : null
   );
   const [saving, setSaving] = useState<boolean>(false);
+  const [studyOptions, setStudyOptions] = useState<string[]>([]);
 
   const roleField = watch("role");
   const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
@@ -204,6 +212,20 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       skip: fieldset.studies !== "UNLOCKED",
     }
   );
+
+  const formattedStudyMap = useMemo<Record<string, string>>(() => {
+    if (!approvedStudies?.listApprovedStudies?.studies) {
+      return {};
+    }
+
+    return approvedStudies.listApprovedStudies.studies.reduce(
+      (acc, { _id, studyName, studyAbbreviation }) => ({
+        ...acc,
+        [_id]: formatFullStudyName(studyName, studyAbbreviation),
+      }),
+      {}
+    );
+  }, [approvedStudies?.listApprovedStudies?.studies]);
 
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
@@ -258,6 +280,20 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     }
   };
 
+  const sortStudyOptions = () => {
+    const val = watch("studies");
+    const options = Object.keys(formattedStudyMap);
+
+    const selectedOptions = val
+      .filter((v) => options.includes(v))
+      .sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b]));
+    const unselectedOptions = options
+      .filter((o) => !selectedOptions.includes(o))
+      .sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b]));
+
+    setStudyOptions([...selectedOptions, ...unselectedOptions]);
+  };
+
   useEffect(() => {
     // No action needed if viewing own profile, using cached data
     if (isSelf && viewType === "profile") {
@@ -286,6 +322,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       });
     })();
   }, [_id]);
+
+  useEffect(() => {
+    if (fieldset.studies === "UNLOCKED") {
+      sortStudyOptions();
+    }
+  }, [formattedStudyMap]);
 
   if (!user || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
@@ -395,29 +437,36 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     control={control}
                     rules={{ required: false }}
                     render={({ field }) => (
-                      <StyledSelect
+                      <StyledAutocomplete
                         {...field}
-                        size="small"
-                        value={field.value || []}
-                        disabled={fieldset.studies === "DISABLED"}
-                        MenuProps={{ disablePortal: true }}
-                        inputProps={{ "aria-labelledby": "userStudies" }}
-                        renderValue={(selected: string[]) =>
-                          formatStudySelectionValue(
-                            selected,
-                            approvedStudies?.listApprovedStudies?.studies
-                          )
-                        }
-                        multiple
-                      >
-                        {approvedStudies?.listApprovedStudies?.studies?.map(
-                          ({ _id, studyName, studyAbbreviation }) => (
-                            <MenuItem key={_id} value={_id}>
-                              {formatFullStudyName(studyName, studyAbbreviation)}
-                            </MenuItem>
-                          )
+                        renderInput={({ inputProps, ...params }) => (
+                          <TextField
+                            {...params}
+                            placeholder={
+                              watch("studies")?.length > 0 ? undefined : "Select studies"
+                            }
+                            inputProps={{ "aria-labelledby": "userStudies", ...inputProps }}
+                            onBlur={sortStudyOptions}
+                          />
                         )}
-                      </StyledSelect>
+                        renderTags={(value: string[], _, state) => {
+                          if (value?.length === 0 || state.focused) {
+                            return null;
+                          }
+
+                          return (
+                            <StyledTag>
+                              {formatStudySelectionValue(value, formattedStudyMap)}
+                            </StyledTag>
+                          );
+                        }}
+                        options={studyOptions}
+                        getOptionLabel={(option: string) => formattedStudyMap[option]}
+                        onChange={(_, data: string[]) => field.onChange(data)}
+                        disabled={fieldset.studies === "DISABLED"}
+                        disableCloseOnSelect
+                        multiple
+                      />
                     )}
                   />
                 ) : null}

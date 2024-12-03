@@ -449,73 +449,97 @@ describe("formatORCIDInput cases", () => {
 });
 
 describe("renderStudySelectionValue cases", () => {
-  const baseStudy: ApprovedStudy = {
-    _id: "",
-    studyName: "",
-    studyAbbreviation: "",
-    dbGaPID: "",
-    controlledAccess: false,
-    originalOrg: "",
-    openAccess: false,
-    PI: "",
-    ORCID: "",
-    createdAt: "",
-  };
+  it("should filter out studies that are not in the studyMap", () => {
+    const studies = {
+      a: "Study A",
+      b: "Study B",
+    };
 
-  it("should return the fallback value if studyIds is not an array", () => {
-    const result = utils.formatStudySelectionValue(null, [baseStudy], "fallback");
+    const result = utils.formatStudySelectionValue(["a", "c"], studies);
+    expect(result).toBe("Study A");
+  });
+
+  it("should append an ellipsis if the combined result is longer than 30 char", () => {
+    const studies = {
+      a: "Study A",
+      b: "Study B",
+      longStudy: "X".repeat(30),
+    };
+
+    const result = utils.formatStudySelectionValue(["a", "b"], studies);
+    expect(result).toContain("Study A, Study B");
+
+    const longResult = utils.formatStudySelectionValue(["a", "longStudy"], studies);
+    expect(longResult).toContain("Study A, XXXXXXXXXXXXXXXXXXXXX...");
+  });
+
+  it("should sort the selection alphabetically ignoring selection order", () => {
+    const studies = {
+      a: "AA",
+      b: "BB",
+      c: "CC",
+      y: "YY",
+    };
+
+    const result = utils.formatStudySelectionValue(["c", "a", "y"], studies);
+    expect(result).toContain("AA, CC, YY");
+
+    const result2 = utils.formatStudySelectionValue(["b", "y", "c", "a"], studies);
+    expect(result2).toContain("AA, BB, CC, YY");
+  });
+
+  it("should contain the number of studies selected if more than one", () => {
+    const studies = {
+      a: "Study A",
+      b: "Study B",
+      c: "Study C",
+      long: "X".repeat(30),
+    };
+
+    const noCount = utils.formatStudySelectionValue(["a"], studies);
+    expect(noCount).toBe("Study A");
+
+    const withCount = utils.formatStudySelectionValue(["a", "b", "c"], studies);
+    expect(withCount).not.toContain("...");
+    expect(withCount).toContain(" (3)");
+
+    const withCountAndEllipsis = utils.formatStudySelectionValue(["a", "b", "c", "long"], studies);
+    expect(withCountAndEllipsis).toContain("...");
+    expect(withCountAndEllipsis).toContain(" (4)");
+  });
+
+  it("should return the fallback value if selectedIds is not an array", () => {
+    const result = utils.formatStudySelectionValue(null, { b: "xyz" }, "fallback");
     expect(result).toBe("fallback");
   });
 
-  it("should return the fallback value if approvedStudies is not an array", () => {
+  it("should return the fallback value if studyMap is not a map", () => {
     const result = utils.formatStudySelectionValue(["1"], null, "fallback");
     expect(result).toBe("fallback");
   });
 
-  it("should return the fallback value if studyIds is empty", () => {
-    const result = utils.formatStudySelectionValue([], [baseStudy], "fallback");
+  it("should return the fallback value if selectedIds is empty", () => {
+    const result = utils.formatStudySelectionValue([], { b: "xyz" }, "fallback");
     expect(result).toBe("fallback");
   });
 
-  it("should return the fallback value if approvedStudies is empty", () => {
-    const result = utils.formatStudySelectionValue(["1"], [], "fallback");
+  it("should return the fallback value if studyMap is empty", () => {
+    const result = utils.formatStudySelectionValue(["1"], {}, "fallback");
     expect(result).toBe("fallback");
   });
 
   it("should return the fallback value if no matching study is found", () => {
-    const studies = [
-      { _id: "1", studyName: "Study 1", studyAbbreviation: "S1" },
-      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
-    ] as ApprovedStudy[];
+    const studies = {
+      a: "Study A",
+      b: "Study B",
+    };
 
-    const result = utils.formatStudySelectionValue(["3"], studies, "fallback");
+    const result = utils.formatStudySelectionValue(["x"], studies, "fallback");
     expect(result).toBe("fallback");
   });
 
-  it("should sort the approved studies by name and return the first element", () => {
-    const studies = [
-      { _id: "3", studyName: "Study C", studyAbbreviation: "SA" }, // actual 3
-      { _id: "2", studyName: "Study A", studyAbbreviation: "SA" }, // actual 1
-      { _id: "1", studyName: "Study B", studyAbbreviation: "SB" }, // actual 2
-    ] as ApprovedStudy[];
-
-    const result = utils.formatStudySelectionValue(["3", "2"], studies, "fallback");
-    expect(result).toBe("Study A (SA)");
-  });
-
-  it("should filter out studies with formatted names", () => {
-    const studies = [
-      { _id: "1", studyName: "", studyAbbreviation: "" },
-      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
-      { _id: "3", studyName: "Study 3", studyAbbreviation: "S3" },
-    ] as ApprovedStudy[];
-
-    const result = utils.formatStudySelectionValue(["1", "2", "3"], studies, "fallback");
-    expect(result).toBe("Study 2 (S2)");
-  });
-
   it("should use the default fallback value if none is provided", () => {
-    const result = utils.formatStudySelectionValue([], []);
+    const result = utils.formatStudySelectionValue([], {});
     expect(result).toBe("");
   });
 });
