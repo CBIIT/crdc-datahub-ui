@@ -55,16 +55,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
   const { pi, primaryContact, piAsPrimaryContact, program, study } = data;
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
-  const {
-    saveFormRef,
-    submitFormRef,
-    nextButtonRef,
-    approveFormRef,
-    inquireFormRef,
-    rejectFormRef,
-    exportButtonRef,
-    getFormObjectRef,
-  } = refs;
+  const { getFormObjectRef } = refs;
 
   const [additionalContacts] = useState<KeyedContact[]>(
     data.additionalContacts?.map(mapObjectWithKey) || []
@@ -101,26 +92,6 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
   };
 
   useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) {
-      return;
-    }
-
-    saveFormRef.current.style.display = "none";
-    nextButtonRef.current.style.display = "none";
-    exportButtonRef.current.style.display = "flex";
-
-    if (formMode === "Review") {
-      approveFormRef.current.style.display = "flex";
-      inquireFormRef.current.style.display = "flex";
-      rejectFormRef.current.style.display = "flex";
-      submitFormRef.current.style.display = "none";
-    } else {
-      approveFormRef.current.style.display = "none";
-      inquireFormRef.current.style.display = "none";
-      rejectFormRef.current.style.display = "none";
-      submitFormRef.current.style.display = "flex";
-    }
-
     getFormObjectRef.current = getFormObject;
   }, [refs, formMode]);
 

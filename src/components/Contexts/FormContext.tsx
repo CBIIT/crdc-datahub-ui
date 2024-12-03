@@ -8,7 +8,6 @@ import {
   REJECT_APP,
   INQUIRE_APP,
   REOPEN_APP,
-  REVIEW_APP,
   SAVE_APP,
   SUBMIT_APP,
   ApproveAppResp,
@@ -17,7 +16,6 @@ import {
   InquireAppResp,
   RejectAppResp,
   ReopenAppResp,
-  ReviewAppResp,
   SaveAppResp,
   SubmitAppResp,
   ApproveAppInput,
@@ -34,7 +32,6 @@ export type ContextState = {
   data: Application;
   submitData?: () => Promise<string | boolean>;
   reopenForm?: () => Promise<string | boolean>;
-  reviewForm?: () => Promise<string | boolean>;
   approveForm?: (comment: string, wholeProgram: boolean) => Promise<SetDataReturnType>;
   inquireForm?: (comment: string) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
@@ -113,12 +110,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
   });
 
   const [submitApp] = useMutation<SubmitAppResp>(SUBMIT_APP, {
-    variables: { id },
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-
-  const [reviewApp] = useMutation<ReviewAppResp>(REVIEW_APP, {
     variables: { id },
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -309,32 +300,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     return res?.rejectApplication?.["_id"];
   };
 
-  // Updating form status from Submitted to In Review
-  const reviewForm = async () => {
-    setState((prevState) => ({ ...prevState, status: Status.LOADING }));
-
-    const { data: res, errors } = await reviewApp({
-      variables: {
-        _id: state?.data["_id"],
-      },
-    }).catch((e) => ({ data: null, errors: [e] }));
-
-    if (errors || !res?.reviewApplication?.["_id"]) {
-      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
-      return false;
-    }
-
-    setState((prevState) => ({
-      ...prevState,
-      data: {
-        ...prevState?.data,
-        ...res?.reviewApplication,
-      },
-      status: Status.LOADED,
-    }));
-    return res?.reviewApplication?.["_id"];
-  };
-
   // Reopen a form when it has been rejected and they submit an updated form
   const reopenForm = async () => {
     setState((prevState) => ({ ...prevState, status: Status.LOADING }));
@@ -448,7 +413,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       approveForm,
       inquireForm,
       rejectForm,
-      reviewForm,
       reopenForm,
     }),
     [state]
