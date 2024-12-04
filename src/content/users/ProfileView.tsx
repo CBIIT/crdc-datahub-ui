@@ -435,7 +435,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   <Controller
                     name="studies"
                     control={control}
-                    rules={{ required: false }}
+                    rules={{ required: true }}
                     render={({ field }) => (
                       <StyledAutocomplete
                         {...field}
@@ -447,6 +447,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                             }
                             inputProps={{ "aria-labelledby": "userStudies", ...inputProps }}
                             onBlur={sortStudyOptions}
+                            required
                           />
                         )}
                         renderTags={(value: string[], _, state) => {
