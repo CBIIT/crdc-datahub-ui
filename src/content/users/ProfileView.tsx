@@ -196,22 +196,22 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     fetchPolicy: "no-cache",
   });
 
-  const { data: approvedStudies } = useQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
-    LIST_APPROVED_STUDIES,
-    {
-      variables: {
-        // show all access types
-        controlledAccess: "All",
-        first: -1,
-        offset: 0,
-        orderBy: "studyName",
-        sortDirection: "asc",
-      },
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-      skip: fieldset.studies !== "UNLOCKED",
-    }
-  );
+  const { data: approvedStudies, loading: approvedStudiesLoading } = useQuery<
+    ListApprovedStudiesResp,
+    ListApprovedStudiesInput
+  >(LIST_APPROVED_STUDIES, {
+    variables: {
+      // show all access types
+      controlledAccess: "All",
+      first: -1,
+      offset: 0,
+      orderBy: "studyName",
+      sortDirection: "asc",
+    },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+    skip: fieldset.studies !== "UNLOCKED",
+  });
 
   const formattedStudyMap = useMemo<Record<string, string>>(() => {
     if (!approvedStudies?.listApprovedStudies?.studies) {
@@ -464,6 +464,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         getOptionLabel={(option: string) => formattedStudyMap[option]}
                         onChange={(_, data: string[]) => field.onChange(data)}
                         disabled={fieldset.studies === "DISABLED"}
+                        loading={approvedStudiesLoading}
                         disableCloseOnSelect
                         multiple
                       />
