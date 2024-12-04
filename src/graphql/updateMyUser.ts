@@ -7,8 +7,13 @@ export const mutation = gql`
       lastName
       userStatus
       role
-      # TODO: query for subfields
-      studies
+      studies {
+        _id
+        studyName
+        studyAbbreviation
+        dbGaPID
+        controlledAccess
+      }
     }
   }
 `;
@@ -21,5 +26,10 @@ export type Input = {
 };
 
 export type Response = {
-  updateMyUser: Pick<User, "firstName" | "lastName" | "userStatus" | "role" | "studies">;
+  updateMyUser: Pick<User, "firstName" | "lastName" | "userStatus" | "role"> & {
+    studies: Pick<
+      ApprovedStudy,
+      "_id" | "studyName" | "studyAbbreviation" | "dbGaPID" | "controlledAccess"
+    >[];
+  };
 };

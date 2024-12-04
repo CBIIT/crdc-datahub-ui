@@ -13,8 +13,11 @@ export const query = gql`
       createdAt
       updateAt
       dataCommons
-      # TODO: Request the study fields from the server
-      studies
+      studies {
+        _id
+        studyName
+        studyAbbreviation
+      }
     }
   }
 `;
@@ -24,5 +27,7 @@ export type Input = {
 };
 
 export type Response = {
-  getUser: User;
+  getUser: User & {
+    studies: Pick<ApprovedStudy, "_id" | "studyName" | "studyAbbreviation">[];
+  };
 };

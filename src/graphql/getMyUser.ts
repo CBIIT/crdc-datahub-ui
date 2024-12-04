@@ -11,8 +11,13 @@ export const query = gql`
       IDP
       email
       dataCommons
-      # TODO: Request the study fields from the server
-      studies
+      studies {
+        _id
+        studyName
+        studyAbbreviation
+        dbGaPID
+        controlledAccess
+      }
       createdAt
       updateAt
     }
@@ -20,5 +25,10 @@ export const query = gql`
 `;
 
 export type Response = {
-  getMyUser: User;
+  getMyUser: User & {
+    studies: Pick<
+      ApprovedStudy,
+      "_id" | "studyName" | "studyAbbreviation" | "dbGaPID" | "controlledAccess"
+    >[];
+  };
 };

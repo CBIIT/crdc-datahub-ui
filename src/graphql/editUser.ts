@@ -18,8 +18,13 @@ export const mutation = gql`
       userStatus
       role
       dataCommons
-      # TODO: Request the study fields from the server
-      studies
+      studies {
+        _id
+        studyName
+        studyAbbreviation
+        dbGaPID
+        controlledAccess
+      }
     }
   }
 `;
@@ -36,5 +41,10 @@ export type Input = {
 } & Pick<User, "userStatus" | "role" | "dataCommons">;
 
 export type Response = {
-  editUser: Pick<User, "userStatus" | "role" | "dataCommons" | "studies">;
+  editUser: Pick<User, "userStatus" | "role" | "dataCommons"> & {
+    studies: Pick<
+      ApprovedStudy,
+      "_id" | "studyName" | "studyAbbreviation" | "dbGaPID" | "controlledAccess"
+    >[];
+  };
 };
