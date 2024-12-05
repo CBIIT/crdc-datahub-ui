@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 export const mutation = gql`
-  mutation requestAccess($role: String!, $studies: String!, $additionalInfo: String) {
+  mutation requestAccess($role: String!, $studies: [String]!, $additionalInfo: String) {
     requestAccess(role: $role, studies: $studies, additionalInfo: $additionalInfo) {
       success
       message
