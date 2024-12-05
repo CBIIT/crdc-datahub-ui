@@ -381,6 +381,56 @@ describe("ListView Component", () => {
     });
   });
 
+  it("should display a icon and tooltip if the application has pending conditions", async () => {
+    const listApplicationsMock: MockedResponse<ListApplicationsResp, ListApplicationsInput> = {
+      request: {
+        query: LIST_APPLICATIONS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          listApplications: {
+            total: 1,
+            applications: [
+              {
+                _id: "application-id",
+                applicant: { applicantName: "John Doe", applicantID: "user-id" },
+                status: "Approved",
+                studyAbbreviation: "STUDY",
+                conditional: true,
+                pendingConditions: ["Pending condition #1"],
+              } as Application,
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, getByRole, queryByRole } = render(
+      <TestParent role="Submitter" mocks={[listApplicationsMock]}>
+        <ListView />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("pending-conditions-icon")).toBeInTheDocument();
+    });
+
+    userEvent.hover(getByTestId("pending-conditions-icon"));
+
+    await waitFor(() => {
+      expect(getByRole("tooltip")).toBeInTheDocument();
+    });
+
+    expect(getByRole("tooltip")).toHaveTextContent("Pending condition #1");
+
+    userEvent.unhover(getByTestId("pending-conditions-icon"));
+
+    await waitFor(() => {
+      expect(queryByRole("tooltip")).not.toBeInTheDocument();
+    });
+  });
+
   it("shows an error message when the listApplications query fails", async () => {
     const listApplicationsMock: MockedResponse<ListApplicationsResp, ListApplicationsInput> = {
       request: {

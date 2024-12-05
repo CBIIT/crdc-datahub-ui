@@ -112,12 +112,10 @@ describe("getFormMode tests based on provided requirements", () => {
   describe("getFormMode > Fed Lead tests", () => {
     const user: User = { ...baseUser, role: "Federal Lead" };
 
-    it("should set Review mode for Fed Lead when status is Submitted or In Review", () => {
-      const statuses: ApplicationStatus[] = ["Submitted", "In Review"];
-
-      statuses.forEach((status) => {
-        expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.REVIEW);
-      });
+    it("should set Review mode for Fed Lead when status is 'In Review'", () => {
+      expect(utils.getFormMode(user, { ...baseSubmission, status: "In Review" })).toBe(
+        utils.FormModes.REVIEW
+      );
     });
 
     it("should set View Only mode for Fed Lead for all other statuses", () => {
@@ -127,6 +125,7 @@ describe("getFormMode tests based on provided requirements", () => {
         "In Progress",
         "Rejected",
         "Inquired",
+        "Submitted",
       ];
 
       statuses.forEach((status) => {

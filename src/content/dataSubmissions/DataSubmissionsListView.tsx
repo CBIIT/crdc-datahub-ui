@@ -148,7 +148,7 @@ const columns: Column<T>[] = [
 
   {
     label: "dbGaP ID",
-    renderValue: (a) => <TruncatedText text={a.dbGaPID} />,
+    renderValue: (a) => <TruncatedText text={a.dbGaPID} maxCharacters={15} />,
     field: "dbGaPID",
     hideable: true,
   },
@@ -170,7 +170,7 @@ const columns: Column<T>[] = [
   },
 
   {
-    label: "Node Count",
+    label: "Record Count",
     renderValue: (a) =>
       Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(a.nodeCount || 0),
     field: "nodeCount",

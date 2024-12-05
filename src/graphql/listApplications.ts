@@ -21,6 +21,8 @@ export const query = gql`
           applicantName
           applicantID
         }
+        conditional
+        pendingConditions
       }
     }
   }
