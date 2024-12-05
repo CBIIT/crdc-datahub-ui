@@ -227,7 +227,7 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                     <MenuItem
                       key={study._id}
                       value={study._id}
-                      data-testid={`studies-${study._id}`}
+                      data-testid={`studies-${study.studyName}`}
                     >
                       {study.studyName}
                     </MenuItem>
