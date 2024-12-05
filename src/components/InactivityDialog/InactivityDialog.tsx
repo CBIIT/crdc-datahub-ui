@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FC } from "react";
 import { Button, Dialog, DialogTitle, styled } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -119,16 +119,24 @@ const SessionTimeoutContent = styled("div")({
   },
 });
 
-const thresholdTime = 300;
+/**
+ * The time (in seconds) at which the timeout warning banner should be displayed.
+ */
+const timeoutThresholdSeconds = 300;
 
-const InactivityDialog = () => {
+/**
+ * An inactivity dialog that handles session the TTL ping and timeout.
+ *
+ * @returns InactivityDialog component
+ */
+const InactivityDialog: FC = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { isLoggedIn, logout } = useAuthContext();
 
   const [warning, setWarning] = useState<boolean>(false);
   const [timedOut, setTimedOut] = useState<boolean>(false);
-  const [timeLeft, setTimeLeft] = useState<number>(thresholdTime);
+  const [timeLeft, setTimeLeft] = useState<number>(timeoutThresholdSeconds);
 
   const extendSession = async () => {
     try {
@@ -180,7 +188,7 @@ const InactivityDialog = () => {
         // If user did not select any option and timed out in BE.
         handleSignOutNoBanner();
         setTimedOut(true);
-      } else if (ttl > 0 && ttl <= thresholdTime) {
+      } else if (ttl > 0 && ttl <= timeoutThresholdSeconds) {
         setTimeLeft(ttl);
         setWarning(true);
       }
