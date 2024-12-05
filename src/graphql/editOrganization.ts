@@ -4,8 +4,8 @@ export const mutation = gql`
   mutation editOrganization(
     $orgID: ID!
     $name: String
-    # $abbreviation: String
-    # $description: String
+    $abbreviation: String
+    $description: String
     $conciergeID: String
     $studies: [ApprovedStudyInput]
     $status: String
@@ -13,17 +13,16 @@ export const mutation = gql`
     editOrganization(
       orgID: $orgID
       name: $name
-      # abbreviation: $abbreviation
-      # description: $description
+      abbreviation: $abbreviation
+      description: $description
       conciergeID: $conciergeID
       studies: $studies
       status: $status
     ) {
       _id
       name
-      # TODO: Remove this once the server-side code is updated
-      abbreviation @client
-      description @client
+      abbreviation
+      description
       status
       conciergeID
       conciergeName

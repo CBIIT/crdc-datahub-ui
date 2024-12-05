@@ -5,9 +5,8 @@ export const query = gql`
     getOrganization(orgID: $orgID) {
       _id
       name
-      # TODO: Remove below
-      abbreviation @client
-      description @client
+      abbreviation
+      description
       status
       conciergeID
       conciergeName
