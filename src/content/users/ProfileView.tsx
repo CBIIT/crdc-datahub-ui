@@ -447,7 +447,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                             }
                             inputProps={{ "aria-labelledby": "userStudies", ...inputProps }}
                             onBlur={sortStudyOptions}
-                            required
                           />
                         )}
                         renderTags={(value: string[], _, state) => {
