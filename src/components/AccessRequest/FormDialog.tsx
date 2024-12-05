@@ -111,11 +111,11 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
     fetchPolicy: "no-cache",
   });
 
-  const sortedStudies = useMemo<string[]>(
+  const sortedStudies = useMemo<ApprovedStudy[]>(
     () =>
-      cloneDeep(data?.listApprovedStudies?.studies)
-        ?.map(({ studyName }) => studyName)
-        ?.sort((a, b) => a.localeCompare(b)) || [],
+      cloneDeep(data?.listApprovedStudies?.studies)?.sort(
+        (a, b) => a?.studyName.localeCompare(b?.studyName)
+      ) || [],
     [data]
   );
 
@@ -224,8 +224,12 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                   multiple
                 >
                   {sortedStudies.map((study) => (
-                    <MenuItem key={study} value={study} data-testid={`studies-${study}`}>
-                      {study}
+                    <MenuItem
+                      key={study._id}
+                      value={study._id}
+                      data-testid={`studies-${study._id}`}
+                    >
+                      {study.studyName}
                     </MenuItem>
                   ))}
                 </StyledSelect>
