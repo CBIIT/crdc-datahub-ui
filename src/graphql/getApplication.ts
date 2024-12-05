@@ -28,6 +28,8 @@ export const query = gql`
       programName
       studyAbbreviation
       questionnaireData
+      conditional
+      pendingConditions
     }
   }
 `;

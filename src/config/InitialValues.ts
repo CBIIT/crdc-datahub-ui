@@ -13,6 +13,8 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   programName: "",
   studyAbbreviation: "",
   PI: "",
+  conditional: false,
+  pendingConditions: [],
 };
 
 export const InitialQuestionnaire: QuestionnaireData = {

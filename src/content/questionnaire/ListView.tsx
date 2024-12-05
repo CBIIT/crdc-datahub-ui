@@ -13,13 +13,17 @@ import {
 import { LoadingButton } from "@mui/lab";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
+import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
 import PageBanner from "../../components/PageBanner";
-import { FormatDate } from "../../utils";
+import { FormatDate, Logger } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import {
   LIST_APPLICATIONS,
   ListApplicationsInput,
   ListApplicationsResp,
+  REVIEW_APP,
+  ReviewAppInput,
+  ReviewAppResp,
   SAVE_APP,
   SaveAppInput,
   SaveAppResp,
@@ -30,6 +34,7 @@ import QuestionnaireContext from "./Contexts/QuestionnaireContext";
 import TruncatedText from "../../components/TruncatedText";
 import { CanCreateSubmissionRequest } from "../../config/AuthRoles";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import Tooltip from "../../components/Tooltip";
 
 type T = Omit<Application, "questionnaireData">;
 
@@ -112,6 +117,16 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
   cursor: "pointer",
 }));
 
+const StyledSpecialStatus = styled(Stack)({
+  color: "#D82F00",
+  fontWeight: 600,
+});
+
+const StyledBellIcon = styled(BellIcon)({
+  width: "18px",
+  marginLeft: "6px",
+});
+
 const columns: Column<T>[] = [
   {
     label: "Submitter Name",
@@ -139,10 +154,29 @@ const columns: Column<T>[] = [
   },
   {
     label: "Status",
-    renderValue: (a) => a.status,
+    renderValue: ({ status, conditional, pendingConditions }) => {
+      if (!conditional || !pendingConditions?.length || status !== "Approved") {
+        return status;
+      }
+
+      return (
+        <Tooltip
+          title={pendingConditions?.join(" ")}
+          placement="top"
+          open={undefined}
+          disableHoverListener={false}
+          arrow
+        >
+          <StyledSpecialStatus direction="row" alignItems="center">
+            <span>{status}</span>
+            <StyledBellIcon data-testid="pending-conditions-icon" />
+          </StyledSpecialStatus>
+        </Tooltip>
+      );
+    },
     field: "status",
     sx: {
-      width: "104px",
+      width: "124px",
     },
   },
   {
@@ -180,7 +214,7 @@ const columns: Column<T>[] = [
     label: "Action",
     renderValue: (a) => (
       <QuestionnaireContext.Consumer>
-        {({ user }) => {
+        {({ user, handleOnReviewClick }) => {
           const role = user?.role;
 
           if (
@@ -198,11 +232,14 @@ const columns: Column<T>[] = [
           }
           if (role === "Federal Lead" && ["Submitted", "In Review"].includes(a.status)) {
             return (
-              <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-                <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">
-                  Review
-                </StyledActionButton>
-              </Link>
+              <StyledActionButton
+                onClick={() => handleOnReviewClick(a)}
+                bg="#F1C6B3"
+                text="#5F564D"
+                border="#DB9C62"
+              >
+                Review
+              </StyledActionButton>
             );
           }
 
@@ -250,6 +287,10 @@ const ListingView: FC = () => {
     }
   );
   const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
+  const [reviewApp] = useMutation<ReviewAppResp, ReviewAppInput>(REVIEW_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -315,7 +356,38 @@ const ListingView: FC = () => {
     }
   };
 
-  const providerValue = useMemo(() => ({ user }), [user]);
+  const handleOnReviewClick = async ({ _id, status }: T) => {
+    if (status !== "Submitted") {
+      navigate(`/submission/${_id}`, {
+        state: {
+          from: "/submissions",
+        },
+      });
+      return;
+    }
+
+    try {
+      const { data: d, errors } = await reviewApp({
+        variables: {
+          id: _id,
+        },
+      });
+
+      if (errors || !d?.reviewApplication?._id) {
+        throw new Error("Unable to review Submission Request.");
+      }
+
+      navigate(`/submission/${_id}`, {
+        state: {
+          from: "/submissions",
+        },
+      });
+    } catch (err) {
+      Logger.error("Error transitioning form from Submitted to In Review", err);
+    }
+  };
+
+  const providerValue = useMemo(() => ({ user, handleOnReviewClick }), [user, handleOnReviewClick]);
 
   return (
     <>

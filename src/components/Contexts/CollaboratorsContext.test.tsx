@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, renderHook, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { useCollaboratorsContext, CollaboratorsProvider } from "./CollaboratorsContext";
@@ -755,5 +755,63 @@ describe("CollaboratorsContext", () => {
       orgID: "org-3",
       orgName: "Org 3",
     });
+  });
+
+  it("should handle updating an existing collaborator when they're no longer a potential collaborator", async () => {
+    mockSubmissionData = dummySubmissionData;
+
+    const emptyPotentialCollaborators: MockedResponse<
+      ListPotentialCollaboratorsResp,
+      ListPotentialCollaboratorsInput
+    > = {
+      request: {
+        query: LIST_POTENTIAL_COLLABORATORS,
+        variables: { submissionID: "submission-id-123" },
+      },
+      result: {
+        data: {
+          listPotentialCollaborators: [],
+        },
+      },
+    };
+
+    const { result } = renderHook(() => useCollaboratorsContext(), {
+      wrapper: ({ children }) => (
+        <TestParent mocks={[emptyPotentialCollaborators]}>{children}</TestParent>
+      ),
+    });
+
+    act(() => {
+      result.current.loadPotentialCollaborators();
+    });
+
+    const existingCol = dummySubmissionData.getSubmission.collaborators[0];
+
+    await waitFor(() => {
+      expect(result.current.currentCollaborators.length).toBe(2);
+      expect(result.current.maxCollaborators).toBe(2);
+    });
+
+    expect(result.current.currentCollaborators[0].collaboratorID).toBe(existingCol.collaboratorID);
+    expect(result.current.currentCollaborators[0].permission).toBe(existingCol.permission);
+
+    // Update an existing collaborator that NO LONGER exists in potential collaborators
+    act(() => {
+      result.current.handleUpdateCollaborator(0, {
+        collaboratorID: dummySubmissionData.getSubmission.collaborators[0].collaboratorID,
+        permission: "Can View", // current permission is Can Edit
+      });
+    });
+
+    await waitFor(() => {
+      // Verify the update propagated
+      expect(result.current.currentCollaborators[0].permission).toBe("Can View");
+    });
+
+    // Verify the user's details are carried over from the existing collaborators
+    expect(result.current.currentCollaborators[0].collaboratorName).toBe(
+      existingCol.collaboratorName
+    );
+    expect(result.current.currentCollaborators[0].Organization).toBe(existingCol.Organization);
   });
 });

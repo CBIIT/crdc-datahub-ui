@@ -1,7 +1,7 @@
 export type FormMode = "Unauthorized" | "Edit" | "View Only" | "Review";
 
 export const EditStatuses = ["New", "In Progress", "Inquired"];
-export const ReviewStatuses = ["Submitted", "In Review"];
+export const ReviewStatuses = ["In Review"];
 export const FormModes = {
   UNAUTHORIZED: "Unauthorized",
   EDIT: "Edit",
