@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import {
   Button,
   Dialog,
@@ -11,15 +11,9 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import {
-  CREATE_SUBMISSION,
-  CreateSubmissionResp,
-  CreateSubmissionInput,
-  ListApprovedStudiesOfMyOrgResp,
-  LIST_APPROVED_STUDIES_OF_MY_ORG,
-} from "../../graphql";
+import { CREATE_SUBMISSION, CreateSubmissionResp, CreateSubmissionInput } from "../../graphql";
 import RadioInput, { RadioOption } from "./RadioInput";
 import { DataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
@@ -218,7 +212,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-
   const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
   const [dbGaPID, setDbGaPID] = useState<string>("");
 
@@ -229,12 +222,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       fetchPolicy: "no-cache",
     }
   );
-
-  const { data: approvedStudiesData, loading: approvedStudiesLoading } =
-    useQuery<ListApprovedStudiesOfMyOrgResp>(LIST_APPROVED_STUDIES_OF_MY_ORG, {
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-    });
 
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
   const intention = watch("intention");
@@ -278,6 +265,12 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     },
   ];
 
+  const sortedStudies = useMemo<User["studies"]>(
+    () =>
+      user?.studies?.sort((a, b) => a.studyAbbreviation.localeCompare(b.studyAbbreviation)) || [],
+    [user?.studies]
+  );
+
   const handleOpenDialog = () => {
     reset();
     setCreatingSubmission(true);
@@ -316,9 +309,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
   useEffect(() => {
     const studyID = watch("studyID");
-    const mappedStudy = approvedStudiesData?.listApprovedStudiesOfMyOrganization?.find(
-      (s) => s._id === studyID
-    );
+    const mappedStudy = user?.studies?.find((s) => s?._id === studyID);
 
     if (!studyID || !mappedStudy) {
       setDbGaPID("");
@@ -453,7 +444,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     inputProps={{ "aria-labelledby": "study" }}
                     data-testid="create-data-submission-dialog-study-id-input"
                   >
-                    {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((study) => (
+                    {sortedStudies.map((study) => (
                       <MenuItem key={study._id} value={study._id}>
                         {study.studyAbbreviation}
                       </MenuItem>
@@ -558,7 +549,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
             type="button"
             variant="contained"
             onClick={handleOpenDialog}
-            disabled={authStatus === AuthStatus.LOADING || approvedStudiesLoading}
+            disabled={authStatus === AuthStatus.LOADING}
           >
             Create a Data Submission
           </StyledButton>

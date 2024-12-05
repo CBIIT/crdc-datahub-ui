@@ -2,6 +2,7 @@ import React, { FC, createContext, useContext, useEffect, useMemo, useState } fr
 import { useLazyQuery } from "@apollo/client";
 import { query as GET_USER, Response as GetUserResp } from "../../graphql/getMyUser";
 import env from "../../env";
+import { safeParse } from "../../utils";
 
 const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
 
@@ -111,7 +112,7 @@ type ProviderProps = {
  */
 
 export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => {
-  const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
+  const cachedUser = safeParse<User | null>(localStorage.getItem("userDetails"), null);
   const cachedState = cachedUser
     ? {
         isLoggedIn: true,

@@ -35,10 +35,10 @@ type User = {
   /**
    * List of ApprovedStudies that the user has access to
    *
-   * @note Not all APIs populate this field fully.
-   * @see {@link ApprovedStudy}
+   * @note Not all APIs populate this field fully, refer to the GraphQL query for available fields
+   * @see {@link ApprovedStudy} for available fields
    */
-  studies: ApprovedStudy[] | Pick<ApprovedStudy, "_id">[];
+  studies: Partial<ApprovedStudy>[] | null;
   /**
    * The SSO IDP used to login
    */
