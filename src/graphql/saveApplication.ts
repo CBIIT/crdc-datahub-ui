@@ -22,10 +22,6 @@ export const mutation = gql`
         applicantID
         applicantName
       }
-      organization {
-        _id
-        name
-      }
     }
   }
 `;

@@ -1,7 +1,6 @@
 export const InitialApplication: Omit<Application, "questionnaireData"> = {
   _id: "new",
   applicant: null,
-  organization: null,
   status: "New",
   createdAt: "",
   updatedAt: "",

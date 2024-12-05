@@ -185,7 +185,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         ...newState.data,
         _id: d.saveApplication["_id"],
         applicant: d?.saveApplication?.applicant,
-        organization: d?.saveApplication?.organization,
       };
     }
 

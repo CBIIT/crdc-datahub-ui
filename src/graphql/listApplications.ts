@@ -38,6 +38,6 @@ export type Input = {
 export type Response = {
   listApplications: {
     total: number;
-    applications: Omit<Application, "questionnaireData" | "organization">[];
+    applications: Omit<Application, "questionnaireData">[];
   };
 };

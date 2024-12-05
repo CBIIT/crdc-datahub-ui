@@ -21,10 +21,6 @@ export const query = gql`
         applicantID
         applicantName
       }
-      organization {
-        _id
-        name
-      }
       programName
       studyAbbreviation
       questionnaireData
