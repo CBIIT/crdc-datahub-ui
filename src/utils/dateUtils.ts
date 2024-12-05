@@ -1,9 +1,11 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import duration from "dayjs/plugin/duration";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(duration);
 
 /**
  * Format a date string to a specified pattern
@@ -32,3 +34,13 @@ export const FormatDate = (
     return fallbackValue;
   }
 };
+
+/**
+ * Parses a number of seconds into a string formatted as "mm:ss".
+ *
+ * @note Supports up to 59 minutes and 59 seconds.
+ * @param seconds The number of seconds to convert.
+ * @returns A string formatted as "mm:ss".
+ */
+export const secondsToMinuteString = (seconds: number) =>
+  dayjs.duration(seconds, "seconds").format("mm:ss");
