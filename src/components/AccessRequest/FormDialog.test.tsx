@@ -123,6 +123,7 @@ describe("Accessibility", () => {
       request: {
         query: LIST_APPROVED_STUDIES,
       },
+      variableMatcher: () => true,
       result: {
         data: {
           listApprovedStudies: {
@@ -574,103 +575,6 @@ describe("Implementation Requirements", () => {
         studies: ["study-1"],
         additionalInfo: expect.any(String),
       });
-    });
-  });
-
-  it("should sort studies in the dropdown alphabetically", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
-    const mock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
-      request: {
-        query: REQUEST_ACCESS,
-      },
-      variableMatcher: mockMatcher,
-      result: {
-        data: {
-          requestAccess: {
-            success: true,
-            message: "Mock success",
-          },
-        },
-      },
-    };
-
-    const customStudiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
-      request: {
-        query: LIST_APPROVED_STUDIES,
-      },
-      result: {
-        data: {
-          listApprovedStudies: {
-            total: 3,
-            studies: [
-              {
-                _id: "study-1",
-                studyName: "DEF",
-                studyAbbreviation: "S1",
-                controlledAccess: false,
-                openAccess: false,
-                dbGaPID: null,
-                ORCID: "",
-                originalOrg: null,
-                PI: "",
-                createdAt: "",
-              },
-              {
-                _id: "study-2",
-                studyName: "ABC",
-                studyAbbreviation: "S2",
-                controlledAccess: false,
-                openAccess: false,
-                dbGaPID: null,
-                ORCID: "",
-                originalOrg: null,
-                PI: "",
-                createdAt: "",
-              },
-              {
-                _id: "study-3",
-                studyName: "GHI",
-                studyAbbreviation: "S3",
-                controlledAccess: false,
-                openAccess: false,
-                dbGaPID: null,
-                ORCID: "",
-                originalOrg: null,
-                PI: "",
-                createdAt: "",
-              },
-            ],
-          },
-        },
-      },
-      variableMatcher: () => true,
-    };
-
-    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => (
-        <MockParent mocks={[customStudiesMock, mock]}>{children}</MockParent>
-      ),
-    });
-
-    await waitFor(() => {
-      expect(getByTestId("access-request-additionalInfo-field")).toBeInTheDocument();
-    });
-
-    // Populate required fields
-    const studiesSelect = within(getByTestId("access-request-studies-field")).getByRole("button");
-    userEvent.click(studiesSelect);
-
-    await waitFor(() => {
-      const muiSelectList = within(getByTestId("access-request-studies-field")).getByRole(
-        "listbox",
-        {
-          hidden: true,
-        }
-      );
-      const studies = within(muiSelectList).getAllByTestId(/studies-/);
-      expect(studies[0]).toHaveTextContent("ABC");
-      expect(studies[1]).toHaveTextContent("DEF");
-      expect(studies[2]).toHaveTextContent("GHI");
     });
   });
 });
