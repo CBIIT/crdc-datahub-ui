@@ -1,9 +1,8 @@
-import React, { FC, useMemo } from "react";
+import React, { FC } from "react";
 import { Box, DialogProps, MenuItem, styled } from "@mui/material";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
-import { cloneDeep } from "lodash";
 import { useSnackbar } from "notistack";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
@@ -96,6 +95,10 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
   const { data } = useQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
     LIST_APPROVED_STUDIES,
     {
+      variables: {
+        orderBy: "studyName",
+        sortDirection: "asc",
+      },
       context: { clientName: "backend" },
       fetchPolicy: "cache-first",
       onError: () => {
@@ -110,14 +113,6 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
-
-  const sortedStudies = useMemo<ApprovedStudy[]>(
-    () =>
-      cloneDeep(data?.listApprovedStudies?.studies)?.sort(
-        (a, b) => a?.studyName.localeCompare(b?.studyName)
-      ) || [],
-    [data]
-  );
 
   const onSubmit: SubmitHandler<InputForm> = async ({
     role,
@@ -223,7 +218,7 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                   placeholderText="Select one or more studies from the list"
                   multiple
                 >
-                  {sortedStudies.map((study) => (
+                  {data?.listApprovedStudies?.studies?.map((study) => (
                     <MenuItem
                       key={study._id}
                       value={study._id}
