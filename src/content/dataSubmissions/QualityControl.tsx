@@ -23,6 +23,7 @@ import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import TruncatedText from "../../components/TruncatedText";
+import DoubleLabelSwitch from "../../components/DoubleLabelSwitch";
 
 type FilterForm = {
   /**
@@ -239,6 +240,7 @@ const QualityControl: FC = () => {
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<QCResult | null>(null);
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
+  const [isAggregated, setIsAggregated] = useState<boolean>(true);
   const nodeTypeFilter = watch("nodeType");
   const batchIDFilter = watch("batchID");
   const severityFilter = watch("severity");
@@ -473,7 +475,23 @@ const QualityControl: FC = () => {
           noContentText="No validation issues found. Either no validation has been conducted yet, or all issues have been resolved."
           setItemKey={(item, idx) => `${idx}_${item.batchID}_${item.submittedID}`}
           onFetchData={handleFetchQCResults}
-          AdditionalActions={Actions}
+          AdditionalActions={{
+            top: {
+              before: (
+                <DoubleLabelSwitch
+                  leftLabel="Aggregated"
+                  rightLabel="Expanded"
+                  id="table-state-switch"
+                  checked={isAggregated}
+                  onChange={(_, checked) => setIsAggregated(checked)}
+                />
+              ),
+              after: Actions,
+            },
+            bottom: {
+              after: Actions,
+            },
+          }}
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </QCResultsContext.Provider>
