@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 export const mutation = gql`
   mutation createOrganization(
     $name: String!
-    $abbreviation: String
+    $abbreviation: String!
     $description: String
     $conciergeID: String
     $studies: [ApprovedStudyInput]

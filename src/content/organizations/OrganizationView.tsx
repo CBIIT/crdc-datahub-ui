@@ -172,7 +172,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     formState: { errors },
     control,
   } = useForm<FormInput>();
-  const editableFields: (keyof FormInput)[] = ["name", "conciergeID", "studies", "status"];
 
   const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
     context: { clientName: "backend" },
@@ -215,7 +214,15 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
    *
    * @param data FormInput
    */
-  const setFormValues = (data: FormInput, fields = editableFields) => {
+  const setFormValues = (data: FormInput) => {
+    const fields: (keyof FormInput)[] = [
+      "name",
+      "abbreviation",
+      "description",
+      "conciergeID",
+      "studies",
+      "status",
+    ];
     const resetData = {};
 
     fields.forEach((field) => {
@@ -308,17 +315,14 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     if (_id === "new") {
       setOrganization(null);
       setDataSubmissions(null);
-      setFormValues(
-        {
-          name: "",
-          abbreviation: "",
-          description: "",
-          conciergeID: "",
-          studies: [],
-          status: "Active",
-        },
-        ["name", "conciergeID", "studies", "status"]
-      );
+      setFormValues({
+        name: "",
+        abbreviation: "",
+        description: "",
+        conciergeID: "",
+        studies: [],
+        status: "Active",
+      });
       return;
     }
 
@@ -399,7 +403,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               <StyledField>
                 <StyledLabel id="abbreviationLabel">Abbreviation</StyledLabel>
                 <StyledTextField
-                  {...register("abbreviation", { required: true })}
+                  {...register("abbreviation", { required: true, setValueAs: (v) => v?.trim() })}
                   size="small"
                   inputProps={{ "aria-labelledby": "abbreviationLabel" }}
                   error={!!errors.abbreviation}
