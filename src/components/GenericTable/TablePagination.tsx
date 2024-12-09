@@ -96,7 +96,7 @@ const TablePagination = ({
   onRowsPerPageChange,
   ...rest
 }: Props) => {
-  const actions = AdditionalActions[verticalPlacement];
+  const actions = AdditionalActions?.[verticalPlacement];
 
   return (
     <StyledPaginationWrapper verticalPlacement={verticalPlacement}>
