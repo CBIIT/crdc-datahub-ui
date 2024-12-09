@@ -3,6 +3,7 @@ import gql from "graphql-tag";
 export const query = gql`
   query submissionQCResults(
     $id: ID!
+    $issueCode: String
     $nodeTypes: [String]
     $batchIDs: [ID]
     $severities: String
@@ -13,6 +14,7 @@ export const query = gql`
   ) {
     submissionQCResults(
       _id: $id
+      issueCode: $issueCode
       nodeTypes: $nodeTypes
       batchIDs: $batchIDs
       severities: $severities
@@ -44,6 +46,18 @@ export const query = gql`
     }
   }
 `;
+
+export type Input = {
+  id: string;
+  issueCode?: string;
+  nodeTypes?: string[];
+  batchIDs?: number[];
+  severities?: string;
+  first?: number;
+  offset?: number;
+  orderBy?: string;
+  sortDirection?: string;
+};
 
 export type Response = {
   submissionQCResults: ValidationResult<QCResult>;
