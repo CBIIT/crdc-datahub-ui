@@ -67,13 +67,14 @@ type FilterForm = {
 };
 
 type Props = {
+  issueType: string | null;
   onChange: (filters: FilterForm) => void;
 };
 
-const QualityControlFilters = ({ onChange }: Props) => {
+const QualityControlFilters = ({ issueType, onChange }: Props) => {
   const { data: submissionData } = useSubmissionContext();
   const { _id: submissionID } = submissionData?.getSubmission || {};
-  const { watch, control, getValues } = useForm<FilterForm>({
+  const { watch, control, getValues, setValue } = useForm<FilterForm>({
     defaultValues: {
       issueType: "All",
       batchID: "All",
@@ -89,6 +90,14 @@ const QualityControlFilters = ({ onChange }: Props) => {
   ]);
 
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
+
+  useEffect(() => {
+    if (!issueType || issueType === issueTypeFilter) {
+      return;
+    }
+
+    setValue("issueType", issueType);
+  }, [issueType]);
 
   const { data: issueTypes } = useQuery<SubmissionAggQCResultsResp, SubmissionAggQCResultsInput>(
     SUBMISSION_AGG_QC_RESULTS,
@@ -176,6 +185,7 @@ const QualityControlFilters = ({ onChange }: Props) => {
                 }}
               >
                 <MenuItem value="All">All</MenuItem>
+                <MenuItem value="M01">Issue Type 1</MenuItem>
                 {issueTypes?.submissionAggQCResults?.results?.map((issue) => (
                   <MenuItem key={issue.code} value={issue.code} data-testid={issue.code}>
                     {issue.title}

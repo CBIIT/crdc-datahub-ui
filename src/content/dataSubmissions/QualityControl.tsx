@@ -17,6 +17,7 @@ import {
   SUBMISSION_QC_RESULTS,
   SubmissionAggQCResultsInput,
   SubmissionAggQCResultsResp,
+  SubmissionQCResultsInput,
   SubmissionQCResultsResp,
 } from "../../graphql";
 import QualityControlFilters from "../../components/DataSubmissions/QualityControlFilters";
@@ -266,6 +267,7 @@ const QualityControl: FC = () => {
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [isAggregated, setIsAggregated] = useState<boolean>(true);
+  const [issueType, setIssueType] = useState<string | null>(null);
   const filtersRef: MutableRefObject<FilterForm> = useRef({
     issueType: "All",
     batchID: "All",
@@ -296,11 +298,14 @@ const QualityControl: FC = () => {
     [errorDescriptions, warningDescriptions]
   );
 
-  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp>(SUBMISSION_QC_RESULTS, {
-    variables: { id: submissionId },
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-  });
+  const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp, SubmissionQCResultsInput>(
+    SUBMISSION_QC_RESULTS,
+    {
+      variables: { id: submissionId },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const [submissionAggQCResults] = useLazyQuery<
     SubmissionAggQCResultsResp,
@@ -327,11 +332,15 @@ const QualityControl: FC = () => {
 
       const { data: d, error } = await submissionQCResults({
         variables: {
-          submissionID: submissionId,
+          id: submissionId,
           first,
           offset,
           sortDirection,
           orderBy,
+          issueCode:
+            !filtersRef.current.issueType || filtersRef.current.issueType === "All"
+              ? undefined
+              : filtersRef.current.issueType,
           nodeTypes:
             !filtersRef.current.nodeType || filtersRef.current.nodeType === "All"
               ? undefined
@@ -443,9 +452,13 @@ const QualityControl: FC = () => {
   ) as Column<RowData>[];
 
   const handleExpandClick = (issue: Issue) => {
-    // TODO: Remove
-    // eslint-disable-next-line no-console
-    console.log({ issue });
+    if (!issue?.code) {
+      Logger.error("QualityControl: Unable to expand invalid issue.");
+      return;
+    }
+
+    setIssueType(issue?.code);
+    setIsAggregated(false);
   };
 
   const providerValue = useMemo(
@@ -458,7 +471,7 @@ const QualityControl: FC = () => {
 
   return (
     <>
-      <QualityControlFilters onChange={handleOnFiltersChange} />
+      <QualityControlFilters onChange={handleOnFiltersChange} issueType={issueType} />
 
       <QCResultsContext.Provider value={providerValue}>
         <GenericTable
