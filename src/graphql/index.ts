@@ -72,6 +72,12 @@ export type { Input as ListBatchesInput, Response as ListBatchesResp } from "./l
 export { query as SUBMISSION_QC_RESULTS } from "./submissionQCResults";
 export type { Response as SubmissionQCResultsResp } from "./submissionQCResults";
 
+export { query as SUBMISSION_AGG_QC_RESULTS } from "./submissionAggQCResults";
+export type {
+  Input as SubmissionAggQCResultsInput,
+  Response as SubmissionAggQCResultsResp,
+} from "./submissionAggQCResults";
+
 export { query as SUBMISSION_CROSS_VALIDATION_RESULTS } from "./submissionCrossValidationResults";
 export type {
   Input as CrossValidationResultsInput,
