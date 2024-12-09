@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export const mutation = gql`
-  mutation requestAccess($role: String!, $organization: String!, $additionalInfo: String) {
-    requestAccess(role: $role, organization: $organization, additionalInfo: $additionalInfo) {
+  mutation requestAccess($role: String!, $studies: [String]!, $additionalInfo: String) {
+    requestAccess(role: $role, studies: $studies, additionalInfo: $additionalInfo) {
       success
       message
     }
@@ -15,9 +15,9 @@ export type Input = {
    */
   role: UserRole;
   /**
-   * The organization (free text) the user is requesting access for.
+   * The list of approved study ID's the user is requesting access for.
    */
-  organization: string;
+  studies: string[];
   /**
    * Any additional contextual information the user wants to provide.
    */
