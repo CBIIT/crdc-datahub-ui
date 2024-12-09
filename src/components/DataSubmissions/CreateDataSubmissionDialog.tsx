@@ -310,6 +310,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       },
     })
       .then(() => {
+        reset();
         setCreatingSubmission(false);
         setError(false);
         if (onCreate) {
