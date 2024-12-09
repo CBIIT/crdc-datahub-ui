@@ -212,7 +212,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     register,
     control,
     watch,
-    formState: { errors },
+    formState: { isSubmitting, errors },
     setValue,
     reset,
   } = useForm<CreateSubmissionInput>({
@@ -298,8 +298,8 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     dbGaPID,
     intention,
     dataType,
-  }: CreateSubmissionInput) => {
-    await createDataSubmission({
+  }: CreateSubmissionInput) =>
+    createDataSubmission({
       variables: {
         studyID,
         dataCommons,
@@ -328,10 +328,9 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
         setError(true);
         Logger.error("Error creating submission", e);
       });
-  };
 
-  const onSubmit: SubmitHandler<CreateSubmissionInput> = (data) => {
-    createSubmission(data);
+  const onSubmit: SubmitHandler<CreateSubmissionInput> = async (data) => {
+    await createSubmission(data);
   };
 
   const validateEmpty = (value: string): string | null =>
@@ -564,6 +563,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
             tabIndex={0}
             id="createSubmissionDialogCreateButton"
             form="create-submission-dialog-form"
+            disabled={isSubmitting}
           >
             Create
           </StyledDialogButton>
