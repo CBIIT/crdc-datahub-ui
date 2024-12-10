@@ -17,6 +17,7 @@ import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
 import useFormMode from "../../../hooks/useFormMode";
 import { useInstitutionList } from "../../../components/Contexts/InstitutionListContext";
+import PansBanner from "../../../components/PansBanner";
 
 export type KeyedContact = {
   key: string;
@@ -140,7 +141,12 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   }, [location]);
 
   return (
-    <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
+    <FormContainer
+      ref={formContainerRef}
+      formRef={formRef}
+      description={SectionOption.title}
+      prefixElement={<PansBanner />}
+    >
       {/* Principal Investigator */}
       <SectionGroup
         title={SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.title}
