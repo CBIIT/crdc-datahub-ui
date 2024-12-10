@@ -206,6 +206,14 @@ type RecordParentNode = {
   parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
 };
 
+type Issue = {
+  code: string;
+  severity: "Error" | "Warning";
+  title: string;
+  description: string;
+  count: number;
+};
+
 /**
  * Represents a validation result returned by a validation API endpoint.
  *
