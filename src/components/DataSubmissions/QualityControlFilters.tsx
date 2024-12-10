@@ -91,14 +91,6 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
 
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
-  useEffect(() => {
-    if (!issueType || issueType === issueTypeFilter) {
-      return;
-    }
-
-    setValue("issueType", issueType);
-  }, [issueType]);
-
   const { data: issueTypes } = useQuery<SubmissionAggQCResultsResp, SubmissionAggQCResultsInput>(
     SUBMISSION_AGG_QC_RESULTS,
     {
@@ -140,6 +132,14 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
   );
 
   useEffect(() => {
+    if (!issueTypes || !issueType || issueType === issueTypeFilter) {
+      return;
+    }
+
+    setValue("issueType", issueType);
+  }, [issueType, issueTypes]);
+
+  useEffect(() => {
     if (
       !touchedFilters.issueType &&
       !touchedFilters.nodeType &&
@@ -165,9 +165,14 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
   };
 
   return (
-    <StyledFilterContainer>
-      <Stack direction="row" justifyContent="flex-start" alignItems="center">
-        <StyledInlineLabel htmlFor="batchID-filter">Issue Type</StyledInlineLabel>
+    <StyledFilterContainer data-testid="quality-control-filters">
+      <Stack
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        data-testid="issueType-filter-container"
+      >
+        <StyledInlineLabel htmlFor="issueType-filter">Issue Type</StyledInlineLabel>
         <StyledFormControl>
           <Controller
             name="issueType"
@@ -175,19 +180,24 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
             render={({ field }) => (
               <StyledSelect
                 {...field}
-                /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
+                inputProps={{ id: "issueType-filter", "date-testid": "issueType-filter" }}
+                data-testid="quality-control-issueType-filter"
                 MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
-                inputProps={{ id: "batchID-filter" }}
-                data-testid="quality-control-batchID-filter"
                 onChange={(e) => {
                   field.onChange(e);
-                  handleFilterChange("batchID");
+                  handleFilterChange("issueType");
                 }}
               >
-                <MenuItem value="All">All</MenuItem>
-                <MenuItem value="M01">Issue Type 1</MenuItem>
-                {issueTypes?.submissionAggQCResults?.results?.map((issue) => (
-                  <MenuItem key={issue.code} value={issue.code} data-testid={issue.code}>
+                <MenuItem value="All" data-testid="issueType-all">
+                  All
+                </MenuItem>
+                {issueTypes?.submissionAggQCResults?.results?.map((issue, idx) => (
+                  <MenuItem
+                    // eslint-disable-next-line react/no-array-index-key
+                    key={`issue_${idx}_${issue.code}`}
+                    value={issue.code}
+                    data-testid={`issueType-${issue.code}`}
+                  >
                     {issue.title}
                   </MenuItem>
                 ))}
@@ -197,7 +207,12 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
         </StyledFormControl>
       </Stack>
 
-      <Stack direction="row" justifyContent="flex-start" alignItems="center">
+      <Stack
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        data-testid="batchID-filter-container"
+      >
         <StyledInlineLabel htmlFor="batchID-filter">Batch ID</StyledInlineLabel>
         <StyledFormControl>
           <Controller
@@ -206,18 +221,23 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
             render={({ field }) => (
               <StyledSelect
                 {...field}
-                /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
-                MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                 inputProps={{ id: "batchID-filter" }}
                 data-testid="quality-control-batchID-filter"
+                MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                 onChange={(e) => {
                   field.onChange(e);
                   handleFilterChange("batchID");
                 }}
               >
-                <MenuItem value="All">All</MenuItem>
+                <MenuItem value="All" data-testid="batchID-all">
+                  All
+                </MenuItem>
                 {batchData?.listBatches?.batches?.map((batch) => (
-                  <MenuItem key={batch._id} value={batch._id} data-testid={batch._id}>
+                  <MenuItem
+                    key={`batch_${batch._id}`}
+                    value={batch._id}
+                    data-testid={`batchID-${batch._id}`}
+                  >
                     {batch.displayID}
                     {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
                   </MenuItem>
@@ -228,7 +248,12 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
         </StyledFormControl>
       </Stack>
 
-      <Stack direction="row" justifyContent="flex-start" alignItems="center">
+      <Stack
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        data-testid="nodeType-filter-container"
+      >
         <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
         <StyledFormControl>
           <Controller
@@ -237,18 +262,23 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
             render={({ field }) => (
               <StyledSelect
                 {...field}
-                /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
-                MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                 inputProps={{ id: "nodeType-filter" }}
                 data-testid="quality-control-nodeType-filter"
+                MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                 onChange={(e) => {
                   field.onChange(e);
                   handleFilterChange("nodeType");
                 }}
               >
-                <MenuItem value="All">All</MenuItem>
+                <MenuItem value="All" data-testid="nodeType-all">
+                  All
+                </MenuItem>
                 {nodeTypes?.map((nodeType) => (
-                  <MenuItem key={nodeType} value={nodeType} data-testid={`nodeType-${nodeType}`}>
+                  <MenuItem
+                    key={`nodeType_${nodeType}`}
+                    value={nodeType}
+                    data-testid={`nodeType-${nodeType}`}
+                  >
                     {nodeType.toLowerCase()}
                   </MenuItem>
                 ))}
@@ -258,7 +288,12 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
         </StyledFormControl>
       </Stack>
 
-      <Stack direction="row" justifyContent="flex-start" alignItems="center">
+      <Stack
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        data-testid="severity-filter-container"
+      >
         <StyledInlineLabel htmlFor="severity-filter">Severity</StyledInlineLabel>
         <StyledFormControl>
           <Controller
@@ -267,18 +302,23 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
             render={({ field }) => (
               <StyledSelect
                 {...field}
-                /* zIndex has to be higher than the SuspenseLoader to avoid cropping */
-                MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                 inputProps={{ id: "severity-filter" }}
                 data-testid="quality-control-severity-filter"
+                MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                 onChange={(e) => {
                   field.onChange(e);
                   handleFilterChange("severity");
                 }}
               >
-                <MenuItem value="All">All</MenuItem>
-                <MenuItem value="Error">Error</MenuItem>
-                <MenuItem value="Warning">Warning</MenuItem>
+                <MenuItem value="All" data-testid="severity-all">
+                  All
+                </MenuItem>
+                <MenuItem value="Error" data-testid="severity-error">
+                  Error
+                </MenuItem>
+                <MenuItem value="Warning" data-testid="severity-warning">
+                  Warning
+                </MenuItem>
               </StyledSelect>
             )}
           />
