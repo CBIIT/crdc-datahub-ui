@@ -758,6 +758,8 @@ describe("CollaboratorsContext", () => {
   });
 
   it("should handle updating an existing collaborator when they're no longer a potential collaborator", async () => {
+    mockSubmissionData = dummySubmissionData;
+
     const emptyPotentialCollaborators: MockedResponse<
       ListPotentialCollaboratorsResp,
       ListPotentialCollaboratorsInput
@@ -779,10 +781,15 @@ describe("CollaboratorsContext", () => {
       ),
     });
 
+    act(() => {
+      result.current.loadPotentialCollaborators();
+    });
+
     const existingCol = dummySubmissionData.getSubmission.collaborators[0];
 
     await waitFor(() => {
       expect(result.current.currentCollaborators.length).toBe(2);
+      expect(result.current.maxCollaborators).toBe(2);
     });
 
     expect(result.current.currentCollaborators[0].collaboratorID).toBe(existingCol.collaboratorID);
@@ -806,5 +813,15 @@ describe("CollaboratorsContext", () => {
       existingCol.collaboratorName
     );
     expect(result.current.currentCollaborators[0].Organization).toBe(existingCol.Organization);
+
+    act(() => {
+      result.current.handleRemoveCollaborator(0);
+    });
+
+    // Verify preventing re-adding invalid potential collaborator
+    await waitFor(() => {
+      expect(result.current.currentCollaborators.length).toBe(1);
+      expect(result.current.maxCollaborators).toBe(1);
+    });
   });
 });
