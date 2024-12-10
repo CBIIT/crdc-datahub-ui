@@ -22,23 +22,6 @@ import {
 } from "../../graphql";
 import QualityControlFilters from "../../components/DataSubmissions/QualityControlFilters";
 
-const dummyAggData: Issue[] = [
-  {
-    code: "M01",
-    count: 100000,
-    description: "Lorem Ipsum",
-    title: "Duplicated data file content detected",
-    severity: "Error",
-  },
-  {
-    code: "M02",
-    count: 10000,
-    description: "Lorem Ipsum",
-    title: "Missing required property",
-    severity: "Warning",
-  },
-];
-
 type FilterForm = {
   issueType: string;
   /**
@@ -399,10 +382,6 @@ const QualityControl: FC = () => {
       enqueueSnackbar(err?.toString(), { variant: "error" });
     } finally {
       setLoading(false);
-
-      // TODO: Remove dummy data
-      setData(dummyAggData);
-      setTotalData(1);
     }
   };
 
@@ -493,8 +472,10 @@ const QualityControl: FC = () => {
                   leftLabel="Aggregated"
                   rightLabel="Expanded"
                   id="table-state-switch"
+                  data-testid="table-view-switch"
                   checked={!isAggregated}
                   onChange={onSwitchToggle}
+                  inputProps={{ "aria-label": "Aggregated or Expanded table view switch" }}
                 />
               ),
               after: Actions,

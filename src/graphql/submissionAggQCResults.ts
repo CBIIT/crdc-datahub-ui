@@ -10,7 +10,7 @@ const BaseIssueFragment = gql`
 
 // The extended Issue model which includes all fields
 const FullIssueFragment = gql`
-  fragment IssueFragment on Batch {
+  fragment IssueFragment on Issue {
     severity
     description
     count
@@ -36,7 +36,7 @@ export const query = gql`
       total
       results {
         ...BaseIssueFragment
-        ...IssueFragment @skip(if: $partial)
+        ...IssueFragment
       }
     }
   }
