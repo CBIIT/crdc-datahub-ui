@@ -25,6 +25,7 @@ const StyledFormControl = styled(FormControl)({
 
 const StyledTag = styled("div")({
   paddingLeft: "12px",
+  position: "absolute",
 });
 
 const ProxySelect = styled("select")({

@@ -105,12 +105,12 @@ const routes: RouteObject[] = [
         ),
       },
       {
-        path: "/organizations/:orgId?",
+        path: "/programs/:orgId?",
         element: (
           <RequireAuth
             component={<Organizations />}
-            redirectPath="/organizations"
-            redirectName="Organization Management"
+            redirectPath="/programs"
+            redirectName="Program Management"
           />
         ),
       },

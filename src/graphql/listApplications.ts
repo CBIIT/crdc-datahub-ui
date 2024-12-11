@@ -21,9 +21,6 @@ export const query = gql`
           applicantName
           applicantID
         }
-        organization {
-          name
-        }
         conditional
         pendingConditions
       }

@@ -284,7 +284,6 @@ describe("ListView Component", () => {
               {
                 _id: "application-id",
                 applicant: { applicantName: "applicant-name-really-long", applicantID: "user-id" },
-                organization: { name: "org-long-name" },
                 studyAbbreviation: "study-long-abbr",
                 programName: "program-long-name",
                 status: "New",
@@ -305,7 +304,6 @@ describe("ListView Component", () => {
 
     await waitFor(() => {
       expect(getByText("applicant-...")).toBeInTheDocument();
-      expect(getByText("org-long-n...")).toBeInTheDocument();
       expect(getByText("study-long...")).toBeInTheDocument();
       expect(getByText("program-lo...")).toBeInTheDocument();
       expect(getByText("New")).toBeInTheDocument();
@@ -466,7 +464,6 @@ describe("ListView Component", () => {
               {
                 _id: "application-id",
                 applicant: { applicantName: "John Doe", applicantID: "user-id" },
-                organization: { name: "OrgName" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
                 status: "New",
@@ -504,7 +501,6 @@ describe("ListView Component", () => {
               {
                 _id: "application-id",
                 applicant: { applicantName: "John Doe", applicantID: "other-user-id" },
-                organization: { name: "OrgName" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
                 status: "Submitted",
@@ -542,7 +538,6 @@ describe("ListView Component", () => {
               {
                 _id: "application-id",
                 applicant: { applicantName: "John Doe", applicantID: "other-user-id" },
-                organization: { name: "OrgName" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
                 status: "Approved",
@@ -587,7 +582,6 @@ describe("ListView Component", () => {
               {
                 _id: "application-id",
                 applicant: { applicantName: "John Doe", applicantID: "user-id" },
-                organization: { name: "OrgName" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
                 status: "New",

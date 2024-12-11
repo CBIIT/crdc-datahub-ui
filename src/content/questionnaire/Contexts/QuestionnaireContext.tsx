@@ -1,4 +1,5 @@
 import React from "react";
+import { ListApplicationsResp } from "../../../graphql";
 
 const QuestionnaireContext = React.createContext<{
   /**
@@ -8,7 +9,9 @@ const QuestionnaireContext = React.createContext<{
   /**
    * Action performed when 'Review' button is clicked
    */
-  handleOnReviewClick?: (application: Omit<Application, "questionnaireData">) => void;
+  handleOnReviewClick?: (
+    application: ListApplicationsResp["listApplications"]["applications"][number]
+  ) => void;
 }>({});
 
 export default QuestionnaireContext;

@@ -17,7 +17,6 @@ import {
   LIST_ORGS,
   ListOrgsResp,
 } from "../../graphql";
-import { OrganizationProvider } from "../Contexts/OrganizationListContext";
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
   {
@@ -133,9 +132,7 @@ const TestParent: FC<ParentProps> = ({
 }) => (
   <AuthCtx.Provider value={authCtxState}>
     <MockedProvider mocks={mocks} addTypename={false}>
-      <OrganizationProvider preload>
-        <MemoryRouter>{children}</MemoryRouter>
-      </OrganizationProvider>
+      <MemoryRouter>{children}</MemoryRouter>
     </MockedProvider>
   </AuthCtx.Provider>
 );
