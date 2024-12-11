@@ -1,51 +1,7 @@
 import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { query as GET_USER, Response as GetUserResp } from "../../graphql/getMyUser";
-import env from "../../env";
-
-const AUTH_SERVICE_URL = `${window.origin}/api/authn`;
-
-/**
- * Checks login status with AuthN
- *
- * @async
- * @param {none}
- * @returns Promise that resolves to true if logged in, false if not
- */
-const userLogout = async (): Promise<boolean> => {
-  const d = await fetch(`${AUTH_SERVICE_URL}/logout`, { method: "POST" }).catch(() => null);
-  const { status } = await d.json().catch(() => null);
-
-  return status || false;
-};
-
-/**
- * Logs in to AuthN
- *
- * @async
- * @param {string} authCode Authorization code used to verify login
- * @returns Promise that resolves to true if successful, false if not
- */
-const userLogin = async (authCode: string): Promise<[boolean, string]> => {
-  const options = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      code: authCode,
-      IDP: "nih",
-      redirectUri: env.REACT_APP_NIH_REDIRECT_URL,
-    }),
-  };
-
-  try {
-    const data = await fetch(`${AUTH_SERVICE_URL}/login`, options);
-    const { timeout, error } = await data.json();
-
-    return [typeof timeout === "number" && typeof error === "undefined", error];
-  } catch (e) {
-    return [false, undefined];
-  }
-};
+import { authenticationLogin, authenticationLogout } from "../../utils";
 
 export type ContextState = {
   status: Status;
@@ -109,7 +65,6 @@ type ProviderProps = {
  * @param {ProviderProps} props - Auth context provider props
  * @returns {JSX.Element} - Auth context provider
  */
-
 export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => {
   const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
   const cachedState = cachedUser
@@ -127,9 +82,11 @@ export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => 
   });
 
   const logout = async (): Promise<boolean> => {
-    if (!state.isLoggedIn) return true;
+    if (!state.isLoggedIn) {
+      return true;
+    }
 
-    const status = await userLogout();
+    const status = await authenticationLogout();
     if (status) {
       setState({ ...initialState, status: Status.LOADED });
     }
@@ -144,6 +101,9 @@ export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => 
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     (async () => {
       // User had an active session, reverify with BE
       if (cachedState) {
@@ -159,6 +119,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => 
           status: Status.LOADED,
           user: data?.getMyUser,
         });
+
         return;
       }
 
@@ -166,9 +127,16 @@ export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => 
       const searchParams = new URLSearchParams(document.location.search);
       const authCode = searchParams.get("code");
       if (authCode) {
-        const userLoginResult = await userLogin(authCode);
-        // If login success
-        if (userLoginResult[0]) {
+        const { success: loginSuccess, error: loginError } = await authenticationLogin(
+          authCode,
+          signal
+        );
+
+        if (signal.aborted) {
+          return;
+        }
+
+        if (loginSuccess) {
           const { data, error } = await getMyUser();
           if (error || !data?.getMyUser) {
             setState({ ...initialState, status: Status.LOADED });
@@ -187,17 +155,22 @@ export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => 
           }
           return;
         }
+
         // Login failed
         setState({
           ...initialState,
-          error: userLoginResult[1],
+          error: loginError,
           status: Status.LOADED,
         });
         return;
       }
+
       // User is not logged in
       setState({ ...initialState, status: Status.LOADED });
     })();
+
+    // Cancel any pending requests
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
