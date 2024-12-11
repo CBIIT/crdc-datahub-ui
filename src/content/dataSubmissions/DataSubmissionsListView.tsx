@@ -19,7 +19,7 @@ import DataSubmissionListFilters, {
   FilterForm,
 } from "../../components/DataSubmissions/DataSubmissionListFilters";
 
-type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
+type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
 
 const StyledBannerBody = styled(Stack)({
   marginTop: "-20px",
@@ -140,11 +140,6 @@ const columns: Column<T>[] = [
     },
   },
   {
-    label: "Organization",
-    renderValue: (a) => <TruncatedText text={a.organization.name} />,
-    fieldKey: "organization.name",
-  },
-  {
     label: "Study",
     renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
     field: "studyAbbreviation",
@@ -226,7 +221,6 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { status: authStatus } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
-  // Only org owners/submitters with organizations assigned can create data submissions
 
   const { columnVisibilityModel, setColumnVisibilityModel, visibleColumns } = useColumnVisibility<
     Column<T>
@@ -239,13 +233,11 @@ const ListingView: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
-  const [organizations, setOrganizations] = useState<Pick<Organization, "_id" | "name">[]>([]);
   const [submitterNames, setSubmitterNames] = useState<string[]>([]);
   const [dataCommons, setDataCommons] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
   const tableRef = useRef<TableMethods>(null);
   const filtersRef = useRef<FilterForm>({
-    organization: "All",
     status: "All",
     dataCommons: "All",
     name: "",
@@ -270,18 +262,10 @@ const ListingView: FC = () => {
         return;
       }
 
-      const {
-        organization,
-        status,
-        submitterName,
-        name,
-        dbGaPID,
-        dataCommons: dc,
-      } = filtersRef.current;
+      const { status, submitterName, name, dbGaPID, dataCommons: dc } = filtersRef.current;
 
       const { data: d, error } = await listSubmissions({
         variables: {
-          organization: organization ?? "All",
           status: status ?? "All",
           dataCommons: dc ?? "All",
           submitterName: submitterName ?? "All",
@@ -300,11 +284,6 @@ const ListingView: FC = () => {
       }
 
       setData(d.listSubmissions.submissions);
-      setOrganizations(
-        d.listSubmissions.organizations
-          ?.filter((org) => !!org.name.trim())
-          ?.sort((a, b) => a.name?.localeCompare(b.name))
-      );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
@@ -328,11 +307,6 @@ const ListingView: FC = () => {
         throw new Error("Unable to retrieve Data Submission List results.");
       }
       setData(d.listSubmissions.submissions);
-      setOrganizations(
-        d.listSubmissions.organizations
-          ?.filter((org) => !!org.name.trim())
-          ?.sort((a, b) => a.name?.localeCompare(b.name))
-      );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
@@ -380,7 +354,6 @@ const ListingView: FC = () => {
         <StyledFilterTableWrapper>
           <DataSubmissionListFilters
             columns={columns}
-            organizations={organizations}
             submitterNames={submitterNames}
             dataCommons={dataCommons}
             columnVisibilityModel={columnVisibilityModel}

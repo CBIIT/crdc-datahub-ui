@@ -3,12 +3,22 @@ import gql from "graphql-tag";
 export const mutation = gql`
   mutation createOrganization(
     $name: String!
+    $abbreviation: String!
+    $description: String
     $conciergeID: String
     $studies: [ApprovedStudyInput]
   ) {
-    createOrganization(name: $name, conciergeID: $conciergeID, studies: $studies) {
+    createOrganization(
+      name: $name
+      abbreviation: $abbreviation
+      description: $description
+      conciergeID: $conciergeID
+      studies: $studies
+    ) {
       _id
       name
+      abbreviation
+      description
       status
       conciergeID
       conciergeName
@@ -17,12 +27,16 @@ export const mutation = gql`
         studyName
         studyAbbreviation
       }
+      createdAt
+      updateAt
     }
   }
 `;
 
 export type Input = {
   name: string;
+  abbreviation: string;
+  description: string;
   conciergeID: string;
   studies: { studyID: string }[];
 };

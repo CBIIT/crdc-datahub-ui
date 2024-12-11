@@ -7,7 +7,7 @@ import { SubmissionProvider } from "../../components/Contexts/SubmissionContext"
 /**
  * A memoized version of SubmissionProvider
  *
- * @see OrganizationProvider
+ * @see SubmissionProvider
  */
 const MemorizedProvider = memo(SubmissionProvider);
 

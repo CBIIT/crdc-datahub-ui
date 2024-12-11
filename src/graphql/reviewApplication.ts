@@ -14,8 +14,5 @@ export type Input = {
 };
 
 export type Response = {
-  reviewApplication: Pick<
-    Application,
-    "_id" | "status" | "createdAt" | "updatedAt" | "history" | "applicant"
-  >;
+  reviewApplication: Pick<Application, "_id" | "status">;
 };

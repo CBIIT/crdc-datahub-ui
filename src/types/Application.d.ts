@@ -9,7 +9,6 @@ type Application = {
   ORCID: string;
   // Applicant Details
   applicant: Applicant;
-  organization: Pick<Organization, "_id" | "name">;
   PI: string; // Principal Investigator's full name "<first name> <last name>"
   controlledAccess: boolean;
   openAccess: boolean;
