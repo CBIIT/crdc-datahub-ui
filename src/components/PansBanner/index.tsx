@@ -37,7 +37,7 @@ const StyledContent = styled(Typography)({
  *
  * @returns {React.FC}
  */
-const PANSBanner: React.FC = (): React.ReactNode => (
+const PansBanner: React.FC = (): React.ReactNode => (
   <StyledBox>
     <StyledHeaderStack>
       <StyledApprovalNumber variant="h1" data-testid="pans-approval-number">
@@ -71,4 +71,4 @@ const PANSBanner: React.FC = (): React.ReactNode => (
   </StyledBox>
 );
 
-export default memo(PANSBanner);
+export default memo(PansBanner);

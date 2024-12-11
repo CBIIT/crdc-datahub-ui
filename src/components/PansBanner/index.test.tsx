@@ -19,14 +19,16 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   it("should contain the OMB Approval Number", () => {
-    const { getByTestId } = render(<PansBanner />);
+    const { container, getByTestId } = render(<PansBanner />);
 
+    expect(container.textContent).toContain("OMB No.:");
     expect(getByTestId("pans-approval-number")).toHaveTextContent(/0925-7775/);
   });
 
   it("should contain the Expiration Date", () => {
-    const { getByTestId } = render(<PansBanner />);
+    const { container, getByTestId } = render(<PansBanner />);
 
+    expect(container.textContent).toContain("Expiration Date:");
     expect(getByTestId("pans-expiration")).toHaveTextContent(/06\/30\/2025/);
   });
 
