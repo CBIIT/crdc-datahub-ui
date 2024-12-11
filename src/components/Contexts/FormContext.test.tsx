@@ -38,6 +38,8 @@ const baseApplication: Omit<Application, "questionnaireData"> = {
   studyAbbreviation: "",
   conditional: false,
   pendingConditions: [],
+  programAbbreviation: "",
+  programDescription: "",
 };
 
 const baseQuestionnaireData: QuestionnaireData = {
@@ -62,11 +64,10 @@ const baseQuestionnaireData: QuestionnaireData = {
   },
   additionalContacts: [],
   program: {
+    _id: "",
     name: "",
     abbreviation: "",
     description: "",
-    notApplicable: false,
-    isCustom: false,
   },
   study: {
     name: "",
