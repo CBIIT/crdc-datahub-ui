@@ -533,11 +533,11 @@ const NavBar = () => {
               <span className="dropdownItem">
                 <Link
                   id="navbar-dropdown-item-name-organization-manage"
-                  to="/organizations"
+                  to="/programs"
                   className="dropdownItem"
                   onClick={() => setClickedTitle("")}
                 >
-                  Manage Organizations
+                  Manage Programs
                 </Link>
               </span>
             )}

@@ -167,7 +167,6 @@ const StyledField = styled("div")({
   alignItems: "flex-start",
   justifyContent: "center",
   flexDirection: "column",
-  position: "relative",
 });
 
 const StyledHelperText = styled(BaseStyledHelperText)({

@@ -21,10 +21,6 @@ describe("getFormMode tests based on provided requirements", () => {
     _id: "submission-123",
     questionnaireData: InitialQuestionnaire,
     status: "New",
-    organization: {
-      _id: null,
-      name: null,
-    },
     applicant: {
       applicantID: baseUser._id,
       applicantName: baseUser.firstName,

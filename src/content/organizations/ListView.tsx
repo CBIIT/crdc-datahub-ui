@@ -218,7 +218,7 @@ const columns: Column<T>[] = [
       </Stack>
     ),
     renderValue: (a) => (
-      <Link to={`/organizations/${a?.["_id"]}`}>
+      <Link to={`/programs/${a?.["_id"]}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
@@ -232,12 +232,12 @@ const columns: Column<T>[] = [
 ];
 
 /**
- * View for List of Organizations
+ * View for the list of Programs
  *
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
-  usePageTitle("Manage Organizations");
+  usePageTitle("Manage Programs");
 
   const { state } = useLocation();
   const { data, status: orgStatus } = useOrganizationListContext();
@@ -375,13 +375,13 @@ const ListingView: FC = () => {
       </Container>
 
       <PageBanner
-        title="Manage Organizations"
+        title="Manage Programs"
         subTitle=""
         padding="38px 0 0 25px"
         body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
-            <StyledButton component={Link} to="/organizations/new">
-              Add Organization
+            <StyledButton component={Link} to="/programs/new">
+              Add Program
             </StyledButton>
           </StyledBannerBody>
         }
@@ -389,14 +389,14 @@ const ListingView: FC = () => {
 
       <StyledContainer maxWidth="xl">
         <StyledFilterContainer>
-          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
+          <StyledInlineLabel htmlFor="organization-filter">Program</StyledInlineLabel>
           <StyledFormControl>
             <StyledTextField
               {...register("organization", {
                 onChange: (e) => handleFilterChange("organization"),
                 setValueAs: (val) => val?.trim(),
               })}
-              placeholder="Enter a Organization"
+              placeholder="Enter a Program"
               id="organization-filter"
               required
             />
