@@ -1,6 +1,3 @@
-import { InitialQuestionnaire } from "../config/InitialValues";
-import programOptions, { NotApplicableProgram, OptionalProgram } from "../config/ProgramConfig";
-
 /**
  * Generic Email Validator
  *
@@ -64,56 +61,6 @@ export const filterForNumbers = (value: string): string => value?.replace(/[^0-9
 export const mapObjectWithKey = (obj, index: number) => ({
   ...obj,
   key: `${index}_${new Date().getTime()}`,
-});
-
-/**
- * Finds the program option by its name.
- *
- * NOTE:
- * - This utility helps differentiate between a
- *   saved CUSTOM program and a PRESELECTED
- *   program option.
- *
- * @param {Program} program - The program object to search for.
- * @returns {ProgramOption} - Returns the program option if found,
- *                            otherwise returns program with initial values
- */
-export const findProgram = (program: Program): ProgramOption => {
-  const initialProgram: Program = {
-    ...InitialQuestionnaire.program,
-  };
-  if (!program) {
-    return initialProgram;
-  }
-  if (program.notApplicable || program.name === NotApplicableProgram.name) {
-    return NotApplicableProgram;
-  }
-  if (program.isCustom) {
-    return OptionalProgram;
-  }
-  const newProgram: ProgramOption = programOptions.find((option) => option.name === program.name);
-  if (
-    !newProgram &&
-    (program.name?.length || program.abbreviation?.length || program.description?.length)
-  ) {
-    return OptionalProgram;
-  }
-  return newProgram || initialProgram;
-};
-
-/**
- * Converts a program option to a select dropdown option.
- *
- * NOTE:
- * - The returned object has 'label' which combines program name and abbreviation
- *   and 'value' which is the program name.
- *
- * @param {ProgramOption} program - The program option to convert.
- * @returns {SelectOption} - Returns an object suitable for use in a select dropdown.
- */
-export const programToSelectOption = (program: ProgramOption): SelectOption => ({
-  label: `${program.name || ""}${program.abbreviation ? ` (${program.abbreviation})` : ""}`?.trim(),
-  value: program.name || "",
 });
 
 /**
