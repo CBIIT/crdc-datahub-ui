@@ -11,13 +11,6 @@ describe("getFormMode tests based on provided requirements", () => {
     IDP: "nih",
     createdAt: "2023-05-01T09:23:30Z",
     updateAt: "2023-05-02T09:23:30Z",
-    organization: {
-      orgID: "org1",
-      orgName: "TestOrg",
-      status: "Active",
-      createdAt: "2023-05-01T09:23:30Z",
-      updateAt: "2023-05-02T09:23:30Z",
-    },
     studies: null,
     dataCommons: [],
   };

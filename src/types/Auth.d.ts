@@ -25,18 +25,20 @@ type User = {
    * The user's organization if assigned, null otherwise
    *
    * @see {@link OrgInfo}
+   * @deprecated This field is deprecated and NOT populated by all APIs. Remove ASAP.
    */
-  organization: OrgInfo | null;
+  organization?: OrgInfo | null;
   /**
    * List of data commons that the user has access to
    */
   dataCommons: string[];
   /**
-   * A list of studyIDs that the user is assigned to
+   * List of ApprovedStudies that the user has access to
    *
+   * @note Not all APIs populate this field fully.
    * @see {@link ApprovedStudy}
    */
-  studies: string[] | null;
+  studies: ApprovedStudy[] | Pick<ApprovedStudy, "_id">[];
   /**
    * The SSO IDP used to login
    */

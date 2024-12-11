@@ -15,25 +15,6 @@ export const Roles: UserRole[] = [
 ];
 
 /**
- * Defines a list of roles that are required to have an
- * organization assigned to them. This unlocks the Organization assignment dropdown.
- */
-export const OrgRequiredRoles: UserRole[] = ["Submitter", "Organization Owner", "Data Commons POC"];
-
-/**
- * A map of the roles that are required to be pre-assigned
- * to a specific organization in the database. This locks the Organization assignment dropdown.
- *
- * @note This requires that an organization with the specified name exists in the database.
- */
-type RoleSubset = Extends<UserRole, "Admin" | "Federal Lead" | "Federal Monitor">;
-export const OrgAssignmentMap: Record<RoleSubset, string> = {
-  Admin: "FNL",
-  "Federal Lead": "NCI",
-  "Federal Monitor": "NCI",
-};
-
-/**
  * Defines a list of roles that are allowed to interact with regular Validation.
  */
 export const ValidateRoles: UserRole[] = [

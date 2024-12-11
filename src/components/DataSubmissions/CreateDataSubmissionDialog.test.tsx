@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { fireEvent, render, waitFor, within } from "@testing-library/react";
+import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
@@ -119,13 +119,6 @@ const baseUser: Omit<User, "role"> = {
   userStatus: "Active",
   IDP: "nih",
   email: "",
-  organization: {
-    orgID: "some-org-1",
-    orgName: "org1",
-    status: "Active",
-    createdAt: "2023-10-06T19:19:04.183Z",
-    updateAt: "2024-07-03T19:09:29.513Z",
-  },
   studies: null,
   dataCommons: [],
   createdAt: "",
@@ -248,77 +241,6 @@ describe("Basic Functionality", () => {
     });
 
     expect(handleCreate).toHaveBeenCalledTimes(1);
-  });
-
-  it("should disable open dialog button and show tooltip if user has 'Inactive' org", async () => {
-    const { getByTestId, getByRole } = render(
-      <TestParent
-        authCtxState={{
-          ...baseAuthCtx,
-          user: {
-            ...baseUser,
-            role: "Submitter",
-            organization: { ...baseUser.organization, status: "Inactive" },
-          },
-        }}
-      >
-        <CreateDataSubmissionDialog onCreate={handleCreate} />
-      </TestParent>
-    );
-
-    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
-    expect(openDialogButton).toBeDisabled();
-
-    userEvent.click(openDialogButton);
-
-    await waitFor(() => {
-      expect(() => getByTestId("create-submission-dialog")).toThrow();
-    });
-
-    fireEvent.mouseOver(openDialogButton);
-
-    await waitFor(() => {
-      const tooltip = getByRole("tooltip");
-      expect(tooltip).toBeInTheDocument();
-      expect(tooltip).toHaveTextContent(
-        "Your associated organization is inactive. You cannot create a data submission at this time."
-      );
-    });
-  });
-
-  it("should not disable open dialog button or show tooltip if user has 'Active' org", async () => {
-    const { getByTestId, getByRole } = render(
-      <TestParent
-        authCtxState={{
-          ...baseAuthCtx,
-          user: {
-            ...baseUser,
-            role: "Submitter",
-            organization: { ...baseUser.organization, status: "Active" },
-          },
-        }}
-      >
-        <CreateDataSubmissionDialog onCreate={handleCreate} />
-      </TestParent>
-    );
-
-    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
-
-    await waitFor(() => expect(openDialogButton).toBeEnabled());
-
-    fireEvent.mouseOver(openDialogButton);
-
-    await waitFor(() => {
-      expect(() => getByRole("tooltip")).toThrow();
-    });
-
-    userEvent.click(openDialogButton);
-
-    await waitFor(() => {
-      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
-    });
   });
 
   it("should only show the dbGaP ID if study is controlled access", async () => {

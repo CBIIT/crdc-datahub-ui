@@ -97,13 +97,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => 
   const setData = (data: Partial<User>): void => {
     if (!state.isLoggedIn) return;
 
-    // Remove any nested objects that are null
-    const newUser = { ...state.user, ...data };
-    if (!data?.organization) {
-      delete newUser.organization;
-    }
-
-    setState((prev) => ({ ...prev, user: newUser }));
+    setState((prev) => ({ ...prev, user: { ...state.user, ...data } }));
   };
 
   useEffect(() => {

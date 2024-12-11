@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Button,
   Dialog,
@@ -236,13 +236,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     });
 
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
-  const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
   const intention = watch("intention");
-  const userHasInactiveOrg = useMemo(
-    () => user?.organization?.status === "Inactive",
-    [user?.organization?.status]
-  );
-
   const submissionTypeOptions: RadioOption[] = [
     {
       label: "New/Update",
@@ -559,28 +553,14 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
       {orgOwnerOrSubmitter && (
         <StyledTooltipWrapper alignItems="center" justifyContent="flex-end">
-          <Tooltip
-            placement="top"
-            title="Your associated organization is inactive. You cannot create a data submission at this time."
-            open={undefined}
-            disableHoverListener={!userHasInactiveOrg}
+          <StyledButton
+            type="button"
+            variant="contained"
+            onClick={handleOpenDialog}
+            disabled={authStatus === AuthStatus.LOADING || approvedStudiesLoading}
           >
-            <span>
-              <StyledButton
-                type="button"
-                variant="contained"
-                onClick={handleOpenDialog}
-                disabled={
-                  !hasOrganizationAssigned ||
-                  userHasInactiveOrg ||
-                  authStatus === AuthStatus.LOADING ||
-                  approvedStudiesLoading
-                }
-              >
-                Create a Data Submission
-              </StyledButton>
-            </span>
-          </Tooltip>
+            Create a Data Submission
+          </StyledButton>
         </StyledTooltipWrapper>
       )}
     </>
