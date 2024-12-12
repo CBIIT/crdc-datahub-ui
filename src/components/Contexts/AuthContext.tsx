@@ -1,7 +1,7 @@
 import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { query as GET_USER, Response as GetUserResp } from "../../graphql/getMyUser";
-import { authenticationLogin, authenticationLogout } from "../../utils";
+import { authenticationLogin, authenticationLogout, safeParse } from "../../utils";
 
 export type ContextState = {
   status: Status;
@@ -66,7 +66,7 @@ type ProviderProps = {
  * @returns {JSX.Element} - Auth context provider
  */
 export const AuthProvider: FC<ProviderProps> = ({ children }: ProviderProps) => {
-  const cachedUser = JSON.parse(localStorage.getItem("userDetails"));
+  const cachedUser = safeParse<User | null>(localStorage.getItem("userDetails"), null);
   const cachedState = cachedUser
     ? {
         isLoggedIn: true,
