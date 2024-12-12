@@ -307,7 +307,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-b-program"
           label="Program"
           name="program[_id]"
-          options={allProgramOptions?.map((program) => ({
+          options={allProgramOptions.map((program) => ({
             label: customProgramIds.includes(program._id) ? program._id : program.name,
             value: program._id,
           }))}
