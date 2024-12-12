@@ -91,6 +91,8 @@ const listOrgsMocks: MockedResponse<ListOrgsResp>[] = [
             name: "org1",
             status: "Active",
             conciergeName: "",
+            abbreviation: "",
+            description: "",
             studies: [
               {
                 studyName: "study1",
