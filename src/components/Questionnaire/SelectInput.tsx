@@ -268,6 +268,7 @@ const SelectInput: FC<Props> = ({
           aria-labelledby={`${id}-label`}
           hidden
         >
+          <option value="" aria-label="Empty" />
           {options.map((option) => (
             <option key={option.value} value={option.value} aria-label={`${option.value}`} />
           ))}

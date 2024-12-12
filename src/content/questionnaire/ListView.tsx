@@ -296,7 +296,6 @@ const ListingView: FC = () => {
       variables: {
         application: {
           _id: undefined,
-          programName: "",
           studyName: "",
           studyAbbreviation: "",
           questionnaireData: "{}",
@@ -304,6 +303,9 @@ const ListingView: FC = () => {
           openAccess: false,
           ORCID: "",
           PI: "",
+          programName: "",
+          programAbbreviation: "",
+          programDescription: "",
         },
       },
     }).catch((e) => ({ data: null, errors: e }));

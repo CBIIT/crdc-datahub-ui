@@ -14,6 +14,8 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   PI: "",
   conditional: false,
   pendingConditions: [],
+  programAbbreviation: "",
+  programDescription: "",
 };
 
 export const InitialQuestionnaire: QuestionnaireData = {
@@ -38,11 +40,10 @@ export const InitialQuestionnaire: QuestionnaireData = {
   },
   additionalContacts: [],
   program: {
+    _id: "",
     name: "",
     abbreviation: "",
     description: "",
-    notApplicable: false,
-    isCustom: false,
   },
   study: {
     name: "",

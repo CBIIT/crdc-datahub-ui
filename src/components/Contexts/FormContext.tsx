@@ -154,7 +154,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       variables: {
         application: {
           _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
-          programName: data?.program?.name,
           studyName: data?.study?.name,
           studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
           questionnaireData: JSON.stringify(data),
@@ -162,6 +161,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           openAccess: data?.accessTypes?.includes("Open Access") || false,
           ORCID: data?.pi?.ORCID,
           PI: fullPIName,
+          programName: data?.program?.name,
+          programAbbreviation: data?.program?.abbreviation,
+          programDescription: data?.program?.description,
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));
