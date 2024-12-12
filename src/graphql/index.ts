@@ -134,6 +134,9 @@ export type {
 } from "./editSubmissionCollaborators";
 
 // User Profile
+export { query as GET_MY_USER } from "./getMyUser";
+export type { Response as GetMyUserResp } from "./getMyUser";
+
 export { query as GET_USER } from "./getUser";
 export type { Input as GetUserInput, Response as GetUserResp } from "./getUser";
 
@@ -189,9 +192,6 @@ export type { Input as CreateOrgInput, Response as CreateOrgResp } from "./creat
 // Misc.
 export { mutation as GRANT_TOKEN } from "./grantToken";
 export type { Response as GrantTokenResp } from "./grantToken";
-
-export { query as LIST_APPROVED_STUDIES_OF_MY_ORG } from "./listApprovedStudiesOfMyOrganization";
-export type { Response as ListApprovedStudiesOfMyOrgResp } from "./listApprovedStudiesOfMyOrganization";
 
 // Operation Dashboard
 export { query as GET_DASHBOARD_URL } from "./getDashboardURL";
