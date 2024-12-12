@@ -1,3 +1,4 @@
+import { NotApplicableProgram, OtherProgram } from "../config/ProgramConfig";
 import * as utils from "./formUtils";
 
 describe("filterNonNumeric cases", () => {
@@ -101,6 +102,73 @@ describe("mapObjectWithKey cases", () => {
     newObject.forEach((obj) => {
       expect(obj).toHaveProperty("key");
       expect(obj.key).not.toEqual("");
+    });
+  });
+});
+
+describe("findProgram", () => {
+  const programOptions = [
+    { _id: "program1", name: "Program 1" },
+    { _id: "program2", name: "Program 2" },
+  ];
+
+  it("should return null if formProgram is null", () => {
+    expect(utils.findProgram(null, programOptions)).toBeNull();
+  });
+
+  it("should return null if programOptions is empty", () => {
+    expect(utils.findProgram({ _id: "test" }, [])).toBeNull();
+  });
+
+  it("should return NotApplicableProgram for legacy notApplicable input", () => {
+    const formProgram: ProgramInput & { notApplicable: boolean } = {
+      _id: "",
+      name: "",
+      abbreviation: "",
+      description: "",
+      notApplicable: true,
+    };
+    expect(utils.findProgram(formProgram, programOptions)).toEqual(NotApplicableProgram);
+  });
+
+  it("should return NotApplicableProgram when program _id matches", () => {
+    const formProgram: ProgramInput = {
+      _id: NotApplicableProgram._id,
+      name: "",
+      abbreviation: "",
+      description: "",
+    };
+    expect(utils.findProgram(formProgram, programOptions)).toEqual(NotApplicableProgram);
+  });
+
+  it("should return null for empty formProgram without notApplicable", () => {
+    const formProgram: ProgramInput = {};
+    expect(utils.findProgram(formProgram, programOptions)).toBeNull();
+  });
+
+  it("should return an existing predefined program by _id", () => {
+    const formProgram: ProgramInput = { _id: "program1" };
+    expect(utils.findProgram(formProgram, programOptions)).toEqual(programOptions[0]);
+  });
+
+  it("should return OtherProgram with formProgram content if no match is found", () => {
+    const formProgram: ProgramInput = { _id: "unknown", name: "Custom Program" };
+    expect(utils.findProgram(formProgram, programOptions)).toEqual({
+      ...formProgram,
+      _id: OtherProgram._id,
+    });
+  });
+
+  it("should return formProgram as-is if it matches OtherProgram", () => {
+    const formProgram: ProgramInput = { _id: OtherProgram._id, name: "Custom Program" };
+    expect(utils.findProgram(formProgram, programOptions)).toEqual(formProgram);
+  });
+
+  it("should include additional content from formProgram when returning OtherProgram", () => {
+    const formProgram: ProgramInput = { name: "Custom Program", description: "Custom Description" };
+    expect(utils.findProgram(formProgram, programOptions)).toEqual({
+      ...formProgram,
+      _id: OtherProgram._id,
     });
   });
 });

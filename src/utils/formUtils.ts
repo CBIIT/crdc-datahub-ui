@@ -1,3 +1,5 @@
+import { NotApplicableProgram, OtherProgram } from "../config/ProgramConfig";
+
 /**
  * Generic Email Validator
  *
@@ -62,6 +64,53 @@ export const mapObjectWithKey = (obj, index: number) => ({
   ...obj,
   key: `${index}_${new Date().getTime()}`,
 });
+
+/**
+ * Given a program from a form, find either a pre-defined program,
+ * 'Not Applicable' program, or 'Other' program.
+ *
+ * @param {ProgramInput} formProgram The program as defined in the form
+ * @param {ProgramInput[]} programOptions The pre-defined program options
+ * @returns {ProgramInput | null} The pre-defined/custom program, or null if program is empty/invalid
+ */
+export const findProgram = (
+  formProgram: ProgramInput,
+  programOptions: ProgramInput[]
+): ProgramInput | null => {
+  if (!formProgram || !programOptions?.length) {
+    return null;
+  }
+
+  const hasContent =
+    formProgram?._id?.length > 0 ||
+    formProgram?.name?.length > 0 ||
+    formProgram?.description?.length > 0 ||
+    formProgram?.abbreviation?.length > 0;
+
+  // In 3.2.0, the notApplicable property was removed
+  if (!hasContent && "notApplicable" in formProgram && formProgram?.notApplicable === true) {
+    return NotApplicableProgram;
+  }
+
+  if (!hasContent) {
+    return null;
+  }
+
+  const allProgramOptions = [NotApplicableProgram, ...programOptions, OtherProgram];
+  const existingProgram = allProgramOptions?.find((program) => program._id === formProgram._id);
+
+  if (existingProgram?._id === OtherProgram?._id) {
+    return formProgram;
+  }
+
+  // Return existing program, otherwise assume the content is "Other"
+  return (
+    existingProgram ?? {
+      ...formProgram,
+      _id: OtherProgram._id,
+    }
+  );
+};
 
 /**
  * Formats an Approved Study Name and Abbreviation into a single string.

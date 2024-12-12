@@ -9,7 +9,13 @@ import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import Publication from "../../../components/Questionnaire/Publication";
 import Repository from "../../../components/Questionnaire/Repository";
-import { filterAlphaNumeric, Logger, mapObjectWithKey, validateEmoji } from "../../../utils";
+import {
+  filterAlphaNumeric,
+  findProgram,
+  Logger,
+  mapObjectWithKey,
+  validateEmoji,
+} from "../../../utils";
 import AddRemoveButton from "../../../components/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
@@ -53,7 +59,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { readOnlyInputs } = useFormMode();
   const { B: SectionBMetadata } = SectionMetadata;
 
-  const [program, setProgram] = useState<ProgramInput>(data.program);
+  const [program, setProgram] = useState<ProgramInput>(null);
   const [study] = useState<Study>(data.study);
   const [publications, setPublications] = useState<KeyedPublication[]>(
     data.study?.publications?.map(mapObjectWithKey) || []
@@ -76,6 +82,14 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const { getFormObjectRef } = refs;
+
+  useEffect(() => {
+    if (!programs?.length) {
+      return;
+    }
+
+    setProgram(findProgram(data?.program, programs));
+  }, [programs]);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -280,7 +294,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     [NotApplicableProgram, OtherProgram, programs]
   );
   const customProgramIds: string[] = [NotApplicableProgram._id, OtherProgram._id];
-  const readOnlyProgram = readOnlyInputs || program._id !== OtherProgram._id;
+  const readOnlyProgram = readOnlyInputs || program?._id !== OtherProgram._id;
 
   return (
     <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
