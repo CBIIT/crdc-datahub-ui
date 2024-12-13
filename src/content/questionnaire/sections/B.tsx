@@ -78,6 +78,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   );
   const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
 
+  const customProgramIds: string[] = [NotApplicableProgram._id, OtherProgram._id];
   const programKeyRef = useRef(new Date().getTime());
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
@@ -281,6 +282,25 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setFundings(fundings.filter((f) => f.key !== key));
   };
 
+  /**
+   *  Uses a form program to create a label
+   *
+   * @param program The form program that will be used to create the label
+   * @returns A label with the program name and abbreviation, if available. Otherwise an empty string.
+   */
+  const formatProgramLabel = (program: ProgramInput) => {
+    if (!program) {
+      return "";
+    }
+    if (customProgramIds.includes(program._id)) {
+      return program._id;
+    }
+
+    return `${program.name || ""}${
+      program.abbreviation ? ` (${program.abbreviation.toUpperCase()})` : ""
+    }`?.trim();
+  };
+
   useEffect(() => {
     getFormObjectRef.current = getFormObject;
   }, [refs]);
@@ -293,7 +313,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     () => [NotApplicableProgram, ...programs, OtherProgram],
     [NotApplicableProgram, OtherProgram, programs]
   );
-  const customProgramIds: string[] = [NotApplicableProgram._id, OtherProgram._id];
   const readOnlyProgram = readOnlyInputs || program?._id !== OtherProgram._id;
 
   return (
@@ -308,7 +327,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Program"
           name="program[_id]"
           options={allProgramOptions.map((program) => ({
-            label: customProgramIds.includes(program._id) ? program._id : program.name,
+            label: formatProgramLabel(program),
             value: program._id,
           }))}
           value={program?._id}
