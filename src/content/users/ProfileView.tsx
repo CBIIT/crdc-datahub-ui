@@ -31,7 +31,7 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import BaseAutocomplete from "../../components/StyledFormComponents/StyledAutocomplete";
-import useProfileFields, { FieldState } from "../../hooks/useProfileFields";
+import useProfileFields, { VisibleFieldState } from "../../hooks/useProfileFields";
 import AccessRequest from "../../components/AccessRequest";
 
 type Props = {
@@ -169,8 +169,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
   const roleField = watch("role");
   const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
-  const visibleFieldState: FieldState[] = ["UNLOCKED", "DISABLED"];
-
   const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
 
   const canRequestRole: boolean = useMemo<boolean>(() => {
@@ -368,7 +366,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="firstNameLabel">First name</StyledLabel>
-                {visibleFieldState.includes(fieldset.firstName) ? (
+                {VisibleFieldState.includes(fieldset.firstName) ? (
                   <StyledTextField
                     {...register("firstName", {
                       required: true,
@@ -385,7 +383,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="lastNameLabel">Last name</StyledLabel>
-                {visibleFieldState.includes(fieldset.lastName) ? (
+                {VisibleFieldState.includes(fieldset.lastName) ? (
                   <StyledTextField
                     {...register("lastName", {
                       required: true,
@@ -402,7 +400,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="userRoleLabel">Role</StyledLabel>
-                {visibleFieldState.includes(fieldset.role) ? (
+                {VisibleFieldState.includes(fieldset.role) ? (
                   <Controller
                     name="role"
                     control={control}
@@ -431,7 +429,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField visible={fieldset.studies !== "HIDDEN"}>
                 <StyledLabel id="userStudies">Studies</StyledLabel>
-                {visibleFieldState.includes(fieldset.studies) ? (
+                {VisibleFieldState.includes(fieldset.studies) ? (
                   <Controller
                     name="studies"
                     control={control}
@@ -474,7 +472,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="userStatusLabel">Account Status</StyledLabel>
-                {visibleFieldState.includes(fieldset.userStatus) ? (
+                {VisibleFieldState.includes(fieldset.userStatus) ? (
                   <Controller
                     name="userStatus"
                     control={control}
@@ -497,7 +495,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField visible={fieldset.dataCommons !== "HIDDEN"}>
                 <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
-                {visibleFieldState.includes(fieldset.dataCommons) ? (
+                {VisibleFieldState.includes(fieldset.dataCommons) ? (
                   <Controller
                     name="dataCommons"
                     control={control}
