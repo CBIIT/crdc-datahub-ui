@@ -95,7 +95,13 @@ const BaseInputStyling = {
   width: "363px",
 };
 
-const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
+const StyledTextField = styled(BaseOutlinedInput)({
+  ...BaseInputStyling,
+  "& .MuiInputBase-inputMultiline": {
+    resize: "vertical",
+    minHeight: "44px",
+  },
+});
 const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
@@ -432,7 +438,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   }}
                   error={!!errors.description}
                   placeholder="500 characters allowed"
-                  rows={4}
+                  rows={2}
                   multiline
                 />
               </StyledField>
