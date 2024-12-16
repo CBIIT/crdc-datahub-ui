@@ -11,9 +11,16 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { CREATE_SUBMISSION, CreateSubmissionResp, CreateSubmissionInput } from "../../graphql";
+import {
+  CREATE_SUBMISSION,
+  CreateSubmissionResp,
+  CreateSubmissionInput,
+  ListApprovedStudiesResp,
+  ListApprovedStudiesInput,
+  LIST_APPROVED_STUDIES,
+} from "../../graphql";
 import RadioInput, { RadioOption } from "./RadioInput";
 import { DataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
@@ -26,6 +33,7 @@ import StyledLabel from "../StyledFormComponents/StyledLabel";
 import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
 import Tooltip from "../Tooltip";
 import { Logger, validateEmoji } from "../../utils";
+import { RequiresStudiesAssigned } from "../../config/AuthRoles";
 
 const CreateSubmissionDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -215,6 +223,14 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
   const [dbGaPID, setDbGaPID] = useState<string>("");
 
+  const shouldFetchAllStudies = useMemo<boolean>(
+    () =>
+      creatingSubmission &&
+      !RequiresStudiesAssigned.includes(user?.role) &&
+      user?.studies?.findIndex((s) => s?._id === "All") !== -1,
+    [creatingSubmission, user?.role, user?.studies]
+  );
+
   const [createDataSubmission] = useMutation<CreateSubmissionResp, CreateSubmissionInput>(
     CREATE_SUBMISSION,
     {
@@ -222,6 +238,26 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       fetchPolicy: "no-cache",
     }
   );
+
+  const { data: allStudies } = useQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
+    LIST_APPROVED_STUDIES,
+    {
+      variables: { first: -1, orderBy: "studyAbbreviation", sortDirection: "asc" },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-first",
+      skip: !shouldFetchAllStudies,
+    }
+  );
+
+  const studies = useMemo<User["studies"]>(() => {
+    if (shouldFetchAllStudies) {
+      return allStudies?.listApprovedStudies?.studies || [];
+    }
+
+    return (
+      user?.studies?.sort((a, b) => a?.studyAbbreviation?.localeCompare(b?.studyAbbreviation)) || []
+    );
+  }, [shouldFetchAllStudies, allStudies, user?.studies]);
 
   const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
   const intention = watch("intention");
@@ -265,12 +301,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     },
   ];
 
-  const sortedStudies = useMemo<User["studies"]>(
-    () =>
-      user?.studies?.sort((a, b) => a.studyAbbreviation.localeCompare(b.studyAbbreviation)) || [],
-    [user?.studies]
-  );
-
   const handleOpenDialog = () => {
     reset();
     setCreatingSubmission(true);
@@ -310,7 +340,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
   useEffect(() => {
     const studyID = watch("studyID");
-    const mappedStudy = user?.studies?.find((s) => s?._id === studyID);
+    const mappedStudy = studies?.find((s) => s?._id === studyID);
 
     if (!studyID || !mappedStudy) {
       setDbGaPID("");
@@ -320,7 +350,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
     setDbGaPID(mappedStudy.dbGaPID || "");
     setIsDbGapRequired(mappedStudy.controlledAccess);
-  }, [watch("studyID")]);
+  }, [watch("studyID"), studies]);
 
   return (
     <>
@@ -445,7 +475,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     inputProps={{ "aria-labelledby": "study" }}
                     data-testid="create-data-submission-dialog-study-id-input"
                   >
-                    {sortedStudies.map((study) => (
+                    {studies.map((study) => (
                       <MenuItem key={study._id} value={study._id}>
                         {study.studyAbbreviation}
                       </MenuItem>
