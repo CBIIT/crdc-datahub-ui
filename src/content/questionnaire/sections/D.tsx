@@ -151,16 +151,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [clinicalDataTypesErrorMsg, setClinicalDataTypesErrorMsg] = useState<string>("");
   const dataTypesInputRef = useRef<HTMLInputElement>(null);
   const clinicalDataTypesInputRef = useRef<HTMLInputElement>(null);
-  const {
-    nextButtonRef,
-    saveFormRef,
-    submitFormRef,
-    approveFormRef,
-    inquireFormRef,
-    rejectFormRef,
-    exportButtonRef,
-    getFormObjectRef,
-  } = refs;
+  const { getFormObjectRef } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(
     data.files?.map(mapObjectWithKey) || []
   );
@@ -258,17 +249,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) {
-      return;
-    }
-
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    exportButtonRef.current.style.display = "none";
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 

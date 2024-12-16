@@ -14,10 +14,8 @@ import {
   InquireAppResp,
   REJECT_APP,
   REOPEN_APP,
-  REVIEW_APP,
   RejectAppResp,
   ReopenAppResp,
-  ReviewAppResp,
 } from "../../graphql";
 
 const baseApplication: Omit<Application, "questionnaireData"> = {
@@ -36,12 +34,12 @@ const baseApplication: Omit<Application, "questionnaireData"> = {
     applicantName: "",
     applicantEmail: "",
   },
-  organization: {
-    _id: "",
-    name: "",
-  },
   programName: "",
   studyAbbreviation: "",
+  conditional: false,
+  pendingConditions: [],
+  programAbbreviation: "",
+  programDescription: "",
 };
 
 const baseQuestionnaireData: QuestionnaireData = {
@@ -66,11 +64,10 @@ const baseQuestionnaireData: QuestionnaireData = {
   },
   additionalContacts: [],
   program: {
+    _id: "",
     name: "",
     abbreviation: "",
     description: "",
-    notApplicable: false,
-    isCustom: false,
   },
   study: {
     name: "",
@@ -854,117 +851,6 @@ describe("rejectForm Tests", () => {
   });
 });
 
-describe("reviewForm Tests", () => {
-  const getAppMock: MockedResponse<GetAppResp> = {
-    request: {
-      query: GET_APP,
-    },
-    variableMatcher: () => true,
-    result: {
-      data: {
-        getApplication: {
-          ...baseApplication,
-          questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
-            sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-          }),
-        },
-      },
-    },
-  };
-
-  it("should send a review request to the API", async () => {
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
-    const mock: MockedResponse<ReviewAppResp> = {
-      request: {
-        query: REVIEW_APP,
-      },
-      variableMatcher: mockVariableMatcher,
-      result: {
-        data: {
-          reviewApplication: {
-            _id: "mock-review-id",
-          } as ReviewAppResp["reviewApplication"],
-        },
-      },
-    };
-
-    const { result } = renderHook(() => useFormContext(), {
-      wrapper: ({ children }) => (
-        <TestParent mocks={[getAppMock, mock]} appId="mock-review-id">
-          {children}
-        </TestParent>
-      ),
-    });
-
-    await waitFor(() => {
-      expect(result.current.status).toEqual(FormStatus.LOADED);
-    });
-
-    await act(async () => {
-      const reviewResp = await result.current.reviewForm();
-      expect(reviewResp).toEqual("mock-review-id");
-      expect(mockVariableMatcher).toHaveBeenCalled();
-    });
-  });
-
-  it("should gracefully handle API GraphQL errors", async () => {
-    const mock: MockedResponse<ReviewAppResp> = {
-      request: {
-        query: REVIEW_APP,
-      },
-      variableMatcher: () => true,
-      result: {
-        errors: [new GraphQLError("Test Review GraphQL error")],
-      },
-    };
-
-    const { result } = renderHook(() => useFormContext(), {
-      wrapper: ({ children }) => (
-        <TestParent mocks={[getAppMock, mock]} appId="mock-app-id">
-          {children}
-        </TestParent>
-      ),
-    });
-
-    await waitFor(() => {
-      expect(result.current.status).toEqual(FormStatus.LOADED);
-    });
-
-    await act(async () => {
-      const reviewResp = await result.current.reviewForm();
-      expect(reviewResp).toEqual(false);
-    });
-  });
-
-  it("should gracefully handle API network errors", async () => {
-    const mock: MockedResponse<ReviewAppResp> = {
-      request: {
-        query: REVIEW_APP,
-      },
-      variableMatcher: () => true,
-      error: new Error("Test Review network error"),
-    };
-
-    const { result } = renderHook(() => useFormContext(), {
-      wrapper: ({ children }) => (
-        <TestParent mocks={[getAppMock, mock]} appId="mock-app-id">
-          {children}
-        </TestParent>
-      ),
-    });
-
-    await waitFor(() => {
-      expect(result.current.status).toEqual(FormStatus.LOADED);
-    });
-
-    await act(async () => {
-      const reviewResp = await result.current.reviewForm();
-      expect(reviewResp).toEqual(false);
-    });
-  });
-});
-
 describe("reopenForm Tests", () => {
   const getAppMock: MockedResponse<GetAppResp> = {
     request: {
@@ -995,7 +881,8 @@ describe("reopenForm Tests", () => {
         data: {
           reopenApplication: {
             _id: "mock-reopen-id",
-          } as ReviewAppResp["reviewApplication"],
+            status: "In Progress",
+          } as ReopenAppResp["reopenApplication"],
         },
       },
     };

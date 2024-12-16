@@ -26,7 +26,6 @@ const baseUser: Omit<User, "role"> = {
   userStatus: "Active",
   IDP: "nih",
   email: "",
-  organization: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",

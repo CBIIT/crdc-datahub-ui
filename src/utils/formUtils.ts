@@ -1,5 +1,4 @@
-import { InitialQuestionnaire } from "../config/InitialValues";
-import programOptions, { NotApplicableProgram, OptionalProgram } from "../config/ProgramConfig";
+import { NotApplicableProgram, OtherProgram } from "../config/ProgramConfig";
 
 /**
  * Generic Email Validator
@@ -67,54 +66,51 @@ export const mapObjectWithKey = (obj, index: number) => ({
 });
 
 /**
- * Finds the program option by its name.
+ * Given a program from a form, find either a pre-defined program,
+ * 'Not Applicable' program, or 'Other' program.
  *
- * NOTE:
- * - This utility helps differentiate between a
- *   saved CUSTOM program and a PRESELECTED
- *   program option.
- *
- * @param {Program} program - The program object to search for.
- * @returns {ProgramOption} - Returns the program option if found,
- *                            otherwise returns program with initial values
+ * @param {ProgramInput} formProgram The program as defined in the form
+ * @param {ProgramInput[]} programOptions The pre-defined program options
+ * @returns {ProgramInput | null} The pre-defined/custom program, or null if program is empty/invalid
  */
-export const findProgram = (program: Program): ProgramOption => {
-  const initialProgram: Program = {
-    ...InitialQuestionnaire.program,
-  };
-  if (!program) {
-    return initialProgram;
+export const findProgram = (
+  formProgram: ProgramInput,
+  programOptions: ProgramInput[]
+): ProgramInput | null => {
+  if (!formProgram || !programOptions?.length) {
+    return null;
   }
-  if (program.notApplicable || program.name === NotApplicableProgram.name) {
+
+  const hasContent =
+    formProgram?._id?.length > 0 ||
+    formProgram?.name?.length > 0 ||
+    formProgram?.description?.length > 0 ||
+    formProgram?.abbreviation?.length > 0;
+
+  // In 3.2.0, the notApplicable property was removed
+  if (!hasContent && "notApplicable" in formProgram && formProgram?.notApplicable === true) {
     return NotApplicableProgram;
   }
-  if (program.isCustom) {
-    return OptionalProgram;
-  }
-  const newProgram: ProgramOption = programOptions.find((option) => option.name === program.name);
-  if (
-    !newProgram &&
-    (program.name?.length || program.abbreviation?.length || program.description?.length)
-  ) {
-    return OptionalProgram;
-  }
-  return newProgram || initialProgram;
-};
 
-/**
- * Converts a program option to a select dropdown option.
- *
- * NOTE:
- * - The returned object has 'label' which combines program name and abbreviation
- *   and 'value' which is the program name.
- *
- * @param {ProgramOption} program - The program option to convert.
- * @returns {SelectOption} - Returns an object suitable for use in a select dropdown.
- */
-export const programToSelectOption = (program: ProgramOption): SelectOption => ({
-  label: `${program.name || ""}${program.abbreviation ? ` (${program.abbreviation})` : ""}`?.trim(),
-  value: program.name || "",
-});
+  if (!hasContent) {
+    return null;
+  }
+
+  const allProgramOptions = [NotApplicableProgram, ...programOptions, OtherProgram];
+  const existingProgram = allProgramOptions?.find((program) => program._id === formProgram._id);
+
+  if (existingProgram?._id === OtherProgram?._id) {
+    return formProgram;
+  }
+
+  // Return existing program, otherwise assume the content is "Other"
+  return (
+    existingProgram ?? {
+      ...formProgram,
+      _id: OtherProgram._id,
+    }
+  );
+};
 
 /**
  * Formats an Approved Study Name and Abbreviation into a single string.
@@ -222,33 +218,36 @@ export const formatORCIDInput = (input: string): string => {
  * Given an array of Study IDs, return the first Formatted Study Name from the list of approved studies, sorted by the Study Name.
  *
  * @note MUI shows the first SELECTED item by default, this will show the first SORTED item
- * @see {@link formatFullStudyName} for the formatting implementation
- * @param studyIds Array of Study IDs
- * @param approvedStudies List of approved studies, ideally containing the studies in studyIds
+ * @param selectedIds Array of Study IDs
+ * @param studyMap A map of the _ID: Study Name and Abbreviation
  * @returns The first formatted study name from the list of approved studies
  */
 export const formatStudySelectionValue = (
-  studyIds: string[],
-  approvedStudies: ApprovedStudy[],
+  selectedIds: string[],
+  studyMap: Record<string, string>,
   fallback = ""
 ): string => {
-  if (!Array.isArray(studyIds) || !Array.isArray(approvedStudies)) {
+  if (!Array.isArray(selectedIds) || selectedIds.length === 0) {
     return fallback;
   }
-  if (studyIds.length === 0 || approvedStudies.length === 0) {
+  if (!studyMap || Object.keys(studyMap).length === 0) {
     return fallback;
   }
 
-  const mappedStudies: string[] = studyIds
-    .map((studyID) => {
-      const study: ApprovedStudy = approvedStudies?.find((s) => s?._id === studyID);
-
-      return formatFullStudyName(study?.studyName, study?.studyAbbreviation);
-    })
+  const sortedStudies: string[] = selectedIds
+    .map((studyID) => studyMap?.[studyID])
     .filter((study) => typeof study === "string" && study.length > 0)
     .sort((a: string, b: string) => a.localeCompare(b));
 
-  return mappedStudies.length > 0 ? mappedStudies[0] : fallback;
+  if (sortedStudies.length === 0) {
+    return fallback;
+  }
+
+  const joinedStudies = sortedStudies.join(", ");
+  const trimmedJoin =
+    joinedStudies.length > 30 ? `${joinedStudies.substring(0, 30)}...` : joinedStudies;
+
+  return `${trimmedJoin}${sortedStudies.length > 1 ? ` (${sortedStudies.length})` : ""}`;
 };
 
 /**

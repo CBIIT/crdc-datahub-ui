@@ -22,9 +22,8 @@ const baseBatch: Batch = {
 const baseBatchFileInfo: BatchFileInfo = {
   filePrefix: "",
   fileName: "",
-  size: 0,
   nodeType: "",
-  status: "",
+  status: "New",
   errors: [],
   createdAt: "",
   updatedAt: "",

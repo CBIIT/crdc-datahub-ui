@@ -21,13 +21,19 @@ export const query = gql`
           applicantName
           applicantID
         }
-        organization {
-          name
-        }
+        conditional
+        pendingConditions
       }
     }
   }
 `;
+
+export type Input = {
+  first: number;
+  offset: number;
+  orderBy: string;
+  sortDirection: Order;
+};
 
 export type Response = {
   listApplications: {

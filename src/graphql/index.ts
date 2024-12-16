@@ -1,6 +1,6 @@
 // Submission Request
 export { mutation as REVIEW_APP } from "./reviewApplication";
-export type { Response as ReviewAppResp } from "./reviewApplication";
+export type { Response as ReviewAppResp, Input as ReviewAppInput } from "./reviewApplication";
 
 export { mutation as REOPEN_APP } from "./reopenApplication";
 export type { Response as ReopenAppResp } from "./reopenApplication";
@@ -35,6 +35,12 @@ export type { Response as ListInstitutionsResp } from "./listInstitutions";
 export { query as RETRIEVE_CDEs } from "./retrieveCDEs";
 export type { Response as RetrieveCDEsResp, Input as RetrieveCDEsInput } from "./retrieveCDEs";
 
+export { query as LIST_APPLICATIONS } from "./listApplications";
+export type {
+  Response as ListApplicationsResp,
+  Input as ListApplicationsInput,
+} from "./listApplications";
+
 // Data Submissions
 export { mutation as CREATE_SUBMISSION } from "./createSubmission";
 export type {
@@ -55,7 +61,7 @@ export { mutation as SUBMISSION_ACTION } from "./submissionAction";
 export type { Response as SubmissionActionResp } from "./submissionAction";
 
 export { mutation as CREATE_BATCH } from "./createBatch";
-export type { Response as CreateBatchResp } from "./createBatch";
+export type { Input as CreateBatchInput, Response as CreateBatchResp } from "./createBatch";
 
 export { mutation as UPDATE_BATCH } from "./updateBatch";
 export type { Response as UpdateBatchResp } from "./updateBatch";
@@ -128,6 +134,9 @@ export type {
 } from "./editSubmissionCollaborators";
 
 // User Profile
+export { query as GET_MY_USER } from "./getMyUser";
+export type { Response as GetMyUserResp } from "./getMyUser";
+
 export { query as GET_USER } from "./getUser";
 export type { Input as GetUserInput, Response as GetUserResp } from "./getUser";
 
@@ -143,9 +152,6 @@ export type { Input as RequestAccessInput, Response as RequestAccessResp } from 
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";
 export type { Response as ListOrgsResp } from "./listOrganizations";
-
-export { query as LIST_ORG_NAMES } from "./listOrganizationNames";
-export type { Response as ListOrgNamesResp } from "./listOrganizationNames";
 
 export { query as GET_ORG } from "./getOrganization";
 export type { Response as GetOrgResp } from "./getOrganization";
@@ -186,9 +192,6 @@ export type { Input as CreateOrgInput, Response as CreateOrgResp } from "./creat
 // Misc.
 export { mutation as GRANT_TOKEN } from "./grantToken";
 export type { Response as GrantTokenResp } from "./grantToken";
-
-export { query as LIST_APPROVED_STUDIES_OF_MY_ORG } from "./listApprovedStudiesOfMyOrganization";
-export type { Response as ListApprovedStudiesOfMyOrgResp } from "./listApprovedStudiesOfMyOrganization";
 
 // Operation Dashboard
 export { query as GET_DASHBOARD_URL } from "./getDashboardURL";

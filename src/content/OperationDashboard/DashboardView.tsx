@@ -91,7 +91,10 @@ const DashboardView: FC<DashboardViewProps> = ({
     const params: DashboardContentOptions["parameters"] = [];
 
     if (role === "Federal Monitor" && Array.isArray(studies) && studies.length > 0) {
-      params.push({ Name: "studiesParameter", Values: studies });
+      params.push({
+        Name: "studiesParameter",
+        Values: studies?.map((study: ApprovedStudy) => study?._id),
+      });
     } else if (role === "Federal Monitor") {
       Logger.error("This role requires studies to be set but none were found.", studies);
       params.push({ Name: "studiesParameter", Values: ["NO-CONTENT"] });

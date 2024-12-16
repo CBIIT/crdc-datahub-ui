@@ -7,12 +7,12 @@ export const mutation = gql`
       lastName
       userStatus
       role
-      studies
-      organization {
-        orgID
-        orgName
-        createdAt
-        updateAt
+      studies {
+        _id
+        studyName
+        studyAbbreviation
+        dbGaPID
+        controlledAccess
       }
     }
   }
@@ -26,5 +26,10 @@ export type Input = {
 };
 
 export type Response = {
-  updateMyUser: Pick<User, "firstName" | "lastName" | "userStatus" | "role" | "organization">;
+  updateMyUser: Pick<User, "firstName" | "lastName" | "userStatus" | "role"> & {
+    studies: Pick<
+      ApprovedStudy,
+      "_id" | "studyName" | "studyAbbreviation" | "dbGaPID" | "controlledAccess"
+    >[];
+  };
 };

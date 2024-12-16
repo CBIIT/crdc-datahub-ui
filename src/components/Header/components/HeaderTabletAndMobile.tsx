@@ -178,9 +178,9 @@ const Header = () => {
   }
   if (user?.role === "Admin") {
     navbarSublists[displayName].splice(1, 0, {
-      name: "Manage Organizations",
-      link: "/organizations",
-      id: "navbar-dropdown-item-organization-manage",
+      name: "Manage Programs",
+      link: "/programs",
+      id: "navbar-dropdown-item-program-manage",
       className: "navMobileSubItem",
     });
   }
@@ -202,7 +202,7 @@ const Header = () => {
   }
 
   const clickNavItem = (e) => {
-    const clickTitle = e.target.innerText;
+    const clickTitle = e.target.textContent;
     setSelectedList(navbarSublists[clickTitle]);
   };
 
@@ -275,7 +275,7 @@ const Header = () => {
               </div>
             )}
             <div className="navMobileContainer">
-              {selectedList.map((navMobileItem) => {
+              {selectedList?.map((navMobileItem) => {
                 // If the user is not logged in and the item requires a role, don't show it
                 if (
                   "roles" in navMobileItem &&

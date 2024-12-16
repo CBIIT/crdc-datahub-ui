@@ -11,18 +11,13 @@ import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
 import AddRemoveButton from "../../../components/AddRemoveButton";
-import {
-  filterForNumbers,
-  formatORCIDInput,
-  isValidORCID,
-  mapObjectWithKey,
-  validateEmail,
-} from "../../../utils";
+import { filterForNumbers, mapObjectWithKey, validateEmail } from "../../../utils";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
 import useFormMode from "../../../hooks/useFormMode";
 import { useInstitutionList } from "../../../components/Contexts/InstitutionListContext";
+import PansBanner from "../../../components/PansBanner";
 
 export type KeyedContact = {
   key: string;
@@ -66,16 +61,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
-  const {
-    nextButtonRef,
-    saveFormRef,
-    submitFormRef,
-    approveFormRef,
-    inquireFormRef,
-    rejectFormRef,
-    exportButtonRef,
-    getFormObjectRef,
-  } = refs;
+  const { getFormObjectRef } = refs;
 
   const togglePrimaryPI = () => {
     setPiAsPrimaryContact(!piAsPrimaryContact);
@@ -96,6 +82,9 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (formObject.piAsPrimaryContact) {
       combinedData.primaryContact = null;
     }
+
+    // TODO: Remove in 3.2.0
+    combinedData.pi.ORCID = "";
 
     return { ref: formRef, data: combinedData };
   };
@@ -120,17 +109,6 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) {
-      return;
-    }
-
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    exportButtonRef.current.style.display = "none";
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
@@ -143,7 +121,12 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   }, [location]);
 
   return (
-    <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
+    <FormContainer
+      ref={formContainerRef}
+      formRef={formRef}
+      description={SectionOption.title}
+      prefixElement={<PansBanner />}
+    >
       {/* Principal Investigator */}
       <SectionGroup
         title={SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.title}
@@ -189,17 +172,6 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           validate={validateEmail}
           errorText="Please provide a valid email address"
           required
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-a-pi-orcid"
-          label="ORCID"
-          name="pi[ORCID]"
-          value={pi?.ORCID}
-          placeholder="e.g. 0000-0001-2345-6789"
-          validate={(val) => val?.length === 0 || isValidORCID(val)}
-          filter={formatORCIDInput}
-          errorText="Please provide a valid ORCID"
           readOnly={readOnlyInputs}
         />
         <AutocompleteInput

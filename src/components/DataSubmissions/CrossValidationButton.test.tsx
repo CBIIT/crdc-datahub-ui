@@ -80,7 +80,6 @@ const baseUser: Omit<User, "role"> = {
   userStatus: "Active",
   IDP: "nih",
   email: "",
-  organization: null,
   studies: null,
   dataCommons: [],
   createdAt: "",

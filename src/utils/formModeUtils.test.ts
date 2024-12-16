@@ -11,13 +11,6 @@ describe("getFormMode tests based on provided requirements", () => {
     IDP: "nih",
     createdAt: "2023-05-01T09:23:30Z",
     updateAt: "2023-05-02T09:23:30Z",
-    organization: {
-      orgID: "org1",
-      orgName: "TestOrg",
-      status: "Active",
-      createdAt: "2023-05-01T09:23:30Z",
-      updateAt: "2023-05-02T09:23:30Z",
-    },
     studies: null,
     dataCommons: [],
   };
@@ -28,10 +21,6 @@ describe("getFormMode tests based on provided requirements", () => {
     _id: "submission-123",
     questionnaireData: InitialQuestionnaire,
     status: "New",
-    organization: {
-      _id: baseUser.organization.orgID,
-      name: baseUser.organization.orgName,
-    },
     applicant: {
       applicantID: baseUser._id,
       applicantName: baseUser.firstName,
@@ -112,12 +101,10 @@ describe("getFormMode tests based on provided requirements", () => {
   describe("getFormMode > Fed Lead tests", () => {
     const user: User = { ...baseUser, role: "Federal Lead" };
 
-    it("should set Review mode for Fed Lead when status is Submitted or In Review", () => {
-      const statuses: ApplicationStatus[] = ["Submitted", "In Review"];
-
-      statuses.forEach((status) => {
-        expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(utils.FormModes.REVIEW);
-      });
+    it("should set Review mode for Fed Lead when status is 'In Review'", () => {
+      expect(utils.getFormMode(user, { ...baseSubmission, status: "In Review" })).toBe(
+        utils.FormModes.REVIEW
+      );
     });
 
     it("should set View Only mode for Fed Lead for all other statuses", () => {
@@ -127,6 +114,7 @@ describe("getFormMode tests based on provided requirements", () => {
         "In Progress",
         "Rejected",
         "Inquired",
+        "Submitted",
       ];
 
       statuses.forEach((status) => {
