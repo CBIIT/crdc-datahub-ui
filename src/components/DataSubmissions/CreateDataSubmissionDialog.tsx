@@ -226,8 +226,8 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const shouldFetchAllStudies = useMemo<boolean>(
     () =>
       creatingSubmission &&
-      !RequiresStudiesAssigned.includes(user?.role) &&
-      user?.studies?.findIndex((s) => s?._id === "All") !== -1,
+      (!RequiresStudiesAssigned.includes(user?.role) ||
+        (user?.studies || [])?.findIndex((s) => s?._id === "All") !== -1),
     [creatingSubmission, user?.role, user?.studies]
   );
 
