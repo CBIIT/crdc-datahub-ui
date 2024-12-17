@@ -302,10 +302,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   ) => {
     let updatedData = [...data];
 
-    // Previous studies included all but the user selected other studies
+    // Previous studies included "All", but the user selected something different
     if (prevStudiesRef.current?.includes(ALL_STUDIES_OPTION)) {
       updatedData = updatedData.filter((v) => v !== ALL_STUDIES_OPTION);
-      // User selected all studies, remove all other studies
+      // User selected "All" studies, remove any other studies
     } else if (data.includes(ALL_STUDIES_OPTION)) {
       updatedData = [ALL_STUDIES_OPTION];
     }
