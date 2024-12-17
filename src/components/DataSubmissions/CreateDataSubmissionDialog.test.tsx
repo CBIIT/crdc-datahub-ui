@@ -71,6 +71,8 @@ const baseUser: Omit<User, "role"> = {
   dataCommons: [],
   createdAt: "",
   updateAt: "",
+  permissions: ["data_submission:create"],
+  notifications: [],
 };
 
 const baseAuthCtx: AuthCtxState = {
