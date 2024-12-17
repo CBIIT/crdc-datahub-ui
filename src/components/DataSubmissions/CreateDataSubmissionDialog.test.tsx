@@ -10,13 +10,7 @@ import {
   ContextState as AuthCtxState,
   Status as AuthStatus,
 } from "../Contexts/AuthContext";
-import {
-  CREATE_SUBMISSION,
-  CreateSubmissionResp,
-  GetMyUserResp,
-  LIST_ORGS,
-  ListOrgsResp,
-} from "../../graphql";
+import { CREATE_SUBMISSION, CreateSubmissionResp, GetMyUserResp } from "../../graphql";
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
   {
@@ -66,42 +60,6 @@ const createSubmissionMocks: MockedResponse<CreateSubmissionResp>[] = [
   },
 ];
 
-const listOrgsMocks: MockedResponse<ListOrgsResp>[] = [
-  {
-    request: {
-      query: LIST_ORGS,
-    },
-    result: {
-      data: {
-        listOrganizations: [
-          {
-            _id: "some-org-1",
-            name: "org1",
-            status: "Active",
-            conciergeName: "",
-            abbreviation: "",
-            description: "",
-            studies: [
-              {
-                studyName: "study1",
-                studyAbbreviation: "SN",
-              },
-              {
-                studyName: "study2",
-                studyAbbreviation: "CS",
-              },
-            ],
-            createdAt: "2023-10-06T19:19:04.183Z",
-            updateAt: "2024-07-03T19:09:29.513Z",
-          },
-        ],
-      },
-    },
-  },
-];
-
-const baseMocks = [...createSubmissionMocks, ...listOrgsMocks];
-
 const baseUser: Omit<User, "role"> = {
   _id: "",
   firstName: "",
@@ -129,7 +87,7 @@ type ParentProps = {
 
 const TestParent: FC<ParentProps> = ({
   authCtxState = baseAuthCtx,
-  mocks = baseMocks,
+  mocks = [...createSubmissionMocks],
   children,
 }) => (
   <AuthCtx.Provider value={authCtxState}>
@@ -344,7 +302,6 @@ describe("Basic Functionality", () => {
 
   it("should show an error message when submission could not be created (network)", async () => {
     const mocks: MockedResponse[] = [
-      ...listOrgsMocks,
       {
         request: {
           query: CREATE_SUBMISSION,
@@ -425,7 +382,6 @@ describe("Basic Functionality", () => {
 
   it("should show an error message when submission could not be created (GraphQL)", async () => {
     const mocks: MockedResponse[] = [
-      ...listOrgsMocks,
       {
         request: {
           query: CREATE_SUBMISSION,
@@ -705,7 +661,6 @@ describe("Basic Functionality", () => {
       {
         wrapper: (p) => (
           <TestParent
-            mocks={baseMocks}
             authCtxState={{
               ...baseAuthCtx,
               user: { ...baseUser, role: "Submitter", studies: baseStudies },
@@ -776,7 +731,7 @@ describe("Implementation Requirements", () => {
       {
         wrapper: (p) => (
           <TestParent
-            mocks={[...listOrgsMocks]}
+            mocks={[]}
             authCtxState={{
               ...baseAuthCtx,
               user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
@@ -831,7 +786,7 @@ describe("Implementation Requirements", () => {
       {
         wrapper: (p) => (
           <TestParent
-            mocks={[...listOrgsMocks]}
+            mocks={[]}
             authCtxState={{
               ...baseAuthCtx,
               user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
@@ -904,7 +859,7 @@ describe("Implementation Requirements", () => {
       {
         wrapper: (p) => (
           <TestParent
-            mocks={[...listOrgsMocks]}
+            mocks={[]}
             authCtxState={{
               ...baseAuthCtx,
               user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
@@ -972,7 +927,7 @@ describe("Implementation Requirements", () => {
       {
         wrapper: (p) => (
           <TestParent
-            mocks={[...listOrgsMocks]}
+            mocks={[]}
             authCtxState={{
               ...baseAuthCtx,
               user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
@@ -1017,4 +972,120 @@ describe("Implementation Requirements", () => {
       { normalizeWhitespace: true }
     );
   });
+
+  // NOTE: We're just random-testing against the opposite of the RequiresStudiesAssigned variable
+  // it.each<UserRole>(["Data Curator", "Data Commons POC"])(
+  //   "should fetch all of the studies if the user's role is %s",
+  //   async (role) => {
+  //     const mockMatcher = jest.fn().mockImplementation(() => true);
+  //     const listApprovedStudiesMock: MockedResponse<
+  //       ListApprovedStudiesResp,
+  //       ListApprovedStudiesInput
+  //     > = {
+  //       request: {
+  //         query: LIST_APPROVED_STUDIES,
+  //       },
+  //       variableMatcher: mockMatcher,
+  //       result: {
+  //         data: {
+  //           listApprovedStudies: {
+  //             total: 1,
+  //             studies: [
+  //               {
+  //                 _id: "study1",
+  //                 studyName: "study-1-from-api",
+  //                 studyAbbreviation: "study-1-from-api-abbr",
+  //                 dbGaPID: "",
+  //                 controlledAccess: false,
+  //               },
+  //               {
+  //                 _id: "study2",
+  //                 studyName: "study-2-from-api",
+  //                 studyAbbreviation: "study-2-from-api-abbr",
+  //                 dbGaPID: "",
+  //                 controlledAccess: false,
+  //               },
+  //             ] as ApprovedStudy[],
+  //           },
+  //         },
+  //       },
+  //     };
+
+  //     const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+  //       wrapper: (p) => (
+  //         <TestParent
+  //           mocks={[listApprovedStudiesMock]}
+  //           authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+  //           {...p}
+  //         />
+  //       ),
+  //     });
+
+  //     userEvent.click(getByRole("button", { name: "Create a Data Submission" }));
+
+  //     await waitFor(() => {
+  //       expect(mockMatcher).toHaveBeenCalledTimes(1); // Ensure the listApprovedStudies query was called
+  //     });
+  //   }
+  // );
+
+  // it("should fetch all of the studies if the user's assigned studies contains the 'All' study", async () => {
+  //   const mockMatcher = jest.fn().mockImplementation(() => true);
+  //   const listApprovedStudiesMock: MockedResponse<
+  //     ListApprovedStudiesResp,
+  //     ListApprovedStudiesInput
+  //   > = {
+  //     request: {
+  //       query: LIST_APPROVED_STUDIES,
+  //     },
+  //     variableMatcher: mockMatcher,
+  //     result: {
+  //       data: {
+  //         listApprovedStudies: {
+  //           total: 1,
+  //           studies: [
+  //             {
+  //               _id: "study1",
+  //               studyName: "study-1-from-api",
+  //               studyAbbreviation: "study-1-from-api-abbr",
+  //               dbGaPID: "",
+  //               controlledAccess: false,
+  //             },
+  //           ] as ApprovedStudy[],
+  //         },
+  //       },
+  //     },
+  //   };
+
+  //   const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+  //     wrapper: (p) => (
+  //       <TestParent
+  //         mocks={[listApprovedStudiesMock]}
+  //         authCtxState={{
+  //           ...baseAuthCtx,
+  //           user: {
+  //             ...baseUser,
+  //             role: "Federal Lead",
+  //             studies: [
+  //               {
+  //                 _id: "All", // This is the important part
+  //                 studyAbbreviation: "",
+  //                 studyName: "",
+  //                 dbGaPID: "",
+  //                 controlledAccess: false,
+  //               },
+  //             ],
+  //           },
+  //         }}
+  //         {...p}
+  //       />
+  //     ),
+  //   });
+
+  //   userEvent.click(getByRole("button", { name: "Create a Data Submission" }));
+
+  //   await waitFor(() => {
+  //     expect(mockMatcher).toHaveBeenCalledTimes(1); // Ensure the listApprovedStudies query was called
+  //   });
+  // });
 });
