@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Box, Container, MenuItem, Stack, TextField, Typography, styled } from "@mui/material";
@@ -160,6 +160,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const { lastSearchParams } = useSearchParamsContext();
   const { handleSubmit, register, reset, watch, control } = useForm<FormInput>();
 
+  const ALL_STUDIES_OPTION = "All";
   const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
   const isSelf = _id === currentUser._id;
   const [user, setUser] = useState<User | null>(
@@ -170,6 +171,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
   const roleField = watch("role");
   const studiesField = watch("studies");
+  const prevStudiesRef = useRef<string[]>(studiesField);
   const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
 
   const canRequestRole: boolean = useMemo<boolean>(() => {
@@ -210,14 +212,20 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       return {};
     }
 
-    return approvedStudies.listApprovedStudies.studies.reduce(
+    const studyIdMap = approvedStudies.listApprovedStudies.studies.reduce(
       (acc, { _id, studyName, studyAbbreviation }) => ({
         ...acc,
         [_id]: formatFullStudyName(studyName, studyAbbreviation),
       }),
       {}
     );
-  }, [approvedStudies?.listApprovedStudies?.studies]);
+
+    if (roleField === "Federal Lead") {
+      studyIdMap[ALL_STUDIES_OPTION] = ALL_STUDIES_OPTION;
+    }
+
+    return studyIdMap;
+  }, [approvedStudies?.listApprovedStudies?.studies, roleField]);
 
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
@@ -280,7 +288,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       .sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b]));
     const unselectedOptions = options
       .filter((o) => !selectedOptions.includes(o))
-      .sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b]));
+      .sort((a, b) =>
+        a === ALL_STUDIES_OPTION ? -1 : formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b])
+      );
 
     setStudyOptions([...selectedOptions, ...unselectedOptions]);
   };
@@ -451,7 +461,20 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         }}
                         options={studyOptions}
                         getOptionLabel={(option: string) => formattedStudyMap[option]}
-                        onChange={(_, data: string[]) => field.onChange(data)}
+                        onChange={(_, data: string[]) => {
+                          let updatedData = [...data];
+
+                          // Previous studies included all but the user selected other studies
+                          if (prevStudiesRef.current?.includes(ALL_STUDIES_OPTION)) {
+                            updatedData = updatedData.filter((v) => v !== ALL_STUDIES_OPTION);
+                            // User selected all studies, remove all other studies
+                          } else if (data.includes(ALL_STUDIES_OPTION)) {
+                            updatedData = [ALL_STUDIES_OPTION];
+                          }
+
+                          field.onChange(updatedData);
+                          prevStudiesRef.current = updatedData;
+                        }}
                         disabled={fieldset.studies === "DISABLED"}
                         loading={approvedStudiesLoading}
                         disableCloseOnSelect
