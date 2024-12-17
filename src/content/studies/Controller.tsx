@@ -4,6 +4,7 @@ import { Status, useAuthContext } from "../../components/Contexts/AuthContext";
 import ListView from "./ListView";
 import StudyView from "./StudyView";
 import SuspenseLoader from "../../components/SuspenseLoader";
+import { hasPermission } from "../../config/AuthPermissions";
 
 /**
  * Renders the correct view based on the URL and permissions-tier
@@ -14,7 +15,7 @@ import SuspenseLoader from "../../components/SuspenseLoader";
 const StudiesController: FC = () => {
   const { studyId } = useParams<{ studyId?: string }>();
   const { user, status: authStatus } = useAuthContext();
-  const isAdministrative = user?.role === "Admin";
+  const isAdministrative = hasPermission(user, "study", "manage");
 
   if (authStatus === Status.LOADING) {
     return <SuspenseLoader data-testid="studies-suspense-loader" />;
