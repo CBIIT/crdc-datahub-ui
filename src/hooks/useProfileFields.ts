@@ -60,8 +60,8 @@ const useProfileFields = (
     fields.studies = RequiresStudiesAssigned.includes(profileOf?.role) ? "UNLOCKED" : "HIDDEN";
   }
 
-  // Only applies to Data Commons POC
-  if (profileOf?.role === "Data Commons POC" || profileOf?.role === "Data Curator") {
+  // Only applies to Data Commons Personnel
+  if (profileOf?.role === "Data Commons Personnel") {
     fields.dataCommons = user?.role === "Admin" && viewType === "users" ? "UNLOCKED" : "READ_ONLY";
   } else {
     fields.dataCommons = "HIDDEN";
