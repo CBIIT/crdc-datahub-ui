@@ -73,6 +73,7 @@ const ActionButtonsContainer = styled(Box)({
 });
 
 const initialTouchedFields: TouchedState = {
+  organization: false,
   status: false,
   dataCommons: false,
   name: false,
@@ -93,6 +94,7 @@ const statusValues: SubmissionStatus[] = [
 ];
 
 const defaultValues: FilterForm = {
+  organization: "All",
   status: "All",
   dataCommons: "All",
   name: "",
@@ -100,11 +102,11 @@ const defaultValues: FilterForm = {
   submitterName: "All",
 };
 
-type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
+type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
 
 export type FilterForm = Pick<
   ListSubmissionsInput,
-  "status" | "dataCommons" | "name" | "dbGaPID" | "submitterName"
+  "organization" | "status" | "dataCommons" | "name" | "dbGaPID" | "submitterName"
 >;
 
 type FilterFormKey = keyof FilterForm;
@@ -113,6 +115,7 @@ type TouchedState = { [K in FilterFormKey]: boolean };
 
 type Props = {
   columns: Column<T>[];
+  organizations: Pick<Organization, "_id" | "name">[];
   submitterNames: string[];
   dataCommons: string[];
   columnVisibilityModel: ColumnVisibilityModel;
@@ -122,6 +125,7 @@ type Props = {
 
 const DataSubmissionListFilters = ({
   columns,
+  organizations,
   submitterNames,
   dataCommons,
   columnVisibilityModel,
@@ -132,13 +136,14 @@ const DataSubmissionListFilters = ({
   const { control, register, watch, reset, setValue, getValues } = useForm<FilterForm>({
     defaultValues,
   });
-  const [statusFilter, dataCommonsFilter, nameFilter, dbGaPIDFilter, submitterNameFilter] = watch([
-    "status",
-    "dataCommons",
-    "name",
-    "dbGaPID",
-    "submitterName",
-  ]);
+  const [
+    statusFilter,
+    orgFilter,
+    dataCommonsFilter,
+    nameFilter,
+    dbGaPIDFilter,
+    submitterNameFilter,
+  ] = watch(["status", "organization", "dataCommons", "name", "dbGaPID", "submitterName"]);
 
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
@@ -166,6 +171,23 @@ const DataSubmissionListFilters = ({
   }, [submitterNames, submitterNameFilter, touchedFilters]);
 
   useEffect(() => {
+    // Reset organization filter if it is no longer a valid option
+    // due to other filters changing
+    const organizationIds = organizations?.map((org) => org._id);
+    if (
+      orgFilter !== "All" &&
+      Object.values(touchedFilters).some((filter) => filter) &&
+      !organizationIds?.includes(orgFilter)
+    ) {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("organization");
+      setSearchParams(newSearchParams);
+      setValue("organization", "All");
+    }
+  }, [organizations, orgFilter, touchedFilters]);
+
+  useEffect(() => {
+    const organizationId = searchParams.get("organization");
     const status = searchParams.get("status");
     const dataCommon = searchParams.get("dataCommons");
     const name = searchParams.get("name");
@@ -174,6 +196,9 @@ const DataSubmissionListFilters = ({
 
     handleStatusChange(status);
 
+    if (organizationId && organizationId !== orgFilter) {
+      setValue("organization", organizationId);
+    }
     if (dataCommon && dataCommon !== dataCommonsFilter) {
       setValue("dataCommons", dataCommon);
     }
@@ -190,7 +215,7 @@ const DataSubmissionListFilters = ({
     if (Object.values(touchedFilters).every((filter) => !filter)) {
       handleFormChange(getValues());
     }
-  }, [submitterNames, dataCommons, searchParams?.toString()]);
+  }, [organizations, submitterNames, dataCommons, searchParams?.toString()]);
 
   useEffect(() => {
     if (Object.values(touchedFilters).every((filter) => !filter)) {
@@ -199,6 +224,11 @@ const DataSubmissionListFilters = ({
 
     const newSearchParams = new URLSearchParams(searchParams);
 
+    if (orgFilter && orgFilter !== "All") {
+      newSearchParams.set("organization", orgFilter);
+    } else if (orgFilter === "All") {
+      newSearchParams.delete("organization");
+    }
     if (statusFilter && statusFilter !== "All") {
       newSearchParams.set("status", statusFilter);
     } else if (statusFilter === "All") {
@@ -230,6 +260,7 @@ const DataSubmissionListFilters = ({
       setSearchParams(newSearchParams);
     }
   }, [
+    orgFilter,
     statusFilter,
     dataCommonsFilter,
     nameFilter,
@@ -322,6 +353,49 @@ const DataSubmissionListFilters = ({
     <StyledFilters data-testid="data-submission-list-filters">
       <Stack direction="row" alignItems="center" gap="12px">
         <Grid container spacing={2} rowSpacing="9px">
+          <Grid item xs={4}>
+            <StyledFormControl>
+              <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
+              <Controller
+                name="organization"
+                control={control}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    value={
+                      organizations?.map((org) => org._id)?.includes(field.value)
+                        ? field.value
+                        : "All"
+                    }
+                    MenuProps={{ disablePortal: true }}
+                    inputProps={{
+                      id: "organization-filter",
+                      "data-testid": "organization-select-input",
+                    }}
+                    data-testid="organization-select"
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleFilterChange("organization");
+                    }}
+                  >
+                    <MenuItem value="All" data-testid="organization-option-All">
+                      All
+                    </MenuItem>
+                    {organizations?.map((org) => (
+                      <MenuItem
+                        key={org._id}
+                        value={org._id}
+                        data-testid={`organization-option-${org._id}`}
+                      >
+                        {org.name}
+                      </MenuItem>
+                    ))}
+                  </StyledSelect>
+                )}
+              />
+            </StyledFormControl>
+          </Grid>
+
           <Grid item xs={4}>
             <StyledFormControl>
               <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
