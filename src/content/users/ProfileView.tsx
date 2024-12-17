@@ -158,7 +158,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { user: currentUser, setData, logout, status: authStatus } = useAuthContext();
   const { lastSearchParams } = useSearchParamsContext();
-  const { handleSubmit, register, reset, watch, control } = useForm<FormInput>();
+  const { handleSubmit, register, reset, watch, setValue, control } = useForm<FormInput>();
 
   const ALL_STUDIES_OPTION = "All";
   const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
@@ -170,6 +170,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [studyOptions, setStudyOptions] = useState<string[]>([]);
 
   const roleField = watch("role");
+  const prevRoleRef = useRef<UserRole>(roleField);
   const studiesField = watch("studies");
   const prevStudiesRef = useRef<string[]>(studiesField);
   const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
@@ -330,6 +331,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     }
   }, [formattedStudyMap]);
 
+  useEffect(() => {
+    prevRoleRef.current = roleField;
+  }, [roleField]);
+
   if (!user || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
   }
@@ -412,6 +417,18 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                       <StyledSelect
                         {...field}
                         size="small"
+                        onChange={(e) => {
+                          if (prevRoleRef.current === "Federal Lead") {
+                            setValue(
+                              "studies",
+                              studiesField.filter((v) => v !== ALL_STUDIES_OPTION)
+                            );
+                          } else if (e.target.value === "Federal Lead") {
+                            setValue("studies", [ALL_STUDIES_OPTION]);
+                          }
+
+                          field.onChange(e.target.value);
+                        }}
                         MenuProps={{ disablePortal: true }}
                         inputProps={{ "aria-labelledby": "userRoleLabel" }}
                       >
