@@ -6,8 +6,8 @@ import { GET_DASHBOARD_URL, GetDashboardURLInput, GetDashboardURLResp } from "..
 import usePageTitle from "../../hooks/usePageTitle";
 import { Status, useAuthContext } from "../../components/Contexts/AuthContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
-import { DashboardRoles } from "../../config/AuthRoles";
 import DashboardView from "./DashboardView";
+import { hasPermission } from "../../config/AuthPermissions";
 
 /**
  * Handles the logic for the OperationDashboard component.
@@ -22,8 +22,8 @@ const DashboardController = () => {
   const [searchParams] = useSearchParams({ type: "Submission" });
 
   const canAccessPage = useMemo<boolean>(
-    () => authStatus === Status.LOADED && user?.role && DashboardRoles.includes(user.role),
-    [authStatus, user?.role]
+    () => authStatus === Status.LOADED && hasPermission(user, "dashboard", "view"),
+    [authStatus, user]
   );
 
   const { data, error, loading } = useQuery<GetDashboardURLResp, GetDashboardURLInput>(
