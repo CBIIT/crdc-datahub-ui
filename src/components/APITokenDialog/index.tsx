@@ -15,7 +15,7 @@ import GenericAlert, { AlertState } from "../GenericAlert";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon.svg";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { useAuthContext } from "../Contexts/AuthContext";
-import { GenerateApiTokenRoles } from "../../config/AuthRoles";
+import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -166,7 +166,7 @@ const APITokenDialog: FC<Props> = ({ onClose, open, ...rest }) => {
   };
 
   const generateToken = async () => {
-    if (!GenerateApiTokenRoles.includes(user?.role)) {
+    if (!hasPermission(user, "data_submission", "create")) {
       onGenerateTokenError();
       return;
     }
