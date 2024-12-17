@@ -22,12 +22,13 @@ type NavBarItem = {
    */
   className: "navMobileItem" | "navMobileItem clickable";
   /**
-   * Defines RBAC for the Navigation Item
+   * Defines PBAC for the Navigation Item via a callback function
    *
    * Guide:
-   * - If the value is an array, the current user must be in one of the roles to see the item
+   * - Provide a function that returns true if the NavBarItem should be shown,
+   *   otherwise it will be hidden
    */
-  roles?: User["role"][];
+  hasPermission?: (user: User) => boolean;
 };
 
 type NavBarSubItem = {

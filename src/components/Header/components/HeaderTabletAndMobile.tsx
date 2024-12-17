@@ -6,11 +6,11 @@ import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg";
 import rightArrowIcon from "../../../assets/header/Right_Arrow.svg";
 import leftArrowIcon from "../../../assets/header/Left_Arrow.svg";
 import { navMobileList, navbarSublists } from "../../../config/HeaderConfig";
-import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
+import { hasPermission } from "../../../config/AuthPermissions";
 
 const HeaderBanner = styled("div")({
   width: "100%",
@@ -168,7 +168,7 @@ const Header = () => {
     },
   ];
 
-  if (user?.role === "Admin" || user?.role === "Organization Owner") {
+  if (hasPermission(user, "user", "manage")) {
     navbarSublists[displayName].splice(1, 0, {
       name: "Manage Users",
       link: "/users",
@@ -176,7 +176,7 @@ const Header = () => {
       className: "navMobileSubItem",
     });
   }
-  if (user?.role === "Admin") {
+  if (hasPermission(user, "program", "manage")) {
     navbarSublists[displayName].splice(1, 0, {
       name: "Manage Programs",
       link: "/programs",
@@ -184,7 +184,7 @@ const Header = () => {
       className: "navMobileSubItem",
     });
   }
-  if (user?.role === "Admin") {
+  if (hasPermission(user, "study", "manage")) {
     navbarSublists[displayName].splice(1, 0, {
       name: "Manage Studies",
       link: "/studies",
@@ -192,7 +192,7 @@ const Header = () => {
       className: "navMobileSubItem",
     });
   }
-  if (user?.role && GenerateApiTokenRoles.includes(user?.role)) {
+  if (hasPermission(user, "data_submission", "create")) {
     navbarSublists[displayName].splice(1, 0, {
       name: "API Token",
       onClick: () => setOpenAPITokenDialog(true),
@@ -276,12 +276,7 @@ const Header = () => {
             )}
             <div className="navMobileContainer">
               {selectedList?.map((navMobileItem) => {
-                // If the user is not logged in and the item requires a role, don't show it
-                if (
-                  "roles" in navMobileItem &&
-                  Array.isArray(navMobileItem?.roles) &&
-                  !navMobileItem.roles.includes(user?.role)
-                ) {
+                if ("hasPermission" in navMobileItem && !navMobileItem.hasPermission(user)) {
                   return null;
                 }
 
