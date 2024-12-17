@@ -496,7 +496,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                             </StyledTag>
                           );
                         }}
-                        options={studyOptions}
+                        options={
+                          roleField === "Federal Lead" &&
+                          !studyOptions?.includes(ALL_STUDIES_OPTION)
+                            ? [ALL_STUDIES_OPTION, ...studyOptions]
+                            : studyOptions
+                        }
                         getOptionLabel={(option: string) => formattedStudyMap[option]}
                         onChange={(_, data: string[]) => handleStudyChange(field, data)}
                         disabled={fieldset.studies === "DISABLED"}
