@@ -160,6 +160,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const { lastSearchParams } = useSearchParamsContext();
   const { handleSubmit, register, reset, watch, control } = useForm<FormInput>();
 
+  const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
   const isSelf = _id === currentUser._id;
   const [user, setUser] = useState<User | null>(
     isSelf && viewType === "profile" ? { ...currentUser } : null
@@ -168,8 +169,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [studyOptions, setStudyOptions] = useState<string[]>([]);
 
   const roleField = watch("role");
+  const studiesField = watch("studies");
   const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
-  const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
 
   const canRequestRole: boolean = useMemo<boolean>(() => {
     if (viewType !== "profile" || _id !== currentUser._id) {
@@ -198,14 +199,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     ListApprovedStudiesResp,
     ListApprovedStudiesInput
   >(LIST_APPROVED_STUDIES, {
-    variables: {
-      // show all access types
-      controlledAccess: "All",
-      first: -1,
-      offset: 0,
-      orderBy: "studyName",
-      sortDirection: "asc",
-    },
+    variables: { first: -1, orderBy: "studyName", sortDirection: "asc" },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
     skip: fieldset.studies !== "UNLOCKED",
@@ -279,10 +273,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   };
 
   const sortStudyOptions = () => {
-    const val = watch("studies");
     const options = Object.keys(formattedStudyMap);
 
-    const selectedOptions = val
+    const selectedOptions = studiesField
       .filter((v) => options.includes(v))
       .sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b]));
     const unselectedOptions = options
@@ -440,9 +433,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         renderInput={({ inputProps, ...params }) => (
                           <TextField
                             {...params}
-                            placeholder={
-                              watch("studies")?.length > 0 ? undefined : "Select studies"
-                            }
+                            placeholder={studiesField?.length > 0 ? undefined : "Select studies"}
                             inputProps={{ "aria-labelledby": "userStudies", ...inputProps }}
                             onBlur={sortStudyOptions}
                           />
