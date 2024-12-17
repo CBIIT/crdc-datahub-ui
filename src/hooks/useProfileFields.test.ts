@@ -36,13 +36,14 @@ describe("Users View", () => {
   it.each<[FieldState, UserRole]>([
     ["HIDDEN", "User"],
     ["HIDDEN", "Organization Owner"],
-    ["HIDDEN", "Federal Lead"],
     ["HIDDEN", "Data Curator"],
     ["HIDDEN", "Data Commons POC"],
     ["HIDDEN", "Admin"],
     ["HIDDEN", "fake role" as UserRole],
-    ["UNLOCKED", "Submitter"], // NOTE: This role accepts studies
-    ["UNLOCKED", "Federal Monitor"], // NOTE: This role accepts studies
+    // NOTE: All of the following are assigned to studies
+    ["UNLOCKED", "Federal Lead"],
+    ["UNLOCKED", "Submitter"],
+    ["UNLOCKED", "Federal Monitor"],
   ])("should return %s for the studies field on the users page for role %s", (state, role) => {
     const user = { _id: "User-A", role: "Admin" } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role };
@@ -120,7 +121,8 @@ describe("Profile View", () => {
   it.each<UserRole>([
     "User",
     "Submitter",
-    "Federal Monitor", // NOTE: Only this role accepts studies
+    "Federal Monitor",
+    "Federal Lead",
     "Data Commons POC",
     "fake role" as UserRole,
   ])("should return HIDDEN for the studies field on the profile page for role %s", (role) => {
