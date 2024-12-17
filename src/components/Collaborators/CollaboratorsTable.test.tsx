@@ -51,6 +51,8 @@ const mockUser: User = {
   userStatus: "Active",
   updateAt: "",
   createdAt: "",
+  permissions: ["data_submission:create"],
+  notifications: [],
 };
 
 const mockSubmission: Submission = {

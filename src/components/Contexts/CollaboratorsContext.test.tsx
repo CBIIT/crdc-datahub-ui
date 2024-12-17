@@ -66,6 +66,8 @@ const mockPotentialCollaborators: User[] = [
     userStatus: "Active",
     updateAt: "",
     createdAt: "",
+    permissions: [],
+    notifications: [],
   },
   {
     _id: "user-2",
@@ -86,6 +88,8 @@ const mockPotentialCollaborators: User[] = [
     userStatus: "Active",
     updateAt: "",
     createdAt: "",
+    permissions: [],
+    notifications: [],
   },
   {
     _id: "user-3",
@@ -106,6 +110,8 @@ const mockPotentialCollaborators: User[] = [
     userStatus: "Active",
     updateAt: "",
     createdAt: "",
+    permissions: [],
+    notifications: [],
   },
 ];
 
