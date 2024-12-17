@@ -84,6 +84,8 @@ const baseUser: Omit<User, "role"> = {
   dataCommons: [],
   createdAt: "",
   updateAt: "",
+  permissions: ["data_submission:view", "data_submission:create"],
+  notifications: [],
 };
 
 type ParentProps = {
@@ -207,7 +209,14 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{
+          ...baseAuthCtx,
+          user: {
+            ...baseUser,
+            role: "Submitter",
+            permissions: ["data_submission:view", "data_submission:create"],
+          },
+        }}
         submission={{
           ...baseSubmission,
           _id: submissionID,
@@ -265,7 +274,7 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submission={{
           ...baseSubmission,
           _id: submissionID,
@@ -321,7 +330,7 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submission={{
           ...baseSubmission,
           _id: submissionID,
@@ -376,7 +385,7 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submission={{
           ...baseSubmission,
           _id: submissionID,
@@ -431,7 +440,7 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submission={{
           ...baseSubmission,
           _id: submissionID,
@@ -488,7 +497,7 @@ describe("Basic Functionality", () => {
       const { getByTestId } = render(
         <TestParent
           mocks={mocks}
-          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
           submission={{
             ...baseSubmission,
             _id: submissionID,
@@ -529,7 +538,7 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submission={{
           ...baseSubmission,
           _id: submissionID,
@@ -569,7 +578,7 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submission={{
           ...baseSubmission,
           _id: submissionID,
@@ -738,7 +747,7 @@ describe("Implementation Requirements", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submissionCtxState={{
           ...baseSubmissionCtx,
           refetch: mockRefetch,
@@ -799,7 +808,7 @@ describe("Implementation Requirements", () => {
     const { getByTestId, rerender } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submissionCtxState={{
           ...baseSubmissionCtx,
           refetch: mockRefetch,
@@ -839,7 +848,7 @@ describe("Implementation Requirements", () => {
     rerender(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submission={{
           ...baseSubmission,
           _id: submissionID,
@@ -862,7 +871,7 @@ describe("Implementation Requirements", () => {
     rerender(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submission={{
           ...baseSubmission,
           _id: submissionID,
@@ -1002,127 +1011,149 @@ describe("Implementation Requirements", () => {
     expect(getByLabelText(radio, "Both")).toBeDisabled();
   });
 
-  // NOTE: This impacts Data Curators and Admins only, since only they can validate post-submit.
-  it.each<User["role"]>(["Admin", "Data Curator"])(
-    "should select 'All Uploaded Data' when the submission is 'Submitted' and the role is '%s'",
-    async (role) => {
-      const { getByTestId } = render(
-        <TestParent
-          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
-          submission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "Submitted",
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-        >
-          <ValidationControls />
-        </TestParent>
-      );
+  it("should select 'All Uploaded Data' when the submission is 'Submitted' and the user has review permissions", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: {
+            ...baseUser,
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          },
+        }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "Submitted",
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
 
-      const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+    const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
 
-      await waitFor(() => {
-        expect(getByLabelText(radio, "New Uploaded Data")).toBeDisabled();
-        expect(getByLabelText(radio, "New Uploaded Data")).not.toBeChecked();
-        expect(getByLabelText(radio, "All Uploaded Data")).toBeEnabled();
-        expect(getByLabelText(radio, "All Uploaded Data")).toBeChecked();
-      });
-    }
-  );
+    await waitFor(() => {
+      expect(getByLabelText(radio, "New Uploaded Data")).toBeDisabled();
+      expect(getByLabelText(radio, "New Uploaded Data")).not.toBeChecked();
+      expect(getByLabelText(radio, "All Uploaded Data")).toBeEnabled();
+      expect(getByLabelText(radio, "All Uploaded Data")).toBeChecked();
+    });
+  });
 
   // NOTE: This is an inverse sanity check of the above test
-  it.each<User["role"]>(["Submitter", "Organization Owner", "User", "fake role" as User["role"]])(
-    "should select 'New Uploaded Data' when the submission is 'Submitted' and the role is '%s'",
-    (role) => {
-      const { getByTestId } = render(
-        <TestParent
-          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
-          submission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "Submitted",
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-        >
-          <ValidationControls />
-        </TestParent>
-      );
+  it("should select 'New Uploaded Data' when the submission is 'Submitted' and user is missing review permissions", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: {
+            ...baseUser,
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:create"],
+          },
+        }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "Submitted",
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
 
-      const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+    const radio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
 
-      expect(getByLabelText(radio, "New Uploaded Data")).toBeDisabled();
-      expect(getByLabelText(radio, "New Uploaded Data")).toBeChecked();
-      expect(getByLabelText(radio, "All Uploaded Data")).toBeDisabled();
-    }
-  );
+    expect(getByLabelText(radio, "New Uploaded Data")).toBeDisabled();
+    expect(getByLabelText(radio, "New Uploaded Data")).toBeChecked();
+    expect(getByLabelText(radio, "All Uploaded Data")).toBeDisabled();
+  });
 
-  it.each<User["role"]>(["Admin", "Data Curator"])(
-    "should select 'Validate Metadata' when the submission is 'Submitted' with metadata and the role is '%s'",
-    async (role) => {
-      const { rerender, getByTestId } = render(
-        <TestParent
-          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
-          submission={null}
-        >
-          <ValidationControls />
-        </TestParent>
-      );
+  it("should select 'Validate Metadata' when the submission is 'Submitted' with metadata and the user has review permissions", async () => {
+    const { rerender, getByTestId } = render(
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: {
+            ...baseUser,
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          },
+        }}
+        submission={null}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
 
-      const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+    const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
 
-      // NOTE: We're simulating the same rendering logic used for the component impl.
-      rerender(
-        <TestParent
-          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
-          submission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "Submitted",
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: null, // NOTE: No files uploaded
-          }}
-        >
-          <ValidationControls />
-        </TestParent>
-      );
+    // NOTE: We're simulating the same rendering logic used for the component impl.
+    rerender(
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: {
+            ...baseUser,
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          },
+        }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "Submitted",
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: null, // NOTE: No files uploaded
+        }}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
 
-      await waitFor(() => {
-        expect(getByLabelText(radio, "Validate Metadata")).toBeChecked();
-        expect(getByLabelText(radio, "Validate Data Files")).toBeDisabled();
-        expect(getByLabelText(radio, "Both")).toBeDisabled();
-      });
-    }
-  );
+    await waitFor(() => {
+      expect(getByLabelText(radio, "Validate Metadata")).toBeChecked();
+      expect(getByLabelText(radio, "Validate Data Files")).toBeDisabled();
+      expect(getByLabelText(radio, "Both")).toBeDisabled();
+    });
+  });
 
-  it.each<User["role"]>(["Admin", "Data Curator"])(
-    "should select 'Both' when the submission is 'Submitted' with all data and the role is '%s'",
-    async (role) => {
-      const { getByTestId } = render(
-        <TestParent
-          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
-          submission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "Submitted",
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-        >
-          <ValidationControls />
-        </TestParent>
-      );
+  it("should select 'Both' when the submission is 'Submitted' with all data and the user has review permissions", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: {
+            ...baseUser,
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          },
+        }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "Submitted",
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
 
-      const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+    const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
 
-      await waitFor(() => {
-        expect(getByLabelText(radio, "Both")).toBeChecked();
-        expect(getByLabelText(radio, "Both")).toBeEnabled();
-      });
-    }
-  );
+    await waitFor(() => {
+      expect(getByLabelText(radio, "Both")).toBeChecked();
+      expect(getByLabelText(radio, "Both")).toBeEnabled();
+    });
+  });
 
   it.each<SubmissionStatus>([
     "New",
@@ -1134,7 +1165,14 @@ describe("Implementation Requirements", () => {
   ])("should be disabled when the Submission status is '%s'", (status) => {
     const { getByTestId } = render(
       <TestParent
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtxState={{
+          ...baseAuthCtx,
+          user: {
+            ...baseUser,
+            role: "Submitter",
+            permissions: ["data_submission:view", "data_submission:create"],
+          },
+        }}
         submission={{
           ...baseSubmission,
           _id: "example-sub-id-disabled",
@@ -1155,42 +1193,48 @@ describe("Implementation Requirements", () => {
     expect(getByLabelText(radio, "Both")).toBeDisabled();
   });
 
-  it.each<User["role"]>(["Data Curator", "Admin"])(
-    "should be enabled for a %s when the Submission status is 'Submitted'",
-    (role) => {
-      const { getByTestId } = render(
-        <TestParent
-          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
-          submission={{
-            ...baseSubmission,
-            _id: "example-sub-id-disabled",
-            status: "Submitted",
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-          }}
-        >
-          <ValidationControls />
-        </TestParent>
-      );
-
-      const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
-
-      expect(getByTestId("validate-controls-validate-button")).not.toBeDisabled();
-      expect(getByLabelText(radio, "Validate Metadata")).not.toBeDisabled();
-      expect(getByLabelText(radio, "Validate Data Files")).not.toBeDisabled();
-      expect(getByLabelText(radio, "Both")).not.toBeDisabled();
-    }
-  );
-
-  it.each<User["role"]>([
-    "Federal Lead",
-    "Data Commons POC",
-    "User",
-    "fake user role" as User["role"],
-  ])("should be disabled for the role %s", (role) => {
+  it("should be enabled for a user with review permissions when the Submission status is 'Submitted'", async () => {
     const { getByTestId } = render(
       <TestParent
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+        authCtxState={{
+          ...baseAuthCtx,
+          user: {
+            ...baseUser,
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          },
+        }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "Submitted",
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+        }}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
+
+    const radio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+
+    expect(getByTestId("validate-controls-validate-button")).not.toBeDisabled();
+    expect(getByLabelText(radio, "Validate Metadata")).not.toBeDisabled();
+    expect(getByLabelText(radio, "Validate Data Files")).not.toBeDisabled();
+    expect(getByLabelText(radio, "Both")).not.toBeDisabled();
+  });
+
+  it("should be disabled for a user missing review permissions when the Submission status is 'Submitted'", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: {
+            ...baseUser,
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:create"],
+          },
+        }}
         submission={{
           ...baseSubmission,
           _id: "example-sub-id-disabled",
