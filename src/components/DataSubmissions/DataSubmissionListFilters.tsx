@@ -355,7 +355,7 @@ const DataSubmissionListFilters = ({
         <Grid container spacing={2} rowSpacing="9px">
           <Grid item xs={4}>
             <StyledFormControl>
-              <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
+              <StyledInlineLabel htmlFor="organization-filter">Program</StyledInlineLabel>
               <Controller
                 name="organization"
                 control={control}
