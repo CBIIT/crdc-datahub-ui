@@ -10,7 +10,7 @@ import FlowWrapper from "./FlowWrapper";
 import UploaderToolDialog from "../UploaderToolDialog";
 import UploaderConfigDialog, { InputForm } from "../UploaderConfigDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
-import { GenerateApiTokenRoles } from "../../config/AuthRoles";
+import { hasPermission } from "../../config/AuthPermissions";
 
 export type Props = {
   /**
@@ -112,7 +112,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
       <StyledDownloadButton
         disabled={
           (collaborator && collaborator.permission !== "Can Edit") ||
-          !GenerateApiTokenRoles.includes(user?.role)
+          !hasPermission(user, "data_submission", "create")
         }
         onClick={() => setConfigDialogOpen(true)}
         variant="contained"
