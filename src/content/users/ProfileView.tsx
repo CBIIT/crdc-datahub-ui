@@ -2,7 +2,7 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Box, Container, MenuItem, Stack, TextField, Typography, styled } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
@@ -296,6 +296,37 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     setStudyOptions([...selectedOptions, ...unselectedOptions]);
   };
 
+  const handleStudyChange = (
+    field: ControllerRenderProps<FormInput, "studies">,
+    data: string[]
+  ) => {
+    let updatedData = [...data];
+
+    // Previous studies included all but the user selected other studies
+    if (prevStudiesRef.current?.includes(ALL_STUDIES_OPTION)) {
+      updatedData = updatedData.filter((v) => v !== ALL_STUDIES_OPTION);
+      // User selected all studies, remove all other studies
+    } else if (data.includes(ALL_STUDIES_OPTION)) {
+      updatedData = [ALL_STUDIES_OPTION];
+    }
+
+    field.onChange(updatedData);
+    prevStudiesRef.current = updatedData;
+  };
+
+  const handleRoleChange = (field: ControllerRenderProps<FormInput, "role">, value: UserRole) => {
+    if (prevRoleRef.current === "Federal Lead") {
+      setValue(
+        "studies",
+        studiesField.filter((v) => v !== ALL_STUDIES_OPTION)
+      );
+    } else if (value === "Federal Lead") {
+      setValue("studies", [ALL_STUDIES_OPTION]);
+    }
+
+    field.onChange(value);
+  };
+
   useEffect(() => {
     // No action needed if viewing own profile, using cached data
     if (isSelf && viewType === "profile") {
@@ -417,18 +448,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                       <StyledSelect
                         {...field}
                         size="small"
-                        onChange={(e) => {
-                          if (prevRoleRef.current === "Federal Lead") {
-                            setValue(
-                              "studies",
-                              studiesField.filter((v) => v !== ALL_STUDIES_OPTION)
-                            );
-                          } else if (e.target.value === "Federal Lead") {
-                            setValue("studies", [ALL_STUDIES_OPTION]);
-                          }
-
-                          field.onChange(e.target.value);
-                        }}
+                        onChange={(e) => handleRoleChange(field, e?.target?.value as UserRole)}
                         MenuProps={{ disablePortal: true }}
                         inputProps={{ "aria-labelledby": "userRoleLabel" }}
                       >
@@ -478,20 +498,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         }}
                         options={studyOptions}
                         getOptionLabel={(option: string) => formattedStudyMap[option]}
-                        onChange={(_, data: string[]) => {
-                          let updatedData = [...data];
-
-                          // Previous studies included all but the user selected other studies
-                          if (prevStudiesRef.current?.includes(ALL_STUDIES_OPTION)) {
-                            updatedData = updatedData.filter((v) => v !== ALL_STUDIES_OPTION);
-                            // User selected all studies, remove all other studies
-                          } else if (data.includes(ALL_STUDIES_OPTION)) {
-                            updatedData = [ALL_STUDIES_OPTION];
-                          }
-
-                          field.onChange(updatedData);
-                          prevStudiesRef.current = updatedData;
-                        }}
+                        onChange={(_, data: string[]) => handleStudyChange(field, data)}
                         disabled={fieldset.studies === "DISABLED"}
                         loading={approvedStudiesLoading}
                         disableCloseOnSelect
