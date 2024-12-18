@@ -22,13 +22,13 @@ type NavBarItem = {
    */
   className: "navMobileItem" | "navMobileItem clickable";
   /**
-   * Defines PBAC for the Navigation Item via a callback function
+   * Defines a list of permissions necessary for the Navigation Item to be shown
    *
    * Guide:
-   * - Provide a function that returns true if the NavBarItem should be shown,
+   * - Provide a list of permission the user must have to access the content
    *   otherwise it will be hidden
    */
-  hasPermission?: (user: User) => boolean;
+  permissions?: AuthPermissions[];
 };
 
 type NavBarSubItem = {
@@ -69,6 +69,14 @@ type NavBarSubItem = {
    * @note Only works if the className is `navMobileSubItem action`
    */
   onClick?: () => void;
+  /**
+   * Defines a list of permissions necessary for the Navigation Sub Item to be shown
+   *
+   * Guide:
+   * - Provide a list of permission the user must have to access the content
+   *   otherwise it will be hidden
+   */
+  permissions?: AuthPermissions[];
 };
 
 type FooterConfiguration = {
