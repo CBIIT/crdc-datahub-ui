@@ -46,7 +46,8 @@ export const ROLES = {
     submission_request: {
       view: true,
       create: true,
-      submit: true,
+      submit: (_, submission) =>
+        (["In Progress", "Inquired"] as ApplicationStatus[]).includes(submission?.status),
       review: true,
     },
     dashboard: {
@@ -136,7 +137,7 @@ export const ROLES = {
     submission_request: {
       view: false,
       create: true,
-      submit: false,
+      submit: false, // Associated with Submission owner, but permission is never granted
       review: false,
     },
     dashboard: {
