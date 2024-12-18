@@ -23,10 +23,8 @@ export const getFormMode = (user: User, data: Application): FormMode => {
   if (!data) {
     return FormModes.UNAUTHORIZED;
   }
-  if (
-    !hasPermission(user, "submission_request", "view") &&
-    user?._id !== data.applicant?.applicantID
-  ) {
+  const isFormOwner = user?._id === data.applicant?.applicantID;
+  if (!hasPermission(user, "submission_request", "view") && !isFormOwner) {
     return FormModes.UNAUTHORIZED;
   }
 
