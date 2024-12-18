@@ -18,6 +18,7 @@ export const query = gql`
         dbGaPID
         controlledAccess
       }
+      permissions
       createdAt
       updateAt
     }
