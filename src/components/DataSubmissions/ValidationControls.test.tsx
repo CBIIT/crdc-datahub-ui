@@ -1238,7 +1238,7 @@ describe("Implementation Requirements", () => {
         submission={{
           ...baseSubmission,
           _id: "example-sub-id-disabled",
-          status: "In Progress",
+          status: "Submitted",
           metadataValidationStatus: "Passed",
           fileValidationStatus: "Passed",
         }}

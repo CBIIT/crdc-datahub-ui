@@ -26,7 +26,7 @@ import {
 } from "../../graphql";
 import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
-import { formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
+import { filterAlphaNumeric, formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
@@ -95,7 +95,13 @@ const BaseInputStyling = {
   width: "363px",
 };
 
-const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
+const StyledTextField = styled(BaseOutlinedInput)({
+  ...BaseInputStyling,
+  "& .MuiInputBase-inputMultiline": {
+    resize: "vertical",
+    minHeight: "44px",
+  },
+});
 const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
@@ -394,7 +400,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 </StyledLabel>
                 <StyledTextField
                   {...register("name", { required: true })}
-                  size="small"
                   inputProps={{ "aria-labelledby": "organizationName" }}
                   error={!!errors.name}
                   required
@@ -402,21 +407,39 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="abbreviationLabel">Abbreviation</StyledLabel>
-                <StyledTextField
-                  {...register("abbreviation", { required: true, setValueAs: (v) => v?.trim() })}
-                  size="small"
-                  inputProps={{ "aria-labelledby": "abbreviationLabel" }}
-                  error={!!errors.abbreviation}
-                  required
+                <Controller
+                  name="abbreviation"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <StyledTextField
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(filterAlphaNumeric(e.target.value?.toUpperCase(), "- "));
+                      }}
+                      inputProps={{
+                        "aria-labelledby": "abbreviationLabel",
+                        maxLength: 100,
+                      }}
+                      placeholder="100 characters allowed"
+                      error={!!errors.abbreviation}
+                      required
+                    />
+                  )}
                 />
               </StyledField>
               <StyledField>
                 <StyledLabel id="descriptionLabel">Description</StyledLabel>
                 <StyledTextField
                   {...register("description", { required: false })}
-                  size="small"
-                  inputProps={{ "aria-labelledby": "descriptionLabel" }}
+                  inputProps={{
+                    "aria-labelledby": "descriptionLabel",
+                    maxLength: 500,
+                  }}
                   error={!!errors.description}
+                  placeholder="500 characters allowed"
+                  rows={2}
+                  multiline
                 />
               </StyledField>
               <StyledField>

@@ -10,7 +10,6 @@ import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
-import { hasPermission } from "../../../config/AuthPermissions";
 
 const HeaderBanner = styled("div")({
   width: "100%",
@@ -155,6 +154,34 @@ const Header = () => {
       className: "navMobileSubItem",
     },
     {
+      name: "Manage Studies",
+      link: "/studies",
+      id: "navbar-dropdown-item-studies-manage",
+      className: "navMobileSubItem",
+      permissions: ["study:manage"],
+    },
+    {
+      name: "Manage Programs",
+      link: "/programs",
+      id: "navbar-dropdown-item-program-manage",
+      className: "navMobileSubItem",
+      permissions: ["program:manage"],
+    },
+    {
+      name: "Manage Users",
+      link: "/users",
+      id: "navbar-dropdown-item-user-manage",
+      className: "navMobileSubItem",
+      permissions: ["user:manage"],
+    },
+    {
+      name: "API Token",
+      onClick: () => setOpenAPITokenDialog(true),
+      id: "navbar-dropdown-item-api-token",
+      className: "navMobileSubItem action",
+      permissions: ["data_submission:create"],
+    },
+    {
       name: "Uploader CLI Tool",
       onClick: () => setUploaderToolOpen(true),
       id: "navbar-dropdown-item-uploader-tool",
@@ -167,39 +194,6 @@ const Header = () => {
       className: "navMobileSubItem",
     },
   ];
-
-  if (hasPermission(user, "user", "manage")) {
-    navbarSublists[displayName].splice(1, 0, {
-      name: "Manage Users",
-      link: "/users",
-      id: "navbar-dropdown-item-user-manage",
-      className: "navMobileSubItem",
-    });
-  }
-  if (hasPermission(user, "program", "manage")) {
-    navbarSublists[displayName].splice(1, 0, {
-      name: "Manage Programs",
-      link: "/programs",
-      id: "navbar-dropdown-item-program-manage",
-      className: "navMobileSubItem",
-    });
-  }
-  if (hasPermission(user, "study", "manage")) {
-    navbarSublists[displayName].splice(1, 0, {
-      name: "Manage Studies",
-      link: "/studies",
-      id: "navbar-dropdown-item-studies-manage",
-      className: "navMobileSubItem",
-    });
-  }
-  if (hasPermission(user, "data_submission", "create")) {
-    navbarSublists[displayName].splice(1, 0, {
-      name: "API Token",
-      onClick: () => setOpenAPITokenDialog(true),
-      id: "navbar-dropdown-item-api-token",
-      className: "navMobileSubItem action",
-    });
-  }
 
   const clickNavItem = (e) => {
     const clickTitle = e.target.textContent;
@@ -275,8 +269,13 @@ const Header = () => {
               </div>
             )}
             <div className="navMobileContainer">
-              {selectedList?.map((navMobileItem) => {
-                if ("hasPermission" in navMobileItem && !navMobileItem.hasPermission(user)) {
+              {selectedList?.map((navMobileItem: NavBarItem | NavBarSubItem) => {
+                if (
+                  navMobileItem?.permissions?.length > 0 &&
+                  !navMobileItem?.permissions?.every(
+                    (permission: AuthPermissions) => user?.permissions?.includes(permission)
+                  )
+                ) {
                   return null;
                 }
 

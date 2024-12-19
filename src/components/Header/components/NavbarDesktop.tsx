@@ -382,8 +382,13 @@ const NavBar = () => {
       </GenericAlert>
       <NavContainer>
         <UlContainer>
-          {navMobileList.map((navItem) => {
-            if ("hasPermission" in navItem && !navItem.hasPermission(user)) {
+          {navMobileList.map((navItem: NavBarItem) => {
+            if (
+              navItem?.permissions?.length > 0 &&
+              !navItem?.permissions?.every(
+                (permission: AuthPermissions) => user?.permissions?.includes(permission)
+              )
+            ) {
               return null;
             }
 
