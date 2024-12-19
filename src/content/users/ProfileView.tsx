@@ -2,7 +2,7 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Box, Container, MenuItem, Stack, TextField, Typography, styled } from "@mui/material";
-import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
+import { Controller, ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
@@ -228,7 +228,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     return studyIdMap;
   }, [approvedStudies?.listApprovedStudies?.studies, roleField]);
 
-  const onSubmit = async (data: FormInput) => {
+  const onSubmit: SubmitHandler<FormInput> = async (data: FormInput) => {
     setSaving(true);
 
     // Save profile changes
