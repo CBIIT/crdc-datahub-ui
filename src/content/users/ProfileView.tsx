@@ -360,7 +360,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
     sortStudyOptions();
 
-    if (roleField === "Federal Lead") {
+    // If the user is a Federal Lead with no studies assigned, default to selecting "All" studies
+    if (!studiesField?.length && roleField === "Federal Lead") {
       setValue("studies", [ALL_STUDIES_OPTION]);
     }
   }, [formattedStudyMap, roleField]);
