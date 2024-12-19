@@ -2,11 +2,9 @@ type PermissionCheck<Key extends keyof Permissions> =
   | boolean
   | ((user: User, data: Permissions[Key]["dataType"]) => boolean);
 
-type RolesWithPermissions = {
-  [R in UserRole]: Partial<{
-    [Key in keyof Permissions]: Partial<{
-      [Action in Permissions[Key]["action"]]: PermissionCheck<Key>;
-    }>;
+type PermissionMap = {
+  [Key in keyof Permissions]: Partial<{
+    [Action in Permissions[Key]["action"]]: PermissionCheck<Key>;
   }>;
 };
 
@@ -41,158 +39,38 @@ type Permissions = {
   };
 };
 
-export const ROLES = {
-  "Federal Lead": {
-    submission_request: {
-      view: true,
-      create: true,
-      submit: true,
-      review: true,
-    },
-    dashboard: {
-      view: true,
-    },
-    data_submission: {
-      view: true,
-      create: true,
-      review: true,
-      admin_submit: false,
-      confirm: true,
-    },
-    access: {
-      request: false,
-    },
-    user: {
-      manage: true,
-    },
-    program: {
-      manage: true,
-    },
-    study: {
-      manage: true,
-    },
+const NO_CONDITIONS = true;
+
+export const PERMISSION_MAP = {
+  submission_request: {
+    view: NO_CONDITIONS,
+    create: NO_CONDITIONS,
+    submit: NO_CONDITIONS,
+    review: NO_CONDITIONS,
   },
-  "Data Commons Personnel": {
-    submission_request: {
-      view: true,
-      create: true,
-      submit: true,
-      review: true,
-    },
-    dashboard: {
-      view: true,
-    },
-    data_submission: {
-      view: true,
-      create: true,
-      review: true,
-      admin_submit: true,
-      confirm: true,
-    },
-    access: {
-      request: false,
-    },
-    user: {
-      manage: false,
-    },
-    program: {
-      manage: true,
-    },
-    study: {
-      manage: true,
-    },
+  dashboard: {
+    view: NO_CONDITIONS,
   },
-  Admin: {
-    submission_request: {
-      view: true,
-      create: false,
-      submit: false,
-      review: false,
-    },
-    dashboard: {
-      view: true,
-    },
-    data_submission: {
-      view: true,
-      create: false,
-      review: true,
-      admin_submit: true,
-      confirm: true,
-    },
-    access: {
-      request: false,
-    },
-    user: {
-      manage: true,
-    },
-    program: {
-      manage: true,
-    },
-    study: {
-      manage: true,
-    },
+  data_submission: {
+    view: NO_CONDITIONS,
+    create: NO_CONDITIONS,
+    review: NO_CONDITIONS,
+    admin_submit: NO_CONDITIONS,
+    confirm: NO_CONDITIONS,
   },
-  Submitter: {
-    submission_request: {
-      view: false,
-      create: true,
-      submit: false,
-      review: false,
-    },
-    dashboard: {
-      view: false,
-    },
-    data_submission: {
-      view: true,
-      create: true,
-      review: false,
-      admin_submit: false,
-      confirm: false,
-    },
-    access: {
-      request: true,
-    },
-    user: {
-      manage: false,
-    },
-    program: {
-      manage: false,
-    },
-    study: {
-      manage: false,
-    },
+  access: {
+    request: NO_CONDITIONS,
   },
-  User: {
-    submission_request: {
-      view: false,
-      create: true,
-      submit: false,
-      review: false,
-    },
-    dashboard: {
-      view: false,
-    },
-    data_submission: {
-      view: false,
-      create: false,
-      review: false,
-      admin_submit: false,
-      confirm: false,
-    },
-    access: {
-      request: true,
-    },
-    user: {
-      manage: false,
-    },
-    program: {
-      manage: false,
-    },
-    study: {
-      manage: false,
-    },
+  user: {
+    manage: NO_CONDITIONS,
   },
-} as const satisfies RolesWithPermissions;
+  program: {
+    manage: NO_CONDITIONS,
+  },
+  study: {
+    manage: NO_CONDITIONS,
+  },
+} as const satisfies PermissionMap;
 
 /**
  * Determines if a user has the necessary permission to perform a specific action on a resource.
@@ -218,13 +96,11 @@ export const hasPermission = <Resource extends keyof Permissions>(
   action: Permissions[Resource]["action"],
   data?: Permissions[Resource]["dataType"]
 ): boolean => {
-  const { role } = user || {};
-
-  if (!role) {
+  if (!user?.role) {
     return false;
   }
 
-  const permission = (ROLES as RolesWithPermissions)[role]?.[resource]?.[action];
+  const permission = (PERMISSION_MAP as PermissionMap)?.[resource]?.[action];
   const permissionKey = `${resource}:${action}`;
 
   // If permission not defined, or not listed within the user permissions, then deny permission
