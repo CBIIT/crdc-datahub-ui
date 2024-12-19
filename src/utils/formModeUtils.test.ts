@@ -303,14 +303,14 @@ describe("getFormMode tests based on provided requirements", () => {
         expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.UNAUTHORIZED);
       });
 
-      it("should set Unauthorized if form status is unknown or not defined", () => {
+      it("should set 'View Only' if form status is unknown or not defined", () => {
         const user: User = { ...baseUser, role: "User", permissions: ["submission_request:view"] };
         const submission: Application = {
           ...baseSubmission,
           status: undefined,
         };
 
-        expect(utils.getFormMode(user, submission)).toBe(utils.FormModes.UNAUTHORIZED);
+        expect(utils.getFormMode(user, submission)).toBe(utils.FormModes.VIEW_ONLY);
       });
     });
   });
