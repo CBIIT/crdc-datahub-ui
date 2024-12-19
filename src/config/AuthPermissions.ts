@@ -1,5 +1,7 @@
+const NO_CONDITIONS = "NO CONDITIONS";
+
 type PermissionCheck<Key extends keyof Permissions> =
-  | boolean
+  | typeof NO_CONDITIONS
   | ((user: User, data: Permissions[Key]["dataType"]) => boolean);
 
 type PermissionMap = {
@@ -38,8 +40,6 @@ type Permissions = {
     action: "manage";
   };
 };
-
-const NO_CONDITIONS = true;
 
 export const PERMISSION_MAP = {
   submission_request: {
@@ -103,14 +103,16 @@ export const hasPermission = <Resource extends keyof Permissions>(
   const permission = (PERMISSION_MAP as PermissionMap)?.[resource]?.[action];
   const permissionKey = `${resource}:${action}`;
 
-  // If permission not defined, or not listed within the user permissions, then deny permission
-  if (permission == null || !user.permissions?.includes(permissionKey as AuthPermissions)) {
+  // If no conditions need to be checked, just check if user has permission key
+  if (permission === NO_CONDITIONS) {
+    return user.permissions?.includes(permissionKey as AuthPermissions);
+  }
+
+  // If permission not defined, then deny permission
+  if (permission == null) {
     return false;
   }
 
-  if (typeof permission === "boolean") {
-    return permission;
-  }
-
+  // Check conditions
   return !!data && permission(user, data);
 };
