@@ -1,8 +1,8 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Box, Container, MenuItem, Stack, TextField, Typography, styled } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
@@ -31,7 +31,7 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import BaseAutocomplete from "../../components/StyledFormComponents/StyledAutocomplete";
-import useProfileFields, { FieldState } from "../../hooks/useProfileFields";
+import useProfileFields, { VisibleFieldState } from "../../hooks/useProfileFields";
 import AccessRequest from "../../components/AccessRequest";
 
 type Props = {
@@ -158,8 +158,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { user: currentUser, setData, logout, status: authStatus } = useAuthContext();
   const { lastSearchParams } = useSearchParamsContext();
-  const { handleSubmit, register, reset, watch, control } = useForm<FormInput>();
+  const { handleSubmit, register, reset, watch, setValue, control } = useForm<FormInput>();
 
+  const ALL_STUDIES_OPTION = "All";
+  const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
   const isSelf = _id === currentUser._id;
   const [user, setUser] = useState<User | null>(
     isSelf && viewType === "profile" ? { ...currentUser } : null
@@ -168,10 +170,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [studyOptions, setStudyOptions] = useState<string[]>([]);
 
   const roleField = watch("role");
+  const prevRoleRef = useRef<UserRole>(roleField);
+  const studiesField = watch("studies");
+  const prevStudiesRef = useRef<string[]>(studiesField);
   const fieldset = useProfileFields({ _id: user?._id, role: roleField }, viewType);
-  const visibleFieldState: FieldState[] = ["UNLOCKED", "DISABLED"];
-
-  const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
 
   const canRequestRole: boolean = useMemo<boolean>(() => {
     if (viewType !== "profile" || _id !== currentUser._id) {
@@ -200,14 +202,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     ListApprovedStudiesResp,
     ListApprovedStudiesInput
   >(LIST_APPROVED_STUDIES, {
-    variables: {
-      // show all access types
-      controlledAccess: "All",
-      first: -1,
-      offset: 0,
-      orderBy: "studyName",
-      sortDirection: "asc",
-    },
+    variables: { first: -1, orderBy: "studyName", sortDirection: "asc" },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
     skip: fieldset.studies !== "UNLOCKED",
@@ -218,16 +213,22 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       return {};
     }
 
-    return approvedStudies.listApprovedStudies.studies.reduce(
+    const studyIdMap = approvedStudies.listApprovedStudies.studies.reduce(
       (acc, { _id, studyName, studyAbbreviation }) => ({
         ...acc,
         [_id]: formatFullStudyName(studyName, studyAbbreviation),
       }),
       {}
     );
-  }, [approvedStudies?.listApprovedStudies?.studies]);
 
-  const onSubmit = async (data: FormInput) => {
+    if (roleField === "Federal Lead") {
+      studyIdMap[ALL_STUDIES_OPTION] = ALL_STUDIES_OPTION;
+    }
+
+    return studyIdMap;
+  }, [approvedStudies?.listApprovedStudies?.studies, roleField]);
+
+  const onSubmit: SubmitHandler<FormInput> = async (data: FormInput) => {
     setSaving(true);
 
     // Save profile changes
@@ -281,17 +282,46 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   };
 
   const sortStudyOptions = () => {
-    const val = watch("studies");
     const options = Object.keys(formattedStudyMap);
 
-    const selectedOptions = val
+    const selectedOptions = studiesField
       .filter((v) => options.includes(v))
       .sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b]));
     const unselectedOptions = options
       .filter((o) => !selectedOptions.includes(o))
-      .sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b]));
+      .sort((a, b) =>
+        a === ALL_STUDIES_OPTION ? -1 : formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b])
+      );
 
     setStudyOptions([...selectedOptions, ...unselectedOptions]);
+  };
+
+  const handleStudyChange = (
+    field: ControllerRenderProps<FormInput, "studies">,
+    data: string[]
+  ) => {
+    // Previous studies included "All", but the user selected something different
+    if (prevStudiesRef.current?.includes(ALL_STUDIES_OPTION)) {
+      data = data.filter((v) => v !== ALL_STUDIES_OPTION);
+      // User selected "All" studies, remove any other studies
+    } else if (data.includes(ALL_STUDIES_OPTION)) {
+      data = [ALL_STUDIES_OPTION];
+    }
+
+    field.onChange(data);
+  };
+
+  const handleRoleChange = (field: ControllerRenderProps<FormInput, "role">, value: UserRole) => {
+    if (prevRoleRef.current === "Federal Lead") {
+      setValue(
+        "studies",
+        studiesField.filter((v) => v !== ALL_STUDIES_OPTION)
+      );
+    } else if (value === "Federal Lead") {
+      setValue("studies", []);
+    }
+
+    field.onChange(value);
   };
 
   useEffect(() => {
@@ -324,10 +354,25 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   }, [_id]);
 
   useEffect(() => {
-    if (fieldset.studies === "UNLOCKED") {
-      sortStudyOptions();
+    if (fieldset.studies !== "UNLOCKED") {
+      return;
     }
-  }, [formattedStudyMap]);
+
+    sortStudyOptions();
+
+    // If the user is a Federal Lead with no studies assigned, default to selecting "All" studies
+    if (!studiesField?.length && roleField === "Federal Lead") {
+      setValue("studies", [ALL_STUDIES_OPTION]);
+    }
+  }, [formattedStudyMap, roleField]);
+
+  useEffect(() => {
+    prevRoleRef.current = roleField;
+  }, [roleField]);
+
+  useEffect(() => {
+    prevStudiesRef.current = studiesField;
+  }, [studiesField]);
 
   if (!user || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
@@ -368,7 +413,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="firstNameLabel">First name</StyledLabel>
-                {visibleFieldState.includes(fieldset.firstName) ? (
+                {VisibleFieldState.includes(fieldset.firstName) ? (
                   <StyledTextField
                     {...register("firstName", {
                       required: true,
@@ -385,7 +430,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="lastNameLabel">Last name</StyledLabel>
-                {visibleFieldState.includes(fieldset.lastName) ? (
+                {VisibleFieldState.includes(fieldset.lastName) ? (
                   <StyledTextField
                     {...register("lastName", {
                       required: true,
@@ -402,7 +447,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="userRoleLabel">Role</StyledLabel>
-                {visibleFieldState.includes(fieldset.role) ? (
+                {VisibleFieldState.includes(fieldset.role) ? (
                   <Controller
                     name="role"
                     control={control}
@@ -411,6 +456,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                       <StyledSelect
                         {...field}
                         size="small"
+                        onChange={(e) => handleRoleChange(field, e?.target?.value as UserRole)}
                         MenuProps={{ disablePortal: true }}
                         inputProps={{ "aria-labelledby": "userRoleLabel" }}
                       >
@@ -431,7 +477,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField visible={fieldset.studies !== "HIDDEN"}>
                 <StyledLabel id="userStudies">Studies</StyledLabel>
-                {visibleFieldState.includes(fieldset.studies) ? (
+                {VisibleFieldState.includes(fieldset.studies) ? (
                   <Controller
                     name="studies"
                     control={control}
@@ -442,9 +488,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         renderInput={({ inputProps, ...params }) => (
                           <TextField
                             {...params}
-                            placeholder={
-                              watch("studies")?.length > 0 ? undefined : "Select studies"
-                            }
+                            placeholder={studiesField?.length > 0 ? undefined : "Select studies"}
                             inputProps={{ "aria-labelledby": "userStudies", ...inputProps }}
                             onBlur={sortStudyOptions}
                           />
@@ -462,7 +506,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         }}
                         options={studyOptions}
                         getOptionLabel={(option: string) => formattedStudyMap[option]}
-                        onChange={(_, data: string[]) => field.onChange(data)}
+                        onChange={(_, data: string[]) => handleStudyChange(field, data)}
                         disabled={fieldset.studies === "DISABLED"}
                         loading={approvedStudiesLoading}
                         disableCloseOnSelect
@@ -474,7 +518,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="userStatusLabel">Account Status</StyledLabel>
-                {visibleFieldState.includes(fieldset.userStatus) ? (
+                {VisibleFieldState.includes(fieldset.userStatus) ? (
                   <Controller
                     name="userStatus"
                     control={control}
@@ -497,7 +541,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               </StyledField>
               <StyledField visible={fieldset.dataCommons !== "HIDDEN"}>
                 <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
-                {visibleFieldState.includes(fieldset.dataCommons) ? (
+                {VisibleFieldState.includes(fieldset.dataCommons) ? (
                   <Controller
                     name="dataCommons"
                     control={control}
