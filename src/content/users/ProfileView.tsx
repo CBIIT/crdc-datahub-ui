@@ -300,18 +300,15 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     field: ControllerRenderProps<FormInput, "studies">,
     data: string[]
   ) => {
-    let updatedData = [...data];
-
     // Previous studies included "All", but the user selected something different
     if (prevStudiesRef.current?.includes(ALL_STUDIES_OPTION)) {
-      updatedData = updatedData.filter((v) => v !== ALL_STUDIES_OPTION);
+      data = data.filter((v) => v !== ALL_STUDIES_OPTION);
       // User selected "All" studies, remove any other studies
     } else if (data.includes(ALL_STUDIES_OPTION)) {
-      updatedData = [ALL_STUDIES_OPTION];
+      data = [ALL_STUDIES_OPTION];
     }
 
-    field.onChange(updatedData);
-    prevStudiesRef.current = updatedData;
+    field.onChange(data);
   };
 
   const handleRoleChange = (field: ControllerRenderProps<FormInput, "role">, value: UserRole) => {
@@ -371,6 +368,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   useEffect(() => {
     prevRoleRef.current = roleField;
   }, [roleField]);
+
+  useEffect(() => {
+    prevStudiesRef.current = studiesField;
+  }, [studiesField]);
 
   if (!user || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
