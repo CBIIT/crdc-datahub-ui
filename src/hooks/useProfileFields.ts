@@ -24,6 +24,11 @@ export type ProfileFields = Record<EditableFields, FieldState>;
 export type FieldState = "HIDDEN" | "DISABLED" | "UNLOCKED" | "READ_ONLY";
 
 /**
+ * An array of fields that are visible to the viewer, regardless of their state
+ */
+export const VisibleFieldState: FieldState[] = ["UNLOCKED", "DISABLED"];
+
+/**
  * Determines which profile fields are visible, editable, and disabled for the current user
  *
  * @param profileOf the user whose profile is being viewed
