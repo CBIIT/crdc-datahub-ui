@@ -16,31 +16,36 @@ const createUser = (role: UserRole, permissions: AuthPermissions[] = []): User =
   createdAt: "",
 });
 
-describe("Basic Role-Based Permissions", () => {
-  it("should allow a Federal Lead to view the dashboard", () => {
-    const user = createUser("Federal Lead", ["dashboard:view"]);
-    expect(hasPermission(user, "dashboard", "view")).toBe(true);
-  });
+describe("Basic Permissions", () => {
+  it.each<UserRole>([
+    "Admin",
+    "Data Commons Personnel",
+    "Federal Lead",
+    "Submitter",
+    "User",
+    "Invalid-role" as UserRole,
+  ])(
+    "should allow a user to view the dashboard if they have permission, regardless of '%s' role",
+    (role) => {
+      const user = createUser(role, ["dashboard:view"]);
+      expect(hasPermission(user, "dashboard", "view")).toBe(true);
+    }
+  );
 
-  it("should deny a Federal Lead to view the dashboard without the defined permissions", () => {
-    const user = createUser("Federal Lead", []);
-    expect(hasPermission(user, "dashboard", "view")).toBe(false);
-  });
-
-  it("should deny a Submitter to view the dashboard", () => {
-    const user = createUser("Submitter");
-    expect(hasPermission(user, "dashboard", "view")).toBe(false);
-  });
-
-  it("should allow a Submitter to create a submission request", () => {
-    const user = createUser("Submitter", ["submission_request:create"]);
-    expect(hasPermission(user, "submission_request", "create")).toBe(true);
-  });
-
-  it("should deny a User to create a submission request", () => {
-    const user = createUser("User");
-    expect(hasPermission(user, "submission_request", "create")).toBe(false);
-  });
+  it.each<UserRole>([
+    "Admin",
+    "Data Commons Personnel",
+    "Federal Lead",
+    "Submitter",
+    "User",
+    "Invalid-role" as UserRole,
+  ])(
+    "should deny a user to view the dashboard if they have permission, regardless of '%s' role",
+    (role) => {
+      const user = createUser(role, []);
+      expect(hasPermission(user, "dashboard", "view")).toBe(false);
+    }
+  );
 });
 
 describe("Edge Cases", () => {
@@ -62,17 +67,5 @@ describe("Edge Cases", () => {
   it("should deny permission if the resource is invalid", () => {
     const user = createUser("Admin");
     expect(hasPermission(user, "invalid_resource" as never, "view" as never)).toBe(false);
-  });
-});
-
-describe("Permission String Check", () => {
-  it("should verify that the user's permissions include the correct serialized permission key", () => {
-    const user = createUser("Submitter", ["submission_request:create"]);
-    expect(hasPermission(user, "submission_request", "create")).toBe(true);
-  });
-
-  it("should deny access if the serialized permission key is missing", () => {
-    const user = createUser("Submitter", []);
-    expect(hasPermission(user, "submission_request", "create")).toBe(false);
   });
 });
