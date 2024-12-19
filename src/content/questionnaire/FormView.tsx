@@ -539,10 +539,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   };
 
   const handleSubmitForm = () => {
-    if (
-      (!isFormOwner && !hasPermission(user, "submission_request", "submit", data)) ||
-      !["In Progress", "Inquired"].includes(data?.status)
-    ) {
+    if (!hasPermission(user, "submission_request", "submit", data)) {
       Logger.error("Invalid request to submit Submission Request form.", {
         isFormOwner,
         hasPermission,
@@ -731,10 +728,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
               )}
 
               {activeSection === "REVIEW" &&
-                // Submission Request owners aren't granted the permission,
-                // but should be allowed to submit
-                (isFormOwner || hasPermission(user, "submission_request", "submit", data)) &&
-                ["In Progress", "Inquired"].includes(data?.status) && (
+                hasPermission(user, "submission_request", "submit", data) && (
                   <StyledExtendedLoadingButton
                     id="submission-form-submit-button"
                     variant="contained"
