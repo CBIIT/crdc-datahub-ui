@@ -321,7 +321,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
         studiesField.filter((v) => v !== ALL_STUDIES_OPTION)
       );
     } else if (value === "Federal Lead") {
-      setValue("studies", [ALL_STUDIES_OPTION]);
+      setValue("studies", []);
     }
 
     field.onChange(value);
@@ -357,10 +357,16 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   }, [_id]);
 
   useEffect(() => {
-    if (fieldset.studies === "UNLOCKED") {
-      sortStudyOptions();
+    if (fieldset.studies !== "UNLOCKED") {
+      return;
     }
-  }, [formattedStudyMap]);
+
+    sortStudyOptions();
+
+    if (roleField === "Federal Lead") {
+      setValue("studies", [ALL_STUDIES_OPTION]);
+    }
+  }, [formattedStudyMap, roleField]);
 
   useEffect(() => {
     prevRoleRef.current = roleField;
@@ -496,12 +502,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                             </StyledTag>
                           );
                         }}
-                        options={
-                          roleField === "Federal Lead" &&
-                          !studyOptions?.includes(ALL_STUDIES_OPTION)
-                            ? [ALL_STUDIES_OPTION, ...studyOptions]
-                            : studyOptions
-                        }
+                        options={studyOptions}
                         getOptionLabel={(option: string) => formattedStudyMap[option]}
                         onChange={(_, data: string[]) => handleStudyChange(field, data)}
                         disabled={fieldset.studies === "DISABLED"}
