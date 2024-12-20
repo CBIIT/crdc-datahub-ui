@@ -264,6 +264,21 @@ describe("Basic Functionality", () => {
     const emailLink = queryByLabelText("Email Primary Contact");
     expect(emailLink).toBeNull();
   });
+
+  it("renders the Program as NA when no program is assigned", () => {
+    const dataSubmission: RecursivePartial<Submission> = {
+      organization: null,
+    };
+
+    const { getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
+
+    expect(getByText("Program")).toBeVisible();
+    expect(getByText("NA")).toBeVisible();
+  });
 });
 
 describe("DataSubmissionSummary Memoization Tests", () => {

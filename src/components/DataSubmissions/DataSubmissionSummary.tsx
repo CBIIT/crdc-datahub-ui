@@ -251,7 +251,10 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             value={dataSubmission?.dataCommons}
             truncateAfter={false}
           />
-          <SubmissionHeaderProperty label="Program" value={dataSubmission?.organization?.name} />
+          <SubmissionHeaderProperty
+            label="Program"
+            value={dataSubmission?.organization?.name ?? "NA"}
+          />
           <SubmissionHeaderProperty
             label="Primary Contact"
             value={
