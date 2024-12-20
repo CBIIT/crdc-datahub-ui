@@ -44,7 +44,12 @@ export const getFormMode = (user: User, data: Application): FormMode => {
     return FormModes.REVIEW;
   }
 
-  if (hasPermission(user, "submission_request", "create") && EditStatuses.includes(data?.status)) {
+  // User is only allowed to edit their own Submission Request
+  if (
+    isFormOwner &&
+    hasPermission(user, "submission_request", "create") &&
+    EditStatuses.includes(data?.status)
+  ) {
     return FormModes.EDIT;
   }
 
