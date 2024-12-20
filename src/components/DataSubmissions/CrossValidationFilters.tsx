@@ -3,15 +3,15 @@ import { Controller, useForm } from "react-hook-form";
 import { cloneDeep, isEqual } from "lodash";
 import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { useQuery } from "@apollo/client";
-import { FormatDate } from "../../utils";
+import { compareNodeStats, FormatDate } from "../../utils";
 import {
   CrossValidationResultsInput,
   LIST_BATCHES,
-  LIST_NODE_TYPES,
   ListBatchesInput,
   ListBatchesResp,
-  ListNodeTypesInput,
-  ListNodeTypesResp,
+  SUBMISSION_STATS,
+  SubmissionStatsInput,
+  SubmissionStatsResp,
 } from "../../graphql";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
@@ -72,16 +72,23 @@ const CrossValidationFilters = forwardRef<null, FilterProps>(({ onChange }, ref)
     [batchData]
   );
 
-  const { data: nodeData } = useQuery<ListNodeTypesResp, ListNodeTypesInput>(LIST_NODE_TYPES, {
-    variables: { _id: submissionData?.getSubmission?._id },
-    context: { clientName: "backend" },
-    skip: !submissionData?.getSubmission?._id,
-    fetchPolicy: "cache-and-network",
-  });
+  const { data: submissionStats } = useQuery<SubmissionStatsResp, SubmissionStatsInput>(
+    SUBMISSION_STATS,
+    {
+      variables: { id: submissionData?.getSubmission?._id },
+      context: { clientName: "backend" },
+      skip: !submissionData?.getSubmission?._id,
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
-  const nodeTypes: string[] = useMemo<string[]>(
-    () => cloneDeep(nodeData?.listSubmissionNodeTypes)?.sort((a, b) => a.localeCompare(b)) || [],
-    [nodeData?.listSubmissionNodeTypes]
+  const nodeTypes = useMemo<string[]>(
+    () =>
+      cloneDeep(submissionStats?.submissionStats?.stats)
+        ?.sort(compareNodeStats)
+        ?.map((stat) => stat.nodeName)
+        .filter((nodeType) => nodeType?.toLowerCase() !== "data file"),
+    [submissionStats?.submissionStats?.stats]
   );
 
   useEffect(() => {

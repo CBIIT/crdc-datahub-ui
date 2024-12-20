@@ -4,8 +4,8 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { axe } from "jest-axe";
 import { UserGuide } from "./UserGuide";
 
-jest.mock("../../config/globalHeaderData", () => ({
-  ...jest.requireActual("../../config/globalHeaderData"),
+jest.mock("../../config/HeaderConfig", () => ({
+  ...jest.requireActual("../../config/HeaderConfig"),
   DataSubmissionInstructionsLink: "/data-submission-instructions",
 }));
 

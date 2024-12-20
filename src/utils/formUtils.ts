@@ -120,14 +120,16 @@ export const programToSelectOption = (program: ProgramOption): SelectOption => (
  * Formats an Approved Study Name and Abbreviation into a single string.
  * If the abbreviation is provided and not equal to the name, it will be included in parentheses.
  *
- * @example Alphabetic Study (AS)
- * @example Alphabetic Study
+ * @note The study name, at a minimum, should be provided.
  * @param studyName The full name of the study
  * @param studyAbbreviation The abbreviation of the study
  * @returns The formatted study name
  */
 export const formatFullStudyName = (studyName: string, studyAbbreviation: string): string => {
-  if (studyAbbreviation === studyName) {
+  if (typeof studyName !== "string") {
+    return "";
+  }
+  if (studyAbbreviation?.toLowerCase() === studyName?.toLowerCase()) {
     return studyName.trim();
   }
   if (studyAbbreviation && studyAbbreviation.length > 0) {
@@ -163,4 +165,105 @@ export const mapOrganizationStudyToId = (
       (study) => study?.studyName === studyName && study?.studyAbbreviation === studyAbbreviation
     )?._id || ""
   );
+};
+
+/**
+ * Validates an ORCID string. An ORCID must consist of exactly four groups of four alphanumeric characters,
+ * with each group separated by a hyphen. Only digits and the letter 'X' are allowed
+ * as characters. The letter 'X' is only allowed as the final character.
+ *
+ * @see https://gist.github.com/asencis/644f174855899b873131c2cabcebeb87?permalink_comment_id=4210539#gistcomment-4210539
+ * @param {string} id The ORCID string to validate.
+ * @returns {boolean} Returns true if the string is a valid ORCID, false otherwise.
+ */
+export const isValidORCID = (id: string): boolean => {
+  if (typeof id !== "string" || id?.length !== 19) {
+    return false;
+  }
+
+  const idPattern = /^(\d{4}-){3}\d{3}(\d|X)$/;
+  return idPattern.test(id);
+};
+
+/**
+ * Filters and formats input for an ORCID as the user types. This function will automatically insert hyphens
+ * after every group (4 characters), uppercase any 'x' typed by the user, and ensures that only numeric
+ * characters and 'X' are allowed. If the user types more than 16 valid characters or places them
+ * incorrectly, those characters are ignored.
+ *
+ * @param {string} input The current raw input string from the user.
+ * @returns {string} The formatted ORCID string following the validation rules.
+ */
+export const formatORCIDInput = (input: string): string => {
+  if (!input?.length) {
+    return "";
+  }
+
+  const ORCID_LENGTH = 16;
+  const GROUP_SIZE = 4;
+  const DISALLOWED_CHARS_REGEX = /[^0-9X]/g; // Everything except 0-9 digits or character "X"
+
+  const formattedInput = input
+    .toUpperCase()
+    .replace(DISALLOWED_CHARS_REGEX, "")
+    .substring(0, ORCID_LENGTH);
+
+  // Split into groups of 4 and join with hyphens
+  return formattedInput.split("").reduce((acc, curr, idx) => {
+    if (idx > 0 && idx % GROUP_SIZE === 0) {
+      acc += "-";
+    }
+
+    return acc + curr;
+  }, "");
+};
+
+/**
+ * Given an array of Study IDs, return the first Formatted Study Name from the list of approved studies, sorted by the Study Name.
+ *
+ * @note MUI shows the first SELECTED item by default, this will show the first SORTED item
+ * @see {@link formatFullStudyName} for the formatting implementation
+ * @param studyIds Array of Study IDs
+ * @param approvedStudies List of approved studies, ideally containing the studies in studyIds
+ * @returns The first formatted study name from the list of approved studies
+ */
+export const formatStudySelectionValue = (
+  studyIds: string[],
+  approvedStudies: ApprovedStudy[],
+  fallback = ""
+): string => {
+  if (!Array.isArray(studyIds) || !Array.isArray(approvedStudies)) {
+    return fallback;
+  }
+  if (studyIds.length === 0 || approvedStudies.length === 0) {
+    return fallback;
+  }
+
+  const mappedStudies: string[] = studyIds
+    .map((studyID) => {
+      const study: ApprovedStudy = approvedStudies?.find((s) => s?._id === studyID);
+
+      return formatFullStudyName(study?.studyName, study?.studyAbbreviation);
+    })
+    .filter((study) => typeof study === "string" && study.length > 0)
+    .sort((a: string, b: string) => a.localeCompare(b));
+
+  return mappedStudies.length > 0 ? mappedStudies[0] : fallback;
+};
+
+/**
+ * Provides a validation function to test against a string for invalid characters.
+ *
+ * @param value The input string to validate
+ * @returns A string if the value contains invalid characters, otherwise null
+ */
+export const validateEmoji = (value: string): string | null => {
+  const EmojiRegex =
+    /(?![*#0-9]+)[\p{Emoji}\p{Emoji_Modifier}\p{Emoji_Component}\p{Emoji_Modifier_Base}\p{Emoji_Presentation}]/u;
+
+  if (EmojiRegex.test(value)) {
+    return "This field contains invalid characters";
+  }
+
+  return null;
 };

@@ -36,6 +36,7 @@ const baseSubmission: Submission = {
   metadataValidationStatus: "New",
   fileValidationStatus: "New",
   crossSubmissionStatus: "New",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
@@ -48,9 +49,11 @@ const baseSubmission: Submission = {
   intention: "New/Update",
   dataType: "Metadata Only",
   otherSubmissions: "",
+  nodeCount: 0,
   createdAt: "",
   updatedAt: "",
   studyID: "",
+  collaborators: [],
 };
 
 const TestChild: FC = () => {

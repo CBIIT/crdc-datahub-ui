@@ -1,7 +1,7 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
-import { styled } from "@mui/material";
+import { AutocompleteChangeReason, styled } from "@mui/material";
 import { useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
@@ -15,6 +15,7 @@ import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
 import useFormMode from "../../../hooks/useFormMode";
 import SectionMetadata from "../../../config/SectionMetadata";
 import LabelCheckbox from "../../../components/Questionnaire/LabelCheckbox";
+import CustomAutocomplete from "../../../components/Questionnaire/CustomAutocomplete";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400,
@@ -40,6 +41,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     approveFormRef,
     inquireFormRef,
     rejectFormRef,
+    exportButtonRef,
     getFormObjectRef,
   } = refs;
   const { C: SectionCMetadata } = SectionMetadata;
@@ -65,27 +67,25 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     return { ref: formRef, data: combinedData };
   };
 
-  const filterCancerTypes = (val: string[]) => {
-    // if N/A already previously selected, then unselect N/A
+  const handleCancerTypesChange = (
+    e: SyntheticEvent,
+    newValue: string[],
+    reason: AutocompleteChangeReason
+  ) => {
+    // If N/A was previously selected, then remove N/A
     if (cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
-      return val.filter((option) => option !== CUSTOM_CANCER_TYPES.NOT_APPLICABLE);
+      newValue = newValue.filter((option) => option !== CUSTOM_CANCER_TYPES.NOT_APPLICABLE);
+      // If N/A is newly selected, then unselect all other options
+    } else if (newValue.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
+      newValue = [CUSTOM_CANCER_TYPES.NOT_APPLICABLE];
     }
 
-    // if N/A is being selected, then unselect other options
-    if (val.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
-      return [CUSTOM_CANCER_TYPES.NOT_APPLICABLE];
-    }
-
-    return val;
-  };
-
-  const handleCancerTypesChange = (val: string[]) => {
-    if (val?.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
+    if (newValue?.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
       setOtherCancerTypes("");
       setOtherCancerTypesEnabled(false);
     }
 
-    setCancerTypes(val);
+    setCancerTypes(newValue);
   };
 
   const handleOtherCancerTypesCheckboxChange = (
@@ -121,6 +121,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     approveFormRef.current.style.display = "none";
     inquireFormRef.current.style.display = "none";
     rejectFormRef.current.style.display = "none";
+    exportButtonRef.current.style.display = "none";
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
@@ -156,20 +157,19 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         title={SectionCMetadata.sections.CANCER_TYPES.title}
         description={SectionCMetadata.sections.CANCER_TYPES.description}
       >
-        <SelectInput
+        <CustomAutocomplete
+          multiple
+          options={cancerTypeOptions}
+          disableClearable
           id="section-c-cancer-types"
           label="Cancer types (select all that apply)"
           name="cancerTypes"
-          options={cancerTypeOptions.map((option) => ({
-            label: option,
-            value: option,
-          }))}
-          placeholder="Select types"
-          value={data.cancerTypes}
+          placeholder="Select cancer types"
+          value={Array.isArray(cancerTypes) ? cancerTypes : []}
           onChange={handleCancerTypesChange}
-          filter={filterCancerTypes}
-          multiple
+          tagText={(value) => `${value.length} Cancer Types selected`}
           readOnly={readOnlyInputs}
+          disableCloseOnSelect
         />
         <TextInput
           id="section-c-other-cancer-types"

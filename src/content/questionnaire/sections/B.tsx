@@ -19,8 +19,9 @@ import {
   findProgram,
   mapObjectWithKey,
   programToSelectOption,
+  validateEmoji,
 } from "../../../utils";
-import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
@@ -94,6 +95,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     approveFormRef,
     inquireFormRef,
     rejectFormRef,
+    exportButtonRef,
     getFormObjectRef,
   } = refs;
 
@@ -310,6 +312,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     approveFormRef.current.style.display = "none";
     inquireFormRef.current.style.display = "none";
     rejectFormRef.current.style.display = "none";
+    exportButtonRef.current.style.display = "none";
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
@@ -420,6 +423,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={study.name}
           maxLength={100}
           placeholder="100 characters allowed"
+          validate={(input: string) => !validateEmoji(input)}
           readOnly={readOnlyInputs}
           hideValidation={readOnlyInputs}
           tooltipText="A descriptive name that will be used to identify the study."

@@ -32,6 +32,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   updatedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
@@ -41,6 +42,8 @@ const baseSubmission: Omit<Submission, "_id"> = {
   fileValidationStatus: "New",
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
+  collaborators: [],
 };
 
 type ParentProps = {

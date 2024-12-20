@@ -12,6 +12,7 @@ import {
   SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
   SubmissionQCResultsResp,
+  SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
 import {
@@ -43,6 +44,7 @@ const baseSubmission: Submission = {
   updatedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
@@ -53,6 +55,8 @@ const baseSubmission: Submission = {
   crossSubmissionStatus: null,
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
+  collaborators: [],
 };
 
 const baseQCResult: QCResult = {
@@ -77,7 +81,7 @@ const baseBatch = {
   __typename: "Batch",
 };
 
-const nodesMock: MockedResponse<SubmissionStatsResp> = {
+const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
   request: {
     query: SUBMISSION_STATS,
   },
@@ -272,7 +276,7 @@ describe("Filters", () => {
       },
     };
 
-    const nodesMockWithData: MockedResponse<SubmissionStatsResp> = {
+    const nodesMockWithData: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
         query: SUBMISSION_STATS,
       },
@@ -382,7 +386,7 @@ describe("Filters", () => {
       },
     };
 
-    const nodesMock: MockedResponse<SubmissionStatsResp> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
         query: SUBMISSION_STATS,
       },
@@ -446,7 +450,7 @@ describe("Filters", () => {
       },
     };
 
-    const nodesMock: MockedResponse<SubmissionStatsResp> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
         query: SUBMISSION_STATS,
       },
@@ -484,13 +488,13 @@ describe("Filters", () => {
         }
       );
 
-      // The order of the nodes should be node-3, node-2, node-1
+      // The order of the nodes should be node-1, node-2, node-3
       expect(muiSelectList).toBeInTheDocument();
-      expect(muiSelectList.innerHTML.search("node-3")).toBeLessThan(
+      expect(muiSelectList.innerHTML.search("node-1")).toBeLessThan(
         muiSelectList.innerHTML.search("node-2")
       );
       expect(muiSelectList.innerHTML.search("node-2")).toBeLessThan(
-        muiSelectList.innerHTML.search("node-1")
+        muiSelectList.innerHTML.search("node-3")
       );
     });
   });
@@ -512,7 +516,7 @@ describe("Filters", () => {
       },
     };
 
-    const nodesMock: MockedResponse<SubmissionStatsResp> = {
+    const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
         query: SUBMISSION_STATS,
       },

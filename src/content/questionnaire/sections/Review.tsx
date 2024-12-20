@@ -62,6 +62,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
     approveFormRef,
     inquireFormRef,
     rejectFormRef,
+    exportButtonRef,
     getFormObjectRef,
   } = refs;
 
@@ -106,6 +107,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
 
     saveFormRef.current.style.display = "none";
     nextButtonRef.current.style.display = "none";
+    exportButtonRef.current.style.display = "flex";
 
     if (formMode === "Review") {
       approveFormRef.current.style.display = "flex";
@@ -666,7 +668,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
               idPrefix="review-clinical-data-types-other-clinical-data-types"
               gridWidth={12}
               label="Other Clinical Data types"
-              value={data.clinicalData?.otherDataTypes?.split(",")}
+              value={data.clinicalData?.otherDataTypes}
               valuePlacement="bottom"
               delimiter="|"
               isList
@@ -718,7 +720,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
         </ReviewDataListing>
       </ReviewSection>
 
-      <StyledDivider />
+      <StyledDivider data-print="false" />
     </FormContainer>
   );
 };

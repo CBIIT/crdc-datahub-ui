@@ -1,13 +1,13 @@
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { fireEvent, render, waitFor } from "@testing-library/react";
+import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { ContextState, Context as FormCtx, Status as FormStatus } from "../Contexts/FormContext";
 import StatusBar from "./StatusBar";
 import StatusApproved from "../../assets/history/submissionRequest/StatusApproved.svg";
 import StatusRejected from "../../assets/history/submissionRequest/StatusRejected.svg";
 import { FormatDate } from "../../utils";
-import { HistoryIconMap } from "../../assets/history/submissionRequest";
+import { HistoryIconMap } from "./components/SubmissionRequestIconMap";
 
 type Props = {
   data: object;
@@ -351,13 +351,26 @@ describe("StatusBar > History Modal Tests", () => {
 
     fireEvent.click(getByText("Full History"));
 
-    const elements = getByTestId("status-bar-history-dialog").querySelectorAll("li");
-    expect(elements[0]).toHaveTextContent(/Rejected/i);
-    expect(elements[0]).toHaveTextContent("11/24/2023");
-    expect(elements[1]).toHaveTextContent(/In Progress/i);
-    expect(elements[1]).toHaveTextContent("11/22/2023");
-    expect(elements[2]).toHaveTextContent(/New/i);
-    expect(elements[2]).toHaveTextContent("11/20/2023");
+    expect(
+      within(getByTestId("history-item-0")).getByTestId("history-item-0-status")
+    ).toHaveTextContent(/Rejected/i);
+    expect(
+      within(getByTestId("history-item-0")).getByTestId("history-item-0-date")
+    ).toHaveTextContent("11/24/2023");
+
+    expect(
+      within(getByTestId("history-item-1")).getByTestId("history-item-1-status")
+    ).toHaveTextContent(/In Progress/i);
+    expect(
+      within(getByTestId("history-item-1")).getByTestId("history-item-1-date")
+    ).toHaveTextContent("11/22/2023");
+
+    expect(
+      within(getByTestId("history-item-2")).getByTestId("history-item-2-status")
+    ).toHaveTextContent(/New/i);
+    expect(
+      within(getByTestId("history-item-2")).getByTestId("history-item-2-date")
+    ).toHaveTextContent("11/20/2023");
   });
 
   it("renders only the most recent event with an icon", () => {
@@ -372,8 +385,8 @@ describe("StatusBar > History Modal Tests", () => {
 
     fireEvent.click(getByText("Full History"));
 
-    expect(getByTestId("status-bar-history-item-0-icon")).toBeVisible();
-    expect(() => getByTestId("status-bar-history-item-1-icon")).toThrow();
+    expect(getByTestId("history-item-0-icon")).toBeVisible();
+    expect(() => getByTestId("history-item-1-icon")).toThrow();
   });
 
   it.each(Object.entries(HistoryIconMap))(
@@ -387,7 +400,7 @@ describe("StatusBar > History Modal Tests", () => {
 
       fireEvent.click(getByText("Full History"));
 
-      const icon = getByTestId("status-bar-history-item-0-icon");
+      const icon = getByTestId("history-item-0-icon");
 
       expect(icon).toBeVisible();
       expect(icon).toHaveAttribute("alt", `${status} icon`);
@@ -418,7 +431,7 @@ describe("StatusBar > History Modal Tests", () => {
 
     expect(queryByTestId("status-bar-history-dialog")).toBeVisible();
 
-    fireEvent.click(queryByTestId("status-bar-dialog-close"));
+    fireEvent.click(queryByTestId("history-dialog-close"));
 
     await waitFor(() => expect(queryByTestId("status-bar-history-dialog")).toBeNull());
   });

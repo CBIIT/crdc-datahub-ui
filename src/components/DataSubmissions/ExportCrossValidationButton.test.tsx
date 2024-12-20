@@ -37,6 +37,7 @@ const baseSubmission: Submission = {
   updatedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
@@ -47,6 +48,8 @@ const baseSubmission: Submission = {
   crossSubmissionStatus: null,
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
+  collaborators: [],
 };
 
 const baseCrossValidationResult: CrossValidationResult = {

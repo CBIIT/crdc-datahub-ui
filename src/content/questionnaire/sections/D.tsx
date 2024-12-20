@@ -15,7 +15,7 @@ import {
   filterPositiveIntegerString,
   reshapeCheckboxGroupOptions,
 } from "../../../utils";
-import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
 import { fileTypeOptions } from "../../../config/FileTypeConfig";
 import TableTextInput from "../../../components/Questionnaire/TableTextInput";
@@ -158,6 +158,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     approveFormRef,
     inquireFormRef,
     rejectFormRef,
+    exportButtonRef,
     getFormObjectRef,
   } = refs;
   const [fileTypeData, setFileTypeData] = useState<KeyedFileTypeData[]>(
@@ -267,6 +268,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     approveFormRef.current.style.display = "none";
     inquireFormRef.current.style.display = "none";
     rejectFormRef.current.style.display = "none";
+    exportButtonRef.current.style.display = "none";
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
@@ -328,6 +330,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={dataTypes.includes("genomics")}
           tooltipText="The branch of molecular biology concerned with the structure, function, evolution, and mapping of genomes.  Includes data from DNA sequencing, RNA sequencing, mutational analysis, and other experiments focused on genomes."
           readOnly={readOnlyInputs}
+          switchSx={{ marginRight: "0px" }}
         />
         <SwitchInput
           id="section-d-proteomics"
@@ -361,6 +364,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
           readOnly={readOnlyInputs}
           sx={{ paddingBottom: "8px" }}
+          switchSx={{ marginRight: "0px" }}
         />
         <TextInput
           id="section-d-other-data-types"
@@ -404,6 +408,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             value={data.clinicalData.dataTypes.includes("relapseRecurrenceData")}
             tooltipText="Relapse/recurrence data refers to information associated with the return of a disease after a period of remission. Indicate whether relapse/recurrence data is available for the study."
             readOnly={readOnlyInputs}
+            switchSx={{ marginRight: "0px" }}
           />
           <SwitchInput
             id="section-d-diagnosis-data"
@@ -422,6 +427,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             value={data.clinicalData.dataTypes.includes("outcomeData")}
             tooltipText="Outcome data refers to information on a specific result or effect that can be measured. Examples of outcomes include decreased pain, reduced tumor size, and improvement of disease. Indicate whether outcome data is available for the study."
             readOnly={readOnlyInputs}
+            switchSx={{ marginRight: "0px" }}
           />
           <SwitchInput
             id="section-d-treatment-data"
@@ -441,6 +447,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             value={data.clinicalData.dataTypes.includes("biospecimenData")}
             tooltipText="Biospecimen data refers to information associated with the biological sample, portion, analyte, or aliquot. Indicate whether biospecimen data is available for the study."
             readOnly={readOnlyInputs}
+            switchSx={{ marginRight: "0px" }}
           />
           <TextInput
             id="section-d-clinical-data-other-data-types"
@@ -462,6 +469,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             isBoolean
             readOnly={readOnlyInputs}
             tooltipText="Indicate if there will be additional types of data included with a future submission."
+            switchSx={{ marginRight: "72px" }}
           />
         </SectionGroup>
       )}

@@ -176,3 +176,47 @@ export const rearrangeKeys = (keysArray: string[], keyOrder: string[]): string[]
 
   return [...orderedKeys, ...remainingKeys];
 };
+
+/**
+ * Checks if the length of a given string is between the specified minimum and maximum values.
+ *
+ * @param str - The string to check. Can be null or undefined.
+ * @param minLength - The minimum allowable length of the string.
+ * @param maxLength - The maximum allowable length of the string.
+ * @returns True if the string's length is strictly between minLength and maxLength, exclusive; otherwise, false.
+ */
+export const isStringLengthBetween = (
+  str: string,
+  minLength: number,
+  maxLength: number
+): boolean => {
+  if (typeof str !== "string") {
+    return false;
+  }
+
+  return str?.length > minLength && str?.length < maxLength;
+};
+
+/**
+ * Formats a person's name as "lastName, firstName" or returns the available name if one is missing.
+ * If both names are missing, returns an empty string.
+ *
+ * @param firstName - The person's first name.
+ * @param lastName - The person's last name.
+ * @returns The formatted name.
+ */
+export const formatName = (firstName?: string, lastName?: string): string => {
+  const trimmedFirstName = typeof firstName === "string" ? firstName?.trim() : "";
+  const trimmedLastName = typeof lastName === "string" ? lastName?.trim() : "";
+
+  if (trimmedFirstName && trimmedLastName) {
+    return `${trimmedLastName}, ${trimmedFirstName}`;
+  }
+  if (trimmedLastName) {
+    return trimmedLastName;
+  }
+  if (trimmedFirstName) {
+    return trimmedFirstName;
+  }
+  return "";
+};

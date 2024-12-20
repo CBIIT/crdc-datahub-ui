@@ -46,12 +46,15 @@ const baseSubmission: Submission = {
   status: "In Progress",
   crossSubmissionStatus: "Passed",
   otherSubmissions: "",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
   validationType: ["metadata", "file"],
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
+  collaborators: [],
 };
 
 const baseContext: ContextState = {
@@ -68,6 +71,7 @@ const baseUser: Omit<User, "role"> = {
   IDP: "nih",
   email: "",
   organization: null,
+  studies: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",

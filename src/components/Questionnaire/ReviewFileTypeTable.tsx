@@ -77,24 +77,6 @@ const StyledTableCell = styled(TableCell)(() => ({
   },
 }));
 
-const StyledTableCellNumber = styled(TableCell)(() => ({
-  "&.MuiTableCell-root": {
-    height: "100%",
-    color: "#346798",
-    fontFamily: "'Inter'",
-    fontSize: "15px",
-    fontStyle: "normal",
-    fontWeight: 400,
-    lineHeight: "normal",
-    padding: "11px 15px",
-    borderBottom: "0 !important",
-    borderRight: "1px solid #6B7294",
-    "&:last-child": {
-      borderRight: "none",
-    },
-  },
-}));
-
 type ReviewFileTypeTableProps = {
   files: FileInfo[];
 };
@@ -127,15 +109,12 @@ const ReviewFileTypeTable: React.FC<ReviewFileTypeTableProps> = ({ files }) => (
             <StyledTableCell id={`review-file-type-table-file-${idx}-file-extension`} width="25%">
               {file.extension}
             </StyledTableCell>
-            <StyledTableCellNumber id={`review-file-type-table-file-${idx}-file-count`} width="17%">
+            <StyledTableCell id={`review-file-type-table-file-${idx}-file-count`} width="17%">
               {file.count}
-            </StyledTableCellNumber>
-            <StyledTableCellNumber
-              id={`review-file-type-table-file-${idx}-file-amount`}
-              width="25%"
-            >
+            </StyledTableCell>
+            <StyledTableCell id={`review-file-type-table-file-${idx}-file-amount`} width="25%">
               {addSpace(file.amount)}
-            </StyledTableCellNumber>
+            </StyledTableCell>
           </StyledTableRow>
         ))}
       </TableBody>

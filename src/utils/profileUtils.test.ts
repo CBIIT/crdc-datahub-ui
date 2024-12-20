@@ -1,4 +1,11 @@
 import * as utils from "./profileUtils";
+import { formatName } from "./stringUtils";
+
+jest.mock("./stringUtils", () => ({
+  formatName: jest.fn(),
+}));
+
+const mockFormatName = formatName as jest.Mock;
 
 describe("formatIDP cases", () => {
   it("should format NIH IDP", () => {
@@ -16,98 +23,239 @@ describe("formatIDP cases", () => {
   it("should return the unmodified IDP if it is not a known service", () => {
     expect(utils.formatIDP("unknown" as User["IDP"])).toBe("unknown");
   });
+
+  it("should invalid input without crashing", () => {
+    expect(utils.formatIDP(undefined as User["IDP"])).toBe("");
+    expect(utils.formatIDP(null as User["IDP"])).toBe("");
+    expect(utils.formatIDP({} as User["IDP"])).toBe("");
+  });
 });
 
-describe("getEditableFields cases", () => {
-  const admin: User = {
-    _id: "1",
-    role: "Admin",
-  } as User;
-
-  const user: User = {
-    _id: "2",
-    role: "User",
-  } as User;
-
-  const orgOwner: User = {
-    _id: "3",
-    role: "Organization Owner",
-  } as User;
-
-  const federalLead: User = {
-    _id: "4",
-    role: "Federal Lead",
-  } as User;
-
-  it("should allow an Admin to edit their own firstName and lastName", () => {
-    const expected = ["firstName", "lastName"].sort();
-    expect(utils.getEditableFields(admin, admin, "profile").sort()).toEqual(expected);
+describe("userToCollaborator cases", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it("should allow an Admin to edit a Admin's role, organization, userStatus", () => {
-    const expected = ["role", "organization", "userStatus", "dataCommons"].sort();
-    expect(
-      utils.getEditableFields(admin, { ...admin, _id: "AAA-123-19291" }, "users").sort()
-    ).toEqual(expected);
+  it("should convert a full user object to a collaborator with default permission", () => {
+    const user: Partial<User> = {
+      _id: "user-1",
+      firstName: "John",
+      lastName: "Doe",
+      organization: {
+        orgID: "org-1",
+        orgName: "Organization 1",
+        status: "Active",
+        createdAt: "",
+        updateAt: "",
+      },
+    };
+
+    mockFormatName.mockReturnValue("John Doe");
+
+    const collaborator = utils.userToCollaborator(user);
+
+    expect(collaborator).toEqual({
+      collaboratorID: "user-1",
+      collaboratorName: "John Doe",
+      permission: "Can View",
+      Organization: {
+        orgID: "org-1",
+        orgName: "Organization 1",
+      },
+    });
+
+    expect(mockFormatName).toHaveBeenCalledWith("John", "Doe");
   });
 
-  it("should allow an Admin to edit a User's role, organization, userStatus", () => {
-    const expected = ["role", "organization", "userStatus", "dataCommons"].sort();
-    expect(utils.getEditableFields(admin, user, "users").sort()).toEqual(expected);
-    expect(utils.getEditableFields(admin, orgOwner, "users").sort()).toEqual(expected);
+  it("should use provided permission", () => {
+    const user: Partial<User> = {
+      _id: "user-1",
+      firstName: "John",
+      lastName: "Doe",
+    };
+
+    mockFormatName.mockReturnValue("John Doe");
+
+    const collaborator = utils.userToCollaborator(user, "Can Edit");
+
+    expect(collaborator.permission).toBe("Can Edit");
   });
 
-  it("should allow an Admin to edit a Federal Lead's role, userStatus, and organization", () => {
-    const expected = ["role", "userStatus", "organization", "dataCommons"].sort();
-    expect(utils.getEditableFields(admin, federalLead, "users").sort()).toEqual(expected);
+  it("should handle missing firstName", () => {
+    const user: Partial<User> = {
+      _id: "user-1",
+      lastName: "Doe",
+    };
+
+    mockFormatName.mockReturnValue("Doe");
+
+    const collaborator = utils.userToCollaborator(user);
+
+    expect(collaborator.collaboratorName).toBe("Doe");
+    expect(mockFormatName).toHaveBeenCalledWith(undefined, "Doe");
   });
 
-  it("should allow an Admin to edit a DC_POC role, organization, userStatus, and dataCommons", () => {
-    const expected = ["role", "organization", "userStatus", "dataCommons"].sort();
-    expect(
-      utils
-        .getEditableFields(
-          admin,
-          { ...user, role: "Data Commons POC", _id: "AAA-123-19291" },
-          "users"
-        )
-        .sort()
-    ).toEqual(expected);
+  it("should handle missing lastName", () => {
+    const user: Partial<User> = {
+      _id: "user-1",
+      firstName: "John",
+    };
+
+    mockFormatName.mockReturnValue("John");
+
+    const collaborator = utils.userToCollaborator(user);
+
+    expect(collaborator.collaboratorName).toBe("John");
+    expect(mockFormatName).toHaveBeenCalledWith("John", undefined);
   });
 
-  it("should allow an Org Owner to edit their own firstName and lastName", () => {
-    const expected = ["firstName", "lastName"].sort();
-    expect(utils.getEditableFields(orgOwner, orgOwner, "profile").sort()).toEqual(expected);
+  it("should handle missing organization", () => {
+    const user: Partial<User> = {
+      _id: "user-1",
+      firstName: "John",
+      lastName: "Doe",
+    };
+
+    mockFormatName.mockReturnValue("John Doe");
+
+    const collaborator = utils.userToCollaborator(user);
+
+    expect(collaborator.Organization).toEqual({
+      orgID: undefined,
+      orgName: undefined,
+    });
   });
 
-  it("should allow an Org Owner to view only", () => {
-    const expected = [].sort();
-    expect(utils.getEditableFields(orgOwner, user, "users").sort()).toEqual(expected);
+  it("should handle missing organization orgID and orgName", () => {
+    const user: Partial<User> = {
+      _id: "user-1",
+      firstName: "John",
+      lastName: "Doe",
+      organization: {
+        orgID: "",
+        orgName: "",
+        status: "Active",
+        createdAt: "",
+        updateAt: "",
+      },
+    };
+
+    mockFormatName.mockReturnValue("John Doe");
+
+    const collaborator = utils.userToCollaborator(user);
+
+    expect(collaborator.Organization).toEqual({
+      orgID: "",
+      orgName: "",
+    });
   });
 
-  it("should allow Federal Lead to edit their own firstName and lastName", () => {
-    const expected = ["firstName", "lastName"].sort();
-    expect(utils.getEditableFields(federalLead, federalLead, "profile").sort()).toEqual(expected);
+  it("should handle missing _id", () => {
+    const user: Partial<User> = {
+      firstName: "John",
+      lastName: "Doe",
+    };
+
+    mockFormatName.mockReturnValue("John Doe");
+
+    const collaborator = utils.userToCollaborator(user);
+
+    expect(collaborator.collaboratorID).toBeUndefined();
   });
 
-  it("should allow User's to edit their own firstName and lastName", () => {
-    const expected = ["firstName", "lastName"].sort();
-    expect(utils.getEditableFields(user, user, "profile").sort()).toEqual(expected);
+  it("should handle null user", () => {
+    const collaborator = utils.userToCollaborator(null);
+
+    expect(collaborator).toEqual({
+      collaboratorID: undefined,
+      collaboratorName: formatName(undefined, undefined),
+      permission: "Can View",
+      Organization: {
+        orgID: undefined,
+        orgName: undefined,
+      },
+    });
+
+    expect(mockFormatName).toHaveBeenCalledWith(undefined, undefined);
   });
 
-  it("by default, should not allow Federal Lead to edit another user's fields", () => {
-    expect(utils.getEditableFields(federalLead, admin, "users")).toEqual([]);
-    expect(utils.getEditableFields(federalLead, orgOwner, "users")).toEqual([]);
-    expect(utils.getEditableFields(federalLead, user, "users")).toEqual([]);
-    expect(
-      utils.getEditableFields(federalLead, { ...federalLead, _id: "ABC-NOT-MY-ID" }, "users")
-    ).toEqual([]);
+  it("should handle undefined user", () => {
+    const collaborator = utils.userToCollaborator(undefined);
+
+    expect(collaborator).toEqual({
+      collaboratorID: undefined,
+      collaboratorName: formatName(undefined, undefined),
+      permission: "Can View",
+      Organization: {
+        orgID: undefined,
+        orgName: undefined,
+      },
+    });
+
+    expect(mockFormatName).toHaveBeenCalledWith(undefined, undefined);
   });
 
-  it("by default, should not allow User to edit another user's fields", () => {
-    expect(utils.getEditableFields(user, admin, "users")).toEqual([]);
-    expect(utils.getEditableFields(user, orgOwner, "users")).toEqual([]);
-    expect(utils.getEditableFields(user, federalLead, "users")).toEqual([]);
-    expect(utils.getEditableFields(user, { ...user, _id: "ABC-NOT-MY-ID" }, "users")).toEqual([]);
+  it("should handle user with empty properties", () => {
+    const user: Partial<User> = {
+      _id: "",
+      firstName: "",
+      lastName: "",
+      organization: {
+        orgID: "",
+        orgName: "",
+        status: "Active",
+        createdAt: "",
+        updateAt: "",
+      },
+    };
+
+    mockFormatName.mockReturnValue("");
+
+    const collaborator = utils.userToCollaborator(user);
+
+    expect(collaborator).toEqual({
+      collaboratorID: "",
+      collaboratorName: "",
+      permission: "Can View",
+      Organization: {
+        orgID: "",
+        orgName: "",
+      },
+    });
+
+    expect(mockFormatName).toHaveBeenCalledWith("", "");
+  });
+
+  it("should handle user with additional properties", () => {
+    const user: Partial<User> = {
+      _id: "user-1",
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@example.com",
+      role: "Admin",
+      organization: {
+        orgID: "org-1",
+        orgName: "Organization 1",
+        status: "Active",
+        createdAt: "",
+        updateAt: "",
+      },
+    };
+
+    mockFormatName.mockReturnValue("John Doe");
+
+    const collaborator = utils.userToCollaborator(user);
+
+    expect(collaborator).toEqual({
+      collaboratorID: "user-1",
+      collaboratorName: "John Doe",
+      permission: "Can View",
+      Organization: {
+        orgID: "org-1",
+        orgName: "Organization 1",
+      },
+    });
+
+    expect(mockFormatName).toHaveBeenCalledWith("John", "Doe");
   });
 });

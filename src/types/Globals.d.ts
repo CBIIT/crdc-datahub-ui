@@ -12,6 +12,7 @@ type FormSectionProps = {
     approveFormRef: React.RefObject<HTMLButtonElement>;
     inquireFormRef: React.RefObject<HTMLButtonElement>;
     rejectFormRef: React.RefObject<HTMLButtonElement>;
+    exportButtonRef: React.RefObject<HTMLButtonElement>;
     getFormObjectRef: React.MutableRefObject<(() => FormObject | null) | null>;
   };
   SectionOption: SectionOption;
@@ -46,10 +47,32 @@ type FormGroupCheckboxOption = {
 type SelectOption = { label: string; value: string | number };
 
 type HistoryBase<T> = {
+  /**
+   * The transitioned status of the history event.
+   */
   status: T;
-  reviewComment?: string;
-  dateTime: string; // YYYY-MM-DDTHH:MM:SSZ format
+  /**
+   * The ISO 8601 date and time the history event occurred.
+   *
+   * @note This is in the format of `YYYY-MM-DDTHH:MM:SSZ`.
+   */
+  dateTime: string;
+  /**
+   * The ID of the user who initiated the history event.
+   */
   userID: string;
+  /**
+   * The name of the user who initiated the history event.
+   *
+   * @note This is not populated in all events.
+   */
+  userName?: string;
+  /**
+   * The comment associated with the history event.
+   *
+   * @note This is not populated in all events.
+   */
+  reviewComment?: string;
 };
 
 declare module "*.pdf";

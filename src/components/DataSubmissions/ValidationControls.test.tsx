@@ -46,12 +46,15 @@ const baseSubmission: Omit<
   updatedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
   validationType: ["metadata", "file"],
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
+  collaborators: [],
 };
 
 const baseAuthCtx: AuthCtxState = {
@@ -78,6 +81,7 @@ const baseUser: Omit<User, "role"> = {
   IDP: "nih",
   email: "",
   organization: null,
+  studies: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",
@@ -635,6 +639,84 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("validate-controls-validate-button")).toHaveTextContent("Validating...");
   });
 
+  it("should render as disabled when collaborator does not have 'Can Edit' permissions", () => {
+    const { getByTestId } = render(
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: { ...baseUser, _id: "collaborator-user", role: "Submitter" },
+        }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+          submitterID: "some-other-user",
+          collaborators: [
+            {
+              collaboratorID: "collaborator-user",
+              collaboratorName: "",
+              Organization: null,
+              permission: "Can View",
+            },
+          ],
+        }}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
+
+    const typeRadio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+    const targetRadio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+
+    expect(getByTestId("validate-controls-validate-button")).toBeDisabled();
+    expect(getByLabelText(typeRadio, "Validate Metadata")).toBeDisabled();
+    expect(getByLabelText(typeRadio, "Validate Data Files")).toBeDisabled();
+    expect(getByLabelText(typeRadio, "Both")).toBeDisabled();
+    expect(getByLabelText(targetRadio, "New Uploaded Data")).toBeDisabled();
+    expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeDisabled();
+  });
+
+  it("should render as enabled when collaborator does have 'Can Edit' permissions", () => {
+    const { getByTestId } = render(
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: { ...baseUser, _id: "collaborator-user", role: "Submitter" },
+        }}
+        submission={{
+          ...baseSubmission,
+          _id: "example-sub-id-disabled",
+          status: "In Progress",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+          submitterID: "some-other-user",
+          collaborators: [
+            {
+              collaboratorID: "collaborator-user",
+              collaboratorName: "",
+              Organization: null,
+              permission: "Can Edit",
+            },
+          ],
+        }}
+      >
+        <ValidationControls />
+      </TestParent>
+    );
+
+    const typeRadio = getByTestId("validate-controls-validation-type") as HTMLInputElement;
+    const targetRadio = getByTestId("validate-controls-validation-target") as HTMLInputElement;
+
+    expect(getByTestId("validate-controls-validate-button")).toBeEnabled();
+    expect(getByLabelText(typeRadio, "Validate Metadata")).toBeEnabled();
+    expect(getByLabelText(typeRadio, "Validate Data Files")).toBeEnabled();
+    expect(getByLabelText(typeRadio, "Both")).toBeEnabled();
+    expect(getByLabelText(targetRadio, "New Uploaded Data")).toBeEnabled();
+    expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeEnabled();
+  });
+
   it("should NOT reset the validation type and upload type after starting validation", async () => {
     const submissionID = "reset-state-onclick-id";
     const mocks: MockedResponse<ValidateSubmissionResp, ValidateSubmissionInput>[] = [
@@ -1048,7 +1130,6 @@ describe("Implementation Requirements", () => {
     "Submitted",
     "Released",
     "Completed",
-    "Archived",
     "Canceled",
     "fake status" as SubmissionStatus,
   ])("should be disabled when the Submission status is '%s'", (status) => {

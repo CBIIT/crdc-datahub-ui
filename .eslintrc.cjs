@@ -21,7 +21,7 @@ const config = {
     ecmaFeatures: {
       jsx: true,
     },
-    ecmaVersion: 11,
+    ecmaVersion: 2015,
     project: "./tsconfig.json",
     sourceType: "module",
   },
@@ -39,13 +39,13 @@ const config = {
     "prettier/prettier": "error",
 
     "max-len": "off",
-    "no-console": ["warn", { allow: ["error"] }],
     "no-param-reassign": "off",
     "object-curly-newline": "off",
     "no-underscore-dangle": ["off"],
-    "arrow-body-style": ["warn"],
-    "eol-last": ["warn"],
-    "no-unreachable": ["warn"],
+    "no-console": "warn",
+    "arrow-body-style": "warn",
+    "eol-last": "warn",
+    "no-unreachable": "warn",
 
     /* typescript-eslint overwritten rules */
     "no-use-before-define": "off",

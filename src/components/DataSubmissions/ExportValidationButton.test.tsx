@@ -50,12 +50,15 @@ describe("ExportValidationButton cases", () => {
     updatedAt: "",
     intention: "New/Update",
     dataType: "Metadata and Data Files",
+    archived: false,
     validationStarted: "",
     validationEnded: "",
     validationScope: "New",
     validationType: ["metadata", "file"],
     studyID: "",
     deletingData: false,
+    nodeCount: 0,
+    collaborators: [],
   };
 
   const baseQCResult: Omit<QCResult, "submissionID"> = {

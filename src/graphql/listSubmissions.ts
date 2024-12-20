@@ -2,20 +2,28 @@ import gql from "graphql-tag";
 
 export const query = gql`
   query listSubmissions(
+    $organization: String
+    $status: String
+    $dataCommons: String
+    $name: String
+    $dbGaPID: String
+    $submitterName: String
     $first: Int
     $offset: Int
     $orderBy: String
     $sortDirection: String
-    $organization: String
-    $status: String
   ) {
     listSubmissions(
+      organization: $organization
+      status: $status
+      dataCommons: $dataCommons
+      name: $name
+      dbGaPID: $dbGaPID
+      submitterName: $submitterName
       first: $first
       offset: $offset
       orderBy: $orderBy
       sortDirection: $sortDirection
-      organization: $organization
-      status: $status
     ) {
       total
       submissions {
@@ -31,18 +39,42 @@ export const query = gql`
         dbGaPID
         modelVersion
         status
+        archived
         conciergeName
+        nodeCount
         createdAt
         updatedAt
         intention
       }
+      organizations {
+        _id
+        name
+      }
+      submitterNames
+      dataCommons
     }
   }
 `;
+
+export type Input = {
+  organization?: string;
+  status?: SubmissionStatus | "All";
+  dataCommons?: string;
+  name?: string;
+  dbGaPID?: string;
+  submitterName?: string;
+  first: number;
+  offset: number;
+  orderBy: string;
+  sortDirection: Order;
+};
 
 export type Response = {
   listSubmissions: {
     total: number;
     submissions: Omit<Submission, "submitterID" | "bucketName" | "rootPath" | "history">[];
+    organizations: Pick<Organization, "_id" | "name">[];
+    submitterNames: string[];
+    dataCommons: string[];
   };
 };

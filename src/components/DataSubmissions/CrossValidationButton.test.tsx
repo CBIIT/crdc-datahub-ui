@@ -46,12 +46,15 @@ const baseSubmission: Omit<
   updatedAt: "",
   intention: "New/Update",
   dataType: "Metadata and Data Files",
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
   validationType: ["metadata", "file"],
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
+  collaborators: [],
 };
 
 const baseAuthCtx: AuthCtxState = {
@@ -78,6 +81,7 @@ const baseUser: Omit<User, "role"> = {
   IDP: "nih",
   email: "",
   organization: null,
+  studies: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",
@@ -590,7 +594,6 @@ describe("Implementation Requirements", () => {
     "Withdrawn",
     "Released",
     "Completed",
-    "Archived",
     "Canceled",
     "fake status" as Submission["status"],
   ])("should never be visible for the Submission status of '%s'", (status) => {

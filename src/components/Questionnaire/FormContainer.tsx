@@ -7,20 +7,17 @@ import useFormMode from "../../hooks/useFormMode";
 const StyledButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== "isVisible",
 })<ButtonProps & { isVisible: boolean }>(({ isVisible }) => ({
-  visibility: isVisible ? "visible" : "hidden",
+  display: isVisible ? "flex" : "none",
   fontWeight: 700,
   fontSize: "14px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   lineHeight: "19.6px",
   color: "#2E5481",
   padding: 0,
   marginTop: 0,
   marginBottom: "16px",
-  display: "flex",
   justifyContent: "flex-start",
   alignItems: "center",
   verticalAlign: "middle",
-  textTranform: "initial",
   "& svg": {
     marginRight: "8px",
   },
@@ -59,20 +56,36 @@ const StyledSectionTitle = styled(Typography)(() => ({
 }));
 
 type Props = {
+  /**
+   * Description of the form section
+   */
   description: string;
-  hideReturnToSubmissions?: boolean;
+  /**
+   * Form section content
+   */
   children: React.ReactNode;
+  /**
+   * Whether to hide the "Return to all Submissions" button
+   */
+  hideReturnToSubmissions?: boolean;
+  /**
+   * Element to be displayed before the section form content
+   */
+  prefixElement?: React.ReactNode;
+  /**
+   * Reference to the form element in the DOM
+   */
   formRef?: MutableRefObject<HTMLFormElement>;
 };
 
 /**
- * Generic Outtermost Form Section Container Element (e.g. Section A, ...)
+ * Generic Outermost Form Section Container Element (e.g. Section A, ...)
  *
  * @param {Props} props
  * @returns {JSX.Element}
  */
 const FormContainer = forwardRef<HTMLDivElement, Props>(
-  ({ description, children, formRef, hideReturnToSubmissions = true }, ref) => {
+  ({ prefixElement, description, children, formRef, hideReturnToSubmissions = true }, ref) => {
     const id = useId();
     const navigate = useNavigate();
     const { readOnlyInputs } = useFormMode();
@@ -91,12 +104,15 @@ const FormContainer = forwardRef<HTMLDivElement, Props>(
           <ArrowBackIcon fontSize="small" />
           Return to all Submissions
         </StyledButton>
-        <StyledTitleGroup>
-          <StyledSectionTitle variant="h2">{description}</StyledSectionTitle>
-        </StyledTitleGroup>
-        <StyledForm id={id} ref={formRef} onSubmit={(e) => e.preventDefault()}>
-          {children}
-        </StyledForm>
+        {prefixElement}
+        <div data-pdf-print-region="true">
+          <StyledTitleGroup>
+            <StyledSectionTitle variant="h2">{description}</StyledSectionTitle>
+          </StyledTitleGroup>
+          <StyledForm id={id} ref={formRef} onSubmit={(e) => e.preventDefault()}>
+            {children}
+          </StyledForm>
+        </div>
       </StyledFormContainer>
     );
   }

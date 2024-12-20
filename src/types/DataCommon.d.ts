@@ -45,17 +45,13 @@ type DataModelManifest = {
  */
 type ManifestAssets = {
   /**
-   * The file name of the Data Model file.
+   * An array of strings with an arbitrary length containing the
+   * Data Model file names.
    *
-   * @example "cds-model.yaml"
+   * @example ["cds-model.yaml", "cds-model-props.yaml"]
+   * @since 3.1.0
    */
-  "model-file": string;
-  /**
-   * The file name of the Data Model properties file.
-   *
-   * @example "cds-model-props.yaml"
-   */
-  "prop-file": string;
+  "model-files": string[];
   /**
    * The file name of the Data Model README file.
    *
@@ -63,6 +59,13 @@ type ManifestAssets = {
    * @example "README.md"
    */
   "readme-file": string;
+  /**
+   * The relative URL for the Model Navigator logo.
+   *
+   * @example "model-navigator-logo.png"
+   * @since 3.1.0
+   */
+  "model-navigator-logo"?: string | null;
   /**
    * The pre-zipped example loading file.
    *

@@ -100,7 +100,7 @@ const StyledSelect = styled(Select)({
 
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#fff !important",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
@@ -115,7 +115,7 @@ const StyledHeaderCell = styled(TableCell)({
 });
 
 const StyledTableCell = styled(TableCell)({
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#083A50 !important",
   "&.MuiTableCell-root": {
     padding: "8px 16px",
@@ -283,7 +283,7 @@ const ListingView: FC = () => {
   };
 
   useEffect(() => {
-    if (user.role !== "Organization Owner") {
+    if (user?.role !== "Organization Owner") {
       return;
     }
 
@@ -315,6 +315,8 @@ const ListingView: FC = () => {
     if (isStatusFilterOption(status) && status !== statusFilter) {
       setValue("status", status);
     }
+
+    setTablePage(0);
   }, [
     activeOrganizations,
     searchParams.get("organization"),
@@ -327,24 +329,27 @@ const ListingView: FC = () => {
       return;
     }
 
+    const newSearchParams = new URLSearchParams(searchParams);
+
     if (orgFilter && orgFilter !== "All") {
-      searchParams.set("organization", orgFilter);
+      newSearchParams.set("organization", orgFilter);
     } else if (orgFilter === "All") {
-      searchParams.delete("organization");
+      newSearchParams.delete("organization");
     }
     if (roleFilter && roleFilter !== "All") {
-      searchParams.set("role", roleFilter);
+      newSearchParams.set("role", roleFilter);
     } else if (roleFilter === "All") {
-      searchParams.delete("role");
+      newSearchParams.delete("role");
     }
     if (statusFilter && statusFilter !== "All") {
-      searchParams.set("status", statusFilter);
+      newSearchParams.set("status", statusFilter);
     } else if (statusFilter === "All") {
-      searchParams.delete("status");
+      newSearchParams.delete("status");
     }
 
-    setTablePage(0);
-    setSearchParams(searchParams);
+    if (newSearchParams?.toString() !== searchParams?.toString()) {
+      setSearchParams(newSearchParams);
+    }
   }, [orgFilter, roleFilter, statusFilter, touchedFilters]);
 
   const setTablePage = (page: number) => {

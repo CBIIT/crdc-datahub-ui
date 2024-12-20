@@ -51,12 +51,23 @@ export const query = gql`
         reviewComment
         dateTime
         userID
+        userName
       }
       conciergeName
       conciergeEmail
       intention
       dataType
       otherSubmissions
+      nodeCount
+      collaborators {
+        collaboratorID
+        collaboratorName
+        Organization {
+          orgID
+          orgName
+        }
+        permission
+      }
       createdAt
       updatedAt
     }

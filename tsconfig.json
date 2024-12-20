@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    // fix Type 'Element' is not assignable to type 'ReactNode TS warning
-    "paths": {
-        "react": ["./node_modules/@types/react"]
-    },
+    "target": "ES2015",
     "lib": [
       "dom",
       "dom.iterable",
@@ -23,10 +19,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "types": [
-      "node"
-    ]
+    "jsx": "react-jsx"
   },
   "include": [
     "src",

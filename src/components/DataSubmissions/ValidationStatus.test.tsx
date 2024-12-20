@@ -35,10 +35,13 @@ const BaseSubmission: Omit<
   intention: "New/Update",
   dataType: "Metadata Only",
   otherSubmissions: "",
+  archived: false,
   createdAt: "",
   updatedAt: "",
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
+  collaborators: [],
 };
 
 type TestParentProps = {

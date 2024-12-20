@@ -10,13 +10,14 @@ import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
-import AddRemoveButton from "../../../components/Questionnaire/AddRemoveButton";
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import { filterForNumbers, mapObjectWithKey, validateEmail } from "../../../utils";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
 import useFormMode from "../../../hooks/useFormMode";
 import { useInstitutionList } from "../../../components/Contexts/InstitutionListContext";
+import PansBanner from "../../../components/PansBanner";
 
 export type KeyedContact = {
   key: string;
@@ -67,6 +68,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     approveFormRef,
     inquireFormRef,
     rejectFormRef,
+    exportButtonRef,
     getFormObjectRef,
   } = refs;
 
@@ -89,6 +91,9 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (formObject.piAsPrimaryContact) {
       combinedData.primaryContact = null;
     }
+
+    // TODO: Remove in 3.2.0
+    combinedData.pi.ORCID = "";
 
     return { ref: formRef, data: combinedData };
   };
@@ -123,6 +128,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     approveFormRef.current.style.display = "none";
     inquireFormRef.current.style.display = "none";
     rejectFormRef.current.style.display = "none";
+    exportButtonRef.current.style.display = "none";
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
@@ -135,7 +141,12 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   }, [location]);
 
   return (
-    <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
+    <FormContainer
+      ref={formContainerRef}
+      formRef={formRef}
+      description={SectionOption.title}
+      prefixElement={<PansBanner />}
+    >
       {/* Principal Investigator */}
       <SectionGroup
         title={SectionAMetadata.sections.PRINCIPAL_INVESTIGATOR.title}

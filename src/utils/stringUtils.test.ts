@@ -306,3 +306,183 @@ describe("rearrangeKeys utility function", () => {
     expect(result).toEqual(["gender", "name", "id", "age", "email"]);
   });
 });
+
+describe("isStringLengthBetween utility function", () => {
+  it("should return true when string length is strictly between minLength and maxLength", () => {
+    const str = "hello";
+    const minLength = 2;
+    const maxLength = 10;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(true);
+  });
+
+  it("should return false when string length is equal to minLength", () => {
+    const str = "hi";
+    const minLength = 2;
+    const maxLength = 5;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+
+  it("should return false when string length is equal to maxLength", () => {
+    const str = "hello";
+    const minLength = 2;
+    const maxLength = 5;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+
+  it("should return false when string length is less than minLength", () => {
+    const str = "a";
+    const minLength = 2;
+    const maxLength = 5;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+
+  it("should return false when string length is greater than maxLength", () => {
+    const str = "hello world";
+    const minLength = 2;
+    const maxLength = 5;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+
+  it("should return false when str is null", () => {
+    const str = null;
+    const minLength = 1;
+    const maxLength = 5;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+
+  it("should return false when str is undefined", () => {
+    const str = undefined;
+    const minLength = 1;
+    const maxLength = 5;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+
+  it("should handle empty string correctly when length is within range", () => {
+    const str = "";
+    const minLength = -1;
+    const maxLength = 1;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(true);
+  });
+
+  it("should return false when minLength is greater than maxLength", () => {
+    const str = "test";
+    const minLength = 5;
+    const maxLength = 2;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+
+  it("should return false when minLength and maxLength are equal to string length", () => {
+    const str = "test";
+    const minLength = 4;
+    const maxLength = 4;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+
+  it("should return false when minLength and maxLength are negative", () => {
+    const str = "test";
+    const minLength = -5;
+    const maxLength = -1;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+
+  it("should return true when minLength is negative and string length is within range", () => {
+    const str = "test";
+    const minLength = -1;
+    const maxLength = 10;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(true);
+  });
+
+  it("should return false when minLength and maxLength are zero and string is empty", () => {
+    const str = "";
+    const minLength = 0;
+    const maxLength = 0;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+
+  it("should return false when str is not a string type", () => {
+    const str = 12345 as unknown as string;
+    const minLength = 2;
+    const maxLength = 6;
+    const result = utils.isStringLengthBetween(str, minLength, maxLength);
+    expect(result).toBe(false);
+  });
+});
+
+describe("formatName utility function", () => {
+  it("should format full name as 'lastName, firstName' when both names are provided", () => {
+    expect(utils.formatName("John", "Doe")).toBe("Doe, John");
+  });
+
+  it("should return lastName when firstName is missing", () => {
+    expect(utils.formatName(undefined, "Doe")).toBe("Doe");
+    expect(utils.formatName(null, "Doe")).toBe("Doe");
+    expect(utils.formatName("", "Doe")).toBe("Doe");
+  });
+
+  it("should return firstName when lastName is missing", () => {
+    expect(utils.formatName("John", undefined)).toBe("John");
+    expect(utils.formatName("John", null)).toBe("John");
+    expect(utils.formatName("John", "")).toBe("John");
+  });
+
+  it("should return empty string when both firstName and lastName are missing", () => {
+    expect(utils.formatName(undefined, undefined)).toBe("");
+    expect(utils.formatName(null, null)).toBe("");
+    expect(utils.formatName("", "")).toBe("");
+  });
+
+  it("should trim whitespace from names", () => {
+    expect(utils.formatName("  John  ", "  Doe  ")).toBe("Doe, John");
+    expect(utils.formatName("  John  ", undefined)).toBe("John");
+    expect(utils.formatName(undefined, "  Doe  ")).toBe("Doe");
+  });
+
+  it("should handle names with special characters", () => {
+    expect(utils.formatName("Jean-Luc", "Picard")).toBe("Picard, Jean-Luc");
+    expect(utils.formatName("Mary Jane", "Watson-Parker")).toBe("Watson-Parker, Mary Jane");
+  });
+
+  it("should handle names with leading/trailing whitespace", () => {
+    expect(utils.formatName("  John", "Doe  ")).toBe("Doe, John");
+  });
+
+  it("should handle names that are only whitespace", () => {
+    expect(utils.formatName("   ", "   ")).toBe("");
+    expect(utils.formatName("   ", "Doe")).toBe("Doe");
+    expect(utils.formatName("John", "   ")).toBe("John");
+  });
+
+  it("should handle numeric strings as names", () => {
+    expect(utils.formatName("123", "456")).toBe("456, 123");
+  });
+
+  it("should handle names with unicode characters", () => {
+    expect(utils.formatName("Renée", "Élodie")).toBe("Élodie, Renée");
+  });
+
+  it("should handle names with apostrophes", () => {
+    expect(utils.formatName("O'Connor", "Shaun")).toBe("Shaun, O'Connor");
+  });
+
+  it("should handle null and undefined values gracefully", () => {
+    expect(utils.formatName(null, undefined)).toBe("");
+    expect(utils.formatName(undefined, null)).toBe("");
+  });
+
+  it("should handle non-string types when cast to string", () => {
+    expect(utils.formatName(123 as unknown as string, 456 as unknown as string)).toBe("");
+  });
+});

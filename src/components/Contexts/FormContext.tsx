@@ -157,6 +157,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     };
 
     setState((prevState) => ({ ...prevState, status: Status.SAVING }));
+    const fullPIName = `${data?.pi?.firstName || ""} ${data?.pi?.lastName || ""}`.trim();
 
     const { data: d, errors } = await saveApp({
       variables: {
@@ -167,6 +168,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
           questionnaireData: JSON.stringify(data),
           controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
+          openAccess: data?.accessTypes?.includes("Open Access") || false,
+          ORCID: data?.pi?.ORCID,
+          PI: fullPIName,
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));
@@ -417,6 +421,11 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           ...questionnaireData.pi,
           ...parsedLastAppData.pi,
         };
+      }
+
+      // TODO: Remove in 3.2.0
+      if (questionnaireData.pi) {
+        questionnaireData.pi.ORCID = "";
       }
 
       setState({

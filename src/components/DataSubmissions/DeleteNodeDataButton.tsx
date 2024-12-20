@@ -10,6 +10,7 @@ import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
 import { titleCase } from "../../utils";
+import { canDeleteDataNodesRoles } from "../../config/AuthRoles";
 
 const StyledIconButton = styled(IconButton)(({ disabled }) => ({
   opacity: disabled ? 0.26 : 1,
@@ -20,18 +21,6 @@ const StyledTooltip = styled(StyledFormTooltip)({
     color: "#000000",
   },
 });
-
-/**
- * The users with permission to delete data nodes from a submission.
- *
- * @note The button is only visible to users with these roles.
- */
-const DeletePermissionRoles: User["role"][] = [
-  "Submitter",
-  "Organization Owner",
-  "Data Curator",
-  "Admin",
-];
 
 type Props = {
   /**
@@ -54,10 +43,21 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
   const { user } = useAuthContext();
   const { _id, deletingData } = data?.getSubmission || {};
 
-  const tooltipText =
-    deletingData === true
-      ? "Delete action unavailable while another delete operation is in progress"
-      : "Delete all selected nodes from this data submission";
+  const collaborator = data?.getSubmission?.collaborators?.find(
+    (c) => c.collaboratorID === user?._id
+  );
+
+  const tooltipText = useMemo<string>(() => {
+    if (deletingData === true) {
+      return "Delete action unavailable while another delete operation is in progress";
+    }
+
+    if (nodeType?.toLowerCase() === "data file") {
+      return "Delete all the selected data files from this data submission";
+    }
+
+    return "Delete all the selected records from this data submission";
+  }, [deletingData, nodeType]);
 
   const content = useMemo(() => {
     const nodeTerm: string = selectedItems.length > 1 ? "nodes" : "node";
@@ -126,7 +126,7 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
     }
   };
 
-  if (!DeletePermissionRoles.includes(user?.role)) {
+  if (!canDeleteDataNodesRoles.includes(user?.role)) {
     return null;
   }
 
@@ -141,7 +141,13 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
         <span>
           <StyledIconButton
             onClick={onClickIcon}
-            disabled={loading || disabled || deletingData === true || selectedItems.length === 0}
+            disabled={
+              loading ||
+              disabled ||
+              deletingData === true ||
+              selectedItems.length === 0 ||
+              (collaborator && collaborator.permission !== "Can Edit")
+            }
             aria-label="Delete nodes icon"
             data-testid="delete-node-data-button"
             {...rest}

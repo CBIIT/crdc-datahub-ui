@@ -4,6 +4,18 @@ import "@testing-library/jest-dom";
 import "jest-axe/extend-expect";
 import "jest-canvas-mock";
 import failOnConsole from "jest-fail-on-console";
+import crypto from "crypto";
+
+/**
+ * Makes the global.crypto.getRandomValues function available in Jest
+ *
+ * @see https://stackoverflow.com/a/63749793
+ */
+Object.defineProperty(global, "crypto", {
+  value: {
+    getRandomValues: (arr) => crypto.randomBytes(arr.length),
+  },
+});
 
 /**
  * Mocks the enqueueSnackbar function from notistack for testing
@@ -61,6 +73,14 @@ jest.mock("recharts", () => ({
   ...jest.requireActual("recharts"),
   ResponsiveContainer: MockResponsiveContainer,
 }));
+
+/**
+ * Mocks the react-markdown package for testing
+ * as Jest does not support ESM modules by default
+ */
+jest.mock("react-markdown", () => ({ children }: { children: string }) => (
+  <div data-testid="react-markdown-mock">{children}</div>
+));
 
 /**
  * Prevents the console.error and console.warn from silently failing

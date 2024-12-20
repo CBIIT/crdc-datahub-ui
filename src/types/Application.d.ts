@@ -6,9 +6,13 @@ type Application = {
   updatedAt: string; // YYYY-MM-DDTHH:MM:SSZ format
   submittedDate: string; // YYYY-MM-DDTHH:MM:SSZ format
   history: HistoryEvent[];
+  ORCID: string;
   // Applicant Details
   applicant: Applicant;
   organization: Pick<Organization, "_id" | "name">;
+  PI: string; // Principal Investigator's full name "<first name> <last name>"
+  controlledAccess: boolean;
+  openAccess: boolean;
   // Sort Fields
   programName: Program["name"];
   studyAbbreviation: Study["abbreviation"];
@@ -79,6 +83,7 @@ type PI = {
   lastName: string;
   position: string;
   email: string;
+  ORCID: string;
   institution: string;
   address: string;
 };

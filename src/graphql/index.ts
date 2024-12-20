@@ -27,10 +27,13 @@ export { query as GET_APP } from "./getApplication";
 export type { Response as GetAppResp } from "./getApplication";
 
 export { mutation as UPDATE_MY_USER } from "./updateMyUser";
-export type { Response as UpdateMyUserResp } from "./updateMyUser";
+export type { Input as UpdateMyUserInput, Response as UpdateMyUserResp } from "./updateMyUser";
 
 export { query as LIST_INSTITUTIONS } from "./listInstitutions";
 export type { Response as ListInstitutionsResp } from "./listInstitutions";
+
+export { query as RETRIEVE_CDEs } from "./retrieveCDEs";
+export type { Response as RetrieveCDEsResp, Input as RetrieveCDEsInput } from "./retrieveCDEs";
 
 // Data Submissions
 export { mutation as CREATE_SUBMISSION } from "./createSubmission";
@@ -43,7 +46,10 @@ export { query as GET_SUBMISSION } from "./getSubmission";
 export type { Input as GetSubmissionInput, Response as GetSubmissionResp } from "./getSubmission";
 
 export { query as LIST_SUBMISSIONS } from "./listSubmissions";
-export type { Response as ListSubmissionsResp } from "./listSubmissions";
+export type {
+  Input as ListSubmissionsInput,
+  Response as ListSubmissionsResp,
+} from "./listSubmissions";
 
 export { mutation as SUBMISSION_ACTION } from "./submissionAction";
 export type { Response as SubmissionActionResp } from "./submissionAction";
@@ -101,7 +107,10 @@ export type {
 } from "./getSubmissionNodes";
 
 export { query as SUBMISSION_STATS } from "./submissionStats";
-export type { Response as SubmissionStatsResp } from "./submissionStats";
+export type {
+  Input as SubmissionStatsInput,
+  Response as SubmissionStatsResp,
+} from "./submissionStats";
 
 export { mutation as DELETE_ORPHANED_FILE } from "./deleteOrphanedFile";
 export type { Response as DeleteOrphanedFileResp } from "./deleteOrphanedFile";
@@ -118,19 +127,37 @@ export type {
 export { query as RETRIEVE_CLI_CONFIG } from "./retrieveCLIConfig";
 export type { Response as RetrieveCLIConfigResp } from "./retrieveCLIConfig";
 
+export { query as LIST_POTENTIAL_COLLABORATORS } from "./listPotentialCollaborators";
+export type {
+  Input as ListPotentialCollaboratorsInput,
+  Response as ListPotentialCollaboratorsResp,
+} from "./listPotentialCollaborators";
+
+export { mutation as EDIT_SUBMISSION_COLLABORATORS } from "./editSubmissionCollaborators";
+export type {
+  Input as EditSubmissionCollaboratorsInput,
+  Response as EditSubmissionCollaboratorsResp,
+} from "./editSubmissionCollaborators";
+
 // User Profile
 export { query as GET_USER } from "./getUser";
-export type { Response as GetUserResp } from "./getUser";
+export type { Input as GetUserInput, Response as GetUserResp } from "./getUser";
 
 export { query as LIST_USERS } from "./listUsers";
 export type { Response as ListUsersResp } from "./listUsers";
 
 export { mutation as EDIT_USER } from "./editUser";
-export type { Response as EditUserResp } from "./editUser";
+export type { Input as EditUserInput, Response as EditUserResp } from "./editUser";
+
+export { mutation as REQUEST_ACCESS } from "./requestAccess";
+export type { Input as RequestAccessInput, Response as RequestAccessResp } from "./requestAccess";
 
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";
 export type { Response as ListOrgsResp } from "./listOrganizations";
+
+export { query as LIST_ORG_NAMES } from "./listOrganizationNames";
+export type { Response as ListOrgNamesResp } from "./listOrganizationNames";
 
 export { query as GET_ORG } from "./getOrganization";
 export type { Response as GetOrgResp } from "./getOrganization";
@@ -142,7 +169,28 @@ export { query as LIST_CURATORS } from "./listActiveCurators";
 export type { Response as ListCuratorsResp } from "./listActiveCurators";
 
 export { query as LIST_APPROVED_STUDIES } from "./listApprovedStudies";
-export type { Response as ListApprovedStudiesResp } from "./listApprovedStudies";
+export type {
+  Input as ListApprovedStudiesInput,
+  Response as ListApprovedStudiesResp,
+} from "./listApprovedStudies";
+
+export { mutation as CREATE_APPROVED_STUDY } from "./createApprovedStudy";
+export type {
+  Input as CreateApprovedStudyInput,
+  Response as CreateApprovedStudyResp,
+} from "./createApprovedStudy";
+
+export { mutation as UPDATE_APPROVED_STUDY } from "./updateApprovedStudy";
+export type {
+  Input as UpdateApprovedStudyInput,
+  Response as UpdateApprovedStudyResp,
+} from "./updateApprovedStudy";
+
+export { query as GET_APPROVED_STUDY } from "./getApprovedStudy";
+export type {
+  Input as GetApprovedStudyInput,
+  Response as GetApprovedStudyResp,
+} from "./getApprovedStudy";
 
 export { mutation as CREATE_ORG } from "./createOrganization";
 export type { Input as CreateOrgInput, Response as CreateOrgResp } from "./createOrganization";
@@ -153,3 +201,10 @@ export type { Response as GrantTokenResp } from "./grantToken";
 
 export { query as LIST_APPROVED_STUDIES_OF_MY_ORG } from "./listApprovedStudiesOfMyOrganization";
 export type { Response as ListApprovedStudiesOfMyOrgResp } from "./listApprovedStudiesOfMyOrganization";
+
+// Operation Dashboard
+export { query as GET_DASHBOARD_URL } from "./getDashboardURL";
+export type {
+  Input as GetDashboardURLInput,
+  Response as GetDashboardURLResp,
+} from "./getDashboardURL";

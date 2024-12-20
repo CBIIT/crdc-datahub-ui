@@ -1,12 +1,17 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { act, render, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { DataUpload } from "./DataUpload";
+import {
+  Context as AuthCtx,
+  ContextState as AuthCtxState,
+  Status as AuthStatus,
+} from "../Contexts/AuthContext";
 import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
+import { DataUpload } from "./DataUpload";
 
 jest.mock("../../env", () => ({
   ...jest.requireActual("../../env"),
@@ -43,24 +48,56 @@ const baseSubmission: Omit<Submission, "_id"> = {
   updatedAt: "",
   crossSubmissionStatus: null,
   otherSubmissions: null,
+  archived: false,
   validationStarted: "",
   validationEnded: "",
   validationScope: "New",
   validationType: ["metadata", "file"],
   studyID: "",
   deletingData: false,
+  nodeCount: 0,
+  collaborators: [],
+};
+
+const baseUser: User = {
+  _id: "current-user",
+  firstName: "",
+  lastName: "",
+  userStatus: "Active",
+  role: "Submitter", // NOTE: This base role allows for all actions
+  IDP: "nih",
+  email: "",
+  organization: null,
+  studies: null,
+  dataCommons: null,
+  createdAt: "",
+  updateAt: "",
 };
 
 type ParentProps = {
   mocks?: MockedResponse[];
+  role?: User["role"];
   children: React.ReactNode;
 };
 
-const TestParent: FC<ParentProps> = ({ mocks = [], children }) => (
-  <MockedProvider mocks={mocks} addTypename={false}>
-    <MemoryRouter basename="">{children}</MemoryRouter>
-  </MockedProvider>
-);
+const TestParent: FC<ParentProps> = ({ mocks = [], role = "Submitter", children }) => {
+  const authCtxState: AuthCtxState = useMemo<AuthCtxState>(
+    () => ({
+      status: AuthStatus.LOADED,
+      isLoggedIn: true,
+      user: { ...baseUser, role },
+    }),
+    [role]
+  );
+
+  return (
+    <MockedProvider mocks={mocks} addTypename={false}>
+      <AuthCtx.Provider value={authCtxState}>
+        <MemoryRouter basename="">{children}</MemoryRouter>
+      </AuthCtx.Provider>
+    </MockedProvider>
+  );
+};
 
 describe("Accessibility", () => {
   it("should have no violations", async () => {
@@ -115,7 +152,9 @@ describe("Basic Functionality", () => {
     // Open the dialog
     userEvent.click(getByTestId("uploader-cli-config-button"));
 
-    // Skip filling the fields and click the download button
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
+
     userEvent.click(getByText("Download"));
 
     await waitFor(() => {
@@ -150,7 +189,9 @@ describe("Basic Functionality", () => {
     // Open the dialog
     userEvent.click(getByTestId("uploader-cli-config-button"));
 
-    // Skip filling the fields and click the download button
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
+
     userEvent.click(getByText("Download"));
 
     await waitFor(() => {
@@ -160,6 +201,61 @@ describe("Basic Functionality", () => {
           variant: "error",
         }
       );
+    });
+  });
+
+  it("should hide the CLI Configuration dialog when onClose is called", async () => {
+    const { getByTestId, findAllByRole, queryByRole } = render(
+      <TestParent mocks={[]}>
+        <DataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "hide-config-dialog-on-close",
+            dataType: "Metadata and Data Files",
+          }}
+        />
+      </TestParent>
+    );
+
+    // Open the dialog
+    userEvent.click(getByTestId("uploader-cli-config-button"));
+
+    const dialog = await findAllByRole("presentation");
+
+    expect(dialog[1]).toBeVisible();
+
+    // Close the dialog
+    userEvent.click(dialog[1]);
+
+    await waitFor(() => {
+      expect(queryByRole("dialog")).not.toBeInTheDocument();
+    });
+  });
+
+  it("should hide the Uploader CLI dialog when onClose is called", async () => {
+    const { getByTestId, findAllByRole, queryByRole } = render(
+      <TestParent mocks={[]}>
+        <DataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "hide-cli-dialog-on-close",
+          }}
+        />
+      </TestParent>
+    );
+
+    // Open the dialog
+    userEvent.click(getByTestId("uploader-cli-download-button"));
+
+    const dialog = await findAllByRole("presentation");
+
+    expect(dialog[1]).toBeVisible();
+
+    // Close the dialog
+    userEvent.click(dialog[1]);
+
+    await waitFor(() => {
+      expect(queryByRole("dialog")).not.toBeInTheDocument();
     });
   });
 });
@@ -202,6 +298,94 @@ describe("Implementation Requirements", () => {
 
     expect(getByText(/download configuration file/i)).toBeVisible();
     expect(button).toBeVisible();
+  });
+
+  it.each<User["role"]>(["Submitter", "Organization Owner"])(
+    "should enable the Uploader CLI download button for '%s' role",
+    async (role) => {
+      const { getByTestId } = render(
+        <DataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "config-download-role-check",
+            dataType: "Metadata and Data Files", // NOTE: Required for the button to show
+          }}
+        />,
+        { wrapper: (p) => <TestParent {...p} role={role} /> }
+      );
+
+      expect(getByTestId("uploader-cli-config-button")).toBeEnabled();
+    }
+  );
+
+  it.each<User["role"]>([
+    "Admin",
+    "Data Curator",
+    "Data Commons POC",
+    "Federal Lead",
+    "User",
+    "fake role" as User["role"], // NOTE: asserting that a whitelist of allowed roles is used instead of a blacklist
+  ])("should disable the Uploader CLI download button for '%s' role", async (role) => {
+    const { getByTestId } = render(
+      <DataUpload
+        submission={{
+          ...baseSubmission,
+          _id: "config-download-role-check",
+          dataType: "Metadata and Data Files", // NOTE: Required for the button to show
+        }}
+      />,
+      { wrapper: (p) => <TestParent {...p} role={role} /> }
+    );
+
+    expect(getByTestId("uploader-cli-config-button")).toBeDisabled();
+  });
+
+  it("should disable the Uploader CLI download button when collaborator does not have 'Can Edit' permissions", async () => {
+    const { getByTestId } = render(
+      <DataUpload
+        submission={{
+          ...baseSubmission,
+          _id: "config-download-check",
+          dataType: "Metadata and Data Files", // NOTE: Required for the button to show
+          submitterID: "some-other-user",
+          collaborators: [
+            {
+              collaboratorID: "current-user",
+              collaboratorName: "",
+              Organization: null,
+              permission: "Can View",
+            },
+          ],
+        }}
+      />,
+      { wrapper: (p) => <TestParent {...p} role="Submitter" /> }
+    );
+
+    expect(getByTestId("uploader-cli-config-button")).toBeDisabled();
+  });
+
+  it("should enable the Uploader CLI download button when collaborator does have 'Can Edit' permissions", async () => {
+    const { getByTestId } = render(
+      <DataUpload
+        submission={{
+          ...baseSubmission,
+          _id: "config-download-check",
+          dataType: "Metadata and Data Files", // NOTE: Required for the button to show
+          submitterID: "some-other-user",
+          collaborators: [
+            {
+              collaboratorID: "current-user",
+              collaboratorName: "",
+              Organization: null,
+              permission: "Can Edit",
+            },
+          ],
+        }}
+      />,
+      { wrapper: (p) => <TestParent {...p} role="Submitter" /> }
+    );
+
+    expect(getByTestId("uploader-cli-config-button")).toBeEnabled();
   });
 
   it("should render alt CLI footer when 'Metadata Only' dataType", async () => {
@@ -259,7 +443,9 @@ describe("Implementation Requirements", () => {
       userEvent.click(getByTestId("uploader-cli-config-button"));
     });
 
-    // Skip filling the fields and click the download button
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
+
     // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
     await act(async () => {
       userEvent.click(getByText("Download"));
@@ -305,7 +491,9 @@ describe("Implementation Requirements", () => {
       // Open the dialog
       userEvent.click(getByTestId("uploader-cli-config-button"));
 
-      // Skip filling the fields and click the download button
+      userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+      userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
+
       userEvent.click(getByText("Download"));
 
       await waitFor(() => {

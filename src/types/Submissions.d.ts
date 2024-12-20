@@ -17,6 +17,10 @@ type Submission = {
   crossSubmissionStatus: CrossSubmissionStatus;
   deletingData: boolean;
   /**
+   * Indicates whether the submission has been archived.
+   */
+  archived: boolean;
+  /**
    * The date and time when the validation process started.
    *
    * @note ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
@@ -55,6 +59,14 @@ type Submission = {
    * @see OtherSubmissions
    */
   otherSubmissions: string;
+  /**
+   * The total number of nodes in the Submission
+   */
+  nodeCount: number;
+  /**
+   * A list of additional submitters who can view and/or edit the submission
+   */
+  collaborators: Collaborator[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
@@ -94,7 +106,6 @@ type SubmissionStatus =
   | "Withdrawn"
   | "Rejected"
   | "Completed"
-  | "Archived"
   | "Canceled"
   | "Deleted";
 
@@ -105,8 +116,7 @@ type SubmissionAction =
   | "Reject"
   | "Resume" // Rejected => In Progress
   | "Complete"
-  | "Cancel"
-  | "Archive";
+  | "Cancel";
 
 type SubmissionIntention = "New/Update" | "Delete";
 
@@ -151,28 +161,31 @@ type UploadType = "metadata" | "data file";
 type Batch = {
   _id: string;
   displayID: number;
-  submissionID: string; // parent
+  submissionID: string;
   type: UploadType;
-  fileCount: number; // calculated by BE
+  fileCount: number;
   files: BatchFileInfo[];
   status: BatchStatus;
   errors: string[];
+  /**
+   * The ID of the user who created the batch
+   */
+  submitterID?: string;
+  /**
+   * The name of the user who created the batch
+   */
+  submitterName?: string;
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
-type NewBatch = {
-  _id: string;
-  submissionID: string; // parent
-  bucketName?: string; // S3 bucket of the submission, for file batch / CLI use
-  filePrefix?: string; // prefix/path within S3 bucket, for file batch / CLI use
-  type: UploadType;
-  fileCount: number; // calculated by BE
+type NewBatch = Pick<
+  Batch,
+  "_id" | "submissionID" | "type" | "fileCount" | "status" | "errors" | "createdAt" | "updatedAt"
+> & {
+  bucketName?: string;
+  filePrefix?: string;
   files: FileURL[];
-  status: BatchStatus; // [New, Uploaded, Upload Failed, Loaded, Rejected] Loaded and Rejected are for metadata batch only
-  errors: string[];
-  createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
-  updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
 
 type ListBatches = {
@@ -372,3 +385,30 @@ type NodeDetailResult = {
 };
 
 type NodeRelationship = "parent" | "child";
+
+type SubmitButtonResult = {
+  enabled: boolean;
+  isAdminOverride?: boolean;
+  tooltip?: string;
+  _identifier?: string;
+};
+
+/**
+ * Represents the permissions a collaborator can have in a submission
+ */
+type CollaboratorPermissions = "Can View" | "Can Edit";
+
+/**
+ * Represents a submitter that can view/edit another submitter's submission
+ */
+type Collaborator = {
+  collaboratorID: string;
+  collaboratorName: string;
+  Organization: Pick<OrgInfo, "orgID" | "orgName">;
+  permission: CollaboratorPermissions;
+};
+
+/**
+ * Modifiable collaborator fields
+ */
+type CollaboratorInput = Pick<Collaborator, "collaboratorID" | "permission">;

@@ -9,6 +9,8 @@ import { downloadBlob, filterAlphaNumeric } from "../../utils";
 import FlowWrapper from "./FlowWrapper";
 import UploaderToolDialog from "../UploaderToolDialog";
 import UploaderConfigDialog, { InputForm } from "../UploaderConfigDialog";
+import { useAuthContext } from "../Contexts/AuthContext";
+import { GenerateApiTokenRoles } from "../../config/AuthRoles";
 
 export type Props = {
   /**
@@ -62,6 +64,7 @@ const StyledOpenInNewIcon = styled(OpenInNewIcon)({
  */
 export const DataUpload: FC<Props> = ({ submission }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuthContext();
   const { _id, name } = submission || {};
 
   const [cliDialogOpen, setCLIDialogOpen] = useState<boolean>(false);
@@ -69,6 +72,8 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
   const [retrieveCLIConfig] = useLazyQuery<RetrieveCLIConfigResp>(RETRIEVE_CLI_CONFIG, {
     context: { clientName: "backend" },
   });
+
+  const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
 
   const handleConfigDownload = async ({ manifest, dataFolder }: InputForm) => {
     try {
@@ -99,12 +104,16 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
   };
 
   const Actions: ReactElement = useMemo(() => {
-    if (submission?.dataType === "Metadata Only") {
+    if (submission?.dataType !== "Metadata and Data Files") {
       return null;
     }
 
     return (
       <StyledDownloadButton
+        disabled={
+          (collaborator && collaborator.permission !== "Can Edit") ||
+          !GenerateApiTokenRoles.includes(user?.role)
+        }
         onClick={() => setConfigDialogOpen(true)}
         variant="contained"
         color="info"
@@ -113,7 +122,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
         Download Configuration File
       </StyledDownloadButton>
     );
-  }, [submission?.dataType]);
+  }, [submission?.dataType, user?.role, collaborator]);
 
   return (
     <FlowWrapper index={2} title="Upload Data Files" actions={Actions}>

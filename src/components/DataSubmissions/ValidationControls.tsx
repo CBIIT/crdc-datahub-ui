@@ -1,6 +1,13 @@
 import React, { FC, ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
-import { FormControlLabel, RadioGroup, Stack, Typography, styled } from "@mui/material";
+import {
+  FormControlLabel,
+  RadioGroup,
+  Stack,
+  TooltipProps,
+  Typography,
+  styled,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
@@ -19,6 +26,9 @@ import FlowWrapper from "./FlowWrapper";
 import { CrossValidationButton } from "./CrossValidationButton";
 import { ValidationStatus } from "./ValidationStatus";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
+import { ValidateRoles } from "../../config/AuthRoles";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -65,26 +75,34 @@ const StyledRadioControl = styled(FormControlLabel)({
 });
 
 /**
- * Base set of user roles that can validate a submission.
- */
-const BaseValidateRoles: User["role"][] = [
-  "Submitter",
-  "Data Curator",
-  "Organization Owner",
-  "Admin",
-];
-
-/**
  * A map from Submission Status to the user roles that can validate the submission for that status.
  *
  * @note All of the permission logic really should be refactored into a hook or otherwise.
  */
-const ValidateMap: Partial<Record<Submission["status"], User["role"][]>> = {
-  "In Progress": BaseValidateRoles,
-  Withdrawn: BaseValidateRoles,
-  Rejected: BaseValidateRoles,
+const ValidateMap: Partial<Record<Submission["status"], UserRole[]>> = {
+  "In Progress": ValidateRoles,
+  Withdrawn: ValidateRoles,
+  Rejected: ValidateRoles,
   Submitted: ["Data Curator", "Admin"],
 };
+
+const CustomTooltip = (props: TooltipProps) => (
+  <StyledTooltip
+    {...props}
+    slotProps={{
+      popper: {
+        modifiers: [
+          {
+            name: "offset",
+            options: {
+              offset: [0, -14],
+            },
+          },
+        ],
+      },
+    }}
+  />
+);
 
 /**
  * Provides the UI for validating a data submission's assets.
@@ -100,6 +118,8 @@ const ValidationControls: FC = () => {
   const [validationType, setValidationType] = useState<ValidationType | "All">(null);
   const [uploadType, setUploadType] = useState<ValidationTarget>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const collaborator = dataSubmission?.collaborators?.find((c) => c.collaboratorID === user?._id);
 
   const isValidating = useMemo<boolean>(
     () =>
@@ -117,9 +137,12 @@ const ValidationControls: FC = () => {
     if (permissionMap.includes(user.role) === false) {
       return false;
     }
+    if (collaborator && collaborator.permission !== "Can Edit") {
+      return false;
+    }
 
     return dataSubmission?.metadataValidationStatus !== null;
-  }, [user?.role, dataSubmission?.metadataValidationStatus, dataSubmission?.status]);
+  }, [user?.role, dataSubmission?.metadataValidationStatus, dataSubmission?.status, collaborator]);
 
   const canValidateFiles: boolean = useMemo(() => {
     const permissionMap = ValidateMap[dataSubmission?.status];
@@ -132,9 +155,12 @@ const ValidationControls: FC = () => {
     if (dataSubmission.intention === "Delete" || dataSubmission.dataType === "Metadata Only") {
       return false;
     }
+    if (collaborator && collaborator.permission !== "Can Edit") {
+      return false;
+    }
 
     return dataSubmission?.fileValidationStatus !== null;
-  }, [user?.role, dataSubmission?.fileValidationStatus, dataSubmission?.status]);
+  }, [user?.role, dataSubmission?.fileValidationStatus, dataSubmission?.status, collaborator]);
 
   const [validateSubmission] = useMutation<ValidateSubmissionResp, ValidateSubmissionInput>(
     VALIDATE_SUBMISSION,
@@ -276,24 +302,45 @@ const ValidationControls: FC = () => {
               data-testid="validate-controls-validation-type"
               row
             >
-              <StyledRadioControl
-                value="metadata"
-                control={<StyledRadioButton readOnly={false} />}
-                label="Validate Metadata"
-                disabled={!canValidateMetadata}
-              />
-              <StyledRadioControl
-                value="file"
-                control={<StyledRadioButton readOnly={false} />}
-                label="Validate Data Files"
-                disabled={!canValidateFiles}
-              />
-              <StyledRadioControl
-                value="All"
-                control={<StyledRadioButton readOnly={false} />}
-                label="Both"
-                disabled={!canValidateFiles || !canValidateMetadata}
-              />
+              <CustomTooltip
+                placement="bottom"
+                title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TYPE.VALIDATE_METADATA}
+                open={undefined} // will use hoverListener to open
+                disableHoverListener={false}
+              >
+                <StyledRadioControl
+                  value="metadata"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="Validate Metadata"
+                  disabled={!canValidateMetadata}
+                />
+              </CustomTooltip>
+              <CustomTooltip
+                placement="bottom"
+                title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TYPE.VALIDATE_DATA_FILES}
+                open={undefined} // will use hoverListener to open
+                disableHoverListener={false}
+              >
+                <StyledRadioControl
+                  value="file"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="Validate Data Files"
+                  disabled={!canValidateFiles}
+                />
+              </CustomTooltip>
+              <CustomTooltip
+                placement="bottom"
+                title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TYPE.VALIDATE_BOTH}
+                open={undefined} // will use hoverListener to open
+                disableHoverListener={false}
+              >
+                <StyledRadioControl
+                  value="All"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="Both"
+                  disabled={!canValidateFiles || !canValidateMetadata}
+                />
+              </CustomTooltip>
             </RadioGroup>
           </StyledRowContent>
         </StyledRow>
@@ -306,22 +353,36 @@ const ValidationControls: FC = () => {
               data-testid="validate-controls-validation-target"
               row
             >
-              <StyledRadioControl
-                value="New"
-                control={<StyledRadioButton readOnly={false} />}
-                label="New Uploaded Data"
-                disabled={
-                  (!canValidateFiles && !canValidateMetadata) ||
-                  // NOTE: No new data to validate if the submission is already submitted
-                  dataSubmission?.status === "Submitted"
-                }
-              />
-              <StyledRadioControl
-                value="All"
-                control={<StyledRadioButton readOnly={false} />}
-                label="All Uploaded Data"
-                disabled={!canValidateFiles && !canValidateMetadata}
-              />
+              <CustomTooltip
+                placement="bottom"
+                title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TARGET.NEW_UPLOADED_DATA}
+                open={undefined} // will use hoverListener to open
+                disableHoverListener={false}
+              >
+                <StyledRadioControl
+                  value="New"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="New Uploaded Data"
+                  disabled={
+                    (!canValidateFiles && !canValidateMetadata) ||
+                    // NOTE: No new data to validate if the submission is already submitted
+                    dataSubmission?.status === "Submitted"
+                  }
+                />
+              </CustomTooltip>
+              <CustomTooltip
+                placement="bottom"
+                title={TOOLTIP_TEXT.VALIDATION_CONTROLS.VALIDATION_TARGET.ALL_UPLOADED_DATA}
+                open={undefined} // will use hoverListener to open
+                disableHoverListener={false}
+              >
+                <StyledRadioControl
+                  value="All"
+                  control={<StyledRadioButton readOnly={false} />}
+                  label="All Uploaded Data"
+                  disabled={!canValidateFiles && !canValidateMetadata}
+                />
+              </CustomTooltip>
             </RadioGroup>
           </StyledRowContent>
         </StyledRow>
