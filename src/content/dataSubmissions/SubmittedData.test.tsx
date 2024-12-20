@@ -38,6 +38,8 @@ const baseUser: User = {
   dataCommons: [],
   createdAt: "",
   updateAt: "",
+  permissions: ["data_submission:create"],
+  notifications: [],
 };
 
 const baseAuthCtx: AuthContextState = {

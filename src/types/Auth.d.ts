@@ -48,6 +48,14 @@ type User = {
    */
   userStatus: "Active" | "Inactive" | "Disabled";
   /**
+   * The list of permissions granted to the user
+   */
+  permissions: AuthPermissions[];
+  /**
+   * The list of notifications the user will receive
+   */
+  notifications: string[];
+  /**
    * The last update date of the user object
    *
    * @note ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
@@ -61,15 +69,35 @@ type User = {
   createdAt: string;
 };
 
-type UserRole =
-  | "User"
-  | "Submitter"
-  | "Organization Owner"
-  | "Federal Monitor"
-  | "Federal Lead"
-  | "Data Curator"
-  | "Data Commons POC"
-  | "Admin";
+type UserRole = "User" | "Admin" | "Data Commons Personnel" | "Federal Lead" | "Submitter";
+
+type SubmissionRequestPermissions =
+  | "submission_request:view"
+  | "submission_request:create"
+  | "submission_request:review"
+  | "submission_request:submit";
+
+type DataSubmissionPermissions =
+  | "data_submission:view"
+  | "data_submission:create"
+  | "data_submission:review"
+  | "data_submission:admin_submit"
+  | "data_submission:confirm";
+
+type DashboardPermissions = "dashboard:view";
+type AccessPermissions = "access:request";
+type UserPermissions = "user:manage";
+type ProgramPermissions = "program:manage";
+type StudyPermissions = "study:manage";
+
+type AuthPermissions =
+  | SubmissionRequestPermissions
+  | DataSubmissionPermissions
+  | DashboardPermissions
+  | AccessPermissions
+  | UserPermissions
+  | ProgramPermissions
+  | StudyPermissions;
 
 type OrgInfo = {
   orgID: string;

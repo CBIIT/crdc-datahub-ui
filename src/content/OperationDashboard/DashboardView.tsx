@@ -90,19 +90,19 @@ const DashboardView: FC<DashboardViewProps> = ({
     const { role, studies, dataCommons } = user || {};
     const params: DashboardContentOptions["parameters"] = [];
 
-    if (role === "Federal Monitor" && Array.isArray(studies) && studies.length > 0) {
+    if (role === "Federal Lead" && Array.isArray(studies) && studies.length > 0) {
       params.push({
         Name: "studiesParameter",
         Values: studies?.map((study: ApprovedStudy) => study?._id),
       });
-    } else if (role === "Federal Monitor") {
+    } else if (role === "Federal Lead") {
       Logger.error("This role requires studies to be set but none were found.", studies);
       params.push({ Name: "studiesParameter", Values: ["NO-CONTENT"] });
     }
 
-    if (role === "Data Curator" && Array.isArray(dataCommons) && dataCommons.length > 0) {
+    if (role === "Data Commons Personnel" && Array.isArray(dataCommons) && dataCommons.length > 0) {
       params.push({ Name: "dataCommonsParameter", Values: dataCommons });
-    } else if (role === "Data Curator") {
+    } else if (role === "Data Commons Personnel") {
       Logger.error("This role requires dataCommons to be set but none were found.", dataCommons);
       params.push({ Name: "dataCommonsParameter", Values: ["NO-CONTENT"] });
     }

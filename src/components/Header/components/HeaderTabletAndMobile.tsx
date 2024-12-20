@@ -6,7 +6,6 @@ import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg";
 import rightArrowIcon from "../../../assets/header/Right_Arrow.svg";
 import leftArrowIcon from "../../../assets/header/Left_Arrow.svg";
 import { navMobileList, navbarSublists } from "../../../config/HeaderConfig";
-import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import APITokenDialog from "../../APITokenDialog";
@@ -155,6 +154,34 @@ const Header = () => {
       className: "navMobileSubItem",
     },
     {
+      name: "Manage Studies",
+      link: "/studies",
+      id: "navbar-dropdown-item-studies-manage",
+      className: "navMobileSubItem",
+      permissions: ["study:manage"],
+    },
+    {
+      name: "Manage Programs",
+      link: "/programs",
+      id: "navbar-dropdown-item-program-manage",
+      className: "navMobileSubItem",
+      permissions: ["program:manage"],
+    },
+    {
+      name: "Manage Users",
+      link: "/users",
+      id: "navbar-dropdown-item-user-manage",
+      className: "navMobileSubItem",
+      permissions: ["user:manage"],
+    },
+    {
+      name: "API Token",
+      onClick: () => setOpenAPITokenDialog(true),
+      id: "navbar-dropdown-item-api-token",
+      className: "navMobileSubItem action",
+      permissions: ["data_submission:create"],
+    },
+    {
       name: "Uploader CLI Tool",
       onClick: () => setUploaderToolOpen(true),
       id: "navbar-dropdown-item-uploader-tool",
@@ -167,39 +194,6 @@ const Header = () => {
       className: "navMobileSubItem",
     },
   ];
-
-  if (user?.role === "Admin" || user?.role === "Organization Owner") {
-    navbarSublists[displayName].splice(1, 0, {
-      name: "Manage Users",
-      link: "/users",
-      id: "navbar-dropdown-item-user-manage",
-      className: "navMobileSubItem",
-    });
-  }
-  if (user?.role === "Admin") {
-    navbarSublists[displayName].splice(1, 0, {
-      name: "Manage Programs",
-      link: "/programs",
-      id: "navbar-dropdown-item-program-manage",
-      className: "navMobileSubItem",
-    });
-  }
-  if (user?.role === "Admin") {
-    navbarSublists[displayName].splice(1, 0, {
-      name: "Manage Studies",
-      link: "/studies",
-      id: "navbar-dropdown-item-studies-manage",
-      className: "navMobileSubItem",
-    });
-  }
-  if (user?.role && GenerateApiTokenRoles.includes(user?.role)) {
-    navbarSublists[displayName].splice(1, 0, {
-      name: "API Token",
-      onClick: () => setOpenAPITokenDialog(true),
-      id: "navbar-dropdown-item-api-token",
-      className: "navMobileSubItem action",
-    });
-  }
 
   const clickNavItem = (e) => {
     const clickTitle = e.target.textContent;
@@ -275,12 +269,12 @@ const Header = () => {
               </div>
             )}
             <div className="navMobileContainer">
-              {selectedList?.map((navMobileItem) => {
-                // If the user is not logged in and the item requires a role, don't show it
+              {selectedList?.map((navMobileItem: NavBarItem | NavBarSubItem) => {
                 if (
-                  "roles" in navMobileItem &&
-                  Array.isArray(navMobileItem?.roles) &&
-                  !navMobileItem.roles.includes(user?.role)
+                  navMobileItem?.permissions?.length > 0 &&
+                  !navMobileItem?.permissions?.every(
+                    (permission: AuthPermissions) => user?.permissions?.includes(permission)
+                  )
                 ) {
                   return null;
                 }

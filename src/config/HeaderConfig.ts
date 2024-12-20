@@ -3,7 +3,6 @@ import LogoSmall from "../assets/header/Portal_Logo_Small.svg";
 import usaFlagSmall from "../assets/header/us_flag_small.svg";
 import { DataCommons } from "./DataCommons";
 import ApiInstructions from "../assets/pdf/CRDC_Data_Submission_API_Instructions.pdf";
-import { DashboardRoles } from "./AuthRoles";
 
 export const DataSubmissionInstructionsLink =
   "https://datacommons.cancer.gov/data-submission-instructions";
@@ -55,7 +54,7 @@ export const navMobileList: NavBarItem[] = [
     link: "/operation-dashboard",
     id: "navbar-dropdown-operation-dashboard",
     className: "navMobileItem",
-    roles: DashboardRoles,
+    permissions: ["dashboard:view"],
   },
 ];
 

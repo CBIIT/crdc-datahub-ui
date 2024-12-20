@@ -87,6 +87,8 @@ const mockUser: User = {
   userStatus: "Active",
   updateAt: "",
   createdAt: "",
+  permissions: ["access:request"],
+  notifications: [],
 };
 
 type MockParentProps = {

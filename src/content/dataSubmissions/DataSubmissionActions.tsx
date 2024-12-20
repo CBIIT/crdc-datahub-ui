@@ -7,6 +7,7 @@ import CustomDialog from "../../components/Shared/Dialog";
 import { ReleaseInfo } from "../../utils";
 import Tooltip from "../../components/Tooltip";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -87,7 +88,7 @@ export type ActiveDialog =
   | "Cancel";
 
 type ActionConfig = {
-  roles: User["role"][];
+  hasPermission: (user: User, submission: Submission) => boolean;
   statuses: SubmissionStatus[];
 };
 
@@ -102,31 +103,38 @@ type ActionKey =
 
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
-    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "create", submission),
     statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   Release: {
-    roles: ["Data Curator", "Admin"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "review", submission),
     statuses: ["Submitted"],
   },
   Withdraw: {
-    roles: ["Submitter", "Organization Owner"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "create", submission),
     statuses: ["Submitted"],
   },
   SubmittedReject: {
-    roles: ["Data Curator", "Admin"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "review", submission),
     statuses: ["Submitted"],
   },
   ReleasedReject: {
-    roles: ["Data Commons POC", "Admin"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "confirm", submission),
     statuses: ["Released"],
   },
   Complete: {
-    roles: ["Data Curator", "Admin", "Data Commons POC"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "confirm", submission),
     statuses: ["Released"],
   },
   Cancel: {
-    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "create", submission),
     statuses: ["New", "In Progress", "Rejected"],
   },
 };
@@ -178,7 +186,9 @@ const DataSubmissionActions = ({
 
   const canShowAction = (actionKey: ActionKey) => {
     const config = actionConfig[actionKey];
-    return config?.statuses?.includes(submission?.status) && config?.roles?.includes(user?.role);
+    return (
+      config?.statuses?.includes(submission?.status) && config?.hasPermission(user, submission)
+    );
   };
 
   const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {

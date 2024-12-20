@@ -28,7 +28,7 @@ import { ValidationStatus } from "./ValidationStatus";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
-import { ValidateRoles } from "../../config/AuthRoles";
+import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",
@@ -79,11 +79,11 @@ const StyledRadioControl = styled(FormControlLabel)({
  *
  * @note All of the permission logic really should be refactored into a hook or otherwise.
  */
-const ValidateMap: Partial<Record<Submission["status"], UserRole[]>> = {
-  "In Progress": ValidateRoles,
-  Withdrawn: ValidateRoles,
-  Rejected: ValidateRoles,
-  Submitted: ["Data Curator", "Admin"],
+const ValidateMap: Partial<Record<Submission["status"], (user: User) => boolean>> = {
+  "In Progress": (user: User) => hasPermission(user, "data_submission", "create"),
+  Withdrawn: (user: User) => hasPermission(user, "data_submission", "create"),
+  Rejected: (user: User) => hasPermission(user, "data_submission", "create"),
+  Submitted: (user: User) => hasPermission(user, "data_submission", "review"),
 };
 
 const CustomTooltip = (props: TooltipProps) => (
@@ -130,11 +130,13 @@ const ValidationControls: FC = () => {
   const prevIsValidating = useRef<boolean>(isValidating);
 
   const canValidateMetadata: boolean = useMemo(() => {
-    const permissionMap = ValidateMap[dataSubmission?.status];
-    if (!user?.role || !dataSubmission?.status || !permissionMap) {
+    const hasPermission = ValidateMap[dataSubmission?.status]
+      ? ValidateMap[dataSubmission?.status](user)
+      : null;
+    if (!user?.role || !dataSubmission?.status || hasPermission === null) {
       return false;
     }
-    if (permissionMap.includes(user.role) === false) {
+    if (hasPermission === false) {
       return false;
     }
     if (collaborator && collaborator.permission !== "Can Edit") {
@@ -145,11 +147,13 @@ const ValidationControls: FC = () => {
   }, [user?.role, dataSubmission?.metadataValidationStatus, dataSubmission?.status, collaborator]);
 
   const canValidateFiles: boolean = useMemo(() => {
-    const permissionMap = ValidateMap[dataSubmission?.status];
-    if (!user?.role || !dataSubmission?.status || !permissionMap) {
+    const hasPermission = ValidateMap[dataSubmission?.status]
+      ? ValidateMap[dataSubmission?.status](user)
+      : null;
+    if (!user?.role || !dataSubmission?.status || hasPermission === null) {
       return false;
     }
-    if (permissionMap.includes(user.role) === false) {
+    if (hasPermission === false) {
       return false;
     }
     if (dataSubmission.intention === "Delete" || dataSubmission.dataType === "Metadata Only") {
@@ -264,8 +268,8 @@ const ValidationControls: FC = () => {
 
     // Reset the validation type and target only if the validation process finished
     if (!isValidating && prevIsValidating.current === true) {
-      setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
-      setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
+      setValidationType(getDefaultValidationType(dataSubmission, user));
+      setUploadType(getDefaultValidationTarget(dataSubmission, user));
     }
 
     prevIsValidating.current = isValidating;
@@ -276,10 +280,10 @@ const ValidationControls: FC = () => {
       return;
     }
     if (validationType === null) {
-      setValidationType(getDefaultValidationType(dataSubmission, user, ValidateMap));
+      setValidationType(getDefaultValidationType(dataSubmission, user));
     }
     if (uploadType === null) {
-      setUploadType(getDefaultValidationTarget(dataSubmission, user, ValidateMap));
+      setUploadType(getDefaultValidationTarget(dataSubmission, user));
     }
   }, [dataSubmission, user]);
 

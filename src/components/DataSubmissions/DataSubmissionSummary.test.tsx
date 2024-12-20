@@ -36,6 +36,8 @@ const baseUser: User = {
   dataCommons: [],
   createdAt: "",
   updateAt: "",
+  permissions: ["data_submission:view"],
+  notifications: [],
 };
 
 const baseSubmissionCtx: SubmissionCtxState = {

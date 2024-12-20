@@ -61,6 +61,8 @@ const baseUser: Omit<User, "role"> = {
   dataCommons: [],
   createdAt: "",
   updateAt: "",
+  permissions: ["data_submission:view", "data_submission:create"],
+  notifications: [],
 };
 
 const baseNewBatch: Omit<NewBatch, "files" | "fileCount"> = {
@@ -710,20 +712,18 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("metadata-upload-file-count")).toHaveTextContent(/No files selected/i);
   });
 
-  it.each<User["role"]>([
-    "Admin",
-    "Data Commons POC",
-    "Data Curator",
-    "Federal Lead",
-    "User",
-    "fake role" as User["role"],
-  ])("should not be enabled for the role '%s'", (role) => {
+  it("should not be enabled when user is missing the required permissions", async () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role, _id: "not-owner" } }}>
+      <TestParent
+        context={{
+          ...baseContext,
+          user: { ...baseUser, _id: "not-owner", role: "Submitter", permissions: [] },
+        }}
+      >
         <MetadataUpload
           submission={{
             ...baseSubmission,
-            _id: `readonly-for-role-${role}`,
+            _id: `readonly-for-non-owner`,
             metadataValidationStatus: "Passed",
             fileValidationStatus: "Passed",
             submitterID: "random-id-owner",
@@ -737,44 +737,37 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("metadata-upload-file-select-button")).toBeDisabled();
   });
 
-  it.each<{ userId: string; submitterId: string; expected: boolean }>([
-    { userId: "owner-id", submitterId: "owner-id", expected: true },
-    { userId: "owner-id", submitterId: "but-i-am-not-the-owner", expected: false },
-  ])(
-    "should not be enabled for 'Submitter' if they are not the owner",
-    ({ userId, submitterId, expected }) => {
-      const { getByTestId } = render(
-        <TestParent
-          context={{
-            ...baseContext,
-            user: { ...baseUser, role: "Submitter", _id: userId },
+  it("should be enabled when user has the required permissions", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{
+          ...baseContext,
+          user: {
+            ...baseUser,
+            role: "Submitter",
+            _id: "test-user",
+            permissions: ["data_submission:view", "data_submission:create"],
+          },
+        }}
+      >
+        <MetadataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "readonly-for-non-owner",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+            submitterID: "test-user",
           }}
-        >
-          <MetadataUpload
-            submission={{
-              ...baseSubmission,
-              _id: "readonly-for-non-owner",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: "Passed",
-              submitterID: submitterId,
-            }}
-            onCreateBatch={jest.fn()}
-            onUpload={jest.fn()}
-          />
-        </TestParent>
-      );
+          onCreateBatch={jest.fn()}
+          onUpload={jest.fn()}
+        />
+      </TestParent>
+    );
 
-      const uploadButton = getByTestId("metadata-upload-file-select-button");
+    const uploadButton = getByTestId("metadata-upload-file-select-button");
 
-      /* eslint-disable jest/no-conditional-expect */
-      if (expected === false) {
-        expect(uploadButton).toBeDisabled();
-      } else {
-        expect(uploadButton).toBeEnabled();
-      }
-      /* eslint-enable jest/no-conditional-expect */
-    }
-  );
+    expect(uploadButton).toBeEnabled();
+  });
 
   it("should disable the Choose Files button when readOnly is true", () => {
     const { getByTestId } = render(
@@ -796,12 +789,17 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("metadata-upload-file-select-button")).toBeDisabled();
   });
 
-  it("should disable the 'Choose Files' and 'Upload' buttons when collaborator does not have 'Can Edit' permissions", () => {
+  it("should disable the 'Choose Files' and 'Upload' buttons when a non-submission owner user does not have create permissions", () => {
     const { getByTestId } = render(
       <TestParent
         context={{
           ...baseContext,
-          user: { ...baseUser, _id: "collaborator-user", role: "Submitter" },
+          user: {
+            ...baseUser,
+            _id: "other-user",
+            role: "Submitter",
+            permissions: ["data_submission:view"],
+          },
         }}
       >
         <MetadataUpload
@@ -813,7 +811,7 @@ describe("Implementation Requirements", () => {
             submitterID: "some-other-user",
             collaborators: [
               {
-                collaboratorID: "collaborator-user",
+                collaboratorID: "other-user",
                 collaboratorName: "",
                 Organization: null,
                 permission: "Can View",
@@ -830,12 +828,17 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("metadata-upload-file-upload-button")).toBeDisabled();
   });
 
-  it("should enable the 'Choose Files' and 'Upload' buttons when collaborator has 'Can Edit' permissions", () => {
+  it("should enable the 'Choose Files' and 'Upload' buttons when when a collaborator has permissions", () => {
     const { getByTestId } = render(
       <TestParent
         context={{
           ...baseContext,
-          user: { ...baseUser, _id: "collaborator-user", role: "Submitter" },
+          user: {
+            ...baseUser,
+            _id: "collaborator-user",
+            role: "Submitter",
+            permissions: ["data_submission:view", "data_submission:create"],
+          },
         }}
       >
         <MetadataUpload

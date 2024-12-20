@@ -45,6 +45,8 @@ const mockUser: User = {
   userStatus: "Active",
   updateAt: "",
   createdAt: "",
+  permissions: ["data_submission:view", "data_submission:create"],
+  notifications: [],
 };
 
 const mockSubmission = {
@@ -182,10 +184,7 @@ describe("CollaboratorsDialog Component", () => {
 
   it("calls onClose when Close button is clicked", () => {
     mockUseAuthContext.mockReturnValue({
-      user: {
-        ...mockUser,
-        role: "Admin",
-      },
+      user: { ...mockUser, _id: "some-other-user" } as User,
       status: AuthStatus.LOADED,
     });
 
@@ -367,20 +366,12 @@ describe("CollaboratorsDialog Component", () => {
     });
   });
 
-  it.each<UserRole>([
-    "User",
-    "Admin",
-    "Data Curator",
-    "Data Commons POC",
-    "Federal Lead",
-    "Federal Monitor",
-    "invalid-role" as UserRole,
-  ])("should disable inputs when user is role %s", (role) => {
+  it("should disable inputs when user does not have required permissions", async () => {
     mockUseAuthContext.mockReturnValue({
       user: {
         ...mockUser,
-        role,
-      },
+        permissions: ["data_submission:view"],
+      } as User,
       status: AuthStatus.LOADED,
     });
 
@@ -396,38 +387,13 @@ describe("CollaboratorsDialog Component", () => {
     expect(getByTestId("collaborators-dialog-close-button")).toBeInTheDocument();
   });
 
-  it.each<UserRole>(["Submitter", "Organization Owner"])(
-    "should enable inputs when user is role %s",
-    (role) => {
-      mockUseAuthContext.mockReturnValue({
-        user: {
-          ...mockUser,
-          role,
-        },
-        status: AuthStatus.LOADED,
-      });
-
-      const mockOnClose = jest.fn();
-      const { getByTestId, queryByTestId } = render(
-        <TestParent>
-          <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
-        </TestParent>
-      );
-
-      expect(getByTestId("collaborators-dialog-save-button")).toBeInTheDocument();
-      expect(getByTestId("collaborators-dialog-cancel-button")).toBeInTheDocument();
-      expect(queryByTestId("collaborators-dialog-close-button")).not.toBeInTheDocument();
-    }
-  );
-
-  it("allows modification when user is Organization Owner regardless of submitterID", () => {
+  it("should enable inputs when user has the required permissions", async () => {
     mockUseAuthContext.mockReturnValue({
-      user: { ...mockUser, role: "Organization Owner", _id: "user-99" },
+      user: {
+        ...mockUser,
+        permissions: ["data_submission:view", "data_submission:create"],
+      } as User,
       status: AuthStatus.LOADED,
-    });
-
-    mockUseSubmissionContext.mockReturnValue({
-      data: { getSubmission: { ...mockSubmission, submitterID: "user-1" } },
     });
 
     const mockOnClose = jest.fn();
@@ -440,32 +406,5 @@ describe("CollaboratorsDialog Component", () => {
     expect(getByTestId("collaborators-dialog-save-button")).toBeInTheDocument();
     expect(getByTestId("collaborators-dialog-cancel-button")).toBeInTheDocument();
     expect(queryByTestId("collaborators-dialog-close-button")).not.toBeInTheDocument();
-  });
-
-  it("should not allow modification when user is Organization Owner of a different organization", () => {
-    mockUseAuthContext.mockReturnValue({
-      user: {
-        ...mockUser,
-        role: "Organization Owner",
-        _id: "user-99",
-        organization: { orgID: "some-other-org" },
-      } as User,
-      status: AuthStatus.LOADED,
-    });
-
-    mockUseSubmissionContext.mockReturnValue({
-      data: { getSubmission: { ...mockSubmission, submitterID: "user-1" } },
-    });
-
-    const mockOnClose = jest.fn();
-    const { getByTestId, queryByTestId } = render(
-      <TestParent>
-        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
-      </TestParent>
-    );
-
-    expect(queryByTestId("collaborators-dialog-save-button")).not.toBeInTheDocument();
-    expect(queryByTestId("collaborators-dialog-cancel-button")).not.toBeInTheDocument();
-    expect(getByTestId("collaborators-dialog-close-button")).toBeInTheDocument();
   });
 });

@@ -28,9 +28,9 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import DataActivity, { DataActivityRef } from "./DataActivity";
 import CrossValidation from "./CrossValidation";
-import { CrossValidateRoles, SubmitDataSubmissionRoles } from "../../config/AuthRoles";
 import CopyAdornment from "../../components/DataSubmissions/CopyAdornment";
 import { Logger } from "../../utils";
+import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -176,13 +176,13 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   );
   const crossValidationVisible: boolean = useMemo<boolean>(
     () =>
-      CrossValidateRoles.includes(user?.role) &&
+      hasPermission(null, "data_submission", "review") &&
       data?.getSubmission?.crossSubmissionStatus !== null,
     [user?.role, data?.getSubmission?.crossSubmissionStatus]
   );
 
   const submitInfo: SubmitButtonResult = useMemo(() => {
-    if (!data?.getSubmission?._id || !SubmitDataSubmissionRoles.includes(user?.role)) {
+    if (!data?.getSubmission?._id || !hasPermission(user, "data_submission", "create")) {
       return { enabled: false };
     }
     if (hasUploadingBatches) {
@@ -190,7 +190,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     }
 
     return shouldEnableSubmit(data.getSubmission, user?.role);
-  }, [data?.getSubmission, user, hasUploadingBatches, SubmitDataSubmissionRoles]);
+  }, [data?.getSubmission, user, hasUploadingBatches]);
   const releaseInfo: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
     [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]

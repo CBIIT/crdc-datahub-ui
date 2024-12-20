@@ -4,9 +4,9 @@ import { Button, styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import { navMobileList, navbarSublists } from "../../../config/HeaderConfig";
-import { GenerateApiTokenRoles } from "../../../config/AuthRoles";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
+import { hasPermission } from "../../../config/AuthPermissions";
 
 const Nav = styled("div")({
   top: 0,
@@ -382,9 +382,13 @@ const NavBar = () => {
       </GenericAlert>
       <NavContainer>
         <UlContainer>
-          {navMobileList.map((navItem) => {
-            // If the user is not logged in and the item requires a role, don't show it
-            if (Array.isArray(navItem?.roles) && !navItem.roles.includes(user?.role)) {
+          {navMobileList.map((navItem: NavBarItem) => {
+            if (
+              navItem?.permissions?.length > 0 &&
+              !navItem?.permissions?.every(
+                (permission: AuthPermissions) => user?.permissions?.includes(permission)
+              )
+            ) {
               return null;
             }
 
@@ -517,7 +521,7 @@ const NavBar = () => {
                 Uploader CLI Tool
               </Button>
             </span>
-            {(user?.role === "Admin" || user?.role === "Organization Owner") && (
+            {hasPermission(user, "user", "manage") && (
               <span className="dropdownItem">
                 <Link
                   id="navbar-dropdown-item-name-user-manage"
@@ -529,7 +533,7 @@ const NavBar = () => {
                 </Link>
               </span>
             )}
-            {user?.role === "Admin" && (
+            {hasPermission(user, "program", "manage") && (
               <span className="dropdownItem">
                 <Link
                   id="navbar-dropdown-item-name-organization-manage"
@@ -541,7 +545,7 @@ const NavBar = () => {
                 </Link>
               </span>
             )}
-            {user?.role === "Admin" && (
+            {hasPermission(user, "study", "manage") && (
               <span className="dropdownItem">
                 <Link
                   id="navbar-dropdown-item-name-studies-manage"
@@ -553,7 +557,7 @@ const NavBar = () => {
                 </Link>
               </span>
             )}
-            {user?.role && GenerateApiTokenRoles.includes(user?.role) ? (
+            {hasPermission(user, "data_submission", "create") ? (
               <span className="dropdownItem">
                 <Button
                   id="navbar-dropdown-item-name-api-token"

@@ -5,8 +5,8 @@ import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.sv
 import CollaboratorsTable from "./CollaboratorsTable";
 import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
-import { canModifyCollaboratorsRoles } from "../../config/AuthRoles";
 import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
+import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -111,11 +111,9 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
   const isLoading = collaboratorLoading || status === AuthStatus.LOADING;
   const canModifyCollaborators = useMemo(
     () =>
-      canModifyCollaboratorsRoles.includes(user?.role) &&
-      (submission?.getSubmission?.submitterID === user?._id ||
-        (user?.role === "Organization Owner" &&
-          user?.organization?.orgID === submission?.getSubmission?.organization?._id)),
-    [canModifyCollaboratorsRoles, user, submission?.getSubmission]
+      hasPermission(user, "data_submission", "create") &&
+      submission?.getSubmission?.submitterID === user?._id,
+    [user, submission?.getSubmission]
   );
 
   useEffect(() => {

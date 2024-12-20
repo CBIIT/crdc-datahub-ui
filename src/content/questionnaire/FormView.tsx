@@ -28,8 +28,8 @@ import bannerPng from "../../assets/banner/submission_banner.png";
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import ExportRequestButton from "../../components/ExportRequestButton";
-import { CanSubmitSubmissionRequestRoles } from "../../config/AuthRoles";
 import { Logger } from "../../utils";
+import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -539,7 +539,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
   const handleSubmitForm = () => {
     if (
-      !CanSubmitSubmissionRequestRoles.includes(user?.role) ||
+      !hasPermission(user, "submission_request", "submit", data) ||
       (data?.status !== "In Progress" &&
         (data?.status !== "Inquired" || user?.role !== "Federal Lead"))
     ) {
@@ -730,9 +730,8 @@ const FormView: FC<Props> = ({ section }: Props) => {
               )}
 
               {activeSection === "REVIEW" &&
-                CanSubmitSubmissionRequestRoles.includes(user?.role) &&
-                (data?.status === "In Progress" ||
-                  (data?.status === "Inquired" && user?.role === "Federal Lead")) && (
+                hasPermission(user, "submission_request", "submit") &&
+                ["In Progress", "Inquired"].includes(data?.status) && (
                   <StyledExtendedLoadingButton
                     id="submission-form-submit-button"
                     variant="contained"

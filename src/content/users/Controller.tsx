@@ -3,7 +3,7 @@ import { Navigate, useParams } from "react-router-dom";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import ListView from "./ListView";
 import ProfileView from "./ProfileView";
-import { CanManageUsers } from "../../config/AuthRoles";
+import { hasPermission } from "../../config/AuthPermissions";
 
 type Props = {
   type: "users" | "profile";
@@ -35,8 +35,8 @@ type Props = {
 const UserController = ({ type }: Props) => {
   const { userId } = useParams();
   const { user } = useAuthContext();
-  const { _id, role } = user || {};
-  const isAdministrative = role && CanManageUsers.includes(role);
+  const { _id } = user || {};
+  const isAdministrative = hasPermission(user, "user", "manage");
 
   // Accounts can only view their own "profile", redirect to it
   if ((type === "profile" && userId !== _id) || (type === "users" && !isAdministrative)) {
