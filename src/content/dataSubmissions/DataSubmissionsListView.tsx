@@ -140,6 +140,11 @@ const columns: Column<T>[] = [
     },
   },
   {
+    label: "Program",
+    renderValue: (a) => <TruncatedText text={a.organization?.name ?? "NA"} />,
+    fieldKey: "organization.name",
+  },
+  {
     label: "Study",
     renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
     field: "studyAbbreviation",
