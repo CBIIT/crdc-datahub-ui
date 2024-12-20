@@ -170,6 +170,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     ? `/submission/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}`
     : null;
   const isSectionD = activeSection === "D";
+  const isFormOwner = data?.applicant?.applicantID === user?._id;
   const formContentRef = useRef(null);
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
@@ -538,13 +539,10 @@ const FormView: FC<Props> = ({ section }: Props) => {
   };
 
   const handleSubmitForm = () => {
-    if (
-      !hasPermission(user, "submission_request", "submit", data) ||
-      (data?.status !== "In Progress" &&
-        (data?.status !== "Inquired" || user?.role !== "Federal Lead"))
-    ) {
+    if (!hasPermission(user, "submission_request", "submit", data)) {
       Logger.error("Invalid request to submit Submission Request form.", {
-        userRole: user?.role,
+        isFormOwner,
+        hasPermission,
         submissionStatus: data?.status,
       });
       return;
@@ -626,15 +624,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
       window.removeEventListener("beforeunload", unloadHandler);
     };
   });
-
-  useEffect(() => {
-    const formLoaded = status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
-    const invalidFormAuth = formMode === "Unauthorized" || authStatus === AuthStatus.ERROR || !user;
-
-    if (formLoaded && invalidFormAuth) {
-      navigate("/");
-    }
-  }, [formMode, navigate, status, authStatus, user, data]);
 
   useEffect(() => {
     const isComplete = isAllSectionsComplete();
@@ -730,8 +719,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
               )}
 
               {activeSection === "REVIEW" &&
-                hasPermission(user, "submission_request", "submit") &&
-                ["In Progress", "Inquired"].includes(data?.status) && (
+                hasPermission(user, "submission_request", "submit", data) && (
                   <StyledExtendedLoadingButton
                     id="submission-form-submit-button"
                     variant="contained"

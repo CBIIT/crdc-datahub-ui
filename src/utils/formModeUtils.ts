@@ -23,14 +23,13 @@ export const getFormMode = (user: User, data: Application): FormMode => {
   if (!data) {
     return FormModes.UNAUTHORIZED;
   }
-  if (
-    !hasPermission(user, "submission_request", "view") &&
-    user?._id !== data.applicant?.applicantID
-  ) {
+  const isFormOwner = user?._id === data.applicant?.applicantID;
+  if (!hasPermission(user, "submission_request", "view") && !isFormOwner) {
     return FormModes.UNAUTHORIZED;
   }
 
   if (
+    !isFormOwner &&
     !hasPermission(user, "submission_request", "view") &&
     !hasPermission(user, "submission_request", "create") &&
     !hasPermission(user, "submission_request", "review")
@@ -45,7 +44,12 @@ export const getFormMode = (user: User, data: Application): FormMode => {
     return FormModes.REVIEW;
   }
 
-  if (hasPermission(user, "submission_request", "create") && EditStatuses.includes(data?.status)) {
+  // User is only allowed to edit their own Submission Request
+  if (
+    isFormOwner &&
+    hasPermission(user, "submission_request", "create") &&
+    EditStatuses.includes(data?.status)
+  ) {
     return FormModes.EDIT;
   }
 

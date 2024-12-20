@@ -45,7 +45,21 @@ export const PERMISSION_MAP = {
   submission_request: {
     view: NO_CONDITIONS,
     create: NO_CONDITIONS,
-    submit: NO_CONDITIONS,
+    submit: (user, application) => {
+      const isFormOwner = application?.applicant?.applicantID === user?._id;
+      const hasPermissionKey = user?.permissions?.includes("submission_request:submit");
+      const submitStatuses: ApplicationStatus[] = ["In Progress", "Inquired"];
+
+      // Check for implicit permission as well as for the permission key
+      if (!isFormOwner && !hasPermissionKey) {
+        return false;
+      }
+      if (!submitStatuses?.includes(application?.status)) {
+        return false;
+      }
+
+      return true;
+    },
     review: NO_CONDITIONS,
   },
   dashboard: {
