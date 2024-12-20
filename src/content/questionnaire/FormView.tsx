@@ -626,15 +626,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
   });
 
   useEffect(() => {
-    const formLoaded = status === FormStatus.LOADED && authStatus === AuthStatus.LOADED && data;
-    const invalidFormAuth = formMode === "Unauthorized" || authStatus === AuthStatus.ERROR || !user;
-
-    if (formLoaded && invalidFormAuth) {
-      navigate("/");
-    }
-  }, [formMode, navigate, status, authStatus, user, data]);
-
-  useEffect(() => {
     const isComplete = isAllSectionsComplete();
     setAllSectionsComplete(isComplete);
   }, [status, data]);
