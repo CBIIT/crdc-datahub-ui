@@ -29,6 +29,7 @@ export const getFormMode = (user: User, data: Application): FormMode => {
   }
 
   if (
+    !isFormOwner &&
     !hasPermission(user, "submission_request", "view") &&
     !hasPermission(user, "submission_request", "create") &&
     !hasPermission(user, "submission_request", "review")
