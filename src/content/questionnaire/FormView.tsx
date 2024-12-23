@@ -170,7 +170,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
     ? `/submission/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}`
     : null;
   const isSectionD = activeSection === "D";
-  const isFormOwner = data?.applicant?.applicantID === user?._id;
   const formContentRef = useRef(null);
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
@@ -540,11 +539,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
   const handleSubmitForm = () => {
     if (!hasPermission(user, "submission_request", "submit", data)) {
-      Logger.error("Invalid request to submit Submission Request form.", {
-        isFormOwner,
-        hasPermission,
-        submissionStatus: data?.status,
-      });
+      Logger.error("Invalid request to submit Submission Request form.");
       return;
     }
     setOpenSubmitDialog(true);
