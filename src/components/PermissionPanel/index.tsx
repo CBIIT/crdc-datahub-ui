@@ -19,6 +19,7 @@ import {
   RetrievePBACDefaultsInput,
   RETRIEVE_PBAC_DEFAULTS,
 } from "../../graphql";
+import { Logger } from "../../utils";
 
 const StyledAccordion = styled(Accordion)({
   width: "957px", // TODO: Need to fix the page layout
@@ -84,65 +85,6 @@ type PermissionPanelProps = {
   role: UserRole;
 };
 
-const mockPerms: PBACDefault<AuthPermissions>[] = [
-  {
-    _id: "submission_request:view",
-    group: "Submission Request",
-    name: "View",
-    checked: false,
-    disabled: false,
-  },
-  {
-    _id: "submission_request:create",
-    group: "Submission Request",
-    name: "Create",
-    checked: false,
-    disabled: false,
-  },
-  {
-    _id: "data_submission:view",
-    group: "Data Submission",
-    name: "View",
-    checked: true,
-    disabled: true,
-  },
-  {
-    _id: "data_submission:create",
-    group: "Data Submission",
-    name: "Create",
-    checked: false,
-    disabled: false,
-  },
-  {
-    _id: "data_submission:confirm",
-    group: "Data Submission",
-    name: "Confirm",
-    checked: false,
-    disabled: false,
-  },
-  {
-    _id: "program:manage",
-    group: "Admin",
-    name: "Manage Programs",
-    checked: false,
-    disabled: false,
-  },
-  {
-    _id: "study:manage",
-    group: "Admin",
-    name: "Manage Studies",
-    checked: false,
-    disabled: false,
-  },
-  {
-    _id: "access:request",
-    group: "Miscellaneous",
-    name: "Request Access",
-    checked: false,
-    disabled: true,
-  },
-];
-
 /**
  * Provides a panel for managing permissions and notifications for a user role.
  *
@@ -151,8 +93,7 @@ const mockPerms: PBACDefault<AuthPermissions>[] = [
 const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
   const { setValue, watch } = useFormContext<EditUserInput>();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { data: pbacData, loading } = useQuery<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput>(
+  const { data } = useQuery<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput>(
     RETRIEVE_PBAC_DEFAULTS,
     {
       variables: { roles: ["All"] },
@@ -161,8 +102,6 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
     }
   );
 
-  const data = mockPerms; // TODO: remove this
-
   const selectedRole = watch("role");
   const permissionsValue = watch("permissions");
   const notificationsValue = watch("notifications");
@@ -170,17 +109,23 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
   const permissionColumns = useMemo<
     Array<Array<{ name: string; permissions: PBACDefault<AuthPermissions>[] }>>
   >(() => {
-    const updatedPermissions: PBACDefault<AuthPermissions>[] = data.map((perm) => ({
-      ...perm,
-      checked: permissionsValue.includes(perm._id),
+    const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
+    if (!defaults || !defaults?.permissions) {
+      Logger.error("Role not found in PBAC defaults", { role: selectedRole });
+      return [];
+    }
+
+    const updatedPermissions: PBACDefault<AuthPermissions>[] = defaults?.permissions.map((p) => ({
+      ...p,
+      checked: permissionsValue.includes(p._id),
     }));
 
     const groupedPermissions: Record<string, PBACDefault<AuthPermissions>[]> =
-      updatedPermissions.reduce((acc, perm) => {
-        if (!acc[perm.group]) {
-          acc[perm.group] = [];
+      updatedPermissions.reduce((acc, p) => {
+        if (!acc[p.group]) {
+          acc[p.group] = [];
         }
-        acc[perm.group].push(perm);
+        acc[p.group].push(p);
         return acc;
       }, {});
 
@@ -200,7 +145,39 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
 
   const notificationColumns = useMemo<
     Array<Array<{ name: string; notifications: PBACDefault<AuthNotifications>[] }>>
-  >(() => [], []);
+  >(() => {
+    const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
+    if (!defaults || !defaults?.notifications) {
+      Logger.error("Role not found in PBAC defaults", { role: selectedRole });
+      return [];
+    }
+
+    const updatedNotifications: PBACDefault<AuthNotifications>[] = defaults?.notifications.map(
+      (n) => ({
+        ...n,
+        checked: notificationsValue.includes(n._id),
+      })
+    );
+
+    const groupedNotifications: Record<string, PBACDefault<AuthNotifications>[]> =
+      updatedNotifications.reduce((acc, n) => {
+        if (!acc[n.group]) {
+          acc[n.group] = [];
+        }
+        acc[n.group].push(n);
+        return acc;
+      }, {});
+
+    const columns: Array<Array<{ name: string; notifications: PBACDefault<AuthNotifications>[] }>> =
+      [[], [], []];
+
+    Object.entries(groupedNotifications).forEach(([name, notifications], index) => {
+      const placement = index > 1 ? 2 : index;
+      columns[placement].push({ name, notifications });
+    });
+
+    return columns;
+  }, []);
 
   const handlePermissionChange = (_id: AuthPermissions) => {
     if (permissionsValue.includes(_id)) {
@@ -229,12 +206,9 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
       return;
     }
 
-    // TODO: This is a mock implementation. Refactor it to use the actual data based on the role.
-    setValue(
-      "permissions",
-      data.filter((perm) => perm.checked).map((perm) => perm._id)
-    );
-    setValue("notifications", []); // TODO: Need default notifications
+    const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
+    setValue("permissions", defaults?.permissions?.filter((p) => p.checked).map((p) => p._id));
+    setValue("notifications", defaults?.notifications?.filter((n) => n.checked).map((n) => n._id));
   };
 
   useEffect(() => {
