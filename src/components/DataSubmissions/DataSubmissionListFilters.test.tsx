@@ -83,6 +83,10 @@ describe("DataSubmissionListFilters Component", () => {
 
   const submitterNames = ["Submitter1", "Submitter2"];
   const dataCommons = ["DataCommon1", "DataCommon2"];
+  const organizations: Organization[] = [
+    { _id: "Org1", name: "Organization 1" } as Organization,
+    { _id: "Org2", name: "Organization 2" } as Organization,
+  ];
   const columnVisibilityModel = { name: true, status: true };
 
   const mockOnChange = jest.fn();
@@ -98,6 +102,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent>
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -117,6 +122,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -127,6 +133,7 @@ describe("DataSubmissionListFilters Component", () => {
     );
 
     await waitFor(() => {
+      expect(getByTestId("organization-select")).toBeInTheDocument();
       expect(getByTestId("status-select")).toBeInTheDocument();
       expect(getByTestId("data-commons-select")).toBeInTheDocument();
       expect(getByTestId("submission-name-input")).toBeInTheDocument();
@@ -145,6 +152,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent>
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -155,9 +163,10 @@ describe("DataSubmissionListFilters Component", () => {
     );
 
     await waitFor(() => {
-      expect(getByTestId("status-select")).toBeInTheDocument();
+      expect(getByTestId("organization-select")).toBeInTheDocument();
     });
 
+    expect(getByTestId("status-select")).toBeInTheDocument();
     expect(getByTestId("data-commons-select")).toBeInTheDocument();
     expect(getByTestId("submission-name-input")).toBeInTheDocument();
     expect(getByTestId("dbGaPID-input")).toBeInTheDocument();
@@ -166,11 +175,12 @@ describe("DataSubmissionListFilters Component", () => {
     expect(getByTestId("column-visibility-button")).toBeInTheDocument();
   });
 
-  it("resets all filters and clears URL searchParams when reset button is clicked", async () => {
-    const { getByTestId } = render(
+  it("allows users to select an organization when user is Admin", async () => {
+    const { getByTestId, getByRole } = render(
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -179,6 +189,83 @@ describe("DataSubmissionListFilters Component", () => {
         />
       </TestParent>
     );
+
+    const organizationSelect = within(getByTestId("organization-select")).getByRole("button");
+
+    userEvent.click(organizationSelect);
+
+    const muiSelectList = within(getByRole("listbox", { hidden: true }));
+
+    await waitFor(() => {
+      expect(muiSelectList.getByTestId("organization-option-All")).toBeInTheDocument();
+      expect(muiSelectList.getByTestId("organization-option-Org1")).toBeInTheDocument();
+      expect(muiSelectList.getByTestId("organization-option-Org2")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("organization-option-Org2"));
+
+    await waitFor(() => {
+      expect(mockOnChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          organization: "Org2",
+        })
+      );
+    });
+  });
+
+  it("allows non-admin users to select an organization", async () => {
+    const { getByTestId } = render(
+      <TestParent userRole="Submitter">
+        <DataSubmissionListFilters
+          columns={columns}
+          organizations={organizations}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("organization-select")).toBeInTheDocument();
+    });
+
+    const organizationSelectInput = getByTestId("organization-select");
+
+    const button = within(organizationSelectInput).getByRole("button");
+    expect(button).not.toHaveClass("Mui-readOnly");
+  });
+
+  it("resets all filters and clears URL searchParams when reset button is clicked", async () => {
+    const { getByTestId, getByRole } = render(
+      <TestParent userRole="Admin">
+        <DataSubmissionListFilters
+          columns={columns}
+          organizations={organizations}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    const organizationSelect = within(getByTestId("organization-select")).getByRole("button");
+
+    userEvent.click(organizationSelect);
+
+    const orgSelectList = within(getByRole("listbox", { hidden: true }));
+
+    await waitFor(() => {
+      expect(orgSelectList.getByTestId("organization-option-All")).toBeInTheDocument();
+      expect(orgSelectList.getByTestId("organization-option-Org1")).toBeInTheDocument();
+      expect(orgSelectList.getByTestId("organization-option-Org2")).toBeInTheDocument();
+    });
+
+    userEvent.click(orgSelectList.getByTestId("organization-option-Org2"));
 
     const statusSelect = within(getByTestId("status-select")).getByRole("button");
 
@@ -246,6 +333,7 @@ describe("DataSubmissionListFilters Component", () => {
     await waitFor(() => {
       expect(mockOnChange).toHaveBeenCalledWith(
         expect.objectContaining({
+          organization: "Org2",
           status: "Submitted",
           name: "Test Submission",
           dbGaPID: "12345",
@@ -258,6 +346,7 @@ describe("DataSubmissionListFilters Component", () => {
     userEvent.click(getByTestId("reset-filters-button"));
 
     await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("All");
       expect(getByTestId("status-select-input")).toHaveValue("All");
       expect(getByTestId("data-commons-select-input")).toHaveValue("All");
       expect(getByTestId("submission-name-input")).toHaveValue("");
@@ -267,6 +356,7 @@ describe("DataSubmissionListFilters Component", () => {
 
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
+        organization: "All",
         status: "All",
         dataCommons: "All",
         name: "",
@@ -281,6 +371,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -308,6 +399,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -343,6 +435,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -372,6 +465,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -407,6 +501,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -444,6 +539,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -485,6 +581,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -518,7 +615,7 @@ describe("DataSubmissionListFilters Component", () => {
 
   it("initializes form fields based on searchParams", async () => {
     const initialEntries = [
-      "/?status=Submitted&dataCommons=DataCommon1&name=Test&dbGaPID=123&submitterName=Submitter1",
+      "/?program=Org1&status=Submitted&dataCommons=DataCommon1&name=Test&dbGaPID=123&submitterName=Submitter1",
     ];
 
     const mockOnChange = jest.fn();
@@ -528,6 +625,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent initialEntries={initialEntries} userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -538,6 +636,7 @@ describe("DataSubmissionListFilters Component", () => {
     );
 
     await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("Org1");
       expect(getByTestId("status-select-input")).toHaveValue("Submitted");
       expect(getByTestId("data-commons-select-input")).toHaveValue("DataCommon1");
       expect(getByTestId("submission-name-input")).toHaveValue("Test");
@@ -547,6 +646,7 @@ describe("DataSubmissionListFilters Component", () => {
 
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
+        organization: "Org1",
         status: "Submitted",
         dataCommons: "DataCommon1",
         name: "Test",
@@ -569,6 +669,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent initialEntries={initialEntries} userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -579,6 +680,7 @@ describe("DataSubmissionListFilters Component", () => {
     );
 
     await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("All");
       expect(getByTestId("status-select-input")).toHaveValue("All");
       expect(getByTestId("data-commons-select-input")).toHaveValue("All");
       expect(getByTestId("submission-name-input")).toHaveValue("");
@@ -588,6 +690,7 @@ describe("DataSubmissionListFilters Component", () => {
 
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
+        organization: "All",
         status: "All",
         dataCommons: "All",
         name: "",
@@ -607,6 +710,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent initialEntries={initialEntries} userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -619,6 +723,7 @@ describe("DataSubmissionListFilters Component", () => {
     await waitFor(() => {
       expect(mockOnChange).toHaveBeenCalledWith(
         expect.objectContaining({
+          organization: "All",
           status: "All",
           dataCommons: "All",
           name: "",
@@ -638,6 +743,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent initialEntries={initialEntries} userRole="Admin">
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={[]} // Empty dataCommons
           columnVisibilityModel={columnVisibilityModel}
@@ -681,6 +787,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent>
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={["DataCommon1", "DataCommon2"]} // Non-empty dataCommons
           columnVisibilityModel={columnVisibilityModel}
@@ -724,6 +831,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent>
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={[]} // Empty submitterNames
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -761,6 +869,7 @@ describe("DataSubmissionListFilters Component", () => {
       <TestParent>
         <DataSubmissionListFilters
           columns={columns}
+          organizations={organizations}
           submitterNames={["Submitter1", "Submitter2"]} // Non-empty submitterNames
           dataCommons={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
@@ -791,6 +900,84 @@ describe("DataSubmissionListFilters Component", () => {
       expect(mockOnChange).toHaveBeenCalledWith(
         expect.objectContaining({
           submitterName: "Submitter1",
+        })
+      );
+    });
+  });
+
+  it("sets organization select to 'All' when organizations prop is empty", async () => {
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId, getByRole } = render(
+      <TestParent>
+        <DataSubmissionListFilters
+          columns={columns}
+          organizations={[]}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("All");
+    });
+
+    const organizationSelect = within(getByTestId("organization-select")).getByRole("button");
+    userEvent.click(organizationSelect);
+
+    const organizationList = within(getByRole("listbox", { hidden: true }));
+
+    await waitFor(() => {
+      expect(organizationList.getByTestId("organization-option-All")).toBeInTheDocument();
+      expect(organizationList.queryByTestId("organization-option-Org1")).not.toBeInTheDocument();
+      expect(organizationList.queryByTestId("organization-option-Org2")).not.toBeInTheDocument();
+    });
+  });
+
+  it("sets organization select to field.value when organizations prop is non-empty", async () => {
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId, getByRole } = render(
+      <TestParent>
+        <DataSubmissionListFilters
+          columns={columns}
+          organizations={organizations}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("All");
+    });
+
+    const organizationSelect = within(getByTestId("organization-select")).getByRole("button");
+    userEvent.click(organizationSelect);
+
+    const organizationList = within(getByRole("listbox", { hidden: true }));
+
+    await waitFor(() => {
+      expect(organizationList.getByTestId("organization-option-Org1")).toBeInTheDocument();
+      expect(organizationList.getByTestId("organization-option-Org2")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("organization-option-Org1"));
+
+    await waitFor(() => {
+      expect(getByTestId("organization-select-input")).toHaveValue("Org1");
+      expect(mockOnChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          organization: "Org1",
         })
       );
     });
