@@ -6,7 +6,7 @@ import { useSnackbar } from "notistack";
 import { useLazyQuery } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import PageBanner from "../../components/PageBanner";
-import { FormatDate } from "../../utils";
+import { FormatDate, Logger } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import CreateDataSubmissionDialog from "../../components/DataSubmissions/CreateDataSubmissionDialog";
@@ -140,6 +140,11 @@ const columns: Column<T>[] = [
     },
   },
   {
+    label: "Program",
+    renderValue: (a) => <TruncatedText text={a.organization?.name ?? "NA"} />,
+    fieldKey: "organization.name",
+  },
+  {
     label: "Study",
     renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
     field: "studyAbbreviation",
@@ -233,11 +238,13 @@ const ListingView: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
+  const [organizations, setOrganizations] = useState<Pick<Organization, "_id" | "name">[]>([]);
   const [submitterNames, setSubmitterNames] = useState<string[]>([]);
   const [dataCommons, setDataCommons] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
   const tableRef = useRef<TableMethods>(null);
   const filtersRef = useRef<FilterForm>({
+    organization: "All",
     status: "All",
     dataCommons: "All",
     name: "",
@@ -262,10 +269,18 @@ const ListingView: FC = () => {
         return;
       }
 
-      const { status, submitterName, name, dbGaPID, dataCommons: dc } = filtersRef.current;
+      const {
+        organization,
+        status,
+        submitterName,
+        name,
+        dbGaPID,
+        dataCommons: dc,
+      } = filtersRef.current;
 
       const { data: d, error } = await listSubmissions({
         variables: {
+          organization: organization ?? "All",
           status: status ?? "All",
           dataCommons: dc ?? "All",
           submitterName: submitterName ?? "All",
@@ -284,10 +299,16 @@ const ListingView: FC = () => {
       }
 
       setData(d.listSubmissions.submissions);
+      setOrganizations(
+        d.listSubmissions.organizations
+          ?.filter((org) => !!org?.name?.trim())
+          ?.sort((a, b) => a.name?.localeCompare(b.name))
+      );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
     } catch (err) {
+      Logger.error("Error while fetching Data Submission list", err);
       setError(true);
     } finally {
       setLoading(false);
@@ -307,6 +328,11 @@ const ListingView: FC = () => {
         throw new Error("Unable to retrieve Data Submission List results.");
       }
       setData(d.listSubmissions.submissions);
+      setOrganizations(
+        d.listSubmissions.organizations
+          ?.filter((org) => !!org.name.trim())
+          ?.sort((a, b) => a.name?.localeCompare(b.name))
+      );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
@@ -354,6 +380,7 @@ const ListingView: FC = () => {
         <StyledFilterTableWrapper>
           <DataSubmissionListFilters
             columns={columns}
+            organizations={organizations}
             submitterNames={submitterNames}
             dataCommons={dataCommons}
             columnVisibilityModel={columnVisibilityModel}
