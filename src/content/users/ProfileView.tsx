@@ -2,7 +2,13 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Box, Container, MenuItem, Stack, TextField, Typography, styled } from "@mui/material";
-import { Controller, ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
+import {
+  Controller,
+  ControllerRenderProps,
+  FormProvider,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
@@ -33,13 +39,14 @@ import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutli
 import BaseAutocomplete from "../../components/StyledFormComponents/StyledAutocomplete";
 import useProfileFields, { VisibleFieldState } from "../../hooks/useProfileFields";
 import AccessRequest from "../../components/AccessRequest";
+import PermissionPanel from "../../components/PermissionPanel";
 
 type Props = {
   _id: User["_id"];
   viewType: "users" | "profile";
 };
 
-type FormInput = UpdateMyUserInput["userInfo"] | EditUserInput;
+export type FormInput = UpdateMyUserInput["userInfo"] | EditUserInput;
 
 const StyledContainer = styled(Container)({
   marginBottom: "90px",
@@ -158,7 +165,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { user: currentUser, setData, logout, status: authStatus } = useAuthContext();
   const { lastSearchParams } = useSearchParamsContext();
-  const { handleSubmit, register, reset, watch, setValue, control } = useForm<FormInput>();
+  const methods = useForm<FormInput>();
 
   const ALL_STUDIES_OPTION = "All";
   const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
@@ -169,6 +176,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [studyOptions, setStudyOptions] = useState<string[]>([]);
 
+  const { handleSubmit, register, reset, watch, setValue, control } = methods;
   const roleField = watch("role");
   const prevRoleRef = useRef<UserRole>(roleField);
   const studiesField = watch("studies");
@@ -258,6 +266,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
           userStatus: data.userStatus,
           studies: fieldset.studies !== "HIDDEN" ? data.studies : null,
           dataCommons: fieldset.dataCommons !== "HIDDEN" ? data.dataCommons : null,
+          permissions: data.permissions,
+          notifications: data.notifications,
         },
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);
@@ -401,197 +411,201 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
             <StyledHeader>
               <StyledHeaderText variant="h2">{user.email}</StyledHeaderText>
             </StyledHeader>
+            <FormProvider {...methods}>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <StyledField>
+                  <StyledLabel>Account Type</StyledLabel>
+                  {formatIDP(user.IDP)}
+                </StyledField>
+                <StyledField>
+                  <StyledLabel>Email</StyledLabel>
+                  {user.email}
+                </StyledField>
+                <StyledField>
+                  <StyledLabel id="firstNameLabel">First name</StyledLabel>
+                  {VisibleFieldState.includes(fieldset.firstName) ? (
+                    <StyledTextField
+                      {...register("firstName", {
+                        required: true,
+                        maxLength: 30,
+                        setValueAs: (v: string) => v?.trim(),
+                      })}
+                      inputProps={{ "aria-labelledby": "firstNameLabel", maxLength: 30 }}
+                      size="small"
+                      required
+                    />
+                  ) : (
+                    user.firstName
+                  )}
+                </StyledField>
+                <StyledField>
+                  <StyledLabel id="lastNameLabel">Last name</StyledLabel>
+                  {VisibleFieldState.includes(fieldset.lastName) ? (
+                    <StyledTextField
+                      {...register("lastName", {
+                        required: true,
+                        maxLength: 30,
+                        setValueAs: (v: string) => v?.trim(),
+                      })}
+                      inputProps={{ "aria-labelledby": "lastNameLabel", maxLength: 30 }}
+                      size="small"
+                      required
+                    />
+                  ) : (
+                    user.lastName
+                  )}
+                </StyledField>
+                <StyledField>
+                  <StyledLabel id="userRoleLabel">Role</StyledLabel>
+                  {VisibleFieldState.includes(fieldset.role) ? (
+                    <Controller
+                      name="role"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <StyledSelect
+                          {...field}
+                          size="small"
+                          onChange={(e) => handleRoleChange(field, e?.target?.value as UserRole)}
+                          MenuProps={{ disablePortal: true }}
+                          inputProps={{ "aria-labelledby": "userRoleLabel" }}
+                        >
+                          {Roles.map((role) => (
+                            <MenuItem key={role} value={role}>
+                              {role}
+                            </MenuItem>
+                          ))}
+                        </StyledSelect>
+                      )}
+                    />
+                  ) : (
+                    <>
+                      {user?.role}
+                      {canRequestRole && <AccessRequest />}
+                    </>
+                  )}
+                </StyledField>
+                <StyledField visible={fieldset.studies !== "HIDDEN"}>
+                  <StyledLabel id="userStudies">Studies</StyledLabel>
+                  {VisibleFieldState.includes(fieldset.studies) ? (
+                    <Controller
+                      name="studies"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <StyledAutocomplete
+                          {...field}
+                          renderInput={({ inputProps, ...params }) => (
+                            <TextField
+                              {...params}
+                              placeholder={studiesField?.length > 0 ? undefined : "Select studies"}
+                              inputProps={{ "aria-labelledby": "userStudies", ...inputProps }}
+                              onBlur={sortStudyOptions}
+                            />
+                          )}
+                          renderTags={(value: string[], _, state) => {
+                            if (value?.length === 0 || state.focused) {
+                              return null;
+                            }
 
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <StyledField>
-                <StyledLabel>Account Type</StyledLabel>
-                {formatIDP(user.IDP)}
-              </StyledField>
-              <StyledField>
-                <StyledLabel>Email</StyledLabel>
-                {user.email}
-              </StyledField>
-              <StyledField>
-                <StyledLabel id="firstNameLabel">First name</StyledLabel>
-                {VisibleFieldState.includes(fieldset.firstName) ? (
-                  <StyledTextField
-                    {...register("firstName", {
-                      required: true,
-                      maxLength: 30,
-                      setValueAs: (v: string) => v?.trim(),
-                    })}
-                    inputProps={{ "aria-labelledby": "firstNameLabel", maxLength: 30 }}
-                    size="small"
-                    required
-                  />
-                ) : (
-                  user.firstName
-                )}
-              </StyledField>
-              <StyledField>
-                <StyledLabel id="lastNameLabel">Last name</StyledLabel>
-                {VisibleFieldState.includes(fieldset.lastName) ? (
-                  <StyledTextField
-                    {...register("lastName", {
-                      required: true,
-                      maxLength: 30,
-                      setValueAs: (v: string) => v?.trim(),
-                    })}
-                    inputProps={{ "aria-labelledby": "lastNameLabel", maxLength: 30 }}
-                    size="small"
-                    required
-                  />
-                ) : (
-                  user.lastName
-                )}
-              </StyledField>
-              <StyledField>
-                <StyledLabel id="userRoleLabel">Role</StyledLabel>
-                {VisibleFieldState.includes(fieldset.role) ? (
-                  <Controller
-                    name="role"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <StyledSelect
-                        {...field}
-                        size="small"
-                        onChange={(e) => handleRoleChange(field, e?.target?.value as UserRole)}
-                        MenuProps={{ disablePortal: true }}
-                        inputProps={{ "aria-labelledby": "userRoleLabel" }}
-                      >
-                        {Roles.map((role) => (
-                          <MenuItem key={role} value={role}>
-                            {role}
-                          </MenuItem>
-                        ))}
-                      </StyledSelect>
-                    )}
-                  />
-                ) : (
-                  <>
-                    {user?.role}
-                    {canRequestRole && <AccessRequest />}
-                  </>
-                )}
-              </StyledField>
-              <StyledField visible={fieldset.studies !== "HIDDEN"}>
-                <StyledLabel id="userStudies">Studies</StyledLabel>
-                {VisibleFieldState.includes(fieldset.studies) ? (
-                  <Controller
-                    name="studies"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <StyledAutocomplete
-                        {...field}
-                        renderInput={({ inputProps, ...params }) => (
-                          <TextField
-                            {...params}
-                            placeholder={studiesField?.length > 0 ? undefined : "Select studies"}
-                            inputProps={{ "aria-labelledby": "userStudies", ...inputProps }}
-                            onBlur={sortStudyOptions}
-                          />
-                        )}
-                        renderTags={(value: string[], _, state) => {
-                          if (value?.length === 0 || state.focused) {
-                            return null;
-                          }
-
-                          return (
-                            <StyledTag>
-                              {formatStudySelectionValue(value, formattedStudyMap)}
-                            </StyledTag>
-                          );
-                        }}
-                        options={studyOptions}
-                        getOptionLabel={(option: string) => formattedStudyMap[option]}
-                        onChange={(_, data: string[]) => handleStudyChange(field, data)}
-                        disabled={fieldset.studies === "DISABLED"}
-                        loading={approvedStudiesLoading}
-                        disableCloseOnSelect
-                        multiple
-                      />
-                    )}
-                  />
-                ) : null}
-              </StyledField>
-              <StyledField>
-                <StyledLabel id="userStatusLabel">Account Status</StyledLabel>
-                {VisibleFieldState.includes(fieldset.userStatus) ? (
-                  <Controller
-                    name="userStatus"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <StyledSelect
-                        {...field}
-                        size="small"
-                        MenuProps={{ disablePortal: true }}
-                        inputProps={{ "aria-labelledby": "userStatusLabel" }}
-                      >
-                        <MenuItem value="Active">Active</MenuItem>
-                        <MenuItem value="Inactive">Inactive</MenuItem>
-                      </StyledSelect>
-                    )}
-                  />
-                ) : (
-                  user.userStatus
-                )}
-              </StyledField>
-              <StyledField visible={fieldset.dataCommons !== "HIDDEN"}>
-                <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
-                {VisibleFieldState.includes(fieldset.dataCommons) ? (
-                  <Controller
-                    name="dataCommons"
-                    control={control}
-                    rules={{ required: false }}
-                    render={({ field }) => (
-                      <StyledSelect
-                        {...field}
-                        size="small"
-                        value={field.value || []}
-                        disabled={fieldset.dataCommons === "DISABLED"}
-                        MenuProps={{ disablePortal: true }}
-                        inputProps={{ "aria-labelledby": "userDataCommons" }}
-                        multiple
-                      >
-                        {DataCommons.map((dc) => (
-                          <MenuItem key={dc.name} value={dc.name}>
-                            {dc.name}
-                          </MenuItem>
-                        ))}
-                      </StyledSelect>
-                    )}
-                  />
-                ) : (
-                  user.dataCommons?.join(", ")
-                )}
-              </StyledField>
-
-              <StyledButtonStack
-                direction="row"
-                justifyContent="center"
-                alignItems="center"
-                spacing={1}
-              >
-                {Object.values(fieldset).some((fieldState) => fieldState === "UNLOCKED") && (
-                  <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
-                    Save
-                  </StyledButton>
-                )}
-                {viewType === "users" && (
-                  <StyledButton
-                    type="button"
-                    onClick={() => navigate(manageUsersPageUrl)}
-                    txt="#666666"
-                    border="#828282"
-                  >
-                    Cancel
-                  </StyledButton>
-                )}
-              </StyledButtonStack>
-            </form>
+                            return (
+                              <StyledTag>
+                                {formatStudySelectionValue(value, formattedStudyMap)}
+                              </StyledTag>
+                            );
+                          }}
+                          options={studyOptions}
+                          getOptionLabel={(option: string) => formattedStudyMap[option]}
+                          onChange={(_, data: string[]) => handleStudyChange(field, data)}
+                          disabled={fieldset.studies === "DISABLED"}
+                          loading={approvedStudiesLoading}
+                          disableCloseOnSelect
+                          multiple
+                        />
+                      )}
+                    />
+                  ) : null}
+                </StyledField>
+                <StyledField>
+                  <StyledLabel id="userStatusLabel">Account Status</StyledLabel>
+                  {VisibleFieldState.includes(fieldset.userStatus) ? (
+                    <Controller
+                      name="userStatus"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <StyledSelect
+                          {...field}
+                          size="small"
+                          MenuProps={{ disablePortal: true }}
+                          inputProps={{ "aria-labelledby": "userStatusLabel" }}
+                        >
+                          <MenuItem value="Active">Active</MenuItem>
+                          <MenuItem value="Inactive">Inactive</MenuItem>
+                        </StyledSelect>
+                      )}
+                    />
+                  ) : (
+                    user.userStatus
+                  )}
+                </StyledField>
+                <StyledField visible={fieldset.dataCommons !== "HIDDEN"}>
+                  <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
+                  {VisibleFieldState.includes(fieldset.dataCommons) ? (
+                    <Controller
+                      name="dataCommons"
+                      control={control}
+                      rules={{ required: false }}
+                      render={({ field }) => (
+                        <StyledSelect
+                          {...field}
+                          size="small"
+                          value={field.value || []}
+                          disabled={fieldset.dataCommons === "DISABLED"}
+                          MenuProps={{ disablePortal: true }}
+                          inputProps={{ "aria-labelledby": "userDataCommons" }}
+                          multiple
+                        >
+                          {DataCommons.map((dc) => (
+                            <MenuItem key={dc.name} value={dc.name}>
+                              {dc.name}
+                            </MenuItem>
+                          ))}
+                        </StyledSelect>
+                      )}
+                    />
+                  ) : (
+                    user.dataCommons?.join(", ")
+                  )}
+                </StyledField>
+                {VisibleFieldState.includes(fieldset.permissions) &&
+                  VisibleFieldState.includes(fieldset.notifications) && (
+                    <PermissionPanel role={user?.role} />
+                  )}
+                <StyledButtonStack
+                  direction="row"
+                  justifyContent="center"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  {Object.values(fieldset).some((fieldState) => fieldState === "UNLOCKED") && (
+                    <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
+                      Save
+                    </StyledButton>
+                  )}
+                  {viewType === "users" && (
+                    <StyledButton
+                      type="button"
+                      onClick={() => navigate(manageUsersPageUrl)}
+                      txt="#666666"
+                      border="#828282"
+                    >
+                      Cancel
+                    </StyledButton>
+                  )}
+                </StyledButtonStack>
+              </form>
+            </FormProvider>
           </StyledContentStack>
         </Stack>
       </StyledContainer>

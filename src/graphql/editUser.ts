@@ -25,6 +25,8 @@ export const mutation = gql`
         dbGaPID
         controlledAccess
       }
+      permissions
+      notifications
     }
   }
 `;
@@ -38,10 +40,10 @@ export type Input = {
    * An array of studyIDs to assign to the user
    */
   studies: string[];
-} & Pick<User, "userStatus" | "role" | "dataCommons">;
+} & Pick<User, "userStatus" | "role" | "dataCommons" | "permissions" | "notifications">;
 
 export type Response = {
-  editUser: Pick<User, "userStatus" | "role" | "dataCommons"> & {
+  editUser: Pick<User, "userStatus" | "role" | "dataCommons" | "permissions" | "notifications"> & {
     studies: Pick<
       ApprovedStudy,
       "_id" | "studyName" | "studyAbbreviation" | "dbGaPID" | "controlledAccess"
