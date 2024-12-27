@@ -10,10 +10,11 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { FC, memo, useEffect, useMemo } from "react";
+import { FC, memo, useEffect, useMemo, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { useSnackbar } from "notistack";
+import { cloneDeep } from "lodash";
 import {
   EditUserInput,
   RetrievePBACDefaultsResp,
@@ -90,6 +91,8 @@ type PermissionPanelProps = {
    * The original/stored role of the user.
    *
    * This is used to determine if the role has changed and to update the default permissions.
+   *
+   * @deprecated This prop is no longer used. Remove it.
    */
   role: UserRole;
 };
@@ -119,9 +122,10 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
   const selectedRole = watch("role");
   const permissionsValue = watch("permissions");
   const notificationsValue = watch("notifications");
+  const roleRef = useRef<UserRole>(selectedRole);
 
   const permissionColumns = useMemo<
-    Array<Array<{ name: string; permissions: PBACDefault<AuthPermissions>[] }>>
+    { name: string; data: PBACDefault<AuthPermissions>[] }[][]
   >(() => {
     if (!data?.retrievePBACDefaults && loading) {
       return [];
@@ -133,10 +137,9 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
       return [];
     }
 
-    const updatedPermissions: PBACDefault<AuthPermissions>[] = defaults?.permissions.map((p) => ({
-      ...p,
-      checked: permissionsValue.includes(p._id),
-    }));
+    const updatedPermissions: PBACDefault<AuthPermissions>[] = cloneDeep(defaults.permissions).map(
+      (p) => ({ ...p, checked: permissionsValue.includes(p._id) })
+    );
 
     const groupedPermissions: Record<string, PBACDefault<AuthPermissions>[]> =
       updatedPermissions.reduce((acc, p) => {
@@ -147,22 +150,17 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
         return acc;
       }, {});
 
-    const columns: Array<Array<{ name: string; permissions: PBACDefault<AuthPermissions>[] }>> = [
-      [],
-      [],
-      [],
-    ];
-
+    const columns: { name: string; data: PBACDefault<AuthPermissions>[] }[][] = [[], [], []];
     Object.entries(groupedPermissions).forEach(([name, permissions], index) => {
       const placement = index > 1 ? 2 : index;
-      columns[placement].push({ name, permissions });
+      columns[placement].push({ name, data: permissions });
     });
 
     return columns;
   }, [data, permissionsValue]);
 
   const notificationColumns = useMemo<
-    Array<Array<{ name: string; notifications: PBACDefault<AuthNotifications>[] }>>
+    { name: string; data: PBACDefault<AuthNotifications>[] }[][]
   >(() => {
     if (!data?.retrievePBACDefaults && loading) {
       return [];
@@ -174,12 +172,9 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
       return [];
     }
 
-    const updatedNotifications: PBACDefault<AuthNotifications>[] = defaults?.notifications.map(
-      (n) => ({
-        ...n,
-        checked: notificationsValue.includes(n._id),
-      })
-    );
+    const updatedNotifications: PBACDefault<AuthNotifications>[] = cloneDeep(
+      defaults.notifications
+    ).map((n) => ({ ...n, checked: notificationsValue.includes(n._id) }));
 
     const groupedNotifications: Record<string, PBACDefault<AuthNotifications>[]> =
       updatedNotifications.reduce((acc, n) => {
@@ -190,12 +185,10 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
         return acc;
       }, {});
 
-    const columns: Array<Array<{ name: string; notifications: PBACDefault<AuthNotifications>[] }>> =
-      [[], [], []];
-
+    const columns: { name: string; data: PBACDefault<AuthNotifications>[] }[][] = [[], [], []];
     Object.entries(groupedNotifications).forEach(([name, notifications], index) => {
       const placement = index > 1 ? 2 : index;
-      columns[placement].push({ name, notifications });
+      columns[placement].push({ name, data: notifications });
     });
 
     return columns;
@@ -224,13 +217,14 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
   };
 
   const handleRoleChange = (selectedRole: UserRole) => {
-    if (selectedRole === role) {
+    if (selectedRole === roleRef.current) {
       return;
     }
 
     const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
     setValue("permissions", defaults?.permissions?.filter((p) => p.checked).map((p) => p._id));
     setValue("notifications", defaults?.notifications?.filter((n) => n.checked).map((n) => n._id));
+    roleRef.current = selectedRole;
   };
 
   useEffect(() => {
@@ -248,11 +242,11 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
             {permissionColumns.map((column, index) => (
               // eslint-disable-next-line react/no-array-index-key
               <Grid2 xs={4} key={index} data-testid={`permissions-column-${index}`}>
-                {column.map(({ name, permissions }) => (
+                {column.map(({ name, data }) => (
                   <div key={name} data-testid={`permissions-group-${name}`}>
                     <StyledGroupTitle>{name}</StyledGroupTitle>
                     <FormGroup>
-                      {permissions.map(({ _id, checked, disabled, name }) => (
+                      {data.map(({ _id, checked, disabled, name }) => (
                         <StyledFormControlLabel
                           key={_id}
                           label={name}
@@ -283,11 +277,11 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
             {notificationColumns.map((column, index) => (
               // eslint-disable-next-line react/no-array-index-key
               <Grid2 xs={4} key={index} data-testid={`notifications-column-${index}`}>
-                {column.map(({ name, notifications }) => (
+                {column.map(({ name, data }) => (
                   <div key={name} data-testid={`notifications-group-${name}`}>
                     <StyledGroupTitle>{name}</StyledGroupTitle>
                     <FormGroup>
-                      {notifications.map(({ _id, checked, disabled, name }) => (
+                      {data.map(({ _id, checked, disabled, name }) => (
                         <StyledFormControlLabel
                           key={_id}
                           label={name}

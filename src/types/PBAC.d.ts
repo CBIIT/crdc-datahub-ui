@@ -72,7 +72,7 @@ type PBACDefault<T> = {
    */
   group: string;
   /**
-   * The name of the PBAC object.
+   * The name of the individual PBAC setting.
    *
    * @example "Manage Users"
    */
