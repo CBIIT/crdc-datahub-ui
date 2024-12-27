@@ -25,7 +25,7 @@ type Permissions = {
   };
   data_submission: {
     dataType: Submission;
-    action: "view" | "create" | "review" | "admin_submit" | "confirm";
+    action: "view" | "create" | "validate" | "review" | "admin_submit" | "confirm";
   };
   user: {
     dataType: null;
@@ -68,6 +68,7 @@ export const PERMISSION_MAP = {
   data_submission: {
     view: NO_CONDITIONS,
     create: NO_CONDITIONS,
+    validate: NO_CONDITIONS,
     review: NO_CONDITIONS,
     admin_submit: NO_CONDITIONS,
     confirm: NO_CONDITIONS,
