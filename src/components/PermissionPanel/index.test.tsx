@@ -300,4 +300,32 @@ describe("Implementation Requirements", () => {
   it.todo("should propagate the permissions selections to the parent form");
 
   it.todo("should propagate the notification selections to the parent form");
+
+  it("should render a notice when there are no default PBAC details for a role", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [],
+        },
+      },
+    };
+
+    const { getByTestId } = render(<PermissionPanel role="Submitter" />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    expect(getByTestId("no-permissions-notice")).toBeInTheDocument();
+    expect(getByTestId("no-permissions-notice")).toHaveTextContent(
+      /No permission options found for this role./i
+    );
+
+    expect(getByTestId("no-notifications-notice")).toBeInTheDocument();
+    expect(getByTestId("no-notifications-notice")).toHaveTextContent(
+      /No notification options found for this role./i
+    );
+  });
 });

@@ -76,6 +76,14 @@ const StyledFormControlLabel = styled(FormControlLabel)({
   },
 });
 
+const StyledNotice = styled(Typography)({
+  marginTop: "29.5px",
+  textAlign: "center",
+  width: "100%",
+  color: "#6B7294",
+  userSelect: "none",
+});
+
 type PermissionPanelProps = {
   /**
    * The original/stored role of the user.
@@ -111,7 +119,7 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
   >(() => {
     const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
     if (!defaults || !defaults?.permissions) {
-      Logger.error("Role not found in PBAC defaults", { role: selectedRole });
+      Logger.error("Role not found in PBAC defaults", { role: selectedRole, data });
       return [];
     }
 
@@ -148,7 +156,7 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
   >(() => {
     const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
     if (!defaults || !defaults?.notifications) {
-      Logger.error("Role not found in PBAC defaults", { role: selectedRole });
+      Logger.error("Role not found in PBAC defaults", { role: selectedRole, data });
       return [];
     }
 
@@ -244,6 +252,11 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
                 ))}
               </Grid2>
             ))}
+            {permissionColumns.length === 0 && (
+              <StyledNotice variant="body1" data-testid="no-permissions-notice">
+                No permission options found for this role.
+              </StyledNotice>
+            )}
           </Grid2>
         </AccordionDetails>
       </StyledAccordion>
@@ -274,6 +287,11 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
                 ))}
               </Grid2>
             ))}
+            {notificationColumns.length === 0 && (
+              <StyledNotice variant="body1" data-testid="no-notifications-notice">
+                No notification options found for this role.
+              </StyledNotice>
+            )}
           </Grid2>
         </AccordionDetails>
       </StyledAccordion>
