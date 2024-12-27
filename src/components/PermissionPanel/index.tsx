@@ -13,6 +13,7 @@ import {
 import { FC, memo, useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import Grid2 from "@mui/material/Unstable_Grid2";
+import { useSnackbar } from "notistack";
 import {
   EditUserInput,
   RetrievePBACDefaultsResp,
@@ -99,6 +100,7 @@ type PermissionPanelProps = {
  * @returns The PermissionPanel component.
  */
 const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
+  const { enqueueSnackbar } = useSnackbar();
   const { setValue, watch } = useFormContext<EditUserInput>();
 
   const { data, loading } = useQuery<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput>(
@@ -107,6 +109,10 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
       variables: { roles: ["All"] },
       context: { clientName: "backend" },
       fetchPolicy: "cache-first",
+      onError: (error) => {
+        Logger.error("Failed to retrieve PBAC defaults", { error });
+        enqueueSnackbar("Failed to retrieve PBAC defaults", { variant: "error" });
+      },
     }
   );
 

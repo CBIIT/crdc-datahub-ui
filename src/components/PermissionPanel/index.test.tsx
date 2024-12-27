@@ -3,6 +3,7 @@ import { act, render, waitFor, within } from "@testing-library/react";
 import { FormProvider, FormProviderProps } from "react-hook-form";
 import { axe } from "jest-axe";
 import { FC } from "react";
+import { GraphQLError } from "graphql";
 import PermissionPanel from "./index";
 import {
   RETRIEVE_PBAC_DEFAULTS,
@@ -277,28 +278,274 @@ describe("Basic Functionality", () => {
     expect(within(accountGroup).getByTestId("notification-account:disabled")).toBeInTheDocument();
   });
 
-  it.todo("should utilize a maximum of 3 columns for the permissions");
+  it("should utilize a maximum of 3 columns for the permissions", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "submission_request:create",
+                  group: "Group1",
+                  name: "Create",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "submission_request:review",
+                  group: "Group2",
+                  name: "Create",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "submission_request:submit",
+                  group: "Group3",
+                  name: "Create",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "submission_request:view",
+                  group: "Group4",
+                  name: "Create",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:create",
+                  group: "Group5",
+                  name: "Create",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "study:manage",
+                  group: "Group6",
+                  name: "Create",
+                  checked: true,
+                  disabled: false,
+                },
+              ],
+              notifications: [],
+            },
+          ],
+        },
+      },
+    };
 
-  it.todo("should utilize a maximum of 3 columns for the notifications");
+    const mockWatcher = jest.fn().mockImplementation((field) => {
+      if (field === "role") {
+        return "Submitter";
+      }
 
+      return [];
+    });
+
+    const { getByTestId, queryByTestId } = render(<PermissionPanel role="Submitter" />, {
+      wrapper: ({ children }) => (
+        <MockParent mocks={[mock]} methods={{ watch: mockWatcher } as unknown as FormProviderProps}>
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permissions-column-0")).toBeInTheDocument();
+      expect(getByTestId("permissions-column-1")).toBeInTheDocument();
+      expect(getByTestId("permissions-column-2")).toBeInTheDocument();
+    });
+
+    // Column 0-1 (has 1 group)
+    expect(
+      within(getByTestId("permissions-column-0")).getByTestId("permissions-group-Group1")
+    ).toBeInTheDocument();
+    expect(
+      within(getByTestId("permissions-column-1")).getByTestId("permissions-group-Group2")
+    ).toBeInTheDocument();
+
+    // Column 2 (has remaining groups)
+    expect(
+      within(getByTestId("permissions-column-2")).getByTestId("permissions-group-Group3")
+    ).toBeInTheDocument();
+    expect(
+      within(getByTestId("permissions-column-2")).getByTestId("permissions-group-Group4")
+    ).toBeInTheDocument();
+    expect(
+      within(getByTestId("permissions-column-2")).getByTestId("permissions-group-Group5")
+    ).toBeInTheDocument();
+    expect(
+      within(getByTestId("permissions-column-2")).getByTestId("permissions-group-Group6")
+    ).toBeInTheDocument();
+
+    // Sanity check
+    expect(queryByTestId("permissions-column-3")).not.toBeInTheDocument();
+  });
+
+  it("should utilize a maximum of 3 columns for the notifications", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [],
+              notifications: [
+                {
+                  _id: "access:requested",
+                  group: "Group1",
+                  name: "Notification 1",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Group2",
+                  name: "Notification 2",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Group3",
+                  name: "Notification 3",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "submission_request:to_be_reviewed",
+                  group: "Group4",
+                  name: "Notification 4",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:withdrawn",
+                  group: "Group5",
+                  name: "Notification 5",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:deleted",
+                  group: "Group6",
+                  name: "Notification 6",
+                  checked: true,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => {
+      if (field === "role") {
+        return "Submitter";
+      }
+
+      return [];
+    });
+
+    const { getByTestId, queryByTestId } = render(<PermissionPanel role="Submitter" />, {
+      wrapper: ({ children }) => (
+        <MockParent mocks={[mock]} methods={{ watch: mockWatcher } as unknown as FormProviderProps}>
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("notifications-column-0")).toBeInTheDocument();
+      expect(getByTestId("notifications-column-1")).toBeInTheDocument();
+      expect(getByTestId("notifications-column-2")).toBeInTheDocument();
+    });
+
+    // Column 0-1 (has 1 group)
+    expect(
+      within(getByTestId("notifications-column-0")).getByTestId("notifications-group-Group1")
+    ).toBeInTheDocument();
+    expect(
+      within(getByTestId("notifications-column-1")).getByTestId("notifications-group-Group2")
+    ).toBeInTheDocument();
+
+    // Column 2 (has remaining groups)
+    expect(
+      within(getByTestId("notifications-column-2")).getByTestId("notifications-group-Group3")
+    ).toBeInTheDocument();
+    expect(
+      within(getByTestId("notifications-column-2")).getByTestId("notifications-group-Group4")
+    ).toBeInTheDocument();
+    expect(
+      within(getByTestId("notifications-column-2")).getByTestId("notifications-group-Group5")
+    ).toBeInTheDocument();
+    expect(
+      within(getByTestId("notifications-column-2")).getByTestId("notifications-group-Group6")
+    ).toBeInTheDocument();
+
+    // Sanity check
+    expect(queryByTestId("notifications-column-3")).not.toBeInTheDocument();
+  });
+
+  it("should show an error when unable to retrieve the default PBAC details (GraphQL)", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        errors: [new GraphQLError("Mock Error")],
+      },
+    };
+
+    render(<PermissionPanel role="Submitter" />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(expect.any(String), {
+        variant: "error",
+      });
+    });
+  });
+
+  it("should show an error when unable to retrieve the default PBAC details (Network)", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      error: new Error("Network error"),
+    };
+
+    render(<PermissionPanel role="Submitter" />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(expect.any(String), {
+        variant: "error",
+      });
+    });
+  });
+});
+
+describe("Implementation Requirements", () => {
   it.todo(
     "should utilize the current permissions to determine the checked state of each permission"
   );
 
-  it.todo("should log an error when unable to retrieve the default PBAC details (GraphQL)");
-
-  it.todo("should log an error when unable to retrieve the default PBAC details (Network)");
-
-  it.todo("should log an error when unable to retrieve the default PBAC details (API)");
-
-  it.todo("should log an error when a permission is assigned but not provided in the defaults");
-
-  it.todo("should log an error when a notification is assigned but not provided in the defaults");
-
-  it.todo("should render a loading state when fetching the default PBAC details");
-});
-
-describe("Implementation Requirements", () => {
   it.todo("should reset the permissions to their default values when the role changes");
 
   it.todo("should allow disabled permissions to be checked by default");
