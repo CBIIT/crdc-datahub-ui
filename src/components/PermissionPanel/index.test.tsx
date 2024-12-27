@@ -1,5 +1,5 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { act, render, within } from "@testing-library/react";
+import { act, render, waitFor, within } from "@testing-library/react";
 import { FormProvider, FormProviderProps } from "react-hook-form";
 import { axe } from "jest-axe";
 import { FC } from "react";
@@ -193,7 +193,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
-                  checked: false,
+                  checked: true,
                   disabled: false,
                 },
                 {
@@ -234,7 +234,12 @@ describe("Basic Functionality", () => {
     };
 
     const mockWatcher = jest.fn().mockImplementation((field) => {
-      if (field === "role") return "Admin";
+      // Return the selected role (e.g. watch("role"))
+      if (field === "role") {
+        return "Submitter";
+      }
+
+      // Return the selected permissions (e.g. watch("permissions"))
       return [];
     });
 
@@ -246,11 +251,14 @@ describe("Basic Functionality", () => {
       ),
     });
 
-    const srGroup = getByTestId("permissions-group-Submission Request");
-    expect(srGroup).toBeInTheDocument();
-    expect(within(srGroup).getByTestId("permission-submission_request:create")).toBeInTheDocument();
-    const dsGroup = getByTestId("permissions-group-Data Submission");
+    await waitFor(() => {
+      expect(getByTestId("permissions-group-Submission Request")).toBeInTheDocument();
+    });
 
+    const srGroup = getByTestId("permissions-group-Submission Request");
+    expect(within(srGroup).getByTestId("permission-submission_request:create")).toBeInTheDocument();
+
+    const dsGroup = getByTestId("permissions-group-Data Submission");
     expect(dsGroup).toBeInTheDocument();
     expect(within(dsGroup).getByTestId("permission-data_submission:view")).toBeInTheDocument();
 
@@ -258,10 +266,10 @@ describe("Basic Functionality", () => {
     expect(adminGroup).toBeInTheDocument();
     expect(within(adminGroup).getByTestId("permission-program:manage")).toBeInTheDocument();
 
-    const dsNotifGroup = getByTestId("notifications-group-Data Submissions");
-    expect(dsNotifGroup).toBeInTheDocument();
+    const dsEmailGroup = getByTestId("notifications-group-Data Submissions");
+    expect(dsEmailGroup).toBeInTheDocument();
     expect(
-      within(dsNotifGroup).getByTestId("notification-data_submission:cancelled")
+      within(dsEmailGroup).getByTestId("notification-data_submission:cancelled")
     ).toBeInTheDocument();
 
     const accountGroup = getByTestId("notifications-group-Account");
@@ -296,6 +304,10 @@ describe("Implementation Requirements", () => {
   it.todo("should allow disabled permissions to be checked by default");
 
   it.todo("should be rendered as collapsed by default");
+
+  it.todo(
+    "should sort the permission groups in the following order: Submission Request, Data Submission, Admin, Miscellaneous"
+  );
 
   it.todo("should propagate the permissions selections to the parent form");
 
