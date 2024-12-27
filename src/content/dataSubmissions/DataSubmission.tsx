@@ -182,14 +182,11 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   );
 
   const submitInfo: SubmitButtonResult = useMemo(() => {
-    if (!data?.getSubmission?._id || !hasPermission(user, "data_submission", "create")) {
-      return { enabled: false };
-    }
-    if (hasUploadingBatches) {
+    if (!data?.getSubmission?._id || hasUploadingBatches) {
       return { enabled: false };
     }
 
-    return shouldEnableSubmit(data.getSubmission, user?.role);
+    return shouldEnableSubmit(data.getSubmission, user);
   }, [data?.getSubmission, user, hasUploadingBatches]);
   const releaseInfo: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),

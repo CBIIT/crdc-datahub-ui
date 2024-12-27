@@ -4,7 +4,7 @@ import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material"
 import { isEqual } from "lodash";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
-import { ReleaseInfo } from "../../utils";
+import { isCollaborator, isSubmissionOwner, ReleaseInfo } from "../../utils";
 import Tooltip from "../../components/Tooltip";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import { hasPermission } from "../../config/AuthPermissions";
@@ -104,7 +104,9 @@ type ActionKey =
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "create", submission),
+      (isSubmissionOwner(user, submission) &&
+        hasPermission(user, "data_submission", "create", submission)) ||
+      isCollaborator(user, submission),
     statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   Release: {
@@ -114,7 +116,9 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
   Withdraw: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "create", submission),
+      (isSubmissionOwner(user, submission) &&
+        hasPermission(user, "data_submission", "create", submission)) ||
+      isCollaborator(user, submission),
     statuses: ["Submitted"],
   },
   SubmittedReject: {
@@ -134,7 +138,9 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
   Cancel: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "create", submission),
+      (isSubmissionOwner(user, submission) &&
+        hasPermission(user, "data_submission", "create", submission)) ||
+      isCollaborator(user, submission),
     statuses: ["New", "In Progress", "Rejected"],
   },
 };
@@ -159,8 +165,6 @@ const DataSubmissionActions = ({
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
   const [reviewComment, setReviewComment] = useState("");
-
-  const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
 
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
@@ -212,11 +216,7 @@ const DataSubmissionActions = ({
               color="primary"
               onClick={() => onOpenDialog("Submit")}
               loading={action === "Submit"}
-              disabled={
-                (collaborator && collaborator.permission !== "Can Edit") ||
-                !submitActionButton?.enabled ||
-                (action && action !== "Submit")
-              }
+              disabled={!submitActionButton?.enabled || (action && action !== "Submit")}
             >
               {submitActionButton?.isAdminOverride ? "Admin Submit" : "Submit"}
             </StyledLoadingButton>
@@ -264,10 +264,7 @@ const DataSubmissionActions = ({
           color="error"
           onClick={() => onOpenDialog("Withdraw")}
           loading={action === "Withdraw"}
-          disabled={
-            (collaborator && collaborator.permission !== "Can Edit") ||
-            (action && action !== "Withdraw")
-          }
+          disabled={action && action !== "Withdraw"}
         >
           Withdraw
         </StyledLoadingButton>
@@ -289,10 +286,7 @@ const DataSubmissionActions = ({
           color="error"
           onClick={() => onOpenDialog("Cancel")}
           loading={action === "Cancel"}
-          disabled={
-            (collaborator && collaborator.permission !== "Can Edit") ||
-            (action && action !== "Cancel")
-          }
+          disabled={action && action !== "Cancel"}
         >
           Cancel
         </StyledLoadingButton>
