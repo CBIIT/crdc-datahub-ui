@@ -177,7 +177,7 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
     });
 
     return columns;
-  }, []);
+  }, [data, notificationsValue]);
 
   const handlePermissionChange = (_id: AuthPermissions) => {
     if (permissionsValue.includes(_id)) {
