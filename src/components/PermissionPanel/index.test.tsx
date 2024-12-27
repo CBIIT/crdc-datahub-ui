@@ -4,6 +4,7 @@ import { FormProvider, FormProviderProps } from "react-hook-form";
 import { axe } from "jest-axe";
 import { FC } from "react";
 import { GraphQLError } from "graphql";
+import userEvent from "@testing-library/user-event";
 import PermissionPanel from "./index";
 import {
   RETRIEVE_PBAC_DEFAULTS,
@@ -542,23 +543,516 @@ describe("Basic Functionality", () => {
 });
 
 describe("Implementation Requirements", () => {
-  it.todo(
-    "should utilize the current permissions to determine the checked state of each permission"
-  );
+  it("should utilize the initial form values to determine the checked state of each permission", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "submission_request:create",
+                  group: "Submission Request",
+                  name: "Create",
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "program:manage",
+                  group: "Admin",
+                  name: "Manage Programs",
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+              notifications: [
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
 
-  it.todo("should reset the permissions to their default values when the role changes");
+    const mockWatcher = jest.fn().mockImplementation((field) => {
+      if (field === "role") {
+        return "Submitter";
+      }
 
-  it.todo("should allow disabled permissions to be checked by default");
+      if (field === "permissions") {
+        return ["submission_request:create", "program:manage"];
+      }
 
-  it.todo("should be rendered as collapsed by default");
+      if (field === "notifications") {
+        return ["data_submission:cancelled"];
+      }
+
+      return [];
+    });
+
+    const { getByTestId } = render(<PermissionPanel role="Submitter" />, {
+      wrapper: ({ children }) => (
+        <MockParent mocks={[mock]} methods={{ watch: mockWatcher } as unknown as FormProviderProps}>
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permission-submission_request:create")).toBeInTheDocument();
+    });
+
+    // Checked permissions by default based on the initial form values
+    expect(
+      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+    expect(
+      within(getByTestId("permission-program:manage")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+
+    // Unchecked permissions sanity check
+    expect(
+      within(getByTestId("permission-data_submission:view")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).not.toBeChecked();
+
+    // Checked notifications by default based on the initial form values
+    expect(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+
+    // Unchecked notifications sanity check
+    expect(
+      within(getByTestId("notification-account:disabled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).not.toBeChecked();
+  });
+
+  it("should reset the permissions to their default values when the role changes", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "submission_request:create",
+                  group: "Submission Request",
+                  name: "Create",
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+              notifications: [
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+            },
+            {
+              role: "Federal Lead",
+              permissions: [
+                {
+                  _id: "submission_request:create",
+                  group: "Submission Request",
+                  name: "Create",
+                  checked: false, // Original submitter had this checked
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  checked: true,
+                  disabled: false,
+                },
+              ],
+              notifications: [
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  checked: false, // Original submitter had this checked
+                  disabled: false,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  checked: true,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues = {
+      role: "Submitter",
+      permissions: ["submission_request:create"],
+      notifications: ["data_submission:cancelled"],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId, rerender } = render(<PermissionPanel role="Submitter" />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permission-submission_request:create")).toBeInTheDocument();
+    });
+
+    // Checked permissions by default based on the initial form values
+    expect(
+      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+
+    // Unchecked permissions sanity check
+    expect(
+      within(getByTestId("permission-data_submission:view")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).not.toBeChecked();
+
+    // Checked notifications by default based on the initial form values
+    expect(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+
+    // Unchecked notifications sanity check
+    expect(
+      within(getByTestId("notification-account:disabled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).not.toBeChecked();
+
+    // Change the role
+    formValues.role = "Federal Lead";
+
+    rerender(<PermissionPanel role="Submitter" />); // The original role is "Submitter", nothing should change
+    rerender(<PermissionPanel role="Submitter" />); // This is a work-around to trigger the UI update
+
+    // Checked permissions by default based on the NEW role
+    expect(
+      within(getByTestId("permission-data_submission:view")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+
+    // Unchecked permissions sanity check
+    expect(
+      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).not.toBeChecked();
+
+    // Checked notifications by default based on the NEW role
+    expect(
+      within(getByTestId("notification-account:disabled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+
+    // Unchecked notifications sanity check
+    expect(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).not.toBeChecked();
+  });
+
+  it("should allow disabled PBAC options to be checked by default", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "submission_request:create",
+                  group: "Submission Request",
+                  name: "Create",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  checked: true,
+                  disabled: false,
+                },
+              ],
+              notifications: [
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  checked: true,
+                  disabled: true,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  checked: true,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues = {
+      role: "Federal Lead",
+      permissions: [],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId, rerender } = render(<PermissionPanel role="Federal Lead" />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    // Trigger role change
+    formValues.role = "Submitter";
+
+    rerender(<PermissionPanel role="Federal Lead" />);
+    rerender(<PermissionPanel role="Federal Lead" />);
+
+    await waitFor(() => {
+      expect(getByTestId("permission-submission_request:create")).toBeInTheDocument();
+    });
+
+    expect(
+      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+    expect(
+      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeDisabled();
+  });
+
+  it("should be rendered as collapsed by default", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [],
+        },
+      },
+    };
+
+    const { getByTestId } = render(<PermissionPanel role="Submitter" />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    expect(within(getByTestId("permissions-accordion")).getByRole("button")).toHaveAttribute(
+      "aria-expanded",
+      "false"
+    );
+
+    userEvent.click(within(getByTestId("permissions-accordion")).getByRole("button"));
+
+    expect(within(getByTestId("permissions-accordion")).getByRole("button")).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
+
+    expect(within(getByTestId("notifications-accordion")).getByRole("button")).toHaveAttribute(
+      "aria-expanded",
+      "false"
+    );
+
+    userEvent.click(within(getByTestId("notifications-accordion")).getByRole("button"));
+
+    expect(within(getByTestId("notifications-accordion")).getByRole("button")).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
+  });
 
   it.todo(
     "should sort the permission groups in the following order: Submission Request, Data Submission, Admin, Miscellaneous"
   );
 
-  it.todo("should propagate the permissions selections to the parent form");
+  it("should propagate the permission and notification selections to the parent form", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "submission_request:create",
+                  group: "Submission Request",
+                  name: "Create",
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+              notifications: [
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
 
-  it.todo("should propagate the notification selections to the parent form");
+    const formValues = {
+      role: "Submitter",
+      permissions: [],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId } = render(<PermissionPanel role="Submitter" />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permission-submission_request:create")).toBeInTheDocument();
+    });
+
+    userEvent.click(
+      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+
+    expect(mockSetValue).toHaveBeenCalledWith("permissions", ["submission_request:create"]);
+
+    userEvent.click(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+
+    expect(mockSetValue).toHaveBeenCalledWith("notifications", ["data_submission:cancelled"]);
+  });
 
   it("should render a notice when there are no default PBAC details for a role", async () => {
     const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
