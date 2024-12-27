@@ -27,7 +27,7 @@ const baseSubmission: Omit<
   "_id" | "status" | "metadataValidationStatus" | "fileValidationStatus"
 > = {
   name: "",
-  submitterID: "",
+  submitterID: "current-user",
   submitterName: "",
   organization: null,
   dataCommons: "",
@@ -74,7 +74,7 @@ const baseSubmissionCtx: SubmissionCtxState = {
 };
 
 const baseUser: Omit<User, "role"> = {
-  _id: "",
+  _id: "current-user",
   firstName: "",
   lastName: "",
   userStatus: "Active",
@@ -84,7 +84,7 @@ const baseUser: Omit<User, "role"> = {
   dataCommons: [],
   createdAt: "",
   updateAt: "",
-  permissions: ["data_submission:view", "data_submission:create"],
+  permissions: ["data_submission:view", "data_submission:create", "data_submission:validate"],
   notifications: [],
 };
 
@@ -214,12 +214,17 @@ describe("Basic Functionality", () => {
           user: {
             ...baseUser,
             role: "Submitter",
-            permissions: ["data_submission:view", "data_submission:create"],
+            permissions: [
+              "data_submission:view",
+              "data_submission:create",
+              "data_submission:validate",
+            ],
           },
         }}
         submission={{
           ...baseSubmission,
           _id: submissionID,
+          submitterID: "current-user",
           status: "In Progress",
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
@@ -647,12 +652,17 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("validate-controls-validate-button")).toHaveTextContent("Validating...");
   });
 
-  it("should render as disabled when collaborator does not have 'Can Edit' permissions", () => {
+  it("should render as disabled when user is not submission owner with permissions or collaborator", () => {
     const { getByTestId } = render(
       <TestParent
         authCtxState={{
           ...baseAuthCtx,
-          user: { ...baseUser, _id: "collaborator-user", role: "Submitter" },
+          user: {
+            ...baseUser,
+            _id: "some-other-user",
+            role: "Submitter",
+            permissions: ["data_submission:view"],
+          },
         }}
         submission={{
           ...baseSubmission,
@@ -686,12 +696,17 @@ describe("Implementation Requirements", () => {
     expect(getByLabelText(targetRadio, "All Uploaded Data")).toBeDisabled();
   });
 
-  it("should render as enabled when collaborator does have 'Can Edit' permissions", () => {
+  it("should render as enabled when user is collaborator without permissions", () => {
     const { getByTestId } = render(
       <TestParent
         authCtxState={{
           ...baseAuthCtx,
-          user: { ...baseUser, _id: "collaborator-user", role: "Submitter" },
+          user: {
+            ...baseUser,
+            _id: "collaborator-user",
+            role: "Submitter",
+            permissions: [],
+          },
         }}
         submission={{
           ...baseSubmission,
