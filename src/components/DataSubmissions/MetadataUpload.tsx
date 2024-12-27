@@ -15,7 +15,7 @@ import {
 } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
 import FlowWrapper from "./FlowWrapper";
-import { Logger } from "../../utils";
+import { isCollaborator, isSubmissionOwner, Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
@@ -111,7 +111,10 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
-  const canUpload = hasPermission(user, "data_submission", "create", submission);
+  const canUpload =
+    (isSubmissionOwner(user, submission) &&
+      hasPermission(user, "data_submission", "create", submission)) ||
+    isCollaborator(user, submission);
   const acceptedExtensions = [".tsv", ".txt"];
 
   const [createBatch] = useMutation<CreateBatchResp, CreateBatchInput>(CREATE_BATCH, {
