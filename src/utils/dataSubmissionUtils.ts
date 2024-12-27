@@ -1,3 +1,4 @@
+import { hasPermission } from "../config/AuthPermissions";
 import { ADMIN_OVERRIDE_CONDITIONS, SUBMIT_BUTTON_CONDITIONS } from "../config/SubmitButtonConfig";
 import { safeParse } from "./jsonUtils";
 
@@ -7,21 +8,18 @@ import { safeParse } from "./jsonUtils";
  * to determine if the submission can be enabled.
  *
  * @param {Submission} submission - The submission object to evaluate.
- * @param {UserRole} userRole - The role of the user (e.g., Admin, Submitter).
+ * @param {User} user - The current user.
  * @returns {SubmitButtonResult} - Returns an object indicating whether the submit button is enabled,
  * whether the admin override is in effect, and an optional tooltip explaining why it is disabled.
  */
-export const shouldEnableSubmit = (
-  submission: Submission,
-  userRole: UserRole
-): SubmitButtonResult => {
-  if (!submission || !userRole) {
+export const shouldEnableSubmit = (submission: Submission, user: User): SubmitButtonResult => {
+  if (!submission || !user) {
     return { enabled: false, isAdminOverride: false };
   }
 
   // Check for potential Admin override
-  const isAdmin = userRole === "Admin";
-  if (isAdmin) {
+  const canAdminOverride = hasPermission(user, "data_submission", "admin_submit");
+  if (canAdminOverride) {
     const adminOverrideResult = shouldAllowAdminOverride(submission);
     if (adminOverrideResult.enabled) {
       return { ...adminOverrideResult };
@@ -225,4 +223,34 @@ export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
 
   // Scenario 0: No restrictions, allow release
   return { disable: false, requireAlert: false };
+};
+
+/**
+ * Determines whether or not a user is a collaborator of a given Data Submission
+ *
+ * @param {User} user The current user
+ * @param {Submission} submission The current Data Submission
+ * @returns {boolean} True if the current user is a collaborator of the current Data Submission
+ */
+export const isCollaborator = (user: User, submission: Submission) => {
+  if (!user?._id || !submission?.collaborators?.length) {
+    return false;
+  }
+
+  return submission.collaborators.some((c) => c.collaboratorID === user._id);
+};
+
+/**
+ * Determines whether or not a user is the submission owner of a given Data Submission
+ *
+ * @param {User} user The current user
+ * @param {Submission} submission The current Data Submission
+ * @returns {boolean} True if the current user is the submission owner of the current Data Submission
+ */
+export const isSubmissionOwner = (user: User, submission: Submission) => {
+  if (!user?._id || !submission?.submitterID) {
+    return false;
+  }
+
+  return submission?.submitterID === user?._id;
 };

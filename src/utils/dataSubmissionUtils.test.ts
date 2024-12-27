@@ -38,14 +38,30 @@ const baseSubmission: Submission = {
   collaborators: [],
 };
 
+const baseUser: User = {
+  _id: "current-user",
+  firstName: "",
+  lastName: "",
+  userStatus: "Active",
+  role: "Submitter",
+  IDP: "nih",
+  email: "",
+  studies: null,
+  dataCommons: [],
+  createdAt: "",
+  updateAt: "",
+  permissions: ["data_submission:create"],
+  notifications: [],
+};
+
 describe("General Submit", () => {
-  it("should disable submit without isAdminOverride when user role is not Admin but there are validation errors", () => {
+  it("should disable submit without isAdminOverride when user does not have the admin submit permission but there are validation errors", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Error",
       fileValidationStatus: "Error",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -56,7 +72,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Error",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -67,7 +83,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -78,7 +94,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Error",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -89,7 +105,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Warning",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -101,7 +117,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -112,19 +128,8 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(true);
-    expect(result.isAdminOverride).toBe(false);
-  });
-
-  it("should disable submit when user role is undefined", () => {
-    const submission: Submission = {
-      ...baseSubmission,
-      metadataValidationStatus: "Passed",
-      fileValidationStatus: "Passed",
-    };
-    const result = utils.shouldEnableSubmit(submission, undefined);
-    expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
@@ -134,7 +139,7 @@ describe("General Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -145,7 +150,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -158,7 +163,7 @@ describe("General Submit", () => {
       fileValidationStatus: null,
       intention: "Delete",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -170,7 +175,7 @@ describe("General Submit", () => {
       fileValidationStatus: null,
       intention: "New/Update",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -182,7 +187,7 @@ describe("General Submit", () => {
       fileValidationStatus: "Passed",
       intention: "Delete",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -194,7 +199,7 @@ describe("General Submit", () => {
       fileValidationStatus: "Error",
       intention: "Delete",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -205,7 +210,7 @@ describe("General Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: null,
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -216,7 +221,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Validating",
       fileValidationStatus: "Validating",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -227,7 +232,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Validating",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -238,7 +243,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Validating",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -249,7 +254,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "New",
       fileValidationStatus: "New",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -260,7 +265,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "New",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -271,7 +276,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "New",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -282,7 +287,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Warning",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -293,7 +298,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -304,7 +309,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Warning",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -315,13 +320,13 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Warning",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
 
   it("should disable submit when submission is null", () => {
-    const result = utils.shouldEnableSubmit(null, "Submitter");
+    const result = utils.shouldEnableSubmit(null, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -334,7 +339,11 @@ describe("Admin Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Error",
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const user: User = {
+      ...baseUser,
+      permissions: ["data_submission:view", "data_submission:admin_submit"],
+    };
+    const result = utils.shouldEnableSubmit(submission, user);
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
@@ -345,7 +354,11 @@ describe("Admin Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const user: User = {
+      ...baseUser,
+      permissions: ["data_submission:view", "data_submission:admin_submit"],
+    };
+    const result = utils.shouldEnableSubmit(submission, user);
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -356,7 +369,11 @@ describe("Admin Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const user: User = {
+      ...baseUser,
+      permissions: ["data_submission:view", "data_submission:admin_submit"],
+    };
+    const result = utils.shouldEnableSubmit(submission, user);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -367,7 +384,11 @@ describe("Admin Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: null,
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const user: User = {
+      ...baseUser,
+      permissions: ["data_submission:view", "data_submission:admin_submit"],
+    };
+    const result = utils.shouldEnableSubmit(submission, user);
     expect(result.enabled).toBe(false);
   });
 
@@ -379,7 +400,11 @@ describe("Admin Submit", () => {
       fileValidationStatus: null,
       intention: "Delete",
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const user: User = {
+      ...baseUser,
+      permissions: ["data_submission:view", "data_submission:admin_submit"],
+    };
+    const result = utils.shouldEnableSubmit(submission, user);
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
@@ -405,7 +430,11 @@ describe("Admin Submit", () => {
         },
       ],
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const user: User = {
+      ...baseUser,
+      permissions: ["data_submission:view", "data_submission:admin_submit"],
+    };
+    const result = utils.shouldEnableSubmit(submission, user);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -431,7 +460,7 @@ describe("Admin Submit", () => {
         },
       ],
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -444,7 +473,11 @@ describe("Admin Submit", () => {
       fileValidationStatus: null,
       intention: "Delete",
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const user: User = {
+      ...baseUser,
+      permissions: ["data_submission:view", "data_submission:admin_submit"],
+    };
+    const result = utils.shouldEnableSubmit(submission, user);
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
@@ -456,7 +489,11 @@ describe("Admin Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "New",
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const user: User = {
+      ...baseUser,
+      permissions: ["data_submission:view", "data_submission:admin_submit"],
+    };
+    const result = utils.shouldEnableSubmit(submission, user);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -470,7 +507,7 @@ describe("Submit > Submission Type/Intention", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Error",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -886,5 +923,106 @@ describe("shouldDisableRelease", () => {
 
   it("should not throw an exception when Submission is null", () => {
     expect(() => utils.shouldDisableRelease(null as Submission)).not.toThrow();
+  });
+});
+
+describe("isCollaborator", () => {
+  it("should return true if the user is a collaborator", () => {
+    const user = { _id: "user1" } as User;
+    const submission = {
+      collaborators: [{ collaboratorID: "user2" }, { collaboratorID: "user1" }],
+    } as Submission;
+    const result = utils.isCollaborator(user, submission);
+    expect(result).toBe(true);
+  });
+
+  it("should return false if the user is not a collaborator", () => {
+    const user = { _id: "user1" } as User;
+    const submission = {
+      collaborators: [{ collaboratorID: "user2" }, { collaboratorID: "user3" }],
+    } as Submission;
+    const result = utils.isCollaborator(user, submission);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the user is null", () => {
+    const submission = {
+      collaborators: [{ collaboratorID: "some-id" }],
+    } as Submission;
+    const result = utils.isCollaborator(null, submission);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the submission is null", () => {
+    const user = { _id: "user1" } as User;
+    const result = utils.isCollaborator(user, null);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the submission has no collaborators property", () => {
+    const user = { _id: "user1" } as User;
+    const submission = {} as Submission;
+    const result = utils.isCollaborator(user, submission);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the user has no _id property", () => {
+    const user = {} as User;
+    const submission = {
+      collaborators: [{ collaboratorID: "some-id" }],
+    } as Submission;
+    const result = utils.isCollaborator(user, submission);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the collaborators array is empty", () => {
+    const user = { _id: "user1" } as User;
+    const submission = {
+      collaborators: [],
+    } as Submission;
+    const result = utils.isCollaborator(user, submission);
+    expect(result).toBe(false);
+  });
+});
+
+describe("isSubmissionOwner", () => {
+  it("should return true if the user is the submission owner", () => {
+    const user = { _id: "owner-id" } as User;
+    const submission = { submitterID: "owner-id" } as Submission;
+    const result = utils.isSubmissionOwner(user, submission);
+    expect(result).toBe(true);
+  });
+
+  it("should return false if the user is not the submission owner", () => {
+    const user = { _id: "owner-id" } as User;
+    const submission = { submitterID: "another-user-id" } as Submission;
+    const result = utils.isSubmissionOwner(user, submission);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the user is null", () => {
+    const submission = { submitterID: "owner-id" } as Submission;
+    const result = utils.isSubmissionOwner(null, submission);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the submission is null", () => {
+    const user = { _id: "owner-id" } as User;
+    const result = utils.isSubmissionOwner(user, null);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the user has no _id property", () => {
+    const user = {} as User;
+    const submission = { submitterID: "owner-id" } as Submission;
+    const result = utils.isSubmissionOwner(user, submission);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the submission has no submitterID property", () => {
+    const user = { _id: "owner-id" } as User;
+    const submission = {} as Submission;
+    const result = utils.isSubmissionOwner(user, submission);
+    expect(result).toBe(false);
   });
 });
