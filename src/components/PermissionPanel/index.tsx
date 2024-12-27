@@ -101,7 +101,7 @@ type PermissionPanelProps = {
 const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
   const { setValue, watch } = useFormContext<EditUserInput>();
 
-  const { data } = useQuery<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput>(
+  const { data, loading } = useQuery<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput>(
     RETRIEVE_PBAC_DEFAULTS,
     {
       variables: { roles: ["All"] },
@@ -117,6 +117,10 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
   const permissionColumns = useMemo<
     Array<Array<{ name: string; permissions: PBACDefault<AuthPermissions>[] }>>
   >(() => {
+    if (!data?.retrievePBACDefaults && loading) {
+      return [];
+    }
+
     const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
     if (!defaults || !defaults?.permissions) {
       Logger.error("Role not found in PBAC defaults", { role: selectedRole, data });
@@ -154,6 +158,10 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
   const notificationColumns = useMemo<
     Array<Array<{ name: string; notifications: PBACDefault<AuthNotifications>[] }>>
   >(() => {
+    if (!data?.retrievePBACDefaults && loading) {
+      return [];
+    }
+
     const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
     if (!defaults || !defaults?.notifications) {
       Logger.error("Role not found in PBAC defaults", { role: selectedRole, data });
