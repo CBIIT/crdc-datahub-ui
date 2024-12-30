@@ -125,17 +125,12 @@ const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
 });
 
-const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string; border: string }) => ({
-  borderRadius: "8px",
-  border: `2px solid ${border}`,
-  color: `${txt} !important`,
-  width: "101px",
-  height: "51px",
-  textTransform: "none",
-  fontWeight: 700,
-  fontSize: "17px",
-  padding: "6px 8px",
-}));
+const StyledButton = styled(LoadingButton)({
+  minWidth: "120px",
+  fontSize: "16px",
+  padding: "10px",
+  lineHeight: "24px",
+});
 
 const StyledContentStack = styled(Stack)({
   marginLeft: "2px !important",
@@ -587,7 +582,12 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   spacing={1}
                 >
                   {Object.values(fieldset).some((fieldState) => fieldState === "UNLOCKED") && (
-                    <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
+                    <StyledButton
+                      type="submit"
+                      loading={saving}
+                      variant="contained"
+                      color="success"
+                    >
                       Save
                     </StyledButton>
                   )}
@@ -595,8 +595,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     <StyledButton
                       type="button"
                       onClick={() => navigate(manageUsersPageUrl)}
-                      txt="#666666"
-                      border="#828282"
+                      variant="contained"
+                      color="info"
                     >
                       Cancel
                     </StyledButton>
