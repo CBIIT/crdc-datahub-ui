@@ -341,6 +341,7 @@ describe("Admin Submit", () => {
     };
     const user: User = {
       ...baseUser,
+      role: "Admin",
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(submission, user);
@@ -402,6 +403,7 @@ describe("Admin Submit", () => {
     };
     const user: User = {
       ...baseUser,
+      role: "Admin",
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(submission, user);
@@ -432,6 +434,7 @@ describe("Admin Submit", () => {
     };
     const user: User = {
       ...baseUser,
+      role: "Admin",
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(submission, user);
@@ -475,6 +478,7 @@ describe("Admin Submit", () => {
     };
     const user: User = {
       ...baseUser,
+      role: "Admin",
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(submission, user);

@@ -21,8 +21,6 @@ import {
   getDefaultValidationTarget,
   getDefaultValidationType,
   getValidationTypes,
-  isCollaborator,
-  isSubmissionOwner,
 } from "../../utils";
 import FlowWrapper from "./FlowWrapper";
 import { CrossValidationButton } from "./CrossValidationButton";
@@ -85,17 +83,11 @@ const ValidateMap: Partial<
   Record<Submission["status"], (user: User, submission: Submission) => boolean>
 > = {
   "In Progress": (user: User, submission: Submission) =>
-    (isSubmissionOwner(user, submission) &&
-      hasPermission(user, "data_submission", "validate", submission)) ||
-    isCollaborator(user, submission),
+    hasPermission(user, "data_submission", "validate", submission),
   Withdrawn: (user: User, submission: Submission) =>
-    (isSubmissionOwner(user, submission) &&
-      hasPermission(user, "data_submission", "validate", submission)) ||
-    isCollaborator(user, submission),
+    hasPermission(user, "data_submission", "validate", submission),
   Rejected: (user: User, submission: Submission) =>
-    (isSubmissionOwner(user, submission) &&
-      hasPermission(user, "data_submission", "validate", submission)) ||
-    isCollaborator(user, submission),
+    hasPermission(user, "data_submission", "validate", submission),
   Submitted: (user: User, submission: Submission) =>
     hasPermission(user, "data_submission", "review", submission),
 };

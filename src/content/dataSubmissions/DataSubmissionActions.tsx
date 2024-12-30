@@ -4,7 +4,7 @@ import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material"
 import { isEqual } from "lodash";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
-import { isCollaborator, isSubmissionOwner, ReleaseInfo } from "../../utils";
+import { ReleaseInfo } from "../../utils";
 import Tooltip from "../../components/Tooltip";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import { hasPermission } from "../../config/AuthPermissions";
@@ -104,9 +104,7 @@ type ActionKey =
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     hasPermission: (user, submission) =>
-      (isSubmissionOwner(user, submission) &&
-        hasPermission(user, "data_submission", "create", submission)) ||
-      isCollaborator(user, submission),
+      hasPermission(user, "data_submission", "create", submission),
     statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   Release: {
@@ -116,9 +114,7 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
   Withdraw: {
     hasPermission: (user, submission) =>
-      (isSubmissionOwner(user, submission) &&
-        hasPermission(user, "data_submission", "create", submission)) ||
-      isCollaborator(user, submission),
+      hasPermission(user, "data_submission", "create", submission),
     statuses: ["Submitted"],
   },
   SubmittedReject: {
@@ -138,9 +134,7 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
   Cancel: {
     hasPermission: (user, submission) =>
-      (isSubmissionOwner(user, submission) &&
-        hasPermission(user, "data_submission", "create", submission)) ||
-      isCollaborator(user, submission),
+      hasPermission(user, "data_submission", "create", submission),
     statuses: ["New", "In Progress", "Rejected"],
   },
 };
