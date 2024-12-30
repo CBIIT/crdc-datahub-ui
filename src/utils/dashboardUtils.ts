@@ -2,8 +2,12 @@ import { DashboardContentOptions } from "amazon-quicksight-embedding-sdk";
 import { Logger } from "./logger";
 
 /**
- * A helper that decides whether to add the "studiesParameter" for
- * roles that require assigned studies (e.g., Federal Lead).
+ * Constructs and returns an array of QuickSight parameter objects for a user's studies.
+ *
+ * - If the user's first study is `All`, the function returns an empty array (allowing QuickSight to display all data).
+ * - If the user has a valid array of studies, it creates a `studiesParameter` whose values are the `_id` fields of each study.
+ * - Otherwise, it logs an error and returns a parameter array with `["NO-CONTENT"]`.
+ *
  *
  * @param {User} user - The current user
  * @returns {DashboardContentOptions["parameters"]} The updated dashboard parameters
@@ -35,8 +39,11 @@ export const addStudiesParameter = (user: User): DashboardContentOptions["parame
 };
 
 /**
- * A helper that decides whether to add the "dataCommonsParameter" for
- * Data Commons Personnel.
+ * Constructs and returns an array of QuickSight parameter objects for a user's data commons.
+ *
+ * - If the user has a valid array of data commons, it creates a `dataCommonsParameter` whose values are the array elements.
+ * - Otherwise, it logs an error and returns a parameter array with `["NO-CONTENT"]`.
+ *
  *
  * @param {User} user - The current user
  * @returns {DashboardContentOptions["parameters"]} The updated dashboard parameters
