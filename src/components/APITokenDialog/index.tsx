@@ -166,7 +166,7 @@ const APITokenDialog: FC<Props> = ({ onClose, open, ...rest }) => {
   };
 
   const generateToken = async () => {
-    if (!hasPermission(user, "data_submission", "create")) {
+    if (!hasPermission(user, "data_submission", "create", null, true)) {
       onGenerateTokenError();
       return;
     }
