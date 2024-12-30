@@ -86,23 +86,12 @@ const StyledNotice = styled(Typography)({
   userSelect: "none",
 });
 
-type PermissionPanelProps = {
-  /**
-   * The original/stored role of the user.
-   *
-   * This is used to determine if the role has changed and to update the default permissions.
-   *
-   * @deprecated This prop is no longer used. Remove it.
-   */
-  role: UserRole;
-};
-
 /**
  * Provides a panel for managing permissions and notifications for a user role.
  *
  * @returns The PermissionPanel component.
  */
-const PermissionPanel: FC<PermissionPanelProps> = ({ role }) => {
+const PermissionPanel: FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { setValue, watch } = useFormContext<EditUserInput>();
 

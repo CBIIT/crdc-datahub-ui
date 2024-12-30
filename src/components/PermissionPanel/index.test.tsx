@@ -50,7 +50,7 @@ describe("Accessibility", () => {
       },
     };
 
-    const { container } = render(<PermissionPanel role="Submitter" />, {
+    const { container } = render(<PermissionPanel />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -110,7 +110,7 @@ describe("Accessibility", () => {
       },
     };
 
-    const { container } = render(<PermissionPanel role="Submitter" />, {
+    const { container } = render(<PermissionPanel />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -142,7 +142,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    render(<PermissionPanel role="Submitter" />, {
+    render(<PermissionPanel />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
   });
@@ -168,13 +168,13 @@ describe("Basic Functionality", () => {
       maxUsageCount: 999,
     };
 
-    const { rerender } = render(<PermissionPanel role="Submitter" />, {
+    const { rerender } = render(<PermissionPanel />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
     expect(mockMatcher).toHaveBeenCalledTimes(1);
 
-    rerender(<PermissionPanel role="Admin" />);
+    rerender(<PermissionPanel />);
 
     expect(mockMatcher).toHaveBeenCalledTimes(1);
   });
@@ -245,7 +245,7 @@ describe("Basic Functionality", () => {
       return [];
     });
 
-    const { getByTestId } = render(<PermissionPanel role="Submitter" />, {
+    const { getByTestId } = render(<PermissionPanel />, {
       wrapper: ({ children }) => (
         <MockParent mocks={[mock]} methods={{ watch: mockWatcher } as unknown as FormProviderProps}>
           {children}
@@ -349,7 +349,7 @@ describe("Basic Functionality", () => {
       return [];
     });
 
-    const { getByTestId, queryByTestId } = render(<PermissionPanel role="Submitter" />, {
+    const { getByTestId, queryByTestId } = render(<PermissionPanel />, {
       wrapper: ({ children }) => (
         <MockParent mocks={[mock]} methods={{ watch: mockWatcher } as unknown as FormProviderProps}>
           {children}
@@ -459,7 +459,7 @@ describe("Basic Functionality", () => {
       return [];
     });
 
-    const { getByTestId, queryByTestId } = render(<PermissionPanel role="Submitter" />, {
+    const { getByTestId, queryByTestId } = render(<PermissionPanel />, {
       wrapper: ({ children }) => (
         <MockParent mocks={[mock]} methods={{ watch: mockWatcher } as unknown as FormProviderProps}>
           {children}
@@ -510,7 +510,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    render(<PermissionPanel role="Submitter" />, {
+    render(<PermissionPanel />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -530,7 +530,7 @@ describe("Basic Functionality", () => {
       error: new Error("Network error"),
     };
 
-    render(<PermissionPanel role="Submitter" />, {
+    render(<PermissionPanel />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -615,7 +615,7 @@ describe("Implementation Requirements", () => {
       return [];
     });
 
-    const { getByTestId } = render(<PermissionPanel role="Submitter" />, {
+    const { getByTestId } = render(<PermissionPanel />, {
       wrapper: ({ children }) => (
         <MockParent mocks={[mock]} methods={{ watch: mockWatcher } as unknown as FormProviderProps}>
           {children}
@@ -757,7 +757,7 @@ describe("Implementation Requirements", () => {
       formValues[field] = value;
     });
 
-    const { getByTestId, rerender } = render(<PermissionPanel role="Submitter" />, {
+    const { getByTestId, rerender } = render(<PermissionPanel />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -803,8 +803,8 @@ describe("Implementation Requirements", () => {
     // Change the role
     formValues.role = "Federal Lead";
 
-    rerender(<PermissionPanel role="Submitter" />); // The original role is "Submitter", nothing should change
-    rerender(<PermissionPanel role="Submitter" />); // This is a work-around to trigger the UI update
+    rerender(<PermissionPanel />); // The original role is "Submitter", nothing should change
+    rerender(<PermissionPanel />); // This is a work-around to trigger the UI update
 
     // Checked permissions by default based on the NEW role
     expect(
@@ -896,7 +896,7 @@ describe("Implementation Requirements", () => {
       formValues[field] = value;
     });
 
-    const { getByTestId, rerender } = render(<PermissionPanel role="Federal Lead" />, {
+    const { getByTestId, rerender } = render(<PermissionPanel />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -910,8 +910,8 @@ describe("Implementation Requirements", () => {
     // Trigger role change
     formValues.role = "Submitter";
 
-    rerender(<PermissionPanel role="Federal Lead" />);
-    rerender(<PermissionPanel role="Federal Lead" />);
+    rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
 
     await waitFor(() => {
       expect(getByTestId("permission-submission_request:create")).toBeInTheDocument();
@@ -942,7 +942,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByTestId } = render(<PermissionPanel role="Submitter" />, {
+    const { getByTestId } = render(<PermissionPanel />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -1022,7 +1022,7 @@ describe("Implementation Requirements", () => {
       formValues[field] = value;
     });
 
-    const { getByTestId } = render(<PermissionPanel role="Submitter" />, {
+    const { getByTestId } = render(<PermissionPanel />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -1067,7 +1067,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByTestId } = render(<PermissionPanel role="Submitter" />, {
+    const { getByTestId } = render(<PermissionPanel />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 

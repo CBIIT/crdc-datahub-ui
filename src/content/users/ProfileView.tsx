@@ -579,9 +579,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   )}
                 </StyledField>
                 {VisibleFieldState.includes(fieldset.permissions) &&
-                  VisibleFieldState.includes(fieldset.notifications) && (
-                    <PermissionPanel role={user?.role} />
-                  )}
+                  VisibleFieldState.includes(fieldset.notifications) && <PermissionPanel />}
                 <StyledButtonStack
                   direction="row"
                   justifyContent="center"
