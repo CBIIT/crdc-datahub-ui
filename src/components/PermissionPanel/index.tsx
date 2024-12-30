@@ -21,7 +21,7 @@ import {
   RetrievePBACDefaultsInput,
   RETRIEVE_PBAC_DEFAULTS,
 } from "../../graphql";
-import { Logger } from "../../utils";
+import { ColumnizedPBACGroups, columnizePBACGroups, Logger } from "../../utils";
 
 const StyledAccordion = styled(Accordion)({
   width: "957px", // TODO: Need to fix the page layout
@@ -113,9 +113,7 @@ const PermissionPanel: FC = () => {
   const notificationsValue = watch("notifications");
   const roleRef = useRef<UserRole>(selectedRole);
 
-  const permissionColumns = useMemo<
-    { name: string; data: PBACDefault<AuthPermissions>[] }[][]
-  >(() => {
+  const permissionColumns = useMemo<ColumnizedPBACGroups<AuthPermissions>>(() => {
     if (!data?.retrievePBACDefaults && loading) {
       return [];
     }
@@ -126,31 +124,14 @@ const PermissionPanel: FC = () => {
       return [];
     }
 
-    const updatedPermissions: PBACDefault<AuthPermissions>[] = cloneDeep(defaults.permissions).map(
+    const remappedPermissions: PBACDefault<AuthPermissions>[] = cloneDeep(defaults.permissions).map(
       (p) => ({ ...p, checked: permissionsValue.includes(p._id) })
     );
 
-    const groupedPermissions: Record<string, PBACDefault<AuthPermissions>[]> =
-      updatedPermissions.reduce((acc, p) => {
-        if (!acc[p.group]) {
-          acc[p.group] = [];
-        }
-        acc[p.group].push(p);
-        return acc;
-      }, {});
-
-    const columns: { name: string; data: PBACDefault<AuthPermissions>[] }[][] = [[], [], []];
-    Object.entries(groupedPermissions).forEach(([name, permissions], index) => {
-      const placement = index > 1 ? 2 : index;
-      columns[placement].push({ name, data: permissions });
-    });
-
-    return columns;
+    return columnizePBACGroups(remappedPermissions, 3);
   }, [data, permissionsValue]);
 
-  const notificationColumns = useMemo<
-    { name: string; data: PBACDefault<AuthNotifications>[] }[][]
-  >(() => {
+  const notificationColumns = useMemo<ColumnizedPBACGroups<AuthNotifications>>(() => {
     if (!data?.retrievePBACDefaults && loading) {
       return [];
     }
@@ -161,26 +142,11 @@ const PermissionPanel: FC = () => {
       return [];
     }
 
-    const updatedNotifications: PBACDefault<AuthNotifications>[] = cloneDeep(
+    const remappedNotifications: PBACDefault<AuthNotifications>[] = cloneDeep(
       defaults.notifications
     ).map((n) => ({ ...n, checked: notificationsValue.includes(n._id) }));
 
-    const groupedNotifications: Record<string, PBACDefault<AuthNotifications>[]> =
-      updatedNotifications.reduce((acc, n) => {
-        if (!acc[n.group]) {
-          acc[n.group] = [];
-        }
-        acc[n.group].push(n);
-        return acc;
-      }, {});
-
-    const columns: { name: string; data: PBACDefault<AuthNotifications>[] }[][] = [[], [], []];
-    Object.entries(groupedNotifications).forEach(([name, notifications], index) => {
-      const placement = index > 1 ? 2 : index;
-      columns[placement].push({ name, data: notifications });
-    });
-
-    return columns;
+    return columnizePBACGroups(remappedNotifications, 3);
   }, [data, notificationsValue]);
 
   const handlePermissionChange = (_id: AuthPermissions) => {

@@ -58,7 +58,7 @@ type AuthNotifications =
  *
  * e.g. Permission or Notification
  */
-type PBACDefault<T> = {
+type PBACDefault<T = AuthNotifications | AuthPermissions> = {
   /**
    * The unique identifier of the PBAC object.
    *

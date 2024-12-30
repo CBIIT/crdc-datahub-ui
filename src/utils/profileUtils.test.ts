@@ -259,3 +259,127 @@ describe("userToCollaborator cases", () => {
     expect(mockFormatName).toHaveBeenCalledWith("John", "Doe");
   });
 });
+
+describe("columnizePBACGroups cases", () => {
+  const baseDefault: PBACDefault = {
+    _id: "access:request", // This is not actually used by the util
+    name: "",
+    group: "",
+    checked: false,
+    disabled: false,
+  };
+
+  it("should return empty array for invalid input", () => {
+    expect(utils.columnizePBACGroups([])).toEqual([]);
+    expect(utils.columnizePBACGroups(null)).toEqual([]);
+    expect(utils.columnizePBACGroups(undefined)).toEqual([]);
+  });
+
+  it("should group PBACDefaults into columns using the default colCount", () => {
+    const pbacDefaults: PBACDefault[] = [
+      { ...baseDefault, name: "1", group: "A" },
+      { ...baseDefault, name: "2", group: "A" },
+      { ...baseDefault, name: "3", group: "B" },
+      { ...baseDefault, name: "4", group: "B" },
+      { ...baseDefault, name: "5", group: "C" },
+      { ...baseDefault, name: "6", group: "C" },
+    ];
+
+    const columnized = utils.columnizePBACGroups(pbacDefaults);
+
+    expect(columnized).toHaveLength(3);
+    expect(columnized[0]).toHaveLength(1);
+    expect(columnized[1]).toHaveLength(1);
+    expect(columnized[2]).toHaveLength(1);
+
+    expect(columnized[0][0].data).toEqual([
+      { ...baseDefault, name: "1", group: "A" },
+      { ...baseDefault, name: "2", group: "A" },
+    ]);
+
+    expect(columnized[1][0].data).toEqual([
+      { ...baseDefault, name: "3", group: "B" },
+      { ...baseDefault, name: "4", group: "B" },
+    ]);
+
+    expect(columnized[2][0].data).toEqual([
+      { ...baseDefault, name: "5", group: "C" },
+      { ...baseDefault, name: "6", group: "C" },
+    ]);
+  });
+
+  it("should group PBACDefaults into columns using a custom colCount", () => {
+    const pbacDefaults: PBACDefault[] = [
+      { ...baseDefault, name: "1", group: "A" },
+      { ...baseDefault, name: "2", group: "B" },
+      { ...baseDefault, name: "3", group: "C" },
+      { ...baseDefault, name: "4", group: "D" },
+      { ...baseDefault, name: "5", group: "E" },
+      { ...baseDefault, name: "6", group: "F" },
+    ];
+
+    const columnized = utils.columnizePBACGroups(pbacDefaults, 2);
+
+    expect(columnized).toHaveLength(2);
+    expect(columnized[0]).toHaveLength(1);
+    expect(columnized[1]).toHaveLength(5);
+  });
+
+  it("should handle a higher colCount than the number of groups", () => {
+    const pbacDefaults: PBACDefault[] = [
+      { ...baseDefault, name: "1", group: "A" },
+      { ...baseDefault, name: "2", group: "B" },
+      { ...baseDefault, name: "3", group: "C" },
+    ];
+
+    const columnized = utils.columnizePBACGroups(pbacDefaults, 10);
+
+    expect(columnized).toHaveLength(3);
+    expect(columnized[0]).toHaveLength(1);
+    expect(columnized[1]).toHaveLength(1);
+    expect(columnized[2]).toHaveLength(1);
+  });
+
+  it("should handle PBACDefaults with no group", () => {
+    const pbacDefaults: PBACDefault[] = [
+      { ...baseDefault, name: "1", group: "A" },
+      { ...baseDefault, name: "2", group: "B" },
+      { ...baseDefault, name: "3", group: "" },
+    ];
+
+    const columnized = utils.columnizePBACGroups(pbacDefaults);
+
+    expect(columnized).toHaveLength(3);
+    expect(columnized[0]).toHaveLength(1);
+    expect(columnized[1]).toHaveLength(1);
+    expect(columnized[2]).toHaveLength(1);
+
+    expect(columnized[2][0].data).toEqual([{ ...baseDefault, name: "3", group: "" }]);
+  });
+
+  it("should fallback to an empty group name if the PBACDefault has an invalid group name", () => {
+    const pbacDefaults: PBACDefault[] = [
+      { ...baseDefault, name: "1", group: "valid" },
+      { ...baseDefault, name: "2", group: undefined },
+      { ...baseDefault, name: "3", group: null },
+      { ...baseDefault, name: "4", group: 3 as unknown as string },
+      { ...baseDefault, name: "5", group: { Obj: "yes" } as unknown as string },
+    ];
+
+    const columnized = utils.columnizePBACGroups(pbacDefaults, 10); // Set to 10 to ensure all groups COULD go to their own column
+
+    expect(columnized).toHaveLength(2);
+    expect(columnized[0]).toHaveLength(1);
+    expect(columnized[1]).toHaveLength(1); // 1 Group for all invalid
+
+    expect(columnized[0][0].data).toEqual([{ ...baseDefault, name: "1", group: "valid" }]);
+    expect(columnized[1][0].name).toBe("");
+    expect(columnized[1][0].data).toHaveLength(4); // All invalid groups are together
+    expect(columnized[1][0].data).toEqual([
+      pbacDefaults[1],
+      pbacDefaults[2],
+      pbacDefaults[3],
+      pbacDefaults[4],
+    ]);
+  });
+});
