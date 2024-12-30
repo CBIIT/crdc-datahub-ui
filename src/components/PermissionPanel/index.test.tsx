@@ -986,10 +986,6 @@ describe("Implementation Requirements", () => {
     );
   });
 
-  it.todo(
-    "should sort the permission groups in the following order: Submission Request, Data Submission, Admin, Miscellaneous"
-  );
-
   it("should propagate the permission and notification selections to the parent form", async () => {
     const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
       request: {
