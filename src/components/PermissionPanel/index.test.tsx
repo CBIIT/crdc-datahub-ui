@@ -299,6 +299,13 @@ describe("Basic Functionality", () => {
                   disabled: false,
                 },
                 {
+                  _id: "submission_request:submit",
+                  group: "Group1",
+                  name: "Create",
+                  checked: true,
+                  disabled: false,
+                },
+                {
                   _id: "submission_request:review",
                   group: "Group2",
                   name: "Create",
@@ -406,6 +413,13 @@ describe("Basic Functionality", () => {
                   _id: "access:requested",
                   group: "Group1",
                   name: "Notification 1",
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:deleted",
+                  group: "Group1",
+                  name: "Notification 1-2",
                   checked: true,
                   disabled: false,
                 },
@@ -852,7 +866,7 @@ describe("Implementation Requirements", () => {
                   group: "Submission Request",
                   name: "Create",
                   checked: true,
-                  disabled: false,
+                  disabled: true,
                 },
                 {
                   _id: "data_submission:view",
@@ -882,6 +896,7 @@ describe("Implementation Requirements", () => {
           ],
         },
       },
+      maxUsageCount: 999,
     };
 
     const formValues = {
@@ -911,7 +926,6 @@ describe("Implementation Requirements", () => {
     formValues.role = "Submitter";
 
     rerender(<PermissionPanel />);
-    rerender(<PermissionPanel />);
 
     await waitFor(() => {
       expect(getByTestId("permission-submission_request:create")).toBeInTheDocument();
@@ -921,9 +935,10 @@ describe("Implementation Requirements", () => {
       within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
         hidden: true,
       })
-    ).toBeChecked();
+    ).toBeDisabled();
+
     expect(
-      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
         hidden: true,
       })
     ).toBeDisabled();
@@ -1022,7 +1037,7 @@ describe("Implementation Requirements", () => {
       formValues[field] = value;
     });
 
-    const { getByTestId } = render(<PermissionPanel />, {
+    const { getByTestId, rerender } = render(<PermissionPanel />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -1045,6 +1060,16 @@ describe("Implementation Requirements", () => {
 
     expect(mockSetValue).toHaveBeenCalledWith("permissions", ["submission_request:create"]);
 
+    rerender(<PermissionPanel />); // Force the watch() to be called again and update the form values
+
+    userEvent.click(
+      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+
+    expect(mockSetValue).toHaveBeenCalledWith("permissions", []);
+
     userEvent.click(
       within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
         hidden: true,
@@ -1052,6 +1077,16 @@ describe("Implementation Requirements", () => {
     );
 
     expect(mockSetValue).toHaveBeenCalledWith("notifications", ["data_submission:cancelled"]);
+
+    rerender(<PermissionPanel />); // Force the watch() to be called again and update the form values
+
+    userEvent.click(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+
+    expect(mockSetValue).toHaveBeenCalledWith("notifications", []);
   });
 
   it("should render a notice when there are no default PBAC details for a role", async () => {
