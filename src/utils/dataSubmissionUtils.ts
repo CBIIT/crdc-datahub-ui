@@ -224,33 +224,3 @@ export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
   // Scenario 0: No restrictions, allow release
   return { disable: false, requireAlert: false };
 };
-
-/**
- * Determines whether or not a user is a collaborator of a given Data Submission
- *
- * @param {User} user The current user
- * @param {Submission} submission The current Data Submission
- * @returns {boolean} True if the current user is a collaborator of the current Data Submission
- */
-export const isCollaborator = (user: User, submission: Submission) => {
-  if (!user?._id || !submission?.collaborators?.length) {
-    return false;
-  }
-
-  return submission.collaborators.some((c) => c.collaboratorID === user._id);
-};
-
-/**
- * Determines whether or not a user is the submission owner of a given Data Submission
- *
- * @param {User} user The current user
- * @param {Submission} submission The current Data Submission
- * @returns {boolean} True if the current user is the submission owner of the current Data Submission
- */
-export const isSubmissionOwner = (user: User, submission: Submission) => {
-  if (!user?._id || !submission?.submitterID) {
-    return false;
-  }
-
-  return submission?.submitterID === user?._id;
-};
