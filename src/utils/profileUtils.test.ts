@@ -382,4 +382,32 @@ describe("columnizePBACGroups cases", () => {
       pbacDefaults[4],
     ]);
   });
+
+  it("should sort the groups in the order: Submission Request, Data Submission, Admin, Miscellaneous", () => {
+    const pbacDefaults: PBACDefault[] = [
+      { ...baseDefault, name: "6", group: "Random Group 1" }, // 5
+      { ...baseDefault, name: "1", group: "Data Submission" }, // 2
+      { ...baseDefault, name: "3", group: "Miscellaneous" }, // 4
+      { ...baseDefault, name: "2", group: "Admin" }, // 3
+      { ...baseDefault, name: "4", group: "Submission Request" }, // 1
+    ];
+
+    const columnized = utils.columnizePBACGroups(pbacDefaults, 4);
+
+    expect(columnized).toHaveLength(4);
+    expect(columnized[0]).toHaveLength(1);
+    expect(columnized[1]).toHaveLength(1);
+    expect(columnized[2]).toHaveLength(1);
+    expect(columnized[3]).toHaveLength(2);
+
+    expect(columnized[0][0].data).toEqual([
+      { ...baseDefault, name: "4", group: "Submission Request" },
+    ]);
+    expect(columnized[1][0].data).toEqual([
+      { ...baseDefault, name: "1", group: "Data Submission" },
+    ]);
+    expect(columnized[2][0].data).toEqual([{ ...baseDefault, name: "2", group: "Admin" }]);
+    expect(columnized[3][0].data).toEqual([{ ...baseDefault, name: "3", group: "Miscellaneous" }]);
+    expect(columnized[3][1].data).toEqual([{ ...baseDefault, name: "6", group: "Random Group 1" }]);
+  });
 });

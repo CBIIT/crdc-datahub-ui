@@ -89,8 +89,11 @@ export const columnizePBACGroups = <T = unknown>(
     groupedData[groupName].push(item);
   });
 
+  const sortedGroups = Object.entries(groupedData);
+  sortedGroups.sort(([a], [b]) => orderPBACGroups(a, b));
+
   const columns: ColumnizedPBACGroups<T> = [];
-  Object.entries(groupedData).forEach(([group, data], index) => {
+  sortedGroups.forEach(([group, data], index) => {
     const groupIndex = index > colCount - 1 ? colCount - 1 : index;
     if (!columns[groupIndex]) {
       columns[groupIndex] = [];
@@ -100,4 +103,40 @@ export const columnizePBACGroups = <T = unknown>(
   });
 
   return columns;
+};
+
+/**
+ * A utility function to order PBAC Groups by their partial group name in the following order:
+ *
+ * 1. Submission Request
+ * 2. Data Submission
+ * 3. Admin
+ * 4. Miscellaneous
+ * 5. All other groups
+ *
+ * If the name does not contain any of the above groups, it will be pushed to the end,
+ * but will not be sorted against other unlisted groups.
+ *
+ * @param groups The groups to order
+ * @returns The ordered groups in the format of Record<string, T[]>
+ */
+export const orderPBACGroups = (a: string, b: string): number => {
+  const SORT_PRIORITY = ["Submission Request", "Data Submission", "Admin", "Miscellaneous"];
+
+  const aIndex = SORT_PRIORITY.findIndex((group) => a.includes(group));
+  const bIndex = SORT_PRIORITY.findIndex((group) => b.includes(group));
+
+  if (aIndex === -1 && bIndex === -1) {
+    return 0;
+  }
+
+  if (aIndex === -1) {
+    return 1;
+  }
+
+  if (bIndex === -1) {
+    return -1;
+  }
+
+  return aIndex - bIndex;
 };
