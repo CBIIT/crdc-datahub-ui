@@ -4,6 +4,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Checkbox,
   FormControlLabel,
   FormGroup,
@@ -23,8 +24,15 @@ import {
 } from "../../graphql";
 import { ColumnizedPBACGroups, columnizePBACGroups, Logger } from "../../utils";
 
+const StyledBox = styled(Box)({
+  width: "957px",
+  transform: "translateX(-50%)",
+  marginLeft: "50%",
+  marginTop: "63px",
+});
+
 const StyledAccordion = styled(Accordion)({
-  width: "957px", // TODO: Need to fix the page layout
+  width: "100%",
 });
 
 const StyledAccordionSummary = styled(AccordionSummary)({
@@ -187,7 +195,7 @@ const PermissionPanel: FC = () => {
   }, [selectedRole]);
 
   return (
-    <>
+    <StyledBox>
       <StyledAccordion elevation={0} data-testid="permissions-accordion">
         <StyledAccordionSummary expandIcon={<ArrowDropDown />}>
           <StyledAccordionHeader component="span">Permissions</StyledAccordionHeader>
@@ -258,7 +266,7 @@ const PermissionPanel: FC = () => {
           </Grid2>
         </AccordionDetails>
       </StyledAccordion>
-    </>
+    </StyledBox>
   );
 };
 

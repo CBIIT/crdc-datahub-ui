@@ -95,6 +95,10 @@ const StyledHeaderText = styled(Typography)({
   fontWeight: 700,
 });
 
+const StyledForm = styled("form")({
+  width: "532px",
+});
+
 const StyledField = styled("div", { shouldForwardProp: (p) => p !== "visible" })<{
   visible?: boolean;
 }>(({ visible = true }) => ({
@@ -407,7 +411,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               <StyledHeaderText variant="h2">{user.email}</StyledHeaderText>
             </StyledHeader>
             <FormProvider {...methods}>
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <StyledForm onSubmit={handleSubmit(onSubmit)}>
                 <StyledField>
                   <StyledLabel>Account Type</StyledLabel>
                   {formatIDP(user.IDP)}
@@ -602,7 +606,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     </StyledButton>
                   )}
                 </StyledButtonStack>
-              </form>
+              </StyledForm>
             </FormProvider>
           </StyledContentStack>
         </Stack>
