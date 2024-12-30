@@ -94,6 +94,7 @@ type ActionConfig = {
 
 type ActionKey =
   | "Submit"
+  | "AdminSubmit"
   | "Release"
   | "Withdraw"
   | "SubmittedReject"
@@ -105,6 +106,11 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     hasPermission: (user, submission) =>
       hasPermission(user, "data_submission", "create", submission),
+    statuses: ["In Progress", "Withdrawn", "Rejected"],
+  },
+  AdminSubmit: {
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "admin_submit", submission),
     statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   Release: {
@@ -197,7 +203,8 @@ const DataSubmissionActions = ({
   return (
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Action Buttons */}
-      {canShowAction("Submit") ? (
+      {canShowAction("Submit") ||
+      (canShowAction("AdminSubmit") && submitActionButton?.isAdminOverride) ? (
         <Tooltip
           placement="top"
           title={submitActionButton?.tooltip}
