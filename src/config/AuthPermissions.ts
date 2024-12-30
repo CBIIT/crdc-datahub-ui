@@ -67,11 +67,106 @@ export const PERMISSION_MAP = {
   },
   data_submission: {
     view: NO_CONDITIONS,
-    create: NO_CONDITIONS,
-    validate: NO_CONDITIONS,
-    review: NO_CONDITIONS,
-    admin_submit: NO_CONDITIONS,
-    confirm: NO_CONDITIONS,
+    create: (user, submission) => {
+      const { role, dataCommons, studies } = user;
+      const hasPermissionKey = user?.permissions?.includes("data_submission:create");
+      const isSubmissionOwner = submission?.submitterID === user?._id;
+      const isCollaborator = submission?.collaborators?.some((c) => c.collaboratorID === user?._id);
+
+      if (isCollaborator) {
+        return true;
+      }
+      // Submitters from the same study are able to view the same submissions
+      // Therefore, they must be the submission owner or collaborator with permission key
+      if (role === "Submitter" && isSubmissionOwner && hasPermissionKey) {
+        return true;
+      }
+      if (role === "Federal Lead" && hasPermissionKey) {
+        return studies?.some((s) => s._id === submission.studyID);
+      }
+      if (role === "Data Commons Personnel" && hasPermissionKey) {
+        return dataCommons?.some((dc) => dc === submission?.dataCommons);
+      }
+      if (role === "Admin" && hasPermissionKey) {
+        return true;
+      }
+
+      return false;
+    },
+    validate: (user, submission) => {
+      const { role, dataCommons, studies } = user;
+      const hasPermissionKey = user?.permissions?.includes("data_submission:validate");
+      const isSubmissionOwner = submission?.submitterID === user?._id;
+      const isCollaborator = submission?.collaborators?.some((c) => c.collaboratorID === user?._id);
+
+      if (isCollaborator) {
+        return true;
+      }
+      // Submitters from the same study are able to view the same submissions
+      // Therefore, they must be the submission owner or collaborator with permission key
+      if (role === "Submitter" && isSubmissionOwner && hasPermissionKey) {
+        return true;
+      }
+      if (role === "Federal Lead" && hasPermissionKey) {
+        return studies?.some((s) => s._id === submission.studyID);
+      }
+      if (role === "Data Commons Personnel" && hasPermissionKey) {
+        return dataCommons?.some((dc) => dc === submission?.dataCommons);
+      }
+      if (role === "Admin" && hasPermissionKey) {
+        return true;
+      }
+
+      return false;
+    },
+    review: (user, submission) => {
+      const { role, dataCommons, studies } = user;
+      const hasPermissionKey = user?.permissions?.includes("data_submission:review");
+
+      if (role === "Federal Lead" && hasPermissionKey) {
+        return studies?.some((s) => s._id === submission.studyID);
+      }
+      if (role === "Data Commons Personnel" && hasPermissionKey) {
+        return dataCommons?.some((dc) => dc === submission?.dataCommons);
+      }
+      if (role === "Admin" && hasPermissionKey) {
+        return true;
+      }
+
+      return false;
+    },
+    admin_submit: (user, submission) => {
+      const { role, dataCommons, studies } = user;
+      const hasPermissionKey = user?.permissions?.includes("data_submission:admin_submit");
+
+      if (role === "Federal Lead" && hasPermissionKey) {
+        return studies?.some((s) => s._id === submission.studyID);
+      }
+      if (role === "Data Commons Personnel" && hasPermissionKey) {
+        return dataCommons?.some((dc) => dc === submission?.dataCommons);
+      }
+      if (role === "Admin" && hasPermissionKey) {
+        return true;
+      }
+
+      return false;
+    },
+    confirm: (user, submission) => {
+      const { role, dataCommons, studies } = user;
+      const hasPermissionKey = user?.permissions?.includes("data_submission:confirm");
+
+      if (role === "Federal Lead" && hasPermissionKey) {
+        return studies?.some((s) => s._id === submission.studyID);
+      }
+      if (role === "Data Commons Personnel" && hasPermissionKey) {
+        return dataCommons?.some((dc) => dc === submission?.dataCommons);
+      }
+      if (role === "Admin" && hasPermissionKey) {
+        return true;
+      }
+
+      return false;
+    },
   },
   access: {
     request: NO_CONDITIONS,
@@ -95,6 +190,7 @@ export const PERMISSION_MAP = {
  * @param {Resource} resource - The resource on which the action is being performed.
  * @param {Permissions[Resource]["action"]} action - The action to check permission for.
  * @param {Permissions[Resource]["dataType"]} [data] - Optional additional data needed for dynamic permission checks.
+ * @param {boolean} onlyKey - Optional flag for checking ONLY if the user has the permission key.
  * @returns {boolean} - `true` if the user has permission, otherwise `false`.
  *
  * @example
@@ -109,7 +205,8 @@ export const hasPermission = <Resource extends keyof Permissions>(
   user: User,
   resource: Resource,
   action: Permissions[Resource]["action"],
-  data?: Permissions[Resource]["dataType"]
+  data?: Permissions[Resource]["dataType"],
+  onlyKey?: boolean
 ): boolean => {
   if (!user?.role) {
     return false;
@@ -119,7 +216,7 @@ export const hasPermission = <Resource extends keyof Permissions>(
   const permissionKey = `${resource}:${action}`;
 
   // If no conditions need to be checked, just check if user has permission key
-  if (permission === NO_CONDITIONS) {
+  if (onlyKey || permission === NO_CONDITIONS) {
     return user.permissions?.includes(permissionKey as AuthPermissions);
   }
 
