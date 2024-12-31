@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
-// The base Issue model used for all submissionAggQCResults queries
+// The base Issue model used for all aggregatedSubmissionQCResults queries
 const BaseIssueFragment = gql`
-  fragment BaseIssueFragment on Issue {
+  fragment BaseIssueFragment on aggregatedQCResult {
     code
     title
   }
@@ -10,24 +10,25 @@ const BaseIssueFragment = gql`
 
 // The extended Issue model which includes all fields
 const FullIssueFragment = gql`
-  fragment IssueFragment on Issue {
+  fragment IssueFragment on aggregatedQCResult {
     severity
-    description
     count
   }
 `;
 
 export const query = gql`
-  query submissionAggQCResults(
+  query aggregatedSubmissionQCResults(
     $submissionID: ID!
+    $severity: String
     $first: Int
     $offset: Int
     $orderBy: String
     $sortDirection: String
     $partial: Boolean = false
   ) {
-    submissionAggQCResults(
+    aggregatedSubmissionQCResults(
       submissionID: $submissionID
+      severity: $severity
       first: $first
       offset: $offset
       orderBy: $orderBy
@@ -36,7 +37,7 @@ export const query = gql`
       total
       results {
         ...BaseIssueFragment
-        ...IssueFragment
+        ...IssueFragment @skip(if: $partial)
       }
     }
   }
@@ -46,6 +47,7 @@ export const query = gql`
 
 export type Input = {
   submissionID: string;
+  severity?: string;
   first?: number;
   offset?: number;
   orderBy?: string;
@@ -54,5 +56,5 @@ export type Input = {
 };
 
 export type Response = {
-  submissionAggQCResults: ValidationResult<Issue>;
+  aggregatedSubmissionQCResults: ValidationResult<Issue>;
 };

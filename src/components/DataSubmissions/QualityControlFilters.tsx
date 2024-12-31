@@ -10,8 +10,8 @@ import {
   ListBatchesResp,
   SUBMISSION_AGG_QC_RESULTS,
   SUBMISSION_STATS,
-  SubmissionAggQCResultsInput,
-  SubmissionAggQCResultsResp,
+  AggregatedSubmissionQCResultsInput,
+  AggregatedSubmissionQCResultsResp,
   SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
@@ -91,21 +91,21 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
 
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
-  const { data: issueTypes } = useQuery<SubmissionAggQCResultsResp, SubmissionAggQCResultsInput>(
-    SUBMISSION_AGG_QC_RESULTS,
-    {
-      variables: {
-        submissionID,
-        partial: true,
-        first: -1,
-        orderBy: "title",
-        sortDirection: "asc",
-      },
-      context: { clientName: "backend" },
-      skip: !submissionID,
-      fetchPolicy: "cache-and-network",
-    }
-  );
+  const { data: issueTypes } = useQuery<
+    AggregatedSubmissionQCResultsResp,
+    AggregatedSubmissionQCResultsInput
+  >(SUBMISSION_AGG_QC_RESULTS, {
+    variables: {
+      submissionID,
+      partial: true,
+      first: -1,
+      orderBy: "title",
+      sortDirection: "asc",
+    },
+    context: { clientName: "backend" },
+    skip: !submissionID,
+    fetchPolicy: "cache-and-network",
+  });
 
   const { data: batchData } = useQuery<ListBatchesResp<true>, ListBatchesInput>(LIST_BATCHES, {
     variables: {
@@ -191,7 +191,7 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
                 <MenuItem value="All" data-testid="issueType-all">
                   All
                 </MenuItem>
-                {issueTypes?.submissionAggQCResults?.results?.map((issue, idx) => (
+                {issueTypes?.aggregatedSubmissionQCResults?.results?.map((issue, idx) => (
                   <MenuItem
                     // eslint-disable-next-line react/no-array-index-key
                     key={`issue_${idx}_${issue.code}`}

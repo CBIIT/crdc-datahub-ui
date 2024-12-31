@@ -12,8 +12,8 @@ import {
   SUBMISSION_AGG_QC_RESULTS,
   SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
-  SubmissionAggQCResultsInput,
-  SubmissionAggQCResultsResp,
+  AggregatedSubmissionQCResultsInput,
+  AggregatedSubmissionQCResultsResp,
   SubmissionQCResultsResp,
   SubmissionStatsInput,
   SubmissionStatsResp,
@@ -116,7 +116,10 @@ const batchesMock: MockedResponse<ListBatchesResp<true>, ListBatchesInput> = {
   },
 };
 
-const issueTypesMock: MockedResponse<SubmissionAggQCResultsResp, SubmissionAggQCResultsInput> = {
+const issueTypesMock: MockedResponse<
+  AggregatedSubmissionQCResultsResp,
+  AggregatedSubmissionQCResultsInput
+> = {
   request: {
     query: SUBMISSION_AGG_QC_RESULTS,
     context: { clientName: "backend" },
@@ -124,7 +127,7 @@ const issueTypesMock: MockedResponse<SubmissionAggQCResultsResp, SubmissionAggQC
   variableMatcher: () => true,
   result: {
     data: {
-      submissionAggQCResults: {
+      aggregatedSubmissionQCResults: {
         total: 1,
         results: [
           {
@@ -141,7 +144,10 @@ const issueTypesMock: MockedResponse<SubmissionAggQCResultsResp, SubmissionAggQC
   },
 };
 
-const aggSubmissionMock: MockedResponse<SubmissionAggQCResultsResp, SubmissionAggQCResultsInput> = {
+const aggSubmissionMock: MockedResponse<
+  AggregatedSubmissionQCResultsResp,
+  AggregatedSubmissionQCResultsInput
+> = {
   request: {
     query: SUBMISSION_AGG_QC_RESULTS,
     context: { clientName: "backend" },
@@ -149,7 +155,7 @@ const aggSubmissionMock: MockedResponse<SubmissionAggQCResultsResp, SubmissionAg
   variableMatcher: () => true,
   result: {
     data: {
-      submissionAggQCResults: {
+      aggregatedSubmissionQCResults: {
         total: 2,
         results: [
           {
@@ -231,7 +237,7 @@ describe("General", () => {
       variableMatcher: () => true,
       error: new Error("Simulated network error"),
     };
-    const aggMocks: MockedResponse<SubmissionAggQCResultsResp, null> = {
+    const aggMocks: MockedResponse<AggregatedSubmissionQCResultsResp, null> = {
       request: {
         query: SUBMISSION_AGG_QC_RESULTS,
       },
@@ -292,7 +298,7 @@ describe("General", () => {
         errors: [new GraphQLError("Simulated GraphQL error")],
       },
     };
-    const aggMocks: MockedResponse<SubmissionAggQCResultsResp> = {
+    const aggMocks: MockedResponse<AggregatedSubmissionQCResultsResp> = {
       request: {
         query: SUBMISSION_AGG_QC_RESULTS,
       },

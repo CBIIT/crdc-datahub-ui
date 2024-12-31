@@ -9,8 +9,8 @@ import {
   SUBMISSION_AGG_QC_RESULTS,
   SUBMISSION_STATS,
   LIST_BATCHES,
-  SubmissionAggQCResultsResp,
-  SubmissionAggQCResultsInput,
+  AggregatedSubmissionQCResultsResp,
+  AggregatedSubmissionQCResultsInput,
   ListBatchesResp,
   ListBatchesInput,
   SubmissionStatsResp,
@@ -97,7 +97,10 @@ const TestParent: FC<TestParentProps> = ({
   );
 };
 
-const issueTypesMock: MockedResponse<SubmissionAggQCResultsResp, SubmissionAggQCResultsInput> = {
+const issueTypesMock: MockedResponse<
+  AggregatedSubmissionQCResultsResp,
+  AggregatedSubmissionQCResultsInput
+> = {
   request: {
     query: SUBMISSION_AGG_QC_RESULTS,
     variables: {
@@ -111,7 +114,7 @@ const issueTypesMock: MockedResponse<SubmissionAggQCResultsResp, SubmissionAggQC
   },
   result: {
     data: {
-      submissionAggQCResults: {
+      aggregatedSubmissionQCResults: {
         total: 1,
         results: [
           {
@@ -180,18 +183,20 @@ const submissionStatsMock: MockedResponse<SubmissionStatsResp, SubmissionStatsIn
   },
 };
 
-const emptyIssueTypesMock: MockedResponse<SubmissionAggQCResultsResp, SubmissionAggQCResultsInput> =
-  {
-    ...issueTypesMock,
-    result: {
-      data: {
-        submissionAggQCResults: {
-          total: 0,
-          results: [],
-        },
+const emptyIssueTypesMock: MockedResponse<
+  AggregatedSubmissionQCResultsResp,
+  AggregatedSubmissionQCResultsInput
+> = {
+  ...issueTypesMock,
+  result: {
+    data: {
+      aggregatedSubmissionQCResults: {
+        total: 0,
+        results: [],
       },
     },
-  };
+  },
+};
 
 const emptyBatchDataMock: MockedResponse<ListBatchesResp, ListBatchesInput> = {
   ...batchDataMock,

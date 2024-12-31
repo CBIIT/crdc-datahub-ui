@@ -15,8 +15,8 @@ import DoubleLabelSwitch from "../../components/DoubleLabelSwitch";
 import {
   SUBMISSION_AGG_QC_RESULTS,
   SUBMISSION_QC_RESULTS,
-  SubmissionAggQCResultsInput,
-  SubmissionAggQCResultsResp,
+  AggregatedSubmissionQCResultsInput,
+  AggregatedSubmissionQCResultsResp,
   SubmissionQCResultsInput,
   SubmissionQCResultsResp,
 } from "../../graphql";
@@ -290,9 +290,9 @@ const QualityControl: FC = () => {
     }
   );
 
-  const [submissionAggQCResults] = useLazyQuery<
-    SubmissionAggQCResultsResp,
-    SubmissionAggQCResultsInput
+  const [aggregatedSubmissionQCResults] = useLazyQuery<
+    AggregatedSubmissionQCResultsResp,
+    AggregatedSubmissionQCResultsInput
   >(SUBMISSION_AGG_QC_RESULTS, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
@@ -361,9 +361,10 @@ const QualityControl: FC = () => {
     try {
       setLoading(true);
 
-      const { data: d, error } = await submissionAggQCResults({
+      const { data: d, error } = await aggregatedSubmissionQCResults({
         variables: {
           submissionID: submissionId,
+          severity: filtersRef.current.severity?.toLowerCase() || "all",
           first,
           offset,
           sortDirection,
@@ -372,11 +373,11 @@ const QualityControl: FC = () => {
         context: { clientName: "backend" },
         fetchPolicy: "no-cache",
       });
-      if (error || !d?.submissionAggQCResults) {
+      if (error || !d?.aggregatedSubmissionQCResults) {
         throw new Error("Unable to retrieve submission aggregated quality control results.");
       }
-      setData(d.submissionAggQCResults.results);
-      setTotalData(d.submissionAggQCResults.total);
+      setData(d.aggregatedSubmissionQCResults.results);
+      setTotalData(d.aggregatedSubmissionQCResults.total);
     } catch (err) {
       Logger.error(`QualityControl: ${err?.toString()}`);
       enqueueSnackbar(err?.toString(), { variant: "error" });

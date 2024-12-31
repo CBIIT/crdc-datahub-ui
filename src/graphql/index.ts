@@ -75,11 +75,11 @@ export type {
   Response as SubmissionQCResultsResp,
 } from "./submissionQCResults";
 
-export { query as SUBMISSION_AGG_QC_RESULTS } from "./submissionAggQCResults";
+export { query as SUBMISSION_AGG_QC_RESULTS } from "./aggregatedSubmissionQCResults";
 export type {
-  Input as SubmissionAggQCResultsInput,
-  Response as SubmissionAggQCResultsResp,
-} from "./submissionAggQCResults";
+  Input as AggregatedSubmissionQCResultsInput,
+  Response as AggregatedSubmissionQCResultsResp,
+} from "./aggregatedSubmissionQCResults";
 
 export { query as SUBMISSION_CROSS_VALIDATION_RESULTS } from "./submissionCrossValidationResults";
 export type {
