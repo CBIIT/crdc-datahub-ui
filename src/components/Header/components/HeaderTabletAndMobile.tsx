@@ -186,6 +186,7 @@ const Header = () => {
       onClick: () => setUploaderToolOpen(true),
       id: "navbar-dropdown-item-uploader-tool",
       className: "navMobileSubItem action",
+      permissions: ["data_submission:create"],
     },
     {
       name: "Logout",
