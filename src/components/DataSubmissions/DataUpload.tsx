@@ -73,8 +73,6 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
     context: { clientName: "backend" },
   });
 
-  const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
-
   const handleConfigDownload = async ({ manifest, dataFolder }: InputForm) => {
     try {
       const { data, error } = await retrieveCLIConfig({
@@ -119,7 +117,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
         Download Configuration File
       </StyledDownloadButton>
     );
-  }, [submission, user, collaborator]);
+  }, [submission, user]);
 
   return (
     <FlowWrapper index={2} title="Upload Data Files" actions={Actions}>
