@@ -75,7 +75,7 @@ export type {
   Response as SubmissionQCResultsResp,
 } from "./submissionQCResults";
 
-export { query as SUBMISSION_AGG_QC_RESULTS } from "./aggregatedSubmissionQCResults";
+export { query as AGGREGATED_SUBMISSION_QC_RESULTS } from "./aggregatedSubmissionQCResults";
 export type {
   Input as AggregatedSubmissionQCResultsInput,
   Response as AggregatedSubmissionQCResultsResp,

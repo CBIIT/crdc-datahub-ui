@@ -8,7 +8,7 @@ import {
   LIST_BATCHES,
   ListBatchesInput,
   ListBatchesResp,
-  SUBMISSION_AGG_QC_RESULTS,
+  AGGREGATED_SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
   AggregatedSubmissionQCResultsInput,
   AggregatedSubmissionQCResultsResp,
@@ -94,7 +94,7 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
   const { data: issueTypes } = useQuery<
     AggregatedSubmissionQCResultsResp,
     AggregatedSubmissionQCResultsInput
-  >(SUBMISSION_AGG_QC_RESULTS, {
+  >(AGGREGATED_SUBMISSION_QC_RESULTS, {
     variables: {
       submissionID,
       partial: true,
@@ -180,7 +180,7 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
             render={({ field }) => (
               <StyledSelect
                 {...field}
-                inputProps={{ id: "issueType-filter", "date-testid": "issueType-filter" }}
+                inputProps={{ id: "issueType-filter", "data-testid": "issueType-filter" }}
                 data-testid="quality-control-issueType-filter"
                 MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                 onChange={(e) => {

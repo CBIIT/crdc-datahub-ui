@@ -9,7 +9,7 @@ import {
   LIST_BATCHES,
   ListBatchesInput,
   ListBatchesResp,
-  SUBMISSION_AGG_QC_RESULTS,
+  AGGREGATED_SUBMISSION_QC_RESULTS,
   SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
   AggregatedSubmissionQCResultsInput,
@@ -121,7 +121,7 @@ const issueTypesMock: MockedResponse<
   AggregatedSubmissionQCResultsInput
 > = {
   request: {
-    query: SUBMISSION_AGG_QC_RESULTS,
+    query: AGGREGATED_SUBMISSION_QC_RESULTS,
     context: { clientName: "backend" },
   },
   variableMatcher: () => true,
@@ -149,7 +149,7 @@ const aggSubmissionMock: MockedResponse<
   AggregatedSubmissionQCResultsInput
 > = {
   request: {
-    query: SUBMISSION_AGG_QC_RESULTS,
+    query: AGGREGATED_SUBMISSION_QC_RESULTS,
     context: { clientName: "backend" },
   },
   variableMatcher: () => true,
@@ -239,7 +239,7 @@ describe("General", () => {
     };
     const aggMocks: MockedResponse<AggregatedSubmissionQCResultsResp, null> = {
       request: {
-        query: SUBMISSION_AGG_QC_RESULTS,
+        query: AGGREGATED_SUBMISSION_QC_RESULTS,
       },
       variableMatcher: () => true,
       error: new Error("Simulated network error"),
@@ -300,7 +300,7 @@ describe("General", () => {
     };
     const aggMocks: MockedResponse<AggregatedSubmissionQCResultsResp> = {
       request: {
-        query: SUBMISSION_AGG_QC_RESULTS,
+        query: AGGREGATED_SUBMISSION_QC_RESULTS,
       },
       variableMatcher: () => true,
       result: {

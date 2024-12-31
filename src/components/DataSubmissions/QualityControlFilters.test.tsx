@@ -6,7 +6,7 @@ import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import QualityControlFilters from "./QualityControlFilters";
 import {
-  SUBMISSION_AGG_QC_RESULTS,
+  AGGREGATED_SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
   LIST_BATCHES,
   AggregatedSubmissionQCResultsResp,
@@ -102,7 +102,7 @@ const issueTypesMock: MockedResponse<
   AggregatedSubmissionQCResultsInput
 > = {
   request: {
-    query: SUBMISSION_AGG_QC_RESULTS,
+    query: AGGREGATED_SUBMISSION_QC_RESULTS,
     variables: {
       submissionID: "sub123",
       partial: true,
@@ -123,7 +123,7 @@ const issueTypesMock: MockedResponse<
             count: 100,
             description: "",
             severity: "Error",
-            __typename: "Issue", // Necessary or tests fail due to query fragments relying on type
+            __typename: "aggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
           } as Issue,
         ],
       },

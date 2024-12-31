@@ -13,7 +13,7 @@ import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import TruncatedText from "../../components/TruncatedText";
 import DoubleLabelSwitch from "../../components/DoubleLabelSwitch";
 import {
-  SUBMISSION_AGG_QC_RESULTS,
+  AGGREGATED_SUBMISSION_QC_RESULTS,
   SUBMISSION_QC_RESULTS,
   AggregatedSubmissionQCResultsInput,
   AggregatedSubmissionQCResultsResp,
@@ -293,7 +293,7 @@ const QualityControl: FC = () => {
   const [aggregatedSubmissionQCResults] = useLazyQuery<
     AggregatedSubmissionQCResultsResp,
     AggregatedSubmissionQCResultsInput
-  >(SUBMISSION_AGG_QC_RESULTS, {
+  >(AGGREGATED_SUBMISSION_QC_RESULTS, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
