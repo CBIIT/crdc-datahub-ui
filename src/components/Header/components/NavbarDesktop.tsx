@@ -547,10 +547,7 @@ const NavBar = () => {
                         <Button
                           id={dropItem.id}
                           className="dropdownItem dropdownItemButton"
-                          onClick={() => {
-                            dropItem.onClick?.();
-                            setClickedTitle("");
-                          }}
+                          onClick={dropItem.onClick}
                         >
                           {dropItem.name}
                         </Button>
