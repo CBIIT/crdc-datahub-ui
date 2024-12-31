@@ -17,6 +17,8 @@ describe("Users View", () => {
 
     expect(result.current.role).toBe("UNLOCKED");
     expect(result.current.userStatus).toBe("UNLOCKED");
+    expect(result.current.permissions).toBe("UNLOCKED");
+    expect(result.current.notifications).toBe("UNLOCKED");
   });
 
   it("should return READ_ONLY for all standard fields when a Submitter views the page", () => {
@@ -130,6 +132,27 @@ describe("Profile View", () => {
     expect(result.current.studies).toBe("HIDDEN");
   });
 
+  it.each<UserRole>([
+    "User",
+    "Submitter",
+    "Federal Lead",
+    "Data Commons Personnel",
+    "fake role" as UserRole,
+  ])(
+    "should return HIDDEN for the permissions and notifications panel on the profile page for role %s",
+    (role) => {
+      const user = { _id: "User-A", role } as User;
+      const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
+
+      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+
+      const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
+
+      expect(result.current.permissions).toBe("HIDDEN");
+      expect(result.current.notifications).toBe("HIDDEN");
+    }
+  );
+
   it.each<[state: FieldState, role: UserRole]>([
     ["HIDDEN", "User"],
     ["HIDDEN", "Submitter"],
@@ -172,6 +195,8 @@ describe("Profile View", () => {
       expect(result.current.userStatus).toBe("READ_ONLY");
       expect(result.current.dataCommons).toBe("HIDDEN");
       expect(result.current.studies).toBe("HIDDEN");
+      expect(result.current.permissions).toBe("HIDDEN");
+      expect(result.current.notifications).toBe("HIDDEN");
     }
   );
 
