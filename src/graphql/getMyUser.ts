@@ -19,6 +19,7 @@ export const query = gql`
         controlledAccess
       }
       permissions
+      notifications
       createdAt
       updateAt
     }
