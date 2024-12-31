@@ -16,9 +16,6 @@ const StyledPaginationWrapper = styled(Stack, {
   alignItems: "center",
   width: "100%",
   borderTop: verticalPlacement === "bottom" ? "2px solid #083A50" : "none",
-
-  paddingTop: "7px",
-  paddingBottom: "6px",
   paddingLeft: "24px",
   paddingRight: "2px",
 }));
@@ -60,9 +57,10 @@ const StyledTablePagination = styled(MuiTablePagination, {
     marginBottom: 0,
   },
   "& .MuiToolbar-root": {
-    minHeight: "40px",
+    minHeight: "43px",
     height: "fit-content",
-    padding: 0,
+    paddingTop: "7px",
+    paddingBottom: "6px",
     background: "#FFFFFF",
     ...(placement && {
       justifyContent: placement,
