@@ -80,7 +80,6 @@ type SubmissionRequestPermissions =
 type DataSubmissionPermissions =
   | "data_submission:view"
   | "data_submission:create"
-  | "data_submission:validate"
   | "data_submission:review"
   | "data_submission:admin_submit"
   | "data_submission:confirm";

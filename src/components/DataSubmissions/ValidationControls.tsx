@@ -83,11 +83,11 @@ const ValidateMap: Partial<
   Record<Submission["status"], (user: User, submission: Submission) => boolean>
 > = {
   "In Progress": (user: User, submission: Submission) =>
-    hasPermission(user, "data_submission", "validate", submission),
+    hasPermission(user, "data_submission", "create", submission),
   Withdrawn: (user: User, submission: Submission) =>
-    hasPermission(user, "data_submission", "validate", submission),
+    hasPermission(user, "data_submission", "create", submission),
   Rejected: (user: User, submission: Submission) =>
-    hasPermission(user, "data_submission", "validate", submission),
+    hasPermission(user, "data_submission", "create", submission),
   Submitted: (user: User, submission: Submission) =>
     hasPermission(user, "data_submission", "review", submission),
 };
