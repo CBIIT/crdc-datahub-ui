@@ -145,7 +145,7 @@ const ValidationControls: FC = () => {
     }
 
     return dataSubmission?.metadataValidationStatus !== null;
-  }, [user?.role, dataSubmission]);
+  }, [user, dataSubmission]);
 
   const canValidateFiles: boolean = useMemo(() => {
     const hasPermission = ValidateMap[dataSubmission?.status]
@@ -162,7 +162,7 @@ const ValidationControls: FC = () => {
     }
 
     return dataSubmission?.fileValidationStatus !== null;
-  }, [user?.role, dataSubmission]);
+  }, [user, dataSubmission]);
 
   const [validateSubmission] = useMutation<ValidateSubmissionResp, ValidateSubmissionInput>(
     VALIDATE_SUBMISSION,
