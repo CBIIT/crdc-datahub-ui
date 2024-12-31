@@ -557,7 +557,7 @@ const NavBar = () => {
                 </Link>
               </span>
             )}
-            {hasPermission(user, "data_submission", "create") ? (
+            {hasPermission(user, "data_submission", "create", null, true) ? (
               <span className="dropdownItem">
                 <Button
                   id="navbar-dropdown-item-name-api-token"

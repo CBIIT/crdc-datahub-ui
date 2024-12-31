@@ -111,7 +111,7 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
   const isLoading = collaboratorLoading || status === AuthStatus.LOADING;
   const canModifyCollaborators = useMemo(
     () =>
-      hasPermission(user, "data_submission", "create") &&
+      hasPermission(user, "data_submission", "create", null, true) &&
       submission?.getSubmission?.submitterID === user?._id,
     [user, submission?.getSubmission]
   );

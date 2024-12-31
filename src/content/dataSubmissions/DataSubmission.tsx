@@ -168,7 +168,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   const dataSubmissionListPageUrl = `/data-submissions${
     lastSearchParams?.["/data-submissions"] ?? ""
   }`;
-  const isValidTab = tab && Object.values(URLTabs).includes(tab);
   const activityRef = useRef<DataActivityRef>(null);
   const hasUploadingBatches = useMemo<boolean>(
     () => data?.batchStatusList?.batches?.some((b) => b.status === "Uploading"),
@@ -176,20 +175,21 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   );
   const crossValidationVisible: boolean = useMemo<boolean>(
     () =>
-      hasPermission(null, "data_submission", "review") &&
+      hasPermission(user, "data_submission", "review", data?.getSubmission) &&
       data?.getSubmission?.crossSubmissionStatus !== null,
-    [user?.role, data?.getSubmission?.crossSubmissionStatus]
+    [user, data?.getSubmission]
   );
+  const isValidTab =
+    tab &&
+    Object.values(URLTabs).includes(tab) &&
+    (tab !== URLTabs.CROSS_VALIDATION_RESULTS || crossValidationVisible);
 
   const submitInfo: SubmitButtonResult = useMemo(() => {
-    if (!data?.getSubmission?._id || !hasPermission(user, "data_submission", "create")) {
-      return { enabled: false };
-    }
-    if (hasUploadingBatches) {
+    if (!data?.getSubmission?._id || hasUploadingBatches) {
       return { enabled: false };
     }
 
-    return shouldEnableSubmit(data.getSubmission, user?.role);
+    return shouldEnableSubmit(data.getSubmission, user);
   }, [data?.getSubmission, user, hasUploadingBatches]);
   const releaseInfo: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
@@ -254,6 +254,12 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     }
   }, [error]);
 
+  useEffect(() => {
+    if (!isValidTab) {
+      navigate(`/data-submission/${submissionId}/${URLTabs.UPLOAD_ACTIVITY}`, { replace: true });
+    }
+  }, [isValidTab]);
+
   return (
     <StyledWrapper>
       <StyledBanner bannerSrc={bannerPng} />
@@ -310,7 +316,9 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
               {/* Primary Tab Content */}
               {tab === URLTabs.UPLOAD_ACTIVITY && <DataActivity ref={activityRef} />}
               {tab === URLTabs.VALIDATION_RESULTS && <QualityControl />}
-              {tab === URLTabs.CROSS_VALIDATION_RESULTS && <CrossValidation />}
+              {tab === URLTabs.CROSS_VALIDATION_RESULTS && crossValidationVisible && (
+                <CrossValidation />
+              )}
               {tab === URLTabs.SUBMITTED_DATA && <SubmittedData />}
 
               {/* Return to Data Submission List Button */}

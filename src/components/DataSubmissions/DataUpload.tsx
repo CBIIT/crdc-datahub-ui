@@ -73,8 +73,6 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
     context: { clientName: "backend" },
   });
 
-  const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
-
   const handleConfigDownload = async ({ manifest, dataFolder }: InputForm) => {
     try {
       const { data, error } = await retrieveCLIConfig({
@@ -110,10 +108,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
 
     return (
       <StyledDownloadButton
-        disabled={
-          (collaborator && collaborator.permission !== "Can Edit") ||
-          !hasPermission(user, "data_submission", "create")
-        }
+        disabled={!hasPermission(user, "data_submission", "create", submission)}
         onClick={() => setConfigDialogOpen(true)}
         variant="contained"
         color="info"
@@ -122,7 +117,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
         Download Configuration File
       </StyledDownloadButton>
     );
-  }, [submission?.dataType, user?.role, collaborator]);
+  }, [submission, user]);
 
   return (
     <FlowWrapper index={2} title="Upload Data Files" actions={Actions}>

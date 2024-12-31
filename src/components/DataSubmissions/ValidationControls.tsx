@@ -79,11 +79,17 @@ const StyledRadioControl = styled(FormControlLabel)({
  *
  * @note All of the permission logic really should be refactored into a hook or otherwise.
  */
-const ValidateMap: Partial<Record<Submission["status"], (user: User) => boolean>> = {
-  "In Progress": (user: User) => hasPermission(user, "data_submission", "create"),
-  Withdrawn: (user: User) => hasPermission(user, "data_submission", "create"),
-  Rejected: (user: User) => hasPermission(user, "data_submission", "create"),
-  Submitted: (user: User) => hasPermission(user, "data_submission", "review"),
+const ValidateMap: Partial<
+  Record<Submission["status"], (user: User, submission: Submission) => boolean>
+> = {
+  "In Progress": (user: User, submission: Submission) =>
+    hasPermission(user, "data_submission", "create", submission),
+  Withdrawn: (user: User, submission: Submission) =>
+    hasPermission(user, "data_submission", "create", submission),
+  Rejected: (user: User, submission: Submission) =>
+    hasPermission(user, "data_submission", "create", submission),
+  Submitted: (user: User, submission: Submission) =>
+    hasPermission(user, "data_submission", "review", submission),
 };
 
 const CustomTooltip = (props: TooltipProps) => (
@@ -119,8 +125,6 @@ const ValidationControls: FC = () => {
   const [uploadType, setUploadType] = useState<ValidationTarget>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const collaborator = dataSubmission?.collaborators?.find((c) => c.collaboratorID === user?._id);
-
   const isValidating = useMemo<boolean>(
     () =>
       dataSubmission?.fileValidationStatus === "Validating" ||
@@ -131,7 +135,7 @@ const ValidationControls: FC = () => {
 
   const canValidateMetadata: boolean = useMemo(() => {
     const hasPermission = ValidateMap[dataSubmission?.status]
-      ? ValidateMap[dataSubmission?.status](user)
+      ? ValidateMap[dataSubmission?.status](user, dataSubmission)
       : null;
     if (!user?.role || !dataSubmission?.status || hasPermission === null) {
       return false;
@@ -139,16 +143,13 @@ const ValidationControls: FC = () => {
     if (hasPermission === false) {
       return false;
     }
-    if (collaborator && collaborator.permission !== "Can Edit") {
-      return false;
-    }
 
     return dataSubmission?.metadataValidationStatus !== null;
-  }, [user?.role, dataSubmission?.metadataValidationStatus, dataSubmission?.status, collaborator]);
+  }, [user, dataSubmission]);
 
   const canValidateFiles: boolean = useMemo(() => {
     const hasPermission = ValidateMap[dataSubmission?.status]
-      ? ValidateMap[dataSubmission?.status](user)
+      ? ValidateMap[dataSubmission?.status](user, dataSubmission)
       : null;
     if (!user?.role || !dataSubmission?.status || hasPermission === null) {
       return false;
@@ -159,12 +160,9 @@ const ValidationControls: FC = () => {
     if (dataSubmission.intention === "Delete" || dataSubmission.dataType === "Metadata Only") {
       return false;
     }
-    if (collaborator && collaborator.permission !== "Can Edit") {
-      return false;
-    }
 
     return dataSubmission?.fileValidationStatus !== null;
-  }, [user?.role, dataSubmission?.fileValidationStatus, dataSubmission?.status, collaborator]);
+  }, [user, dataSubmission]);
 
   const [validateSubmission] = useMutation<ValidateSubmissionResp, ValidateSubmissionInput>(
     VALIDATE_SUBMISSION,
