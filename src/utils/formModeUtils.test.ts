@@ -11,13 +11,6 @@ describe("getFormMode tests based on provided requirements", () => {
     IDP: "nih",
     createdAt: "2023-05-01T09:23:30Z",
     updateAt: "2023-05-02T09:23:30Z",
-    organization: {
-      orgID: "org1",
-      orgName: "TestOrg",
-      status: "Active",
-      createdAt: "2023-05-01T09:23:30Z",
-      updateAt: "2023-05-02T09:23:30Z",
-    },
     studies: null,
     dataCommons: [],
   };
@@ -28,10 +21,6 @@ describe("getFormMode tests based on provided requirements", () => {
     _id: "submission-123",
     questionnaireData: InitialQuestionnaire,
     status: "New",
-    organization: {
-      _id: baseUser.organization.orgID,
-      name: baseUser.organization.orgName,
-    },
     applicant: {
       applicantID: baseUser._id,
       applicantName: baseUser.firstName,

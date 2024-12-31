@@ -25,18 +25,20 @@ type User = {
    * The user's organization if assigned, null otherwise
    *
    * @see {@link OrgInfo}
+   * @deprecated This field is deprecated and NOT populated by all APIs. Remove ASAP.
    */
-  organization: OrgInfo | null;
+  organization?: OrgInfo | null;
   /**
    * List of data commons that the user has access to
    */
   dataCommons: string[];
   /**
-   * A list of studyIDs that the user is assigned to
+   * List of ApprovedStudies that the user has access to
    *
-   * @see {@link ApprovedStudy}
+   * @note Not all APIs populate this field fully, refer to the GraphQL query for available fields
+   * @see {@link ApprovedStudy} for available fields
    */
-  studies: string[] | null;
+  studies: Partial<ApprovedStudy>[] | null;
   /**
    * The SSO IDP used to login
    */
@@ -73,18 +75,66 @@ type OrgInfo = {
   orgID: string;
   orgName: string;
   status: "Active" | "Inactive";
-  createdAt: string; // 2023-05-01T09:23:30Z, ISO data time format
-  updateAt: string; // 2023-05-01T09:23:30Z  ISO data time format
+  createdAt: string;
+  updateAt: string;
 };
 
+/**
+ * Represents an Organization object
+ *
+ * @note Since 3.2.0, this is now called `Program` visually
+ */
 type Organization = {
+  /**
+   * The UUIDv4 identifier of the organization
+   */
   _id: string;
+  /**
+   * The name of the organization
+   */
   name: string;
+  /**
+   * The abbreviation of the organization
+   *
+   * @since 3.2.0
+   */
+  abbreviation: string;
+  /**
+   * The description of the organization
+   *
+   * @since 3.2.0
+   */
+  description: string;
+  /**
+   * The status of the organization
+   */
   status: "Active" | "Inactive";
+  /**
+   * The ID of the concierge assigned to the organization
+   */
   conciergeID: string | null;
+  /**
+   * The formatted name of the concierge assigned to the organization
+   */
   conciergeName: string | null;
+  /**
+   * The email of the concierge assigned to the organization
+   */
   conciergeEmail: string | null;
+  /**
+   * An array of assigned studies to the organization
+   */
   studies: ApprovedStudy[];
-  createdAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
-  updateAt: string; // YYYY-MM-DDTHH:mm:ss.sssZ
+  /**
+   * The date of the object creation
+   *
+   * @note ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
+   */
+  createdAt: string;
+  /**
+   * The last update date of the object
+   *
+   * @note ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
+   */
+  updateAt: string;
 };

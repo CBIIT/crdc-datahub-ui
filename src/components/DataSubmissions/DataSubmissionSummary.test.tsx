@@ -32,7 +32,6 @@ const baseUser: User = {
   role: null,
   IDP: "nih",
   email: "",
-  organization: null,
   studies: null,
   dataCommons: [],
   createdAt: "",
@@ -139,7 +138,7 @@ describe("Basic Functionality", () => {
       dataCommons: "Test Commons AAAAAA",
       organization: {
         _id: "",
-        name: "Test Organization AAAAAA",
+        name: "Test Program AAAAAA",
       },
       conciergeName: "Test Concierge AAAAAA",
       conciergeEmail: "concierge@test.com",
@@ -158,7 +157,7 @@ describe("Basic Functionality", () => {
     expect(getByText("Collaborators")).toBeVisible();
     expect(getByText("Study")).toBeVisible();
     expect(getByText("Data Commons")).toBeVisible();
-    expect(getByText("Organization")).toBeVisible();
+    expect(getByText("Program")).toBeVisible();
     expect(getByText("Primary Contact")).toBeVisible();
 
     // Check values
@@ -167,7 +166,7 @@ describe("Basic Functionality", () => {
     expect(getByText("Submitter Test A...")).toBeVisible();
     expect(getByText("AAAAAAAAAAAAAAAA...")).toBeVisible();
     expect(getByText("Test Commons AAAAAA")).toBeVisible(); // Not truncated
-    expect(getByText("Test Organizatio...")).toBeVisible();
+    expect(getByText("Test Program AAA...")).toBeVisible();
     expect(getByText("Test Concierge A...")).toBeVisible();
 
     expect(getByText("2")).toBeVisible();
@@ -264,6 +263,21 @@ describe("Basic Functionality", () => {
 
     const emailLink = queryByLabelText("Email Primary Contact");
     expect(emailLink).toBeNull();
+  });
+
+  it("renders the Program as NA when no program is assigned", () => {
+    const dataSubmission: RecursivePartial<Submission> = {
+      organization: null,
+    };
+
+    const { getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
+
+    expect(getByText("Program")).toBeVisible();
+    expect(getByText("NA")).toBeVisible();
   });
 });
 

@@ -16,7 +16,6 @@ import {
   REOPEN_APP,
   RejectAppResp,
   ReopenAppResp,
-  ReviewAppResp,
 } from "../../graphql";
 
 const baseApplication: Omit<Application, "questionnaireData"> = {
@@ -35,14 +34,12 @@ const baseApplication: Omit<Application, "questionnaireData"> = {
     applicantName: "",
     applicantEmail: "",
   },
-  organization: {
-    _id: "",
-    name: "",
-  },
   programName: "",
   studyAbbreviation: "",
   conditional: false,
   pendingConditions: [],
+  programAbbreviation: "",
+  programDescription: "",
 };
 
 const baseQuestionnaireData: QuestionnaireData = {
@@ -67,11 +64,10 @@ const baseQuestionnaireData: QuestionnaireData = {
   },
   additionalContacts: [],
   program: {
+    _id: "",
     name: "",
     abbreviation: "",
     description: "",
-    notApplicable: false,
-    isCustom: false,
   },
   study: {
     name: "",
@@ -885,7 +881,8 @@ describe("reopenForm Tests", () => {
         data: {
           reopenApplication: {
             _id: "mock-reopen-id",
-          } as ReviewAppResp["reviewApplication"],
+            status: "In Progress",
+          } as ReopenAppResp["reopenApplication"],
         },
       },
     };

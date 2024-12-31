@@ -87,8 +87,8 @@ const ConfirmDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest }) =
     </StyledCloseDialogButton>
     <StyledDialogContent>
       <StyledBodyText id="confirm-dialog-body" variant="h6">
-        Currently, there are active data submissions for this study within this organization. Are
-        you sure you want to remove this study from the organization?
+        Currently, there are active data submissions for this study within this program. Are you
+        sure you want to remove this study from the program?
       </StyledBodyText>
     </StyledDialogContent>
     <StyledDialogActions>

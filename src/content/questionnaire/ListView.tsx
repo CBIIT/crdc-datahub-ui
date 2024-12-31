@@ -36,7 +36,7 @@ import { CanCreateSubmissionRequest } from "../../config/AuthRoles";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import Tooltip from "../../components/Tooltip";
 
-type T = Omit<Application, "questionnaireData">;
+type T = ListApplicationsResp["listApplications"]["applications"][number];
 
 const StyledButton = styled(LoadingButton)({
   padding: "14px 20px",
@@ -132,11 +132,6 @@ const columns: Column<T>[] = [
     label: "Submitter Name",
     renderValue: (a) => <TruncatedText text={a.applicant?.applicantName} />,
     fieldKey: "applicant.applicantName",
-  },
-  {
-    label: "Organization",
-    renderValue: (a) => <TruncatedText text={a?.organization?.name} />,
-    fieldKey: "organization.name",
   },
   {
     label: "Study",
@@ -301,7 +296,6 @@ const ListingView: FC = () => {
       variables: {
         application: {
           _id: undefined,
-          programName: "",
           studyName: "",
           studyAbbreviation: "",
           questionnaireData: "{}",
@@ -309,6 +303,9 @@ const ListingView: FC = () => {
           openAccess: false,
           ORCID: "",
           PI: "",
+          programName: "",
+          programAbbreviation: "",
+          programDescription: "",
         },
       },
     }).catch((e) => ({ data: null, errors: e }));

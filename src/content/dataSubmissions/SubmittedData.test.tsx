@@ -34,7 +34,6 @@ const baseUser: User = {
   role: "Submitter", // NOTE: This role has access to everything nested here by default
   IDP: "nih",
   email: "",
-  organization: null,
   studies: null,
   dataCommons: [],
   createdAt: "",

@@ -17,8 +17,9 @@ import {
   CREATE_SUBMISSION,
   CreateSubmissionResp,
   CreateSubmissionInput,
-  ListApprovedStudiesOfMyOrgResp,
-  LIST_APPROVED_STUDIES_OF_MY_ORG,
+  ListApprovedStudiesResp,
+  ListApprovedStudiesInput,
+  LIST_APPROVED_STUDIES,
 } from "../../graphql";
 import RadioInput, { RadioOption } from "./RadioInput";
 import { DataCommons } from "../../config/DataCommons";
@@ -32,6 +33,7 @@ import StyledLabel from "../StyledFormComponents/StyledLabel";
 import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
 import Tooltip from "../Tooltip";
 import { Logger, validateEmoji } from "../../utils";
+import { RequiresStudiesAssigned } from "../../config/AuthRoles";
 
 const CreateSubmissionDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -170,10 +172,6 @@ const StyledField = styled("div")({
   position: "relative",
 });
 
-const StyledOrganizationField = styled(StyledField)({
-  marginBottom: "25px",
-});
-
 const StyledHelperText = styled(BaseStyledHelperText)({
   marginTop: "5px",
 });
@@ -222,9 +220,16 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
   const [creatingSubmission, setCreatingSubmission] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-
   const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
   const [dbGaPID, setDbGaPID] = useState<string>("");
+
+  const shouldFetchAllStudies = useMemo<boolean>(
+    () =>
+      creatingSubmission &&
+      (!RequiresStudiesAssigned.includes(user?.role) ||
+        (user?.studies || [])?.findIndex((s) => s?._id === "All") !== -1),
+    [creatingSubmission, user?.role, user?.studies]
+  );
 
   const [createDataSubmission] = useMutation<CreateSubmissionResp, CreateSubmissionInput>(
     CREATE_SUBMISSION,
@@ -234,20 +239,28 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     }
   );
 
-  const { data: approvedStudiesData, loading: approvedStudiesLoading } =
-    useQuery<ListApprovedStudiesOfMyOrgResp>(LIST_APPROVED_STUDIES_OF_MY_ORG, {
+  const { data: allStudies } = useQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
+    LIST_APPROVED_STUDIES,
+    {
+      variables: { first: -1, orderBy: "studyAbbreviation", sortDirection: "asc" },
       context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-    });
-
-  const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
-  const hasOrganizationAssigned = user?.organization !== null && user?.organization?.orgID !== null;
-  const intention = watch("intention");
-  const userHasInactiveOrg = useMemo(
-    () => user?.organization?.status === "Inactive",
-    [user?.organization?.status]
+      fetchPolicy: "cache-first",
+      skip: !shouldFetchAllStudies,
+    }
   );
 
+  const studies = useMemo<User["studies"]>(() => {
+    if (shouldFetchAllStudies) {
+      return allStudies?.listApprovedStudies?.studies || [];
+    }
+
+    return (
+      user?.studies?.sort((a, b) => a?.studyAbbreviation?.localeCompare(b?.studyAbbreviation)) || []
+    );
+  }, [shouldFetchAllStudies, allStudies, user?.studies]);
+
+  const orgOwnerOrSubmitter = user?.role === "Organization Owner" || user?.role === "Submitter";
+  const intention = watch("intention");
   const submissionTypeOptions: RadioOption[] = [
     {
       label: "New/Update",
@@ -307,6 +320,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
       return;
     }
 
+    reset();
     setCreatingSubmission(false);
     setError(false);
     onCreate();
@@ -326,9 +340,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
   useEffect(() => {
     const studyID = watch("studyID");
-    const mappedStudy = approvedStudiesData?.listApprovedStudiesOfMyOrganization?.find(
-      (s) => s._id === studyID
-    );
+    const mappedStudy = studies?.find((s) => s?._id === studyID);
 
     if (!studyID || !mappedStudy) {
       setDbGaPID("");
@@ -338,7 +350,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
     setDbGaPID(mappedStudy.dbGaPID || "");
     setIsDbGapRequired(mappedStudy.controlledAccess);
-  }, [watch("studyID")]);
+  }, [watch("studyID"), studies]);
 
   return (
     <>
@@ -415,14 +427,6 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 {errors?.intention?.message}
               </StyledHelperText>
             </StyledField>
-            <StyledOrganizationField>
-              <StyledLabel id="organization">Organization</StyledLabel>
-              <StyledOutlinedInput
-                value={user?.organization?.orgName}
-                inputProps={{ "aria-labelledby": "organization" }}
-                readOnly
-              />
-            </StyledOrganizationField>
             <StyledField>
               <StyledLabel id="dataCommons">
                 Data Commons
@@ -471,7 +475,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     inputProps={{ "aria-labelledby": "study" }}
                     data-testid="create-data-submission-dialog-study-id-input"
                   >
-                    {approvedStudiesData?.listApprovedStudiesOfMyOrganization?.map((study) => (
+                    {studies.map((study) => (
                       <MenuItem key={study._id} value={study._id}>
                         {study.studyAbbreviation}
                       </MenuItem>
@@ -572,28 +576,14 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
 
       {orgOwnerOrSubmitter && (
         <StyledTooltipWrapper alignItems="center" justifyContent="flex-end">
-          <Tooltip
-            placement="top"
-            title="Your associated organization is inactive. You cannot create a data submission at this time."
-            open={undefined}
-            disableHoverListener={!userHasInactiveOrg}
+          <StyledButton
+            type="button"
+            variant="contained"
+            onClick={handleOpenDialog}
+            disabled={authStatus === AuthStatus.LOADING}
           >
-            <span>
-              <StyledButton
-                type="button"
-                variant="contained"
-                onClick={handleOpenDialog}
-                disabled={
-                  !hasOrganizationAssigned ||
-                  userHasInactiveOrg ||
-                  authStatus === AuthStatus.LOADING ||
-                  approvedStudiesLoading
-                }
-              >
-                Create a Data Submission
-              </StyledButton>
-            </span>
-          </Tooltip>
+            Create a Data Submission
+          </StyledButton>
         </StyledTooltipWrapper>
       )}
     </>

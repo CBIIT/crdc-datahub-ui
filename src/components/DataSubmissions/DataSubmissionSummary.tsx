@@ -43,7 +43,6 @@ const StyledReviewCommentsButton = styled(Button)(() => ({
     padding: "11px 10px",
     border: "1px solid #B3B3B3",
     color: "#BE4511",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
     fontWeight: 700,
@@ -70,7 +69,6 @@ const StyledHistoryButton = styled(Button)(() => ({
     padding: "11px 20px",
     border: "1px solid #B3B3B3",
     color: "#004A80",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
     fontWeight: 700,
@@ -254,8 +252,8 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             truncateAfter={false}
           />
           <SubmissionHeaderProperty
-            label="Organization"
-            value={dataSubmission?.organization?.name}
+            label="Program"
+            value={dataSubmission?.organization?.name ?? "NA"}
           />
           <SubmissionHeaderProperty
             label="Primary Contact"

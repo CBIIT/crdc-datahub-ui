@@ -6,7 +6,7 @@ import { useSnackbar } from "notistack";
 import { useLazyQuery } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import PageBanner from "../../components/PageBanner";
-import { FormatDate } from "../../utils";
+import { FormatDate, Logger } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import CreateDataSubmissionDialog from "../../components/DataSubmissions/CreateDataSubmissionDialog";
@@ -19,7 +19,7 @@ import DataSubmissionListFilters, {
   FilterForm,
 } from "../../components/DataSubmissions/DataSubmissionListFilters";
 
-type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
+type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
 
 const StyledBannerBody = styled(Stack)({
   marginTop: "-20px",
@@ -140,8 +140,8 @@ const columns: Column<T>[] = [
     },
   },
   {
-    label: "Organization",
-    renderValue: (a) => <TruncatedText text={a.organization.name} />,
+    label: "Program",
+    renderValue: (a) => <TruncatedText text={a.organization?.name ?? "NA"} />,
     fieldKey: "organization.name",
   },
   {
@@ -226,7 +226,6 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { status: authStatus } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
-  // Only org owners/submitters with organizations assigned can create data submissions
 
   const { columnVisibilityModel, setColumnVisibilityModel, visibleColumns } = useColumnVisibility<
     Column<T>
@@ -302,13 +301,14 @@ const ListingView: FC = () => {
       setData(d.listSubmissions.submissions);
       setOrganizations(
         d.listSubmissions.organizations
-          ?.filter((org) => !!org.name.trim())
+          ?.filter((org) => !!org?.name?.trim())
           ?.sort((a, b) => a.name?.localeCompare(b.name))
       );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
     } catch (err) {
+      Logger.error("Error while fetching Data Submission list", err);
       setError(true);
     } finally {
       setLoading(false);

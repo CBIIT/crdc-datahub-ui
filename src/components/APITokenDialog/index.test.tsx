@@ -34,7 +34,6 @@ const baseUser: User = {
   role: null,
   IDP: "nih",
   email: "",
-  organization: null,
   studies: null,
   dataCommons: [],
   createdAt: "",

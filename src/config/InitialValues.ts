@@ -1,7 +1,6 @@
 export const InitialApplication: Omit<Application, "questionnaireData"> = {
   _id: "new",
   applicant: null,
-  organization: null,
   status: "New",
   createdAt: "",
   updatedAt: "",
@@ -15,6 +14,8 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   PI: "",
   conditional: false,
   pendingConditions: [],
+  programAbbreviation: "",
+  programDescription: "",
 };
 
 export const InitialQuestionnaire: QuestionnaireData = {
@@ -39,11 +40,10 @@ export const InitialQuestionnaire: QuestionnaireData = {
   },
   additionalContacts: [],
   program: {
+    _id: "",
     name: "",
     abbreviation: "",
     description: "",
-    notApplicable: false,
-    isCustom: false,
   },
   study: {
     name: "",

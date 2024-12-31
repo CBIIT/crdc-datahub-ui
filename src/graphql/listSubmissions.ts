@@ -30,11 +30,10 @@ export const query = gql`
         _id
         name
         submitterName
+        dataCommons
         organization {
-          _id
           name
         }
-        dataCommons
         studyAbbreviation
         dbGaPID
         modelVersion
@@ -72,7 +71,24 @@ export type Input = {
 export type Response = {
   listSubmissions: {
     total: number;
-    submissions: Omit<Submission, "submitterID" | "bucketName" | "rootPath" | "history">[];
+    submissions: Pick<
+      Submission,
+      | "_id"
+      | "name"
+      | "submitterName"
+      | "dataCommons"
+      | "organization"
+      | "studyAbbreviation"
+      | "dbGaPID"
+      | "modelVersion"
+      | "status"
+      | "archived"
+      | "conciergeName"
+      | "nodeCount"
+      | "createdAt"
+      | "updatedAt"
+      | "intention"
+    >[];
     organizations: Pick<Organization, "_id" | "name">[];
     submitterNames: string[];
     dataCommons: string[];

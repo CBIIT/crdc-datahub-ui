@@ -1,23 +1,13 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import {
-  Alert,
-  Box,
-  Container,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  Stack,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Alert, Box, Container, MenuItem, Stack, Typography, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { cloneDeep } from "lodash";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import profileIcon from "../../assets/icons/organization.svg";
+import programIcon from "../../assets/icons/program_icon.svg";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import {
   CREATE_ORG,
@@ -36,8 +26,10 @@ import {
 } from "../../graphql";
 import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
-import { formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
+import { filterAlphaNumeric, formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
+import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 
 type Props = {
   /**
@@ -101,39 +93,16 @@ const StyledLabel = styled("span")({
 
 const BaseInputStyling = {
   width: "363px",
-  borderRadius: "8px",
-  backgroundColor: "#fff",
-  color: "#083A50",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "18px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .MuiList-root": {
-    padding: 0,
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
 };
 
-const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
-
-const StyledSelect = styled(Select)(BaseInputStyling);
+const StyledTextField = styled(BaseOutlinedInput)({
+  ...BaseInputStyling,
+  "& .MuiInputBase-inputMultiline": {
+    resize: "vertical",
+    minHeight: "44px",
+  },
+});
+const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
@@ -184,7 +153,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
-  const manageOrgPageUrl = `/organizations${lastSearchParams?.["/organizations"] ?? ""}`;
+  const manageOrgPageUrl = `/programs${lastSearchParams?.["/programs"] ?? ""}`;
 
   const assignedStudies: string[] = useMemo(() => {
     const activeStudies = {};
@@ -202,8 +171,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     return Object.keys(activeStudies) || [];
   }, [organization, dataSubmissions]);
 
-  const { handleSubmit, register, reset, control } = useForm<FormInput>();
-  const editableFields: (keyof FormInput)[] = ["name", "conciergeID", "studies", "status"];
+  const {
+    handleSubmit,
+    register,
+    reset,
+    formState: { errors },
+    control,
+  } = useForm<FormInput>();
 
   const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
     context: { clientName: "backend" },
@@ -246,7 +220,15 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
    *
    * @param data FormInput
    */
-  const setFormValues = (data: FormInput, fields = editableFields) => {
+  const setFormValues = (data: FormInput) => {
+    const fields: (keyof FormInput)[] = [
+      "name",
+      "abbreviation",
+      "description",
+      "conciergeID",
+      "studies",
+      "status",
+    ];
     const resetData = {};
 
     fields.forEach((field) => {
@@ -272,13 +254,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       setSaving(false);
 
       if (errors || !d?.createOrganization?._id) {
-        setError(errors || "Unable to create organization");
+        setError(errors || "Unable to create program");
         return;
       }
 
       setOrganization(null);
       setDataSubmissions(null);
-      enqueueSnackbar("This organization has been successfully added.", {
+      enqueueSnackbar("This program has been successfully added.", {
         variant: "default",
       });
       reset();
@@ -339,15 +321,14 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     if (_id === "new") {
       setOrganization(null);
       setDataSubmissions(null);
-      setFormValues(
-        {
-          name: "",
-          conciergeID: "",
-          studies: [],
-          status: "Active",
-        },
-        ["name", "conciergeID", "studies", "status"]
-      );
+      setFormValues({
+        name: "",
+        abbreviation: "",
+        description: "",
+        conciergeID: "",
+        studies: [],
+        status: "Active",
+      });
       return;
     }
 
@@ -357,7 +338,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       });
       if (error || !data?.getOrganization) {
         navigate(manageOrgPageUrl, {
-          state: { error: "Unable to fetch organization" },
+          state: { error: "Unable to fetch program" },
         });
         return;
       }
@@ -391,7 +372,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       <StyledContainer maxWidth="lg">
         <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
           <StyledProfileIcon>
-            <img src={profileIcon} alt="organization icon" />
+            <img src={programIcon} alt="program icon" />
           </StyledProfileIcon>
 
           <StyledContentStack
@@ -402,7 +383,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
           >
             <StyledTitleBox>
               <StyledPageTitle variant="h1">
-                {_id !== "new" ? "Edit" : "Add"} Organization
+                {_id !== "new" ? "Edit" : "Add"} Program
               </StyledPageTitle>
             </StyledTitleBox>
 
@@ -414,14 +395,49 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               )}
 
               <StyledField>
-                <StyledLabel id="organizationName">
-                  {_id !== "new" ? "Organization" : "Name"}
-                </StyledLabel>
+                <StyledLabel id="organizationName">Program</StyledLabel>
                 <StyledTextField
                   {...register("name", { required: true })}
-                  size="small"
-                  required
                   inputProps={{ "aria-labelledby": "organizationName" }}
+                  error={!!errors.name}
+                  required
+                />
+              </StyledField>
+              <StyledField>
+                <StyledLabel id="abbreviationLabel">Abbreviation</StyledLabel>
+                <Controller
+                  name="abbreviation"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <StyledTextField
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(filterAlphaNumeric(e.target.value?.toUpperCase(), "- "));
+                      }}
+                      inputProps={{
+                        "aria-labelledby": "abbreviationLabel",
+                        maxLength: 100,
+                      }}
+                      placeholder="100 characters allowed"
+                      error={!!errors.abbreviation}
+                      required
+                    />
+                  )}
+                />
+              </StyledField>
+              <StyledField>
+                <StyledLabel id="descriptionLabel">Description</StyledLabel>
+                <StyledTextField
+                  {...register("description", { required: false })}
+                  inputProps={{
+                    "aria-labelledby": "descriptionLabel",
+                    maxLength: 500,
+                  }}
+                  error={!!errors.description}
+                  placeholder="500 characters allowed"
+                  rows={2}
+                  multiline
                 />
               </StyledField>
               <StyledField>
@@ -444,6 +460,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                         inputProps={{
                           "aria-labelledby": "primaryContactLabel",
                         }}
+                        error={!!errors.conciergeID}
                       >
                         <MenuItem value={null}>{"<Not Set>"}</MenuItem>
                         {activeCurators?.listActiveCurators?.map(
@@ -470,6 +487,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       value={field.value || []}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{ "aria-labelledby": "studiesLabel" }}
+                      error={!!errors.studies}
                       multiple
                     >
                       {approvedStudies?.listApprovedStudies?.studies?.map(
@@ -496,6 +514,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       disabled={_id === "new"}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{ "aria-labelledby": "statusLabel" }}
+                      error={!!errors.status}
                     >
                       <MenuItem value="Active">Active</MenuItem>
                       <MenuItem value="Inactive">Inactive</MenuItem>

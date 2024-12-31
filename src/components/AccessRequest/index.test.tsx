@@ -9,7 +9,11 @@ import {
   Status as AuthContextStatus,
 } from "../Contexts/AuthContext";
 import AccessRequest from "./index";
-import { LIST_ORG_NAMES, ListOrgNamesResp } from "../../graphql";
+import {
+  LIST_APPROVED_STUDIES,
+  ListApprovedStudiesInput,
+  ListApprovedStudiesResp,
+} from "../../graphql";
 
 const mockUser: Omit<User, "role"> = {
   _id: "",
@@ -25,13 +29,16 @@ const mockUser: Omit<User, "role"> = {
   createdAt: "",
 };
 
-const mockListOrgNames: MockedResponse<ListOrgNamesResp> = {
+const mockListApprovedStudies: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
   request: {
-    query: LIST_ORG_NAMES,
+    query: LIST_APPROVED_STUDIES,
   },
   result: {
     data: {
-      listOrganizations: [],
+      listApprovedStudies: {
+        total: 0,
+        studies: [],
+      },
     },
   },
   variableMatcher: () => true,
@@ -73,7 +80,7 @@ describe("Accessibility", () => {
 describe("Basic Functionality", () => {
   it("should open the dialog when the 'Request Access' button is clicked", async () => {
     const { getByTestId, getByRole, queryByRole } = render(<AccessRequest />, {
-      wrapper: (p) => <MockParent {...p} mocks={[mockListOrgNames]} role="User" />,
+      wrapper: (p) => <MockParent {...p} mocks={[mockListApprovedStudies]} role="User" />,
     });
 
     expect(queryByRole("dialog")).not.toBeInTheDocument();

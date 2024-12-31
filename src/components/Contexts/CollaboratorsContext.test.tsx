@@ -813,5 +813,15 @@ describe("CollaboratorsContext", () => {
       existingCol.collaboratorName
     );
     expect(result.current.currentCollaborators[0].Organization).toBe(existingCol.Organization);
+
+    act(() => {
+      result.current.handleRemoveCollaborator(0);
+    });
+
+    // Verify preventing re-adding invalid potential collaborator
+    await waitFor(() => {
+      expect(result.current.currentCollaborators.length).toBe(1);
+      expect(result.current.maxCollaborators).toBe(1);
+    });
   });
 });

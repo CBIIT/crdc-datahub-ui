@@ -19,35 +19,6 @@ describe("Users View", () => {
     expect(result.current.userStatus).toBe("UNLOCKED");
   });
 
-  it.each<UserRole>(["User", "Submitter", "Organization Owner", "Data Commons POC"])(
-    "should return UNLOCKED for organization when viewing the role %s",
-    (role) => {
-      const user = { _id: "User-A", role: "Admin" } as User;
-      const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role };
-
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
-
-      const { result } = renderHook(() => useProfileFields(profileOf, "users"));
-
-      expect(result.current.organization).toBe("UNLOCKED");
-    }
-  );
-
-  // NOTE: This list is derived from the OrgAssignmentMap in src/config/AuthRoles.ts
-  it.each<UserRole>(["Admin", "Federal Lead", "Federal Monitor"])(
-    "should return DISABLED for organization when viewing the role %s",
-    (role) => {
-      const user = { _id: "User-A", role: "Admin" } as User;
-      const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role };
-
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
-
-      const { result } = renderHook(() => useProfileFields(profileOf, "users"));
-
-      expect(result.current.organization).toBe("DISABLED");
-    }
-  );
-
   it("should return READ_ONLY for all standard fields when a Organization Owner views the page", () => {
     const user = { _id: "User-A", role: "Organization Owner" } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role: "Submitter" };
@@ -60,19 +31,19 @@ describe("Users View", () => {
     expect(result.current.lastName).toBe("READ_ONLY");
     expect(result.current.role).toBe("READ_ONLY");
     expect(result.current.userStatus).toBe("READ_ONLY");
-    expect(result.current.organization).toBe("READ_ONLY");
   });
 
   it.each<[FieldState, UserRole]>([
     ["HIDDEN", "User"],
-    ["HIDDEN", "Submitter"],
     ["HIDDEN", "Organization Owner"],
-    ["HIDDEN", "Federal Lead"],
     ["HIDDEN", "Data Curator"],
     ["HIDDEN", "Data Commons POC"],
     ["HIDDEN", "Admin"],
     ["HIDDEN", "fake role" as UserRole],
-    ["UNLOCKED", "Federal Monitor"], // NOTE: Only this role accepts studies
+    // NOTE: All of the following are assigned to studies
+    ["UNLOCKED", "Federal Lead"],
+    ["UNLOCKED", "Submitter"],
+    ["UNLOCKED", "Federal Monitor"],
   ])("should return %s for the studies field on the users page for role %s", (state, role) => {
     const user = { _id: "User-A", role: "Admin" } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role };
@@ -103,17 +74,6 @@ describe("Users View", () => {
     const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
     expect(result.current.dataCommons).toBe(state);
-  });
-
-  it("should return HIDDEN organization field for an Admin viewing a Data Curator profile", () => {
-    const user = { _id: "User-A", role: "Admin" } as User;
-    const profileOf: Pick<User, "_id" | "role"> = { _id: "Not-User-a", role: "Data Curator" };
-
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
-
-    const { result } = renderHook(() => useProfileFields(profileOf, "users"));
-
-    expect(result.current.organization).toBe("HIDDEN");
   });
 
   it("should always return READ_ONLY for the firstName and lastName fields on the users page", () => {
@@ -156,13 +116,13 @@ describe("Profile View", () => {
 
     expect(result.current.role).toBe("READ_ONLY");
     expect(result.current.userStatus).toBe("READ_ONLY");
-    expect(result.current.organization).toBe("READ_ONLY");
   });
 
   it.each<UserRole>([
     "User",
     "Submitter",
-    "Federal Monitor", // NOTE: Only this role accepts studies
+    "Federal Monitor",
+    "Federal Lead",
     "Data Commons POC",
     "fake role" as UserRole,
   ])("should return HIDDEN for the studies field on the profile page for role %s", (role) => {
@@ -222,7 +182,6 @@ describe("Profile View", () => {
       expect(result.current.lastName).toBe("READ_ONLY");
       expect(result.current.role).toBe("READ_ONLY");
       expect(result.current.userStatus).toBe("READ_ONLY");
-      expect(result.current.organization).toBe("READ_ONLY");
       expect(result.current.dataCommons).toBe("HIDDEN");
       expect(result.current.studies).toBe("HIDDEN");
     }
@@ -239,16 +198,5 @@ describe("Profile View", () => {
     const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
     expect(result.current.dataCommons).toBe("READ_ONLY");
-  });
-
-  it("should return HIDDEN organization field for a Data Curator viewing their own profile", () => {
-    const user = { _id: "User-A", role: "Data Curator" } as User;
-    const profileOf: Pick<User, "_id" | "role"> = { ...user };
-
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
-
-    const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
-
-    expect(result.current.organization).toBe("HIDDEN");
   });
 });

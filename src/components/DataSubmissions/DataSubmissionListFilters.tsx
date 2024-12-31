@@ -180,14 +180,14 @@ const DataSubmissionListFilters = ({
       !organizationIds?.includes(orgFilter)
     ) {
       const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.delete("organization");
+      newSearchParams.delete("program");
       setSearchParams(newSearchParams);
       setValue("organization", "All");
     }
   }, [organizations, orgFilter, touchedFilters]);
 
   useEffect(() => {
-    const organizationId = searchParams.get("organization");
+    const organizationId = searchParams.get("program");
     const status = searchParams.get("status");
     const dataCommon = searchParams.get("dataCommons");
     const name = searchParams.get("name");
@@ -225,9 +225,9 @@ const DataSubmissionListFilters = ({
     const newSearchParams = new URLSearchParams(searchParams);
 
     if (orgFilter && orgFilter !== "All") {
-      newSearchParams.set("organization", orgFilter);
+      newSearchParams.set("program", orgFilter);
     } else if (orgFilter === "All") {
-      newSearchParams.delete("organization");
+      newSearchParams.delete("program");
     }
     if (statusFilter && statusFilter !== "All") {
       newSearchParams.set("status", statusFilter);
@@ -339,7 +339,7 @@ const DataSubmissionListFilters = ({
 
   const handleResetFilters = () => {
     const newSearchParams = new URLSearchParams(searchParams);
-    searchParams.delete("organization");
+    searchParams.delete("program");
     searchParams.delete("status");
     searchParams.delete("dataCommons");
     searchParams.delete("name");
@@ -355,7 +355,7 @@ const DataSubmissionListFilters = ({
         <Grid container spacing={2} rowSpacing="9px">
           <Grid item xs={4}>
             <StyledFormControl>
-              <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
+              <StyledInlineLabel htmlFor="organization-filter">Program</StyledInlineLabel>
               <Controller
                 name="organization"
                 control={control}

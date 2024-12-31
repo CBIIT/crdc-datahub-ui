@@ -8,10 +8,6 @@ export const query = gql`
       lastName
       IDP
       email
-      organization {
-        orgID
-        orgName
-      }
       userStatus
       role
     }
@@ -19,5 +15,8 @@ export const query = gql`
 `;
 
 export type Response = {
-  listUsers: User[];
+  listUsers: Pick<
+    User,
+    "_id" | "firstName" | "lastName" | "IDP" | "email" | "userStatus" | "role"
+  >[];
 };

@@ -1,12 +1,11 @@
 import { useAuthContext } from "../components/Contexts/AuthContext";
-import { OrgRequiredRoles } from "../config/AuthRoles";
-
+import { RequiresStudiesAssigned } from "../config/AuthRoles";
 /**
  * Constrains the fields that this hook supports generating states for
  */
 type EditableFields = Extends<
   keyof User,
-  "firstName" | "lastName" | "role" | "userStatus" | "organization" | "studies" | "dataCommons"
+  "firstName" | "lastName" | "role" | "userStatus" | "studies" | "dataCommons"
 >;
 
 /**
@@ -25,6 +24,11 @@ export type ProfileFields = Record<EditableFields, FieldState>;
 export type FieldState = "HIDDEN" | "DISABLED" | "UNLOCKED" | "READ_ONLY";
 
 /**
+ * An array of fields that are visible to the viewer, regardless of their state
+ */
+export const VisibleFieldState: FieldState[] = ["UNLOCKED", "DISABLED"];
+
+/**
  * Determines which profile fields are visible, editable, and disabled for the current user
  *
  * @param profileOf the user whose profile is being viewed
@@ -41,7 +45,6 @@ const useProfileFields = (
     lastName: "READ_ONLY",
     role: "READ_ONLY",
     userStatus: "READ_ONLY",
-    organization: "READ_ONLY",
     dataCommons: "HIDDEN",
     studies: "HIDDEN",
   };
@@ -58,17 +61,8 @@ const useProfileFields = (
     fields.role = "UNLOCKED";
     fields.userStatus = "UNLOCKED";
 
-    // Disable for roles with a pre-assigned organization requirement
-    fields.organization =
-      !OrgRequiredRoles.includes(profileOf?.role) && profileOf?.role !== "User"
-        ? "DISABLED"
-        : "UNLOCKED";
-  }
-
-  // Editable for Admin viewing Federal Monitor otherwise hidden
-  // even for a user viewing their own profile
-  if (user?.role === "Admin" && viewType === "users" && profileOf?.role === "Federal Monitor") {
-    fields.studies = "UNLOCKED";
+    // Editable for Admin viewing certain roles, otherwise hidden (even for a user viewing their own profile)
+    fields.studies = RequiresStudiesAssigned.includes(profileOf?.role) ? "UNLOCKED" : "HIDDEN";
   }
 
   // Only applies to Data Commons POC
@@ -76,11 +70,6 @@ const useProfileFields = (
     fields.dataCommons = user?.role === "Admin" && viewType === "users" ? "UNLOCKED" : "READ_ONLY";
   } else {
     fields.dataCommons = "HIDDEN";
-  }
-
-  // Only applies to Data Curator
-  if (profileOf?.role === "Data Curator") {
-    fields.organization = "HIDDEN";
   }
 
   return fields;

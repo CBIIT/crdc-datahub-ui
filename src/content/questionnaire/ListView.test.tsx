@@ -40,7 +40,6 @@ const baseUser: Omit<User, "role"> = {
   userStatus: "Active",
   IDP: "nih",
   email: "",
-  organization: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",
@@ -239,7 +238,6 @@ describe("ListView Component", () => {
         variables: {
           application: {
             _id: undefined,
-            programName: "",
             studyName: "",
             studyAbbreviation: "",
             questionnaireData: "{}",
@@ -247,6 +245,9 @@ describe("ListView Component", () => {
             openAccess: false,
             ORCID: "",
             PI: "",
+            programName: "",
+            programAbbreviation: "",
+            programDescription: "",
           },
         },
       },
@@ -285,9 +286,10 @@ describe("ListView Component", () => {
               {
                 _id: "application-id",
                 applicant: { applicantName: "applicant-name-really-long", applicantID: "user-id" },
-                organization: { name: "org-long-name" },
                 studyAbbreviation: "study-long-abbr",
                 programName: "program-long-name",
+                programAbbreviation: "PLN",
+                programDescription: "A program description",
                 status: "New",
                 submittedDate: "2021-01-01T00:00:00Z",
                 updatedAt: "2021-01-02T00:00:00Z",
@@ -306,7 +308,6 @@ describe("ListView Component", () => {
 
     await waitFor(() => {
       expect(getByText("applicant-...")).toBeInTheDocument();
-      expect(getByText("org-long-n...")).toBeInTheDocument();
       expect(getByText("study-long...")).toBeInTheDocument();
       expect(getByText("program-lo...")).toBeInTheDocument();
       expect(getByText("New")).toBeInTheDocument();
@@ -467,9 +468,10 @@ describe("ListView Component", () => {
               {
                 _id: "application-id",
                 applicant: { applicantName: "John Doe", applicantID: "user-id" },
-                organization: { name: "OrgName" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
+                programAbbreviation: "P1",
+                programDescription: "A program description",
                 status: "New",
                 submittedDate: "2021-01-01T00:00:00Z",
                 updatedAt: "2021-01-02T00:00:00Z",
@@ -505,9 +507,10 @@ describe("ListView Component", () => {
               {
                 _id: "application-id",
                 applicant: { applicantName: "John Doe", applicantID: "other-user-id" },
-                organization: { name: "OrgName" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
+                programAbbreviation: "P1",
+                programDescription: "A program description",
                 status: "Submitted",
                 submittedDate: "2021-01-01T00:00:00Z",
                 updatedAt: "2021-01-02T00:00:00Z",
@@ -543,9 +546,10 @@ describe("ListView Component", () => {
               {
                 _id: "application-id",
                 applicant: { applicantName: "John Doe", applicantID: "other-user-id" },
-                organization: { name: "OrgName" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
+                programAbbreviation: "P1",
+                programDescription: "A program description",
                 status: "Approved",
                 submittedDate: "2021-01-01T00:00:00Z",
                 updatedAt: "2021-01-02T00:00:00Z",
@@ -588,9 +592,10 @@ describe("ListView Component", () => {
               {
                 _id: "application-id",
                 applicant: { applicantName: "John Doe", applicantID: "user-id" },
-                organization: { name: "OrgName" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
+                programAbbreviation: "P1",
+                programDescription: "A program description",
                 status: "New",
                 submittedDate: "2021-01-01T12:00:00Z",
                 updatedAt: "2021-01-02T15:30:00Z",

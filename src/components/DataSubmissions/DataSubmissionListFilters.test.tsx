@@ -613,7 +613,7 @@ describe("DataSubmissionListFilters Component", () => {
 
   it("initializes form fields based on searchParams", async () => {
     const initialEntries = [
-      "/?organization=Org1&status=Submitted&dataCommons=DataCommon1&name=Test&dbGaPID=123&submitterName=Submitter1",
+      "/?program=Org1&status=Submitted&dataCommons=DataCommon1&name=Test&dbGaPID=123&submitterName=Submitter1",
     ];
 
     const mockOnChange = jest.fn();
