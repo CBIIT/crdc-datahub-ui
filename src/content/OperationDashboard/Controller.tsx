@@ -12,7 +12,7 @@ import { hasPermission } from "../../config/AuthPermissions";
 /**
  * Handles the logic for the OperationDashboard component.
  *
- * @returns {JSX.Element} The OperationDashboard component.
+ * @returns The DashboardController component
  */
 const DashboardController = () => {
   usePageTitle("Operation Dashboard");
@@ -21,7 +21,7 @@ const DashboardController = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [searchParams] = useSearchParams({ type: "Submission" });
 
-  const canAccessPage = useMemo<boolean>(
+  const canManage = useMemo<boolean>(
     () => authStatus === Status.LOADED && hasPermission(user, "dashboard", "view"),
     [authStatus, user]
   );
@@ -30,7 +30,7 @@ const DashboardController = () => {
     GET_DASHBOARD_URL,
     {
       variables: { type: searchParams.get("type") },
-      skip: !canAccessPage || !searchParams.get("type"),
+      skip: !canManage || !searchParams.get("type"),
       onError: (e) =>
         enqueueSnackbar(e?.message, {
           variant: "error",
@@ -43,7 +43,7 @@ const DashboardController = () => {
     return <SuspenseLoader />;
   }
 
-  if (!canAccessPage) {
+  if (!canManage) {
     return <Navigate to="/" />;
   }
 
