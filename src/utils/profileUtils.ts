@@ -61,8 +61,8 @@ export type ColumnizedPBACGroups<T = unknown> = {
  * A utility function to group an array of PBACDefaults into columns
  * based on the group name.
  *
- * If colCount is greater than the number of groups, the last column will
- * aggregate the remaining groups.
+ * If the number of unique groups exceeds `colCount`, the function will
+ * aggregate the remaining groups into the last column.
  *
  * Data Structure: Array of Columns -> Array of Groups -> PBAC Defaults for the group
  *
