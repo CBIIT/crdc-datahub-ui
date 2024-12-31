@@ -260,16 +260,14 @@ const StyledLoginLink = styled(Link)({
   marginRight: "32px",
 });
 
-const useOutsideAlerter = (ref1, ref2) => {
+const useOutsideAlerter = (ref1: React.RefObject<HTMLDivElement>) => {
   useEffect(() => {
     function handleClickOutside(event) {
       if (
         !event.target ||
         (event.target.getAttribute("class") !== "dropdownList" &&
           ref1.current &&
-          !ref1.current.contains(event.target) &&
-          ref2.current &&
-          !ref2.current.contains(event.target))
+          !ref1.current.contains(event.target))
       ) {
         const toggle = document.getElementsByClassName("navText clicked");
         if (toggle[0] && !event.target.getAttribute("class")?.includes("navText clicked")) {
@@ -283,7 +281,7 @@ const useOutsideAlerter = (ref1, ref2) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [ref1, ref2]);
+  }, [ref1]);
 };
 
 const NavBar = () => {
@@ -296,8 +294,7 @@ const NavBar = () => {
   const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
   const [restorePath, setRestorePath] = useState<string>(null);
-  const dropdownSelection = useRef(null);
-  const nameDropdownSelection = useRef(null);
+  const dropdownSelection = useRef<HTMLDivElement>(null);
 
   const clickableObject = HeaderLinks.filter(
     (item) => item.className === "navMobileItem clickable"
@@ -394,7 +391,7 @@ const NavBar = () => {
     return linkNames.includes(correctPath);
   };
 
-  useOutsideAlerter(dropdownSelection, nameDropdownSelection);
+  useOutsideAlerter(dropdownSelection);
 
   useEffect(() => {
     if (!isLoggedIn) {
