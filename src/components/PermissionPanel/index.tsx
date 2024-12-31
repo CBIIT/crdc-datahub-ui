@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { ArrowDropDown } from "@mui/icons-material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
   AccordionDetails,
@@ -10,10 +10,10 @@ import {
   FormGroup,
   styled,
   Typography,
+  Unstable_Grid2 as Grid2,
 } from "@mui/material";
 import { FC, memo, useEffect, useMemo, useRef } from "react";
 import { useFormContext } from "react-hook-form";
-import Grid2 from "@mui/material/Unstable_Grid2";
 import { useSnackbar } from "notistack";
 import { cloneDeep } from "lodash";
 import {
@@ -44,7 +44,7 @@ const StyledAccordionSummary = styled(AccordionSummary)({
   "& .MuiAccordionSummary-content.Mui-expanded": {
     margin: "9px 0",
   },
-  "& .MuiAccordionSummary-expandIcon": {
+  "& .MuiAccordionSummary-expandIconWrapper": {
     color: "#356AAD",
   },
 });
@@ -197,7 +197,7 @@ const PermissionPanel: FC = () => {
   return (
     <StyledBox>
       <StyledAccordion elevation={0} data-testid="permissions-accordion">
-        <StyledAccordionSummary expandIcon={<ArrowDropDown />}>
+        <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
           <StyledAccordionHeader component="span">Permissions</StyledAccordionHeader>
         </StyledAccordionSummary>
         <AccordionDetails>
@@ -232,7 +232,7 @@ const PermissionPanel: FC = () => {
         </AccordionDetails>
       </StyledAccordion>
       <StyledAccordion elevation={0} data-testid="notifications-accordion">
-        <StyledAccordionSummary expandIcon={<ArrowDropDown />}>
+        <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
           <StyledAccordionHeader component="span">Email Notifications</StyledAccordionHeader>
         </StyledAccordionSummary>
         <AccordionDetails>
