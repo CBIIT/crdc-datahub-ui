@@ -3,7 +3,14 @@ import { Stack, styled, Switch, SwitchProps, Typography } from "@mui/material";
 import { isEqual } from "lodash";
 
 const StyledSwitch = styled((props: SwitchProps) => (
-  <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
+  <Switch
+    focusVisibleClassName=".Mui-focusVisible"
+    disableRipple
+    {...props}
+    inputProps={
+      { "data-testid": "toggle-input", "aria-label": "Switch input" } as SwitchProps["inputProps"]
+    }
+  />
 ))(({ theme }) => ({
   width: 65,
   height: 34,
@@ -23,10 +30,6 @@ const StyledSwitch = styled((props: SwitchProps) => (
       "&.Mui-disabled + .MuiSwitch-track": {
         opacity: 0.5,
       },
-    },
-    "&.Mui-focusVisible .MuiSwitch-thumb": {
-      color: "#33cf4d",
-      border: "6px solid #fff",
     },
     "&.Mui-disabled .MuiSwitch-thumb": {
       color: theme.palette.grey[600],
@@ -70,10 +73,19 @@ type Props = {
 } & SwitchProps;
 
 const DoubleLabelSwitch = ({ leftLabel, rightLabel, checked, ...rest }: Props) => (
-  <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-    <StyledLabel selected={!checked}>{leftLabel}</StyledLabel>
-    <StyledSwitch {...rest} checked={checked} />
-    <StyledLabel selected={checked}>{rightLabel}</StyledLabel>
+  <Stack
+    direction="row"
+    spacing={1}
+    sx={{ alignItems: "center" }}
+    data-testid="double-label-switch"
+  >
+    <StyledLabel data-testid="left-label" selected={!checked}>
+      {leftLabel}
+    </StyledLabel>
+    <StyledSwitch data-testid="toggle-switch" {...rest} checked={checked} />
+    <StyledLabel data-testid="right-label" selected={checked}>
+      {rightLabel}
+    </StyledLabel>
   </Stack>
 );
 
