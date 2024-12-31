@@ -30,13 +30,10 @@ export const formatIDP = (idp: User["IDP"]): string => {
  */
 export const userToCollaborator = (
   user: Partial<User>,
-  permission: CollaboratorPermissions = "Can View"
+  permission: CollaboratorPermissions = "Can Edit"
 ): Collaborator => ({
   collaboratorID: user?._id,
   collaboratorName: formatName(user?.firstName, user?.lastName),
   permission,
-  Organization: {
-    orgID: user?.organization?.orgID,
-    orgName: user?.organization?.orgName,
-  },
+  Organization: null,
 });

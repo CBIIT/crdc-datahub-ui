@@ -41,13 +41,6 @@ describe("userToCollaborator cases", () => {
       _id: "user-1",
       firstName: "John",
       lastName: "Doe",
-      organization: {
-        orgID: "org-1",
-        orgName: "Organization 1",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
     };
 
     mockFormatName.mockReturnValue("John Doe");
@@ -57,11 +50,8 @@ describe("userToCollaborator cases", () => {
     expect(collaborator).toEqual({
       collaboratorID: "user-1",
       collaboratorName: "John Doe",
-      permission: "Can View",
-      Organization: {
-        orgID: "org-1",
-        orgName: "Organization 1",
-      },
+      permission: "Can Edit",
+      Organization: null,
     });
 
     expect(mockFormatName).toHaveBeenCalledWith("John", "Doe");
@@ -109,47 +99,6 @@ describe("userToCollaborator cases", () => {
     expect(mockFormatName).toHaveBeenCalledWith("John", undefined);
   });
 
-  it("should handle missing organization", () => {
-    const user: Partial<User> = {
-      _id: "user-1",
-      firstName: "John",
-      lastName: "Doe",
-    };
-
-    mockFormatName.mockReturnValue("John Doe");
-
-    const collaborator = utils.userToCollaborator(user);
-
-    expect(collaborator.Organization).toEqual({
-      orgID: undefined,
-      orgName: undefined,
-    });
-  });
-
-  it("should handle missing organization orgID and orgName", () => {
-    const user: Partial<User> = {
-      _id: "user-1",
-      firstName: "John",
-      lastName: "Doe",
-      organization: {
-        orgID: "",
-        orgName: "",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
-    };
-
-    mockFormatName.mockReturnValue("John Doe");
-
-    const collaborator = utils.userToCollaborator(user);
-
-    expect(collaborator.Organization).toEqual({
-      orgID: "",
-      orgName: "",
-    });
-  });
-
   it("should handle missing _id", () => {
     const user: Partial<User> = {
       firstName: "John",
@@ -169,11 +118,8 @@ describe("userToCollaborator cases", () => {
     expect(collaborator).toEqual({
       collaboratorID: undefined,
       collaboratorName: formatName(undefined, undefined),
-      permission: "Can View",
-      Organization: {
-        orgID: undefined,
-        orgName: undefined,
-      },
+      permission: "Can Edit",
+      Organization: null,
     });
 
     expect(mockFormatName).toHaveBeenCalledWith(undefined, undefined);
@@ -185,11 +131,8 @@ describe("userToCollaborator cases", () => {
     expect(collaborator).toEqual({
       collaboratorID: undefined,
       collaboratorName: formatName(undefined, undefined),
-      permission: "Can View",
-      Organization: {
-        orgID: undefined,
-        orgName: undefined,
-      },
+      permission: "Can Edit",
+      Organization: null,
     });
 
     expect(mockFormatName).toHaveBeenCalledWith(undefined, undefined);
@@ -200,13 +143,6 @@ describe("userToCollaborator cases", () => {
       _id: "",
       firstName: "",
       lastName: "",
-      organization: {
-        orgID: "",
-        orgName: "",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
     };
 
     mockFormatName.mockReturnValue("");
@@ -216,11 +152,8 @@ describe("userToCollaborator cases", () => {
     expect(collaborator).toEqual({
       collaboratorID: "",
       collaboratorName: "",
-      permission: "Can View",
-      Organization: {
-        orgID: "",
-        orgName: "",
-      },
+      permission: "Can Edit",
+      Organization: null,
     });
 
     expect(mockFormatName).toHaveBeenCalledWith("", "");
@@ -233,13 +166,6 @@ describe("userToCollaborator cases", () => {
       lastName: "Doe",
       email: "john.doe@example.com",
       role: "Admin",
-      organization: {
-        orgID: "org-1",
-        orgName: "Organization 1",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
     };
 
     mockFormatName.mockReturnValue("John Doe");
@@ -249,11 +175,8 @@ describe("userToCollaborator cases", () => {
     expect(collaborator).toEqual({
       collaboratorID: "user-1",
       collaboratorName: "John Doe",
-      permission: "Can View",
-      Organization: {
-        orgID: "org-1",
-        orgName: "Organization 1",
-      },
+      permission: "Can Edit",
+      Organization: null,
     });
 
     expect(mockFormatName).toHaveBeenCalledWith("John", "Doe");

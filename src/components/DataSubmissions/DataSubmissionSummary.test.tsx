@@ -124,7 +124,7 @@ describe("Basic Functionality", () => {
             orgID: "",
             orgName: "",
           },
-          permission: "Can View",
+          permission: "Can Edit",
         },
         {
           collaboratorID: "col-2",
@@ -133,7 +133,7 @@ describe("Basic Functionality", () => {
             orgID: "",
             orgName: "",
           },
-          permission: "Can View",
+          permission: "Can Edit",
         },
       ],
       studyAbbreviation: "AAAAAAAAAAAAAAAAA",
@@ -188,7 +188,7 @@ describe("Basic Functionality", () => {
             orgID: "",
             orgName: "",
           },
-          permission: "Can View",
+          permission: "Can Edit",
         },
         {
           collaboratorID: "2",
@@ -197,7 +197,7 @@ describe("Basic Functionality", () => {
             orgID: "",
             orgName: "",
           },
-          permission: "Can View",
+          permission: "Can Edit",
         },
         {
           collaboratorID: "3",
@@ -206,7 +206,7 @@ describe("Basic Functionality", () => {
             orgID: "",
             orgName: "",
           },
-          permission: "Can View",
+          permission: "Can Edit",
         },
       ],
     };

@@ -32,13 +32,6 @@ const mockUser: User = {
   email: "user1@example.com",
   firstName: "John",
   lastName: "Doe",
-  organization: {
-    orgID: "org-1",
-    orgName: "Organization 1",
-    status: "Active",
-    createdAt: "",
-    updateAt: "",
-  },
   dataCommons: [],
   studies: [],
   IDP: "nih",
@@ -63,7 +56,7 @@ const mockCollaborators = [
   {
     collaboratorID: "user-2",
     collaboratorName: "Jane Smith",
-    permission: "Can View",
+    permission: "Can Edit",
     Organization: {
       orgID: "org-2",
       orgName: "Organization 2",
