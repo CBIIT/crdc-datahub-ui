@@ -3,7 +3,7 @@ import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { Button, styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
-import { navMobileList, navbarSublists } from "../../../config/HeaderConfig";
+import { HeaderLinks, HeaderSubLinks } from "../../../config/HeaderConfig";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
 import { hasPermission } from "../../../config/AuthPermissions";
@@ -309,7 +309,7 @@ const NavBar = () => {
   const dropdownSelection = useRef(null);
   const nameDropdownSelection = useRef(null);
 
-  const clickableObject = navMobileList.filter(
+  const clickableObject = HeaderLinks.filter(
     (item) => item.className === "navMobileItem clickable"
   );
   const clickableTitle = clickableObject.map((item) => item.name);
@@ -355,10 +355,10 @@ const NavBar = () => {
     if (item.className === "navMobileItem") {
       return correctPath === item.link;
     }
-    if (navbarSublists[linkName] === undefined) {
+    if (HeaderSubLinks[linkName] === undefined) {
       return false;
     }
-    const linkNames = Object.values(navbarSublists[linkName]).map((e: NavBarSubItem) => e.link);
+    const linkNames = Object.values(HeaderSubLinks[linkName]).map((e: NavBarSubItem) => e.link);
     return linkNames.includes(correctPath);
   }
 
@@ -382,7 +382,7 @@ const NavBar = () => {
       </GenericAlert>
       <NavContainer>
         <UlContainer>
-          {navMobileList.map((navItem: NavBarItem) => {
+          {HeaderLinks.map((navItem: NavBarItem) => {
             if (
               navItem?.permissions?.length > 0 &&
               !navItem?.permissions?.every(
@@ -470,7 +470,7 @@ const NavBar = () => {
         <NameDropdownContainer>
           <div className="dropdownList">
             {clickedTitle !== "" && clickedTitle !== displayName
-              ? navbarSublists[clickedTitle]?.map((dropItem, idx) => {
+              ? HeaderSubLinks[clickedTitle]?.map((dropItem, idx) => {
                   const dropkey = `drop_${idx}`;
                   return (
                     dropItem.link && (

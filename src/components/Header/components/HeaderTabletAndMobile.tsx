@@ -5,7 +5,7 @@ import Logo from "./LogoMobile";
 import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg";
 import rightArrowIcon from "../../../assets/header/Right_Arrow.svg";
 import leftArrowIcon from "../../../assets/header/Left_Arrow.svg";
-import { navMobileList, navbarSublists } from "../../../config/HeaderConfig";
+import { HeaderLinks, HeaderSubLinks } from "../../../config/HeaderConfig";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import APITokenDialog from "../../APITokenDialog";
@@ -131,7 +131,7 @@ const Header = () => {
   const [navMobileDisplay, setNavMobileDisplay] = useState("none");
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
   const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
-  const [selectedList, setSelectedList] = useState<NavBarItem[] | NavBarSubItem[]>(navMobileList);
+  const [selectedList, setSelectedList] = useState<NavBarItem[] | NavBarSubItem[]>(HeaderLinks);
   const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
   const [restorePath, setRestorePath] = useState<string | null>(null);
 
@@ -146,7 +146,7 @@ const Header = () => {
     }
   };
 
-  navbarSublists[displayName] = [
+  HeaderSubLinks[displayName] = [
     {
       name: "User Profile",
       link: `/profile/${user?._id}`,
@@ -197,7 +197,7 @@ const Header = () => {
 
   const clickNavItem = (e) => {
     const clickTitle = e.target.textContent;
-    setSelectedList(navbarSublists[clickTitle]);
+    setSelectedList(HeaderSubLinks[clickTitle]);
   };
 
   useEffect(() => {
@@ -252,7 +252,7 @@ const Header = () => {
             >
               <img className="closeIconImg" src={menuClearIcon} alt="menuClearButton" />
             </div>
-            {selectedList !== navMobileList && (
+            {selectedList !== HeaderLinks && (
               <div
                 role="button"
                 id="navbar-back-to-main-menu-button"
@@ -260,10 +260,10 @@ const Header = () => {
                 className="backButton"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    setSelectedList(navMobileList);
+                    setSelectedList(HeaderLinks);
                   }
                 }}
-                onClick={() => setSelectedList(navMobileList)}
+                onClick={() => setSelectedList(HeaderLinks)}
               >
                 Main Menu
               </div>
@@ -345,7 +345,7 @@ const Header = () => {
                               setNavMobileDisplay("none");
                               if (navMobileItem.name === "Logout") {
                                 handleLogout();
-                                setSelectedList(navMobileList);
+                                setSelectedList(HeaderLinks);
                               }
                             }
                           }}
@@ -353,7 +353,7 @@ const Header = () => {
                             setNavMobileDisplay("none");
                             if (navMobileItem.name === "Logout") {
                               handleLogout();
-                              setSelectedList(navMobileList);
+                              setSelectedList(HeaderLinks);
                             }
                           }}
                         >
@@ -368,7 +368,7 @@ const Header = () => {
                 );
               })}
               {/* eslint-disable-next-line no-nested-ternary */}
-              {selectedList === navMobileList ? (
+              {selectedList === HeaderLinks ? (
                 isLoggedIn ? (
                   <div
                     id="navbar-dropdown-name"
