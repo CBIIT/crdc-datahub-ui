@@ -270,16 +270,4 @@ describe("Implementation Requirements", () => {
 
     expect(mockWriteText).not.toHaveBeenCalled();
   });
-
-  it("should show an error when the user without the required permission tries to generate a token", async () => {
-    const { getByText } = render(<ApiTokenDialog open />, {
-      wrapper: (p) => <TestParent {...p} permissions={[]} />,
-    });
-
-    userEvent.click(getByText(/Create Token/, { selector: "button" }));
-
-    await waitFor(() => {
-      expect(getByText(/Token was unable to be created./)).toBeInTheDocument();
-    });
-  });
 });

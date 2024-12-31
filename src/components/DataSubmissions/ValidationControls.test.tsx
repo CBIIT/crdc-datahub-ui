@@ -84,7 +84,7 @@ const baseUser: Omit<User, "role"> = {
   dataCommons: [],
   createdAt: "",
   updateAt: "",
-  permissions: ["data_submission:view", "data_submission:create", "data_submission:validate"],
+  permissions: ["data_submission:view", "data_submission:create"],
   notifications: [],
 };
 
@@ -214,11 +214,7 @@ describe("Basic Functionality", () => {
           user: {
             ...baseUser,
             role: "Submitter",
-            permissions: [
-              "data_submission:view",
-              "data_submission:create",
-              "data_submission:validate",
-            ],
+            permissions: ["data_submission:view", "data_submission:create"],
           },
         }}
         submission={{

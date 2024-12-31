@@ -5,7 +5,14 @@ import { RequiresStudiesAssigned } from "../config/AuthRoles";
  */
 type EditableFields = Extends<
   keyof User,
-  "firstName" | "lastName" | "role" | "userStatus" | "studies" | "dataCommons"
+  | "firstName"
+  | "lastName"
+  | "role"
+  | "userStatus"
+  | "studies"
+  | "dataCommons"
+  | "permissions"
+  | "notifications"
 >;
 
 /**
@@ -47,6 +54,8 @@ const useProfileFields = (
     userStatus: "READ_ONLY",
     dataCommons: "HIDDEN",
     studies: "HIDDEN",
+    permissions: "HIDDEN",
+    notifications: "HIDDEN",
   };
   const isSelf: boolean = user?._id === profileOf?._id;
 
@@ -60,6 +69,8 @@ const useProfileFields = (
   if (user?.role === "Admin" && viewType === "users") {
     fields.role = "UNLOCKED";
     fields.userStatus = "UNLOCKED";
+    fields.permissions = "UNLOCKED";
+    fields.notifications = "UNLOCKED";
 
     // Editable for Admin viewing certain roles, otherwise hidden (even for a user viewing their own profile)
     fields.studies = RequiresStudiesAssigned.includes(profileOf?.role) ? "UNLOCKED" : "HIDDEN";

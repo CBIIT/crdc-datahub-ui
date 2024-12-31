@@ -83,11 +83,11 @@ const ValidateMap: Partial<
   Record<Submission["status"], (user: User, submission: Submission) => boolean>
 > = {
   "In Progress": (user: User, submission: Submission) =>
-    hasPermission(user, "data_submission", "validate", submission),
+    hasPermission(user, "data_submission", "create", submission),
   Withdrawn: (user: User, submission: Submission) =>
-    hasPermission(user, "data_submission", "validate", submission),
+    hasPermission(user, "data_submission", "create", submission),
   Rejected: (user: User, submission: Submission) =>
-    hasPermission(user, "data_submission", "validate", submission),
+    hasPermission(user, "data_submission", "create", submission),
   Submitted: (user: User, submission: Submission) =>
     hasPermission(user, "data_submission", "review", submission),
 };
@@ -145,7 +145,7 @@ const ValidationControls: FC = () => {
     }
 
     return dataSubmission?.metadataValidationStatus !== null;
-  }, [user?.role, dataSubmission]);
+  }, [user, dataSubmission]);
 
   const canValidateFiles: boolean = useMemo(() => {
     const hasPermission = ValidateMap[dataSubmission?.status]
@@ -162,7 +162,7 @@ const ValidationControls: FC = () => {
     }
 
     return dataSubmission?.fileValidationStatus !== null;
-  }, [user?.role, dataSubmission]);
+  }, [user, dataSubmission]);
 
   const [validateSubmission] = useMutation<ValidateSubmissionResp, ValidateSubmissionInput>(
     VALIDATE_SUBMISSION,

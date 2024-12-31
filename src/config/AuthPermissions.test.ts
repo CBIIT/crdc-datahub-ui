@@ -256,65 +256,6 @@ describe("data_submission:create Permission", () => {
   });
 });
 
-describe("data_submission:validate Permission", () => {
-  const validateSubmission = {
-    ...baseSubmission,
-    _id: "submission-2",
-    studyID: "study-2",
-    dataCommons: "commons-2",
-  };
-
-  it("should allow a collaborator (no permission key needed)", () => {
-    const user = createUser("Submitter", []);
-    const submission = {
-      ...validateSubmission,
-      collaborators: [
-        {
-          collaboratorID: user._id,
-          collaboratorName: "",
-          Organization: null,
-          permission: null,
-        },
-      ],
-    };
-    expect(hasPermission(user, "data_submission", "validate", submission)).toBe(true);
-  });
-
-  it("should allow a submitter who is the submission owner WITH 'data_submission:validate' key", () => {
-    const user = createUser("Submitter", ["data_submission:validate"]);
-    user._id = "owner-123";
-    expect(hasPermission(user, "data_submission", "validate", validateSubmission)).toBe(true);
-  });
-
-  it("should allow a 'Federal Lead' with 'data_submission:validate' key if they have the matching study", () => {
-    const user = createUser("Federal Lead", ["data_submission:validate"]);
-    user.studies = [{ _id: "study-2" }];
-    expect(hasPermission(user, "data_submission", "validate", validateSubmission)).toBe(true);
-  });
-
-  it("should allow 'Data Commons Personnel' with 'data_submission:validate' key if they have the matching dataCommons", () => {
-    const user = createUser("Data Commons Personnel", ["data_submission:validate"]);
-    user.dataCommons = ["commons-2"];
-    expect(hasPermission(user, "data_submission", "validate", validateSubmission)).toBe(true);
-  });
-
-  it("should allow 'Admin' with 'data_submission:validate' key", () => {
-    const user = createUser("Admin", ["data_submission:validate"]);
-    expect(hasPermission(user, "data_submission", "validate", validateSubmission)).toBe(true);
-  });
-
-  it("should deny if user doesn't meet any condition", () => {
-    const user = createUser("User", []);
-    expect(hasPermission(user, "data_submission", "validate", validateSubmission)).toBe(false);
-  });
-
-  it("should return false if submission is missing or undefined", () => {
-    const user = createUser("Admin", ["data_submission:validate"]);
-    expect(hasPermission(user, "data_submission", "validate", undefined)).toBe(false);
-    expect(hasPermission(user, "data_submission", "validate", null)).toBe(false);
-  });
-});
-
 describe("data_submission:review Permission", () => {
   const reviewSubmission = {
     ...baseSubmission,
