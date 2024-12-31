@@ -16,8 +16,8 @@ export const addStudiesParameter = (user: User): DashboardContentOptions["parame
   const params: DashboardContentOptions["parameters"] = [];
   const { studies } = user || {};
 
-  // If "All" is the first study, do NOT push the "studiesParameter"
-  if (studies?.[0]?._id === "All") {
+  // If user contains the "All" study, do NOT push the "studiesParameter"
+  if ((studies || [])?.findIndex((s) => s?._id === "All") !== -1) {
     return params;
   }
 
