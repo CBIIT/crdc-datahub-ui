@@ -284,7 +284,6 @@ const QualityControl: FC = () => {
   const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp, SubmissionQCResultsInput>(
     SUBMISSION_QC_RESULTS,
     {
-      variables: { id: submissionId },
       context: { clientName: "backend" },
       fetchPolicy: "cache-and-network",
     }
