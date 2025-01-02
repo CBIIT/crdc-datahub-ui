@@ -7,19 +7,23 @@ describe("Users View", () => {
     jest.clearAllMocks();
   });
 
-  it("should return UNLOCKED for role and userStatus when viewing users as an Admin", () => {
-    const user = { _id: "User-A", role: "Admin" } as User;
-    const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role: "Submitter" };
+  // NOTE: This is mostly a sanity check to ensure we're ignoring the signed-in user's role
+  it.each<UserRole>(["Admin", "Data Commons Personnel", "Federal Lead", "Submitter", "User"])(
+    "should return UNLOCKED for role, status, and PBAC when viewing users with management permission (%s)",
+    (role) => {
+      const user = { _id: "User-A", role, permissions: ["user:manage"] } as User;
+      const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role: "Submitter" };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
-    const { result } = renderHook(() => useProfileFields(profileOf, "users"));
+      const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
-    expect(result.current.role).toBe("UNLOCKED");
-    expect(result.current.userStatus).toBe("UNLOCKED");
-    expect(result.current.permissions).toBe("UNLOCKED");
-    expect(result.current.notifications).toBe("UNLOCKED");
-  });
+      expect(result.current.role).toBe("UNLOCKED");
+      expect(result.current.userStatus).toBe("UNLOCKED");
+      expect(result.current.permissions).toBe("UNLOCKED");
+      expect(result.current.notifications).toBe("UNLOCKED");
+    }
+  );
 
   it("should return READ_ONLY for all standard fields when a Submitter views the page", () => {
     const user = { _id: "User-A", role: "Submitter" } as User;
@@ -44,7 +48,7 @@ describe("Users View", () => {
     ["UNLOCKED", "Federal Lead"],
     ["UNLOCKED", "Submitter"],
   ])("should return %s for the studies field on the users page for role %s", (state, role) => {
-    const user = { _id: "User-A", role: "Admin" } as User;
+    const user = { _id: "User-A", role: "Admin", permissions: ["user:manage"] } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role };
 
     jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
@@ -63,7 +67,7 @@ describe("Users View", () => {
     ["HIDDEN", "fake role" as UserRole],
     ["UNLOCKED", "Data Commons Personnel"], // NOTE: accepts Data Commons
   ])("should return %s for the dataCommons field on the users page for role %s", (state, role) => {
-    const user = { _id: "User-A", role: "Admin" } as User;
+    const user = { _id: "User-A", role: "Admin", permissions: ["user:manage"] } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role };
 
     jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
