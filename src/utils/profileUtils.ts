@@ -1,5 +1,3 @@
-import { formatName } from "./stringUtils";
-
 /**
  * Formats a Authentication IDP for visual display
  *
@@ -33,7 +31,7 @@ export const userToCollaborator = (
   permission: CollaboratorPermissions = "Can Edit"
 ): Collaborator => ({
   collaboratorID: user?._id,
-  collaboratorName: formatName(user?.firstName, user?.lastName),
+  collaboratorName: `${user?.lastName || ""}, ${user?.firstName || ""}`,
   permission,
   Organization: null,
 });

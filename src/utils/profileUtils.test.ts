@@ -1,11 +1,8 @@
 import * as utils from "./profileUtils";
-import { formatName } from "./stringUtils";
 
 jest.mock("./stringUtils", () => ({
   formatName: jest.fn(),
 }));
-
-const mockFormatName = formatName as jest.Mock;
 
 describe("formatIDP cases", () => {
   it("should format NIH IDP", () => {
@@ -43,18 +40,14 @@ describe("userToCollaborator cases", () => {
       lastName: "Doe",
     };
 
-    mockFormatName.mockReturnValue("John Doe");
-
     const collaborator = utils.userToCollaborator(user);
 
     expect(collaborator).toEqual({
       collaboratorID: "user-1",
-      collaboratorName: "John Doe",
+      collaboratorName: "Doe, John",
       permission: "Can Edit",
       Organization: null,
     });
-
-    expect(mockFormatName).toHaveBeenCalledWith("John", "Doe");
   });
 
   it("should use provided permission", () => {
@@ -63,8 +56,6 @@ describe("userToCollaborator cases", () => {
       firstName: "John",
       lastName: "Doe",
     };
-
-    mockFormatName.mockReturnValue("John Doe");
 
     const collaborator = utils.userToCollaborator(user, "Can Edit");
 
@@ -77,12 +68,9 @@ describe("userToCollaborator cases", () => {
       lastName: "Doe",
     };
 
-    mockFormatName.mockReturnValue("Doe");
-
     const collaborator = utils.userToCollaborator(user);
 
-    expect(collaborator.collaboratorName).toBe("Doe");
-    expect(mockFormatName).toHaveBeenCalledWith(undefined, "Doe");
+    expect(collaborator.collaboratorName).toBe("Doe, ");
   });
 
   it("should handle missing lastName", () => {
@@ -91,12 +79,9 @@ describe("userToCollaborator cases", () => {
       firstName: "John",
     };
 
-    mockFormatName.mockReturnValue("John");
-
     const collaborator = utils.userToCollaborator(user);
 
-    expect(collaborator.collaboratorName).toBe("John");
-    expect(mockFormatName).toHaveBeenCalledWith("John", undefined);
+    expect(collaborator.collaboratorName).toBe(", John");
   });
 
   it("should handle missing _id", () => {
@@ -104,8 +89,6 @@ describe("userToCollaborator cases", () => {
       firstName: "John",
       lastName: "Doe",
     };
-
-    mockFormatName.mockReturnValue("John Doe");
 
     const collaborator = utils.userToCollaborator(user);
 
@@ -117,12 +100,10 @@ describe("userToCollaborator cases", () => {
 
     expect(collaborator).toEqual({
       collaboratorID: undefined,
-      collaboratorName: formatName(undefined, undefined),
+      collaboratorName: ", ",
       permission: "Can Edit",
       Organization: null,
     });
-
-    expect(mockFormatName).toHaveBeenCalledWith(undefined, undefined);
   });
 
   it("should handle undefined user", () => {
@@ -130,12 +111,10 @@ describe("userToCollaborator cases", () => {
 
     expect(collaborator).toEqual({
       collaboratorID: undefined,
-      collaboratorName: formatName(undefined, undefined),
+      collaboratorName: ", ",
       permission: "Can Edit",
       Organization: null,
     });
-
-    expect(mockFormatName).toHaveBeenCalledWith(undefined, undefined);
   });
 
   it("should handle user with empty properties", () => {
@@ -145,18 +124,14 @@ describe("userToCollaborator cases", () => {
       lastName: "",
     };
 
-    mockFormatName.mockReturnValue("");
-
     const collaborator = utils.userToCollaborator(user);
 
     expect(collaborator).toEqual({
       collaboratorID: "",
-      collaboratorName: "",
+      collaboratorName: ", ",
       permission: "Can Edit",
       Organization: null,
     });
-
-    expect(mockFormatName).toHaveBeenCalledWith("", "");
   });
 
   it("should handle user with additional properties", () => {
@@ -168,17 +143,13 @@ describe("userToCollaborator cases", () => {
       role: "Admin",
     };
 
-    mockFormatName.mockReturnValue("John Doe");
-
     const collaborator = utils.userToCollaborator(user);
 
     expect(collaborator).toEqual({
       collaboratorID: "user-1",
-      collaboratorName: "John Doe",
+      collaboratorName: "Doe, John",
       permission: "Can Edit",
       Organization: null,
     });
-
-    expect(mockFormatName).toHaveBeenCalledWith("John", "Doe");
   });
 });
