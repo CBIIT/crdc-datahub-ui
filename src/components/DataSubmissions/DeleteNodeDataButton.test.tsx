@@ -271,32 +271,6 @@ describe("Basic Functionality", () => {
     expect(getByTestId("delete-node-data-button")).toBeDisabled();
   });
 
-  it("should be disabled when the collaborator does not have 'Can Edit' permissions", () => {
-    const { getByTestId } = render(
-      <TestParent
-        user={{
-          _id: "collaborator-user",
-          role: "Submitter",
-        }}
-        submission={{
-          submitterID: "some-other-user",
-          collaborators: [
-            {
-              collaboratorID: "collaborator-user",
-              collaboratorName: "",
-              Organization: null,
-              permission: "Can Edit",
-            },
-          ],
-        }}
-      >
-        <Button nodeType="test" selectedItems={["ID_1", "ID_2", "ID_3"]} />,
-      </TestParent>
-    );
-
-    expect(getByTestId("delete-node-data-button")).toBeDisabled();
-  });
-
   it("should be enabled when the collaborator does have 'Can Edit' permissions", () => {
     const { getByTestId } = render(
       <TestParent

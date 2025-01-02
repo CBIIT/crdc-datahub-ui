@@ -340,30 +340,6 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("uploader-cli-config-button")).toBeDisabled();
   });
 
-  it("should disable the Uploader CLI download button when collaborator does not have 'Can Edit' permissions", async () => {
-    const { getByTestId } = render(
-      <DataUpload
-        submission={{
-          ...baseSubmission,
-          _id: "config-download-check",
-          dataType: "Metadata and Data Files", // NOTE: Required for the button to show
-          submitterID: "some-other-user",
-          collaborators: [
-            {
-              collaboratorID: "current-user",
-              collaboratorName: "",
-              Organization: null,
-              permission: "Can Edit",
-            },
-          ],
-        }}
-      />,
-      { wrapper: (p) => <TestParent {...p} role="Submitter" /> }
-    );
-
-    expect(getByTestId("uploader-cli-config-button")).toBeDisabled();
-  });
-
   it("should enable the Uploader CLI download button when collaborator does have 'Can Edit' permissions", async () => {
     const { getByTestId } = render(
       <DataUpload
