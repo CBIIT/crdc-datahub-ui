@@ -1,5 +1,7 @@
 import { useAuthContext } from "../components/Contexts/AuthContext";
+import { hasPermission } from "../config/AuthPermissions";
 import { RequiresStudiesAssigned } from "../config/AuthRoles";
+
 /**
  * Constrains the fields that this hook supports generating states for
  */
@@ -47,6 +49,9 @@ const useProfileFields = (
   viewType: "users" | "profile"
 ): Readonly<Partial<ProfileFields>> => {
   const { user } = useAuthContext();
+  const canManage = hasPermission(user, "user", "manage");
+
+  const isSelf: boolean = user?._id === profileOf?._id;
   const fields: ProfileFields = {
     firstName: "READ_ONLY",
     lastName: "READ_ONLY",
@@ -57,7 +62,6 @@ const useProfileFields = (
     permissions: "HIDDEN",
     notifications: "HIDDEN",
   };
-  const isSelf: boolean = user?._id === profileOf?._id;
 
   // Editable for the current user viewing their own profile
   if (isSelf && viewType === "profile") {
@@ -65,8 +69,8 @@ const useProfileFields = (
     fields.lastName = "UNLOCKED";
   }
 
-  // Editable for Admin viewing Manage Users
-  if (user?.role === "Admin" && viewType === "users") {
+  // Editable for user with permission to Manage Users
+  if (canManage && viewType === "users") {
     fields.role = "UNLOCKED";
     fields.userStatus = "UNLOCKED";
     fields.permissions = "UNLOCKED";
@@ -78,7 +82,7 @@ const useProfileFields = (
 
   // Only applies to Data Commons Personnel
   if (profileOf?.role === "Data Commons Personnel") {
-    fields.dataCommons = user?.role === "Admin" && viewType === "users" ? "UNLOCKED" : "READ_ONLY";
+    fields.dataCommons = canManage && viewType === "users" ? "UNLOCKED" : "READ_ONLY";
   } else {
     fields.dataCommons = "HIDDEN";
   }
