@@ -128,6 +128,9 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     updateQuery,
   } = useQuery<GetSubmissionResp, GetSubmissionInput>(GET_SUBMISSION, {
     notifyOnNetworkStatusChange: true,
+    variables: { id: _id },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
     onCompleted: (d) => {
       const isValidating =
         d?.getSubmission?.fileValidationStatus === "Validating" ||
