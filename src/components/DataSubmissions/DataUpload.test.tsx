@@ -26,7 +26,7 @@ jest.mock("../../utils", () => ({
 
 const baseSubmission: Omit<Submission, "_id"> = {
   name: "",
-  submitterID: "",
+  submitterID: "current-user",
   submitterName: "",
   organization: undefined,
   dataCommons: "",
@@ -340,7 +340,7 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("uploader-cli-config-button")).toBeDisabled();
   });
 
-  it("should enable the Uploader CLI download button when collaborator does have 'Can Edit' permissions", async () => {
+  it("should enable the Uploader CLI download button when user is a collaborator", async () => {
     const { getByTestId } = render(
       <DataUpload
         submission={{

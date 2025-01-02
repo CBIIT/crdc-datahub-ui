@@ -13,7 +13,7 @@ const baseSubmission: Omit<
   "_id" | "metadataValidationStatus" | "fileValidationStatus"
 > = {
   name: "",
-  submitterID: "",
+  submitterID: "current-user",
   submitterName: "",
   organization: null,
   dataCommons: "",
@@ -51,7 +51,7 @@ const baseContext: ContextState = {
 };
 
 const baseUser: Omit<User, "role"> = {
-  _id: "",
+  _id: "current-user",
   firstName: "",
   lastName: "",
   userStatus: "Active",
@@ -789,7 +789,46 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("metadata-upload-file-select-button")).toBeDisabled();
   });
 
-  it("should disable the 'Choose Files' and 'Upload' buttons when a non-submission owner user does not have create permissions", () => {
+  it("should disable the 'Choose Files' and 'Upload' buttons when a non-submission owner user does not have create permissions and is not a collaborator", () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{
+          ...baseContext,
+          user: {
+            ...baseUser,
+            _id: "other-user-2",
+            role: "Submitter",
+            permissions: ["data_submission:view"],
+          },
+        }}
+      >
+        <MetadataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "id-readonly-choose-files",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+            submitterID: "some-other-user",
+            collaborators: [
+              {
+                collaboratorID: "other-user",
+                collaboratorName: "",
+                Organization: null,
+                permission: "Can Edit",
+              },
+            ],
+          }}
+          onCreateBatch={jest.fn()}
+          onUpload={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("metadata-upload-file-select-button")).toBeDisabled();
+    expect(getByTestId("metadata-upload-file-upload-button")).toBeDisabled();
+  });
+
+  it("should enable the 'Choose Files' and 'Upload' buttons when user is a collaborator without create permissions", () => {
     const { getByTestId } = render(
       <TestParent
         context={{
@@ -824,8 +863,13 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    expect(getByTestId("metadata-upload-file-select-button")).toBeDisabled();
+    expect(getByTestId("metadata-upload-file-select-button")).toBeEnabled();
     expect(getByTestId("metadata-upload-file-upload-button")).toBeDisabled();
+
+    const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
+    userEvent.upload(getByTestId("metadata-upload-file-input"), file);
+
+    expect(getByTestId("metadata-upload-file-upload-button")).toBeEnabled();
   });
 
   it("should enable the 'Choose Files' and 'Upload' buttons when when a collaborator has permissions", () => {

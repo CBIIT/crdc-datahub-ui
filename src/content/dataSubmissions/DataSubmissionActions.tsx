@@ -94,6 +94,7 @@ type ActionConfig = {
 
 type ActionKey =
   | "Submit"
+  | "AdminSubmit"
   | "Release"
   | "Withdraw"
   | "SubmittedReject"
@@ -105,6 +106,11 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     hasPermission: (user, submission) =>
       hasPermission(user, "data_submission", "create", submission),
+    statuses: ["In Progress", "Withdrawn", "Rejected"],
+  },
+  AdminSubmit: {
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "admin_submit", submission),
     statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   Release: {
@@ -160,8 +166,6 @@ const DataSubmissionActions = ({
   const [action, setAction] = useState<SubmissionAction | null>(null);
   const [reviewComment, setReviewComment] = useState("");
 
-  const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
-
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
       setCurrentDialog(null);
@@ -199,7 +203,8 @@ const DataSubmissionActions = ({
   return (
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Action Buttons */}
-      {canShowAction("Submit") ? (
+      {canShowAction("Submit") ||
+      (canShowAction("AdminSubmit") && submitActionButton?.isAdminOverride) ? (
         <Tooltip
           placement="top"
           title={submitActionButton?.tooltip}
@@ -212,11 +217,7 @@ const DataSubmissionActions = ({
               color="primary"
               onClick={() => onOpenDialog("Submit")}
               loading={action === "Submit"}
-              disabled={
-                (collaborator && collaborator.permission !== "Can Edit") ||
-                !submitActionButton?.enabled ||
-                (action && action !== "Submit")
-              }
+              disabled={!submitActionButton?.enabled || (action && action !== "Submit")}
             >
               {submitActionButton?.isAdminOverride ? "Admin Submit" : "Submit"}
             </StyledLoadingButton>
@@ -264,10 +265,7 @@ const DataSubmissionActions = ({
           color="error"
           onClick={() => onOpenDialog("Withdraw")}
           loading={action === "Withdraw"}
-          disabled={
-            (collaborator && collaborator.permission !== "Can Edit") ||
-            (action && action !== "Withdraw")
-          }
+          disabled={action && action !== "Withdraw"}
         >
           Withdraw
         </StyledLoadingButton>
@@ -289,10 +287,7 @@ const DataSubmissionActions = ({
           color="error"
           onClick={() => onOpenDialog("Cancel")}
           loading={action === "Cancel"}
-          disabled={
-            (collaborator && collaborator.permission !== "Can Edit") ||
-            (action && action !== "Cancel")
-          }
+          disabled={action && action !== "Cancel"}
         >
           Cancel
         </StyledLoadingButton>
