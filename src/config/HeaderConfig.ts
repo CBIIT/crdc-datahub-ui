@@ -18,7 +18,7 @@ export const headerData = {
   usaFlagSmallAltText: "usaFlagSmall",
 };
 
-export const navMobileList: NavBarItem[] = [
+export const HeaderLinks: NavBarItem[] = [
   {
     name: "Back to CRDC",
     link: "https://datacommons.cancer.gov/submit",
@@ -58,7 +58,7 @@ export const navMobileList: NavBarItem[] = [
   },
 ];
 
-export const navbarSublists: Record<string, NavBarSubItem[]> = {
+export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
   "Model Navigator": DataCommons.map((dc) => ({
     id: `model-navigator-${dc.name}`,
     name: `${dc.name}${dc.name.indexOf("Model") === -1 ? " Model" : ""}`,
