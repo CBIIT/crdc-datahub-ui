@@ -38,6 +38,8 @@ const baseSubmission: Submission = {
   collaborators: [],
 };
 
+const baseQCResults: QCResult[] = [];
+
 describe("General Submit", () => {
   it("should disable submit without isAdminOverride when user role is not Admin but there are validation errors", () => {
     const submission: Submission = {
@@ -45,7 +47,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Error",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -56,7 +58,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Error",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -67,7 +69,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -78,7 +80,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Error",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -89,7 +91,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Warning",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -101,7 +103,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -112,7 +114,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -123,7 +125,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, undefined);
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, undefined);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -134,7 +136,7 @@ describe("General Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -145,7 +147,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -158,7 +160,7 @@ describe("General Submit", () => {
       fileValidationStatus: null,
       intention: "Delete",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -170,7 +172,7 @@ describe("General Submit", () => {
       fileValidationStatus: null,
       intention: "New/Update",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -182,7 +184,7 @@ describe("General Submit", () => {
       fileValidationStatus: "Passed",
       intention: "Delete",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -194,7 +196,7 @@ describe("General Submit", () => {
       fileValidationStatus: "Error",
       intention: "Delete",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -205,7 +207,7 @@ describe("General Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: null,
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -216,7 +218,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Validating",
       fileValidationStatus: "Validating",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -227,7 +229,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Validating",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -238,7 +240,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Validating",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -249,7 +251,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "New",
       fileValidationStatus: "New",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -260,7 +262,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "New",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -271,7 +273,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "New",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -282,7 +284,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Warning",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -293,7 +295,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -304,7 +306,7 @@ describe("General Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Warning",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -315,13 +317,13 @@ describe("General Submit", () => {
       metadataValidationStatus: "Warning",
       fileValidationStatus: "Warning",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
 
   it("should disable submit when submission is null", () => {
-    const result = utils.shouldEnableSubmit(null, "Submitter");
+    const result = utils.shouldEnableSubmit(null, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -334,7 +336,7 @@ describe("Admin Submit", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Error",
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Admin");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
@@ -345,7 +347,7 @@ describe("Admin Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Admin");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -356,7 +358,7 @@ describe("Admin Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Admin");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -367,7 +369,7 @@ describe("Admin Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: null,
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Admin");
     expect(result.enabled).toBe(false);
   });
 
@@ -379,7 +381,7 @@ describe("Admin Submit", () => {
       fileValidationStatus: null,
       intention: "Delete",
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Admin");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
@@ -405,7 +407,7 @@ describe("Admin Submit", () => {
         },
       ],
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Admin");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -431,7 +433,11 @@ describe("Admin Submit", () => {
         },
       ],
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const qcResults: Pick<QCResult, "errors">[] = [
+      { errors: [{ title: "Orphaned file found", description: "" }] },
+    ];
+    const result = utils.shouldEnableSubmit(submission, qcResults, "Submitter");
+    expect(result._identifier).toBe("Submission should not have orphaned files");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -444,7 +450,7 @@ describe("Admin Submit", () => {
       fileValidationStatus: null,
       intention: "Delete",
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Admin");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
   });
@@ -456,7 +462,7 @@ describe("Admin Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "New",
     };
-    const result = utils.shouldEnableSubmit(submission, "Admin");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Admin");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -470,7 +476,7 @@ describe("Submit > Submission Type/Intention", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: "Error",
     };
-    const result = utils.shouldEnableSubmit(submission, "Submitter");
+    const result = utils.shouldEnableSubmit(submission, baseQCResults, "Submitter");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -503,13 +509,13 @@ describe("shouldAllowAdminOverride", () => {
   });
 
   it("should disable submit without isAdminOverride when submission is null", () => {
-    const result = utils.shouldAllowAdminOverride(null);
+    const result = utils.shouldAllowAdminOverride(null, baseQCResults);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
   it("should disable submit without isAdminOverride when submission is undefined", () => {
-    const result = utils.shouldAllowAdminOverride(undefined);
+    const result = utils.shouldAllowAdminOverride(undefined, baseQCResults);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -521,7 +527,7 @@ describe("shouldAllowAdminOverride", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: null,
     };
-    const result = utils.shouldAllowAdminOverride(submission);
+    const result = utils.shouldAllowAdminOverride(submission, baseQCResults);
     expect(result._identifier).toBe("Admin Override - Submission has validation errors");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
@@ -534,7 +540,7 @@ describe("shouldAllowAdminOverride", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result = utils.shouldAllowAdminOverride(submission);
+    const result = utils.shouldAllowAdminOverride(submission, baseQCResults);
     expect(result._identifier).toBe(undefined);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
@@ -547,7 +553,7 @@ describe("shouldAllowAdminOverride", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Validating",
     };
-    const result = utils.shouldAllowAdminOverride(submission);
+    const result = utils.shouldAllowAdminOverride(submission, baseQCResults);
     expect(result._identifier).toBe("Validation should not currently be running");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
@@ -563,7 +569,7 @@ describe("shouldAllowAdminOverride", () => {
       fileValidationStatus: "Passed",
     };
 
-    const result = utils.shouldAllowAdminOverride(submission);
+    const result = utils.shouldAllowAdminOverride(submission, baseQCResults);
     expect(result._identifier).toBe("test-identifier-1");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
