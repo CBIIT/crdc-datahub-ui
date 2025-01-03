@@ -75,9 +75,9 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
   cursor: "pointer",
 }));
 
-type RowData = QCResult | Issue;
+type RowData = QCResult | AggregatedQCResult;
 
-const aggregatedColumns: Column<Issue>[] = [
+const aggregatedColumns: Column<AggregatedQCResult>[] = [
   {
     label: "Issue Type",
     renderValue: (data) => <TruncatedText text={data.title} maxCharacters={50} />,
@@ -348,7 +348,10 @@ const QualityControl: FC = () => {
     }
   };
 
-  const handleFetchAggQCResults = async (fetchListing: FetchListing<Issue>, force: boolean) => {
+  const handleFetchAggQCResults = async (
+    fetchListing: FetchListing<AggregatedQCResult>,
+    force: boolean
+  ) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
 
     if (!force && data?.length > 0 && isEqual(fetchListing, prevData)) {
@@ -430,7 +433,7 @@ const QualityControl: FC = () => {
     [isAggregated]
   ) as Column<RowData>[];
 
-  const handleExpandClick = (issue: Issue) => {
+  const handleExpandClick = (issue: AggregatedQCResult) => {
     if (!issue?.code) {
       Logger.error("QualityControl: Unable to expand invalid issue.");
       return;

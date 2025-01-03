@@ -136,8 +136,8 @@ const issueTypesMock: MockedResponse<
             count: 100,
             description: "",
             severity: "Error",
-            __typename: "Issue", // Necessary or tests fail due to query fragments relying on type
-          } as Issue,
+            __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
+          } as AggregatedQCResult,
         ],
       },
     },
@@ -164,16 +164,16 @@ const aggSubmissionMock: MockedResponse<
             count: 100,
             description: "",
             severity: "Error",
-            __typename: "Issue", // Necessary or tests fail due to query fragments relying on type
-          } as Issue,
+            __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
+          } as AggregatedQCResult,
           {
             code: "ISSUE2",
             title: "Issue Title 2",
             count: 200,
             description: "",
             severity: "Warning",
-            __typename: "Issue",
-          } as Issue,
+            __typename: "AggregatedQCResult",
+          } as AggregatedQCResult,
         ],
       },
     },

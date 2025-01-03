@@ -206,11 +206,10 @@ type RecordParentNode = {
   parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
 };
 
-type Issue = {
+type AggregatedQCResult = {
   code: string;
   severity: "Error" | "Warning";
   title: string;
-  description: string;
   count: number;
 };
 

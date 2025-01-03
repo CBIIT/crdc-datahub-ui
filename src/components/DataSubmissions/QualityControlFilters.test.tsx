@@ -124,7 +124,7 @@ const issueTypesMock: MockedResponse<
             description: "",
             severity: "Error",
             __typename: "aggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
-          } as Issue,
+          } as AggregatedQCResult,
         ],
       },
     },
