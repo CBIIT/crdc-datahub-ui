@@ -163,7 +163,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
-  const { data, error, refetch: getSubmission } = useSubmissionContext();
+  const { data, error, refetch: getSubmission, qcData, qcError } = useSubmissionContext();
 
   const dataSubmissionListPageUrl = `/data-submissions${
     lastSearchParams?.["/data-submissions"] ?? ""
@@ -189,8 +189,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
       return { enabled: false };
     }
 
-    return shouldEnableSubmit(data.getSubmission, user);
-  }, [data?.getSubmission, user, hasUploadingBatches]);
+    return shouldEnableSubmit(data.getSubmission, qcData?.submissionQCResults?.results, user);
+  }, [data?.getSubmission, qcData?.submissionQCResults?.results, user, hasUploadingBatches]);
   const releaseInfo: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
     [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
@@ -251,8 +251,15 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
       navigate(dataSubmissionListPageUrl, {
         state: { error: "Oops! An error occurred while retrieving that Data Submission." },
       });
+    } else if (qcError) {
+      navigate(dataSubmissionListPageUrl, {
+        state: {
+          error:
+            "There was an issue while retrieving the validation results for that Data Submission.",
+        },
+      });
     }
-  }, [error]);
+  }, [error, qcError]);
 
   useEffect(() => {
     if (!isValidTab) {

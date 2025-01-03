@@ -302,7 +302,7 @@ const ListingView: FC = () => {
       setOrganizations(
         d.listSubmissions.organizations
           ?.filter((org) => !!org?.name?.trim())
-          ?.sort((a, b) => a.name?.localeCompare(b.name))
+          ?.sort((a, b) => a.name?.localeCompare(b?.name))
       );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
@@ -330,13 +330,14 @@ const ListingView: FC = () => {
       setData(d.listSubmissions.submissions);
       setOrganizations(
         d.listSubmissions.organizations
-          ?.filter((org) => !!org.name.trim())
-          ?.sort((a, b) => a.name?.localeCompare(b.name))
+          ?.filter((org) => !!org?.name?.trim())
+          ?.sort((a, b) => a.name?.localeCompare(b?.name))
       );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
     } catch (err) {
+      Logger.error("Error updating the Data Submission list", err);
       setError(true);
     } finally {
       setLoading(false);
