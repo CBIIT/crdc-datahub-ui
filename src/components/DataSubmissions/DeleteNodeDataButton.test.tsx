@@ -743,4 +743,26 @@ describe("Implementation Requirements", () => {
       expect(queryByTestId("delete-node-data-button")).not.toBeInTheDocument();
     }
   );
+
+  it.each<SubmissionStatus>(["New", "In Progress", "Rejected", "Withdrawn"])(
+    "should (implicitly) be enabled for the Submission Status %s",
+    (status) => {
+      const { getByTestId } = render(<Button nodeType="test" selectedItems={["item-1"]} />, {
+        wrapper: (props) => <TestParent {...props} submission={{ status }} />,
+      });
+
+      expect(getByTestId("delete-node-data-button")).toBeEnabled();
+    }
+  );
+
+  it.each<SubmissionStatus>(["Submitted", "Released", "Completed", "Canceled", "Deleted"])(
+    "should be disabled for the Submission Status %s",
+    (status) => {
+      const { getByTestId } = render(<Button nodeType="test" selectedItems={["item-1"]} />, {
+        wrapper: (props) => <TestParent {...props} submission={{ status }} />,
+      });
+
+      expect(getByTestId("delete-node-data-button")).toBeDisabled();
+    }
+  );
 });
