@@ -163,6 +163,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               checked={otherCancerTypesEnabled}
               onChange={handleOtherCancerTypesCheckboxChange}
               readOnly={cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE) || readOnlyInputs}
+              inputProps={{ "aria-label": "Toggle Other cancer type(s)" }}
             />
           }
           name="otherCancerTypes"
@@ -213,6 +214,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               checked={otherSpeciesEnabled}
               onChange={handleOtherSpeciesCheckboxChange}
               readOnly={readOnlyInputs}
+              inputProps={{ "aria-label": "Toggle Other Specie(s) involved" }}
             />
           }
           name="otherSpeciesOfSubjects"
