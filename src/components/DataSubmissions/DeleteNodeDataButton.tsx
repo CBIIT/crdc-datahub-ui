@@ -22,6 +22,17 @@ const StyledTooltip = styled(StyledFormTooltip)({
   },
 });
 
+/**
+ * An array of submission statuses that should disable the delete button
+ */
+const DisabledStatuses: SubmissionStatus[] = [
+  "Submitted",
+  "Released",
+  "Completed",
+  "Canceled",
+  "Deleted",
+];
+
 type Props = {
   /**
    * The name of the node type currently selected
@@ -41,7 +52,7 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
   const { enqueueSnackbar } = useSnackbar();
   const { data } = useSubmissionContext();
   const { user } = useAuthContext();
-  const { _id, deletingData } = data?.getSubmission || {};
+  const { _id, status, deletingData } = data?.getSubmission || {};
 
   const collaborator = data?.getSubmission?.collaborators?.find(
     (c) => c.collaboratorID === user?._id
@@ -146,6 +157,7 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
               disabled ||
               deletingData === true ||
               selectedItems.length === 0 ||
+              DisabledStatuses.includes(status) ||
               (collaborator && collaborator.permission !== "Can Edit")
             }
             aria-label="Delete nodes icon"

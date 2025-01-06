@@ -13,6 +13,7 @@ import { safeParse } from "./jsonUtils";
  */
 export const shouldEnableSubmit = (
   submission: Submission,
+  qcResults: Pick<QCResult, "errors">[],
   userRole: UserRole
 ): SubmitButtonResult => {
   if (!submission || !userRole) {
@@ -22,7 +23,7 @@ export const shouldEnableSubmit = (
   // Check for potential Admin override
   const isAdmin = userRole === "Admin";
   if (isAdmin) {
-    const adminOverrideResult = shouldAllowAdminOverride(submission);
+    const adminOverrideResult = shouldAllowAdminOverride(submission, qcResults);
     if (adminOverrideResult.enabled) {
       return { ...adminOverrideResult };
     }
@@ -31,11 +32,11 @@ export const shouldEnableSubmit = (
   // Skip required conditions already checked if user is Admin role
   const failedCondition = SUBMIT_BUTTON_CONDITIONS.find((condition) => {
     const preConditionMet = condition.preConditionCheck
-      ? condition.preConditionCheck(submission)
+      ? condition.preConditionCheck(submission, qcResults)
       : true;
 
     // Return true if preCondition is met and main condition fails
-    return preConditionMet && !condition.check(submission);
+    return preConditionMet && !condition.check(submission, qcResults);
   });
 
   // If no failed conditions, enable submit
@@ -63,7 +64,10 @@ export const shouldEnableSubmit = (
  * @returns {SubmitButtonResult} - Returns an object indicating whether the admin override is allowed,
  * and an optional tooltip explaining why the override is not allowed.
  */
-export const shouldAllowAdminOverride = (submission: Submission): SubmitButtonResult => {
+export const shouldAllowAdminOverride = (
+  submission: Submission,
+  qcResults: Pick<QCResult, "errors">[]
+): SubmitButtonResult => {
   if (!submission) {
     return { enabled: false, isAdminOverride: false };
   }
@@ -72,11 +76,11 @@ export const shouldAllowAdminOverride = (submission: Submission): SubmitButtonRe
   const requiredConditions = SUBMIT_BUTTON_CONDITIONS.filter((condition) => condition.required);
   const failedRequiredCondition = requiredConditions.find((condition) => {
     const preConditionMet = condition.preConditionCheck
-      ? condition.preConditionCheck(submission)
+      ? condition.preConditionCheck(submission, qcResults)
       : true;
 
     // Return true if preCondition is met and main condition fails
-    return preConditionMet && !condition.check(submission);
+    return preConditionMet && !condition.check(submission, qcResults);
   });
 
   // If failed required condition, then disable submit buton and show tooltip if available
@@ -92,11 +96,11 @@ export const shouldAllowAdminOverride = (submission: Submission): SubmitButtonRe
   // Check if current conditions allow for an admin override
   const overrideCondition = ADMIN_OVERRIDE_CONDITIONS.find((condition) => {
     const preConditionMet = condition.preConditionCheck
-      ? condition.preConditionCheck(submission)
+      ? condition.preConditionCheck(submission, qcResults)
       : true;
 
     // Return true if preCondition is met and main condition passes
-    return preConditionMet && condition.check(submission);
+    return preConditionMet && condition.check(submission, qcResults);
   });
 
   // If Admin override, then enable submit button with tooltip if available

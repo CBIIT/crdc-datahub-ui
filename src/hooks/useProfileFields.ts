@@ -1,4 +1,5 @@
 import { useAuthContext } from "../components/Contexts/AuthContext";
+import { RequiresStudiesAssigned } from "../config/AuthRoles";
 /**
  * Constrains the fields that this hook supports generating states for
  */
@@ -21,6 +22,11 @@ export type ProfileFields = Record<EditableFields, FieldState>;
  * - `READ_ONLY` means the field is rendered as text only
  */
 export type FieldState = "HIDDEN" | "DISABLED" | "UNLOCKED" | "READ_ONLY";
+
+/**
+ * An array of fields that are visible to the viewer, regardless of their state
+ */
+export const VisibleFieldState: FieldState[] = ["UNLOCKED", "DISABLED"];
 
 /**
  * Determines which profile fields are visible, editable, and disabled for the current user
@@ -55,12 +61,8 @@ const useProfileFields = (
     fields.role = "UNLOCKED";
     fields.userStatus = "UNLOCKED";
 
-    // Editable for Admin viewing Federal Monitor or Submitter, otherwise hidden
-    // even for a user viewing their own profile
-    fields.studies =
-      profileOf?.role === "Submitter" || profileOf?.role === "Federal Monitor"
-        ? "UNLOCKED"
-        : "HIDDEN";
+    // Editable for Admin viewing certain roles, otherwise hidden (even for a user viewing their own profile)
+    fields.studies = RequiresStudiesAssigned.includes(profileOf?.role) ? "UNLOCKED" : "HIDDEN";
   }
 
   // Only applies to Data Commons POC
