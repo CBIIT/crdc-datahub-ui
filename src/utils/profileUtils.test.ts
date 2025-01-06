@@ -1,11 +1,4 @@
 import * as utils from "./profileUtils";
-import { formatName } from "./stringUtils";
-
-jest.mock("./stringUtils", () => ({
-  formatName: jest.fn(),
-}));
-
-const mockFormatName = formatName as jest.Mock;
 
 describe("formatIDP cases", () => {
   it("should format NIH IDP", () => {
@@ -41,30 +34,15 @@ describe("userToCollaborator cases", () => {
       _id: "user-1",
       firstName: "John",
       lastName: "Doe",
-      organization: {
-        orgID: "org-1",
-        orgName: "Organization 1",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
     };
-
-    mockFormatName.mockReturnValue("John Doe");
 
     const collaborator = utils.userToCollaborator(user);
 
     expect(collaborator).toEqual({
       collaboratorID: "user-1",
-      collaboratorName: "John Doe",
-      permission: "Can View",
-      Organization: {
-        orgID: "org-1",
-        orgName: "Organization 1",
-      },
+      collaboratorName: "Doe, John",
+      permission: "Can Edit",
     });
-
-    expect(mockFormatName).toHaveBeenCalledWith("John", "Doe");
   });
 
   it("should use provided permission", () => {
@@ -73,8 +51,6 @@ describe("userToCollaborator cases", () => {
       firstName: "John",
       lastName: "Doe",
     };
-
-    mockFormatName.mockReturnValue("John Doe");
 
     const collaborator = utils.userToCollaborator(user, "Can Edit");
 
@@ -87,12 +63,9 @@ describe("userToCollaborator cases", () => {
       lastName: "Doe",
     };
 
-    mockFormatName.mockReturnValue("Doe");
-
     const collaborator = utils.userToCollaborator(user);
 
-    expect(collaborator.collaboratorName).toBe("Doe");
-    expect(mockFormatName).toHaveBeenCalledWith(undefined, "Doe");
+    expect(collaborator.collaboratorName).toBe("Doe, ");
   });
 
   it("should handle missing lastName", () => {
@@ -101,53 +74,9 @@ describe("userToCollaborator cases", () => {
       firstName: "John",
     };
 
-    mockFormatName.mockReturnValue("John");
-
     const collaborator = utils.userToCollaborator(user);
 
-    expect(collaborator.collaboratorName).toBe("John");
-    expect(mockFormatName).toHaveBeenCalledWith("John", undefined);
-  });
-
-  it("should handle missing organization", () => {
-    const user: Partial<User> = {
-      _id: "user-1",
-      firstName: "John",
-      lastName: "Doe",
-    };
-
-    mockFormatName.mockReturnValue("John Doe");
-
-    const collaborator = utils.userToCollaborator(user);
-
-    expect(collaborator.Organization).toEqual({
-      orgID: undefined,
-      orgName: undefined,
-    });
-  });
-
-  it("should handle missing organization orgID and orgName", () => {
-    const user: Partial<User> = {
-      _id: "user-1",
-      firstName: "John",
-      lastName: "Doe",
-      organization: {
-        orgID: "",
-        orgName: "",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
-    };
-
-    mockFormatName.mockReturnValue("John Doe");
-
-    const collaborator = utils.userToCollaborator(user);
-
-    expect(collaborator.Organization).toEqual({
-      orgID: "",
-      orgName: "",
-    });
+    expect(collaborator.collaboratorName).toBe(", John");
   });
 
   it("should handle missing _id", () => {
@@ -155,8 +84,6 @@ describe("userToCollaborator cases", () => {
       firstName: "John",
       lastName: "Doe",
     };
-
-    mockFormatName.mockReturnValue("John Doe");
 
     const collaborator = utils.userToCollaborator(user);
 
@@ -168,15 +95,9 @@ describe("userToCollaborator cases", () => {
 
     expect(collaborator).toEqual({
       collaboratorID: undefined,
-      collaboratorName: formatName(undefined, undefined),
-      permission: "Can View",
-      Organization: {
-        orgID: undefined,
-        orgName: undefined,
-      },
+      collaboratorName: ", ",
+      permission: "Can Edit",
     });
-
-    expect(mockFormatName).toHaveBeenCalledWith(undefined, undefined);
   });
 
   it("should handle undefined user", () => {
@@ -184,15 +105,9 @@ describe("userToCollaborator cases", () => {
 
     expect(collaborator).toEqual({
       collaboratorID: undefined,
-      collaboratorName: formatName(undefined, undefined),
-      permission: "Can View",
-      Organization: {
-        orgID: undefined,
-        orgName: undefined,
-      },
+      collaboratorName: ", ",
+      permission: "Can Edit",
     });
-
-    expect(mockFormatName).toHaveBeenCalledWith(undefined, undefined);
   });
 
   it("should handle user with empty properties", () => {
@@ -200,30 +115,15 @@ describe("userToCollaborator cases", () => {
       _id: "",
       firstName: "",
       lastName: "",
-      organization: {
-        orgID: "",
-        orgName: "",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
     };
-
-    mockFormatName.mockReturnValue("");
 
     const collaborator = utils.userToCollaborator(user);
 
     expect(collaborator).toEqual({
       collaboratorID: "",
-      collaboratorName: "",
-      permission: "Can View",
-      Organization: {
-        orgID: "",
-        orgName: "",
-      },
+      collaboratorName: ", ",
+      permission: "Can Edit",
     });
-
-    expect(mockFormatName).toHaveBeenCalledWith("", "");
   });
 
   it("should handle user with additional properties", () => {
@@ -233,30 +133,15 @@ describe("userToCollaborator cases", () => {
       lastName: "Doe",
       email: "john.doe@example.com",
       role: "Admin",
-      organization: {
-        orgID: "org-1",
-        orgName: "Organization 1",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
     };
-
-    mockFormatName.mockReturnValue("John Doe");
 
     const collaborator = utils.userToCollaborator(user);
 
     expect(collaborator).toEqual({
       collaboratorID: "user-1",
-      collaboratorName: "John Doe",
-      permission: "Can View",
-      Organization: {
-        orgID: "org-1",
-        orgName: "Organization 1",
-      },
+      collaboratorName: "Doe, John",
+      permission: "Can Edit",
     });
-
-    expect(mockFormatName).toHaveBeenCalledWith("John", "Doe");
   });
 });
 

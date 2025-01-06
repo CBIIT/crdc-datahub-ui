@@ -671,8 +671,7 @@ describe("Implementation Requirements", () => {
             {
               collaboratorID: "collaborator-user",
               collaboratorName: "",
-              Organization: null,
-              permission: "Can View",
+              permission: "Can Edit",
             },
           ],
         }}
@@ -715,7 +714,6 @@ describe("Implementation Requirements", () => {
             {
               collaboratorID: "collaborator-user",
               collaboratorName: "",
-              Organization: null,
               permission: "Can Edit",
             },
           ],
