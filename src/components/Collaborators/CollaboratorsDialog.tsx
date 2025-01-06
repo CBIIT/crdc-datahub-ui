@@ -172,9 +172,9 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
         Collaborators
       </StyledHeader>
       <StyledDescription data-testid="collaborators-dialog-description">
-        Below is a list of collaborators who have been granted access to this data submission. Each
-        collaborator can view or edit the submission based on the permissions assigned by the
-        submission creator.
+        Below is a list of collaborators who have been granted access to this data submission. Once
+        added, each collaborator can contribute to the submission by uploading data, running
+        validations, and submitting.
       </StyledDescription>
 
       <form id="manage-collaborators-dialog-form" onSubmit={handleOnSave}>
