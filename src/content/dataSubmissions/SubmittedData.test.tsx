@@ -790,7 +790,6 @@ describe("SubmittedData > Table", () => {
           {
             collaboratorID: baseUser._id,
             collaboratorName: "",
-            Organization: null,
             permission: "Can Edit",
           },
         ]}

@@ -33,7 +33,6 @@ export const userToCollaborator = (
   collaboratorID: user?._id,
   collaboratorName: `${user?.lastName || ""}, ${user?.firstName || ""}`,
   permission,
-  Organization: null,
 });
 
 /**

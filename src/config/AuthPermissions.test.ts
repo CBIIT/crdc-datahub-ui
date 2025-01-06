@@ -213,7 +213,6 @@ describe("data_submission:create Permission", () => {
         {
           collaboratorID: user._id,
           collaboratorName: "",
-          Organization: null,
           permission: null,
         },
       ],

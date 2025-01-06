@@ -42,7 +42,6 @@ describe("userToCollaborator cases", () => {
       collaboratorID: "user-1",
       collaboratorName: "Doe, John",
       permission: "Can Edit",
-      Organization: null,
     });
   });
 
@@ -98,7 +97,6 @@ describe("userToCollaborator cases", () => {
       collaboratorID: undefined,
       collaboratorName: ", ",
       permission: "Can Edit",
-      Organization: null,
     });
   });
 
@@ -109,7 +107,6 @@ describe("userToCollaborator cases", () => {
       collaboratorID: undefined,
       collaboratorName: ", ",
       permission: "Can Edit",
-      Organization: null,
     });
   });
 
@@ -126,7 +123,6 @@ describe("userToCollaborator cases", () => {
       collaboratorID: "",
       collaboratorName: ", ",
       permission: "Can Edit",
-      Organization: null,
     });
   });
 
@@ -145,7 +141,6 @@ describe("userToCollaborator cases", () => {
       collaboratorID: "user-1",
       collaboratorName: "Doe, John",
       permission: "Can Edit",
-      Organization: null,
     });
   });
 });

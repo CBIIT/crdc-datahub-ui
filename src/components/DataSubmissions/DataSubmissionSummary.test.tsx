@@ -120,19 +120,11 @@ describe("Basic Functionality", () => {
         {
           collaboratorID: "col-1",
           collaboratorName: "",
-          Organization: {
-            orgID: "",
-            orgName: "",
-          },
           permission: "Can Edit",
         },
         {
           collaboratorID: "col-2",
           collaboratorName: "",
-          Organization: {
-            orgID: "",
-            orgName: "",
-          },
           permission: "Can Edit",
         },
       ],
@@ -184,28 +176,16 @@ describe("Basic Functionality", () => {
         {
           collaboratorID: "1",
           collaboratorName: "",
-          Organization: {
-            orgID: "",
-            orgName: "",
-          },
           permission: "Can Edit",
         },
         {
           collaboratorID: "2",
           collaboratorName: "",
-          Organization: {
-            orgID: "",
-            orgName: "",
-          },
           permission: "Can Edit",
         },
         {
           collaboratorID: "3",
           collaboratorName: "",
-          Organization: {
-            orgID: "",
-            orgName: "",
-          },
           permission: "Can Edit",
         },
       ],

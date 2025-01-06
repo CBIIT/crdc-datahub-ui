@@ -59,7 +59,6 @@ const mockCollaborators: Collaborator[] = [
     collaboratorID: "user-2",
     collaboratorName: "Jane Smith",
     permission: "Can Edit",
-    Organization: null,
   },
 ];
 
@@ -68,13 +67,11 @@ const mockRemainingPotentialCollaborators: Collaborator[] = [
     collaboratorID: "user-3",
     collaboratorName: "Bob Johnson",
     permission: "Can Edit",
-    Organization: null,
   },
   {
     collaboratorID: "user-4",
     collaboratorName: "Alice Williams",
     permission: "Can Edit",
-    Organization: null,
   },
 ];
 

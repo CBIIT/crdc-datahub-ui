@@ -1,4 +1,3 @@
-// CollaboratorsContext.test.tsx
 import React from "react";
 import { act, fireEvent, render, renderHook, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
@@ -21,19 +20,11 @@ const dummySubmissionData = {
         collaboratorID: "user-1",
         permission: "Can Edit",
         collaboratorName: "Smith, Alice",
-        Organization: {
-          orgID: "org-1",
-          orgName: "Org 1",
-        },
       },
       {
         collaboratorID: "user-2",
         permission: "Can Edit",
         collaboratorName: "Johnson, Bob",
-        Organization: {
-          orgID: "org-2",
-          orgName: "Org 2",
-        },
       },
     ],
   } as Submission,

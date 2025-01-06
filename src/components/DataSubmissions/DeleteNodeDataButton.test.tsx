@@ -284,7 +284,6 @@ describe("Basic Functionality", () => {
             {
               collaboratorID: "collaborator-user",
               collaboratorName: "",
-              Organization: null,
               permission: "Can Edit",
             },
           ],
