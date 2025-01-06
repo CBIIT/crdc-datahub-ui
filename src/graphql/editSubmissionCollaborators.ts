@@ -19,5 +19,5 @@ export type Input = {
 };
 
 export type Response = {
-  editSubmissionCollaborators: Submission;
+  editSubmissionCollaborators: Pick<Submission, "_id" | "collaborators">;
 };
