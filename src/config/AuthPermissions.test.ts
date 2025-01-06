@@ -239,15 +239,7 @@ describe("submission_request:delete Permission", () => {
     }
   );
 
-  it.each<ApplicationStatus>([
-    "New",
-    "In Progress",
-    "Submitted",
-    "In Review",
-    "Inquired",
-    "Rejected",
-    "Approved",
-  ])(
+  it.each<ApplicationStatus>(["New", "In Progress", "Inquired", "Submitted", "In Review"])(
     "should allow all external roles to delete in the '%s' status if they have the permission",
     (status) => {
       const ExternalRoles: UserRole[] = ["Federal Lead", "Data Commons Personnel", "Admin"];
@@ -257,6 +249,31 @@ describe("submission_request:delete Permission", () => {
         const application: Application = { ...baseApplication, status };
 
         expect(hasPermission(user, "submission_request", "delete", application)).toBe(true);
+      });
+    }
+  );
+
+  it.each<ApplicationStatus>(["Approved", "Rejected"])(
+    "should not allow any role to delete in the '%s' status",
+    (status) => {
+      const allRoles: UserRole[] = [
+        "Admin",
+        "Data Commons Personnel",
+        "Federal Lead",
+        "Submitter",
+        "User",
+      ];
+
+      allRoles.forEach((role) => {
+        const user = createUser(role, ["submission_request:delete"]);
+        const application: Application = {
+          ...baseApplication,
+          // NOTE - As a baseline, just make the owner the current user
+          applicant: { ...baseApplication.applicant, applicantID: user._id },
+          status,
+        };
+
+        expect(hasPermission(user, "submission_request", "delete", application)).toBe(false);
       });
     }
   );

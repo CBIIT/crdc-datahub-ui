@@ -82,6 +82,18 @@ export const PERMISSION_MAP = {
         return false;
       }
 
+      const validDeleteStatuses: ApplicationStatus[] = [
+        "New",
+        "In Progress",
+        "Inquired",
+        "Submitted",
+        "In Review",
+        "Deleted",
+      ];
+      if (!validDeleteStatuses.includes(application?.status)) {
+        return false;
+      }
+
       return true;
     },
   },
