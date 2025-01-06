@@ -8,10 +8,6 @@ export const mutation = gql`
         collaboratorID
         collaboratorName
         permission
-        Organization {
-          orgID
-          orgName
-        }
       }
     }
   }
