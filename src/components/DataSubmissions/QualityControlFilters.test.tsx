@@ -71,6 +71,7 @@ const defaultSubmissionContextValue: SubmissionCtxState = {
 interface TestParentProps {
   submissionContextValue?: SubmissionCtxState;
   issueTypeProp?: string | null;
+  isAggregated?: boolean;
   onChange?: jest.Mock;
   mocks?: MockedResponse[];
 }
@@ -78,6 +79,7 @@ interface TestParentProps {
 const TestParent: FC<TestParentProps> = ({
   submissionContextValue,
   issueTypeProp = null,
+  isAggregated = false,
   onChange = jest.fn(),
   mocks = [],
 }) => {
@@ -90,7 +92,11 @@ const TestParent: FC<TestParentProps> = ({
     <MemoryRouter>
       <MockedProvider mocks={mocks}>
         <SubmissionContext.Provider value={value}>
-          <QualityControlFilters issueType={issueTypeProp} onChange={onChange} />
+          <QualityControlFilters
+            issueType={issueTypeProp}
+            isAggregated={isAggregated}
+            onChange={onChange}
+          />
         </SubmissionContext.Provider>
       </MockedProvider>
     </MemoryRouter>
@@ -580,5 +586,21 @@ describe("QualityControlFilters", () => {
 
     expect(queryByTestId("nodeType-SAMPLE")).not.toBeInTheDocument();
     expect(queryByTestId("nodeType-FILE")).not.toBeInTheDocument();
+  });
+
+  it("displays only severity filter when table is in aggregated view", async () => {
+    const onChange = jest.fn();
+    const { getByTestId, queryByTestId } = render(
+      <TestParent
+        onChange={onChange}
+        mocks={[issueTypesMock, batchDataMock, submissionStatsMock]}
+        isAggregated
+      />
+    );
+
+    expect(getByTestId("quality-control-severity-filter")).toBeInTheDocument();
+    expect(queryByTestId("quality-control-issueType-filter")).not.toBeInTheDocument();
+    expect(queryByTestId("quality-control-batchID-filter")).not.toBeInTheDocument();
+    expect(queryByTestId("quality-control-nodeType-filter")).not.toBeInTheDocument();
   });
 });

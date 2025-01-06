@@ -68,10 +68,11 @@ type FilterForm = {
 
 type Props = {
   issueType: string | null;
+  isAggregated: boolean;
   onChange: (filters: FilterForm) => void;
 };
 
-const QualityControlFilters = ({ issueType, onChange }: Props) => {
+const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => {
   const { data: submissionData } = useSubmissionContext();
   const { _id: submissionID } = submissionData?.getSubmission || {};
   const { watch, control, getValues, setValue } = useForm<FilterForm>({
@@ -166,128 +167,131 @@ const QualityControlFilters = ({ issueType, onChange }: Props) => {
 
   return (
     <StyledFilterContainer data-testid="quality-control-filters">
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        data-testid="issueType-filter-container"
-      >
-        <StyledInlineLabel htmlFor="issueType-filter">Issue Type</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="issueType"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                inputProps={{ id: "issueType-filter", "data-testid": "issueType-filter" }}
-                data-testid="quality-control-issueType-filter"
-                MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
-                onChange={(e) => {
-                  field.onChange(e);
-                  handleFilterChange("issueType");
-                }}
-              >
-                <MenuItem value="All" data-testid="issueType-all">
-                  All
-                </MenuItem>
-                {issueTypes?.aggregatedSubmissionQCResults?.results?.map((issue, idx) => (
-                  <MenuItem
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={`issue_${idx}_${issue.code}`}
-                    value={issue.code}
-                    data-testid={`issueType-${issue.code}`}
+      {!isAggregated ? (
+        <>
+          <Stack
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            data-testid="issueType-filter-container"
+          >
+            <StyledInlineLabel htmlFor="issueType-filter">Issue Type</StyledInlineLabel>
+            <StyledFormControl>
+              <Controller
+                name="issueType"
+                control={control}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    inputProps={{ id: "issueType-filter", "data-testid": "issueType-filter" }}
+                    data-testid="quality-control-issueType-filter"
+                    MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleFilterChange("issueType");
+                    }}
                   >
-                    {issue.title}
-                  </MenuItem>
-                ))}
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-      </Stack>
+                    <MenuItem value="All" data-testid="issueType-all">
+                      All
+                    </MenuItem>
+                    {issueTypes?.aggregatedSubmissionQCResults?.results?.map((issue, idx) => (
+                      <MenuItem
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={`issue_${idx}_${issue.code}`}
+                        value={issue.code}
+                        data-testid={`issueType-${issue.code}`}
+                      >
+                        {issue.title}
+                      </MenuItem>
+                    ))}
+                  </StyledSelect>
+                )}
+              />
+            </StyledFormControl>
+          </Stack>
 
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        data-testid="batchID-filter-container"
-      >
-        <StyledInlineLabel htmlFor="batchID-filter">Batch ID</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="batchID"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                inputProps={{ id: "batchID-filter" }}
-                data-testid="quality-control-batchID-filter"
-                MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
-                onChange={(e) => {
-                  field.onChange(e);
-                  handleFilterChange("batchID");
-                }}
-              >
-                <MenuItem value="All" data-testid="batchID-all">
-                  All
-                </MenuItem>
-                {batchData?.listBatches?.batches?.map((batch) => (
-                  <MenuItem
-                    key={`batch_${batch._id}`}
-                    value={batch._id}
-                    data-testid={`batchID-${batch._id}`}
+          <Stack
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            data-testid="batchID-filter-container"
+          >
+            <StyledInlineLabel htmlFor="batchID-filter">Batch ID</StyledInlineLabel>
+            <StyledFormControl>
+              <Controller
+                name="batchID"
+                control={control}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    inputProps={{ id: "batchID-filter" }}
+                    data-testid="quality-control-batchID-filter"
+                    MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleFilterChange("batchID");
+                    }}
                   >
-                    {batch.displayID}
-                    {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
-                  </MenuItem>
-                ))}
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-      </Stack>
+                    <MenuItem value="All" data-testid="batchID-all">
+                      All
+                    </MenuItem>
+                    {batchData?.listBatches?.batches?.map((batch) => (
+                      <MenuItem
+                        key={`batch_${batch._id}`}
+                        value={batch._id}
+                        data-testid={`batchID-${batch._id}`}
+                      >
+                        {batch.displayID}
+                        {` (${FormatDate(batch.createdAt, "MM/DD/YYYY")})`}
+                      </MenuItem>
+                    ))}
+                  </StyledSelect>
+                )}
+              />
+            </StyledFormControl>
+          </Stack>
 
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        data-testid="nodeType-filter-container"
-      >
-        <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
-        <StyledFormControl>
-          <Controller
-            name="nodeType"
-            control={control}
-            render={({ field }) => (
-              <StyledSelect
-                {...field}
-                inputProps={{ id: "nodeType-filter" }}
-                data-testid="quality-control-nodeType-filter"
-                MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
-                onChange={(e) => {
-                  field.onChange(e);
-                  handleFilterChange("nodeType");
-                }}
-              >
-                <MenuItem value="All" data-testid="nodeType-all">
-                  All
-                </MenuItem>
-                {nodeTypes?.map((nodeType) => (
-                  <MenuItem
-                    key={`nodeType_${nodeType}`}
-                    value={nodeType}
-                    data-testid={`nodeType-${nodeType}`}
+          <Stack
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            data-testid="nodeType-filter-container"
+          >
+            <StyledInlineLabel htmlFor="nodeType-filter">Node Type</StyledInlineLabel>
+            <StyledFormControl>
+              <Controller
+                name="nodeType"
+                control={control}
+                render={({ field }) => (
+                  <StyledSelect
+                    {...field}
+                    inputProps={{ id: "nodeType-filter" }}
+                    data-testid="quality-control-nodeType-filter"
+                    MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleFilterChange("nodeType");
+                    }}
                   >
-                    {nodeType.toLowerCase()}
-                  </MenuItem>
-                ))}
-              </StyledSelect>
-            )}
-          />
-        </StyledFormControl>
-      </Stack>
-
+                    <MenuItem value="All" data-testid="nodeType-all">
+                      All
+                    </MenuItem>
+                    {nodeTypes?.map((nodeType) => (
+                      <MenuItem
+                        key={`nodeType_${nodeType}`}
+                        value={nodeType}
+                        data-testid={`nodeType-${nodeType}`}
+                      >
+                        {nodeType.toLowerCase()}
+                      </MenuItem>
+                    ))}
+                  </StyledSelect>
+                )}
+              />
+            </StyledFormControl>
+          </Stack>
+        </>
+      ) : null}
       <Stack
         direction="row"
         justifyContent="flex-start"
