@@ -40,7 +40,7 @@ const ReviewSection: FC<Props> = ({ idPrefix, title, divider = true, children })
     <Grid className="review-section-header" xs={12} item sx={{ padding: "0 !important" }}>
       <Stack direction="row" alignItems="center">
         {title && (
-          <StyledTitle id={idPrefix.concat("-section-header-title")} variant="h6">
+          <StyledTitle id={idPrefix.concat("-section-header-title")} variant="h3">
             {title}
           </StyledTitle>
         )}
