@@ -226,6 +226,19 @@ describe("submission_request:delete Permission", () => {
     }
   );
 
+  it.each<UserRole>(["User", "Submitter"])(
+    "should allow '%s' to restore from the 'Deleted' status",
+    (role) => {
+      const user = createUser(role, ["submission_request:delete"]);
+      const application: Application = {
+        ...baseApplication,
+        applicant: { ...baseApplication.applicant, applicantID: user._id },
+        status: "Deleted",
+      };
+      expect(hasPermission(user, "submission_request", "delete", application)).toBe(true);
+    }
+  );
+
   it.each<ApplicationStatus>([
     "New",
     "In Progress",

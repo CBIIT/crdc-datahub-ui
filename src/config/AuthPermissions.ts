@@ -73,7 +73,10 @@ export const PERMISSION_MAP = {
         return false;
       }
 
-      const isPreSubmit = application?.status === "New" || application?.status === "In Progress";
+      const isPreSubmit =
+        application?.status === "New" ||
+        application?.status === "In Progress" ||
+        application?.status === "Deleted";
       const mustBePreSubmit: UserRole[] = ["User", "Submitter"];
       if (!isPreSubmit && mustBePreSubmit.includes(user?.role)) {
         return false;

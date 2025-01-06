@@ -76,7 +76,8 @@ type ApplicationStatus =
   | "In Review"
   | "Approved"
   | "Rejected"
-  | "Inquired";
+  | "Inquired"
+  | "Deleted";
 
 type Section = {
   name: string;
