@@ -1,9 +1,5 @@
 import * as utils from "./profileUtils";
 
-jest.mock("./stringUtils", () => ({
-  formatName: jest.fn(),
-}));
-
 describe("formatIDP cases", () => {
   it("should format NIH IDP", () => {
     expect(utils.formatIDP("nih")).toBe("NIH");
