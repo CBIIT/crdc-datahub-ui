@@ -393,50 +393,43 @@ const FormView: FC<Props> = ({ section }: Props) => {
       newData.sections.push({ name: activeSection, status: newStatus });
     }
 
-    // Skip state update if there are no changes
-    if (!isEqual(data.questionnaireData, newData)) {
-      const res = await setData(newData);
-      if (res?.status === "failed" && !!res?.errorMessage) {
-        enqueueSnackbar(
-          `An error occurred while saving the ${map[activeSection].title} section. ${res.errorMessage}`,
-          {
-            variant: "error",
-          }
-        );
-      } else {
-        enqueueSnackbar(
-          `Your changes for the ${map[activeSection].title} section have been successfully saved.`,
-          {
-            variant: "success",
-          }
-        );
-      }
+    const saveResult = await setData(newData);
+    if (saveResult?.status === "failed" && !!saveResult?.errorMessage) {
+      enqueueSnackbar(
+        `An error occurred while saving the ${map[activeSection].title} section. ${saveResult.errorMessage}`,
+        {
+          variant: "error",
+        }
+      );
+    } else {
+      enqueueSnackbar(
+        `Your changes for the ${map[activeSection].title} section have been successfully saved.`,
+        {
+          variant: "success",
+        }
+      );
+    }
 
-      if (
-        !blockedNavigate &&
-        res?.status === "success" &&
-        data["_id"] === "new" &&
-        res.id !== data?.["_id"]
-      ) {
-        // NOTE: This currently triggers a form data refetch, which is not ideal
-        navigate(`/submission/${res.id}/${activeSection}`, { replace: true });
-      }
+    if (
+      !blockedNavigate &&
+      saveResult?.status === "success" &&
+      data["_id"] === "new" &&
+      saveResult.id !== data?.["_id"]
+    ) {
+      // NOTE: This currently triggers a form data refetch, which is not ideal
+      navigate(`/submission/${saveResult.id}/${activeSection}`, { replace: true });
+    }
 
-      if (res?.status === "success") {
-        return {
-          status: "success",
-          id: res.id,
-        };
-      }
+    if (saveResult?.status === "success") {
       return {
-        status: "failed",
-        errorMessage: res?.errorMessage,
+        status: "success",
+        id: saveResult.id,
       };
     }
 
     return {
-      status: "success",
-      id: data?.["_id"],
+      status: "failed",
+      errorMessage: saveResult?.errorMessage,
     };
   };
 
