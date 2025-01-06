@@ -453,7 +453,11 @@ const QualityControl: FC = () => {
 
   return (
     <>
-      <QualityControlFilters onChange={handleOnFiltersChange} issueType={issueType} />
+      <QualityControlFilters
+        onChange={handleOnFiltersChange}
+        issueType={issueType}
+        isAggregated={isAggregated}
+      />
 
       <QCResultsContext.Provider value={providerValue}>
         <GenericTable

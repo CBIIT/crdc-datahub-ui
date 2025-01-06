@@ -566,6 +566,15 @@ describe("Filters", () => {
       ),
     });
 
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
+    });
+
     const muiSelectBox = within(getByTestId("quality-control-nodeType-filter")).getByRole("button");
 
     userEvent.click(muiSelectBox);
@@ -630,6 +639,15 @@ describe("Filters", () => {
           {children}
         </TestParent>
       ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
     });
 
     const muiSelectBox = within(getByTestId("quality-control-nodeType-filter")).getByRole("button");
@@ -700,6 +718,15 @@ describe("Filters", () => {
           {children}
         </TestParent>
       ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
     });
 
     const muiSelectBox = within(getByTestId("quality-control-nodeType-filter")).getByRole("button");
@@ -777,6 +804,15 @@ describe("Filters", () => {
           {children}
         </TestParent>
       ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
     });
 
     userEvent.click(within(getByTestId("quality-control-batchID-filter")).getByRole("button"));
