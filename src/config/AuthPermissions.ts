@@ -21,7 +21,7 @@ type Permissions = {
   };
   submission_request: {
     dataType: Application;
-    action: "view" | "create" | "submit" | "review";
+    action: "view" | "create" | "submit" | "review" | "delete";
   };
   data_submission: {
     dataType: Submission;
@@ -61,6 +61,26 @@ export const PERMISSION_MAP = {
       return true;
     },
     review: NO_CONDITIONS,
+    delete: (user, application) => {
+      const hasPermissionKey = user?.permissions?.includes("submission_request:delete");
+      if (!hasPermissionKey) {
+        return false;
+      }
+
+      const isFormOwner = application?.applicant?.applicantID === user?._id;
+      const mustBeFormOwner: UserRole[] = ["User", "Submitter"];
+      if (!isFormOwner && mustBeFormOwner.includes(user?.role)) {
+        return false;
+      }
+
+      const isPreSubmit = application?.status === "New" || application?.status === "In Progress";
+      const mustBePreSubmit: UserRole[] = ["User", "Submitter"];
+      if (!isPreSubmit && mustBePreSubmit.includes(user?.role)) {
+        return false;
+      }
+
+      return true;
+    },
   },
   dashboard: {
     view: NO_CONDITIONS,

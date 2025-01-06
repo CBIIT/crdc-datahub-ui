@@ -197,6 +197,103 @@ describe("submission_request:submit Permission", () => {
   });
 });
 
+describe("submission_request:review Permission", () => {
+  it.each<UserRole>(["Admin", "Data Commons Personnel", "Federal Lead", "Submitter"])(
+    "should allow role %s with no conditions except the permission key",
+    (role) => {
+      const user = createUser(role, ["submission_request:review"]);
+      expect(hasPermission(user, "submission_request", "review", baseApplication)).toBe(true);
+    }
+  );
+});
+
+describe("submission_request:delete Permission", () => {
+  it.each<[UserRole, ApplicationStatus]>([
+    ["User", "New"],
+    ["User", "In Progress"],
+    ["Submitter", "New"],
+    ["Submitter", "In Progress"],
+  ])(
+    "should allow '%s' to delete in the '%s' status if they have the permission",
+    (role, status) => {
+      const user = createUser(role, ["submission_request:delete"]);
+      const application1: Application = {
+        ...baseApplication,
+        applicant: { ...baseApplication.applicant, applicantID: user._id },
+        status,
+      };
+      expect(hasPermission(user, "submission_request", "delete", application1)).toBe(true);
+    }
+  );
+
+  it.each<ApplicationStatus>([
+    "New",
+    "In Progress",
+    "Submitted",
+    "In Review",
+    "Inquired",
+    "Rejected",
+    "Approved",
+  ])(
+    "should allow all external roles to delete in the '%s' status if they have the permission",
+    (status) => {
+      const ExternalRoles: UserRole[] = ["Federal Lead", "Data Commons Personnel", "Admin"];
+
+      ExternalRoles.forEach((role) => {
+        const user = createUser(role, ["submission_request:delete"]);
+        const application: Application = { ...baseApplication, status };
+
+        expect(hasPermission(user, "submission_request", "delete", application)).toBe(true);
+      });
+    }
+  );
+
+  it.each<ApplicationStatus>(["Submitted", "In Review", "Inquired", "Rejected", "Approved"])(
+    "should NOT allow User/Submitter to delete in the '%s' status",
+    (status) => {
+      // User
+      const user = createUser("User", ["submission_request:delete"]);
+      const application1: Application = {
+        ...baseApplication,
+        applicant: { ...baseApplication.applicant, applicantID: user._id },
+        status,
+      };
+      expect(hasPermission(user, "submission_request", "delete", application1)).toBe(false);
+
+      // Submitter
+      const submitter = createUser("Submitter", ["submission_request:delete"]);
+      const application2: Application = {
+        ...baseApplication,
+        applicant: { ...baseApplication.applicant, applicantID: submitter._id },
+        status,
+      };
+      expect(hasPermission(submitter, "submission_request", "delete", application2)).toBe(false);
+    }
+  );
+
+  it.each<UserRole>(["User", "Submitter"])(
+    "should NOT allow %s to delete an application if they do not own it",
+    (role) => {
+      const user = createUser(role, ["submission_request:delete"]);
+      const application1: Application = {
+        ...baseApplication,
+        status: "In Progress",
+        applicant: { ...baseApplication.applicant, applicantID: "other-user" },
+      };
+      expect(hasPermission(user, "submission_request", "delete", application1)).toBe(false);
+    }
+  );
+
+  it.each<UserRole>(["Admin", "Data Commons Personnel", "Federal Lead", "Submitter", "User"])(
+    "should not allow %s to delete an application without the permission key",
+    (role) => {
+      const user = createUser(role, []);
+      const application: Application = { ...baseApplication, status: "In Progress" };
+      expect(hasPermission(user, "submission_request", "delete", application)).toBe(false);
+    }
+  );
+});
+
 describe("data_submission:create Permission", () => {
   const createSubmission = {
     ...baseSubmission,
