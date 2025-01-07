@@ -13,6 +13,8 @@ import config from "../../config/SectionConfig";
 import { Status, useFormContext } from "../Contexts/FormContext";
 import StatusAdornment from "./StatusAdornment";
 import useFormMode from "../../hooks/useFormMode";
+import { useAuthContext } from "../Contexts/AuthContext";
+import { CanSubmitSubmissionRequestRoles } from "../../config/AuthRoles";
 
 type Props = {
   section: string;
@@ -77,6 +79,8 @@ const StyledButton = styled(ListItemButton)({
  * @returns {JSX.Element}
  */
 const ProgressBar: FC<Props> = ({ section }) => {
+  const { user } = useAuthContext();
+
   const sectionKeys = Object.keys(config);
 
   const { data, status: formStatus } = useFormContext();
@@ -112,7 +116,15 @@ const ProgressBar: FC<Props> = ({ section }) => {
     const reviewSection = newSections.find((s) => s.id === "review");
     const reviewUnlocked = completedSections === sectionKeys.length - 1;
     if (reviewSection) {
-      const showReviewTitle = formMode === "View Only" || formMode === "Review";
+      const meetsReviewCriteria = formMode === "View Only" || formMode === "Review";
+
+      const canSeeSubmitButton =
+        CanSubmitSubmissionRequestRoles.includes(user?.role) &&
+        (data?.status === "In Progress" ||
+          (data?.status === "Inquired" && user?.role === "Federal Lead"));
+
+      const showReviewTitle = meetsReviewCriteria && !canSeeSubmitButton;
+
       const reviewIcon = reviewUnlocked ? "Review" : "ReviewDisabled";
       reviewSection.icon =
         ["Approved"].includes(status) && reviewUnlocked ? "Completed" : reviewIcon;
