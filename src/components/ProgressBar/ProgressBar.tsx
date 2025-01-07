@@ -133,7 +133,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
     }
 
     setSections(newSections);
-  }, [section, sectionStatuses, formMode, formStatus]);
+  }, [section, sectionStatuses, formMode, formStatus, data?.status, user?.role]);
 
   return (
     <StyledList>
