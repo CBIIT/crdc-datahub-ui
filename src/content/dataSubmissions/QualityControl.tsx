@@ -234,6 +234,12 @@ export const csvColumns = {
   },
 };
 
+export const aggregatedCSVColumns = {
+  "Issue Type": (d: AggregatedQCResult) => d.title,
+  Severity: (d: AggregatedQCResult) => d.severity,
+  Count: (d: AggregatedQCResult) => d.count,
+};
+
 const QualityControl: FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { data: submissionData } = useSubmissionContext();
@@ -408,12 +414,13 @@ const QualityControl: FC = () => {
       <Stack direction="row" alignItems="center" gap="8px" marginRight="37px">
         <ExportValidationButton
           submission={submissionData?.getSubmission}
-          fields={csvColumns}
+          fields={isAggregated ? aggregatedCSVColumns : csvColumns}
+          isAggregated={isAggregated}
           disabled={totalData <= 0}
         />
       </Stack>
     ),
-    [submissionData?.getSubmission, totalData]
+    [submissionData?.getSubmission, totalData, isAggregated]
   );
 
   const handleOnFiltersChange = (data: FilterForm) => {
