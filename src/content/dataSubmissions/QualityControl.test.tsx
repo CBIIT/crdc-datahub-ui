@@ -391,12 +391,16 @@ describe("Filters", () => {
       expect(getByTestId("generic-table")).toHaveTextContent("Submitted Identifier");
     });
 
+    await waitFor(() => {
+      expect(mockMatcher).toHaveBeenCalled();
+    });
+
     // "All" is the default selection for all filters
     expect(mockMatcher).not.toHaveBeenCalledWith(
       expect.objectContaining({ batchIDs: expect.anything(), nodeTypes: expect.anything() })
     );
-    // TODO: FIX TEST
-    // expect(mockMatcher).toHaveBeenCalledWith(expect.objectContaining({ severities: "All" }));
+
+    expect(mockMatcher).toHaveBeenCalledWith(expect.objectContaining({ severities: "All" }));
   });
 
   it("should include batchIDs or nodeTypes when the filter is set to anything but 'All'", async () => {
