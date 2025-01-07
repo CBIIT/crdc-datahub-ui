@@ -69,7 +69,7 @@ const LabelCheckbox: FC<Props> = ({
       data-type="boolean"
       value={checked ? "true" : "false"}
       onChange={() => {}}
-      aria-labelledby={`${idPrefix}-label`}
+      aria-label={rest?.inputProps?.["aria-label"]}
       checked
       hidden
     />

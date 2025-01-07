@@ -134,6 +134,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
         request: {
           query: SUBMISSION_QC_RESULTS,
           variables: {
+            partial: false,
             id: submissionID,
             sortDirection: "asc",
             orderBy: "displayID",
@@ -190,6 +191,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
           request: {
             query: SUBMISSION_QC_RESULTS,
             variables: {
+              partial: false,
               id: "example-dynamic-filename-id",
               sortDirection: "asc",
               orderBy: "displayID",
@@ -260,6 +262,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
         request: {
           query: SUBMISSION_QC_RESULTS,
           variables: {
+            partial: false,
             id: submissionID,
             sortDirection: "asc",
             orderBy: "displayID",
@@ -313,6 +316,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
         request: {
           query: SUBMISSION_QC_RESULTS,
           variables: {
+            partial: false,
             id: submissionID,
             sortDirection: "asc",
             orderBy: "displayID",
@@ -386,6 +390,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
         request: {
           query: SUBMISSION_QC_RESULTS,
           variables: {
+            partial: false,
             id: submissionID,
             sortDirection: "asc",
             orderBy: "displayID",
@@ -423,6 +428,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
         request: {
           query: SUBMISSION_QC_RESULTS,
           variables: {
+            partial: false,
             id: submissionID,
             sortDirection: "asc",
             orderBy: "displayID",
@@ -462,6 +468,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
         request: {
           query: SUBMISSION_QC_RESULTS,
           variables: {
+            partial: false,
             id: submissionID,
             sortDirection: "asc",
             orderBy: "displayID",
