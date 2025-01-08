@@ -312,6 +312,19 @@ const NavBar = () => {
       className: "navMobileSubItem",
     },
     {
+      name: "Uploader CLI Tool",
+      onClick: () => setUploaderToolOpen(true),
+      id: "navbar-dropdown-item-uploader-tool",
+      className: "navMobileSubItem action",
+    },
+    {
+      name: "API Token",
+      onClick: () => setOpenAPITokenDialog(true),
+      id: "navbar-dropdown-item-api-token",
+      className: "navMobileSubItem action",
+      permissions: ["data_submission:create"],
+    },
+    {
       name: "Manage Studies",
       link: "/studies",
       id: "navbar-dropdown-item-studies-manage",
@@ -331,20 +344,6 @@ const NavBar = () => {
       id: "navbar-dropdown-item-user-manage",
       className: "navMobileSubItem",
       permissions: ["user:manage"],
-    },
-    {
-      name: "Uploader CLI Tool",
-      onClick: () => setUploaderToolOpen(true),
-      id: "navbar-dropdown-item-uploader-tool",
-      className: "navMobileSubItem action",
-      permissions: ["data_submission:create"],
-    },
-    {
-      name: "API Token",
-      onClick: () => setOpenAPITokenDialog(true),
-      id: "navbar-dropdown-item-api-token",
-      className: "navMobileSubItem action",
-      permissions: ["data_submission:create"],
     },
     {
       name: "Logout",
