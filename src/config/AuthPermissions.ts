@@ -82,7 +82,7 @@ export const PERMISSION_MAP = {
         return true;
       }
       if (role === "Federal Lead" && isSubmissionOwner && hasPermissionKey) {
-        return studies?.some((s) => s._id === submission.studyID);
+        return studies?.some((s) => s._id === submission.studyID || s._id === "All");
       }
       if (role === "Data Commons Personnel" && isSubmissionOwner && hasPermissionKey) {
         return dataCommons?.some((dc) => dc === submission?.dataCommons);
@@ -98,7 +98,7 @@ export const PERMISSION_MAP = {
       const hasPermissionKey = user?.permissions?.includes("data_submission:review");
 
       if (role === "Federal Lead" && hasPermissionKey) {
-        return studies?.some((s) => s._id === submission.studyID);
+        return studies?.some((s) => s._id === submission.studyID || s._id === "All");
       }
       if (role === "Data Commons Personnel" && hasPermissionKey) {
         return dataCommons?.some((dc) => dc === submission?.dataCommons);
@@ -114,7 +114,7 @@ export const PERMISSION_MAP = {
       const hasPermissionKey = user?.permissions?.includes("data_submission:admin_submit");
 
       if (role === "Federal Lead" && hasPermissionKey) {
-        return studies?.some((s) => s._id === submission.studyID);
+        return studies?.some((s) => s._id === submission.studyID || s._id === "All");
       }
       if (role === "Data Commons Personnel" && hasPermissionKey) {
         return dataCommons?.some((dc) => dc === submission?.dataCommons);
@@ -130,7 +130,7 @@ export const PERMISSION_MAP = {
       const hasPermissionKey = user?.permissions?.includes("data_submission:confirm");
 
       if (role === "Federal Lead" && hasPermissionKey) {
-        return studies?.some((s) => s._id === submission.studyID);
+        return studies?.some((s) => s._id === submission.studyID || s._id === "All");
       }
       if (role === "Data Commons Personnel" && hasPermissionKey) {
         return dataCommons?.some((dc) => dc === submission?.dataCommons);
