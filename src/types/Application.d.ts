@@ -77,7 +77,7 @@ type ApplicationStatus =
   | "Approved"
   | "Rejected"
   | "Inquired"
-  | "Deleted";
+  | "Canceled";
 
 type Section = {
   name: string;
@@ -92,7 +92,7 @@ type TimeConstraint = {
 };
 
 type ClinicalData = {
-  dataTypes: string[]; // FE control allowed values
+  dataTypes: string[];
   otherDataTypes: string;
   futureDataTypes: boolean;
 };
@@ -149,10 +149,10 @@ type PlannedPublication = {
 };
 
 type FileInfo = {
-  type: string; // FE control allowed values
+  type: string;
   extension: string;
   count: number;
-  amount: string; // xxxMB, GB etc
+  amount: string;
 };
 
 type Funding = {

@@ -76,7 +76,7 @@ export const PERMISSION_MAP = {
       const isPreSubmit =
         application?.status === "New" ||
         application?.status === "In Progress" ||
-        application?.status === "Deleted";
+        application?.status === "Canceled";
       const mustBePreSubmit: UserRole[] = ["User", "Submitter"];
       if (!isPreSubmit && mustBePreSubmit.includes(user?.role)) {
         return false;
@@ -88,7 +88,7 @@ export const PERMISSION_MAP = {
         "Inquired",
         "Submitted",
         "In Review",
-        "Deleted",
+        "Canceled",
       ];
       if (!validDeleteStatuses.includes(application?.status)) {
         return false;
