@@ -81,10 +81,10 @@ export const PERMISSION_MAP = {
       if (role === "Submitter" && isSubmissionOwner && hasPermissionKey) {
         return true;
       }
-      if (role === "Federal Lead" && hasPermissionKey) {
+      if (role === "Federal Lead" && isSubmissionOwner && hasPermissionKey) {
         return studies?.some((s) => s._id === submission.studyID);
       }
-      if (role === "Data Commons Personnel" && hasPermissionKey) {
+      if (role === "Data Commons Personnel" && isSubmissionOwner && hasPermissionKey) {
         return dataCommons?.some((dc) => dc === submission?.dataCommons);
       }
       if (role === "Admin" && hasPermissionKey) {
