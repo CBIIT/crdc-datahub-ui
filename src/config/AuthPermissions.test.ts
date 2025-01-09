@@ -226,53 +226,21 @@ describe("data_submission:create Permission", () => {
     expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 
-  it("should allow a 'Federal Lead' who is the submission owner WITH 'data_submission:create' key if they have the matching study", () => {
+  it("should allow a 'Federal Lead' who is the submission owner WITH 'data_submission:create' key", () => {
     const user = createUser("Federal Lead", ["data_submission:create"]);
     user._id = "owner-123";
-    user.studies = [{ _id: "study-1" }];
     expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
-  });
-
-  it("should allow a 'Federal Lead' who is the submission owner WITH 'data_submission:create' key if they have the 'All' study", () => {
-    const user = createUser("Federal Lead", ["data_submission:create"]);
-    user._id = "owner-123";
-    user.studies = [{ _id: "All" }];
-    expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
-  });
-
-  it("should deny a 'Federal Lead' who is the submission owner WITH 'data_submission:create' key without a matching study", () => {
-    const user = createUser("Federal Lead", ["data_submission:create"]);
-    user._id = "owner-123";
-    expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(false);
-  });
-
-  it("should deny a 'Federal Lead' who is NOT the submission owner WITH 'data_submission:create' and matching study", () => {
-    const user = createUser("Federal Lead", ["data_submission:create"]);
-    user.studies = [{ _id: "study-1" }];
-    expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(false);
   });
 
   it("should allow a 'Data Commons Personnel' who is the submission owner WITH 'data_submission:create' key", () => {
     const user = createUser("Data Commons Personnel", ["data_submission:create"]);
     user._id = "owner-123";
-    user.dataCommons = ["commons-1"];
     expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 
-  it("should deny a 'Data Commons Personnel' who is the submission owner WITH 'data_submission:create' key without matching dataCommons", () => {
-    const user = createUser("Data Commons Personnel", ["data_submission:create"]);
-    user._id = "owner-123";
-    expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(false);
-  });
-
-  it("should deny a 'Data Commons Personnel' who is NOT the submission owner WITH 'data_submission:create' key and matching dataCommons", () => {
-    const user = createUser("Data Commons Personnel", ["data_submission:create"]);
-    user.dataCommons = ["commons-1"];
-    expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(false);
-  });
-
-  it("should allow 'Admin' with 'data_submission:create' key", () => {
+  it("should allow 'Admin' who is the submission owner WITH 'data_submission:create' key", () => {
     const user = createUser("Admin", ["data_submission:create"]);
+    user._id = "owner-123";
     expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 

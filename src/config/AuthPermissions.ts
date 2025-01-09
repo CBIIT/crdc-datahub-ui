@@ -68,7 +68,6 @@ export const PERMISSION_MAP = {
   data_submission: {
     view: NO_CONDITIONS,
     create: (user, submission) => {
-      const { role, dataCommons, studies } = user;
       const hasPermissionKey = user?.permissions?.includes("data_submission:create");
       const isSubmissionOwner = submission?.submitterID === user?._id;
       const isCollaborator = submission?.collaborators?.some((c) => c.collaboratorID === user?._id);
@@ -76,18 +75,7 @@ export const PERMISSION_MAP = {
       if (isCollaborator) {
         return true;
       }
-      // Submitters from the same study are able to view the same submissions
-      // Therefore, they must be the submission owner or collaborator with permission key
-      if (role === "Submitter" && isSubmissionOwner && hasPermissionKey) {
-        return true;
-      }
-      if (role === "Federal Lead" && isSubmissionOwner && hasPermissionKey) {
-        return studies?.some((s) => s._id === submission.studyID || s._id === "All");
-      }
-      if (role === "Data Commons Personnel" && isSubmissionOwner && hasPermissionKey) {
-        return dataCommons?.some((dc) => dc === submission?.dataCommons);
-      }
-      if (role === "Admin" && hasPermissionKey) {
+      if (isSubmissionOwner && hasPermissionKey) {
         return true;
       }
 
