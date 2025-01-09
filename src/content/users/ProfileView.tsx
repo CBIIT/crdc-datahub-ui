@@ -30,7 +30,7 @@ import {
   UpdateMyUserInput,
   UpdateMyUserResp,
 } from "../../graphql";
-import { formatFullStudyName, formatIDP, formatStudySelectionValue } from "../../utils";
+import { formatFullStudyName, formatIDP, formatStudySelectionValue, Logger } from "../../utils";
 import { DataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
@@ -258,7 +258,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       setSaving(false);
 
       if (errors || !d?.updateMyUser) {
-        enqueueSnackbar(errors || "Unable to save profile changes", { variant: "error" });
+        Logger.error("ProfileView: Error from API", errors);
+        enqueueSnackbar("Unable to save profile changes", { variant: "error" });
         return;
       }
 
@@ -279,7 +280,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       setSaving(false);
 
       if (errors || !d?.editUser) {
-        enqueueSnackbar(errors || "Unable to save user profile changes", { variant: "error" });
+        Logger.error("ProfileView: Error from API", errors);
+        enqueueSnackbar("Unable to save user profile changes", { variant: "error" });
         return;
       }
 
