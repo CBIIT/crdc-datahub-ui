@@ -20,7 +20,7 @@ const StyledDialog = styled(Dialog)({
     padding: "22px 24px 54px 24px",
     width: "567px !important",
     border: "2px solid #388DEE",
-    background: "#2E4D7B",
+    background: "#264370",
   },
 });
 

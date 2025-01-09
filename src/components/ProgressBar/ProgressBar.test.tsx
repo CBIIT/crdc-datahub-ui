@@ -13,10 +13,11 @@ import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Conte
 
 type Props = {
   section: string;
+  userRole?: UserRole;
   data: object;
 };
 
-const BaseComponent: FC<Props> = ({ section, data = {} }: Props) => {
+const BaseComponent: FC<Props> = ({ section, userRole = "Submitter", data = {} }: Props) => {
   const formValue = useMemo<FormCtxState>(
     () => ({
       status: FormStatus.LOADED,
@@ -28,10 +29,10 @@ const BaseComponent: FC<Props> = ({ section, data = {} }: Props) => {
   const authValue = useMemo<ContextState>(
     () => ({
       status: AuthStatus.LOADED,
-      user: null,
+      user: { role: userRole } as User,
       isLoggedIn: true,
     }),
-    []
+    [userRole]
   );
 
   return (
@@ -222,6 +223,46 @@ describe("ProgressBar General Tests", () => {
         "data-testid",
         "ArrowUpwardIcon"
       );
+    }
+  );
+
+  it.each<ApplicationStatus>(["In Progress", "Inquired"])(
+    "shows the default review section title (from config) when submit button is visible and status is %s",
+    (status) => {
+      const data = {
+        status,
+        questionnaireData: {
+          sections: keys.map((s) => ({ name: s, status: "Completed" })),
+        },
+      };
+
+      const { getByTestId } = render(
+        <BaseComponent section={config.REVIEW.title} data={data} userRole="Federal Lead" />
+      );
+
+      const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
+
+      expect(reviewSection.textContent).toBe("Review and Submit");
+    }
+  );
+
+  it.each<ApplicationStatus>(["In Progress", "Inquired"])(
+    "shows the review section title as 'Review' when submit button is not visible and status is %s",
+    (status) => {
+      const data = {
+        status,
+        questionnaireData: {
+          sections: keys.map((s) => ({ name: s, status: "Completed" })),
+        },
+      };
+
+      const { getByTestId } = render(
+        <BaseComponent section={config.REVIEW.title} data={data} userRole="Admin" />
+      );
+
+      const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
+
+      expect(reviewSection.textContent).toBe("Review");
     }
   );
 });
