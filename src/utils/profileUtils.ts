@@ -73,6 +73,7 @@ export const columnizePBACGroups = <T = unknown>(
     return [];
   }
 
+  // Group the PBACDefaults by their group name
   const groupedData: Record<string, PBACDefault<T>[]> = {};
   data.forEach((item) => {
     const groupName = typeof item?.group === "string" ? item.group : "";
@@ -83,9 +84,16 @@ export const columnizePBACGroups = <T = unknown>(
     groupedData[groupName].push(item);
   });
 
+  // Sort the PBACDefaults within each group
+  Object.values(groupedData).forEach((options: PBACDefault<T>[]) => {
+    options.sort((a: PBACDefault<T>, b: PBACDefault<T>) => (a?.order || 0) - (b?.order || 0));
+  });
+
+  // Sort the groups by their partial group name
   const sortedGroups = Object.entries(groupedData);
   sortedGroups.sort(([a], [b]) => orderPBACGroups(a, b));
 
+  // Columnize the groups
   const columns: ColumnizedPBACGroups<T> = [];
   sortedGroups.forEach(([group, data], index) => {
     const groupIndex = index > colCount - 1 ? colCount - 1 : index;

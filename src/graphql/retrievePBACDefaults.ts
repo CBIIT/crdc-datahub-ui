@@ -8,6 +8,7 @@ export const query = gql`
         _id
         group
         name
+        order
         checked
         disabled
       }
@@ -15,6 +16,7 @@ export const query = gql`
         _id
         group
         name
+        order
         checked
         disabled
       }

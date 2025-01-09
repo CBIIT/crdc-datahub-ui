@@ -147,9 +147,10 @@ describe("userToCollaborator cases", () => {
 
 describe("columnizePBACGroups cases", () => {
   const baseDefault: PBACDefault = {
-    _id: "access:request", // This is not actually used by the util
+    _id: "access:request", // The _id field is not actually used by the util
     name: "",
     group: "",
+    order: 0,
     checked: false,
     disabled: false,
   };
@@ -294,5 +295,39 @@ describe("columnizePBACGroups cases", () => {
     expect(columnized[2][0].data).toEqual([{ ...baseDefault, name: "2", group: "Admin" }]);
     expect(columnized[3][0].data).toEqual([{ ...baseDefault, name: "3", group: "Miscellaneous" }]);
     expect(columnized[3][1].data).toEqual([{ ...baseDefault, name: "6", group: "Random Group 1" }]);
+  });
+
+  it("should sort the options within each group by their order", () => {
+    const pbacDefaults: PBACDefault[] = [
+      { ...baseDefault, name: "entry 1", group: "Group01", order: 5 },
+      { ...baseDefault, name: "entry 2", group: "Group01", order: 1 },
+      { ...baseDefault, name: "entry 3", group: "Group01", order: 3 },
+      { ...baseDefault, name: "entry 4", group: "Group01", order: 2 },
+      { ...baseDefault, name: "entry 5", group: "Group01", order: 4 },
+    ];
+
+    const columnized = utils.columnizePBACGroups(pbacDefaults);
+    expect(columnized[0][0].data).toEqual([
+      { ...baseDefault, name: "entry 2", group: "Group01", order: 1 },
+      { ...baseDefault, name: "entry 4", group: "Group01", order: 2 },
+      { ...baseDefault, name: "entry 3", group: "Group01", order: 3 },
+      { ...baseDefault, name: "entry 5", group: "Group01", order: 4 },
+      { ...baseDefault, name: "entry 1", group: "Group01", order: 5 },
+    ]);
+  });
+
+  it("should leave the order unchanged if 'order' is null", () => {
+    const pbacDefaults: PBACDefault[] = [
+      { ...baseDefault, name: "entry 1", group: "Group01", order: null },
+      { ...baseDefault, name: "entry 2", group: "Group01", order: null },
+      { ...baseDefault, name: "entry 3", group: "Group01", order: null },
+    ];
+
+    const columnized = utils.columnizePBACGroups(pbacDefaults);
+    expect(columnized[0][0].data).toEqual([
+      { ...baseDefault, name: "entry 1", group: "Group01", order: null },
+      { ...baseDefault, name: "entry 2", group: "Group01", order: null },
+      { ...baseDefault, name: "entry 3", group: "Group01", order: null },
+    ]);
   });
 });
