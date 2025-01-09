@@ -518,7 +518,11 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                             <TextField
                               {...params}
                               placeholder={studiesField?.length > 0 ? undefined : "Select studies"}
-                              inputProps={{ "aria-labelledby": "userStudies", ...inputProps }}
+                              inputProps={{
+                                "aria-labelledby": "userStudies",
+                                required: studiesField.length === 0,
+                                ...inputProps,
+                              }}
                               onBlur={sortStudyOptions}
                             />
                           )}
@@ -589,6 +593,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                           disabled={fieldset.dataCommons === "DISABLED"}
                           MenuProps={{ disablePortal: true }}
                           inputProps={{ "aria-labelledby": "userDataCommons" }}
+                          required
                           multiple
                         >
                           {DataCommons.map((dc) => (
