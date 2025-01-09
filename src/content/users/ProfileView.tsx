@@ -37,6 +37,7 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import BaseAutocomplete from "../../components/StyledFormComponents/StyledAutocomplete";
+import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import useProfileFields, { VisibleFieldState } from "../../hooks/useProfileFields";
 import AccessRequest from "../../components/AccessRequest";
 import PermissionPanel from "../../components/PermissionPanel";
@@ -113,8 +114,8 @@ const StyledField = styled("div", { shouldForwardProp: (p) => p !== "visible" })
 const StyledLabel = styled("span")({
   color: "#356AAD",
   fontWeight: "700",
-  marginRight: "40px",
-  minWidth: "127px",
+  marginRight: "30px",
+  minWidth: "137px",
 });
 
 const BaseInputStyling = {
@@ -150,6 +151,12 @@ const StyledTag = styled("div")({
   position: "absolute",
   paddingLeft: "12px",
 });
+
+const StyledAsterisk = styled(BaseAsterisk, { shouldForwardProp: (p) => p !== "visible" })<{
+  visible?: boolean;
+}>(({ visible = true }) => ({
+  display: visible ? undefined : "none",
+}));
 
 /**
  * User Profile View Component
@@ -395,7 +402,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
           <StyledProfileIcon>
             <img src={profileIcon} alt="profile icon" />
           </StyledProfileIcon>
-
           <StyledContentStack
             direction="column"
             justifyContent="center"
@@ -421,7 +427,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   {user.email}
                 </StyledField>
                 <StyledField>
-                  <StyledLabel id="firstNameLabel">First name</StyledLabel>
+                  <StyledLabel id="firstNameLabel">
+                    First name
+                    <StyledAsterisk visible={VisibleFieldState.includes(fieldset.firstName)} />
+                  </StyledLabel>
                   {VisibleFieldState.includes(fieldset.firstName) ? (
                     <StyledTextField
                       {...register("firstName", {
@@ -438,7 +447,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   )}
                 </StyledField>
                 <StyledField>
-                  <StyledLabel id="lastNameLabel">Last name</StyledLabel>
+                  <StyledLabel id="lastNameLabel">
+                    Last name
+                    <StyledAsterisk visible={VisibleFieldState.includes(fieldset.lastName)} />
+                  </StyledLabel>
                   {VisibleFieldState.includes(fieldset.lastName) ? (
                     <StyledTextField
                       {...register("lastName", {
@@ -455,7 +467,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   )}
                 </StyledField>
                 <StyledField>
-                  <StyledLabel id="userRoleLabel">Role</StyledLabel>
+                  <StyledLabel id="userRoleLabel">
+                    Role
+                    <StyledAsterisk visible={VisibleFieldState.includes(fieldset.role)} />
+                  </StyledLabel>
                   {VisibleFieldState.includes(fieldset.role) ? (
                     <Controller
                       name="role"
@@ -485,7 +500,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   )}
                 </StyledField>
                 <StyledField visible={fieldset.studies !== "HIDDEN"}>
-                  <StyledLabel id="userStudies">Studies</StyledLabel>
+                  <StyledLabel id="userStudies">
+                    Studies
+                    <StyledAsterisk visible={VisibleFieldState.includes(fieldset.studies)} />
+                  </StyledLabel>
                   {VisibleFieldState.includes(fieldset.studies) ? (
                     <Controller
                       name="studies"
@@ -526,7 +544,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   ) : null}
                 </StyledField>
                 <StyledField>
-                  <StyledLabel id="userStatusLabel">Account Status</StyledLabel>
+                  <StyledLabel id="userStatusLabel">
+                    Account Status
+                    <StyledAsterisk visible={VisibleFieldState.includes(fieldset.userStatus)} />
+                  </StyledLabel>
                   {VisibleFieldState.includes(fieldset.userStatus) ? (
                     <Controller
                       name="userStatus"
@@ -549,7 +570,10 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   )}
                 </StyledField>
                 <StyledField visible={fieldset.dataCommons !== "HIDDEN"}>
-                  <StyledLabel id="userDataCommons">Data Commons</StyledLabel>
+                  <StyledLabel id="userDataCommons">
+                    Data Commons
+                    <StyledAsterisk visible={VisibleFieldState.includes(fieldset.dataCommons)} />
+                  </StyledLabel>
                   {VisibleFieldState.includes(fieldset.dataCommons) ? (
                     <Controller
                       name="dataCommons"
