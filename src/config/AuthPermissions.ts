@@ -26,7 +26,7 @@ type Permissions = {
   };
   submission_request: {
     dataType: Application;
-    action: "view" | "create" | "submit" | "review" | "delete";
+    action: "view" | "create" | "submit" | "review" | "cancel";
   };
   data_submission: {
     dataType: Submission;
@@ -66,8 +66,8 @@ export const PERMISSION_MAP = {
       return true;
     },
     review: NO_CONDITIONS,
-    delete: (user, application) => {
-      const hasPermissionKey = user?.permissions?.includes("submission_request:delete");
+    cancel: (user, application) => {
+      const hasPermissionKey = user?.permissions?.includes("submission_request:cancel");
       if (!hasPermissionKey) {
         return false;
       }

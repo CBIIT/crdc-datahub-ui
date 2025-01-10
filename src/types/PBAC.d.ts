@@ -3,7 +3,7 @@ type SubmissionRequestPermissions =
   | "submission_request:create"
   | "submission_request:review"
   | "submission_request:submit"
-  | "submission_request:delete";
+  | "submission_request:cancel";
 
 type DataSubmissionPermissions =
   | "data_submission:view"
@@ -31,8 +31,9 @@ type SubmissionRequestNotifications =
   | "submission_request:submitted"
   | "submission_request:to_be_reviewed"
   | "submission_request:reviewed"
-  | "submission_request:deleted"
-  | "submission_request:expiring";
+  | "submission_request:canceled"
+  | "submission_request:expiring"
+  | "submission_request:deleted";
 
 type DataSubmissionNotifications =
   | "data_submission:submitted"

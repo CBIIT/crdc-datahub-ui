@@ -207,7 +207,7 @@ describe("submission_request:review Permission", () => {
   );
 });
 
-describe("submission_request:delete Permission", () => {
+describe("submission_request:cancel Permission", () => {
   it.each<[UserRole, ApplicationStatus]>([
     ["User", "New"],
     ["User", "In Progress"],
@@ -216,35 +216,35 @@ describe("submission_request:delete Permission", () => {
     ["Submitter", "In Progress"],
     ["Submitter", "Inquired"],
   ])(
-    "should allow '%s' to delete in the '%s' status if they have the permission",
+    "should allow '%s' to cancel in the '%s' status if they have the permission",
     (role, status) => {
-      const user = createUser(role, ["submission_request:delete"]);
+      const user = createUser(role, ["submission_request:cancel"]);
       const application1: Application = {
         ...baseApplication,
         applicant: { ...baseApplication.applicant, applicantID: user._id },
         status,
       };
-      expect(hasPermission(user, "submission_request", "delete", application1)).toBe(true);
+      expect(hasPermission(user, "submission_request", "cancel", application1)).toBe(true);
     }
   );
 
   it.each<UserRole>(["User", "Submitter"])(
     "should allow '%s' to restore from the 'Canceled' or 'Deleted' status",
     (role) => {
-      const user = createUser(role, ["submission_request:delete"]);
+      const user = createUser(role, ["submission_request:cancel"]);
       const application: Application = {
         ...baseApplication,
         applicant: { ...baseApplication.applicant, applicantID: user._id },
         status: "Canceled",
       };
-      expect(hasPermission(user, "submission_request", "delete", application)).toBe(true);
+      expect(hasPermission(user, "submission_request", "cancel", application)).toBe(true);
 
       const application2: Application = {
         ...baseApplication,
         applicant: { ...baseApplication.applicant, applicantID: user._id },
         status: "Deleted",
       };
-      expect(hasPermission(user, "submission_request", "delete", application2)).toBe(true);
+      expect(hasPermission(user, "submission_request", "cancel", application2)).toBe(true);
     }
   );
 
@@ -262,16 +262,16 @@ describe("submission_request:delete Permission", () => {
       const ExternalRoles: UserRole[] = ["Federal Lead", "Data Commons Personnel", "Admin"];
 
       ExternalRoles.forEach((role) => {
-        const user = createUser(role, ["submission_request:delete"]);
+        const user = createUser(role, ["submission_request:cancel"]);
         const application: Application = { ...baseApplication, status };
 
-        expect(hasPermission(user, "submission_request", "delete", application)).toBe(true);
+        expect(hasPermission(user, "submission_request", "cancel", application)).toBe(true);
       });
     }
   );
 
   it.each<ApplicationStatus>(["Approved", "Rejected"])(
-    "should not allow any role to delete in the '%s' status",
+    "should not allow any role to cancel in the '%s' status",
     (status) => {
       const allRoles: UserRole[] = [
         "Admin",
@@ -282,7 +282,7 @@ describe("submission_request:delete Permission", () => {
       ];
 
       allRoles.forEach((role) => {
-        const user = createUser(role, ["submission_request:delete"]);
+        const user = createUser(role, ["submission_request:cancel"]);
         const application: Application = {
           ...baseApplication,
           // NOTE - As a baseline, just make the owner the current user
@@ -290,84 +290,84 @@ describe("submission_request:delete Permission", () => {
           status,
         };
 
-        expect(hasPermission(user, "submission_request", "delete", application)).toBe(false);
+        expect(hasPermission(user, "submission_request", "cancel", application)).toBe(false);
       });
     }
   );
 
   it.each<ApplicationStatus>(["Submitted", "In Review", "Rejected", "Approved"])(
-    "should NOT allow User/Submitter to delete in the '%s' status",
+    "should NOT allow User/Submitter to cancel in the '%s' status",
     (status) => {
       // User
-      const user = createUser("User", ["submission_request:delete"]);
+      const user = createUser("User", ["submission_request:cancel"]);
       const application1: Application = {
         ...baseApplication,
         applicant: { ...baseApplication.applicant, applicantID: user._id },
         status,
       };
-      expect(hasPermission(user, "submission_request", "delete", application1)).toBe(false);
+      expect(hasPermission(user, "submission_request", "cancel", application1)).toBe(false);
 
       // Submitter
-      const submitter = createUser("Submitter", ["submission_request:delete"]);
+      const submitter = createUser("Submitter", ["submission_request:cancel"]);
       const application2: Application = {
         ...baseApplication,
         applicant: { ...baseApplication.applicant, applicantID: submitter._id },
         status,
       };
-      expect(hasPermission(submitter, "submission_request", "delete", application2)).toBe(false);
+      expect(hasPermission(submitter, "submission_request", "cancel", application2)).toBe(false);
     }
   );
 
   it.each<UserRole>(["User", "Submitter"])(
-    "should NOT allow %s to delete an application if they do not own it",
+    "should NOT allow %s to cancel an application if they do not own it",
     (role) => {
-      const user = createUser(role, ["submission_request:delete"]);
+      const user = createUser(role, ["submission_request:cancel"]);
       const application1: Application = {
         ...baseApplication,
         status: "In Progress",
         applicant: { ...baseApplication.applicant, applicantID: "other-user" },
       };
-      expect(hasPermission(user, "submission_request", "delete", application1)).toBe(false);
+      expect(hasPermission(user, "submission_request", "cancel", application1)).toBe(false);
     }
   );
 
   it.each<UserRole>(["Admin", "Data Commons Personnel", "Federal Lead", "Submitter", "User"])(
-    "should not allow %s to delete an application without the permission key",
+    "should not allow %s to cancel an application without the permission key",
     (role) => {
       const user = createUser(role, []);
       const application: Application = { ...baseApplication, status: "In Progress" };
-      expect(hasPermission(user, "submission_request", "delete", application)).toBe(false);
+      expect(hasPermission(user, "submission_request", "cancel", application)).toBe(false);
     }
   );
 
-  it("should not allow an unknown role to delete another person's application", () => {
-    const user = createUser("UnknownRole" as UserRole, ["submission_request:delete"]);
+  it("should not allow an unknown role to cancel another person's application", () => {
+    const user = createUser("UnknownRole" as UserRole, ["submission_request:cancel"]);
     const application: Application = {
       ...baseApplication,
       applicant: { ...baseApplication.applicant, applicantID: "not-the-owner" }, // They are NOT the owner
-      status: "In Progress", // Anyone can delete in this status
+      status: "In Progress", // Anyone can cancel in this status
     };
-    expect(hasPermission(user, "submission_request", "delete", application)).toBe(false);
+    expect(hasPermission(user, "submission_request", "cancel", application)).toBe(false);
   });
 
-  it("should not allow an unknown role to delete in a constrained status", () => {
-    const user = createUser("UnknownRole" as UserRole, ["submission_request:delete"]);
+  it("should not allow an unknown role to cancel in a constrained status", () => {
+    const user = createUser("UnknownRole" as UserRole, ["submission_request:cancel"]);
     const application: Application = {
       ...baseApplication,
       applicant: { ...baseApplication.applicant, applicantID: user._id }, // They ARE the owner
-      status: "Submitted", // Low level users cannot delete in this status
+      status: "Submitted", // Low level users cannot cancel in this status
     };
-    expect(hasPermission(user, "submission_request", "delete", application)).toBe(false);
+    expect(hasPermission(user, "submission_request", "cancel", application)).toBe(false);
   });
 
-  it("should not allow a user to delete an application in an unknown status", () => {
-    const user = createUser("Submitter", ["submission_request:delete"]);
+  it("should not allow a user to cancel an application in an unknown status", () => {
+    const user = createUser("Submitter", ["submission_request:cancel"]);
     const application: Application = {
       ...baseApplication,
       applicant: { ...baseApplication.applicant, applicantID: user._id }, // They ARE the owner
       status: "UnknownStatus" as ApplicationStatus,
     };
-    expect(hasPermission(user, "submission_request", "delete", application)).toBe(false);
+    expect(hasPermission(user, "submission_request", "cancel", application)).toBe(false);
   });
 });
 
