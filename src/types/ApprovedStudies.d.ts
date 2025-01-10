@@ -36,6 +36,10 @@ type ApprovedStudy = {
    */
   ORCID: string;
   /**
+   * The User object of the Primary contact associcated with the study
+   */
+  primaryContact: User;
+  /**
    * Submission Request approval date or manual record creation date
    */
   createdAt: string;

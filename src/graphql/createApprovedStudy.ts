@@ -9,6 +9,7 @@ export const mutation = gql`
     $dbGaPID: String
     $ORCID: String
     $PI: String
+    $primaryContactID: String!
   ) {
     createApprovedStudy(
       name: $name
@@ -18,6 +19,7 @@ export const mutation = gql`
       dbGaPID: $dbGaPID
       ORCID: $ORCID
       PI: $PI
+      primaryContactID: $primaryContactID
     ) {
       _id
       studyName
@@ -40,6 +42,7 @@ export type Input = {
   dbGaPID: string;
   ORCID: string;
   PI: string;
+  primaryContactID: string;
 };
 
 export type Response = {

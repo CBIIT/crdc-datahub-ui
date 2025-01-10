@@ -53,6 +53,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             ORCID: "",
             originalOrg: null,
             PI: "",
+            primaryContact: null,
             createdAt: "",
           },
           {
@@ -65,6 +66,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             ORCID: "",
             originalOrg: null,
             PI: "",
+            primaryContact: null,
             createdAt: "",
           },
         ],
