@@ -77,7 +77,8 @@ type ApplicationStatus =
   | "Approved"
   | "Rejected"
   | "Inquired"
-  | "Canceled";
+  | "Canceled"
+  | "Deleted";
 
 type Section = {
   name: string;

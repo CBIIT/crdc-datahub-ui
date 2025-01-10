@@ -1,3 +1,8 @@
+import { Roles as ALL_ROLES } from "./AuthRoles";
+
+/**
+ * A flag indicating that no conditions, other than the user having the permission key, need to be met.
+ */
 const NO_CONDITIONS = "NO CONDITIONS";
 
 type PermissionCheck<Key extends keyof Permissions> =
@@ -68,33 +73,24 @@ export const PERMISSION_MAP = {
       }
 
       const isFormOwner = application?.applicant?.applicantID === user?._id;
-      const mustBeFormOwner: UserRole[] = ["User", "Submitter"];
-      if (!isFormOwner && mustBeFormOwner.includes(user?.role)) {
+      const canDeleteOthers: UserRole[] = ["Admin", "Federal Lead", "Data Commons Personnel"];
+      if (!isFormOwner && !canDeleteOthers.includes(user?.role)) {
         return false;
       }
 
-      const isPreSubmit =
-        application?.status === "New" ||
-        application?.status === "In Progress" ||
-        application?.status === "Canceled";
-      const mustBePreSubmit: UserRole[] = ["User", "Submitter"];
-      if (!isPreSubmit && mustBePreSubmit.includes(user?.role)) {
-        return false;
-      }
+      const statusActionMap: Record<ApplicationStatus, UserRole[]> = {
+        New: ALL_ROLES,
+        "In Progress": ALL_ROLES,
+        Inquired: ALL_ROLES,
+        Submitted: ["Admin", "Federal Lead", "Data Commons Personnel"],
+        "In Review": ["Admin", "Federal Lead", "Data Commons Personnel"],
+        Canceled: ALL_ROLES,
+        Deleted: ALL_ROLES,
+        Approved: [],
+        Rejected: [],
+      };
 
-      const validDeleteStatuses: ApplicationStatus[] = [
-        "New",
-        "In Progress",
-        "Inquired",
-        "Submitted",
-        "In Review",
-        "Canceled",
-      ];
-      if (!validDeleteStatuses.includes(application?.status)) {
-        return false;
-      }
-
-      return true;
+      return statusActionMap[application?.status]?.includes(user?.role) ?? false;
     },
   },
   dashboard: {
