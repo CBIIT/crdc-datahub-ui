@@ -7,6 +7,7 @@ import {
   Container,
   FormControlLabel,
   FormGroup,
+  MenuItem,
   Stack,
   styled,
   Typography,
@@ -31,11 +32,14 @@ import {
   GET_APPROVED_STUDY,
   GetApprovedStudyInput,
   GetApprovedStudyResp,
+  LIST_CURATORS,
+  ListCuratorsResp,
   UPDATE_APPROVED_STUDY,
   UpdateApprovedStudyInput,
   UpdateApprovedStudyResp,
 } from "../../graphql";
 import SuspenseLoader from "../../components/SuspenseLoader";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outline: "2px solid #1D91AB",
@@ -155,6 +159,7 @@ const BaseInputStyling = {
 };
 
 const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
+const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
@@ -185,7 +190,7 @@ const StyledTitleBox = styled(Box)({
 type FormInput = Pick<
   ApprovedStudy,
   "studyName" | "studyAbbreviation" | "PI" | "dbGaPID" | "ORCID" | "openAccess" | "controlledAccess"
->;
+> & { primaryContactID: string };
 
 type Props = {
   _id: string;
@@ -197,7 +202,15 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
-  const { handleSubmit, register, watch, control, reset, setValue } = useForm<FormInput>({
+  const {
+    handleSubmit,
+    register,
+    watch,
+    control,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<FormInput>({
     mode: "onSubmit",
     reValidateMode: "onSubmit",
     defaultValues: {
@@ -206,6 +219,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       PI: "",
       dbGaPID: "",
       ORCID: "",
+      primaryContactID: "",
       openAccess: false,
       controlledAccess: false,
     },
@@ -222,7 +236,29 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     {
       variables: { _id },
       skip: !_id || _id === "new",
-      onCompleted: (data) => resetForm({ ...data?.getApprovedStudy }),
+      onCompleted: (data) => {
+        const {
+          primaryContact,
+          studyName,
+          studyAbbreviation,
+          PI,
+          dbGaPID,
+          ORCID,
+          openAccess,
+          controlledAccess,
+        } = data?.getApprovedStudy || {};
+
+        resetForm({
+          studyName,
+          studyAbbreviation,
+          PI,
+          dbGaPID,
+          ORCID,
+          openAccess,
+          controlledAccess,
+          primaryContactID: primaryContact?._id,
+        });
+      },
       onError: (error) =>
         navigate(manageStudiesPageUrl, {
           state: { error: error?.message || "Unable to fetch study." },
@@ -231,6 +267,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       fetchPolicy: "no-cache",
     }
   );
+
+  const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+  });
 
   const [updateApprovedStudy] = useMutation<UpdateApprovedStudyResp, UpdateApprovedStudyInput>(
     UPDATE_APPROVED_STUDY,
@@ -293,6 +334,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       ...data,
       name: data.studyName,
       acronym: data.studyAbbreviation,
+      primaryContactID: data.primaryContactID,
     };
 
     if (_id === "new") {
@@ -513,6 +555,40 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                           "data-testid": "ORCID-input",
                         }}
                       />
+                    )}
+                  />
+                </Stack>
+              </StyledField>
+
+              <StyledField>
+                <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
+                <Stack
+                  direction="column"
+                  justifyContent="flex-start"
+                  alignItems="flex-start"
+                  spacing={1}
+                >
+                  <Controller
+                    name="primaryContactID"
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        value={field.value || ""}
+                        MenuProps={{ disablePortal: true }}
+                        inputProps={{
+                          "aria-labelledby": "primaryContactLabel",
+                        }}
+                        error={!!errors.primaryContactID}
+                      >
+                        <MenuItem value={null}>{"<Not Set>"}</MenuItem>
+                        {activeCurators?.listActiveCurators?.map((user) => (
+                          <MenuItem key={user?.userID} value={user?.userID}>
+                            {`${user?.firstName} ${user?.lastName}`.trim()}
+                          </MenuItem>
+                        ))}
+                      </StyledSelect>
                     )}
                   />
                 </Stack>
