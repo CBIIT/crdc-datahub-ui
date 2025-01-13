@@ -1,5 +1,5 @@
 import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
-import { cloneDeep } from "lodash";
+import { cloneDeep, merge } from "lodash";
 import { parseForm } from "@jalik/form-parser";
 import { AutocompleteChangeReason, styled } from "@mui/material";
 import { useFormContext } from "../../../components/Contexts/FormContext";
@@ -56,13 +56,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData: QuestionnaireData = { ...cloneDeep(data), ...formObject };
-
-    combinedData.study = {
-      ...data.study, // Restore study data from Section B
-      isDbGapRegistered: formObject?.study?.isDbGapRegistered,
-      dbGaPPPHSNumber: formObject?.study?.dbGaPPPHSNumber || "",
-    };
+    const combinedData: QuestionnaireData = merge(cloneDeep(data), formObject);
 
     combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
 

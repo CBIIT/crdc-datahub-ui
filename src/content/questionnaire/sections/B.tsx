@@ -1,6 +1,6 @@
-import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { parseForm } from "@jalik/form-parser";
-import { cloneDeep } from "lodash";
+import { cloneDeep, merge } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import dayjs from "dayjs";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
@@ -93,7 +93,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData = { ...cloneDeep(data), ...formObject };
+    const combinedData: QuestionnaireData = merge(cloneDeep(data), formObject);
 
     // Reset study if the data failed to load
     if (!formObject.study) {
@@ -127,13 +127,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           ? plannedPublication.expectedDate
           : "",
       })) || [];
-
-    combinedData.study = {
-      // Restore dbGaPID from Section C
-      isDbGapRegistered: data?.study?.isDbGapRegistered,
-      dbGaPPPHSNumber: data?.study?.dbGaPPPHSNumber,
-      ...combinedData.study,
-    };
 
     return { ref: formRef, data: combinedData };
   };
