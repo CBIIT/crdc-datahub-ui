@@ -14,7 +14,7 @@ import { Status, useFormContext } from "../Contexts/FormContext";
 import StatusAdornment from "./StatusAdornment";
 import useFormMode from "../../hooks/useFormMode";
 import { useAuthContext } from "../Contexts/AuthContext";
-import { CanSubmitSubmissionRequestRoles } from "../../config/AuthRoles";
+import { hasPermission } from "../../config/AuthPermissions";
 
 type Props = {
   section: string;
@@ -80,12 +80,11 @@ const StyledButton = styled(ListItemButton)({
  */
 const ProgressBar: FC<Props> = ({ section }) => {
   const { user } = useAuthContext();
-
-  const sectionKeys = Object.keys(config);
-
   const { data, status: formStatus } = useFormContext();
   const { formMode } = useFormMode();
   const { _id, status, questionnaireData } = data;
+
+  const sectionKeys = Object.keys(config);
   const sectionStatuses = questionnaireData?.sections;
 
   const [sections, setSections] = useState<ProgressSection[]>([]);
@@ -114,18 +113,14 @@ const ProgressBar: FC<Props> = ({ section }) => {
 
     // Special icon and title for the review section
     const reviewSection = newSections.find((s) => s.id === "review");
-    const reviewUnlocked = completedSections === sectionKeys.length - 1;
     if (reviewSection) {
       const meetsReviewCriteria = formMode === "View Only" || formMode === "Review";
-
-      const canSeeSubmitButton =
-        CanSubmitSubmissionRequestRoles.includes(user?.role) &&
-        (data?.status === "In Progress" ||
-          (data?.status === "Inquired" && user?.role === "Federal Lead"));
-
+      const canSeeSubmitButton = hasPermission(user, "submission_request", "submit", data);
       const showReviewTitle = meetsReviewCriteria && !canSeeSubmitButton;
 
+      const reviewUnlocked = completedSections === sectionKeys.length - 1;
       const reviewIcon = reviewUnlocked ? "Review" : "ReviewDisabled";
+
       reviewSection.icon =
         ["Approved"].includes(status) && reviewUnlocked ? "Completed" : reviewIcon;
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
