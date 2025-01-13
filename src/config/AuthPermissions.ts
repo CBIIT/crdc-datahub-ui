@@ -25,7 +25,7 @@ type Permissions = {
     action: "view";
   };
   submission_request: {
-    dataType: Application;
+    dataType: Application | Omit<Application, "questionnaireData">;
     action: "view" | "create" | "submit" | "review" | "cancel";
   };
   data_submission: {

@@ -12,6 +12,12 @@ const QuestionnaireContext = React.createContext<{
   handleOnReviewClick?: (
     application: ListApplicationsResp["listApplications"]["applications"][number]
   ) => void;
+  /**
+   * Action performed when 'Cancel' or 'Restore' button is clicked
+   */
+  handleOnCancelClick?: (
+    application: ListApplicationsResp["listApplications"]["applications"][number]
+  ) => void;
 }>({});
 
 export default QuestionnaireContext;

@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useRef, useState } from "react";
+import React, { FC, useCallback, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -209,27 +209,51 @@ const columns: Column<T>[] = [
     label: "Action",
     renderValue: (a) => (
       <QuestionnaireContext.Consumer>
-        {({ user, handleOnReviewClick }) => {
+        {({ user, handleOnReviewClick, handleOnCancelClick }) => {
+          const actions: React.ReactNode[] = [];
+
+          // Delete/Restore Submission Request Actions
+          if (hasPermission(user, "submission_request", "cancel", a)) {
+            // TODO: Implement design for delete/restore actions
+            actions.push(
+              <StyledActionButton
+                onClick={() => handleOnCancelClick(a)}
+                key={`cancel-${a._id}`}
+                bg="#F1C6B3"
+                text="#5F564D"
+                border="#DB9C62"
+              >
+                {/* TODO: Test coverage */}
+                {["Canceled", "Deleted"].includes(a.status) ? "Restore" : "Cancel"}
+              </StyledActionButton>
+            );
+          }
+
+          // Open Submission Request Actions
           if (
             hasPermission(user, "submission_request", "create") &&
             a.applicant?.applicantID === user._id &&
             ["New", "In Progress", "Inquired"].includes(a.status)
           ) {
-            return (
-              <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
+            actions.push(
+              <Link
+                to={`/submission/${a?.["_id"]}`}
+                state={{ from: "/submissions" }}
+                key={`resume-${a._id}`}
+              >
                 <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
                   Resume
                 </StyledActionButton>
               </Link>
             );
-          }
-          if (
+          } else if (
             hasPermission(user, "submission_request", "review") &&
             ["Submitted", "In Review"].includes(a.status)
           ) {
-            return (
+            actions.push(
               <StyledActionButton
                 onClick={() => handleOnReviewClick(a)}
+                key={`review-${a._id}`}
                 bg="#F1C6B3"
                 text="#5F564D"
                 border="#DB9C62"
@@ -237,15 +261,21 @@ const columns: Column<T>[] = [
                 Review
               </StyledActionButton>
             );
+          } else if (hasPermission(user, "submission_request", "view")) {
+            actions.push(
+              <Link
+                to={`/submission/${a?.["_id"]}`}
+                state={{ from: "/submissions" }}
+                key={`view-${a._id}`}
+              >
+                <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
+                  View
+                </StyledActionButton>
+              </Link>
+            );
           }
 
-          return (
-            <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-              <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
-                View
-              </StyledActionButton>
-            </Link>
-          );
+          return actions;
         }}
       </QuestionnaireContext.Consumer>
     ),
@@ -282,10 +312,12 @@ const ListingView: FC = () => {
       fetchPolicy: "no-cache",
     }
   );
+
   const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
+
   const [reviewApp] = useMutation<ReviewAppResp, ReviewAppInput>(REVIEW_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -354,38 +386,51 @@ const ListingView: FC = () => {
     }
   };
 
-  const handleOnReviewClick = async ({ _id, status }: T) => {
-    if (status !== "Submitted") {
-      navigate(`/submission/${_id}`, {
-        state: {
-          from: "/submissions",
-        },
-      });
-      return;
-    }
-
-    try {
-      const { data: d, errors } = await reviewApp({
-        variables: {
-          id: _id,
-        },
-      });
-
-      if (errors || !d?.reviewApplication?._id) {
-        throw new Error("Unable to review Submission Request.");
+  const handleOnReviewClick = useCallback(
+    async ({ _id, status }: T) => {
+      if (status !== "Submitted") {
+        navigate(`/submission/${_id}`, {
+          state: {
+            from: "/submissions",
+          },
+        });
+        return;
       }
 
-      navigate(`/submission/${_id}`, {
-        state: {
-          from: "/submissions",
-        },
-      });
-    } catch (err) {
-      Logger.error("Error transitioning form from Submitted to In Review", err);
-    }
-  };
+      try {
+        const { data: d, errors } = await reviewApp({
+          variables: {
+            id: _id,
+          },
+        });
 
-  const providerValue = useMemo(() => ({ user, handleOnReviewClick }), [user, handleOnReviewClick]);
+        if (errors || !d?.reviewApplication?._id) {
+          throw new Error("Unable to review Submission Request.");
+        }
+
+        navigate(`/submission/${_id}`, {
+          state: {
+            from: "/submissions",
+          },
+        });
+      } catch (err) {
+        Logger.error("Error transitioning form from Submitted to In Review", err);
+      }
+    },
+    [navigate, reviewApp]
+  );
+
+  const handleOnCancelClick = useCallback(
+    async ({ _id, status }: T) => null,
+    [
+      /* TODO: Deps */
+    ]
+  );
+
+  const providerValue = useMemo(
+    () => ({ user, handleOnReviewClick, handleOnCancelClick }),
+    [user, handleOnReviewClick, handleOnCancelClick]
+  );
 
   return (
     <>
