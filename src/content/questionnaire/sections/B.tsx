@@ -111,6 +111,14 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     // Reset planned publications if the user has not entered any planned publications
+    if (
+      !formObject.study.plannedPublications ||
+      formObject.study.plannedPublications.length === 0
+    ) {
+      combinedData.study.plannedPublications = [];
+    }
+
+    // Reset planned publications if the user has not entered any planned publications
     // Also reset expectedDate when invalid to avoid form submission unsaved changes warning
     combinedData.study.plannedPublications =
       combinedData.study.plannedPublications?.map((plannedPublication) => ({
