@@ -494,7 +494,7 @@ const NavBar = () => {
               <StyledLoginLink
                 id="header-navbar-login-button"
                 to="/login"
-                state={{ redirectURLOnLoginSuccess: restorePath }}
+                state={{ redirectState: restorePath }}
               >
                 Login
               </StyledLoginLink>

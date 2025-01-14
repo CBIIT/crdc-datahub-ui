@@ -4,7 +4,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import SuspenseLoader from "../../components/SuspenseLoader";
 
 /**
- * Redirects to NIH login to get an authorization code
+ * Handles the NIH SSO redirect to the login page.
  *
  * @returns The LoginController component
  */
@@ -12,24 +12,22 @@ const LoginController = () => {
   usePageTitle("Login");
 
   const { state } = useLocation();
-  const redirectURLOnLoginSuccess =
-    state && state.redirectURLOnLoginSuccess ? state.redirectURLOnLoginSuccess : null;
-  const urlParam = {
+
+  const params = new URLSearchParams({
     client_id: env.REACT_APP_NIH_CLIENT_ID,
     redirect_uri: env.REACT_APP_NIH_REDIRECT_URL,
     response_type: "code",
     scope: "openid email profile",
     prompt: "login",
-  };
+  });
 
-  if (redirectURLOnLoginSuccess !== null) {
-    urlParam["state"] = redirectURLOnLoginSuccess;
+  if (typeof state?.redirectState === "string" && !!state.redirectState) {
+    params.append("state", state.redirectState);
   }
 
-  const params = new URLSearchParams(urlParam).toString();
-  window.location.href = `${env.REACT_APP_NIH_AUTHORIZE_URL}?${params}`;
+  window.location.href = `${env.REACT_APP_NIH_AUTHORIZE_URL}?${params?.toString()}`;
 
-  return <SuspenseLoader fullscreen />;
+  return <SuspenseLoader data-testid="login-flow-loader" fullscreen />;
 };
 
 export default LoginController;

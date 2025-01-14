@@ -385,11 +385,7 @@ const Header = () => {
                     {displayName}
                   </div>
                 ) : (
-                  <Link
-                    id="navbar-link-login"
-                    to="/login"
-                    state={{ redirectURLOnLoginSuccess: restorePath }}
-                  >
+                  <Link id="navbar-link-login" to="/login" state={{ redirectState: restorePath }}>
                     <div
                       role="button"
                       tabIndex={0}
