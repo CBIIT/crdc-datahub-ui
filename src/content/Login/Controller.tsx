@@ -1,13 +1,14 @@
 import { useLocation } from "react-router-dom";
 import env from "../../env";
 import usePageTitle from "../../hooks/usePageTitle";
+import SuspenseLoader from "../../components/SuspenseLoader";
 
 /**
  * Redirects to NIH login to get an authorization code
  *
- * @returns null
+ * @returns The LoginController component
  */
-const loginController = () => {
+const LoginController = () => {
   usePageTitle("Login");
 
   const { state } = useLocation();
@@ -28,7 +29,7 @@ const loginController = () => {
   const params = new URLSearchParams(urlParam).toString();
   window.location.href = `${env.REACT_APP_NIH_AUTHORIZE_URL}?${params}`;
 
-  return null;
+  return <SuspenseLoader fullscreen />;
 };
 
-export default loginController;
+export default LoginController;
