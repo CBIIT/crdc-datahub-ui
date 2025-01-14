@@ -233,7 +233,6 @@ const NameDropdownContainer = styled("div")({
     },
   },
   "& .dropdownItemButton": {
-    paddingBottom: 0,
     textTransform: "none",
     "&:hover": {
       background: "transparent",
@@ -539,15 +538,14 @@ const NavBar = () => {
 
                   if (dropItem.onClick) {
                     return (
-                      <span className="dropdownItem" key={dropItem.id}>
-                        <Button
-                          id={dropItem.id}
-                          className="dropdownItem dropdownItemButton"
-                          onClick={dropItem.onClick}
-                        >
-                          {dropItem.name}
-                        </Button>
-                      </span>
+                      <Button
+                        id={dropItem.id}
+                        key={dropItem.id}
+                        className="dropdownItem dropdownItemButton"
+                        onClick={dropItem.onClick}
+                      >
+                        {dropItem.name}
+                      </Button>
                     );
                   }
 
