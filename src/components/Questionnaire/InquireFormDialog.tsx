@@ -75,10 +75,10 @@ const InquireFormDialog: FC<Props> = ({
         onChange={handleCommentChange}
         maxLength={500}
         placeholder="500 characters allowed"
+        minRows={4}
         required
-        minRows={2}
-        maxRows={2}
         multiline
+        resize
         sx={{ paddingY: "16px" }}
       />
     </StyledDialog>
