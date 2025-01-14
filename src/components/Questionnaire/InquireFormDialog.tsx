@@ -75,7 +75,8 @@ const InquireFormDialog: FC<Props> = ({
         onChange={handleCommentChange}
         maxLength={500}
         placeholder="500 characters allowed"
-        minRows={4}
+        minRows={5}
+        maxRows={10}
         required
         multiline
         resize
