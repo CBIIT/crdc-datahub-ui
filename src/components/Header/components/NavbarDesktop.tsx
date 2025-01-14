@@ -234,6 +234,8 @@ const NameDropdownContainer = styled("div")({
   },
   "& .dropdownItemButton": {
     textTransform: "none",
+    paddingLeft: "20px",
+    paddingRight: "20px",
     "&:hover": {
       background: "transparent",
     },
