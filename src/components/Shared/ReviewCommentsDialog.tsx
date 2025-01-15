@@ -69,7 +69,7 @@ const StyledTitle = styled("p", {
 
 const StyledDialogContent = styled(DialogContent)({
   marginBottom: "11px",
-  minHeight: "230px",
+  minHeight: "44px",
   overflowX: "hidden",
   whiteSpace: "pre-line",
   overflowWrap: "break-word",
