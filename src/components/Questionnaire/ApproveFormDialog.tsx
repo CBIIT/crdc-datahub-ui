@@ -50,6 +50,7 @@ const ApproveFormDialog: FC<Props> = ({
     <StyledDialog
       open={open}
       onClose={onClose}
+      scroll="body"
       title={title || "Approve Submission Request"}
       actions={
         <>
@@ -76,7 +77,7 @@ const ApproveFormDialog: FC<Props> = ({
         maxLength={500}
         placeholder="500 characters allowed"
         minRows={5}
-        maxRows={10}
+        maxRows={15}
         required
         multiline
         resize

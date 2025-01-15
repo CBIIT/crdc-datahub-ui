@@ -481,7 +481,7 @@ describe("StatusBar > History Modal Tests", () => {
     ["Rejected", "The request form was reviewed and rejected."],
     ["Inquired", "Additional information or clarification was requested from the submitter."],
     // TODO: Uncomment when the statuses are added to the application
-    // ["Canceled", "The request form was manually canceled by the submitter and is no longer active."],
+    // ["Canceled", "The request form was manually canceled and is no longer active."],
     // [
     //   "Deleted",
     //   "The request form was automatically deleted by the system due to inactivity and is no longer active.",
