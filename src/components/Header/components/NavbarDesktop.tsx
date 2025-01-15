@@ -233,8 +233,9 @@ const NameDropdownContainer = styled("div")({
     },
   },
   "& .dropdownItemButton": {
-    paddingBottom: 0,
     textTransform: "none",
+    paddingLeft: "20px",
+    paddingRight: "20px",
     "&:hover": {
       background: "transparent",
     },
@@ -494,7 +495,7 @@ const NavBar = () => {
               <StyledLoginLink
                 id="header-navbar-login-button"
                 to="/login"
-                state={{ redirectURLOnLoginSuccess: restorePath }}
+                state={{ redirectState: restorePath }}
               >
                 Login
               </StyledLoginLink>
@@ -539,15 +540,14 @@ const NavBar = () => {
 
                   if (dropItem.onClick) {
                     return (
-                      <span className="dropdownItem" key={dropItem.id}>
-                        <Button
-                          id={dropItem.id}
-                          className="dropdownItem dropdownItemButton"
-                          onClick={dropItem.onClick}
-                        >
-                          {dropItem.name}
-                        </Button>
-                      </span>
+                      <Button
+                        id={dropItem.id}
+                        key={dropItem.id}
+                        className="dropdownItem dropdownItemButton"
+                        onClick={dropItem.onClick}
+                      >
+                        {dropItem.name}
+                      </Button>
                     );
                   }
 

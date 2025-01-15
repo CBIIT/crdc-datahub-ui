@@ -135,7 +135,7 @@ const Home: FC = () => {
           <Link
             id="loginDialogLinkToLogin"
             to="/login"
-            state={{ redirectURLOnLoginSuccess: dialogRedirectPath }}
+            state={{ redirectState: dialogRedirectPath }}
             onClick={() => setShowRedirectDialog(false)}
           >
             <strong>log in</strong>
@@ -161,7 +161,7 @@ const Home: FC = () => {
             id="loginDialogLoginButton"
             className="loginDialogButton"
             to="/login"
-            state={{ redirectURLOnLoginSuccess: dialogRedirectPath }}
+            state={{ redirectState: dialogRedirectPath }}
             onClick={() => setShowRedirectDialog(false)}
           >
             <strong>Log In</strong>
@@ -185,7 +185,7 @@ const Home: FC = () => {
               id="loginPageLoginButton"
               className="loginPageLoginButton"
               to="/login"
-              state={{ redirectURLOnLoginSuccess: "/submissions" }}
+              state={{ redirectState: "/submissions" }}
             >
               <strong>Log In</strong>
             </Link>
