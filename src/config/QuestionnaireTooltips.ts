@@ -1,15 +1,19 @@
 /**
  * An object containing all the tooltip text for the Questionnaire/Submission Request page.
  */
-export const TOOLTIP_TEXT = {
+export const TOOLTIP_TEXT: {
+  // TODO: Change to ApplicationStatus
+  STATUS_DESCRIPTIONS: Record<string, string>;
+} = {
   STATUS_DESCRIPTIONS: {
     New: "The request form was created.",
-    "In Progress": "The request form was being filled out.",
+    "In Progress": "The request form was started but not submitted.",
     Submitted: "The request form was submitted for review.",
-    Approved: "The request form was reviewed and approved. No further action is needed.",
-    Rejected: "The request form was reviewed and rejected. No further action is needed.",
-    Inquired: "Additional information or clarification was required from the submitter.",
-    Canceled: "The request form was manually canceled by the user and is no longer active.",
+    "In Review": "The request form is under evaluation by the Submission Review Committee.",
+    Approved: "The request form was reviewed and approved.",
+    Rejected: "The request form was reviewed and rejected.",
+    Inquired: "Additional information or clarification was requested from the submitter.",
+    Canceled: "The request form was manually canceled by the submitter and is no longer active.",
     Deleted:
       "The request form was automatically deleted by the system due to inactivity and is no longer active.",
   },
