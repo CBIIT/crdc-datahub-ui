@@ -256,7 +256,7 @@ const QualityControl: FC = () => {
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [isAggregated, setIsAggregated] = useState<boolean>(true);
-  const [issueType, setIssueType] = useState<string | null>(null);
+  const [issueType, setIssueType] = useState<string | null>("All");
   const filtersRef: MutableRefObject<FilterForm> = useRef({
     issueType: "All",
     batchID: "All",
@@ -429,10 +429,15 @@ const QualityControl: FC = () => {
   };
 
   const onSwitchToggle = () => {
-    setData([]);
-    setPrevData(null);
-    setTotalData(0);
-    setIsAggregated((prev) => !prev);
+    setIsAggregated((prev) => {
+      const newVal = !prev;
+      // Reset to 'All' when in Aggregated view
+      if (newVal === true) {
+        setIssueType("All");
+      }
+
+      return newVal;
+    });
   };
 
   const currentColumns = useMemo(

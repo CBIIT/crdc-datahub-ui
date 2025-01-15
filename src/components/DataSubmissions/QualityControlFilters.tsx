@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { cloneDeep } from "lodash";
@@ -45,13 +45,11 @@ const StyledSelect = styled(StyledFormSelect)(() => ({
   width: "200px",
 }));
 
-type TouchedState = { [K in keyof FilterForm]: boolean };
-
-const initialTouchedFields: TouchedState = {
-  issueType: false,
-  nodeType: false,
-  batchID: false,
-  severity: false,
+const defaultValues: FilterForm = {
+  issueType: "All",
+  batchID: "All",
+  nodeType: "All",
+  severity: "All",
 };
 
 type FilterForm = {
@@ -75,22 +73,13 @@ type Props = {
 const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => {
   const { data: submissionData } = useSubmissionContext();
   const { _id: submissionID } = submissionData?.getSubmission || {};
-  const { watch, control, getValues, setValue } = useForm<FilterForm>({
-    defaultValues: {
-      issueType: "All",
-      batchID: "All",
-      nodeType: "All",
-      severity: "All",
-    },
-  });
+  const { watch, control, getValues, setValue, reset } = useForm<FilterForm>({ defaultValues });
   const [issueTypeFilter, nodeTypeFilter, batchIDFilter, severityFilter] = watch([
     "issueType",
     "nodeType",
     "batchID",
     "severity",
   ]);
-
-  const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
   const { data: issueTypes } = useQuery<
     AggregatedSubmissionQCResultsResp,
@@ -133,6 +122,10 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
   );
 
   useEffect(() => {
+    reset({ ...defaultValues });
+  }, [isAggregated]);
+
+  useEffect(() => {
     if (!issueTypes || !issueType || issueType === issueTypeFilter) {
       return;
     }
@@ -141,14 +134,6 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
   }, [issueType, issueTypes]);
 
   useEffect(() => {
-    if (
-      !touchedFilters.issueType &&
-      !touchedFilters.nodeType &&
-      !touchedFilters.batchID &&
-      !touchedFilters.severity
-    ) {
-      return;
-    }
     onChange(getValues());
   }, [issueTypeFilter, nodeTypeFilter, batchIDFilter, severityFilter]);
 
@@ -160,10 +145,6 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
         ?.map((stat) => stat.nodeName),
     [submissionStats?.submissionStats?.stats]
   );
-
-  const handleFilterChange = (field: keyof FilterForm) => {
-    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
-  };
 
   return (
     <StyledFilterContainer data-testid="quality-control-filters">
@@ -186,10 +167,6 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
                     inputProps={{ id: "issueType-filter", "data-testid": "issueType-filter" }}
                     data-testid="quality-control-issueType-filter"
                     MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleFilterChange("issueType");
-                    }}
                   >
                     <MenuItem value="All" data-testid="issueType-all">
                       All
@@ -227,10 +204,6 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
                     inputProps={{ id: "batchID-filter" }}
                     data-testid="quality-control-batchID-filter"
                     MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleFilterChange("batchID");
-                    }}
                   >
                     <MenuItem value="All" data-testid="batchID-all">
                       All
@@ -268,10 +241,6 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
                     inputProps={{ id: "nodeType-filter" }}
                     data-testid="quality-control-nodeType-filter"
                     MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleFilterChange("nodeType");
-                    }}
                   >
                     <MenuItem value="All" data-testid="nodeType-all">
                       All
@@ -309,10 +278,6 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
                 inputProps={{ id: "severity-filter" }}
                 data-testid="quality-control-severity-filter"
                 MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
-                onChange={(e) => {
-                  field.onChange(e);
-                  handleFilterChange("severity");
-                }}
               >
                 <MenuItem value="All" data-testid="severity-all">
                   All
