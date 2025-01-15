@@ -75,10 +75,11 @@ const ApproveFormDialog: FC<Props> = ({
         onChange={handleCommentChange}
         maxLength={500}
         placeholder="500 characters allowed"
+        minRows={5}
+        maxRows={10}
         required
-        minRows={2}
-        maxRows={2}
         multiline
+        resize
         sx={{ paddingY: "16px" }}
       />
     </StyledDialog>

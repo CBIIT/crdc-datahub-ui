@@ -2,6 +2,7 @@ import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { axe } from "jest-axe";
+import userEvent from "@testing-library/user-event";
 import { ContextState, Context as FormCtx, Status as FormStatus } from "../Contexts/FormContext";
 import StatusBar from "./StatusBar";
 import StatusApproved from "../../assets/history/submissionRequest/StatusApproved.svg";
@@ -435,4 +436,74 @@ describe("StatusBar > History Modal Tests", () => {
 
     await waitFor(() => expect(queryByTestId("status-bar-history-dialog")).toBeNull());
   });
+
+  it("should render a icon when there are pending conditions and the status is 'Approved'", async () => {
+    const data = {
+      history: [
+        { dateTime: "2009-11-24T01:25:45Z", status: "Approved" },
+        { dateTime: "2009-11-24T01:10:45Z", status: "In Progress" },
+      ],
+      pendingConditions: ["condition xyz please resolve it"],
+      conditional: true,
+    };
+
+    const { getByTestId, getByText, getByRole } = render(<BaseComponent data={data} />);
+
+    userEvent.click(getByText("Full History"));
+
+    const approvedItem = getByTestId("history-item-0");
+    expect(within(approvedItem).getByTestId("history-item-0-status")).toHaveTextContent(
+      /Approved/i
+    ); // sanity check
+    expect(within(approvedItem).getByTestId("status-bar-pending-conditions")).toBeVisible();
+
+    userEvent.hover(within(approvedItem).getByTestId("status-bar-pending-conditions"));
+
+    await waitFor(() => {
+      expect(getByRole("tooltip")).toBeVisible();
+    });
+
+    expect(getByRole("tooltip")).toHaveTextContent(data.pendingConditions[0]);
+
+    const inProgressItem = getByTestId("history-item-1");
+    expect(within(inProgressItem).getByTestId("history-item-1-status")).toHaveTextContent(
+      /In Progress/i
+    );
+    expect(() => within(inProgressItem).getByTestId("status-bar-pending-conditions")).toThrow();
+  });
+
+  it.each<[ApplicationStatus, string]>([
+    ["New", "The request form was created."],
+    ["In Progress", "The request form was started but not submitted."],
+    ["Submitted", "The request form was submitted for review."],
+    ["In Review", "The request form is under evaluation by the Submission Review Committee."],
+    ["Approved", "The request form was reviewed and approved."],
+    ["Rejected", "The request form was reviewed and rejected."],
+    ["Inquired", "Additional information or clarification was requested from the submitter."],
+    // TODO: Uncomment when the statuses are added to the application
+    // ["Canceled", "The request form was manually canceled by the submitter and is no longer active."],
+    // [
+    //   "Deleted",
+    //   "The request form was automatically deleted by the system due to inactivity and is no longer active.",
+    // ],
+  ])(
+    "should provide a tooltip on the history item for the status '%s'",
+    async (status, tooltip) => {
+      const data = {
+        history: [{ dateTime: "2009-11-24T01:25:45Z", status }],
+      };
+
+      const { getByText, getByTestId, getByRole } = render(<BaseComponent data={data} />);
+
+      userEvent.click(getByText("Full History"));
+
+      userEvent.hover(within(getByTestId("history-item-0")).getByText(new RegExp(status, "i")));
+
+      await waitFor(() => {
+        expect(getByRole("tooltip")).toBeVisible();
+      });
+
+      expect(getByRole("tooltip")).toHaveTextContent(tooltip);
+    }
+  );
 });
