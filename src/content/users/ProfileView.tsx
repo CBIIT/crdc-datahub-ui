@@ -549,32 +549,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     />
                   ) : null}
                 </StyledField>
-                <StyledField>
-                  <StyledLabel id="userStatusLabel">
-                    Account Status
-                    <StyledAsterisk visible={VisibleFieldState.includes(fieldset.userStatus)} />
-                  </StyledLabel>
-                  {VisibleFieldState.includes(fieldset.userStatus) ? (
-                    <Controller
-                      name="userStatus"
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field }) => (
-                        <StyledSelect
-                          {...field}
-                          size="small"
-                          MenuProps={{ disablePortal: true }}
-                          inputProps={{ "aria-labelledby": "userStatusLabel" }}
-                        >
-                          <MenuItem value="Active">Active</MenuItem>
-                          <MenuItem value="Inactive">Inactive</MenuItem>
-                        </StyledSelect>
-                      )}
-                    />
-                  ) : (
-                    user.userStatus
-                  )}
-                </StyledField>
                 <StyledField visible={fieldset.dataCommons !== "HIDDEN"}>
                   <StyledLabel id="userDataCommons">
                     Data Commons
@@ -606,6 +580,32 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     />
                   ) : (
                     user.dataCommons?.join(", ")
+                  )}
+                </StyledField>
+                <StyledField>
+                  <StyledLabel id="userStatusLabel">
+                    Account Status
+                    <StyledAsterisk visible={VisibleFieldState.includes(fieldset.userStatus)} />
+                  </StyledLabel>
+                  {VisibleFieldState.includes(fieldset.userStatus) ? (
+                    <Controller
+                      name="userStatus"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <StyledSelect
+                          {...field}
+                          size="small"
+                          MenuProps={{ disablePortal: true }}
+                          inputProps={{ "aria-labelledby": "userStatusLabel" }}
+                        >
+                          <MenuItem value="Active">Active</MenuItem>
+                          <MenuItem value="Inactive">Inactive</MenuItem>
+                        </StyledSelect>
+                      )}
+                    />
+                  ) : (
+                    user.userStatus
                   )}
                 </StyledField>
                 {VisibleFieldState.includes(fieldset.permissions) &&
