@@ -93,7 +93,7 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
       sortDirection: "asc",
     },
     context: { clientName: "backend" },
-    skip: !submissionID,
+    skip: !submissionID || isAggregated,
     fetchPolicy: "cache-and-network",
   });
 
@@ -107,7 +107,7 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
       sortDirection: "asc",
     },
     context: { clientName: "backend" },
-    skip: !submissionID,
+    skip: !submissionID || isAggregated,
     fetchPolicy: "cache-and-network",
   });
 
@@ -116,7 +116,7 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
     {
       variables: { id: submissionID },
       context: { clientName: "backend" },
-      skip: !submissionID,
+      skip: !submissionID || isAggregated,
       fetchPolicy: "cache-and-network",
     }
   );

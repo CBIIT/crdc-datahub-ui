@@ -248,7 +248,7 @@ describe("General", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mocks, nodesMock, batchesMock, issueTypesMock, aggMocks]}
+          mocks={[aggMocks, mocks, nodesMock, batchesMock, issueTypesMock]}
           submission={{ _id: "test-network-error" }}
         >
           {children}
@@ -311,7 +311,7 @@ describe("General", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mocks, nodesMock, batchesMock, issueTypesMock, aggMocks]}
+          mocks={[aggMocks, mocks, nodesMock, batchesMock, issueTypesMock]}
           submission={{ _id: "test-graphql-error" }}
         >
           {children}
