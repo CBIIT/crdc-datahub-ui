@@ -10,13 +10,40 @@ import {
   Status as FormStatus,
 } from "../Contexts/FormContext";
 import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
+import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+
+const BaseUser: User = {
+  _id: "base-user-id",
+  firstName: "",
+  lastName: "",
+  role: "User",
+  email: "",
+  dataCommons: [],
+  studies: [],
+  IDP: "nih",
+  userStatus: "Active",
+  permissions: [],
+  notifications: [],
+  updateAt: "",
+  createdAt: "",
+};
+
+const BaseApplication: Application = {
+  ...InitialApplication,
+  questionnaireData: { ...InitialQuestionnaire },
+};
 
 type Props = {
   section: string;
-  data: object;
+  user?: User;
+  data?: Application;
 };
 
-const BaseComponent: FC<Props> = ({ section, data = {} }: Props) => {
+const BaseComponent: FC<Props> = ({
+  section,
+  user = { ...BaseUser },
+  data = { ...BaseApplication },
+}: Props) => {
   const formValue = useMemo<FormCtxState>(
     () => ({
       status: FormStatus.LOADED,
@@ -28,10 +55,10 @@ const BaseComponent: FC<Props> = ({ section, data = {} }: Props) => {
   const authValue = useMemo<ContextState>(
     () => ({
       status: AuthStatus.LOADED,
-      user: null,
+      user,
       isLoggedIn: true,
     }),
-    []
+    [user]
   );
 
   return (
@@ -45,19 +72,21 @@ const BaseComponent: FC<Props> = ({ section, data = {} }: Props) => {
   );
 };
 
-describe("ProgressBar Accessibility Tests", () => {
+describe("Accessibility", () => {
   const keys = Object.keys(config);
 
   it("has no base accessibility violations", async () => {
-    const { container } = render(<BaseComponent section={keys[0]} data={{}} />);
+    const { container } = render(<BaseComponent section={keys[0]} />);
     const results = await axe(container);
 
     expect(results).toHaveNoViolations();
   });
 
   it("has no accessibility violations when all sections are completed", async () => {
-    const data = {
+    const data: Application = {
+      ...BaseApplication,
       questionnaireData: {
+        ...BaseApplication.questionnaireData,
         sections: keys.map((s) => ({ name: s, status: "Completed" })),
       },
     };
@@ -69,9 +98,11 @@ describe("ProgressBar Accessibility Tests", () => {
   });
 
   it("has no accessibility violations when the review section is accessible", async () => {
-    const data = {
+    const data: Application = {
+      ...BaseApplication,
       status: "Approved",
       questionnaireData: {
+        ...BaseApplication.questionnaireData,
         sections: keys.map((s) => ({ name: s, status: "Completed" })),
       },
     };
@@ -83,9 +114,11 @@ describe("ProgressBar Accessibility Tests", () => {
   });
 
   it("has no accessibility violations when the review section is inaccessible", async () => {
-    const data = {
+    const data: Application = {
+      ...BaseApplication,
       status: "New",
       questionnaireData: {
+        ...BaseApplication.questionnaireData,
         sections: keys.map((s) => ({ name: s, status: "Completed" })),
       },
     };
@@ -97,12 +130,12 @@ describe("ProgressBar Accessibility Tests", () => {
   });
 });
 
-describe("ProgressBar General Tests", () => {
+describe("Basic Functionality", () => {
   const keys = Object.keys(config);
   const sections = Object.values(config);
 
   it("renders the progress bar with all A-D config-defined sections", () => {
-    const { getByText } = render(<BaseComponent section={keys[0]} data={{}} />);
+    const { getByText } = render(<BaseComponent section={keys[0]} />);
 
     sections
       .filter((section) => section.id !== config.REVIEW.id)
@@ -117,7 +150,7 @@ describe("ProgressBar General Tests", () => {
   });
 
   it("renders the currently active section as highlighted", () => {
-    const { container, getByTestId } = render(<BaseComponent section={keys[1]} data={{}} />);
+    const { container, getByTestId } = render(<BaseComponent section={keys[1]} />);
     const activeLinks = container.querySelectorAll("a[data-selected='true']");
 
     expect(activeLinks.length).toBe(1);
@@ -126,8 +159,10 @@ describe("ProgressBar General Tests", () => {
   });
 
   it("renders the completed sections with a checkmark", () => {
-    const data = {
+    const data: Application = {
+      ...BaseApplication,
       questionnaireData: {
+        ...BaseApplication.questionnaireData,
         sections: [{ name: keys[1], status: "Completed" }],
       },
     };
@@ -142,7 +177,7 @@ describe("ProgressBar General Tests", () => {
   });
 
   it("renders the Review section as disabled by default", () => {
-    const { getByTestId } = render(<BaseComponent section={keys[0]} data={{}} />);
+    const { getByTestId } = render(<BaseComponent section={keys[0]} />);
     const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
 
     expect(reviewSection).toBeVisible();
@@ -154,8 +189,10 @@ describe("ProgressBar General Tests", () => {
   });
 
   it("renders the Review section as enabled only when all sections are completed", () => {
-    const data = {
+    const data: Application = {
+      ...BaseApplication,
       questionnaireData: {
+        ...BaseApplication.questionnaireData,
         sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
       },
     };
@@ -177,13 +214,14 @@ describe("ProgressBar General Tests", () => {
     );
   });
 
-  const completedStates: ApplicationStatus[] = ["Approved"];
-  it.each(completedStates)(
+  it.each<ApplicationStatus>(["Approved"])(
     "renders the Review section as accessible and completed for status %s",
     (status) => {
-      const data = {
+      const data: Application = {
+        ...BaseApplication,
         status,
         questionnaireData: {
+          ...BaseApplication.questionnaireData,
           sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
         },
       };
@@ -198,19 +236,14 @@ describe("ProgressBar General Tests", () => {
     }
   );
 
-  const incompleteStates: ApplicationStatus[] = [
-    "New",
-    "In Progress",
-    "Submitted",
-    "In Review",
-    "Rejected",
-  ];
-  it.each(incompleteStates)(
+  it.each<ApplicationStatus>(["New", "In Progress", "Submitted", "In Review", "Rejected"])(
     "renders the Review section as accessible and incomplete for status %s",
     (status) => {
-      const data = {
+      const data: Application = {
+        ...BaseApplication,
         status,
         questionnaireData: {
+          ...BaseApplication.questionnaireData,
           sections: keys.slice(0, keys.length - 1).map((s) => ({ name: s, status: "Completed" })),
         },
       };
@@ -222,6 +255,108 @@ describe("ProgressBar General Tests", () => {
         "data-testid",
         "ArrowUpwardIcon"
       );
+    }
+  );
+
+  it.each<ApplicationStatus>(["In Progress", "Inquired"])(
+    "should use the review title 'Review and Submit' for the status '%s' when the user has the permission to submit (owner)",
+    (status) => {
+      const data: Application = {
+        ...BaseApplication,
+        status,
+        applicant: {
+          ...BaseApplication.applicant,
+          applicantID: "owner-of-sr",
+        },
+        questionnaireData: {
+          ...BaseApplication.questionnaireData,
+          sections: keys.map((s) => ({ name: s, status: "Completed" })),
+        },
+      };
+
+      const { getByTestId } = render(
+        <BaseComponent
+          section={config.REVIEW.title}
+          data={data}
+          user={{
+            ...BaseUser,
+            _id: "owner-of-sr",
+            permissions: ["submission_request:view", "submission_request:submit"],
+          }}
+        />
+      );
+
+      const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
+
+      expect(reviewSection.textContent).toBe("Review and Submit");
+    }
+  );
+
+  it.each<ApplicationStatus>(["In Progress", "Inquired"])(
+    "should use the review title 'Review and Submit' for the status '%s' when the user has the permission to submit (non-owner)",
+    (status) => {
+      const data: Application = {
+        ...BaseApplication,
+        status,
+        applicant: {
+          ...BaseApplication.applicant,
+          applicantID: "the-owner-is-not-me",
+        },
+        questionnaireData: {
+          ...BaseApplication.questionnaireData,
+          sections: keys.map((s) => ({ name: s, status: "Completed" })),
+        },
+      };
+
+      const { getByTestId } = render(
+        <BaseComponent
+          section={config.REVIEW.title}
+          data={data}
+          user={{
+            ...BaseUser,
+            _id: "some-other-user",
+            permissions: ["submission_request:view", "submission_request:submit"],
+          }}
+        />
+      );
+
+      const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
+
+      expect(reviewSection.textContent).toBe("Review and Submit");
+    }
+  );
+
+  it.each<ApplicationStatus>(["In Progress", "Inquired", "Submitted", "In Review"])(
+    "shows the review section title as 'Review' when submit button is not visible and status is %s",
+    (status) => {
+      const data: Application = {
+        ...BaseApplication,
+        status,
+        applicant: {
+          ...BaseApplication.applicant,
+          applicantID: "user-2-owns-the-sr",
+        },
+        questionnaireData: {
+          ...BaseApplication.questionnaireData,
+          sections: keys.map((s) => ({ name: s, status: "Completed" })),
+        },
+      };
+
+      const { getByTestId } = render(
+        <BaseComponent
+          section={config.REVIEW.title}
+          data={data}
+          user={{
+            ...BaseUser,
+            _id: "user-id-01",
+            permissions: ["submission_request:view"], // Only possible to view the submission request, no submit or review
+          }}
+        />
+      );
+
+      const reviewSection = getByTestId(`progress-bar-section-${keys.length - 1}`);
+
+      expect(reviewSection.textContent).toBe("Review");
     }
   );
 });

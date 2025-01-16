@@ -13,6 +13,8 @@ import config from "../../config/SectionConfig";
 import { Status, useFormContext } from "../Contexts/FormContext";
 import StatusAdornment from "./StatusAdornment";
 import useFormMode from "../../hooks/useFormMode";
+import { useAuthContext } from "../Contexts/AuthContext";
+import { hasPermission } from "../../config/AuthPermissions";
 
 type Props = {
   section: string;
@@ -77,11 +79,12 @@ const StyledButton = styled(ListItemButton)({
  * @returns {JSX.Element}
  */
 const ProgressBar: FC<Props> = ({ section }) => {
-  const sectionKeys = Object.keys(config);
-
+  const { user } = useAuthContext();
   const { data, status: formStatus } = useFormContext();
   const { formMode } = useFormMode();
   const { _id, status, questionnaireData } = data;
+
+  const sectionKeys = Object.keys(config);
   const sectionStatuses = questionnaireData?.sections;
 
   const [sections, setSections] = useState<ProgressSection[]>([]);
@@ -110,10 +113,14 @@ const ProgressBar: FC<Props> = ({ section }) => {
 
     // Special icon and title for the review section
     const reviewSection = newSections.find((s) => s.id === "review");
-    const reviewUnlocked = completedSections === sectionKeys.length - 1;
     if (reviewSection) {
-      const showReviewTitle = formMode === "View Only" || formMode === "Review";
+      const meetsReviewCriteria = formMode === "View Only" || formMode === "Review";
+      const canSeeSubmitButton = hasPermission(user, "submission_request", "submit", data);
+      const showReviewTitle = meetsReviewCriteria && !canSeeSubmitButton;
+
+      const reviewUnlocked = completedSections === sectionKeys.length - 1;
       const reviewIcon = reviewUnlocked ? "Review" : "ReviewDisabled";
+
       reviewSection.icon =
         ["Approved"].includes(status) && reviewUnlocked ? "Completed" : reviewIcon;
       reviewSection.disabled = completedSections !== sectionKeys.length - 1;
@@ -121,7 +128,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
     }
 
     setSections(newSections);
-  }, [section, sectionStatuses, formMode, formStatus]);
+  }, [section, sectionStatuses, formMode, formStatus, data?.status, user?.role]);
 
   return (
     <StyledList>
