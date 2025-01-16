@@ -278,7 +278,7 @@ describe("QualityControlFilters", () => {
 
     userEvent.click(getByTestId("quality-control-issueType-filter"));
     expect(queryByTestId("issueType-ISSUE1")).not.toBeInTheDocument();
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalledTimes(1);
   });
 
   it("renders defaults and triggers queries when submissionID is available", async () => {
@@ -295,7 +295,7 @@ describe("QualityControlFilters", () => {
       expect(getByTestId("quality-control-filters")).toBeInTheDocument();
     });
 
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalledTimes(1);
 
     const issueTypeSelect = within(getByTestId("quality-control-issueType-filter")).getByRole(
       "button"
