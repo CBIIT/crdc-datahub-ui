@@ -228,6 +228,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
 
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState(null);
+  const [sameAsProgramPrimaryContact, setSameAsProgramPrimaryContact] = useState<boolean>(false);
 
   const manageStudiesPageUrl = `/studies${lastSearchParams?.["/studies"] ?? ""}`;
 
@@ -301,6 +302,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     dbGaPID,
     PI,
     ORCID,
+    primaryContactID,
   }: FormInput) => {
     reset({
       studyName,
@@ -310,6 +312,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       dbGaPID,
       PI,
       ORCID,
+      primaryContactID,
     });
   };
 
@@ -376,6 +379,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     const inputValue = event?.target?.value;
     const formattedValue = formatORCIDInput(inputValue);
     setValue("ORCID", formattedValue);
+  };
+
+  const handleOnSameAsProgramPCChange = (checked: boolean) => {
+    setSameAsProgramPrimaryContact(checked);
   };
 
   if (retrievingStudy) {
@@ -445,7 +452,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 <StyledAccessTypesLabel id="accessTypesLabel">
                   Access Types{" "}
                   <StyledAccessTypesDescription>
-                    (Select all that apply):
+                    (Select all that apply)
                   </StyledAccessTypesDescription>
                 </StyledAccessTypesLabel>
                 <Stack direction="column">
@@ -560,14 +567,33 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 </Stack>
               </StyledField>
 
-              <StyledField>
-                <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
+              <StyledField sx={{ alignItems: "flex-start" }}>
+                <StyledLabel id="primaryContactLabel" sx={{ paddingTop: "10px" }}>
+                  Primary Contact
+                </StyledLabel>
                 <Stack
                   direction="column"
                   justifyContent="flex-start"
                   alignItems="flex-start"
                   spacing={1}
                 >
+                  <StyledCheckboxFormGroup>
+                    <StyledFormControlLabel
+                      control={
+                        <StyledCheckbox
+                          checked={sameAsProgramPrimaryContact}
+                          onChange={(_, checked) => handleOnSameAsProgramPCChange(checked)}
+                          checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
+                          icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
+                          disabled={saving || retrievingStudy}
+                          inputProps={
+                            { "data-testid": "sameAsProgramPrimaryContact-checkbox" } as unknown
+                          }
+                        />
+                      }
+                      label="Same as the Program Primary Contact"
+                    />
+                  </StyledCheckboxFormGroup>
                   <Controller
                     name="primaryContactID"
                     control={control}
@@ -581,6 +607,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                           "aria-labelledby": "primaryContactLabel",
                         }}
                         error={!!errors.primaryContactID}
+                        disabled={sameAsProgramPrimaryContact}
                       >
                         <MenuItem value={null}>{"<Not Set>"}</MenuItem>
                         {activeCurators?.listActiveCurators?.map((user) => (
