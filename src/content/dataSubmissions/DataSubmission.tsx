@@ -89,7 +89,7 @@ const StyledCard = styled(Card)(() => ({
 
 const StyledMainContentArea = styled("div")(() => ({
   position: "relative",
-  zIndex: 2,
+  zIndex: 10,
   borderRadius: 0,
   padding: "21px 40px 0",
 }));

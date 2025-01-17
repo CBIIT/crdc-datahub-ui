@@ -77,6 +77,7 @@ describe("Accessibility", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -84,6 +85,7 @@ describe("Accessibility", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  order: 0,
                   checked: true,
                   disabled: true,
                 },
@@ -93,6 +95,7 @@ describe("Accessibility", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -100,6 +103,7 @@ describe("Accessibility", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -195,6 +199,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -202,6 +207,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  order: 0,
                   checked: true,
                   disabled: true,
                 },
@@ -209,6 +215,7 @@ describe("Basic Functionality", () => {
                   _id: "program:manage",
                   group: "Admin",
                   name: "Manage Programs",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -218,6 +225,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -225,6 +233,7 @@ describe("Basic Functionality", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -295,6 +304,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:create",
                   group: "Group1",
                   name: "Create",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -302,6 +312,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:submit",
                   group: "Group1",
                   name: "Create",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -309,6 +320,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:review",
                   group: "Group2",
                   name: "Create",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -316,6 +328,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:submit",
                   group: "Group3",
                   name: "Create",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -323,6 +336,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:view",
                   group: "Group4",
                   name: "Create",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -330,6 +344,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:create",
                   group: "Group5",
                   name: "Create",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -337,6 +352,7 @@ describe("Basic Functionality", () => {
                   _id: "study:manage",
                   group: "Group6",
                   name: "Create",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -413,6 +429,7 @@ describe("Basic Functionality", () => {
                   _id: "access:requested",
                   group: "Group1",
                   name: "Notification 1",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -420,6 +437,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:deleted",
                   group: "Group1",
                   name: "Notification 1-2",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -427,6 +445,7 @@ describe("Basic Functionality", () => {
                   _id: "account:disabled",
                   group: "Group2",
                   name: "Notification 2",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -434,6 +453,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:cancelled",
                   group: "Group3",
                   name: "Notification 3",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -441,6 +461,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:to_be_reviewed",
                   group: "Group4",
                   name: "Notification 4",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -448,6 +469,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:withdrawn",
                   group: "Group5",
                   name: "Notification 5",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -455,6 +477,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:deleted",
                   group: "Group6",
                   name: "Notification 6",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -511,6 +534,112 @@ describe("Basic Functionality", () => {
 
     // Sanity check
     expect(queryByTestId("notifications-column-3")).not.toBeInTheDocument();
+  });
+
+  it("should sort the permissions and notifications by their order property", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "submission_request:create",
+                  group: "Group1",
+                  name: "Create",
+                  order: 1,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "submission_request:submit",
+                  group: "Group1",
+                  name: "Submit",
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "submission_request:review",
+                  group: "Group1",
+                  name: "Review",
+                  order: 2,
+                  checked: true,
+                  disabled: false,
+                },
+              ],
+              notifications: [
+                {
+                  _id: "access:requested",
+                  group: "Group1",
+                  name: "Notification 1",
+                  order: 1,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:deleted",
+                  group: "Group1",
+                  name: "Notification 1-2",
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Group1",
+                  name: "Notification 2",
+                  order: 2,
+                  checked: true,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => {
+      if (field === "role") {
+        return "Submitter";
+      }
+
+      return [];
+    });
+
+    const { getByTestId } = render(<PermissionPanel />, {
+      wrapper: ({ children }) => (
+        <MockParent mocks={[mock]} methods={{ watch: mockWatcher } as unknown as FormProviderProps}>
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permissions-group-Group1")).toBeInTheDocument();
+    });
+
+    const permissionGroup = getByTestId("permissions-group-Group1");
+    expect(permissionGroup.innerHTML.search("permission-submission_request:submit")).toBeLessThan(
+      permissionGroup.innerHTML.search("permission-submission_request:create")
+    );
+    expect(permissionGroup.innerHTML.search("permission-submission_request:create")).toBeLessThan(
+      permissionGroup.innerHTML.search("permission-submission_request:review")
+    );
+
+    const notificationGroup = getByTestId("notifications-group-Group1");
+    expect(notificationGroup.innerHTML.search("notification-data_submission:deleted")).toBeLessThan(
+      notificationGroup.innerHTML.search("notification-access:requested")
+    );
+    expect(notificationGroup.innerHTML.search("notification-access:requested")).toBeLessThan(
+      notificationGroup.innerHTML.search("notification-account:disabled")
+    );
   });
 
   it("should show an error when unable to retrieve the default PBAC details (GraphQL)", async () => {
@@ -573,6 +702,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -580,6 +710,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -587,6 +718,7 @@ describe("Implementation Requirements", () => {
                   _id: "program:manage",
                   group: "Admin",
                   name: "Manage Programs",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -596,6 +728,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -603,6 +736,7 @@ describe("Implementation Requirements", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -691,6 +825,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -698,6 +833,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -707,6 +843,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -714,6 +851,7 @@ describe("Implementation Requirements", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -726,6 +864,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  order: 0,
                   checked: false, // Original submitter had this checked
                   disabled: false,
                 },
@@ -733,6 +872,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -742,6 +882,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  order: 0,
                   checked: false, // Original submitter had this checked
                   disabled: false,
                 },
@@ -749,6 +890,7 @@ describe("Implementation Requirements", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -865,6 +1007,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  order: 0,
                   checked: true,
                   disabled: true,
                 },
@@ -872,6 +1015,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -881,6 +1025,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  order: 0,
                   checked: true,
                   disabled: true,
                 },
@@ -888,6 +1033,7 @@ describe("Implementation Requirements", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  order: 0,
                   checked: true,
                   disabled: false,
                 },
@@ -1002,6 +1148,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },
@@ -1011,6 +1158,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  order: 0,
                   checked: false,
                   disabled: false,
                 },

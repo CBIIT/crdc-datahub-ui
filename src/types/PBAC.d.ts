@@ -78,6 +78,10 @@ type PBACDefault<T = AuthNotifications | AuthPermissions> = {
    */
   name: string;
   /**
+   * The sort order of the PBAC object within its group.
+   */
+  order: number;
+  /**
    * Whether the PBAC object is checked for the role.
    */
   checked: boolean;

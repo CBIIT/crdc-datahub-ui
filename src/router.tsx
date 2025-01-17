@@ -10,7 +10,7 @@ const MainLayout = withTracking(Layout);
 
 // Pages
 const Home = LazyLoader(lazy(() => import("./content")));
-const Login = LazyLoader(lazy(() => import("./content/login/Controller")));
+const Login = LazyLoader(lazy(() => import("./content/Login/Controller")));
 const Questionnaire = LazyLoader(lazy(() => import("./content/questionnaire/Controller")));
 const DataSubmissions = LazyLoader(lazy(() => import("./content/dataSubmissions/Controller")));
 const Users = LazyLoader(lazy(() => import("./content/users/Controller")));
