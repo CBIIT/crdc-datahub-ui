@@ -1,16 +1,8 @@
 import React, { FC, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Alert,
-  Container,
-  Button,
-  Stack,
-  styled,
-  TableCell,
-  TableContainer,
-  TableHead,
-} from "@mui/material";
+import { Alert, Container, Button, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { isEqual } from "lodash";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
@@ -35,6 +27,7 @@ import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import Tooltip from "../../components/Tooltip";
 import { hasPermission } from "../../config/AuthPermissions";
+import ListFilters from "./ListFilters";
 
 type T = ListApplicationsResp["listApplications"]["applications"][number];
 
@@ -61,11 +54,11 @@ const StyledContainer = styled(Container)({
   marginTop: "-62px",
 });
 
-const StyledTableContainer = styled(TableContainer)({
+const StyledFilterTableWrapper = styled(Box)({
   borderRadius: "8px",
-  border: "1px solid #083A50",
+  background: "#FFF",
+  border: "1px solid #6CACDA",
   marginBottom: "25px",
-  position: "relative",
 });
 
 const StyledTableHead = styled(TableHead)({
@@ -256,6 +249,11 @@ const columns: Column<T>[] = [
   },
 ];
 
+export type FilterForm = Pick<
+  ListApplicationsInput,
+  "programName" | "studyName" | "statues" | "submitterName"
+>;
+
 /**
  * View for List of Questionnaire/Submissions
  *
@@ -272,6 +270,12 @@ const ListingView: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<ListApplicationsResp["listApplications"]>(null);
+  const filtersRef = useRef<FilterForm>({
+    programName: "",
+    studyName: "",
+    statues: [],
+    submitterName: "",
+  });
 
   const tableRef = useRef<TableMethods>(null);
 
@@ -334,11 +338,19 @@ const ListingView: FC = () => {
 
       const { data: d, error } = await listApplications({
         variables: {
+          ...(filtersRef.current?.programName
+            ? { programName: filtersRef.current.programName }
+            : {}),
+          ...(filtersRef.current?.studyName ? { studyName: filtersRef.current.studyName } : {}),
+          ...(filtersRef.current?.statues ? { statues: filtersRef.current.statues } : []),
+          ...(filtersRef.current?.submitterName
+            ? { submitterName: filtersRef.current.submitterName }
+            : {}),
           first,
           offset,
           sortDirection,
           orderBy,
-        },
+        } as ListApplicationsInput,
         context: { clientName: "backend" },
         fetchPolicy: "no-cache",
       });
@@ -348,10 +360,24 @@ const ListingView: FC = () => {
 
       setData(d.listApplications);
     } catch (err) {
+      Logger.error(`ListView: Unable to retrieve Data Submission List results`, err);
       setError(true);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOnFiltersChange = (data: FilterForm) => {
+    if (isEqual(data, filtersRef.current)) {
+      return;
+    }
+
+    filtersRef.current = { ...data };
+    setTablePage(0);
+  };
+
+  const setTablePage = (page: number) => {
+    tableRef.current?.setPage(page, true);
   };
 
   const handleOnReviewClick = async ({ _id, status }: T) => {
@@ -412,7 +438,9 @@ const ListingView: FC = () => {
           </Alert>
         )}
 
-        <StyledTableContainer>
+        <StyledFilterTableWrapper>
+          <ListFilters applicationData={data} onChange={handleOnFiltersChange} loading={loading} />
+
           <QuestionnaireContext.Provider value={providerValue}>
             <GenericTable
               ref={tableRef}
@@ -438,7 +466,7 @@ const ListingView: FC = () => {
               CustomTableBodyCell={StyledTableCell}
             />
           </QuestionnaireContext.Provider>
-        </StyledTableContainer>
+        </StyledFilterTableWrapper>
       </StyledContainer>
     </>
   );
