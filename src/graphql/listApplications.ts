@@ -1,8 +1,21 @@
 import gql from "graphql-tag";
 
 export const query = gql`
-  query listApplications($first: Int, $offset: Int, $orderBy: String, $sortDirection: String) {
+  query listApplications(
+    $programName: String
+    $studyName: String
+    $statues: [String]
+    $submitterName: String
+    $first: Int
+    $offset: Int
+    $orderBy: String
+    $sortDirection: String
+  ) {
     listApplications(
+      programName: $programName
+      studyName: $studyName
+      statues: $statues
+      submitterName: $submitterName
       first: $first
       offset: $offset
       orderBy: $orderBy
@@ -29,6 +42,10 @@ export const query = gql`
 `;
 
 export type Input = {
+  programName: string;
+  studyName: string;
+  statues: string[]; // TODO: Fix typo
+  submitterName: string;
   first: number;
   offset: number;
   orderBy: string;
@@ -39,5 +56,9 @@ export type Response = {
   listApplications: {
     total: number;
     applications: Omit<Application, "questionnaireData">[];
+    programs: string[];
+    studies: string[];
+    status: string[];
+    submitterNames: string[];
   };
 };
