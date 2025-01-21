@@ -40,6 +40,7 @@ import {
 } from "../../graphql";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
+import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outline: "2px solid #1D91AB",
@@ -186,6 +187,12 @@ const StyledTitleBox = styled(Box)({
   marginBottom: "88px",
   width: "100%",
 });
+
+const StyledAsterisk = styled(BaseAsterisk, { shouldForwardProp: (p) => p !== "visible" })<{
+  visible?: boolean;
+}>(({ visible = true }) => ({
+  display: visible ? undefined : "none",
+}));
 
 type FormInput = Pick<
   ApprovedStudy,
@@ -422,7 +429,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               )}
 
               <StyledField>
-                <StyledLabel id="studyNameLabel">Name</StyledLabel>
+                <StyledLabel id="studyNameLabel">
+                  Name
+                  <StyledAsterisk visible />
+                </StyledLabel>
                 <StyledTextField
                   {...register("studyName", { required: true, setValueAs: (val) => val?.trim() })}
                   size="small"
@@ -450,7 +460,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledAccessTypesLabel id="accessTypesLabel">
-                  Access Types{" "}
+                  <span>
+                    Access Types
+                    <StyledAsterisk visible />
+                  </span>
                   <StyledAccessTypesDescription>
                     (Select all that apply)
                   </StyledAccessTypesDescription>
@@ -515,7 +528,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 </Stack>
               </StyledField>
               <StyledField>
-                <StyledLabel id="dbGaPIDLabel">dbGaPID</StyledLabel>
+                <StyledLabel id="dbGaPIDLabel">
+                  dbGaPID
+                  <StyledAsterisk visible={isControlled} />
+                </StyledLabel>
                 <StyledTextField
                   {...register("dbGaPID", {
                     required: isControlled === true,
@@ -570,6 +586,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               <StyledField sx={{ alignItems: "flex-start" }}>
                 <StyledLabel id="primaryContactLabel" sx={{ paddingTop: "10px" }}>
                   Primary Contact
+                  <StyledAsterisk visible />
                 </StyledLabel>
                 <Stack
                   direction="column"
