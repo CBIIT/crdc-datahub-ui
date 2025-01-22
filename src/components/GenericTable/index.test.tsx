@@ -1,8 +1,9 @@
 import React, { FC } from "react";
-import { render, fireEvent, within } from "@testing-library/react";
+import { render, fireEvent, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { MemoryRouter } from "react-router-dom";
+import { axe } from "jest-axe";
 import GenericTable, { Column, Props } from ".";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 
@@ -71,6 +72,38 @@ describe("GenericTable", () => {
     expect(getByText("Bob")).toBeInTheDocument();
     expect(getByTestId(`generic-table-header-${columns[0].label}`)).toBeInTheDocument();
     expect(getByTestId(`generic-table-header-${columns[1].label}`)).toBeInTheDocument();
+  });
+
+  describe("Accessibility", () => {
+    it("should have no accessibility violations", async () => {
+      const { container, getByText } = setup();
+
+      await waitFor(() => {
+        expect(getByText("Alice")).toBeInTheDocument();
+      });
+
+      expect(await axe(container)).toHaveNoViolations();
+    });
+
+    it("should supplement an empty header with a td element", async () => {
+      const { container, queryAllByText } = setup({
+        ...defaultProps,
+        columns: [
+          ...defaultProps.columns,
+          {
+            label: "",
+            renderValue: () => "mock value",
+            sortDisabled: true,
+          },
+        ],
+      });
+
+      await waitFor(() => {
+        expect(queryAllByText("mock value")).toHaveLength(mockData.length);
+      });
+
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 
   describe("Sorting and Pagination", () => {

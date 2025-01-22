@@ -460,6 +460,7 @@ const GenericTable = <T,>(
                       (typeof col.field === "string" ? col.field : null) ||
                       `column_${index}`
                     }`}
+                    component={col.label ? "th" : "td"}
                   >
                     {!col.sortDisabled ? (
                       <TableSortLabel
