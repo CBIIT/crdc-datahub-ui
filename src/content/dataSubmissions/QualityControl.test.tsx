@@ -17,6 +17,7 @@ import {
   SubmissionQCResultsResp,
   SubmissionStatsInput,
   SubmissionStatsResp,
+  SubmissionQCResultsInput,
 } from "../../graphql";
 import {
   SubmissionContext,
@@ -180,6 +181,21 @@ const aggSubmissionMock: MockedResponse<
   },
 };
 
+const submissionQCMock: MockedResponse<SubmissionQCResultsResp, SubmissionQCResultsInput> = {
+  request: {
+    query: SUBMISSION_QC_RESULTS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      submissionQCResults: {
+        total: 0,
+        results: [],
+      },
+    },
+  },
+};
+
 type ParentProps = {
   submission?: Partial<Submission>;
   mocks?: MockedResponse[];
@@ -311,7 +327,7 @@ describe("General", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[aggMocks, mocks, nodesMock, batchesMock, issueTypesMock]}
+          mocks={[aggMocks, submissionQCMock, mocks, nodesMock, batchesMock, issueTypesMock]}
           submission={{ _id: "test-graphql-error" }}
         >
           {children}
@@ -901,7 +917,14 @@ describe("Table", () => {
     const { getByText, getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+          ]}
           submission={{ _id: "format-batches" }}
         >
           {children}
