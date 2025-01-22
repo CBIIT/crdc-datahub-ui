@@ -352,7 +352,6 @@ describe("Implementation Requirements", () => {
             {
               collaboratorID: "current-user",
               collaboratorName: "",
-              Organization: null,
               permission: "Can Edit",
             },
           ],

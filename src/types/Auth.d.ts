@@ -22,13 +22,6 @@ type User = {
    */
   email: string;
   /**
-   * The user's organization if assigned, null otherwise
-   *
-   * @see {@link OrgInfo}
-   * @deprecated This field is deprecated and NOT populated by all APIs. Remove ASAP.
-   */
-  organization?: OrgInfo | null;
-  /**
    * List of data commons that the user has access to
    */
   dataCommons: string[];

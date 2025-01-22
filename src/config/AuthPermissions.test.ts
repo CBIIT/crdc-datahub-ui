@@ -387,7 +387,6 @@ describe("data_submission:create Permission", () => {
         {
           collaboratorID: user._id,
           collaboratorName: "",
-          Organization: null,
           permission: null,
         },
       ],
@@ -401,20 +400,21 @@ describe("data_submission:create Permission", () => {
     expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 
-  it("should allow a 'Federal Lead' with 'data_submission:create' key if they have the matching study", () => {
+  it("should allow a 'Federal Lead' who is the submission owner WITH 'data_submission:create' key", () => {
     const user = createUser("Federal Lead", ["data_submission:create"]);
-    user.studies = [{ _id: "study-1" }];
+    user._id = "owner-123";
     expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 
-  it("should allow 'Data Commons Personnel' with 'data_submission:create' key if they have the matching dataCommons", () => {
+  it("should allow a 'Data Commons Personnel' who is the submission owner WITH 'data_submission:create' key", () => {
     const user = createUser("Data Commons Personnel", ["data_submission:create"]);
-    user.dataCommons = ["commons-1"];
+    user._id = "owner-123";
     expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 
-  it("should allow 'Admin' with 'data_submission:create' key", () => {
+  it("should allow 'Admin' who is the submission owner WITH 'data_submission:create' key", () => {
     const user = createUser("Admin", ["data_submission:create"]);
+    user._id = "owner-123";
     expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 
@@ -441,6 +441,12 @@ describe("data_submission:review Permission", () => {
   it("should allow a 'Federal Lead' with 'data_submission:review' key if they have the matching study", () => {
     const user = createUser("Federal Lead", ["data_submission:review"]);
     user.studies = [{ _id: "study-3" }];
+    expect(hasPermission(user, "data_submission", "review", reviewSubmission)).toBe(true);
+  });
+
+  it("should allow a 'Federal Lead' with 'data_submission:review' key if they have the 'All' study", () => {
+    const user = createUser("Federal Lead", ["data_submission:review"]);
+    user.studies = [{ _id: "All" }];
     expect(hasPermission(user, "data_submission", "review", reviewSubmission)).toBe(true);
   });
 
@@ -478,6 +484,14 @@ describe("data_submission:admin_submit Permission", () => {
   it("should allow a 'Federal Lead' with 'data_submission:admin_submit' key if they have the matching study", () => {
     const user = createUser("Federal Lead", ["data_submission:admin_submit"]);
     user.studies = [{ _id: "study-4" }];
+    expect(hasPermission(user, "data_submission", "admin_submit", adminSubmitSubmission)).toBe(
+      true
+    );
+  });
+
+  it("should allow a 'Federal Lead' with 'data_submission:admin_submit' key if they have the 'All' study", () => {
+    const user = createUser("Federal Lead", ["data_submission:admin_submit"]);
+    user.studies = [{ _id: "All" }];
     expect(hasPermission(user, "data_submission", "admin_submit", adminSubmitSubmission)).toBe(
       true
     );
@@ -523,6 +537,12 @@ describe("data_submission:confirm Permission", () => {
   it("should allow a 'Federal Lead' with 'data_submission:confirm' key if they have the matching study", () => {
     const user = createUser("Federal Lead", ["data_submission:confirm"]);
     user.studies = [{ _id: "study-5" }];
+    expect(hasPermission(user, "data_submission", "confirm", confirmSubmission)).toBe(true);
+  });
+
+  it("should allow a 'Federal Lead' with 'data_submission:confirm' key if they have the 'All' study", () => {
+    const user = createUser("Federal Lead", ["data_submission:confirm"]);
+    user.studies = [{ _id: "All" }];
     expect(hasPermission(user, "data_submission", "confirm", confirmSubmission)).toBe(true);
   });
 

@@ -38,13 +38,6 @@ const mockUser: User = {
   email: "user1@example.com",
   firstName: "John",
   lastName: "Doe",
-  organization: {
-    orgID: "org-1",
-    orgName: "Organization 1",
-    status: "Active",
-    createdAt: "",
-    updateAt: "",
-  },
   dataCommons: [],
   studies: [],
   IDP: "nih",
@@ -65,11 +58,7 @@ const mockCollaborators: Collaborator[] = [
   {
     collaboratorID: "user-2",
     collaboratorName: "Jane Smith",
-    permission: "Can View",
-    Organization: {
-      orgID: "org-2",
-      orgName: "Organization 2",
-    },
+    permission: "Can Edit",
   },
 ];
 
@@ -77,20 +66,12 @@ const mockRemainingPotentialCollaborators: Collaborator[] = [
   {
     collaboratorID: "user-3",
     collaboratorName: "Bob Johnson",
-    permission: "Can View",
-    Organization: {
-      orgID: "org-3",
-      orgName: "Organization 3",
-    },
+    permission: "Can Edit",
   },
   {
     collaboratorID: "user-4",
     collaboratorName: "Alice Williams",
-    permission: "Can View",
-    Organization: {
-      orgID: "org-4",
-      orgName: "Organization 4",
-    },
+    permission: "Can Edit",
   },
 ];
 
@@ -196,8 +177,6 @@ describe("CollaboratorsTable Component", () => {
     );
 
     expect(getByTestId("header-collaborator")).toHaveTextContent("Collaborator");
-    expect(getByTestId("header-organization")).toHaveTextContent("Collaborator Organization");
-    expect(getByTestId("header-access")).toHaveTextContent("Access");
     expect(getByTestId("header-remove")).toHaveTextContent("Remove");
   });
 
@@ -214,12 +193,6 @@ describe("CollaboratorsTable Component", () => {
     const collaboratorSelect = getByTestId("collaborator-select-0-input");
     expect(collaboratorSelect).toBeInTheDocument();
     expect(collaboratorSelect).toHaveValue("user-2");
-
-    const collaboratorOrg = getByTestId("collaborator-org-0");
-    expect(collaboratorOrg).toHaveTextContent("Organizati...");
-
-    const collaboratorPermissions = getByTestId("collaborator-permissions-0");
-    expect(collaboratorPermissions).toBeInTheDocument();
 
     const removeButton = getByTestId("remove-collaborator-button-0");
     expect(removeButton).toBeInTheDocument();
@@ -323,46 +296,7 @@ describe("CollaboratorsTable Component", () => {
 
     expect(mockHandleUpdateCollaborator).toHaveBeenCalledWith(0, {
       collaboratorID: "user-3",
-      permission: "Can View",
-    });
-  });
-
-  it("calls handleUpdateCollaborator when permission changes", () => {
-    const { getByTestId } = render(
-      <TestParent>
-        <CollaboratorsTable isEdit />
-      </TestParent>
-    );
-
-    const radioGroup = getByTestId("collaborator-permissions-0");
-
-    fireEvent.click(within(radioGroup).getByDisplayValue("Can Edit"));
-
-    expect(mockHandleUpdateCollaborator).toHaveBeenCalledWith(0, {
-      collaboratorID: "user-2",
       permission: "Can Edit",
-    });
-  });
-
-  it("renders permission tooltips correctly", async () => {
-    const { getByText, getByTestId } = render(
-      <TestParent>
-        <CollaboratorsTable isEdit />
-      </TestParent>
-    );
-
-    const radioGroup = getByTestId("collaborator-permissions-0");
-
-    fireEvent.mouseOver(within(radioGroup).getByDisplayValue("Can View"));
-
-    await waitFor(() => {
-      expect(getByText(TOOLTIP_TEXT.COLLABORATORS_DIALOG.PERMISSIONS.CAN_VIEW)).toBeInTheDocument();
-    });
-
-    fireEvent.mouseOver(within(radioGroup).getByDisplayValue("Can Edit"));
-
-    await waitFor(() => {
-      expect(getByText(TOOLTIP_TEXT.COLLABORATORS_DIALOG.PERMISSIONS.CAN_EDIT)).toBeInTheDocument();
     });
   });
 
@@ -387,11 +321,7 @@ describe("CollaboratorsTable Component", () => {
       {
         collaboratorID: "",
         collaboratorName: "",
-        permission: "Can View",
-        Organization: {
-          orgID: "",
-          orgName: "",
-        },
+        permission: "Can Edit",
       },
     ];
 
@@ -435,10 +365,6 @@ describe("CollaboratorsTable Component", () => {
         collaboratorID: "user-5",
         collaboratorName: "Emily Davis",
         permission: "Can Edit",
-        Organization: {
-          orgID: "org-5",
-          orgName: "Organization 5",
-        },
       },
     ];
 
@@ -470,11 +396,7 @@ describe("CollaboratorsTable Component", () => {
       {
         collaboratorID: "",
         collaboratorName: "Jane Smith",
-        permission: "Can View",
-        Organization: {
-          orgID: "org-2",
-          orgName: "Organization 2",
-        },
+        permission: "Can Edit",
       },
     ];
 
@@ -504,11 +426,7 @@ describe("CollaboratorsTable Component", () => {
       {
         collaboratorID: "user-2",
         collaboratorName: null,
-        permission: "Can View",
-        Organization: {
-          orgID: "org-2",
-          orgName: "Organization 2",
-        },
+        permission: "Can Edit",
       },
     ];
 
@@ -529,25 +447,20 @@ describe("CollaboratorsTable Component", () => {
     );
 
     const collaboratorSelect = getByTestId("collaborator-select-0");
-
     expect(within(collaboratorSelect).getByTestId("truncated-text-label").textContent).toEqual(" ");
   });
 
   it("displays a space when collaboratorID is null", () => {
-    const mockCollaboratorsWithNullName = [
+    const mockCollaboratorsWithNullID = [
       {
         collaboratorID: null,
         collaboratorName: "user-name",
-        permission: "Can View",
-        Organization: {
-          orgID: "org-2",
-          orgName: "Organization 2",
-        },
+        permission: "Can Edit",
       },
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
-      currentCollaborators: mockCollaboratorsWithNullName,
+      currentCollaborators: mockCollaboratorsWithNullID,
       remainingPotentialCollaborators: mockRemainingPotentialCollaborators,
       maxCollaborators: 5,
       handleAddCollaborator: mockHandleAddCollaborator,
@@ -563,20 +476,15 @@ describe("CollaboratorsTable Component", () => {
     );
 
     const collaboratorSelect = getByTestId("collaborator-select-0-input");
-
     expect(collaboratorSelect).toHaveValue("");
   });
 
-  it("handles undefined collaborator permission by defaulting to empty string", () => {
+  it("handles undefined collaborator permission by defaulting to no selection (only 'Can Edit' is valid)", () => {
     const mockCollaboratorsWithUndefinedPermission = [
       {
         collaboratorID: "user-2",
         collaboratorName: "Jane Smith",
         permission: undefined,
-        Organization: {
-          orgID: "org-2",
-          orgName: "Organization 2",
-        },
       },
     ];
 
@@ -596,12 +504,7 @@ describe("CollaboratorsTable Component", () => {
       </TestParent>
     );
 
-    const radioGroup = getByTestId("collaborator-permissions-0");
-
-    const canViewRadio = within(radioGroup).getByDisplayValue("Can View") as HTMLInputElement;
-    const canEditRadio = within(radioGroup).getByDisplayValue("Can Edit") as HTMLInputElement;
-
-    expect(canViewRadio.checked).toBe(false);
-    expect(canEditRadio.checked).toBe(false);
+    const collaboratorSelect = getByTestId("collaborator-select-0-input");
+    expect(collaboratorSelect).toHaveValue("user-2");
   });
 });

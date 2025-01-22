@@ -233,8 +233,9 @@ const NameDropdownContainer = styled("div")({
     },
   },
   "& .dropdownItemButton": {
-    paddingBottom: 0,
     textTransform: "none",
+    paddingLeft: "20px",
+    paddingRight: "20px",
     "&:hover": {
       background: "transparent",
     },
@@ -312,6 +313,19 @@ const NavBar = () => {
       className: "navMobileSubItem",
     },
     {
+      name: "Uploader CLI Tool",
+      onClick: () => setUploaderToolOpen(true),
+      id: "navbar-dropdown-item-uploader-tool",
+      className: "navMobileSubItem action",
+    },
+    {
+      name: "API Token",
+      onClick: () => setOpenAPITokenDialog(true),
+      id: "navbar-dropdown-item-api-token",
+      className: "navMobileSubItem action",
+      permissions: ["data_submission:create"],
+    },
+    {
       name: "Manage Studies",
       link: "/studies",
       id: "navbar-dropdown-item-studies-manage",
@@ -331,20 +345,6 @@ const NavBar = () => {
       id: "navbar-dropdown-item-user-manage",
       className: "navMobileSubItem",
       permissions: ["user:manage"],
-    },
-    {
-      name: "Uploader CLI Tool",
-      onClick: () => setUploaderToolOpen(true),
-      id: "navbar-dropdown-item-uploader-tool",
-      className: "navMobileSubItem action",
-      permissions: ["data_submission:create"],
-    },
-    {
-      name: "API Token",
-      onClick: () => setOpenAPITokenDialog(true),
-      id: "navbar-dropdown-item-api-token",
-      className: "navMobileSubItem action",
-      permissions: ["data_submission:create"],
     },
     {
       name: "Logout",
@@ -495,7 +495,7 @@ const NavBar = () => {
               <StyledLoginLink
                 id="header-navbar-login-button"
                 to="/login"
-                state={{ redirectURLOnLoginSuccess: restorePath }}
+                state={{ redirectState: restorePath }}
               >
                 Login
               </StyledLoginLink>
@@ -540,15 +540,14 @@ const NavBar = () => {
 
                   if (dropItem.onClick) {
                     return (
-                      <span className="dropdownItem" key={dropItem.id}>
-                        <Button
-                          id={dropItem.id}
-                          className="dropdownItem dropdownItemButton"
-                          onClick={dropItem.onClick}
-                        >
-                          {dropItem.name}
-                        </Button>
-                      </span>
+                      <Button
+                        id={dropItem.id}
+                        key={dropItem.id}
+                        className="dropdownItem dropdownItemButton"
+                        onClick={dropItem.onClick}
+                      >
+                        {dropItem.name}
+                      </Button>
                     );
                   }
 

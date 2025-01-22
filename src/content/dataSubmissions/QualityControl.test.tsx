@@ -9,11 +9,15 @@ import {
   LIST_BATCHES,
   ListBatchesInput,
   ListBatchesResp,
+  AGGREGATED_SUBMISSION_QC_RESULTS,
   SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
+  AggregatedSubmissionQCResultsInput,
+  AggregatedSubmissionQCResultsResp,
   SubmissionQCResultsResp,
   SubmissionStatsInput,
   SubmissionStatsResp,
+  SubmissionQCResultsInput,
 } from "../../graphql";
 import {
   SubmissionContext,
@@ -113,6 +117,85 @@ const batchesMock: MockedResponse<ListBatchesResp<true>, ListBatchesInput> = {
   },
 };
 
+const issueTypesMock: MockedResponse<
+  AggregatedSubmissionQCResultsResp,
+  AggregatedSubmissionQCResultsInput
+> = {
+  request: {
+    query: AGGREGATED_SUBMISSION_QC_RESULTS,
+    context: { clientName: "backend" },
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      aggregatedSubmissionQCResults: {
+        total: 1,
+        results: [
+          {
+            code: "ISSUE1",
+            title: "Issue Title 1",
+            count: 100,
+            description: "",
+            severity: "Error",
+            __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
+          } as AggregatedQCResult,
+        ],
+      },
+    },
+  },
+};
+
+const aggSubmissionMock: MockedResponse<
+  AggregatedSubmissionQCResultsResp,
+  AggregatedSubmissionQCResultsInput
+> = {
+  request: {
+    query: AGGREGATED_SUBMISSION_QC_RESULTS,
+    context: { clientName: "backend" },
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      aggregatedSubmissionQCResults: {
+        total: 2,
+        results: [
+          {
+            code: "ISSUE1",
+            title: "Issue Title 1",
+            count: 100,
+            description: "",
+            severity: "Error",
+            __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
+          } as AggregatedQCResult,
+          {
+            code: "ISSUE2",
+            title: "Issue Title 2",
+            count: 200,
+            description: "",
+            severity: "Warning",
+            __typename: "AggregatedQCResult",
+          } as AggregatedQCResult,
+        ],
+      },
+    },
+  },
+};
+
+const submissionQCMock: MockedResponse<SubmissionQCResultsResp, SubmissionQCResultsInput> = {
+  request: {
+    query: SUBMISSION_QC_RESULTS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      submissionQCResults: {
+        total: 0,
+        results: [],
+      },
+    },
+  },
+};
+
 type ParentProps = {
   submission?: Partial<Submission>;
   mocks?: MockedResponse[];
@@ -170,11 +253,18 @@ describe("General", () => {
       variableMatcher: () => true,
       error: new Error("Simulated network error"),
     };
+    const aggMocks: MockedResponse<AggregatedSubmissionQCResultsResp, null> = {
+      request: {
+        query: AGGREGATED_SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      error: new Error("Simulated network error"),
+    };
 
-    render(<QualityControl />, {
+    const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mocks, nodesMock, batchesMock]}
+          mocks={[aggMocks, mocks, nodesMock, batchesMock, issueTypesMock]}
           submission={{ _id: "test-network-error" }}
         >
           {children}
@@ -182,7 +272,29 @@ describe("General", () => {
       ),
     });
 
+    expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+      "checked",
+      false
+    );
+
     await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Unable to retrieve submission aggregated quality control results."
+        ),
+        {
+          variant: "error",
+        }
+      );
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
       expect(global.mockEnqueue).toHaveBeenCalledWith(
         expect.stringContaining("Unable to retrieve submission quality control results."),
         {
@@ -202,11 +314,20 @@ describe("General", () => {
         errors: [new GraphQLError("Simulated GraphQL error")],
       },
     };
+    const aggMocks: MockedResponse<AggregatedSubmissionQCResultsResp> = {
+      request: {
+        query: AGGREGATED_SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        errors: [new GraphQLError("Simulated GraphQL error")],
+      },
+    };
 
-    render(<QualityControl />, {
+    const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mocks, nodesMock, batchesMock]}
+          mocks={[aggMocks, submissionQCMock, mocks, nodesMock, batchesMock, issueTypesMock]}
           submission={{ _id: "test-graphql-error" }}
         >
           {children}
@@ -214,7 +335,29 @@ describe("General", () => {
       ),
     });
 
+    expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+      "checked",
+      false
+    );
+
     await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Unable to retrieve submission aggregated quality control results."
+        ),
+        {
+          variant: "error",
+        }
+      );
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
       expect(global.mockEnqueue).toHaveBeenCalledWith(
         expect.stringContaining("Unable to retrieve submission quality control results."),
         {
@@ -243,18 +386,36 @@ describe("Filters", () => {
       },
     };
 
-    render(<QualityControl />, {
+    const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
-        <TestParent mocks={[mock, batchesMock, nodesMock]} submission={{ _id: "test-filters-1" }}>
+        <TestParent
+          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          submission={{ _id: "test-filters-1" }}
+        >
           {children}
         </TestParent>
       ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
+      expect(getByTestId("generic-table")).toHaveTextContent("Submitted Identifier");
+    });
+
+    await waitFor(() => {
+      expect(mockMatcher).toHaveBeenCalled();
     });
 
     // "All" is the default selection for all filters
     expect(mockMatcher).not.toHaveBeenCalledWith(
       expect.objectContaining({ batchIDs: expect.anything(), nodeTypes: expect.anything() })
     );
+
     expect(mockMatcher).toHaveBeenCalledWith(expect.objectContaining({ severities: "All" }));
   });
 
@@ -317,12 +478,21 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMockWithData, nodesMockWithData]}
+          mocks={[mock, batchesMockWithData, nodesMockWithData, issueTypesMock, aggSubmissionMock]}
           submission={{ _id: "test-filters-2" }}
         >
           {children}
         </TestParent>
       ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
     });
 
     const batchBox = within(getByTestId("quality-control-batchID-filter")).getByRole("button");
@@ -337,10 +507,10 @@ describe("Filters", () => {
         }
       );
 
-      expect(within(muiSelectList).getByTestId("batch-999")).toBeInTheDocument();
+      expect(within(muiSelectList).getByTestId("batchID-batch-999")).toBeInTheDocument();
     });
 
-    userEvent.click(getByTestId("batch-999"));
+    userEvent.click(getByTestId("batchID-batch-999"));
 
     const nodeBox = within(getByTestId("quality-control-nodeType-filter")).getByRole("button");
 
@@ -407,10 +577,22 @@ describe("Filters", () => {
 
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
-        <TestParent mocks={[mock, batchesMock, nodesMock]} submission={{ _id: "filter-nodes" }}>
+        <TestParent
+          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          submission={{ _id: "filter-nodes" }}
+        >
           {children}
         </TestParent>
       ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
     });
 
     const muiSelectBox = within(getByTestId("quality-control-nodeType-filter")).getByRole("button");
@@ -470,10 +652,22 @@ describe("Filters", () => {
 
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
-        <TestParent mocks={[mock, batchesMock, nodesMock]} submission={{ _id: "sorting-nodeType" }}>
+        <TestParent
+          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          submission={{ _id: "sorting-nodeType" }}
+        >
           {children}
         </TestParent>
       ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
     });
 
     const muiSelectBox = within(getByTestId("quality-control-nodeType-filter")).getByRole("button");
@@ -537,10 +731,22 @@ describe("Filters", () => {
 
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
-        <TestParent mocks={[mock, batchesMock, nodesMock]} submission={{ _id: "filter-nodes" }}>
+        <TestParent
+          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          submission={{ _id: "filter-nodes" }}
+        >
           {children}
         </TestParent>
       ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
     });
 
     const muiSelectBox = within(getByTestId("quality-control-nodeType-filter")).getByRole("button");
@@ -611,10 +817,22 @@ describe("Filters", () => {
 
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
-        <TestParent mocks={[mock, batchesMock, nodesMock]} submission={{ _id: "format-batches" }}>
+        <TestParent
+          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          submission={{ _id: "format-batches" }}
+        >
           {children}
         </TestParent>
       ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
     });
 
     userEvent.click(within(getByTestId("quality-control-batchID-filter")).getByRole("button"));
@@ -628,10 +846,18 @@ describe("Filters", () => {
       );
 
       expect(muiSelectList).toBeInTheDocument();
-      expect(within(muiSelectList).getByTestId("batch01")).toHaveTextContent("1 (05/22/2023)");
-      expect(within(muiSelectList).getByTestId("batch02")).toHaveTextContent("55 (07/31/2024)");
-      expect(within(muiSelectList).getByTestId("batch03")).toHaveTextContent("94 (12/12/2024)");
-      expect(within(muiSelectList).getByTestId("batch04")).toHaveTextContent("1024 (10/03/2028)");
+      expect(within(muiSelectList).getByTestId("batchID-batch01")).toHaveTextContent(
+        "1 (05/22/2023)"
+      );
+      expect(within(muiSelectList).getByTestId("batchID-batch02")).toHaveTextContent(
+        "55 (07/31/2024)"
+      );
+      expect(within(muiSelectList).getByTestId("batchID-batch03")).toHaveTextContent(
+        "94 (12/12/2024)"
+      );
+      expect(within(muiSelectList).getByTestId("batchID-batch04")).toHaveTextContent(
+        "1024 (10/03/2028)"
+      );
     });
   });
 });
@@ -688,12 +914,31 @@ describe("Table", () => {
       },
     };
 
-    const { getByText } = render(<QualityControl />, {
+    const { getByText, getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
-        <TestParent mocks={[mock, batchesMock, nodesMock]} submission={{ _id: "format-batches" }}>
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+          ]}
+          submission={{ _id: "format-batches" }}
+        >
           {children}
         </TestParent>
       ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    await waitFor(() => {
+      expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+        "checked",
+        true
+      );
     });
 
     await waitFor(() => {
@@ -726,7 +971,10 @@ describe("Table", () => {
 
     const { getByText } = render(<QualityControl />, {
       wrapper: ({ children }) => (
-        <TestParent mocks={[mock, batchesMock, nodesMock]} submission={{ _id: "test-placeholder" }}>
+        <TestParent
+          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          submission={{ _id: "test-placeholder" }}
+        >
           {children}
         </TestParent>
       ),
@@ -760,7 +1008,7 @@ describe("Table", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock]}
+          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
           submission={{ _id: "test-pagination-count" }}
         >
           {children}
@@ -793,7 +1041,7 @@ describe("Table", () => {
     const { getAllByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock]}
+          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
           submission={{ _id: "test-enabled-export" }}
         >
           {children}
@@ -828,7 +1076,7 @@ describe("Table", () => {
     const { getAllByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock]}
+          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
           submission={{ _id: "test-disabled-export" }}
         >
           {children}

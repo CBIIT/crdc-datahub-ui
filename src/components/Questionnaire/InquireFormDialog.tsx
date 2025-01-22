@@ -50,6 +50,7 @@ const InquireFormDialog: FC<Props> = ({
     <StyledDialog
       open={open}
       onClose={onClose}
+      scroll="body"
       title={title || "Request Additional Changes"}
       actions={
         <>
@@ -75,10 +76,11 @@ const InquireFormDialog: FC<Props> = ({
         onChange={handleCommentChange}
         maxLength={500}
         placeholder="500 characters allowed"
+        minRows={5}
+        maxRows={15}
         required
-        minRows={2}
-        maxRows={2}
         multiline
+        resize
         sx={{ paddingY: "16px" }}
       />
     </StyledDialog>

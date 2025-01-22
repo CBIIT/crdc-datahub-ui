@@ -32,13 +32,6 @@ const mockUser: User = {
   email: "user1@example.com",
   firstName: "John",
   lastName: "Doe",
-  organization: {
-    orgID: "org-1",
-    orgName: "Organization 1",
-    status: "Active",
-    createdAt: "",
-    updateAt: "",
-  },
   dataCommons: [],
   studies: [],
   IDP: "nih",
@@ -63,7 +56,7 @@ const mockCollaborators = [
   {
     collaboratorID: "user-2",
     collaboratorName: "Jane Smith",
-    permission: "Can View",
+    permission: "Can Edit",
     Organization: {
       orgID: "org-2",
       orgName: "Organization 2",
@@ -154,7 +147,7 @@ describe("CollaboratorsDialog Component", () => {
       "Data SubmissionCollaborators" // line break between "Submission" and "Collaborators" text
     );
     expect(getByTestId("collaborators-dialog-description")).toHaveTextContent(
-      "Below is a list of collaborators who have been granted access to this data submission. Each collaborator can view or edit the submission based on the permissions assigned by the submission creator."
+      "Below is a list of collaborators who have been granted access to this data submission. Once added, each collaborator can contribute to the submission by uploading data, running validations, and submitting."
     );
   });
 
