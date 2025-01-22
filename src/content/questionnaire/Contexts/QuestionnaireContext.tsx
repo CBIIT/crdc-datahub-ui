@@ -13,11 +13,9 @@ const QuestionnaireContext = React.createContext<{
     application: ListApplicationsResp["listApplications"]["applications"][number]
   ) => void;
   /**
-   * Action performed when 'Cancel' or 'Restore' button is clicked
+   * A reference to the table's actions
    */
-  handleOnCancelClick?: (
-    application: ListApplicationsResp["listApplications"]["applications"][number]
-  ) => void;
+  tableRef?: React.RefObject<TableMethods>;
 }>({});
 
 export default QuestionnaireContext;

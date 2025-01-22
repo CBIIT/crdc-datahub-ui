@@ -14,6 +14,10 @@ export type { Response as InquireAppResp } from "./inquireApplication";
 export { mutation as REJECT_APP } from "./rejectApplication";
 export type { Response as RejectAppResp } from "./rejectApplication";
 
+export { mutation as CANCEL_APP } from "./cancelApplication";
+export type { Response as CancelAppResp } from "./cancelApplication";
+export type { Input as CancelAppInput } from "./cancelApplication";
+
 export { mutation as SAVE_APP } from "./saveApplication";
 export type { Input as SaveAppInput, Response as SaveAppResp } from "./saveApplication";
 
