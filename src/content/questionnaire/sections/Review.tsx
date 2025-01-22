@@ -36,12 +36,6 @@ const StyledDivider = styled(Divider)(() => ({
   marginBottom: "8px",
 }));
 
-const BlankGrid = styled(Grid)(() => ({
-  "&.MuiGrid-item": {
-    paddingTop: 0,
-  },
-}));
-
 /**
  * Form Section Review View
  *
@@ -132,7 +126,7 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
             label="Institution Name"
             value={pi.institution}
           />
-          <BlankGrid md={6} xs={12} item />
+          <ReviewDataListingProperty idPrefix="review-pi-orcid" label="ORCID" value={pi.ORCID} />
           <ReviewDataListingProperty
             idPrefix="review-pi-institution-address"
             label="Institution Address"
