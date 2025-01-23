@@ -19,19 +19,43 @@ const baseAuthCtx: AuthContextState = {
 };
 
 const baseUser: User = {
-  _id: "",
+  _id: "base-user-123",
   firstName: "",
   lastName: "",
   userStatus: "Active",
-  role: "Submitter", // NOTE: This role has access to the delete button by default
+  role: "Submitter",
   IDP: "nih",
   email: "",
   studies: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",
-  permissions: ["data_submission:view", "data_submission:create"],
+  permissions: [],
   notifications: [],
+};
+
+const baseApp: Omit<Application, "questionnaireData"> = {
+  _id: "",
+  status: "New",
+  createdAt: "",
+  updatedAt: "",
+  submittedDate: "",
+  history: [],
+  ORCID: "",
+  applicant: {
+    applicantID: "applicant-123",
+    applicantName: "",
+    applicantEmail: "",
+  },
+  PI: "",
+  controlledAccess: false,
+  openAccess: false,
+  studyAbbreviation: "",
+  conditional: false,
+  pendingConditions: [],
+  programName: "",
+  programAbbreviation: "",
+  programDescription: "",
 };
 
 type TestParentProps = {
@@ -57,22 +81,103 @@ const TestParent: React.FC<TestParentProps> = ({ mocks = [], user = {}, children
 };
 
 describe("Accessibility", () => {
-  it("should have no violations for the component", async () => {
+  it("should have no violations for the component (cancel)", async () => {
     const { container, getByTestId } = render(
-      <Button nodeType="test" selectedItems={["ID_1", "ID_2", "ID_3"]} />,
-      { wrapper: TestParent }
+      <Button
+        application={{
+          ...baseApp,
+          status: "New",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
     );
 
-    expect(getByTestId("cancel-restore-application-button")).not.toBeDisabled(); // Sanity check to ensure the button is active
+    expect(getByTestId("application-cancel-icon")).toBeInTheDocument(); // Sanity check for Cancel
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it("should have no violations for the component when disabled", async () => {
-    const { container, getByTestId } = render(<Button nodeType="test" selectedItems={[]} />, {
-      wrapper: TestParent,
-    });
+  it("should have no violations for the component (restore)", async () => {
+    const { container, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "Canceled",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
 
-    expect(getByTestId("cancel-restore-application-button")).toBeDisabled(); // Sanity check to ensure the button is disabled
+    expect(getByTestId("application-restore-icon")).toBeInTheDocument(); // Sanity check for Restore
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("should have no violations for the component (cancel disabled)", async () => {
+    const { container, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "New",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+        disabled
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    expect(getByTestId("application-cancel-icon")).toBeInTheDocument(); // Sanity check for Cancel
+    expect(getByTestId("cancel-restore-application-button")).toBeDisabled(); // Sanity check for disabled
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("should have no violations for the component (restore disabled)", async () => {
+    const { container, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "Canceled",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+        disabled
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    expect(getByTestId("application-restore-icon")).toBeInTheDocument(); // Sanity check for Restore
+    expect(getByTestId("cancel-restore-application-button")).toBeDisabled(); // Sanity check for disabled
     expect(await axe(container)).toHaveNoViolations();
   });
 });
@@ -83,12 +188,10 @@ describe("Basic Functionality", () => {
   });
 
   it("should render without crashing", () => {
-    expect(() =>
-      render(<Button nodeType="" selectedItems={[]} />, { wrapper: TestParent })
-    ).not.toThrow();
+    expect(() => render(<Button application={null} />, { wrapper: TestParent })).not.toThrow();
   });
 
-  it("should show a snackbar when the delete operation fails (GraphQL Error)", async () => {
+  it("should show a snackbar when the cancel operation fails (GraphQL Error)", async () => {
     const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
       {
         request: {
@@ -101,9 +204,24 @@ describe("Basic Functionality", () => {
       },
     ];
 
-    const { getByTestId, getByRole } = render(
-      <Button nodeType="test" selectedItems={["1 item ID"]} />,
-      { wrapper: (props) => <TestParent {...props} mocks={mocks} /> }
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "In Progress",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={mocks}
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
     );
 
     // Open confirmation dialog
@@ -115,7 +233,7 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "An error occurred while deleting the selected rows.",
+        "Oops! Unable to cancel that Submission Request",
         {
           variant: "error",
         }
@@ -134,9 +252,24 @@ describe("Basic Functionality", () => {
       },
     ];
 
-    const { getByTestId, getByRole } = render(
-      <Button nodeType="test" selectedItems={["1 item ID"]} />,
-      { wrapper: (props) => <TestParent {...props} mocks={mocks} /> }
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "In Progress",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={mocks}
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
     );
 
     // Open confirmation dialog
@@ -148,7 +281,7 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "An error occurred while deleting the selected rows.",
+        "Oops! Unable to cancel that Submission Request",
         {
           variant: "error",
         }
@@ -165,18 +298,32 @@ describe("Basic Functionality", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            deleteDataRecords: {
-              success: false,
-              message: "Simulated API rejection message",
+            cancelApplication: {
+              _id: undefined,
             },
           },
         },
       },
     ];
 
-    const { getByTestId, getByRole } = render(
-      <Button nodeType="test" selectedItems={["1 item ID"]} />,
-      { wrapper: (props) => <TestParent {...props} mocks={mocks} /> }
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "In Progress",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={mocks}
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
     );
 
     // Open confirmation dialog
@@ -188,7 +335,7 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "An error occurred while deleting the selected rows.",
+        "Oops! Unable to cancel that Submission Request",
         {
           variant: "error",
         }
@@ -196,8 +343,8 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it("should call the onCancel callback when the cancel/restore operation is successful", async () => {
-    const onDelete = jest.fn();
+  it("should call the onCancel callback when the cancel operation is successful", async () => {
+    const onCancel = jest.fn();
     const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
       {
         request: {
@@ -206,18 +353,33 @@ describe("Basic Functionality", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            deleteDataRecords: {
-              success: true,
-              message: "",
+            cancelApplication: {
+              _id: "some id",
             },
           },
         },
       },
     ];
 
-    const { getByTestId, getByRole } = render(
-      <Button nodeType="test" selectedItems={["1 item ID"]} onDelete={onDelete} />,
-      { wrapper: (props) => <TestParent {...props} mocks={mocks} /> }
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "In Progress",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+        onCancel={onCancel}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={mocks}
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
     );
 
     // Open confirmation dialog
@@ -228,7 +390,7 @@ describe("Basic Functionality", () => {
     userEvent.click(button);
 
     await waitFor(() => {
-      expect(onDelete).toHaveBeenCalled();
+      expect(onCancel).toHaveBeenCalled();
     });
   });
 });
@@ -238,111 +400,23 @@ describe("Implementation Requirements", () => {
     jest.resetAllMocks();
   });
 
-  it("should be disabled when a cancel/restore operation is in progress", () => {
-    const { getByTestId } = render(<Button nodeType="test" selectedItems={[]} />, {
-      wrapper: (props) => <TestParent {...props} submission={{ deletingData: true }} />,
-    });
-
-    expect(getByTestId("cancel-restore-application-button")).toBeDisabled();
-  });
-
-  it("should restore the Submission Request only when the 'Confirm' button is clicked in the dialog", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
-    const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
+  it("should dismiss the dialog when the 'Cancel' dialog button is clicked", async () => {
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "In Progress",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
       {
-        request: {
-          query: CANCEL_APP,
-        },
-        variableMatcher: mockMatcher,
-        result: {
-          data: {
-            deleteDataRecords: {
-              success: false,
-              message: "Simulated API rejection message",
-            },
-          },
-        },
-      },
-    ];
-
-    const { getByTestId, getByRole } = render(
-      <Button nodeType="test-node-type" selectedItems={["ID_1", "ID_2", "ID_3"]} />,
-      {
-        wrapper: (props) => (
-          <TestParent {...props} mocks={mocks} submission={{ _id: "mock-submission-id" }} />
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
         ),
-      }
-    );
-
-    expect(mockMatcher).not.toHaveBeenCalled();
-
-    userEvent.click(getByTestId("cancel-restore-application-button"));
-
-    const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
-    userEvent.click(button);
-
-    await waitFor(() => {
-      expect(mockMatcher).toHaveBeenCalledWith(
-        expect.objectContaining({
-          _id: "mock-submission-id",
-          nodeType: "test-node-type",
-          nodeIds: ["ID_1", "ID_2", "ID_3"],
-        })
-      );
-    });
-  });
-
-  it("should cancel the Submission Request only when the 'Confirm' button is clicked in the dialog", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
-    const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
-      {
-        request: {
-          query: CANCEL_APP,
-        },
-        variableMatcher: mockMatcher,
-        result: {
-          data: {
-            deleteDataRecords: {
-              success: false,
-              message: "Simulated API rejection message",
-            },
-          },
-        },
-      },
-    ];
-
-    const { getByTestId, getByRole } = render(
-      <Button nodeType="test-node-type" selectedItems={["ID_1", "ID_2", "ID_3"]} />,
-      {
-        wrapper: (props) => (
-          <TestParent {...props} mocks={mocks} submission={{ _id: "mock-submission-id" }} />
-        ),
-      }
-    );
-
-    expect(mockMatcher).not.toHaveBeenCalled();
-
-    userEvent.click(getByTestId("cancel-restore-application-button"));
-
-    const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
-    userEvent.click(button);
-
-    await waitFor(() => {
-      expect(mockMatcher).toHaveBeenCalledWith(
-        expect.objectContaining({
-          _id: "mock-submission-id",
-          nodeType: "test-node-type",
-          nodeIds: ["ID_1", "ID_2", "ID_3"],
-        })
-      );
-    });
-  });
-
-  it("should dismiss the dialog when the 'Cancel' button is clicked", async () => {
-    const { getByTestId, getByRole } = render(
-      <Button nodeType="test" selectedItems={["1 item ID"]} />,
-      {
-        wrapper: TestParent,
       }
     );
 
@@ -359,49 +433,201 @@ describe("Implementation Requirements", () => {
     });
   });
 
-  it("should be visible and interactive when the user has the required permissions", async () => {
-    const { getByTestId } = render(<Button nodeType="test" selectedItems={[]} />, {
-      wrapper: (props) => (
-        <TestParent
-          {...props}
-          user={{
-            role: "Submitter",
-            permissions: ["data_submission:view", "data_submission:create"],
-          }}
-        />
-      ),
-    });
-
-    expect(getByTestId("cancel-restore-application-button")).toBeVisible();
-  });
-
+  // NOTE: They own the application, but the permission is missing
   it("should not be rendered when the user is missing the required permissions", async () => {
-    const { queryByTestId } = render(<Button nodeType="test" selectedItems={[]} />, {
-      wrapper: (props) => <TestParent {...props} user={{ role: "Submitter", permissions: [] }} />,
-    });
+    const { queryByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "In Progress",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent user={{ ...baseUser, _id: "owner", permissions: [] }}>{children}</TestParent>
+        ),
+      }
+    );
 
     expect(queryByTestId("cancel-restore-application-button")).not.toBeInTheDocument();
   });
 
-  it.each<SubmissionStatus>(["New", "In Progress", "Rejected", "Withdrawn"])(
-    "should render as the 'Cancel' variant for the Submission Request status '%s'",
-    (status) => {
-      const { getByTestId } = render(<Button nodeType="test" selectedItems={["item-1"]} />, {
-        wrapper: (props) => <TestParent {...props} submission={{ status }} />,
-      });
-
-      expect(getByTestId("cancel-restore-application-button")).toBeEnabled();
-    }
-  );
-
-  it.each<SubmissionStatus>(["Submitted", "Released", "Completed", "Canceled", "Deleted"])(
+  // NOTE: This is just a sanity check against component logic, and does not
+  // cover all of the requirements. See the hasPermission checks for that.
+  it.each<ApplicationStatus>(["Canceled", "Deleted"])(
     "should render as the 'Restore' variant for the Submission Request status '%s'",
     (status) => {
-      const { getByTestId } = render(<Button nodeType="test" selectedItems={["item-1"]} />, {
-        wrapper: (props) => <TestParent {...props} submission={{ status }} />,
-      });
+      const { getByTestId } = render(
+        <Button
+          application={{
+            ...baseApp,
+            status,
+            applicant: { ...baseApp.applicant, applicantID: "owner" },
+          }}
+        />,
+        {
+          wrapper: ({ children }) => (
+            <TestParent
+              user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            >
+              {children}
+            </TestParent>
+          ),
+        }
+      );
 
-      expect(getByTestId("cancel-restore-application-button")).toBeDisabled();
+      expect(getByTestId("cancel-restore-application-button")).toBeVisible();
+      expect(getByTestId("application-restore-icon")).toBeInTheDocument();
     }
   );
+
+  // NOTE: This is just a sanity check against component logic, and does not
+  // cover all of the requirements. See the hasPermission checks for that.
+  it.each<ApplicationStatus>(["New", "In Progress"])(
+    "should render as the 'Cancel' variant for the Submission Request status '%s'",
+    (status) => {
+      const { getByTestId } = render(
+        <Button
+          application={{
+            ...baseApp,
+            status,
+            applicant: { ...baseApp.applicant, applicantID: "owner" },
+          }}
+        />,
+        {
+          wrapper: ({ children }) => (
+            <TestParent
+              user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            >
+              {children}
+            </TestParent>
+          ),
+        }
+      );
+
+      expect(getByTestId("cancel-restore-application-button")).toBeVisible();
+      expect(getByTestId("application-cancel-icon")).toBeInTheDocument();
+    }
+  );
+
+  it("should render tailored dialog content for the 'Restore' variant", async () => {
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "Canceled",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    const dialog = getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+
+    expect(getByTestId("delete-dialog-header")).toHaveTextContent("Restore Submission Request");
+    expect(getByTestId("delete-dialog-description")).toHaveTextContent(
+      "Are you sure you want to restore the previously canceled submission request for the study listed below?"
+    ); // Ignore study info, that is checked elsewhere
+  });
+
+  it("should render tailored dialog content for the 'Cancel' variant", async () => {
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "New",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    const dialog = getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+
+    expect(getByTestId("delete-dialog-header")).toHaveTextContent("Cancel Submission Request");
+    expect(getByTestId("delete-dialog-description")).toHaveTextContent(
+      "Are you sure you want to cancel the submission request for the study listed below?"
+    ); // Ignore study info, that is checked elsewhere
+  });
+
+  it("should render the Study Abbreviation in the dialog description", async () => {
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "New",
+          studyAbbreviation: "TEST",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    const dialog = getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+
+    expect(getByTestId("delete-dialog-description")).toHaveTextContent("Study: TEST");
+  });
+
+  it("should fallback to 'NA' for the Study Abbreviation in the dialog description", async () => {
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "New",
+          studyAbbreviation: "",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    const dialog = getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+
+    expect(getByTestId("delete-dialog-description")).toHaveTextContent("Study: NA");
+  });
 });

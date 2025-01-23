@@ -1,17 +1,26 @@
 import { memo, useMemo, useState } from "react";
 import { isEqual } from "lodash";
-import { IconButton, IconButtonProps, styled } from "@mui/material";
+import { Button, ButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
-import { ReactComponent as DeleteAllFilesIcon } from "../../assets/icons/delete_all_files_icon.svg";
+import { ReactComponent as RestoreIcon } from "../../assets/icons/filled_back_icon.svg";
+import { ReactComponent as DeleteIcon } from "../../assets/icons/filled_circular_delete.svg";
 import DeleteDialog from "../DeleteDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
 
-const StyledIconButton = styled(IconButton)(({ disabled }) => ({
-  opacity: disabled ? 0.26 : 1,
+const StyledIconButton = styled(Button, { shouldForwardProp: (p) => p !== "restore" })<{
+  restore: boolean;
+}>(({ restore, disabled }) => ({
+  cursor: disabled ? "not-allowed" : "pointer",
+  borderRadius: "8px",
+  padding: "4px 7.5px",
+  border: "2px solid",
+  borderColor: restore ? "#54856C" : "#D15858",
+  backgroundColor: `${restore ? "#42C684" : "#B21313"} !important`,
+  minWidth: "unset",
 }));
 
 /**
@@ -28,12 +37,12 @@ type Props = {
    * Optional callback function for when successful cancellation/restoration occurs
    */
   onCancel?: () => void;
-} & Omit<IconButtonProps, "onClick">;
+} & Omit<ButtonProps, "onClick">;
 
 const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
-  const { _id, status } = application;
+  const { _id, status } = application || {};
 
   const [cancelApp] = useMutation<CancelAppResp, CancelAppInput>(CANCEL_APP, {
     context: { clientName: "backend" },
@@ -47,14 +56,17 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
 
   const textValues = useMemo(
     () => ({
-      // TODO: Icon from the design
-      icon: isRestoreAction ? <DeleteAllFilesIcon /> : <DeleteAllFilesIcon />,
+      icon: isRestoreAction ? (
+        <RestoreIcon data-testid="application-restore-icon" />
+      ) : (
+        <DeleteIcon data-testid="application-cancel-icon" />
+      ),
       dialogTitle: `${isRestoreAction ? "Restore" : "Cancel"} Submission Request`,
       dialogDescription: isRestoreAction
         ? `Are you sure you want to restore the previously canceled submission request for the study listed below?`
         : `Are you sure you want to cancel the submission request for the study listed below?`,
     }),
-    [status, isRestoreAction]
+    [isRestoreAction]
   );
 
   const onClickIcon = async () => {
@@ -66,20 +78,21 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
   };
 
   const onConfirmDialog = async () => {
+    setLoading(true);
     try {
       const { data: d, errors } = await cancelApp({
         variables: { _id },
       });
 
       if (errors || !d?.cancelApplication?._id) {
-        Logger.error("Failed to cancel the application", errors);
-        throw new Error("Oops! Unable to cancel that Submission Request.");
+        throw new Error(errors?.[0]?.message || "Unknown API error");
       }
 
       setConfirmOpen(false);
       onCancel();
     } catch (err) {
-      enqueueSnackbar(err, { variant: "error" });
+      Logger.error("Failed to cancel the application", err);
+      enqueueSnackbar("Oops! Unable to cancel that Submission Request", { variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -96,6 +109,8 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
         disabled={loading || disabled}
         aria-label="Cancel/Restore icon"
         data-testid="cancel-restore-application-button"
+        restore={isRestoreAction}
+        disableRipple
         {...rest}
       >
         {textValues.icon}
@@ -104,13 +119,12 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
         open={confirmOpen}
         header={textValues.dialogTitle}
         description={
-          <p>
+          <span>
             {textValues.dialogDescription}
             <br />
             <br />
-            {/* TODO: technically this needs to be study name */}
-            Study: {application.studyAbbreviation || "N/A"}
-          </p>
+            Study: {application.studyAbbreviation || "NA"}
+          </span>
         }
         confirmText="Confirm"
         closeText="Cancel"
