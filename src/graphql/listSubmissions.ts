@@ -4,7 +4,7 @@ import gql from "graphql-tag";
 export const query: TypedDocumentNode<Response, Input> = gql`
   query listSubmissions(
     $organization: String
-    $status: String
+    $status: [String]
     $dataCommons: String
     $name: String
     $dbGaPID: String
