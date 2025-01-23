@@ -132,7 +132,18 @@ const columns: Column<T>[] = [
   },
   {
     label: "DM Version",
-    renderValue: (a) => a.modelVersion,
+    renderValue: (a) => {
+      const inactiveStates: SubmissionStatus[] = ["Canceled", "Deleted"];
+      if (inactiveStates.includes(a.status)) {
+        return a.modelVersion;
+      }
+
+      return (
+        <Link to={`/model-navigator/${a.dataCommons}/${a.modelVersion}`} target="_blank">
+          {a.modelVersion}
+        </Link>
+      );
+    },
     field: "modelVersion",
     hideable: true,
     sx: {
