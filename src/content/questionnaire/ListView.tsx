@@ -423,7 +423,7 @@ const ListingView: FC = () => {
               defaultRowsPerPage={20}
               defaultOrder="desc"
               position="bottom"
-              noContentText="There are no submission requests associated with your account"
+              noContentText="You either do not have the appropriate permissions to view submission requests, or there are no submission requests associated with your account."
               onFetchData={handleFetchData}
               containerProps={{
                 sx: {
