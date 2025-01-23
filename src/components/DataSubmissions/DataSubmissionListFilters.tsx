@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { FormControl, IconButton, MenuItem, Grid, Box, styled, Stack } from "@mui/material";
-import { debounce, isEqual } from "lodash";
+import { debounce, isEqual, sortBy } from "lodash";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Controller, useForm } from "react-hook-form";
 import StyledSelectFormComponent from "../StyledFormComponents/StyledSelect";
@@ -85,17 +85,17 @@ const statusValues: SubmissionStatus[] = [
   "New",
   "In Progress",
   "Submitted",
-  "Released",
   "Withdrawn",
+  "Released",
   "Rejected",
   "Completed",
   "Canceled",
   "Deleted",
 ];
 
-const defaultValues: FilterForm = {
+export const defaultValues: FilterForm = {
   organization: "All",
-  status: "All",
+  status: ["New", "In Progress", "Submitted", "Withdrawn", "Released", "Rejected"],
   dataCommons: "All",
   name: "",
   dbGaPID: "",
@@ -188,16 +188,20 @@ const DataSubmissionListFilters = ({
 
   useEffect(() => {
     const organizationId = searchParams.get("program");
-    const status = searchParams.get("status");
+    const statuses = searchParams.getAll("status");
     const dataCommon = searchParams.get("dataCommons");
     const name = searchParams.get("name");
     const dbGaPID = searchParams.get("dbGaPID");
     const submitterName = searchParams.get("submitterName");
 
-    handleStatusChange(status);
-
     if (organizationId && organizationId !== orgFilter) {
       setValue("organization", organizationId);
+    }
+    if (statuses.length > 0 && !isArrayEqual(statuses, statusFilter)) {
+      const validStatuses = statuses.filter((status) =>
+        statusValues.includes(status as SubmissionStatus)
+      ) as SubmissionStatus[];
+      setValue("status", validStatuses);
     }
     if (dataCommon && dataCommon !== dataCommonsFilter) {
       setValue("dataCommons", dataCommon);
@@ -229,9 +233,14 @@ const DataSubmissionListFilters = ({
     } else if (orgFilter === "All") {
       newSearchParams.delete("program");
     }
-    if (statusFilter && statusFilter !== "All") {
-      newSearchParams.set("status", statusFilter);
-    } else if (statusFilter === "All") {
+    if (statusFilter && statusFilter.length > 0) {
+      newSearchParams.delete("status");
+      if (!isArrayEqual(statusFilter, defaultValues.status)) {
+        statusFilter.forEach((status) => {
+          newSearchParams.append("status", status);
+        });
+      }
+    } else if (!statusFilter || !statusFilter.length) {
       newSearchParams.delete("status");
     }
     if (dataCommonsFilter && dataCommonsFilter !== "All") {
@@ -306,19 +315,6 @@ const DataSubmissionListFilters = ({
     };
   }, [watch, debouncedOnChangeRef]);
 
-  const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
-    ["All", ...statusValues].includes(status);
-
-  const handleStatusChange = (status: string) => {
-    if (status === statusFilter) {
-      return;
-    }
-
-    if (isStatusFilterOption(status)) {
-      setValue("status", status);
-    }
-  };
-
   const handleFormChange = (form: FilterForm) => {
     if (!onChange || !form) {
       return;
@@ -348,6 +344,8 @@ const DataSubmissionListFilters = ({
     setSearchParams(newSearchParams);
     reset({ ...defaultValues });
   };
+
+  const isArrayEqual = (a1: string[], a2: string[]) => isEqual(sortBy(a1), sortBy(a2));
 
   return (
     <StyledFilters data-testid="data-submission-list-filters">
@@ -405,7 +403,7 @@ const DataSubmissionListFilters = ({
                 render={({ field }) => (
                   <StyledSelect
                     {...field}
-                    value={field.value}
+                    value={field.value || []}
                     MenuProps={{ disablePortal: true }}
                     inputProps={{ id: "status-filter", "data-testid": "status-select-input" }}
                     data-testid="status-select"
@@ -413,10 +411,11 @@ const DataSubmissionListFilters = ({
                       field.onChange(e);
                       handleFilterChange("status");
                     }}
+                    renderValue={(selected: string[]) =>
+                      selected?.length > 1 ? `${selected.length} statuses selected` : selected
+                    }
+                    multiple
                   >
-                    <MenuItem value="All" data-testid="status-option-All">
-                      All
-                    </MenuItem>
                     {statusValues.map((value) => (
                       <MenuItem
                         key={`submission_status_${value}`}

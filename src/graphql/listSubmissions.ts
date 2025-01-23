@@ -1,6 +1,7 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
+export const query: TypedDocumentNode<Response, Input> = gql`
   query listSubmissions(
     $organization: String
     $status: String
@@ -57,7 +58,7 @@ export const query = gql`
 
 export type Input = {
   organization?: string;
-  status?: SubmissionStatus | "All";
+  status?: SubmissionStatus[];
   dataCommons?: string;
   name?: string;
   dbGaPID?: string;

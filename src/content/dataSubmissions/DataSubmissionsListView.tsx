@@ -16,6 +16,7 @@ import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import DataSubmissionListFilters, {
+  defaultValues,
   FilterForm,
 } from "../../components/DataSubmissions/DataSubmissionListFilters";
 
@@ -243,14 +244,7 @@ const ListingView: FC = () => {
   const [dataCommons, setDataCommons] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
   const tableRef = useRef<TableMethods>(null);
-  const filtersRef = useRef<FilterForm>({
-    organization: "All",
-    status: "All",
-    dataCommons: "All",
-    name: "",
-    dbGaPID: "",
-    submitterName: "All",
-  });
+  const filtersRef = useRef<FilterForm>({ ...defaultValues });
 
   const [listSubmissions, { refetch }] = useLazyQuery<ListSubmissionsResp, ListSubmissionsInput>(
     LIST_SUBMISSIONS,
@@ -281,7 +275,7 @@ const ListingView: FC = () => {
       const { data: d, error } = await listSubmissions({
         variables: {
           organization: organization ?? "All",
-          status: status ?? "All",
+          status,
           dataCommons: dc ?? "All",
           submitterName: submitterName ?? "All",
           name: name || undefined,
@@ -365,8 +359,6 @@ const ListingView: FC = () => {
         padding="57px 0 0 25px"
         body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
-            {/* NOTE For MVP-2: Organization Owners are just Users */}
-            {/* Create a submission only available to org owners and submitters that have organizations assigned */}
             <CreateDataSubmissionDialog onCreate={handleOnCreateSubmission} />
           </StyledBannerBody>
         }
