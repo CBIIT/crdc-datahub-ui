@@ -35,7 +35,7 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
  * @param modelVersion The version of the Data Model to build asset URLs for
  * @returns ModelAssetUrls
  */
-export const buildAssetUrls = (model: DataCommon, modelVersion): ModelAssetUrls => {
+export const buildAssetUrls = (model: DataCommon, modelVersion: string): ModelAssetUrls => {
   const { name, assets } = model || {};
   const version = modelVersion === "latest" ? assets?.["current-version"] : modelVersion;
   const tier = env.REACT_APP_DEV_TIER || "prod";
