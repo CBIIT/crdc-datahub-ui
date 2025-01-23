@@ -15,8 +15,10 @@ export { mutation as REJECT_APP } from "./rejectApplication";
 export type { Response as RejectAppResp } from "./rejectApplication";
 
 export { mutation as CANCEL_APP } from "./cancelApplication";
-export type { Response as CancelAppResp } from "./cancelApplication";
-export type { Input as CancelAppInput } from "./cancelApplication";
+export type { Response as CancelAppResp, Input as CancelAppInput } from "./cancelApplication";
+
+export { mutation as RESTORE_APP } from "./restoreApplication";
+export type { Response as RestoreAppResp, Input as RestoreAppInput } from "./restoreApplication";
 
 export { mutation as SAVE_APP } from "./saveApplication";
 export type { Input as SaveAppInput, Response as SaveAppResp } from "./saveApplication";

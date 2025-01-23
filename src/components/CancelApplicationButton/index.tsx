@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { isEqual } from "lodash";
 import { Button, ButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
@@ -7,7 +7,14 @@ import { ReactComponent as RestoreIcon } from "../../assets/icons/filled_back_ic
 import { ReactComponent as DeleteIcon } from "../../assets/icons/filled_circular_delete.svg";
 import DeleteDialog from "../DeleteDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
-import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
+import {
+  CANCEL_APP,
+  CancelAppInput,
+  CancelAppResp,
+  RESTORE_APP,
+  RestoreAppInput,
+  RestoreAppResp,
+} from "../../graphql";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
 
@@ -49,6 +56,11 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
     fetchPolicy: "no-cache",
   });
 
+  const [restoreApp] = useMutation<RestoreAppResp, RestoreAppInput>(RESTORE_APP, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
+
   const [loading, setLoading] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
@@ -77,26 +89,39 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
     setConfirmOpen(false);
   };
 
-  const onConfirmDialog = async () => {
+  const onConfirmDialog = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: d, errors } = await cancelApp({
-        variables: { _id },
-      });
+      if (isRestoreAction) {
+        const { data: d, errors } = await restoreApp({
+          variables: { _id },
+        });
 
-      if (errors || !d?.cancelApplication?._id) {
-        throw new Error(errors?.[0]?.message || "Unknown API error");
+        if (errors || !d?.restoreApplication?._id) {
+          throw new Error(errors?.[0]?.message || "Unknown API error");
+        }
+      } else {
+        const { data: d, errors } = await cancelApp({
+          variables: { _id },
+        });
+
+        if (errors || !d?.cancelApplication?._id) {
+          throw new Error(errors?.[0]?.message || "Unknown API error");
+        }
       }
 
       setConfirmOpen(false);
       onCancel();
     } catch (err) {
       Logger.error("Failed to cancel the application", err);
-      enqueueSnackbar("Oops! Unable to cancel that Submission Request", { variant: "error" });
+      enqueueSnackbar(
+        `Oops! Unable to ${isRestoreAction ? "restore" : "cancel"} that Submission Request`,
+        { variant: "error" }
+      );
     } finally {
       setLoading(false);
     }
-  };
+  }, [isRestoreAction, restoreApp, cancelApp, onCancel, enqueueSnackbar]);
 
   if (!hasPermission(user, "submission_request", "cancel", application)) {
     return null;

@@ -9,7 +9,14 @@ import {
   ContextState as AuthContextState,
   Status as AuthContextStatus,
 } from "../Contexts/AuthContext";
-import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
+import {
+  CANCEL_APP,
+  CancelAppInput,
+  CancelAppResp,
+  RESTORE_APP,
+  RestoreAppInput,
+  RestoreAppResp,
+} from "../../graphql";
 import Button from "./index";
 
 const baseAuthCtx: AuthContextState = {
@@ -366,6 +373,209 @@ describe("Basic Functionality", () => {
         application={{
           ...baseApp,
           status: "In Progress",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+        onCancel={onCancel}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={mocks}
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    // Open confirmation dialog
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    // Click dialog confirm button
+    const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+    userEvent.click(button);
+
+    await waitFor(() => {
+      expect(onCancel).toHaveBeenCalled();
+    });
+  });
+
+  it("should show a snackbar when the restore operation fails (GraphQL Error)", async () => {
+    const mocks: MockedResponse<RestoreAppResp, RestoreAppInput>[] = [
+      {
+        request: {
+          query: RESTORE_APP,
+        },
+        variableMatcher: () => true,
+        result: {
+          errors: [new GraphQLError("Simulated GraphQL error")],
+        },
+      },
+    ];
+
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "Canceled",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={mocks}
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    // Open confirmation dialog
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    // Click dialog confirm button
+    const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+    userEvent.click(button);
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Oops! Unable to restore that Submission Request",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should show a snackbar when the restore operation fails (Network Error)", async () => {
+    const mocks: MockedResponse<RestoreAppResp, RestoreAppInput>[] = [
+      {
+        request: {
+          query: RESTORE_APP,
+        },
+        variableMatcher: () => true,
+        error: new Error("Simulated network error"),
+      },
+    ];
+
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "Canceled",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={mocks}
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    // Open confirmation dialog
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    // Click dialog confirm button
+    const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+    userEvent.click(button);
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Oops! Unable to restore that Submission Request",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should show a snackbar when the restore operation fails (API Error)", async () => {
+    const mocks: MockedResponse<RestoreAppResp, RestoreAppInput>[] = [
+      {
+        request: {
+          query: RESTORE_APP,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            restoreApplication: {
+              _id: undefined,
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "Canceled",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={mocks}
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    // Open confirmation dialog
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    // Click dialog confirm button
+    const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+    userEvent.click(button);
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Oops! Unable to restore that Submission Request",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should call the onCancel callback when the restore operation is successful", async () => {
+    const onCancel = jest.fn();
+    const mocks: MockedResponse<RestoreAppResp, RestoreAppInput>[] = [
+      {
+        request: {
+          query: RESTORE_APP,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            restoreApplication: {
+              _id: "some id",
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "Canceled",
           applicant: { ...baseApp.applicant, applicantID: "owner" },
         }}
         onCancel={onCancel}
