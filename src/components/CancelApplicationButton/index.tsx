@@ -113,7 +113,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
       setConfirmOpen(false);
       onCancel();
     } catch (err) {
-      Logger.error("Failed to cancel the application", err);
+      Logger.error("CancelApplicationButton: API error received", err);
       enqueueSnackbar(
         `Oops! Unable to ${isRestoreAction ? "restore" : "cancel"} that Submission Request`,
         { variant: "error" }
