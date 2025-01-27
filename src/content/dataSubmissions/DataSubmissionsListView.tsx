@@ -18,6 +18,7 @@ import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import DataSubmissionListFilters, {
   FilterForm,
 } from "../../components/DataSubmissions/DataSubmissionListFilters";
+import NavigatorLink from "../../components/DataSubmissions/NavigatorLink";
 
 type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
 
@@ -132,18 +133,7 @@ const columns: Column<T>[] = [
   },
   {
     label: "DM Version",
-    renderValue: (a) => {
-      const inactiveStates: SubmissionStatus[] = ["Canceled", "Deleted"];
-      if (inactiveStates.includes(a.status)) {
-        return a.modelVersion;
-      }
-
-      return (
-        <Link to={`/model-navigator/${a.dataCommons}/${a.modelVersion}`} target="_blank">
-          {a.modelVersion}
-        </Link>
-      );
-    },
+    renderValue: (a) => <NavigatorLink submission={a} />,
     field: "modelVersion",
     hideable: true,
     sx: {

@@ -18,6 +18,7 @@ import FlowWrapper from "./FlowWrapper";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import NavigatorLink from "./NavigatorLink";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -311,20 +312,28 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
     [selectedFiles, readOnly, canUpload, isUploading]
   );
 
-  return (
-    <FlowWrapper
-      index={1}
-      title="Upload Metadata"
-      titleAdornment={
+  const Adornments: ReactElement = useMemo(
+    () => (
+      <Stack direction="row" alignItems="center" spacing={1.25}>
         <StyledTooltip
           placement="right"
           title={TOOLTIP_TEXT.FILE_UPLOAD.UPLOAD_METADATA}
           open={undefined}
           disableHoverListener={false}
         />
-      }
-      actions={Actions}
-    >
+        {/* TODO: Implement design */}
+        {submission?.dataCommons && submission?.modelVersion && (
+          <span>
+            ({submission.dataCommons} Data Model: <NavigatorLink submission={submission} />)
+          </span>
+        )}
+      </Stack>
+    ),
+    [submission?.dataCommons, submission?.modelVersion]
+  );
+
+  return (
+    <FlowWrapper index={1} title="Upload Metadata" titleAdornment={Adornments} actions={Actions}>
       <Stack direction="row" alignItems="center" spacing={1.25}>
         <StyledUploadActionWrapper direction="row">
           <StyledMetadataText variant="body2">Metadata Files</StyledMetadataText>
