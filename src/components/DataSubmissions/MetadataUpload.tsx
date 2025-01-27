@@ -17,6 +17,7 @@ import { useAuthContext } from "../Contexts/AuthContext";
 import FlowWrapper from "./FlowWrapper";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -317,8 +318,8 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
       titleAdornment={
         <StyledTooltip
           placement="right"
-          title="The metadata uploaded will be compared with existing data within the submission. All new data will be added to the submission, including updates to existing information."
-          open={undefined} // will use hoverListener to open
+          title={TOOLTIP_TEXT.FILE_UPLOAD.UPLOAD_METADATA}
+          open={undefined}
           disableHoverListener={false}
         />
       }
