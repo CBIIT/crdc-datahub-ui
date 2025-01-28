@@ -77,8 +77,8 @@ const NewsletterForm: FC<NewsletterFormProps> = forwardRef<
             className="signUpInputBox"
             {...register("email", {
               validate: {
-                validEmail: isValidEmail,
                 notEmpty: isNotEmpty,
+                validEmail: isValidEmail,
               },
               required: "This field is required.",
             })}

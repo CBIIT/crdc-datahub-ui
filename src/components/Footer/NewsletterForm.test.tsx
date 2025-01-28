@@ -89,6 +89,18 @@ describe("Implementation Requirements", () => {
     }
   );
 
+  it("should not submit the newsletter form if the email is invalid (empty)", async () => {
+    const { getByTestId } = render(<NewsletterForm data-testid="newsletter-form" />);
+
+    userEvent.click(
+      within(getByTestId("newsletter-form")).getByRole("button", {
+        name: "Sign up",
+      })
+    );
+
+    expect(mockWindowOpen).not.toHaveBeenCalled();
+  });
+
   it("should submit the form to the correct URL", async () => {
     const { getByTestId } = render(<NewsletterForm data-testid="newsletter-form" />);
 
