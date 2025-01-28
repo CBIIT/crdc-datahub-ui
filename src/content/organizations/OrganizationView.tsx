@@ -143,7 +143,8 @@ const inactiveSubmissionStatus: SubmissionStatus[] = ["Completed"];
  * @returns {JSX.Element}
  */
 const OrganizationView: FC<Props> = ({ _id }: Props) => {
-  usePageTitle(`Organization ${!!_id && _id !== "new" ? _id : "Add"}`);
+  const isNew = _id && _id === "new";
+  usePageTitle(`${!isNew && _id ? "Edit" : "Add"} Program ${!isNew && _id ? _id : ""}`.trim());
 
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
