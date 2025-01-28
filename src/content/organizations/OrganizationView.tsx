@@ -28,6 +28,7 @@ import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDia
 import usePageTitle from "../../hooks/usePageTitle";
 import { filterAlphaNumeric, formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 
@@ -374,7 +375,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
           <StyledProfileIcon>
             <img src={programIcon} alt="program icon" />
           </StyledProfileIcon>
-
           <StyledContentStack
             direction="column"
             justifyContent="center"
@@ -395,7 +395,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               )}
 
               <StyledField>
-                <StyledLabel id="organizationName">Program</StyledLabel>
+                <StyledLabel id="organizationName">
+                  Program <BaseAsterisk />
+                </StyledLabel>
                 <StyledTextField
                   {...register("name", { required: true })}
                   inputProps={{ "aria-labelledby": "organizationName" }}
@@ -404,7 +406,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 />
               </StyledField>
               <StyledField>
-                <StyledLabel id="abbreviationLabel">Abbreviation</StyledLabel>
+                <StyledLabel id="abbreviationLabel">
+                  Abbreviation <BaseAsterisk />
+                </StyledLabel>
                 <Controller
                   name="abbreviation"
                   control={control}
@@ -502,7 +506,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 />
               </StyledField>
               <StyledField>
-                <StyledLabel id="statusLabel">Status</StyledLabel>
+                <StyledLabel id="statusLabel">
+                  Status <BaseAsterisk />
+                </StyledLabel>
                 <Controller
                   name="status"
                   control={control}
@@ -522,7 +528,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   )}
                 />
               </StyledField>
-
               <StyledButtonStack
                 direction="row"
                 justifyContent="center"
