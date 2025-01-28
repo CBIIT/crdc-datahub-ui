@@ -122,7 +122,7 @@ describe("Implementation Requirements", () => {
     expect(mockWindowOpen).toHaveBeenCalledTimes(1);
     expect(mockWindowOpen).toHaveBeenCalledWith(
       expect.stringMatching(
-        /https:\/\/public.govdelivery.com\/accounts\/USNIHNCI\/subscribers\/qualify/
+        /https:\/\/public\.govdelivery\.com\/accounts\/USNIHNCI\/subscribers\/qualify/
       ),
       "_blank"
     );
