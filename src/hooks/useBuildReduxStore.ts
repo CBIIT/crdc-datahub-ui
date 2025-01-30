@@ -23,7 +23,7 @@ export type ReduxStoreStatus = "waiting" | "loading" | "error" | "success";
 export type ReduxStoreResult = [
   { status: ReduxStoreStatus; store: Store },
   () => void,
-  (assets: DataCommon) => void,
+  (assets: DataCommon, modelVersion: string) => void,
 ];
 
 const makeStore = (): Store => {
@@ -70,8 +70,9 @@ const useBuildReduxStore = (): ReduxStoreResult => {
    * Injects the Data Model into the store
    *
    * @param datacommon The Data Model to inject assets from
+   * @param modelVersion The version of the Data Model to inject
    */
-  const populateStore = async (datacommon: DataCommon) => {
+  const populateStore = async (datacommon: DataCommon, modelVersion: string) => {
     if (
       !datacommon?.name ||
       !datacommon?.assets ||
@@ -84,7 +85,7 @@ const useBuildReduxStore = (): ReduxStoreResult => {
 
     setStatus("loading");
 
-    const assets = buildAssetUrls(datacommon);
+    const assets = buildAssetUrls(datacommon, modelVersion);
     const response = await getModelExploreData(...assets.model_files)?.catch((e) => {
       Logger.error(e);
       return null;

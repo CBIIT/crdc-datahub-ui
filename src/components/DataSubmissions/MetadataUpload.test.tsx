@@ -3,6 +3,7 @@ import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
 import MetadataUpload from "./MetadataUpload";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
@@ -99,11 +100,13 @@ const TestParent: FC<ParentProps> = ({
   mocks = [],
   children,
 }: ParentProps) => (
-  <Context.Provider value={context}>
-    <MockedProvider mocks={mocks} showWarnings>
-      {children}
-    </MockedProvider>
-  </Context.Provider>
+  <MemoryRouter>
+    <Context.Provider value={context}>
+      <MockedProvider mocks={mocks} showWarnings>
+        {children}
+      </MockedProvider>
+    </Context.Provider>
+  </MemoryRouter>
 );
 
 describe("Accessibility", () => {
