@@ -1,4 +1,4 @@
-import { Roles as ALL_ROLES } from "./AuthRoles";
+import { Roles as ALL_ROLES, CanDeleteOtherSubmissionRequests } from "./AuthRoles";
 
 /**
  * A flag indicating that no conditions, other than the user having the permission key, need to be met.
@@ -73,8 +73,7 @@ export const PERMISSION_MAP = {
       }
 
       const isFormOwner = application?.applicant?.applicantID === user?._id;
-      const canDeleteOthers: UserRole[] = ["Admin", "Federal Lead", "Data Commons Personnel"];
-      if (!isFormOwner && !canDeleteOthers.includes(user?.role)) {
+      if (!isFormOwner && !CanDeleteOtherSubmissionRequests.includes(user?.role)) {
         return false;
       }
 
