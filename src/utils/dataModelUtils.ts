@@ -54,6 +54,9 @@ export const buildAssetUrls = (model: DataCommon, modelVersion: string): ModelAs
     navigator_icon: assets?.["model-navigator-logo"]
       ? `${MODEL_FILE_REPO}${tier}/cache/${name}/${version}/${assets?.["model-navigator-logo"]}`
       : GenericModelLogo,
+    changelog: assets?.["release-notes"]
+      ? `${MODEL_FILE_REPO}${tier}/cache/${name}/${version}/${assets?.["release-notes"]}`
+      : null,
   };
 };
 

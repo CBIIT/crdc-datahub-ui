@@ -4,7 +4,9 @@ import {
   ddgraph,
   moduleReducers as submission,
   versionInfo,
+  changelogInfo,
   getModelExploreData,
+  getChangelog,
 } from "data-model-navigator";
 import { useLazyQuery } from "@apollo/client";
 import { defaultTo } from "lodash";
@@ -27,7 +29,7 @@ export type ReduxStoreResult = [
 ];
 
 const makeStore = (): Store => {
-  const reducers = { ddgraph, versionInfo, submission };
+  const reducers = { ddgraph, versionInfo, submission, changelogInfo };
   const newStore = createStore(combineReducers(reducers));
 
   // @ts-ignore
@@ -86,6 +88,12 @@ const useBuildReduxStore = (): ReduxStoreResult => {
     setStatus("loading");
 
     const assets = buildAssetUrls(datacommon, modelVersion);
+
+    const changelogMD = await getChangelog(assets?.changelog)?.catch((e) => {
+      Logger.error(e);
+      return null;
+    });
+
     const response = await getModelExploreData(...assets.model_files)?.catch((e) => {
       Logger.error(e);
       return null;
@@ -156,6 +164,14 @@ const useBuildReduxStore = (): ReduxStoreResult => {
           url: assets.loading_file,
         },
         graphViewConfig,
+      },
+    });
+
+    store.dispatch({
+      type: "RECEIVE_CHANGELOG_INFO",
+      data: {
+        changelogMD,
+        changelogTabName: "Version History",
       },
     });
 

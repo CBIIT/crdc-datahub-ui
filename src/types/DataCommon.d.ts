@@ -60,6 +60,12 @@ type ManifestAssets = {
    */
   "readme-file": string;
   /**
+   * The file name of the Data Model release notes file.
+   *
+   * @example "release-notes.md"
+   */
+  "release-notes": string;
+  /**
    * The relative URL for the Model Navigator logo.
    *
    * @example "model-navigator-logo.png"
