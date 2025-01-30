@@ -603,6 +603,58 @@ describe("Basic Functionality", () => {
       expect(onCancel).toHaveBeenCalled();
     });
   });
+
+  it("should have a title present on the Cancel button", () => {
+    const { getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "New",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    expect(getByTestId("cancel-restore-application-button")).toHaveAttribute(
+      "title",
+      "Cancel Submission Request"
+    );
+  });
+
+  it("should have a title present on the Restore button", () => {
+    const { getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "Canceled",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    expect(getByTestId("cancel-restore-application-button")).toHaveAttribute(
+      "title",
+      "Restore Submission Request"
+    );
+  });
 });
 
 describe("Implementation Requirements", () => {

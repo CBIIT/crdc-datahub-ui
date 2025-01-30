@@ -73,6 +73,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
       ) : (
         <DeleteIcon data-testid="application-cancel-icon" />
       ),
+      buttonTitle: `${isRestoreAction ? "Restore" : "Cancel"} Submission Request`,
       dialogTitle: `${isRestoreAction ? "Restore" : "Cancel"} Submission Request`,
       dialogDescription: isRestoreAction
         ? `Are you sure you want to restore the previously canceled submission request for the study listed below?`
@@ -135,6 +136,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
         aria-label="Cancel/Restore icon"
         data-testid="cancel-restore-application-button"
         restore={isRestoreAction}
+        title={textValues.buttonTitle}
         disableRipple
         {...rest}
       >
