@@ -84,5 +84,5 @@ type ManifestAssets = {
    *
    * @example ["1.0", "1.1", "1.3"]
    */
-  versions: string[] | number[];
+  versions: string[];
 };
