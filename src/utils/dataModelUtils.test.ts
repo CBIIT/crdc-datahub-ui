@@ -21,6 +21,7 @@ describe("fetchManifest cases", () => {
         "readme-file": "cds-model-readme.md",
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
+        "release-notes": "release-notes.md",
         versions: [],
       },
     };
@@ -39,6 +40,7 @@ describe("fetchManifest cases", () => {
         "readme-file": "cds-model-readme.md",
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
+        "release-notes": "release-notes.md",
         versions: [],
       },
     };
@@ -60,6 +62,7 @@ describe("fetchManifest cases", () => {
         "readme-file": "cds-model-readme.md",
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
+        "release-notes": "release-notes.md",
         versions: [],
       },
     };
@@ -115,6 +118,7 @@ describe("buildAssetUrls cases", () => {
         "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
+        "release-notes": "release-notes.md",
       } as ManifestAssets,
     } as DataCommon;
 
@@ -128,6 +132,7 @@ describe("buildAssetUrls cases", () => {
       readme: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/readme-file`,
       loading_file: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/loading-file-zip-name`,
       navigator_icon: expect.any(String),
+      changelog: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/release-notes.md`,
     });
   });
 
