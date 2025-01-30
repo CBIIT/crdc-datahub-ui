@@ -169,7 +169,10 @@ const useBuildReduxStore = (): ReduxStoreResult => {
 
     store.dispatch({
       type: "RECEIVE_CHANGELOG_INFO",
-      data: changelogMD,
+      data: {
+        changelogMD,
+        changelogTabName: "Version History",
+      },
     });
 
     // MVP-2 M2 NOTE: This resets the search history to prevent the data models
