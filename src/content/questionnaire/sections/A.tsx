@@ -34,8 +34,9 @@ const StyledFormControlLabel = styled(FormControlLabel)({
   "& .MuiFormControlLabel-label": {
     color: "#083A50",
     fontWeight: "700",
+    userSelect: "none",
   },
-  "& .MuiCheckbox-root": {
+  "& .MuiCheckbox-root:not(.Mui-disabled)": {
     color: "#005EA2 !important",
   },
 });
@@ -231,6 +232,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                 readOnly={readOnlyInputs}
               />
             }
+            disabled={readOnlyInputs}
           />
           <input
             id="section-a-primary-contact-same-as-pi-checkbox"

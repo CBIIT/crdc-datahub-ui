@@ -400,7 +400,7 @@ const ListingView: FC = () => {
             defaultOrder="desc"
             disableUrlParams={false}
             position="bottom"
-            noContentText="There are no data submissions associated with your account"
+            noContentText="You either do not have the appropriate permissions to view data submissions, or there are no data submissions associated with your account."
             onFetchData={handleFetchData}
             containerProps={{
               sx: {
