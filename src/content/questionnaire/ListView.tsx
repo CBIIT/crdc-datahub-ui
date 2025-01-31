@@ -127,18 +127,18 @@ const columns: Column<T>[] = [
     fieldKey: "applicant.applicantName",
   },
   {
-    label: "Study",
-    renderValue: (a) => (
-      <TruncatedText text={a.studyAbbreviation || "NA"} disableInteractiveTooltip={false} />
-    ),
-    field: "studyAbbreviation",
-  },
-  {
     label: "Program",
     renderValue: (a) => (
       <TruncatedText text={a.programName || "NA"} disableInteractiveTooltip={false} />
     ),
     field: "programName",
+  },
+  {
+    label: "Study",
+    renderValue: (a) => (
+      <TruncatedText text={a.studyAbbreviation || "NA"} disableInteractiveTooltip={false} />
+    ),
+    field: "studyAbbreviation",
   },
   {
     label: "Status",
