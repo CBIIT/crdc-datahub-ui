@@ -37,6 +37,10 @@ export const query = gql`
         conditional
         pendingConditions
       }
+      programs
+      studies
+      status
+      submitterNames
     }
   }
 `;
