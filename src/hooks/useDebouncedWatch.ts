@@ -13,9 +13,14 @@ type UseDebouncedWatchParams<TForm> = {
    */
   fieldsToDebounce: (keyof TForm)[];
   /**
-   * The minimum number of characters that trigger the debounce.
+   * Define the minimum lengths per field, otherwise use the defaultMinLength
    */
-  minLength?: number;
+  minLengths?: Partial<Record<keyof TForm, number>>;
+  /**
+   * The default minimum length used when the minimum length is not specifically
+   * defined for a field
+   */
+  defaultMinLength?: number;
   /**
    * Time delay before debounce is triggered
    */
@@ -33,7 +38,8 @@ type UseDebouncedWatchParams<TForm> = {
 export const useDebouncedWatch = <TForm>({
   watch,
   fieldsToDebounce,
-  minLength = 3,
+  minLengths = {},
+  defaultMinLength = 3,
   debounceMs = 500,
   onChange,
 }: UseDebouncedWatchParams<TForm>) => {
@@ -45,42 +51,38 @@ export const useDebouncedWatch = <TForm>({
 
   useEffect(() => {
     const subscription = watch((values: TForm, { name }) => {
-      if (!name) {
+      if (!name || !fieldsToDebounce.includes(name as keyof TForm)) {
         return;
       }
 
-      // If this field is one of the fields to debounce
-      if (fieldsToDebounce?.includes(name as keyof TForm)) {
-        const value = values[name as keyof TForm];
-        const length = typeof value === "string" ? value.length : 0;
+      const value = values[name as keyof TForm];
+      const length = typeof value === "string" ? value.length : 0;
+      const requiredLength = minLengths[name as keyof TForm] ?? defaultMinLength;
 
-        // If length reaches minimum length, then trigger the debounced onChange
-        if (length >= minLength) {
-          debouncedOnChangeRef(values);
-          return;
-        }
-
-        // If length is between 1 and minLength, we cancel the debounce
-        if (length > 0 && length < minLength) {
-          debouncedOnChangeRef.cancel();
-          return;
-        }
-
-        // If the value is cleared, cancel & call onChange immediately
-        if (length === 0) {
-          debouncedOnChangeRef.cancel();
-          onChange(values);
-          return;
-        }
+      if (length >= requiredLength) {
+        // If enough characters, trigger the debounced callback
+        debouncedOnChangeRef(values);
+      } else if (length > 0 && length < requiredLength) {
+        // Cancel any pending debounce if below required length
+        debouncedOnChangeRef.cancel();
+      } else if (length === 0) {
+        // If value cleared, then cancel and call onChange immediately
+        debouncedOnChangeRef.cancel();
+        onChange(values);
       }
-
-      // If it's not a debounce field, call onChange immediately
-      onChange(values);
     });
 
     return () => {
       debouncedOnChangeRef.cancel();
       subscription.unsubscribe();
     };
-  }, [watch, fieldsToDebounce, debouncedOnChangeRef, minLength, debounceMs, onChange]);
+  }, [
+    watch,
+    fieldsToDebounce,
+    minLengths,
+    defaultMinLength,
+    debounceMs,
+    onChange,
+    debouncedOnChangeRef,
+  ]);
 };
