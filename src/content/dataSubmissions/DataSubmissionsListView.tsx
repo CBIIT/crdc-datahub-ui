@@ -19,6 +19,7 @@ import DataSubmissionListFilters, {
   defaultValues,
   FilterForm,
 } from "../../components/DataSubmissions/DataSubmissionListFilters";
+import NavigatorLink from "../../components/DataSubmissions/NavigatorLink";
 
 type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
 
@@ -133,7 +134,7 @@ const columns: Column<T>[] = [
   },
   {
     label: "DM Version",
-    renderValue: (a) => a.modelVersion,
+    renderValue: (a) => <NavigatorLink submission={a} />,
     field: "modelVersion",
     hideable: true,
     sx: {
