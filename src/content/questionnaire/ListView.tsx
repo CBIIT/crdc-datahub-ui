@@ -254,6 +254,13 @@ export type FilterForm = Pick<
   "programName" | "studyName" | "statues" | "submitterName"
 >;
 
+const DEFAULT_STATUSES_SELECTED: ApplicationStatus[] = [
+  "New",
+  "In Progress",
+  "Submitted",
+  "Inquired",
+];
+
 /**
  * View for List of Questionnaire/Submissions
  *
@@ -271,9 +278,9 @@ const ListingView: FC = () => {
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<ListApplicationsResp["listApplications"]>(null);
   const filtersRef = useRef<FilterForm>({
-    programName: "",
+    programName: "All",
     studyName: "",
-    statues: [],
+    statues: DEFAULT_STATUSES_SELECTED,
     submitterName: "",
   });
 
@@ -342,7 +349,7 @@ const ListingView: FC = () => {
             ? { programName: filtersRef.current.programName }
             : {}),
           ...(filtersRef.current?.studyName ? { studyName: filtersRef.current.studyName } : {}),
-          ...(filtersRef.current?.statues ? { statues: filtersRef.current.statues } : []),
+          ...(filtersRef.current?.statues?.length && { statues: filtersRef.current.statues }),
           ...(filtersRef.current?.submitterName
             ? { submitterName: filtersRef.current.submitterName }
             : {}),

@@ -1,4 +1,4 @@
-import { forwardRef, memo, useEffect } from "react";
+import { forwardRef, memo, useCallback, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { isEqual } from "lodash";
 import {
@@ -99,10 +99,24 @@ const DEFAULT_STATUSES_SELECTED: ApplicationStatus[] = [
 ];
 
 const defaultValues: FilterForm = {
-  programName: "",
+  programName: "All",
   studyName: "",
-  statues: [],
+  statues: DEFAULT_STATUSES_SELECTED,
   submitterName: "",
+};
+
+const FIELDS_TO_DEBOUNCE: (keyof FilterForm)[] = [
+  "studyName",
+  "submitterName",
+  "programName",
+  "statues",
+];
+
+const MIN_LENGTHS: { [K in keyof FilterForm]: number } = {
+  studyName: 3,
+  submitterName: 3,
+  programName: 0,
+  statues: 0,
 };
 
 /**
@@ -112,28 +126,8 @@ const defaultValues: FilterForm = {
  */
 const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, onChange }, ref) => {
   const { watch, setValue, control, register, reset } = useForm<FilterForm>({ defaultValues });
-  useDebouncedWatch<FilterForm>({
-    watch,
-    fieldsToDebounce: ["studyName", "submitterName"],
-    minLength: 3,
-    debounceMs: 500,
-    onChange: (form) => handleFormChange(form),
-  });
-  const [programNameFilter, statusesFilter] = watch(["programName", "statues"]);
 
-  useEffect(() => {
-    const foundDefaultStatuses = DEFAULT_STATUSES_SELECTED.filter(
-      (status) => applicationData?.status?.includes(status)
-    );
-
-    if (statusesFilter === foundDefaultStatuses) {
-      return;
-    }
-
-    setValue("statues", foundDefaultStatuses);
-  }, [applicationData?.status]);
-
-  const handleFormChange = (form: FilterForm) => {
+  const handleFormChange = useCallback((form: FilterForm) => {
     if (!onChange || !form) {
       return;
     }
@@ -145,10 +139,28 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
     };
 
     onChange(newForm);
-  };
+  }, []);
+
+  useDebouncedWatch<FilterForm>({
+    watch,
+    fieldsToDebounce: FIELDS_TO_DEBOUNCE,
+    minLengths: MIN_LENGTHS,
+    defaultMinLength: 3,
+    debounceMs: 500,
+    onChange: handleFormChange,
+  });
+  const [programNameFilter] = watch(["programName"]);
+
+  const programOptions = useMemo(() => {
+    const programs = applicationData?.programs?.filter((p) => !!p) || [];
+    return ["All", ...programs];
+  }, [applicationData?.programs]);
 
   const handleResetFilters = () => {
-    reset({ ...defaultValues });
+    const newForm: FilterForm = { ...defaultValues };
+
+    reset(newForm);
+    handleFormChange(newForm);
   };
 
   return (
@@ -170,7 +182,6 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
                   "aria-labelledby": "submitter-name-filter",
                   "data-testid": "submitter-name-input",
                 }}
-                disabled={loading}
                 required
               />
             </StyledFormControl>
@@ -182,7 +193,6 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
               <Controller
                 name="programName"
                 control={control}
-                rules={{ required: true }}
                 render={({ field }) => (
                   <StyledAutocomplete
                     {...field}
@@ -197,8 +207,10 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
                         }}
                       />
                     )}
-                    options={applicationData?.programs || []}
-                    loading={loading}
+                    onChange={(_, value) => {
+                      field.onChange(value);
+                    }}
+                    options={programOptions}
                     disableCloseOnSelect
                   />
                 )}
@@ -221,7 +233,6 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
                   "aria-labelledby": "study-name-filter",
                   "data-testid": "study-name-input",
                 }}
-                disabled={loading}
                 required
               />
             </StyledFormControl>
@@ -239,7 +250,6 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
                     MenuProps={{ disablePortal: true }}
                     inputProps={{ id: "status-filter" }}
                     data-testid="application-status-filter"
-                    disabled={loading}
                     multiple
                   >
                     {applicationData?.status?.map((status) => (
