@@ -18,6 +18,7 @@ import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import DataSubmissionListFilters, {
   FilterForm,
 } from "../../components/DataSubmissions/DataSubmissionListFilters";
+import NavigatorLink from "../../components/DataSubmissions/NavigatorLink";
 
 type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
 
@@ -132,7 +133,7 @@ const columns: Column<T>[] = [
   },
   {
     label: "DM Version",
-    renderValue: (a) => a.modelVersion,
+    renderValue: (a) => <NavigatorLink submission={a} />,
     field: "modelVersion",
     hideable: true,
     sx: {
@@ -399,7 +400,7 @@ const ListingView: FC = () => {
             defaultOrder="desc"
             disableUrlParams={false}
             position="bottom"
-            noContentText="There are no data submissions associated with your account"
+            noContentText="You either do not have the appropriate permissions to view data submissions, or there are no data submissions associated with your account."
             onFetchData={handleFetchData}
             containerProps={{
               sx: {

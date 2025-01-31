@@ -86,6 +86,7 @@ const HistorySection: FC = () => {
             placement="top"
             open={undefined}
             disableHoverListener={false}
+            disableInteractive
             arrow
           >
             <Stack direction="row" alignItems="center" data-testid="status-bar-pending-conditions">
@@ -103,6 +104,7 @@ const HistorySection: FC = () => {
           placement="top"
           open={undefined}
           disableHoverListener={false}
+          disableInteractive
           arrow
         >
           <span>{children}</span>

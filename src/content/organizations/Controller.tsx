@@ -1,4 +1,4 @@
-import React from "react";
+import { FC } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { Status, useAuthContext } from "../../components/Contexts/AuthContext";
 import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
@@ -18,12 +18,12 @@ const WrappedListView = () => (
  *
  * @returns The Organization Controller component
  */
-const OrganizationController = () => {
+const OrganizationController: FC = () => {
   const { orgId } = useParams<{ orgId?: string }>();
   const { user, status: authStatus } = useAuthContext();
 
   if (authStatus === Status.LOADING) {
-    return <SuspenseLoader data-testid="studies-suspense-loader" />;
+    return <SuspenseLoader data-testid="organization-suspense-loader" />;
   }
 
   if (!hasPermission(user, "program", "manage")) {

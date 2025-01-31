@@ -135,7 +135,7 @@ const QualityControlFilters = ({ issueType, isAggregated, onChange }: Props) => 
 
   useEffect(() => {
     onChange(getValues());
-  }, [issueTypeFilter, nodeTypeFilter, batchIDFilter, severityFilter]);
+  }, [issueTypeFilter, nodeTypeFilter, batchIDFilter, severityFilter, isAggregated]);
 
   const nodeTypes = useMemo<string[]>(
     () =>

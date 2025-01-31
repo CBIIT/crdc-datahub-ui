@@ -21,6 +21,7 @@ describe("fetchManifest cases", () => {
         "readme-file": "cds-model-readme.md",
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
+        "release-notes": "release-notes.md",
         versions: [],
       },
     };
@@ -39,6 +40,7 @@ describe("fetchManifest cases", () => {
         "readme-file": "cds-model-readme.md",
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
+        "release-notes": "release-notes.md",
         versions: [],
       },
     };
@@ -60,6 +62,7 @@ describe("fetchManifest cases", () => {
         "readme-file": "cds-model-readme.md",
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
+        "release-notes": "release-notes.md",
         versions: [],
       },
     };
@@ -115,10 +118,11 @@ describe("buildAssetUrls cases", () => {
         "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
+        "release-notes": "release-notes.md",
       } as ManifestAssets,
     } as DataCommon;
 
-    const result = utils.buildAssetUrls(dc);
+    const result = utils.buildAssetUrls(dc, "latest");
 
     expect(result).toEqual({
       model_files: [
@@ -128,6 +132,7 @@ describe("buildAssetUrls cases", () => {
       readme: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/readme-file`,
       loading_file: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/loading-file-zip-name`,
       navigator_icon: expect.any(String),
+      changelog: `${MODEL_FILE_REPO}prod/cache/test-name/1.0/release-notes.md`,
     });
   });
 
@@ -142,7 +147,7 @@ describe("buildAssetUrls cases", () => {
       } as ManifestAssets,
     } as DataCommon;
 
-    const result = utils.buildAssetUrls(dc);
+    const result = utils.buildAssetUrls(dc, "latest");
 
     expect(result.model_files).toEqual([
       `${MODEL_FILE_REPO}prod/cache/test-name/1.0/model-file`,
@@ -163,7 +168,7 @@ describe("buildAssetUrls cases", () => {
       } as ManifestAssets,
     } as DataCommon;
 
-    const result = utils.buildAssetUrls(dc);
+    const result = utils.buildAssetUrls(dc, "latest");
 
     expect(result.model_files).toEqual([]);
   });
@@ -179,7 +184,7 @@ describe("buildAssetUrls cases", () => {
       } as ManifestAssets,
     } as DataCommon;
 
-    const result = utils.buildAssetUrls(dc);
+    const result = utils.buildAssetUrls(dc, "latest");
 
     expect(result.readme).toEqual(null);
   });
@@ -196,7 +201,7 @@ describe("buildAssetUrls cases", () => {
       } as ManifestAssets,
     } as DataCommon;
 
-    const result = utils.buildAssetUrls(dc);
+    const result = utils.buildAssetUrls(dc, "latest");
 
     expect(result.navigator_icon).toEqual("genericLogo.png");
   });
@@ -213,7 +218,7 @@ describe("buildAssetUrls cases", () => {
       } as ManifestAssets,
     } as DataCommon;
 
-    const result = utils.buildAssetUrls(dc);
+    const result = utils.buildAssetUrls(dc, "latest");
 
     expect(result.navigator_icon).toEqual("genericLogo.png");
   });
@@ -230,7 +235,7 @@ describe("buildAssetUrls cases", () => {
       } as ManifestAssets,
     } as DataCommon;
 
-    const result = utils.buildAssetUrls(dc);
+    const result = utils.buildAssetUrls(dc, "latest");
 
     expect(result.navigator_icon).toEqual(
       `${MODEL_FILE_REPO}prod/cache/test-name/1.0/custom-logo.png`
@@ -238,9 +243,9 @@ describe("buildAssetUrls cases", () => {
   });
 
   it("should not throw an exception if dealing with invalid data", () => {
-    expect(() => utils.buildAssetUrls(null)).not.toThrow();
-    expect(() => utils.buildAssetUrls({} as DataCommon)).not.toThrow();
-    expect(() => utils.buildAssetUrls(undefined)).not.toThrow();
+    expect(() => utils.buildAssetUrls(null, "latest")).not.toThrow();
+    expect(() => utils.buildAssetUrls({} as DataCommon, "latest")).not.toThrow();
+    expect(() => utils.buildAssetUrls(undefined, "latest")).not.toThrow();
   });
 
   it("should not throw an exception if `model_files` is not defined", () => {
@@ -253,8 +258,40 @@ describe("buildAssetUrls cases", () => {
       } as ManifestAssets,
     } as DataCommon;
 
-    expect(() => utils.buildAssetUrls(dc)).not.toThrow();
-    expect(utils.buildAssetUrls(dc)).toEqual(expect.objectContaining({ model_files: [] }));
+    expect(() => utils.buildAssetUrls(dc, "latest")).not.toThrow();
+    expect(utils.buildAssetUrls(dc, "latest")).toEqual(
+      expect.objectContaining({ model_files: [] })
+    );
+  });
+
+  it("should use the provided modelVersion if it is not 'latest'", () => {
+    const dc: DataCommon = {
+      name: "test-name",
+      assets: {
+        "current-version": "1.0",
+        "model-files": ["model-file", "prop-file"],
+        "readme-file": "readme-file",
+        "loading-file": "loading-file-zip-name",
+      } as ManifestAssets,
+    } as DataCommon;
+
+    const result = utils.buildAssetUrls(dc, "2.1");
+    expect(result.model_files).toEqual([
+      `${MODEL_FILE_REPO}prod/cache/test-name/2.1/model-file`,
+      `${MODEL_FILE_REPO}prod/cache/test-name/2.1/prop-file`,
+    ]);
+
+    const result2 = utils.buildAssetUrls(dc, "1.0");
+    expect(result2.model_files).toEqual([
+      `${MODEL_FILE_REPO}prod/cache/test-name/1.0/model-file`,
+      `${MODEL_FILE_REPO}prod/cache/test-name/1.0/prop-file`,
+    ]);
+
+    const result3 = utils.buildAssetUrls(dc, "latest");
+    expect(result3.model_files).toEqual([
+      `${MODEL_FILE_REPO}prod/cache/test-name/1.0/model-file`,
+      `${MODEL_FILE_REPO}prod/cache/test-name/1.0/prop-file`,
+    ]);
   });
 });
 
