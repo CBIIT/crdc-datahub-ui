@@ -14,7 +14,7 @@ const ModelNavigatorController: React.FC = () => {
   }
 
   return (
-    <DataCommonProvider key={model} DataCommon={model}>
+    <DataCommonProvider key={`${model}_${version}`} DataCommon={model}>
       <ErrorBoundary errorMessage="Unable to load the Model Navigator for the requested model">
         <NavigatorView version={version} />
       </ErrorBoundary>
