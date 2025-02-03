@@ -22,7 +22,7 @@ import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
 
 export type FilterForm = Pick<
   ListApplicationsInput,
-  "programName" | "studyName" | "statues" | "submitterName"
+  "programName" | "studyName" | "statuses" | "submitterName"
 >;
 
 export type FilterProps = {
@@ -91,17 +91,17 @@ const StyledIconButton = styled(IconButton)({
   borderRadius: "5px",
 });
 
-const DEFAULT_STATUSES_SELECTED: ApplicationStatus[] = [
+export const DEFAULT_STATUSES_SELECTED: ApplicationStatus[] = [
   "New",
   "In Progress",
   "Submitted",
   "Inquired",
 ];
 
-const defaultValues: FilterForm = {
+export const defaultValues: FilterForm = {
   programName: "All",
   studyName: "",
-  statues: DEFAULT_STATUSES_SELECTED,
+  statuses: DEFAULT_STATUSES_SELECTED,
   submitterName: "",
 };
 
@@ -109,14 +109,14 @@ const FIELDS_TO_DEBOUNCE: (keyof FilterForm)[] = [
   "studyName",
   "submitterName",
   "programName",
-  "statues",
+  "statuses",
 ];
 
 const MIN_LENGTHS: { [K in keyof FilterForm]: number } = {
   studyName: 3,
   submitterName: 3,
   programName: 0,
-  statues: 0,
+  statuses: 0,
 };
 
 /**
@@ -242,7 +242,7 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
             <StyledFormControl>
               <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
               <Controller
-                name="statues"
+                name="statuses"
                 control={control}
                 render={({ field }) => (
                   <StyledSelect

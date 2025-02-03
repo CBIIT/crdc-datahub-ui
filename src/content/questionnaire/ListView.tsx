@@ -27,7 +27,7 @@ import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import Tooltip from "../../components/Tooltip";
 import { hasPermission } from "../../config/AuthPermissions";
-import ListFilters from "./ListFilters";
+import ListFilters, { DEFAULT_STATUSES_SELECTED, FilterForm } from "./ListFilters";
 
 type T = ListApplicationsResp["listApplications"]["applications"][number];
 
@@ -249,18 +249,6 @@ const columns: Column<T>[] = [
   },
 ];
 
-export type FilterForm = Pick<
-  ListApplicationsInput,
-  "programName" | "studyName" | "statues" | "submitterName"
->;
-
-const DEFAULT_STATUSES_SELECTED: ApplicationStatus[] = [
-  "New",
-  "In Progress",
-  "Submitted",
-  "Inquired",
-];
-
 /**
  * View for List of Questionnaire/Submissions
  *
@@ -280,7 +268,7 @@ const ListingView: FC = () => {
   const filtersRef = useRef<FilterForm>({
     programName: "All",
     studyName: "",
-    statues: DEFAULT_STATUSES_SELECTED,
+    statuses: DEFAULT_STATUSES_SELECTED,
     submitterName: "",
   });
 
@@ -349,7 +337,7 @@ const ListingView: FC = () => {
             ? { programName: filtersRef.current.programName }
             : {}),
           ...(filtersRef.current?.studyName ? { studyName: filtersRef.current.studyName } : {}),
-          ...(filtersRef.current?.statues?.length && { statues: filtersRef.current.statues }),
+          ...(filtersRef.current?.statuses?.length && { statuses: filtersRef.current.statuses }),
           ...(filtersRef.current?.submitterName
             ? { submitterName: filtersRef.current.submitterName }
             : {}),

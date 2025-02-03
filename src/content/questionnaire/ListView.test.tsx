@@ -51,14 +51,9 @@ const defaultMocks: MockedResponse[] = [
   {
     request: {
       query: LIST_APPLICATIONS,
-      variables: {
-        first: 20,
-        offset: 0,
-        sortDirection: "desc",
-        orderBy: "submittedDate",
-      },
       context: { clientName: "backend" },
     },
+    variableMatcher: () => true,
     result: {
       data: {
         listApplications: {

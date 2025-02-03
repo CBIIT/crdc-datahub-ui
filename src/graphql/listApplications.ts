@@ -4,7 +4,7 @@ export const query = gql`
   query listApplications(
     $programName: String
     $studyName: String
-    $statues: [String]
+    $statuses: [String]
     $submitterName: String
     $first: Int
     $offset: Int
@@ -14,7 +14,7 @@ export const query = gql`
     listApplications(
       programName: $programName
       studyName: $studyName
-      statues: $statues
+      statuses: $statuses
       submitterName: $submitterName
       first: $first
       offset: $offset
@@ -48,7 +48,7 @@ export const query = gql`
 export type Input = {
   programName: string;
   studyName: string;
-  statues: string[]; // TODO: Fix typo
+  statuses: string[];
   submitterName: string;
   first: number;
   offset: number;
