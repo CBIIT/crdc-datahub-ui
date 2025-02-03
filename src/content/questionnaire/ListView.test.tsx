@@ -112,7 +112,9 @@ describe("Accessibility", () => {
       </TestParent>
     );
 
-    expect(getByText("Submission Request List")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getByText("Start a Submission Request")).toBeInTheDocument();
+    });
 
     await waitFor(async () => {
       const results = await axe(container);
