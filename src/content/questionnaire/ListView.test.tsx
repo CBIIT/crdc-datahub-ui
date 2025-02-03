@@ -111,11 +111,15 @@ describe("Accessibility", () => {
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = render(
+    const { container, getByText } = render(
       <TestParent>
         <ListView />
       </TestParent>
     );
+
+    await waitFor(() => {
+      expect(getByText("Submission Request List")).toBeInTheDocument();
+    });
 
     await waitFor(async () => {
       const results = await axe(container);
