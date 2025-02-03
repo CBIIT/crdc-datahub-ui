@@ -603,9 +603,15 @@ describe("Basic Functionality", () => {
       expect(onCancel).toHaveBeenCalled();
     });
   });
+});
 
-  it("should have a title present on the Cancel button", () => {
-    const { getByTestId } = render(
+describe("Implementation Requirements", () => {
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it("should have a tooltip present on the Cancel button", async () => {
+    const { getByTestId, findByRole } = render(
       <Button
         application={{
           ...baseApp,
@@ -624,14 +630,21 @@ describe("Basic Functionality", () => {
       }
     );
 
-    expect(getByTestId("cancel-restore-application-button")).toHaveAttribute(
-      "title",
-      "Cancel Submission Request"
-    );
+    userEvent.hover(getByTestId("cancel-restore-application-button"));
+
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toBeVisible();
+    expect(tooltip).toHaveTextContent("Cancel Submission Request");
+
+    userEvent.unhover(getByTestId("cancel-restore-application-button"));
+
+    await waitFor(() => {
+      expect(tooltip).not.toBeInTheDocument();
+    });
   });
 
-  it("should have a title present on the Restore button", () => {
-    const { getByTestId } = render(
+  it("should have a tooltip present on the Restore button", async () => {
+    const { getByTestId, findByRole } = render(
       <Button
         application={{
           ...baseApp,
@@ -650,16 +663,17 @@ describe("Basic Functionality", () => {
       }
     );
 
-    expect(getByTestId("cancel-restore-application-button")).toHaveAttribute(
-      "title",
-      "Restore Submission Request"
-    );
-  });
-});
+    userEvent.hover(getByTestId("cancel-restore-application-button"));
 
-describe("Implementation Requirements", () => {
-  afterEach(() => {
-    jest.resetAllMocks();
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toBeVisible();
+    expect(tooltip).toHaveTextContent("Restore Submission Request");
+
+    userEvent.unhover(getByTestId("cancel-restore-application-button"));
+
+    await waitFor(() => {
+      expect(tooltip).not.toBeInTheDocument();
+    });
   });
 
   it("should dismiss the dialog when the 'Cancel' dialog button is clicked", async () => {
