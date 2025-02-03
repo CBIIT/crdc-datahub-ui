@@ -3,7 +3,7 @@ import { isEqual } from "lodash";
 import { IconButton, IconButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
-import { ReactComponent as RestoreIcon } from "../../assets/icons/back_icon.svg";
+import { ReactComponent as RestoreIcon } from "../../assets/icons/filled_circular_back.svg";
 import { ReactComponent as DeleteIcon } from "../../assets/icons/filled_circular_delete.svg";
 import DeleteDialog from "../DeleteDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
@@ -74,7 +74,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
       ) : (
         <DeleteIcon data-testid="application-cancel-icon" />
       ),
-      tooltipText: `${isRestoreAction ? "Restore" : "Cancel"} Submission Request`,
+      tooltipText: `${isRestoreAction ? "Restore" : "Cancel"} submission request`,
       dialogTitle: `${isRestoreAction ? "Restore" : "Cancel"} Submission Request`,
       dialogDescription: isRestoreAction
         ? `Are you sure you want to restore the previously canceled submission request for the study listed below?`

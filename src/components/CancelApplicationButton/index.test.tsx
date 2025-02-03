@@ -634,7 +634,7 @@ describe("Implementation Requirements", () => {
 
     const tooltip = await findByRole("tooltip");
     expect(tooltip).toBeVisible();
-    expect(tooltip).toHaveTextContent("Cancel Submission Request");
+    expect(tooltip).toHaveTextContent("Cancel submission request");
 
     userEvent.unhover(getByTestId("cancel-restore-application-button"));
 
@@ -667,7 +667,7 @@ describe("Implementation Requirements", () => {
 
     const tooltip = await findByRole("tooltip");
     expect(tooltip).toBeVisible();
-    expect(tooltip).toHaveTextContent("Restore Submission Request");
+    expect(tooltip).toHaveTextContent("Restore submission request");
 
     userEvent.unhover(getByTestId("cancel-restore-application-button"));
 
