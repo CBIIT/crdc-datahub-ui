@@ -105,11 +105,6 @@ const TestParent: FC<ParentProps> = ({
 };
 
 describe("Accessibility", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useRealTimers();
-  });
-
   it("has no accessibility violations", async () => {
     const { container, getByText } = render(
       <TestParent>
@@ -117,9 +112,9 @@ describe("Accessibility", () => {
       </TestParent>
     );
 
-    await waitFor(async () => {
-      expect(getByText("Submission Request List")).toBeInTheDocument();
+    expect(getByText("Submission Request List")).toBeInTheDocument();
 
+    await waitFor(async () => {
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
