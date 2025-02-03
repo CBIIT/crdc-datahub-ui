@@ -233,15 +233,15 @@ const DataSubmissionListFilters = ({
     } else if (orgFilter === "All") {
       newSearchParams.delete("program");
     }
-    if (statusFilter && statusFilter.length > 0) {
+    if (statusFilter?.length > 0) {
       newSearchParams.delete("status");
       if (!isArrayEqual(statusFilter, defaultValues.status)) {
         statusFilter.forEach((status) => {
           newSearchParams.append("status", status);
         });
       }
-    } else if (!statusFilter || !statusFilter.length) {
-      newSearchParams.delete("status");
+    } else {
+      newSearchParams.set("status", "");
     }
     if (dataCommonsFilter && dataCommonsFilter !== "All") {
       newSearchParams.set("dataCommons", dataCommonsFilter);
