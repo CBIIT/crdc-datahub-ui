@@ -195,6 +195,7 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
                 control={control}
                 render={({ field }) => (
                   <StyledAutocomplete
+                    disablePortal={false}
                     {...field}
                     renderInput={({ inputProps, ...params }) => (
                       <TextField
@@ -211,6 +212,13 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
                       field.onChange(value);
                     }}
                     options={programOptions}
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          zIndex: 99999,
+                        },
+                      },
+                    }}
                     disableCloseOnSelect
                   />
                 )}
@@ -247,7 +255,7 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
                 render={({ field }) => (
                   <StyledSelect
                     {...field}
-                    MenuProps={{ disablePortal: true }}
+                    MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                     inputProps={{ id: "status-filter" }}
                     data-testid="application-status-filter"
                     multiple
