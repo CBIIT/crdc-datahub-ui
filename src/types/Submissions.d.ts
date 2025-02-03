@@ -256,7 +256,17 @@ type CrossValidationResult = QCResult & {
 };
 
 type ErrorMessage = {
+  /**
+   * The code corresponding to the error.
+   */
+  code: string;
+  /**
+   * The title of the error.
+   */
   title: string;
+  /**
+   * A detailed description of the error.
+   */
   description: string;
 };
 

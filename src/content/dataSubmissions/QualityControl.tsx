@@ -21,6 +21,7 @@ import {
   SubmissionQCResultsResp,
 } from "../../graphql";
 import QualityControlFilters from "../../components/DataSubmissions/QualityControlFilters";
+import { NodeComparisonProps } from "../../components/NodeComparison";
 
 type FilterForm = {
   issueType: string;
@@ -463,6 +464,24 @@ const QualityControl: FC = () => {
     [handleOpenErrorDialog, handleExpandClick]
   );
 
+  const comparisonData = useMemo<NodeComparisonProps | undefined>(() => {
+    if (!selectedRow || !("submittedID" in selectedRow && "type" in selectedRow)) {
+      return undefined;
+    }
+    if (
+      !selectedRow?.errors?.some((error) => error.code === "M018") &&
+      !selectedRow?.warnings?.some((warning) => warning.code === "M018")
+    ) {
+      return undefined;
+    }
+
+    return {
+      submissionID: submissionId,
+      nodeType: selectedRow.type,
+      submittedID: selectedRow.submittedID,
+    };
+  }, [submissionId, selectedRow]);
+
   return (
     <>
       <QualityControlFilters
@@ -519,6 +538,7 @@ const QualityControl: FC = () => {
           errorCount={`${allDescriptions?.length || 0} ${
             allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"
           }`}
+          comparisonData={comparisonData}
         />
       )}
     </>

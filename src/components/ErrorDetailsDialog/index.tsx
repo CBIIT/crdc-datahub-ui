@@ -2,6 +2,7 @@ import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } fr
 import React from "react";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { FormatDate } from "../../utils";
+import NodeComparison, { NodeComparisonProps } from "../NodeComparison";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -109,6 +110,13 @@ type Props = {
   errorCount?: string;
   nodeInfo?: string;
   uploadedDate?: string;
+  /**
+   * If provided, will utilize the NodeComparison component to display
+   * the differences between the existing and newly submitted data
+   *
+   * @see {@link NodeComparison} for more details
+   */
+  comparisonData?: NodeComparisonProps;
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
 
@@ -120,6 +128,7 @@ const ErrorDetailsDialog = ({
   errorCount,
   nodeInfo,
   uploadedDate,
+  comparisonData,
   onClose,
   open,
   ...rest
@@ -135,7 +144,6 @@ const ErrorDetailsDialog = ({
       open={open}
       onClose={handleCloseDialog}
       data-testid="error-details-dialog"
-      title=""
       {...rest}
     >
       <StyledCloseDialogButton
@@ -177,6 +185,7 @@ const ErrorDetailsDialog = ({
           ))}
         </StyledErrors>
       </StyledErrorDetails>
+      {comparisonData && <NodeComparison {...comparisonData} />}
       <StyledCloseButton
         id="error-dialog-close-button"
         data-testid="error-details-close-button"
