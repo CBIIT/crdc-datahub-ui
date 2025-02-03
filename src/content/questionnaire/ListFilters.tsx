@@ -253,7 +253,11 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
                     multiple
                   >
                     {applicationData?.status?.map((status) => (
-                      <MenuItem key={`application_status_${status}`} value={status}>
+                      <MenuItem
+                        key={`application_status_${status}`}
+                        data-testid={`application-status-${status}`}
+                        value={status}
+                      >
                         {status}
                       </MenuItem>
                     ))}

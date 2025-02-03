@@ -105,6 +105,11 @@ const TestParent: FC<ParentProps> = ({
 };
 
 describe("Accessibility", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useRealTimers();
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(
       <TestParent>
