@@ -40,6 +40,8 @@ export type NodeComparisonProps = {
   submittedID: string;
 };
 
+type NodeData = RetrieveReleasedDataResp["retrieveReleasedDataByID"][number];
+
 /**
  * A component that renders the existing/new data comparison table of two nodes
  *
@@ -67,13 +69,29 @@ const NodeComparison: FC<NodeComparisonProps> = ({ submissionID, nodeType, submi
 
   const isLoading = useMemo<boolean>(() => loading && !data, [loading]);
 
+  const [newNode, existingNode] = useMemo<[NodeData, NodeData]>(() => {
+    if (isLoading) {
+      return null;
+    }
+    if (data?.retrieveReleasedDataByID?.length !== 2) {
+      Logger.error("NodeComparison API did not return exactly 2 nodes", data);
+      return null;
+    }
+
+    return [data.retrieveReleasedDataByID[0], data.retrieveReleasedDataByID[1]];
+  }, [data, isLoading]);
+
   return (
     <StyledBox>
       <StyledHeadingTypography variant="body1" data-testid="node-comparison-header">
         A record with this ID already exists. Review the existing and newly submitted data to decide
         whether to update the current record.
       </StyledHeadingTypography>
-      <NodeComparisonTable loading={isLoading} />
+      {!loading && newNode && existingNode ? (
+        <NodeComparisonTable newNode={newNode} existingNode={existingNode} loading={isLoading} />
+      ) : (
+        <p data-testid="node-comparison-error">Oops! Unable to show the data record comparison</p>
+      )}
     </StyledBox>
   );
 };

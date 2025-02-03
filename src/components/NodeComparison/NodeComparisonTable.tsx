@@ -1,5 +1,6 @@
 import { Skeleton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { FC, memo } from "react";
+import { RetrieveReleasedDataResp } from "../../graphql";
 
 const TableBodySkeleton = () => (
   <>
@@ -43,6 +44,17 @@ const TableBodySkeleton = () => (
 );
 
 export type NodeComparisonTableProps = {
+  /**
+   * The new node to be compared
+   */
+  newNode: RetrieveReleasedDataResp["retrieveReleasedDataByID"][number];
+  /**
+   * The existing node to be compared
+   */
+  existingNode: RetrieveReleasedDataResp["retrieveReleasedDataByID"][number];
+  /**
+   * A boolean indicating whether the data is in a loading state
+   */
   loading: boolean;
 };
 
@@ -52,8 +64,8 @@ export type NodeComparisonTableProps = {
  *
  * @returns The NodeComparisonTable component
  */
-const NodeComparisonTable: FC<NodeComparisonTableProps> = ({ loading }) => (
-  <Table>
+const NodeComparisonTable: FC<NodeComparisonTableProps> = ({ newNode, existingNode, loading }) => (
+  <Table data-testid="node-comparison-table">
     <TableHead>
       <TableRow>
         <TableCell />

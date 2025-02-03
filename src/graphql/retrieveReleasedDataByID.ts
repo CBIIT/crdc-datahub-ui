@@ -14,18 +14,9 @@ export const query: TypedDocumentNode<Response, Input> = gql`
       nodeID: $nodeId
       status: $status
     ) {
-      _id
-      CRDC_ID
-      submissionID
-      status
-      dataCommons
-      studyID
       nodeType
       nodeID
       props
-      entityType
-      createdAt
-      updatedAt
     }
   }
 `;
@@ -38,19 +29,12 @@ export type Input = {
 };
 
 export type Response = {
-  // TODO: abstract data type
-  retrieveReleasedDataByID: {
-    _id: string;
-    CRDC_ID: string;
-    submissionID: string;
-    status: string;
-    dataCommons: string;
-    studyID: string;
-    nodeType: string;
-    nodeID: string;
-    props: string;
-    entityType: string;
-    createdAt: string;
-    updatedAt: string;
-  };
+  /**
+   * An containing the existing/new nodes,
+   * where the first node is the new node and the second node is the existing node
+   *
+   * @note This is just a subset of the full data available. Refer to the GraphQL
+   * documentation for more details.
+   */
+  retrieveReleasedDataByID: Array<Pick<SubmissionNode, "nodeType" | "nodeID" | "props">>;
 };
