@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { FC, memo, useMemo } from "react";
 import { RetrieveReleasedDataResp } from "../../graphql";
-import { Logger, safeParse } from "../../utils";
+import { safeParse } from "../../utils";
 import Repeater from "../Repeater";
 
 const StyledAlert = styled(Alert)({
@@ -103,8 +103,6 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
   }, [newProps, existingProps]);
 
   if (!loading && !allPropertyNames.length) {
-    Logger.error("NodeComparisonTable: Expected properties from nodes, but none were found");
-
     return (
       <StyledAlert severity="warning" data-testid="node-comparison-error">
         Unable to show comparison of data.
