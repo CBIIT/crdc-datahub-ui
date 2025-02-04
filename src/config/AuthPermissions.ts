@@ -1,3 +1,5 @@
+import { CanSubmitOnlyTheirOwnSubmissionRequestRoles } from "./AuthRoles";
+
 const NO_CONDITIONS = "NO CONDITIONS";
 
 type PermissionCheck<Key extends keyof Permissions> =
@@ -46,19 +48,20 @@ export const PERMISSION_MAP = {
     view: NO_CONDITIONS,
     create: NO_CONDITIONS,
     submit: (user, application) => {
+      const { role } = user;
       const isFormOwner = application?.applicant?.applicantID === user?._id;
       const hasPermissionKey = user?.permissions?.includes("submission_request:submit");
       const submitStatuses: ApplicationStatus[] = ["In Progress", "Inquired"];
 
-      // Check for implicit permission as well as for the permission key
-      if (!isFormOwner && !hasPermissionKey) {
-        return false;
-      }
       if (!submitStatuses?.includes(application?.status)) {
         return false;
       }
 
-      return true;
+      if (CanSubmitOnlyTheirOwnSubmissionRequestRoles.includes(role)) {
+        return isFormOwner && hasPermissionKey;
+      }
+
+      return hasPermissionKey;
     },
     review: NO_CONDITIONS,
   },
