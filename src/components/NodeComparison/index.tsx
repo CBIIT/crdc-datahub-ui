@@ -40,8 +40,6 @@ export type NodeComparisonProps = {
   submittedID: string;
 };
 
-type NodeData = RetrieveReleasedDataResp["retrieveReleasedDataByID"][number];
-
 /**
  * A component that renders the existing/new data comparison table of two nodes
  *
@@ -69,7 +67,12 @@ const NodeComparison: FC<NodeComparisonProps> = ({ submissionID, nodeType, submi
 
   const isLoading = useMemo<boolean>(() => loading && !data, [loading]);
 
-  const [newNode, existingNode] = useMemo<[NodeData, NodeData]>(() => {
+  const [newNode, existingNode] = useMemo<
+    [
+      RetrieveReleasedDataResp["retrieveReleasedDataByID"][number],
+      RetrieveReleasedDataResp["retrieveReleasedDataByID"][number],
+    ]
+  >(() => {
     if (isLoading) {
       return [null, null];
     }
