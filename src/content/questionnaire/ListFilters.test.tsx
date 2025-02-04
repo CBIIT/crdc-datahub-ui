@@ -41,7 +41,7 @@ describe("ListFilters Component", () => {
     expect(getByText(/Submitter Name/i)).toBeInTheDocument();
     expect(getByText(/Program/i)).toBeInTheDocument();
     expect(getByText(/Study/i)).toBeInTheDocument();
-    expect(getByText(/Status/i)).toBeInTheDocument();
+    expect(getByText(/5 statuses selected/i)).toBeInTheDocument();
 
     expect(getByTestId("submitter-name-input")).toBeInTheDocument();
     expect(getByTestId("study-name-input")).toBeInTheDocument();
