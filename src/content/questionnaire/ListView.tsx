@@ -429,7 +429,7 @@ const ListingView: FC = () => {
         )}
 
         <StyledFilterTableWrapper>
-          <ListFilters applicationData={data} onChange={handleOnFiltersChange} loading={loading} />
+          <ListFilters applicationData={data} onChange={handleOnFiltersChange} />
 
           <QuestionnaireContext.Provider value={providerValue}>
             <GenericTable

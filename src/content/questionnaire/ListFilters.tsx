@@ -1,4 +1,4 @@
-import { forwardRef, memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { isEqual } from "lodash";
 import {
@@ -27,7 +27,6 @@ export type FilterForm = Pick<
 
 export type FilterProps = {
   applicationData: ListApplicationsResp["listApplications"];
-  loading?: boolean;
   onChange?: (data: FilterForm) => void;
 };
 
@@ -125,7 +124,7 @@ const MIN_LENGTHS: { [K in keyof FilterForm]: number } = {
  *
  * @see {@link FilterProps} for the props
  */
-const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, onChange }, ref) => {
+const ListFilters = ({ applicationData, onChange }: FilterProps) => {
   const { watch, setValue, control, register, reset } = useForm<FilterForm>({ defaultValues });
 
   const handleFormChange = useCallback((form: FilterForm) => {
@@ -302,6 +301,6 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
       </Stack>
     </StyledContainer>
   );
-});
+};
 
 export default memo(ListFilters, isEqual);
