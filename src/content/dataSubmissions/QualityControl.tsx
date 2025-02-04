@@ -246,6 +246,7 @@ const QualityControl: FC = () => {
   const { data: submissionData } = useSubmissionContext();
   const {
     _id: submissionId,
+    status: submissionStatus,
     metadataValidationStatus,
     fileValidationStatus,
   } = submissionData?.getSubmission || {};
@@ -465,6 +466,9 @@ const QualityControl: FC = () => {
   );
 
   const comparisonData = useMemo<NodeComparisonProps | undefined>(() => {
+    if (submissionStatus === "Completed") {
+      return undefined;
+    }
     if (!selectedRow || !("submittedID" in selectedRow && "type" in selectedRow)) {
       return undefined;
     }
