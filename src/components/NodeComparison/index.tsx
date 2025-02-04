@@ -8,7 +8,7 @@ import {
   RetrieveReleasedDataResp,
 } from "../../graphql";
 import { Logger } from "../../utils";
-import NodeComparisonTable from "./NodeComparisonTable";
+import ComparisonTable from "./ComparisonTable";
 
 const StyledBox = styled(Box)({
   padding: "10px",
@@ -71,11 +71,11 @@ const NodeComparison: FC<NodeComparisonProps> = ({ submissionID, nodeType, submi
 
   const [newNode, existingNode] = useMemo<[NodeData, NodeData]>(() => {
     if (isLoading) {
-      return null;
+      return [null, null];
     }
     if (data?.retrieveReleasedDataByID?.length !== 2) {
       Logger.error("NodeComparison API did not return exactly 2 nodes", data);
-      return null;
+      return [null, null];
     }
 
     return [data.retrieveReleasedDataByID[0], data.retrieveReleasedDataByID[1]];
@@ -87,11 +87,7 @@ const NodeComparison: FC<NodeComparisonProps> = ({ submissionID, nodeType, submi
         A record with this ID already exists. Review the existing and newly submitted data to decide
         whether to update the current record.
       </StyledHeadingTypography>
-      {!loading && newNode && existingNode ? (
-        <NodeComparisonTable newNode={newNode} existingNode={existingNode} loading={isLoading} />
-      ) : (
-        <p data-testid="node-comparison-error">Oops! Unable to show the data record comparison</p>
-      )}
+      <ComparisonTable newNode={newNode} existingNode={existingNode} loading={isLoading} />
     </StyledBox>
   );
 };
