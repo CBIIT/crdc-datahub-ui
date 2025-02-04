@@ -257,6 +257,9 @@ const ListFilters = forwardRef<null, FilterProps>(({ applicationData, loading, o
                     {...field}
                     MenuProps={{ disablePortal: true, sx: { zIndex: 99999 } }}
                     inputProps={{ id: "status-filter" }}
+                    renderValue={(selected: string[]) =>
+                      selected?.length > 1 ? `${selected.length} statuses selected` : selected
+                    }
                     data-testid="application-status-filter"
                     multiple
                   >
