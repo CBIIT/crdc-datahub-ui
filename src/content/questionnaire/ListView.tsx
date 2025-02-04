@@ -27,7 +27,7 @@ import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import Tooltip from "../../components/Tooltip";
 import { hasPermission } from "../../config/AuthPermissions";
-import ListFilters, { DEFAULT_STATUSES_SELECTED, FilterForm } from "./ListFilters";
+import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
 
 type T = ListApplicationsResp["listApplications"]["applications"][number];
 
@@ -265,12 +265,7 @@ const ListingView: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<ListApplicationsResp["listApplications"]>(null);
-  const filtersRef = useRef<FilterForm>({
-    programName: "All",
-    studyName: "",
-    statuses: DEFAULT_STATUSES_SELECTED,
-    submitterName: "",
-  });
+  const filtersRef = useRef<FilterForm>({ ...defaultValues });
 
   const tableRef = useRef<TableMethods>(null);
 
