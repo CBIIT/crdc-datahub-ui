@@ -16,3 +16,9 @@ export const Roles: UserRole[] = [
  * A set of roles that are constrained to a set of studies.
  */
 export const RequiresStudiesAssigned: UserRole[] = ["Submitter", "Federal Lead"];
+
+/**
+ * A set of roles that are constrained to only be able to submit their own
+ * Submission Request forms and cannot submit on behalf of other users.
+ */
+export const CanSubmitOnlyTheirOwnSubmissionRequestRoles: UserRole[] = ["User", "Submitter"];
