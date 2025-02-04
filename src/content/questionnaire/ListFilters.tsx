@@ -95,6 +95,7 @@ export const DEFAULT_STATUSES_SELECTED: ApplicationStatus[] = [
   "New",
   "In Progress",
   "Submitted",
+  "In Review",
   "Inquired",
 ];
 
