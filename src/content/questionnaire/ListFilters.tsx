@@ -10,7 +10,6 @@ import {
   Stack,
   styled,
   TextField,
-  Tooltip,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { isStringLengthBetween } from "../../utils";
@@ -19,6 +18,7 @@ import StyledSelectFormComponent from "../../components/StyledFormComponents/Sty
 import StyledTextFieldFormComponent from "../../components/StyledFormComponents/StyledOutlinedInput";
 import StyledAutocompleteFormComponent from "../../components/StyledFormComponents/StyledAutocomplete";
 import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
+import Tooltip from "../../components/Tooltip";
 
 export type FilterForm = Pick<
   ListApplicationsInput,
