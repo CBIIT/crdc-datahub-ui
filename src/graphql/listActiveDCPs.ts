@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export const query = gql`
-  query listActiveCurators {
-    listActiveCurators {
+  query listActiveDCPs {
+    listActiveDCPs(dataCommons: ["All"]) {
       userID
       firstName
       lastName
@@ -13,7 +13,7 @@ export const query = gql`
 `;
 
 export type Response = {
-  listActiveCurators: (Pick<User, "firstName" | "lastName" | "createdAt" | "updateAt"> & {
+  listActiveDCPs: (Pick<User, "firstName" | "lastName" | "createdAt" | "updateAt"> & {
     userID: User["_id"];
   })[];
 };

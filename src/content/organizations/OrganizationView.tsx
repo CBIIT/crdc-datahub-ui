@@ -18,8 +18,8 @@ import {
   GetOrgResp,
   LIST_APPROVED_STUDIES,
   ListApprovedStudiesResp,
-  LIST_CURATORS,
-  ListCuratorsResp,
+  LIST_ACTIVE_DCPS,
+  ListActiveDCPsResp,
   EditOrgInput,
   CreateOrgInput,
   ListApprovedStudiesInput,
@@ -181,7 +181,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     control,
   } = useForm<FormInput>();
 
-  const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
+  const { data: activeDCPs } = useQuery<ListActiveDCPsResp>(LIST_ACTIVE_DCPS, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
@@ -468,13 +468,11 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                         error={!!errors.conciergeID}
                       >
                         <MenuItem value={null}>{"<Not Set>"}</MenuItem>
-                        {activeCurators?.listActiveCurators?.map(
-                          ({ userID, firstName, lastName }) => (
-                            <MenuItem key={userID} value={userID}>
-                              {`${firstName} ${lastName}`.trim()}
-                            </MenuItem>
-                          )
-                        )}
+                        {activeDCPs?.listActiveDCPs?.map(({ userID, firstName, lastName }) => (
+                          <MenuItem key={userID} value={userID}>
+                            {`${firstName} ${lastName}`.trim()}
+                          </MenuItem>
+                        ))}
                       </StyledSelect>
                     )}
                   />

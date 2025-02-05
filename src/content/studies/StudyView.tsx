@@ -32,8 +32,8 @@ import {
   GET_APPROVED_STUDY,
   GetApprovedStudyInput,
   GetApprovedStudyResp,
-  LIST_CURATORS,
-  ListCuratorsResp,
+  LIST_ACTIVE_DCPS,
+  ListActiveDCPsResp,
   UPDATE_APPROVED_STUDY,
   UpdateApprovedStudyInput,
   UpdateApprovedStudyResp,
@@ -276,7 +276,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     }
   );
 
-  const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
+  const { data: activeDCPs } = useQuery<ListActiveDCPsResp>(LIST_ACTIVE_DCPS, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
@@ -627,7 +627,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                         disabled={sameAsProgramPrimaryContact}
                       >
                         <MenuItem value={null}>{"<Not Set>"}</MenuItem>
-                        {activeCurators?.listActiveCurators?.map((user) => (
+                        {activeDCPs?.listActiveDCPs?.map((user) => (
                           <MenuItem key={user?.userID} value={user?.userID}>
                             {`${user?.firstName} ${user?.lastName}`.trim()}
                           </MenuItem>
