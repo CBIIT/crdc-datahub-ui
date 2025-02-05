@@ -23,6 +23,7 @@ const baseApplication: Application = {
   pendingConditions: [],
   programAbbreviation: "",
   programDescription: "",
+  version: "",
 };
 
 const baseSubmission: Submission = {
