@@ -36,6 +36,10 @@ type Application = {
    * The description for the application program
    */
   programDescription: string;
+  /**
+   * The current form version
+   */
+  version: string;
 };
 
 type QuestionnaireData = {
