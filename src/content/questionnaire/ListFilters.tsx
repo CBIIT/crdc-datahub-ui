@@ -119,6 +119,18 @@ const MIN_LENGTHS: { [K in keyof FilterForm]: number } = {
   statuses: 0,
 };
 
+const statusValues: ApplicationStatus[] = [
+  "New",
+  "In Progress",
+  "Submitted",
+  "In Review",
+  "Inquired",
+  "Approved",
+  "Rejected",
+  "Canceled",
+  "Deleted",
+];
+
 /**
  * A component that provides filters for the Cross Validation table
  *
@@ -263,7 +275,7 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
                     data-testid="application-status-filter"
                     multiple
                   >
-                    {applicationData?.status?.map((status) => (
+                    {statusValues?.map((status) => (
                       <MenuItem
                         key={`application_status_${status}`}
                         data-testid={`application-status-${status}`}
