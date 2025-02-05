@@ -484,7 +484,7 @@ const QualityControl: FC = () => {
       nodeType: selectedRow.type,
       submittedID: selectedRow.submittedID,
     };
-  }, [submissionId, selectedRow]);
+  }, [submissionStatus, submissionId, selectedRow]);
 
   return (
     <>
