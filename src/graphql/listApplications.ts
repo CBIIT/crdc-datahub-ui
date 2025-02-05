@@ -39,8 +39,6 @@ export const query = gql`
       }
       programs
       studies
-      status
-      submitterNames
     }
   }
 `;
@@ -62,7 +60,5 @@ export type Response = {
     applications: Omit<Application, "questionnaireData">[];
     programs: string[];
     studies: string[];
-    status: string[];
-    submitterNames: string[];
   };
 };
