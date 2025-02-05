@@ -72,6 +72,11 @@ type ModelAssetUrls = {
    * @since 3.1.0
    */
   navigator_icon: string;
+  /**
+   * the URL to the Data Model Release Notes file
+   * If this is null, the Release Notes tab will not be displayed
+   */
+  changelog?: string;
 };
 
 type FacetSearchData = {

@@ -76,7 +76,7 @@ const StyledDescription = styled(Typography)({
 
 type Props = {
   header?: string;
-  description?: string;
+  description?: string | JSX.Element;
   closeText?: string;
   confirmText?: string;
   onClose: () => void;
