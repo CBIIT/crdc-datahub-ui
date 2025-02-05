@@ -1,5 +1,5 @@
 import React, { FC, useMemo } from "react";
-import { render, waitFor } from "@testing-library/react";
+import { act, render, waitFor } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
@@ -51,14 +51,9 @@ const defaultMocks: MockedResponse[] = [
   {
     request: {
       query: LIST_APPLICATIONS,
-      variables: {
-        first: 20,
-        offset: 0,
-        sortDirection: "desc",
-        orderBy: "submittedDate",
-      },
       context: { clientName: "backend" },
     },
+    variableMatcher: () => true,
     result: {
       data: {
         listApplications: {
@@ -111,15 +106,18 @@ const TestParent: FC<ParentProps> = ({
 
 describe("Accessibility", () => {
   it("has no accessibility violations", async () => {
-    const { container } = render(
-      <TestParent>
+    const { container, getByText } = render(
+      <TestParent role="Submitter" permissions={["submission_request:view"]}>
         <ListView />
       </TestParent>
     );
 
-    await waitFor(async () => {
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
+    await waitFor(() => {
+      expect(getByText("Submission Request List")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
     });
   });
 });
@@ -295,6 +293,8 @@ describe("ListView Component", () => {
                 updatedAt: "2021-01-02T00:00:00Z",
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -332,6 +332,8 @@ describe("ListView Component", () => {
                 programName: "Program1",
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -367,6 +369,8 @@ describe("ListView Component", () => {
                 programName: null,
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -404,6 +408,8 @@ describe("ListView Component", () => {
                 pendingConditions: ["Pending condition #1"],
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -477,6 +483,8 @@ describe("ListView Component", () => {
                 updatedAt: "2021-01-02T00:00:00Z",
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -516,6 +524,8 @@ describe("ListView Component", () => {
                 updatedAt: "2021-01-02T00:00:00Z",
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -570,6 +580,8 @@ describe("ListView Component", () => {
                 questionnaireData: null,
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -610,6 +622,8 @@ describe("ListView Component", () => {
                 createdAt: "2021-01-02T15:30:00Z",
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
