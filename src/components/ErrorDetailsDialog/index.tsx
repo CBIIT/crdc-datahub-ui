@@ -144,6 +144,7 @@ const ErrorDetailsDialog = ({
       open={open}
       onClose={handleCloseDialog}
       data-testid="error-details-dialog"
+      aria-labelledby="error-details-title"
       {...rest}
     >
       <StyledCloseDialogButton
@@ -158,7 +159,7 @@ const ErrorDetailsDialog = ({
           {header}
         </StyledHeader>
       )}
-      <StyledTitle variant="h6" data-testid="error-details-title">
+      <StyledTitle variant="h6" id="error-details-title" data-testid="error-details-title">
         {title}
       </StyledTitle>
       {uploadedDate && (
