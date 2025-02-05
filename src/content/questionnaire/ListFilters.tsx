@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { isEqual } from "lodash";
 import {
@@ -19,6 +19,7 @@ import StyledTextFieldFormComponent from "../../components/StyledFormComponents/
 import StyledAutocompleteFormComponent from "../../components/StyledFormComponents/StyledAutocomplete";
 import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
 import Tooltip from "../../components/Tooltip";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
 export type FilterForm = Pick<
   ListApplicationsInput,
@@ -91,6 +92,17 @@ const StyledIconButton = styled(IconButton)({
   borderRadius: "5px",
 });
 
+type FilterFormKey = keyof FilterForm;
+
+type TouchedState = { [K in FilterFormKey]: boolean };
+
+const initialTouchedFields: TouchedState = {
+  programName: false,
+  statuses: false,
+  studyName: false,
+  submitterName: false,
+};
+
 export const DEFAULT_STATUSES_SELECTED: ApplicationStatus[] = [
   "New",
   "In Progress",
@@ -133,12 +145,17 @@ const statusValues: ApplicationStatus[] = [
 ];
 
 /**
- * A component that provides filters for the Cross Validation table
+ * A component that provides filters for the Cross Validation table.
  *
  * @see {@link FilterProps} for the props
  */
 const ListFilters = ({ applicationData, onChange }: FilterProps) => {
-  const { watch, setValue, control, register, reset } = useForm<FilterForm>({ defaultValues });
+  const { searchParams, setSearchParams } = useSearchParamsContext();
+  const { watch, setValue, control, register, reset, getValues } = useForm<FilterForm>({
+    defaultValues,
+  });
+
+  const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
   const handleFormChange = useCallback((form: FilterForm) => {
     if (!onChange || !form) {
@@ -162,7 +179,83 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
     debounceMs: 500,
     onChange: handleFormChange,
   });
-  const [programNameFilter] = watch(["programName"]);
+
+  const [programNameFilter, studyNameFilter, statusesFilter, submitterNameFilter] = watch([
+    "programName",
+    "studyName",
+    "statuses",
+    "submitterName",
+  ]);
+
+  useEffect(() => {
+    const programName = searchParams.get("programName");
+    const studyName = searchParams.get("studyName");
+    const statuses = searchParams.getAll("statuses");
+    const submitterName = searchParams.get("submitterName");
+
+    if (programName && programName !== getValues("programName")) {
+      setValue("programName", programName);
+    }
+    if (studyName && studyName !== getValues("studyName")) {
+      setValue("studyName", studyName);
+    }
+    if (statuses.length > 0 && !isEqual(statuses, getValues("statuses"))) {
+      const validStatuses = statuses.filter((status) =>
+        statusValues.includes(status as ApplicationStatus)
+      ) as ApplicationStatus[];
+      setValue("statuses", validStatuses);
+    }
+    if (submitterName && submitterName !== getValues("submitterName")) {
+      setValue("submitterName", submitterName);
+    }
+    if (Object.values(touchedFilters).every((filter) => !filter)) {
+      handleFormChange(getValues());
+    }
+  }, [applicationData?.programs, applicationData?.studies, searchParams?.toString()]);
+
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams(searchParams);
+
+    if (programNameFilter && programNameFilter !== "All") {
+      newSearchParams.set("programName", programNameFilter);
+    } else {
+      newSearchParams.delete("programName");
+    }
+
+    if (statusesFilter && statusesFilter.length > 0) {
+      newSearchParams.delete("statuses");
+      if (!isEqual(statusesFilter, defaultValues.statuses)) {
+        statusesFilter.forEach((status) => {
+          newSearchParams.append("statuses", status);
+        });
+      }
+    } else {
+      newSearchParams.delete("statuses");
+    }
+
+    if (studyNameFilter && studyNameFilter.length >= 3) {
+      newSearchParams.set("studyName", studyNameFilter);
+    } else {
+      newSearchParams.delete("studyName");
+    }
+
+    if (submitterNameFilter && submitterNameFilter.length >= 3) {
+      newSearchParams.set("submitterName", submitterNameFilter);
+    } else {
+      newSearchParams.delete("submitterName");
+    }
+
+    if (newSearchParams.toString() !== searchParams.toString()) {
+      setSearchParams(newSearchParams);
+    }
+  }, [
+    programNameFilter,
+    studyNameFilter,
+    statusesFilter,
+    submitterNameFilter,
+    searchParams,
+    setSearchParams,
+  ]);
 
   const programOptions = useMemo(() => {
     const programs = applicationData?.programs?.filter((p) => !!p) || [];
@@ -170,10 +263,20 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
   }, [applicationData?.programs]);
 
   const handleResetFilters = () => {
-    const newForm: FilterForm = { ...defaultValues };
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete("programName");
+    newSearchParams.delete("studyName");
+    newSearchParams.delete("statuses");
+    newSearchParams.delete("submitterName");
+    setSearchParams(newSearchParams);
 
+    const newForm: FilterForm = { ...defaultValues };
     reset(newForm);
     handleFormChange(newForm);
+  };
+
+  const handleFilterChange = (field: FilterFormKey) => {
+    setTouchedFilters((prev) => ({ ...prev, [field]: true }));
   };
 
   return (
@@ -182,10 +285,11 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
         <Grid container>
           <Grid item xs={3}>
             <StyledFormControl>
-              <StyledInlineLabel htmlFor="status-filter">Submitter Name</StyledInlineLabel>
+              <StyledInlineLabel htmlFor="submitter-name-filter">Submitter Name</StyledInlineLabel>
               <StyledTextField
                 {...register("submitterName", {
                   setValueAs: (val) => val?.trim(),
+                  onChange: () => handleFilterChange("submitterName"),
                   onBlur: (e) =>
                     isStringLengthBetween(e?.target?.value, 0, 3) && setValue("submitterName", ""),
                 })}
@@ -222,6 +326,7 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
                       />
                     )}
                     onChange={(_, value) => {
+                      handleFilterChange("programName");
                       field.onChange(value);
                     }}
                     options={programOptions}
@@ -241,10 +346,11 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
 
           <Grid item xs={3}>
             <StyledFormControl>
-              <StyledInlineLabel htmlFor="status-filter">Study</StyledInlineLabel>
+              <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
               <StyledTextField
                 {...register("studyName", {
                   setValueAs: (val) => val?.trim(),
+                  onChange: () => handleFilterChange("studyName"),
                   onBlur: (e) =>
                     isStringLengthBetween(e?.target?.value, 0, 3) && setValue("studyName", ""),
                 })}
@@ -273,10 +379,14 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
                     renderValue={(selected: string[]) =>
                       selected?.length > 1 ? `${selected.length} statuses selected` : selected
                     }
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleFilterChange("statuses");
+                    }}
                     data-testid="application-status-filter"
                     multiple
                   >
-                    {statusValues?.map((status) => (
+                    {statusValues.map((status) => (
                       <MenuItem
                         key={`application_status_${status}`}
                         data-testid={`application-status-${status}`}

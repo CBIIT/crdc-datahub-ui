@@ -1,8 +1,11 @@
+import React, { FC } from "react";
 import { render, fireEvent, waitFor, act, within } from "@testing-library/react";
+import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import ListFilters, { defaultValues, DEFAULT_STATUSES_SELECTED } from "./ListFilters";
 import type { FilterForm } from "./ListFilters";
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 
 const mockApplicationData = {
   total: 1,
@@ -13,6 +16,17 @@ const mockApplicationData = {
   submitterNames: [],
 };
 
+type ParentProps = {
+  initialEntries?: MemoryRouterProps["initialEntries"];
+  children: React.ReactNode;
+};
+
+const TestParent: FC<ParentProps> = ({ initialEntries = ["/"], children }) => (
+  <MemoryRouter initialEntries={initialEntries}>
+    <SearchParamsProvider>{children}</SearchParamsProvider>
+  </MemoryRouter>
+);
+
 describe("Accessibility", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -20,7 +34,11 @@ describe("Accessibility", () => {
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = render(<ListFilters applicationData={mockApplicationData} />);
+    const { container } = render(
+      <TestParent>
+        <ListFilters applicationData={mockApplicationData} />
+      </TestParent>
+    );
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -35,13 +53,17 @@ describe("ListFilters Component", () => {
 
   it("renders all filter fields with correct labels and placeholders", () => {
     const { getByText, getByTestId, getByPlaceholderText } = render(
-      <ListFilters applicationData={mockApplicationData} />
+      <TestParent>
+        <ListFilters applicationData={mockApplicationData} />
+      </TestParent>
     );
 
     expect(getByText(/Submitter Name/i)).toBeInTheDocument();
     expect(getByText(/Program/i)).toBeInTheDocument();
     expect(getByText(/Study/i)).toBeInTheDocument();
-    expect(getByText(/5 statuses selected/i)).toBeInTheDocument();
+    expect(
+      getByText(new RegExp(`${DEFAULT_STATUSES_SELECTED.length} statuses selected`, "i"))
+    ).toBeInTheDocument();
 
     expect(getByTestId("submitter-name-input")).toBeInTheDocument();
     expect(getByTestId("study-name-input")).toBeInTheDocument();
@@ -54,7 +76,9 @@ describe("ListFilters Component", () => {
 
     const onChangeMock = jest.fn();
     const { getByTestId } = render(
-      <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
+      <TestParent>
+        <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
+      </TestParent>
     );
 
     const submitterInput = getByTestId("submitter-name-input") as HTMLInputElement;
@@ -84,7 +108,9 @@ describe("ListFilters Component", () => {
 
     const onChangeMock = jest.fn();
     const { getByTestId } = render(
-      <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
+      <TestParent>
+        <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
+      </TestParent>
     );
 
     const submitterInput = getByTestId("submitter-name-input") as HTMLInputElement;
@@ -116,7 +142,9 @@ describe("ListFilters Component", () => {
 
     const onChangeMock = jest.fn();
     const { getByTestId } = render(
-      <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
+      <TestParent>
+        <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
+      </TestParent>
     );
 
     const submitterInput = getByTestId("submitter-name-input") as HTMLInputElement;
@@ -144,7 +172,9 @@ describe("ListFilters Component", () => {
 
   it("renders program options correctly in the Autocomplete field", async () => {
     const { getByPlaceholderText, findAllByRole } = render(
-      <ListFilters applicationData={mockApplicationData} />
+      <TestParent>
+        <ListFilters applicationData={mockApplicationData} />
+      </TestParent>
     );
 
     const programInput = getByPlaceholderText(/Select programs/i);
@@ -158,7 +188,11 @@ describe("ListFilters Component", () => {
   });
 
   it("renders status select options correctly", async () => {
-    const { getByTestId } = render(<ListFilters applicationData={mockApplicationData} />);
+    const { getByTestId } = render(
+      <TestParent>
+        <ListFilters applicationData={mockApplicationData} />
+      </TestParent>
+    );
 
     const statusSelect = within(getByTestId("application-status-filter")).getByRole("button");
     expect(statusSelect).toBeInTheDocument();
@@ -174,9 +208,82 @@ describe("ListFilters Component", () => {
   });
 
   it("works correctly even when no onChange prop is provided", () => {
-    const { getByTestId } = render(<ListFilters applicationData={mockApplicationData} />);
+    const { getByTestId } = render(
+      <TestParent>
+        <ListFilters applicationData={mockApplicationData} />
+      </TestParent>
+    );
     const resetButton = getByTestId("reset-filters-button");
     expect(resetButton).toBeInTheDocument();
     expect(() => userEvent.click(resetButton)).not.toThrow();
+  });
+
+  it("displays the single selected status when only one status is selected", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <ListFilters applicationData={mockApplicationData} />
+      </TestParent>
+    );
+
+    const statusSelect = within(getByTestId("application-status-filter")).getByRole("button");
+    userEvent.click(statusSelect);
+
+    // Unselect all default statuses
+    DEFAULT_STATUSES_SELECTED.forEach((status) => {
+      userEvent.click(getByTestId(`application-status-${status}`));
+    });
+
+    userEvent.click(getByTestId("application-status-New"));
+
+    expect(statusSelect.textContent).toBe("New");
+  });
+
+  it("displays summary text when multiple statuses are selected", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <ListFilters applicationData={mockApplicationData} />
+      </TestParent>
+    );
+
+    const statusSelect = within(getByTestId("application-status-filter")).getByRole("button");
+    userEvent.click(statusSelect);
+
+    // Unselect all default statuses
+    DEFAULT_STATUSES_SELECTED.forEach((status) => {
+      userEvent.click(getByTestId(`application-status-${status}`));
+    });
+
+    userEvent.click(getByTestId("application-status-New"));
+    userEvent.click(getByTestId("application-status-Submitted"));
+
+    expect(statusSelect.textContent).toBe("2 statuses selected");
+  });
+
+  it("initializes form fields based on searchParams", async () => {
+    const initialEntries = [
+      "/?programName=Program%20A&studyName=TestStudy&statuses=Submitted&statuses=Approved&submitterName=JohnDoe",
+    ];
+    const onChangeMock = jest.fn();
+    const { getByTestId, getByPlaceholderText } = render(
+      <TestParent initialEntries={initialEntries}>
+        <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("submitter-name-input")).toHaveValue("JohnDoe");
+      expect(getByTestId("study-name-input")).toHaveValue("TestStudy");
+      expect(getByPlaceholderText(/Select programs/i)).toHaveValue("Program A");
+      expect(getByTestId("application-status-filter")).toHaveTextContent("2 statuses selected");
+    });
+
+    expect(onChangeMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        programName: "Program A",
+        studyName: "TestStudy",
+        statuses: ["Submitted", "Approved"],
+        submitterName: "JohnDoe",
+      })
+    );
   });
 });
