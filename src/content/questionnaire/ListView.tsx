@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -35,6 +35,7 @@ import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import Tooltip from "../../components/Tooltip";
 import { hasPermission } from "../../config/AuthPermissions";
+import CancelApplicationButton from "../../components/CancelApplicationButton";
 
 type T = ListApplicationsResp["listApplications"]["applications"][number];
 
@@ -252,6 +253,22 @@ const columns: Column<T>[] = [
     sortDisabled: true,
     sx: {
       width: "140px",
+      textAlign: "center",
+    },
+  },
+  {
+    label: "",
+    fieldKey: "secondary-action",
+    renderValue: (a) => (
+      <QuestionnaireContext.Consumer>
+        {({ tableRef }) => (
+          <CancelApplicationButton application={a} onCancel={() => tableRef.current?.refresh?.()} />
+        )}
+      </QuestionnaireContext.Consumer>
+    ),
+    sortDisabled: true,
+    sx: {
+      width: "0px",
     },
   },
 ];
@@ -282,10 +299,12 @@ const ListingView: FC = () => {
       fetchPolicy: "no-cache",
     }
   );
+
   const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
+
   const [reviewApp] = useMutation<ReviewAppResp, ReviewAppInput>(REVIEW_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -354,38 +373,44 @@ const ListingView: FC = () => {
     }
   };
 
-  const handleOnReviewClick = async ({ _id, status }: T) => {
-    if (status !== "Submitted") {
-      navigate(`/submission/${_id}`, {
-        state: {
-          from: "/submissions",
-        },
-      });
-      return;
-    }
-
-    try {
-      const { data: d, errors } = await reviewApp({
-        variables: {
-          id: _id,
-        },
-      });
-
-      if (errors || !d?.reviewApplication?._id) {
-        throw new Error("Unable to review Submission Request.");
+  const handleOnReviewClick = useCallback(
+    async ({ _id, status }: T) => {
+      if (status !== "Submitted") {
+        navigate(`/submission/${_id}`, {
+          state: {
+            from: "/submissions",
+          },
+        });
+        return;
       }
 
-      navigate(`/submission/${_id}`, {
-        state: {
-          from: "/submissions",
-        },
-      });
-    } catch (err) {
-      Logger.error("Error transitioning form from Submitted to In Review", err);
-    }
-  };
+      try {
+        const { data: d, errors } = await reviewApp({
+          variables: {
+            id: _id,
+          },
+        });
 
-  const providerValue = useMemo(() => ({ user, handleOnReviewClick }), [user, handleOnReviewClick]);
+        if (errors || !d?.reviewApplication?._id) {
+          throw new Error("Unable to review Submission Request.");
+        }
+
+        navigate(`/submission/${_id}`, {
+          state: {
+            from: "/submissions",
+          },
+        });
+      } catch (err) {
+        Logger.error("Error transitioning form from Submitted to In Review", err);
+      }
+    },
+    [navigate, reviewApp]
+  );
+
+  const providerValue = useMemo(
+    () => ({ user, handleOnReviewClick, tableRef }),
+    [user, handleOnReviewClick, tableRef.current]
+  );
 
   return (
     <>
