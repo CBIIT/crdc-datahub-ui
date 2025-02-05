@@ -420,3 +420,54 @@ describe("isStringLengthBetween utility function", () => {
     expect(result).toBe(false);
   });
 });
+
+describe("extractVersion", () => {
+  it('should extract "3.2" from "3.2.0-alpha-3"', () => {
+    const result = utils.extractVersion("3.2.0-alpha-3");
+    expect(result).toBe("3.2");
+  });
+
+  it('should extract "100.402" from "100.402.22-alpha-6"', () => {
+    const result = utils.extractVersion("100.402.22-alpha-6");
+    expect(result).toBe("100.402");
+  });
+
+  it("should extract only the first two numeric segments when extra periods exist", () => {
+    const result = utils.extractVersion("10.20.30.40");
+    expect(result).toBe("10.20");
+  });
+
+  it("should return the original string when no period is found", () => {
+    const version = "123";
+    const result = utils.extractVersion(version);
+    expect(result).toBe(version);
+  });
+
+  it("should return the original string when the major part has no digits", () => {
+    const version = "alpha.123";
+    const result = utils.extractVersion(version);
+    expect(result).toBe(version);
+  });
+
+  it("should return the original string when the minor part has no digits", () => {
+    const version = "123.beta";
+    const result = utils.extractVersion(version);
+    expect(result).toBe(version);
+  });
+
+  it("should return an empty string when given an empty string", () => {
+    const result = utils.extractVersion("");
+    expect(result).toBe("");
+  });
+
+  it("should return original string when string is missing digits", () => {
+    const result = utils.extractVersion(".");
+    expect(result).toBe(result);
+  });
+
+  it("should return an empty string when provided a non-string value", () => {
+    expect(utils.extractVersion(null)).toBe("");
+    expect(utils.extractVersion(undefined)).toBe("");
+    expect(utils.extractVersion(123 as unknown as string)).toBe("");
+  });
+});

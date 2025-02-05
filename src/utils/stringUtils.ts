@@ -1,3 +1,5 @@
+import { Logger } from "./logger";
+
 /**
  * Capitalizes the first letter of a given string.
  * If the input string is empty, it returns an empty string.
@@ -195,4 +197,45 @@ export const isStringLengthBetween = (
   }
 
   return str?.length > minLength && str?.length < maxLength;
+};
+
+/**
+ * Extracts the major and minor version numbers from a version string.
+ *
+ * @param {string} version - The version string to parse.
+ * @returns {string} A string representing the major and minor version numbers.
+ * Otherwise, the original string if it is invalid
+ */
+export const extractVersion = (version: string): string => {
+  if (!version || typeof version !== "string") {
+    Logger.error(`extractVersion: Invalid version value provided.`, version);
+    return "";
+  }
+
+  const firstPeriodIndex: number = version.indexOf(".");
+  if (firstPeriodIndex === -1) {
+    Logger.error(
+      `extractVersion: Invalid version string: "${version}". Expected at least one period to separate major and minor versions.`
+    );
+    return version;
+  }
+
+  const majorPart: string = version.substring(0, firstPeriodIndex);
+  const remainder: string = version.substring(firstPeriodIndex + 1);
+
+  const majorMatch: RegExpMatchArray | null = majorPart.match(/\d+/);
+  if (!majorMatch) {
+    Logger.error(`extractVersion: Invalid major version in string: "${version}"`);
+    return version;
+  }
+  const major: string = majorMatch[0];
+
+  const minorMatch: RegExpMatchArray | null = remainder.match(/^\d+/);
+  if (!minorMatch) {
+    Logger.error(`extractVersion: Invalid minor version in string: "${version}"`);
+    return version;
+  }
+  const minor: string = minorMatch[0];
+
+  return `${major}.${minor}`;
 };
