@@ -12,6 +12,10 @@ const QuestionnaireContext = React.createContext<{
   handleOnReviewClick?: (
     application: ListApplicationsResp["listApplications"]["applications"][number]
   ) => void;
+  /**
+   * A reference to the table's actions
+   */
+  tableRef?: React.RefObject<TableMethods>;
 }>({});
 
 export default QuestionnaireContext;

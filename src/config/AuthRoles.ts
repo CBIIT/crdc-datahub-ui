@@ -16,3 +16,12 @@ export const Roles: UserRole[] = [
  * A set of roles that are constrained to a set of studies.
  */
 export const RequiresStudiesAssigned: UserRole[] = ["Submitter", "Federal Lead"];
+
+/**
+ * A set of roles that are allowed to delete other users' submission requests.
+ */
+export const CanDeleteOtherSubmissionRequests: UserRole[] = [
+  "Admin",
+  "Federal Lead",
+  "Data Commons Personnel",
+];
