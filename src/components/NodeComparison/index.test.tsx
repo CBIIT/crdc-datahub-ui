@@ -250,3 +250,30 @@ describe("Implementation Requirements", () => {
     );
   });
 });
+
+describe("Snapshots", () => {
+  it("should match the nominal state snapshot", async () => {
+    const mockMatcher = jest.fn().mockReturnValue(true);
+    const mock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedDataInput> = {
+      request: {
+        query: RETRIEVE_RELEASED_DATA,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          retrieveReleasedDataByID: [],
+        },
+      },
+    };
+
+    const { container } = render(<NodeComparison submissionID="" nodeType="" submittedID="" />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    await waitFor(() => {
+      expect(mockMatcher).toHaveBeenCalled(); // wait for the state to normalize
+    });
+
+    expect(container).toMatchSnapshot();
+  });
+});

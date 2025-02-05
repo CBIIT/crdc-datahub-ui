@@ -215,3 +215,11 @@ describe("Implementation Requirements", () => {
     expect(getByText(/another_md_03/i)).toBeInTheDocument();
   });
 });
+
+describe("Snapshots", () => {
+  it("should match the loading state snapshot", () => {
+    const { container } = render(<ComparisonTable newNode={null} existingNode={null} loading />);
+
+    expect(container).toMatchSnapshot();
+  });
+});

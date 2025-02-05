@@ -21,12 +21,11 @@ const StyledAlert = styled(Alert)({
 const StyledTableContainer = styled(TableContainer)({
   marginTop: "12px",
   paddingBottom: "6px",
-  overflow: "hidden",
+  overflowX: "auto",
+  width: "100%",
 });
 
 const StyledTable = styled(Table)({
-  overflowX: "auto",
-  display: "block",
   backgroundColor: "#fff",
   tableLayout: "auto",
   borderCollapse: "separate",
@@ -63,6 +62,11 @@ const StyledTableCell = styled(TableCell)({
  * The number of placeholder columns to display in the loading state
  */
 const PLACEHOLDER_NUM_COLS = 5;
+
+/**
+ * The width of the new/existing column
+ */
+const BLANK_COL_WIDTH = 55;
 
 export type ComparisonTableProps = {
   /**
@@ -110,14 +114,12 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
     );
   }
 
-  // TODO: check loading state styling (it wasn't taking up the full width)
-
   return (
     <StyledTableContainer>
       <StyledTable data-testid="node-comparison-table" size="small">
         <StyledTableHead>
           <TableRow>
-            <StyledTableCell component="td" />
+            <StyledTableCell component="td" width={BLANK_COL_WIDTH} />
             {loading ? (
               <TableHeaderSkeleton />
             ) : (
@@ -133,7 +135,7 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
           ) : (
             <>
               <TableRow data-testid="node-comparison-table-existing">
-                <StyledTableCell>Existing</StyledTableCell>
+                <StyledTableCell width={BLANK_COL_WIDTH}>Existing</StyledTableCell>
                 {allPropertyNames.map((property) => (
                   <StyledTableCell key={property}>
                     {existingProps?.[property] || ""}
@@ -141,7 +143,7 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
                 ))}
               </TableRow>
               <TableRow data-testid="node-comparison-table-new">
-                <StyledTableCell>New</StyledTableCell>
+                <StyledTableCell width={BLANK_COL_WIDTH}>New</StyledTableCell>
                 {allPropertyNames.map((property) => (
                   <StyledTableCell key={property}>{newProps?.[property] || ""}</StyledTableCell>
                 ))}
@@ -175,7 +177,7 @@ const TableHeaderSkeleton: FC = () => (
 const TableBodySkeleton: FC = () => (
   <>
     <TableRow>
-      <StyledTableCell>Existing</StyledTableCell>
+      <StyledTableCell width={BLANK_COL_WIDTH}>Existing</StyledTableCell>
       <Repeater count={PLACEHOLDER_NUM_COLS}>
         <StyledTableCell>
           <Skeleton variant="text" width="100%" height={24} />
@@ -183,7 +185,7 @@ const TableBodySkeleton: FC = () => (
       </Repeater>
     </TableRow>
     <TableRow>
-      <StyledTableCell>New</StyledTableCell>
+      <StyledTableCell width={BLANK_COL_WIDTH}>New</StyledTableCell>
       <Repeater count={PLACEHOLDER_NUM_COLS}>
         <StyledTableCell>
           <Skeleton variant="text" width="100%" height={24} />
