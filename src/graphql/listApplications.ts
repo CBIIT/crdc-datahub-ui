@@ -1,6 +1,7 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
+export const query: TypedDocumentNode<Response, Input> = gql`
   query listApplications(
     $programName: String
     $studyName: String
@@ -46,7 +47,7 @@ export const query = gql`
 export type Input = {
   programName: string;
   studyName: string;
-  statuses: string[];
+  statuses: ApplicationStatus[];
   submitterName: string;
   first: number;
   offset: number;
