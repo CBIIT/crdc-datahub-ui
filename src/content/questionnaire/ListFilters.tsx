@@ -82,6 +82,7 @@ const ActionButtonsContainer = styled(Box)({
   justifyContent: "center",
   height: "100%",
   gap: "9px",
+  paddingTop: "21px",
 });
 
 const StyledIconButton = styled(IconButton)({
