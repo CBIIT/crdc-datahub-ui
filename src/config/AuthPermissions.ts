@@ -1,4 +1,8 @@
-import { Roles as ALL_ROLES, CanDeleteOtherSubmissionRequests } from "./AuthRoles";
+import {
+  Roles as ALL_ROLES,
+  CanDeleteOtherSubmissionRequests,
+  CanSubmitOnlyTheirOwnSubmissionRequestRoles,
+} from "./AuthRoles";
 
 /**
  * A flag indicating that no conditions, other than the user having the permission key, need to be met.
@@ -51,19 +55,20 @@ export const PERMISSION_MAP = {
     view: NO_CONDITIONS,
     create: NO_CONDITIONS,
     submit: (user, application) => {
+      const { role } = user;
       const isFormOwner = application?.applicant?.applicantID === user?._id;
       const hasPermissionKey = user?.permissions?.includes("submission_request:submit");
       const submitStatuses: ApplicationStatus[] = ["In Progress", "Inquired"];
 
-      // Check for implicit permission as well as for the permission key
-      if (!isFormOwner && !hasPermissionKey) {
-        return false;
-      }
       if (!submitStatuses?.includes(application?.status)) {
         return false;
       }
 
-      return true;
+      if (CanSubmitOnlyTheirOwnSubmissionRequestRoles.includes(role)) {
+        return isFormOwner && hasPermissionKey;
+      }
+
+      return hasPermissionKey;
     },
     review: NO_CONDITIONS,
     cancel: (user, application) => {

@@ -315,6 +315,7 @@ describe("Basic Functionality", () => {
           user={{
             ...BaseUser,
             _id: "some-other-user",
+            role: "Admin",
             permissions: ["submission_request:view", "submission_request:submit"],
           }}
         />
@@ -349,6 +350,7 @@ describe("Basic Functionality", () => {
           user={{
             ...BaseUser,
             _id: "user-id-01",
+            role: "Admin",
             permissions: ["submission_request:view"], // Only possible to view the submission request, no submit or review
           }}
         />
