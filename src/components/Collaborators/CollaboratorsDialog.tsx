@@ -93,6 +93,16 @@ const StyledDescription = styled(Typography)({
   marginBottom: "44px",
 });
 
+/**
+ * A set of Submission statuses where the collaborator dialog actions
+ * should be disabled
+ */
+export const DISABLE_COLLABORATOR_DIALOG_STATUSES: SubmissionStatus[] = [
+  "Completed",
+  "Canceled",
+  "Deleted",
+];
+
 type Props = {
   onClose: () => void;
   onSave: (collaborators: Collaborator[]) => void;
@@ -112,7 +122,8 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
   const canModifyCollaborators = useMemo(
     () =>
       hasPermission(user, "data_submission", "create", null, true) &&
-      submission?.getSubmission?.submitterID === user?._id,
+      submission?.getSubmission?.submitterID === user?._id &&
+      !DISABLE_COLLABORATOR_DIALOG_STATUSES.includes(submission?.getSubmission?.status),
     [user, submission?.getSubmission]
   );
 

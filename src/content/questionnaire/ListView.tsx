@@ -1,16 +1,8 @@
-import React, { FC, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Alert,
-  Container,
-  Button,
-  Stack,
-  styled,
-  TableCell,
-  TableContainer,
-  TableHead,
-} from "@mui/material";
+import { Alert, Container, Button, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { isEqual } from "lodash";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
@@ -35,6 +27,8 @@ import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import Tooltip from "../../components/Tooltip";
 import { hasPermission } from "../../config/AuthPermissions";
+import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
+import CancelApplicationButton from "../../components/CancelApplicationButton";
 
 type T = ListApplicationsResp["listApplications"]["applications"][number];
 
@@ -61,11 +55,11 @@ const StyledContainer = styled(Container)({
   marginTop: "-62px",
 });
 
-const StyledTableContainer = styled(TableContainer)({
+const StyledFilterTableWrapper = styled(Box)({
   borderRadius: "8px",
-  border: "1px solid #083A50",
+  background: "#FFF",
+  border: "1px solid #6CACDA",
   marginBottom: "25px",
-  position: "relative",
 });
 
 const StyledTableHead = styled(TableHead)({
@@ -134,18 +128,18 @@ const columns: Column<T>[] = [
     fieldKey: "applicant.applicantName",
   },
   {
-    label: "Study",
-    renderValue: (a) => (
-      <TruncatedText text={a.studyAbbreviation || "NA"} disableInteractiveTooltip={false} />
-    ),
-    field: "studyAbbreviation",
-  },
-  {
     label: "Program",
     renderValue: (a) => (
       <TruncatedText text={a.programName || "NA"} disableInteractiveTooltip={false} />
     ),
     field: "programName",
+  },
+  {
+    label: "Study",
+    renderValue: (a) => (
+      <TruncatedText text={a.studyAbbreviation || "NA"} disableInteractiveTooltip={false} />
+    ),
+    field: "studyAbbreviation",
   },
   {
     label: "Status",
@@ -252,6 +246,22 @@ const columns: Column<T>[] = [
     sortDisabled: true,
     sx: {
       width: "140px",
+      textAlign: "center",
+    },
+  },
+  {
+    label: "",
+    fieldKey: "secondary-action",
+    renderValue: (a) => (
+      <QuestionnaireContext.Consumer>
+        {({ tableRef }) => (
+          <CancelApplicationButton application={a} onCancel={() => tableRef.current?.refresh?.()} />
+        )}
+      </QuestionnaireContext.Consumer>
+    ),
+    sortDisabled: true,
+    sx: {
+      width: "0px",
     },
   },
 ];
@@ -272,6 +282,7 @@ const ListingView: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<ListApplicationsResp["listApplications"]>(null);
+  const filtersRef = useRef<FilterForm>({ ...defaultValues });
 
   const tableRef = useRef<TableMethods>(null);
 
@@ -282,10 +293,12 @@ const ListingView: FC = () => {
       fetchPolicy: "no-cache",
     }
   );
+
   const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
+
   const [reviewApp] = useMutation<ReviewAppResp, ReviewAppInput>(REVIEW_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -332,8 +345,14 @@ const ListingView: FC = () => {
     try {
       setLoading(true);
 
+      const { programName, studyName, statuses, submitterName } = filtersRef.current;
+
       const { data: d, error } = await listApplications({
         variables: {
+          submitterName: submitterName || undefined,
+          programName: programName || "All",
+          studyName: studyName || undefined,
+          statuses,
           first,
           offset,
           sortDirection,
@@ -348,44 +367,64 @@ const ListingView: FC = () => {
 
       setData(d.listApplications);
     } catch (err) {
+      Logger.error(`ListView: Unable to retrieve Data Submission List results`, err);
       setError(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOnReviewClick = async ({ _id, status }: T) => {
-    if (status !== "Submitted") {
-      navigate(`/submission/${_id}`, {
-        state: {
-          from: "/submissions",
-        },
-      });
+  const handleOnFiltersChange = (data: FilterForm) => {
+    if (isEqual(data, filtersRef.current)) {
       return;
     }
 
-    try {
-      const { data: d, errors } = await reviewApp({
-        variables: {
-          id: _id,
-        },
-      });
-
-      if (errors || !d?.reviewApplication?._id) {
-        throw new Error("Unable to review Submission Request.");
-      }
-
-      navigate(`/submission/${_id}`, {
-        state: {
-          from: "/submissions",
-        },
-      });
-    } catch (err) {
-      Logger.error("Error transitioning form from Submitted to In Review", err);
-    }
+    filtersRef.current = { ...data };
+    setTablePage(0);
   };
 
-  const providerValue = useMemo(() => ({ user, handleOnReviewClick }), [user, handleOnReviewClick]);
+  const setTablePage = (page: number) => {
+    tableRef.current?.setPage(page, true);
+  };
+
+  const handleOnReviewClick = useCallback(
+    async ({ _id, status }: T) => {
+      if (status !== "Submitted") {
+        navigate(`/submission/${_id}`, {
+          state: {
+            from: "/submissions",
+          },
+        });
+        return;
+      }
+
+      try {
+        const { data: d, errors } = await reviewApp({
+          variables: {
+            id: _id,
+          },
+        });
+
+        if (errors || !d?.reviewApplication?._id) {
+          throw new Error("Unable to review Submission Request.");
+        }
+
+        navigate(`/submission/${_id}`, {
+          state: {
+            from: "/submissions",
+          },
+        });
+      } catch (err) {
+        Logger.error("Error transitioning form from Submitted to In Review", err);
+      }
+    },
+    [navigate, reviewApp]
+  );
+
+  const providerValue = useMemo(
+    () => ({ user, handleOnReviewClick, tableRef }),
+    [user, handleOnReviewClick, tableRef.current]
+  );
 
   return (
     <>
@@ -412,7 +451,9 @@ const ListingView: FC = () => {
           </Alert>
         )}
 
-        <StyledTableContainer>
+        <StyledFilterTableWrapper>
+          <ListFilters applicationData={data} onChange={handleOnFiltersChange} />
+
           <QuestionnaireContext.Provider value={providerValue}>
             <GenericTable
               ref={tableRef}
@@ -423,7 +464,7 @@ const ListingView: FC = () => {
               defaultRowsPerPage={20}
               defaultOrder="desc"
               position="bottom"
-              noContentText="There are no submission requests associated with your account"
+              noContentText="You either do not have the appropriate permissions to view submission requests, or there are no submission requests associated with your account."
               onFetchData={handleFetchData}
               containerProps={{
                 sx: {
@@ -438,7 +479,7 @@ const ListingView: FC = () => {
               CustomTableBodyCell={StyledTableCell}
             />
           </QuestionnaireContext.Provider>
-        </StyledTableContainer>
+        </StyledFilterTableWrapper>
       </StyledContainer>
     </>
   );

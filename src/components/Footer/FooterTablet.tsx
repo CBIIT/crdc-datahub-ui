@@ -1,9 +1,9 @@
-import React, { useState, useRef } from "react";
 import { styled } from "@mui/material";
 import { Link } from "react-router-dom";
 import FooterData from "../../config/FooterConfig";
+import NewsletterForm from "./NewsletterForm";
 
-const FooterStyled = styled("footer")({
+const StyledFooter = styled("footer")({
   backgroundColor: "#1B496E",
   borderTop: "1px solid #6C727B",
   bottom: 0,
@@ -21,7 +21,7 @@ const FooterContainer = styled("div")({
   justifyContent: "space-between",
 });
 
-const FooterEmailSignupContainer = styled("form")({
+const StyledNewsletterForm = styled(NewsletterForm)({
   width: "33.3%",
   "& .signUpTitle": {
     fontFamily: "poppins",
@@ -206,169 +206,108 @@ const BottomFooter = styled("div")({
   },
 });
 
-const FooterTablet = () => {
-  const [emailContent, setEmailContent] = useState("");
-  const emailForm = useRef<HTMLFormElement>(null);
-  const emailInput = useRef<HTMLInputElement>(null);
-
-  function validateEmail(email) {
-    const reg = /^[A-Za-z0-9]+([_.-][A-Za-z0-9]+)*@([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}$/;
-    return reg.test(email);
-  }
-
-  const handleSubmit = (e) => {
-    emailForm.current.reportValidity();
-    if (!validateEmail(emailContent)) {
-      emailInput.current.setCustomValidity("Please enter valid email");
-      e.preventDefault();
-    } else {
-      emailInput.current.setCustomValidity("");
-      emailForm.current.submit();
-    }
-  };
-
-  const handleChange = (e) => {
-    setEmailContent(e.target.value);
-  };
-  return (
-    <>
-      <FooterStyled role="contentinfo">
-        <FooterContainer>
-          <FooterLinksContainer>
-            {FooterData.link_sections.map((linkItem) => (
-              <div className="footItem" key={`link_${linkItem.title}`}>
-                <div className="footItemTitle">{linkItem.title}</div>
-                {linkItem.items.map((item) => {
-                  if (typeof item?.link !== "string") {
-                    return (
-                      <div className="footItemSubtitle" key={item?.text}>
-                        {item.text}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className="footItemSubtitle" key={`item_${item.text}`}>
-                      {item.link.includes("http") ? (
-                        <a
-                          className="footItemLink"
-                          href={item.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {item.text}
-                        </a>
-                      ) : (
-                        <Link className="footItemLink" to={item.link}>
-                          {item.text}
-                        </Link>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </FooterLinksContainer>
-          <FooterEmailSignupContainer
-            onSubmit={handleSubmit}
-            ref={emailForm}
-            action="https://public.govdelivery.com/accounts/USNIHNCI/subscribers/qualify"
-            method="post"
-            target="_blank"
-            id="signup"
-            noValidate
-          >
-            <input type="hidden" name="topic_id" id="topic_id" value="USNIHNCI_223" />
-            <div className="signUpTitle">Sign up for email updates</div>
-            <div className="enterTitle">
-              <label htmlFor="email">
-                Sign up for the newsletter
-                <input
-                  ref={emailInput}
-                  id="email"
-                  type="email"
-                  name="email"
-                  className="signUpInputBox"
-                  value={emailContent}
-                  onChange={(e) => handleChange(e)}
-                />
-              </label>
-            </div>
-            <button type="submit" className="signUpButton">
-              Sign up
-            </button>
-          </FooterEmailSignupContainer>
-        </FooterContainer>
-      </FooterStyled>
-      <BottomFooter>
-        <div className="bottom-footer-container">
-          <div id="bottom-footer-header">
-            <a
-              className="logoText"
-              href="https://www.cancer.gov"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div className="logoUpperText">National Cancer Institute</div>
-              <div className="logoLowerText">at the National Institutes of Health</div>
-            </a>
-          </div>
-          <div id="bottom-footer-contact-us">
-            Contact Us
-            <div id="bottom-footer-contact-links">
-              {FooterData.contact_links.map((contactItem, contactidx) => {
-                const contactkey = `contact_${contactidx}`;
-                return contactItem.link.includes("http") ? (
-                  <a
-                    key={contactkey}
-                    href={contactItem.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {contactItem.text}
-                  </a>
-                ) : (
-                  <a key={contactkey} href={contactItem.link}>
-                    {contactItem.text}
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-          <div className="break" />
-          <div id="bottom-footer-follow-us">
-            Follow Us
-            <div id="bottom-footer-follow-us-links">
-              {FooterData.followUs_links.map((followItem, followidx) => {
-                const followkey = `follow_${followidx}`;
+const FooterTablet = () => (
+  <StyledFooter role="contentinfo" data-testid="tablet-footer">
+    <FooterContainer>
+      <FooterLinksContainer>
+        {FooterData.link_sections.map((linkItem) => (
+          <div className="footItem" key={`link_${linkItem.title}`}>
+            <div className="footItemTitle">{linkItem.title}</div>
+            {linkItem.items.map((item) => {
+              if (typeof item?.link !== "string") {
                 return (
-                  <a
-                    key={followkey}
-                    className={followidx !== 0 ? "bottom-footer-social-media-imgs" : ""}
-                    href={followItem.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <img src={followItem.img} alt={followItem.description} />
-                  </a>
+                  <div className="footItemSubtitle" key={item?.text}>
+                    {item.text}
+                  </div>
                 );
-              })}
-            </div>
-          </div>
-          <div id="bottom-footer-gov-links">
-            {FooterData.global_footer_links.map((linkItem, idx) => {
-              const linkitemkey = `linkitem_${idx}`;
+              }
+
               return (
-                <a key={linkitemkey} href={linkItem.link} target="_blank" rel="noopener noreferrer">
-                  {linkItem.text}
-                </a>
+                <div className="footItemSubtitle" key={`item_${item.text}`}>
+                  {item.link.includes("http") ? (
+                    <a
+                      className="footItemLink"
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.text}
+                    </a>
+                  ) : (
+                    <Link className="footItemLink" to={item.link}>
+                      {item.text}
+                    </Link>
+                  )}
+                </div>
               );
             })}
           </div>
+        ))}
+      </FooterLinksContainer>
+      <StyledNewsletterForm />
+    </FooterContainer>
+
+    <BottomFooter>
+      <div className="bottom-footer-container">
+        <div id="bottom-footer-header">
+          <a
+            className="logoText"
+            href="https://www.cancer.gov"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div className="logoUpperText">National Cancer Institute</div>
+            <div className="logoLowerText">at the National Institutes of Health</div>
+          </a>
         </div>
-      </BottomFooter>
-    </>
-  );
-};
+        <div id="bottom-footer-contact-us">
+          Contact Us
+          <div id="bottom-footer-contact-links">
+            {FooterData.contact_links.map((contactItem) =>
+              contactItem.link.includes("http") ? (
+                <a
+                  key={contactItem.link}
+                  href={contactItem.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {contactItem.text}
+                </a>
+              ) : (
+                <a key={contactItem.link} href={contactItem.link}>
+                  {contactItem.text}
+                </a>
+              )
+            )}
+          </div>
+        </div>
+        <div className="break" />
+        <div id="bottom-footer-follow-us">
+          Follow Us
+          <div id="bottom-footer-follow-us-links">
+            {FooterData.followUs_links.map((followItem, ind) => (
+              <a
+                key={followItem.link}
+                className={ind !== 0 ? "bottom-footer-social-media-imgs" : ""}
+                href={followItem.link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={followItem.img} alt={followItem.description} />
+              </a>
+            ))}
+          </div>
+        </div>
+        <div id="bottom-footer-gov-links">
+          {FooterData.global_footer_links.map((linkItem) => (
+            <a key={linkItem.link} href={linkItem.link} target="_blank" rel="noopener noreferrer">
+              {linkItem.text}
+            </a>
+          ))}
+        </div>
+      </div>
+    </BottomFooter>
+  </StyledFooter>
+);
 
 export default FooterTablet;
