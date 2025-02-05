@@ -345,21 +345,19 @@ const ListingView: FC = () => {
     try {
       setLoading(true);
 
+      const { programName, studyName, statuses, submitterName } = filtersRef.current;
+
       const { data: d, error } = await listApplications({
         variables: {
-          ...(filtersRef.current?.programName
-            ? { programName: filtersRef.current.programName }
-            : {}),
-          ...(filtersRef.current?.studyName ? { studyName: filtersRef.current.studyName } : {}),
-          ...(filtersRef.current?.statuses?.length && { statuses: filtersRef.current.statuses }),
-          ...(filtersRef.current?.submitterName
-            ? { submitterName: filtersRef.current.submitterName }
-            : {}),
+          submitterName: submitterName || undefined,
+          programName: programName || "All",
+          studyName: studyName || undefined,
+          statuses,
           first,
           offset,
           sortDirection,
           orderBy,
-        } as ListApplicationsInput,
+        },
         context: { clientName: "backend" },
         fetchPolicy: "no-cache",
       });
