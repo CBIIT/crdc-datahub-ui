@@ -1,5 +1,5 @@
 import React, { FC, useMemo } from "react";
-import { render, waitFor } from "@testing-library/react";
+import { act, render, waitFor } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
@@ -107,18 +107,17 @@ const TestParent: FC<ParentProps> = ({
 describe("Accessibility", () => {
   it("has no accessibility violations", async () => {
     const { container, getByText } = render(
-      <TestParent>
+      <TestParent role="Submitter" permissions={["submission_request:view"]}>
         <ListView />
       </TestParent>
     );
 
     await waitFor(() => {
-      expect(getByText("Start a Submission Request")).toBeInTheDocument();
+      expect(getByText("Submission Request List")).toBeInTheDocument();
     });
 
-    await waitFor(async () => {
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
     });
   });
 });
