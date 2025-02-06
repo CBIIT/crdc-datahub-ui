@@ -63,6 +63,7 @@ const baseApp: Omit<Application, "questionnaireData"> = {
   programName: "",
   programAbbreviation: "",
   programDescription: "",
+  version: "",
 };
 
 type TestParentProps = {
