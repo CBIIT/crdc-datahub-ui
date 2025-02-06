@@ -11,6 +11,8 @@ import {
 } from "@mui/material";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import PackageTable from "./PackageTable";
+import env from "../../env";
+import { extractVersion } from "../../utils";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -31,7 +33,7 @@ const StyledHeader = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "900 !important",
   lineHeight: "30px !important",
-  marginBottom: "51px !important",
+  marginBottom: "8px",
   letterSpacing: "normal !important",
 });
 
@@ -87,6 +89,15 @@ const StyledButton = styled(Button)({
   },
 });
 
+const StyledSubtitle = styled(Typography)({
+  color: "#595959",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 400,
+  lineHeight: "19.6px",
+  marginBottom: "51px",
+});
+
 type Props = {
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
@@ -109,6 +120,10 @@ const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest
     <StyledHeader id="uploader-cli-header" variant="h1">
       Uploader CLI Tool
     </StyledHeader>
+    <StyledSubtitle data-testid="uploader-cli-version">
+      (Version: v{extractVersion(env?.REACT_APP_UPLOADER_CLI_VERSION)})
+    </StyledSubtitle>
+
     <StyledDialogContent>
       <StyledBodyText id="uploader-cli-body" variant="body1">
         The Uploader CLI is a command-line interface tool designed for directly uploading data
