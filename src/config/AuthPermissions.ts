@@ -34,7 +34,7 @@ type Permissions = {
   };
   data_submission: {
     dataType: Submission;
-    action: "view" | "create" | "review" | "admin_submit" | "confirm";
+    action: "view" | "create" | "review" | "admin_submit" | "confirm" | "cancel";
   };
   user: {
     dataType: null;
@@ -164,6 +164,7 @@ export const PERMISSION_MAP = {
 
       return false;
     },
+    cancel: NO_CONDITIONS,
   },
   access: {
     request: NO_CONDITIONS,
