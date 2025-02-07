@@ -146,8 +146,12 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
     );
   }, [submission, user]);
 
-  const Adornments: ReactElement = useMemo(
-    () => (
+  const Adornments: ReactElement = useMemo(() => {
+    if (submission?.dataType !== "Metadata and Data Files") {
+      return null;
+    }
+
+    return (
       <Stack direction="row" alignItems="center" ml="10px">
         {/* TODO: Implement design */}
         <StyledUploaderCLIVersionText data-testid="uploader-cli-version-wrapper">
@@ -167,12 +171,11 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
               v{extractVersion(env?.REACT_APP_UPLOADER_CLI_VERSION)}
             </StyledVersionButton>
           </StyledTooltip>
+          )
         </StyledUploaderCLIVersionText>
-        )
       </Stack>
-    ),
-    [env]
-  );
+    );
+  }, [submission?.dataType, env?.REACT_APP_UPLOADER_CLI_VERSION]);
 
   return (
     <FlowWrapper index={2} title="Upload Data Files" titleAdornment={Adornments} actions={Actions}>
