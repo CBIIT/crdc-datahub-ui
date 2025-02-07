@@ -147,7 +147,8 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
   }, [submission, user]);
 
   const Adornments: ReactElement = useMemo(() => {
-    if (submission?.dataType !== "Metadata and Data Files") {
+    const version = extractVersion(env?.REACT_APP_UPLOADER_CLI_VERSION);
+    if (submission?.dataType !== "Metadata and Data Files" || !version) {
       return null;
     }
 
@@ -168,7 +169,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
               onClick={() => setCLIDialogOpen(true)}
               data-testid="uploader-cli-version-button"
             >
-              v{extractVersion(env?.REACT_APP_UPLOADER_CLI_VERSION)}
+              v{version}
             </StyledVersionButton>
           </StyledTooltip>
           )
