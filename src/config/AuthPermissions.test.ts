@@ -23,6 +23,7 @@ const baseApplication: Application = {
   pendingConditions: [],
   programAbbreviation: "",
   programDescription: "",
+  version: "",
 };
 
 const baseSubmission: Submission = {
@@ -148,39 +149,14 @@ describe("submission_request:submit Permission", () => {
   ];
 
   it.each(validStatuses)(
-    "should allow the form owner to submit if the status is '%s' without the permission",
+    "should allow a user with 'submission_request:submit' permission key if the status is '%s'",
     (status) => {
-      const user = createUser("Submitter", []);
-
-      const application: Application = {
-        ...baseApplication,
-        status,
-        applicant: {
-          ...baseApplication.applicant,
-          applicantID: "user-1",
-        },
-      };
-
-      expect(hasPermission(user, "submission_request", "submit", application)).toBe(true);
-    }
-  );
-
-  it.each(validStatuses)(
-    "should allow a user with 'submission_request:submit' permission key if the status is '%s', even if not owner",
-    (status) => {
-      const user = createUser("Submitter", ["submission_request:submit"]);
+      const user = createUser("Admin", ["submission_request:submit"]);
       const application: Application = { ...baseApplication, status };
 
       expect(hasPermission(user, "submission_request", "submit", application)).toBe(true);
     }
   );
-
-  it("should deny submission if the user is not the owner AND lacks the 'submission_request:submit' permission key", () => {
-    const user = createUser("Submitter", []);
-    const application: Application = { ...baseApplication, status: "In Progress" };
-
-    expect(hasPermission(user, "submission_request", "submit", application)).toBe(false);
-  });
 
   it.each(invalidStatuses)("should deny submission if the application status is '%s'", (status) => {
     const user = createUser("Submitter", ["submission_request:submit"]);
@@ -194,6 +170,55 @@ describe("submission_request:submit Permission", () => {
 
     expect(hasPermission(user, "submission_request", "submit", undefined)).toBe(false);
     expect(hasPermission(user, "submission_request", "submit", null)).toBe(false);
+  });
+
+  it.each<UserRole>(["User", "Submitter"])(
+    "should allow a user with role '%s' to submit with 'submission_request:submit' permission key if they are the form owner",
+    (role) => {
+      const user = createUser(role, ["submission_request:submit"]);
+      const application: Application = {
+        ...baseApplication,
+        status: "In Progress",
+        applicant: { ...baseApplication.applicant, applicantID: "user-1" },
+      };
+
+      expect(hasPermission(user, "submission_request", "submit", application)).toBe(true);
+    }
+  );
+
+  it.each<UserRole>(["User", "Submitter"])(
+    "should deny a user with role '%s' to submit with 'submission_request:submit' permission key if they are not the form owner",
+    (role) => {
+      const user = createUser(role, ["submission_request:submit"]);
+      const application: Application = {
+        ...baseApplication,
+        status: "In Progress",
+        applicant: { ...baseApplication.applicant, applicantID: "some-other-user" },
+      };
+
+      expect(hasPermission(user, "submission_request", "submit", application)).toBe(false);
+    }
+  );
+
+  it.each<UserRole>(["Admin", "Data Commons Personnel", "Federal Lead"])(
+    "should allow a user with role '%s' to submit with 'submission_request:submit' permission key, regardless of form owner",
+    (role) => {
+      const user = createUser(role, ["submission_request:submit"]);
+      const application: Application = {
+        ...baseApplication,
+        status: "In Progress",
+        applicant: { ...baseApplication.applicant, applicantID: "some-other-user" },
+      };
+
+      expect(hasPermission(user, "submission_request", "submit", application)).toBe(true);
+    }
+  );
+
+  it("should deny submission if the user is not the owner AND lacks the 'submission_request:submit' permission key", () => {
+    const user = createUser("Admin", []);
+    const application: Application = { ...baseApplication, status: "In Progress" };
+
+    expect(hasPermission(user, "submission_request", "submit", application)).toBe(false);
   });
 });
 

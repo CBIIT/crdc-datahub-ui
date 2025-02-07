@@ -25,3 +25,9 @@ export const CanDeleteOtherSubmissionRequests: UserRole[] = [
   "Federal Lead",
   "Data Commons Personnel",
 ];
+
+/**
+ * A set of roles that are constrained to only be able to submit their own
+ * Submission Request forms and cannot submit on behalf of other users.
+ */
+export const CanSubmitOnlyTheirOwnSubmissionRequestRoles: UserRole[] = ["User", "Submitter"];
