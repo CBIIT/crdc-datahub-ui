@@ -204,7 +204,7 @@ export const isStringLengthBetween = (
  *
  * @param {string} version - The version string to parse.
  * @returns {string} A string representing the major and minor version numbers.
- * Otherwise, the original string if it is invalid
+ * Otherwise, an empty string.
  */
 export const extractVersion = (version: string): string => {
   if (!version || typeof version !== "string") {
@@ -217,7 +217,7 @@ export const extractVersion = (version: string): string => {
     Logger.error(
       `extractVersion: Invalid version string: "${version}". Expected at least one period to separate major and minor versions.`
     );
-    return version;
+    return "";
   }
 
   const majorPart: string = version.substring(0, firstPeriodIndex);
@@ -226,14 +226,14 @@ export const extractVersion = (version: string): string => {
   const majorMatch: RegExpMatchArray | null = majorPart.match(/\d+/);
   if (!majorMatch) {
     Logger.error(`extractVersion: Invalid major version in string: "${version}"`);
-    return version;
+    return "";
   }
   const major: string = majorMatch[0];
 
   const minorMatch: RegExpMatchArray | null = remainder.match(/^\d+/);
   if (!minorMatch) {
     Logger.error(`extractVersion: Invalid minor version in string: "${version}"`);
-    return version;
+    return "";
   }
   const minor: string = minorMatch[0];
 
