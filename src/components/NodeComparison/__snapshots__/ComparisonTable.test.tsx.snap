@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Snapshots should match the loading state snapshot 1`] = `
+exports[`Snapshots should match the loading state snapshot: loading table 1`] = `
 <div>
   <div
     class="MuiTableContainer-root css-1dgj49d-MuiTableContainer-root"
   >
     <table
-      class="MuiTable-root css-jhw3vi-MuiTable-root"
+      class="MuiTable-root css-1sjtdyy-MuiTable-root"
       data-testid="node-comparison-table"
     >
       <thead

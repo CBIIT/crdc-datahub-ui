@@ -220,6 +220,6 @@ describe("Snapshots", () => {
   it("should match the loading state snapshot", () => {
     const { container } = render(<ComparisonTable newNode={null} existingNode={null} loading />);
 
-    expect(container).toMatchSnapshot();
+    expect(container).toMatchSnapshot("loading table");
   });
 });

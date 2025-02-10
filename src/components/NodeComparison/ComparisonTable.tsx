@@ -27,8 +27,9 @@ const StyledTableContainer = styled(TableContainer)({
 
 const StyledTable = styled(Table)({
   backgroundColor: "#fff",
-  tableLayout: "auto",
   borderCollapse: "separate",
+  borderRadius: "8px",
+  tableLayout: "auto",
   // NOTE: The first element in this thead is a TD, not a TH
   "& thead tr:first-of-type td:first-of-type": {
     borderTopLeftRadius: "8px",
