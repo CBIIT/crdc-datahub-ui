@@ -9,6 +9,12 @@ export type RepeaterProps = {
    * The component that should be repeated N times
    */
   children: React.ReactElement;
+  /**
+   * An optional prefix for the repeated component's key
+   *
+   * @example "my-component"
+   */
+  keyPrefix?: string;
 };
 
 /**
@@ -16,8 +22,16 @@ export type RepeaterProps = {
  *
  * @returns The Repeater component
  */
-const Repeater: FC<RepeaterProps> = ({ children, count }: RepeaterProps) => (
-  <>{Array.from({ length: count }, (_, index) => React.cloneElement(children, { key: index }))}</>
+const Repeater: FC<RepeaterProps> = ({
+  count,
+  children,
+  keyPrefix = "repeater",
+}: RepeaterProps) => (
+  <>
+    {Array.from({ length: count }, (_, index) =>
+      React.cloneElement(children, { key: `${keyPrefix}-${index}` })
+    )}
+  </>
 );
 
 export default memo<RepeaterProps>(Repeater);

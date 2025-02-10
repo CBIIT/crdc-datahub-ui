@@ -163,7 +163,7 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
  * @returns The TableHeaderSkeleton component
  */
 const TableHeaderSkeleton: FC = () => (
-  <Repeater count={PLACEHOLDER_NUM_COLS}>
+  <Repeater count={PLACEHOLDER_NUM_COLS} keyPrefix="loader-skeleton-header">
     <StyledTableCell component="td" data-testid="node-comparison-table-header-skeleton">
       <Skeleton variant="text" width="100%" height={24} />
     </StyledTableCell>
@@ -179,7 +179,7 @@ const TableBodySkeleton: FC = () => (
   <>
     <TableRow>
       <StyledTableCell width={BLANK_COL_WIDTH}>Existing</StyledTableCell>
-      <Repeater count={PLACEHOLDER_NUM_COLS}>
+      <Repeater count={PLACEHOLDER_NUM_COLS} keyPrefix="loader-skeleton-existing">
         <StyledTableCell>
           <Skeleton variant="text" width="100%" height={24} />
         </StyledTableCell>
@@ -187,7 +187,7 @@ const TableBodySkeleton: FC = () => (
     </TableRow>
     <TableRow>
       <StyledTableCell width={BLANK_COL_WIDTH}>New</StyledTableCell>
-      <Repeater count={PLACEHOLDER_NUM_COLS}>
+      <Repeater count={PLACEHOLDER_NUM_COLS} keyPrefix="loader-skeleton-new">
         <StyledTableCell>
           <Skeleton variant="text" width="100%" height={24} />
         </StyledTableCell>

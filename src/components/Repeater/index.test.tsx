@@ -5,7 +5,7 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     expect(() =>
       render(
-        <Repeater count={1}>
+        <Repeater count={1} keyPrefix="test">
           <p>some child</p>
         </Repeater>
       )
