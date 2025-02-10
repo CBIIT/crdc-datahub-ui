@@ -22,6 +22,7 @@ import {
 } from "../../graphql";
 import QualityControlFilters from "../../components/DataSubmissions/QualityControlFilters";
 import { NodeComparisonProps } from "../../components/NodeComparison";
+import { ValidationErrorCodes } from "../../config/ValidationErrors";
 
 type FilterForm = {
   issueType: string;
@@ -473,8 +474,8 @@ const QualityControl: FC = () => {
       return undefined;
     }
     if (
-      !selectedRow?.errors?.some((error) => error.code === "M018") &&
-      !selectedRow?.warnings?.some((warning) => warning.code === "M018")
+      !selectedRow?.errors?.some((error) => error.code === ValidationErrorCodes.UPDATING_DATA) &&
+      !selectedRow?.warnings?.some((warning) => warning.code === ValidationErrorCodes.UPDATING_DATA)
     ) {
       return undefined;
     }
