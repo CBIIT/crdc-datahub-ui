@@ -4,6 +4,7 @@ import gql from "graphql-tag";
 const BaseQCResultFragment = gql`
   fragment BaseQCResultFragment on QCResult {
     errors {
+      code
       title
       description
     }
@@ -23,10 +24,12 @@ const FullQCResultFragment = gql`
     uploadedDate
     validatedDate
     errors {
+      code
       title
       description
     }
     warnings {
+      code
       title
       description
     }
