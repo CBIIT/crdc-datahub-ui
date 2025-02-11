@@ -437,22 +437,22 @@ describe("extractVersion", () => {
     expect(result).toBe("10.20");
   });
 
-  it("should return the original string when no period is found", () => {
+  it("should return an empty string when no period is found", () => {
     const version = "123";
     const result = utils.extractVersion(version);
-    expect(result).toBe(version);
+    expect(result).toBe("");
   });
 
-  it("should return the original string when the major part has no digits", () => {
+  it("should return an empty string when the major part has no digits", () => {
     const version = "alpha.123";
     const result = utils.extractVersion(version);
-    expect(result).toBe(version);
+    expect(result).toBe("");
   });
 
-  it("should return the original string when the minor part has no digits", () => {
+  it("should return an empty string when the minor part has no digits", () => {
     const version = "123.beta";
     const result = utils.extractVersion(version);
-    expect(result).toBe(version);
+    expect(result).toBe("");
   });
 
   it("should return an empty string when given an empty string", () => {
@@ -460,9 +460,9 @@ describe("extractVersion", () => {
     expect(result).toBe("");
   });
 
-  it("should return original string when string is missing digits", () => {
+  it("should return an empty string when string is missing digits", () => {
     const result = utils.extractVersion(".");
-    expect(result).toBe(result);
+    expect(result).toBe("");
   });
 
   it("should return an empty string when provided a non-string value", () => {

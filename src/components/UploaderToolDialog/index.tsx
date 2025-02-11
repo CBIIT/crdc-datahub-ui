@@ -11,6 +11,8 @@ import {
 } from "@mui/material";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import PackageTable from "./PackageTable";
+import env from "../../env";
+import { extractVersion } from "../../utils";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -31,12 +33,13 @@ const StyledHeader = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "900 !important",
   lineHeight: "30px !important",
-  marginBottom: "51px !important",
+  marginBottom: 0,
   letterSpacing: "normal !important",
 });
 
 const StyledDialogContent = styled(DialogContent)({
   padding: 0,
+  marginTop: "51px",
 });
 
 const StyledBodyText = styled(Typography)({
@@ -87,46 +90,63 @@ const StyledButton = styled(Button)({
   },
 });
 
+const StyledSubtitle = styled(Typography)({
+  color: "#595959",
+  fontSize: "16px",
+  fontStyle: "normal",
+  fontWeight: 400,
+  lineHeight: "19.6px",
+  marginTop: "8px",
+});
+
 type Props = {
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
 
-const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest }) => (
-  <StyledDialog
-    open={open}
-    onClose={() => onClose?.()}
-    aria-labelledby="uploader-cli-header"
-    data-testid="uploader-cli-dialog"
-    {...rest}
-  >
-    <StyledCloseDialogButton
-      data-testid="uploader-cli-dialog-close-icon"
-      aria-label="close"
-      onClick={() => onClose?.()}
-    >
-      <CloseIconSvg />
-    </StyledCloseDialogButton>
-    <StyledHeader id="uploader-cli-header" variant="h1">
-      Uploader CLI Tool
-    </StyledHeader>
-    <StyledDialogContent>
-      <StyledBodyText id="uploader-cli-body" variant="body1">
-        The Uploader CLI is a command-line interface tool designed for directly uploading data
-        submission files from your workstation to the CRDC Submission Portal cloud storage.
-        <br />
-        <br />
-        To download the tool and access the accompanying instructions, please choose from the
-        available download options below.
-      </StyledBodyText>
+const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest }) => {
+  const version = extractVersion(env?.REACT_APP_UPLOADER_CLI_VERSION);
 
-      <PackageTable />
-    </StyledDialogContent>
-    <StyledDialogActions>
-      <StyledButton data-testid="uploader-cli-close-button" variant="outlined" onClick={onClose}>
-        Close
-      </StyledButton>
-    </StyledDialogActions>
-  </StyledDialog>
-);
+  return (
+    <StyledDialog
+      open={open}
+      onClose={() => onClose?.()}
+      aria-labelledby="uploader-cli-header"
+      data-testid="uploader-cli-dialog"
+      {...rest}
+    >
+      <StyledCloseDialogButton
+        data-testid="uploader-cli-dialog-close-icon"
+        aria-label="close"
+        onClick={() => onClose?.()}
+      >
+        <CloseIconSvg />
+      </StyledCloseDialogButton>
+      <StyledHeader id="uploader-cli-header" variant="h1">
+        Uploader CLI Tool
+      </StyledHeader>
+      {version && (
+        <StyledSubtitle data-testid="uploader-cli-version">(Version: v{version})</StyledSubtitle>
+      )}
+
+      <StyledDialogContent>
+        <StyledBodyText id="uploader-cli-body" variant="body1">
+          The Uploader CLI is a command-line interface tool designed for directly uploading data
+          submission files from your workstation to the CRDC Submission Portal cloud storage.
+          <br />
+          <br />
+          To download the tool and access the accompanying instructions, please choose from the
+          available download options below.
+        </StyledBodyText>
+
+        <PackageTable />
+      </StyledDialogContent>
+      <StyledDialogActions>
+        <StyledButton data-testid="uploader-cli-close-button" variant="outlined" onClick={onClose}>
+          Close
+        </StyledButton>
+      </StyledDialogActions>
+    </StyledDialog>
+  );
+};
 
 export default UploaderToolDialog;

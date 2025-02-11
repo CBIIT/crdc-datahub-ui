@@ -1,16 +1,18 @@
 import { FC, ReactElement, useMemo, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
-import { Box, Button, Typography, styled } from "@mui/material";
+import { Box, Button, Stack, Typography, styled } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import env from "../../env";
 import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
-import { downloadBlob, filterAlphaNumeric } from "../../utils";
+import { downloadBlob, extractVersion, filterAlphaNumeric } from "../../utils";
 import FlowWrapper from "./FlowWrapper";
 import UploaderToolDialog from "../UploaderToolDialog";
 import UploaderConfigDialog, { InputForm } from "../UploaderConfigDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { hasPermission } from "../../config/AuthPermissions";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import Tooltip from "../Tooltip";
 
 export type Props = {
   /**
@@ -55,6 +57,31 @@ const StyledOpenInNewIcon = styled(OpenInNewIcon)({
   verticalAlign: "middle",
   marginLeft: "4px",
 });
+
+const StyledTooltip = styled(Tooltip)(() => ({
+  alignSelf: "start",
+}));
+
+const StyledUploaderCLIVersionText = styled("span")(() => ({
+  fontWeight: 400,
+  fontSize: "14px",
+  lineHeight: "27px",
+  letterSpacing: "0.5px",
+}));
+
+const StyledVersionButton = styled(Button)(() => ({
+  fontWeight: 700,
+  textDecoration: "underline",
+  color: "#005A9E",
+  cursor: "pointer",
+  margin: 0,
+  padding: 0,
+  minWidth: 0,
+  textTransform: "none",
+  "&:hover": {
+    textDecoration: "underline",
+  },
+}));
 
 /**
  * Provides a way to download the Uploader CLI tool and a pre-configured CLI config file.
@@ -119,8 +146,40 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
     );
   }, [submission, user]);
 
+  const Adornments: ReactElement = useMemo(() => {
+    const version = extractVersion(env?.REACT_APP_UPLOADER_CLI_VERSION);
+    if (submission?.dataType !== "Metadata and Data Files" || !version) {
+      return null;
+    }
+
+    return (
+      <Stack direction="row" alignItems="center" ml="10px">
+        {/* TODO: Implement design */}
+        <StyledUploaderCLIVersionText data-testid="uploader-cli-version-wrapper">
+          (Uploader CLI Version:{" "}
+          <StyledTooltip
+            title={TOOLTIP_TEXT.FILE_UPLOAD.UPLOAD_CLI_VERSION}
+            open={undefined}
+            disableHoverListener={false}
+            placement="top"
+            arrow
+          >
+            <StyledVersionButton
+              variant="text"
+              onClick={() => setCLIDialogOpen(true)}
+              data-testid="uploader-cli-version-button"
+            >
+              v{version}
+            </StyledVersionButton>
+          </StyledTooltip>
+          )
+        </StyledUploaderCLIVersionText>
+      </Stack>
+    );
+  }, [submission?.dataType, env?.REACT_APP_UPLOADER_CLI_VERSION]);
+
   return (
-    <FlowWrapper index={2} title="Upload Data Files" actions={Actions}>
+    <FlowWrapper index={2} title="Upload Data Files" titleAdornment={Adornments} actions={Actions}>
       {submission?.dataType === "Metadata and Data Files" ? (
         <>
           <StyledBox data-testid="uploader-cli-footer">
