@@ -889,6 +889,7 @@ describe("Table", () => {
                 validatedDate: "2023-05-22T12:52:00Z",
                 warnings: [
                   {
+                    code: null,
                     title: "mock-warning-title-1",
                     description: "mock-warning-description-1",
                   },
@@ -903,6 +904,7 @@ describe("Table", () => {
                 validatedDate: "2024-07-31T11:27:00Z",
                 errors: [
                   {
+                    code: null,
                     title: "mock-error-1",
                     description: "mock-error-description-1",
                   },
