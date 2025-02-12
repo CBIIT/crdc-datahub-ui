@@ -148,6 +148,36 @@ describe("Accessibility", () => {
 
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it("should not have accessibility violations for the Model Version element", async () => {
+    const { getByTestId } = render(
+      <MetadataUpload
+        submission={{
+          ...baseSubmission,
+          _id: "id-upload-button-text",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+          dataCommons: "Test Data Common",
+          modelVersion: "1.9.3",
+        }}
+        onCreateBatch={jest.fn()}
+        onUpload={jest.fn()}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={[]}
+            context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    expect(getByTestId("metadata-upload-model-version")).toBeInTheDocument();
+    expect(await axe(getByTestId("metadata-upload-model-version"))).toHaveNoViolations();
+  });
 });
 
 describe("MetadataUpload Tooltip", () => {
