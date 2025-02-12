@@ -140,7 +140,7 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
   Cancel: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "create", submission),
+      hasPermission(user, "data_submission", "cancel", submission),
     statuses: ["New", "In Progress", "Rejected"],
   },
 };
