@@ -593,3 +593,102 @@ describe("data_submission:confirm Permission", () => {
     expect(hasPermission(user, "data_submission", "confirm", null)).toBe(false);
   });
 });
+
+describe("data_submission:cancel Permission", () => {
+  const createSubmission = {
+    ...baseSubmission,
+    _id: "submission-1",
+    studyID: "study-1",
+    dataCommons: "commons-1",
+  };
+
+  it("should allow a collaborator (no permission key needed)", () => {
+    const user = createUser("User", []);
+    const submission: Submission = {
+      ...createSubmission,
+      collaborators: [
+        { collaboratorID: user._id, collaboratorName: "Test Collaborator", permission: null },
+      ],
+    };
+    expect(hasPermission(user, "data_submission", "cancel", submission)).toBe(true);
+  });
+
+  it("should allow a 'Federal Lead' with 'data_submission:cancel' key if they have the matching study", () => {
+    const user = createUser("Federal Lead", ["data_submission:cancel"]);
+    user.studies = [{ _id: "study-1" }];
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(true);
+  });
+
+  it("should allow a 'Federal Lead' with 'data_submission:cancel' key if they have the 'All' study", () => {
+    const user = createUser("Federal Lead", ["data_submission:cancel"]);
+    user.studies = [{ _id: "All" }];
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(true);
+  });
+
+  it("should deny a 'Federal Lead' with 'data_submission:cancel' key if they do not have a matching study", () => {
+    const user = createUser("Federal Lead", ["data_submission:cancel"]);
+    user.studies = [{ _id: "study-2" }];
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
+  });
+
+  it("should deny a 'Federal Lead' without the 'data_submission:cancel' key even if they have a matching study", () => {
+    const user = createUser("Federal Lead", []);
+    user.studies = [{ _id: "study-1" }];
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
+  });
+
+  it("should allow 'Data Commons Personnel' with 'data_submission:cancel' key if they have the matching dataCommons", () => {
+    const user = createUser("Data Commons Personnel", ["data_submission:cancel"]);
+    user.dataCommons = ["commons-1"];
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(true);
+  });
+
+  it("should deny 'Data Commons Personnel' with 'data_submission:cancel' key if they do not have a matching dataCommons", () => {
+    const user = createUser("Data Commons Personnel", ["data_submission:cancel"]);
+    user.dataCommons = ["commons-2"];
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
+  });
+
+  it("should deny 'Data Commons Personnel' without the 'data_submission:cancel' key even if they have matching dataCommons", () => {
+    const user = createUser("Data Commons Personnel", []);
+    user.dataCommons = ["commons-1"];
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
+  });
+
+  it("should allow 'Admin' with 'data_submission:cancel' key", () => {
+    const user = createUser("Admin", ["data_submission:cancel"]);
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(true);
+  });
+
+  it("should deny 'Admin' without the 'data_submission:cancel' key", () => {
+    const user = createUser("Admin", []);
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
+  });
+
+  it("should allow a 'Submitter' with 'data_submission:cancel' key if they are the submission owner", () => {
+    const user = createUser("Submitter", ["data_submission:cancel"]);
+    user._id = "owner-123";
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(true);
+  });
+
+  it("should deny a 'Submitter' with 'data_submission:cancel' key if they are not the submission owner", () => {
+    const user = createUser("Submitter", ["data_submission:cancel"]);
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
+  });
+
+  it("should deny a 'Submitter' without the 'data_submission:cancel' key even if they are the submission owner", () => {
+    const user = createUser("Submitter", []);
+    user._id = "owner-123";
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
+  });
+
+  it("should deny permission for 'User' role even if they have the permission key", () => {
+    const user = createUser("User", ["data_submission:cancel"]);
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
+  });
+
+  it.each([undefined, null])("should return false if submission is %p", (submissionData) => {
+    const user = createUser("Admin", ["data_submission:cancel"]);
+    expect(hasPermission(user, "data_submission", "cancel", submissionData)).toBe(false);
+  });
+});
