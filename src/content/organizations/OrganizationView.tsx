@@ -447,38 +447,31 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
-                <Stack
-                  direction="column"
-                  justifyContent="flex-start"
-                  alignItems="flex-start"
-                  spacing={1}
-                >
-                  <Controller
-                    name="conciergeID"
-                    control={control}
-                    rules={{ required: false }}
-                    render={({ field }) => (
-                      <StyledSelect
-                        {...field}
-                        value={field.value || ""}
-                        MenuProps={{ disablePortal: true }}
-                        inputProps={{
-                          "aria-labelledby": "primaryContactLabel",
-                        }}
-                        error={!!errors.conciergeID}
-                      >
-                        <MenuItem value={null}>{"<Not Set>"}</MenuItem>
-                        {activeCurators?.listActiveCurators?.map(
-                          ({ userID, firstName, lastName }) => (
-                            <MenuItem key={userID} value={userID}>
-                              {`${firstName} ${lastName}`.trim()}
-                            </MenuItem>
-                          )
-                        )}
-                      </StyledSelect>
-                    )}
-                  />
-                </Stack>
+                <Controller
+                  name="conciergeID"
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field }) => (
+                    <StyledSelect
+                      {...field}
+                      value={field.value || ""}
+                      MenuProps={{ disablePortal: true }}
+                      inputProps={{
+                        "aria-labelledby": "primaryContactLabel",
+                      }}
+                      error={!!errors.conciergeID}
+                    >
+                      <MenuItem value={null}>{"<Not Set>"}</MenuItem>
+                      {activeCurators?.listActiveCurators?.map(
+                        ({ userID, firstName, lastName }) => (
+                          <MenuItem key={userID} value={userID}>
+                            {`${firstName} ${lastName}`.trim()}
+                          </MenuItem>
+                        )
+                      )}
+                    </StyledSelect>
+                  )}
+                />
               </StyledField>
               <StyledField>
                 <StyledLabel id="studiesLabel">Studies</StyledLabel>
