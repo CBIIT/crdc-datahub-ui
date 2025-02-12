@@ -100,6 +100,6 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    expect(getByTestId("uploader-cli-version").textContent).toBe("(Version: v2.3)");
+    expect(getByTestId("uploader-cli-version").textContent).toBe("Uploader CLI Version: v2.3");
   });
 });
