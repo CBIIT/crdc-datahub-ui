@@ -137,7 +137,7 @@ describe("Basic Functionality", () => {
     );
 
     expect(getByTestId("uploader-cli-version-wrapper").textContent).toBe(
-      "(Uploader CLI Version: v2.3)"
+      "Uploader CLI Version: v2.3"
     );
 
     expect(queryByRole("tooltip")).not.toBeInTheDocument();
