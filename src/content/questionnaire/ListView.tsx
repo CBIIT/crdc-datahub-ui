@@ -7,7 +7,7 @@ import { useLazyQuery, useMutation } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
 import PageBanner from "../../components/PageBanner";
-import { FormatDate, Logger } from "../../utils";
+import { extractVersion, FormatDate, Logger } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import {
   LIST_APPLICATIONS,
@@ -167,6 +167,11 @@ const columns: Column<T>[] = [
     sx: {
       width: "124px",
     },
+  },
+  {
+    label: "Version",
+    renderValue: (a) => extractVersion(a.version) || "",
+    field: "version",
   },
   {
     label: "Submitted Date",

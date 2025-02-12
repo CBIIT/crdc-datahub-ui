@@ -121,6 +121,12 @@ export type {
   Response as GetSubmissionNodesResp,
 } from "./getSubmissionNodes";
 
+export { query as RETRIEVE_RELEASED_DATA } from "./retrieveReleasedDataByID";
+export type {
+  Input as RetrieveReleasedDataInput,
+  Response as RetrieveReleasedDataResp,
+} from "./retrieveReleasedDataByID";
+
 export { query as SUBMISSION_STATS } from "./submissionStats";
 export type {
   Input as SubmissionStatsInput,

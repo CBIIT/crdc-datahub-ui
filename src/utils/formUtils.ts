@@ -215,42 +215,6 @@ export const formatORCIDInput = (input: string): string => {
 };
 
 /**
- * Given an array of Study IDs, return the first Formatted Study Name from the list of approved studies, sorted by the Study Name.
- *
- * @note MUI shows the first SELECTED item by default, this will show the first SORTED item
- * @param selectedIds Array of Study IDs
- * @param studyMap A map of the _ID: Study Name and Abbreviation
- * @returns The first formatted study name from the list of approved studies
- */
-export const formatStudySelectionValue = (
-  selectedIds: string[],
-  studyMap: Record<string, string>,
-  fallback = ""
-): string => {
-  if (!Array.isArray(selectedIds) || selectedIds.length === 0) {
-    return fallback;
-  }
-  if (!studyMap || Object.keys(studyMap).length === 0) {
-    return fallback;
-  }
-
-  const sortedStudies: string[] = selectedIds
-    .map((studyID) => studyMap?.[studyID])
-    .filter((study) => typeof study === "string" && study.length > 0)
-    .sort((a: string, b: string) => a.localeCompare(b));
-
-  if (sortedStudies.length === 0) {
-    return fallback;
-  }
-
-  const joinedStudies = sortedStudies.join(", ");
-  const trimmedJoin =
-    joinedStudies.length > 30 ? `${joinedStudies.substring(0, 30)}...` : joinedStudies;
-
-  return `${trimmedJoin}${sortedStudies.length > 1 ? ` (${sortedStudies.length})` : ""}`;
-};
-
-/**
  * Provides a validation function to test against a string for invalid characters.
  *
  * @param value The input string to validate

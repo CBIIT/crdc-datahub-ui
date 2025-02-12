@@ -1,7 +1,17 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import { Alert, Box, Container, MenuItem, Stack, Typography, styled } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Container,
+  MenuItem,
+  Popper,
+  Stack,
+  TextField,
+  Typography,
+  styled,
+} from "@mui/material";
 import { useSnackbar } from "notistack";
 import { cloneDeep } from "lodash";
 import { Controller, useForm } from "react-hook-form";
@@ -31,6 +41,9 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import BaseAutocomplete, {
+  StyledPaper as BasePaper,
+} from "../../components/StyledFormComponents/StyledAutocomplete";
 
 type Props = {
   /**
@@ -104,6 +117,26 @@ const StyledTextField = styled(BaseOutlinedInput)({
   },
 });
 const StyledSelect = styled(BaseSelect)(BaseInputStyling);
+const StyledAutocomplete = styled(BaseAutocomplete)(BaseInputStyling);
+
+const StyledPaper = styled(BasePaper)({
+  maxHeight: "300px",
+  "& .MuiAutocomplete-listbox": { width: "fit-content", minWidth: "100%", maxHeight: "unset" },
+  "& .MuiAutocomplete-option": { whiteSpace: "nowrap" },
+});
+
+const StyledPopper = styled(Popper)({
+  width: "463px !important",
+});
+
+const StyledTag = styled("div")({
+  position: "absolute",
+  paddingLeft: "12px",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  maxWidth: "calc(100% - 24px)",
+  textOverflow: "ellipsis",
+});
 
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
@@ -155,6 +188,8 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
+  const [studyOptions, setStudyOptions] = useState<string[]>([]);
+
   const manageOrgPageUrl = `/programs${lastSearchParams?.["/programs"] ?? ""}`;
 
   const assignedStudies: string[] = useMemo(() => {
@@ -177,27 +212,23 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     handleSubmit,
     register,
     reset,
+    watch,
     formState: { errors },
     control,
   } = useForm<FormInput>();
+  const studiesField = watch("studies");
 
   const { data: activeDCPs } = useQuery<ListActiveDCPsResp>(LIST_ACTIVE_DCPS, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: approvedStudies, refetch: refetchStudies } = useQuery<
-    ListApprovedStudiesResp,
-    ListApprovedStudiesInput
-  >(LIST_APPROVED_STUDIES, {
-    variables: {
-      // show all access types
-      controlledAccess: "All",
-      first: -1,
-      offset: 0,
-      orderBy: "studyName",
-      sortDirection: "asc",
-    },
+  const {
+    data: approvedStudies,
+    loading: approvedStudiesLoading,
+    refetch: refetchStudies,
+  } = useQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(LIST_APPROVED_STUDIES, {
+    variables: { first: -1, orderBy: "studyName", sortDirection: "asc" },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
@@ -216,6 +247,36 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
+
+  const formattedStudyMap = useMemo<Record<string, string>>(() => {
+    if (!approvedStudies?.listApprovedStudies?.studies) {
+      return {};
+    }
+
+    const studyIdMap = approvedStudies.listApprovedStudies.studies.reduce(
+      (acc, { _id, studyName, studyAbbreviation }) => ({
+        ...acc,
+        [_id]: formatFullStudyName(studyName, studyAbbreviation),
+      }),
+      {}
+    );
+
+    return studyIdMap;
+  }, [approvedStudies?.listApprovedStudies?.studies]);
+
+  const sortStudyOptions = () => {
+    const options = Object.keys(formattedStudyMap);
+
+    const selectedOptions =
+      studiesField
+        ?.filter((v) => options.includes(v))
+        ?.sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b])) || [];
+    const unselectedOptions = options
+      .filter((o) => !selectedOptions.includes(o))
+      .sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b]));
+
+    setStudyOptions([...selectedOptions, ...unselectedOptions]);
+  };
 
   /**
    * Updates the default form values after save or initial fetch
@@ -364,6 +425,10 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     })();
   }, [_id]);
 
+  useEffect(() => {
+    sortStudyOptions();
+  }, [formattedStudyMap, organization?.studies]);
+
   if (!organization && _id !== "new") {
     return <SuspenseLoader />;
   }
@@ -447,36 +512,29 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
-                <Stack
-                  direction="column"
-                  justifyContent="flex-start"
-                  alignItems="flex-start"
-                  spacing={1}
-                >
-                  <Controller
-                    name="conciergeID"
-                    control={control}
-                    rules={{ required: false }}
-                    render={({ field }) => (
-                      <StyledSelect
-                        {...field}
-                        value={field.value || ""}
-                        MenuProps={{ disablePortal: true }}
-                        inputProps={{
-                          "aria-labelledby": "primaryContactLabel",
-                        }}
-                        error={!!errors.conciergeID}
-                      >
-                        <MenuItem value={null}>{"<Not Set>"}</MenuItem>
-                        {activeDCPs?.listActiveDCPs?.map(({ userID, firstName, lastName }) => (
-                          <MenuItem key={userID} value={userID}>
-                            {`${firstName} ${lastName}`.trim()}
-                          </MenuItem>
-                        ))}
-                      </StyledSelect>
-                    )}
-                  />
-                </Stack>
+                <Controller
+                  name="conciergeID"
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field }) => (
+                    <StyledSelect
+                      {...field}
+                      value={field.value || ""}
+                      MenuProps={{ disablePortal: true }}
+                      inputProps={{
+                        "aria-labelledby": "primaryContactLabel",
+                      }}
+                      error={!!errors.conciergeID}
+                    >
+                      <MenuItem value={null}>{"<Not Set>"}</MenuItem>
+                      {activeDCPs?.listActiveDCPs?.map(({ userID, firstName, lastName }) => (
+                        <MenuItem key={userID} value={userID}>
+                          {`${firstName} ${lastName}`.trim()}
+                        </MenuItem>
+                      ))}
+                    </StyledSelect>
+                  )}
+                />
               </StyledField>
               <StyledField>
                 <StyledLabel id="studiesLabel">Studies</StyledLabel>
@@ -485,22 +543,36 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   control={control}
                   rules={{ required: false }}
                   render={({ field }) => (
-                    <StyledSelect
+                    <StyledAutocomplete
                       {...field}
-                      value={field.value || []}
-                      MenuProps={{ disablePortal: true }}
-                      inputProps={{ "aria-labelledby": "studiesLabel" }}
-                      error={!!errors.studies}
-                      multiple
-                    >
-                      {approvedStudies?.listApprovedStudies?.studies?.map(
-                        ({ _id, studyName, studyAbbreviation }) => (
-                          <MenuItem key={_id} value={_id}>
-                            {formatFullStudyName(studyName, studyAbbreviation)}
-                          </MenuItem>
-                        )
+                      renderInput={({ inputProps, ...params }) => (
+                        <TextField
+                          {...params}
+                          placeholder={studiesField?.length > 0 ? undefined : "Select studies"}
+                          inputProps={{ "aria-labelledby": "studiesLabel", ...inputProps }}
+                          onBlur={sortStudyOptions}
+                        />
                       )}
-                    </StyledSelect>
+                      renderTags={(value: string[], _, state) => {
+                        if (value?.length === 0 || state.focused) {
+                          return null;
+                        }
+
+                        if (value?.length === 1) {
+                          return <StyledTag>{formattedStudyMap[value[0]]}</StyledTag>;
+                        }
+
+                        return <StyledTag>{value?.length} studies selected</StyledTag>;
+                      }}
+                      options={studyOptions}
+                      getOptionLabel={(option: string) => formattedStudyMap[option]}
+                      onChange={(_, data: string[]) => field.onChange(data)}
+                      loading={approvedStudiesLoading}
+                      PaperComponent={StyledPaper}
+                      PopperComponent={StyledPopper}
+                      disableCloseOnSelect
+                      multiple
+                    />
                   )}
                 />
               </StyledField>

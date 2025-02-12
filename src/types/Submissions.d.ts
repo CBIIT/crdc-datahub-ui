@@ -256,7 +256,19 @@ type CrossValidationResult = QCResult & {
 };
 
 type ErrorMessage = {
+  /**
+   * The code corresponding to the specific error/warning.
+   *
+   * Refer to the imported type for more information.
+   */
+  code: import("../config/ValidationErrors").ValidationErrorCode;
+  /**
+   * The title of the error.
+   */
   title: string;
+  /**
+   * A detailed description of the error.
+   */
   description: string;
 };
 

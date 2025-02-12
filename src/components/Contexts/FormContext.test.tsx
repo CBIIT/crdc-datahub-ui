@@ -40,6 +40,7 @@ const baseApplication: Omit<Application, "questionnaireData"> = {
   pendingConditions: [],
   programAbbreviation: "",
   programDescription: "",
+  version: "",
 };
 
 const baseQuestionnaireData: QuestionnaireData = {

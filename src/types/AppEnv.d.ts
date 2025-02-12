@@ -25,6 +25,12 @@ type AppEnv = {
    */
   REACT_APP_DEV_TIER: string;
   /**
+   * The latest version of the Uploader CLI tool
+   *
+   * @example 2.3
+   */
+  REACT_APP_UPLOADER_CLI_VERSION: string;
+  /**
    * Fully-qualified URL to the source package Uploader CLI zip download
    *
    * @example "https://github.com/CBIIT/crdc-datahub-cli-uploader/releases/download/1.0.0/crdc-datahub-cli-uploader.zip"

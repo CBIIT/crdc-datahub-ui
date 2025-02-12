@@ -16,6 +16,7 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   pendingConditions: [],
   programAbbreviation: "",
   programDescription: "",
+  version: "",
 };
 
 export const InitialQuestionnaire: QuestionnaireData = {

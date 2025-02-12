@@ -1,7 +1,16 @@
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import { Box, Container, MenuItem, Stack, TextField, Typography, styled } from "@mui/material";
+import {
+  Box,
+  Container,
+  MenuItem,
+  Popper,
+  Stack,
+  TextField,
+  Typography,
+  styled,
+} from "@mui/material";
 import {
   Controller,
   ControllerRenderProps,
@@ -30,13 +39,15 @@ import {
   UpdateMyUserInput,
   UpdateMyUserResp,
 } from "../../graphql";
-import { formatFullStudyName, formatIDP, formatStudySelectionValue, Logger } from "../../utils";
+import { formatFullStudyName, formatIDP, Logger } from "../../utils";
 import { DataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
-import BaseAutocomplete from "../../components/StyledFormComponents/StyledAutocomplete";
+import BaseAutocomplete, {
+  StyledPaper as BasePaper,
+} from "../../components/StyledFormComponents/StyledAutocomplete";
 import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import useProfileFields, { VisibleFieldState } from "../../hooks/useProfileFields";
 import AccessRequest from "../../components/AccessRequest";
@@ -126,6 +137,16 @@ const StyledAutocomplete = styled(BaseAutocomplete)(BaseInputStyling);
 const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
 const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
+const StyledPaper = styled(BasePaper)({
+  maxHeight: "300px",
+  "& .MuiAutocomplete-listbox": { width: "fit-content", minWidth: "100%", maxHeight: "unset" },
+  "& .MuiAutocomplete-option": { whiteSpace: "nowrap" },
+});
+
+const StyledPopper = styled(Popper)({
+  width: "463px !important",
+});
+
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
 });
@@ -150,6 +171,10 @@ const StyledTitleBox = styled(Box)({
 const StyledTag = styled("div")({
   position: "absolute",
   paddingLeft: "12px",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  maxWidth: "calc(100% - 24px)",
+  textOverflow: "ellipsis",
 });
 
 const StyledAsterisk = styled(BaseAsterisk, { shouldForwardProp: (p) => p !== "visible" })<{
@@ -531,17 +556,19 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                               return null;
                             }
 
-                            return (
-                              <StyledTag>
-                                {formatStudySelectionValue(value, formattedStudyMap)}
-                              </StyledTag>
-                            );
+                            if (value?.length === 1) {
+                              return <StyledTag>{formattedStudyMap[value[0]]}</StyledTag>;
+                            }
+
+                            return <StyledTag>{value?.length} studies selected</StyledTag>;
                           }}
                           options={studyOptions}
                           getOptionLabel={(option: string) => formattedStudyMap[option]}
                           onChange={(_, data: string[]) => handleStudyChange(field, data)}
                           disabled={fieldset.studies === "DISABLED"}
                           loading={approvedStudiesLoading}
+                          PaperComponent={StyledPaper}
+                          PopperComponent={StyledPopper}
                           disableCloseOnSelect
                           multiple
                         />

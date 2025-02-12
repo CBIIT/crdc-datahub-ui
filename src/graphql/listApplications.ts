@@ -37,6 +37,7 @@ export const query: TypedDocumentNode<Response, Input> = gql`
         }
         conditional
         pendingConditions
+        version
       }
       programs
       studies

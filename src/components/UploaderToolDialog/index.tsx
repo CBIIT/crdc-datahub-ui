@@ -11,6 +11,8 @@ import {
 } from "@mui/material";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import PackageTable from "./PackageTable";
+import env from "../../env";
+import { extractVersion } from "../../utils";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -31,12 +33,13 @@ const StyledHeader = styled(Typography)({
   fontStyle: "normal",
   fontWeight: "900 !important",
   lineHeight: "30px !important",
-  marginBottom: "51px !important",
+  marginBottom: 0,
   letterSpacing: "normal !important",
 });
 
 const StyledDialogContent = styled(DialogContent)({
   padding: 0,
+  marginTop: "36px",
 });
 
 const StyledBodyText = styled(Typography)({
@@ -87,46 +90,83 @@ const StyledButton = styled(Button)({
   },
 });
 
+const StyledUploaderCLIVersionText = styled("span")(() => ({
+  color: "#000",
+  fontWeight: 400,
+  fontSize: "13px",
+  lineHeight: "27px",
+  letterSpacing: "0.5px",
+  textTransform: "uppercase",
+  marginTop: "1px",
+}));
+
+const StyledVersion = styled("span")(() => ({
+  fontWeight: 700,
+  textDecoration: "underline",
+  color: "#005A9E",
+  fontSize: "13px",
+  lineHeight: "27px",
+  letterSpacing: "0.5px",
+  margin: 0,
+  padding: 0,
+  minWidth: 0,
+  textTransform: "none",
+  "&:hover": {
+    background: "transparent",
+    textDecoration: "underline",
+  },
+}));
+
 type Props = {
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
 
-const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest }) => (
-  <StyledDialog
-    open={open}
-    onClose={() => onClose?.()}
-    aria-labelledby="uploader-cli-header"
-    data-testid="uploader-cli-dialog"
-    {...rest}
-  >
-    <StyledCloseDialogButton
-      data-testid="uploader-cli-dialog-close-icon"
-      aria-label="close"
-      onClick={() => onClose?.()}
-    >
-      <CloseIconSvg />
-    </StyledCloseDialogButton>
-    <StyledHeader id="uploader-cli-header" variant="h1">
-      Uploader CLI Tool
-    </StyledHeader>
-    <StyledDialogContent>
-      <StyledBodyText id="uploader-cli-body" variant="body1">
-        The Uploader CLI is a command-line interface tool designed for directly uploading data
-        submission files from your workstation to the CRDC Submission Portal cloud storage.
-        <br />
-        <br />
-        To download the tool and access the accompanying instructions, please choose from the
-        available download options below.
-      </StyledBodyText>
+const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest }) => {
+  const version = extractVersion(env?.REACT_APP_UPLOADER_CLI_VERSION);
 
-      <PackageTable />
-    </StyledDialogContent>
-    <StyledDialogActions>
-      <StyledButton data-testid="uploader-cli-close-button" variant="outlined" onClick={onClose}>
-        Close
-      </StyledButton>
-    </StyledDialogActions>
-  </StyledDialog>
-);
+  return (
+    <StyledDialog
+      open={open}
+      onClose={() => onClose?.()}
+      aria-labelledby="uploader-cli-header"
+      data-testid="uploader-cli-dialog"
+      {...rest}
+    >
+      <StyledCloseDialogButton
+        data-testid="uploader-cli-dialog-close-icon"
+        aria-label="close"
+        onClick={() => onClose?.()}
+      >
+        <CloseIconSvg />
+      </StyledCloseDialogButton>
+      <StyledHeader id="uploader-cli-header" variant="h1">
+        Uploader CLI Tool
+      </StyledHeader>
+      {version && (
+        <StyledUploaderCLIVersionText data-testid="uploader-cli-version">
+          Uploader CLI Version: <StyledVersion>v{version}</StyledVersion>
+        </StyledUploaderCLIVersionText>
+      )}
+
+      <StyledDialogContent>
+        <StyledBodyText id="uploader-cli-body" variant="body1">
+          The Uploader CLI is a command-line interface tool designed for directly uploading data
+          submission files from your workstation to the CRDC Submission Portal cloud storage.
+          <br />
+          <br />
+          To download the tool and access the accompanying instructions, please choose from the
+          available download options below.
+        </StyledBodyText>
+
+        <PackageTable />
+      </StyledDialogContent>
+      <StyledDialogActions>
+        <StyledButton data-testid="uploader-cli-close-button" variant="outlined" onClick={onClose}>
+          Close
+        </StyledButton>
+      </StyledDialogActions>
+    </StyledDialog>
+  );
+};
 
 export default UploaderToolDialog;
