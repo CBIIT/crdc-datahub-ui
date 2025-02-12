@@ -63,10 +63,10 @@ const StyledTooltip = styled(Tooltip)(() => ({
 }));
 
 const StyledUploaderCLIVersionText = styled("span")(() => ({
+  color: "#000",
   fontWeight: 400,
-  fontSize: "14px",
-  lineHeight: "27px",
-  letterSpacing: "0.5px",
+  fontSize: "13px",
+  textTransform: "uppercase",
 }));
 
 const StyledVersionButton = styled(Button)(() => ({
@@ -74,11 +74,14 @@ const StyledVersionButton = styled(Button)(() => ({
   textDecoration: "underline",
   color: "#005A9E",
   cursor: "pointer",
+  fontSize: "13px",
   margin: 0,
+  marginTop: "-3px",
   padding: 0,
   minWidth: 0,
   textTransform: "none",
   "&:hover": {
+    background: "transparent",
     textDecoration: "underline",
   },
 }));
@@ -154,9 +157,8 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
 
     return (
       <Stack direction="row" alignItems="center" ml="10px">
-        {/* TODO: Implement design */}
         <StyledUploaderCLIVersionText data-testid="uploader-cli-version-wrapper">
-          (Uploader CLI Version:{" "}
+          Uploader CLI Version:{" "}
           <StyledTooltip
             title={TOOLTIP_TEXT.FILE_UPLOAD.UPLOAD_CLI_VERSION}
             open={undefined}
@@ -168,11 +170,12 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
               variant="text"
               onClick={() => setCLIDialogOpen(true)}
               data-testid="uploader-cli-version-button"
+              disableRipple
+              disableFocusRipple
             >
               v{version}
             </StyledVersionButton>
           </StyledTooltip>
-          )
         </StyledUploaderCLIVersionText>
       </Stack>
     );
