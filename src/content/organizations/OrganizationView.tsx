@@ -121,7 +121,7 @@ const StyledAutocomplete = styled(BaseAutocomplete)(BaseInputStyling);
 
 const StyledPaper = styled(BasePaper)({
   maxHeight: "300px",
-  "& .MuiAutocomplete-listbox": { width: "fit-content", maxHeight: "unset" },
+  "& .MuiAutocomplete-listbox": { width: "fit-content", minWidth: "100%", maxHeight: "unset" },
   "& .MuiAutocomplete-option": { whiteSpace: "nowrap" },
 });
 
