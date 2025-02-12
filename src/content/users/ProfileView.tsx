@@ -171,6 +171,10 @@ const StyledTitleBox = styled(Box)({
 const StyledTag = styled("div")({
   position: "absolute",
   paddingLeft: "12px",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  maxWidth: "calc(100% - 24px)",
+  textOverflow: "ellipsis",
 });
 
 const StyledAsterisk = styled(BaseAsterisk, { shouldForwardProp: (p) => p !== "visible" })<{
