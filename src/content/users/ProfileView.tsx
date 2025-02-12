@@ -139,7 +139,7 @@ const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
 const StyledPaper = styled(BasePaper)({
   maxHeight: "300px",
-  "& .MuiAutocomplete-listbox": { width: "fit-content", maxHeight: "unset" },
+  "& .MuiAutocomplete-listbox": { width: "fit-content", minWidth: "100%", maxHeight: "unset" },
   "& .MuiAutocomplete-option": { whiteSpace: "nowrap" },
 });
 
@@ -171,6 +171,10 @@ const StyledTitleBox = styled(Box)({
 const StyledTag = styled("div")({
   position: "absolute",
   paddingLeft: "12px",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  maxWidth: "calc(100% - 24px)",
+  textOverflow: "ellipsis",
 });
 
 const StyledAsterisk = styled(BaseAsterisk, { shouldForwardProp: (p) => p !== "visible" })<{
