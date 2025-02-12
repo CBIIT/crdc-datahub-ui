@@ -21,6 +21,8 @@ import {
   SubmissionQCResultsResp,
 } from "../../graphql";
 import QualityControlFilters from "../../components/DataSubmissions/QualityControlFilters";
+import { NodeComparisonProps } from "../../components/NodeComparison";
+import { ValidationErrorCodes } from "../../config/ValidationErrors";
 
 type FilterForm = {
   issueType: string;
@@ -245,6 +247,7 @@ const QualityControl: FC = () => {
   const { data: submissionData } = useSubmissionContext();
   const {
     _id: submissionId,
+    status: submissionStatus,
     metadataValidationStatus,
     fileValidationStatus,
   } = submissionData?.getSubmission || {};
@@ -463,6 +466,27 @@ const QualityControl: FC = () => {
     [handleOpenErrorDialog, handleExpandClick]
   );
 
+  const comparisonData = useMemo<NodeComparisonProps | undefined>(() => {
+    if (submissionStatus === "Completed") {
+      return undefined;
+    }
+    if (!selectedRow || !("submittedID" in selectedRow && "type" in selectedRow)) {
+      return undefined;
+    }
+    if (
+      !selectedRow?.errors?.some((error) => error.code === ValidationErrorCodes.UPDATING_DATA) &&
+      !selectedRow?.warnings?.some((warning) => warning.code === ValidationErrorCodes.UPDATING_DATA)
+    ) {
+      return undefined;
+    }
+
+    return {
+      submissionID: submissionId,
+      nodeType: selectedRow.type,
+      submittedID: selectedRow.submittedID,
+    };
+  }, [submissionStatus, submissionId, selectedRow]);
+
   return (
     <>
       <QualityControlFilters
@@ -519,6 +543,7 @@ const QualityControl: FC = () => {
           errorCount={`${allDescriptions?.length || 0} ${
             allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"
           }`}
+          comparisonData={comparisonData}
         />
       )}
     </>

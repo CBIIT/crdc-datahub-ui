@@ -8,6 +8,7 @@ import UploaderToolDialog from "./index";
 jest.mock("../../env", () => ({
   ...jest.requireActual("../../env"),
   REACT_APP_UPLOADER_CLI: "mocked-cli-download-link",
+  REACT_APP_UPLOADER_CLI_VERSION: "2.3-alpha-6",
 }));
 
 type ParentProps = {
@@ -90,5 +91,15 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("should render the CLI version", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <UploaderToolDialog open />
+      </TestParent>
+    );
+
+    expect(getByTestId("uploader-cli-version").textContent).toBe("(Version: v2.3)");
   });
 });
