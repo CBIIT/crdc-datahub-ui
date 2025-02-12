@@ -427,7 +427,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
   useEffect(() => {
     sortStudyOptions();
-  }, [formattedStudyMap]);
+  }, [formattedStudyMap, organization?.studies]);
 
   if (!organization && _id !== "new") {
     return <SuspenseLoader />;
