@@ -39,7 +39,7 @@ const StyledHeader = styled(Typography)({
 
 const StyledDialogContent = styled(DialogContent)({
   padding: 0,
-  marginTop: "51px",
+  marginTop: "36px",
 });
 
 const StyledBodyText = styled(Typography)({
@@ -90,14 +90,32 @@ const StyledButton = styled(Button)({
   },
 });
 
-const StyledSubtitle = styled(Typography)({
-  color: "#595959",
-  fontSize: "16px",
-  fontStyle: "normal",
+const StyledUploaderCLIVersionText = styled("span")(() => ({
+  color: "#000",
   fontWeight: 400,
-  lineHeight: "19.6px",
-  marginTop: "8px",
-});
+  fontSize: "13px",
+  lineHeight: "27px",
+  letterSpacing: "0.5px",
+  textTransform: "uppercase",
+  marginTop: "1px",
+}));
+
+const StyledVersion = styled("span")(() => ({
+  fontWeight: 700,
+  textDecoration: "underline",
+  color: "#005A9E",
+  fontSize: "13px",
+  lineHeight: "27px",
+  letterSpacing: "0.5px",
+  margin: 0,
+  padding: 0,
+  minWidth: 0,
+  textTransform: "none",
+  "&:hover": {
+    background: "transparent",
+    textDecoration: "underline",
+  },
+}));
 
 type Props = {
   onClose?: () => void;
@@ -125,7 +143,9 @@ const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest
         Uploader CLI Tool
       </StyledHeader>
       {version && (
-        <StyledSubtitle data-testid="uploader-cli-version">(Version: v{version})</StyledSubtitle>
+        <StyledUploaderCLIVersionText data-testid="uploader-cli-version">
+          Uploader CLI Version: <StyledVersion>v{version}</StyledVersion>
+        </StyledUploaderCLIVersionText>
       )}
 
       <StyledDialogContent>
