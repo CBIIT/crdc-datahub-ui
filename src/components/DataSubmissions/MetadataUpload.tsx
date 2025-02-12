@@ -93,6 +93,18 @@ const StyledTooltip = styled(Tooltip)(() => ({
   marginTop: "3.5px",
 }));
 
+const StyledModelVersionText = styled(Typography)({
+  color: "#000",
+  fontWeight: 400,
+  fontSize: "13px",
+  textTransform: "uppercase",
+  "& a": {
+    color: "#005A9E",
+    fontWeight: 700,
+    textTransform: "none",
+  },
+});
+
 type Props = {
   submission: Submission;
   readOnly?: boolean;
@@ -321,11 +333,10 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
           open={undefined}
           disableHoverListener={false}
         />
-        {/* TODO: Implement design */}
         {submission?.dataCommons && submission?.modelVersion && (
-          <span>
-            ({submission.dataCommons} Data Model: <NavigatorLink submission={submission} />)
-          </span>
+          <StyledModelVersionText data-testid="metadata-upload-model-version">
+            {submission.dataCommons} Data Model: <NavigatorLink submission={submission} />
+          </StyledModelVersionText>
         )}
       </Stack>
     ),
