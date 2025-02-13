@@ -21,6 +21,8 @@ To run the CRDC Submission Portal project locally, follow these steps:
 
 Please see the instructions in [nginx/README.md](./nginx/README.md) for configuring the Nginx reverse proxy.
 
+For details on configuring the project, or for technical details on project features, please refer to [DOCUMENTATION.md](./DOCUMENTATION.md).
+
 ## Contributing
 
 We use Husky to run a pre-commit hook that will run ESLint and Prettier checks on staged files. If there are any issues, you will need to fix them before you can commit your changes.
