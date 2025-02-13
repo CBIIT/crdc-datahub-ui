@@ -11,7 +11,13 @@ import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
 import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
 import AddRemoveButton from "../../../components/AddRemoveButton";
-import { filterForNumbers, mapObjectWithKey, validateEmail } from "../../../utils";
+import {
+  filterForNumbers,
+  formatORCIDInput,
+  isValidORCID,
+  mapObjectWithKey,
+  validateEmail,
+} from "../../../utils";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
@@ -28,8 +34,9 @@ const StyledFormControlLabel = styled(FormControlLabel)({
   "& .MuiFormControlLabel-label": {
     color: "#083A50",
     fontWeight: "700",
+    userSelect: "none",
   },
-  "& .MuiCheckbox-root": {
+  "& .MuiCheckbox-root:not(.Mui-disabled)": {
     color: "#005EA2 !important",
   },
 });
@@ -82,9 +89,6 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     if (formObject.piAsPrimaryContact) {
       combinedData.primaryContact = null;
     }
-
-    // TODO: Remove in 3.2.0
-    combinedData.pi.ORCID = "";
 
     return { ref: formRef, data: combinedData };
   };
@@ -174,6 +178,17 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           required
           readOnly={readOnlyInputs}
         />
+        <TextInput
+          id="section-a-pi-orcid"
+          label="ORCID"
+          name="pi[ORCID]"
+          value={pi?.ORCID}
+          placeholder="e.g. 0000-0001-2345-6789"
+          validate={(val) => val?.length === 0 || isValidORCID(val)}
+          filter={formatORCIDInput}
+          errorText="Please provide a valid ORCID"
+          readOnly={readOnlyInputs}
+        />
         <AutocompleteInput
           id="section-a-pi-institution"
           label="Institution"
@@ -217,6 +232,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                 readOnly={readOnlyInputs}
               />
             }
+            disabled={readOnlyInputs}
           />
           <input
             id="section-a-primary-contact-same-as-pi-checkbox"

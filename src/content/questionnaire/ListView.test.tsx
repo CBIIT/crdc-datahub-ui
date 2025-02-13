@@ -1,5 +1,5 @@
 import React, { FC, useMemo } from "react";
-import { render, waitFor } from "@testing-library/react";
+import { act, render, waitFor } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
@@ -33,7 +33,7 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const baseUser: Omit<User, "role"> = {
+const baseUser: Omit<User, "role" | "permissions"> = {
   _id: "user-id",
   firstName: "",
   lastName: "",
@@ -44,20 +44,16 @@ const baseUser: Omit<User, "role"> = {
   createdAt: "",
   updateAt: "",
   studies: null,
+  notifications: [],
 };
 
 const defaultMocks: MockedResponse[] = [
   {
     request: {
       query: LIST_APPLICATIONS,
-      variables: {
-        first: 20,
-        offset: 0,
-        sortDirection: "desc",
-        orderBy: "submittedDate",
-      },
       context: { clientName: "backend" },
     },
+    variableMatcher: () => true,
     result: {
       data: {
         listApplications: {
@@ -73,6 +69,7 @@ type ParentProps = {
   mocks?: MockedResponse[];
   initialEntries?: MemoryRouterProps["initialEntries"];
   role?: UserRole;
+  permissions?: AuthPermissions[];
   children: React.ReactNode;
 };
 
@@ -80,13 +77,18 @@ const TestParent: FC<ParentProps> = ({
   mocks = defaultMocks,
   initialEntries = ["/"],
   role = "Submitter",
+  permissions = [
+    "submission_request:view",
+    "submission_request:create",
+    "submission_request:submit",
+  ],
   children,
 }: ParentProps) => {
   const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
     () => ({
       status: AuthStatus.LOADED,
       isLoggedIn: role !== null,
-      user: { ...baseUser, role },
+      user: { ...baseUser, role, permissions },
     }),
     [role]
   );
@@ -104,15 +106,18 @@ const TestParent: FC<ParentProps> = ({
 
 describe("Accessibility", () => {
   it("has no accessibility violations", async () => {
-    const { container } = render(
-      <TestParent>
+    const { container, getByText } = render(
+      <TestParent role="Submitter" permissions={["submission_request:view"]}>
         <ListView />
       </TestParent>
     );
 
-    await waitFor(async () => {
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
+    await waitFor(() => {
+      expect(getByText("Submission Request List")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
     });
   });
 });
@@ -141,28 +146,21 @@ describe("ListView Component", () => {
     expect(mockUsePageTitle).toHaveBeenCalledWith("Submission Request List");
   });
 
-  it.each<UserRole>(["User", "Submitter", "Organization Owner"])(
-    "shows the 'Start a Submission Request' button for '%s' role",
-    (role) => {
-      const { getByText } = render(
-        <TestParent role={role}>
-          <ListView />
-        </TestParent>
-      );
-      expect(getByText("Start a Submission Request")).toBeInTheDocument();
-    }
-  );
+  it("shows the 'Start a Submission Request' button for users with the required permissions", () => {
+    const { getByText } = render(
+      <TestParent
+        role="Submitter"
+        permissions={["submission_request:view", "submission_request:create"]}
+      >
+        <ListView />
+      </TestParent>
+    );
+    expect(getByText("Start a Submission Request")).toBeInTheDocument();
+  });
 
-  it.each<UserRole>([
-    "Admin",
-    "Data Commons POC",
-    "Data Curator",
-    "Federal Lead",
-    "Federal Monitor",
-    "fake-role" as UserRole,
-  ])("should not show the 'Start a Submission Request' button for '%s' role", (role) => {
+  it("hides the 'Start a Submission Request' button for users missing the required permissions", () => {
     const { queryByText } = render(
-      <TestParent role={role}>
+      <TestParent role="Submitter" permissions={["submission_request:view"]}>
         <ListView />
       </TestParent>
     );
@@ -295,6 +293,8 @@ describe("ListView Component", () => {
                 updatedAt: "2021-01-02T00:00:00Z",
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -332,6 +332,8 @@ describe("ListView Component", () => {
                 programName: "Program1",
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -367,6 +369,8 @@ describe("ListView Component", () => {
                 programName: null,
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -404,6 +408,8 @@ describe("ListView Component", () => {
                 pendingConditions: ["Pending condition #1"],
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -477,6 +483,8 @@ describe("ListView Component", () => {
                 updatedAt: "2021-01-02T00:00:00Z",
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -516,13 +524,23 @@ describe("ListView Component", () => {
                 updatedAt: "2021-01-02T00:00:00Z",
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
     };
 
     const { getByText } = render(
-      <TestParent role="Federal Lead" mocks={[listApplicationsMock]}>
+      <TestParent
+        role="Federal Lead"
+        permissions={[
+          "submission_request:view",
+          "submission_request:review",
+          "submission_request:submit",
+        ]}
+        mocks={[listApplicationsMock]}
+      >
         <ListView />
       </TestParent>
     );
@@ -562,6 +580,8 @@ describe("ListView Component", () => {
                 questionnaireData: null,
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },
@@ -602,6 +622,8 @@ describe("ListView Component", () => {
                 createdAt: "2021-01-02T15:30:00Z",
               } as Application,
             ],
+            programs: [],
+            studies: [],
           },
         },
       },

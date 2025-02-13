@@ -51,6 +51,8 @@ const TestParent: FC<ParentProps> = ({
         createdAt: "",
         updateAt: "",
         studies: null,
+        permissions: ["data_submission:create"],
+        notifications: [],
       },
     }),
     [userRole]
@@ -265,22 +267,6 @@ describe("DataSubmissionListFilters Component", () => {
 
     userEvent.click(orgSelectList.getByTestId("organization-option-Org2"));
 
-    const statusSelect = within(getByTestId("status-select")).getByRole("button");
-
-    userEvent.click(statusSelect);
-
-    const statusSelectList = within(statusSelect.parentElement).getByRole("listbox", {
-      hidden: true,
-    });
-
-    await waitFor(() => {
-      expect(within(statusSelectList).getByTestId("status-option-All")).toBeInTheDocument();
-      expect(within(statusSelectList).getByTestId("status-option-New")).toBeInTheDocument();
-      expect(within(statusSelectList).getByTestId("status-option-Submitted")).toBeInTheDocument();
-    });
-
-    userEvent.click(within(statusSelectList).getByTestId("status-option-Submitted"));
-
     const dataCommonsSelect = within(getByTestId("data-commons-select")).getByRole("button");
 
     userEvent.click(dataCommonsSelect);
@@ -332,7 +318,7 @@ describe("DataSubmissionListFilters Component", () => {
       expect(mockOnChange).toHaveBeenCalledWith(
         expect.objectContaining({
           organization: "Org2",
-          status: "Submitted",
+          status: expect.arrayContaining(["New", "Submitted"]),
           name: "Test Submission",
           dbGaPID: "12345",
           submitterName: "Submitter1",
@@ -345,7 +331,9 @@ describe("DataSubmissionListFilters Component", () => {
 
     await waitFor(() => {
       expect(getByTestId("organization-select-input")).toHaveValue("All");
-      expect(getByTestId("status-select-input")).toHaveValue("All");
+      expect(getByTestId("status-select-input")).toHaveValue(
+        ["New", "In Progress", "Submitted", "Withdrawn", "Released", "Rejected"].join(",")
+      );
       expect(getByTestId("data-commons-select-input")).toHaveValue("All");
       expect(getByTestId("submission-name-input")).toHaveValue("");
       expect(getByTestId("dbGaPID-input")).toHaveValue("");
@@ -355,7 +343,7 @@ describe("DataSubmissionListFilters Component", () => {
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
         organization: "All",
-        status: "All",
+        status: ["New", "In Progress", "Submitted", "Withdrawn", "Released", "Rejected"],
         dataCommons: "All",
         name: "",
         dbGaPID: "",
@@ -645,7 +633,7 @@ describe("DataSubmissionListFilters Component", () => {
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
         organization: "Org1",
-        status: "Submitted",
+        status: ["Submitted"],
         dataCommons: "DataCommon1",
         name: "Test",
         dbGaPID: "123",
@@ -655,6 +643,37 @@ describe("DataSubmissionListFilters Component", () => {
 
     userEvent.clear(getByTestId("dbGaPID-input"));
     userEvent.clear(getByTestId("submission-name-input"));
+  });
+
+  it("initializes study field based on searchParams and ignores invalid options", async () => {
+    const initialEntries = ["/?status=Deleted&status=RandomFakeStatus"];
+
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const { getByTestId } = render(
+      <TestParent initialEntries={initialEntries} userRole="Admin">
+        <DataSubmissionListFilters
+          columns={columns}
+          organizations={organizations}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("status-select-input")).toHaveValue("Deleted");
+    });
+
+    expect(mockOnChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: ["Deleted"],
+      })
+    );
   });
 
   it("initializes form fields to default when searchParams are empty", async () => {
@@ -679,7 +698,9 @@ describe("DataSubmissionListFilters Component", () => {
 
     await waitFor(() => {
       expect(getByTestId("organization-select-input")).toHaveValue("All");
-      expect(getByTestId("status-select-input")).toHaveValue("All");
+      expect(getByTestId("status-select-input")).toHaveValue(
+        ["New", "In Progress", "Submitted", "Withdrawn", "Released", "Rejected"].join(",")
+      );
       expect(getByTestId("data-commons-select-input")).toHaveValue("All");
       expect(getByTestId("submission-name-input")).toHaveValue("");
       expect(getByTestId("dbGaPID-input")).toHaveValue("");
@@ -689,7 +710,7 @@ describe("DataSubmissionListFilters Component", () => {
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
         organization: "All",
-        status: "All",
+        status: ["New", "In Progress", "Submitted", "Withdrawn", "Released", "Rejected"],
         dataCommons: "All",
         name: "",
         dbGaPID: "",
@@ -722,7 +743,7 @@ describe("DataSubmissionListFilters Component", () => {
       expect(mockOnChange).toHaveBeenCalledWith(
         expect.objectContaining({
           organization: "All",
-          status: "All",
+          status: ["New", "In Progress", "Submitted", "Withdrawn", "Released", "Rejected"],
           dataCommons: "All",
           name: "",
           dbGaPID: "",

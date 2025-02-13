@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import NavigatorView from "./NavigatorView";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { DataCommonProvider } from "../../components/Contexts/DataCommonContext";
@@ -8,12 +8,15 @@ import usePageTitle from "../../hooks/usePageTitle";
 const ModelNavigatorController: React.FC = () => {
   usePageTitle("Model Navigator");
 
-  const { dataCommon } = useParams<{ dataCommon: DataCommon["name"] }>();
+  const { model, version } = useParams<{ model: string; version?: string }>();
+  if (!version) {
+    return <Navigate to={`/model-navigator/${model}/latest`} />;
+  }
 
   return (
-    <DataCommonProvider key={dataCommon} DataCommon={dataCommon}>
+    <DataCommonProvider key={`${model}_${version}`} DataCommon={model}>
       <ErrorBoundary errorMessage="Unable to load the Model Navigator for the requested model">
-        <NavigatorView />
+        <NavigatorView version={version} />
       </ErrorBoundary>
     </DataCommonProvider>
   );

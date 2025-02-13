@@ -31,33 +31,34 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
 /**
  * Builds the asset URLs for the Data Model Navigator to import from
  *
- * @param dc The data common to build the asset URLs for
+ * @param model The Data Model (DataCommon) to build asset URLs for
+ * @param modelVersion The version of the Data Model to build asset URLs for
  * @returns ModelAssetUrls
  */
-export const buildAssetUrls = (dc: DataCommon): ModelAssetUrls => ({
-  model_files:
-    dc?.assets?.["model-files"]?.map(
-      (file) =>
-        `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
-          "current-version"
-        ]}/${file}`
-    ) || [],
-  readme: dc?.assets?.["readme-file"]
-    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
-        "current-version"
-      ]}/${dc?.assets?.["readme-file"]}`
-    : null,
-  loading_file: dc?.assets?.["loading-file"]
-    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
-        "current-version"
-      ]}/${dc?.assets?.["loading-file"]}`
-    : null,
-  navigator_icon: dc?.assets?.["model-navigator-logo"]
-    ? `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/${dc?.name}/${dc?.assets?.[
-        "current-version"
-      ]}/${dc?.assets?.["model-navigator-logo"]}`
-    : GenericModelLogo,
-});
+export const buildAssetUrls = (model: DataCommon, modelVersion: string): ModelAssetUrls => {
+  const { name, assets } = model || {};
+  const version = modelVersion === "latest" ? assets?.["current-version"] : modelVersion;
+  const tier = env.REACT_APP_DEV_TIER || "prod";
+
+  return {
+    model_files:
+      assets?.["model-files"]?.map(
+        (file) => `${MODEL_FILE_REPO}${tier}/cache/${name}/${version}/${file}`
+      ) || [],
+    readme: assets?.["readme-file"]
+      ? `${MODEL_FILE_REPO}${tier}/cache/${name}/${version}/${assets?.["readme-file"]}`
+      : null,
+    loading_file: assets?.["loading-file"]
+      ? `${MODEL_FILE_REPO}${tier}/cache/${name}/${version}/${assets?.["loading-file"]}`
+      : null,
+    navigator_icon: assets?.["model-navigator-logo"]
+      ? `${MODEL_FILE_REPO}${tier}/cache/${name}/${version}/${assets?.["model-navigator-logo"]}`
+      : GenericModelLogo,
+    changelog: assets?.["release-notes"]
+      ? `${MODEL_FILE_REPO}${tier}/cache/${name}/${version}/${assets?.["release-notes"]}`
+      : null,
+  };
+};
 
 /**
  * Helper function to SAFELY build a set of base filter containers for the Data Model Navigator

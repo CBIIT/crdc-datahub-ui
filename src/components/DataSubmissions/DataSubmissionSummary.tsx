@@ -225,7 +225,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
               <StyledTooltip
                 placement="top"
                 title="Click to add new collaborators or view existing ones."
-                disableHoverListener={false}
+                disableHoverListener={!dataSubmission}
                 slotProps={{
                   tooltip: { "data-testid": "collaborators-button-tooltip" } as unknown,
                 }}

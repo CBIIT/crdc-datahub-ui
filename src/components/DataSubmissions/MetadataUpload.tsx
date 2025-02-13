@@ -15,8 +15,10 @@ import {
 } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
 import FlowWrapper from "./FlowWrapper";
-import { canUploadMetadataRoles } from "../../config/AuthRoles";
 import { Logger } from "../../utils";
+import { hasPermission } from "../../config/AuthPermissions";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import NavigatorLink from "./NavigatorLink";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -91,6 +93,18 @@ const StyledTooltip = styled(Tooltip)(() => ({
   marginTop: "3.5px",
 }));
 
+const StyledModelVersionText = styled(Typography)({
+  color: "#000",
+  fontWeight: 400,
+  fontSize: "13px",
+  textTransform: "uppercase",
+  "& a": {
+    color: "#005A9E",
+    fontWeight: 700,
+    textTransform: "none",
+  },
+});
+
 type Props = {
   submission: Submission;
   readOnly?: boolean;
@@ -111,13 +125,7 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
-  const isSubmissionOwner = submission?.submitterID === user?._id;
-  const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
-  const canUpload =
-    isSubmissionOwner ||
-    (canUploadMetadataRoles.includes(user?.role) &&
-      collaborator &&
-      collaborator.permission === "Can Edit");
+  const canUpload = hasPermission(user, "data_submission", "create", submission);
   const acceptedExtensions = [".tsv", ".txt"];
 
   const [createBatch] = useMutation<CreateBatchResp, CreateBatchInput>(CREATE_BATCH, {
@@ -316,20 +324,27 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
     [selectedFiles, readOnly, canUpload, isUploading]
   );
 
-  return (
-    <FlowWrapper
-      index={1}
-      title="Upload Metadata"
-      titleAdornment={
+  const Adornments: ReactElement = useMemo(
+    () => (
+      <Stack direction="row" alignItems="center" spacing={1.25}>
         <StyledTooltip
           placement="right"
-          title="The metadata uploaded will be compared with existing data within the submission. All new data will be added to the submission, including updates to existing information."
-          open={undefined} // will use hoverListener to open
+          title={TOOLTIP_TEXT.FILE_UPLOAD.UPLOAD_METADATA}
+          open={undefined}
           disableHoverListener={false}
         />
-      }
-      actions={Actions}
-    >
+        {submission?.dataCommons && submission?.modelVersion && (
+          <StyledModelVersionText data-testid="metadata-upload-model-version">
+            {submission.dataCommons} Data Model: <NavigatorLink submission={submission} />
+          </StyledModelVersionText>
+        )}
+      </Stack>
+    ),
+    [submission?.dataCommons, submission?.modelVersion]
+  );
+
+  return (
+    <FlowWrapper index={1} title="Upload Metadata" titleAdornment={Adornments} actions={Actions}>
       <Stack direction="row" alignItems="center" spacing={1.25}>
         <StyledUploadActionWrapper direction="row">
           <StyledMetadataText variant="body2">Metadata Files</StyledMetadataText>

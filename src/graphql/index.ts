@@ -14,6 +14,12 @@ export type { Response as InquireAppResp } from "./inquireApplication";
 export { mutation as REJECT_APP } from "./rejectApplication";
 export type { Response as RejectAppResp } from "./rejectApplication";
 
+export { mutation as CANCEL_APP } from "./cancelApplication";
+export type { Response as CancelAppResp, Input as CancelAppInput } from "./cancelApplication";
+
+export { mutation as RESTORE_APP } from "./restoreApplication";
+export type { Response as RestoreAppResp, Input as RestoreAppInput } from "./restoreApplication";
+
 export { mutation as SAVE_APP } from "./saveApplication";
 export type { Input as SaveAppInput, Response as SaveAppResp } from "./saveApplication";
 
@@ -70,7 +76,16 @@ export { query as LIST_BATCHES } from "./listBatches";
 export type { Input as ListBatchesInput, Response as ListBatchesResp } from "./listBatches";
 
 export { query as SUBMISSION_QC_RESULTS } from "./submissionQCResults";
-export type { Response as SubmissionQCResultsResp } from "./submissionQCResults";
+export type {
+  Input as SubmissionQCResultsInput,
+  Response as SubmissionQCResultsResp,
+} from "./submissionQCResults";
+
+export { query as AGGREGATED_SUBMISSION_QC_RESULTS } from "./aggregatedSubmissionQCResults";
+export type {
+  Input as AggregatedSubmissionQCResultsInput,
+  Response as AggregatedSubmissionQCResultsResp,
+} from "./aggregatedSubmissionQCResults";
 
 export { query as SUBMISSION_CROSS_VALIDATION_RESULTS } from "./submissionCrossValidationResults";
 export type {
@@ -105,6 +120,12 @@ export type {
   Input as GetSubmissionNodesInput,
   Response as GetSubmissionNodesResp,
 } from "./getSubmissionNodes";
+
+export { query as RETRIEVE_RELEASED_DATA } from "./retrieveReleasedDataByID";
+export type {
+  Input as RetrieveReleasedDataInput,
+  Response as RetrieveReleasedDataResp,
+} from "./retrieveReleasedDataByID";
 
 export { query as SUBMISSION_STATS } from "./submissionStats";
 export type {
@@ -148,6 +169,12 @@ export type { Input as EditUserInput, Response as EditUserResp } from "./editUse
 
 export { mutation as REQUEST_ACCESS } from "./requestAccess";
 export type { Input as RequestAccessInput, Response as RequestAccessResp } from "./requestAccess";
+
+export { query as RETRIEVE_PBAC_DEFAULTS } from "./retrievePBACDefaults";
+export type {
+  Input as RetrievePBACDefaultsInput,
+  Response as RetrievePBACDefaultsResp,
+} from "./retrievePBACDefaults";
 
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";

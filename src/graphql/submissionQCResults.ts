@@ -4,6 +4,7 @@ import gql from "graphql-tag";
 const BaseQCResultFragment = gql`
   fragment BaseQCResultFragment on QCResult {
     errors {
+      code
       title
       description
     }
@@ -23,10 +24,12 @@ const FullQCResultFragment = gql`
     uploadedDate
     validatedDate
     errors {
+      code
       title
       description
     }
     warnings {
+      code
       title
       description
     }
@@ -36,6 +39,7 @@ const FullQCResultFragment = gql`
 export const query = gql`
   query submissionQCResults(
     $id: ID!
+    $issueCode: String
     $nodeTypes: [String]
     $batchIDs: [ID]
     $severities: String
@@ -47,6 +51,7 @@ export const query = gql`
   ) {
     submissionQCResults(
       _id: $id
+      issueCode: $issueCode
       nodeTypes: $nodeTypes
       batchIDs: $batchIDs
       severities: $severities
@@ -65,6 +70,19 @@ export const query = gql`
   ${FullQCResultFragment}
   ${BaseQCResultFragment}
 `;
+
+export type Input = {
+  id: string;
+  issueCode?: string;
+  nodeTypes?: string[];
+  batchIDs?: number[];
+  severities?: string;
+  first?: number;
+  offset?: number;
+  orderBy?: string;
+  sortDirection?: string;
+  partial?: boolean;
+};
 
 export type Response<IsPartial = false> = {
   submissionQCResults: ValidationResult<
