@@ -182,6 +182,13 @@ const StyledContentStack = styled(Stack)({
   marginLeft: "2px !important",
 });
 
+const StyledAlert = styled(Alert)({
+  marginBottom: "16px",
+  padding: "16px",
+  width: "100%",
+  maxWidth: "556px",
+});
+
 const StyledTitleBox = styled(Box)({
   marginTop: "-86px",
   marginBottom: "88px",
@@ -235,7 +242,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
 
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState(null);
-  const [sameAsProgramPrimaryContact, setSameAsProgramPrimaryContact] = useState<boolean>(false);
+  const [sameAsProgramPrimaryContact, setSameAsProgramPrimaryContact] = useState<boolean>(true);
+  const [approvedStudy, setApprovedStudy] = useState<ApprovedStudy>(null);
 
   const manageStudiesPageUrl = `/studies${lastSearchParams?.["/studies"] ?? ""}`;
 
@@ -245,6 +253,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       variables: { _id },
       skip: !_id || _id === "new",
       onCompleted: (data) => {
+        setApprovedStudy({ ...data?.getApprovedStudy });
         const {
           primaryContact,
           studyName,
@@ -255,6 +264,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           openAccess,
           controlledAccess,
         } = data?.getApprovedStudy || {};
+
+        if (primaryContact?._id) {
+          setSameAsProgramPrimaryContact(false);
+        }
 
         resetForm({
           studyName,
@@ -312,14 +325,14 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     primaryContactID,
   }: FormInput) => {
     reset({
-      studyName,
-      studyAbbreviation,
+      studyName: studyName || "",
+      studyAbbreviation: studyAbbreviation || "",
       controlledAccess,
       openAccess,
-      dbGaPID,
-      PI,
-      ORCID,
-      primaryContactID,
+      dbGaPID: dbGaPID || "",
+      PI: PI || "",
+      ORCID: ORCID || "",
+      primaryContactID: primaryContactID || "",
     });
   };
 
@@ -390,6 +403,16 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
 
   const handleOnSameAsProgramPCChange = (checked: boolean) => {
     setSameAsProgramPrimaryContact(checked);
+
+    if (
+      checked &&
+      approvedStudy?.programs?.length === 1 &&
+      approvedStudy.programs[0]?.conciergeID
+    ) {
+      setValue("primaryContactID", approvedStudy.programs[0].conciergeID);
+    } else {
+      setValue("primaryContactID", null);
+    }
   };
 
   if (retrievingStudy) {
@@ -419,13 +442,9 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
 
             <form onSubmit={handleSubmit(handlePreSubmit)} data-testid="study-form">
               {error && (
-                <Alert
-                  sx={{ mb: 2, p: 2, width: "100%" }}
-                  severity="error"
-                  data-testid="alert-error-message"
-                >
+                <StyledAlert severity="error" data-testid="alert-error-message">
                   {error || "An unknown API error occurred."}
-                </Alert>
+                </StyledAlert>
               )}
 
               <StyledField>
@@ -602,7 +621,9 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                           onChange={(_, checked) => handleOnSameAsProgramPCChange(checked)}
                           checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
                           icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
-                          disabled={saving || retrievingStudy}
+                          disabled={
+                            saving || retrievingStudy || approvedStudy?.programs?.length !== 1
+                          }
                           inputProps={
                             { "data-testid": "sameAsProgramPrimaryContact-checkbox" } as unknown
                           }
