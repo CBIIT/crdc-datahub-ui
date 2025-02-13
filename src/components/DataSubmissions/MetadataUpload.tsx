@@ -96,9 +96,10 @@ const StyledTooltip = styled(Tooltip)(() => ({
 const StyledModelVersionText = styled(Typography)({
   color: "#000",
   fontWeight: 400,
-  fontSize: "13px",
+  fontSize: "11.5px",
   textTransform: "uppercase",
   "& a": {
+    paddingLeft: "3px",
     color: "#005A9E",
     fontWeight: 700,
     textTransform: "none",
