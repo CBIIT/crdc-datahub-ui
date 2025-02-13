@@ -14,6 +14,7 @@ const baseStudy: ApprovedStudy = {
   PI: "",
   ORCID: "",
   primaryContact: null,
+  programs: [],
   createdAt: "",
 };
 
