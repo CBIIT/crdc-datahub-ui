@@ -31,6 +31,9 @@ export const mutation = gql`
       openAccess
       PI
       ORCID
+      programs {
+        _id
+      }
       createdAt
     }
   }

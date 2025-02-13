@@ -9,7 +9,7 @@ export const mutation = gql`
     $dbGaPID: String
     $ORCID: String
     $PI: String
-    $primaryContactID: String!
+    $primaryContactID: String
   ) {
     createApprovedStudy(
       name: $name
@@ -29,6 +29,9 @@ export const mutation = gql`
       openAccess
       PI
       ORCID
+      programs {
+        _id
+      }
       createdAt
     }
   }
