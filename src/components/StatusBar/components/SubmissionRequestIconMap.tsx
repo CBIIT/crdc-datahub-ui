@@ -6,6 +6,8 @@ import UnderReview from "../../../assets/history/submissionRequest/UnderReview.s
 import StatusApproved from "../../../assets/history/submissionRequest/StatusApproved.svg";
 import StatusRejected from "../../../assets/history/submissionRequest/StatusRejected.svg";
 import InProgress from "../../../assets/history/submissionRequest/InProgress.svg";
+import Canceled from "../../../assets/history/canceled.svg";
+import Deleted from "../../../assets/history/deleted.svg";
 import { IconType } from "../../HistoryDialog";
 
 /**
@@ -20,6 +22,8 @@ export const HistoryIconMap: IconType<ApplicationStatus> = {
   Approved,
   "In Review": UnderReview,
   "In Progress": InProgress,
+  Canceled,
+  Deleted,
 } as IconType<ApplicationStatus>;
 
 /**
