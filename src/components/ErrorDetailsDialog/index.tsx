@@ -145,6 +145,7 @@ const ErrorDetailsDialog = ({
       onClose={handleCloseDialog}
       data-testid="error-details-dialog"
       aria-labelledby="error-details-title"
+      scroll="body"
       {...rest}
     >
       <StyledCloseDialogButton
