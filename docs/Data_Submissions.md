@@ -2,11 +2,11 @@
 
 This document provides developer documentation on the CRDC Submission Portal – Data Submissions feature.
 
-## Data Submissions
+# Data Submissions
 
 Refer to this section for information on the Data Submission functionality.
 
-### Submit Action Requirements
+## Submit Action Requirements
 
 The following table outlines the conditions for which a Data Submission must meet in order to be submitted. Key:
 
