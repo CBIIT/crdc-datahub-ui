@@ -17,6 +17,12 @@ export const query = gql`
         firstName
         lastName
       }
+      programs {
+        _id
+        name
+        conciergeID
+        conciergeName
+      }
     }
   }
 `;
