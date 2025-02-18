@@ -13,6 +13,8 @@ const baseStudy: ApprovedStudy = {
   openAccess: false,
   PI: "",
   ORCID: "",
+  primaryContact: null,
+  programs: [],
   createdAt: "",
 };
 
