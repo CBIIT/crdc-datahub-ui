@@ -19,13 +19,12 @@ To run the CRDC Submission Portal project locally, follow these steps:
 5. Start the development server: `npm start`
 6. Open your browser and visit `http://localhost:3010` to access the application.
 
-Please see the instructions in [nginx/README.md](./nginx/README.md) for configuring the Nginx reverse proxy.
-
-For details on configuring the project, or for technical details on project features, please refer to [DOCUMENTATION.md](./DOCUMENTATION.md).
+For instructions on configuring the project, or for developer technical documentation, see the [docs](./docs/index.md) folder.
 
 ## Contributing
 
-We use Husky to run a pre-commit hook that will run ESLint and Prettier checks on staged files. If there are any issues, you will need to fix them before you can commit your changes.
+We welcome any form of contributions to the CRDC Submission Portal project.
 
-If you need to bypass the pre-commit hook, you can use the Git `--no-verify` flag when committing your changes.
-These same issues will still be caught by the CI/CD pipeline.
+We use Husky to run a pre-commit hook that will run ESLint, Prettier, and Typechecking on staged files. If there are any issues, you will need to fix them before you can commit your changes.
+
+If you need to bypass the pre-commit hook, you can use the Git `--no-verify` flag when committing your changes. However, this is not recommended as our CI/CD pipeline will fail if there are any issues.
