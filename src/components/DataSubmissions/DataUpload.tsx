@@ -65,7 +65,7 @@ const StyledTooltip = styled(Tooltip)(() => ({
 const StyledUploaderCLIVersionText = styled("span")(() => ({
   color: "#000",
   fontWeight: 400,
-  fontSize: "13px",
+  fontSize: "11.5px",
   textTransform: "uppercase",
 }));
 
@@ -74,9 +74,10 @@ const StyledVersionButton = styled(Button)(() => ({
   textDecoration: "underline",
   color: "#005A9E",
   cursor: "pointer",
-  fontSize: "13px",
+  fontSize: "11.5px",
   margin: 0,
   marginTop: "-3px",
+  marginLeft: "3px",
   padding: 0,
   minWidth: 0,
   textTransform: "none",
