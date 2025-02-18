@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -153,6 +153,9 @@ const StyledCheckbox = styled(Checkbox)({
   "& .MuiSvgIcon-root": {
     fontSize: "24px",
   },
+  "&.Mui-disabled": {
+    cursor: "not-allowed",
+  },
 });
 
 const BaseInputStyling = {
@@ -267,6 +270,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
 
         if (primaryContact?._id) {
           setSameAsProgramPrimaryContact(false);
+        } else if (data?.getApprovedStudy?.programs?.length === 1) {
+          setSameAsProgramPrimaryContact(true);
         }
 
         resetForm({
@@ -310,6 +315,12 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     }
   );
 
+  useEffect(() => {
+    if (approvedStudy?.programs?.length > 1 && sameAsProgramPrimaryContact) {
+      setSameAsProgramPrimaryContact(false);
+    }
+  }, [approvedStudy?.programs?.length, sameAsProgramPrimaryContact]);
+
   /**
    * Reset the form values, and preventing invalid
    * properties from being set
@@ -327,8 +338,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     reset({
       studyName: studyName || "",
       studyAbbreviation: studyAbbreviation || "",
-      controlledAccess,
-      openAccess,
+      controlledAccess: controlledAccess || false,
+      openAccess: openAccess || false,
       dbGaPID: dbGaPID || "",
       PI: PI || "",
       ORCID: ORCID || "",
@@ -345,6 +356,12 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       setError("Invalid Access Type. Please select at least one Access Type.");
       return;
     }
+    if (!sameAsProgramPrimaryContact && !data?.primaryContactID) {
+      setError(
+        "Primary Contact is a required field. Please assign a Primary Contact to the study."
+      );
+      return;
+    }
 
     setError(null);
     onSubmit(data);
@@ -357,7 +374,9 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       ...data,
       name: data.studyName,
       acronym: data.studyAbbreviation,
-      primaryContactID: data.primaryContactID,
+      primaryContactID: sameAsProgramPrimaryContact
+        ? undefined
+        : data.primaryContactID || undefined,
     };
 
     if (_id === "new") {
@@ -410,9 +429,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       approvedStudy.programs[0]?.conciergeID
     ) {
       setValue("primaryContactID", approvedStudy.programs[0].conciergeID);
-    } else {
-      setValue("primaryContactID", null);
+      return;
     }
+
+    setValue("primaryContactID", null);
   };
 
   if (retrievingStudy) {
@@ -614,23 +634,35 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   spacing={1}
                 >
                   <StyledCheckboxFormGroup>
-                    <StyledFormControlLabel
-                      control={
-                        <StyledCheckbox
-                          checked={sameAsProgramPrimaryContact}
-                          onChange={(_, checked) => handleOnSameAsProgramPCChange(checked)}
-                          checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
-                          icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
-                          disabled={
-                            saving || retrievingStudy || approvedStudy?.programs?.length !== 1
-                          }
-                          inputProps={
-                            { "data-testid": "sameAsProgramPrimaryContact-checkbox" } as unknown
-                          }
-                        />
+                    <Tooltip
+                      title="Disabled due to this study is associated with multiple programs; manually assign a Primary Contact."
+                      placement="top"
+                      open={undefined}
+                      disableHoverListener={
+                        saving ||
+                        retrievingStudy ||
+                        !approvedStudy?.programs ||
+                        approvedStudy?.programs?.length <= 1
                       }
-                      label="Same as the Program Primary Contact"
-                    />
+                    >
+                      <StyledFormControlLabel
+                        control={
+                          <StyledCheckbox
+                            checked={sameAsProgramPrimaryContact}
+                            onChange={(_, checked) => handleOnSameAsProgramPCChange(checked)}
+                            checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
+                            icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
+                            disabled={
+                              saving || retrievingStudy || approvedStudy?.programs?.length > 1
+                            }
+                            inputProps={
+                              { "data-testid": "sameAsProgramPrimaryContact-checkbox" } as unknown
+                            }
+                          />
+                        }
+                        label="Same as the Program Primary Contact"
+                      />
+                    </Tooltip>
                   </StyledCheckboxFormGroup>
                   <Controller
                     name="primaryContactID"
@@ -639,15 +671,27 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                     render={({ field }) => (
                       <StyledSelect
                         {...field}
-                        value={field.value || ""}
+                        value={
+                          sameAsProgramPrimaryContact
+                            ? approvedStudy?.programs?.[0]?.conciergeID || ""
+                            : field.value || ""
+                        }
                         MenuProps={{ disablePortal: true }}
                         inputProps={{
                           "aria-labelledby": "primaryContactLabel",
                         }}
+                        data-testid="primaryContactID-select"
                         error={!!errors.primaryContactID}
                         disabled={sameAsProgramPrimaryContact}
                       >
-                        <MenuItem value={null}>{"<Not Set>"}</MenuItem>
+                        {sameAsProgramPrimaryContact &&
+                        approvedStudy?.programs?.[0]?.conciergeID ? (
+                          <MenuItem value={approvedStudy.programs[0].conciergeID}>
+                            {`${approvedStudy?.programs?.[0]?.conciergeName}`.trim()}
+                          </MenuItem>
+                        ) : (
+                          <MenuItem value={null}>{"<Not Set>"}</MenuItem>
+                        )}
                         {activeDCPs?.listActiveDCPs?.map((user) => (
                           <MenuItem key={user?.userID} value={user?.userID}>
                             {`${user?.firstName} ${user?.lastName}`.trim()}
