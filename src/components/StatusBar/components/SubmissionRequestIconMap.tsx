@@ -1,11 +1,11 @@
-import New from "../../../assets/history/submissionRequest/SubmissionRequestNew.svg";
-import Submitted from "../../../assets/history/submissionRequest/SubmissionRequestSubmitted.svg";
-import Rejected from "../../../assets/history/submissionRequest/Rejected.svg";
+import New from "../../../assets/history/new.svg";
+import Submitted from "../../../assets/history/submitted.svg";
+import Rejected from "../../../assets/history/rejected.svg";
 import Approved from "../../../assets/history/submissionRequest/Approved.svg";
 import UnderReview from "../../../assets/history/submissionRequest/UnderReview.svg";
 import StatusApproved from "../../../assets/history/submissionRequest/StatusApproved.svg";
 import StatusRejected from "../../../assets/history/submissionRequest/StatusRejected.svg";
-import InProgress from "../../../assets/history/submissionRequest/InProgress.svg";
+import InProgress from "../../../assets/history/in_progress.svg";
 import Canceled from "../../../assets/history/canceled.svg";
 import Deleted from "../../../assets/history/deleted.svg";
 import { IconType } from "../../HistoryDialog";
