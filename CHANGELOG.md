@@ -2,7 +2,7 @@
 
 ## 3.2.0 (Released 03/25/2025)
 
-### Submission Request Enhancements
+#### Submission Request Enhancements
 
 - Added Submission Request Version Support to ensure backward compatibility.
 - Released Submission Request Form 2.0 with added question and UI improvements
@@ -15,7 +15,7 @@
   - When a Submission Request is canceled or restored.
   - For conditionally approved Submission Requests.
 
-### Data Submission Enhancements
+#### Data Submission Enhancements
 
 - Studies are now associated with Programs instead of Organizations.
 - Submitters can create data submissions only for their assigned studies.
@@ -28,27 +28,27 @@
 - Added support for Study-level Primary Contact assignments.
 - New email notification sent when a Data Submission is deleted.
 
-### Data Model Enhancements
+#### Data Model Enhancements
 
 - Model Navigator now displays older model versions for reference.
 - Model version history is now accessible within the Model Navigator.
 - Added additional options for Dictionary Download.
 
-### Uploader CLI Tool Updates
+#### Uploader CLI Tool Updates
 
 - Uploader CLI now supports versioning to ensure compatibility.
 - Upload progress is now displayed in CLI output for better tracking.
 - Local file validation process improved for faster and more accurate uploads.
 - Removed redundant CLI parameters for a streamlined experience.
 
-### User Account & Access Management
+#### User Account & Access Management
 
 - Admins can configure and customize user permissions for system access.
 - Admins can configure and customize user accounts to receive email notifications.
 - Users must specify the studies they need access to when submitting an access request.
 - New email notification sent when user account access is changed.
 
-### Data Submissions Operation Dashboard
+#### Data Submissions Operation Dashboard
 
 - Added Data Submission metrics by Program.
 - Users can now export the Operation Dashboard to PDF for reporting and analysis.
