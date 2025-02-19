@@ -274,8 +274,9 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           type="text"
           value={data.numberOfParticipants}
           filter={filterPositiveIntegerString}
-          validate={(input: string) => isValidInRange(input, 1)} // greater than 0
-          errorText="Value must be greater than 0."
+          validate={(input: string) => isValidInRange(input, 1, 2000000000)} // between 1 and 2bn
+          errorText="Value must be between 1 and 2,000,000,000."
+          maxLength={10}
           inputProps={
             {
               "data-type": "number",
