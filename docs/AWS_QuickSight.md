@@ -77,6 +77,30 @@ After running the above command, you should see a response similar to the follow
 }
 ```
 
+# Template-Based Migration
+
+To migrate a template across QuickSight accounts, we need to adjust the template permissions.
+
+The following JSON file (e.g. `TEMPLATE_PERMISSIONS.json`) will be used to update the template permissions.
+
+```json
+[
+  {
+    "Principal": "arn:aws:quicksight:7XXXXXXXXXX1:root",
+    "Actions": [
+      "quicksight:UpdateTemplatePermissions",
+      "quicksight:DescribeTemplate"
+    ]
+  }
+]
+```
+
+With the above file, execute the following command to update the template permissions.
+
+```bash
+aws quicksight update-template-permissions --aws-account-id 7XXXXXXXXXX1 --template-id "XXXX" --grant-permissions file://./TEMPLATE_PERMISSIONS.json
+```
+
 # Template to Dashboard
 
 Now that we have the template created from a dashboard, we can list the available templates. You may skip this step if you already know the template ID (given by the previous command).
