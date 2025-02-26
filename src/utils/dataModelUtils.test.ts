@@ -189,7 +189,7 @@ describe("buildAssetUrls cases", () => {
     expect(result.readme).toEqual(null);
   });
 
-  it("should use GenericModelLogo if model-navigator-logo is not defined", () => {
+  it("should use an empty string if model-navigator-logo is not defined", () => {
     const dc: DataCommon = {
       name: "test-name",
       assets: {
@@ -203,10 +203,10 @@ describe("buildAssetUrls cases", () => {
 
     const result = utils.buildAssetUrls(dc, "latest");
 
-    expect(result.navigator_icon).toEqual("genericLogo.png");
+    expect(result.navigator_icon).toEqual("");
   });
 
-  it("should use GenericModelLogo if the model-navigator-logo is an empty string", () => {
+  it("should use an empty string if the model-navigator-logo is an empty string", () => {
     const dc: DataCommon = {
       name: "test-name",
       assets: {
@@ -220,7 +220,7 @@ describe("buildAssetUrls cases", () => {
 
     const result = utils.buildAssetUrls(dc, "latest");
 
-    expect(result.navigator_icon).toEqual("genericLogo.png");
+    expect(result.navigator_icon).toEqual("");
   });
 
   it("should use model-navigator-logo if provided in the content manifest", () => {
