@@ -1,6 +1,6 @@
 # Release Notes
 
-## 3.2.0 (Released 03/25/2025)
+## 3.2.0 (Released 03/28/2025)
 
 #### Submission Request Enhancements
 
