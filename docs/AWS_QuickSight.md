@@ -196,5 +196,5 @@ aws quicksight create-dashboard --cli-input-json file://./CREATE_DASHBOARD_INPUT
 > You can retrieve the Principal ARN by listing your QuickSight users.
 >
 > ```bash
-> aws quicksight list-users --aws-account-id 782317370611 --namespace default
+> aws quicksight list-users --aws-account-id 7XXXXXXXXXX1 --namespace default
 > ```
