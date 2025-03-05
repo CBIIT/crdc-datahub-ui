@@ -59,7 +59,12 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: bool
   },
 }));
 
-const StyledPaper = styled(Paper)({
+/**
+ * A pre-styled Paper component for the Autocomplete dropdown.
+ *
+ * @note This is applied to the default export automatically, but is exported for further customization.
+ */
+export const StyledPaper = styled(Paper)({
   borderRadius: "8px",
   border: "1px solid #6B7294",
   marginTop: "2px",

@@ -12,6 +12,17 @@ export const query = gql`
       PI
       ORCID
       createdAt
+      primaryContact {
+        _id
+        firstName
+        lastName
+      }
+      programs {
+        _id
+        name
+        conciergeID
+        conciergeName
+      }
     }
   }
 `;

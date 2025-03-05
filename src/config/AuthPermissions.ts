@@ -34,7 +34,7 @@ type Permissions = {
   };
   data_submission: {
     dataType: Submission;
-    action: "view" | "create" | "review" | "admin_submit" | "confirm";
+    action: "view" | "create" | "review" | "admin_submit" | "confirm" | "cancel";
   };
   user: {
     dataType: null;
@@ -152,6 +152,30 @@ export const PERMISSION_MAP = {
       const { role, dataCommons, studies } = user;
       const hasPermissionKey = user?.permissions?.includes("data_submission:confirm");
 
+      if (role === "Federal Lead" && hasPermissionKey) {
+        return studies?.some((s) => s._id === submission.studyID || s._id === "All");
+      }
+      if (role === "Data Commons Personnel" && hasPermissionKey) {
+        return dataCommons?.some((dc) => dc === submission?.dataCommons);
+      }
+      if (role === "Admin" && hasPermissionKey) {
+        return true;
+      }
+
+      return false;
+    },
+    cancel: (user, submission) => {
+      const { role, dataCommons, studies } = user;
+      const hasPermissionKey = user?.permissions?.includes("data_submission:cancel");
+      const isSubmissionOwner = submission?.submitterID === user?._id;
+      const isCollaborator = submission?.collaborators?.some((c) => c.collaboratorID === user?._id);
+
+      if (isCollaborator) {
+        return true;
+      }
+      if (role === "Submitter" && isSubmissionOwner && hasPermissionKey) {
+        return true;
+      }
       if (role === "Federal Lead" && hasPermissionKey) {
         return studies?.some((s) => s._id === submission.studyID || s._id === "All");
       }

@@ -466,7 +466,7 @@ describe("Admin Submit", () => {
       ],
     };
     const qcResults: Pick<QCResult, "errors">[] = [
-      { errors: [{ title: "Orphaned file found", description: "" }] },
+      { errors: [{ code: null, title: "Orphaned file found", description: "" }] },
     ];
     const result = utils.shouldEnableSubmit(submission, qcResults, baseUser);
     expect(result._identifier).toBe("Submission should not have orphaned files");
@@ -635,6 +635,7 @@ describe("unpackQCResultSeverities cases", () => {
 
   // Base ErrorMessage
   const baseError: ErrorMessage = {
+    code: null,
     title: "",
     description: "unused description",
   };

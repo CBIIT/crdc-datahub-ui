@@ -8,7 +8,6 @@ const StyledFooter = styled("footer")({
   borderTop: "1px solid #6C727B",
   bottom: 0,
   width: "100%",
-  zIndex: 10,
   position: "relative",
 });
 

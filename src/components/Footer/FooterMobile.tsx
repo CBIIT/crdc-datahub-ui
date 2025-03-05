@@ -7,7 +7,6 @@ const StyledFooter = styled("footer")({
   backgroundColor: "#1B496E",
   bottom: 0,
   width: "100%",
-  zIndex: 10,
   position: "relative",
 });
 

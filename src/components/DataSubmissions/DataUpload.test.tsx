@@ -16,6 +16,7 @@ import { DataUpload } from "./DataUpload";
 jest.mock("../../env", () => ({
   ...jest.requireActual("../../env"),
   REACT_APP_BACKEND_API: "mocked-backend-api-url",
+  REACT_APP_UPLOADER_CLI_VERSION: "2.3-alpha-6",
 }));
 
 const mockDownloadBlob = jest.fn();
@@ -126,6 +127,34 @@ describe("Basic Functionality", () => {
     );
 
     expect(getByTestId("uploader-cli-footer")).toBeVisible();
+  });
+
+  it("should render the CLI version with tooltip and opens CLI dialog", async () => {
+    const { getByTestId, getByRole, queryByRole } = render(
+      <TestParent>
+        <DataUpload submission={{ ...baseSubmission, _id: "smoke-test-id" }} />
+      </TestParent>
+    );
+
+    expect(getByTestId("uploader-cli-version-wrapper").textContent).toBe(
+      "Uploader CLI Version: v2.3"
+    );
+
+    expect(queryByRole("tooltip")).not.toBeInTheDocument();
+
+    const cliVersionButton = getByTestId("uploader-cli-version-button");
+
+    userEvent.hover(cliVersionButton);
+
+    await waitFor(() => {
+      expect(getByRole("tooltip")).toBeInTheDocument();
+    });
+
+    userEvent.click(cliVersionButton);
+
+    await waitFor(() => {
+      expect(getByTestId("uploader-cli-dialog")).toBeInTheDocument();
+    });
   });
 
   it("should not crash when the submission is null", () => {
