@@ -164,10 +164,10 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
   const prevSection = sectionKeys[sectionIndex - 1]
-    ? `/submission/${data?.["_id"]}/${sectionKeys[sectionIndex - 1]}`
+    ? `/submission-request/${data?.["_id"]}/${sectionKeys[sectionIndex - 1]}`
     : null;
   const nextSection = sectionKeys[sectionIndex + 1]
-    ? `/submission/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}`
+    ? `/submission-request/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}`
     : null;
   const isSectionD = activeSection === "D";
   const formContentRef = useRef(null);
@@ -228,7 +228,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     try {
       const r = await submitData();
       setOpenSubmitDialog(false);
-      navigate("/submissions");
+      navigate("/submission-requests");
 
       return r;
     } catch (err) {
@@ -258,7 +258,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     const res = await approveForm(reviewComment, true);
     setOpenApproveDialog(false);
     if (res?.status === "success") {
-      navigate("/submissions");
+      navigate("/submission-requests");
     } else {
       enqueueSnackbar(
         res.errorMessage || "An error occurred while approving the form. Please try again.",
@@ -292,7 +292,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
         variant: "error",
       });
     } else {
-      navigate("/submissions");
+      navigate("/submission-requests");
     }
     setOpenInquireDialog(false);
     return res;
@@ -320,7 +320,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
         variant: "error",
       });
     } else {
-      navigate("/submissions");
+      navigate("/submission-requests");
     }
     setOpenRejectDialog(false);
     return res;
@@ -345,7 +345,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
     const res = await reopenForm();
     if (!res) {
-      navigate("/submissions", {
+      navigate("/submission-requests", {
         state: {
           error: "An error occurred while marking the form as In Progress. Please try again.",
         },
@@ -414,7 +414,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
       saveResult.id !== data?.["_id"]
     ) {
       // NOTE: This currently triggers a form data refetch, which is not ideal
-      navigate(`/submission/${saveResult.id}/${activeSection}`, { replace: true });
+      navigate(`/submission-request/${saveResult.id}/${activeSection}`, { replace: true });
     }
 
     if (saveResult?.status === "success") {
@@ -493,7 +493,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
     const res = await saveForm();
-    const reviewSectionUrl = `/submission/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
+    const reviewSectionUrl = `/submission-request/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
     const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 
     setBlockedNavigate(false);
@@ -637,7 +637,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
   // Redirect to ListView if no data is found and the form is in the error state
   if (status === FormStatus.ERROR && !data?._id) {
-    return <Navigate to="/submissions" state={{ error: error || "Unknown error" }} />;
+    return <Navigate to="/submission-requests" state={{ error: error || "Unknown error" }} />;
   }
 
   return (
