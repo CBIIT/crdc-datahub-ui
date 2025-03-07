@@ -56,7 +56,9 @@
     "lint:fix": "eslint --fix . --ignore-path .gitignore",
     "format:fix": "prettier --ignore-path .gitignore --write \"**/*.{js,jsx,ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "browserslist": {
     "production": [
@@ -72,6 +74,18 @@
   },
   "devDependencies": {
     "@aws-sdk/client-quicksight": "^3.637.0",
+    "@storybook/addon-a11y": "^8.6.4",
+    "@storybook/addon-controls": "^8.6.4",
+    "@storybook/addon-essentials": "^8.6.4",
+    "@storybook/addon-interactions": "^8.6.4",
+    "@storybook/addon-jest": "^8.6.4",
+    "@storybook/addon-onboarding": "^8.6.4",
+    "@storybook/addon-themes": "^8.6.4",
+    "@storybook/blocks": "^8.6.4",
+    "@storybook/preset-create-react-app": "^8.6.4",
+    "@storybook/react": "^8.6.4",
+    "@storybook/react-webpack5": "^8.6.4",
+    "@storybook/test": "^8.6.4",
     "@types/jest": "^29.5.11",
     "@types/jest-axe": "^3.5.9",
     "@types/lodash": "^4.14.198",
@@ -95,6 +109,9 @@
     "husky": "^8.0.3",
     "jest-canvas-mock": "^2.5.2",
     "prettier": "^3.1.1",
-    "typescript": "^5.4.3"
+    "storybook": "^8.6.4",
+    "storybook-addon-apollo-client": "^8.1.2",
+    "typescript": "^5.4.3",
+    "webpack": "^5.98.0"
   }
 }
