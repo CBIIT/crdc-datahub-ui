@@ -8,7 +8,6 @@ const config: StorybookConfig = {
   "addons": [
     "@storybook/preset-create-react-app",
     "@storybook/addon-essentials",
-    "@storybook/addon-onboarding",
     "@storybook/addon-interactions",
     "@storybook/addon-controls",
     "@storybook/addon-jest",
