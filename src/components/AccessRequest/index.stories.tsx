@@ -10,7 +10,7 @@ import {
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import { Roles } from "../../config/AuthRoles";
 
-const meta = {
+const meta: Meta<typeof Dialog> = {
   title: "Dialogs / Access Request",
   component: Dialog,
   parameters: {
