@@ -60,7 +60,6 @@ const mockReleasedDataQuery: MockedResponse<RetrieveReleasedDataResp, RetrieveRe
 };
 
 export const WithComparisonData: Story = {
-  name: "With Comparison Data",
   args: {
     open: true,
     header: "Dialog Pre-Title",

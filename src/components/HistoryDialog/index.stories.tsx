@@ -40,7 +40,6 @@ export const Default: Story = {
 };
 
 export const WithUserNames: Story = {
-  name: "With User Names",
   args: {
     open: true,
     preTitle: "Dialog Pre-Title",
