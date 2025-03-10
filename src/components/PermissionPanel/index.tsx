@@ -132,8 +132,26 @@ const PermissionPanel: FC = () => {
       return [];
     }
 
-    const remappedPermissions: PBACDefault<AuthPermissions>[] = cloneDeep(defaults.permissions).map(
-      (p) => ({ ...p, checked: permissionsValue.includes(p._id) })
+    const clonedDefaultPermissions = cloneDeep(defaults.permissions).map((p) => ({
+      ...p,
+      inherited: p.inherited ?? [],
+    }));
+
+    const inheritedPermissions =
+      Array.from(
+        new Set(
+          clonedDefaultPermissions
+            .filter((p) => p.inherited?.length > 0)
+            .flatMap((p) => p.inherited)
+        )
+      ) || [];
+
+    const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedDefaultPermissions.map(
+      (p) => ({
+        ...p,
+        checked: permissionsValue.includes(p._id),
+        disabled: p.disabled || inheritedPermissions.includes(p._id),
+      })
     );
 
     return columnizePBACGroups(remappedPermissions, 3);

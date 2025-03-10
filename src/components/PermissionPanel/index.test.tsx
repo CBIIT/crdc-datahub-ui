@@ -77,6 +77,7 @@ describe("Accessibility", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -85,6 +86,7 @@ describe("Accessibility", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: true,
@@ -199,6 +201,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -207,6 +210,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: true,
@@ -215,6 +219,7 @@ describe("Basic Functionality", () => {
                   _id: "program:manage",
                   group: "Admin",
                   name: "Manage Programs",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -304,6 +309,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:create",
                   group: "Group1",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -312,6 +318,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:submit",
                   group: "Group1",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -320,6 +327,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:review",
                   group: "Group2",
                   name: "Create",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -328,6 +336,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:submit",
                   group: "Group3",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -336,6 +345,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:view",
                   group: "Group4",
                   name: "Create",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -344,6 +354,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:create",
                   group: "Group5",
                   name: "Create",
+                  inherited: ["data_submission:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -352,6 +363,7 @@ describe("Basic Functionality", () => {
                   _id: "study:manage",
                   group: "Group6",
                   name: "Create",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -552,6 +564,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:create",
                   group: "Group1",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 1,
                   checked: true,
                   disabled: false,
@@ -560,6 +573,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:submit",
                   group: "Group1",
                   name: "Submit",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -568,6 +582,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:review",
                   group: "Group1",
                   name: "Review",
+                  inherited: [],
                   order: 2,
                   checked: true,
                   disabled: false,
@@ -702,6 +717,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -710,6 +726,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -718,6 +735,7 @@ describe("Implementation Requirements", () => {
                   _id: "program:manage",
                   group: "Admin",
                   name: "Manage Programs",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -825,6 +843,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -833,6 +852,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -864,6 +884,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: false, // Original submitter had this checked
                   disabled: false,
@@ -872,6 +893,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -1007,6 +1029,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: true,
@@ -1015,6 +1038,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -1148,6 +1172,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -1259,5 +1284,160 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("no-notifications-notice")).toHaveTextContent(
       /No notification options found for this role./i
     );
+  });
+
+  it("should mark multiple inherited permissions as disabled and deduplicate duplicates", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "submission_request:view",
+                  group: "Submission Request",
+                  name: "View",
+                  inherited: [],
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "submission_request:create",
+                  group: "Submission Request",
+                  name: "Create",
+                  inherited: [
+                    "submission_request:view",
+                    "submission_request:cancel",
+                    "access:request",
+                  ],
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "submission_request:cancel",
+                  group: "Submission Request",
+                  name: "Cancel",
+                  inherited: [],
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:cancel",
+                  group: "Data Submission",
+                  name: "Cancel",
+                  inherited: [],
+                  order: 1,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  inherited: [],
+                  order: 1,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "access:request",
+                  group: "Misc",
+                  name: "Access Request",
+                  inherited: [],
+                  order: 2,
+                  checked: true,
+                  disabled: false,
+                },
+              ],
+              notifications: [
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues = {
+      role: "Submitter",
+      permissions: [],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId } = render(<PermissionPanel />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permissions-group-Submission Request")).toBeInTheDocument();
+    });
+
+    expect(
+      within(getByTestId("permission-submission_request:view")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeDisabled();
+    expect(
+      within(getByTestId("permission-submission_request:cancel")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeDisabled();
+    expect(
+      within(getByTestId("permission-access:request")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeDisabled();
+
+    expect(
+      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).not.toBeDisabled();
+    expect(
+      within(getByTestId("permission-data_submission:cancel")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).not.toBeDisabled();
+    expect(
+      within(getByTestId("permission-data_submission:view")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).not.toBeDisabled();
   });
 });
