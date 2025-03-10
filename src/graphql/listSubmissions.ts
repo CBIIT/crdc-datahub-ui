@@ -52,6 +52,7 @@ export const query: TypedDocumentNode<Response, Input> = gql`
       }
       submitterNames
       dataCommons
+      dataFileSize
     }
   }
 `;
@@ -89,6 +90,7 @@ export type Response = {
       | "createdAt"
       | "updatedAt"
       | "intention"
+      | "dataFileSize"
     >[];
     organizations: Pick<Organization, "_id" | "name">[];
     submitterNames: string[];

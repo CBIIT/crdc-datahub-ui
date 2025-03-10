@@ -67,6 +67,10 @@ type Submission = {
    * A list of additional submitters who can view and edit the submission
    */
   collaborators: Collaborator[];
+  /**
+   * The total size of data files in the Submission
+   */
+  dataFileSize: string;
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
