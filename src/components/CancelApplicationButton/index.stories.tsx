@@ -1,11 +1,33 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { fn } from "@storybook/test";
+import { MockedResponse } from "@apollo/client/testing";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import Button from "./index";
+import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
+
+const mockCancelApp: MockedResponse<CancelAppResp, CancelAppInput> = {
+  request: {
+    query: CANCEL_APP,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      cancelApplication: {
+        _id: "some id",
+      },
+    },
+  },
+};
 
 const meta: Meta<typeof Button> = {
   title: "Submission Requests / Cancel & Restore Button",
   component: Button,
   tags: ["autodocs"],
+  parameters: {
+    apolloClient: {
+      mocks: [mockCancelApp],
+    },
+  },
   decorators: [
     (Story) => (
       <AuthContext.Provider
@@ -35,6 +57,7 @@ type Story = StoryObj<typeof meta>;
 export const RestoreCanceled: Story = {
   name: "Restore (From Cancelled)",
   args: {
+    onCancel: fn(),
     application: {
       _id: "mock-id",
       status: "Canceled",
@@ -75,6 +98,7 @@ export const RestoreCanceled: Story = {
 export const RestoreDeleted: Story = {
   name: "Restore (From Deleted)",
   args: {
+    onCancel: fn(),
     application: {
       _id: "mock-id",
       status: "Deleted",
@@ -114,6 +138,7 @@ export const RestoreDeleted: Story = {
  */
 export const Cancel: Story = {
   args: {
+    onCancel: fn(),
     application: {
       _id: "mock-id",
       status: "In Progress",

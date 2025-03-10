@@ -8,6 +8,7 @@ import { ReactComponent as DeleteIcon } from "../../assets/icons/filled_circular
 import DeleteDialog from "../DeleteDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import {
   CANCEL_APP,
   CancelAppInput,
@@ -160,17 +161,27 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
         open={confirmOpen}
         header={textValues.dialogTitle}
         description={
-          <span>
+          <div>
             {textValues.dialogDescription}
             <br />
             <br />
             Study: {application.studyAbbreviation || "NA"}
-          </span>
+            <br />
+            <br />
+            <StyledOutlinedInput
+              placeholder="500 characters allowed"
+              minRows={5}
+              maxRows={15}
+              required
+              multiline
+            />
+          </div>
         }
         confirmText="Confirm"
         closeText="Cancel"
         onConfirm={onConfirmDialog}
         onClose={onCloseDialog}
+        scroll="body"
       />
     </>
   );

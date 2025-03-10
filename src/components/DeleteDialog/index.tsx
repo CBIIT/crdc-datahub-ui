@@ -66,7 +66,7 @@ const StyledHeader = styled(Typography)({
   marginBottom: "50px",
 });
 
-const StyledDescription = styled(Typography)({
+const StyledDescription = styled("div")({
   fontFamily: "'Public Sans', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
