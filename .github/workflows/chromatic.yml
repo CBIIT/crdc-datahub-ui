@@ -10,7 +10,8 @@ on:
       - "*.*.*"
       - "main"
       - "master"
-      - "CRDCDH-2458"
+    paths:
+      - "**/*.{js,jsx,ts,tsx}"
 
 jobs:
   chromatic:
