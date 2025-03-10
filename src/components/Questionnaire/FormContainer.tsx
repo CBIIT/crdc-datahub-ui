@@ -91,7 +91,7 @@ const FormContainer = forwardRef<HTMLDivElement, Props>(
     const { readOnlyInputs } = useFormMode();
 
     const returnToSubmissions = () => {
-      navigate("/submissions");
+      navigate("/submission-requests");
     };
 
     return (

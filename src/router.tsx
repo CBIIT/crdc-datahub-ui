@@ -45,11 +45,11 @@ const routes: RouteObject[] = [
         element: <ReleaseNotes />,
       },
       {
-        path: "/submissions",
+        path: "/submission-requests",
         element: (
           <RequireAuth
             component={<Questionnaire />}
-            redirectPath="/submissions"
+            redirectPath="/submission-requests"
             redirectName="Submission Requests"
           />
         ),
@@ -75,11 +75,11 @@ const routes: RouteObject[] = [
         ),
       },
       {
-        path: "/submission/:appId/:section?",
+        path: "/submission-request/:appId/:section?",
         element: (
           <RequireAuth
             component={<Questionnaire />}
-            redirectPath="/submissions"
+            redirectPath="/submission-requests"
             redirectName="Submission Requests"
           />
         ),
