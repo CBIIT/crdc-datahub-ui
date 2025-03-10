@@ -36,6 +36,7 @@ const StyledCloseButton = styled(Button)({
   letterSpacing: "0.32px",
   textTransform: "none",
   alignSelf: "center",
+  margin: "0 auto",
   marginTop: "45px",
 });
 
