@@ -11,6 +11,7 @@ import { HelmetWrapper } from '../src/layouts';
 const preview: Preview = {
   parameters: {
     controls: {
+      expanded: true,
       matchers: {
         date: /Date$/i,
       },
