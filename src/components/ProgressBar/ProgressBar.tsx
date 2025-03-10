@@ -105,7 +105,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
       newSections.push({
         title,
         id,
-        url: `/submission/${_id}/${s}`,
+        url: `/submission-request/${_id}/${s}`,
         icon: status,
         selected: s === section,
       });

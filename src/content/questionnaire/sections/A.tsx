@@ -117,7 +117,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   }, [refs]);
 
   useEffect(() => {
-    if (location?.state?.from === "/submissions") {
+    if (location?.state?.from === "/submission-requests") {
       return;
     }
 

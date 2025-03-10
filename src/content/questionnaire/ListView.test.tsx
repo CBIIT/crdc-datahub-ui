@@ -192,8 +192,8 @@ describe("ListView Component", () => {
     userEvent.click(button);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/submission/new-application-id", {
-        state: { from: "/submissions" },
+      expect(mockNavigate).toHaveBeenCalledWith("/submission-request/new-application-id", {
+        state: { from: "/submission-requests" },
       });
     });
   });
@@ -223,8 +223,8 @@ describe("ListView Component", () => {
     userEvent.click(button);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/submission/new", {
-        state: { from: "/submissions" },
+      expect(mockNavigate).toHaveBeenCalledWith("/submission-request/new", {
+        state: { from: "/submission-requests" },
       });
     });
   });

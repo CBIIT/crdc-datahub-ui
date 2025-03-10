@@ -218,7 +218,7 @@ const columns: Column<T>[] = [
 ];
 
 /**
- * View for List of Questionnaire/Submissions
+ * View for List of Data Submissions
  *
  * @returns {JSX.Element}
  */
