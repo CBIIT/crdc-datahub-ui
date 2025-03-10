@@ -27,6 +27,5 @@
     ".eslintrc.cjs",
     "types/*.d.ts",
     "public",
-    ".storybook"
   ]
 }

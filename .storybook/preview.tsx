@@ -1,12 +1,12 @@
-import React from 'react';
-import type { Decorator, Preview } from '@storybook/react'
-import { MockedProvider } from '@apollo/client/testing';
+import React from "react";
+import type { Decorator, Preview } from "@storybook/react";
+import { MockedProvider } from "@apollo/client/testing";
 import { HelmetProvider } from "react-helmet-async";
 import { MemoryRouter } from "react-router-dom";
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import { withThemeFromJSXProvider } from '@storybook/addon-themes';
-import theme from '../src/theme';
-import { HelmetWrapper } from '../src/layouts';
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { withThemeFromJSXProvider } from "@storybook/addon-themes";
+import theme from "../src/theme";
+import { HelmetWrapper } from "../src/layouts";
 
 const preview: Preview = {
   parameters: {
@@ -18,7 +18,7 @@ const preview: Preview = {
       disableSave: true,
     },
     apolloClient: {
-      MockedProvider
+      MockedProvider,
     },
   },
 };
