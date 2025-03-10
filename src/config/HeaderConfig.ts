@@ -27,7 +27,7 @@ export const HeaderLinks: NavBarItem[] = [
   },
   {
     name: "Submission Requests",
-    link: "/submissions",
+    link: "/submission-requests",
     id: "navbar-dropdown-submission-requests",
     className: "navMobileItem",
   },

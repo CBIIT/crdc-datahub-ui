@@ -215,7 +215,10 @@ const columns: Column<T>[] = [
             ["New", "In Progress", "Inquired"].includes(a.status)
           ) {
             return (
-              <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
+              <Link
+                to={`/submission-request/${a?.["_id"]}`}
+                state={{ from: "/submission-requests" }}
+              >
                 <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
                   Resume
                 </StyledActionButton>
@@ -239,7 +242,7 @@ const columns: Column<T>[] = [
           }
 
           return (
-            <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
+            <Link to={`/submission-request/${a?.["_id"]}`} state={{ from: "/submission-requests" }}>
               <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
                 View
               </StyledActionButton>
@@ -272,7 +275,7 @@ const columns: Column<T>[] = [
 ];
 
 /**
- * View for List of Questionnaire/Submissions
+ * View for List of Submission Requests
  *
  * @returns {JSX.Element}
  */
@@ -340,8 +343,8 @@ const ListingView: FC = () => {
       return;
     }
 
-    navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`, {
-      state: { from: "/submissions" },
+    navigate(`/submission-request/${d?.saveApplication?.["_id"] || "new"}`, {
+      state: { from: "/submission-requests" },
     });
   };
 
@@ -395,9 +398,9 @@ const ListingView: FC = () => {
   const handleOnReviewClick = useCallback(
     async ({ _id, status }: T) => {
       if (status !== "Submitted") {
-        navigate(`/submission/${_id}`, {
+        navigate(`/submission-request/${_id}`, {
           state: {
-            from: "/submissions",
+            from: "/submission-requests",
           },
         });
         return;
@@ -414,9 +417,9 @@ const ListingView: FC = () => {
           throw new Error("Unable to review Submission Request.");
         }
 
-        navigate(`/submission/${_id}`, {
+        navigate(`/submission-request/${_id}`, {
           state: {
-            from: "/submissions",
+            from: "/submission-requests",
           },
         });
       } catch (err) {

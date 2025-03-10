@@ -36,6 +36,16 @@ http {
         listen       0.0.0.0:4010;
         server_name  localhost;
 
+        # 3.3.0 MIGRATION: Redirect /submissions to /submission-requests
+        location /submissions {
+            return 301 /submission-requests$is_args$args;
+        }
+        
+        # 3.3.0 MIGRATION: Redirect /submission/:uuid to submission-request/:uuid
+        location ~ ^/submission/([a-zA-Z0-9-]+)$ {
+            return 301 /submission-request/$1;
+        }
+
         # Authn
         location /api/authn/ {
             # proxy_pass http://localhost:4030/api/authn/;
