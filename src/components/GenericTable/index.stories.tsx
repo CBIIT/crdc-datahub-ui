@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import GenericTable from "./index";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 
-const meta = {
-  title: "Generic Table",
+const meta: Meta<typeof GenericTable> = {
+  title: "Miscellaneous / Generic Table",
   component: GenericTable,
   parameters: {
     layout: "centered",
