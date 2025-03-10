@@ -356,12 +356,6 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       setError("Invalid Access Type. Please select at least one Access Type.");
       return;
     }
-    if (!sameAsProgramPrimaryContact && !data?.primaryContactID) {
-      setError(
-        "Primary Contact is a required field. Please assign a Primary Contact to the study."
-      );
-      return;
-    }
 
     setError(null);
     onSubmit(data);
@@ -625,7 +619,6 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               <StyledField sx={{ alignItems: "flex-start" }}>
                 <StyledLabel id="primaryContactLabel" sx={{ paddingTop: "10px" }}>
                   Primary Contact
-                  <StyledAsterisk visible />
                 </StyledLabel>
                 <Stack
                   direction="column"

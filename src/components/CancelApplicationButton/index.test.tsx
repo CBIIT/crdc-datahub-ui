@@ -788,7 +788,7 @@ describe("Implementation Requirements", () => {
     }
   );
 
-  it("should render tailored dialog content for the 'Restore' variant", async () => {
+  it("should render tailored dialog content for the 'Restore' variant from Canceled", async () => {
     const { getByRole, getByTestId } = render(
       <Button
         application={{
@@ -816,6 +816,37 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("delete-dialog-header")).toHaveTextContent("Restore Submission Request");
     expect(getByTestId("delete-dialog-description")).toHaveTextContent(
       "Are you sure you want to restore the previously canceled submission request for the study listed below?"
+    ); // Ignore study info, that is checked elsewhere
+  });
+
+  it("should render tailored dialog content for the 'Restore' variant from Deleted", async () => {
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status: "Deleted",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    const dialog = getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+
+    expect(getByTestId("delete-dialog-header")).toHaveTextContent("Restore Submission Request");
+    expect(getByTestId("delete-dialog-description")).toHaveTextContent(
+      "Are you sure you want to restore the previously deleted submission request for the study listed below?"
     ); // Ignore study info, that is checked elsewhere
   });
 
