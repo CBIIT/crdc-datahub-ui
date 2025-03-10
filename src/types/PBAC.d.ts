@@ -62,7 +62,7 @@ type AuthNotifications =
  *
  * e.g. Permission or Notification
  */
-type PBACDefault<T = AuthNotifications | AuthPermissions> = {
+type PBACBase<T = AuthNotifications | AuthPermissions> = {
   /**
    * The unique identifier of the PBAC object.
    *
@@ -94,3 +94,17 @@ type PBACDefault<T = AuthNotifications | AuthPermissions> = {
    */
   disabled: boolean;
 };
+
+/**
+ * Assigns the default structure of a PBAC object.
+ */
+type PBACDefault<T = AuthNotifications | AuthPermissions> = T extends AuthPermissions
+  ? PBACBase<T> & {
+      /**
+       * List of permissions this current permission inherits.
+       *
+       * @example ["submission_request:view"]
+       */
+      inherited: AuthPermissions[];
+    }
+  : PBACBase<T>;
