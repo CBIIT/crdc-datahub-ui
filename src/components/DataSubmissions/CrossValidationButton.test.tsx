@@ -55,6 +55,7 @@ const baseSubmission: Omit<
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
+  dataFileSize: "0",
 };
 
 const baseAuthCtx: AuthCtxState = {

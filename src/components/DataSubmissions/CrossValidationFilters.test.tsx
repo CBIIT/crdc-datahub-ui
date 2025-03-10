@@ -53,6 +53,7 @@ const baseSubmission: Submission = {
   createdAt: "",
   updatedAt: "",
   collaborators: [],
+  dataFileSize: "0",
 };
 
 const baseBatch = {

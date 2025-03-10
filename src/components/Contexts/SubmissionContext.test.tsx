@@ -60,6 +60,7 @@ const baseSubmission: Submission = {
   updatedAt: "",
   studyID: "",
   collaborators: [],
+  dataFileSize: "0",
 };
 
 const TestChild: FC = () => {
