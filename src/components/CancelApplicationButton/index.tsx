@@ -67,6 +67,8 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
 
   const isRestoreAction = useMemo<boolean>(() => RESTORE_STATUSES.includes(status), [status]);
 
+  const isFromDeletedStatus = useMemo<boolean>(() => status === "Deleted", [status]);
+
   const textValues = useMemo(
     () => ({
       icon: isRestoreAction ? (
@@ -77,7 +79,9 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
       tooltipText: `${isRestoreAction ? "Restore" : "Cancel"} submission request`,
       dialogTitle: `${isRestoreAction ? "Restore" : "Cancel"} Submission Request`,
       dialogDescription: isRestoreAction
-        ? `Are you sure you want to restore the previously canceled submission request for the study listed below?`
+        ? `Are you sure you want to restore the previously ${
+            isFromDeletedStatus ? "deleted" : "canceled"
+          } submission request for the study listed below?`
         : `Are you sure you want to cancel the submission request for the study listed below?`,
     }),
     [isRestoreAction]
