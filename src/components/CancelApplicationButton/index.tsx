@@ -1,14 +1,17 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import { isEqual } from "lodash";
-import { IconButton, IconButtonProps, styled } from "@mui/material";
+import { Box, ButtonProps, IconButton, IconButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
+import { useForm } from "react-hook-form";
 import { ReactComponent as RestoreIcon } from "../../assets/icons/filled_circular_back.svg";
 import { ReactComponent as DeleteIcon } from "../../assets/icons/filled_circular_delete.svg";
 import DeleteDialog from "../DeleteDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
-import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
+import BaseOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
+import Asterisk from "../StyledFormComponents/StyledAsterisk";
 import {
   CANCEL_APP,
   CancelAppInput,
@@ -32,10 +35,26 @@ const StyledIconButton = styled(IconButton)(({ disabled }) => ({
   minWidth: "unset",
 }));
 
+const StyledFormBox = styled(Box)({
+  marginTop: "18.5px",
+});
+
+const StyledOutlinedInput = styled(BaseOutlinedInput)({
+  "& .MuiInputBase-inputMultiline": {
+    resize: "vertical",
+    minHeight: "125px",
+    maxHeight: "375px",
+  },
+});
+
 /**
  * The statuses of the application that can be restored from.
  */
 const RESTORE_STATUSES: ApplicationStatus[] = ["Canceled", "Deleted"];
+
+type FormFields = {
+  reviewComments: string;
+};
 
 type Props = {
   /**
@@ -50,7 +69,9 @@ type Props = {
 
 const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
+  const { register, watch } = useForm<FormFields>({ mode: "onBlur" });
   const { user } = useAuthContext();
+
   const { _id, status } = application || {};
 
   const [cancelApp] = useMutation<CancelAppResp, CancelAppInput>(CANCEL_APP, {
@@ -85,7 +106,15 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
           } submission request for the study listed below?`
         : `Are you sure you want to cancel the submission request for the study listed below?`,
     }),
-    [isRestoreAction]
+    [isRestoreAction, isFromDeletedStatus]
+  );
+
+  const reviewComments = watch("reviewComments");
+  const confirmButtonProps = useMemo<ButtonProps>(
+    () => ({
+      disabled: !watch("reviewComments")?.trim()?.length,
+    }),
+    [reviewComments?.length]
   );
 
   const onClickIcon = async () => {
@@ -101,7 +130,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
     try {
       if (isRestoreAction) {
         const { data: d, errors } = await restoreApp({
-          variables: { _id },
+          variables: { _id, reviewComments },
         });
 
         if (errors || !d?.restoreApplication?._id) {
@@ -109,7 +138,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
         }
       } else {
         const { data: d, errors } = await cancelApp({
-          variables: { _id },
+          variables: { _id, reviewComments },
         });
 
         if (errors || !d?.cancelApplication?._id) {
@@ -128,7 +157,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
     } finally {
       setLoading(false);
     }
-  }, [isRestoreAction, restoreApp, cancelApp, onCancel, enqueueSnackbar]);
+  }, [isRestoreAction, reviewComments, restoreApp, cancelApp, onCancel, enqueueSnackbar]);
 
   if (!hasPermission(user, "submission_request", "cancel", application)) {
     return null;
@@ -166,21 +195,30 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
             <br />
             <br />
             Study: {application.studyAbbreviation || "NA"}
-            <br />
-            <br />
-            <StyledOutlinedInput
-              placeholder="500 characters allowed"
-              minRows={5}
-              maxRows={15}
-              required
-              multiline
-            />
+            <StyledFormBox>
+              <StyledLabel>
+                Reason
+                <Asterisk />
+              </StyledLabel>
+              <StyledOutlinedInput
+                data-testid="cancel-restore-application-reason"
+                placeholder="500 characters allowed"
+                required
+                multiline
+                {...register("reviewComments", {
+                  required: true,
+                  maxLength: 500,
+                  setValueAs: (v) => v?.trim(),
+                })}
+              />
+            </StyledFormBox>
           </div>
         }
-        confirmText="Confirm"
         closeText="Cancel"
-        onConfirm={onConfirmDialog}
         onClose={onCloseDialog}
+        confirmText="Confirm"
+        onConfirm={onConfirmDialog}
+        confirmButtonProps={confirmButtonProps}
         scroll="body"
       />
     </>
