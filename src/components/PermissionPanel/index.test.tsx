@@ -1347,7 +1347,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:cancel",
                   group: "Submission Request",
                   name: "Cancel",
-                  inherited: [],
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -1356,7 +1356,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancel",
                   group: "Data Submission",
                   name: "Cancel",
-                  inherited: [],
+                  inherited: ["data_submission:view"],
                   order: 1,
                   checked: true,
                   disabled: false,
@@ -1433,36 +1433,42 @@ describe("Implementation Requirements", () => {
       expect(getByTestId("permissions-group-Submission Request")).toBeInTheDocument();
     });
 
-    expect(
-      within(getByTestId("permission-submission_request:view")).getByRole("checkbox", {
-        hidden: true,
-      })
-    ).toBeDisabled();
-    expect(
-      within(getByTestId("permission-submission_request:cancel")).getByRole("checkbox", {
-        hidden: true,
-      })
-    ).toBeDisabled();
-    expect(
-      within(getByTestId("permission-access:request")).getByRole("checkbox", {
-        hidden: true,
-      })
-    ).toBeDisabled();
+    const inheritedPermissions: AuthPermissions[] = [
+      "submission_request:view",
+      "submission_request:cancel",
+      "access:request",
+      "data_submission:view",
+    ];
 
-    expect(
-      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
-        hidden: true,
-      })
-    ).not.toBeDisabled();
-    expect(
-      within(getByTestId("permission-data_submission:cancel")).getByRole("checkbox", {
-        hidden: true,
-      })
-    ).not.toBeDisabled();
-    expect(
-      within(getByTestId("permission-data_submission:view")).getByRole("checkbox", {
-        hidden: true,
-      })
-    ).not.toBeDisabled();
+    const nonInheritedPermissions: AuthPermissions[] = [
+      "submission_request:create",
+      "data_submission:cancel",
+    ];
+
+    inheritedPermissions.forEach((p) => {
+      expect(
+        within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
+          hidden: true,
+        })
+      ).toBeChecked();
+      expect(
+        within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
+          hidden: true,
+        })
+      ).toBeDisabled();
+    });
+
+    nonInheritedPermissions.forEach((p) => {
+      expect(
+        within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
+          hidden: true,
+        })
+      ).toBeChecked();
+      expect(
+        within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
+          hidden: true,
+        })
+      ).not.toBeDisabled();
+    });
   });
 });

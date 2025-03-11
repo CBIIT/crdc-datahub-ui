@@ -15,7 +15,7 @@ import {
 import { FC, memo, useEffect, useMemo, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { useSnackbar } from "notistack";
-import { cloneDeep } from "lodash";
+import { cloneDeep, flatMap, uniq } from "lodash";
 import {
   EditUserInput,
   RetrievePBACDefaultsResp,
@@ -132,24 +132,14 @@ const PermissionPanel: FC = () => {
       return [];
     }
 
-    const clonedDefaultPermissions = cloneDeep(defaults.permissions);
+    const clonedPermissions = cloneDeep(defaults.permissions);
+    const inheritedPermissions = uniq(flatMap(clonedPermissions, (p) => p.inherited || []));
 
-    const inheritedPermissions =
-      Array.from(
-        new Set(
-          clonedDefaultPermissions
-            .filter((p) => p.inherited?.length > 0)
-            .flatMap((p) => p.inherited)
-        )
-      ) || [];
-
-    const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedDefaultPermissions.map(
-      (p) => ({
-        ...p,
-        checked: permissionsValue.includes(p._id),
-        disabled: p.disabled || inheritedPermissions.includes(p._id),
-      })
-    );
+    const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedPermissions.map((p) => ({
+      ...p,
+      checked: p.checked || permissionsValue.includes(p._id),
+      disabled: p.disabled || inheritedPermissions.includes(p._id),
+    }));
 
     return columnizePBACGroups(remappedPermissions, 3);
   }, [data, permissionsValue]);
@@ -165,18 +155,10 @@ const PermissionPanel: FC = () => {
       return [];
     }
 
-    const clonedDefaultNotifications = cloneDeep(defaults.notifications);
+    const clonedNotifications = cloneDeep(defaults.notifications);
+    const inheritedNotifications = uniq(flatMap(clonedNotifications, (p) => p.inherited || []));
 
-    const inheritedNotifications =
-      Array.from(
-        new Set(
-          clonedDefaultNotifications
-            .filter((p) => p.inherited?.length > 0)
-            .flatMap((p) => p.inherited)
-        )
-      ) || [];
-
-    const remappedNotifications: PBACDefault<AuthNotifications>[] = clonedDefaultNotifications.map(
+    const remappedNotifications: PBACDefault<AuthNotifications>[] = clonedNotifications.map(
       (n) => ({
         ...n,
         checked: notificationsValue.includes(n._id),
