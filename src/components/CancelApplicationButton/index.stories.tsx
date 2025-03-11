@@ -4,7 +4,14 @@ import { MockedResponse } from "@apollo/client/testing";
 import { screen, userEvent, waitFor, within } from "@storybook/testing-library";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import Button from "./index";
-import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
+import {
+  CANCEL_APP,
+  CancelAppInput,
+  CancelAppResp,
+  RESTORE_APP,
+  RestoreAppInput,
+  RestoreAppResp,
+} from "../../graphql";
 
 const mockCancelApp: MockedResponse<CancelAppResp, CancelAppInput> = {
   request: {
@@ -20,13 +27,27 @@ const mockCancelApp: MockedResponse<CancelAppResp, CancelAppInput> = {
   },
 };
 
+const mockRestoreApp: MockedResponse<RestoreAppResp, RestoreAppInput> = {
+  request: {
+    query: RESTORE_APP,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      restoreApplication: {
+        _id: "some id",
+      },
+    },
+  },
+};
+
 const meta: Meta<typeof Button> = {
   title: "Submission Requests / Cancel & Restore Button",
   component: Button,
   tags: ["autodocs"],
   parameters: {
     apolloClient: {
-      mocks: [mockCancelApp],
+      mocks: [mockCancelApp, mockRestoreApp],
     },
   },
   decorators: [
