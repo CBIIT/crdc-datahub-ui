@@ -132,10 +132,7 @@ const PermissionPanel: FC = () => {
       return [];
     }
 
-    const clonedDefaultPermissions = cloneDeep(defaults.permissions).map((p) => ({
-      ...p,
-      inherited: p.inherited ?? [],
-    }));
+    const clonedDefaultPermissions = cloneDeep(defaults.permissions);
 
     const inheritedPermissions =
       Array.from(
@@ -168,9 +165,24 @@ const PermissionPanel: FC = () => {
       return [];
     }
 
-    const remappedNotifications: PBACDefault<AuthNotifications>[] = cloneDeep(
-      defaults.notifications
-    ).map((n) => ({ ...n, checked: notificationsValue.includes(n._id) }));
+    const clonedDefaultNotifications = cloneDeep(defaults.notifications);
+
+    const inheritedNotifications =
+      Array.from(
+        new Set(
+          clonedDefaultNotifications
+            .filter((p) => p.inherited?.length > 0)
+            .flatMap((p) => p.inherited)
+        )
+      ) || [];
+
+    const remappedNotifications: PBACDefault<AuthNotifications>[] = clonedDefaultNotifications.map(
+      (n) => ({
+        ...n,
+        checked: notificationsValue.includes(n._id),
+        disabled: n.disabled || inheritedNotifications.includes(n._id),
+      })
+    );
 
     return columnizePBACGroups(remappedNotifications, 3);
   }, [data, notificationsValue]);
