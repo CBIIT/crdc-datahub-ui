@@ -103,10 +103,10 @@ const StatusSection: FC = () => {
             id="status-bar-review-comments-button"
             variant="contained"
             onClick={() => setOpen(true)}
-            aria-label="Review Comments"
+            aria-label="View Comments"
             status={status}
           >
-            Review Comments
+            View Comments
           </StyledButton>
           <ReviewCommentsDialog
             open={open}
