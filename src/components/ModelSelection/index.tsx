@@ -1,16 +1,20 @@
-import { FC, memo, useCallback, useEffect, useMemo, useState } from "react";
+import { FC, memo, useCallback, useMemo, useState } from "react";
 import { isEqual } from "lodash";
 import { IconButton, IconButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
 import { ReactComponent as CogIcon } from "../../assets/icons/cog_icon.svg";
-import DeleteDialog from "../DeleteDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
-import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
-import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
-import { listAvailableModelVersions, Logger } from "../../utils";
-import { hasPermission } from "../../config/AuthPermissions";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+import {
+  UPDATE_MODEL_VERSION,
+  UpdateModelVersionInput,
+  UpdateModelVersionResp,
+} from "../../graphql";
+import { Logger } from "../../utils";
+import { hasPermission } from "../../config/AuthPermissions";
+import FormDialog, { InputForm } from "./FormDialog";
 
 const StyledTooltip = styled(StyledFormTooltip)({
   "& .MuiTooltip-tooltip": {
@@ -49,14 +53,16 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
   const { getSubmission } = data || {};
   const { _id, status, dataCommons, modelVersion } = getSubmission || {};
 
-  const [cancelApp] = useMutation<CancelAppResp, CancelAppInput>(CANCEL_APP, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  const [updateVersion] = useMutation<UpdateModelVersionResp, UpdateModelVersionInput>(
+    UPDATE_MODEL_VERSION,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
 
   const [loading, setLoading] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
-  const [options, setOptions] = useState<string[]>([]);
 
   const canSeeButton = useMemo<boolean>(
     () =>
@@ -75,43 +81,36 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
     setConfirmOpen(false);
   };
 
-  const onConfirmDialog = useCallback(async () => {
-    setLoading(true);
-    try {
-      // TODO: Migrate to the change model version API
-      const { data: d, errors } = await cancelApp({
-        variables: { _id, reviewComments: "placeholder" },
-      });
+  const onConfirmDialog = useCallback(
+    async ({ version }: InputForm) => {
+      setLoading(true);
+      try {
+        const { data: d, errors } = await updateVersion({
+          variables: { _id, version },
+        });
 
-      if (errors || !d?.cancelApplication?._id) {
-        throw new Error(errors?.[0]?.message || "Unknown API error");
+        if (errors || !d?.updateSubmissionModelVersion?.modelVersion) {
+          throw new Error(errors?.[0]?.message || "Unknown API error");
+        }
+
+        updateQuery((prev) => ({
+          ...prev,
+          getSubmission: {
+            ...prev.getSubmission,
+            modelVersion: d.updateSubmissionModelVersion.modelVersion,
+          },
+        }));
+      } catch (err) {
+        Logger.error("ModelSelection: API error received", err);
+        enqueueSnackbar("Oops! An error occurred while changing the model version", {
+          variant: "error",
+        });
+      } finally {
+        setLoading(false);
       }
-
-      updateQuery((prev) => ({
-        ...prev,
-        getSubmission: {
-          ...prev.getSubmission,
-          status: "Canceled", // TODO: change this to model version
-        },
-      }));
-      setConfirmOpen(false);
-    } catch (err) {
-      Logger.error("CancelApplicationButton: API error received", err);
-      enqueueSnackbar(`Oops! Unable to cancel that Submission Request`, { variant: "error" });
-    } finally {
-      setLoading(false);
-    }
-  }, [cancelApp, enqueueSnackbar]);
-
-  useEffect(() => {
-    if (!canSeeButton || !confirmOpen) {
-      return;
-    }
-
-    listAvailableModelVersions(dataCommons).then((versions) => {
-      setOptions(versions);
-    });
-  }, [canSeeButton, confirmOpen, dataCommons]);
+    },
+    [updateVersion, enqueueSnackbar]
+  );
 
   if (!canSeeButton) {
     return null;
@@ -140,28 +139,12 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
           </StyledIconButton>
         </span>
       </StyledTooltip>
-      <DeleteDialog
-        scroll="body"
+      <FormDialog
         open={confirmOpen}
-        header="Change Data Model Version"
-        description={
-          <div>
-            <p>
-              Changing the model version for an in-progress submission may require rerunning
-              validation to ensure alignment with the selected version.
-            </p>
-            {options.map((option) => (
-              <div key={option}>
-                {option} {option === modelVersion ? "***" : ""}
-              </div>
-            ))}
-          </div>
-        }
-        confirmText="Save"
-        onConfirm={onConfirmDialog}
-        confirmButtonProps={{ color: "success" }}
+        modelVersion={modelVersion}
+        dataCommons={dataCommons}
+        onSubmitForm={onConfirmDialog}
         onClose={onCloseDialog}
-        closeText="Cancel"
       />
     </>
   );

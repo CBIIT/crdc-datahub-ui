@@ -58,7 +58,7 @@ const meta: Meta<CustomStoryProps> = {
           data: {
             getSubmission: {
               ...baseSubmission,
-              modelVersion: "6.1.2",
+              modelVersion: "3.0.0",
               status: context.args.status,
             },
           } as GetSubmissionResp,
