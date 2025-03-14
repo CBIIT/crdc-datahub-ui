@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+import { MockedResponse } from "@apollo/client/testing";
 import {
   Context as AuthContext,
   ContextState as AuthCtxState,
@@ -8,7 +9,12 @@ import {
 import Button from "./index";
 import { Roles } from "../../config/AuthRoles";
 import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
-import { GetSubmissionResp } from "../../graphql";
+import {
+  GetSubmissionResp,
+  UPDATE_MODEL_VERSION,
+  UpdateModelVersionInput,
+  UpdateModelVersionResp,
+} from "../../graphql";
 
 type CustomStoryProps = React.ComponentProps<typeof Button> & {
   userRole: UserRole;
@@ -143,11 +149,31 @@ const baseUser: Omit<User, "role" | "permissions"> = {
   notifications: [],
 };
 
+const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+  request: {
+    query: UPDATE_MODEL_VERSION,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      updateSubmissionModelVersion: {
+        _id: baseSubmission._id,
+        modelVersion: "API RESPONSE VERSION",
+      },
+    },
+  },
+};
+
 export const Default: Story = {
   args: {
     userRole: "Data Commons Personnel",
     permissions: ["data_submission:review"],
     status: "In Progress",
+  },
+  parameters: {
+    apolloClient: {
+      mocks: [mock],
+    },
   },
 };
 
