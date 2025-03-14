@@ -109,7 +109,7 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
         setLoading(false);
       }
     },
-    [updateVersion, enqueueSnackbar]
+    [_id, updateVersion, enqueueSnackbar, updateQuery]
   );
 
   if (!canSeeButton) {
