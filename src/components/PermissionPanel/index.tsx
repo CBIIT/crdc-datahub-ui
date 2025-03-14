@@ -133,11 +133,12 @@ const PermissionPanel: FC = () => {
     }
 
     const clonedPermissions = cloneDeep(defaults.permissions);
-    const inheritedPermissions = uniq(flatMap(clonedPermissions, (p) => p.inherited || []));
+    const checkedPermissions = clonedPermissions?.filter((p) => permissionsValue.includes(p._id));
+    const inheritedPermissions = uniq(flatMap(checkedPermissions, (p) => p.inherited || []));
 
     const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedPermissions.map((p) => ({
       ...p,
-      checked: p.checked || permissionsValue.includes(p._id),
+      checked: permissionsValue.includes(p._id) || inheritedPermissions.includes(p._id),
       disabled: p.disabled || inheritedPermissions.includes(p._id),
     }));
 
@@ -156,12 +157,15 @@ const PermissionPanel: FC = () => {
     }
 
     const clonedNotifications = cloneDeep(defaults.notifications);
-    const inheritedNotifications = uniq(flatMap(clonedNotifications, (p) => p.inherited || []));
+    const checkedNotifications = clonedNotifications?.filter((p) =>
+      notificationsValue.includes(p._id)
+    );
+    const inheritedNotifications = uniq(flatMap(checkedNotifications, (p) => p.inherited || []));
 
     const remappedNotifications: PBACDefault<AuthNotifications>[] = clonedNotifications.map(
       (n) => ({
         ...n,
-        checked: notificationsValue.includes(n._id),
+        checked: notificationsValue.includes(n._id) || inheritedNotifications.includes(n._id),
         disabled: n.disabled || inheritedNotifications.includes(n._id),
       })
     );

@@ -1309,7 +1309,7 @@ describe("Implementation Requirements", () => {
     );
   });
 
-  it("should mark multiple inherited permissions as disabled and deduplicate duplicates", async () => {
+  it("should mark multiple inherited permissions as disabled", async () => {
     const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
       request: {
         query: RETRIEVE_PBAC_DEFAULTS,
@@ -1327,7 +1327,7 @@ describe("Implementation Requirements", () => {
                   name: "View",
                   inherited: [],
                   order: 0,
-                  checked: true,
+                  checked: false,
                   disabled: false,
                 },
                 {
@@ -1408,7 +1408,7 @@ describe("Implementation Requirements", () => {
 
     const formValues = {
       role: "Submitter",
-      permissions: [],
+      permissions: ["submission_request:create", "data_submission:cancel"],
       notifications: [],
     };
 
@@ -1446,29 +1446,19 @@ describe("Implementation Requirements", () => {
     ];
 
     inheritedPermissions.forEach((p) => {
-      expect(
-        within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
-          hidden: true,
-        })
-      ).toBeChecked();
-      expect(
-        within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
-          hidden: true,
-        })
-      ).toBeDisabled();
+      const checkbox = within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
+        hidden: true,
+      });
+      expect(checkbox).toBeChecked();
+      expect(checkbox).toBeDisabled();
     });
 
     nonInheritedPermissions.forEach((p) => {
-      expect(
-        within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
-          hidden: true,
-        })
-      ).toBeChecked();
-      expect(
-        within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
-          hidden: true,
-        })
-      ).not.toBeDisabled();
+      const checkbox = within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
+        hidden: true,
+      });
+      expect(checkbox).toBeChecked();
+      expect(checkbox).not.toBeDisabled();
     });
   });
 });
