@@ -139,6 +139,31 @@ describe("Basic Functionality", () => {
 
     expect(mockListAvailableModelVersions).toHaveBeenCalledWith("MOCK-DC-TEST");
   });
+
+  it("should call the onSubmitForm function with the selected model version", async () => {
+    const mockOnSubmitForm = jest.fn().mockResolvedValueOnce(undefined);
+    mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
+
+    const { getByTestId } = render(
+      <FormDialog
+        open
+        dataCommons="MOCK-DC-TEST"
+        modelVersion="1.0.0"
+        onSubmitForm={mockOnSubmitForm}
+        onClose={jest.fn()}
+      />
+    );
+
+    await waitFor(() => {
+      expect(mockListAvailableModelVersions).toHaveBeenCalledTimes(1);
+    });
+
+    userEvent.click(getByTestId("model-version-dialog-submit-button"));
+
+    await waitFor(() => {
+      expect(mockOnSubmitForm).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 
 describe("Implementation Requirements", () => {
@@ -215,16 +240,13 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("model-version-version-field")).toHaveTextContent("MODEL-VERSION-1.2.3");
   });
 
-  it("should call the onSubmitForm function with the selected model version", async () => {
-    const mockOnSubmitForm = jest.fn().mockResolvedValueOnce(undefined);
-    mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
-
+  it("should have the correct title, description, and button text", async () => {
     const { getByTestId } = render(
       <FormDialog
         open
         dataCommons="MOCK-DC-TEST"
-        modelVersion="1.0.0"
-        onSubmitForm={mockOnSubmitForm}
+        modelVersion="XYZ"
+        onSubmitForm={jest.fn()}
         onClose={jest.fn()}
       />
     );
@@ -233,10 +255,13 @@ describe("Implementation Requirements", () => {
       expect(mockListAvailableModelVersions).toHaveBeenCalledTimes(1);
     });
 
-    userEvent.click(getByTestId("model-version-dialog-submit-button"));
-
-    await waitFor(() => {
-      expect(mockOnSubmitForm).toHaveBeenCalledTimes(1);
-    });
+    expect(getByTestId("model-version-dialog-header")).toHaveTextContent(
+      "Change Data Model Version"
+    );
+    expect(getByTestId("model-version-dialog-body")).toHaveTextContent(
+      "Changing the model version for an in-progress submission may require rerunning validation to ensure alignment with the selected version."
+    );
+    expect(getByTestId("model-version-dialog-submit-button")).toHaveTextContent("Save");
+    expect(getByTestId("model-version-dialog-cancel-button")).toHaveTextContent("Cancel");
   });
 });

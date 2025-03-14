@@ -179,7 +179,7 @@ const FormDialog: FC<Props> = ({ dataCommons, modelVersion, onSubmitForm, onClos
           onClick={handleSubmit(onSubmit)}
           loading={isSubmitting}
         >
-          Submit
+          Save
         </StyledButton>
       </StyledDialogActions>
     </StyledDialog>
