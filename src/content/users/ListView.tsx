@@ -183,7 +183,7 @@ const columns: Column<T>[] = [
     comparator: (a, b) => a.role.localeCompare(b.role),
     field: "role",
     sx: {
-      width: "13%",
+      width: "15%",
     },
   },
   {

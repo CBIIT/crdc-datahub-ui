@@ -149,6 +149,7 @@ describe("columnizePBACGroups cases", () => {
   const baseDefault: PBACDefault = {
     _id: "access:request", // The _id field is not actually used by the util
     name: "",
+    inherited: [],
     group: "",
     order: 0,
     checked: false,

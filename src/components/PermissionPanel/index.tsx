@@ -15,7 +15,7 @@ import {
 import { FC, memo, useEffect, useMemo, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { useSnackbar } from "notistack";
-import { cloneDeep } from "lodash";
+import { cloneDeep, flatMap, uniq } from "lodash";
 import {
   EditUserInput,
   RetrievePBACDefaultsResp,
@@ -132,9 +132,15 @@ const PermissionPanel: FC = () => {
       return [];
     }
 
-    const remappedPermissions: PBACDefault<AuthPermissions>[] = cloneDeep(defaults.permissions).map(
-      (p) => ({ ...p, checked: permissionsValue.includes(p._id) })
-    );
+    const clonedPermissions = cloneDeep(defaults.permissions);
+    const checkedPermissions = clonedPermissions?.filter((p) => permissionsValue.includes(p._id));
+    const inheritedPermissions = uniq(flatMap(checkedPermissions, (p) => p.inherited || []));
+
+    const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedPermissions.map((p) => ({
+      ...p,
+      checked: permissionsValue.includes(p._id) || inheritedPermissions.includes(p._id),
+      disabled: p.disabled || inheritedPermissions.includes(p._id),
+    }));
 
     return columnizePBACGroups(remappedPermissions, 3);
   }, [data, permissionsValue]);
@@ -150,9 +156,19 @@ const PermissionPanel: FC = () => {
       return [];
     }
 
-    const remappedNotifications: PBACDefault<AuthNotifications>[] = cloneDeep(
-      defaults.notifications
-    ).map((n) => ({ ...n, checked: notificationsValue.includes(n._id) }));
+    const clonedNotifications = cloneDeep(defaults.notifications);
+    const checkedNotifications = clonedNotifications?.filter((p) =>
+      notificationsValue.includes(p._id)
+    );
+    const inheritedNotifications = uniq(flatMap(checkedNotifications, (p) => p.inherited || []));
+
+    const remappedNotifications: PBACDefault<AuthNotifications>[] = clonedNotifications.map(
+      (n) => ({
+        ...n,
+        checked: notificationsValue.includes(n._id) || inheritedNotifications.includes(n._id),
+        disabled: n.disabled || inheritedNotifications.includes(n._id),
+      })
+    );
 
     return columnizePBACGroups(remappedNotifications, 3);
   }, [data, notificationsValue]);
