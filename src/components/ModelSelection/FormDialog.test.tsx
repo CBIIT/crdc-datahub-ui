@@ -197,6 +197,7 @@ describe("Implementation Requirements", () => {
       "MODEL-VERSION-ABC",
       "MODEL-VERSION-123",
       "MODEL-VERSION-XXZ",
+      "1.2.0",
     ]);
 
     const { getByTestId, getByText, getAllByText } = render(
@@ -215,9 +216,40 @@ describe("Implementation Requirements", () => {
 
     userEvent.click(within(getByTestId("model-version-version-field")).getByRole("button"));
 
-    expect(getAllByText("MODEL-VERSION-ABC")).toHaveLength(2); // Input field and dropdown
-    expect(getByText("MODEL-VERSION-123")).toBeInTheDocument();
-    expect(getByText("MODEL-VERSION-XXZ")).toBeInTheDocument();
+    expect(getAllByText("vMODEL-VERSION-ABC")).toHaveLength(2); // Input field and dropdown
+    expect(getByText("vMODEL-VERSION-123")).toBeInTheDocument();
+    expect(getByText("vMODEL-VERSION-XXZ")).toBeInTheDocument();
+    expect(getByText("v1.2.0")).toBeInTheDocument();
+  });
+
+  it("should prefix the model version with 'v' if not already present", async () => {
+    mockListAvailableModelVersions.mockImplementationOnce(() => [
+      "3.9.0-WO-VERSION",
+      "v3.5.9",
+      "6.1.1",
+      "v9.1.9",
+    ]);
+
+    const { getByTestId, getByText, getAllByText } = render(
+      <FormDialog
+        open
+        dataCommons="MOCK-DC-TEST"
+        modelVersion="6.1.1"
+        onSubmitForm={jest.fn()}
+        onClose={jest.fn()}
+      />
+    );
+
+    await waitFor(() => {
+      expect(mockListAvailableModelVersions).toHaveBeenCalledTimes(1);
+    });
+
+    userEvent.click(within(getByTestId("model-version-version-field")).getByRole("button"));
+
+    expect(getAllByText("v6.1.1")).toHaveLength(2); // Input field and dropdown
+    expect(getByText("v3.9.0-WO-VERSION")).toBeInTheDocument();
+    expect(getByText("v3.5.9")).toBeInTheDocument();
+    expect(getByText("v9.1.9")).toBeInTheDocument();
   });
 
   it("should still populate with the current model version if no versions are available", async () => {

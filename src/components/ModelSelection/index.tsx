@@ -26,6 +26,7 @@ const StyledIconButton = styled(IconButton)(({ disabled }) => ({
   cursor: disabled ? "not-allowed" : "pointer",
   padding: "0px",
   minWidth: "unset",
+  marginTop: "-3px",
 }));
 
 /**

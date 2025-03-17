@@ -10,7 +10,7 @@ import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogClose
 import DefaultDialog from "../StyledDialogComponents/StyledDialog";
 import StyledDialogContent from "../StyledDialogComponents/StyledDialogContent";
 import DefaultDialogHeader from "../StyledDialogComponents/StyledHeader";
-import StyledBodyText from "../StyledDialogComponents/StyledBodyText";
+import DefaultBodyText from "../StyledDialogComponents/StyledBodyText";
 import DefaultDialogActions from "../StyledDialogComponents/StyledDialogActions";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 import { listAvailableModelVersions } from "../../utils";
@@ -35,6 +35,10 @@ const StyledHeader = styled(DefaultDialogHeader)({
   color: "#1873BD",
   fontSize: "45px !important",
   marginBottom: "24px !important",
+});
+
+const StyledBodyText = styled(DefaultBodyText)({
+  maxWidth: "510px",
 });
 
 const StyledDialogActions = styled(DefaultDialogActions)({
@@ -132,7 +136,7 @@ const FormDialog: FC<Props> = ({ dataCommons, modelVersion, onSubmitForm, onClos
         <StyledForm>
           <Box>
             <StyledLabel id="version-input-label">
-              Model Version
+              Data Model Version
               <StyledAsterisk />
             </StyledLabel>
             <Controller
@@ -149,7 +153,7 @@ const FormDialog: FC<Props> = ({ dataCommons, modelVersion, onSubmitForm, onClos
                 >
                   {options.map((version) => (
                     <MenuItem key={version} value={version}>
-                      {version}
+                      {version?.toLocaleLowerCase().charAt(0) === "v" ? version : `v${version}`}
                     </MenuItem>
                   ))}
                 </StyledSelect>
