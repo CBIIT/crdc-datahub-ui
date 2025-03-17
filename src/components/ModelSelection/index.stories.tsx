@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn } from "@storybook/test";
+import { fn, userEvent, within } from "@storybook/test";
 import { MockedResponse } from "@apollo/client/testing";
 import {
   Context as AuthContext,
@@ -174,6 +174,32 @@ export const Default: Story = {
     apolloClient: {
       mocks: [mock],
     },
+  },
+};
+
+/**
+ * A story to cover the hover state of the button.
+ *
+ * Note: The :hover state cannot truly be simulated programmatically, so the background won't be visible
+ * until you hover over the button.
+ */
+export const Hovered: Story = {
+  args: {
+    userRole: "Data Commons Personnel",
+    permissions: ["data_submission:review"],
+    status: "In Progress",
+  },
+  parameters: {
+    apolloClient: {
+      mocks: [mock],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const button = await canvas.findByRole("button");
+
+    await userEvent.hover(button);
   },
 };
 

@@ -24,9 +24,13 @@ const StyledTooltip = styled(StyledFormTooltip)({
 
 const StyledIconButton = styled(IconButton)(({ disabled }) => ({
   cursor: disabled ? "not-allowed" : "pointer",
-  padding: "0px",
+  padding: "4px",
   minWidth: "unset",
   marginTop: "-3px",
+  borderRadius: "5px",
+  "&:hover": {
+    backgroundColor: "#BDDDEB",
+  },
 }));
 
 /**
