@@ -109,6 +109,74 @@ describe("fetchManifest cases", () => {
   });
 });
 
+describe("listAvailableModelVersions", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    sessionStorage.clear();
+  });
+
+  it("should return available model versions", async () => {
+    const fakeManifest: DataModelManifest = {
+      CDS: {
+        versions: ["XXX", "1.0", "2.0", "3.0"],
+      } as ManifestAssets,
+    };
+    sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
+
+    const versions = await utils.listAvailableModelVersions("CDS");
+
+    expect(versions).toEqual(["XXX", "1.0", "2.0", "3.0"]);
+  });
+
+  it("should catch fetchManifest exception and return empty array", async () => {
+    (fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error("fetch error")));
+
+    const versions = await utils.listAvailableModelVersions("CDS");
+
+    expect(versions).toEqual([]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("should return an empty array if the model is not found in the manifest", async () => {
+    const fakeManifest: DataModelManifest = {
+      CDS: {
+        versions: ["mock-version"],
+      } as ManifestAssets,
+    };
+    sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
+
+    const versions = await utils.listAvailableModelVersions("this-model-does-not-exist");
+
+    expect(versions).toEqual([]);
+  });
+
+  it("should return an empty array if no versions are found (empty)", async () => {
+    const fakeManifest: DataModelManifest = {
+      CDS: {
+        versions: [],
+      } as ManifestAssets,
+    };
+    sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
+
+    const versions = await utils.listAvailableModelVersions("CDS");
+
+    expect(versions).toEqual([]);
+  });
+
+  it("should return an empty array if no versions are found (non-array)", async () => {
+    const fakeManifest: DataModelManifest = {
+      CDS: {
+        versions: null,
+      } as ManifestAssets,
+    };
+    sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
+
+    const versions = await utils.listAvailableModelVersions("CDS");
+
+    expect(versions).toEqual([]);
+  });
+});
+
 describe("buildAssetUrls cases", () => {
   it("should build asset URLs using prod tier when REACT_APP_DEV_TIER is not defined", () => {
     const dc: DataCommon = {

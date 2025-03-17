@@ -28,6 +28,32 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
 };
 
 /**
+ * List the available Data Model versions for a given Data Model
+ *
+ * @param model The Data Model (DataCommon) to list versions for (e.g. "CDS")
+ * @returns An array of version strings or empty if none are found
+ */
+export const listAvailableModelVersions = async (model: string): Promise<string[]> => {
+  try {
+    const manifest = await fetchManifest();
+    if (!manifest || !manifest[model]) {
+      throw new Error(`Unable to find manifest for ${model}`);
+    }
+
+    const { versions } = manifest[model];
+    if (!Array.isArray(versions) || versions.length === 0) {
+      throw new Error(`No versions found for ${model}`);
+    }
+
+    return versions;
+  } catch (e) {
+    Logger.error("listDataModelVersions: An exception was thrown", e);
+  }
+
+  return [];
+};
+
+/**
  * Builds the asset URLs for the Data Model Navigator to import from
  *
  * @param model The Data Model (DataCommon) to build asset URLs for
