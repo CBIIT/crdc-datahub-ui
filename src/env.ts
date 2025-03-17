@@ -1,4 +1,10 @@
-const processEnv = process.env ?? {};
+let processEnv = {};
+try {
+  processEnv = process.env ?? {};
+} catch (e) {
+  processEnv = {};
+}
+
 const { injectedEnv } = window ?? {};
 
 const env: AppEnv = {

@@ -11,6 +11,7 @@ const config = {
     "prettier",
     "react-app",
     "react-app/jest",
+    "plugin:storybook/recommended",
   ],
   globals: {
     window: true,
@@ -101,6 +102,13 @@ const config = {
     "react-hooks/rules-of-hooks": "off",
     "react-hooks/exhaustive-deps": "off",
     "import/prefer-default-export": "off",
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        devDependencies: ["**/*.{stories,test}.{ts,tsx}", "**/setupTests.{ts,tsx}"],
+        optionalDependencies: false,
+      },
+    ],
 
     /* jest and testing-library rules */
     "testing-library/prefer-screen-queries": "off",
