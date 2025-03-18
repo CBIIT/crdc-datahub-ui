@@ -1,7 +1,6 @@
-import { FC, memo, useMemo } from "react";
+import { FC, memo } from "react";
 import { styled, SxProps } from "@mui/material";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
-import { coerceToString } from "../../utils";
 
 const StyledText = styled("span")(() => ({
   display: "block",
@@ -24,10 +23,10 @@ const StyledTextWrapper = styled("span", {
 
 type Props = {
   /**
-   * The text to be truncated. It can be a string, number, or any other type
-   * If it can be converted to a string, it will be displayed as such.
+   * The displayed text that will be hoverable
+   * when a truncation tooltip is available
    */
-  text: unknown;
+  text: string;
   /**
    * Provide custom text to show in the tooltip,
    * otherwise 'text' will be used
@@ -80,16 +79,15 @@ const TruncatedText: FC<Props> = ({
   wrapperSx,
   labelSx,
 }: Props) => {
-  const coercedValue = useMemo<string>(() => coerceToString(text), [text]);
-  const isTruncated = coercedValue?.length > maxCharacters;
+  const isTruncated = text?.length > maxCharacters;
   const displayText = isTruncated
-    ? `${coercedValue?.trim()?.slice(0, maxCharacters)?.trim()}${ellipsis ? "..." : ""}`
-    : coercedValue;
+    ? `${text?.trim()?.slice(0, maxCharacters)?.trim()}${ellipsis ? "..." : ""}`
+    : text;
 
   return (
     <StyledTooltip
       placement="top"
-      title={tooltipText || coercedValue || ""}
+      title={tooltipText || text || ""}
       disableHoverListener={!isTruncated}
       disableInteractive={disableInteractiveTooltip}
       data-testid="truncated-text-tooltip"

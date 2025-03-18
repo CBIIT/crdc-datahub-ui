@@ -23,7 +23,7 @@ import SubmittedDataFilters, {
   FilterForm,
   FilterMethods,
 } from "../../components/DataSubmissions/SubmittedDataFilters";
-import { rearrangeKeys, safeParse } from "../../utils";
+import { coerceToString, rearrangeKeys, safeParse } from "../../utils";
 import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
 import DataViewContext from "./Contexts/DataViewContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
@@ -143,7 +143,7 @@ const SubmittedData: FC = () => {
   const renderFirstColumnValue = (d: T, prop: string): React.ReactNode => (
     <StyledFirstColumnButton variant="text" onClick={() => onClickFirstColumn(d)} disableRipple>
       <TruncatedText
-        text={d?.props?.[prop]}
+        text={coerceToString(d?.props?.[prop])}
         maxCharacters={10}
         ellipsis
         underline={false}
@@ -201,7 +201,7 @@ const SubmittedData: FC = () => {
             renderFirstColumnValue(d, prop)
           ) : (
             <TruncatedText
-              text={d?.props?.[prop]}
+              text={coerceToString(d?.props?.[prop])}
               maxCharacters={10}
               disableInteractiveTooltip={false}
               ellipsis
