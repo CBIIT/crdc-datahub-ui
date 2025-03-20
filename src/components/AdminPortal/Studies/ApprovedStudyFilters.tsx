@@ -166,7 +166,7 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
           }}
         />
       </StyledFormControl>
-      <StyledInlineLabel htmlFor="status-filter">Access Type</StyledInlineLabel>
+      <StyledInlineLabel htmlFor="accessType-filter">Access Type</StyledInlineLabel>
       <StyledFormControl>
         <Controller
           name="accessType"
