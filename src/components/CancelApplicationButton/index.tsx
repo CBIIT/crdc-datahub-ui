@@ -53,7 +53,7 @@ const StyledOutlinedInput = styled(BaseOutlinedInput)({
 const RESTORE_STATUSES: ApplicationStatus[] = ["Canceled", "Deleted"];
 
 type FormFields = {
-  reviewComments: string;
+  comments: string;
 };
 
 type Props = {
@@ -109,12 +109,12 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
     [isRestoreAction, isFromDeletedStatus]
   );
 
-  const reviewComments = watch("reviewComments");
+  const comments = watch("comments");
   const confirmButtonProps = useMemo<ButtonProps>(
     () => ({
-      disabled: !watch("reviewComments")?.trim()?.length,
+      disabled: !watch("comments")?.trim()?.length,
     }),
-    [reviewComments?.length]
+    [comments?.length]
   );
 
   const onClickIcon = async () => {
@@ -130,7 +130,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
     try {
       if (isRestoreAction) {
         const { data: d, errors } = await restoreApp({
-          variables: { _id, reviewComments },
+          variables: { _id, comments },
         });
 
         if (errors || !d?.restoreApplication?._id) {
@@ -138,7 +138,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
         }
       } else {
         const { data: d, errors } = await cancelApp({
-          variables: { _id, reviewComments },
+          variables: { _id, comments },
         });
 
         if (errors || !d?.cancelApplication?._id) {
@@ -157,7 +157,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
     } finally {
       setLoading(false);
     }
-  }, [isRestoreAction, reviewComments, restoreApp, cancelApp, onCancel, enqueueSnackbar]);
+  }, [isRestoreAction, comments, restoreApp, cancelApp, onCancel, enqueueSnackbar]);
 
   if (!hasPermission(user, "submission_request", "cancel", application)) {
     return null;
@@ -205,7 +205,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
                 placeholder="500 characters allowed"
                 required
                 multiline
-                {...register("reviewComments", {
+                {...register("comments", {
                   required: true,
                   maxLength: 500,
                   setValueAs: (v) => v?.trim(),

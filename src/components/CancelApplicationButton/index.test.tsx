@@ -1027,7 +1027,7 @@ describe("Implementation Requirements", () => {
     await waitFor(() => {
       expect(mockMatcher).toHaveBeenCalledWith({
         _id: "mock-id-cancel-reason",
-        reviewComments: "this is a mock reason xyz 123",
+        comments: "this is a mock reason xyz 123",
       });
     });
   });
