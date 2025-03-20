@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useId, useMemo, useState } from "react";
 import { isEqual } from "lodash";
 import { Box, ButtonProps, IconButton, IconButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
@@ -71,6 +71,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
   const { enqueueSnackbar } = useSnackbar();
   const { register, watch } = useForm<FormFields>({ mode: "onBlur" });
   const { user } = useAuthContext();
+  const formId = useId();
 
   const { _id, status } = application || {};
 
@@ -189,6 +190,10 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
       <DeleteDialog
         open={confirmOpen}
         header={textValues.dialogTitle}
+        PaperProps={{
+          "aria-labelledby": "",
+          "aria-label": textValues.dialogTitle,
+        }}
         description={
           <div>
             {textValues.dialogDescription}
@@ -196,11 +201,12 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
             <br />
             Study: {application.studyAbbreviation || "NA"}
             <StyledFormBox>
-              <StyledLabel>
+              <StyledLabel htmlFor={formId}>
                 Reason
                 <Asterisk />
               </StyledLabel>
               <StyledOutlinedInput
+                id={formId}
                 data-testid="cancel-restore-application-reason"
                 placeholder="500 characters allowed"
                 required
