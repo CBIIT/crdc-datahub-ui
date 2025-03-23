@@ -196,7 +196,7 @@ const ListView = () => {
     }
   );
 
-  const handleFetchData = async (fetchListing: FetchListing<ApprovedStudy>, force: boolean) => {
+  const handleFetchData = async (fetchListing: FetchListing<ApprovedStudy>, _force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
 
     if (!filtersRef.current) {
@@ -225,7 +225,7 @@ const ListView = () => {
 
       setData(d.listApprovedStudies.studies);
       setCount(d.listApprovedStudies.total);
-    } catch (err) {
+    } catch (_err) {
       setError(true);
     } finally {
       setLoading(false);

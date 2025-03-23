@@ -124,7 +124,7 @@ export const calculateTextWidth = (
     context.font = `${fontWeight} ${fontSize} ${fontFamily}`;
     const { width } = context.measureText(text);
     return typeof width === "number" && width > 0 ? width : 0;
-  } catch (e) {
+  } catch (_e) {
     return 0;
   }
 };

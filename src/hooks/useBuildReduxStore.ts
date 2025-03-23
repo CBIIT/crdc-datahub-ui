@@ -121,7 +121,7 @@ const useBuildReduxStore = (): ReduxStoreResult => {
           const retrievedCDEs = defaultTo(CDEs.data.retrieveCDEs, []);
           dictionary = updateEnums(cdeMap, dataList, retrievedCDEs);
         }
-      } catch (error) {
+      } catch (_error) {
         dictionary = updateEnums(cdeMap, dataList, [], true);
       }
     } else {

@@ -14,7 +14,7 @@ export const safeParse = <T = never>(unsafeJson: string, fallback: T = {} as T):
     }
 
     return result;
-  } catch (e) {
+  } catch (_e) {
     return fallback;
   }
 };

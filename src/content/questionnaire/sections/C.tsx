@@ -64,9 +64,9 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const handleCancerTypesChange = (
-    e: SyntheticEvent,
+    _e: SyntheticEvent,
     newValue: string[],
-    reason: AutocompleteChangeReason
+    _reason: AutocompleteChangeReason
   ) => {
     // If N/A was previously selected, then remove N/A
     if (cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
@@ -85,7 +85,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const handleOtherCancerTypesCheckboxChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    _event: React.ChangeEvent<HTMLInputElement>,
     checked: boolean
   ) => {
     if (!checked) {
@@ -96,7 +96,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const handleOtherSpeciesCheckboxChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    _event: React.ChangeEvent<HTMLInputElement>,
     checked: boolean
   ) => {
     if (!checked) {
@@ -106,7 +106,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setOtherSpeciesEnabled(checked);
   };
 
-  const handleIsDbGapRegisteredChange = (e, checked: boolean) => {
+  const handleIsDbGapRegisteredChange = (_e, checked: boolean) => {
     setIsdbGaPRegistered(checked);
     if (!checked) {
       setDbGaPPPHSNumber("");

@@ -68,6 +68,7 @@ const LabelCheckbox: FC<Props> = ({
       type="checkbox"
       data-type="boolean"
       value={checked ? "true" : "false"}
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       onChange={() => {}}
       aria-label={rest?.inputProps?.["aria-label"]}
       checked

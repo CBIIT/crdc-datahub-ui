@@ -256,6 +256,7 @@ const CustomSwitch: FC<Props> = ({
             />
             {/* To satisfy the form parser. The mui switch value is not good for the form parser */}
             <input
+              // eslint-disable-next-line @typescript-eslint/no-empty-function
               onChange={() => {}}
               className="input"
               name={name}

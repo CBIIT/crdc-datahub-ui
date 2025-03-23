@@ -263,6 +263,7 @@ const SelectInput: FC<Props> = ({
         <ProxySelect
           name={name}
           value={val}
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           onChange={() => {}}
           multiple={multiple}
           aria-labelledby={`${id}-label`}

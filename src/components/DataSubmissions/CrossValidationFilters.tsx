@@ -46,7 +46,7 @@ const StyledInlineLabel = styled(StyledLabel)({
  *
  * @see {@link FilterProps} for the props
  */
-const CrossValidationFilters = forwardRef<null, FilterProps>(({ onChange }, ref) => {
+const CrossValidationFilters = forwardRef<null, FilterProps>(({ onChange }, _ref) => {
   const { data: submissionData } = useSubmissionContext();
   const { watch, getValues, control } = useForm<FilterForm>({
     defaultValues: { batchIDs: ["All"], nodeTypes: ["All"], severities: "All" },

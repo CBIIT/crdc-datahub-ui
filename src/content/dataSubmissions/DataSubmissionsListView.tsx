@@ -255,7 +255,7 @@ const ListingView: FC = () => {
     }
   );
 
-  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
+  const handleFetchData = async (fetchListing: FetchListing<T>, _force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
     try {
       setLoading(true);

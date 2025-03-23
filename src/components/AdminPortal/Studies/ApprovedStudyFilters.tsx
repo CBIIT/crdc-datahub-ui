@@ -140,7 +140,7 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
       <StyledFormControl>
         <StyledOutlinedInput
           {...register("study", {
-            onChange: (e) => handleFilterChange("study"),
+            onChange: () => handleFilterChange("study"),
             setValueAs: (val) => val?.trim(),
           })}
           placeholder="Enter a Study"
@@ -155,7 +155,7 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
       <StyledFormControl>
         <StyledOutlinedInput
           {...register("dbGaPID", {
-            onChange: (e) => handleFilterChange("dbGaPID"),
+            onChange: () => handleFilterChange("dbGaPID"),
             setValueAs: (val) => val?.trim(),
           })}
           placeholder="Enter a dbGaPID"

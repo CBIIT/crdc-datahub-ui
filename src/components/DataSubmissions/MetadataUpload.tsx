@@ -266,7 +266,7 @@ const MetadataUpload = ({ readOnly, onCreateBatch, onUpload }: Props) => {
       if (uploadMetadataInputRef.current) {
         uploadMetadataInputRef.current.value = "";
       }
-    } catch (err) {
+    } catch (_err) {
       // Unable to let BE know of upload result so all fail
       onUploadFail(selectedFiles?.length);
     }

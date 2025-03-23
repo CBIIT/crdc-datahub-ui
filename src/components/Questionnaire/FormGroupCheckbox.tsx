@@ -167,6 +167,7 @@ const FormGroupCheckbox: FC<Props> = ({
                 type="checkbox"
                 data-type="boolean"
                 value={isChecked ? "true" : "false"}
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 onChange={() => {}}
                 aria-labelledby={`${id}-label`}
                 checked

@@ -236,7 +236,7 @@ const ListingView: FC = () => {
     fetchPolicy: "no-cache",
   });
 
-  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
+  const handleFetchData = async (fetchListing: FetchListing<T>, _force: boolean) => {
     const { first, offset, sortDirection, orderBy, comparator } = fetchListing || {};
 
     const users = data?.listUsers;

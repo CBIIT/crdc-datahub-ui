@@ -264,7 +264,7 @@ describe("tableUtils", () => {
     });
 
     it("should use comparator when defined", () => {
-      const result = sortData(testData, "name", "asc", (a, b) => (a.name === "John" ? -1 : 1));
+      const result = sortData(testData, "name", "asc", (a, _b) => (a.name === "John" ? -1 : 1));
       expect(result[0].name).toBe("John");
     });
 

@@ -210,6 +210,7 @@ const CustomAutocomplete = ({
         name={name}
         value={val}
         aria-labelledby={`${id}-label`}
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         onChange={() => {}}
         multiple
         hidden

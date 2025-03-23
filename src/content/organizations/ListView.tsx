@@ -259,7 +259,7 @@ const ListingView: FC = () => {
   const statusFilter = watch("status");
   const tableRef = useRef<TableMethods>(null);
 
-  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
+  const handleFetchData = async (fetchListing: FetchListing<T>, _force: boolean) => {
     const { first, offset, sortDirection, orderBy, comparator } = fetchListing || {};
 
     if (!data?.length) {
@@ -393,7 +393,7 @@ const ListingView: FC = () => {
           <StyledFormControl>
             <StyledTextField
               {...register("organization", {
-                onChange: (e) => handleFilterChange("organization"),
+                onChange: () => handleFilterChange("organization"),
                 setValueAs: (val) => val?.trim(),
               })}
               placeholder="Enter a Program"
@@ -405,7 +405,7 @@ const ListingView: FC = () => {
           <StyledFormControl>
             <StyledTextField
               {...register("study", {
-                onChange: (e) => handleFilterChange("study"),
+                onChange: () => handleFilterChange("study"),
                 setValueAs: (val) => val?.trim(),
               })}
               placeholder="Enter a Study"

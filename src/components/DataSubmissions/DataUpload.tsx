@@ -125,7 +125,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
 
       downloadBlob(data.retrieveCLIConfig, filename, "application/yaml");
       setConfigDialogOpen(false);
-    } catch (e) {
+    } catch (_e) {
       enqueueSnackbar("Unable to download Uploader CLI config file", {
         variant: "error",
       });

@@ -30,7 +30,7 @@ export const FormatDate = (
 
   try {
     return dateObj?.format(pattern);
-  } catch (e) {
+  } catch (_e) {
     return fallbackValue;
   }
 };

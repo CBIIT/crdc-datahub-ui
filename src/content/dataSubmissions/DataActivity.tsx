@@ -256,7 +256,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
           setPollingFn(() => startPolling);
           setStopPollingFn(() => stopPolling);
         }
-      } catch (err) {
+      } catch (_err) {
         enqueueSnackbar("Unable to retrieve batch data.", { variant: "error" });
       } finally {
         setLoading(false);

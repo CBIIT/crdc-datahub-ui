@@ -14,8 +14,8 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -24,8 +24,13 @@
   "include": [
     "src",
     "conf",
-    ".eslintrc.cjs",
+    "eslint.config.cts",
     "types/*.d.ts",
     "public",
+    ".storybook/main.ts",
+    ".storybook/preview.tsx",
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

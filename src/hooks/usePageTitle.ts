@@ -15,6 +15,7 @@ const usePageTitle = (title: string, restore = true): void => {
   // Revert on unmount if requested
   useEffect(() => {
     if (!restore) {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       return () => {};
     }
 

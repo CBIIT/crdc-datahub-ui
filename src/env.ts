@@ -1,7 +1,7 @@
 let processEnv = {};
 try {
   processEnv = process.env ?? {};
-} catch (e) {
+} catch (_e) {
   processEnv = {};
 }
 

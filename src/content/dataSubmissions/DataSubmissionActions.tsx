@@ -150,7 +150,6 @@ type Props = {
   submitActionButton: SubmitButtonResult;
   releaseActionButton: ReleaseInfo;
   onAction: (action: SubmissionAction, reviewComment?: string) => Promise<void>;
-  onError: (message: string) => void;
 };
 
 const DataSubmissionActions = ({
@@ -158,7 +157,6 @@ const DataSubmissionActions = ({
   submitActionButton,
   releaseActionButton,
   onAction,
-  onError,
 }: Props) => {
   const { user } = useAuthContext();
 

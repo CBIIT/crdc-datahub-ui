@@ -266,7 +266,6 @@ const TableAutocompleteInput: FC<Props> = ({
                 variant="standard"
                 inputRef={fileTypeRef}
                 InputProps={{ ...p.InputProps, disableUnderline: true }}
-                // eslint-disable-next-line react/jsx-no-duplicate-props
                 inputProps={{
                   ...p.inputProps,
                   maxLength: 30,
@@ -334,7 +333,6 @@ const TableAutocompleteInput: FC<Props> = ({
                 variant="standard"
                 inputRef={fileExtensionRef}
                 InputProps={{ ...p.InputProps, disableUnderline: true }}
-                // eslint-disable-next-line react/jsx-no-duplicate-props
                 inputProps={{
                   ...p.inputProps,
                   maxLength: 10,

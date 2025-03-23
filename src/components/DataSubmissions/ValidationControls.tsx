@@ -303,7 +303,7 @@ const ValidationControls: FC = () => {
           <StyledRowContent>
             <RadioGroup
               value={validationType}
-              onChange={(e, val: ValidationType) => setValidationType(val)}
+              onChange={(_e, val: ValidationType) => setValidationType(val)}
               data-testid="validate-controls-validation-type"
               row
             >
@@ -354,7 +354,7 @@ const ValidationControls: FC = () => {
           <StyledRowContent>
             <RadioGroup
               value={uploadType}
-              onChange={(event, val: ValidationTarget) => setUploadType(val)}
+              onChange={(_e, val: ValidationTarget) => setUploadType(val)}
               data-testid="validate-controls-validation-target"
               row
             >

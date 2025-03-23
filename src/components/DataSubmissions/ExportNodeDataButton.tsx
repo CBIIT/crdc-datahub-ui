@@ -110,7 +110,7 @@ export const ExportNodeDataButton: React.FC<Props> = ({
       }));
 
       downloadBlob(unparse(csvArray, { delimiter: "\t" }), filename, "text/tab-separated-values");
-    } catch (err) {
+    } catch (_err) {
       enqueueSnackbar("Failed to export TSV for the selected node.", {
         variant: "error",
       });

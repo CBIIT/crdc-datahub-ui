@@ -300,7 +300,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="dataTypes[]"
           graphQLValue="clinicalTrial"
           value={dataTypes.includes("clinicalTrial")}
-          onChange={(e, val) => setIsClinical(val)}
+          onChange={(_e, val) => setIsClinical(val)}
           tooltipText="A research study in which one or more subjects are prospectively assigned to one or more interventions (which may include placebo or other control) to evaluate the effects of those interventions on health-related biomedical outcomes."
           readOnly={readOnlyInputs}
         />
@@ -329,7 +329,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="dataTypes[]"
           graphQLValue="imaging"
           value={dataTypes.includes("imaging")}
-          onChange={(e, checked) => handleDataTypesChange(checked, "imaging")}
+          onChange={(_e, checked) => handleDataTypesChange(checked, "imaging")}
           toggleContent={
             <RadioYesNoInput
               id="section-d-imaging-de-identified"

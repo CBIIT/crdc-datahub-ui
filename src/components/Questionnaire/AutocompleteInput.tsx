@@ -189,7 +189,7 @@ const AutocompleteInput = <T,>({
     setError(false);
   };
 
-  const onInputChangeWrapper = (event: SyntheticEvent, newValue: string): void => {
+  const onInputChangeWrapper = (_event: SyntheticEvent, newValue: string): void => {
     processValue(newValue as unknown as T);
     setError(false);
   };

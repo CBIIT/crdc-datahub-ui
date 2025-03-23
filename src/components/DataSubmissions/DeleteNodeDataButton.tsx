@@ -128,7 +128,7 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
 
       setConfirmOpen(false);
       onDelete?.(content.snackbarSuccess);
-    } catch (err) {
+    } catch (_err) {
       enqueueSnackbar(content.snackbarError, {
         variant: "error",
       });

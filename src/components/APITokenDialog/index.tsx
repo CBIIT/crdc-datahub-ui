@@ -172,7 +172,7 @@ const APITokenDialog: FC<Props> = ({ onClose, open, ...rest }) => {
 
       setTokens(tokens);
       setTokenIdx(0);
-    } catch (err) {
+    } catch (_err) {
       onGenerateTokenError();
     }
   };

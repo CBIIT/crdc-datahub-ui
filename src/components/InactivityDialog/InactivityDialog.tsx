@@ -148,7 +148,9 @@ const InactivityDialog: FC = () => {
         },
       })
         .then((response) => response.json())
-        .catch(() => {});
+        .catch(() => {
+          // Do nothing
+        });
 
       if (res.status) {
         setWarning(false);

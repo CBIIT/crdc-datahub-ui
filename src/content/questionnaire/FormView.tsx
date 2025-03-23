@@ -231,7 +231,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
       navigate("/submission-requests");
 
       return r;
-    } catch (err) {
+    } catch (_err) {
       setOpenSubmitDialog(false);
       enqueueSnackbar("An error occurred while submitting the form. Please try again.", {
         variant: "error",

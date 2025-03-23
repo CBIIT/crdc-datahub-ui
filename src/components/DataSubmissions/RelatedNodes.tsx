@@ -289,7 +289,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       delayedLoadingTimeRef.current = 200;
 
       setState(newState);
-    } catch (err) {
+    } catch (_err) {
       enqueueSnackbar(`Unable to load related node details.`, { variant: "error" });
     } finally {
       setLoading(false);
@@ -322,7 +322,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
       }
       setState({ nodes: [], total: 0 });
       columnsRef.current = newColumns;
-    } catch (err) {
+    } catch (_err) {
       enqueueSnackbar(`Unable to load related node details.`, { variant: "error" });
     }
   };

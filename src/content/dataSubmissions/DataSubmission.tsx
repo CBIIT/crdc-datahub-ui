@@ -340,7 +340,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
               onAction={updateSubmissionAction}
               submitActionButton={submitInfo}
               releaseActionButton={releaseInfo}
-              onError={(message: string) => enqueueSnackbar(message, { variant: "error" })}
             />
           </StyledCardActions>
         </StyledCard>

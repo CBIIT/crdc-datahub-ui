@@ -86,7 +86,7 @@ export const CrossValidationButton: FC<Props> = ({ submission, ...props }) => {
       );
       setIsValidating(true);
       handleOnValidate();
-    } catch (error) {
+    } catch (_error) {
       enqueueSnackbar("Unable to initiate validation process.", {
         variant: "error",
       });
