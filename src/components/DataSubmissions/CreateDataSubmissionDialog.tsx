@@ -22,7 +22,7 @@ import {
   LIST_APPROVED_STUDIES,
 } from "../../graphql";
 import RadioInput, { RadioOption } from "./RadioInput";
-import { DataCommons } from "../../config/DataCommons";
+import { getDataCommons } from "../../config/DataCommons";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
 import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
@@ -445,7 +445,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     inputProps={{ "aria-labelledby": "dataCommons" }}
                     data-testid="create-data-submission-dialog-data-commons-input"
                   >
-                    {DataCommons.map((dc) => (
+                    {getDataCommons().map((dc) => (
                       <MenuItem key={dc.name} value={dc.name}>
                         {dc.name}
                       </MenuItem>

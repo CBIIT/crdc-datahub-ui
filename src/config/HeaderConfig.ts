@@ -1,7 +1,7 @@
 import Logo from "../assets/header/Portal_Logo.svg";
 import LogoSmall from "../assets/header/Portal_Logo_Small.svg";
 import usaFlagSmall from "../assets/header/us_flag_small.svg";
-import { DataCommons } from "./DataCommons";
+import { getDataCommons } from "./DataCommons";
 import ApiInstructions from "../assets/pdf/CRDC_Data_Submission_API_Instructions.pdf";
 
 export const DataSubmissionInstructionsLink =
@@ -59,7 +59,7 @@ export const HeaderLinks: NavBarItem[] = [
 ];
 
 export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
-  "Model Navigator": DataCommons.map((dc) => ({
+  "Model Navigator": getDataCommons().map((dc) => ({
     id: `model-navigator-${dc.name}`,
     name: `${dc.name}${dc.name.indexOf("Model") === -1 ? " Model" : ""}`,
     link: `/model-navigator/${dc.name}/latest`,

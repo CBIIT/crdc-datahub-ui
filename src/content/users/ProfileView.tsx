@@ -40,7 +40,7 @@ import {
   UpdateMyUserResp,
 } from "../../graphql";
 import { formatFullStudyName, formatIDP, Logger } from "../../utils";
-import { DataCommons } from "../../config/DataCommons";
+import { getDataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
@@ -597,7 +597,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                           required
                           multiple
                         >
-                          {DataCommons.map((dc) => (
+                          {getDataCommons().map((dc) => (
                             <MenuItem key={dc.name} value={dc.name}>
                               {dc.name}
                             </MenuItem>

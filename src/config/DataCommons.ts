@@ -579,8 +579,11 @@ const DataCommons: DataCommon[] = [
   },
 ];
 
+const getDataCommons = () => {
+  const HiddenModels = getFilteredDataCommons();
+  return DataCommons.filter((dc) => !HiddenModels.includes(dc.name));
+};
+
 // TODO: This is a TEMPORARY implementation to hide Data Commons from the UI
 // for 3.1.0 only. This will be refactored in 3.2.0
-const HiddenModels = getFilteredDataCommons();
-const FilteredDataCommons = DataCommons.filter((dc) => !HiddenModels.includes(dc.name));
-export { FilteredDataCommons as DataCommons };
+export { getDataCommons };

@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { render, waitFor } from "@testing-library/react";
 import { useDataCommonContext, Status as DCStatus, DataCommonProvider } from "./DataCommonContext";
-import { DataCommons } from "../../config/DataCommons";
+import { getDataCommons } from "../../config/DataCommons";
 
 const TestChild: FC = () => {
   const { status, error } = useDataCommonContext();
@@ -70,10 +70,10 @@ describe("DataCommonContext > DataCommonProvider Tests", () => {
   });
 
   it("should set a error state if the manifest cannot be fetched", async () => {
-    const { getByTestId } = render(<TestParent dc={DataCommons?.[0].name} />);
+    const { getByTestId } = render(<TestParent dc={getDataCommons()?.[0].name} />);
     await waitFor(() => expect(getByTestId("status")).toHaveTextContent(DCStatus.ERROR));
     expect(getByTestId("error-message")).toHaveTextContent(
-      `Unable to fetch manifest for ${DataCommons?.[0].name}`
+      `Unable to fetch manifest for ${getDataCommons()?.[0].name}`
     );
   });
 });
