@@ -12,7 +12,7 @@ export const useDelayedLoading = (isLoading: boolean, delay = 200): boolean => {
   const [showLoading, setShowLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
 
     if (isLoading) {
       timer = setTimeout(() => setShowLoading(true), delay);
