@@ -2,7 +2,7 @@ import React from "react";
 import { render, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
-import TruncatedText from ".";
+import TruncatedText from "./index";
 
 describe("Accessibility", () => {
   it("should have no violations", async () => {
@@ -152,6 +152,22 @@ describe("Basic Functionality", () => {
 
     expect(textLabel).toHaveStyle("color: red");
     expect(textLabel).toHaveStyle("margin-top: 90px");
+  });
+
+  it("should not forward the wrapperSx prop to the DOM element", () => {
+    const { getByTestId } = render(
+      <TruncatedText text="Styled text" wrapperSx={{ color: "red", marginTop: "90px" }} />
+    );
+
+    expect(getByTestId("truncated-text-wrapper")).not.toHaveAttribute("sx");
+  });
+
+  it("should not forward the labelSx prop to the DOM element", () => {
+    const { getByTestId } = render(
+      <TruncatedText text="Styled text" labelSx={{ color: "red", marginTop: "90px" }} />
+    );
+
+    expect(getByTestId("truncated-text-label")).not.toHaveAttribute("sx");
   });
 });
 
