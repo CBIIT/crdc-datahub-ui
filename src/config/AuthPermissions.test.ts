@@ -60,7 +60,7 @@ const baseSubmission: Submission = {
   nodeCount: 0,
   createdAt: "",
   updatedAt: "",
-  dataFileSize: "0",
+  dataFileSize: null,
 };
 
 const createUser = (role: UserRole, permissions: AuthPermissions[] = []): User => ({

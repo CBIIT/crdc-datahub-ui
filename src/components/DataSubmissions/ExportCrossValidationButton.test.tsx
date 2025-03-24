@@ -50,7 +50,7 @@ const baseSubmission: Submission = {
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
-  dataFileSize: "0",
+  dataFileSize: null,
 };
 
 const baseCrossValidationResult: CrossValidationResult = {

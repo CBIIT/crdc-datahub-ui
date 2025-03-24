@@ -52,7 +52,7 @@ const baseSubmission: Omit<
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
-  dataFileSize: "0",
+  dataFileSize: null,
 };
 
 const baseAuthCtx: AuthCtxState = {

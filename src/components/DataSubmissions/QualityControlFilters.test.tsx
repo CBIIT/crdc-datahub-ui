@@ -56,7 +56,7 @@ const mockSubmission: Submission = {
   otherSubmissions: "",
   nodeCount: 0,
   collaborators: [],
-  dataFileSize: "0",
+  dataFileSize: null,
 };
 
 const defaultSubmissionContextValue: SubmissionCtxState = {
