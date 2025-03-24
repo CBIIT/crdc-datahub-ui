@@ -14,7 +14,7 @@ import { updateInputValidity } from "../../utils";
 
 const GridStyled = styled(Grid, { shouldForwardProp: (p) => p !== "switchSx" })<{
   switchSx: SxProps;
-}>(({ switchSx }) => ({
+}>(({ theme, switchSx }) => ({
   "& .switchRoot": {
     width: "65px",
     height: "35px",
@@ -23,24 +23,51 @@ const GridStyled = styled(Grid, { shouldForwardProp: (p) => p !== "switchSx" })<
   "& .switchBase": {
     paddingTop: "5px",
     paddingLeft: "7px",
+    transitionDuration: "300ms",
+    "&.Mui-checked": {
+      transform: "translateX(26px)",
+      "& + .MuiSwitch-track": {
+        border: "1.25px solid #6A6A6A",
+      },
+    },
   },
   "& .thumb": {
-    color: "#1D91AB",
+    color: "#08A0B4",
     width: "25px",
     height: "25px",
     boxShadow: "none",
+    transition: "color 300ms ease",
   },
-  "& .MuiSwitch-switchBase.Mui-checked": {
-    transform: "translateX(26px)",
+  "& .Mui-checked .thumb": {
+    color: "#FFFFFF",
   },
-  "& .track": {
+  "& .MuiSwitch-track.track": {
+    position: "relative",
     borderRadius: "60px",
     backgroundColor: "#FFFFFF",
     border: "1px solid #DBDBDB",
     opacity: 1,
+    overflow: "hidden",
+    transition: theme.transitions.create(["border"], {
+      duration: 300,
+    }),
+    "&::before": {
+      position: "absolute",
+      content: "''",
+      inset: 0,
+      backgroundImage: "linear-gradient(270deg, #08A0B4 49.23%, #05595E 115.38%)",
+      zIndex: 1,
+      opacity: 0,
+      transition: "opacity 0.3s linear",
+    },
   },
-  "& .MuiSwitch-track": {
-    backgroundColor: "white !important",
+  "& .Mui-checked+.MuiSwitch-track.track": {
+    borderRadius: "60px",
+    border: "1.25px solid #6A6A6A",
+    opacity: 1,
+  },
+  "& .Mui-checked+.MuiSwitch-track.track::before": {
+    opacity: 1,
   },
   "& .readOnly .MuiSwitch-track": {
     backgroundColor: "#E5EEF4 !important",
