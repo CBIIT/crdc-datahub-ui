@@ -82,6 +82,12 @@ type PBACDefault<T = AuthNotifications | AuthPermissions> = {
    */
   name: string;
   /**
+   * List of permissions the current PBAC object inherits.
+   *
+   * @example ["submission_request:view"]
+   */
+  inherited: T[];
+  /**
    * The sort order of the PBAC object within its group.
    */
   order: number;

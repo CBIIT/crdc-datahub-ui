@@ -1,11 +1,15 @@
 # Release Notes
 
-## 3.2.0 (Released 03/25/2025)
+## 3.3.0
+
+N/A
+
+## 3.2.0 (Released 03/28/2025)
 
 #### Submission Request Enhancements
 
 - Added Submission Request Version Support to ensure backward compatibility.
-- Released Submission Request Form 2.0 with added question and UI improvements
+- Released Submission Request Form 3.0 with added question and UI improvements
 - Provided filtering capability on the Submission Request List Page.
 - Users can now cancel and restore Submission Requests.
 - Added support for conditionally approved studies.
@@ -28,7 +32,7 @@
 - Added support for Study-level Primary Contact assignments.
 - New email notification sent when a Data Submission is deleted.
 
-#### Data Model Enhancements
+#### Data Model Navigator Enhancements
 
 - Model Navigator now displays older model versions for reference.
 - Model version history is now accessible within the Model Navigator.

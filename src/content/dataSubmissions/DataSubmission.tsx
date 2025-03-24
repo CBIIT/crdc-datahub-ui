@@ -282,7 +282,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
             <StyledFlowContainer>
               <UserGuide />
               <MetadataUpload
-                submission={data?.getSubmission}
                 readOnly={submissionLockedStatuses.includes(data?.getSubmission?.status)}
                 onCreateBatch={handleBatchRefresh}
                 onUpload={handleOnUpload}

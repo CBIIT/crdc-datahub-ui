@@ -154,6 +154,12 @@ export type {
   Response as EditSubmissionCollaboratorsResp,
 } from "./editSubmissionCollaborators";
 
+export { mutation as UPDATE_MODEL_VERSION } from "./updateSubmissionModelVersion";
+export type {
+  Input as UpdateModelVersionInput,
+  Response as UpdateModelVersionResp,
+} from "./updateSubmissionModelVersion";
+
 // User Profile
 export { query as GET_MY_USER } from "./getMyUser";
 export type { Response as GetMyUserResp } from "./getMyUser";

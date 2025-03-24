@@ -1,6 +1,5 @@
 import React, { ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
-import { useParams } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import { isEqual } from "lodash";
 import { VariantType } from "notistack";
@@ -14,11 +13,13 @@ import {
   UpdateBatchResp,
 } from "../../graphql";
 import { useAuthContext } from "../Contexts/AuthContext";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import FlowWrapper from "./FlowWrapper";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import NavigatorLink from "./NavigatorLink";
+import ModelSelection from "../ModelSelection";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -107,9 +108,17 @@ const StyledModelVersionText = styled(Typography)({
 });
 
 type Props = {
-  submission: Submission;
+  /**
+   * Explicitly force the component to be read-only
+   */
   readOnly?: boolean;
+  /**
+   * Callback function to be called when a new batch is created
+   */
   onCreateBatch: () => void;
+  /**
+   * Callback function to be called when the file upload is completed
+   */
   onUpload: (message: string, severity: VariantType) => void;
 };
 
@@ -119,14 +128,16 @@ type Props = {
  * @param {Props} props
  * @returns {React.FC<Props>}
  */
-const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props) => {
-  const { submissionId } = useParams();
+const MetadataUpload = ({ readOnly, onCreateBatch, onUpload }: Props) => {
+  const { data } = useSubmissionContext();
   const { user } = useAuthContext();
+
+  const { getSubmission } = data || {};
 
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
-  const canUpload = hasPermission(user, "data_submission", "create", submission);
+  const canUpload = hasPermission(user, "data_submission", "create", getSubmission);
   const acceptedExtensions = [".tsv", ".txt"];
 
   const [createBatch] = useMutation<CreateBatchResp, CreateBatchInput>(CREATE_BATCH, {
@@ -203,7 +214,7 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
     try {
       const { data: batch, errors } = await createBatch({
         variables: {
-          submissionID: submissionId,
+          submissionID: getSubmission?._id,
           type: "metadata",
           files: Array.from(selectedFiles)?.map((file) => file.name),
         },
@@ -334,14 +345,15 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
           open={undefined}
           disableHoverListener={false}
         />
-        {submission?.dataCommons && submission?.modelVersion && (
+        {getSubmission?.dataCommons && getSubmission?.modelVersion && (
           <StyledModelVersionText data-testid="metadata-upload-model-version">
-            {submission.dataCommons} Data Model: <NavigatorLink submission={submission} />
+            {getSubmission.dataCommons} Data Model: <NavigatorLink submission={getSubmission} />
           </StyledModelVersionText>
         )}
+        <ModelSelection />
       </Stack>
     ),
-    [submission?.dataCommons, submission?.modelVersion]
+    [getSubmission]
   );
 
   return (
