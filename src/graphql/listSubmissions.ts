@@ -45,6 +45,9 @@ export const query: TypedDocumentNode<Response, Input> = gql`
         createdAt
         updatedAt
         intention
+        dataFileSize {
+          formatted
+        }
       }
       organizations {
         _id
@@ -52,7 +55,6 @@ export const query: TypedDocumentNode<Response, Input> = gql`
       }
       submitterNames
       dataCommons
-      dataFileSize
     }
   }
 `;
@@ -73,7 +75,7 @@ export type Input = {
 export type Response = {
   listSubmissions: {
     total: number;
-    submissions: Pick<
+    submissions: (Pick<
       Submission,
       | "_id"
       | "name"
@@ -90,8 +92,7 @@ export type Response = {
       | "createdAt"
       | "updatedAt"
       | "intention"
-      | "dataFileSize"
-    >[];
+    > & { dataFileSize: Pick<Submission["dataFileSize"], "formatted"> })[];
     organizations: Pick<Organization, "_id" | "name">[];
     submitterNames: string[];
     dataCommons: string[];
