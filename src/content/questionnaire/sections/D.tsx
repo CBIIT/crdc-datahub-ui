@@ -315,15 +315,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           switchSx={{ marginRight: "0px" }}
         />
         <SwitchInput
-          id="section-d-proteomics"
-          label="Proteomics"
-          graphQLValue="proteomics"
-          name="dataTypes[]"
-          value={dataTypes.includes("proteomics")}
-          tooltipText="Data from the study of the large scale expression and use of proteins."
-          readOnly={readOnlyInputs}
-        />
-        <SwitchInput
           id="section-d-imaging"
           label="Imaging"
           name="dataTypes[]"
@@ -344,6 +335,15 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
             />
           }
           tooltipText="Medical and experimental images from disciplines such as radiology, pathology, and microscopy."
+          readOnly={readOnlyInputs}
+        />
+        <SwitchInput
+          id="section-d-proteomics"
+          label="Proteomics"
+          graphQLValue="proteomics"
+          name="dataTypes[]"
+          value={dataTypes.includes("proteomics")}
+          tooltipText="Data from the study of the large scale expression and use of proteins."
           readOnly={readOnlyInputs}
           sx={{ paddingBottom: "8px" }}
           switchSx={{ marginRight: "0px" }}
