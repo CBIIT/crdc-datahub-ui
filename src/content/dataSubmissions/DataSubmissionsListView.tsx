@@ -183,10 +183,14 @@ const columns: Column<T>[] = [
   },
   {
     label: "Data File Size",
-    renderValue: (a) => a.dataFileSize || 0,
+    renderValue: (a) => a.dataFileSize.formatted || 0,
     hideable: true,
     defaultHidden: true,
     field: "dataFileSize",
+    sx: {
+      minWidth: "90px",
+      width: "90px",
+    },
   },
   {
     label: "Created Date",
