@@ -42,6 +42,7 @@ const BaseSubmission: Omit<
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
+  dataFileSize: null,
 };
 
 type TestParentProps = {

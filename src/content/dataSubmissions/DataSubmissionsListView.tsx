@@ -175,12 +175,22 @@ const columns: Column<T>[] = [
     field: "conciergeName",
     hideable: true,
   },
-
   {
     label: "Record Count",
     renderValue: (a) =>
       Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(a.nodeCount || 0),
     field: "nodeCount",
+  },
+  {
+    label: "Data File Size",
+    renderValue: (a) => a.dataFileSize.formatted || 0,
+    hideable: true,
+    defaultHidden: true,
+    field: "dataFileSize",
+    sx: {
+      minWidth: "90px",
+      width: "90px",
+    },
   },
   {
     label: "Created Date",

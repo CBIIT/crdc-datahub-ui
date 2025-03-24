@@ -44,6 +44,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
+  dataFileSize: null,
 };
 
 type ParentProps = {
