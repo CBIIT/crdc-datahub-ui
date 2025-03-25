@@ -30,6 +30,11 @@ const GridStyled = styled(Grid, { shouldForwardProp: (p) => p !== "switchSx" })<
         border: "1.25px solid #6A6A6A",
       },
     },
+    "&.focusVisible, &:focus, &:active": {
+      "& + .track": {
+        border: "1.25px solid #6A6A6A !important",
+      },
+    },
   },
   "& .thumb": {
     color: "#08A0B4",
@@ -68,6 +73,9 @@ const GridStyled = styled(Grid, { shouldForwardProp: (p) => p !== "switchSx" })<
   },
   "& .Mui-checked+.MuiSwitch-track.track::before": {
     opacity: 1,
+  },
+  "& .readOnly .Mui-checked+.MuiSwitch-track.track::before": {
+    opacity: 0.5,
   },
   "& .readOnly .MuiSwitch-track": {
     backgroundColor: "#E5EEF4 !important",
