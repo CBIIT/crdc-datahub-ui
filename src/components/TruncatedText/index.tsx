@@ -11,7 +11,7 @@ const StyledText = styled("span")(() => ({
 }));
 
 const StyledTextWrapper = styled("span", {
-  shouldForwardProp: (p) => p !== "truncated" && p !== "underline",
+  shouldForwardProp: (p) => p !== "truncated" && p !== "underline" && p !== "sx",
 })<{ truncated: boolean; underline: boolean }>(({ truncated, underline }) => ({
   display: "block",
   textDecoration: truncated && underline ? "underline" : "none",
@@ -76,8 +76,8 @@ const TruncatedText: FC<Props> = ({
   underline = true,
   ellipsis = true,
   disableInteractiveTooltip = true,
-  wrapperSx,
-  labelSx,
+  wrapperSx = {},
+  labelSx = {},
 }: Props) => {
   const isTruncated = text?.length > maxCharacters;
   const displayText = isTruncated
