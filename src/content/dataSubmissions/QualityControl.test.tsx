@@ -61,6 +61,7 @@ const baseSubmission: Submission = {
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
+  dataFileSize: null,
 };
 
 const baseQCResult: QCResult = {

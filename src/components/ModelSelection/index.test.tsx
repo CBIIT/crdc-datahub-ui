@@ -61,6 +61,7 @@ const baseSubmission: Omit<Submission, "status"> = {
   collaborators: [],
   metadataValidationStatus: "New",
   fileValidationStatus: "New",
+  dataFileSize: null,
 };
 
 const baseUser: Omit<User, "role" | "permissions" | "dataCommons"> = {

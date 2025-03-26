@@ -1,7 +1,10 @@
 import { useMemo } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 
-type Column<C> = C & { hideable?: boolean };
+type Column<C> = C & {
+  hideable?: boolean;
+  defaultHidden?: boolean;
+};
 
 type UseColumnVisibilityParams<C> = {
   columns: Column<C>[];
@@ -31,7 +34,7 @@ export const useColumnVisibility = <C>({
     () =>
       columns.reduce<ColumnVisibilityModel>((model, column) => {
         const key = getColumnKey(column);
-        model[key] = true; // All columns are visible by default
+        model[key] = !column.defaultHidden;
         return model;
       }, {}),
     [columns, getColumnKey]
@@ -48,7 +51,7 @@ export const useColumnVisibility = <C>({
     columns.reduce<ColumnVisibilityModel>((adjustedModel, column) => {
       const key = getColumnKey(column);
       const isHideable = column.hideable !== false;
-      adjustedModel[key] = isHideable ? model[key] ?? true : true;
+      adjustedModel[key] = isHideable ? model[key] ?? !column.defaultHidden : true;
       return adjustedModel;
     }, {});
 

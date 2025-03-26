@@ -127,6 +127,7 @@ const baseSubmission: Omit<Submission, "status"> = {
   collaborators: [],
   metadataValidationStatus: "New",
   fileValidationStatus: "New",
+  dataFileSize: null,
 };
 
 const baseContext: AuthCtxState = {
