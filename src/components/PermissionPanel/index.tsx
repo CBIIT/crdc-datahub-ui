@@ -15,7 +15,7 @@ import {
 import { FC, memo, useEffect, useMemo, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { useSnackbar } from "notistack";
-import { cloneDeep, flatMap, uniq } from "lodash";
+import { cloneDeep, flatMap, isEqual, uniq } from "lodash";
 import {
   EditUserInput,
   RetrievePBACDefaultsResp,
@@ -94,12 +94,21 @@ const StyledNotice = styled(Typography)({
   userSelect: "none",
 });
 
+export type PermissionPanelProps = {
+  /**
+   * A flag indicating whether the panel is explicitly read-only.
+   *
+   * Defaults to false.
+   */
+  readOnly?: boolean;
+};
+
 /**
  * Provides a panel for managing permissions and notifications for a user role.
  *
  * @returns The PermissionPanel component.
  */
-const PermissionPanel: FC = () => {
+const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { setValue, watch } = useFormContext<EditUserInput>();
 
@@ -138,6 +147,7 @@ const PermissionPanel: FC = () => {
 
     const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedPermissions.map((p) => ({
       ...p,
+      // TODO: inherited permissions should be checked at the permissionsValue level
       checked: permissionsValue.includes(p._id) || inheritedPermissions.includes(p._id),
       disabled: p.disabled || inheritedPermissions.includes(p._id),
     }));
@@ -165,6 +175,7 @@ const PermissionPanel: FC = () => {
     const remappedNotifications: PBACDefault<AuthNotifications>[] = clonedNotifications.map(
       (n) => ({
         ...n,
+        // TODO: inherited notifications should be checked at the notificationsValue level
         checked: notificationsValue.includes(n._id) || inheritedNotifications.includes(n._id),
         disabled: n.disabled || inheritedNotifications.includes(n._id),
       })
@@ -214,7 +225,9 @@ const PermissionPanel: FC = () => {
     <StyledBox>
       <StyledAccordion elevation={0} data-testid="permissions-accordion">
         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <StyledAccordionHeader component="span">Permissions</StyledAccordionHeader>
+          <StyledAccordionHeader component="span">
+            Permissions <span data-testid="permissions-count">({permissionsValue?.length})</span>
+          </StyledAccordionHeader>
         </StyledAccordionSummary>
         <AccordionDetails>
           <Grid2 container spacing={2}>
@@ -230,8 +243,9 @@ const PermissionPanel: FC = () => {
                           key={_id}
                           label={name}
                           onChange={() => handlePermissionChange(_id)}
-                          control={<Checkbox name={_id} checked={checked} disabled={disabled} />}
+                          control={<Checkbox name={_id} checked={checked} />}
                           data-testid={`permission-${_id}`}
+                          disabled={readOnly || disabled}
                         />
                       ))}
                     </FormGroup>
@@ -249,7 +263,10 @@ const PermissionPanel: FC = () => {
       </StyledAccordion>
       <StyledAccordion elevation={0} data-testid="notifications-accordion">
         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <StyledAccordionHeader component="span">Email Notifications</StyledAccordionHeader>
+          <StyledAccordionHeader component="span">
+            Email Notifications{" "}
+            <span data-testid="notifications-count">({notificationsValue?.length})</span>
+          </StyledAccordionHeader>
         </StyledAccordionSummary>
         <AccordionDetails>
           <Grid2 container spacing={2}>
@@ -265,8 +282,9 @@ const PermissionPanel: FC = () => {
                           key={_id}
                           label={name}
                           onChange={() => handleNotificationChange(_id)}
-                          control={<Checkbox name={_id} checked={checked} disabled={disabled} />}
+                          control={<Checkbox name={_id} checked={checked} />}
                           data-testid={`notification-${_id}`}
+                          disabled={readOnly || disabled}
                         />
                       ))}
                     </FormGroup>
@@ -286,4 +304,4 @@ const PermissionPanel: FC = () => {
   );
 };
 
-export default memo(PermissionPanel);
+export default memo<PermissionPanelProps>(PermissionPanel, isEqual);
