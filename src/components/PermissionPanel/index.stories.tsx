@@ -133,6 +133,15 @@ const mockWithData: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefault
               disabled: false,
             },
             {
+              _id: "data_submission:completed",
+              group: "Data Submissions",
+              name: "Completed",
+              inherited: ["data_submission:cancelled"],
+              order: 0,
+              checked: false,
+              disabled: false,
+            },
+            {
               _id: "account:disabled",
               group: "Account",
               name: "Disabled",

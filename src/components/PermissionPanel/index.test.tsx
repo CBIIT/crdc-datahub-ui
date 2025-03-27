@@ -1251,7 +1251,10 @@ describe("Implementation Requirements", () => {
       })
     );
 
-    expect(mockSetValue).toHaveBeenCalledWith("permissions", ["submission_request:create"]);
+    expect(mockSetValue).toHaveBeenCalledWith("permissions", [
+      "submission_request:create", // Selected permission
+      "submission_request:view", // Inherited permission
+    ]);
 
     rerender(<PermissionPanel />); // Force the watch() to be called again and update the form values
 
@@ -1261,7 +1264,9 @@ describe("Implementation Requirements", () => {
       })
     );
 
-    expect(mockSetValue).toHaveBeenCalledWith("permissions", []);
+    expect(mockSetValue).toHaveBeenCalledWith("permissions", [
+      "submission_request:view", // Inherited permission not unchecked
+    ]);
 
     userEvent.click(
       within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
