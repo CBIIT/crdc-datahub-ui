@@ -4,9 +4,9 @@ import LoginController from "./Controller";
 
 jest.mock("../../env", () => ({
   ...process.env,
-  REACT_APP_NIH_AUTHORIZE_URL: "https://mock-sso-url",
-  REACT_APP_NIH_CLIENT_ID: "mock-client-id",
-  REACT_APP_NIH_REDIRECT_URL: "mock-redirect-url",
+  VITE_NIH_AUTHORIZE_URL: "https://mock-sso-url",
+  VITE_NIH_CLIENT_ID: "mock-client-id",
+  VITE_NIH_REDIRECT_URL: "mock-redirect-url",
 }));
 
 const mockUsePageTitle = jest.fn();

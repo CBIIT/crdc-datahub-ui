@@ -63,12 +63,12 @@ describe("Logger", () => {
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
-  it.each<AppEnv["REACT_APP_DEV_TIER"]>(["stage", "prod"])(
+  it.each<AppEnv["VITE_DEV_TIER"]>(["stage", "prod"])(
     "should not log on the upper tier '%s'",
     (tier) => {
       env.NODE_ENV = "development"; // Override 'test' to log the message
 
-      env.REACT_APP_DEV_TIER = tier;
+      env.VITE_DEV_TIER = tier;
 
       Logger.error("A message that should not be visible");
 

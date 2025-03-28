@@ -61,8 +61,8 @@ export const AnalyticsProvider: FC<ProviderProps> = ({
     if (GA_MEASUREMENT_ID) {
       ReactGA.initialize(GA_MEASUREMENT_ID, {
         gaOptions: {
-          DEV_TIER: env?.REACT_APP_DEV_TIER || "N/A",
-          FE_VERSION: env?.REACT_APP_FE_VERSION || "N/A",
+          DEV_TIER: env?.VITE_DEV_TIER || "N/A",
+          FE_VERSION: env?.VITE_FE_VERSION || "N/A",
         },
       });
     }

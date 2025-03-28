@@ -6,9 +6,8 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "vite build",
     "test": "TZ=UTC react-scripts test",
     "test:ci": "TZ=UTC CI=true react-scripts test --passWithNoTests --coverage --maxWorkers=2 --maxConcurrent=2 --logHeapUsage --collectCoverageFrom=src/**/*.{js,ts,jsx,tsx} --collectCoverageFrom=!src/**/*.stories.{js,ts,jsx,tsx}",
     "lint": "eslint . --ignore-path .gitignore",
@@ -49,7 +48,6 @@
     "react-markdown": "^9.0.1",
     "react-multi-carousel": "^2.8.4",
     "react-router-dom": "^6.11.2",
-    "react-scripts": "5.0.1",
     "react-transition-group": "^4.4.5",
     "recharts": "^2.12.0",
     "redux": "^4.2.1",
@@ -86,6 +84,7 @@
     "@types/redux-thunk": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^5.59.6",
     "@typescript-eslint/parser": "^5.59.6",
+    "@vitejs/plugin-react": "^4.3.4",
     "buffer": "^6.0.3",
     "chromatic": "^11.27.0",
     "eslint": "^8.40.0",
@@ -104,6 +103,9 @@
     "storybook-addon-apollo-client": "^8.1.2",
     "storybook-addon-pseudo-states": "^4.0.3",
     "typescript": "^5.4.3",
+    "vite": "^6.2.3",
+    "vite-plugin-svgr": "^4.3.0",
+    "vite-tsconfig-paths": "^5.1.4",
     "webpack": "^5.98.0"
   },
   "overrides": {

@@ -105,7 +105,11 @@ const config = {
     "import/no-extraneous-dependencies": [
       "error",
       {
-        devDependencies: ["**/*.{stories,test}.{ts,tsx}", "**/setupTests.{ts,tsx}"],
+        devDependencies: [
+          "**/*.{stories,test}.{ts,tsx}",
+          "**/setupTests.{ts,tsx}",
+          "vite.config.ts",
+        ],
         optionalDependencies: false,
       },
     ],

@@ -15,8 +15,8 @@ import { DataUpload } from "./DataUpload";
 
 jest.mock("../../env", () => ({
   ...jest.requireActual("../../env"),
-  REACT_APP_BACKEND_API: "mocked-backend-api-url",
-  REACT_APP_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+  VITE_BACKEND_API: "mocked-backend-api-url",
+  VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
 }));
 
 const mockDownloadBlob = jest.fn();

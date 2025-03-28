@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2015",
+    "target": "ESNext",
+    "module": "ESNext",
+    "types": ["vite/client", "vite-plugin-svgr/client"],
     "lib": [
       "dom",
       "dom.iterable",
@@ -14,7 +16,6 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -24,8 +25,13 @@
   "include": [
     "src",
     "conf",
+    "vite.config.ts",
+    "vite-env.d.ts",
     ".eslintrc.cjs",
     "types/*.d.ts",
     "public",
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
