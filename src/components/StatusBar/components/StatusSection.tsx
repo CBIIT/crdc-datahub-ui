@@ -113,7 +113,8 @@ const StatusSection: FC = () => {
             onClose={() => setOpen(false)}
             status={status}
             lastReview={lastReview}
-            title="CRDC Submission Request"
+            preTitle="CRDC Submission Request"
+            title="Comments"
           />
         </>
       )}

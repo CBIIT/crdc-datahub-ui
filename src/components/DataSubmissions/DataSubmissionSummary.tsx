@@ -293,7 +293,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
       <ReviewCommentsDialog
         open={openDialog === "review comments"}
         onClose={handleCloseDialog}
-        title="Data Submission"
+        preTitle="Data Submission"
         lastReview={lastReview}
       />
       <CollaboratorsProvider>

@@ -21,7 +21,7 @@ const BaseComponent = <T, H>({ open, status, lastReview, title, onClose }: Props
         onClose={onClose}
         lastReview={lastReview}
         status={status}
-        title={title}
+        preTitle={title}
       />
     </BrowserRouter>
   </ThemeProvider>
@@ -177,5 +177,19 @@ describe("ReviewCommentsDialog Tests", () => {
     expect(rgbToHex(styles.borderColor).toUpperCase()).toBe(
       mockGetColorScheme(data.status).toUpperCase()
     );
+  });
+
+  it("should use the custom title prop for the dialog title", () => {
+    const customTitle = "Custom Title";
+    const data = {
+      open: true,
+      title: customTitle,
+      lastReview: mockLastReview,
+      onClose: () => {},
+    };
+
+    const { getByText } = render(<BaseComponent {...data} />);
+
+    expect(getByText(customTitle)).toBeInTheDocument();
   });
 });

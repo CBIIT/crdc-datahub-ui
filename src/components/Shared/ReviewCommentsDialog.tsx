@@ -129,11 +129,19 @@ type Props<T, H> = {
   open: boolean;
   status?: T;
   lastReview: HistoryBase<H>;
-  title: string;
+  preTitle: string;
+  title?: string;
   onClose?: () => void;
 };
 
-const ReviewCommentsDialog = <T, H>({ open, status, lastReview, title, onClose }: Props<T, H>) => (
+const ReviewCommentsDialog = <T, H>({
+  open,
+  status,
+  lastReview,
+  preTitle,
+  title = "Review Comments",
+  onClose,
+}: Props<T, H>) => (
   <StyledDialog
     open={open}
     onClose={() => onClose?.()}
@@ -156,13 +164,13 @@ const ReviewCommentsDialog = <T, H>({ open, status, lastReview, title, onClose }
       <CloseIconSvg />
     </StyledCloseDialogButton>
     <StyledDialogTitle>
-      <StyledPreTitle>{title}</StyledPreTitle>
+      <StyledPreTitle>{preTitle}</StyledPreTitle>
       <StyledTitle
         status={status}
         getColorScheme={getColorScheme}
         data-testid="review-comments-dialog-title"
       >
-        Review Comments
+        {title}
       </StyledTitle>
       <StyledSubTitle title={lastReview?.dateTime}>
         {`Based on submission from ${FormatDate(lastReview?.dateTime, "M/D/YYYY", "N/A")}:`}
