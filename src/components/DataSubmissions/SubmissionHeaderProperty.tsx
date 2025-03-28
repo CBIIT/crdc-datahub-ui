@@ -41,7 +41,7 @@ const SubmissionHeaderProperty = ({ label, value, truncateAfter = 16 }: Props) =
                 maxCharacters={truncateAfter}
                 underline={false}
                 ellipsis
-                wrapperStyles={{ lineHeight: "19.6px" }}
+                wrapperSx={{ lineHeight: "19.6px" }}
               />
             ) : (
               value

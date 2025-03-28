@@ -22,10 +22,6 @@ export const mutation = gql`
         applicantID
         applicantName
       }
-      organization {
-        _id
-        name
-      }
     }
   }
 `;
@@ -35,8 +31,10 @@ export type Input = {
    * The Submission Request input
    */
   application: {
+    /**
+     * The unique ID of the Application
+     */
     _id: string;
-    programName: string;
     /**
      * The Study Name of the Application
      */
@@ -67,6 +65,18 @@ export type Input = {
      * Principal Investigator's full name "<first name> <last name>"
      */
     PI: string;
+    /**
+     * The name for the application program
+     */
+    programName: string;
+    /**
+     * The abbreviation for the application program
+     */
+    programAbbreviation: string;
+    /**
+     * The description for the application program
+     */
+    programDescription: string;
   };
 };
 

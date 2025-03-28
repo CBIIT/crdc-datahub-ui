@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FC } from "react";
 import { Button, Dialog, DialogTitle, styled } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import GenericAlert from "../GenericAlert";
-
-// import env from '../../utils/env';
-
+import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
+import { Logger, secondsToMinuteString } from "../../utils";
+import CloseIcon from "../../assets/icons/close_icon.svg";
 
 const InactivityWarningDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -120,23 +119,28 @@ const SessionTimeoutContent = styled("div")({
   },
 });
 
-const secondsToMinuteString = (seconds) => new Date(seconds * 1000).toISOString().substring(14, 19);
+/**
+ * The time (in seconds) at which the timeout warning banner should be displayed.
+ */
+const timeoutThresholdSeconds = 300;
 
-const InactivityDialog = () => {
-  const authData = useAuthContext();
-  const { isLoggedIn } = authData;
-  const [warning, setWarning] = useState(false);
-  const [timedOut, setTimedOut] = useState(false);
-  const [intervalID, setIntervalID] = useState<NodeJS.Timer>(null);
+/**
+ * An inactivity dialog that handles session the TTL ping and timeout.
+ *
+ * @returns InactivityDialog component
+ */
+const InactivityDialog: FC = () => {
   const navigate = useNavigate();
-  const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
-  const thresholdTime = 300;
+  const { enqueueSnackbar } = useSnackbar();
+  const { isLoggedIn, logout } = useAuthContext();
 
-  const [timeLeft, setTimeLeft] = useState(thresholdTime);
+  const [warning, setWarning] = useState<boolean>(false);
+  const [timedOut, setTimedOut] = useState<boolean>(false);
+  const [timeLeft, setTimeLeft] = useState<number>(timeoutThresholdSeconds);
+
   const extendSession = async () => {
-    const AUTH_API = `${window.origin}/api/authn/authenticated`;
     try {
-      const res = await fetch(AUTH_API, {
+      const res = await fetch(`${window.origin}/api/authn/authenticated`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -150,7 +154,7 @@ const InactivityDialog = () => {
         setWarning(false);
       }
     } catch (e) {
-      // Add Erro handler here.
+      Logger.error("Error in extending session", e);
     }
   };
 
@@ -159,7 +163,7 @@ const InactivityDialog = () => {
   };
 
   const handleSignOutNoBanner = async () => {
-    const logoutStatus = await authData.logout();
+    const logoutStatus = await logout();
     if (logoutStatus) {
       navigate("/");
       setWarning(false);
@@ -167,51 +171,45 @@ const InactivityDialog = () => {
   };
 
   const handleSignOut = async () => {
-    const logoutStatus = await authData.logout();
+    const logoutStatus = await logout();
     if (logoutStatus) {
       navigate("/");
       setWarning(false);
-      setShowLogoutAlert(true);
-      setTimeout(() => setShowLogoutAlert(false), 10000);
+      enqueueSnackbar("You have been logged out.", { variant: "default" });
     }
   };
 
   const loadData = async () => {
     try {
-      const SESSION_TTL_API = `${window.origin}/api/authn/session-ttl`;
-
-      const res = await fetch(SESSION_TTL_API);
+      const res = await fetch(`${window.origin}/api/authn/session-ttl`);
       const data = await res.json();
       const { ttl } = data;
       if (ttl <= 0) {
         // If user did not select any option and timed out in BE.
         handleSignOutNoBanner();
         setTimedOut(true);
-      } else if (ttl > 0 && ttl <= thresholdTime) {
+      } else if (ttl > 0 && ttl <= timeoutThresholdSeconds) {
         setTimeLeft(ttl);
         setWarning(true);
       }
     } catch (e) {
-      // Add Erro handler here.
+      Logger.error("Error in fetching session ttl", e);
     }
   };
 
   useEffect(() => {
+    let ID: NodeJS.Timer;
     if (isLoggedIn) {
-      // NOTE: 1000 milliseconds = 1 second, PING_INTERVAL * 1000 = PING_INTERVAL milliseconds;
-      const ID = setInterval(loadData, 10 * 1000);
-      setIntervalID(ID);
+      ID = setInterval(loadData, 10 * 1000);
     } else {
-      clearInterval(intervalID);
+      clearInterval(ID);
     }
-    return () => clearInterval(intervalID);
+
+    return () => clearInterval(ID);
   }, [isLoggedIn]);
 
   return (
     <>
-      <GenericAlert open={showLogoutAlert}>
-        <span>You have been logged out.</span>
-      </GenericAlert>
       <InactivityWarningDialog open={warning}>
         <DialogTitle id="customized-dialog-title">Session Timeout Warning</DialogTitle>
         <InactivityWarningContent>
@@ -255,11 +253,7 @@ const InactivityDialog = () => {
               }
             }}
           >
-            <img
-              style={{ height: 10, marginBottom: 2 }}
-              src="https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/LocalFindCaseDeleteIcon.svg"
-              alt="close icon"
-            />
+            <img style={{ height: 10, marginBottom: 2 }} src={CloseIcon} alt="close icon" />
           </div>
         </DialogTitle>
         <SessionTimeoutContent>

@@ -4,6 +4,12 @@
  * Data Submission Dashboard only.
  */
 export const TOOLTIP_TEXT = {
+  FILE_UPLOAD: {
+    UPLOAD_METADATA:
+      "The metadata uploaded will be compared with existing data within the submission. All new data will be added to the submission, including updates to existing information.",
+    UPLOAD_CLI_VERSION:
+      "Please ensure your Uploader CLI tool is updated to the latest version. Download it again if needed.",
+  },
   VALIDATION_CONTROLS: {
     VALIDATION_TYPE: {
       VALIDATE_METADATA:

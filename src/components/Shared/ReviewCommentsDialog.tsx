@@ -69,8 +69,7 @@ const StyledTitle = styled("p", {
 
 const StyledDialogContent = styled(DialogContent)({
   marginBottom: "11px",
-  maxHeight: "230px",
-  overflowY: "auto",
+  minHeight: "44px",
   overflowX: "hidden",
   whiteSpace: "pre-line",
   overflowWrap: "break-word",
@@ -142,6 +141,7 @@ const ReviewCommentsDialog = <T, H>({ open, status, lastReview, title, onClose }
     status={status}
     getColorScheme={getColorScheme}
     data-testid="review-comments-dialog"
+    scroll="body"
     PaperProps={
       {
         "data-testid": "review-comments-dialog-paper",

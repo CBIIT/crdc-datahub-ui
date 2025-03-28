@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { fireEvent, render, waitFor, within } from "@testing-library/react";
+import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
@@ -13,45 +13,33 @@ import {
 import {
   CREATE_SUBMISSION,
   CreateSubmissionResp,
-  LIST_APPROVED_STUDIES_OF_MY_ORG,
-  LIST_ORGS,
-  ListApprovedStudiesOfMyOrgResp,
-  ListOrgsResp,
+  GetMyUserResp,
+  LIST_APPROVED_STUDIES,
+  ListApprovedStudiesInput,
+  ListApprovedStudiesResp,
 } from "../../graphql";
-import { OrganizationProvider } from "../Contexts/OrganizationListContext";
 
-const listApprovedStudiesOfMyOrgMocks: MockedResponse<ListApprovedStudiesOfMyOrgResp>[] = [
+const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
   {
-    request: {
-      query: LIST_APPROVED_STUDIES_OF_MY_ORG,
-    },
-    result: {
-      data: {
-        listApprovedStudiesOfMyOrganization: [
-          {
-            _id: "study1",
-            studyName: "study-name",
-            studyAbbreviation: "SN",
-            dbGaPID: "phsTEST",
-            controlledAccess: null,
-          },
-          {
-            _id: "study2",
-            studyName: "controlled-study",
-            studyAbbreviation: "CS",
-            dbGaPID: "phsTEST",
-            controlledAccess: true,
-          },
-          {
-            _id: "no-dbGaP-ID",
-            studyName: "controlled-study",
-            studyAbbreviation: "DB",
-            dbGaPID: null,
-            controlledAccess: true,
-          },
-        ],
-      },
-    },
+    _id: "study1",
+    studyName: "study-name",
+    studyAbbreviation: "SN",
+    dbGaPID: "phsTEST",
+    controlledAccess: null,
+  },
+  {
+    _id: "study2",
+    studyName: "controlled-study",
+    studyAbbreviation: "CS",
+    dbGaPID: "phsTEST",
+    controlledAccess: true,
+  },
+  {
+    _id: "no-dbGaP-ID",
+    studyName: "controlled-study",
+    studyAbbreviation: "DB",
+    dbGaPID: null,
+    controlledAccess: true,
   },
 ];
 
@@ -63,7 +51,6 @@ const createSubmissionMocks: MockedResponse<CreateSubmissionResp>[] = [
         studyID: "study1",
         dataCommons: "CDS",
         name: "Test Submission",
-        dbGaPID: "phsTEST001",
         intention: "New/Update",
         dataType: "Metadata and Data Files",
       },
@@ -80,40 +67,6 @@ const createSubmissionMocks: MockedResponse<CreateSubmissionResp>[] = [
   },
 ];
 
-const listOrgsMocks: MockedResponse<ListOrgsResp>[] = [
-  {
-    request: {
-      query: LIST_ORGS,
-    },
-    result: {
-      data: {
-        listOrganizations: [
-          {
-            _id: "some-org-1",
-            name: "org1",
-            status: "Active",
-            conciergeName: "",
-            studies: [
-              {
-                studyName: "study1",
-                studyAbbreviation: "SN",
-              },
-              {
-                studyName: "study2",
-                studyAbbreviation: "CS",
-              },
-            ],
-            createdAt: "2023-10-06T19:19:04.183Z",
-            updateAt: "2024-07-03T19:09:29.513Z",
-          },
-        ],
-      },
-    },
-  },
-];
-
-const baseMocks = [...listApprovedStudiesOfMyOrgMocks, ...createSubmissionMocks, ...listOrgsMocks];
-
 const baseUser: Omit<User, "role"> = {
   _id: "",
   firstName: "",
@@ -121,17 +74,12 @@ const baseUser: Omit<User, "role"> = {
   userStatus: "Active",
   IDP: "nih",
   email: "",
-  organization: {
-    orgID: "some-org-1",
-    orgName: "org1",
-    status: "Active",
-    createdAt: "2023-10-06T19:19:04.183Z",
-    updateAt: "2024-07-03T19:09:29.513Z",
-  },
   studies: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",
+  permissions: ["data_submission:create"],
+  notifications: [],
 };
 
 const baseAuthCtx: AuthCtxState = {
@@ -148,14 +96,12 @@ type ParentProps = {
 
 const TestParent: FC<ParentProps> = ({
   authCtxState = baseAuthCtx,
-  mocks = baseMocks,
+  mocks = [...createSubmissionMocks],
   children,
 }) => (
   <AuthCtx.Provider value={authCtxState}>
     <MockedProvider mocks={mocks} addTypename={false}>
-      <OrganizationProvider preload>
-        <MemoryRouter>{children}</MemoryRouter>
-      </OrganizationProvider>
+      <MemoryRouter>{children}</MemoryRouter>
     </MockedProvider>
   </AuthCtx.Provider>
 );
@@ -189,7 +135,6 @@ describe("Basic Functionality", () => {
       ).toBeInTheDocument();
       expect(getByText("Submission Type")).toBeInTheDocument();
       expect(getByText("Data Type")).toBeInTheDocument();
-      expect(getByText("Organization")).toBeInTheDocument();
       expect(getByText("Data Commons")).toBeInTheDocument();
       expect(getByText("Study")).toBeInTheDocument();
       expect(getByText("dbGaP ID")).toBeInTheDocument();
@@ -199,7 +144,12 @@ describe("Basic Functionality", () => {
 
   it("submits the form successfully", async () => {
     const { getByTestId, getByRole, getByText } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+        }}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -232,161 +182,6 @@ describe("Basic Functionality", () => {
 
     expect(studySelectButton).toHaveTextContent("SN");
 
-    // Simulate typing into dbGaPID input
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "001");
-
-    await waitFor(() => {
-      expect(dbGaPIDInput).toHaveValue("phsTEST001");
-    });
-
-    // Simulate typing into Submission Name input
-    const submissionNameWrapper = getByTestId(
-      "create-data-submission-dialog-submission-name-input"
-    );
-    const submissionNameInput = within(submissionNameWrapper).getByRole("textbox");
-    userEvent.type(submissionNameInput, "Test Submission");
-
-    await waitFor(() => {
-      expect(submissionNameInput).toHaveValue("Test Submission");
-    });
-
-    // Simulate creating the new data submission and closing the dialog
-    const createButton = getByRole("button", { name: "Create" });
-    expect(createButton).toBeInTheDocument();
-    userEvent.click(createButton);
-
-    await waitFor(() => {
-      expect(handleCreate).toHaveBeenCalledTimes(1);
-      expect(createButton).not.toBeInTheDocument();
-    });
-
-    expect(handleCreate).toHaveBeenCalledWith({
-      studyID: "study1",
-      dataCommons: "CDS",
-      name: "Test Submission",
-      dbGaPID: "phsTEST001",
-      intention: "New/Update",
-      dataType: "Metadata and Data Files",
-    });
-  });
-
-  it("should disable open dialog button and show tooltip if user has 'Inactive' org", async () => {
-    const { getByTestId, getByRole } = render(
-      <TestParent
-        authCtxState={{
-          ...baseAuthCtx,
-          user: {
-            ...baseUser,
-            role: "Submitter",
-            organization: { ...baseUser.organization, status: "Inactive" },
-          },
-        }}
-      >
-        <CreateDataSubmissionDialog onCreate={handleCreate} />
-      </TestParent>
-    );
-
-    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
-    expect(openDialogButton).toBeDisabled();
-
-    userEvent.click(openDialogButton);
-
-    await waitFor(() => {
-      expect(() => getByTestId("create-submission-dialog")).toThrow();
-    });
-
-    fireEvent.mouseOver(openDialogButton);
-
-    await waitFor(() => {
-      const tooltip = getByRole("tooltip");
-      expect(tooltip).toBeInTheDocument();
-      expect(tooltip).toHaveTextContent(
-        "Your associated organization is inactive. You cannot create a data submission at this time."
-      );
-    });
-  });
-
-  it("should not disable open dialog button or show tooltip if user has 'Active' org", async () => {
-    const { getByTestId, getByRole } = render(
-      <TestParent
-        authCtxState={{
-          ...baseAuthCtx,
-          user: {
-            ...baseUser,
-            role: "Submitter",
-            organization: { ...baseUser.organization, status: "Active" },
-          },
-        }}
-      >
-        <CreateDataSubmissionDialog onCreate={handleCreate} />
-      </TestParent>
-    );
-
-    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
-
-    await waitFor(() => expect(openDialogButton).toBeEnabled());
-
-    fireEvent.mouseOver(openDialogButton);
-
-    await waitFor(() => {
-      expect(() => getByRole("tooltip")).toThrow();
-    });
-
-    userEvent.click(openDialogButton);
-
-    await waitFor(() => {
-      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
-    });
-  });
-
-  it("handles form submission without onCreate defined", async () => {
-    const { getByTestId, getByRole, getByText } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <CreateDataSubmissionDialog onCreate={undefined} />
-      </TestParent>
-    );
-    // Simulate opening dialog
-    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
-
-    await waitFor(() => expect(openDialogButton).toBeEnabled());
-
-    userEvent.click(openDialogButton);
-
-    await waitFor(() => {
-      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
-      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
-      expect(studySelectInput).toBeInTheDocument();
-    });
-
-    // Simulate selecting study from dropdown
-    const studySelectButton = within(
-      getByTestId("create-data-submission-dialog-study-id-input")
-    ).getByRole("button");
-    expect(studySelectButton).toBeInTheDocument();
-
-    userEvent.click(studySelectButton);
-
-    await waitFor(() => {
-      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
-    });
-    userEvent.click(getByText("SN"));
-
-    expect(studySelectButton).toHaveTextContent("SN");
-
-    // Simulate typing into dbGaPID input
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "001");
-
-    await waitFor(() => {
-      expect(dbGaPIDInput).toHaveValue("phsTEST001");
-    });
-
     // Simulate typing into Submission Name input
     const submissionNameWrapper = getByTestId(
       "create-data-submission-dialog-submission-name-input"
@@ -406,11 +201,18 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(createButton).not.toBeInTheDocument();
     });
+
+    expect(handleCreate).toHaveBeenCalledTimes(1);
   });
 
-  it("should make dbGaP ID required if study is controlled access", async () => {
+  it("should only show the dbGaP ID if study is controlled access", async () => {
     const { getByText, getByRole, getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+        }}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -444,8 +246,7 @@ describe("Basic Functionality", () => {
     // Non-Controlled study selected
     expect(studySelectButton).toHaveTextContent("SN");
 
-    const dbGaPIDLabel = getByTestId("dbGaP-id-label");
-    expect(dbGaPIDLabel.textContent).toBe("dbGaP ID");
+    expect(getByTestId("dbGaP-id-label")).not.toBeVisible();
 
     userEvent.click(studySelectButton);
 
@@ -457,12 +258,17 @@ describe("Basic Functionality", () => {
     // Controlled study selected
     expect(studySelectButton).toHaveTextContent("CS");
 
-    expect(dbGaPIDLabel.textContent).toBe("dbGaP ID*");
+    expect(getByTestId("dbGaP-id-label")).toBeVisible();
   });
 
   it("sets dbGaPID to an empty string and isDbGapRequired to false when studyID is not found", async () => {
     const { getByText, getByRole, getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+        }}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -505,8 +311,6 @@ describe("Basic Functionality", () => {
 
   it("should show an error message when submission could not be created (network)", async () => {
     const mocks: MockedResponse[] = [
-      ...listApprovedStudiesOfMyOrgMocks,
-      ...listOrgsMocks,
       {
         request: {
           query: CREATE_SUBMISSION,
@@ -514,7 +318,6 @@ describe("Basic Functionality", () => {
             studyID: "study1",
             dataCommons: "CDS",
             name: "Test Submission",
-            dbGaPID: "phsTEST001",
             intention: "New/Update",
             dataType: "Metadata and Data Files",
           },
@@ -526,7 +329,10 @@ describe("Basic Functionality", () => {
     const { getByText, getByRole, getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtxState={{
+          ...baseAuthCtx,
+          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+        }}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
@@ -559,15 +365,6 @@ describe("Basic Functionality", () => {
     userEvent.click(getByText("SN"));
 
     expect(studySelectButton).toHaveTextContent("SN");
-
-    // Simulate typing into dbGaPID input
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "001");
-
-    await waitFor(() => {
-      expect(dbGaPIDInput).toHaveValue("phsTEST001");
-    });
 
     // Simulate typing into Submission Name input
     const submissionNameWrapper = getByTestId(
@@ -594,8 +391,6 @@ describe("Basic Functionality", () => {
 
   it("should show an error message when submission could not be created (GraphQL)", async () => {
     const mocks: MockedResponse[] = [
-      ...listApprovedStudiesOfMyOrgMocks,
-      ...listOrgsMocks,
       {
         request: {
           query: CREATE_SUBMISSION,
@@ -603,7 +398,6 @@ describe("Basic Functionality", () => {
             studyID: "study1",
             dataCommons: "CDS",
             name: "Test Submission",
-            dbGaPID: "phsTEST001",
             intention: "New/Update",
             dataType: "Metadata and Data Files",
           },
@@ -617,7 +411,10 @@ describe("Basic Functionality", () => {
     const { getByText, getByRole, getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtxState={{
+          ...baseAuthCtx,
+          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+        }}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
@@ -651,15 +448,6 @@ describe("Basic Functionality", () => {
 
     expect(studySelectButton).toHaveTextContent("SN");
 
-    // Simulate typing into dbGaPID input
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "001");
-
-    await waitFor(() => {
-      expect(dbGaPIDInput).toHaveValue("phsTEST001");
-    });
-
     // Simulate typing into Submission Name input
     const submissionNameWrapper = getByTestId(
       "create-data-submission-dialog-submission-name-input"
@@ -685,7 +473,12 @@ describe("Basic Functionality", () => {
 
   it("should show message field is required but input is empty", async () => {
     const { getByText, getByRole, getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+        }}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -814,32 +607,6 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it("sets dbGaPID to an empty string when not provided", async () => {
-    const { getByTestId, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
-        <CreateDataSubmissionDialog onCreate={handleCreate} />
-      </TestParent>
-    );
-    // Simulate opening dialog
-    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
-
-    await waitFor(() => expect(openDialogButton).toBeEnabled());
-
-    userEvent.click(openDialogButton);
-
-    await waitFor(() => {
-      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
-      const studySelectInput = getByTestId("create-data-submission-dialog-study-id-input");
-      expect(studySelectInput).toBeInTheDocument();
-    });
-
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-
-    expect(dbGaPIDInput).toHaveValue("");
-  });
-
   it("sets name to an empty string when not provided", async () => {
     const { getByTestId, getByRole } = render(
       <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
@@ -903,8 +670,10 @@ describe("Basic Functionality", () => {
       {
         wrapper: (p) => (
           <TestParent
-            mocks={baseMocks}
-            authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+            authCtxState={{
+              ...baseAuthCtx,
+              user: { ...baseUser, role: "Submitter", studies: baseStudies },
+            }}
             {...p}
           />
         ),
@@ -939,10 +708,6 @@ describe("Basic Functionality", () => {
     userEvent.click(getByText("SN"));
 
     expect(studySelectButton).toHaveTextContent("SN");
-
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "001");
 
     const submissionNameWrapper = getByTestId(
       "create-data-submission-dialog-submission-name-input"
@@ -956,64 +721,380 @@ describe("Basic Functionality", () => {
       expect(getByText("This field contains invalid characters")).toBeInTheDocument();
     });
   });
+});
 
-  it("should show an error if the dbGaP ID contains emojis", async () => {
-    const { getByTestId, getByRole, getByText } = render(
-      <CreateDataSubmissionDialog onCreate={handleCreate} />,
+describe("Implementation Requirements", () => {
+  it("should disable the Create button if dbGaP ID is required and not added to the study", async () => {
+    const ApprovedStudyNoDbGaPID: GetMyUserResp["getMyUser"]["studies"] = [
+      {
+        _id: "controlled",
+        studyName: "controlled-study",
+        studyAbbreviation: "CS",
+        dbGaPID: null,
+        controlledAccess: true,
+      },
+    ];
+
+    const { getByRole, getByTestId, getByText } = render(
+      <CreateDataSubmissionDialog onCreate={jest.fn()} />,
       {
         wrapper: (p) => (
           <TestParent
-            mocks={baseMocks}
-            authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+            mocks={[]}
+            authCtxState={{
+              ...baseAuthCtx,
+              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+            }}
             {...p}
           />
         ),
       }
     );
 
+    // Simulate opening dialog
     const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
-    expect(openDialogButton).toBeInTheDocument();
 
     await waitFor(() => expect(openDialogButton).toBeEnabled());
 
     userEvent.click(openDialogButton);
 
     await waitFor(() => {
-      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(getByTestId("create-data-submission-dialog-study-id-input")).toBeEnabled();
+      expect(getByTestId("create-data-submission-dialog-study-id-input")).toBeInTheDocument();
     });
 
     const studySelectButton = within(
       getByTestId("create-data-submission-dialog-study-id-input")
     ).getByRole("button");
-    expect(studySelectButton).toBeInTheDocument();
 
     userEvent.click(studySelectButton);
 
     await waitFor(() => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
-    userEvent.click(getByText("SN"));
 
-    expect(studySelectButton).toHaveTextContent("SN");
-
-    const dbGaPIDWrapper = getByTestId("create-data-submission-dialog-dbgap-id-input");
-    const dbGaPIDInput = within(dbGaPIDWrapper).getByRole("textbox");
-    userEvent.type(dbGaPIDInput, "🚧");
-
-    const submissionNameWrapper = getByTestId(
-      "create-data-submission-dialog-submission-name-input"
-    );
-    const submissionNameInput = within(submissionNameWrapper).getByRole("textbox");
-    userEvent.type(submissionNameInput, "this is a valid name");
-
-    userEvent.click(getByText("Create"));
+    userEvent.click(getByText("CS"));
 
     await waitFor(() => {
-      expect(getByText("This field contains invalid characters")).toBeInTheDocument();
+      expect(getByTestId("create-data-submission-dialog-create-button")).toBeDisabled();
+    });
+  });
+
+  it("should show an alert icon next to dbGaPID if it is required and not added to the study", async () => {
+    const ApprovedStudyNoDbGaPID: GetMyUserResp["getMyUser"]["studies"] = [
+      {
+        _id: "controlled",
+        studyName: "controlled-study",
+        studyAbbreviation: "CS",
+        dbGaPID: null,
+        controlledAccess: true,
+      },
+    ];
+
+    const { getByRole, getByTestId, getByText } = render(
+      <CreateDataSubmissionDialog onCreate={jest.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            mocks={[]}
+            authCtxState={{
+              ...baseAuthCtx,
+              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+            }}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-data-submission-dialog-study-id-input")).toBeInTheDocument();
+    });
+
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
+    });
+
+    userEvent.click(getByText("CS"));
+
+    await waitFor(() => {
+      expect(getByTestId("pending-conditions-icon")).toBeInTheDocument();
+    });
+
+    userEvent.hover(getByTestId("pending-conditions-icon"));
+
+    await waitFor(() => {
+      expect(getByRole("tooltip")).toBeInTheDocument();
+    });
+
+    expect(getByRole("tooltip")).toHaveTextContent(
+      "Please contact NCICRDC@mail.nih.gov to submit your dbGaP ID once you have registered your study on dbGap.",
+      { normalizeWhitespace: true }
+    );
+  });
+
+  it("should hide the dbGaPID field if controlledAccess is false", async () => {
+    const ApprovedStudyNoDbGaPID: GetMyUserResp["getMyUser"]["studies"] = [
+      {
+        _id: "controlled",
+        studyName: "controlled-study",
+        studyAbbreviation: "CS",
+        dbGaPID: "phsTEST",
+        controlledAccess: true,
+      },
+      {
+        _id: "non-controlled",
+        studyName: "non-controlled-study",
+        studyAbbreviation: "NCS",
+        dbGaPID: null,
+        controlledAccess: false,
+      },
+    ];
+
+    const { getByRole, getByTestId, getByText } = render(
+      <CreateDataSubmissionDialog onCreate={jest.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            mocks={[]}
+            authCtxState={{
+              ...baseAuthCtx,
+              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+            }}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-data-submission-dialog-study-id-input")).toBeInTheDocument();
+    });
+
+    // --- CONTROLLED STUDY ---
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
+    });
+
+    userEvent.click(getByText("CS"));
+    await waitFor(() => {
+      expect(getByTestId("create-data-submission-dialog-dbgap-id-input")).toBeVisible();
+    });
+
+    // --- NON-CONTROLLED STUDY ---
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
+    });
+
+    userEvent.click(getByText("NCS"));
+
+    await waitFor(() => {
+      expect(getByTestId("create-data-submission-dialog-dbgap-id-input")).not.toBeVisible();
+    });
+  });
+
+  it("should have a tooltip for the dbGaPID field explaining why it is required", async () => {
+    const ApprovedStudyNoDbGaPID: GetMyUserResp["getMyUser"]["studies"] = [
+      {
+        _id: "controlled",
+        studyName: "controlled-study",
+        studyAbbreviation: "CS",
+        dbGaPID: null,
+        controlledAccess: true,
+      },
+    ];
+
+    const { getByRole, getByTestId, getByText } = render(
+      <CreateDataSubmissionDialog onCreate={jest.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            mocks={[]}
+            authCtxState={{
+              ...baseAuthCtx,
+              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+            }}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Simulate opening dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-data-submission-dialog-study-id-input")).toBeInTheDocument();
+    });
+
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
+    });
+
+    userEvent.click(getByText("CS"));
+
+    userEvent.hover(getByTestId("create-data-submission-dialog-dbgap-id-input"));
+
+    await waitFor(() => {
+      expect(getByRole("tooltip")).toBeInTheDocument();
+    });
+
+    expect(getByRole("tooltip")).toHaveTextContent(
+      "dbGapID is required for controlled-access studies.",
+      { normalizeWhitespace: true }
+    );
+  });
+
+  // NOTE: We're just random-testing against the opposite of the RequiresStudiesAssigned variable
+  it.each<UserRole>(["Data Commons Personnel"])(
+    "should fetch all of the studies if the user's role is %s",
+    async (role) => {
+      const mockMatcher = jest.fn().mockImplementation(() => true);
+      const listApprovedStudiesMock: MockedResponse<
+        ListApprovedStudiesResp,
+        ListApprovedStudiesInput
+      > = {
+        request: {
+          query: LIST_APPROVED_STUDIES,
+        },
+        variableMatcher: mockMatcher,
+        result: {
+          data: {
+            listApprovedStudies: {
+              total: 1,
+              studies: [
+                {
+                  _id: "study1",
+                  studyName: "study-1-from-api",
+                  studyAbbreviation: "study-1-from-api-abbr",
+                  dbGaPID: "",
+                  controlledAccess: false,
+                },
+                {
+                  _id: "study2",
+                  studyName: "study-2-from-api",
+                  studyAbbreviation: "study-2-from-api-abbr",
+                  dbGaPID: "",
+                  controlledAccess: false,
+                },
+              ] as ApprovedStudy[],
+            },
+          },
+        },
+      };
+
+      const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+        wrapper: (p) => (
+          <TestParent
+            mocks={[listApprovedStudiesMock]}
+            authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+            {...p}
+          />
+        ),
+      });
+
+      userEvent.click(getByRole("button", { name: "Create a Data Submission" }));
+
+      await waitFor(() => {
+        expect(mockMatcher).toHaveBeenCalledTimes(1); // Ensure the listApprovedStudies query was called
+      });
+    }
+  );
+
+  it("should fetch all of the studies if the user's assigned studies contains the 'All' study", async () => {
+    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const listApprovedStudiesMock: MockedResponse<
+      ListApprovedStudiesResp,
+      ListApprovedStudiesInput
+    > = {
+      request: {
+        query: LIST_APPROVED_STUDIES,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          listApprovedStudies: {
+            total: 1,
+            studies: [
+              {
+                _id: "study1",
+                studyName: "study-1-from-api",
+                studyAbbreviation: "study-1-from-api-abbr",
+                dbGaPID: "",
+                controlledAccess: false,
+              },
+            ] as ApprovedStudy[],
+          },
+        },
+      },
+    };
+
+    const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+      wrapper: (p) => (
+        <TestParent
+          mocks={[listApprovedStudiesMock]}
+          authCtxState={{
+            ...baseAuthCtx,
+            user: {
+              ...baseUser,
+              role: "Federal Lead",
+              studies: [
+                {
+                  _id: "All", // This is the important part
+                  studyAbbreviation: "",
+                  studyName: "",
+                  dbGaPID: "",
+                  controlledAccess: false,
+                },
+              ],
+            },
+          }}
+          {...p}
+        />
+      ),
+    });
+
+    userEvent.click(getByRole("button", { name: "Create a Data Submission" }));
+
+    await waitFor(() => {
+      expect(mockMatcher).toHaveBeenCalledTimes(1); // Ensure the listApprovedStudies query was called
     });
   });
 });

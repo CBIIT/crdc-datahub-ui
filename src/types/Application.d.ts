@@ -9,15 +9,37 @@ type Application = {
   ORCID: string;
   // Applicant Details
   applicant: Applicant;
-  organization: Pick<Organization, "_id" | "name">;
   PI: string; // Principal Investigator's full name "<first name> <last name>"
   controlledAccess: boolean;
   openAccess: boolean;
   // Sort Fields
-  programName: Program["name"];
   studyAbbreviation: Study["abbreviation"];
   // FE Questionnaire Data
   questionnaireData: QuestionnaireData;
+  /**
+   * A indicator to show if the application is conditionally approved.
+   */
+  conditional: boolean;
+  /**
+   * A list of conditions that need to be met before the application can be approved.
+   */
+  pendingConditions: string[];
+  /**
+   * The name for the application program
+   */
+  programName: string;
+  /**
+   * The abbreviation for the application program
+   */
+  programAbbreviation: string;
+  /**
+   * The description for the application program
+   */
+  programDescription: string;
+  /**
+   * The current form version
+   */
+  version: string;
 };
 
 type QuestionnaireData = {
@@ -26,7 +48,7 @@ type QuestionnaireData = {
   piAsPrimaryContact: boolean;
   primaryContact: Contact; // null if piAsPrimaryContact is true
   additionalContacts: Contact[];
-  program: Program;
+  program: ProgramInput;
   study: Study;
   accessTypes: string[];
   targetedSubmissionDate: string; // YYYY-MM-DD format
@@ -58,7 +80,9 @@ type ApplicationStatus =
   | "In Review"
   | "Approved"
   | "Rejected"
-  | "Inquired";
+  | "Inquired"
+  | "Canceled"
+  | "Deleted";
 
 type Section = {
   name: string;
@@ -73,7 +97,7 @@ type TimeConstraint = {
 };
 
 type ClinicalData = {
-  dataTypes: string[]; // FE control allowed values
+  dataTypes: string[];
   otherDataTypes: string;
   futureDataTypes: boolean;
 };
@@ -97,13 +121,7 @@ type Contact = {
   institution?: string;
 };
 
-type Program = {
-  name: string;
-  abbreviation?: string;
-  description?: string;
-  notApplicable?: boolean;
-  isCustom?: boolean;
-};
+type ProgramInput = Partial<Pick<Organization, "_id" | "name" | "abbreviation" | "description">>;
 
 type Study = {
   name: string;
@@ -136,10 +154,10 @@ type PlannedPublication = {
 };
 
 type FileInfo = {
-  type: string; // FE control allowed values
+  type: string;
   extension: string;
   count: number;
-  amount: string; // xxxMB, GB etc
+  amount: string;
 };
 
 type Funding = {

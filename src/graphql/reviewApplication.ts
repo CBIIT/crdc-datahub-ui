@@ -5,25 +5,14 @@ export const mutation = gql`
     reviewApplication(_id: $id) {
       _id
       status
-      createdAt
-      updatedAt
-      history {
-        status
-        reviewComment
-        dateTime
-        userID
-      }
-      applicant {
-        applicantID
-        applicantName
-      }
     }
   }
 `;
 
+export type Input = {
+  id: string;
+};
+
 export type Response = {
-  reviewApplication: Pick<
-    Application,
-    "_id" | "status" | "createdAt" | "updatedAt" | "history" | "applicant"
-  >;
+  reviewApplication: Pick<Application, "_id" | "status">;
 };

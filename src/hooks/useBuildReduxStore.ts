@@ -4,7 +4,9 @@ import {
   ddgraph,
   moduleReducers as submission,
   versionInfo,
+  changelogInfo,
   getModelExploreData,
+  getChangelog,
 } from "data-model-navigator";
 import { useLazyQuery } from "@apollo/client";
 import { defaultTo } from "lodash";
@@ -23,11 +25,11 @@ export type ReduxStoreStatus = "waiting" | "loading" | "error" | "success";
 export type ReduxStoreResult = [
   { status: ReduxStoreStatus; store: Store },
   () => void,
-  (assets: DataCommon) => void,
+  (assets: DataCommon, modelVersion: string) => void,
 ];
 
 const makeStore = (): Store => {
-  const reducers = { ddgraph, versionInfo, submission };
+  const reducers = { ddgraph, versionInfo, submission, changelogInfo };
   const newStore = createStore(combineReducers(reducers));
 
   // @ts-ignore
@@ -70,8 +72,9 @@ const useBuildReduxStore = (): ReduxStoreResult => {
    * Injects the Data Model into the store
    *
    * @param datacommon The Data Model to inject assets from
+   * @param modelVersion The version of the Data Model to inject
    */
-  const populateStore = async (datacommon: DataCommon) => {
+  const populateStore = async (datacommon: DataCommon, modelVersion: string) => {
     if (
       !datacommon?.name ||
       !datacommon?.assets ||
@@ -84,7 +87,13 @@ const useBuildReduxStore = (): ReduxStoreResult => {
 
     setStatus("loading");
 
-    const assets = buildAssetUrls(datacommon);
+    const assets = buildAssetUrls(datacommon, modelVersion);
+
+    const changelogMD = await getChangelog(assets?.changelog)?.catch((e) => {
+      Logger.error(e);
+      return null;
+    });
+
     const response = await getModelExploreData(...assets.model_files)?.catch((e) => {
       Logger.error(e);
       return null;
@@ -155,6 +164,14 @@ const useBuildReduxStore = (): ReduxStoreResult => {
           url: assets.loading_file,
         },
         graphViewConfig,
+      },
+    });
+
+    store.dispatch({
+      type: "RECEIVE_CHANGELOG_INFO",
+      data: {
+        changelogMD,
+        changelogTabName: "Version History",
       },
     });
 

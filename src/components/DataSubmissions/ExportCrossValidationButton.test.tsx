@@ -302,12 +302,12 @@ describe("ExportCrossValidationButton cases", () => {
     const submissionID = "formatter-callback-sub-id";
 
     const qcErrors = [
-      { title: "Error 01", description: "Error 01 description" },
-      { title: "Error 02", description: "Error 02 description" },
+      { code: null, title: "Error 01", description: "Error 01 description" },
+      { code: null, title: "Error 02", description: "Error 02 description" },
     ];
     const qcWarnings = [
-      { title: "Warning 01", description: "Warning 01 description" },
-      { title: "Warning 02", description: "Warning 02 description" },
+      { code: null, title: "Warning 01", description: "Warning 01 description" },
+      { code: null, title: "Warning 02", description: "Warning 02 description" },
     ];
 
     const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {

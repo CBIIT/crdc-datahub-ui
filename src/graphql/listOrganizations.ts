@@ -5,6 +5,8 @@ export const query = gql`
     listOrganizations {
       _id
       name
+      abbreviation
+      description
       status
       conciergeName
       studies {
@@ -19,7 +21,17 @@ export const query = gql`
 
 export type Response = {
   listOrganizations: Array<
-    Pick<Organization, "_id" | "name" | "status" | "conciergeName" | "createdAt" | "updateAt"> & {
+    Pick<
+      Organization,
+      | "_id"
+      | "name"
+      | "abbreviation"
+      | "description"
+      | "status"
+      | "conciergeName"
+      | "createdAt"
+      | "updateAt"
+    > & {
       studies: Pick<Organization["studies"][number], "studyName" | "studyAbbreviation">[];
     }
   >;

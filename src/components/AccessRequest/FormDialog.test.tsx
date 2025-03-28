@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { render, waitFor, within } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
@@ -10,13 +10,73 @@ import {
   Status as AuthContextStatus,
 } from "../Contexts/AuthContext";
 import {
-  LIST_ORG_NAMES,
-  ListOrgNamesResp,
+  LIST_APPROVED_STUDIES,
+  ListApprovedStudiesInput,
+  ListApprovedStudiesResp,
   REQUEST_ACCESS,
   RequestAccessInput,
   RequestAccessResp,
 } from "../../graphql";
 import FormDialog from "./FormDialog";
+
+const emptyStudiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
+  request: {
+    query: LIST_APPROVED_STUDIES,
+  },
+  result: {
+    data: {
+      listApprovedStudies: {
+        total: 0,
+        studies: [],
+      },
+    },
+  },
+  variableMatcher: () => true,
+};
+
+const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
+  request: {
+    query: LIST_APPROVED_STUDIES,
+  },
+  result: {
+    data: {
+      listApprovedStudies: {
+        total: 2,
+        studies: [
+          {
+            _id: "study-1",
+            studyName: "Study-1",
+            studyAbbreviation: "S1",
+            controlledAccess: false,
+            openAccess: false,
+            dbGaPID: null,
+            ORCID: "",
+            originalOrg: null,
+            PI: "",
+            primaryContact: null,
+            programs: [],
+            createdAt: "",
+          },
+          {
+            _id: "study-2",
+            studyName: "Study-2",
+            studyAbbreviation: "S2",
+            controlledAccess: false,
+            openAccess: false,
+            dbGaPID: null,
+            ORCID: "",
+            originalOrg: null,
+            PI: "",
+            primaryContact: null,
+            programs: [],
+            createdAt: "",
+          },
+        ],
+      },
+    },
+  },
+  variableMatcher: () => true,
+};
 
 const mockUser: User = {
   _id: "",
@@ -24,13 +84,14 @@ const mockUser: User = {
   lastName: "",
   email: "",
   role: "User",
-  organization: null,
   dataCommons: [],
   studies: [],
   IDP: "nih",
   userStatus: "Active",
   updateAt: "",
   createdAt: "",
+  permissions: ["access:request"],
+  notifications: [],
 };
 
 type MockParentProps = {
@@ -63,13 +124,17 @@ describe("Accessibility", () => {
 
   it("should have no violations", async () => {
     const mockOnClose = jest.fn();
-    const mock: MockedResponse<ListOrgNamesResp> = {
+    const mock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
       request: {
-        query: LIST_ORG_NAMES,
+        query: LIST_APPROVED_STUDIES,
       },
+      variableMatcher: () => true,
       result: {
         data: {
-          listOrganizations: [],
+          listApprovedStudies: {
+            total: 0,
+            studies: [],
+          },
         },
       },
       delay: 5000, // NOTE: Without this, the test throws an ACT warning and fails
@@ -84,18 +149,6 @@ describe("Accessibility", () => {
 });
 
 describe("Basic Functionality", () => {
-  const emptyOrgMock: MockedResponse<ListOrgNamesResp> = {
-    request: {
-      query: LIST_ORG_NAMES,
-    },
-    result: {
-      data: {
-        listOrganizations: [],
-      },
-    },
-    variableMatcher: () => true,
-  };
-
   beforeEach(() => {
     jest.resetAllMocks();
   });
@@ -105,7 +158,7 @@ describe("Basic Functionality", () => {
 
     expect(() =>
       render(<FormDialog open onClose={mockOnClose} />, {
-        wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock]}>{children}</MockParent>,
+        wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock]}>{children}</MockParent>,
       })
     ).not.toThrow();
   });
@@ -114,7 +167,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = jest.fn();
 
     const { getByTestId } = render(<FormDialog open onClose={mockOnClose} />, {
-      wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock]}>{children}</MockParent>,
+      wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock]}>{children}</MockParent>,
     });
 
     expect(mockOnClose).not.toHaveBeenCalled();
@@ -130,7 +183,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = jest.fn();
 
     const { getByTestId } = render(<FormDialog open onClose={mockOnClose} />, {
-      wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock]}>{children}</MockParent>,
+      wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock]}>{children}</MockParent>,
     });
 
     expect(mockOnClose).not.toHaveBeenCalled();
@@ -146,7 +199,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = jest.fn();
 
     const { getByTestId } = render(<FormDialog open onClose={mockOnClose} />, {
-      wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock]}>{children}</MockParent>,
+      wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock]}>{children}</MockParent>,
     });
 
     expect(mockOnClose).not.toHaveBeenCalled();
@@ -169,7 +222,7 @@ describe("Basic Functionality", () => {
   //   };
 
   //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-  //     wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock, mock]}>{children}</MockParent>,
+  //     wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock, mock]}>{children}</MockParent>,
   //   });
 
   //   userEvent.type(getByTestId("access-request-organization-field"), "My Mock Organization"); // Required field
@@ -196,7 +249,7 @@ describe("Basic Functionality", () => {
   //   };
 
   //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-  //     wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock, mock]}>{children}</MockParent>,
+  //     wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock, mock]}>{children}</MockParent>,
   //   });
 
   //   userEvent.type(getByTestId("access-request-organization-field"), "My Mock Organization"); // Required field
@@ -229,7 +282,7 @@ describe("Basic Functionality", () => {
   //   };
 
   //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-  //     wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock, mock]}>{children}</MockParent>,
+  //     wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock, mock]}>{children}</MockParent>,
   //   });
 
   //   userEvent.type(getByTestId("access-request-organization-field"), "My Mock Organization"); // Required field
@@ -261,7 +314,7 @@ describe("Basic Functionality", () => {
   //   };
 
   //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-  //     wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock, mock]}>{children}</MockParent>,
+  //     wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock, mock]}>{children}</MockParent>,
   //   });
 
   //   userEvent.type(getByTestId("access-request-organization-field"), "My Mock Organization"); // Required field
@@ -276,10 +329,10 @@ describe("Basic Functionality", () => {
   //   });
   // });
 
-  it("should gracefully handle organization listing API errors (GraphQL)", async () => {
-    const mock: MockedResponse<ListOrgNamesResp> = {
+  it("should gracefully handle approved studies listing API errors (GraphQL)", async () => {
+    const mock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
       request: {
-        query: LIST_ORG_NAMES,
+        query: LIST_APPROVED_STUDIES,
       },
       result: {
         errors: [new GraphQLError("Mock GraphQL error")],
@@ -292,16 +345,16 @@ describe("Basic Functionality", () => {
     });
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve organization list.", {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve approved studies list.", {
         variant: "error",
       });
     });
   });
 
-  it("should gracefully handle organization listing API errors (Network)", async () => {
-    const mock: MockedResponse<ListOrgNamesResp> = {
+  it("should gracefully handle approved studies listing API errors (Network)", async () => {
+    const mock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
       request: {
-        query: LIST_ORG_NAMES,
+        query: LIST_APPROVED_STUDIES,
       },
       error: new Error("Network error"),
       variableMatcher: () => true,
@@ -312,7 +365,7 @@ describe("Basic Functionality", () => {
     });
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve organization list.", {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to retrieve approved studies list.", {
         variant: "error",
       });
     });
@@ -336,7 +389,7 @@ describe("Basic Functionality", () => {
   //   };
 
   //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-  //     wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock, mock]}>{children}</MockParent>,
+  //     wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock, mock]}>{children}</MockParent>,
   //   });
 
   //   userEvent.type(getByTestId("access-request-organization-field"), "My Mock Organization"); // Required field
@@ -354,40 +407,9 @@ describe("Basic Functionality", () => {
 });
 
 describe("Implementation Requirements", () => {
-  const emptyOrgMock: MockedResponse<ListOrgNamesResp> = {
-    request: {
-      query: LIST_ORG_NAMES,
-    },
-    result: {
-      data: {
-        listOrganizations: [],
-      },
-    },
-    variableMatcher: () => true,
-  };
-
   beforeEach(() => {
     jest.resetAllMocks();
-  });
-
-  it("should have a tooltip on the 'Additional Info' input", async () => {
-    const { getByTestId, findByRole } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock]}>{children}</MockParent>,
-    });
-
-    userEvent.hover(getByTestId("additionalInfo-input-tooltip"));
-
-    const tooltip = await findByRole("tooltip");
-    expect(tooltip).toBeInTheDocument();
-    expect(tooltip).toHaveTextContent(
-      "Provide details such as your host institution or lab, along with the study or program you are submitting data for, to help us determine your associated organization."
-    );
-
-    userEvent.unhover(getByTestId("additionalInfo-input-tooltip"));
-
-    await waitFor(() => {
-      expect(tooltip).not.toBeInTheDocument();
-    });
+    jest.clearAllMocks();
   });
 
   it("should trim whitespace from the text fields before submitting", async () => {
@@ -408,19 +430,38 @@ describe("Implementation Requirements", () => {
     };
 
     const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => <MockParent mocks={[emptyOrgMock, mock]}>{children}</MockParent>,
+      wrapper: ({ children }) => <MockParent mocks={[studiesMock, mock]}>{children}</MockParent>,
     });
 
-    userEvent.type(getByTestId("access-request-organization-field"), "  My Mock Organization  ");
+    await waitFor(() => {
+      expect(getByTestId("access-request-additionalInfo-field")).toBeInTheDocument();
+    });
 
+    // Modify input fields
     userEvent.type(getByTestId("access-request-additionalInfo-field"), "  My Mock Info   ");
+
+    // Populate required fields
+    const studiesSelect = within(getByTestId("access-request-studies-field")).getByRole("button");
+    userEvent.click(studiesSelect);
+
+    await waitFor(() => {
+      const muiSelectList = within(getByTestId("access-request-studies-field")).getByRole(
+        "listbox",
+        {
+          hidden: true,
+        }
+      );
+      expect(within(muiSelectList).getByTestId("studies-Study-1")).toBeInTheDocument();
+      expect(within(muiSelectList).getByTestId("studies-Study-2")).toBeInTheDocument();
+    });
+    userEvent.click(getByTestId("studies-Study-1"));
 
     userEvent.click(getByTestId("access-request-dialog-submit-button"));
 
     await waitFor(() => {
       expect(mockMatcher).toHaveBeenCalledWith({
         role: expect.any(String),
-        organization: "My Mock Organization",
+        studies: ["study-1"],
         additionalInfo: "My Mock Info",
       });
     });
@@ -445,134 +486,35 @@ describe("Implementation Requirements", () => {
 
     const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[emptyOrgMock, submitMock]}>{children}</MockParent>
+        <MockParent mocks={[studiesMock, submitMock]}>{children}</MockParent>
       ),
     });
 
-    userEvent.type(getByTestId("access-request-organization-field"), "  My Mock Organization  ");
-
     userEvent.type(getByTestId("access-request-additionalInfo-field"), "x".repeat(350));
+
+    // Populate required fields
+    const studiesSelect = within(getByTestId("access-request-studies-field")).getByRole("button");
+    userEvent.click(studiesSelect);
+
+    await waitFor(() => {
+      const muiSelectList = within(getByTestId("access-request-studies-field")).getByRole(
+        "listbox",
+        {
+          hidden: true,
+        }
+      );
+      expect(within(muiSelectList).getByTestId("studies-Study-1")).toBeInTheDocument();
+      expect(within(muiSelectList).getByTestId("studies-Study-2")).toBeInTheDocument();
+    });
+    userEvent.click(getByTestId("studies-Study-1"));
 
     userEvent.click(getByTestId("access-request-dialog-submit-button"));
 
     await waitFor(() => {
       expect(mockMatcher).toHaveBeenCalledWith({
         role: expect.any(String),
-        organization: expect.any(String),
+        studies: ["study-1"],
         additionalInfo: "x".repeat(200),
-      });
-    });
-  });
-
-  it("should pre-select the user's current role and organization if assigned", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
-    const submitMock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
-      request: {
-        query: REQUEST_ACCESS,
-      },
-      variableMatcher: mockMatcher,
-      result: {
-        data: {
-          requestAccess: {
-            success: true,
-            message: "Mock success",
-          },
-        },
-      },
-    };
-
-    const orgMock: MockedResponse<ListOrgNamesResp> = {
-      request: {
-        query: LIST_ORG_NAMES,
-      },
-      result: {
-        data: {
-          listOrganizations: [
-            {
-              _id: "123",
-              name: "NCI",
-            },
-          ],
-        },
-      },
-      variableMatcher: () => true,
-    };
-
-    const newUser: User = {
-      ...mockUser,
-      role: "Organization Owner",
-      organization: {
-        orgID: "123",
-        orgName: "NCI",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
-    };
-
-    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => (
-        <MockParent mocks={[submitMock, orgMock]} user={newUser}>
-          {children}
-        </MockParent>
-      ),
-    });
-
-    userEvent.click(getByTestId("access-request-dialog-submit-button"));
-
-    await waitFor(() => {
-      expect(mockMatcher).toHaveBeenCalledWith({
-        role: "Organization Owner",
-        organization: "NCI",
-        additionalInfo: expect.any(String),
-      });
-    });
-  });
-
-  it("should pre-select the user's current organization even if it is not returned by the API", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
-    const submitMock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
-      request: {
-        query: REQUEST_ACCESS,
-      },
-      variableMatcher: mockMatcher,
-      result: {
-        data: {
-          requestAccess: {
-            success: true,
-            message: "Mock success",
-          },
-        },
-      },
-    };
-
-    const newUser: User = {
-      ...mockUser,
-      role: "Organization Owner",
-      organization: {
-        orgID: "123",
-        orgName: "THIS ORG IS VERY FAKE",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
-    };
-
-    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => (
-        <MockParent mocks={[submitMock, emptyOrgMock]} user={newUser}>
-          {children}
-        </MockParent>
-      ),
-    });
-
-    userEvent.click(getByTestId("access-request-dialog-submit-button"));
-
-    await waitFor(() => {
-      expect(mockMatcher).toHaveBeenCalledWith({
-        role: "Organization Owner",
-        organization: "THIS ORG IS VERY FAKE",
-        additionalInfo: expect.any(String),
       });
     });
   });
@@ -597,71 +539,40 @@ describe("Implementation Requirements", () => {
     const newUser: User = {
       ...mockUser,
       role: "Admin", // Technically not even able to see this dialog
-      organization: {
-        orgID: "123",
-        orgName: "NCI",
-        status: "Active",
-        createdAt: "",
-        updateAt: "",
-      },
     };
 
     const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[submitMock, emptyOrgMock]} user={newUser}>
+        <MockParent mocks={[studiesMock, submitMock]} user={newUser}>
           {children}
         </MockParent>
       ),
     });
+
+    // Populate required fields
+    const studiesSelect = within(getByTestId("access-request-studies-field")).getByRole("button");
+    userEvent.click(studiesSelect);
+
+    await waitFor(() => {
+      const muiSelectList = within(getByTestId("access-request-studies-field")).getByRole(
+        "listbox",
+        {
+          hidden: true,
+        }
+      );
+      expect(within(muiSelectList).getByTestId("studies-Study-1")).toBeInTheDocument();
+      expect(within(muiSelectList).getByTestId("studies-Study-2")).toBeInTheDocument();
+    });
+    userEvent.click(getByTestId("studies-Study-1"));
 
     userEvent.click(getByTestId("access-request-dialog-submit-button"));
 
     await waitFor(() => {
       expect(mockMatcher).toHaveBeenCalledWith({
         role: "Submitter", // Default role
-        organization: "NCI",
+        studies: ["study-1"],
         additionalInfo: expect.any(String),
       });
-    });
-  });
-
-  it("should not pre-select the user's current organization if one is not assigned", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
-    const submitMock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
-      request: {
-        query: REQUEST_ACCESS,
-      },
-      variableMatcher: mockMatcher,
-      result: {
-        data: {
-          requestAccess: {
-            success: true,
-            message: "Mock success",
-          },
-        },
-      },
-    };
-
-    const newUser: User = {
-      ...mockUser,
-      role: "Organization Owner",
-      organization: null,
-    };
-
-    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => (
-        <MockParent mocks={[submitMock, emptyOrgMock]} user={newUser}>
-          {children}
-        </MockParent>
-      ),
-    });
-
-    userEvent.click(getByTestId("access-request-dialog-submit-button"));
-
-    await waitFor(() => {
-      expect(getByTestId("access-request-dialog-error-organization")).toHaveTextContent(
-        "This field is required"
-      );
     });
   });
 });

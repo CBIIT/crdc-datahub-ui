@@ -3,7 +3,13 @@ import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { SubmissionCtxStatus, SubmissionProvider, useSubmissionContext } from "./SubmissionContext";
-import { GET_SUBMISSION, GetSubmissionInput, GetSubmissionResp } from "../../graphql";
+import {
+  GET_SUBMISSION,
+  GetSubmissionInput,
+  GetSubmissionResp,
+  SUBMISSION_QC_RESULTS,
+  SubmissionQCResultsResp,
+} from "../../graphql";
 
 const mockStartPolling = jest.fn();
 const mockStopPolling = jest.fn();
@@ -100,7 +106,23 @@ describe("useSubmissionContext", () => {
       },
     ];
 
-    expect(() => render(<TestParent mocks={mocks} _id="test-nominal-id" />)).not.toThrow();
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: null,
+          },
+        },
+      },
+    ];
+
+    expect(() =>
+      render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-nominal-id" />)
+    ).not.toThrow();
   });
 });
 
@@ -119,8 +141,23 @@ describe("SubmissionProvider", () => {
         error: new Error("Network error"),
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: null,
+          },
+        },
+      },
+    ];
 
-    const { getByTestId } = render(<TestParent mocks={mocks} _id="test-network-error-id" />);
+    const { getByTestId } = render(
+      <TestParent mocks={[...mocks, ...qcMocks]} _id="test-network-error-id" />
+    );
 
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("ERROR"));
   });
@@ -137,8 +174,23 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: null,
+          },
+        },
+      },
+    ];
 
-    const { getByTestId } = render(<TestParent mocks={mocks} _id="test-graphql-error-id" />);
+    const { getByTestId } = render(
+      <TestParent mocks={[...mocks, ...qcMocks]} _id="test-graphql-error-id" />
+    );
 
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("ERROR"));
   });
@@ -159,8 +211,23 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: null,
+          },
+        },
+      },
+    ];
 
-    const { getByTestId } = render(<TestParent mocks={mocks} _id="test-null-id" />);
+    const { getByTestId } = render(
+      <TestParent mocks={[...mocks, ...qcMocks]} _id="test-null-id" />
+    );
 
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("ERROR"));
   });
@@ -188,8 +255,26 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: {
+              total: 0,
+              results: [],
+            },
+          },
+        },
+      },
+    ];
 
-    const { getByTestId } = render(<TestParent mocks={mocks} _id="test-valid-id" />);
+    const { getByTestId } = render(
+      <TestParent mocks={[...mocks, ...qcMocks]} _id="test-valid-id" />
+    );
 
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("LOADED"));
   });
@@ -223,10 +308,27 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: {
+              total: 0,
+              results: [],
+            },
+          },
+        },
+      },
+    ];
 
-    render(<TestParent mocks={mocks} _id="test-validating-id" />);
+    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-validating-id" />);
 
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
+    // Should poll getSubmission + submissionQCResults
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
     expect(mockStopPolling).not.toHaveBeenCalled();
   });
 
@@ -259,10 +361,27 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: {
+              total: 0,
+              results: [],
+            },
+          },
+        },
+      },
+    ];
 
-    render(<TestParent mocks={mocks} _id="test-validating-id" />);
+    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-validating-id" />);
 
-    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
+    // Should stop polling getSubmission + submissionQCResults
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(2));
     expect(mockStartPolling).not.toHaveBeenCalled();
   });
 
@@ -295,10 +414,27 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: {
+              total: 0,
+              results: [],
+            },
+          },
+        },
+      },
+    ];
 
-    render(<TestParent mocks={mocks} _id="test-uploading-id" />);
+    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-uploading-id" />);
 
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
+    // Should poll getSubmission + submissionQCResults
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
     expect(mockStopPolling).not.toHaveBeenCalled();
   });
 
@@ -331,10 +467,27 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: {
+              total: 0,
+              results: [],
+            },
+          },
+        },
+      },
+    ];
 
-    render(<TestParent mocks={mocks} _id="test-uploading-id" />);
+    // Should stop polling getSubmission + submissionQCResults
+    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-uploading-id" />);
 
-    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(2));
     expect(mockStartPolling).not.toHaveBeenCalled();
   });
 
@@ -363,10 +516,27 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: {
+              total: 0,
+              results: [],
+            },
+          },
+        },
+      },
+    ];
 
-    render(<TestParent mocks={mocks} _id="test-deleting-id" />);
+    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-deleting-id" />);
 
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
+    // Should poll getSubmission + submissionQCResults
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
     expect(mockStopPolling).not.toHaveBeenCalled();
   });
 
@@ -395,10 +565,27 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: {
+              total: 0,
+              results: [],
+            },
+          },
+        },
+      },
+    ];
 
-    render(<TestParent mocks={mocks} _id="test-deleting-id" />);
+    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-deleting-id" />);
 
-    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
+    // Should stop polling getSubmission + submissionQCResults
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(2));
     expect(mockStartPolling).not.toHaveBeenCalled();
   });
 
@@ -430,10 +617,26 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: {
+              total: 0,
+              results: [],
+            },
+          },
+        },
+      },
+    ];
 
     const { result } = renderHook(() => useSubmissionContext(), {
       wrapper: ({ children }) => (
-        <TestParent mocks={mocks} _id="test-wrapper-id">
+        <TestParent mocks={[...mocks, ...qcMocks]} _id="test-wrapper-id">
           {children}
         </TestParent>
       ),
@@ -447,6 +650,7 @@ describe("SubmissionProvider", () => {
       startPolling(1000);
     });
 
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
     expect(mockStartPolling).toHaveBeenCalledWith(1000);
 
     act(() => {
@@ -479,10 +683,26 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
+      {
+        request: {
+          query: SUBMISSION_QC_RESULTS,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            submissionQCResults: {
+              total: 0,
+              results: [],
+            },
+          },
+        },
+      },
+    ];
 
     const { result } = renderHook(() => useSubmissionContext(), {
       wrapper: ({ children }) => (
-        <TestParent mocks={mocks} _id="test-polling-id">
+        <TestParent mocks={[...mocks, ...qcMocks]} _id="test-polling-id">
           {children}
         </TestParent>
       ),

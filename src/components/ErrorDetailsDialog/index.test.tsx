@@ -9,6 +9,12 @@ type ParentProps = {
   children: React.ReactNode;
 };
 
+jest.mock("../NodeComparison", () => ({
+  ...jest.requireActual("../NodeComparison"),
+  __esModule: true,
+  default: () => <div>MOCK NODE COMPARISON</div>,
+}));
+
 const TestParent: FC<ParentProps> = ({ children }) => (
   <MemoryRouter basename="">{children}</MemoryRouter>
 );
@@ -105,6 +111,20 @@ describe("Basic Functionality", () => {
     );
 
     expect(() => userEvent.click(getByTestId("error-details-close-button"))).not.toThrow();
+  });
+
+  it("should render the NodeComparison component if 'comparisonData' is provided", async () => {
+    const { getByText } = render(
+      <TestParent>
+        <Dialog
+          open
+          errors={[]}
+          comparisonData={{ nodeType: "X", submissionID: "X", submittedID: "X" }}
+        />
+      </TestParent>
+    );
+
+    expect(getByText("MOCK NODE COMPARISON")).toBeVisible();
   });
 });
 

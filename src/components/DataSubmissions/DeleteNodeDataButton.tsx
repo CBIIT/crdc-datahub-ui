@@ -10,7 +10,7 @@ import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
 import { titleCase } from "../../utils";
-import { canDeleteDataNodesRoles } from "../../config/AuthRoles";
+import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledIconButton = styled(IconButton)(({ disabled }) => ({
   opacity: disabled ? 0.26 : 1,
@@ -21,6 +21,17 @@ const StyledTooltip = styled(StyledFormTooltip)({
     color: "#000000",
   },
 });
+
+/**
+ * An array of submission statuses that should disable the delete button
+ */
+const DisabledStatuses: SubmissionStatus[] = [
+  "Submitted",
+  "Released",
+  "Completed",
+  "Canceled",
+  "Deleted",
+];
 
 type Props = {
   /**
@@ -41,7 +52,7 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
   const { enqueueSnackbar } = useSnackbar();
   const { data } = useSubmissionContext();
   const { user } = useAuthContext();
-  const { _id, deletingData } = data?.getSubmission || {};
+  const { _id, status, deletingData } = data?.getSubmission || {};
 
   const collaborator = data?.getSubmission?.collaborators?.find(
     (c) => c.collaboratorID === user?._id
@@ -126,7 +137,7 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
     }
   };
 
-  if (!canDeleteDataNodesRoles.includes(user?.role)) {
+  if (!hasPermission(user, "data_submission", "create", data?.getSubmission)) {
     return null;
   }
 
@@ -146,6 +157,7 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
               disabled ||
               deletingData === true ||
               selectedItems.length === 0 ||
+              DisabledStatuses.includes(status) ||
               (collaborator && collaborator.permission !== "Can Edit")
             }
             aria-label="Delete nodes icon"

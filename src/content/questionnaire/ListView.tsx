@@ -1,40 +1,36 @@
-import React, { FC, useMemo, useState } from "react";
+import { FC, useCallback, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Alert,
-  Container,
-  Button,
-  Stack,
-  styled,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
-  Typography,
-} from "@mui/material";
+import { Alert, Container, Button, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { useMutation, useQuery } from "@apollo/client";
-import { query, Response } from "../../graphql/listApplications";
+import { isEqual } from "lodash";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
+import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
 import PageBanner from "../../components/PageBanner";
-import { FormatDate } from "../../utils";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
-import { SAVE_APP, SaveAppInput, SaveAppResp } from "../../graphql";
-import SuspenseLoader from "../../components/SuspenseLoader";
+import { extractVersion, FormatDate, Logger } from "../../utils";
+import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
+import {
+  LIST_APPLICATIONS,
+  ListApplicationsInput,
+  ListApplicationsResp,
+  REVIEW_APP,
+  ReviewAppInput,
+  ReviewAppResp,
+  SAVE_APP,
+  SaveAppInput,
+  SaveAppResp,
+} from "../../graphql";
 import usePageTitle from "../../hooks/usePageTitle";
+import GenericTable, { Column } from "../../components/GenericTable";
+import QuestionnaireContext from "./Contexts/QuestionnaireContext";
+import TruncatedText from "../../components/TruncatedText";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import Tooltip from "../../components/Tooltip";
+import { hasPermission } from "../../config/AuthPermissions";
+import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
+import CancelApplicationButton from "../../components/CancelApplicationButton";
 
-type T = Omit<Application, "questionnaireData">;
-
-type Column = {
-  label: string;
-  value: (a: T, user: User) => React.ReactNode;
-  field?: string;
-  default?: true;
-};
+type T = ListApplicationsResp["listApplications"]["applications"][number];
 
 const StyledButton = styled(LoadingButton)({
   padding: "14px 20px",
@@ -59,11 +55,11 @@ const StyledContainer = styled(Container)({
   marginTop: "-62px",
 });
 
-const StyledTableContainer = styled(TableContainer)({
+const StyledFilterTableWrapper = styled(Box)({
   borderRadius: "8px",
-  border: "1px solid #083A50",
+  background: "#FFF",
+  border: "1px solid #6CACDA",
   marginBottom: "25px",
-  position: "relative",
 });
 
 const StyledTableHead = styled(TableHead)({
@@ -111,78 +107,166 @@ const StyledActionButton = styled(Button)(
   })
 );
 
-const columns: Column[] = [
+const StyledDateTooltip = styled(StyledTooltip)(() => ({
+  cursor: "pointer",
+}));
+
+const StyledSpecialStatus = styled(Stack)({
+  color: "#D82F00",
+  fontWeight: 600,
+});
+
+const StyledBellIcon = styled(BellIcon)({
+  width: "18px",
+  marginLeft: "6px",
+});
+
+const columns: Column<T>[] = [
   {
     label: "Submitter Name",
-    value: (a) => a.applicant?.applicantName,
-    field: "applicant.applicantName",
-  },
-  {
-    label: "Organization",
-    value: (a) => a?.organization?.name,
-    field: "organization.name",
-  },
-  {
-    label: "Study",
-    value: (a) => a.studyAbbreviation || "NA",
-    field: "studyAbbreviation",
+    renderValue: (a) => <TruncatedText text={a.applicant?.applicantName} />,
+    fieldKey: "applicant.applicantName",
   },
   {
     label: "Program",
-    value: (a) => a.programName || "NA",
+    renderValue: (a) => (
+      <TruncatedText text={a.programName || "NA"} disableInteractiveTooltip={false} />
+    ),
     field: "programName",
   },
   {
+    label: "Study",
+    renderValue: (a) => (
+      <TruncatedText text={a.studyAbbreviation || "NA"} disableInteractiveTooltip={false} />
+    ),
+    field: "studyAbbreviation",
+  },
+  {
     label: "Status",
-    value: (a) => a.status,
-    field: "status",
-  },
-  {
-    label: "Submitted Date",
-    value: (a) => (a.submittedDate ? FormatDate(a.submittedDate, "M/D/YYYY h:mm A") : ""),
-    field: "submittedDate",
-    default: true,
-  },
-  {
-    label: "Last Updated Date",
-    value: (a) => (a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : ""),
-    field: "updatedAt",
-  },
-  {
-    label: "Action",
-    value: (a, user) => {
-      const role = user?.role;
-
-      if (
-        (role === "User" || role === "Submitter" || role === "Organization Owner") &&
-        a.applicant?.applicantID === user._id &&
-        ["New", "In Progress", "Inquired"].includes(a.status)
-      ) {
-        return (
-          <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-            <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
-              Resume
-            </StyledActionButton>
-          </Link>
-        );
-      }
-      if (role === "Federal Lead" && ["Submitted", "In Review"].includes(a.status)) {
-        return (
-          <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-            <StyledActionButton bg="#F1C6B3" text="#5F564D" border="#DB9C62">
-              Review
-            </StyledActionButton>
-          </Link>
-        );
+    renderValue: ({ status, conditional, pendingConditions }) => {
+      if (!conditional || !pendingConditions?.length || status !== "Approved") {
+        return status;
       }
 
       return (
-        <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
-          <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
-            View
-          </StyledActionButton>
-        </Link>
+        <Tooltip
+          title={pendingConditions?.join(" ")}
+          placement="top"
+          open={undefined}
+          disableHoverListener={false}
+          arrow
+        >
+          <StyledSpecialStatus direction="row" alignItems="center">
+            <span>{status}</span>
+            <StyledBellIcon data-testid="pending-conditions-icon" />
+          </StyledSpecialStatus>
+        </Tooltip>
       );
+    },
+    field: "status",
+    sx: {
+      width: "124px",
+    },
+  },
+  {
+    label: "Version",
+    renderValue: (a) => extractVersion(a.version) || "",
+    field: "version",
+  },
+  {
+    label: "Submitted Date",
+    renderValue: (a) =>
+      a.submittedDate ? (
+        <StyledDateTooltip title={FormatDate(a.submittedDate, "M/D/YYYY h:mm A")} placement="top">
+          <span>{FormatDate(a.submittedDate, "M/D/YYYY")}</span>
+        </StyledDateTooltip>
+      ) : (
+        ""
+      ),
+    field: "submittedDate",
+    default: true,
+    sx: {
+      width: "161px",
+    },
+  },
+  {
+    label: "Last Updated Date",
+    renderValue: (a) =>
+      a.updatedAt ? (
+        <StyledDateTooltip title={FormatDate(a.updatedAt, "M/D/YYYY h:mm A")} placement="top">
+          <span>{FormatDate(a.updatedAt, "M/D/YYYY")}</span>
+        </StyledDateTooltip>
+      ) : (
+        ""
+      ),
+    field: "updatedAt",
+    sx: {
+      width: "181px",
+    },
+  },
+  {
+    label: "Action",
+    renderValue: (a) => (
+      <QuestionnaireContext.Consumer>
+        {({ user, handleOnReviewClick }) => {
+          if (
+            hasPermission(user, "submission_request", "create") &&
+            a.applicant?.applicantID === user._id &&
+            ["New", "In Progress", "Inquired"].includes(a.status)
+          ) {
+            return (
+              <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
+                <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
+                  Resume
+                </StyledActionButton>
+              </Link>
+            );
+          }
+          if (
+            hasPermission(user, "submission_request", "review") &&
+            ["Submitted", "In Review"].includes(a.status)
+          ) {
+            return (
+              <StyledActionButton
+                onClick={() => handleOnReviewClick(a)}
+                bg="#F1C6B3"
+                text="#5F564D"
+                border="#DB9C62"
+              >
+                Review
+              </StyledActionButton>
+            );
+          }
+
+          return (
+            <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
+              <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
+                View
+              </StyledActionButton>
+            </Link>
+          );
+        }}
+      </QuestionnaireContext.Consumer>
+    ),
+    sortDisabled: true,
+    sx: {
+      width: "140px",
+      textAlign: "center",
+    },
+  },
+  {
+    label: "",
+    fieldKey: "secondary-action",
+    renderValue: (a) => (
+      <QuestionnaireContext.Consumer>
+        {({ tableRef }) => (
+          <CancelApplicationButton application={a} onCancel={() => tableRef.current?.refresh?.()} />
+        )}
+      </QuestionnaireContext.Consumer>
+    ),
+    sortDisabled: true,
+    sx: {
+      width: "0px",
     },
   },
 ];
@@ -197,47 +281,33 @@ const ListingView: FC = () => {
 
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { user } = useAuthContext();
+  const { user, status: authStatus } = useAuthContext();
 
-  const [order, setOrder] = useState<"asc" | "desc">("desc");
-  const [orderBy, setOrderBy] = useState<Column>(
-    columns.find((c) => c.default) || columns.find((c) => c.field)
-  );
-  const [page, setPage] = useState<number>(0);
-  const [perPage, setPerPage] = useState<number>(10);
   const [creatingApplication, setCreatingApplication] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const [data, setData] = useState<ListApplicationsResp["listApplications"]>(null);
+  const filtersRef = useRef<FilterForm>({ ...defaultValues });
 
-  const { data, loading, error } = useQuery<Response>(query, {
-    variables: {
-      first: perPage,
-      offset: page * perPage,
-      sortDirection: order.toUpperCase(),
-      orderBy: orderBy.field,
-    },
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
+  const tableRef = useRef<TableMethods>(null);
+
+  const [listApplications] = useLazyQuery<ListApplicationsResp, ListApplicationsInput>(
+    LIST_APPLICATIONS,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
+
   const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  // eslint-disable-next-line arrow-body-style
-  const emptyRows = useMemo(() => {
-    return page > 0 && data?.listApplications?.total
-      ? Math.max(0, (1 + page) * perPage - (data?.listApplications?.total || 0))
-      : 0;
-  }, [data]);
-
-  const handleRequestSort = (column: Column) => {
-    setOrder(orderBy === column && order === "asc" ? "desc" : "asc");
-    setOrderBy(column);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const [reviewApp] = useMutation<ReviewAppResp, ReviewAppInput>(REVIEW_APP, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
 
   const createApp = async () => {
     setCreatingApplication(true);
@@ -245,7 +315,6 @@ const ListingView: FC = () => {
       variables: {
         application: {
           _id: undefined,
-          programName: "",
           studyName: "",
           studyAbbreviation: "",
           questionnaireData: "{}",
@@ -253,6 +322,9 @@ const ListingView: FC = () => {
           openAccess: false,
           ORCID: "",
           PI: "",
+          programName: "",
+          programAbbreviation: "",
+          programDescription: "",
         },
       },
     }).catch((e) => ({ data: null, errors: e }));
@@ -273,6 +345,92 @@ const ListingView: FC = () => {
     });
   };
 
+  const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
+    const { first, offset, sortDirection, orderBy } = fetchListing || {};
+    try {
+      setLoading(true);
+
+      const { programName, studyName, statuses, submitterName } = filtersRef.current;
+
+      const { data: d, error } = await listApplications({
+        variables: {
+          submitterName: submitterName || undefined,
+          programName: programName || "All",
+          studyName: studyName || undefined,
+          statuses,
+          first,
+          offset,
+          sortDirection,
+          orderBy,
+        },
+        context: { clientName: "backend" },
+        fetchPolicy: "no-cache",
+      });
+      if (error || !d?.listApplications) {
+        throw new Error("Unable to retrieve Data Submission List results.");
+      }
+
+      setData(d.listApplications);
+    } catch (err) {
+      Logger.error(`ListView: Unable to retrieve Data Submission List results`, err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOnFiltersChange = (data: FilterForm) => {
+    if (isEqual(data, filtersRef.current)) {
+      return;
+    }
+
+    filtersRef.current = { ...data };
+    setTablePage(0);
+  };
+
+  const setTablePage = (page: number) => {
+    tableRef.current?.setPage(page, true);
+  };
+
+  const handleOnReviewClick = useCallback(
+    async ({ _id, status }: T) => {
+      if (status !== "Submitted") {
+        navigate(`/submission/${_id}`, {
+          state: {
+            from: "/submissions",
+          },
+        });
+        return;
+      }
+
+      try {
+        const { data: d, errors } = await reviewApp({
+          variables: {
+            id: _id,
+          },
+        });
+
+        if (errors || !d?.reviewApplication?._id) {
+          throw new Error("Unable to review Submission Request.");
+        }
+
+        navigate(`/submission/${_id}`, {
+          state: {
+            from: "/submissions",
+          },
+        });
+      } catch (err) {
+        Logger.error("Error transitioning form from Submitted to In Review", err);
+      }
+    },
+    [navigate, reviewApp]
+  );
+
+  const providerValue = useMemo(
+    () => ({ user, handleOnReviewClick, tableRef }),
+    [user, handleOnReviewClick, tableRef.current]
+  );
+
   return (
     <>
       <PageBanner
@@ -281,9 +439,7 @@ const ListingView: FC = () => {
         padding="57px 0 0 25px"
         body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
-            {(user?.role === "User" ||
-              user?.role === "Submitter" ||
-              user?.role === "Organization Owner") && (
+            {hasPermission(user, "submission_request", "create") && (
               <StyledButton type="button" onClick={createApp} loading={creatingApplication}>
                 Start a Submission Request
               </StyledButton>
@@ -300,88 +456,35 @@ const ListingView: FC = () => {
           </Alert>
         )}
 
-        <StyledTableContainer>
-          <Table>
-            <StyledTableHead>
-              <TableRow>
-                {columns.map((col: Column) => (
-                  <StyledHeaderCell key={col.label}>
-                    {col.field ? (
-                      <TableSortLabel
-                        active={orderBy === col}
-                        direction={orderBy === col ? order : "asc"}
-                        onClick={() => handleRequestSort(col)}
-                      >
-                        {col.label}
-                      </TableSortLabel>
-                    ) : (
-                      col.label
-                    )}
-                  </StyledHeaderCell>
-                ))}
-              </TableRow>
-            </StyledTableHead>
-            <TableBody>
-              {loading && (
-                <TableRow>
-                  <TableCell>
-                    <SuspenseLoader fullscreen={false} />
-                  </TableCell>
-                </TableRow>
-              )}
-              {data?.listApplications?.applications?.map((d: T) => (
-                <TableRow tabIndex={-1} hover key={d["_id"]}>
-                  {columns.map((col: Column) => (
-                    <StyledTableCell key={`${d["_id"]}_${col.label}`}>
-                      {col.value(d, user)}
-                    </StyledTableCell>
-                  ))}
-                </TableRow>
-              ))}
+        <StyledFilterTableWrapper>
+          <ListFilters applicationData={data} onChange={handleOnFiltersChange} />
 
-              {/* Fill the difference between perPage and count to prevent height changes */}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={columns.length} />
-                </TableRow>
-              )}
-
-              {/* No content message */}
-              {(!data?.listApplications?.total || data?.listApplications?.total === 0) && (
-                <TableRow style={{ height: 53 * 10 }}>
-                  <TableCell colSpan={columns.length}>
-                    <Typography variant="h6" align="center" fontSize={18} color="#757575">
-                      There are no submission requests associated with your account
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 20, 50]}
-            component="div"
-            count={data?.listApplications?.total || 0}
-            rowsPerPage={perPage}
-            page={page}
-            onPageChange={(e, newPage) => setPage(newPage)}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            nextIconButtonProps={{
-              disabled:
-                perPage === -1 ||
-                !data?.listApplications ||
-                data?.listApplications?.total === 0 ||
-                data?.listApplications?.total <= (page + 1) * perPage ||
-                emptyRows > 0 ||
-                loading,
-            }}
-            SelectProps={{
-              inputProps: { "aria-label": "rows per page" },
-              native: true,
-            }}
-            backIconButtonProps={{ disabled: page === 0 || loading }}
-          />
-        </StyledTableContainer>
+          <QuestionnaireContext.Provider value={providerValue}>
+            <GenericTable
+              ref={tableRef}
+              columns={columns}
+              data={data?.applications || []}
+              total={data?.total || 0}
+              loading={loading || authStatus === AuthStatus.LOADING}
+              defaultRowsPerPage={20}
+              defaultOrder="desc"
+              position="bottom"
+              noContentText="You either do not have the appropriate permissions to view submission requests, or there are no submission requests associated with your account."
+              onFetchData={handleFetchData}
+              containerProps={{
+                sx: {
+                  marginBottom: "8px",
+                  border: 0,
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 0,
+                },
+              }}
+              CustomTableHead={StyledTableHead}
+              CustomTableHeaderCell={StyledHeaderCell}
+              CustomTableBodyCell={StyledTableCell}
+            />
+          </QuestionnaireContext.Provider>
+        </StyledFilterTableWrapper>
       </StyledContainer>
     </>
   );

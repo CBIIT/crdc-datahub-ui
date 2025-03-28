@@ -30,6 +30,7 @@ import { useSubmissionContext } from "../../components/Contexts/SubmissionContex
 import DeleteNodeDataButton from "../../components/DataSubmissions/DeleteNodeDataButton";
 import DataViewDetailsDialog from "../../components/DataSubmissions/DataViewDetailsDialog";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
+import TruncatedText from "../../components/TruncatedText";
 
 const StyledCheckbox = styled(Checkbox)({
   padding: 0,
@@ -97,6 +98,7 @@ const StyledFirstColumnButton = styled(Button)(() => ({
   justifyContent: "flex-start",
   "&:hover": {
     backgroundColor: "transparent",
+    textDecoration: "underline",
   },
 }));
 
@@ -140,7 +142,13 @@ const SubmittedData: FC = () => {
 
   const renderFirstColumnValue = (d: T, prop: string): React.ReactNode => (
     <StyledFirstColumnButton variant="text" onClick={() => onClickFirstColumn(d)} disableRipple>
-      {d?.props?.[prop] || ""}
+      <TruncatedText
+        text={d?.props?.[prop] || ""}
+        maxCharacters={10}
+        ellipsis
+        underline={false}
+        disableInteractiveTooltip={false}
+      />
     </StyledFirstColumnButton>
   );
 
@@ -169,15 +177,37 @@ const SubmittedData: FC = () => {
           label: "Status",
           renderValue: (d) => d?.status || "",
           field: "status",
-        };
+          sx: {
+            width: "137px",
+          },
+        } as Column<T>;
+      }
+
+      if (prop === "Orphaned") {
+        return {
+          label: "Orphaned",
+          renderValue: (d) => d?.props?.[prop] || "",
+          fieldKey: "Orphaned",
+          sx: {
+            width: "159px",
+          },
+        } as Column<T>;
       }
 
       return {
         label: prop,
         renderValue: (d) =>
-          (idx === 0 && d.nodeType !== "data file"
-            ? renderFirstColumnValue(d, prop)
-            : d?.props?.[prop] || "") as React.ReactNode,
+          idx === 0 && d.nodeType !== "data file" ? (
+            renderFirstColumnValue(d, prop)
+          ) : (
+            <TruncatedText
+              text={d?.props?.[prop] || ""}
+              maxCharacters={10}
+              disableInteractiveTooltip={false}
+              ellipsis
+              underline
+            />
+          ),
         fieldKey: prop,
         default: idx === 0 ? true : undefined,
       };
@@ -431,7 +461,10 @@ const SubmittedData: FC = () => {
           defaultRowsPerPage={20}
           defaultOrder="desc"
           position="both"
-          AdditionalActions={Actions}
+          AdditionalActions={{
+            top: { after: Actions },
+            bottom: { after: Actions },
+          }}
           setItemKey={(item, idx) => `${idx}_${item.nodeID}`}
           onFetchData={handleFetchData}
           containerProps={{ sx: { marginBottom: "8px" } }}

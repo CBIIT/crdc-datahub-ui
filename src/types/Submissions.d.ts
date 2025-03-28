@@ -64,7 +64,7 @@ type Submission = {
    */
   nodeCount: number;
   /**
-   * A list of additional submitters who can view and/or edit the submission
+   * A list of additional submitters who can view and edit the submission
    */
   collaborators: Collaborator[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
@@ -122,11 +122,6 @@ type SubmissionIntention = "New/Update" | "Delete";
 
 type SubmissionDataType = "Metadata Only" | "Metadata and Data Files";
 
-type FileInput = {
-  fileName: string;
-  size: number;
-};
-
 type FileURL = {
   fileName: string;
   signedURL: string;
@@ -146,9 +141,8 @@ type UploadResult = {
 type BatchFileInfo = {
   filePrefix: string; // prefix/path within S3 bucket
   fileName: string;
-  size: number;
   nodeType: string;
-  status: string; // [New, Uploaded, Failed]
+  status: "New" | "Uploaded" | "Failed";
   errors: string[];
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
@@ -193,24 +187,7 @@ type ListBatches = {
   batches: Batch[];
 };
 
-type TempCredentials = {
-  accessKeyId: string;
-  secretAccessKey: string;
-  sessionToken: string;
-};
-
 type SubmissionHistoryEvent = HistoryBase<SubmissionStatus>;
-
-type ListLogFiles = {
-  logFiles: LogFile[];
-};
-
-type LogFile = {
-  fileName: string;
-  uploadType: UploadType;
-  downloadUrl: string; // s3 presigned download url of the file
-  fileSize: number; // size in byte
-};
 
 type S3FileInfo = {
   fileName: string;
@@ -227,6 +204,13 @@ type RecordParentNode = {
   parentType: string; // node type of the parent node, e.g. "study"
   parentIDPropName: string; // ID property name can be used to identify parent node, e.g., "study_id"
   parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
+};
+
+type AggregatedQCResult = {
+  code: string;
+  severity: "Error" | "Warning";
+  title: string;
+  count: number;
 };
 
 /**
@@ -272,7 +256,19 @@ type CrossValidationResult = QCResult & {
 };
 
 type ErrorMessage = {
+  /**
+   * The code corresponding to the specific error/warning.
+   *
+   * Refer to the imported type for more information.
+   */
+  code: import("../config/ValidationErrors").ValidationErrorCode;
+  /**
+   * The title of the error.
+   */
   title: string;
+  /**
+   * A detailed description of the error.
+   */
   description: string;
 };
 
@@ -396,15 +392,14 @@ type SubmitButtonResult = {
 /**
  * Represents the permissions a collaborator can have in a submission
  */
-type CollaboratorPermissions = "Can View" | "Can Edit";
+type CollaboratorPermissions = "Can Edit";
 
 /**
- * Represents a submitter that can view/edit another submitter's submission
+ * Represents a submitter that can view and edit another submitter's submission
  */
 type Collaborator = {
   collaboratorID: string;
   collaboratorName: string;
-  Organization: Pick<OrgInfo, "orgID" | "orgName">;
   permission: CollaboratorPermissions;
 };
 

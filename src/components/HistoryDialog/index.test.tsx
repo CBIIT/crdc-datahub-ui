@@ -88,6 +88,28 @@ describe("Basic Functionality", () => {
 
     expect(getByTestId("history-dialog-header-row")).toBeInTheDocument();
   });
+
+  it("should render a custom status wrapper if provided", async () => {
+    const getStatusWrapper = jest
+      .fn()
+      .mockImplementation(() => ({ children }) => (
+        <div data-testid="mock-wrapper-for-status">{children}</div>
+      ));
+
+    const history: HistoryBase<MockStatuses>[] = [
+      { status: "uploaded", dateTime: new Date().toISOString(), userID: "test", reviewComment: "" },
+    ];
+
+    const { getByTestId } = render(
+      <HistoryDialog {...BaseProps} history={history} getStatusWrapper={getStatusWrapper} />
+    );
+
+    expect(getStatusWrapper).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => {
+      expect(getByTestId("mock-wrapper-for-status")).toBeInTheDocument();
+    });
+  });
 });
 
 describe("Implementation Requirements", () => {

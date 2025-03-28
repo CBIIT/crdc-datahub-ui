@@ -10,17 +10,17 @@ const MainLayout = withTracking(Layout);
 
 // Pages
 const Home = LazyLoader(lazy(() => import("./content")));
-const Login = LazyLoader(lazy(() => import("./content/login/Controller")));
+const Login = LazyLoader(lazy(() => import("./content/Login/Controller")));
 const Questionnaire = LazyLoader(lazy(() => import("./content/questionnaire/Controller")));
 const DataSubmissions = LazyLoader(lazy(() => import("./content/dataSubmissions/Controller")));
 const Users = LazyLoader(lazy(() => import("./content/users/Controller")));
-const DMN = LazyLoader(lazy(() => import("./content/modelNavigator/Controller")));
+const ModelNavigator = LazyLoader(lazy(() => import("./content/ModelNavigator/Controller")));
 const ReleaseNotes = LazyLoader(lazy(() => import("./content/ReleaseNotes/Controller")));
 const Organizations = LazyLoader(lazy(() => import("./content/organizations/Controller")));
 const Studies = LazyLoader(lazy(() => import("./content/studies/Controller")));
 const Status404 = LazyLoader(lazy(() => import("./content/status/Page404")));
 const OperationDashboard = LazyLoader(
-  lazy(() => import("./content/operationDashboard/Controller"))
+  lazy(() => import("./content/OperationDashboard/Controller"))
 );
 
 const routes: RouteObject[] = [
@@ -37,8 +37,8 @@ const routes: RouteObject[] = [
         element: <Login />,
       },
       {
-        path: "/model-navigator/:dataCommon",
-        element: <DMN />,
+        path: "/model-navigator/:model/:version?",
+        element: <ModelNavigator />,
       },
       {
         path: "/release-notes",
@@ -105,12 +105,12 @@ const routes: RouteObject[] = [
         ),
       },
       {
-        path: "/organizations/:orgId?",
+        path: "/programs/:orgId?",
         element: (
           <RequireAuth
             component={<Organizations />}
-            redirectPath="/organizations"
-            redirectName="Organization Management"
+            redirectPath="/programs"
+            redirectName="Program Management"
           />
         ),
       },

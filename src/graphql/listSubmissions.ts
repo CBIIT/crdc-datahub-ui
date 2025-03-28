@@ -1,9 +1,10 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
+export const query: TypedDocumentNode<Response, Input> = gql`
   query listSubmissions(
     $organization: String
-    $status: String
+    $status: [String]
     $dataCommons: String
     $name: String
     $dbGaPID: String
@@ -30,11 +31,10 @@ export const query = gql`
         _id
         name
         submitterName
+        dataCommons
         organization {
-          _id
           name
         }
-        dataCommons
         studyAbbreviation
         dbGaPID
         modelVersion
@@ -58,7 +58,7 @@ export const query = gql`
 
 export type Input = {
   organization?: string;
-  status?: SubmissionStatus | "All";
+  status?: SubmissionStatus[];
   dataCommons?: string;
   name?: string;
   dbGaPID?: string;
@@ -72,7 +72,24 @@ export type Input = {
 export type Response = {
   listSubmissions: {
     total: number;
-    submissions: Omit<Submission, "submitterID" | "bucketName" | "rootPath" | "history">[];
+    submissions: Pick<
+      Submission,
+      | "_id"
+      | "name"
+      | "submitterName"
+      | "dataCommons"
+      | "organization"
+      | "studyAbbreviation"
+      | "dbGaPID"
+      | "modelVersion"
+      | "status"
+      | "archived"
+      | "conciergeName"
+      | "nodeCount"
+      | "createdAt"
+      | "updatedAt"
+      | "intention"
+    >[];
     organizations: Pick<Organization, "_id" | "name">[];
     submitterNames: string[];
     dataCommons: string[];
