@@ -235,6 +235,10 @@ describe("Basic Functionality", () => {
     // Open confirmation dialog
     userEvent.click(getByTestId("cancel-restore-application-button"));
 
+    // Enter reason for action
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "mock reason");
+
     // Click dialog confirm button
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
     userEvent.click(button);
@@ -282,6 +286,10 @@ describe("Basic Functionality", () => {
 
     // Open confirmation dialog
     userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    // Enter reason for action
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "mock reason");
 
     // Click dialog confirm button
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
@@ -336,6 +344,10 @@ describe("Basic Functionality", () => {
 
     // Open confirmation dialog
     userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    // Enter reason for action
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "mock reason");
 
     // Click dialog confirm button
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
@@ -393,6 +405,10 @@ describe("Basic Functionality", () => {
     // Open confirmation dialog
     userEvent.click(getByTestId("cancel-restore-application-button"));
 
+    // Enter reason for action
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "mock reason");
+
     // Click dialog confirm button
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
     userEvent.click(button);
@@ -437,6 +453,10 @@ describe("Basic Functionality", () => {
 
     // Open confirmation dialog
     userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    // Enter reason for action
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "mock reason");
 
     // Click dialog confirm button
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
@@ -485,6 +505,10 @@ describe("Basic Functionality", () => {
 
     // Open confirmation dialog
     userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    // Enter reason for action
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "mock reason");
 
     // Click dialog confirm button
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
@@ -539,6 +563,10 @@ describe("Basic Functionality", () => {
 
     // Open confirmation dialog
     userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    // Enter reason for action
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "mock reason");
 
     // Click dialog confirm button
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
@@ -595,6 +623,10 @@ describe("Basic Functionality", () => {
 
     // Open confirmation dialog
     userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    // Enter reason for action
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "mock reason");
 
     // Click dialog confirm button
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
@@ -937,5 +969,66 @@ describe("Implementation Requirements", () => {
     expect(dialog).toBeInTheDocument();
 
     expect(getByTestId("delete-dialog-description")).toHaveTextContent("Study: NA");
+  });
+
+  it("should require a reason for canceling", async () => {
+    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
+      {
+        request: {
+          query: CANCEL_APP,
+        },
+        variableMatcher: mockMatcher,
+        result: {
+          data: {
+            cancelApplication: {
+              _id: "some id",
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByRole, getByTestId } = render(
+      <Button
+        application={{
+          ...baseApp,
+          _id: "mock-id-cancel-reason",
+          status: "New",
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={mocks}
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    // Open confirmation dialog
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    expect(button).toBeDisabled();
+
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "this is a mock reason xyz 123");
+
+    expect(button).toBeEnabled();
+
+    userEvent.click(button);
+
+    await waitFor(() => {
+      expect(mockMatcher).toHaveBeenCalledWith({
+        _id: "mock-id-cancel-reason",
+        comment: "this is a mock reason xyz 123",
+      });
+    });
   });
 });

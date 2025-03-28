@@ -1,4 +1,13 @@
-import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
+import {
+  Button,
+  ButtonProps,
+  Dialog,
+  DialogProps,
+  IconButton,
+  Stack,
+  Typography,
+  styled,
+} from "@mui/material";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
 const StyledDialog = styled(Dialog)({
@@ -66,7 +75,7 @@ const StyledHeader = styled(Typography)({
   marginBottom: "50px",
 });
 
-const StyledDescription = styled(Typography)({
+const StyledDescription = styled("div")({
   fontFamily: "'Public Sans', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
@@ -78,8 +87,10 @@ type Props = {
   header?: string;
   description?: string | JSX.Element;
   closeText?: string;
-  confirmText?: string;
+  closeButtonProps?: Omit<ButtonProps, "children" | "onClick">;
   onClose: () => void;
+  confirmText?: string;
+  confirmButtonProps?: Omit<ButtonProps, "children" | "onClick">;
   onConfirm: () => void;
 } & Omit<DialogProps, "onClose" | "title">;
 
@@ -87,8 +98,10 @@ const DeleteDialog = ({
   header = "Remove Data",
   description,
   closeText = "Cancel",
-  confirmText = "Confirm to Remove",
+  closeButtonProps = {},
   onClose,
+  confirmText = "Confirm to Remove",
+  confirmButtonProps = {},
   onConfirm,
   open,
   ...rest
@@ -123,6 +136,7 @@ const DeleteDialog = ({
         onClick={onClose}
         aria-label="Cancel button"
         data-testid="delete-dialog-cancel-button"
+        {...closeButtonProps}
       >
         {closeText}
       </StyledCloseButton>
@@ -133,6 +147,7 @@ const DeleteDialog = ({
         onClick={onConfirm}
         aria-label="Confirm to Remove button"
         data-testid="delete-dialog-confirm-button"
+        {...confirmButtonProps}
       >
         {confirmText}
       </StyledConfirmButton>

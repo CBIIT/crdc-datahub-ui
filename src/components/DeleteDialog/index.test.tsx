@@ -103,6 +103,31 @@ describe("Basic Functionality", () => {
       expect(mockOnConfirm).toHaveBeenCalledTimes(1);
     });
   });
+
+  it("should forward button props to the close button", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <Dialog open onConfirm={jest.fn} onClose={jest.fn} closeButtonProps={{ disabled: true }} />
+      </TestParent>
+    );
+
+    expect(getByTestId("delete-dialog-cancel-button")).toBeDisabled();
+  });
+
+  it("should forward button props to the confirm button", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <Dialog
+          open
+          onConfirm={jest.fn}
+          onClose={jest.fn}
+          confirmButtonProps={{ disabled: true }}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("delete-dialog-confirm-button")).toBeDisabled();
+  });
 });
 
 describe("Implementation Requirements", () => {

@@ -97,7 +97,7 @@ describe("StatusBar > General Tests", () => {
 
     const { getByText } = render(<BaseComponent data={data} />);
 
-    expect(() => getByText("Review Comments")).toThrow();
+    expect(() => getByText("View Comments")).toThrow();
   });
 
   it("renders the comments button only if there are review comments", () => {
@@ -110,10 +110,10 @@ describe("StatusBar > General Tests", () => {
     };
 
     const { getByText } = render(<BaseComponent data={data} />);
-    const btn = getByText("Review Comments");
+    const btn = getByText("View Comments");
 
     expect(btn).toBeVisible();
-    expect(btn).toHaveAttribute("aria-label", "Review Comments");
+    expect(btn).toHaveAttribute("aria-label", "View Comments");
   });
 
   it("new applications should still display the correct last updated date", () => {
@@ -214,7 +214,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    fireEvent.click(getByText("Review Comments"));
+    fireEvent.click(getByText("View Comments"));
 
     expect(getByTestId("review-comments-dialog")).toBeVisible();
   });
@@ -233,7 +233,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    fireEvent.click(getByText("Review Comments"));
+    fireEvent.click(getByText("View Comments"));
 
     expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 11\/30\/2019:/i)).toBeVisible();
@@ -255,7 +255,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    fireEvent.click(getByText("Review Comments"));
+    fireEvent.click(getByText("View Comments"));
 
     expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 12\/30\/2023:/i)).toBeVisible();
@@ -277,7 +277,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    fireEvent.click(getByText("Review Comments"));
+    fireEvent.click(getByText("View Comments"));
 
     expect(getByTestId("review-comments-dialog")).toBeVisible();
     expect(getByText(/BASED ON SUBMISSION FROM 11\/26\/2023:/i)).toBeVisible();
@@ -291,7 +291,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { getByText } = render(<BaseComponent data={data} />);
 
-    fireEvent.click(getByText("Review Comments"));
+    fireEvent.click(getByText("View Comments"));
 
     expect(getByText(/BASED ON SUBMISSION FROM 11\/24\/2009:/i)).toHaveAttribute(
       "title",
@@ -306,7 +306,7 @@ describe("StatusBar > Comments Modal Tests", () => {
 
     const { queryByTestId, getByText } = render(<BaseComponent data={data} />);
 
-    fireEvent.click(getByText("Review Comments"));
+    fireEvent.click(getByText("View Comments"));
 
     expect(queryByTestId("review-comments-dialog")).toBeVisible();
 
