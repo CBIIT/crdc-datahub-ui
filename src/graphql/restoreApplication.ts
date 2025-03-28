@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 
 export const mutation: TypedDocumentNode<Response, Input> = gql`
   mutation restoreApplication($_id: ID!, $comment: String!) {
-    restoreApplication(_id: $_id, comment: $comments) {
+    restoreApplication(_id: $_id, comment: $comment) {
       _id
     }
   }
