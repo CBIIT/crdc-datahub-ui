@@ -4,7 +4,7 @@ import { styled } from "@mui/material/styles";
 import { useFormContext } from "../../Contexts/FormContext";
 import { StatusIconMap } from "./SubmissionRequestIconMap";
 import { SortHistory } from "../../../utils";
-import ReviewCommentsDialog from "../../Shared/ReviewCommentsDialog";
+import ReviewCommentsDialog from "../../ReviewCommentsDialog";
 
 /**
  * Returns the styling for a component based on the Questionnaire Status
