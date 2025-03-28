@@ -5,11 +5,11 @@ import dayjs, { Dayjs } from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 
 import Tooltip from "../Tooltip";
-import calendarIcon from "../../assets/icons/calendar.svg";
+import calendarIcon from "../../assets/icons/calendar.svg?url";
 import { updateInputValidity } from "../../utils";
 
 const CalendarIcon = styled("div")(() => ({
-  backgroundImage: `url(${calendarIcon})`,
+  backgroundImage: `url("${calendarIcon}")`,
   backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
   width: "22.77px",

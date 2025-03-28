@@ -17,12 +17,12 @@ import { useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import studyIcon from "../../assets/icons/study_icon.svg";
+import studyIcon from "../../assets/icons/study_icon.svg?url";
 import usePageTitle from "../../hooks/usePageTitle";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import { formatORCIDInput, isValidORCID } from "../../utils";
-import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg";
+import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg?url";
 import Tooltip from "../../components/Tooltip";
 import options from "../../config/AccessTypesConfig";
 import {
@@ -53,7 +53,7 @@ const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
 }));
 
 const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
-  backgroundImage: `url(${CheckboxCheckedIconSvg})`,
+  backgroundImage: `url("${CheckboxCheckedIconSvg}")`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   width: "24px",
@@ -68,7 +68,7 @@ const StyledContainer = styled(Container)({
 });
 
 const StyledBanner = styled("div")({
-  background: `url(${bannerSvg})`,
+  background: `url("${bannerSvg}")`,
   backgroundBlendMode: "luminosity, normal",
   backgroundSize: "cover",
   backgroundPosition: "center",

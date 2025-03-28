@@ -24,7 +24,7 @@ export type DashboardViewProps = {
 };
 
 const StyledPageContainer = styled(Box)({
-  background: `url(${bannerSvg})`,
+  background: `url("${bannerSvg}")`,
   backgroundSize: "100% 296px",
   backgroundPosition: "top",
   backgroundRepeat: "no-repeat",

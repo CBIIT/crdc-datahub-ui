@@ -21,7 +21,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import profileIcon from "../../assets/icons/profile_icon.svg";
+import profileIcon from "../../assets/icons/profile_icon.svg?url";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { Roles } from "../../config/AuthRoles";
@@ -65,7 +65,7 @@ const StyledContainer = styled(Container)({
 });
 
 const StyledBanner = styled("div")({
-  background: `url(${bannerSvg})`,
+  background: `url("${bannerSvg}")`,
   backgroundBlendMode: "luminosity, normal",
   backgroundSize: "cover",
   backgroundPosition: "center",

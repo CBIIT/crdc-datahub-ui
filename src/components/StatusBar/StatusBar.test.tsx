@@ -5,8 +5,8 @@ import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import { ContextState, Context as FormCtx, Status as FormStatus } from "../Contexts/FormContext";
 import StatusBar from "./StatusBar";
-import StatusApproved from "../../assets/history/submissionRequest/StatusApproved.svg";
-import StatusRejected from "../../assets/history/submissionRequest/StatusRejected.svg";
+import StatusApproved from "../../assets/history/submissionRequest/StatusApproved.svg?url";
+import StatusRejected from "../../assets/history/submissionRequest/StatusRejected.svg?url";
 import { FormatDate } from "../../utils";
 import { HistoryIconMap } from "./components/SubmissionRequestIconMap";
 

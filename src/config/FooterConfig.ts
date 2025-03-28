@@ -1,8 +1,8 @@
-import instagramIcon from "../assets/footer/Instgram_Logo.svg";
-import twitterIcon from "../assets/footer/Twitter_Logo.svg";
-import facebookIcon from "../assets/footer/Facebook_Logo.svg";
-import youtubeIcon from "../assets/footer/Youtube_Logo.svg";
-import linkedInIcon from "../assets/footer/LinkedIn_Logo.svg";
+import instagramIcon from "../assets/footer/Instgram_Logo.svg?url";
+import twitterIcon from "../assets/footer/Twitter_Logo.svg?url";
+import facebookIcon from "../assets/footer/Facebook_Logo.svg?url";
+import youtubeIcon from "../assets/footer/Youtube_Logo.svg?url";
+import linkedInIcon from "../assets/footer/LinkedIn_Logo.svg?url";
 import { parseReleaseVersion } from "../utils";
 
 const FooterConfig: FooterConfiguration = {

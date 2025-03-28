@@ -1,6 +1,6 @@
-import Logo from "../assets/header/Portal_Logo.svg";
-import LogoSmall from "../assets/header/Portal_Logo_Small.svg";
-import usaFlagSmall from "../assets/header/us_flag_small.svg";
+import Logo from "../assets/header/Portal_Logo.svg?url";
+import LogoSmall from "../assets/header/Portal_Logo_Small.svg?url";
+import usaFlagSmall from "../assets/header/us_flag_small.svg?url";
 import { DataCommons } from "./DataCommons";
 import ApiInstructions from "../assets/pdf/CRDC_Data_Submission_API_Instructions.pdf";
 

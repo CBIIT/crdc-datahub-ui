@@ -2,9 +2,9 @@ import React, { HTMLProps, useEffect, useState } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { styled } from "@mui/material";
 import Logo from "./LogoMobile";
-import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg";
-import rightArrowIcon from "../../../assets/header/Right_Arrow.svg";
-import leftArrowIcon from "../../../assets/header/Left_Arrow.svg";
+import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg?url";
+import rightArrowIcon from "../../../assets/header/Right_Arrow.svg?url";
+import leftArrowIcon from "../../../assets/header/Left_Arrow.svg?url";
 import { HeaderLinks, HeaderSubLinks } from "../../../config/HeaderConfig";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
@@ -85,7 +85,7 @@ const MenuArea = styled("div")({
     lineHeight: "16px",
     color: "#007BBD",
     paddingLeft: "16px",
-    background: `url(${leftArrowIcon}) left no-repeat`,
+    background: `url("${leftArrowIcon}") left no-repeat`,
     "&:hover": {
       cursor: "pointer",
     },
@@ -115,7 +115,7 @@ const MenuArea = styled("div")({
     paddingLeft: "24px",
   },
   "& .clickable": {
-    background: `url(${rightArrowIcon}) 90% no-repeat`,
+    background: `url("${rightArrowIcon}") 90% no-repeat`,
     cursor: "pointer",
   },
   "& .action": {

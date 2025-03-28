@@ -33,7 +33,7 @@ import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
-  background: `url(${bannerSrc})`,
+  background: `url("${bannerSrc}")`,
   backgroundBlendMode: "luminosity, normal",
   backgroundSize: "cover",
   backgroundPosition: "center",
@@ -127,7 +127,7 @@ const StyledWrapper = styled("div")({
 });
 
 const StyledCardContent = styled(CardContent)({
-  background: `url(${summaryBannerPng})`,
+  background: `url("${summaryBannerPng}")`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   backgroundPosition: "top",

@@ -1,9 +1,9 @@
 import { IconButton, Tooltip as MuiToolTip, TooltipProps, styled } from "@mui/material";
 import { useState } from "react";
-import infoCircleIcon from "../../assets/icons/info_circle.svg";
+import infoCircleIcon from "../../assets/icons/info_circle.svg?url";
 
 const InfoIcon = styled("div")(() => ({
-  backgroundImage: `url(${infoCircleIcon})`,
+  backgroundImage: `url("${infoCircleIcon}")`,
   backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
   width: "12px",
