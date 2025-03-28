@@ -131,7 +131,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
     try {
       if (isRestoreAction) {
         const { data: d, errors } = await restoreApp({
-          variables: { _id, comments },
+          variables: { _id, comment: comments },
         });
 
         if (errors || !d?.restoreApplication?._id) {
@@ -139,7 +139,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
         }
       } else {
         const { data: d, errors } = await cancelApp({
-          variables: { _id, comments },
+          variables: { _id, comment: comments },
         });
 
         if (errors || !d?.cancelApplication?._id) {

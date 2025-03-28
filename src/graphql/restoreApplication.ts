@@ -2,8 +2,8 @@ import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
 export const mutation: TypedDocumentNode<Response, Input> = gql`
-  mutation restoreApplication($_id: ID!, $comments: String!) {
-    restoreApplication(_id: $_id, comments: $comments) {
+  mutation restoreApplication($_id: ID!, $comment: String!) {
+    restoreApplication(_id: $_id, comment: $comments) {
       _id
     }
   }
@@ -17,7 +17,7 @@ export type Input = {
   /**
    * Justification for restoring the application
    */
-  comments: string;
+  comment: string;
 };
 
 export type Response = {
