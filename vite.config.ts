@@ -15,6 +15,10 @@ export default defineConfig({
   server: {
     open: true, // automatically open the app in the browser
     port: 3010,
+    hmr: {
+      port: 3010,
+      protocol: "ws",
+    },
   },
   build: {
     outDir: "build",
