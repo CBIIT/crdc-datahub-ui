@@ -3,10 +3,10 @@ import { Typography, styled } from "@mui/material";
 import Tooltip from "../../Tooltip";
 import { formatFullStudyName } from "../../../utils";
 
-const StyledStudyCount = styled(Typography)<{ component: ElementType }>(({ theme }) => ({
+const StyledStudyCount = styled(Typography)<{ component: ElementType }>(() => ({
   textDecoration: "underline",
   cursor: "pointer",
-  color: theme.palette.primary.main,
+  color: "#0B6CB1",
 }));
 
 const StyledList = styled("ul")({
