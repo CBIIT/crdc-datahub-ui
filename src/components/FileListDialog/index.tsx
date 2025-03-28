@@ -9,7 +9,7 @@ import {
   styled,
 } from "@mui/material";
 import { isEqual } from "lodash";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import GenericTable, { Column } from "../GenericTable";
 import { FormatDate, paginateAndSort } from "../../utils";
 

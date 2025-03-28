@@ -5,7 +5,7 @@ import { LoadingButton } from "@mui/lab";
 import { isEqual } from "lodash";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
-import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
+import BellIcon from "../../assets/icons/filled_bell_icon.svg?react";
 import PageBanner from "../../components/PageBanner";
 import { extractVersion, FormatDate, Logger } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";

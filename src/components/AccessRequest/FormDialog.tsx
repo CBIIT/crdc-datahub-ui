@@ -4,7 +4,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";

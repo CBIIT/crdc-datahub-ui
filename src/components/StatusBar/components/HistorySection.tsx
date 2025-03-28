@@ -5,7 +5,7 @@ import { HistoryIconMap } from "./SubmissionRequestIconMap";
 import { useFormContext } from "../../Contexts/FormContext";
 import { FormatDate } from "../../../utils";
 import HistoryDialog from "../../HistoryDialog";
-import { ReactComponent as BellIcon } from "../../../assets/icons/border_filled_bell_icon.svg";
+import BellIcon from "../../../assets/icons/border_filled_bell_icon.svg?react";
 import Tooltip from "../../Tooltip";
 import { TOOLTIP_TEXT } from "../../../config/QuestionnaireTooltips";
 

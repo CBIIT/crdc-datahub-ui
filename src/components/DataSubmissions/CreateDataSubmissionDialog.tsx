@@ -23,8 +23,8 @@ import {
 } from "../../graphql";
 import RadioInput, { RadioOption } from "./RadioInput";
 import { DataCommons } from "../../config/DataCommons";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
+import BellIcon from "../../assets/icons/filled_bell_icon.svg?react";
 import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";

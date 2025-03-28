@@ -2,7 +2,7 @@ import { Button, Divider, Grid, Stack, Typography, styled } from "@mui/material"
 import React, { FC, useMemo, useState } from "react";
 import { isEqual } from "lodash";
 import SubmissionHeaderProperty, { StyledValue } from "./SubmissionHeaderProperty";
-import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
+import EmailIconSvg from "../../assets/icons/email_icon.svg?react";
 import HistoryDialog from "../HistoryDialog";
 import DataSubmissionIconMap from "./DataSubmissionIconMap";
 import ReviewCommentsDialog from "../Shared/ReviewCommentsDialog";

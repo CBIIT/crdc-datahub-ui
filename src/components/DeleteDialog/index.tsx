@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
