@@ -2,7 +2,7 @@ import { ThemeProvider, rgbToHex } from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
 import { render, fireEvent, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
-import ReviewCommentsDialog from ".";
+import ReviewCommentsDialog from "./index";
 import theme from "../../theme";
 
 type Props<T, H> = {
