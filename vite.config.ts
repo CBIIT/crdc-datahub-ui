@@ -5,7 +5,13 @@ import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
   base: "./",
-  plugins: [react(), svgr({ svgrOptions: { ref: true } }), vitetsConfigPaths()],
+  plugins: [
+    react(),
+    svgr({
+      svgrOptions: { exportType: "default", ref: true, svgo: false, titleProp: true },
+    }),
+    vitetsConfigPaths(),
+  ],
   server: {
     open: true, // automatically open the app in the browser
     port: 3010,
