@@ -130,15 +130,17 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
   const notificationsValue = watch("notifications");
   const roleRef = useRef<UserRole>(selectedRole);
 
-  const permissionColumns = useMemo<ColumnizedPBACGroups<AuthPermissions>>(() => {
+  const [permissionCount, permissionColumns] = useMemo<
+    [number, ColumnizedPBACGroups<AuthPermissions>]
+  >(() => {
     if (!data?.retrievePBACDefaults && loading) {
-      return [];
+      return [0, []];
     }
 
     const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
     if (!defaults || !defaults?.permissions) {
       Logger.error("Role not found in PBAC defaults", { role: selectedRole, data });
-      return [];
+      return [0, []];
     }
 
     const clonedPermissions = cloneDeep(defaults.permissions);
@@ -153,18 +155,23 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
       disabled: p.disabled || inheritedPermissions.includes(p._id),
     }));
 
-    return columnizePBACGroups(remappedPermissions, 3);
+    return [
+      remappedPermissions.filter((p) => p.checked).length,
+      columnizePBACGroups(remappedPermissions, 3),
+    ];
   }, [data, permissionsValue]);
 
-  const notificationColumns = useMemo<ColumnizedPBACGroups<AuthNotifications>>(() => {
+  const [notificationCount, notificationColumns] = useMemo<
+    [number, ColumnizedPBACGroups<AuthNotifications>]
+  >(() => {
     if (!data?.retrievePBACDefaults && loading) {
-      return [];
+      return [0, []];
     }
 
     const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
     if (!defaults || !defaults?.notifications) {
       Logger.error("Role not found in PBAC defaults", { role: selectedRole, data });
-      return [];
+      return [0, []];
     }
 
     const clonedNotifications = cloneDeep(defaults.notifications);
@@ -183,7 +190,10 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
       })
     );
 
-    return columnizePBACGroups(remappedNotifications, 3);
+    return [
+      remappedNotifications.filter((p) => p.checked).length,
+      columnizePBACGroups(remappedNotifications, 3),
+    ];
   }, [data, notificationsValue]);
 
   const handlePermissionChange = (_id: AuthPermissions) => {
@@ -260,7 +270,7 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
       <StyledAccordion elevation={0} data-testid="permissions-accordion">
         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
           <StyledAccordionHeader component="span">
-            Permissions <span data-testid="permissions-count">({permissionsValue?.length})</span>
+            Permissions <span data-testid="permissions-count">({permissionCount})</span>
           </StyledAccordionHeader>
         </StyledAccordionSummary>
         <AccordionDetails>
@@ -298,8 +308,7 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
       <StyledAccordion elevation={0} data-testid="notifications-accordion">
         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
           <StyledAccordionHeader component="span">
-            Email Notifications{" "}
-            <span data-testid="notifications-count">({notificationsValue?.length})</span>
+            Email Notifications <span data-testid="notifications-count">({notificationCount})</span>
           </StyledAccordionHeader>
         </StyledAccordionSummary>
         <AccordionDetails>
