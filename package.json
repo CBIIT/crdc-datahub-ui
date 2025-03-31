@@ -8,8 +8,8 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "test": "TZ=UTC react-scripts test",
-    "test:ci": "TZ=UTC CI=true react-scripts test --passWithNoTests --coverage --maxWorkers=2 --maxConcurrent=2 --logHeapUsage --collectCoverageFrom=src/**/*.{js,ts,jsx,tsx} --collectCoverageFrom=!src/**/*.stories.{js,ts,jsx,tsx}",
+    "test": "TZ=UTC vitest",
+    "test:ci": "TZ=UTC CI=true vitest --passWithNoTests --coverage --maxWorkers=2 --maxConcurrent=2 --logHeapUsage --collectCoverageFrom=src/**/*.{js,ts,jsx,tsx} --collectCoverageFrom=!src/**/*.stories.{js,ts,jsx,tsx}",
     "lint": "eslint . --ignore-path .gitignore",
     "lint:ci": "eslint . --ignore-path .gitignore --max-warnings 0",
     "lint:fix": "eslint --fix . --ignore-path .gitignore",
@@ -98,6 +98,7 @@
     "jest-axe": "^8.0.0",
     "jest-canvas-mock": "^2.5.2",
     "jest-fail-on-console": "^3.3.0",
+    "jsdom": "^26.0.0",
     "prettier": "^3.1.1",
     "storybook": "^8.6.4",
     "storybook-addon-apollo-client": "^8.1.2",
@@ -107,6 +108,7 @@
     "vite": "^6.2.3",
     "vite-plugin-svgr": "^4.3.0",
     "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.9",
     "webpack": "^5.98.0"
   },
   "browserslist": {
