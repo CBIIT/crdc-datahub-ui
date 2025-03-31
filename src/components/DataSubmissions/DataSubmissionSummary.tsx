@@ -5,7 +5,7 @@ import SubmissionHeaderProperty, { StyledValue } from "./SubmissionHeaderPropert
 import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
 import HistoryDialog from "../HistoryDialog";
 import DataSubmissionIconMap from "./DataSubmissionIconMap";
-import ReviewCommentsDialog from "../Shared/ReviewCommentsDialog";
+import ReviewCommentsDialog from "../ReviewCommentsDialog";
 import { SortHistory } from "../../utils";
 import TruncatedText from "../TruncatedText";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
@@ -293,7 +293,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
       <ReviewCommentsDialog
         open={openDialog === "review comments"}
         onClose={handleCloseDialog}
-        title="Data Submission"
+        preTitle="Data Submission"
         lastReview={lastReview}
       />
       <CollaboratorsProvider>

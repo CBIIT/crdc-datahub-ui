@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { fn } from "@storybook/test";
 import Dialog from "./index";
 
 const meta = {
@@ -18,7 +19,23 @@ export const Default: Story = {
     header: "Dialog Title",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     confirmText: "Confirm",
-    onClose: () => {},
-    onConfirm: () => {},
+    onClose: fn(),
+    onConfirm: fn(),
+  },
+};
+
+export const CustomizedButtons: Story = {
+  args: {
+    open: true,
+    header: "Dialog Title",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    onClose: fn(),
+    closeButtonProps: {
+      color: "primary",
+    },
+    onConfirm: fn(),
+    confirmButtonProps: {
+      disabled: true,
+    },
   },
 };
