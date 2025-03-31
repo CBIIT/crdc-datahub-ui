@@ -1,4 +1,22 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Snapshots > should match the nominal state snapshot 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-17gs3ot"
+  >
+    <p
+      class="MuiTypography-root MuiTypography-body1 css-1r7ezte-MuiTypography-root"
+      data-testid="node-comparison-header"
+    >
+      A record with this ID already exists. Review the existing and newly submitted data to decide whether to update the current record.
+    </p>
+    <div>
+      MOCK COMPARISON TABLE
+    </div>
+  </div>
+</div>
+`;
 
 exports[`Snapshots should match the nominal state snapshot 1`] = `
 <div>

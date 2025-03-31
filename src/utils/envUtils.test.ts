@@ -1,15 +1,17 @@
+import { vi } from "vitest";
+
 describe("parseReleaseVersion cases", () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
 
     // Reset the environment variables back to their original values
     process.env = { ...originalEnv };
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should return the correct version when VITE_FE_VERSION is valid", async () => {
@@ -78,7 +80,7 @@ describe("parseReleaseVersion cases", () => {
 
     // NOTE: Previous safety checks should prevent this from happening,
     // so we're just mocking some improper `match` behavior here
-    jest.spyOn(String.prototype, "match").mockReturnValueOnce([undefined, undefined]);
+    vi.spyOn(String.prototype, "match").mockReturnValueOnce([undefined, undefined]);
 
     const { parseReleaseVersion } = await import("./envUtils");
 
@@ -90,14 +92,14 @@ describe("buildReleaseNotesUrl cases", () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
 
     // Reset the environment variables back to their original values
     process.env = { ...originalEnv };
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should return the correct URL when VITE_FE_VERSION is valid", async () => {
@@ -141,14 +143,14 @@ describe("getFilteredDataCommons cases", () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
 
     // Reset the environment variables back to their original values
     process.env = { ...originalEnv };
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should return an empty array when VITE_HIDDEN_MODELS is not set", async () => {

@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import * as utils from "./profileUtils";
 
 describe("formatIDP cases", () => {
@@ -26,7 +27,7 @@ describe("formatIDP cases", () => {
 
 describe("userToCollaborator cases", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should convert a full user object to a collaborator with default permission", () => {

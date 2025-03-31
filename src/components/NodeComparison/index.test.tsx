@@ -3,6 +3,7 @@ import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC } from "react";
 import { GraphQLError } from "graphql";
+import { vi } from "vitest";
 import {
   RETRIEVE_RELEASED_DATA,
   RetrieveReleasedDataInput,
@@ -10,8 +11,8 @@ import {
 } from "../../graphql";
 import NodeComparison from "./index";
 
-const mockTableRender = jest.fn().mockImplementation(() => <div>MOCK COMPARISON TABLE</div>);
-jest.mock("./ComparisonTable", () => ({
+const mockTableRender = vi.fn().mockImplementation(() => <div>MOCK COMPARISON TABLE</div>);
+vi.mock("./ComparisonTable", () => ({
   __esModule: true,
   default: (...p) => mockTableRender(...p),
 }));
@@ -253,7 +254,7 @@ describe("Implementation Requirements", () => {
 
 describe("Snapshots", () => {
   it("should match the nominal state snapshot", async () => {
-    const mockMatcher = jest.fn().mockReturnValue(true);
+    const mockMatcher = vi.fn().mockReturnValue(true);
     const mock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedDataInput> = {
       request: {
         query: RETRIEVE_RELEASED_DATA,

@@ -1,6 +1,7 @@
 import { ThemeProvider, rgbToHex } from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
 import { render, fireEvent, waitFor } from "@testing-library/react";
+import { vi } from "vitest";
 import { axe } from "jest-axe";
 import ReviewCommentsDialog from "./ReviewCommentsDialog";
 import theme from "../../theme";
@@ -95,7 +96,7 @@ describe("ReviewCommentsDialog Tests", () => {
   });
 
   it("closes the dialog when the close button is clicked", async () => {
-    const mockClose = jest.fn();
+    const mockClose = vi.fn();
     const data = {
       open: true,
       title: "",

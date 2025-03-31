@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
+import { vi } from "vitest";
 import { SearchParamsProvider, useSearchParamsContext } from "./SearchParamsContext";
 
 const TestChild = () => {
@@ -172,7 +173,7 @@ describe("SearchParamsContext", () => {
   });
 
   it("throws an error when used outside of provider", () => {
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "useSearchParamsContext cannot be used outside of the SearchParamsProvider component"
     );

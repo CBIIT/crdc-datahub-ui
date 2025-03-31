@@ -1,10 +1,11 @@
 import { render, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { vi } from "vitest";
 import RequireAuth from "./index";
 
-const mockUseAuthContext = jest.fn();
-jest.mock("../Contexts/AuthContext", () => ({
-  ...jest.requireActual("../Contexts/AuthContext"),
+const mockUseAuthContext = vi.fn();
+vi.mock("../Contexts/AuthContext", () => ({
+  ...vi.importActual("../Contexts/AuthContext"),
   useAuthContext: () => mockUseAuthContext(),
 }));
 

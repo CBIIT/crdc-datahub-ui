@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { Mock, vi } from "vitest";
 import QualityControlFilters from "./QualityControlFilters";
 import {
   AGGREGATED_SUBMISSION_QC_RESULTS,
@@ -73,7 +74,7 @@ interface TestParentProps {
   submissionContextValue?: SubmissionCtxState;
   issueTypeProp?: string | null;
   isAggregated?: boolean;
-  onChange?: jest.Mock;
+  onChange?: Mock;
   mocks?: MockedResponse[];
 }
 
@@ -81,7 +82,7 @@ const TestParent: FC<TestParentProps> = ({
   submissionContextValue,
   issueTypeProp = null,
   isAggregated = false,
-  onChange = jest.fn(),
+  onChange = vi.fn(),
   mocks = [],
 }) => {
   const value = useMemo<SubmissionCtxState>(
@@ -253,11 +254,11 @@ describe("Acessibility", () => {
 
 describe("QualityControlFilters", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders with no submissionID (queries skipped)", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -283,7 +284,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("renders defaults and triggers queries when submissionID is available", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <TestParent
         issueTypeProp={null}
@@ -316,7 +317,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("updates issueType filter from prop if different", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <TestParent
         issueTypeProp="ISSUE1"
@@ -331,7 +332,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("does not update issueType if prop is null or same as current", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, rerender } = render(
       <TestParent
         issueTypeProp={null}
@@ -358,7 +359,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("calls onChange after a filter is touched", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -448,7 +449,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("displays batchIDs from query", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -474,7 +475,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("displays nodeTypes from submissionStats", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -503,7 +504,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("only shows 'All' for empty issueTypes", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -531,7 +532,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("only shows 'All' for empty batches", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -559,7 +560,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("only shows 'All' for nodeTypes if empty stats", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -590,7 +591,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("displays only severity filter when table is in aggregated view", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}

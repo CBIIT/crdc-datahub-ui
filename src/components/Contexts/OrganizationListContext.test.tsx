@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { vi } from "vitest";
 import {
   OrganizationProvider,
   Status as OrgStatus,
@@ -53,11 +54,11 @@ const TestParent: FC<Props> = ({ mocks, preload = true, children }: Props) => (
 
 describe("OrganizationListContext > useOrganizationListContext Tests", () => {
   it("should throw an exception when used outside of the OrganizationProvider", () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "OrganizationListContext cannot be used outside of the OrganizationProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 });
 

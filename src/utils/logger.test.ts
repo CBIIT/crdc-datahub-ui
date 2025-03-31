@@ -1,20 +1,21 @@
+import { vi } from "vitest";
 import { Logger } from "./logger";
 import env from "../env";
 
 describe("Logger", () => {
   const originalEnv = process.env;
 
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy;
 
   beforeEach(() => {
     // Reset the environment variables back to their original values
     process.env = { ...originalEnv };
 
-    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should log an error message with the correct format", () => {

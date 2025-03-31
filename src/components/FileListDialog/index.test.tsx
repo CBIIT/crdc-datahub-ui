@@ -2,6 +2,7 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { render, waitFor, within } from "@testing-library/react";
 import { axe } from "jest-axe";
+import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import Dialog from "./index";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
@@ -84,7 +85,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'Close' button is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -101,7 +102,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'X' icon is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -118,7 +119,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />

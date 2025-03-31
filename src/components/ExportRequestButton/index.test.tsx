@@ -2,6 +2,7 @@ import { FC, useMemo } from "react";
 import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
+import { vi } from "vitest";
 import ExportRequestButton from "./index";
 import {
   ContextState as FormContextState,
@@ -11,14 +12,14 @@ import {
 import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 
-const mockGenerate = jest.fn();
-jest.mock("./pdf/Generate", () => ({
+const mockGenerate = vi.fn();
+vi.mock("./pdf/Generate", () => ({
   GenerateDocument: (...args) => mockGenerate(...args),
 }));
 
-const mockDownloadBlob = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockDownloadBlob = vi.fn();
+vi.mock("../../utils", () => ({
+  ...vi.importActual("../../utils"),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 
@@ -88,7 +89,7 @@ const TestParent: FC<TestParentProps> = ({
 
 describe("Accessibility", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not have any violations", async () => {
@@ -124,11 +125,11 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
   });
 
   it("should render without crashing", () => {
@@ -138,7 +139,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should disable the button when building the document", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     mockGenerate.mockImplementation(
       () =>
         new Promise((res) => {
@@ -178,7 +179,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should display an error message on failed export", async () => {
-    jest.spyOn(console, "error").mockImplementation(() => null);
+    vi.spyOn(console, "error").mockImplementation(() => null);
 
     mockGenerate.mockRejectedValue(new Error("mock error"));
 
@@ -214,7 +215,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should have a tooltip on hover", async () => {

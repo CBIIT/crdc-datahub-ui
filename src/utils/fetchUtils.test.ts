@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import * as utils from "./fetchUtils";
 
 describe("fetchReleaseNotes", () => {
@@ -5,24 +6,24 @@ describe("fetchReleaseNotes", () => {
 
   beforeEach(() => {
     sessionStorage.clear();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should successfully handle fetching of release notes", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      text: jest.fn().mockResolvedValue(mockReleaseNotes),
+      text: vi.fn().mockResolvedValue(mockReleaseNotes),
     });
 
     expect(await utils.fetchReleaseNotes()).toBe(mockReleaseNotes);
   });
 
   it("should cache successful responses in sessionStorage", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      text: jest.fn().mockResolvedValue(mockReleaseNotes),
+      text: vi.fn().mockResolvedValue(mockReleaseNotes),
     });
 
     expect(sessionStorage.getItem("releaseNotes")).toBeNull();
@@ -33,7 +34,7 @@ describe("fetchReleaseNotes", () => {
   });
 
   it("should return cached release notes from sessionStorage", async () => {
-    const fetchSpy = jest.spyOn(global, "fetch");
+    const fetchSpy = vi.spyOn(global, "fetch");
 
     sessionStorage.setItem("releaseNotes", mockReleaseNotes);
 
@@ -44,13 +45,13 @@ describe("fetchReleaseNotes", () => {
   });
 
   it("should forward fetch errors", async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error("Test network error"));
+    global.fetch = vi.fn().mockRejectedValue(new Error("Test network error"));
 
     await expect(utils.fetchReleaseNotes()).rejects.toThrow("Test network error");
   });
 
   it("should handle non-200 HTTP responses", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 404,
     });
@@ -61,20 +62,20 @@ describe("fetchReleaseNotes", () => {
   });
 
   it("should handle an empty release notes document", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      text: jest.fn().mockResolvedValue(""),
+      text: vi.fn().mockResolvedValue(""),
     });
 
     await expect(utils.fetchReleaseNotes()).rejects.toThrow("Release notes document is empty.");
   });
 
   it("should  handle an error thrown while retrieving the response text", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      text: jest.fn().mockRejectedValue(new Error("some mock text error")),
+      text: vi.fn().mockRejectedValue(new Error("some mock text error")),
     });
 
     await expect(utils.fetchReleaseNotes()).rejects.toThrow("some mock text error");
@@ -83,43 +84,43 @@ describe("fetchReleaseNotes", () => {
 
 describe("authenticationLogout", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should successfully handle a successful logout request (API)", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({ status: true }),
+      json: vi.fn().mockResolvedValue({ status: true }),
     });
 
     expect(await utils.authenticationLogout()).toBe(true);
   });
 
   it("should handle a failed logout request (API)", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({ status: false }),
+      json: vi.fn().mockResolvedValue({ status: false }),
     });
 
     expect(await utils.authenticationLogout()).toBe(false);
   });
 
   it("should handle a network error", async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error("Test network error"));
+    global.fetch = vi.fn().mockRejectedValue(new Error("Test network error"));
 
     await expect(utils.authenticationLogout()).resolves.toBe(false);
   });
 
   it("should handle an abort error", async () => {
-    global.fetch = jest.fn().mockRejectedValue({ name: "AbortError" });
+    global.fetch = vi.fn().mockRejectedValue({ name: "AbortError" });
 
     await expect(utils.authenticationLogout()).resolves.toBe(false);
   });
 
   it("should handle a json promise rejection", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: jest.fn().mockRejectedValue(new Error("Test json error")),
+      json: vi.fn().mockRejectedValue(new Error("Test json error")),
     });
 
     await expect(utils.authenticationLogout()).resolves.toBe(false);
@@ -128,9 +129,9 @@ describe("authenticationLogout", () => {
 
 describe("authenticationLogin", () => {
   it("should successfully handle a successful login request (API)", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({ timeout: 1000, error: undefined }),
+      json: vi.fn().mockResolvedValue({ timeout: 1000, error: undefined }),
     });
 
     expect(await utils.authenticationLogin("test-code")).toEqual({
@@ -140,9 +141,9 @@ describe("authenticationLogin", () => {
   });
 
   it("should handle a failed login request (API)", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({ timeout: null, error: "Test login error" }),
+      json: vi.fn().mockResolvedValue({ timeout: null, error: "Test login error" }),
     });
 
     expect(await utils.authenticationLogin("test-code")).toEqual({
@@ -152,7 +153,7 @@ describe("authenticationLogin", () => {
   });
 
   it("should handle a network error", async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error("Test network error"));
+    global.fetch = vi.fn().mockRejectedValue(new Error("Test network error"));
 
     await expect(utils.authenticationLogin("test-code")).resolves.toEqual({
       success: false,
@@ -177,9 +178,9 @@ describe("authenticationLogin", () => {
   });
 
   it("should handle failed json parsing", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: jest.fn().mockRejectedValue(new Error("Test json error")),
+      json: vi.fn().mockRejectedValue(new Error("Test json error")),
     });
 
     await expect(utils.authenticationLogin("test-code")).resolves.toEqual({

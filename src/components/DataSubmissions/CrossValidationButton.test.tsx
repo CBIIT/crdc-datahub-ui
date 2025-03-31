@@ -2,6 +2,7 @@ import { FC } from "react";
 import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
+import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
 import {
@@ -68,10 +69,10 @@ const baseSubmissionCtx: SubmissionCtxState = {
   status: SubmissionCtxStatus.LOADING,
   data: null,
   error: null,
-  startPolling: jest.fn(),
-  stopPolling: jest.fn(),
-  refetch: jest.fn(),
-  updateQuery: jest.fn(),
+  startPolling: vi.fn(),
+  stopPolling: vi.fn(),
+  refetch: vi.fn(),
+  updateQuery: vi.fn(),
 };
 
 const baseUser: Omit<User, "role"> = {
@@ -160,7 +161,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
@@ -334,7 +335,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should be named 'Cross Validate'", () => {

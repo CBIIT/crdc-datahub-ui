@@ -1,10 +1,11 @@
 import { render, waitFor, within } from "@testing-library/react";
 import { axe } from "jest-axe";
+import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 import NewsletterForm from "./NewsletterForm";
 
-const mockWindowOpen = jest.spyOn(window, "open").mockImplementation();
+const mockWindowOpen = vi.spyOn(window, "open").mockImplementation(() => undefined);
 
 describe("Accessibility", () => {
   it("should not have any accessibility violations", async () => {
@@ -29,7 +30,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have a newsletter form", () => {

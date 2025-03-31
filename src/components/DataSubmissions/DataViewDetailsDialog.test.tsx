@@ -2,6 +2,7 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import DataViewDetailsDialog from "./DataViewDetailsDialog";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
@@ -43,7 +44,7 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
 );
 
 describe("DataViewDetailsDialog via BaseComponent", () => {
-  const mockOnClose = jest.fn();
+  const mockOnClose = vi.fn();
   const props = {
     submissionID: "12345",
     nodeType: "Node1",
@@ -54,7 +55,7 @@ describe("DataViewDetailsDialog via BaseComponent", () => {
   };
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders correctly when open", () => {

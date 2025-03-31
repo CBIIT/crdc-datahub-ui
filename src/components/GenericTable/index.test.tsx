@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "jest-axe";
+import { vi } from "vitest";
 import GenericTable, { Column, Props } from ".";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 
@@ -38,10 +39,10 @@ const defaultProps: Props<(typeof mockData)[0]> = {
   position: "bottom",
   defaultRowsPerPage: 1,
   defaultOrder: "asc",
-  onFetchData: jest.fn(),
-  onOrderChange: jest.fn(),
-  onOrderByChange: jest.fn(),
-  onPerPageChange: jest.fn(),
+  onFetchData: vi.fn(),
+  onOrderChange: vi.fn(),
+  onOrderByChange: vi.fn(),
+  onPerPageChange: vi.fn(),
 };
 
 const TestParent: FC<{ mocks?: MockedResponse[]; children: React.ReactNode }> = ({

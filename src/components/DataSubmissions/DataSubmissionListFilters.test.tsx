@@ -3,6 +3,7 @@ import { render, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
+import { vi } from "vitest";
 import DataSubmissionListFilters from "./DataSubmissionListFilters";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 import {
@@ -13,8 +14,8 @@ import {
 import { Column } from "../GenericTable";
 import { ListSubmissionsResp } from "../../graphql";
 
-jest.mock("../Contexts/OrganizationListContext", () => ({
-  useOrganizationListContext: jest.fn(),
+vi.mock("../Contexts/OrganizationListContext", () => ({
+  useOrganizationListContext: vi.fn(),
 }));
 
 type ParentProps = {
@@ -89,12 +90,12 @@ describe("DataSubmissionListFilters Component", () => {
   ];
   const columnVisibilityModel = { name: true, status: true };
 
-  const mockOnChange = jest.fn();
-  const mockOnColumnVisibilityModelChange = jest.fn();
+  const mockOnChange = vi.fn();
+  const mockOnColumnVisibilityModelChange = vi.fn();
 
   afterEach(() => {
-    jest.clearAllMocks();
-    jest.useRealTimers();
+    vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it("renders without crashing", async () => {
@@ -604,8 +605,8 @@ describe("DataSubmissionListFilters Component", () => {
       "/?program=Org1&status=Submitted&dataCommons=DataCommon1&name=Test&dbGaPID=123&submitterName=Submitter1",
     ];
 
-    const mockOnChange = jest.fn();
-    const mockOnColumnVisibilityModelChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnColumnVisibilityModelChange = vi.fn();
 
     const { getByTestId } = render(
       <TestParent initialEntries={initialEntries} userRole="Admin">
@@ -648,8 +649,8 @@ describe("DataSubmissionListFilters Component", () => {
   it("initializes study field based on searchParams and ignores invalid options", async () => {
     const initialEntries = ["/?status=Deleted&status=RandomFakeStatus"];
 
-    const mockOnChange = jest.fn();
-    const mockOnColumnVisibilityModelChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnColumnVisibilityModelChange = vi.fn();
 
     const { getByTestId } = render(
       <TestParent initialEntries={initialEntries} userRole="Admin">
@@ -679,8 +680,8 @@ describe("DataSubmissionListFilters Component", () => {
   it("initializes form fields to default when searchParams are empty", async () => {
     const initialEntries = ["/"];
 
-    const mockOnChange = jest.fn();
-    const mockOnColumnVisibilityModelChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnColumnVisibilityModelChange = vi.fn();
 
     const { getByTestId } = render(
       <TestParent initialEntries={initialEntries} userRole="Admin">
@@ -722,8 +723,8 @@ describe("DataSubmissionListFilters Component", () => {
   it("calls onChange with getValues when all filters are not touched on initial render", async () => {
     const initialEntries = ["/"];
 
-    const mockOnChange = jest.fn();
-    const mockOnColumnVisibilityModelChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnColumnVisibilityModelChange = vi.fn();
 
     render(
       <TestParent initialEntries={initialEntries} userRole="Admin">
@@ -755,8 +756,8 @@ describe("DataSubmissionListFilters Component", () => {
 
   it("sets dataCommons select to 'All' when dataCommons prop is empty", async () => {
     const initialEntries = ["/"];
-    const mockOnChange = jest.fn();
-    const mockOnColumnVisibilityModelChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnColumnVisibilityModelChange = vi.fn();
 
     const { getByTestId, findByRole } = render(
       <TestParent initialEntries={initialEntries} userRole="Admin">
@@ -799,8 +800,8 @@ describe("DataSubmissionListFilters Component", () => {
   });
 
   it("sets dataCommons select to field.value when dataCommons prop is non-empty", async () => {
-    const mockOnChange = jest.fn();
-    const mockOnColumnVisibilityModelChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnColumnVisibilityModelChange = vi.fn();
 
     const { getByTestId, getByRole } = render(
       <TestParent>
@@ -843,8 +844,8 @@ describe("DataSubmissionListFilters Component", () => {
   });
 
   it("sets submitterNames select to 'All' when submitterNames prop is empty", async () => {
-    const mockOnChange = jest.fn();
-    const mockOnColumnVisibilityModelChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnColumnVisibilityModelChange = vi.fn();
 
     const { getByTestId, getByRole } = render(
       <TestParent>
@@ -881,8 +882,8 @@ describe("DataSubmissionListFilters Component", () => {
   });
 
   it("sets submitterNames select to field.value when submitterNames prop is non-empty", async () => {
-    const mockOnChange = jest.fn();
-    const mockOnColumnVisibilityModelChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnColumnVisibilityModelChange = vi.fn();
 
     const { getByTestId, getByRole } = render(
       <TestParent>
@@ -925,8 +926,8 @@ describe("DataSubmissionListFilters Component", () => {
   });
 
   it("sets organization select to 'All' when organizations prop is empty", async () => {
-    const mockOnChange = jest.fn();
-    const mockOnColumnVisibilityModelChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnColumnVisibilityModelChange = vi.fn();
 
     const { getByTestId, getByRole } = render(
       <TestParent>
@@ -959,8 +960,8 @@ describe("DataSubmissionListFilters Component", () => {
   });
 
   it("sets organization select to field.value when organizations prop is non-empty", async () => {
-    const mockOnChange = jest.fn();
-    const mockOnColumnVisibilityModelChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnColumnVisibilityModelChange = vi.fn();
 
     const { getByTestId, getByRole } = render(
       <TestParent>

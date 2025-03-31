@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { render, fireEvent, waitFor, act, within } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "jest-axe";
+import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import ListFilters, { defaultValues, DEFAULT_STATUSES_SELECTED } from "./ListFilters";
 import type { FilterForm } from "./ListFilters";
@@ -29,8 +30,8 @@ const TestParent: FC<ParentProps> = ({ initialEntries = ["/"], children }) => (
 
 describe("Accessibility", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useRealTimers();
+    vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it("has no accessibility violations", async () => {
@@ -47,8 +48,8 @@ describe("Accessibility", () => {
 
 describe("ListFilters Component", () => {
   afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it("renders all filter fields with correct labels and placeholders", () => {
@@ -72,9 +73,9 @@ describe("ListFilters Component", () => {
   });
 
   it("calls onChange callback after debounced input changes with valid values", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
@@ -87,7 +88,7 @@ describe("ListFilters Component", () => {
     userEvent.type(submitterInput, "John Doe");
     userEvent.type(studyInput, "StudyX");
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     // Wait for the debounced callback to fire
     await waitFor(() => {
@@ -104,9 +105,9 @@ describe("ListFilters Component", () => {
   });
 
   it("sends empty strings for submitterName and studyName if input length is less than 3", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
@@ -122,7 +123,7 @@ describe("ListFilters Component", () => {
     fireEvent.blur(submitterInput);
     fireEvent.blur(studyInput);
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     await waitFor(() => {
       expect(onChangeMock).toHaveBeenCalled();
@@ -138,9 +139,9 @@ describe("ListFilters Component", () => {
   });
 
   it("reset button resets filters to default values and calls onChange callback", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
@@ -153,14 +154,14 @@ describe("ListFilters Component", () => {
     userEvent.type(submitterInput, "Some Name");
     userEvent.type(studyInput, "Some Study");
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     const resetButton = getByTestId("reset-filters-button");
     userEvent.click(resetButton);
 
     // Causes error without the act
     act(() => {
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(500);
     });
 
     await waitFor(() => {
@@ -263,7 +264,7 @@ describe("ListFilters Component", () => {
     const initialEntries = [
       "/?programName=Program%20A&studyName=TestStudy&statuses=Submitted&statuses=Approved&submitterName=JohnDoe",
     ];
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     const { getByTestId, getByPlaceholderText } = render(
       <TestParent initialEntries={initialEntries}>
         <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />

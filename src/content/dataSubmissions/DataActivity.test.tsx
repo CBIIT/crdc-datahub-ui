@@ -3,6 +3,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "jest-axe";
+import { vi } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import DataActivity from "./DataActivity";
 import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
@@ -62,11 +63,11 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
 
 describe("General", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not have any accessibility violations", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
       status: SubmissionCtxStatus.LOADING,
       data: {
         getSubmission: {
@@ -113,7 +114,7 @@ describe("General", () => {
   it.todo("should refetch data when the submission ID changes");
 
   it("should show an error message when the batches cannot be fetched (network)", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {
@@ -149,7 +150,7 @@ describe("General", () => {
   });
 
   it("should show an error message when the batches cannot be fetched (GraphQL)", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {
@@ -187,7 +188,7 @@ describe("General", () => {
   });
 
   it("should not crash when no submission is available", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
       status: SubmissionCtxStatus.LOADED,
       data: null,
       error: null,
@@ -203,11 +204,11 @@ describe("General", () => {
 
 describe("Table", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render the placeholder text when no data is available", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {
@@ -261,8 +262,8 @@ describe("Table", () => {
 
   // NOTE: This only happens when isPolling is false
   it("should refetch the submission if there are uploading batches", async () => {
-    const mockRefetch = jest.fn();
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
+    const mockRefetch = vi.fn();
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {
@@ -315,8 +316,8 @@ describe("Table", () => {
   });
 
   it("should not refetch the submission if the submission is already polling", async () => {
-    const mockRefetch = jest.fn();
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
+    const mockRefetch = vi.fn();
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
       status: SubmissionCtxStatus.POLLING,
       data: {
         getSubmission: {
@@ -369,7 +370,7 @@ describe("Table", () => {
   });
 
   it("should have a default pagination count of 20 rows per page", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {

@@ -4,6 +4,7 @@ import { FormProvider, FormProviderProps } from "react-hook-form";
 import { axe } from "jest-axe";
 import { FC } from "react";
 import { GraphQLError } from "graphql";
+import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import PermissionPanel from "./index";
 import {
@@ -21,8 +22,8 @@ type MockParentProps = {
 const MockParent: FC<MockParentProps> = ({ children, methods, mocks = [] }) => (
   <MockedProvider mocks={mocks}>
     <FormProvider
-      watch={jest.fn().mockImplementation(() => []) as FormProviderProps["watch"]}
-      setValue={jest.fn()}
+      watch={vi.fn().mockImplementation(() => []) as FormProviderProps["watch"]}
+      setValue={vi.fn()}
       {...methods}
     >
       {children}
@@ -156,7 +157,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should cache the default PBAC data by default", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
       request: {
         query: RETRIEVE_PBAC_DEFAULTS,
@@ -253,7 +254,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const mockWatcher = jest.fn().mockImplementation((field) => {
+    const mockWatcher = vi.fn().mockImplementation((field) => {
       // Return the selected role (e.g. watch("role"))
       if (field === "role") {
         return "Submitter";
@@ -380,7 +381,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const mockWatcher = jest.fn().mockImplementation((field) => {
+    const mockWatcher = vi.fn().mockImplementation((field) => {
       if (field === "role") {
         return "Submitter";
       }
@@ -511,7 +512,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const mockWatcher = jest.fn().mockImplementation((field) => {
+    const mockWatcher = vi.fn().mockImplementation((field) => {
       if (field === "role") {
         return "Submitter";
       }
@@ -634,7 +635,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const mockWatcher = jest.fn().mockImplementation((field) => {
+    const mockWatcher = vi.fn().mockImplementation((field) => {
       if (field === "role") {
         return "Submitter";
       }
@@ -781,7 +782,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const mockWatcher = jest.fn().mockImplementation((field) => {
+    const mockWatcher = vi.fn().mockImplementation((field) => {
       if (field === "role") {
         return "Submitter";
       }
@@ -949,9 +950,9 @@ describe("Implementation Requirements", () => {
       notifications: ["data_submission:cancelled"],
     };
 
-    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+    const mockWatcher = vi.fn().mockImplementation((field) => formValues[field] ?? "");
 
-    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+    const mockSetValue = vi.fn().mockImplementation((field, value) => {
       formValues[field] = value;
     });
 
@@ -1097,9 +1098,9 @@ describe("Implementation Requirements", () => {
       notifications: [],
     };
 
-    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+    const mockWatcher = vi.fn().mockImplementation((field) => formValues[field] ?? "");
 
-    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+    const mockSetValue = vi.fn().mockImplementation((field, value) => {
       formValues[field] = value;
     });
 
@@ -1223,9 +1224,9 @@ describe("Implementation Requirements", () => {
       notifications: [],
     };
 
-    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+    const mockWatcher = vi.fn().mockImplementation((field) => formValues[field] ?? "");
 
-    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+    const mockSetValue = vi.fn().mockImplementation((field, value) => {
       formValues[field] = value;
     });
 
@@ -1412,9 +1413,9 @@ describe("Implementation Requirements", () => {
       notifications: [],
     };
 
-    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+    const mockWatcher = vi.fn().mockImplementation((field) => formValues[field] ?? "");
 
-    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+    const mockSetValue = vi.fn().mockImplementation((field, value) => {
       formValues[field] = value;
     });
 
