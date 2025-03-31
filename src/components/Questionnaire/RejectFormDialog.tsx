@@ -1,6 +1,7 @@
 import { LoadingButton } from "@mui/lab";
 import { Button, DialogProps, styled } from "@mui/material";
-import { FC, useState } from "react";
+import { FC, memo, useState } from "react";
+import { isEqual } from "lodash";
 import Dialog from "../GenericDialog";
 import TextInput from "./TextInput";
 
@@ -13,8 +14,6 @@ const StyledDialog = styled(Dialog)({
 });
 
 type Props = {
-  title?: string;
-  message?: string;
   disableActions?: boolean;
   loading?: boolean;
   onCancel?: () => void;
@@ -22,27 +21,23 @@ type Props = {
 } & DialogProps;
 
 const RejectFormDialog: FC<Props> = ({
-  title,
-  message,
+  open,
   disableActions,
   loading,
   onCancel,
   onSubmit,
-  open,
   onClose,
   ...rest
 }) => {
   const [reviewComment, setReviewComment] = useState("");
 
   const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const val = event?.target?.value || "";
+    const val = (event?.target?.value || "").trim().substring(0, 500);
     setReviewComment(val);
   };
 
   const handleOnCancel = () => {
-    if (typeof onCancel === "function") {
-      onCancel();
-    }
+    onCancel?.();
     setReviewComment("");
   };
 
@@ -51,7 +46,7 @@ const RejectFormDialog: FC<Props> = ({
       open={open}
       onClose={onClose}
       scroll="body"
-      title={title || "Reject Submission Request"}
+      title="Reject Submission Request"
       actions={
         <>
           <Button onClick={handleOnCancel} disabled={disableActions}>
@@ -70,7 +65,6 @@ const RejectFormDialog: FC<Props> = ({
       {...rest}
     >
       <TextInput
-        id="review-comment"
         name="reviewComment"
         value={reviewComment}
         onChange={handleCommentChange}
@@ -78,13 +72,14 @@ const RejectFormDialog: FC<Props> = ({
         placeholder="500 characters allowed"
         minRows={5}
         maxRows={15}
+        data-testid="review-comment"
+        sx={{ paddingY: "16px" }}
         required
         multiline
         resize
-        sx={{ paddingY: "16px" }}
       />
     </StyledDialog>
   );
 };
 
-export default RejectFormDialog;
+export default memo<Props>(RejectFormDialog, isEqual);
