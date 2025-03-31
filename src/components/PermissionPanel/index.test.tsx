@@ -1251,6 +1251,8 @@ describe("Implementation Requirements", () => {
       })
     );
 
+    rerender(<PermissionPanel />); // Force the watch() to be called again and update the form values
+
     expect(mockSetValue).toHaveBeenCalledWith("permissions", [
       "submission_request:create", // Selected permission
       "submission_request:view", // Inherited permission
@@ -1836,9 +1838,231 @@ describe("Implementation Requirements", () => {
     );
 
     rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
 
     // NOTE: We are just checking the counts here, the checkboxes are checked in another test
     expect(getByTestId("permissions-count")).toHaveTextContent(/(2)/);
     expect(getByTestId("notifications-count")).toHaveTextContent(/(2)/);
+  });
+
+  // NOTE: This test ensures that a inherited permission's inherited permissions are also considered
+  it("should check multi-level inherited permissions", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:create",
+                  group: "Data Submission",
+                  name: "Create",
+                  inherited: ["data_submission:view"], // Depends on the ability to view
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:cancel",
+                  group: "Data Submission",
+                  name: "Cancel",
+                  inherited: ["data_submission:create"], // Depends on the ability to create
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+              notifications: [],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues: Partial<EditUserInput> = {
+      role: "Submitter",
+      permissions: [],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId, rerender } = render(<PermissionPanel readOnly={false} />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permission-data_submission:view")).toBeInTheDocument();
+    });
+
+    expect(getByTestId("permissions-count")).toHaveTextContent(/(0)/);
+
+    // Check the cancel permission which has a multi-level dependency
+    userEvent.click(
+      within(getByTestId("permission-data_submission:cancel")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+
+    // Force rerenders to trigger the useEffect. The mock functions in this test do not automatically trigger updates.
+    rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
+
+    await waitFor(() => {
+      expect(getByTestId("permissions-count")).toHaveTextContent(/(3)/);
+    });
+
+    // Check that all the inherited permissions are checked
+    expect(
+      within(getByTestId("permission-data_submission:view")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+    expect(
+      within(getByTestId("permission-data_submission:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+    expect(
+      within(getByTestId("permission-data_submission:cancel")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+  });
+
+  it("should check multi-level inherited notifications", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [],
+              notifications: [
+                {
+                  _id: "account:inactivated",
+                  group: "Account",
+                  name: "Inactivated",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  inherited: ["account:inactivated"], // Depends on the inactivation
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  inherited: ["account:disabled"], // Depends on the disabled account
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues: Partial<EditUserInput> = {
+      role: "Submitter",
+      permissions: [],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId, rerender } = render(<PermissionPanel readOnly={false} />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("notification-account:inactivated")).toBeInTheDocument();
+    });
+
+    expect(getByTestId("notifications-count")).toHaveTextContent(/(0)/);
+
+    // Check the cancelled notification which has a multi-level dependency
+    userEvent.click(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+
+    // Force rerenders to trigger the useEffect. The mock functions in this test do not automatically trigger updates.
+    rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
+
+    await waitFor(() => {
+      expect(getByTestId("notifications-count")).toHaveTextContent(/(3)/);
+    });
+
+    // Check that all the inherited notifications are checked
+    expect(
+      within(getByTestId("notification-account:inactivated")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+    expect(
+      within(getByTestId("notification-account:disabled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+    expect(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
   });
 });

@@ -147,7 +147,8 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
 
     const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedPermissions.map((p) => ({
       ...p,
-      // TODO: inherited permissions should be checked at the permissionsValue level
+      // NOTE: Inherited permissions are explicitly checked here to handle the initial loading state
+      // when the permission may not have been checked yet.
       checked: permissionsValue.includes(p._id) || inheritedPermissions.includes(p._id),
       disabled: p.disabled || inheritedPermissions.includes(p._id),
     }));
@@ -175,7 +176,8 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
     const remappedNotifications: PBACDefault<AuthNotifications>[] = clonedNotifications.map(
       (n) => ({
         ...n,
-        // TODO: inherited notifications should be checked at the notificationsValue level
+        // NOTE: Inherited notifications are explicitly checked here to handle the initial loading state
+        // when the notification may not have been checked yet.
         checked: notificationsValue.includes(n._id) || inheritedNotifications.includes(n._id),
         disabled: n.disabled || inheritedNotifications.includes(n._id),
       })
@@ -220,6 +222,38 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
   useEffect(() => {
     handleRoleChange(selectedRole);
   }, [selectedRole]);
+
+  useEffect(() => {
+    const checkedPermissions = data?.retrievePBACDefaults
+      ?.find((pbac) => pbac.role === selectedRole)
+      ?.permissions?.filter((p) => permissionsValue.includes(p._id));
+
+    // Find any inherited permissions that are not already checked and add them to the new value
+    const uncheckedInheritedPermissions =
+      uniq(flatMap(checkedPermissions, (p) => p.inherited || [])).filter(
+        (p) => !permissionsValue.includes(p)
+      ) || [];
+
+    if (uncheckedInheritedPermissions.length) {
+      setValue("permissions", [...permissionsValue, ...uncheckedInheritedPermissions]);
+    }
+  }, [permissionsValue]);
+
+  useEffect(() => {
+    const checkedNotifications = data?.retrievePBACDefaults
+      ?.find((pbac) => pbac.role === selectedRole)
+      ?.notifications?.filter((n) => notificationsValue.includes(n._id));
+
+    // Find any inherited notifications that are not already checked and add them to the new value
+    const uncheckedInheritedNotifications =
+      uniq(flatMap(checkedNotifications, (n) => n.inherited || [])).filter(
+        (n) => !notificationsValue.includes(n)
+      ) || [];
+
+    if (uncheckedInheritedNotifications.length) {
+      setValue("notifications", [...notificationsValue, ...uncheckedInheritedNotifications]);
+    }
+  }, [notificationsValue]);
 
   return (
     <StyledBox>
