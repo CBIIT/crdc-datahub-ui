@@ -186,7 +186,7 @@ const columns: Column<T>[] = [
     renderValue: (a) => a.dataFileSize.formatted || 0,
     hideable: true,
     defaultHidden: true,
-    field: "dataFileSize",
+    fieldKey: "dataFileSize.size",
     sx: {
       minWidth: "90px",
       width: "90px",
