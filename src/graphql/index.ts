@@ -160,6 +160,12 @@ export type {
   Response as UpdateModelVersionResp,
 } from "./updateSubmissionModelVersion";
 
+export { mutation as DOWNLOAD_METADATA_FILE } from "./downloadMetadataFile";
+export type {
+  Input as DownloadMetadataFileInput,
+  Response as DownloadMetadataFileResp,
+} from "./downloadMetadataFile";
+
 // User Profile
 export { query as GET_MY_USER } from "./getMyUser";
 export type { Response as GetMyUserResp } from "./getMyUser";

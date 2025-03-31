@@ -1,46 +1,44 @@
-import React, { useState } from "react";
+import React, { FC, useCallback, useId, useMemo, useState } from "react";
 import {
   Button,
-  Dialog,
   DialogProps,
   IconButton,
+  Stack,
   TableContainerProps,
   Typography,
   styled,
 } from "@mui/material";
 import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
+import { useMutation } from "@apollo/client";
+import { LoadingButton } from "@mui/lab";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import { ReactComponent as DownloadIcon } from "../../assets/icons/download_icon.svg";
+import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
+import DefaultDialog from "../StyledDialogComponents/StyledDialog";
+import DefaultDialogHeader from "../StyledDialogComponents/StyledHeader";
 import GenericTable, { Column } from "../GenericTable";
-import { FormatDate, paginateAndSort } from "../../utils";
+import { FormatDate, Logger, paginateAndSort } from "../../utils";
+import FileListContext, { FileListContextState } from "./Contexts/FileListContext";
+import {
+  DOWNLOAD_METADATA_FILE,
+  DownloadMetadataFileInput,
+  DownloadMetadataFileResp,
+} from "../../graphql";
 
-const StyledDialog = styled(Dialog)({
+const StyledDialog = styled(DefaultDialog)({
   "& .MuiDialog-paper": {
-    maxWidth: "none",
     width: "731px !important",
     padding: "38px 42px 52px",
-    borderRadius: "8px",
     border: "2px solid #13B9DD",
-    background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
-    boxShadow: "0px 4px 45px 0px rgba(0, 0, 0, 0.40)",
   },
 });
-
-const StyledCloseDialogButton = styled(IconButton)(() => ({
-  position: "absolute",
-  right: "21px",
-  top: "11px",
-  padding: "10px",
-  "& svg": {
-    color: "#44627C",
-  },
-}));
 
 const StyledCloseButton = styled(Button)({
   minWidth: "137px",
   padding: "10px",
   border: "1px solid #000",
   color: "#000",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: "700",
@@ -66,13 +64,9 @@ const StyledHeader = styled(Typography)({
   marginBottom: "2px",
 });
 
-const StyledTitle = styled(Typography)({
-  color: "#0B7F99",
-  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+const StyledTitle = styled(DefaultDialogHeader)({
   fontSize: "35px",
-  fontStyle: "normal",
-  fontWeight: "900",
-  lineHeight: "30px",
+  marginBottom: "0 !important",
 });
 
 const StyledSubtitle = styled(Typography)({
@@ -95,12 +89,10 @@ const StyledNumberOfFiles = styled(Typography)({
   lineHeight: "19.6px",
   letterSpacing: "0.52px",
   textTransform: "uppercase",
-  marginBottom: "21px",
 });
 
 const StyledNodeType = styled(Typography)({
   color: "#083A50",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 400,
@@ -111,7 +103,6 @@ const StyledNodeType = styled(Typography)({
 
 const StyledFileName = styled(Typography)({
   color: "#083A50",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
   fontWeight: 400,
@@ -145,70 +136,174 @@ const tableContainerSx: TableContainerProps["sx"] = {
   },
 };
 
+const StyledIconButton = styled(IconButton)(({ disabled }) => ({
+  cursor: disabled ? "not-allowed" : "pointer",
+  padding: "0px",
+  minWidth: "unset",
+}));
+
+const StyledDownloadIcon = styled(DownloadIcon)({
+  color: "inherit",
+});
+
+const StyledButton = styled(LoadingButton)({
+  textTransform: "none",
+  backgroundColor: "#5C8FA7",
+  color: "#FFFFFF",
+  fontSize: "12px",
+  fontWeight: 500,
+  borderRadius: "6px",
+  "&:hover": {
+    backgroundColor: "#5C8FA7",
+    color: "#FFFFFF",
+  },
+});
+
 const columns: Column<BatchFileInfo>[] = [
   {
     label: "Type",
     renderValue: (data) => <StyledNodeType>{data?.nodeType || "N/A"}</StyledNodeType>,
     field: "nodeType",
     default: true,
+    sx: {
+      width: "35%",
+    },
   },
   {
     label: "Filename",
     renderValue: (data) => <StyledFileName>{data?.fileName}</StyledFileName>,
     field: "fileName",
     sx: {
-      width: "70%",
+      width: "60%",
+    },
+  },
+  {
+    label: "",
+    fieldKey: "download-action",
+    renderValue: ({ fileName }: BatchFileInfo) => (
+      <FileListContext.Consumer>
+        {({ handleDownloadClick, disabled }) => (
+          <StyledIconButton
+            onClick={() => handleDownloadClick(fileName)}
+            disabled={disabled}
+            aria-label={`Download ${fileName}`}
+            data-testid={`download-${fileName}-button`}
+          >
+            <StyledDownloadIcon />
+          </StyledIconButton>
+        )}
+      </FileListContext.Consumer>
+    ),
+    sortDisabled: true,
+    sx: {
+      width: "5%",
     },
   },
 ];
 
-type Props = {
+type FileListDialogProps = {
+  /**
+   * The batch to display the files for
+   */
   batch: Batch;
+  /**
+   * Handler called when the dialog is closed
+   */
   onClose?: () => void;
 } & Omit<DialogProps, "onClose">;
 
-const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
+/**
+ * Provides a table display of the files uploaded for a particular batch.
+ *
+ * @returns The FileListDialog component
+ */
+const FileListDialog: FC<FileListDialogProps> = ({
+  open,
+  batch,
+  onClose,
+  ...rest
+}: FileListDialogProps) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const headerId = useId();
+
   const [batchFiles, setBatchFiles] = useState<BatchFileInfo[]>([]);
   const [prevBatchFilesFetch, setPrevBatchFilesFetch] = useState<FetchListing<BatchFileInfo>>(null);
+  const [downloading, setDownloading] = useState<boolean>(false);
 
-  const [, setError] = useState<string>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [downloadFile] = useMutation<DownloadMetadataFileResp, DownloadMetadataFileInput>(
+    DOWNLOAD_METADATA_FILE,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "no-cache",
+    }
+  );
+
+  const formattedCount = useMemo<string>(
+    () => `${batch?.fileCount || 0} FILE${batch?.fileCount !== 1 ? "S" : ""}`,
+    [batch?.fileCount]
+  );
 
   const handleCloseDialog = () => {
     setBatchFiles([]);
     setPrevBatchFilesFetch(null);
-    setError(null);
-    setLoading(false);
-    if (typeof onClose === "function") {
-      onClose();
-    }
+    onClose?.();
   };
 
-  const handleFetchBatchFiles = async (
-    fetchListing: FetchListing<BatchFileInfo>,
-    force: boolean
-  ) => {
-    if (!batch?._id || !batch?.submissionID) {
-      setError("Invalid submission ID provided.");
-      return;
-    }
-    if (!force && batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFilesFetch)) {
-      return;
-    }
+  const handleFetchBatchFiles = useCallback(
+    async (fetchListing: FetchListing<BatchFileInfo>, force: boolean) => {
+      if (!force && batchFiles?.length > 0 && isEqual(fetchListing, prevBatchFilesFetch)) {
+        return;
+      }
 
-    setPrevBatchFilesFetch(fetchListing);
+      setPrevBatchFilesFetch(fetchListing);
 
-    const newData = paginateAndSort(batch?.files, fetchListing);
-    setBatchFiles(newData);
-  };
+      const newData = paginateAndSort(batch?.files, fetchListing);
+      setBatchFiles(newData);
+    },
+    [batch, batchFiles, prevBatchFilesFetch, setPrevBatchFilesFetch, setBatchFiles]
+  );
+
+  const handleDownload = useCallback(
+    async (fileName: string = null) => {
+      setDownloading(true);
+
+      try {
+        const d = await downloadFile({
+          variables: { batchID: batch._id, fileName },
+        });
+
+        if (!d.data?.downloadMetadataFile) {
+          throw new Error("No download URL returned");
+        }
+
+        window.open(d.data.downloadMetadataFile, "_blank", "noopener");
+      } catch (error) {
+        Logger.error("FileListDialog: Unable to get presigned URL.", error);
+        enqueueSnackbar(`Download Failed: There was an issue with the download.`, {
+          variant: "error",
+        });
+      } finally {
+        setDownloading(false);
+      }
+    },
+    [batch?._id, downloadFile, enqueueSnackbar, setDownloading]
+  );
+
+  const contextState = useMemo<FileListContextState>(
+    () => ({
+      handleDownloadClick: (fileName: string) => handleDownload(fileName),
+      disabled: downloading,
+    }),
+    [handleDownload, downloading]
+  );
 
   return (
     <StyledDialog
       open={open}
       onClose={handleCloseDialog}
-      title=""
       data-testid="file-list-dialog"
       scroll="body"
+      aria-labelledby={headerId}
       {...rest}
     >
       <StyledCloseDialogButton
@@ -218,28 +313,43 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
       >
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      <StyledHeader variant="h3">Data Submission</StyledHeader>
-      <StyledTitle variant="h6">Batch {batch?.displayID} File List</StyledTitle>
+      <StyledHeader variant="overline">Data Submission</StyledHeader>
+      <StyledTitle variant="h6" id={headerId}>
+        Batch {batch?.displayID} File List
+      </StyledTitle>
       <StyledSubtitle variant="body1">
         Uploaded on {FormatDate(batch?.createdAt, "M/D/YYYY [at] hh:mm A")}
       </StyledSubtitle>
 
-      <StyledNumberOfFiles>{`${batch?.fileCount || 0} FILES`}</StyledNumberOfFiles>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+        <StyledNumberOfFiles>{formattedCount}</StyledNumberOfFiles>
+        <StyledButton
+          endIcon={<StyledDownloadIcon />}
+          onClick={() => handleDownload()}
+          disabled={!batch?.fileCount}
+          loading={downloading}
+          data-testid="download-all-button"
+        >
+          Download entire batch
+        </StyledButton>
+      </Stack>
 
-      <GenericTable
-        columns={columns}
-        data={batchFiles}
-        total={batch?.fileCount || 0}
-        loading={loading}
-        defaultOrder="asc"
-        defaultRowsPerPage={20}
-        paginationPlacement="center"
-        noContentText="No files were uploaded."
-        numRowsNoContent={5}
-        onFetchData={handleFetchBatchFiles}
-        setItemKey={(item, idx) => `${idx}_${item.fileName}_${item.createdAt}`}
-        containerProps={{ sx: tableContainerSx }}
-      />
+      <FileListContext.Provider value={contextState}>
+        <GenericTable
+          columns={columns}
+          data={batchFiles}
+          total={batch?.fileCount || 0}
+          loading={false}
+          defaultOrder="asc"
+          defaultRowsPerPage={20}
+          paginationPlacement="center"
+          noContentText="No files were uploaded."
+          numRowsNoContent={5}
+          onFetchData={handleFetchBatchFiles}
+          setItemKey={(item, idx) => `${idx}_${item.fileName}_${item.createdAt}`}
+          containerProps={{ sx: tableContainerSx }}
+        />
+      </FileListContext.Provider>
 
       <StyledCloseButton
         id="file-list-dialog-close-button"
@@ -254,6 +364,6 @@ const FileListDialog = ({ batch, onClose, open, ...rest }: Props) => {
   );
 };
 
-export default React.memo<Props>(FileListDialog, (prevProps, nextProps) =>
+export default React.memo<FileListDialogProps>(FileListDialog, (prevProps, nextProps) =>
   isEqual(prevProps, nextProps)
 );
