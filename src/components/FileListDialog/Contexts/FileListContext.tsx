@@ -17,7 +17,7 @@ export type FileListContextState = {
  */
 const FileListContext = React.createContext<FileListContextState>({
   disabled: false,
-  handleDownloadClick: null,
+  handleDownloadClick: async () => {},
 });
 
 export default FileListContext;
