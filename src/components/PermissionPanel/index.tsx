@@ -144,14 +144,14 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
     }
 
     const clonedPermissions = cloneDeep(defaults.permissions);
-    const checkedPermissions = clonedPermissions?.filter((p) => permissionsValue.includes(p._id));
+    const checkedPermissions = clonedPermissions?.filter((p) => permissionsValue?.includes(p._id));
     const inheritedPermissions = uniq(flatMap(checkedPermissions, (p) => p.inherited || []));
 
     const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedPermissions.map((p) => ({
       ...p,
       // NOTE: Inherited permissions are explicitly checked here to handle the initial loading state
       // when the permission may not have been checked yet.
-      checked: permissionsValue.includes(p._id) || inheritedPermissions.includes(p._id),
+      checked: permissionsValue?.includes(p._id) || inheritedPermissions.includes(p._id),
       disabled: p.disabled || inheritedPermissions.includes(p._id),
     }));
 
@@ -175,8 +175,8 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
     }
 
     const clonedNotifications = cloneDeep(defaults.notifications);
-    const checkedNotifications = clonedNotifications?.filter((p) =>
-      notificationsValue.includes(p._id)
+    const checkedNotifications = clonedNotifications?.filter(
+      (p) => notificationsValue?.includes(p._id)
     );
     const inheritedNotifications = uniq(flatMap(checkedNotifications, (p) => p.inherited || []));
 
@@ -185,7 +185,7 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
         ...n,
         // NOTE: Inherited notifications are explicitly checked here to handle the initial loading state
         // when the notification may not have been checked yet.
-        checked: notificationsValue.includes(n._id) || inheritedNotifications.includes(n._id),
+        checked: notificationsValue?.includes(n._id) || inheritedNotifications.includes(n._id),
         disabled: n.disabled || inheritedNotifications.includes(n._id),
       })
     );
@@ -234,6 +234,10 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
   }, [selectedRole]);
 
   useEffect(() => {
+    if (readOnly) {
+      return;
+    }
+
     const checkedPermissions = data?.retrievePBACDefaults
       ?.find((pbac) => pbac.role === selectedRole)
       ?.permissions?.filter((p) => permissionsValue.includes(p._id));
@@ -250,6 +254,10 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
   }, [permissionsValue]);
 
   useEffect(() => {
+    if (readOnly) {
+      return;
+    }
+
     const checkedNotifications = data?.retrievePBACDefaults
       ?.find((pbac) => pbac.role === selectedRole)
       ?.notifications?.filter((n) => notificationsValue.includes(n._id));
